@@ -8,10 +8,8 @@
 
 namespace pcpp
 {
+	// -------- Class SomeIpSdOption -----------------
 
-	/*
-	 * SomeIpSdOption
-	 */
 	SomeIpSdOption::~SomeIpSdOption()
 	{
 		if (m_ShadowData != nullptr)
@@ -41,13 +39,12 @@ namespace pcpp
 		someipsdhdroptionsbase* optionHdr = getSomeIpSdOptionHeader();
 
 		optionHdr->type = static_cast<uint8_t>(type);
-		/* Length field is excluding length field itself and uint8_t type field */
+		// Length field is excluding length field itself and uint8_t type field
 		optionHdr->length = htobe16((uint16_t)(m_DataLen - sizeof(optionHdr->length) - sizeof(optionHdr->type)));
 	}
 
-	/*
-	 * SomeIpSdIPv4Option
-	 */
+	// -------- Class SomeIpSdIPv4Option -----------------
+
 	SomeIpSdIPv4Option::SomeIpSdIPv4Option(IPv4OptionType type, IPv4Address ipAddress, uint16_t port,
 	                                       SomeIpSdProtocolType l4Protocol)
 	{
@@ -100,9 +97,8 @@ namespace pcpp
 		return hdr->l4Protocol;
 	}
 
-	/*
-	 * SomeIpSdIPv6Option
-	 */
+	// -------- Class SomeIpSdIPv6Option -----------------
+
 	SomeIpSdIPv6Option::SomeIpSdIPv6Option(IPv6OptionType type, IPv6Address ipAddress, uint16_t port,
 	                                       SomeIpSdProtocolType l4Protocol)
 	{
@@ -155,9 +151,8 @@ namespace pcpp
 		return hdr->l4Protocol;
 	}
 
-	/*
-	 * SomeIpSdConfigurationOption
-	 */
+	// -------- Class SomeIpSdConfigurationOption -----------------
+
 	SomeIpSdConfigurationOption::SomeIpSdConfigurationOption(const std::string& configurationString)
 	{
 		m_DataLen = configurationString.length() + sizeof(someipsdhdroptionsbase);
@@ -181,9 +176,8 @@ namespace pcpp
 		                   be16toh(getSomeIpSdOptionHeader()->length) - 1);
 	}
 
-	/*
-	 * SomeIpSdLoadBalancingOption
-	 */
+	// -------- Class SomeIpSdLoadBalancingOption -----------------
+
 	SomeIpSdLoadBalancingOption::SomeIpSdLoadBalancingOption(uint16_t priority, uint16_t weight)
 	{
 		m_DataLen = sizeof(someipsdhdroptionsload);
@@ -215,9 +209,7 @@ namespace pcpp
 		return be16toh(hdr->weight);
 	}
 
-	/*
-	 *  SomeIpSdEntry
-	 */
+	// -------- Class SomeIpSdEntry -----------------
 
 	SomeIpSdEntry::SomeIpSdEntry(EntryType type, uint16_t serviceID, uint16_t instanceID, uint8_t majorVersion,
 	                             uint32_t TTL, uint32_t minorVersion)
@@ -435,9 +427,8 @@ namespace pcpp
 		}
 	}
 
-	/*
-	 *  SomeIpSdLayer
-	 */
+	// -------- Class SomeIpSdLayer -----------------
+
 	SomeIpSdLayer::SomeIpSdLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	    : SomeIpLayer(data, dataLen, prevLayer, packet)
 	{
@@ -716,17 +707,15 @@ namespace pcpp
 
 	bool SomeIpSdLayer::addOptionIndex(uint32_t indexEntry, uint32_t indexOffset)
 	{
-		/*
-		    The SOME/IP-SD protocol supports two option runs. Runs meaning that two different starting indices with
-		    differing length can be provided. Of course, this only works if the indices in both runs are consecutive.
-
-		    So, indices like this would work:
-		        1 2 3 ; 7 8
-
-		    What wouldn't work is this:
-		        1 2 3 ; 7 9
-		        1 3 ; 7 8
-		*/
+		//    The SOME/IP-SD protocol supports two option runs. Runs meaning that two different starting indices with
+		//    differing length can be provided. Of course, this only works if the indices in both runs are consecutive.
+		//
+		//    So, indices like this would work:
+		//        1 2 3 ; 7 8
+		//
+		//    What wouldn't work is this:
+		//        1 2 3 ; 7 9
+		//        1 3 ; 7 8
 
 		const size_t someipsdhdrentrySize = sizeof(SomeIpSdEntry::someipsdhdrentry);
 		size_t offsetToAddAt = sizeof(someipsdhdr) + sizeof(uint32_t) + indexEntry * someipsdhdrentrySize;
@@ -826,5 +815,4 @@ namespace pcpp
 	{
 		*((uint32_t*)(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries())) = htobe32(length);
 	}
-
 }  // namespace pcpp

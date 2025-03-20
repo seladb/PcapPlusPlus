@@ -41,6 +41,7 @@ namespace pcpp
 			}
 			catch (const std::invalid_argument& e)
 			{
+				(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_DEBUG is disabled
 				PCPP_LOG_DEBUG("Extraction failed: " << e.what() << " Returning nullptr.");
 				return nullptr;
 			}
@@ -69,6 +70,7 @@ namespace pcpp
 			}
 			catch (const std::invalid_argument& e)
 			{
+				(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_DEBUG is disabled
 				PCPP_LOG_DEBUG("Extraction failed: " << e.what() << " Returning nullptr.");
 				return nullptr;
 			}

@@ -88,6 +88,19 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpDataLayer->getDataLen(), 1452);
 	PTF_ASSERT_EQUAL(ftpDataLayer->toString(), "FTP Data");
 
+	// Test IPv4 Command Only Request Packet
+	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/ftpIpv4CmdOnlyReq.dat");
+
+	pcpp::Packet ftpPacket7(&rawPacket7);
+	pcpp::FtpRequestLayer* ftpLayer7 = ftpPacket7.getLayerOfType<pcpp::FtpRequestLayer>();
+
+	PTF_ASSERT_NOT_NULL(ftpLayer7);
+	PTF_ASSERT_EQUAL(int(ftpLayer7->getCommand()), int(pcpp::FtpRequestLayer::FtpCommand::SYST));
+	PTF_ASSERT_EQUAL(ftpLayer7->getCommandString(), "SYST");
+	PTF_ASSERT_EQUAL(ftpLayer7->getCommandOption(), "");
+	PTF_ASSERT_EQUAL(ftpLayer7->toString(), "FTP Request: SYST");
+	PTF_ASSERT_FALSE(ftpLayer7->isMultiLine());
+
 	// Command codes
 	// clang-format off
 	std::vector<std::pair<pcpp::FtpRequestLayer::FtpCommand, std::string>> possibleCommandCodes = {

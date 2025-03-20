@@ -1046,6 +1046,7 @@ namespace pcpp
 					}
 					catch (const std::exception& e)
 					{
+						(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_ERROR is disabled
 						PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
 					}
 					break;

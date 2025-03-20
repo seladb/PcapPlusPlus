@@ -85,7 +85,8 @@ int main(int argc, char* argv[])
 #endif
 
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
-	pcpp::Logger::getInstance();
+	// Disables context pooling to avoid false positives in the memory leak check, as the contexts persist in the pool.
+	pcpp::Logger::getInstance().useContextPooling(false);
 
 	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
