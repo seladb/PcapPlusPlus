@@ -324,7 +324,7 @@
         "vendor": "Silicon Graphics"
     },
     "108": {
-        "vendor": "Private"
+        "vendor": "Schneider Electric"
     },
     "109": {
         "vendor": "Cray Communications, Ltd."
@@ -1380,7 +1380,7 @@
         "vendor": "Evr"
     },
     "460": {
-        "vendor": "Japan Total Design Communication Co., Ltd."
+        "vendor": "Brand Maker Enabler Inc."
     },
     "461": {
         "vendor": "ARtem"
@@ -3450,7 +3450,7 @@
         "vendor": "Motorola Solutions Inc."
     },
     "1150": {
-        "vendor": "Siqura B.V."
+        "vendor": "TKH Security B.V."
     },
     "1151": {
         "vendor": "Chr. Mayr GmbH & Co. KG"
@@ -21546,7 +21546,7 @@
         "vendor": "Envisacor Technologies Inc."
     },
     "7211": {
-        "vendor": "Alertme.com Limited"
+        "vendor": "Hive"
     },
     "7212": {
         "vendor": "Synapse"
@@ -28983,7 +28983,7 @@
         "vendor": "Probits Co., LTD."
     },
     "9695": {
-        "vendor": "Taser International Inc."
+        "vendor": "Axon Enterprise, Inc."
     },
     "9696": {
         "vendor": "CeedTec Sdn Bhd"
@@ -31703,6 +31703,9 @@
     "19063": {
         "vendor": "zte corporation"
     },
+    "19218": {
+        "vendor": "Espressif Inc."
+    },
     "19443": {
         "vendor": "Shenzhen Mercury Communication Technologies Co.,Ltd."
     },
@@ -32491,6 +32494,9 @@
     },
     "22791": {
         "vendor": "LenovoEMC Products USA, LLC"
+    },
+    "22892": {
+        "vendor": "Cisco Systems, Inc"
     },
     "22905": {
         "vendor": "Networked Energy Services"
@@ -37773,7 +37779,7 @@
         "vendor": "Atan Technology Inc."
     },
     "53454": {
-        "vendor": "iSystem Labs"
+        "vendor": "TASKING Labs"
     },
     "53455": {
         "vendor": "Moreton Bay"
@@ -39872,6 +39878,9 @@
     "313351": {
         "vendor": "Xiaomi Communications Co Ltd"
     },
+    "313413": {
+        "vendor": "TP-Link Systems Inc."
+    },
     "313472": {
         "vendor": "Samtec Inc"
     },
@@ -40664,6 +40673,9 @@
     "528040": {
         "vendor": "Velex s.r.l."
     },
+    "528357": {
+        "vendor": "Cisco Systems, Inc"
+    },
     "528378": {
         "vendor": "Ksp Inc."
     },
@@ -40930,6 +40942,9 @@
     },
     "543439": {
         "vendor": "Guangdong Oppo Mobile Telecommunications Corp.,Ltd"
+    },
+    "543556": {
+        "vendor": "Robert Bosch Elektronika Kft."
     },
     "544284": {
         "vendor": "H2A Systems, LLC"
@@ -41735,6 +41750,9 @@
     "788447": {
         "vendor": "Xiaomi Communications Co Ltd"
     },
+    "788467": {
+        "vendor": "Huawei Technologies Co.,Ltd"
+    },
     "788660": {
         "vendor": "HUMAX Co., Ltd."
     },
@@ -42178,6 +42196,9 @@
     },
     "819760": {
         "vendor": "Shenzhen Magnus Technologies Co.,Ltd"
+    },
+    "819783": {
+        "vendor": "Cig Shanghai Co Ltd"
     },
     "819816": {
         "vendor": "Tp-Link Technologies Co.,Ltd."
@@ -43610,6 +43631,9 @@
     "1095262": {
         "vendor": "New H3C Technologies Co., Ltd"
     },
+    "1095286": {
+        "vendor": "HP Inc."
+    },
     "1095443": {
         "vendor": "Private"
     },
@@ -44222,6 +44246,9 @@
     "1324859": {
         "vendor": "PROCOM Systems"
     },
+    "1325359": {
+        "vendor": "Lear"
+    },
     "1325722": {
         "vendor": "Hon Hai Precision Industry Co.,LTD"
     },
@@ -44504,6 +44531,9 @@
     "1343692": {
         "vendor": "Quectel Wireless Solutions Co.,Ltd."
     },
+    "1343777": {
+        "vendor": "TOP WING Corporation"
+    },
     "1344091": {
         "vendor": "Hefei Radio Communication Technology Co., Ltd"
     },
@@ -44515,6 +44545,9 @@
     },
     "1344631": {
         "vendor": "New H3C Technologies Co., Ltd"
+    },
+    "1344769": {
+        "vendor": "Rivos Inc."
     },
     "1344777": {
         "vendor": "Apple, Inc."
@@ -46658,6 +46691,9 @@
     "1863973": {
         "vendor": "Apple, Inc."
     },
+    "1863974": {
+        "vendor": "snom technology GmbH"
+    },
     "1864221": {
         "vendor": "Dell Inc."
     },
@@ -47156,6 +47192,9 @@
     "1897515": {
         "vendor": "Huawei Device Co., Ltd."
     },
+    "1897535": {
+        "vendor": "Arcadyan Corporation"
+    },
     "1897674": {
         "vendor": "Private"
     },
@@ -47315,6 +47354,9 @@
     "2103387": {
         "vendor": "Shenzhen Jingxun Technology Co., Ltd."
     },
+    "2103795": {
+        "vendor": "WavTek Technologies, Inc"
+    },
     "2103814": {
         "vendor": "Compal Information (Kunshan) Co., Ltd."
     },
@@ -47332,6 +47374,9 @@
     },
     "2104579": {
         "vendor": "Elatec GmbH"
+    },
+    "2104861": {
+        "vendor": "Huawei Technologies Co.,Ltd"
     },
     "2104968": {
         "vendor": "Intel Corporate"
@@ -48803,6 +48848,9 @@
     "2390520": {
         "vendor": "KUPSON spol. s r.o."
     },
+    "2390948": {
+        "vendor": "China Mobile Group Device Co.,Ltd."
+    },
     "2391110": {
         "vendor": "Flextronics Technologies Mexico S De Rl De Cv"
     },
@@ -48841,6 +48889,9 @@
     },
     "2393240": {
         "vendor": "Beijing Jiaoda Microunion Tech.Co.,Ltd."
+    },
+    "2393602": {
+        "vendor": "Bouffalo Lab (Nanjing) Co., Ltd."
     },
     "2393844": {
         "vendor": "Ctek, Inc."
@@ -48994,6 +49045,9 @@
     },
     "2405177": {
         "vendor": "Apple, Inc."
+    },
+    "2405874": {
+        "vendor": "Shanghai Ingeek Technology Co., Ltd"
     },
     "2405975": {
         "vendor": "Cisco Systems, Inc"
@@ -49661,6 +49715,9 @@
     "2638316": {
         "vendor": "Huawei Technologies Co.,Ltd"
     },
+    "2638812": {
+        "vendor": "United Memory Technology (Jiangsu) Limited"
+    },
     "2638896": {
         "vendor": "Arcade Communications Ltd."
     },
@@ -49870,6 +49927,9 @@
     },
     "2652937": {
         "vendor": "zte corporation"
+    },
+    "2652945": {
+        "vendor": "Hui Zhou Gaoshengda Technology Co.,LTD"
     },
     "2653403": {
         "vendor": "Hefei Toycloud Technology Co.,ltd"
@@ -51461,6 +51521,9 @@
     "2939252": {
         "vendor": "Hui Zhou Gaoshengda Technology Co.,LTD"
     },
+    "2939455": {
+        "vendor": "DongGuan Ramaxel Memory Technology Limited"
+    },
     "2939655": {
         "vendor": "Intel Corporate"
     },
@@ -52586,6 +52649,9 @@
     "3207121": {
         "vendor": "Alstom Strongwish (Shenzhen) Co., Ltd."
     },
+    "3207208": {
+        "vendor": "Bosch Sicherheitssysteme GmbH"
+    },
     "3207740": {
         "vendor": "Tecno Mobile Limited"
     },
@@ -52913,6 +52979,9 @@
     "3422100": {
         "vendor": "Hamee Corp."
     },
+    "3422265": {
+        "vendor": "NEC Platforms, Ltd."
+    },
     "3422383": {
         "vendor": "Inlab Networks GmbH"
     },
@@ -52921,6 +52990,9 @@
     },
     "3422752": {
         "vendor": "Hewlett Packard Enterprise"
+    },
+    "3423280": {
+        "vendor": "NXP Semiconductor (Tianjin) LTD."
     },
     "3423615": {
         "vendor": "Klipsch Group, Inc."
@@ -53344,6 +53416,9 @@
     },
     "3446639": {
         "vendor": "Rootech, Inc."
+    },
+    "3446743": {
+        "vendor": "Yealink(Xiamen) Network Technology Co.,Ltd."
     },
     "3446774": {
         "vendor": "ASUSTek COMPUTER INC."
@@ -53972,6 +54047,9 @@
     "3675214": {
         "vendor": "Fiberhome Telecommunication Technologies Co.,LTD"
     },
+    "3675738": {
+        "vendor": "zte corporation"
+    },
     "3675762": {
         "vendor": "Shenzhen SuperElectron Technology Co.,Ltd."
     },
@@ -54370,6 +54448,9 @@
     },
     "3700433": {
         "vendor": "Euronda SpA"
+    },
+    "3700487": {
+        "vendor": "AltoBeam Inc."
     },
     "3700685": {
         "vendor": "Kokusai Electric Corporation"
@@ -56297,6 +56378,9 @@
     "4203698": {
         "vendor": "Sichuan AI-Link Technology Co., Ltd."
     },
+    "4203784": {
+        "vendor": "Highway 9 Networks, Inc."
+    },
     "4203970": {
         "vendor": "Intel Corporate"
     },
@@ -56518,6 +56602,9 @@
     },
     "4218242": {
         "vendor": "Netgear"
+    },
+    "4218575": {
+        "vendor": "Esconet Technologies Limited"
     },
     "4218593": {
         "vendor": "Shenzhen H&T Intelligent Control Co.,Ltd."
@@ -57572,6 +57659,9 @@
     "4475272": {
         "vendor": "Intel Corporate"
     },
+    "4475447": {
+        "vendor": "Xiaomi Communications Co Ltd"
+    },
     "4475493": {
         "vendor": "Silverflare Ltd."
     },
@@ -57766,6 +57856,9 @@
     },
     "4486252": {
         "vendor": "Sony Corporation"
+    },
+    "4486665": {
+        "vendor": "New H3C Technologies Co., Ltd"
     },
     "4486740": {
         "vendor": "Huawei Technologies Co.,Ltd"
@@ -58054,6 +58147,9 @@
     },
     "4505054": {
         "vendor": "BHTC GmbH"
+    },
+    "4505099": {
+        "vendor": "Huawei Technologies Co.,Ltd"
     },
     "4505571": {
         "vendor": "Shenzhen Longtech Electronics Co.,Ltd"
@@ -59456,9 +59552,6 @@
     "4782460": {
         "vendor": "Fiberhome Telecommunication Technologies Co.,LTD"
     },
-    "4782463": {
-        "vendor": "shenzhen Huaxufeng Technology Development Co.,Ltd"
-    },
     "4783286": {
         "vendor": "Lava International(H.K) Limited"
     },
@@ -59716,6 +59809,9 @@
     },
     "4992766": {
         "vendor": "Shenzhen Comnect Technology Co.,LTD"
+    },
+    "4992891": {
+        "vendor": "AltoBeam Inc."
     },
     "4992925": {
         "vendor": "ICM Controls"
@@ -61207,6 +61303,9 @@
     },
     "5273349": {
         "vendor": "Samsung Electronics Co.,Ltd"
+    },
+    "5273725": {
+        "vendor": "Espressif Inc."
     },
     "5273776": {
         "vendor": "Huawei Device Co., Ltd."
@@ -62786,6 +62885,9 @@
     "5566276": {
         "vendor": "Lumi United Technology Co., Ltd"
     },
+    "5566299": {
+        "vendor": "Science Corporation"
+    },
     "5566354": {
         "vendor": "Shenzhen Elink Technology Co., LTD"
     },
@@ -63322,6 +63424,9 @@
     },
     "5800616": {
         "vendor": "Microsoft"
+    },
+    "5800758": {
+        "vendor": "Huawei Technologies Co.,Ltd"
     },
     "5801188": {
         "vendor": "IP500 Alliance e.V."
@@ -64277,6 +64382,9 @@
     "6053547": {
         "vendor": "Juniper Networks"
     },
+    "6053563": {
+        "vendor": "Huawei Technologies Co.,Ltd"
+    },
     "6053735": {
         "vendor": "Intel Corporate"
     },
@@ -64480,6 +64588,9 @@
     },
     "6065486": {
         "vendor": "Apple, Inc."
+    },
+    "6065637": {
+        "vendor": "Delta Electronics, Inc."
     },
     "6065680": {
         "vendor": "TimeWatch Infocom Pvt. Ltd."
@@ -65342,6 +65453,9 @@
     "6310428": {
         "vendor": "SUYIN Corporation"
     },
+    "6310519": {
+        "vendor": "Finder SpA"
+    },
     "6310826": {
         "vendor": "Magic Leap, Inc."
     },
@@ -65491,6 +65605,9 @@
     },
     "6319681": {
         "vendor": "Barrot Technology Co.,LTD"
+    },
+    "6319699": {
+        "vendor": "Beijing Wisdomstar Technology Co., Ltd"
     },
     "6319824": {
         "vendor": "Seal Ag"
@@ -65951,6 +66068,9 @@
     "6346908": {
         "vendor": "HMD Global Oy"
     },
+    "6346916": {
+        "vendor": "Vantiva Connected Home - Technologies Telco"
+    },
     "6347168": {
         "vendor": "Lenovo Mobile Communication Technology Ltd."
     },
@@ -66187,6 +66307,9 @@
     },
     "6555638": {
         "vendor": "Samsung Electronics Co.,Ltd"
+    },
+    "6555748": {
+        "vendor": "Cisco Systems, Inc"
     },
     "6555980": {
         "vendor": "Beijing Superbee Wireless Technology Co.,Ltd"
@@ -67115,6 +67238,9 @@
     "6610142": {
         "vendor": "ZheJiang FuChunJiang Information Technology Co.,Ltd"
     },
+    "6610280": {
+        "vendor": "Zyxel Communications Corporation"
+    },
     "6610409": {
         "vendor": "Xiaomi Communications Co Ltd"
     },
@@ -67782,7 +67908,7 @@
         "vendor": "Huawei Technologies Co.,Ltd"
     },
     "6849266": {
-        "vendor": "grandcentrix GmbH"
+        "vendor": "FIXME GmbH"
     },
     "6849306": {
         "vendor": "Pandora Mobility Corporation"
@@ -68011,6 +68137,9 @@
     },
     "6860948": {
         "vendor": "Inesa Electron Co.,Ltd"
+    },
+    "6861257": {
+        "vendor": "IYO, Inc"
     },
     "6861662": {
         "vendor": "Shenzhen Neostra Technology Co.Ltd"
@@ -68281,6 +68410,9 @@
     },
     "6878531": {
         "vendor": "Huawei Technologies Co.,Ltd"
+    },
+    "6878763": {
+        "vendor": "Itel Mobile Limited"
     },
     "6878779": {
         "vendor": "Amazon Technologies Inc."
@@ -69140,6 +69272,9 @@
     "7122709": {
         "vendor": "Webasto SE"
     },
+    "7123063": {
+        "vendor": "ALL Winner (Hong Kong) Limited"
+    },
     "7123150": {
         "vendor": "Netgear"
     },
@@ -69255,7 +69390,7 @@
         "vendor": "1More"
     },
     "7130937": {
-        "vendor": "Guangdong Starfive Technology Co., Ltd."
+        "vendor": "Shanghai StarFive Semiconductor Co., Ltd."
     },
     "7131144": {
         "vendor": "zte corporation"
@@ -70150,6 +70285,9 @@
     },
     "7375736": {
         "vendor": "citygrow technology co., ltd"
+    },
+    "7375767": {
+        "vendor": "INSYS icom GmbH"
     },
     "7375821": {
         "vendor": "ASUSTek COMPUTER INC."
@@ -72371,6 +72509,9 @@
     "7890606": {
         "vendor": "ZTEC Instruments, Inc."
     },
+    "7890647": {
+        "vendor": "Genstoraige Technology Co.Ltd."
+    },
     "7890675": {
         "vendor": "shenzhen worldelite electronics co., LTD"
     },
@@ -72478,6 +72619,9 @@
     },
     "7898612": {
         "vendor": "Huawei Device Co., Ltd."
+    },
+    "7898670": {
+        "vendor": "Microsoft Corporation"
     },
     "7898806": {
         "vendor": "Shenzhen YOUHUA Technology Co., Ltd"
@@ -72997,6 +73141,9 @@
     },
     "7924852": {
         "vendor": "Kyland-USA"
+    },
+    "7925029": {
+        "vendor": "New H3C Technologies Co., Ltd"
     },
     "7925180": {
         "vendor": "OnePlus Technology (Shenzhen) Co., Ltd"
@@ -73771,6 +73918,9 @@
     },
     "8165678": {
         "vendor": "Shanghai Notion lnformatio Technology Co.,Ltd."
+    },
+    "8165702": {
+        "vendor": "Sector Alarm Tech S.L."
     },
     "8165917": {
         "vendor": "Apple, Inc."
@@ -74879,6 +75029,9 @@
     "8423154": {
         "vendor": "Intel Corporate"
     },
+    "8423424": {
+        "vendor": "zte corporation"
+    },
     "8423703": {
         "vendor": "Tp-Link Technologies Co.,Ltd."
     },
@@ -75788,6 +75941,9 @@
     "8679089": {
         "vendor": "Park Assist LLC"
     },
+    "8679100": {
+        "vendor": "Nokia solutions and networks Pvt Ltd"
+    },
     "8679374": {
         "vendor": "Guangdong Oppo Mobile Telecommunications Corp.,Ltd"
     },
@@ -76104,7 +76260,7 @@
         "vendor": "Apple, Inc."
     },
     "8695583": {
-        "vendor": "Beat System Service Co,. Ltd."
+        "vendor": "GopherTec Inc."
     },
     "8695788": {
         "vendor": "Buffalo.Inc"
@@ -76652,6 +76808,9 @@
     "8923742": {
         "vendor": "New H3C Technologies Co., Ltd"
     },
+    "8923873": {
+        "vendor": "Mrc Inc."
+    },
     "8924052": {
         "vendor": "MADOKA SYSTEM Co.,Ltd."
     },
@@ -77173,6 +77332,9 @@
     },
     "8954462": {
         "vendor": "Juniper Networks"
+    },
+    "8954526": {
+        "vendor": "Raspberry Pi (Trading) Ltd"
     },
     "8954583": {
         "vendor": "Huawei Technologies Co.,Ltd"
@@ -77849,6 +78011,9 @@
     "9190833": {
         "vendor": "Beijing H-IoT Technology Co., Ltd."
     },
+    "9191236": {
+        "vendor": "GD Midea Air-Conditioning Equipment Co.,Ltd."
+    },
     "9191922": {
         "vendor": "RDA Technologies Ltd."
     },
@@ -78415,6 +78580,9 @@
     },
     "9224481": {
         "vendor": "Panasonic Corporation AVC Networks Company"
+    },
+    "9225587": {
+        "vendor": "Xsight Labs LTD."
     },
     "9225612": {
         "vendor": "ShenZhen Elsky Technology Co.,LTD"
@@ -79571,6 +79739,9 @@
     "9484593": {
         "vendor": "Apple, Inc."
     },
+    "9484610": {
+        "vendor": "zte corporation"
+    },
     "9484669": {
         "vendor": "Johnson Outdoors Marine Electronics d/b/a Minnkota"
     },
@@ -79825,6 +79996,9 @@
     },
     "9500817": {
         "vendor": "Kaon Group Co., Ltd."
+    },
+    "9501028": {
+        "vendor": "Rawasi Co"
     },
     "9501040": {
         "vendor": "Huawei Technologies Co.,Ltd"
@@ -81104,6 +81278,9 @@
     "9966115": {
         "vendor": "Tarmoc Network LTD"
     },
+    "9966304": {
+        "vendor": "Xiaomi Communications Co Ltd"
+    },
     "9966387": {
         "vendor": "zte corporation"
     },
@@ -81172,6 +81349,9 @@
     },
     "9970510": {
         "vendor": "Micromedia AG"
+    },
+    "9970811": {
+        "vendor": "Huawei Technologies Co.,Ltd"
     },
     "9971018": {
         "vendor": "Tp-Link Corporation Pte. Ltd."
@@ -81379,6 +81559,9 @@
     },
     "9982115": {
         "vendor": "Signaltek Jsc"
+    },
+    "9982471": {
+        "vendor": "Huawei Technologies Co.,Ltd"
     },
     "9982525": {
         "vendor": "Sunitec Enterprise Co.,Ltd"
@@ -82130,6 +82313,9 @@
     "10225262": {
         "vendor": "Hytera Communications Corporation Limited"
     },
+    "10225359": {
+        "vendor": "PLAUD Inc."
+    },
     "10226033": {
         "vendor": "New H3C Technologies Co., Ltd"
     },
@@ -82427,6 +82613,9 @@
     "10244898": {
         "vendor": "TP-Link Corporation Limited"
     },
+    "10244997": {
+        "vendor": "PT. Hartono Istana Teknologi"
+    },
     "10245069": {
         "vendor": "ENGICAM s.r.l."
     },
@@ -82576,6 +82765,9 @@
     },
     "10250705": {
         "vendor": "Huawei Technologies Co.,Ltd"
+    },
+    "10250707": {
+        "vendor": "ASIX Electronics Corporation"
     },
     "10250733": {
         "vendor": "Arista Networks"
@@ -83051,6 +83243,9 @@
     "10279592": {
         "vendor": "Apple, Inc."
     },
+    "10279607": {
+        "vendor": "Hewlett Packard Enterprise"
+    },
     "10279687": {
         "vendor": "Yellowtec GmbH"
     },
@@ -83077,6 +83272,9 @@
     },
     "10280881": {
         "vendor": "Shenzhen Crave Communication Co., LTD"
+    },
+    "10280883": {
+        "vendor": "NXP Semiconductor (Tianjin) LTD."
     },
     "10281025": {
         "vendor": "Nokia"
@@ -83893,6 +84091,9 @@
     },
     "10525083": {
         "vendor": "Apple, Inc."
+    },
+    "10525266": {
+        "vendor": "Shenzhen MoreSense Technology Co., Ltd."
     },
     "10525274": {
         "vendor": "Time Domain"
@@ -85064,6 +85265,9 @@
     "10789450": {
         "vendor": "Cisco SPVTG"
     },
+    "10789892": {
+        "vendor": "Bubendorff SAS"
+    },
     "10789977": {
         "vendor": "Hangzhou Hikvision Digital Technology Co.,Ltd."
     },
@@ -85156,6 +85360,9 @@
     },
     "10795392": {
         "vendor": "Parking BOXX Inc."
+    },
+    "10795632": {
+        "vendor": "Beijing Xiaomi Mobile Software Co., Ltd"
     },
     "10795638": {
         "vendor": "Huawei Technologies Co.,Ltd"
@@ -85520,6 +85727,9 @@
     "11012529": {
         "vendor": "Huawei Device Co., Ltd."
     },
+    "11012971": {
+        "vendor": "Chipsea Technologies (Shenzhen) Corp."
+    },
     "11013115": {
         "vendor": "Ruckus Wireless"
     },
@@ -85534,6 +85744,9 @@
     },
     "11013322": {
         "vendor": "Shenzhen Sundray Technologies Company Limited"
+    },
+    "11013601": {
+        "vendor": "Huawei Technologies Co.,Ltd"
     },
     "11014279": {
         "vendor": "Texas Instruments"
@@ -88547,6 +88760,9 @@
     "11584857": {
         "vendor": "Samsung Electronics Co.,Ltd"
     },
+    "11585052": {
+        "vendor": "Huawei Technologies Co.,Ltd"
+    },
     "11585178": {
         "vendor": "Juniper Networks"
     },
@@ -88990,6 +89206,9 @@
     },
     "11808504": {
         "vendor": "Eline Technology co.Ltd"
+    },
+    "11808515": {
+        "vendor": "Quectel Wireless Solutions Co.,Ltd."
     },
     "11808850": {
         "vendor": "Huawei Technologies Co.,Ltd"
@@ -89758,6 +89977,9 @@
     },
     "11856304": {
         "vendor": "Cisco Systems, Inc"
+    },
+    "11856312": {
+        "vendor": "Dell Inc."
     },
     "11856898": {
         "vendor": "Alpsalpine Co,.Ltd"
@@ -91757,6 +91979,9 @@
     "12363177": {
         "vendor": "Apple, Inc."
     },
+    "12363405": {
+        "vendor": "Continetal Automotive Systems Sibiu"
+    },
     "12363942": {
         "vendor": "Intel Corporate"
     },
@@ -93680,6 +93905,9 @@
     "12873917": {
         "vendor": "Mellanox Technologies, Inc."
     },
+    "12873999": {
+        "vendor": "Xiaomi Communications Co Ltd"
+    },
     "12874032": {
         "vendor": "Fon Technology S.L."
     },
@@ -93724,6 +93952,9 @@
     },
     "12876037": {
         "vendor": "Zhejiang Uniview Technologies Co.,Ltd."
+    },
+    "12876161": {
+        "vendor": "Ehya LTD"
     },
     "12876191": {
         "vendor": "Haiguang Smart Device Co.,Ltd."
@@ -95422,6 +95653,9 @@
     },
     "13239386": {
         "vendor": "Ossia Inc"
+    },
+    "13240380": {
+        "vendor": "Western Digital Technologies, Inc."
     },
     "13242972": {
         "vendor": "Microsoft Corporation"
@@ -97202,6 +97436,9 @@
     "13668864": {
         "vendor": "FiRa Consortium"
     },
+    "13669000": {
+        "vendor": "Powertek Limited"
+    },
     "13669022": {
         "vendor": "Microsoft Corporation"
     },
@@ -97621,6 +97858,9 @@
     },
     "13893736": {
         "vendor": "Fiberhome Telecommunication Technologies Co.,LTD"
+    },
+    "13893834": {
+        "vendor": "Continental Automotive Systems S.R.L"
     },
     "13893929": {
         "vendor": "Broadcom"
@@ -98125,6 +98365,9 @@
     },
     "13921190": {
         "vendor": "Huawei Technologies Co.,Ltd"
+    },
+    "13921378": {
+        "vendor": "MultiTracks.com, LLC"
     },
     "13921389": {
         "vendor": "Commscope"
@@ -101249,6 +101492,9 @@
     "14690156": {
         "vendor": "Guangzhou Shiyuan Electronic Technology Company Limited"
     },
+    "14690314": {
+        "vendor": "TP-Link Systems Inc."
+    },
     "14690401": {
         "vendor": "Huawei Technologies Co.,Ltd"
     },
@@ -102109,6 +102355,9 @@
     },
     "14741285": {
         "vendor": "Lintes Technology Co., Ltd."
+    },
+    "14741439": {
+        "vendor": "Nintendo Co.,Ltd"
     },
     "14742033": {
         "vendor": "Digitalwatt"
@@ -104491,6 +104740,9 @@
     },
     "15473597": {
         "vendor": "Silicon Laboratories"
+    },
+    "15473615": {
+        "vendor": "Brain Technologies, Inc."
     },
     "15473757": {
         "vendor": "Siemens AG"
@@ -107693,6 +107945,9 @@
     "16257800": {
         "vendor": "Nokia"
     },
+    "16258269": {
+        "vendor": "Cisco Systems, Inc"
+    },
     "16258302": {
         "vendor": "Union Man Technology Co.,Ltd"
     },
@@ -108613,6 +108868,9 @@
     },
     "16306365": {
         "vendor": "Samsung Electronics Co.,Ltd"
+    },
+    "16306373": {
+        "vendor": "Sector Alarm Tech S.L."
     },
     "16306449": {
         "vendor": "Tp-Link Technologies Co.,Ltd."
@@ -109868,6 +110126,9 @@
     "16572818": {
         "vendor": "Sichuan Jinwangtong Electronic Science&Technology Co,.Ltd"
     },
+    "16572838": {
+        "vendor": "Huawei Technologies Co.,Ltd"
+    },
     "16572889": {
         "vendor": "Stable Imaging Solutions LLC"
     },
@@ -110092,6 +110353,31 @@
                     "4884648689664": "KittyHawk Corporation",
                     "4884649738240": "Shenzhen BoClouds Technology Co.,Ltd.",
                     "4884650786816": "Gimso Mobile Ltd"
+                }
+            }
+        ]
+    },
+    "303471": {
+        "vendor": "",
+        "maskedFilters": [
+            {
+                "mask": 28,
+                "vendors": {
+                    "5091398516736": "Shenzhen C & D Electronics Co., Ltd.",
+                    "5091399565312": "iENSO Inc.",
+                    "5091400613888": "Suzhou Lianshichuangzhi Technology Co.,Ltd",
+                    "5091401662464": "Crypto4A Technologies",
+                    "5091402711040": "Xiamen Akubela Innovation Technology CO., Ltd.",
+                    "5091403759616": "DOM Security",
+                    "5091404808192": "Gy-Fx Sas",
+                    "5091405856768": "NDW Rollers B.V.",
+                    "5091406905344": "Annapurna labs",
+                    "5091407953920": "Chongqing Jinmei Automotive Electronics co.,Ltd.",
+                    "5091409002496": "Uyar Group",
+                    "5091410051072": "Chroma-Q",
+                    "5091411099648": "Broadband International",
+                    "5091412148224": "Zettlab Innovation Technology CO.,LTD",
+                    "5091413196800": "GajShield Infotech India Pvt. Ltd."
                 }
             }
         ]
@@ -115701,6 +115987,17 @@
             }
         ]
     },
+    "9715453": {
+        "vendor": "",
+        "maskedFilters": [
+            {
+                "mask": 28,
+                "vendors": {
+                    "162998254567424": "ShenZhen chino-e communication co.Ltd."
+                }
+            }
+        ]
+    },
     "9750967": {
         "vendor": "",
         "maskedFilters": [
@@ -116073,6 +116370,31 @@
                     "171977817980928": "Guangdong Hanwei intergration Co.,Ltd",
                     "171977819029504": "\"Intellect module\" LLC",
                     "171977820078080": "Ningbo Shen Link Communication Technology Co., Ltd"
+                }
+            }
+        ]
+    },
+    "10282313": {
+        "vendor": "",
+        "maskedFilters": [
+            {
+                "mask": 28,
+                "vendors": {
+                    "172508586180608": "Speedtech Corp.",
+                    "172508587229184": "Lightmatter, Inc.",
+                    "172508588277760": "Volumatic Limited",
+                    "172508589326336": "Shenzhen Jooan Technology Co., Ltd",
+                    "172508590374912": "Beijing Lingji Innovations technology Co,LTD.",
+                    "172508591423488": "Wetek Electronics Limited",
+                    "172508592472064": "shenzhen Huaxufeng Technology Development Co.,Ltd",
+                    "172508593520640": "ecodata solutions GmbH",
+                    "172508594569216": "Hemla Group AB",
+                    "172508595617792": "Hangzhou Xieneng Technology Co., Ltd.",
+                    "172508596666368": "Arcteq Relays Ltd.",
+                    "172508597714944": "Shenzhen Lingdu Auto Electronics Co.,Ltd",
+                    "172508598763520": "Innodep Inc.",
+                    "172508599812096": "Annapurna labs",
+                    "172508600860672": "Amoi Mobile Co.,Ltd."
                 }
             }
         ]
@@ -125212,7 +125534,7 @@
                     "123917679017984": "Sanmina Israel",
                     "123917679022080": "oxynet Solutions",
                     "123917679026176": "Ariston Thermo s.p.a.",
-                    "123917679030272": "Remote Sensing Solutions, Inc.",
+                    "123917679030272": "Tomorrow Companies Inc",
                     "123917679034368": "Abitsoftware, Ltd.",
                     "123917679038464": "Aplex Technology Inc.",
                     "123917679042560": "Loop Labs, Inc.",
@@ -128332,6 +128654,7 @@
                 "mask": 36,
                 "vendors": {
                     "154066449596416": "Suzhou Xingxiangyi Precision Manufacturing Co.,Ltd.",
+                    "154066449600512": "HYFIX Spatial Intelligence",
                     "154066449608704": "Brighten Controls LLP",
                     "154066449633280": "Converging Systems Inc.",
                     "154066449637376": "TaskUnite Inc. (dba AMPAworks)",
@@ -128365,12 +128688,14 @@
                     "154066449883136": "American Fullway Corp.",
                     "154066449891328": "FieldLine Medical",
                     "154066449895424": "Nuances Org",
+                    "154066449899520": "GS Elektromedizinsiche Geräte G. Stemple GmbH",
                     "154066449915904": "Auditdata",
                     "154066449920000": "ISILINE srl",
                     "154066449928192": "CP contech electronic GmbH",
                     "154066449936384": "HS.com Kft",
                     "154066449944576": "Intercreate",
                     "154066449948672": "Dong Guan Yung Fu Electronics Ltd.",
+                    "154066449956864": "Mect Srl",
                     "154066449960960": "MB connect line GmbH Fernwartungssysteme",
                     "154066449973248": "tickIoT Inc.",
                     "154066449985536": "ESCAD AUTOMATION GmbH",
@@ -128381,6 +128706,7 @@
                     "154066450018304": "Genius Vision Digital Private Limited",
                     "154066450030592": "Intellisense Systems Inc.",
                     "154066450034688": "Sanwa Supply Inc.",
+                    "154066450038784": "COBES GmbH",
                     "154066450042880": "Monnit Corporation",
                     "154066450059264": "Dorlet Sau",
                     "154066450067456": "Potter Electric Signal Company",
@@ -128402,6 +128728,7 @@
                     "154066450178048": "qiio AG",
                     "154066450182144": "AixControl GmbH",
                     "154066450186240": "kousyuhaneturen",
+                    "154066450190336": "Limitless Electromechanical Works LLC",
                     "154066450194432": "Gogo BA",
                     "154066450198528": "MAG Audio LLC",
                     "154066450202624": "El.En. Spa",
@@ -128432,7 +128759,7 @@
                     "154066450378752": "Aurora Communication Technologies Corp.",
                     "154066450382848": "Active Research Limited",
                     "154066450403328": "TechnipFMC",
-                    "154066450415616": "EA Elektro-Automatik",
+                    "154066450415616": "EA Elektro-Automatik GmbH",
                     "154066450423808": "CLOUD TELECOM Inc.",
                     "154066450436096": "DEUTA Werke GmbH",
                     "154066450456576": "biosilver.co.,ltd",
@@ -128573,6 +128900,7 @@
                     "154066451587072": "Radian Research, Inc.",
                     "154066451591168": "Canon Electron Tubes & Devices Co., Ltd.",
                     "154066451595264": "Haptech Defense Systems",
+                    "154066451615744": "Lichtwart GmbH",
                     "154066451623936": "Tantronic AG",
                     "154066451628032": "AVCOMM Technologies Inc",
                     "154066451644416": "Eiffage Energie Electronique",
@@ -128767,6 +129095,7 @@
                     "154066453217280": "Accord Communications Ltd",
                     "154066453221376": "Duevi Srl",
                     "154066453225472": "DIAS Infrared GmbH",
+                    "154066453229568": "Solotech",
                     "154066453233664": "spar Power Technologies Inc.",
                     "154066453258240": "SIDUS Solutions, LLC",
                     "154066453262336": "Scarlet Tech Co., Ltd.",
@@ -128831,6 +129160,7 @@
                     "154066453680128": "Systems Mechanics",
                     "154066453684224": "elbe informatik GmbH",
                     "154066453692416": "Ruichuangte",
+                    "154066453696512": "Heitec Ag",
                     "154066453700608": "Chipscape Security Systems",
                     "154066453716992": "BnB Information Technology",
                     "154066453737472": "Cambrian Works, Inc.",
@@ -128842,6 +129172,7 @@
                     "154066453786624": "Uisee(Shanghai) Automotive Technologies Ltd.",
                     "154066453798912": "Integer.pl S.A.",
                     "154066453815296": "Anda Telecom Pvt Ltd",
+                    "154066453819392": "broadtek",
                     "154066453823488": "techone system",
                     "154066453831680": "Enki Multimedia",
                     "154066453839872": "Sichuan Aiyijan Technology Company Ltd.",
@@ -128898,8 +129229,10 @@
                     "154066454278144": "Blaucomm Ltd",
                     "154066454286336": "AKSE srl",
                     "154066454290432": "Missing Link Electronics, Inc.",
+                    "154066454294528": "Fluid Components Intl",
                     "154066454302720": "Eb Neuro Spa",
                     "154066454306816": "Novanta IMS",
+                    "154066454315008": "Soca Technology Co., Ltd.",
                     "154066454319104": "VirtualV Trading Limited",
                     "154066454323200": "Vismes sarl",
                     "154066454339584": "Longhorn lntelligent Tech Co.,Ltd.",
@@ -128970,6 +129303,7 @@
                     "154066454880256": "Bellco Trading Company (Pvt) Ltd",
                     "154066454884352": "Beijing Entian Technology Development Co., Ltd",
                     "154066454888448": "Automata GmbH & Co. KG",
+                    "154066454892544": "Shenzhen Guanxin Information Technology Co.,Ltd",
                     "154066454896640": "Panoramic Power",
                     "154066454904832": "Novanta IMS",
                     "154066454908928": "Control Aut Tecnologia em Automação LTDA",
@@ -129019,6 +129353,7 @@
                     "154066455232512": "Dexter Laundry Inc.",
                     "154066455236608": "Deep Detection / ESB01736990",
                     "154066455257088": "Ultiroam",
+                    "154066455265280": "Integer.pl S.A.",
                     "154066455277568": "Avida, Inc.",
                     "154066455281664": "ELTEK SpA",
                     "154066455285760": "Acod",
@@ -129026,6 +129361,7 @@
                     "154066455293952": "Adetec Sas",
                     "154066455306240": "Zmbizi App Llc",
                     "154066455310336": "Ingenious Technology LLC",
+                    "154066455314432": "Flock Audio Inc.",
                     "154066455318528": "Yu-Heng Electric Co., LTD",
                     "154066455339008": "NPO ECO-INTECH Ltd.",
                     "154066455343104": "Potter Electric Signal Company",
@@ -129042,6 +129378,7 @@
                     "154066455453696": "RF Code",
                     "154066455461888": "Tirasoft Technology",
                     "154066455470080": "Primalucelab isrl",
+                    "154066455478272": "Private",
                     "154066455490560": "Delta Computers LLC.",
                     "154066455494656": "Seongwon Eng Co.,Ltd",
                     "154066455511040": "Dave Srl",
@@ -129062,6 +129399,7 @@
                     "154066455609344": "Heitec Ag",
                     "154066455613440": "MPT-Service project",
                     "154066455617536": "Benchmark Electronics BV",
+                    "154066455621632": "SUS Corporation",
                     "154066455638016": "R3Vox Ltd",
                     "154066455642112": "Cooltera Limited",
                     "154066455646208": "Active Research Limited",
@@ -129212,6 +129550,7 @@
                     "154066456821760": "RAB Microfluidics R&D Company Ltd",
                     "154066456834048": "WiTricity Corporation",
                     "154066456846336": "KMtronic ltd",
+                    "154066456850432": "Enless Wireless",
                     "154066456854528": "Bit Trade One, Ltd.",
                     "154066456862720": "Cortical Labs Pte Ltd",
                     "154066456887296": "Elsist Srl",
@@ -129241,6 +129580,7 @@
                     "154066457079808": "Celestica Inc.",
                     "154066457083904": "Heitec Ag",
                     "154066457092096": "Dave Srl",
+                    "154066457104384": "ZER01CHI Corporation",
                     "154066457108480": "Dorlet Sau",
                     "154066457112576": "Abbott Diagnostics Technologies AS",
                     "154066457116672": "Antai technology Co.,Ltd",
@@ -129266,6 +129606,7 @@
                     "154066457243648": "AR Modular RF",
                     "154066457255936": "OpenPark Technologies Kft",
                     "154066457268224": "CITSA Technologies Private Limited",
+                    "154066457280512": "DevRay IT Solutions Private Limited",
                     "154066457284608": "Flextronics International Kft",
                     "154066457288704": "Star Systems International Limited",
                     "154066457300992": "Systel Inc",
@@ -129282,6 +129623,7 @@
                     "154066457370624": "Dorlet Sau",
                     "154066457378816": "Guan Show Technologe Co., Ltd.",
                     "154066457391104": "INVENTIA Sp. z o.o.",
+                    "154066457399296": "Automatizacion Y Conectividad",
                     "154066457411584": "navXperience GmbH",
                     "154066457415680": "Becton Dickinson",
                     "154066457419776": "Visiosoft Pty Ltd",
@@ -129314,7 +129656,7 @@
                     "154066457649152": "D-E-K GmbH & Co.KG",
                     "154066457653248": "E Vision India Pvt Ltd",
                     "154066457657344": "Axid System",
-                    "154066457661440": "EA Elektro-Automatik",
+                    "154066457661440": "EA Elektro-Automatik GmbH",
                     "154066457677824": "Guan Show Technologe Co., Ltd.",
                     "154066457681920": "Keyline S.P.A.",
                     "154066457686016": "James G. Biddle dba Megger",
@@ -129345,6 +129687,7 @@
                     "154066457862144": "Aaronn Electronic GmbH",
                     "154066457866240": "Une Srl",
                     "154066457882624": "robert juliat",
+                    "154066457886720": "EA Elektro-Automatik GmbH",
                     "154066457903104": "Methods2Business B.V.",
                     "154066457907200": "Eding CNC bv",
                     "154066457911296": "Orange Precision Measurement LLC",
@@ -129359,7 +129702,7 @@
                     "154066457989120": "Zhejiang Laolan Information Technology Co., Ltd",
                     "154066457993216": "Daiichi Electric Industry Co., Ltd",
                     "154066457997312": "MOSCA Elektronik und Antriebstechnik GmbH",
-                    "154066458001408": "EA Elektro-Automatik",
+                    "154066458001408": "EA Elektro-Automatik GmbH",
                     "154066458009600": "Matrixspace",
                     "154066458013696": "Giordano Controls Spa",
                     "154066458034176": "Thermify Holdings Ltd",
@@ -129377,6 +129720,7 @@
                     "154066458112000": "ViewSonic Corp",
                     "154066458116096": "Tiama",
                     "154066458124288": "IP Devices",
+                    "154066458132480": "Logicube Inc",
                     "154066458136576": "MTU Aero Engines AG",
                     "154066458161152": "Flow Power",
                     "154066458165248": "Power Electronics Espana, S.L.",
@@ -129449,6 +129793,7 @@
                     "154066458734592": "DA-Design Oy",
                     "154066458738688": "Wien Energie GmbH",
                     "154066458742784": "Zynex Monitoring Solutions",
+                    "154066458763264": "YUYAMA MFG Co.,Ltd",
                     "154066458779648": "Cirrus Systems, Inc.",
                     "154066458787840": "Hermes Network Inc",
                     "154066458791936": "NextT Microwave Inc",
@@ -129494,6 +129839,7 @@
                     "154066459095040": "BELIMO Automation AG",
                     "154066459099136": "Vortex IoT Ltd",
                     "154066459103232": "Eolane",
+                    "154066459107328": "MARIAN GmbH",
                     "154066459111424": "Zeus Product Design Ltd",
                     "154066459131904": "Abbott Diagnostics Technologies AS",
                     "154066459140096": "Profcon AB",
@@ -129533,9 +129879,10 @@
                     "154066459435008": "Umano Medical Inc.",
                     "154066459439104": "Gogo Business Aviation",
                     "154066459443200": "Power Electronics Espana, S.L.",
+                    "154066459447296": "Potter Electric Signal Company",
                     "154066459455488": "Dave Srl",
                     "154066459459584": "Iav Engineering Sarl",
-                    "154066459467776": "EA Elektro-Automatik",
+                    "154066459467776": "EA Elektro-Automatik GmbH",
                     "154066459492352": "Potter Electric Signal Co. LLC",
                     "154066459496448": "Infrasafe/ Advantor Systems",
                     "154066459504640": "Dorsett Technologies Inc",
@@ -129548,6 +129895,7 @@
                     "154066459574272": "Abacus Peripherals Pvt Ltd",
                     "154066459586560": "Peter Huber Kaeltemaschinenbau SE",
                     "154066459594752": "Phe-nX B.V.",
+                    "154066459598848": "Ligpt",
                     "154066459602944": "Syscom Instruments SA",
                     "154066459607040": "PAN Business & Consulting (ANYOS]",
                     "154066459611136": "Aksel sp. z o.o.",
@@ -129569,6 +129917,7 @@
                     "154066459738112": "Hangzhou Jingtang Communication Technology Co.,Ltd.",
                     "154066459762688": "Emerson Rosemount Analytical",
                     "154066459766784": "Böckelt GmbH",
+                    "154066459774976": "Berkeley Nucleonics Corp",
                     "154066459779072": "GS Elektromedizinsiche Geräte G. Stemple GmbH",
                     "154066459783168": "Stercom Power Soltions GmbH",
                     "154066459787264": "Makel Elektrik Malzemeleri A.Ş.",
@@ -129586,7 +129935,7 @@
                     "154066459877376": "Exi Flow Measurement Ltd",
                     "154066459881472": "ASAP Electronics GmbH",
                     "154066459885568": "Saline Lectronics, Inc.",
-                    "154066459897856": "EA Elektro-Automatik",
+                    "154066459897856": "EA Elektro-Automatik GmbH",
                     "154066459901952": "Wolfspyre Labs",
                     "154066459918336": "Integer.pl S.A.",
                     "154066459930624": "HD Renewable Energy Co.,Ltd",
@@ -129645,10 +129994,12 @@
                     "154066460352512": "Rodgers Instruments US LLC",
                     "154066460360704": "Rapidev Pvt Ltd",
                     "154066460372992": "Saarni Cloud Oy",
+                    "154066460377088": "Wallenius Water Innovation AB",
                     "154066460381184": "Integer.pl S.A.",
                     "154066460385280": "YUYAMA MFG Co.,Ltd",
                     "154066460393472": "Flextronics International Kft",
                     "154066460401664": "Syscom Instruments SA",
+                    "154066460405760": "Ascon Tecnologic S.r.l.",
                     "154066460413952": "Babtel",
                     "154066460434432": "Flextronics International Kft",
                     "154066460438528": "EkspertStroyProekt",
@@ -129668,6 +130019,7 @@
                     "154066460565504": "DEUTA-WERKE GmbH",
                     "154066460569600": "Rax-Tech International",
                     "154066460585984": "CPAT Flex Inc.",
+                    "154066460590080": "Proprietary Controls Systems Corporation",
                     "154066460610560": "3D perception AS",
                     "154066460618752": "EkspertStroyProekt",
                     "154066460622848": "Beijing Wenrise Technology Co., Ltd.",
@@ -129751,6 +130103,7 @@
                     "154066461229056": "Grossenbacher Systeme AG",
                     "154066461233152": "DITRON S.r.l.",
                     "154066461241344": "Nov'in",
+                    "154066461249536": "Tocho Marking Systems America, Inc",
                     "154066461261824": "Lechpol Electronics Spółka z o.o. Sp.k.",
                     "154066461270016": "Blighter Surveillance Systems Ltd",
                     "154066461278208": "Abb",
@@ -129779,6 +130132,7 @@
                     "154066461495296": "Vision Systems Safety Tech",
                     "154066461499392": "YUYAMA MFG Co.,Ltd",
                     "154066461503488": "Tri-light Wuhan Electronics Technology Co.,Ltd",
+                    "154066461519872": "Code Blue Corporation",
                     "154066461540352": "Televic Rail GmbH",
                     "154066461544448": "HomyHub SL",
                     "154066461552640": "M2M craft Co., Ltd.",
@@ -129805,6 +130159,7 @@
                     "154066461708288": "Tongye lnnovation Science and Technology (Shenzhen) Co.,Ltd",
                     "154066461724672": "Clealink Technology",
                     "154066461728768": "Neurable",
+                    "154066461732864": "Modern Server Solutions LLP",
                     "154066461749248": "Gemini Electronics B.V.",
                     "154066461753344": "Calamity, Inc.",
                     "154066461757440": "iLifeX",
@@ -129812,6 +130167,8 @@
                     "154066461765632": "Kromek Limited",
                     "154066461777920": "Power Electronics Espana, S.L.",
                     "154066461782016": "Lithion Battery Inc",
+                    "154066461786112": "Jmv Lps Ltd",
+                    "154066461794304": "BESO sp. z o.o.",
                     "154066461798400": "DEUTA-WERKE GmbH",
                     "154066461810688": "FMC Technologies Measurement Solutions Inc",
                     "154066461814784": "iLensys Technologies PVT LTD",
@@ -129929,9 +130286,10 @@
                     "154066462605312": "Fiberme Communications Llc",
                     "154066462613504": "Red Phase Technologies Limited",
                     "154066462617600": "Mediana",
-                    "154066462625792": "EA Elektro-Automatik",
+                    "154066462625792": "EA Elektro-Automatik GmbH",
                     "154066462629888": "Safe Instruments",
                     "154066462642176": "Yaviar LLC",
+                    "154066462674944": "P3Lab",
                     "154066462683136": "Freedom Atlantic",
                     "154066462687232": "MERKLE Schweissanlagen-Technik GmbH",
                     "154066462691328": "Glasson Electronics Ltd",
@@ -130009,6 +130367,8 @@
                     "154066463305728": "EYatsko Individual",
                     "154066463313920": "MB connect line GmbH",
                     "154066463322112": "I.S.A. - Altanova group srl",
+                    "154066463326208": "Wuxi Tongxin Hengtong Technology Co., Ltd.",
+                    "154066463330304": "Ynm Systems Inc.",
                     "154066463334400": "Monnit Corporation",
                     "154066463338496": "Audiodo International AB",
                     "154066463342592": "Vesper Technologies",
@@ -130066,6 +130426,7 @@
                     "154066463809536": "Potter Electric Signal Co. LLC",
                     "154066463813632": "DEUTA-WERKE GmbH",
                     "154066463817728": "SMITEC S.p.A.",
+                    "154066463821824": "Zhejiang Healnoc Technology Co., Ltd.",
                     "154066463825920": "Mitsubishi Electric India Pvt. Ltd.",
                     "154066463830016": "Algodue Elettronica Srl",
                     "154066463842304": "Smart Cabling & Transmission Corp.",
@@ -130109,6 +130470,7 @@
                     "154066464149504": "Franke Aquarotter GmbH",
                     "154066464153600": "Softgent sp. z o.o.",
                     "154066464165888": "Gogo Business Aviation",
+                    "154066464169984": "IHI Inspection & Instrumentation Co.,Ltd.",
                     "154066464182272": "EON Technology, Corp",
                     "154066464186368": "Natron Energy",
                     "154066464190464": "PXM Marek Zupnik spolka komandytowa",
@@ -130122,6 +130484,7 @@
                     "154066464276480": "Dvb-Tech S.R.L.",
                     "154066464284672": "ITS Teknik A/S",
                     "154066464292864": "新川センサテクノロジ株式会社",
+                    "154066464309248": "Imagenet Co.,Ltd",
                     "154066464313344": "Enless Wireless",
                     "154066464321536": "Laurel Electronics LLC",
                     "154066464325632": "Telestrider Sa",
@@ -130131,6 +130494,7 @@
                     "154066464358400": "Proserv",
                     "154066464362496": "Panascais ehf.",
                     "154066464382976": "DAccess Security Systems P Ltd",
+                    "154066464395264": "Xworks NZ Limited",
                     "154066464399360": "Flextronics International Kft",
                     "154066464411648": "LG-LHT Aircraft Solutions GmbH",
                     "154066464419840": "Chemito Infotech PVT LTD",
@@ -130145,6 +130509,7 @@
                     "154066464514048": "AITEC Corporation",
                     "154066464522240": "Finotex Electronic Solutions PVT LTD",
                     "154066464534528": "Teletech Services",
+                    "154066464538624": "ThermoG Limited",
                     "154066464542720": "Grossenbacher Systeme AG",
                     "154066464546816": "Shenzhen Forddok Technology Co., Ltd",
                     "154066464550912": "Daedalean AG",
@@ -130182,6 +130547,7 @@
                     "154066464772096": "Shenzhen Guangwen Industrial Co.,Ltd",
                     "154066464780288": "Dongguan Pengchen Earth Instrument CO. LT",
                     "154066464784384": "Ashinne Technology Co., Ltd",
+                    "154066464788480": "Audio Visual Digital Systems",
                     "154066464800768": "Power Electronics Espana, S.L.",
                     "154066464825344": "ComVetia AG",
                     "154066464833536": "SiFive Inc",
@@ -130191,7 +130557,7 @@
                     "154066464854016": "Plura",
                     "154066464862208": "JieChuang HeYi(Beijing) Technology Co., Ltd.",
                     "154066464866304": "MHE Electronics",
-                    "154066464874496": "EA Elektro-Automatik",
+                    "154066464874496": "EA Elektro-Automatik GmbH",
                     "154066464882688": "Zin Technologies",
                     "154066464899072": "Luxshare Electronic Technology (Kunshan) LTD",
                     "154066464903168": "Pantherun Technologies Pvt Ltd",
@@ -130203,6 +130569,7 @@
                     "154066464980992": "Miracle Healthcare, Inc.",
                     "154066464985088": "Messung Systems Pvt Ltd",
                     "154066464989184": "Traffic Polska sp. z o. o.",
+                    "154066464997376": "Exyte Technology GmbH",
                     "154066465005568": "Aqua Broadcast Ltd",
                     "154066465017856": "Meiryo Denshi Corp.",
                     "154066465026048": "Delta Solutions LLC",
@@ -130278,7 +130645,7 @@
                     "154066465660928": "AMF Medical SA",
                     "154066465665024": "Beckman Coulter Inc",
                     "154066465677312": "KC5 International Sdn Bhd",
-                    "154066465681408": "EA Elektro-Automatik",
+                    "154066465681408": "EA Elektro-Automatik GmbH",
                     "154066465689600": "Inovonics Inc.",
                     "154066465693696": "Telco Antennas Pty Ltd",
                     "154066465697792": "SemaConnect, Inc",
@@ -130335,6 +130702,7 @@
                     "154066466115584": "Nidec asi spa",
                     "154066466119680": "I/O Controls",
                     "154066466123776": "Cyclops Technology Group",
+                    "154066466127872": "Dorlet Sau",
                     "154066466131968": "Sumico",
                     "154066466160640": "Gredmann Taiwan Ltd.",
                     "154066466164736": "elbit systems - EW and sigint - Elisra",

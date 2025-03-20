@@ -100,8 +100,6 @@ namespace pcpp
 		/// SSL/TLS versions enum
 		enum SSLVersionEnum
 		{
-			/// SSL 2.0
-			SSL2 = 0x0200,
 			/// SSL 3.0
 			SSL3 = 0x0300,
 			/// TLS 1.0

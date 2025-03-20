@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #ifdef _MSC_VER
-#	include <WinSock2.h>
+#	include <winsock2.h>
 #	include <time.h>
 #else
 #	include <sys/time.h>
@@ -311,9 +311,8 @@ namespace pcpp
 		RawPacket(const RawPacket& other);
 
 		/// Assignment operator overload for this class. When using this operator on an already initialized RawPacket
-		/// instance, the original raw data is freed first. Then the other instance is copied to this instance, the same
-		/// way the copy constructor works
-		/// @todo free raw data only if deleteRawDataAtDestructor was set to 'true'
+		/// instance, the original raw data is freed first if deleteRawDataAtDestructor was set to 'true'.
+		/// Then the other instance is copied to this instance, the same way the copy constructor works
 		/// @param[in] other The instance to copy from
 		RawPacket& operator=(const RawPacket& other);
 
@@ -423,8 +422,7 @@ namespace pcpp
 		}
 
 		/// Clears all members of this instance, meaning setting raw data to nullptr, raw data length to 0, etc.
-		/// Currently raw data is always freed, even if deleteRawDataAtDestructor was set to 'false'
-		/// @todo deleteRawDataAtDestructor was set to 'true', don't free the raw data
+		/// Frees the raw data if deleteRawDataAtDestructor was set to 'true'
 		/// @todo set timestamp to a default value as well
 		virtual void clear();
 
