@@ -85,6 +85,13 @@ if(PCAPPP_USE_SANITIZER)
   endif()
 endif()
 
+# Build options (Compile time log level)
+set(PCAPPP_LOG_LEVEL "" CACHE STRING "Compile time log level (0 - Off, 1 - Error, 2 - Info, 3 - Debug) Default(empty): Debug")
+
+if(PCAPPP_LOG_LEVEL)
+    add_compile_definitions("PCPP_ACTIVE_LOG_LEVEL=${PCAPPP_LOG_LEVEL}")
+endif()
+
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
 cmake_dependent_option(
