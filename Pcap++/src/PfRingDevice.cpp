@@ -494,7 +494,7 @@ namespace pcpp
 			}
 			catch (const std::exception& e)
 			{
-				PCPP_LOG_ERROR("Error while binding thread to core " << coreId << ": errno=" << err);
+				PCPP_LOG_ERROR(e.what());
 				{
 					std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 					startupBlock->State = 1;
@@ -553,14 +553,13 @@ namespace pcpp
 		}
 		catch (const std::exception& e)
 		{
+			PCPP_LOG_ERROR(e.what());
 			{
 				std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 				startupBlock->State = 1;
 			}
 			startupBlock->Cond.notify_all();
 			m_CoreConfiguration[0].RxThread.join();
-
-			PCPP_LOG_ERROR("Error while binding thread to core 0: errno=" << err);
 			clearCoreConfiguration();
 			return false;
 		}
