@@ -15,6 +15,26 @@
 
 namespace pcpp
 {
+	namespace
+	{
+		void setThreadCoreAffinity(std::thread& thread, int coreId)
+		{
+			if (thread.get_id() == std::thread::id{})
+			{
+				throw std::invalid_argument("Can't set core affinity for a non-joinable thread");
+			}
+
+			cpu_set_t cpuset;
+			CPU_ZERO(&cpuset);
+			CPU_SET(coreId, &cpuset);
+			int err = pthread_setaffinity_np(thread.native_handle(), sizeof(cpu_set_t), &cpuset);
+			if (err != 0)
+			{
+				throw std::runtime_error("Error while binding thread to core " + std::to_string(coreId) +
+				                         ": errno=" + std::to_string(err));
+			}
+		}
+	}  // namespace
 
 	PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Zero)
 	{
@@ -468,13 +488,11 @@ namespace pcpp
 			m_CoreConfiguration[coreId].RxThread =
 			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
 
-			// set affinity to cores
-			cpu_set_t cpuset;
-			CPU_ZERO(&cpuset);
-			CPU_SET(coreId, &cpuset);
-			int err = pthread_setaffinity_np(m_CoreConfiguration[coreId].RxThread.native_handle(), sizeof(cpu_set_t),
-			                                 &cpuset);
-			if (err != 0)
+			try
+			{
+				setThreadCoreAffinity(m_CoreConfiguration[coreId].RxThread, coreId);
+			}
+			catch (const std::exception& e)
 			{
 				PCPP_LOG_ERROR("Error while binding thread to core " << coreId << ": errno=" << err);
 				{
@@ -524,15 +542,16 @@ namespace pcpp
 
 		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
-		cpu_set_t cpuset;
-		CPU_ZERO(&cpuset);
-		CPU_SET(0, &cpuset);
 		m_CoreConfiguration[0].IsInUse = true;
 		m_CoreConfiguration[0].Channel = m_PfRingDescriptors[0];
 		m_CoreConfiguration[0].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
 		m_CoreConfiguration[0].IsAffinitySet = false;
-		int err = pthread_setaffinity_np(m_CoreConfiguration[0].RxThread.native_handle(), sizeof(cpu_set_t), &cpuset);
-		if (err != 0)
+
+		try
+		{
+			setThreadCoreAffinity(m_CoreConfiguration[0].RxThread, 0);
+		}
+		catch (const std::exception& e)
 		{
 			{
 				std::unique_lock<std::mutex> lock(startupBlock->Mutex);
