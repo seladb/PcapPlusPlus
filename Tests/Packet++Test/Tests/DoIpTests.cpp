@@ -10,7 +10,7 @@
 #include "SystemUtils.h"
 #include "PacketUtils.h"
 #include "DeprecationUtils.h"
-#include "DoIpLayer.h"
+#include "DoIpLayerData.h"
 #include <memory>
 
 // ------------------
@@ -47,7 +47,7 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Generic DOIP header Nack");
@@ -73,8 +73,8 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation)
 
 	unsigned char bytes[] = { 0x2, 0xfd, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1 };
 	pcpp::GenericHeaderNackData data;
-	data.genericNackCode = pcpp::DoIpGenericHeaderNackCodes::INKNOWN_PAYLOAD_TYPE;
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	data.genericNackCode = pcpp::DoIpGenericHeaderNackCodes::UNKNOWN_PAYLOAD_TYPE;
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK, &data);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -88,7 +88,7 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (51 - 9), bytes, 9);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Generic DOIP header Nack");
@@ -122,8 +122,8 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketParsing)
 	pcpp::DoIpLayer* doipLayer = vehicleIdentificationRequest.getLayerOfType<pcpp::DoIpLayer>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
-	// PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012);
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	// PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request");
@@ -152,7 +152,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketCreation)
 
 	// vehIdentificationRequestArgs.args = std::monostate{};
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
 
@@ -160,7 +160,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (50 - 8), bytes, 8);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Vehicle identification request");
@@ -205,7 +205,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN,
 	                 enumclass);
@@ -239,7 +239,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketCreation)
 	pcpp::VehicleIdentificationRequestVINData withVin;
 	withVin.vin = vin;
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN, &withVin);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -249,7 +249,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (67 - 25), bytes, 25);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN,
 	                 enumclass);
@@ -295,7 +295,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID,
 	                 enumclass);
@@ -327,7 +327,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketCreation)
 	pcpp::VehicleIdentificationRequestEIDData withEID;
 	withEID.eid = eid;
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN, &withEID);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -341,7 +341,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (56 - 14), bytes, 14);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID,
 	                 enumclass);
@@ -389,7 +389,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(),
@@ -431,7 +431,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	ann.syncStatus = pcpp::DoIpSyncStatus::VIN_AND_OR_GID_ARE_SINCHRONIZED;
 	ann.furtherActionRequired = pcpp::DoIpActionCodes::NO_FURTHER_ACTION_REQUIRED;
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE, &ann);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -445,7 +445,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (83 - 41), bytes, 41);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(),
@@ -492,7 +492,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
 	pcpp::RoutingActivationResponseData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Routing activation request");
@@ -525,7 +525,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
 	routingData.reservedIso = { 0x0, 0x0, 0x0, 0x0 };
 	routingData.reservedOem = std::unique_ptr<std::array<uint8_t, 4>>(new std::array<uint8_t, 4>());
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST, &routingData);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -539,7 +539,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (73 - 19), bytes, 19);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Routing activation request");
@@ -583,7 +583,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Routing activation response");
@@ -617,7 +617,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
 	routingData.reservedIso = { 0x0, 0x0, 0x0, 0x0 };
 	routingData.reservedOem = std::unique_ptr<std::array<uint8_t, 4>>(new std::array<uint8_t, 4>());
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE, &routingData);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -631,7 +631,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (75 - 21), bytes, 21);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Routing activation response");
@@ -664,7 +664,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketParsing)
 	pcpp::DoIpLayer* doipLayer = AliveCheckRequest.getLayerOfType<pcpp::DoIpLayer>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Alive check request");
@@ -690,7 +690,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketCreation)
 
 	unsigned char bytes[] = { 0x2, 0xfd, 0x0, 0x7, 0x0, 0x0, 0x0, 0x0 };
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::ALIVE_CHECK_REQUEST);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -704,7 +704,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (50 - 8), bytes, 8);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Alive check request");
@@ -747,7 +747,7 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Alive check response");
@@ -773,7 +773,7 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketCreation)
 
 	unsigned char bytes[] = { 0x2, 0xfd, 0x0, 0x8, 0x0, 0x0, 0x0, 0x2, 0x0, 0x0 };
 	pcpp::AliveCheckResponseData aliveCheckRespData;
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::ALIVE_CHECK_RESPONSE, &aliveCheckRespData);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -787,7 +787,7 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (52 - 10), bytes, 10);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Alive check response");
@@ -820,7 +820,7 @@ PTF_TEST_CASE(DoIpEntityStatusRequestPacketParsing)
 	pcpp::DoIpLayer* doipLayer = EntityStatusRequest.getLayerOfType<pcpp::DoIpLayer>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "DOIP entity status request");
@@ -845,7 +845,7 @@ PTF_TEST_CASE(DoIpEntityStatusRequestPacketCreation)
 	doIpPacket.computeCalculateFields();
 
 	unsigned char bytes[] = { 0x2, 0xfd, 0x40, 0x1, 0x0, 0x0, 0x0, 0x0 };
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::ENTITY_STATUS_REQUEST);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -859,7 +859,7 @@ PTF_TEST_CASE(DoIpEntityStatusRequestPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (50 - 8), bytes, 8);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "DOIP entity status request");
@@ -903,7 +903,7 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "DOIP entity status response");
@@ -933,7 +933,7 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	entityResponseData.maxConcurrentSockets = 2;
 	entityResponseData.maxDataSize =
 	    std::unique_ptr<std::array<uint8_t, 4>>(new std::array<uint8_t, 4>{ 0x0, 0x0, 0xf, 0xff });
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::ENTITY_STATUS_RESPONSE, &entityResponseData);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -947,7 +947,7 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (57 - 15), bytes, 15);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "DOIP entity status response");
@@ -980,7 +980,7 @@ PTF_TEST_CASE(DoIpPowerModeRequestPacketParsing)
 	pcpp::DoIpLayer* doipLayer = PowerModeRequest.getLayerOfType<pcpp::DoIpLayer>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic power mode request information");
@@ -1005,7 +1005,7 @@ PTF_TEST_CASE(DoIpPowerModeRequestPacketCreation)
 	doIpPacket.computeCalculateFields();
 
 	unsigned char bytes[] = { 0x2, 0xfd, 0x40, 0x3, 0x0, 0x0, 0x0, 0x0 };
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -1019,7 +1019,7 @@ PTF_TEST_CASE(DoIpPowerModeRequestPacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (50 - 8), bytes, 8);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic power mode request information");
@@ -1061,7 +1061,7 @@ PTF_TEST_CASE(DoIpPowerModeResponsePacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic power mode response information");
@@ -1088,7 +1088,7 @@ PTF_TEST_CASE(DoIpPowerModeResponsePacketCreation)
 	unsigned char bytes[] = { 0x2, 0xfd, 0x40, 0x4, 0x0, 0x0, 0x0, 0x1, 0x0 };
 	pcpp::DiagnosticPowerModeResponseData data;
 	data.powerModeCode = pcpp::DoIpDiagnosticPowerModeCodes::NOT_READY;
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE, &data);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -1102,7 +1102,7 @@ PTF_TEST_CASE(DoIpPowerModeResponsePacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (51 - 9), bytes, 9);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic power mode response information");
@@ -1144,7 +1144,7 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic message");
@@ -1175,7 +1175,7 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketCreation)
 	data.sourceAddress = be16toh(0x0e80);
 	data.targetAddress = be16toh(0x4010);
 	data.diagnosticData = diagnosticData;
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE, &data);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -1189,7 +1189,7 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (68 - 14), bytes, 14);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic message");
@@ -1233,7 +1233,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic message Ack");
@@ -1266,7 +1266,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
 	// dont use previous message
 	data.previousMessage.clear();
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK, &data);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -1280,7 +1280,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (67 - 13), bytes, 13);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic message Ack");
@@ -1324,7 +1324,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketParsing)
 	pcpp::RoutingActivationRequestData routingData;
 	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
-	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic message Nack");
@@ -1357,7 +1357,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	// dont use previous message
 	data.previousMessage.clear();
 
-	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::version02Iso2012,
+	pcpp::DoIpLayer doipLayer_2(pcpp::DoIpProtocolVersion::Version02Iso2012,
 	                            pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK, &data);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer_2));
@@ -1367,7 +1367,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (67 - 13), bytes, 13);
 	pcpp::DoIpLayer* _doipLayer2 = doIpPacket.getLayerOfType<pcpp::DoIpLayer>();
 
-	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(_doipLayer2->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic message Nack");
@@ -1376,4 +1376,40 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	    _doipLayer2->toString(),
 	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic message Nack (0x8003)\nPayload Length: 5\n");
 }
+// DoIpVehicleIdentificationRequestWithDEfaultVersPacketParsing
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWithDefaultVersPacket.dat");
+
+	pcpp::Packet vehicleIdentificationRequest(&rawPacket1);
+	PTF_ASSERT_TRUE(vehicleIdentificationRequest.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(vehicleIdentificationRequest.isPacketOfType(pcpp::UDP));
+	PTF_ASSERT_TRUE(vehicleIdentificationRequest.isPacketOfType(pcpp::DOIP));
+
+	pcpp::UdpLayer* udpLayer = vehicleIdentificationRequest.getLayerOfType<pcpp::UdpLayer>();
+	PTF_ASSERT_NOT_NULL(udpLayer);
+
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), 65300);
+	PTF_ASSERT_EQUAL(udpLayer->getUdpHeader()->headerChecksum, be16toh(0x8988));
+	PTF_ASSERT_EQUAL(udpLayer->getUdpHeader()->length, be16toh(0x10));
+
+	// DOIP fields for vehicle identification request
+	pcpp::DoIpLayer* doipLayer = vehicleIdentificationRequest.getLayerOfType<pcpp::DoIpLayer>();
+	PTF_ASSERT_NOT_NULL(doipLayer);
+
+	// PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012);
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::DefaultVersion, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0x00);
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request");
+	PTF_ASSERT_EQUAL(
+	    doipLayer->toString(),
+	    "DOIP Layer:\nProtocol Version: Default value for vehicle identification request messages (0xff)\nPayload Type: Vehicle identification request (0x0001)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x0);
+
+}  // DoIpVehicleIdentificationRequestPacketParsing
 DISABLE_WARNING_POP

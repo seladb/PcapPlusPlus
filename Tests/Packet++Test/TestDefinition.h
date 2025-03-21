@@ -92,6 +92,7 @@ PTF_TEST_CASE(DnsLayerAddDnsKeyTest);
 PTF_TEST_CASE(DoIpGenericHeaderNackPacketParsing);
 PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation);
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketParsing);
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing);
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketCreation);
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing);
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketCreation);

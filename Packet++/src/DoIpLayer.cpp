@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleDoIpLayer
 
 #include "DoIpLayer.h"
+#include "DoIpLayerData.h"
 #include "Packet.h"
 #include "PayloadLayer.h"
 #include "EndianPortable.h"
@@ -17,24 +18,39 @@ namespace pcpp
 		setInvertProtocolVersion(~(static_cast<uint8_t>(version)));
 		buildLayer(type, data);
 	}
+
 	DoIpLayer::DoIpLayer()
 	{
 		VehicleAnnouncementData data;
 		initLayer();
-		setProtocolVersion(DoIpProtocolVersion::version03Iso2019);
-		setInvertProtocolVersion(~(static_cast<uint8_t>(DoIpProtocolVersion::version03Iso2019)));
+		setProtocolVersion(DoIpProtocolVersion::Version02Iso2012);
+		setInvertProtocolVersion(~(static_cast<uint8_t>(DoIpProtocolVersion::Version02Iso2012)));
 		buildLayer(DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE, &data);
 	}
 
 	DoIpProtocolVersion DoIpLayer::getProtocolVersion() const
 	{
-		return static_cast<DoIpProtocolVersion>(getDoIpHeader()->protocolVersion);
+		uint8_t version = getDoIpHeader()->protocolVersion;
+
+		switch (static_cast<DoIpProtocolVersion>(version))
+		{
+		case DoIpProtocolVersion::ReservedVersion:
+		case DoIpProtocolVersion::Version01Iso2010:
+		case DoIpProtocolVersion::Version02Iso2012:
+		case DoIpProtocolVersion::Version03Iso2019:
+		case DoIpProtocolVersion::Version04Iso2019_AMD1:
+		case DoIpProtocolVersion::DefaultVersion:
+			return static_cast<DoIpProtocolVersion>(version);
+
+		default:
+			return DoIpProtocolVersion::UnknownVersion;
+		}
 	}
 
 	std::string DoIpLayer::getProtocolVersionAsStr() const
 	{
-		auto it = internal::DoIpEnumToStringProtocolVersion.find(getProtocolVersion());
-		if (it != internal::DoIpEnumToStringProtocolVersion.end())
+		auto it = DoIpEnumToStringProtocolVersion.find(getProtocolVersion());
+		if (it != DoIpEnumToStringProtocolVersion.end())
 		{
 			return it->second;
 		}
@@ -71,8 +87,8 @@ namespace pcpp
 
 	std::string DoIpLayer::getPayloadTypeAsStr() const
 	{
-		auto it = internal::DoIpEnumToStringPayloadType.find(getPayloadType());
-		if (it != internal::DoIpEnumToStringPayloadType.end())
+		auto it = DoIpEnumToStringPayloadType.find(getPayloadType());
+		if (it != DoIpEnumToStringPayloadType.end())
 		{
 			return it->second;
 		}
@@ -87,24 +103,22 @@ namespace pcpp
 		return htobe32(getDoIpHeader()->payloadLength);
 	}
 
-	void DoIpLayer::setPayloadLength(uint32_t Payloadength)
+	void DoIpLayer::setPayloadLength(uint32_t payloadLength) const
 	{
-		getDoIpHeader()->payloadLength = be32toh(Payloadength);
+		getDoIpHeader()->payloadLength = be32toh(payloadLength);
 	}
 
-	bool DoIpLayer::resolveProtocolVersion() const
+	bool DoIpLayer::isProtocolVersionValid() const
 	{
 		DoIpProtocolVersion version = getProtocolVersion();
 		uint8_t inVersion = getInvertProtocolVersion();
 		DoIpPayloadTypes type = getPayloadType();
 
-		// Idea is token from wireshark
-		if (!(version == DoIpProtocolVersion::version01Iso2010 || version == DoIpProtocolVersion::version02Iso2012 ||
-		      version == DoIpProtocolVersion::version03Iso2019 ||
-		      version == DoIpProtocolVersion::version04Iso2019_AMD1 ||
-		      (version == DoIpProtocolVersion::defaultVersion &&
-		       (type >= DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST &&
-		        type <= DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN))))
+		if ((version == DoIpProtocolVersion::UnknownVersion) || (version == DoIpProtocolVersion::ReservedVersion) ||
+		    (version == DoIpProtocolVersion::DefaultVersion &&
+		     (type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN &&
+		      type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID &&
+		      type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST)))
 		{
 			PCPP_LOG_ERROR("Invalid/unsupported DoIP version!");
 			return false;
@@ -117,15 +131,9 @@ namespace pcpp
 		return true;
 	}
 
-	bool DoIpLayer::resolvePayloadLength() const
+	bool DoIpLayer::isPayloadLengthValid() const
 	{
 		uint32_t length = getPayloadLength();
-
-		if (m_DataLen < sizeof(doiphdr))
-		{
-			PCPP_LOG_ERROR("Payload length is smaller than the minimum header size");
-			return false;
-		}
 
 		if (length != (m_DataLen - sizeof(doiphdr)))
 		{
@@ -135,10 +143,11 @@ namespace pcpp
 
 		return true;
 	}
-	bool DoIpLayer::resolveLayer() const
+
+	bool DoIpLayer::isLayerDataValid() const
 	{
 		// Validate the protocol version and payload length
-		if (!resolveProtocolVersion() || !resolvePayloadLength())
+		if (!isProtocolVersionValid() || !isPayloadLengthValid())
 		{
 			PCPP_LOG_ERROR("Failed to Parse DoIP layer");
 			return false;
@@ -148,7 +157,7 @@ namespace pcpp
 
 	std::string DoIpLayer::toString() const
 	{
-		if (!resolveLayer())
+		if (!isLayerDataValid())
 		{
 			return "Malformed doip Packet";
 		}

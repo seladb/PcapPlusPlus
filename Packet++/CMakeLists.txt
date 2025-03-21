@@ -82,8 +82,6 @@ set(
   header/DnsLayer.h
   header/DnsResourceData.h
   header/DnsResource.h
-  header/DoIpEnums.h
-  header/DoIpEnumToString.h
   header/DoIpLayer.h
   header/DoIpLayerData.h
   header/EthDot3Layer.h

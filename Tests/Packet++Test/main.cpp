@@ -190,6 +190,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpGenericHeaderNackPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpGenericHeaderNackPacketCreation, "doip");
 	PTF_RUN_TEST(DoIpVehicleIdentificationRequestPacketParsing, "doip");
+	PTF_RUN_TEST(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpVehicleIdentificationRequestPacketCreation, "doip");
 	PTF_RUN_TEST(DoIpVehicleIdentificationRequestVINPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpVehicleIdentificationRequestVINPacketCreation, "doip");
