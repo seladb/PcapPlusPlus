@@ -86,7 +86,20 @@ if(PCAPPP_USE_SANITIZER)
 endif()
 
 # Build options (Compile time log level)
+set(PCAPP_ALLOWED_LOG_LEVELS
+    ""
+    "0"
+    "1"
+    "2"
+    "3"
+)
+
 set(PCAPPP_LOG_LEVEL "" CACHE STRING "Compile time log level (0 - Off, 1 - Error, 2 - Info, 3 - Debug) Default(empty): Debug")
+set_property(CACHE PCAPPP_LOG_LEVEL PROPERTY STRINGS ${PCAPP_ALLOWED_LOG_LEVELS})
+
+if(NOT PCAPPP_LOG_LEVEL IN_LIST PCAPP_ALLOWED_LOG_LEVELS)
+    message(FATAL_ERROR "PCAPPP_LOG_LEVEL must be one of ${PCAPP_ALLOWED_LOG_LEVELS}")
+endif()
 
 if(PCAPPP_LOG_LEVEL)
     add_compile_definitions("PCPP_ACTIVE_LOG_LEVEL=${PCAPPP_LOG_LEVEL}")
