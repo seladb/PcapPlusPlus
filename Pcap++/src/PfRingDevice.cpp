@@ -494,13 +494,13 @@ namespace pcpp
 			}
 			catch (const std::exception& e)
 			{
-				PCPP_LOG_ERROR(e.what());
 				{
 					std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 					startupBlock->State = 1;
 				}
 				startupBlock->Cond.notify_all();
 				clearCoreConfiguration();
+				PCPP_LOG_ERROR(e.what());
 				return false;
 			}
 		}
@@ -553,7 +553,6 @@ namespace pcpp
 		}
 		catch (const std::exception& e)
 		{
-			PCPP_LOG_ERROR(e.what());
 			{
 				std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 				startupBlock->State = 1;
@@ -561,6 +560,7 @@ namespace pcpp
 			startupBlock->Cond.notify_all();
 			m_CoreConfiguration[0].RxThread.join();
 			clearCoreConfiguration();
+			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
 
