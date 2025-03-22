@@ -6,9 +6,9 @@
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Packet.h"
+#include <array>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
+#include "StopToken.h"
 
 /// @file
 
@@ -44,23 +44,17 @@ namespace pcpp
 			void clear();
 		};
 
-		struct StartupBlock
-		{
-			std::mutex Mutex;
-			std::condition_variable Cond;
-			int State = 0;
-		};
-
 		pfring** m_PfRingDescriptors;
 		uint8_t m_NumOfOpenedRxChannels;
 		std::string m_DeviceName;
 		int m_InterfaceIndex;
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
-		CoreConfiguration m_CoreConfiguration[MAX_NUM_OF_CORES];
-		bool m_StopThread;
-		OnPfRingPacketsArriveCallback m_OnPacketsArriveCallback;
-		void* m_OnPacketsArriveUserCookie;
+
+		std::array<CoreConfiguration, MAX_NUM_OF_CORES> m_CoreConfiguration;
+		// An empty stop token source is used to indicate that no capture is running
+		internal::StopTokenSource m_StopTokenSource{ internal::NoStopStateTag{} };
+
 		bool m_ReentrantMode;
 		bool m_HwClockEnabled;
 		bool m_IsFilterCurrentlySet;
@@ -68,7 +62,6 @@ namespace pcpp
 		PfRingDevice(const char* deviceName);
 
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
-		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
 
 		int openSingleRxChannel(const char* deviceName, pfring** ring);
 
@@ -212,7 +205,7 @@ namespace pcpp
 
 		/// Gets the core used in the current thread context
 		/// @return The system core used in the current thread context
-		SystemCore getCurrentCoreId() const;
+		static SystemCore getCurrentCoreId();
 
 		/// Get the statistics of a specific thread/core (=RX channel)
 		/// @param[in] core The requested core
