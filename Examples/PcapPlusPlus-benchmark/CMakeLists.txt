@@ -12,7 +12,7 @@ if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
     include(FetchContent)
 
     # Fetch Google Benchmark
-    FetchContent_Declare(benchmark GIT_REPOSITORY https://github.com/google/benchmark.git GIT_TAG v1.9.0)
+    FetchContent_Declare(benchmark GIT_REPOSITORY https://github.com/google/benchmark.git GIT_TAG v1.9.1)
 
     # Disable testing and installation for Google Benchmark
     set(BENCHMARK_ENABLE_TESTING OFF)
