@@ -627,8 +627,6 @@ namespace pcpp
 			}
 			catch (const std::exception& e)
 			{
-				PCPP_LOG_ERROR(e.what());
-
 				// Request stop and set the startup block to ready to prevent other threads from starting
 				m_StopTokenSource.requestStop();
 				// Signal the startup block to unblock all threads so they can shutdown.
@@ -646,6 +644,7 @@ namespace pcpp
 				// Clear the core configuration and stop token source
 				m_StopTokenSource = internal::StopTokenSource(internal::NoStopStateTag{});
 				clearCoreConfiguration();
+				PCPP_LOG_ERROR(e.what());
 				return false;
 			}
 		}
