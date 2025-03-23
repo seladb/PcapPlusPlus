@@ -24,7 +24,7 @@ Every code contribution to this project is highly valued and appreciated. I enco
    - All new APIs are well documented using Doxygen (please use @ for keywords)
    - Make sure that pre-commit hooks are passing by using `pre-commit run --all-files`. For pre-commit hooks you need to install `cppcheck` and `clang-format` on your system. You can install them using the following commands:
       - `pre-commit`: `pip install pre-commit`
-      - `cppcheck` (version 2.7 is recommended):
+      - `cppcheck` (version 2.17.1 is recommended):
          - For Linux (apt) `sudo apt install cppcheck`
          - For Windows (using `choco`) `choco install cppcheck --version=2.7`
          - For Windows (MSI install): https://github.com/danmar/cppcheck/releases/download/2.7/cppcheck-2.7-x64-Setup.msi

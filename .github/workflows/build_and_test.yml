@@ -11,7 +11,7 @@ env:
   BUILD_DIR: Dist
   GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
   CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CPPCHECK_VERSION: 2.7
+  CPPCHECK_VERSION: 2.17.1
 
 permissions:
   contents: read
