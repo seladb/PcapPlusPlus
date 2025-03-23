@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <chrono>
 #include <algorithm>
+#include <vector>
 
 #define DEFAULT_PF_RING_SNAPLEN 1600
 
@@ -624,23 +625,27 @@ namespace pcpp
 			return;
 		}
 
+		// Zero copy is not supported in reentrant mode
+		const bool zeroCopySupported = !m_ReentrantMode;
+
+		// If the `bufferPtr` is set to nullptr, PF_RING will use zero copy mode and sets `bufferPtr` to point to the
+		// packet data.
+		uint8_t* bufferPtr = nullptr;
+		uint32_t bufferLen = 0;
+		std::vector<uint8_t> recvBuffer;
+
+		// If zero copy is not supported, allocate a buffer for the packet data.
+		if (!zeroCopySupported)
+		{
+			recvBuffer.resize(PCPP_MAX_PACKET_SIZE);
+			bufferPtr = recvBuffer.data();
+			bufferLen = recvBuffer.size();
+		}
+
 		while (!this->m_StopThread)
 		{
-			// if buffer is nullptr PF_RING avoids copy of the data
-			uint8_t* buffer = nullptr;
-			uint32_t bufferLen = 0;
-
-			// in multi-threaded mode flag PF_RING_REENTRANT is set, and this flag doesn't work with zero copy
-			// so I need to allocate a buffer and set buffer to point to it
-			if (this->m_ReentrantMode)
-			{
-				uint8_t tempBuffer[PCPP_MAX_PACKET_SIZE];
-				buffer = tempBuffer;
-				bufferLen = PCPP_MAX_PACKET_SIZE;
-			}
-
 			struct pfring_pkthdr pktHdr;
-			int recvRes = pfring_recv(ring, &buffer, bufferLen, &pktHdr, 0);
+			int recvRes = pfring_recv(ring, &bufferPtr, bufferLen, &pktHdr, 0);
 			if (recvRes > 0)
 			{
 				// if caplen < len it means we don't have the whole packet. Treat this case as packet drop
@@ -651,7 +656,7 @@ namespace pcpp
 				//				continue;
 				//			}
 
-				RawPacket rawPacket(buffer, pktHdr.caplen, pktHdr.ts, false);
+				RawPacket rawPacket(bufferPtr, pktHdr.caplen, pktHdr.ts, false);
 				this->m_OnPacketsArriveCallback(&rawPacket, 1, coreId, this, this->m_OnPacketsArriveUserCookie);
 			}
 			else if (recvRes < 0)
