@@ -6,6 +6,7 @@
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Packet.h"
+#include "StopToken.h"
 #include <array>
 #include <thread>
 #include <mutex>
@@ -59,7 +60,8 @@ namespace pcpp
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
 		std::array<CoreConfiguration, MAX_NUM_OF_CORES> m_CoreConfiguration;
-		bool m_StopThread;
+		// An empty stop token source is used to indicate that no capture is running
+		internal::StopTokenSource m_StopTokenSource{ internal::NoStopStateTag{} };
 		OnPfRingPacketsArriveCallback m_OnPacketsArriveCallback;
 		void* m_OnPacketsArriveUserCookie;
 		bool m_ReentrantMode;

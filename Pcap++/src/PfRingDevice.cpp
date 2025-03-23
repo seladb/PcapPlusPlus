@@ -44,7 +44,6 @@ namespace pcpp
 		m_DeviceOpened = false;
 		m_DeviceName = std::string(deviceName);
 		m_InterfaceIndex = -1;
-		m_StopThread = true;
 		m_OnPacketsArriveCallback = nullptr;
 		m_OnPacketsArriveUserCookie = nullptr;
 		m_ReentrantMode = false;
@@ -453,7 +452,7 @@ namespace pcpp
 	bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive,
 	                                           void* onPacketsArriveUserCookie, CoreMask coreMask)
 	{
-		if (!m_StopThread)
+		if (m_StopTokenSource.stopPossible())
 		{
 			PCPP_LOG_ERROR("Device already capturing. Cannot start 2 capture sessions at the same time");
 			return false;
@@ -471,9 +470,11 @@ namespace pcpp
 			return false;
 		}
 
+		// Create a new stop token source to indicate that a capture is running
+		m_StopTokenSource = internal::StopTokenSource();
+
 		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
-		m_StopThread = false;
 		int rxChannel = 0;
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
@@ -502,6 +503,10 @@ namespace pcpp
 				}
 				startupBlock->Cond.notify_all();
 				clearCoreConfiguration();
+
+				// Clears the stop token source to indicate that no capture is running
+				m_StopTokenSource = internal::StopTokenSource(internal::NoStopStateTag{});
+
 				PCPP_LOG_ERROR(e.what());
 				return false;
 			}
@@ -519,7 +524,7 @@ namespace pcpp
 	bool PfRingDevice::startCaptureSingleThread(OnPfRingPacketsArriveCallback onPacketsArrive,
 	                                            void* onPacketsArriveUserCookie)
 	{
-		if (!m_StopThread)
+		if (m_StopTokenSource.stopPossible())
 		{
 			PCPP_LOG_ERROR("Device already capturing. Cannot start 2 capture sessions at the same time");
 			return false;
@@ -538,7 +543,8 @@ namespace pcpp
 		m_OnPacketsArriveCallback = onPacketsArrive;
 		m_OnPacketsArriveUserCookie = onPacketsArriveUserCookie;
 
-		m_StopThread = false;
+		// Create a new stop token source to indicate that a capture is running
+		m_StopTokenSource = internal::StopTokenSource();
 
 		m_ReentrantMode = false;
 
@@ -562,6 +568,10 @@ namespace pcpp
 			startupBlock->Cond.notify_all();
 			m_CoreConfiguration[0].RxThread.join();
 			clearCoreConfiguration();
+
+			// Clears the stop token source to indicate that no capture is running
+			m_StopTokenSource = internal::StopTokenSource(internal::NoStopStateTag{});
+
 			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
@@ -579,7 +589,8 @@ namespace pcpp
 	void PfRingDevice::stopCapture()
 	{
 		PCPP_LOG_DEBUG("Trying to stop capturing on device [" << m_DeviceName << "]");
-		m_StopThread = true;
+		m_StopTokenSource.requestStop();
+
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsInUse)
@@ -599,6 +610,15 @@ namespace pcpp
 			return;
 		}
 
+		// Fetching stop token from source variable.
+		// In the future this will be replaced with a stop token passed as a parameter to the function.
+		auto const stopToken = m_StopTokenSource.getToken();
+		if (!stopToken.stopPossible())
+		{
+			PCPP_LOG_ERROR("Capture thread started without a stop token. Exiting capture thread");
+			return;
+		}
+
 		{
 			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 			startupBlock->Cond.wait(lock, [&] { return startupBlock->State != 0; });
@@ -607,6 +627,14 @@ namespace pcpp
 			{
 				return;
 			}
+		}
+
+		// Check if the stop token was requested before the startup was complete
+		// If the initialization of other threads failed, the stop token will be requested before the startup is
+		// complete.
+		if (stopToken.stopRequested())
+		{
+			return;
 		}
 
 		// Startup is complete. The block is no longer needed.
@@ -642,7 +670,7 @@ namespace pcpp
 			bufferLen = recvBuffer.size();
 		}
 
-		while (!this->m_StopThread)
+		while (!stopToken.stopRequested())
 		{
 			struct pfring_pkthdr pktHdr;
 			int recvRes = pfring_recv(ring, &bufferPtr, bufferLen, &pktHdr, 0);
