@@ -6,6 +6,7 @@ missingInclude:*
 unknownMacro:*
 unusedFunction:*
 unusedStructMember:*
+normalCheckLevelMaxBranches:*
 
 noExplicitConstructor:Common++/header/IpAddress.h
 noExplicitConstructor:Common++/header/MacAddress.h
