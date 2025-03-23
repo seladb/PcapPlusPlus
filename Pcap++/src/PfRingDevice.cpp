@@ -10,6 +10,7 @@
 #include <pfring.h>
 #include <pthread.h>
 #include <chrono>
+#include <algorithm>
 #include <vector>
 
 #define DEFAULT_PF_RING_SNAPLEN 1600
@@ -719,18 +720,14 @@ namespace pcpp
 
 	void PfRingDevice::clearCoreConfiguration()
 	{
-		for (int i = 0; i < MAX_NUM_OF_CORES; i++)
-			m_CoreConfiguration[i].clear();
+		for (auto& config : m_CoreConfiguration)
+			config.clear();
 	}
 
 	int PfRingDevice::getCoresInUseCount() const
 	{
-		int res = 0;
-		for (int i = 0; i < MAX_NUM_OF_CORES; i++)
-			if (m_CoreConfiguration[i].IsInUse)
-				res++;
-
-		return res;
+		return std::count_if(m_CoreConfiguration.begin(), m_CoreConfiguration.end(),
+		                     [](const CoreConfiguration& config) { return config.IsInUse; });
 	}
 
 	void PfRingDevice::setPfRingDeviceAttributes()
