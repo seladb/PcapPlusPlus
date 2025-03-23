@@ -6,6 +6,7 @@
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Packet.h"
+#include <array>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -57,7 +58,7 @@ namespace pcpp
 		int m_InterfaceIndex;
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
-		CoreConfiguration m_CoreConfiguration[MAX_NUM_OF_CORES];
+		std::array<CoreConfiguration, MAX_NUM_OF_CORES> m_CoreConfiguration;
 		bool m_StopThread;
 		OnPfRingPacketsArriveCallback m_OnPacketsArriveCallback;
 		void* m_OnPacketsArriveUserCookie;
