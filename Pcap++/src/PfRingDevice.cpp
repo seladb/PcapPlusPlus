@@ -627,8 +627,8 @@ namespace pcpp
 		// Zero copy is not supported in reentrant mode
 		const bool zeroCopySupported = !m_ReentrantMode;
 
-		// If the `bufferPtr` is set to nullptr, PF_RING will use zero copy mode and sets `bufferPtr` to point to the packet
-		// data.
+		// If the `bufferPtr` is set to nullptr, PF_RING will use zero copy mode and sets `bufferPtr` to point to the
+		// packet data.
 		uint8_t* bufferPtr = nullptr;
 		uint32_t bufferLen = 0;
 		std::vector<uint8_t> recvBuffer;
