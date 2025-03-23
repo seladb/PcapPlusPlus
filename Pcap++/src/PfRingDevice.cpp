@@ -70,7 +70,7 @@ namespace pcpp
 		m_NumOfOpenedRxChannels = 0;
 
 		PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "]");
-		int res = openSingleRxChannel(m_DeviceName.c_str(), &m_PfRingDescriptors[0]);
+		int res = openSingleRxChannelImpl(m_DeviceName.c_str(), &m_PfRingDescriptors[0]);
 		if (res == 0)
 		{
 			PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
@@ -92,7 +92,7 @@ namespace pcpp
 		return openMultiRxChannels(channelIds, 1);
 	}
 
-	int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring** ring)
+	int PfRingDevice::openSingleRxChannelImpl(const char* deviceName, pfring** ring)
 	{
 		if (m_DeviceOpened)
 		{
@@ -176,7 +176,7 @@ namespace pcpp
 			std::string ringName = ringNameStream.str();
 			PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "] on channel [" << channelId
 			                                         << "]. Channel name [" << ringName << "]");
-			int res = openSingleRxChannel(ringName.c_str(), &m_PfRingDescriptors[i]);
+			int res = openSingleRxChannelImpl(ringName.c_str(), &m_PfRingDescriptors[i]);
 			if (res == 0)
 			{
 				PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "] on channel [" << channelId
@@ -198,7 +198,7 @@ namespace pcpp
 		{
 			// if an error occurred, close all rings from index=0 to index=m_NumOfOpenedRxChannels-1
 			// there's no need to close m_PfRingDescriptors[m_NumOfOpenedRxChannels] because it has already been
-			// closed by openSingleRxChannel
+			// closed by openSingleRxChannelImpl
 			for (int i = 0; i < m_NumOfOpenedRxChannels - 1; i++)
 			{
 				pfring_close(m_PfRingDescriptors[i]);

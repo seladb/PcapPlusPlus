@@ -70,7 +70,8 @@ namespace pcpp
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
 		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
 
-		int openSingleRxChannel(const char* deviceName, pfring** ring);
+		// Opens a single RxChannel for the device. Does not use PF_RING_REENTRANT flag.
+		int openSingleRxChannelImpl(const char* deviceName, pfring** ring);
 
 		bool getIsHwClockEnable()
 		{
