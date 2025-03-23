@@ -181,6 +181,7 @@ namespace pcpp
 		/// @return An iterator object pointing to the first element of the vector
 		VectorIterator begin()
 		{
+			// cppcheck-suppress danglingLifetime
 			return m_Vector.begin();
 		}
 
