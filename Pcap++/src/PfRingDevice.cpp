@@ -497,13 +497,25 @@ namespace pcpp
 			}
 			catch (const std::exception& e)
 			{
+				// Request stop and set the startup block to ready so the capture threads can shutdown.
+				m_StopTokenSource.requestStop();
+
 				{
 					std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 					startupBlock->State = 1;
 				}
 				startupBlock->Cond.notify_all();
-				clearCoreConfiguration();
 
+				// Wait for all threads to stop
+				for (int coreId2 = coreId; coreId2 >= 0; coreId2--)
+				{
+					if (!m_CoreConfiguration[coreId2].IsInUse)
+						continue;
+					m_CoreConfiguration[coreId2].RxThread.join();
+					PCPP_LOG_DEBUG("Thread on core [" << coreId2 << "] stopped");
+				}
+
+				clearCoreConfiguration();
 				// Clears the stop token source to indicate that no capture is running
 				m_StopTokenSource = internal::StopTokenSource(internal::NoStopStateTag{});
 
@@ -512,6 +524,7 @@ namespace pcpp
 			}
 		}
 
+		// Set the startup block to ready to start all capture threads.
 		{
 			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 			startupBlock->State = 2;
@@ -561,14 +574,19 @@ namespace pcpp
 		}
 		catch (const std::exception& e)
 		{
+			// Request stop and set the startup block to ready so the capture threads can shutdown.
+			m_StopTokenSource.requestStop();
+
 			{
 				std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 				startupBlock->State = 1;
 			}
 			startupBlock->Cond.notify_all();
-			m_CoreConfiguration[0].RxThread.join();
-			clearCoreConfiguration();
 
+			// Wait for the thread to stop
+			m_CoreConfiguration[0].RxThread.join();
+
+			clearCoreConfiguration();
 			// Clears the stop token source to indicate that no capture is running
 			m_StopTokenSource = internal::StopTokenSource(internal::NoStopStateTag{});
 
@@ -622,11 +640,6 @@ namespace pcpp
 		{
 			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
 			startupBlock->Cond.wait(lock, [&] { return startupBlock->State != 0; });
-
-			if (startupBlock->State == 1)
-			{
-				return;
-			}
 		}
 
 		// Check if the stop token was requested before the startup was complete
