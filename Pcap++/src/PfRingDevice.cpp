@@ -488,8 +488,8 @@ namespace pcpp
 
 			// create a new thread
 			m_CoreConfiguration[coreId].Channel = m_PfRingDescriptors[rxChannel++];
-			m_CoreConfiguration[coreId].RxThread =
-			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
+			m_CoreConfiguration[coreId].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this,
+			                                                   startupBlock, std::move(m_StopTokenSource.getToken()));
 
 			try
 			{
@@ -565,7 +565,8 @@ namespace pcpp
 
 		m_CoreConfiguration[0].IsInUse = true;
 		m_CoreConfiguration[0].Channel = m_PfRingDescriptors[0];
-		m_CoreConfiguration[0].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
+		m_CoreConfiguration[0].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock,
+		                                              std::move(m_StopTokenSource.getToken()));
 		m_CoreConfiguration[0].IsAffinitySet = false;
 
 		try
@@ -620,7 +621,7 @@ namespace pcpp
 		PCPP_LOG_DEBUG("All capturing threads stopped");
 	}
 
-	void PfRingDevice::captureThreadMain(std::shared_ptr<StartupBlock> startupBlock)
+	void PfRingDevice::captureThreadMain(std::shared_ptr<StartupBlock> startupBlock, internal::StopToken stopToken)
 	{
 		if (startupBlock == nullptr)
 		{
@@ -628,9 +629,6 @@ namespace pcpp
 			return;
 		}
 
-		// Fetching stop token from source variable.
-		// In the future this will be replaced with a stop token passed as a parameter to the function.
-		auto const stopToken = m_StopTokenSource.getToken();
 		if (!stopToken.stopPossible())
 		{
 			PCPP_LOG_ERROR("Capture thread started without a stop token. Exiting capture thread");
