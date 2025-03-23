@@ -75,6 +75,8 @@ namespace pcpp
 		{
 			PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
 			m_NumOfOpenedRxChannels = 1;
+			// Set reentrant mode to false as the channel is opened without the PF_RING_REENTRANT flag.
+			m_ReentrantMode = false;
 			m_DeviceOpened = true;
 			return true;
 		}
@@ -92,7 +94,7 @@ namespace pcpp
 		return openMultiRxChannels(channelIds, 1);
 	}
 
-	int PfRingDevice::openSingleRxChannelImpl(const char* deviceName, pfring** ring)
+	int PfRingDevice::openSingleRxChannelImpl(const char* deviceName, pfring** ring, bool useReenterant)
 	{
 		if (m_DeviceOpened)
 		{
@@ -101,6 +103,11 @@ namespace pcpp
 		}
 
 		uint32_t flags = PF_RING_PROMISC | PF_RING_HW_TIMESTAMP | PF_RING_DNA_SYMMETRIC_RSS;
+		if (useReenterant)
+		{
+			flags |= PF_RING_REENTRANT;
+		}
+
 		*ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
 
 		if (*ring == nullptr)
@@ -176,6 +183,8 @@ namespace pcpp
 			std::string ringName = ringNameStream.str();
 			PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "] on channel [" << channelId
 			                                         << "]. Channel name [" << ringName << "]");
+			// todo: Shouldn't we use the reentrant mode here? We are opening multiple channels?
+			// todo: Potentially only open in reenterant mode if creating N > 1 channels?
 			int res = openSingleRxChannelImpl(ringName.c_str(), &m_PfRingDescriptors[i]);
 			if (res == 0)
 			{
@@ -208,6 +217,8 @@ namespace pcpp
 			return false;
 		}
 
+		// Set reentrant mode to false as the channels are opened without the PF_RING_REENTRANT flag.
+		m_ReentrantMode = false;  
 		m_DeviceOpened = true;
 
 		return true;
@@ -329,7 +340,8 @@ namespace pcpp
 		}
 
 		m_NumOfOpenedRxChannels = ringsOpen;
-
+		// Set reentrant mode to true as the channels are opened with the PF_RING_REENTRANT flag.
+		m_ReentrantMode = true;
 		m_DeviceOpened = true;
 		return true;
 	}
@@ -478,8 +490,6 @@ namespace pcpp
 			if (!m_CoreConfiguration[coreId].IsInUse)
 				continue;
 
-			m_ReentrantMode = true;
-
 			m_OnPacketsArriveCallback = onPacketsArrive;
 			m_OnPacketsArriveUserCookie = onPacketsArriveUserCookie;
 
@@ -537,8 +547,6 @@ namespace pcpp
 		m_OnPacketsArriveUserCookie = onPacketsArriveUserCookie;
 
 		m_StopThread = false;
-
-		m_ReentrantMode = false;
 
 		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
