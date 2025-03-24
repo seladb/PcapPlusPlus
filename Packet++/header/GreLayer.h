@@ -359,6 +359,12 @@ namespace pcpp
 			return reinterpret_cast<ppp_pptp_header*>(m_Data);
 		}
 
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of a PPP-PPTP packet
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent a PPP-PPTP packet
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
 		// implement abstract methods
 
 		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
@@ -384,5 +390,10 @@ namespace pcpp
 			return OsiModelSesionLayer;
 		}
 	};
+
+	bool PPP_PPTPLayer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		return data && dataLen >= sizeof(ppp_pptp_header);
+	}
 
 }  // namespace pcpp
