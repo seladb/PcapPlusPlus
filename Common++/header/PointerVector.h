@@ -174,7 +174,6 @@ namespace pcpp
 			// a memory leak if push_back throws.
 			// cppcheck-suppress danglingLifetime
 			m_Vector.push_back(element.get());
-			// cppcheck-suppress ignoredReturnValue
 			element.release();
 		}
 
@@ -182,7 +181,6 @@ namespace pcpp
 		/// @return An iterator object pointing to the first element of the vector
 		VectorIterator begin()
 		{
-			// cppcheck-suppress danglingLifetime
 			return m_Vector.begin();
 		}
 

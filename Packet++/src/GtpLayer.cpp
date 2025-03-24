@@ -272,8 +272,8 @@ namespace pcpp
 
 	bool GtpV1Layer::getNpduNumber(uint8_t& npduNum) const
 	{
-		auto header = getHeader();
-		auto headerExtra = getHeaderExtra();
+		gtpv1_header* header = getHeader();
+		gtpv1_header_extra* headerExtra = getHeaderExtra();
 		if (header != nullptr && headerExtra != nullptr && header->npduNumberFlag == 1)
 		{
 			npduNum = headerExtra->npduNumber;
@@ -324,8 +324,8 @@ namespace pcpp
 
 	bool GtpV1Layer::getNextExtensionHeaderType(uint8_t& nextExtType) const
 	{
-		auto header = getHeader();
-		auto headerExtra = getHeaderExtra();
+		gtpv1_header* header = getHeader();
+		gtpv1_header_extra* headerExtra = getHeaderExtra();
 		if (header != nullptr && headerExtra != nullptr && header->extensionHeaderFlag == 1)
 		{
 			nextExtType = headerExtra->nextExtensionHeader;
@@ -537,7 +537,7 @@ namespace pcpp
 
 	bool GtpV1Layer::isGTPUMessage() const
 	{
-		auto header = getHeader();
+		gtpv1_header* header = getHeader();
 		if (header == nullptr)
 		{
 			return false;
@@ -548,7 +548,7 @@ namespace pcpp
 
 	bool GtpV1Layer::isGTPCMessage() const
 	{
-		auto header = getHeader();
+		gtpv1_header* header = getHeader();
 		if (header == nullptr)
 		{
 			return false;

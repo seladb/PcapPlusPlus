@@ -51,8 +51,7 @@ namespace pcpp
 			return UnknownProtocol;
 		}
 
-		// cppcheck-suppress constVariablePointer
-		auto vrrpPacketCommon = (vrrp_header*)data;
+		auto* vrrpPacketCommon = (vrrp_header*)data;
 		uint8_t version = vrrpPacketCommon->version;
 		switch (version)
 		{
