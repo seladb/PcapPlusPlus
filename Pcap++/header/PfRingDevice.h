@@ -51,6 +51,7 @@ namespace pcpp
 		public:
 			void notifyStartup();
 			void waitForStartup();
+
 		private:
 			std::mutex m_Mutex;
 			std::condition_variable m_Cv;

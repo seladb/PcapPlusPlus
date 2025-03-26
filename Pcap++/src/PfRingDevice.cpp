@@ -501,7 +501,7 @@ namespace pcpp
 
 				// Wake up the threads so they can exit
 				startupBlock->notifyStartup();
-				
+
 				// Wait for all threads to exit
 				for (int coreId2 = coreId; coreId2 >= 0; coreId2--)
 				{
@@ -566,10 +566,10 @@ namespace pcpp
 
 			// Wake up the threads so they can exit
 			startupBlock->notifyStartup();
-			
+
 			// Wait for the thread to exit
 			m_CoreConfiguration[0].RxThread.join();
-			
+
 			clearCoreConfiguration();
 			PCPP_LOG_ERROR(e.what());
 			return false;
