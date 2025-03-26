@@ -943,14 +943,14 @@ namespace pcpp
 		IsAffinitySet = true;
 	}
 
-	PfRingDevice::StartupBlock::notifyStartup()
+	void PfRingDevice::StartupBlock::notifyStartup()
 	{
 		std::lock_guard<std::mutex> lock(m_Mutex);
 		m_Ready = true;
 		m_Cv.notify_all();
 	}
 
-	PfRingDevice::StartupBlock::waitForStartup()
+	void PfRingDevice::StartupBlock::waitForStartup()
 	{
 		std::unique_lock<std::mutex> lock(m_Mutex);
 		m_Cv.wait(lock, [&] { return m_Ready; });
