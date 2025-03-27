@@ -36,13 +36,6 @@ namespace pcpp
 
 		template <typename T1, typename T2, typename... T>
 		inline Layer* tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen, Packet* packet);
-
-		// Specialization for the case where the template parameter pack is empty
-		template <>
-		inline Layer* tryConstructNextLayerChainImpl<void>(Layer* pThis, uint8_t* data, size_t dataLen, Packet* packet)
-		{
-			return nullptr;
-		}
 	}  // namespace internal
 
 	/// @class Layer
