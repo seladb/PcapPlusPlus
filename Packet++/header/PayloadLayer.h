@@ -82,7 +82,7 @@ namespace pcpp
 
 		/// A static method that takes a byte array and detects if it can be parsed as a PayloadLayer.
 		/// @param[in] data A byte array
-		/// @param[in] dataSize The byte array size (in bytes)
+		/// @param[in] dataLen The byte array size (in bytes)
 		/// @return Always true
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
