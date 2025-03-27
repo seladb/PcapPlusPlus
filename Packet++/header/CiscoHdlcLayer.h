@@ -62,7 +62,7 @@ namespace pcpp
 
 		// Overridden methods
 
-		/// @return The size of @ref cisco_hdlc_header
+		/// @return The size of the HDLC header which is 4 bytes
 		size_t getHeaderLen() const override
 		{
 			return sizeof(cisco_hdlc_header);

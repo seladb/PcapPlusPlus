@@ -15,7 +15,6 @@
 #include "Logger.h"
 #include <numeric>
 #include <sstream>
-#include <iostream>
 #ifdef _MSC_VER
 #	include <time.h>
 #	include "SystemUtils.h"
