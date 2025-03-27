@@ -45,11 +45,11 @@ namespace pcpp
 			tryConstructNextLayerChain<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_ARP:
-			m_NextLayer = new ArpLayer(payload, payloadLen, this, m_Packet);
+			constructNextLayer<ArpLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_VLAN:
 		case PCPP_ETHERTYPE_IEEE_802_1AD:
-			m_NextLayer = new VlanLayer(payload, payloadLen, this, m_Packet);
+			constructNextLayer<VlanLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_PPPOES:
 			tryConstructNextLayerChain<PPPoESessionLayer, PayloadLayer>(payload, payloadLen, m_Packet);
@@ -58,13 +58,13 @@ namespace pcpp
 			tryConstructNextLayerChain<PPPoEDiscoveryLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_MPLS:
-			m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
+			constructNextLayer<MplsLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_WAKE_ON_LAN:
 			tryConstructNextLayerChain<WakeOnLanLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 		}
 	}
 
