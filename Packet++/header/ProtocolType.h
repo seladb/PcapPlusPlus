@@ -217,6 +217,9 @@ namespace pcpp
 	/// GTPv2 protocol
 	const ProtocolType GTPv2 = 57;
 
+	/// Diagnostic over IP protocol (DOIP)
+	const ProtocolType DOIP = 58;
+
 	/// An enum representing OSI model layers
 	enum OsiModelLayer
 	{
