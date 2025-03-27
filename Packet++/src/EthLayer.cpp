@@ -39,10 +39,10 @@ namespace pcpp
 		switch (be16toh(hdr->etherType))
 		{
 		case PCPP_ETHERTYPE_IP:
-			tryConstructNextLayerChain<IPv4Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<IPv4Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_IPV6:
-			tryConstructNextLayerChain<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_ARP:
 			constructNextLayer<ArpLayer>(payload, payloadLen, m_Packet);
@@ -52,16 +52,16 @@ namespace pcpp
 			constructNextLayer<VlanLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_PPPOES:
-			tryConstructNextLayerChain<PPPoESessionLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<PPPoESessionLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_PPPOED:
-			tryConstructNextLayerChain<PPPoEDiscoveryLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<PPPoEDiscoveryLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_MPLS:
 			constructNextLayer<MplsLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_WAKE_ON_LAN:
-			tryConstructNextLayerChain<WakeOnLanLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<WakeOnLanLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		default:
 			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
