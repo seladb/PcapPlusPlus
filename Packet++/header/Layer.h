@@ -27,6 +27,23 @@ namespace pcpp
 	};
 
 	class Packet;
+	class Layer;
+
+	namespace internal
+	{
+		template <typename T1>
+		inline Layer* tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen, Packet* packet);
+
+		template <typename T1, typename T2, typename... T>
+		inline Layer* tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen, Packet* packet);
+
+		// Specialization for the case where the template parameter pack is empty
+		template <>
+		inline Layer* tryConstructNextLayerChainImpl<void>(Layer* pThis, uint8_t* data, size_t dataLen, Packet* packet)
+		{
+			return nullptr;
+		}
+	}  // namespace internal
 
 	/// @class Layer
 	/// Layer is the base class for all protocol layers. Each protocol supported in PcapPlusPlus has a class that
@@ -59,6 +76,12 @@ namespace pcpp
 	class Layer : public IDataContainer
 	{
 		friend class Packet;
+		template <typename T1>
+		friend inline Layer* internal::tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen,
+		                                                       Packet* packet);
+		template <typename T1, typename T2, typename... T>
+		friend inline Layer* internal::tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen,
+		                                                       Packet* packet);
 
 	public:
 		/// A destructor for this class. Frees the data if it was allocated by the layer constructor (see
@@ -255,20 +278,29 @@ namespace pcpp
 		template <typename T1, typename T2, typename... T>
 		Layer* tryConstructNextLayerChain(uint8_t* data, size_t dataLen, Packet* packet)
 		{
-			Layer* newLayer = tryConstructNextLayer<T1>(data, dataLen, packet);
+			return internal::tryConstructNextLayerChainImpl<T1, T2, T...>(this, data, dataLen, packet);
+		}
+	};
+
+	namespace internal
+	{
+		template <typename T1>
+		inline Layer* tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen, Packet* packet)
+		{
+			return pThis->tryConstructNextLayer<T1>(data, dataLen, packet);
+		}
+
+		template <typename T1, typename T2, typename... T>
+		inline Layer* tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen, Packet* packet)
+		{
+			Layer* newLayer = pThis->tryConstructNextLayer<T1>(data, dataLen, packet);
 			if (newLayer != nullptr)
 			{
 				return newLayer;
 			}
-			return this->tryConstructNextLayerChain<T2, T...>(data, dataLen, packet);
+			return tryConstructNextLayerChainImpl<T2, T...>(pThis, data, dataLen, packet);
 		}
-
-		// Specialization for the case where the template parameter pack is empty
-		template <> Layer* tryConstructNextLayerChain<void>(uint8_t* data, size_t dataLen, Packet* packet)
-		{
-			return nullptr;
-		}
-	};
+	}  // namespace internal
 
 	inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)
 	{
