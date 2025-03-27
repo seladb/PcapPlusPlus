@@ -78,10 +78,10 @@ namespace pcpp
 		friend class Packet;
 		template <typename T1>
 		friend inline Layer* internal::tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen,
-		                                                       Packet* packet);
+		                                                              Packet* packet);
 		template <typename T1, typename T2, typename... T>
 		friend inline Layer* internal::tryConstructNextLayerChainImpl(Layer* pThis, uint8_t* data, size_t dataLen,
-		                                                       Packet* packet);
+		                                                              Packet* packet);
 
 	public:
 		/// A destructor for this class. Frees the data if it was allocated by the layer constructor (see
