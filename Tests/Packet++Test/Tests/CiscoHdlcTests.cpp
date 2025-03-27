@@ -56,7 +56,7 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 
 	// Malformed Cisco HDLC + IPv4
 	{
-		auto data = std::vector<uint8_t> {0x0f, 0x00, 0x08, 0x00, 0x45, 0xc0};
+		auto data = std::vector<uint8_t>{ 0x0f, 0x00, 0x08, 0x00, 0x45, 0xc0 };
 		auto rawPacket = pcpp::RawPacket(data.data(), data.size(), time, false, pcpp::LINKTYPE_C_HDLC);
 
 		const pcpp::Packet ciscoHdlcPacket(&rawPacket);
@@ -66,7 +66,7 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload);
 	}
-} // CiscoHdlcParsingTest
+}  // CiscoHdlcParsingTest
 
 PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 {
@@ -90,12 +90,15 @@ PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 		PTF_ASSERT_NOT_NULL(hdlcLayer);
 		PTF_ASSERT_EQUAL(newHdlcPacket.getRawPacket()->getLinkLayerType(), pcpp::LINKTYPE_C_HDLC);
 
-		PTF_ASSERT_BUF_COMPARE(hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getData(), newHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getData(), hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getHeaderLen());
+		PTF_ASSERT_BUF_COMPARE(hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getData(),
+		                       newHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getData(),
+		                       hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getHeaderLen());
 	}
 
 	{
 		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::Address::Unicast);
-		pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("2402:f000:1:8e01::5555"), pcpp::IPv6Address("2607:fcd0:100:2300::b108:2a6b"));
+		pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("2402:f000:1:8e01::5555"),
+		                          pcpp::IPv6Address("2607:fcd0:100:2300::b108:2a6b"));
 
 		pcpp::Packet newHdlcPacket(20, pcpp::LINKTYPE_C_HDLC);
 		newHdlcPacket.addLayer(&newHdlcLayer);
@@ -110,9 +113,11 @@ PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 		PTF_ASSERT_NOT_NULL(hdlcLayer);
 		PTF_ASSERT_EQUAL(newHdlcPacket.getRawPacket()->getLinkLayerType(), pcpp::LINKTYPE_C_HDLC);
 
-		PTF_ASSERT_BUF_COMPARE(hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getData(), newHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getData(), hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getHeaderLen());
+		PTF_ASSERT_BUF_COMPARE(hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getData(),
+		                       newHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getData(),
+		                       hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>()->getHeaderLen());
 	}
-} // CiscoHdlcLayerCreationTest
+}  // CiscoHdlcLayerCreationTest
 
 PTF_TEST_CASE(CiscoHdlcLayerEditTest)
 {
@@ -136,4 +141,4 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest)
 		newHdlcLayer.setAddressValue(0x1);
 		PTF_ASSERT_EQUAL(newHdlcLayer.getAddress(), pcpp::CiscoHdlcLayer::Address::Unknown, enumclass);
 	}
-} // CiscoHdlcLayerCreationTest
+}  // CiscoHdlcLayerEditTest

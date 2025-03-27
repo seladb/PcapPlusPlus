@@ -812,10 +812,12 @@ namespace pcpp
 			           ? static_cast<Layer*>(new NflogLayer((uint8_t*)rawData, rawDataLen, this))
 			           : static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
 		}
-		else if (linkType == LINKTYPE_C_HDLC) {
+		else if (linkType == LINKTYPE_C_HDLC)
+		{
 			return CiscoHdlcLayer::isDataValid(rawData, rawDataLen)
 			           ? static_cast<Layer*>(new CiscoHdlcLayer(const_cast<uint8_t*>(rawData), rawDataLen, this))
-			           : static_cast<Layer*>(new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
+			           : static_cast<Layer*>(
+			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
 		}
 
 		// unknown link type

@@ -63,7 +63,10 @@ namespace pcpp
 		// Overridden methods
 
 		/// @return The size of @ref cisco_hdlc_header
-		size_t getHeaderLen() const override { return sizeof(cisco_hdlc_header); }
+		size_t getHeaderLen() const override
+		{
+			return sizeof(cisco_hdlc_header);
+		}
 
 		/// Calculate the Next Protocol when possible
 		void computeCalculateFields() override;
@@ -73,7 +76,10 @@ namespace pcpp
 
 		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const override { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const override
+		{
+			return OsiModelDataLinkLayer;
+		}
 
 	private:
 #pragma pack(push, 1)
@@ -86,9 +92,12 @@ namespace pcpp
 #pragma pack(pop)
 		static_assert(sizeof(cisco_hdlc_header) == 4, "cisco_hdlc_header size is not 4 bytes");
 
-		cisco_hdlc_header* getCiscoHdlcHeader() const { return reinterpret_cast<cisco_hdlc_header*>(m_Data); }
+		cisco_hdlc_header* getCiscoHdlcHeader() const
+		{
+			return reinterpret_cast<cisco_hdlc_header*>(m_Data);
+		}
 
 		void setNextProtocol(uint16_t protocol);
 	};
 
-} // namespace pcpp
+}  // namespace pcpp
