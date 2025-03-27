@@ -189,6 +189,85 @@ namespace pcpp
 
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
+
+		/// Construct the next layer in the protocol stack. No validation is performed on the data.
+		/// @tparam T The type of the layer to construct
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		/// @return The constructed layer
+		template <typename T> Layer* constructNextLayer(uint8_t* data, size_t dataLen, Packet* packet)
+		{
+			Layer* newLayer = new T(data, dataLen, this, packet);
+			setNextLayer(newLayer);
+			return newLayer;
+		}
+
+		/// Try to construct the next layer in the protocol stack.
+		///
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, a nullptr is returned.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		/// @return The constructed layer or nullptr if the data is invalid
+		template <typename T> Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Packet* packet)
+		{
+			if (T::isDataValid(data, dataLen))
+			{
+				return constructNextLayer<T>(data, dataLen, packet);
+			}
+			return nullptr;
+		}
+
+		/// Try to construct the next layer in the protocol stack.
+		///
+		/// See the documentation for tryConstructNextLayer<T1, T2, T...>(data, dataLen, packet) for more information.
+		///
+		/// @tparam T1 The first type in the template parameter pack.
+		/// @param[in] data The data to construct the layer from.
+		/// @param[in] dataLen The length of the data.
+		/// @param[in] packet The packet the layer belongs to.
+		/// @return The constructed layer or nullptr if the data is invalid for all types in the pack.
+		/// @todo Replace with a fold expression in Cpp17
+		template <typename T1> Layer* tryConstructNextLayerChain(uint8_t* data, size_t dataLen, Packet* packet)
+		{
+			return tryConstructNextLayer<T1>(data, dataLen, packet);
+		}
+
+		/// Try to construct the next layer in the protocol stack.
+		///
+		/// This method attempts to construct the next layer in the protocol stack by trying each layer type in the
+		/// template parameter pack. It calls tryConstructNextLayer<T1>(data, dataLen, packet) for the first type in the
+		/// pack. If the construction is successful, it returns the new layer. If the construction fails, it recursively
+		/// tries the next type in the pack.
+		///
+		/// @tparam T1 The first type in the template parameter pack.
+		/// @tparam T2 The second type in the template parameter pack.
+		/// @tparam T The remaining types in the template parameter pack.
+		/// @param[in] data The data to construct the layer from.
+		/// @param[in] dataLen The length of the data.
+		/// @param[in] packet The packet the layer belongs to.
+		/// @return The constructed layer or nullptr if the data is invalid for all types in the pack.
+		/// @todo Replace with a fold expression in Cpp17
+		template <typename T1, typename T2, typename... T>
+		Layer* tryConstructNextLayerChain(uint8_t* data, size_t dataLen, Packet* packet)
+		{
+			Layer* newLayer = tryConstructNextLayer<T1>(data, dataLen, packet);
+			if (newLayer != nullptr)
+			{
+				return newLayer;
+			}
+			return this->tryConstructNextLayerChain<T2, T...>(data, dataLen, packet);
+		}
+
+		// Specialization for the case where the template parameter pack is empty
+		template <> Layer* tryConstructNextLayerChain<void>(uint8_t* data, size_t dataLen, Packet* packet)
+		{
+			return nullptr;
+		}
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)
