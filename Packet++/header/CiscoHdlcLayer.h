@@ -29,7 +29,7 @@ namespace pcpp
 
 		/// A constructor that creates a new Cisco HDLC layer
 		/// @param[in] address The address field value
-		CiscoHdlcLayer(Address address);
+		explicit CiscoHdlcLayer(Address address);
 
 		/// Default destructor for this layer
 		~CiscoHdlcLayer() override = default;
