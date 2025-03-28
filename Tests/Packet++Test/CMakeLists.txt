@@ -3,6 +3,7 @@ add_executable(
   main.cpp
   Tests/Asn1Tests.cpp
   Tests/BgpTests.cpp
+  Tests/CiscoHdlcTests.cpp
   Tests/CotpTests.cpp
   Tests/DhcpTests.cpp
   Tests/DhcpV6Tests.cpp
