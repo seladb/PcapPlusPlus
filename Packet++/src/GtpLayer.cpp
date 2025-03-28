@@ -368,7 +368,6 @@ namespace pcpp
 				PCPP_LOG_ERROR("Add extension failed: cannot extend layer");
 				return {};
 			}
-			header = getHeader();
 		}
 
 		// get the extra header
@@ -415,6 +414,9 @@ namespace pcpp
 		else
 		{
 			// mark extension flags in the layer
+			header = getHeader();
+			headerExtra = getHeaderExtra();
+
 			header->extensionHeaderFlag = 1;
 			headerExtra->nextExtensionHeader = extensionType;
 		}
