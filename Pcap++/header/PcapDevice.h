@@ -66,9 +66,9 @@ namespace pcpp
 			char const* getLastError() const noexcept;
 
 			/// @brief Sets a filter on the handle. Only packets that match the filter will be captured by the handle.
-			/// 
+			///
 			/// The filter uses Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html).
-			/// 
+			///
 			/// @param[in] filter The filter to set in Berkeley Packet Filter (BPF) syntax.
 			/// @return True if the filter was set successfully, false otherwise.
 			bool setFilter(std::string const& filter);
