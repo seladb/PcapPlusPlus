@@ -34,6 +34,7 @@ set(
   header/PcapFilter.h
   header/PcapLiveDevice.h
   header/PcapLiveDeviceList.h
+  header/PcapUtils.h
   header/RawSocketDevice.h
 )
 
