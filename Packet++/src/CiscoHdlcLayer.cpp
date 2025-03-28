@@ -13,13 +13,13 @@ namespace pcpp
 #define CISCO_HDLC_TYPE_IP 0x0800
 #define CISCO_HDLC_TYPE_IPV6 0x86DD
 
-	CiscoHdlcLayer::CiscoHdlcLayer(Address address)
+	CiscoHdlcLayer::CiscoHdlcLayer(AddressType address)
 	{
 		m_DataLen = sizeof(cisco_hdlc_header);
 		m_Data = new uint8_t[m_DataLen]{};
 
 		cisco_hdlc_header* hdlcHdr = getCiscoHdlcHeader();
-		hdlcHdr->address = static_cast<uint8_t>(address == Address::Unknown ? Address::Unicast : address);
+		hdlcHdr->address = static_cast<uint8_t>(address == AddressType::Unknown ? AddressType::Unicast : address);
 		hdlcHdr->control = 0;  // Always 0 for Cisco HDLC
 	}
 
@@ -79,18 +79,18 @@ namespace pcpp
 		return "Cisco HDLC Layer";
 	}
 
-	CiscoHdlcLayer::Address CiscoHdlcLayer::getAddress() const
+	CiscoHdlcLayer::AddressType CiscoHdlcLayer::getAddress() const
 	{
-		switch (static_cast<Address>(getAddressValue()))
+		switch (static_cast<AddressType>(getAddressValue()))
 		{
-		case Address::Unicast:
-		case Address::Multicast:
+		case AddressType::Unicast:
+		case AddressType::Multicast:
 		{
-			return static_cast<Address>(getAddressValue());
+			return static_cast<AddressType>(getAddressValue());
 		}
 		default:
 		{
-			return Address::Unknown;
+			return AddressType::Unknown;
 		}
 		}
 	}
@@ -100,9 +100,9 @@ namespace pcpp
 		return getCiscoHdlcHeader()->address;
 	}
 
-	void CiscoHdlcLayer::setAddress(Address address)
+	void CiscoHdlcLayer::setAddress(AddressType address)
 	{
-		if (address == Address::Unknown)
+		if (address == AddressType::Unknown)
 		{
 			throw std::invalid_argument("Cannot set the address to Address::Unknown");
 		}

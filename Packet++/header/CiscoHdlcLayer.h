@@ -9,9 +9,9 @@ namespace pcpp
 	class CiscoHdlcLayer : public Layer
 	{
 	public:
-		/// @enum Address
+		/// @enum AddressType
 		/// Represents Cisco HDLC address types
-		enum class Address
+		enum class AddressType
 		{
 			/// Unicast
 			Unicast = 0x0f,
@@ -30,20 +30,20 @@ namespace pcpp
 
 		/// A constructor that creates a new Cisco HDLC layer
 		/// @param[in] address The address field value
-		explicit CiscoHdlcLayer(Address address);
+		explicit CiscoHdlcLayer(AddressType address);
 
 		/// Default destructor for this layer
 		~CiscoHdlcLayer() override = default;
 
 		/// @return The address field enum value
-		Address getAddress() const;
+		AddressType getAddress() const;
 
 		/// @return The address field raw value
 		uint8_t getAddressValue() const;
 
 		/// Set the address field enum value
 		/// @param[in] address The address enum value to set
-		void setAddress(Address address);
+		void setAddress(AddressType address);
 
 		/// Set the address field value
 		/// @param[in] address The address value to set

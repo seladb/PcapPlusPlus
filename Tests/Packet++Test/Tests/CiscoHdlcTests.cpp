@@ -19,7 +19,7 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 		PTF_ASSERT_TRUE(ciscoHdlcPacket.isPacketOfType(pcpp::CiscoHDLC));
 		const auto ciscoHdlcLayer = ciscoHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>();
 
-		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getAddress(), pcpp::CiscoHdlcLayer::Address::Unicast, enumclass);
+		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getAddress(), pcpp::CiscoHdlcLayer::AddressType::Unicast, enumclass);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getHeaderLen(), 4);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getAddressValue(), 0x0f);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getNextProtocol(), 0x800);
@@ -35,7 +35,7 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 		PTF_ASSERT_TRUE(ciscoHdlcPacket.isPacketOfType(pcpp::CiscoHDLC));
 		const auto ciscoHdlcLayer = ciscoHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>();
 
-		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getAddress(), pcpp::CiscoHdlcLayer::Address::Unicast, enumclass);
+		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getAddress(), pcpp::CiscoHdlcLayer::AddressType::Unicast, enumclass);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getNextProtocol(), 0x86dd);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getNextLayer()->getProtocol(), pcpp::IPv6);
 	}
@@ -48,7 +48,7 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 		PTF_ASSERT_TRUE(ciscoHdlcPacket.isPacketOfType(pcpp::CiscoHDLC));
 		const auto ciscoHdlcLayer = ciscoHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>();
 
-		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getAddress(), pcpp::CiscoHdlcLayer::Address::Multicast, enumclass);
+		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getAddress(), pcpp::CiscoHdlcLayer::AddressType::Multicast, enumclass);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getAddressValue(), 0x8f);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getNextProtocol(), 0x8035);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload);
@@ -74,7 +74,7 @@ PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 	gettimeofday(&time, nullptr);
 
 	{
-		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::Address::Unicast);
+		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::AddressType::Unicast);
 		pcpp::IPv4Layer ipv4Layer(pcpp::IPv4Address("100.16.1.2"), pcpp::IPv4Address("100.16.1.1"));
 
 		pcpp::Packet newHdlcPacket(20, pcpp::LINKTYPE_C_HDLC);
@@ -96,7 +96,7 @@ PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 	}
 
 	{
-		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::Address::Unicast);
+		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::AddressType::Unicast);
 		pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("2402:f000:1:8e01::5555"),
 		                          pcpp::IPv6Address("2607:fcd0:100:2300::b108:2a6b"));
 
@@ -122,30 +122,30 @@ PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 PTF_TEST_CASE(CiscoHdlcLayerEditTest)
 {
 	{
-		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::Address::Multicast);
+		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::AddressType::Multicast);
 
-		newHdlcLayer.setAddress(pcpp::CiscoHdlcLayer::Address::Unicast);
-		PTF_ASSERT_EQUAL(newHdlcLayer.getAddress(), pcpp::CiscoHdlcLayer::Address::Unicast, enumclass);
+		newHdlcLayer.setAddress(pcpp::CiscoHdlcLayer::AddressType::Unicast);
+		PTF_ASSERT_EQUAL(newHdlcLayer.getAddress(), pcpp::CiscoHdlcLayer::AddressType::Unicast, enumclass);
 	}
 
 	{
-		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::Address::Unicast);
+		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::AddressType::Unicast);
 
 		newHdlcLayer.setAddressValue(0x8f);
-		PTF_ASSERT_EQUAL(newHdlcLayer.getAddress(), pcpp::CiscoHdlcLayer::Address::Multicast, enumclass);
+		PTF_ASSERT_EQUAL(newHdlcLayer.getAddress(), pcpp::CiscoHdlcLayer::AddressType::Multicast, enumclass);
 	}
 
 	{
-		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::Address::Unicast);
+		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::AddressType::Unicast);
 
 		newHdlcLayer.setAddressValue(0x1);
-		PTF_ASSERT_EQUAL(newHdlcLayer.getAddress(), pcpp::CiscoHdlcLayer::Address::Unknown, enumclass);
+		PTF_ASSERT_EQUAL(newHdlcLayer.getAddress(), pcpp::CiscoHdlcLayer::AddressType::Unknown, enumclass);
 	}
 
 	{
-		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::Address::Unicast);
+		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::AddressType::Unicast);
 
-		PTF_ASSERT_RAISES(newHdlcLayer.setAddress(pcpp::CiscoHdlcLayer::Address::Unknown), std::invalid_argument,
+		PTF_ASSERT_RAISES(newHdlcLayer.setAddress(pcpp::CiscoHdlcLayer::AddressType::Unknown), std::invalid_argument,
 		                  "Cannot set the address to Address::Unknown");
 	}
 
