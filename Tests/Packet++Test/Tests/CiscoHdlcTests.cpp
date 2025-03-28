@@ -141,4 +141,12 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest)
 		newHdlcLayer.setAddressValue(0x1);
 		PTF_ASSERT_EQUAL(newHdlcLayer.getAddress(), pcpp::CiscoHdlcLayer::Address::Unknown, enumclass);
 	}
+
+	{
+		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::Address::Unicast);
+
+		PTF_ASSERT_RAISES(newHdlcLayer.setAddress(pcpp::CiscoHdlcLayer::Address::Unknown), std::invalid_argument,
+		                  "Cannot set the address to Address::Unknown");
+	}
+
 }  // CiscoHdlcLayerEditTest

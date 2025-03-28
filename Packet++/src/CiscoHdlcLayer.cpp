@@ -16,18 +16,11 @@ namespace pcpp
 	CiscoHdlcLayer::CiscoHdlcLayer(Address address)
 	{
 		m_DataLen = sizeof(cisco_hdlc_header);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		m_Data = new uint8_t[m_DataLen]{};
 
 		cisco_hdlc_header* hdlcHdr = getCiscoHdlcHeader();
 		hdlcHdr->address = static_cast<uint8_t>(address == Address::Unknown ? Address::Unicast : address);
 		hdlcHdr->control = 0;  // Always 0 for Cisco HDLC
-	}
-
-	CiscoHdlcLayer::CiscoHdlcLayer(uint8_t* data, size_t dataLen, Packet* packet)
-	    : Layer(data, dataLen, nullptr, packet)
-	{
-		m_Protocol = CiscoHDLC;
 	}
 
 	void CiscoHdlcLayer::computeCalculateFields()
@@ -109,7 +102,11 @@ namespace pcpp
 
 	void CiscoHdlcLayer::setAddress(Address address)
 	{
-		address = (address == Address::Unknown ? Address::Unicast : address);
+		if (address == Address::Unknown)
+		{
+			throw std::invalid_argument("Cannot set the address to Address::Unknown");
+		}
+
 		setAddressValue(static_cast<uint8_t>(address));
 	}
 
