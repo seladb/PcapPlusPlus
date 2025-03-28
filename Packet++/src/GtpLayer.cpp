@@ -406,6 +406,8 @@ namespace pcpp
 			return {};
 		}
 
+		header = getHeader();
+
 		// lastExt != null means layer contains 1 or more extensions
 		if (!lastExt.isNull())
 		{
