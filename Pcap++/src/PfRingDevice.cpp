@@ -52,13 +52,12 @@ namespace pcpp
 		m_DeviceMTU = 0;
 		m_IsFilterCurrentlySet = false;
 
-		m_PfRingDescriptors = new pfring*[MAX_NUM_RX_CHANNELS];
+		m_PfRingDescriptors.resize(MAX_NUM_RX_CHANNELS);
 	}
 
 	PfRingDevice::~PfRingDevice()
 	{
 		close();
-		delete[] m_PfRingDescriptors;
 	}
 
 	bool PfRingDevice::open()
