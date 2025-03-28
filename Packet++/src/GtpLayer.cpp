@@ -408,6 +408,7 @@ namespace pcpp
 
 		// cppcheck-suppress redundantAssignment
 		header = getHeader();
+		headerExtra = getHeaderExtra();
 
 		// lastExt != null means layer contains 1 or more extensions
 		if (!lastExt.isNull())
