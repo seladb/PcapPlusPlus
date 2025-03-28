@@ -496,22 +496,28 @@ namespace pcpp
 			}
 			catch (const std::exception& e)
 			{
+				// If an exception occurred, stop all threads
+				m_StopThread = true;
+
+				// Wake up the threads so they can exit
+				startupBlock->notifyStartup();
+
+				// Wait for all threads to exit
+				for (int coreId2 = coreId; coreId2 >= 0; coreId2--)
 				{
-					std::unique_lock<std::mutex> lock(startupBlock->Mutex);
-					startupBlock->State = 1;
+					if (!m_CoreConfiguration[coreId2].IsInUse)
+						continue;
+					m_CoreConfiguration[coreId2].RxThread.join();
 				}
-				startupBlock->Cond.notify_all();
+
 				clearCoreConfiguration();
 				PCPP_LOG_ERROR(e.what());
 				return false;
 			}
 		}
 
-		{
-			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
-			startupBlock->State = 2;
-		}
-		startupBlock->Cond.notify_all();
+		// Initialization complete. Start the capture threads.
+		startupBlock->notifyStartup();
 
 		return true;
 	}
@@ -555,22 +561,22 @@ namespace pcpp
 		}
 		catch (const std::exception& e)
 		{
-			{
-				std::unique_lock<std::mutex> lock(startupBlock->Mutex);
-				startupBlock->State = 1;
-			}
-			startupBlock->Cond.notify_all();
+			// If an exception occurred, stop the thread
+			m_StopThread = true;
+
+			// Wake up the threads so they can exit
+			startupBlock->notifyStartup();
+
+			// Wait for the thread to exit
 			m_CoreConfiguration[0].RxThread.join();
+
 			clearCoreConfiguration();
 			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
 
-		{
-			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
-			startupBlock->State = 2;
-		}
-		startupBlock->Cond.notify_all();
+		// Initialization complete. Start the capture thread.
+		startupBlock->notifyStartup();
 
 		PCPP_LOG_DEBUG("Capturing started for device [" << m_DeviceName << "]");
 		return true;
@@ -580,6 +586,7 @@ namespace pcpp
 	{
 		PCPP_LOG_DEBUG("Trying to stop capturing on device [" << m_DeviceName << "]");
 		m_StopThread = true;
+
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsInUse)
@@ -599,14 +606,12 @@ namespace pcpp
 			return;
 		}
 
-		{
-			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
-			startupBlock->Cond.wait(lock, [&] { return startupBlock->State != 0; });
+		startupBlock->waitForStartup();
 
-			if (startupBlock->State == 1)
-			{
-				return;
-			}
+		if (m_StopThread)
+		{
+			PCPP_LOG_DEBUG("Capture thread stopped during initialization.");
+			return;
 		}
 
 		// Startup is complete. The block is no longer needed.
@@ -936,6 +941,19 @@ namespace pcpp
 		Channel = nullptr;
 		IsInUse = false;
 		IsAffinitySet = true;
+	}
+
+	void PfRingDevice::StartupBlock::notifyStartup()
+	{
+		std::lock_guard<std::mutex> lock(m_Mutex);
+		m_Ready = true;
+		m_Cv.notify_all();
+	}
+
+	void PfRingDevice::StartupBlock::waitForStartup()
+	{
+		std::unique_lock<std::mutex> lock(m_Mutex);
+		m_Cv.wait(lock, [&] { return m_Ready; });
 	}
 
 }  // namespace pcpp
