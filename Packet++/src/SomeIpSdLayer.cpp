@@ -489,6 +489,11 @@ namespace pcpp
 
 		while (remainingLen > 0)
 		{
+			// Ensure there is enough remaining length for a new entry
+			if (remainingLen < sizeof(SomeIpSdEntry::someipsdhdrentry))
+			{
+				break;
+			}
 			entry = new SomeIpSdEntry(this, offset);
 
 			size_t entryLen = entry->getLength();
