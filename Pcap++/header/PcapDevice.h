@@ -65,6 +65,18 @@ namespace pcpp
 			/// @remarks The returned view is only valid until the next call to a pcap function.
 			char const* getLastError() const noexcept;
 
+			/// @brief Sets a filter on the handle. Only packets that match the filter will be captured by the handle.
+			///
+			/// The filter uses Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html).
+			///
+			/// @param[in] filter The filter to set in Berkeley Packet Filter (BPF) syntax.
+			/// @return True if the filter was set successfully, false otherwise.
+			bool setFilter(std::string const& filter);
+
+			/// @brief Clears the filter currently set on the handle.
+			/// @return True if the filter was removed successfully or if no filter was set, false otherwise.
+			bool clearFilter();
+
 			/// @return True if the handle is not null, false otherwise.
 			explicit operator bool() const noexcept
 			{
@@ -138,10 +150,10 @@ namespace pcpp
 		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
 		/// (http://biot.com/capstats/bpf.html)
 		/// @return True if filter set successfully, false otherwise
-		virtual bool setFilter(std::string filterAsString);
+		bool setFilter(std::string filterAsString) override;
 
 		/// Clear the filter currently set on device
 		/// @return True if filter was removed successfully or if no filter was set, false otherwise
-		bool clearFilter();
+		bool clearFilter() override;
 	};
 }  // namespace pcpp
