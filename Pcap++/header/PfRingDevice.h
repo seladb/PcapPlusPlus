@@ -10,6 +10,7 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 
 /// @file
@@ -46,11 +47,16 @@ namespace pcpp
 			void clear();
 		};
 
-		struct StartupBlock
+		class StartupBlock
 		{
-			std::mutex Mutex;
-			std::condition_variable Cond;
-			int State = 0;
+		public:
+			void notifyStartup();
+			void waitForStartup();
+
+		private:
+			std::mutex m_Mutex;
+			std::condition_variable m_Cv;
+			bool m_Ready = false;
 		};
 
 		std::vector<pfring*> m_PfRingDescriptors;
@@ -60,7 +66,7 @@ namespace pcpp
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
 		std::array<CoreConfiguration, MAX_NUM_OF_CORES> m_CoreConfiguration;
-		bool m_StopThread;
+		std::atomic<bool> m_StopThread;
 		OnPfRingPacketsArriveCallback m_OnPacketsArriveCallback;
 		void* m_OnPacketsArriveUserCookie;
 		bool m_ReentrantMode;
