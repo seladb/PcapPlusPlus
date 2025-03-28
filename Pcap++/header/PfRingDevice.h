@@ -7,6 +7,7 @@
 #include "SystemUtils.h"
 #include "Packet.h"
 #include <array>
+#include <vector>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -52,7 +53,7 @@ namespace pcpp
 			int State = 0;
 		};
 
-		pfring** m_PfRingDescriptors;
+		std::vector<pfring*> m_PfRingDescriptors;
 		uint8_t m_NumOfOpenedRxChannels;
 		std::string m_DeviceName;
 		int m_InterfaceIndex;
