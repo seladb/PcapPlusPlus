@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include "Device.h"
+#include "PcapUtils.h"
 
 // forward declaration for the pcap descriptor defined in pcap.h
 struct pcap;
@@ -31,10 +34,10 @@ namespace pcpp
 			explicit PcapHandle(pcap_t* pcapDescriptor) noexcept;
 
 			PcapHandle(const PcapHandle&) = delete;
-			PcapHandle(PcapHandle&& other) noexcept;
+			PcapHandle(PcapHandle&& other) noexcept = default;
 
 			PcapHandle& operator=(const PcapHandle&) = delete;
-			PcapHandle& operator=(PcapHandle&& other) noexcept;
+			PcapHandle& operator=(PcapHandle&& other) noexcept = default;
 			PcapHandle& operator=(std::nullptr_t) noexcept;
 
 			~PcapHandle();
@@ -48,7 +51,7 @@ namespace pcpp
 			/// @return The underlying pcap descriptor.
 			pcap_t* get() const noexcept
 			{
-				return m_PcapDescriptor;
+				return m_PcapDescriptor.get();
 			}
 
 			/// @brief Releases ownership of the handle and returns the pcap descriptor.
@@ -81,7 +84,7 @@ namespace pcpp
 			}
 
 		private:
-			pcap_t* m_PcapDescriptor = nullptr;
+			std::unique_ptr<pcap_t, internal::PcapCloseDeleter> m_PcapDescriptor;
 		};
 	}  // namespace internal
 
