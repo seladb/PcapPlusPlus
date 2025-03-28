@@ -406,10 +406,6 @@ namespace pcpp
 			return {};
 		}
 
-		// cppcheck-suppress redundantAssignment
-		header = getHeader();
-		headerExtra = getHeaderExtra();
-
 		// lastExt != null means layer contains 1 or more extensions
 		if (!lastExt.isNull())
 		{
@@ -419,6 +415,9 @@ namespace pcpp
 		else
 		{
 			// mark extension flags in the layer
+			header = getHeader();
+			headerExtra = getHeaderExtra();
+
 			header->extensionHeaderFlag = 1;
 			headerExtra->nextExtensionHeader = extensionType;
 		}
