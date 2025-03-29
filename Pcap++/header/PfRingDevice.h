@@ -77,7 +77,7 @@ namespace pcpp
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
 		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
 
-		int openSingleRxChannel(const char* deviceName, pfring** ring);
+		int openSingleRxChannelImpl(const char* deviceName, pfring** ring, bool useReenterant = false);
 
 		bool getIsHwClockEnable()
 		{
