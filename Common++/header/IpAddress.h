@@ -287,7 +287,7 @@ namespace pcpp
 			IPv6AddressType = 2,  // Deprecated
 			IPv6 = 2
 		};
-		
+
 		// Deprecated constants for backward compatibility to mimic the old enum values
 		static const AddressType IPv4AddressType = AddressType::IPv4;  // Deprecated
 		static const AddressType IPv6AddressType = AddressType::IPv6;  // Deprecated

@@ -204,7 +204,8 @@ namespace pcpp
 		/// @param[in] dataLen The length of the data
 		/// @param[in] packet The packet the layer belongs to
 		/// @return The constructed layer
-		template <typename T, typename... Args> Layer* constructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		template <typename T, typename... Args>
+		Layer* constructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
 		{
 			if (hasNextLayer())
 			{
@@ -227,7 +228,8 @@ namespace pcpp
 		/// @param[in] dataLen The length of the data
 		/// @param[in] packet The packet the layer belongs to
 		/// @return The constructed layer or nullptr if the data is invalid
-		template <typename T, typename... Args> Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		template <typename T, typename... Args>
+		Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
 		{
 			if (T::isDataValid(data, dataLen))
 			{
