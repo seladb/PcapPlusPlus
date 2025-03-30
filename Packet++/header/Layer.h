@@ -190,6 +190,12 @@ namespace pcpp
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
 
+
+		bool hasNextLayer() const
+		{
+			return m_NextLayer != nullptr;
+		}
+
 		/// Construct the next layer in the protocol stack. No validation is performed on the data.
 		/// @tparam T The type of the layer to construct
 		/// @param[in] data The data to construct the layer from
@@ -198,6 +204,11 @@ namespace pcpp
 		/// @return The constructed layer
 		template <typename T> Layer* constructNextLayer(uint8_t* data, size_t dataLen, Packet* packet)
 		{
+			if (hasNextLayer())
+			{
+				throw std::runtime_error("Next layer already exists");
+			}
+
 			Layer* newLayer = new T(data, dataLen, this, packet);
 			setNextLayer(newLayer);
 			return newLayer;
