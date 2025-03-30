@@ -262,33 +262,26 @@ namespace pcpp
 		switch (ipHdr->protocol)
 		{
 		case PACKETPP_IPPROTO_UDP:
-			tryConstructNextLayer<UdpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<UdpLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_TCP:
-			tryConstructNextLayer<TcpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<TcpLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_ICMP:
-			tryConstructNextLayer<IcmpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<IcmpLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_IPIP:
 		{
 			// todo: no tests for this case
-			tryConstructNextLayer<IPv4Layer, IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
-
-			/*
-			uint8_t ipVersion = *payload >> 4;
-			switch (ipVersion)
+			switch (IPv4Layer::getIPVersion(payload, payloadLen))
 			{
-			case 4:
-			    tryConstructNextLayer<IPv4Layer, PayloadLayer>(payload, payloadLen, m_Packet);
-			    break;
-			case 6:
-			    tryConstructNextLayer<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
-			    break;
-			default:
-			    constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			case IPAddress::AddressType::IPv4:
+				tryConstructNextLayer<IPv4Layer>(payload, payloadLen, m_Packet);
+				break;
+			case IPAddress::AddressType::IPv6:
+				tryConstructNextLayer<IPv6Layer>(payload, payloadLen, m_Packet);
+				break;
 			}
-			*/
 			break;
 		}
 		case PACKETPP_IPPROTO_GRE:
@@ -296,13 +289,11 @@ namespace pcpp
 			switch (GreLayer::getGREVersion(payload, payloadLen))
 			{
 			case GREv0:
-				tryConstructNextLayer<GREv0Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayer<GREv0Layer>(payload, payloadLen, m_Packet);
 				break;
 			case GREv1:
-				tryConstructNextLayer<GREv1Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayer<GREv1Layer>(payload, payloadLen, m_Packet);
 				break;
-			default:
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 			};
 			break;
 		}
@@ -315,56 +306,49 @@ namespace pcpp
 			switch (igmpVer)
 			{
 			case IGMPv1:
-				tryConstructNextLayer<IgmpV1Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayer<IgmpV1Layer>(payload, payloadLen, m_Packet);
 				break;
 			case IGMPv2:
-				tryConstructNextLayer<IgmpV2Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayer<IgmpV2Layer>(payload, payloadLen, m_Packet);
 				break;
 			case IGMPv3:
 			{
 				if (igmpQuery)
-					tryConstructNextLayer<IgmpV3QueryLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+					tryConstructNextLayer<IgmpV3QueryLayer>(payload, payloadLen, m_Packet);
 				else
-					tryConstructNextLayer<IgmpV3ReportLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+					tryConstructNextLayer<IgmpV3ReportLayer>(payload, payloadLen, m_Packet);
 				break;
 			}
-			default:
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 			}
 			break;
 		}
 		case PACKETPP_IPPROTO_AH:
-			tryConstructNextLayer<AuthenticationHeaderLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<AuthenticationHeaderLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_ESP:
-			tryConstructNextLayer<ESPLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<ESPLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_IPV6:
-			tryConstructNextLayer<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayer<IPv6Layer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_VRRP:
 		{
 			switch (VrrpLayer::getVersionFromData(payload, payloadLen))
 			{
 			case VRRPv2:
-				tryConstructNextLayer<VrrpV2Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayer<VrrpV2Layer>(payload, payloadLen, m_Packet);
 				break;
 			case VRRPv3:
-				// TODO: Figure out how to support extra parameters?
-				// tryConstructNextLayer<VrrpV3Layer, PayloadLayer>(payload, payloadLen, m_Packet);
-				m_NextLayer = new VrrpV3Layer(payload, payloadLen, this, m_Packet, IPAddress::IPv4AddressType);
-				if (m_NextLayer == nullptr)
-					constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
-				break;
-			default:
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayer<VrrpV3Layer>(payload, payloadLen, m_Packet, IPAddress::AddressType::IPv4);
 				break;
 			}
 			break;
 		}
-		default:
-			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 		}
+
+		// If no next layer was constructed, assume it's a payload layer
+		if (!hasNextLayer())
+			tryConstructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 	}
 
 	void IPv4Layer::computeCalculateFields()
