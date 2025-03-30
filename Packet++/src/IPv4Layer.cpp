@@ -281,6 +281,9 @@ namespace pcpp
 			case IPAddress::AddressType::IPv6:
 				tryConstructNextLayer<IPv6Layer>(payload, payloadLen, m_Packet);
 				break;
+			case IPAddress::AddressType::Unknown:
+				// If the IP version is not recognized, assume it's a payload layer and fallthrough.
+				break;
 			}
 			break;
 		}
