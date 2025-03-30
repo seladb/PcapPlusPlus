@@ -133,7 +133,7 @@ namespace pcpp
 
 		vrrp_header* getVrrpHeader() const
 		{
-			return (vrrp_header*)m_Data;
+			return reinterpret_cast<vrrp_header*>(m_Data);
 		}
 
 		void setAddressType(IPAddress::AddressType addressType);
