@@ -30,6 +30,23 @@ namespace pcpp
 
 	class Packet;
 
+	namespace internal
+	{
+		/// @brief Check if the data is large enough to reinterpret as a type
+		/// 
+		/// The data must be non-null and at least as large as the type
+		/// 
+		/// @tparam T The type to reinterpret as
+		/// @param data The data to check
+		/// @param dataLen The length of the data
+		/// @return True if the data is large enough to reinterpret as T, false otherwise
+		template <typename T>
+		bool canReinterpretAs(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(T);
+		}
+	}
+
 	/// @class Layer
 	/// Layer is the base class for all protocol layers. Each protocol supported in PcapPlusPlus has a class that
 	/// inherits Layer.
