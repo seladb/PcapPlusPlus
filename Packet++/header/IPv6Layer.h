@@ -244,7 +244,8 @@ namespace pcpp
 
 	bool IPv6Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(ip6_hdr);
+		auto ip6Header = reinterpret_cast<const ip6_hdr*>(data);
+		return data && dataLen >= sizeof(ip6_hdr) && ip6Header->ipVersion == 6;
 	}
 
 }  // namespace pcpp
