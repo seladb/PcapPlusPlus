@@ -386,5 +386,10 @@ namespace pcpp
 		/// Calculate the checksum from header and data and write the result to @ref vrrp_header#checksum
 		/// @return The checksum result
 		uint16_t calculateChecksum() const override;
+
+		static bool isDataValid(uint8_t const* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(vrrp_header);
+		}
 	};
 }  // namespace pcpp
