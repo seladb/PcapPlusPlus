@@ -35,7 +35,8 @@ namespace pcpp
 		/// When using this constructor an empty raw buffer is allocated (with the size of maxPacketLen) and a new
 		/// RawPacket is created
 		/// @param[in] maxPacketLen The expected packet length in bytes
-		explicit Packet(size_t maxPacketLen = 1);
+		/// @param[in] linkType The link type to use for this packet (the default is Ethernet)
+		explicit Packet(size_t maxPacketLen = 1, LinkLayerType linkType = LINKTYPE_ETHERNET);
 
 		/// A constructor for creating a new packet with a buffer that is pre-allocated by the user.
 		/// The packet is created empty (with no layers), which means the constructor doesn't parse the data in the
@@ -45,7 +46,8 @@ namespace pcpp
 		/// packet data in it.
 		/// @param[in] buffer A pointer to a pre-allocated memory buffer
 		/// @param[in] bufferSize The size of the buffer
-		Packet(uint8_t* buffer, size_t bufferSize);
+		/// @param[in] linkType The link type to use for this packet (the default is Ethernet)
+		Packet(uint8_t* buffer, size_t bufferSize, LinkLayerType linkType = LINKTYPE_ETHERNET);
 
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
 		/// that came from the network. When using this constructor a pointer to the RawPacket is saved (data isn't

@@ -406,8 +406,7 @@ def dev_id_from_dev_name(dev_name):
 
     # if nothing else matches - error
     raise ValueError(
-        "Unknown device: %s. "
-        'Please specify device in "bus:slot.func" format' % dev_name
+        'Unknown device: %s. Please specify device in "bus:slot.func" format' % dev_name
     )
 
 
@@ -643,7 +642,7 @@ def show_device_status(devices_type, device_name):
         display_devices(
             "%s devices using kernel driver" % device_name,
             kernel_drv,
-            "if=%(Interface)s drv=%(Driver_str)s " "unused=%(Module_str)s %(Active)s",
+            "if=%(Interface)s drv=%(Driver_str)s unused=%(Module_str)s %(Active)s",
         )
     if len(no_drv) != 0:
         display_devices(

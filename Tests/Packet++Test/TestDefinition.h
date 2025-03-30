@@ -309,3 +309,8 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest);
 PTF_TEST_CASE(WireGuardTransportDataParsingTest);
 PTF_TEST_CASE(WireGuardCreationTest);
 PTF_TEST_CASE(WireGuardEditTest);
+
+// Implemented in CiscoHdlcTests.cpp
+PTF_TEST_CASE(CiscoHdlcParsingTest);
+PTF_TEST_CASE(CiscoHdlcLayerCreationTest);
+PTF_TEST_CASE(CiscoHdlcLayerEditTest);
