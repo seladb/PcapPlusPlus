@@ -626,7 +626,8 @@ namespace pcpp
 	bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		const iphdr* hdr = reinterpret_cast<const iphdr*>(data);
-		return internal::canReinterpretAs<iphdr>(data, dataLen) && hdr->ipVersion == 4 && hdr->internetHeaderLength >= 5;
+		return internal::canReinterpretAs<iphdr>(data, dataLen) && hdr->ipVersion == 4 &&
+		       hdr->internetHeaderLength >= 5;
 	}
 
 }  // namespace pcpp
