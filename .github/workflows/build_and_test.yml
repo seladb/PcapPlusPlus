@@ -628,7 +628,7 @@ jobs:
       matrix:
         include:
           - run-on-os: ubuntu-latest
-            target: armeabi-v7a
+            target: arm64-v8a
             api-version: 30
 #          - run-on-os: ubuntu-latest
 #            target: x86
