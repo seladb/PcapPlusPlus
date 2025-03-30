@@ -30,5 +30,8 @@ namespace pcpp
 
 		/// An empty destructor
 		virtual ~IPLayer() = default;
+
+		/// A static method that gets a pointer to the IP data header and returns the IP version
+		static IPAddress::AddressType getIPVersion(uint8_t const* data, size_t dataLen);
 	};
 }  // namespace pcpp
