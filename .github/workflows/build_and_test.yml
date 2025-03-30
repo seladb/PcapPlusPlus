@@ -1,7 +1,7 @@
 name: Build and test
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master", "dev", "new-toyvpn"]
   pull_request:
     branches: ["dev"]
   schedule:
