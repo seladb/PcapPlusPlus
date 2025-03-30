@@ -52,9 +52,7 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Generic DOIP header Nack");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 1);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Generic DOIP header Nack (0x0000)\nPayload Length: 1\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Generic DOIP header Nack (0x0000)")
 }
 
 PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation)
@@ -93,9 +91,7 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Generic DOIP header Nack");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 1);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Generic DOIP header Nack (0x0000)\nPayload Length: 1\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Generic DOIP header Nack (0x0000)")
 }
 // DoIpVehicleIdentificationRequestPacketParsing
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketParsing)
@@ -127,9 +123,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request");
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request (0x0001)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Vehicle identification request (0x0001)");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x0);
 
 }  // DoIpVehicleIdentificationRequestPacketParsing
@@ -164,9 +158,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Vehicle identification request");
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request (0x0001)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Vehicle identification request (0x0001)");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 0x0);
 }
 // VehicleIdentificationWithVIN
@@ -211,9 +203,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
 	                 enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request with VIN");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x11);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with VIN (0x0003)\nPayload Length: 17\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Vehicle identification request with VIN (0x0003)")
 
 }  // DoIpVehicleIdentificationRequestVINPacketParsing
 
@@ -255,9 +245,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketCreation)
 	                 enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Vehicle identification request with VIN");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 17);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with VIN (0x0003)\nPayload Length: 17\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Vehicle identification request with VIN (0x0003)")
 }
 // VehicleIdentificationWithEID
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
@@ -301,9 +289,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
 	                 enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request with EID");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x6);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with EID (0x0002)\nPayload Length: 6\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Vehicle identification request with EID (0x0002)")
 
 }  // DoIpVehicleIdentificationRequestVINPacketParsing
 
@@ -347,9 +333,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketCreation)
 	                 enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Vehicle identification request with EID");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 6);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with EID (0x0002)\nPayload Length: 6\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Vehicle identification request with EID (0x0002)")
 }
 // VehicleAnnouncement
 PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
@@ -395,9 +379,8 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(),
 	                 "Vehicle announcement message / vehicle identification response message");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 32);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle announcement message / vehicle identification response message (0x0004)\nPayload Length: 32\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(),
+	                 "DOIP Layer, Vehicle announcement message / vehicle identification response message (0x0004)")
 
 }  // DoIpVehicleAnnouncementPacketParsing
 
@@ -451,9 +434,8 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(),
 	                 "Vehicle announcement message / vehicle identification response message");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 33);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle announcement message / vehicle identification response message (0x0004)\nPayload Length: 33\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(),
+	                 "DOIP Layer, Vehicle announcement message / vehicle identification response message (0x0004)")
 }
 // RoutingActivationRequest
 PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
@@ -497,9 +479,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Routing activation request");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 11);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation request (0x0005)\nPayload Length: 11\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Routing activation request (0x0005)")
 }
 
 PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
@@ -544,9 +524,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Routing activation request");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 11);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation request (0x0005)\nPayload Length: 11\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Routing activation request (0x0005)")
 }
 // RoutingActivationResponse
 PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
@@ -588,9 +566,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Routing activation response");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 9);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation response (0x0006)\nPayload Length: 9\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Routing activation response (0x0006)")
 }
 
 PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
@@ -636,9 +612,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Routing activation response");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 13);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation response (0x0006)\nPayload Length: 13\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Routing activation response (0x0006)")
 }
 // ---------------
 // AliveCheckRequestPacket
@@ -669,9 +643,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Alive check request");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check request (0x0007)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Alive check request (0x0007)")
 }
 
 PTF_TEST_CASE(DoIpAliveCheckRequestPacketCreation)
@@ -709,9 +681,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Alive check request");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check request (0x0007)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Alive check request (0x0007)")
 }
 // ---------------
 // AliveCheckResponsePacket
@@ -752,9 +722,7 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Alive check response");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 2);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check response (0x0008)\nPayload Length: 2\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Alive check response (0x0008)")
 }
 
 PTF_TEST_CASE(DoIpAliveCheckResponsePacketCreation)
@@ -792,9 +760,7 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Alive check response");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 2);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check response (0x0008)\nPayload Length: 2\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Alive check response (0x0008)")
 }
 // ------------------
 // EntityStatusRequestPacket
@@ -825,9 +791,7 @@ PTF_TEST_CASE(DoIpEntityStatusRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "DOIP entity status request");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: DOIP entity status request (0x4001)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, DOIP entity status request (0x4001)")
 }
 
 PTF_TEST_CASE(DoIpEntityStatusRequestPacketCreation)
@@ -864,9 +828,7 @@ PTF_TEST_CASE(DoIpEntityStatusRequestPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "DOIP entity status request");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: DOIP entity status request (0x4001)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, DOIP entity status request (0x4001)")
 }
 // ------------------
 // EntityStatusResponsePacket
@@ -908,9 +870,7 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "DOIP entity status response");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 7);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: DOIP entity status response (0x4002)\nPayload Length: 7\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, DOIP entity status response (0x4002)")
 }
 
 PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
@@ -952,9 +912,7 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "DOIP entity status response");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 7);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: DOIP entity status response (0x4002)\nPayload Length: 7\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, DOIP entity status response (0x4002)")
 }
 // ------------------
 // PowerModeRequestPacket
@@ -985,9 +943,7 @@ PTF_TEST_CASE(DoIpPowerModeRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic power mode request information");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic power mode request information (0x4003)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Diagnostic power mode request information (0x4003)")
 }
 
 PTF_TEST_CASE(DoIpPowerModeRequestPacketCreation)
@@ -1024,9 +980,7 @@ PTF_TEST_CASE(DoIpPowerModeRequestPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic power mode request information");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic power mode request information (0x4003)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Diagnostic power mode request information (0x4003)")
 }
 // ------------------
 // PowerModeResponsePacket
@@ -1066,9 +1020,7 @@ PTF_TEST_CASE(DoIpPowerModeResponsePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic power mode response information");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 1);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic power mode response information (0x4004)\nPayload Length: 1\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Diagnostic power mode response information (0x4004)")
 }
 
 PTF_TEST_CASE(DoIpPowerModeResponsePacketCreation)
@@ -1107,9 +1059,7 @@ PTF_TEST_CASE(DoIpPowerModeResponsePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic power mode response information");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 1);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic power mode response information (0x4004)\nPayload Length: 1\n")
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Diagnostic power mode response information (0x4004)")
 }
 // ------------------
 // DiagnosticMessagePacket
@@ -1149,9 +1099,7 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic message");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 6);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic message (0x8001)\nPayload Length: 6\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Diagnostic message (0x8001)")
 }
 
 PTF_TEST_CASE(DoIpDiagnosticMessagePacketCreation)
@@ -1194,9 +1142,7 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic message");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 6);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic message (0x8001)\nPayload Length: 6\n");
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Diagnostic message (0x8001)");
 }
 // ------------------
 // DiagnosticAckMessagePacket
@@ -1238,9 +1184,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic message Ack");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 8);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic message Ack (0x8002)\nPayload Length: 8\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Diagnostic message Ack (0x8002)")
 }
 
 PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
@@ -1285,9 +1229,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic message Ack");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 5);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic message Ack (0x8002)\nPayload Length: 5\n");
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Diagnostic message Ack (0x8002)");
 }
 // ------------------
 // DiagnosticNackMessagePacket
@@ -1329,9 +1271,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic message Nack");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 8);
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic message Nack (0x8003)\nPayload Length: 8\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Diagnostic message Nack (0x8003)")
 }
 
 PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
@@ -1372,9 +1312,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK, enumclass);
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Diagnostic message Nack");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 5);
-	PTF_ASSERT_EQUAL(
-	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Diagnostic message Nack (0x8003)\nPayload Length: 5\n");
+	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DOIP Layer, Diagnostic message Nack (0x8003)");
 }
 // DoIpVehicleIdentificationRequestWithDEfaultVersPacketParsing
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing)
@@ -1406,10 +1344,40 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0x00);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request");
-	PTF_ASSERT_EQUAL(
-	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: Default value for vehicle identification request messages (0xff)\nPayload Type: Vehicle identification request (0x0001)\nPayload Length: 0\n")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Vehicle identification request (0x0001)");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x0);
 
-}  // DoIpVehicleIdentificationRequestPacketParsing
+}  // DoIpVehicleIdentificationRequestWithDEfaultVersPacketParsing
+
+// DoIpInvalidPayloadTypePacketPacketParsing
+PTF_TEST_CASE(DoIpInvalidPayloadTypePacketParsing)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpInvalidPayloadTypePacket.dat");
+
+	pcpp::Packet InvalidPayloadTypePacket(&rawPacket1);
+	PTF_ASSERT_TRUE(InvalidPayloadTypePacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(InvalidPayloadTypePacket.isPacketOfType(pcpp::UDP));
+	PTF_ASSERT_TRUE(InvalidPayloadTypePacket.isPacketOfType(pcpp::DOIP));
+
+	pcpp::UdpLayer* udpLayer = InvalidPayloadTypePacket.getLayerOfType<pcpp::UdpLayer>();
+	PTF_ASSERT_NOT_NULL(udpLayer);
+
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), 65300);
+
+	// DOIP fields for vehicle identification request
+	pcpp::DoIpLayer* doipLayer = InvalidPayloadTypePacket.getLayerOfType<pcpp::DoIpLayer>();
+	PTF_ASSERT_NOT_NULL(doipLayer);
+
+	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xfd);
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Unknown payload type");
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DOIP Layer, Unknown payload type (0x7777)");
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x0);
+
+}  // DoIpInvalidPayloadTypePacketParsing
 DISABLE_WARNING_POP

@@ -4,45 +4,6 @@
 
 namespace pcpp
 {
-	/// @brief Mapping of DoIP Protocol Versions to their respective string descriptions.
-	///
-	/// This unordered map provides human-readable descriptions for each version of the
-	/// DoIP protocol as defined in ISO 13400. It maps the `DoIpProtocolVersion` enum values
-	/// to their corresponding descriptions.
-	const std::unordered_map<DoIpProtocolVersion, std::string> DoIpEnumToStringProtocolVersion{
-		{ DoIpProtocolVersion::DefaultVersion,        "Default value for vehicle identification request messages" },
-		{ DoIpProtocolVersion::Version01Iso2010,      "DoIP ISO/DIS 13400-2:2010"                                 },
-		{ DoIpProtocolVersion::Version02Iso2012,      "DoIP ISO 13400-2:2012"                                     },
-		{ DoIpProtocolVersion::Version03Iso2019,      "DoIP ISO 13400-2:2019"                                     },
-		{ DoIpProtocolVersion::Version04Iso2019_AMD1, "DoIP ISO 13400-2:2012 AMD1"                                },
-		{ DoIpProtocolVersion::ReservedVersion,       "Reserved"                                                  },
-	};
-
-	/// @brief Mapping of DoIP Payload Types to their respective string descriptions.
-	///
-	/// This unordered map provides human-readable descriptions for each payload type
-	/// defined in the DoIP protocol as per ISO 13400. It maps the `DoIpPayloadTypes` enum values
-	/// to their corresponding descriptions.
-	const std::unordered_map<DoIpPayloadTypes, std::string> DoIpEnumToStringPayloadType{
-		{ DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK,                  "Generic DOIP header Nack"                   },
-		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST,          "Vehicle identification request"             },
-		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID, "Vehicle identification request with EID"    },
-		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN, "Vehicle identification request with VIN"    },
-		{ DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE,
-         "Vehicle announcement message / vehicle identification response message"                                 },
-		{ DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST,              "Routing activation request"                 },
-		{ DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE,             "Routing activation response"                },
-		{ DoIpPayloadTypes::ALIVE_CHECK_REQUEST,                     "Alive check request"                        },
-		{ DoIpPayloadTypes::ALIVE_CHECK_RESPONSE,                    "Alive check response"                       },
-		{ DoIpPayloadTypes::ENTITY_STATUS_REQUEST,                   "DOIP entity status request"                 },
-		{ DoIpPayloadTypes::ENTITY_STATUS_RESPONSE,                  "DOIP entity status response"                },
-		{ DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST,           "Diagnostic power mode request information"  },
-		{ DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE,          "Diagnostic power mode response information" },
-		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE,                 "Diagnostic message"                         },
-		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK,              "Diagnostic message Ack"                     },
-		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK,              "Diagnostic message Nack"                    }
-	};
-
 	/// @brief Mapping of DoIP Activation Types to their respective string descriptions.
 	///
 	/// This unordered map provides human-readable descriptions for each activation type

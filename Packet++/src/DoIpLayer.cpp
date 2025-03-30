@@ -11,6 +11,47 @@
 
 namespace pcpp
 {
+	/// @brief Mapping of DoIP Protocol Versions to their respective string descriptions.
+	///
+	/// This unordered map provides human-readable descriptions for each version of the
+	/// DoIP protocol as defined in ISO 13400. It maps the `DoIpProtocolVersion` enum values
+	/// to their corresponding descriptions.
+	const std::unordered_map<DoIpProtocolVersion, std::string> DoIpEnumToStringProtocolVersion{
+		{ DoIpProtocolVersion::DefaultVersion,        "Default value for vehicle identification request messages" },
+		{ DoIpProtocolVersion::Version01Iso2010,      "DoIP ISO/DIS 13400-2:2010"                                 },
+		{ DoIpProtocolVersion::Version02Iso2012,      "DoIP ISO 13400-2:2012"                                     },
+		{ DoIpProtocolVersion::Version03Iso2019,      "DoIP ISO 13400-2:2019"                                     },
+		{ DoIpProtocolVersion::Version04Iso2019_AMD1, "DoIP ISO 13400-2:2012 AMD1"                                },
+		{ DoIpProtocolVersion::ReservedVersion,       "Reserved"                                                  },
+		{ DoIpProtocolVersion::UnknownVersion,        "Unknown Protocol Version"                                  }
+	};
+
+	/// @brief Mapping of DoIP Payload Types to their respective string descriptions.
+	///
+	/// This unordered map provides human-readable descriptions for each payload type
+	/// defined in the DoIP protocol as per ISO 13400. It maps the `DoIpPayloadTypes` enum values
+	/// to their corresponding descriptions.
+	const std::unordered_map<DoIpPayloadTypes, std::string> DoIpEnumToStringPayloadType{
+		{ DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK,                  "Generic DOIP header Nack"                   },
+		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST,          "Vehicle identification request"             },
+		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID, "Vehicle identification request with EID"    },
+		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN, "Vehicle identification request with VIN"    },
+		{ DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE,
+         "Vehicle announcement message / vehicle identification response message"                                 },
+		{ DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST,              "Routing activation request"                 },
+		{ DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE,             "Routing activation response"                },
+		{ DoIpPayloadTypes::ALIVE_CHECK_REQUEST,                     "Alive check request"                        },
+		{ DoIpPayloadTypes::ALIVE_CHECK_RESPONSE,                    "Alive check response"                       },
+		{ DoIpPayloadTypes::ENTITY_STATUS_REQUEST,                   "DOIP entity status request"                 },
+		{ DoIpPayloadTypes::ENTITY_STATUS_RESPONSE,                  "DOIP entity status response"                },
+		{ DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST,           "Diagnostic power mode request information"  },
+		{ DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE,          "Diagnostic power mode response information" },
+		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE,                 "Diagnostic message"                         },
+		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK,              "Diagnostic message Ack"                     },
+		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK,              "Diagnostic message Nack"                    },
+		{ DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE,                    "Unknown payload type"                       }
+	};
+
 	DoIpLayer::DoIpLayer(DoIpProtocolVersion version, DoIpPayloadTypes type, const IDoIpMessageData* data)
 	{
 		initLayer();
@@ -50,14 +91,7 @@ namespace pcpp
 	std::string DoIpLayer::getProtocolVersionAsStr() const
 	{
 		auto it = DoIpEnumToStringProtocolVersion.find(getProtocolVersion());
-		if (it != DoIpEnumToStringProtocolVersion.end())
-		{
-			return it->second;
-		}
-		else
-		{
-			return "Unknown Protocol Version";
-		}
+		return it->second;
 	}
 
 	void DoIpLayer::setProtocolVersion(DoIpProtocolVersion version)
@@ -77,7 +111,29 @@ namespace pcpp
 
 	DoIpPayloadTypes DoIpLayer::getPayloadType() const
 	{
-		return static_cast<DoIpPayloadTypes>(be16toh(getDoIpHeader()->payloadType));
+		switch (static_cast<DoIpPayloadTypes>(be16toh(getDoIpHeader()->payloadType)))
+		{
+		case DoIpPayloadTypes::ALIVE_CHECK_REQUEST:
+		case DoIpPayloadTypes::ALIVE_CHECK_RESPONSE:
+		case DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE:
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK:
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK:
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE:
+		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST:
+		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE:
+		case DoIpPayloadTypes::ENTITY_STATUS_REQUEST:
+		case DoIpPayloadTypes::ENTITY_STATUS_RESPONSE:
+		case DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK:
+		case DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST:
+		case DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE:
+		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST:
+		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID:
+		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN:
+			return static_cast<DoIpPayloadTypes>(be16toh(getDoIpHeader()->payloadType));
+
+		default:
+			return DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE;
+		}
 	}
 
 	void DoIpLayer::setPayloadType(DoIpPayloadTypes type)
@@ -88,14 +144,7 @@ namespace pcpp
 	std::string DoIpLayer::getPayloadTypeAsStr() const
 	{
 		auto it = DoIpEnumToStringPayloadType.find(getPayloadType());
-		if (it != DoIpEnumToStringPayloadType.end())
-		{
-			return it->second;
-		}
-		else
-		{
-			return "Unknown Payload type";
-		}
+		return it->second;
 	}
 
 	uint32_t DoIpLayer::getPayloadLength() const
@@ -159,26 +208,19 @@ namespace pcpp
 	{
 		if (!isLayerDataValid())
 		{
-			return "Malformed doip Packet";
+			return "Malformed DoIP packet";
 		}
-		std::stringstream os;
-		DoIpProtocolVersion version = getProtocolVersion();
-		DoIpPayloadTypes type = getPayloadType();
-		uint32_t length = getPayloadLength();
 
-		os << "DOIP Layer:" << "\n";
-		os << "Protocol Version: " << getProtocolVersionAsStr() << std::hex << " (0x" << unsigned((uint8_t)version)
-		   << ")" << "\n";
-		os << "Payload Type: " << getPayloadTypeAsStr() << std::hex << " (0x" << std::setw(4) << std::setfill('0')
-		   << (uint16_t)type << ")" << "\n";
-		os << std::dec << "Payload Length: " << length << "\n";
+		std::ostringstream os;
+		DoIpPayloadTypes type = getPayloadType();
+
+		os << "DOIP Layer, " << getPayloadTypeAsStr() << " (0x" << std::hex << std::setw(4) << std::setfill('0')
+		   << (type == DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE
+		           ? static_cast<uint16_t>(be16toh(getDoIpHeader()->payloadType))
+		           : static_cast<uint16_t>(type))
+		   << ")";
 
 		return os.str();
-	}
-
-	void DoIpLayer::serializeData(uint8_t* dest, std::vector<uint8_t> data)
-	{
-		memcpy(dest, data.data(), data.size());
 	}
 
 	void DoIpLayer::initLayer()
@@ -213,7 +255,7 @@ namespace pcpp
 				setPayloadType(data->getType());
 				setPayloadLength(payloadSize);
 				extendLayer(headerLength, payloadSize);
-				serializeData(m_Data + headerLength, data->getData());
+				memcpy(m_Data + headerLength, data->getData().data(), payloadSize);
 				break;
 			}
 		}
@@ -221,12 +263,16 @@ namespace pcpp
 
 	void DoIpLayer::parseNextLayer()
 	{
-		DiagnosticMessageData diagnosticMessage;
-		if (diagnosticMessage.buildFromLayer(*this))
+		if (getPayloadType() == DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE)
 		{
-			// handle UDS layer as generic PayloadLayer for now.
-			m_NextLayer = new PayloadLayer(diagnosticMessage.diagnosticData.data(),
-			                               diagnosticMessage.diagnosticData.size(), this, m_Packet);
+			size_t headerLen = sizeof(doiphdr);
+
+			if (m_DataLen <= headerLen + 2 /*source address size*/ + 2 /*target address size*/)
+				return;
+
+			uint8_t* payload = m_Data + (headerLen + 2 + 2);
+			size_t payloadLen = m_DataLen - (headerLen + 2 + 2);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		}
 	}
 }  // namespace pcpp

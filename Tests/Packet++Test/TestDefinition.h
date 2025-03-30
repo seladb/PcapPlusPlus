@@ -122,6 +122,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketParsing);
 PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation);
 PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketParsing);
 PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation);
+PTF_TEST_CASE(DoIpInvalidPayloadTypePacketParsing);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);

@@ -220,6 +220,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpDiagnosticAckMessagePacketCreation, "doip");
 	PTF_RUN_TEST(DoIpDiagnosticNackMessagePacketParsing, "doip");
 	PTF_RUN_TEST(DoIpDiagnosticNackMessagePacketCreation, "doip");
+	PTF_RUN_TEST(DoIpInvalidPayloadTypePacketParsing, "doip");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");

@@ -16,12 +16,6 @@ namespace pcpp
 {
 	class IDoIpMessageData;
 
-	enum class DoIpPayloadTypes : uint16_t;
-	enum class DoIpProtocolVersion : uint8_t;
-
-	extern const std::unordered_map<DoIpPayloadTypes, std::string> DoIpEnumToStringPayloadType;
-	extern const std::unordered_map<DoIpProtocolVersion, std::string> DoIpEnumToStringProtocolVersion;
-
 	/// @brief Represents the DoIP (Diagnostics over IP) protocol versions.
 	enum class DoIpProtocolVersion : uint8_t
 	{
@@ -45,7 +39,8 @@ namespace pcpp
 		/// Used for broadcast Vehicle Identification Request Messages.
 		DefaultVersion = 0xFFU,
 
-		/// @brief Represents an unknown or unsupported protocol version
+		/// Represents an unknown or unsupported protocol version (not specified by ISO).
+		/// Used to indicate an unsupported or unknown protocol version for internal handling.
 		UnknownVersion = 0xEF
 	};
 
@@ -134,6 +129,10 @@ namespace pcpp
 		/// Diagnostic message negative acknowledgment.
 		/// Indicates an error in processing a diagnostic message.
 		DIAGNOSTIC_MESSAGE_NEG_ACK = 0x8003U,
+
+		/// Represents an invalid payload type (not specified by ISO).
+		/// Used to indicate an unsupported or unrecognized payload type for internal handling.
+		UNKNOWN_PAYLOAD_TYPE = 0xFFFFU,
 	};
 
 	/// @brief Enum representing DoIP Generic Header NACK codes (ISO 13400).
@@ -580,11 +579,6 @@ namespace pcpp
 		/// @param[in] length the doip payload length to set
 		void setPayloadLength(uint32_t length) const;
 
-		/// copy data from msgFields to dest
-		/// @param[in] dest pointer to where start copying
-		/// @param[in] data the doip Fields to copy
-		void serializeData(uint8_t* dest, std::vector<uint8_t> data);
-
 		/// A static method that checks whether a port is considered as a DOIP port
 		/// @param[in] port The port number to check
 		/// @return True if this is a DOIP port number, false otherwise
@@ -595,21 +589,6 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an DOIP layer
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
-
-		/// @brief Builds the DoIP layer based on the payload type and provided data.
-		///
-		/// This function configures the DoIP layer with the appropriate payload type, payload length,
-		/// and data, depending on the specified payload type. If the payload type does not require
-		/// additional data, the payload length is set to zero. For payloads that require data, the data
-		/// is serialized and added to the layer.
-		///
-		/// @param type The DoIP payload type to set for this layer.
-		/// @param data Pointer to the message data (of type IDoIpMessageData) to be serialized into the layer.
-		///             This parameter can be nullptr for payload types that do not require additional data.
-		///
-		/// @note If the payload type requires data and the `data` parameter is `nullptr`, an error message
-		///       is logged, and the function does not build the layer.
-		void buildLayer(DoIpPayloadTypes type, const IDoIpMessageData* data = nullptr);
 
 		/// @brief Resolves and validates the DoIP layer.
 		///
@@ -662,6 +641,21 @@ namespace pcpp
 		/// Check the integrity of protocol version in doip header
 		/// @return true if version has no integration errors
 		bool isProtocolVersionValid() const;
+
+		/// @brief Builds the DoIP layer based on the payload type and provided data.
+		///
+		/// This function configures the DoIP layer with the appropriate payload type, payload length,
+		/// and data, depending on the specified payload type. If the payload type does not require
+		/// additional data, the payload length is set to zero. For payloads that require data, the data
+		/// is serialized and added to the layer.
+		///
+		/// @param type The DoIP payload type to set for this layer.
+		/// @param data Pointer to the message data (of type IDoIpMessageData) to be serialized into the layer.
+		///             This parameter can be nullptr for payload types that do not require additional data.
+		///
+		/// @note If the payload type requires data and the `data` parameter is `nullptr`, an error message
+		///       is logged, and the function does not build the layer.
+		void buildLayer(DoIpPayloadTypes type, const IDoIpMessageData* data = nullptr);
 	};
 
 	// inline methods definition
