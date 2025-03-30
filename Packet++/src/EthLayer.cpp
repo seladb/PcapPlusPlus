@@ -67,7 +67,7 @@ namespace pcpp
 
 		// If no next layer was constructed, assume it's a payload layer
 		if (!hasNextLayer())
-			tryConstructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 	}
 
 	void EthLayer::computeCalculateFields()
