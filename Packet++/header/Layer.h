@@ -191,7 +191,6 @@ namespace pcpp
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
 
-
 		bool hasNextLayer() const
 		{
 			return m_NextLayer != nullptr;

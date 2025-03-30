@@ -280,13 +280,13 @@ namespace pcpp
 			switch (ipVersion)
 			{
 			case 4:
-				tryConstructNextLayer<IPv4Layer, PayloadLayer>(payload, payloadLen, m_Packet);
-				break;
+			    tryConstructNextLayer<IPv4Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+			    break;
 			case 6:
-				tryConstructNextLayer<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
-				break;
+			    tryConstructNextLayer<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+			    break;
 			default:
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			    constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 			}
 			*/
 			break;
