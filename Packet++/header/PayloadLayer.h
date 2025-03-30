@@ -83,10 +83,10 @@ namespace pcpp
 		/// A static method that takes a byte array and detects if it can be parsed as a PayloadLayer.
 		/// @param[in] data A byte array
 		/// @param[in] dataLen The byte array size (in bytes)
-		/// @return data is not nullptr
+		/// @return True if the data is non-nullptr and dataLen is greater than 0, or data is nullptr and dataLen is 0.
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data != nullptr;
+			return (data == nullptr) != (dataLen != 0);  // XOR
 		};
 	};
 }  // namespace pcpp
