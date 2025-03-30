@@ -1,7 +1,7 @@
 name: Build and test
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master", "dev", "new-toyvpn"]
   pull_request:
     branches: ["dev"]
   schedule:
@@ -691,9 +691,11 @@ jobs:
           cache: "gradle"
 
       - name: Change wrapper permissions
+        working-directory: ./ToyVpn-PcapPlusPlus
         run: chmod +x ./gradlew
 
       - name: Build gradle project and run tests
+        working-directory: ./ToyVpn-PcapPlusPlus
         run: ./gradlew build
 
 #      - name: Build ToyVpn-PcapPlusPlus
