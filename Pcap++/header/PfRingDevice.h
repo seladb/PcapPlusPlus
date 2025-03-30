@@ -6,8 +6,10 @@
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Packet.h"
+#include <array>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 
 /// @file
@@ -44,11 +46,16 @@ namespace pcpp
 			void clear();
 		};
 
-		struct StartupBlock
+		class StartupBlock
 		{
-			std::mutex Mutex;
-			std::condition_variable Cond;
-			int State = 0;
+		public:
+			void notifyStartup();
+			void waitForStartup();
+
+		private:
+			std::mutex m_Mutex;
+			std::condition_variable m_Cv;
+			bool m_Ready = false;
 		};
 
 		pfring** m_PfRingDescriptors;
@@ -57,8 +64,8 @@ namespace pcpp
 		int m_InterfaceIndex;
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
-		CoreConfiguration m_CoreConfiguration[MAX_NUM_OF_CORES];
-		bool m_StopThread;
+		std::array<CoreConfiguration, MAX_NUM_OF_CORES> m_CoreConfiguration;
+		std::atomic<bool> m_StopThread;
 		OnPfRingPacketsArriveCallback m_OnPacketsArriveCallback;
 		void* m_OnPacketsArriveUserCookie;
 		bool m_ReentrantMode;
