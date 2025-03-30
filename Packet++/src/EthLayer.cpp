@@ -45,10 +45,12 @@ namespace pcpp
 			tryConstructNextLayer<IPv6Layer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_ARP:
+			// todo: change to tryConstructNextLayer
 			constructNextLayer<ArpLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_VLAN:
 		case PCPP_ETHERTYPE_IEEE_802_1AD:
+			// todo: change to tryConstructNextLayer
 			constructNextLayer<VlanLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_PPPOES:
@@ -58,6 +60,7 @@ namespace pcpp
 			tryConstructNextLayer<PPPoEDiscoveryLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_MPLS:
+			// todo: change to tryConstructNextLayer
 			constructNextLayer<MplsLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_WAKE_ON_LAN:
