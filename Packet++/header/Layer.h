@@ -219,6 +219,7 @@ namespace pcpp
 		/// @param[in] data The data to construct the layer from
 		/// @param[in] dataLen The length of the data
 		/// @param[in] packet The packet the layer belongs to
+		/// @param[in] extraArgs Extra arguments to be forwarded to the layer constructor
 		/// @return The constructed layer
 		template <typename T, typename... Args>
 		Layer* constructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
@@ -243,6 +244,7 @@ namespace pcpp
 		/// @param[in] data The data to construct the layer from
 		/// @param[in] dataLen The length of the data
 		/// @param[in] packet The packet the layer belongs to
+		/// @param[in] extraArgs Extra arguments to be forwarded to the layer constructor
 		/// @return The constructed layer or nullptr if the data is invalid
 		template <typename T, typename... Args>
 		Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
