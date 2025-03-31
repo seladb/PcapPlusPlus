@@ -275,14 +275,11 @@ namespace pcpp
 			// todo: no tests for this case
 			switch (IPv4Layer::getIPVersion(payload, payloadLen))
 			{
-			case IPAddress::AddressType::IPv4:
+			case IPv4:
 				tryConstructNextLayer<IPv4Layer>(payload, payloadLen, m_Packet);
 				break;
-			case IPAddress::AddressType::IPv6:
+			case IPv6:
 				tryConstructNextLayer<IPv6Layer>(payload, payloadLen, m_Packet);
-				break;
-			case IPAddress::AddressType::Unknown:
-				// If the IP version is not recognized, assume it's a payload layer and fallthrough.
 				break;
 			}
 			break;
