@@ -276,34 +276,26 @@ namespace pcpp
 	{
 	public:
 		/// An enum representing the address type: IPv4 or IPv6
-		enum class AddressType : uint8_t
+		enum AddressType : uint8_t
 		{
-			/// Unknown address type
-			Unknown = 0,
 			/// IPv4 address type
-			IPv4AddressType = 1,  // Deprecated
-			IPv4 = 1,
+			IPv4AddressType,
 			/// IPv6 address type
-			IPv6AddressType = 2,  // Deprecated
-			IPv6 = 2
+			IPv6AddressType
 		};
 
-		// Deprecated constants for backward compatibility to mimic the old enum values
-		static const AddressType IPv4AddressType = AddressType::IPv4;  // Deprecated
-		static const AddressType IPv6AddressType = AddressType::IPv6;  // Deprecated
-
 		/// A default constructor that creates an instance of the class with unspecified IPv4 address
-		IPAddress() : m_Type(AddressType::IPv4)
+		IPAddress() : m_Type(IPv4AddressType)
 		{}
 
 		/// A constructor that creates an instance of the class out of IPv4Address.
 		/// @param[in] addr A const reference to instance of IPv4Address
-		IPAddress(const IPv4Address& addr) : m_Type(AddressType::IPv4), m_IPv4(addr)
+		IPAddress(const IPv4Address& addr) : m_Type(IPv4AddressType), m_IPv4(addr)
 		{}
 
 		/// A constructor that creates an instance of the class out of IPv6Address.
 		/// @param[in] addr A const reference to instance of IPv6Address
-		IPAddress(const IPv6Address& addr) : m_Type(AddressType::IPv6), m_IPv6(addr)
+		IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr)
 		{}
 
 		/// A constructor that creates an instance of the class out of std::string value
@@ -325,51 +317,33 @@ namespace pcpp
 		/// @return The address type
 		AddressType getType() const
 		{
-			return m_Type;
+			return static_cast<AddressType>(m_Type);
 		}
 
 		/// Returns a std::string representation of the address
 		/// @return A string representation of the address
 		std::string toString() const
 		{
-			switch (getType())
-			{
-			case AddressType::IPv4:
-				return m_IPv4.toString();
-			case AddressType::IPv6:
-				return m_IPv6.toString();
-			default:
-				// This should never happen
-				throw std::logic_error("Unknown address type");
-			}
+			return (getType() == IPv4AddressType) ? m_IPv4.toString() : m_IPv6.toString();
 		}
 
 		/// @return Determine whether the object contains an IP version 4 address
 		bool isIPv4() const
 		{
-			return getType() == AddressType::IPv4;
+			return getType() == IPv4AddressType;
 		}
 
 		/// @return Determine whether the object contains an IP version 6 address
 		bool isIPv6() const
 		{
-			return getType() == AddressType::IPv6;
+			return getType() == IPv6AddressType;
 		}
 
 		/// Determine whether the address is a multicast address
 		/// @return True if an address is multicast
 		bool isMulticast() const
 		{
-			switch (getType())
-			{
-			case AddressType::IPv4:
-				return m_IPv4.isMulticast();
-			case AddressType::IPv6:
-				return m_IPv6.isMulticast();
-			default:
-				// This should never happen
-				throw std::logic_error("Unknown address type");
-			}
+			return (getType() == IPv4AddressType) ? m_IPv4.isMulticast() : m_IPv6.isMulticast();
 		}
 
 		/// Get a reference to IPv4 address instance
@@ -389,16 +363,7 @@ namespace pcpp
 		/// @return True if the address is zero, false otherwise
 		bool isZero() const
 		{
-			switch (getType())
-			{
-			case AddressType::IPv4:
-				return m_IPv4 == IPv4Address::Zero;
-			case AddressType::IPv6:
-				return m_IPv6 == IPv6Address::Zero;
-			default:
-				// This should never happen
-				throw std::logic_error("Unknown address type");
-			}
+			return (getType() == IPv4AddressType) ? m_IPv4 == IPv4Address::Zero : m_IPv6 == IPv6Address::Zero;
 		}
 
 		/// Overload of the equal-to operator
@@ -420,7 +385,7 @@ namespace pcpp
 		}
 
 	private:
-		AddressType m_Type;
+		uint8_t m_Type;
 		IPv4Address m_IPv4;
 		IPv6Address m_IPv6;
 	};
@@ -460,11 +425,6 @@ namespace pcpp
 		m_Type = IPv6AddressType;
 		m_IPv6 = addr;
 		return *this;
-	}
-
-	inline std::ostream& operator<<(std::ostream& os, IPAddress::AddressType addrType)
-	{
-		return os << static_cast<std::underlying_type<IPAddress::AddressType>::type>(addrType);
 	}
 
 	/// @class IPv4Network

@@ -339,7 +339,7 @@ namespace pcpp
 				tryConstructNextLayer<VrrpV2Layer>(payload, payloadLen, m_Packet);
 				break;
 			case VRRPv3:
-				tryConstructNextLayer<VrrpV3Layer>(payload, payloadLen, m_Packet, IPAddress::AddressType::IPv4);
+				tryConstructNextLayer<VrrpV3Layer>(payload, payloadLen, m_Packet, IPAddress::IPv4AddressType);
 				break;
 			}
 			break;
