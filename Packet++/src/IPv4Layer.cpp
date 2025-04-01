@@ -273,7 +273,7 @@ namespace pcpp
 		case PACKETPP_IPPROTO_IPIP:
 		{
 			// todo: no tests for this case
-			switch (IPv4Layer::getIPVersion(payload, payloadLen))
+			switch (IPLayer::getIPVersion(payload, payloadLen))
 			{
 			case IPv4:
 				tryConstructNextLayer<IPv4Layer>(payload, payloadLen, m_Packet);
