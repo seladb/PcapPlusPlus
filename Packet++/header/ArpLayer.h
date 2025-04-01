@@ -271,6 +271,11 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return internal::canReinterpretAs<arphdr>(data, dataLen);
+		}
 	};
 
 }  // namespace pcpp
