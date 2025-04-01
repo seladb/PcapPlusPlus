@@ -700,7 +700,7 @@ jobs:
 
       - name: Build gradle project and run tests
         working-directory: ./ToyVpn-PcapPlusPlus
-        run: ./gradlew build
+        run: ./gradlew build -PabiFilter=${{ matrix.api-version}}
 
 #      - name: Build ToyVpn-PcapPlusPlus
 #        working-directory: ./ToyVpn-PcapPlusPlus
