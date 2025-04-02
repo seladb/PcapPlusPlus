@@ -31,7 +31,15 @@ namespace pcpp
 		/// An empty destructor
 		virtual ~IPLayer() = default;
 
-		/// A static method that gets a pointer to the IP data header and returns the IP version
+		/// @brief Get the IP version of a given packet data.
+		/// 
+		/// The buffer is expected to start with the IP header and contain at least the first byte of it.
+		/// The method will recognize IPv4 and IPv6 headers and return the respective protocol constant.
+		/// If the IP version is not recognized or the buffer is malformed, UnknownProtocol will be returned.
+		/// 
+		/// @param[in] data A pointer to the packet data
+		/// @param[in] dataLen The length of the packet data in bytes
+		/// @return A ProtocolType representing the IP version of the packet data.
 		static ProtocolType getIPVersion(uint8_t const* data, size_t dataLen);
 	};
 }  // namespace pcpp
