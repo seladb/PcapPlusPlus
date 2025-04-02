@@ -218,7 +218,7 @@ namespace pcpp
 		}
 
 		// Set reentrant mode to false as the channels are opened without the PF_RING_REENTRANT flag.
-		m_ReentrantMode = false;  
+		m_ReentrantMode = false;
 		m_DeviceOpened = true;
 
 		return true;
