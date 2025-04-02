@@ -114,7 +114,7 @@ namespace pcpp
 
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<vlan_header>(data, dataLen);
+			return canReinterpretAs<vlan_header>(data, dataLen);
 		}
 	};
 }  // namespace pcpp

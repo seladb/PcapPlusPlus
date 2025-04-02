@@ -239,7 +239,7 @@ namespace pcpp
 		/// @return True if the data is valid, false otherwise
 		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<igmp_header>(data, dataLen);
+			return canReinterpretAs<igmp_header>(data, dataLen);
 		}
 	};
 
@@ -279,7 +279,7 @@ namespace pcpp
 		/// @return True if the data is valid, false otherwise
 		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<igmp_header>(data, dataLen);
+			return canReinterpretAs<igmp_header>(data, dataLen);
 		}
 	};
 
@@ -363,7 +363,7 @@ namespace pcpp
 		/// @return True if the data is valid, false otherwise
 		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<igmpv3_query_header>(data, dataLen);
+			return canReinterpretAs<igmpv3_query_header>(data, dataLen);
 		}
 	};
 
@@ -463,7 +463,7 @@ namespace pcpp
 		/// @return True if the data is valid, false otherwise
 		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<igmpv3_report_header>(data, dataLen);
+			return canReinterpretAs<igmpv3_report_header>(data, dataLen);
 		}
 	};
 

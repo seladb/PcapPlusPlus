@@ -274,7 +274,7 @@ namespace pcpp
 
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<arphdr>(data, dataLen);
+			return canReinterpretAs<arphdr>(data, dataLen);
 		}
 	};
 

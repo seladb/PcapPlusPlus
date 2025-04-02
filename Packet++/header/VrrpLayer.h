@@ -337,7 +337,7 @@ namespace pcpp
 
 		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<vrrp_header>(data, dataLen);
+			return canReinterpretAs<vrrp_header>(data, dataLen);
 		}
 	};
 
@@ -389,7 +389,7 @@ namespace pcpp
 
 		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<vrrp_header>(data, dataLen);
+			return canReinterpretAs<vrrp_header>(data, dataLen);
 		}
 	};
 }  // namespace pcpp

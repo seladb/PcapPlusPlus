@@ -109,7 +109,7 @@ namespace pcpp
 
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return internal::canReinterpretAs<mpls_header>(data, dataLen);
+			return canReinterpretAs<mpls_header>(data, dataLen);
 		}
 	};
 
