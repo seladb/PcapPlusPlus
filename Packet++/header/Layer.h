@@ -240,6 +240,32 @@ namespace pcpp
 			return nullptr;
 		}
 
+		/// Try to construct the next layer in the protocol stack with a fallback option.
+		/// 
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, it tries to construct the layer of type TFallback.
+		/// 
+		/// @tparam T The type of the layer to construct
+		/// @tparam TFallback The fallback layer type to construct if T fails
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor of T
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		///	@param[in] extraArgs Extra arguments to be forwarded to the layer constructor of T
+		/// @return The constructed layer of type T or TFallback
+		template <typename T, typename TFallback, typename... Args>
+		Layer* tryConstructNextLayerWithFallback(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		{
+			if (tryConstructNextLayer<T>(data, dataLen, packet, std::forward<Args>(extraArgs)...))
+			{
+				return m_NextLayer;
+			}
+			else
+			{
+				return constructNextLayer<TFallback>(data, dataLen, packet);
+			}
+		}
+
 		/// @brief Check if the data is large enough to reinterpret as a type
 		///
 		/// The data must be non-null and at least as large as the type

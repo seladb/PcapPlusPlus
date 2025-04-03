@@ -262,13 +262,13 @@ namespace pcpp
 		switch (ipHdr->protocol)
 		{
 		case PACKETPP_IPPROTO_UDP:
-			tryConstructNextLayer<UdpLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<UdpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_TCP:
-			tryConstructNextLayer<TcpLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<TcpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_ICMP:
-			tryConstructNextLayer<IcmpLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<IcmpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_IPIP:
 		{
@@ -276,10 +276,10 @@ namespace pcpp
 			switch (IPLayer::getIPVersion(payload, payloadLen))
 			{
 			case IPv4:
-				tryConstructNextLayer<IPv4Layer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			case IPv6:
-				tryConstructNextLayer<IPv6Layer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			}
 			break;
@@ -289,10 +289,10 @@ namespace pcpp
 			switch (GreLayer::getGREVersion(payload, payloadLen))
 			{
 			case GREv0:
-				tryConstructNextLayer<GREv0Layer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<GREv0Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			case GREv1:
-				tryConstructNextLayer<GREv1Layer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<GREv1Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			};
 			break;
@@ -306,40 +306,41 @@ namespace pcpp
 			switch (igmpVer)
 			{
 			case IGMPv1:
-				tryConstructNextLayer<IgmpV1Layer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<IgmpV1Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			case IGMPv2:
-				tryConstructNextLayer<IgmpV2Layer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<IgmpV2Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			case IGMPv3:
 			{
 				if (igmpQuery)
-					tryConstructNextLayer<IgmpV3QueryLayer>(payload, payloadLen, m_Packet);
+					tryConstructNextLayerWithFallback<IgmpV3QueryLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 				else
-					tryConstructNextLayer<IgmpV3ReportLayer>(payload, payloadLen, m_Packet);
+					tryConstructNextLayerWithFallback<IgmpV3ReportLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			}
 			}
 			break;
 		}
 		case PACKETPP_IPPROTO_AH:
-			tryConstructNextLayer<AuthenticationHeaderLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<AuthenticationHeaderLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_ESP:
-			tryConstructNextLayer<ESPLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<ESPLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_IPV6:
-			tryConstructNextLayer<IPv6Layer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PACKETPP_IPPROTO_VRRP:
 		{
 			switch (VrrpLayer::getVersionFromData(payload, payloadLen))
 			{
 			case VRRPv2:
-				tryConstructNextLayer<VrrpV2Layer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<VrrpV2Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			case VRRPv3:
-				tryConstructNextLayer<VrrpV3Layer>(payload, payloadLen, m_Packet, IPAddress::IPv4AddressType);
+				tryConstructNextLayerWithFallback<VrrpV3Layer, PayloadLayer>(payload, payloadLen, m_Packet,
+				                                               IPAddress::IPv4AddressType);
 				break;
 			}
 			break;
