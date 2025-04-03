@@ -145,7 +145,7 @@ namespace pcpp
 		/// A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		static const MacAddress Zero;
 		/// A static value representing a broadcast MAC address, meaning address of value "ff:ff:ff:ff:ff:ff"
-		static MacAddress Broadcast;
+		static const MacAddress Broadcast;
 
 	private:
 		std::array<uint8_t, 6> m_Address{};
