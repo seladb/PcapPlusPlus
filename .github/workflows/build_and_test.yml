@@ -633,6 +633,12 @@ jobs:
           - run-on-os: ubuntu-latest
             target: x86
             api-version: 35
+          - run-on-os: macos-15
+            target: armeabi-v7a
+            api-version: 35
+          - run-on-os: macos-15
+            target: x86_64
+            api-version: 35
 #          - run-on-os: ubuntu-latest
 #            target: x86
 #            api-version: 30
