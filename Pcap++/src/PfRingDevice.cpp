@@ -164,6 +164,11 @@ namespace pcpp
 			return false;
 		}
 
+		if (numOfChannelIds < 0)
+		{
+			throw std::invalid_argument("numOfChannelIds must be >= 0");
+		}
+
 		// I needed to add this verification because PF_RING doesn't provide it.
 		// It allows opening the device on a channel that doesn't exist, but of course no packets will be captured
 		uint8_t totalChannels = getTotalNumOfRxChannels();
@@ -207,7 +212,7 @@ namespace pcpp
 			break;
 		}
 
-		if (m_PfRingDescriptors.size() < numOfChannelIds)
+		if (m_PfRingDescriptors.size() < static_cast<size_t>(numOfChannelIds))
 		{
 			// if an error occurred, close all rings from index=0 to index=m_NumOfOpenedRxChannels-1
 			// there's no need to close m_PfRingDescriptors[m_NumOfOpenedRxChannels] because it has already been
@@ -730,7 +735,7 @@ namespace pcpp
 			config.clear();
 	}
 
-	int PfRingDevice::getCoresInUseCount() const
+	size_t PfRingDevice::getCoresInUseCount() const
 	{
 		return std::count_if(m_CoreConfiguration.begin(), m_CoreConfiguration.end(),
 		                     [](const CoreConfiguration& config) { return config.IsInUse; });

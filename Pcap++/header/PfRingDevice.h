@@ -89,7 +89,7 @@ namespace pcpp
 		bool setPfRingDeviceClock(pfring* ring);
 
 		void clearCoreConfiguration();
-		int getCoresInUseCount() const;
+		size_t getCoresInUseCount() const;
 
 		void setPfRingDeviceAttributes();
 
