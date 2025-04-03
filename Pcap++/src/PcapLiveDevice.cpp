@@ -259,7 +259,7 @@ namespace pcpp
 		char errbuf[PCAP_ERRBUF_SIZE] = { '\0' };
 		std::string device_name = m_InterfaceDetails.name;
 
-		if (device_name == NFLOG_IFACE)
+		if (isNflogDevice())
 		{
 			device_name += ":" + std::to_string(config.nflogGroup & 0xffff);
 		}
@@ -374,7 +374,7 @@ namespace pcpp
 		internal::PcapHandle pcapSendDescriptor;
 
 		// It's not possible to have two open instances of the same NFLOG device:group
-		if (m_InterfaceDetails.name == NFLOG_IFACE)
+		if (isNflogDevice())
 		{
 			pcapSendDescriptor = nullptr;
 		}
@@ -383,7 +383,7 @@ namespace pcpp
 			pcapSendDescriptor = internal::PcapHandle(doOpen(config));
 		}
 
-		if (pcapDescriptor == nullptr || (m_InterfaceDetails.name != NFLOG_IFACE && pcapSendDescriptor == nullptr))
+		if (pcapDescriptor == nullptr || (!isNflogDevice() && pcapSendDescriptor == nullptr))
 		{
 			m_DeviceOpened = false;
 			return false;
@@ -395,7 +395,7 @@ namespace pcpp
 		m_PcapSendDescriptor = pcapSendDescriptor.release();
 		m_DeviceOpened = true;
 
-		if (!config.usePoll)
+		if (!config.usePoll || isNflogDevice())
 		{
 			m_UsePoll = false;
 			m_PcapSelectableFd = -1;
@@ -1218,6 +1218,11 @@ namespace pcpp
 	const std::vector<IPv4Address>& PcapLiveDevice::getDnsServers() const
 	{
 		return PcapLiveDeviceList::getInstance().getDnsServers();
+	}
+
+	bool PcapLiveDevice::isNflogDevice() const
+	{
+		return m_InterfaceDetails.name == NFLOG_IFACE;
 	}
 
 	PcapLiveDevice::~PcapLiveDevice()
