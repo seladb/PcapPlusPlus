@@ -340,7 +340,7 @@ namespace pcpp
 				break;
 			case VRRPv3:
 				tryConstructNextLayerWithFallback<VrrpV3Layer, PayloadLayer>(payload, payloadLen, m_Packet,
-				                                               IPAddress::IPv4AddressType);
+				                                                             IPAddress::IPv4AddressType);
 				break;
 			}
 			break;
