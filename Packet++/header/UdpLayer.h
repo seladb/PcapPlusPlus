@@ -64,6 +64,12 @@ namespace pcpp
 		/// @return The checksum result
 		uint16_t calculateChecksum(bool writeResultToPacket);
 
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an UDP packet
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent a UDP packet
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
 		// implement abstract methods
 
 		/// Currently identifies the following next layers: DnsLayer, DhcpLayer, VxlanLayer, SipRequestLayer,
@@ -86,4 +92,9 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 	};
+
+	bool UdpLayer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		return data && dataLen >= sizeof(udphdr);
+	}
 }  // namespace pcpp

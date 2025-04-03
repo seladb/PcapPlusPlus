@@ -8,6 +8,7 @@
 
 /// @file
 
+// @todo Change to constexpr when C++17 is minimum supported version
 enum : uint8_t
 {
 	MAX_NUM_OF_CORES = 32

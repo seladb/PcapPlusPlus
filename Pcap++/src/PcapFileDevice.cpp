@@ -130,6 +130,108 @@ namespace pcpp
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// PcapFileReaderDevice members
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	bool PcapFileReaderDevice::open()
+	{
+		m_NumOfPacketsRead = 0;
+		m_NumOfPacketsNotParsed = 0;
+
+		if (m_PcapDescriptor != nullptr)
+		{
+			PCPP_LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
+			return true;
+		}
+
+		char errbuf[PCAP_ERRBUF_SIZE];
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+		auto pcapDescriptor = internal::PcapHandle(
+		    pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf));
+#else
+		auto pcapDescriptor = internal::PcapHandle(pcap_open_offline(m_FileName.c_str(), errbuf));
+#endif
+		if (pcapDescriptor == nullptr)
+		{
+			PCPP_LOG_ERROR("Cannot open file reader device for filename '" << m_FileName << "': " << errbuf);
+			m_DeviceOpened = false;
+			return false;
+		}
+
+		int linkLayer = pcap_datalink(pcapDescriptor.get());
+		if (!RawPacket::isLinkTypeValid(linkLayer))
+		{
+			PCPP_LOG_ERROR("Invalid link layer (" << linkLayer << ") for reader device filename '" << m_FileName
+			                                      << "'");
+			m_DeviceOpened = false;
+			return false;
+		}
+
+		m_PcapLinkLayerType = static_cast<LinkLayerType>(linkLayer);
+
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+		m_Precision = static_cast<FileTimestampPrecision>(pcap_get_tstamp_precision(pcapDescriptor.get()));
+		std::string precisionStr =
+		    (m_Precision == FileTimestampPrecision::Nanoseconds) ? "nanoseconds" : "microseconds";
+#else
+		m_Precision = FileTimestampPrecision::Microseconds;
+		std::string precisionStr = "microseconds";
+#endif
+		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "' with precision "
+		                                                                       << precisionStr);
+		m_PcapDescriptor = std::move(pcapDescriptor);
+		m_DeviceOpened = true;
+		return true;
+	}
+
+	bool PcapFileReaderDevice::isNanoSecondPrecisionSupported()
+	{
+		return checkNanoSupport();
+	}
+
+	void PcapFileReaderDevice::getStatistics(PcapStats& stats) const
+	{
+		stats.packetsRecv = m_NumOfPacketsRead;
+		stats.packetsDrop = m_NumOfPacketsNotParsed;
+		stats.packetsDropByInterface = 0;
+		PCPP_LOG_DEBUG("Statistics received for reader device for filename '" << m_FileName << "'");
+	}
+
+	bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
+	{
+		rawPacket.clear();
+		if (m_PcapDescriptor == nullptr)
+		{
+			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
+			return false;
+		}
+		pcap_pkthdr pkthdr;
+		const uint8_t* pPacketData = pcap_next(m_PcapDescriptor.get(), &pkthdr);
+		if (pPacketData == nullptr)
+		{
+			PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
+			return false;
+		}
+
+		uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
+		memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+		// because we opened with nano second precision 'tv_usec' is actually nanos
+		timespec ts = { pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec) };
+#else
+		struct timeval ts = pkthdr.ts;
+#endif
+		if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType),
+		                          pkthdr.len))
+		{
+			PCPP_LOG_ERROR("Couldn't set data to raw packet");
+			return false;
+		}
+		m_NumOfPacketsRead++;
+		return true;
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// SnoopFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -249,108 +351,6 @@ namespace pcpp
 		m_snoopFile.close();
 		m_DeviceOpened = false;
 		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
-	}
-
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// PcapFileReaderDevice members
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-	bool PcapFileReaderDevice::open()
-	{
-		m_NumOfPacketsRead = 0;
-		m_NumOfPacketsNotParsed = 0;
-
-		if (m_PcapDescriptor != nullptr)
-		{
-			PCPP_LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
-			return true;
-		}
-
-		char errbuf[PCAP_ERRBUF_SIZE];
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		auto pcapDescriptor = internal::PcapHandle(
-		    pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf));
-#else
-		auto pcapDescriptor = internal::PcapHandle(pcap_open_offline(m_FileName.c_str(), errbuf));
-#endif
-		if (pcapDescriptor == nullptr)
-		{
-			PCPP_LOG_ERROR("Cannot open file reader device for filename '" << m_FileName << "': " << errbuf);
-			m_DeviceOpened = false;
-			return false;
-		}
-
-		int linkLayer = pcap_datalink(pcapDescriptor.get());
-		if (!RawPacket::isLinkTypeValid(linkLayer))
-		{
-			PCPP_LOG_ERROR("Invalid link layer (" << linkLayer << ") for reader device filename '" << m_FileName
-			                                      << "'");
-			m_DeviceOpened = false;
-			return false;
-		}
-
-		m_PcapLinkLayerType = static_cast<LinkLayerType>(linkLayer);
-
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		m_Precision = static_cast<FileTimestampPrecision>(pcap_get_tstamp_precision(pcapDescriptor.get()));
-		std::string precisionStr =
-		    (m_Precision == FileTimestampPrecision::Nanoseconds) ? "nanoseconds" : "microseconds";
-#else
-		m_Precision = FileTimestampPrecision::Microseconds;
-		std::string precisionStr = "microseconds";
-#endif
-		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "' with precision "
-		                                                                       << precisionStr);
-		m_PcapDescriptor = std::move(pcapDescriptor);
-		m_DeviceOpened = true;
-		return true;
-	}
-
-	bool PcapFileReaderDevice::isNanoSecondPrecisionSupported()
-	{
-		return checkNanoSupport();
-	}
-
-	void PcapFileReaderDevice::getStatistics(PcapStats& stats) const
-	{
-		stats.packetsRecv = m_NumOfPacketsRead;
-		stats.packetsDrop = m_NumOfPacketsNotParsed;
-		stats.packetsDropByInterface = 0;
-		PCPP_LOG_DEBUG("Statistics received for reader device for filename '" << m_FileName << "'");
-	}
-
-	bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
-	{
-		rawPacket.clear();
-		if (m_PcapDescriptor == nullptr)
-		{
-			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
-			return false;
-		}
-		pcap_pkthdr pkthdr;
-		const uint8_t* pPacketData = pcap_next(m_PcapDescriptor.get(), &pkthdr);
-		if (pPacketData == nullptr)
-		{
-			PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
-			return false;
-		}
-
-		uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
-		memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		// because we opened with nano second precision 'tv_usec' is actually nanos
-		timespec ts = { pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec) };
-#else
-		struct timeval ts = pkthdr.ts;
-#endif
-		if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType),
-		                          pkthdr.len))
-		{
-			PCPP_LOG_ERROR("Couldn't set data to raw packet");
-			return false;
-		}
-		m_NumOfPacketsRead++;
-		return true;
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -603,5 +603,8 @@ namespace pcpp
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
+
+	private:
+		bool isNflogDevice() const;
 	};
 }  // namespace pcpp
