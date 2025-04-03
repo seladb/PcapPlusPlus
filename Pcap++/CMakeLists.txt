@@ -89,6 +89,7 @@ target_link_libraries(
     $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
     $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
     $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
+    $<$<BOOL:${PCAPPP_USE_XDP}>:XDP::XDP>
     PCAP::PCAP
     Threads::Threads
 )
