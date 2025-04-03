@@ -119,5 +119,6 @@ namespace pcpp
 	TEST(MacAddressTest, ConstantHelpers)
 	{
 		EXPECT_EQ(MacAddress::Zero, MacAddress(0, 0, 0, 0, 0, 0));
+		EXPECT_EQ(MacAddress::Broadcast, MacAddress(0xff, 0xff, 0xff, 0xff, 0xff, 0xff));
 	};
 }  // namespace pcpp
