@@ -22,7 +22,7 @@ namespace pcpp
 		}
 		std::unique_ptr<TestObject> clone() const
 		{
-			return std::make_unique<TestObject>(*this);
+			return std::unique_ptr<TestObject>(new TestObject(*this));
 		}
 
 	private:
