@@ -243,7 +243,7 @@ namespace pcpp
 		/// Try to construct the next layer in the protocol stack with a fallback option.
 		///
 		/// The method checks if the data is valid for the layer type T before constructing it by calling
-		/// T::isDataValid(data, dataLen). If the data is invalid, it tries to construct the layer of type TFallback.
+		/// T::isDataValid(data, dataLen). If the data is invalid, it constructs the layer of type TFallback.
 		///
 		/// @tparam T The type of the layer to construct
 		/// @tparam TFallback The fallback layer type to construct if T fails
