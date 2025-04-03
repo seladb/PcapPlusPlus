@@ -268,8 +268,9 @@ namespace pcpp
 		switch (ipHdr->protocol)
 		{
 		case PACKETPP_IPPROTO_UDP:
-			if (payloadLen >= sizeof(udphdr))
-				m_NextLayer = new UdpLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = UdpLayer::isDataValid(payload, payloadLen)
+			                  ? static_cast<Layer*>(new UdpLayer(payload, payloadLen, this, m_Packet))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 			break;
 		case PACKETPP_IPPROTO_TCP:
 			m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)

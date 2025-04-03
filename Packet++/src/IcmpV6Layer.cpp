@@ -75,12 +75,11 @@ namespace pcpp
 
 	void IcmpV6Layer::calculateChecksum()
 	{
-		/* Pseudo header of 40 bytes which is composed as follows(in order):
-		- 16 bytes for the source address
-		- 16 bytes for the destination address
-		- 4 bytes big endian payload length(the same value as in the IPv6 header)
-		- 3 bytes zero + 1 byte nextheader( 58 decimal) big endian
-		*/
+		// Pseudo header of 40 bytes which is composed as follows(in order):
+		// - 16 bytes for the source address
+		// - 16 bytes for the destination address
+		// - 4 bytes big endian payload length(the same value as in the IPv6 header)
+		// - 3 bytes zero + 1 byte nextheader( 58 decimal) big endian
 
 		getIcmpv6Header()->checksum = 0;
 
@@ -103,7 +102,7 @@ namespace pcpp
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = pseudoHeaderLen;
 
-			/* Calculate and write checksum */
+			// Calculate and write checksum
 			getIcmpv6Header()->checksum = htobe16(computeChecksum(vec, 2));
 		}
 	}

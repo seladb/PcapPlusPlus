@@ -6,8 +6,11 @@
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Packet.h"
+#include <array>
+#include <vector>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 
 /// @file
@@ -44,21 +47,26 @@ namespace pcpp
 			void clear();
 		};
 
-		struct StartupBlock
+		class StartupBlock
 		{
-			std::mutex Mutex;
-			std::condition_variable Cond;
-			int State = 0;
+		public:
+			void notifyStartup();
+			void waitForStartup();
+
+		private:
+			std::mutex m_Mutex;
+			std::condition_variable m_Cv;
+			bool m_Ready = false;
 		};
 
-		pfring** m_PfRingDescriptors;
+		std::vector<pfring*> m_PfRingDescriptors;
 		uint8_t m_NumOfOpenedRxChannels;
 		std::string m_DeviceName;
 		int m_InterfaceIndex;
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
-		CoreConfiguration m_CoreConfiguration[MAX_NUM_OF_CORES];
-		bool m_StopThread;
+		std::array<CoreConfiguration, MAX_NUM_OF_CORES> m_CoreConfiguration;
+		std::atomic<bool> m_StopThread;
 		OnPfRingPacketsArriveCallback m_OnPacketsArriveCallback;
 		void* m_OnPacketsArriveUserCookie;
 		bool m_ReentrantMode;
@@ -70,7 +78,7 @@ namespace pcpp
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
 		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
 
-		int openSingleRxChannel(const char* deviceName, pfring** ring);
+		int openSingleRxChannel(const char* deviceName, pfring*& ring);
 
 		bool getIsHwClockEnable()
 		{

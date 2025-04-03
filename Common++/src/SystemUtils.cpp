@@ -60,7 +60,7 @@ namespace
 	/// A deleter that cleans up a FILE handle using pclose.
 	struct PcloseDeleter
 	{
-		void operator()(FILE* ptr) const
+		void operator()(FILE* ptr) const noexcept
 		{
 			PCLOSE(ptr);
 		}

@@ -9,6 +9,7 @@
 #include "NullLoopbackLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
+#include "CiscoHdlcLayer.h"
 #include "PayloadLayer.h"
 #include "PacketTrailerLayer.h"
 #include "Logger.h"
@@ -22,7 +23,7 @@
 namespace pcpp
 {
 
-	Packet::Packet(size_t maxPacketLen)
+	Packet::Packet(size_t maxPacketLen, LinkLayerType linkType)
 	    : m_RawPacket(nullptr), m_FirstLayer(nullptr), m_LastLayer(nullptr), m_MaxPacketLen(maxPacketLen),
 	      m_FreeRawPacket(true), m_CanReallocateData(true)
 	{
@@ -30,17 +31,17 @@ namespace pcpp
 		gettimeofday(&time, nullptr);
 		uint8_t* data = new uint8_t[maxPacketLen];
 		memset(data, 0, maxPacketLen);
-		m_RawPacket = new RawPacket(data, 0, time, true, LINKTYPE_ETHERNET);
+		m_RawPacket = new RawPacket(data, 0, time, true, linkType);
 	}
 
-	Packet::Packet(uint8_t* buffer, size_t bufferSize)
+	Packet::Packet(uint8_t* buffer, size_t bufferSize, LinkLayerType linkType)
 	    : m_RawPacket(nullptr), m_FirstLayer(nullptr), m_LastLayer(nullptr), m_MaxPacketLen(bufferSize),
 	      m_FreeRawPacket(true), m_CanReallocateData(false)
 	{
 		timeval time;
 		gettimeofday(&time, nullptr);
 		memset(buffer, 0, bufferSize);
-		m_RawPacket = new RawPacket(buffer, 0, time, false, LINKTYPE_ETHERNET);
+		m_RawPacket = new RawPacket(buffer, 0, time, false, linkType);
 	}
 
 	void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
@@ -809,6 +810,13 @@ namespace pcpp
 			return NflogLayer::isDataValid(rawData, rawDataLen)
 			           ? static_cast<Layer*>(new NflogLayer((uint8_t*)rawData, rawDataLen, this))
 			           : static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
+		}
+		else if (linkType == LINKTYPE_C_HDLC)
+		{
+			return CiscoHdlcLayer::isDataValid(rawData, rawDataLen)
+			           ? static_cast<Layer*>(new CiscoHdlcLayer(const_cast<uint8_t*>(rawData), rawDataLen, this))
+			           : static_cast<Layer*>(
+			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
 		}
 
 		// unknown link type
