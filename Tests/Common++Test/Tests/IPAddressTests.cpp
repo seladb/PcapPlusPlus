@@ -16,7 +16,7 @@ namespace pcpp
 
 	TEST(IPv4AddressTest, ConstructorWithInteger)
 	{
-        IPv4Address addr2(0x0100A8C0);  // 192.168.0.1
+		IPv4Address addr2(0x0100A8C0);  // 192.168.0.1
 		EXPECT_EQ(addr2.toString(), "192.168.0.1");
 	}
 
@@ -88,7 +88,7 @@ namespace pcpp
 		IPv4Address addr5("192.168.0.1");
 		IPv4Network network("192.168.0.0/24");
 		EXPECT_TRUE(addr5.matchNetwork(network));
-		
+
 		IPv4Network network2("192.168.1.0/24");
 		EXPECT_FALSE(addr5.matchNetwork(network2));
 
@@ -172,7 +172,7 @@ namespace pcpp
 	TEST(IPv6AddressTest, ToBytesMethod)
 	{
 		std::array<uint8_t, 16> bytes = { 0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00,
-			                  0x00, 0x00, 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34 };
+			                              0x00, 0x00, 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34 };
 		IPv6Address addr4("2001:db8:85a3::8a2e:370:7334");
 		const uint8_t* addrBytes = addr4.toBytes();
 		EXPECT_EQ(memcmp(addrBytes, bytes.data(), 16), 0);
@@ -212,7 +212,7 @@ namespace pcpp
 		IPv6Address addr4("2001:db8:85a3::8a2e:370:7334");
 		IPv6Network network("2001:db8::/32");
 		EXPECT_TRUE(addr4.matchNetwork(network));
-		
+
 		IPv6Network network2("2001:db9::/32");
 		EXPECT_FALSE(addr4.matchNetwork(network2));
 	}
@@ -309,7 +309,7 @@ namespace pcpp
 		IPAddress ipAddr;
 		ASSERT_EQ(ipAddr.getType(), IPAddress::AddressType::IPv4AddressType);
 		ASSERT_EQ(ipAddr.getIPv4(), IPv4Address::Zero);
-		
+
 		ipAddr = ipv6Addr;
 		EXPECT_EQ(ipAddr.getType(), IPAddress::AddressType::IPv6AddressType);
 		EXPECT_EQ(ipAddr.getIPv6(), ipv6Addr);
@@ -400,7 +400,7 @@ namespace pcpp
 	TEST(IPv4NetworkTest, ConstructorWithAddressAndPrefix)
 	{
 		using namespace pcpp::literals;
-		
+
 		IPv4Network netPrefix("192.168.1.1"_ipv4, 24u);
 		EXPECT_EQ(netPrefix.getPrefixLen(), 24u);
 		EXPECT_EQ(netPrefix.getNetmask(), "255.255.255.0");
@@ -431,7 +431,7 @@ namespace pcpp
 
 		{
 			SCOPED_TRACE("Valid c'tor: IPv4 address + prefix len");
-			
+
 			IPv4Network netStringWithPrefix("192.168.1.1/8");
 			EXPECT_EQ(netStringWithPrefix.getPrefixLen(), 8u);
 			EXPECT_EQ(netStringWithPrefix.getNetmask(), "255.0.0.0");
@@ -470,7 +470,7 @@ namespace pcpp
 			EXPECT_TRUE(netBase.includes("192.168.2.1"_ipv4));
 			EXPECT_FALSE(netBase.includes("192.169.2.1"_ipv4));
 		}
-		
+
 		{
 			SCOPED_TRACE("With network");
 
@@ -577,7 +577,7 @@ namespace pcpp
 
 		{
 			SCOPED_TRACE("With network");
-			
+
 			EXPECT_TRUE(netBase.includes(IPv6Network("2001:db8:85a3:34ac::/64")));
 			EXPECT_TRUE(netBase.includes(IPv6Network("2001:db8:85a3:34ac::/72")));
 			EXPECT_FALSE(netBase.includes(IPv6Network("2001:db8:85a3:34ac::/56")));
@@ -658,7 +658,7 @@ namespace pcpp
 			EXPECT_EQ(netPrefix.toString(), "2001:db8:85a3::8a2e:0:0/96");
 		}
 	}
-	
+
 	TEST(IPNetworkTest, ConstructorWithAddressAndNetmask)
 	{
 		using namespace pcpp::literals;

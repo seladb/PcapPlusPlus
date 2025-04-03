@@ -8,7 +8,6 @@
 
 #include "Logger.h"
 
-
 namespace pcpp
 {
 	constexpr char getPathSeparator()
@@ -39,6 +38,7 @@ namespace pcpp
 	class LoggerTest : public ::testing::Test
 	{
 		using Base = ::testing::Test;
+
 	public:
 		LoggerTest() : m_Logger(Logger::getInstance())
 		{}
@@ -46,14 +46,14 @@ namespace pcpp
 		void SetUp() override
 		{
 			Base::SetUp();
-			
+
 			// Setup log callback trampoline
 			m_Logger.setLogPrinter(&LoggerTest::logPrinterTrampoline);
-			
+
 			// Enable all logs and set them to Info level by default
 			m_Logger.enableLogs();
 			m_Logger.setAllModulesToLogLevel(Logger::Info);
-			
+
 			// Setup log callback mock
 			m_LogCallbackMock = std::unique_ptr<LogCallbackMock>(new LogCallbackMock());
 		}
@@ -72,7 +72,6 @@ namespace pcpp
 		}
 
 	protected:
-
 // Spoofing the log module for testing purposes
 #pragma push_macro("LOG_MODULE")
 #undef LOG_MODULE
@@ -121,7 +120,8 @@ namespace pcpp
 
 	TEST_F(LoggerTest, GetSetLogLevel)
 	{
-		EXPECT_EQ(m_Logger.getLogLevel(SpoofedLogModule), Logger::Info) << "Initial setup should have initialized all modules to Info";
+		EXPECT_EQ(m_Logger.getLogLevel(SpoofedLogModule), Logger::Info)
+		    << "Initial setup should have initialized all modules to Info";
 
 		m_Logger.setLogLevel(SpoofedLogModule, Logger::Debug);
 		EXPECT_EQ(m_Logger.getLogLevel(SpoofedLogModule), Logger::Debug);
@@ -154,7 +154,7 @@ namespace pcpp
 		EXPECT_CALL(*m_LogCallbackMock,
 		            call(Logger::Error, "Error Log Message", _ /* Filename */, _ /* method */, _ /* line number */))
 		    .Times(1);
-		
+
 		invokeErrorLog("Error Log Message");
 	}
 
@@ -218,7 +218,7 @@ namespace pcpp
 
 		// Verifies that all expectations on the mock have been met and clears them.
 		::testing::Mock::VerifyAndClearExpectations(m_LogCallbackMock.get());
-		
+
 		m_Logger.setLogLevel(SpoofedLogModule, Logger::Debug);
 
 		EXPECT_CALL(*m_LogCallbackMock, call(Logger::Debug, "Module Level Log Suppression Debug", _ /* Filename */,
