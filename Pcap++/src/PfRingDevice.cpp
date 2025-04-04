@@ -71,11 +71,13 @@ namespace pcpp
 		m_NumOfOpenedRxChannels = 0;
 
 		PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "]");
-		int res = openSingleRxChannel(m_DeviceName.c_str(), m_PfRingDescriptors[0]);
+		int res = openSingleRxChannelImpl(m_DeviceName.c_str(), m_PfRingDescriptors[0]);
 		if (res == 0)
 		{
 			PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
 			m_NumOfOpenedRxChannels = 1;
+			// Set reentrant mode to false as the channel is opened without the PF_RING_REENTRANT flag.
+			m_ReentrantMode = false;
 			m_DeviceOpened = true;
 			return true;
 		}
@@ -93,7 +95,7 @@ namespace pcpp
 		return openMultiRxChannels(channelIds, 1);
 	}
 
-	int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring*& ring)
+	int PfRingDevice::openSingleRxChannelImpl(const char* deviceName, pfring*& ring, bool useReenterant)
 	{
 		if (m_DeviceOpened)
 		{
@@ -102,6 +104,11 @@ namespace pcpp
 		}
 
 		uint32_t flags = PF_RING_PROMISC | PF_RING_HW_TIMESTAMP | PF_RING_DNA_SYMMETRIC_RSS;
+		if (useReenterant)
+		{
+			flags |= PF_RING_REENTRANT;
+		}
+
 		ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
 
 		if (ring == nullptr)
@@ -177,7 +184,9 @@ namespace pcpp
 			std::string ringName = ringNameStream.str();
 			PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "] on channel [" << channelId
 			                                         << "]. Channel name [" << ringName << "]");
-			int res = openSingleRxChannel(ringName.c_str(), m_PfRingDescriptors[i]);
+			// todo: Shouldn't we use the reentrant mode here? We are opening multiple channels?
+			// todo: Potentially only open in reenterant mode if creating N > 1 channels?
+			int res = openSingleRxChannelImpl(ringName.c_str(), m_PfRingDescriptors[i]);
 			if (res == 0)
 			{
 				PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "] on channel [" << channelId
@@ -199,7 +208,7 @@ namespace pcpp
 		{
 			// if an error occurred, close all rings from index=0 to index=m_NumOfOpenedRxChannels-1
 			// there's no need to close m_PfRingDescriptors[m_NumOfOpenedRxChannels] because it has already been
-			// closed by openSingleRxChannel
+			// closed by openSingleRxChannelImpl
 			for (int i = 0; i < m_NumOfOpenedRxChannels - 1; i++)
 			{
 				pfring_close(m_PfRingDescriptors[i]);
@@ -209,6 +218,8 @@ namespace pcpp
 			return false;
 		}
 
+		// Set reentrant mode to false as the channels are opened without the PF_RING_REENTRANT flag.
+		m_ReentrantMode = false;
 		m_DeviceOpened = true;
 
 		return true;
@@ -330,7 +341,8 @@ namespace pcpp
 		}
 
 		m_NumOfOpenedRxChannels = ringsOpen;
-
+		// Set reentrant mode to true as the channels are opened with the PF_RING_REENTRANT flag.
+		m_ReentrantMode = true;
 		m_DeviceOpened = true;
 		return true;
 	}
@@ -479,8 +491,6 @@ namespace pcpp
 			if (!m_CoreConfiguration[coreId].IsInUse)
 				continue;
 
-			m_ReentrantMode = true;
-
 			m_OnPacketsArriveCallback = onPacketsArrive;
 			m_OnPacketsArriveUserCookie = onPacketsArriveUserCookie;
 
@@ -544,8 +554,6 @@ namespace pcpp
 		m_OnPacketsArriveUserCookie = onPacketsArriveUserCookie;
 
 		m_StopThread = false;
-
-		m_ReentrantMode = false;
 
 		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
