@@ -938,7 +938,7 @@ namespace pcpp
 			else
 				packetsSent++;
 		}
-		
+
 		// In case of failure due to closed device, there are not handles to flush.
 		if (m_PfRingDescriptors.size() > 0)
 		{
