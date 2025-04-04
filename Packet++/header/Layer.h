@@ -218,6 +218,7 @@ namespace pcpp
 			return newLayer;
 		}
 
+	private:
 		/// Try to construct the next layer in the protocol stack.
 		///
 		/// The method checks if the data is valid for the layer type T before constructing it by calling
@@ -239,6 +240,7 @@ namespace pcpp
 			}
 			return nullptr;
 		}
+	protected:
 
 		/// Try to construct the next layer in the protocol stack with a fallback option.
 		///
