@@ -892,8 +892,12 @@ namespace pcpp
 				packetsSent++;
 		}
 
-		// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
-		pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		// In case of failure due to closed device, there are not handles to flush.
+		if (m_PfRingDescriptors.size() > 0)
+		{
+			// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+			pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		}
 
 		PCPP_LOG_DEBUG(packetsSent << " out of " << arrLength << " raw packets were sent successfully");
 
@@ -912,8 +916,12 @@ namespace pcpp
 				packetsSent++;
 		}
 
-		// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
-		pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		// In case of failure due to closed device, there are not handles to flush.
+		if (m_PfRingDescriptors.size() > 0)
+		{
+			// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+			pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		}
 
 		PCPP_LOG_DEBUG(packetsSent << " out of " << arrLength << " packets were sent successfully");
 
@@ -930,9 +938,13 @@ namespace pcpp
 			else
 				packetsSent++;
 		}
-
-		// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
-		pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		
+		// In case of failure due to closed device, there are not handles to flush.
+		if (m_PfRingDescriptors.size() > 0)
+		{
+			// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+			pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		}
 
 		PCPP_LOG_DEBUG(packetsSent << " out of " << rawPackets.size() << " raw packets were sent successfully");
 
