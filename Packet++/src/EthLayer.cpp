@@ -39,43 +39,35 @@ namespace pcpp
 		switch (be16toh(hdr->etherType))
 		{
 		case PCPP_ETHERTYPE_IP:
-			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_IPV6:
-			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_ARP:
-			m_NextLayer = new ArpLayer(payload, payloadLen, this, m_Packet);
+			tryConstructNextLayerWithFallback<ArpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_VLAN:
 		case PCPP_ETHERTYPE_IEEE_802_1AD:
-			m_NextLayer = new VlanLayer(payload, payloadLen, this, m_Packet);
+			tryConstructNextLayerWithFallback<VlanLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_PPPOES:
-			m_NextLayer = PPPoESessionLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new PPPoESessionLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<PPPoESessionLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_PPPOED:
-			m_NextLayer = PPPoEDiscoveryLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new PPPoEDiscoveryLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<PPPoEDiscoveryLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_MPLS:
-			m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
+			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_WAKE_ON_LAN:
-			m_NextLayer = WakeOnLanLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new WakeOnLanLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<WakeOnLanLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 			break;
-		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		}
+
+		// If no next layer was constructed, assume it's a payload layer
+		if (!hasNextLayer())
+			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 	}
 
 	void EthLayer::computeCalculateFields()
