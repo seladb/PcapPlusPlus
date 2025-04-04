@@ -71,7 +71,7 @@ namespace pcpp
 		m_NumOfOpenedRxChannels = 0;
 
 		PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "]");
-		int res = openSingleRxChannelImpl(m_DeviceName.c_str(), &m_PfRingDescriptors[0]);
+		int res = openSingleRxChannelImpl(m_DeviceName.c_str(), m_PfRingDescriptors[0]);
 		if (res == 0)
 		{
 			PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
@@ -95,7 +95,7 @@ namespace pcpp
 		return openMultiRxChannels(channelIds, 1);
 	}
 
-	int PfRingDevice::openSingleRxChannelImpl(const char* deviceName, pfring** ring, bool useReenterant)
+	int PfRingDevice::openSingleRxChannelImpl(const char* deviceName, pfring*& ring, bool useReenterant)
 	{
 		if (m_DeviceOpened)
 		{
@@ -109,9 +109,9 @@ namespace pcpp
 			flags |= PF_RING_REENTRANT;
 		}
 
-		*ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
+		ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
 
-		if (*ring == nullptr)
+		if (ring == nullptr)
 		{
 			return 1;
 		}
@@ -119,13 +119,13 @@ namespace pcpp
 
 		if (getIsHwClockEnable())
 		{
-			setPfRingDeviceClock(*ring);
+			setPfRingDeviceClock(ring);
 			PCPP_LOG_DEBUG("H/W clock set for device [" << m_DeviceName << "]");
 		}
 
-		if (pfring_enable_rss_rehash(*ring) < 0 || pfring_enable_ring(*ring) < 0)
+		if (pfring_enable_rss_rehash(ring) < 0 || pfring_enable_ring(ring) < 0)
 		{
-			pfring_close(*ring);
+			pfring_close(ring);
 			return 2;
 		}
 
@@ -186,7 +186,7 @@ namespace pcpp
 			                                         << "]. Channel name [" << ringName << "]");
 			// todo: Shouldn't we use the reentrant mode here? We are opening multiple channels?
 			// todo: Potentially only open in reenterant mode if creating N > 1 channels?
-			int res = openSingleRxChannelImpl(ringName.c_str(), &m_PfRingDescriptors[i]);
+			int res = openSingleRxChannelImpl(ringName.c_str(), m_PfRingDescriptors[i]);
 			if (res == 0)
 			{
 				PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "] on channel [" << channelId
