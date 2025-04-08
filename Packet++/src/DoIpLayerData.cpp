@@ -1,7 +1,7 @@
 #include "DoIpLayerData.h"
 #include "DoIpLayer.h"
 #include "GeneralUtils.h"
-
+#include <unordered_map>
 namespace pcpp
 {
 	/// @brief Mapping of DoIP Activation Types to their respective string descriptions.
@@ -1042,4 +1042,148 @@ namespace pcpp
 		return true;
 	}
 
+	// Alive check request functions definitions
+	AliveCheckRequestData::AliveCheckRequestData()
+	{}
+
+	DoIpPayloadTypes AliveCheckRequestData::getType() const
+	{
+		return DoIpPayloadTypes::ALIVE_CHECK_REQUEST;
+	}
+	std::string AliveCheckRequestData::toString() const
+	{
+		return {};
+	}
+
+	std::vector<uint8_t> AliveCheckRequestData::getData() const
+	{
+		return {};
+	}
+
+	bool AliveCheckRequestData::buildFromLayer(const DoIpLayer& doipLayer)
+	{
+
+		if (doipLayer.getPayloadType() != getType())
+		{
+			PCPP_LOG_ERROR("Cannot build Alive check request Message data from " + doipLayer.getPayloadTypeAsStr());
+			return false;
+		}
+
+		if (doipLayer.getDataLen() != sizeof(doiphdr))
+		{
+			PCPP_LOG_ERROR("Alive check request Message has no additional data");
+			return false;
+		}
+		return true;
+	}
+
+	// Entity status request functions definitions
+	EntityStatusRequestData::EntityStatusRequestData()
+	{}
+
+	DoIpPayloadTypes EntityStatusRequestData::getType() const
+	{
+		return DoIpPayloadTypes::ENTITY_STATUS_REQUEST;
+	}
+
+	std::string EntityStatusRequestData::toString() const
+	{
+		return {};
+	}
+
+	std::vector<uint8_t> EntityStatusRequestData::getData() const
+	{
+		return {};
+	}
+
+	bool EntityStatusRequestData::buildFromLayer(const DoIpLayer& doipLayer)
+	{
+
+		if (doipLayer.getPayloadType() != getType())
+		{
+			PCPP_LOG_ERROR("Cannot build Entity status request message data from " + doipLayer.getPayloadTypeAsStr());
+			return false;
+		}
+
+		if (doipLayer.getDataLen() != sizeof(doiphdr))
+		{
+			PCPP_LOG_ERROR("Entity status request message has no additional data");
+			return false;
+		}
+		return true;
+	}
+
+	// diagnostic power mode request functions definitions
+	DiagnosticPowerModeRequestData::DiagnosticPowerModeRequestData()
+	{}
+
+	DoIpPayloadTypes DiagnosticPowerModeRequestData::getType() const
+	{
+		return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST;
+	}
+
+	std::string DiagnosticPowerModeRequestData::toString() const
+	{
+		return {};
+	}
+
+	std::vector<uint8_t> DiagnosticPowerModeRequestData::getData() const
+	{
+		return {};
+	}
+
+	bool DiagnosticPowerModeRequestData::buildFromLayer(const DoIpLayer& doipLayer)
+	{
+
+		if (doipLayer.getPayloadType() != getType())
+		{
+			PCPP_LOG_ERROR("Cannot build diagnostic power mode request message data from " +
+			               doipLayer.getPayloadTypeAsStr());
+			return false;
+		}
+
+		if (doipLayer.getDataLen() != sizeof(doiphdr))
+		{
+			PCPP_LOG_ERROR("diagnostic power mode request message has no additional data");
+			return false;
+		}
+		return true;
+	}
+
+	// Vehicle identification request functions definitions
+	VehicleIdentificationRequestData::VehicleIdentificationRequestData()
+	{}
+
+	DoIpPayloadTypes VehicleIdentificationRequestData::getType() const
+	{
+		return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST;
+	}
+
+	std::string VehicleIdentificationRequestData::toString() const
+	{
+		return {};
+	}
+
+	std::vector<uint8_t> VehicleIdentificationRequestData::getData() const
+	{
+		return {};
+	}
+
+	bool VehicleIdentificationRequestData::buildFromLayer(const DoIpLayer& doipLayer)
+	{
+
+		if (doipLayer.getPayloadType() != getType())
+		{
+			PCPP_LOG_ERROR("Cannot build vehicle identification request  message data from " +
+			               doipLayer.getPayloadTypeAsStr());
+			return false;
+		}
+
+		if (doipLayer.getDataLen() != sizeof(doiphdr))
+		{
+			PCPP_LOG_ERROR("Vehicle identification request message has no additional data");
+			return false;
+		}
+		return true;
+	}
 }  // namespace pcpp

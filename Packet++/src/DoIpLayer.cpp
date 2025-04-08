@@ -5,6 +5,7 @@
 #include "Packet.h"
 #include "PayloadLayer.h"
 #include "EndianPortable.h"
+#include <unordered_map>
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -52,12 +53,12 @@ namespace pcpp
 		{ DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE,                    "Unknown payload type"                       }
 	};
 
-	DoIpLayer::DoIpLayer(DoIpProtocolVersion version, DoIpPayloadTypes type, const IDoIpMessageData* data)
+	DoIpLayer::DoIpLayer(DoIpProtocolVersion version, const IDoIpMessageData& data)
 	{
 		initLayer();
 		setProtocolVersion(version);
 		setInvertProtocolVersion(~(static_cast<uint8_t>(version)));
-		buildLayer(type, data);
+		buildLayer(data);
 	}
 
 	DoIpLayer::DoIpLayer()
@@ -66,7 +67,7 @@ namespace pcpp
 		initLayer();
 		setProtocolVersion(DoIpProtocolVersion::Version02Iso2012);
 		setInvertProtocolVersion(~(static_cast<uint8_t>(DoIpProtocolVersion::Version02Iso2012)));
-		buildLayer(DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE, &data);
+		buildLayer(data);
 	}
 
 	DoIpProtocolVersion DoIpLayer::getProtocolVersion() const
@@ -208,16 +209,15 @@ namespace pcpp
 	{
 		if (!isLayerDataValid())
 		{
-			return "Malformed DoIP packet";
+			return "DoIP Layer, malformed data";
 		}
 
 		std::ostringstream os;
 		DoIpPayloadTypes type = getPayloadType();
 
-		os << "DOIP Layer, " << getPayloadTypeAsStr() << " (0x" << std::hex << std::setw(4) << std::setfill('0')
-		   << (type == DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE
-		           ? static_cast<uint16_t>(be16toh(getDoIpHeader()->payloadType))
-		           : static_cast<uint16_t>(type))
+		os << "DoIP Layer, " << getPayloadTypeAsStr() << " (0x" << std::hex << std::setw(4) << std::setfill('0')
+		   << (type == DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE ? (be16toh(getDoIpHeader()->payloadType))
+		                                                      : static_cast<uint16_t>(type))
 		   << ")";
 
 		return os.str();
@@ -230,35 +230,15 @@ namespace pcpp
 		m_Data = new uint8_t[m_DataLen]{};
 	}
 
-	void DoIpLayer::buildLayer(DoIpPayloadTypes type, const IDoIpMessageData* data)
+	void DoIpLayer::buildLayer(const IDoIpMessageData& data)
 	{
-		switch (type)
-		{
-		case DoIpPayloadTypes::ALIVE_CHECK_REQUEST:
-		case DoIpPayloadTypes::ENTITY_STATUS_REQUEST:
-		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST:
-		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST:
-			setPayloadType(type);
-			setPayloadLength(0);
-			break;
-		default:
-			// Payload handling for rest of types
-			{
-				if (data == nullptr)
-				{
-					PCPP_LOG_ERROR("Cannot build Layer with empty Data");
-					break;
-				}
-				size_t payloadSize = data->getData().size();
-				size_t headerLength = sizeof(doiphdr);
+		size_t payloadSize = data.getData().size();
+		size_t headerLength = sizeof(doiphdr);
 
-				setPayloadType(data->getType());
-				setPayloadLength(payloadSize);
-				extendLayer(headerLength, payloadSize);
-				memcpy(m_Data + headerLength, data->getData().data(), payloadSize);
-				break;
-			}
-		}
+		setPayloadType(data.getType());
+		setPayloadLength(payloadSize);
+		extendLayer(headerLength, payloadSize);
+		memcpy(m_Data + headerLength, data.getData().data(), payloadSize);
 	}
 
 	void DoIpLayer::parseNextLayer()
