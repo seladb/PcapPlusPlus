@@ -63,6 +63,8 @@ endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+target_compile_features(Pcap++ PUBLIC cxx_std_11)
+
 if(APPLE)
   target_link_libraries(Pcap++ PRIVATE "-framework CoreFoundation" "-framework SystemConfiguration")
 elseif(WIN32)
