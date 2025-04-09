@@ -721,7 +721,7 @@ jobs:
         if: matrix.target == 'x86_64'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api-level }}
+          api-level: ${{ matrix.api-version }}
           arch: ${{ matrix.target }}
           script: ./gradlew -is connectedCheck
 # Uncomment to enable logs
