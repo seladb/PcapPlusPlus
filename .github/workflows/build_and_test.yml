@@ -723,6 +723,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-version }}
           arch: ${{ matrix.target }}
+          working-directory: ./ToyVpn-PcapPlusPlus
           script: ./gradlew -is connectedCheck
 # Uncomment to enable logs
 #          script: |
