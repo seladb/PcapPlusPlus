@@ -628,7 +628,7 @@ jobs:
       matrix:
         include:
           - run-on-os: ubuntu-latest
-            target: arm64-v8a
+            target: x86_64
             api-version: 35
           - run-on-os: ubuntu-latest
             target: x86
@@ -637,7 +637,7 @@ jobs:
             target: armeabi-v7a
             api-version: 35
           - run-on-os: macos-15
-            target: x86_64
+            target: arm64-v8a
             api-version: 35
 #          - run-on-os: ubuntu-latest
 #            target: x86
@@ -679,8 +679,7 @@ jobs:
           ref: "new-toyvpn"
           submodules: true
 
-      - name: Install locally PcapPlusPlus
-        # CMake install library in $prefix/lib ToyVpn want $prefix/$target/$api-version
+      - name: Install PcapPlusPlus
         run: |
           TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
           PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
@@ -710,6 +709,26 @@ jobs:
       - name: Build gradle project and run tests
         working-directory: ./ToyVpn-PcapPlusPlus
         run: ./gradlew build -PabiFilter=${{ matrix.target}}
+
+      - name: Enable KVM
+        if: matrix.target == 'x86_64'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run instrumentation tests
+        if: matrix.target == 'x86_64'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: ${{ matrix.target }}
+          script: ./gradlew -is connectedCheck
+# Uncomment to enable logs
+#          script: |
+#            adb logcat -c
+#            adb logcat &
+#            gradle -is connectedCheck
 
 #      - name: Build ToyVpn-PcapPlusPlus
 #        working-directory: ./ToyVpn-PcapPlusPlus
