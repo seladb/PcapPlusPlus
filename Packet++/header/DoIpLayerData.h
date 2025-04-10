@@ -1063,10 +1063,12 @@ namespace pcpp
 		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
+	/// @class EntityStatusRequestData
+	/// @brief Represents an entity status request  in DoIP.
 	class EntityStatusRequestData : public IDoIpMessageData
 	{
 	public:
-		/// @brief Default constructor for the AliveCheckRequestData class.
+		/// @brief Default constructor for the EntityStatusRequestData class.
 		///
 		/// Initializes a `EntityStatusRequestData` instance
 		/// ensuring compliance with the DoIP protocol requirements.
@@ -1088,10 +1090,12 @@ namespace pcpp
 		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
+	/// @class DiagnosticPowerModeRequestData
+	/// @brief Represents a diagnostic power mode request  in DoIP.
 	class DiagnosticPowerModeRequestData : public IDoIpMessageData
 	{
 	public:
-		/// @brief Default constructor for the AliveCheckRequestData class.
+		/// @brief Default constructor for the DiagnosticPowerModeRequestData class.
 		///
 		/// Initializes a `DiagnosticPowerModeRequestData` instance
 		/// ensuring compliance with the DoIP protocol requirements.
@@ -1102,7 +1106,7 @@ namespace pcpp
 		DoIpPayloadTypes getType() const override;
 
 		/// @brief Converts the message data to a human-readable string.
-		/// @return An empty string because Alive check request message has no additional data.
+		/// @return An empty string because diagnostic power mode message has no additional data.
 		std::string toString() const override;
 
 		/// @brief Retrieves the raw binary data of the message.
@@ -1113,6 +1117,8 @@ namespace pcpp
 		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
+	/// @class VehicleIdentificationRequestData
+	/// @brief Represents a vehicle identification request  in DoIP.
 	class VehicleIdentificationRequestData : public IDoIpMessageData
 	{
 	public:
