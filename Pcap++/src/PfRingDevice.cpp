@@ -71,7 +71,7 @@ namespace pcpp
 		m_NumOfOpenedRxChannels = 0;
 
 		PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "]");
-		int res = openSingleRxChannel(m_DeviceName.c_str(), &m_PfRingDescriptors[0]);
+		int res = openSingleRxChannel(m_DeviceName.c_str(), m_PfRingDescriptors[0]);
 		if (res == 0)
 		{
 			PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
@@ -93,7 +93,7 @@ namespace pcpp
 		return openMultiRxChannels(channelIds, 1);
 	}
 
-	int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring** ring)
+	int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring*& ring)
 	{
 		if (m_DeviceOpened)
 		{
@@ -102,9 +102,9 @@ namespace pcpp
 		}
 
 		uint32_t flags = PF_RING_PROMISC | PF_RING_HW_TIMESTAMP | PF_RING_DNA_SYMMETRIC_RSS;
-		*ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
+		ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
 
-		if (*ring == nullptr)
+		if (ring == nullptr)
 		{
 			return 1;
 		}
@@ -112,13 +112,13 @@ namespace pcpp
 
 		if (getIsHwClockEnable())
 		{
-			setPfRingDeviceClock(*ring);
+			setPfRingDeviceClock(ring);
 			PCPP_LOG_DEBUG("H/W clock set for device [" << m_DeviceName << "]");
 		}
 
-		if (pfring_enable_rss_rehash(*ring) < 0 || pfring_enable_ring(*ring) < 0)
+		if (pfring_enable_rss_rehash(ring) < 0 || pfring_enable_ring(ring) < 0)
 		{
-			pfring_close(*ring);
+			pfring_close(ring);
 			return 2;
 		}
 
@@ -177,7 +177,7 @@ namespace pcpp
 			std::string ringName = ringNameStream.str();
 			PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "] on channel [" << channelId
 			                                         << "]. Channel name [" << ringName << "]");
-			int res = openSingleRxChannel(ringName.c_str(), &m_PfRingDescriptors[i]);
+			int res = openSingleRxChannel(ringName.c_str(), m_PfRingDescriptors[i]);
 			if (res == 0)
 			{
 				PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "] on channel [" << channelId
@@ -802,8 +802,7 @@ namespace pcpp
 
 		uint8_t flushTxAsUint = (flushTxQueues ? 1 : 0);
 
-#define MAX_TRIES 5
-
+		constexpr int MAX_TRIES = 5;
 		int tries = 0;
 		int res = 0;
 		while (tries < MAX_TRIES)
