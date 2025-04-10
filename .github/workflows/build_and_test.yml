@@ -679,10 +679,6 @@ jobs:
           mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
           mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
-          echo ${PCAPPLUSPLUS_INCLUDE_PATH}
-          echo ${PCAPPLUSPLUS_LIBS_PATH}
-          ls -la ${PCAPPLUSPLUS_LIBS_PATH}
-          ls -la ${PCAPPLUSPLUS_INCLUDE_PATH}
 
       - name: Set up JDK
         uses: actions/setup-java@v4
