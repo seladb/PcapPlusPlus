@@ -7,6 +7,7 @@
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
+#include "Packet.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
@@ -678,7 +679,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 
-#ifdef HAS_SET_DIRECTION_ENABLED
 	packetCount = 0;
 
 	// create a non-default configuration with only capturing incoming packets and open the device again
@@ -694,8 +694,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
-
-#endif
 
 	// create a non-default configuration with a snapshot length of 10 bytes
 	int snaplen = 20;
