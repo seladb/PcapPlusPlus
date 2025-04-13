@@ -238,7 +238,7 @@ namespace pcpp
 			{
 				return m_NextLayer;
 			}
-			
+
 			return constructNextLayer<TFallback>(data, dataLen, packet);
 		}
 
