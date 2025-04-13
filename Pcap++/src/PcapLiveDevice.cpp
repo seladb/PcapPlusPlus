@@ -93,6 +93,7 @@ namespace pcpp
 
 	static int getPcapTimestampProvider(const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
+#ifdef HAS_TIMESTAMP_TYPES_ENABLED
 		switch (timestampProvider)
 		{
 		case PcapLiveDevice::TimestampProvider::Host:
@@ -109,6 +110,10 @@ namespace pcpp
 			return PCAP_TSTAMP_HOST_HIPREC_UNSYNCED;
 		}
 		return PCAP_TSTAMP_HOST;
+#else
+		PCPP_LOG_ERROR("Error getting the timestamp provider - it is available only from libpcap 1.2");
+		return 0;
+#endif
 	}
 
 	static int getPcapPrecision(const PcapLiveDevice::TimestampPrecision timestampPrecision)
