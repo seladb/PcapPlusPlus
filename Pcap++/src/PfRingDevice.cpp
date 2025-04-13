@@ -802,8 +802,7 @@ namespace pcpp
 
 		uint8_t flushTxAsUint = (flushTxQueues ? 1 : 0);
 
-#define MAX_TRIES 5
-
+		constexpr int MAX_TRIES = 5;
 		int tries = 0;
 		int res = 0;
 		while (tries < MAX_TRIES)
