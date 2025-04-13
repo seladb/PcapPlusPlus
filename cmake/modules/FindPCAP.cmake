@@ -18,7 +18,6 @@
 #  PCAP_LIBRARY              The libpcap library (possibly includes a thread
 #                            library e.g. required by pf_ring's libpcap)
 #  HAVE_PCAP_IMMEDIATE_MODE  If the version of libpcap found supports immediate mode
-#  HAVE_PCAP_DIRECTION       If the version of libpcap found support for setting direction
 #
 # Hints and Backward Compatibility
 # ================================
@@ -76,12 +75,10 @@ endif(NOT PCAP_LINKS_SOLO)
 include(CheckFunctionExists)
 set(CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARY})
 check_function_exists(pcap_set_immediate_mode HAVE_PCAP_IMMEDIATE_MODE)
-check_function_exists(pcap_setdirection HAVE_PCAP_DIRECTION)
-check_function_exists(pcap_lib_version HAVE_PCAP_LIB_VERSION)
 set(CMAKE_REQUIRED_LIBRARIES)
 
 # Check libPCAP version
-if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
+if(NOT CMAKE_CROSSCOMPILING)
   # Simple C code to extract the libpcap version
   set(
     PCAP_VERSION_CODE

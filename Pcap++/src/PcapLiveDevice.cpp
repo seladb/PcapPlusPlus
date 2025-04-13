@@ -68,8 +68,6 @@ static const int DEFAULT_SNAPLEN = 9000;
 
 namespace pcpp
 {
-
-#ifdef HAS_SET_DIRECTION_ENABLED
 	static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction)
 	{
 		switch (direction)
@@ -84,7 +82,6 @@ namespace pcpp
 			throw std::invalid_argument("Unknown direction type");
 		}
 	}
-#endif
 
 	PcapLiveDevice::DeviceInterfaceDetails::DeviceInterfaceDetails(pcap_if_t* pInterface)
 	    : name(pInterface->name), isLoopback(pInterface->flags & PCAP_IF_LOOPBACK)
@@ -318,7 +315,6 @@ namespace pcpp
 			return nullptr;
 		}
 
-#ifdef HAS_SET_DIRECTION_ENABLED
 		pcap_direction_t directionToSet = directionTypeMap(config.direction);
 		ret = pcap_setdirection(pcap, directionToSet);
 		if (ret == 0)
@@ -341,7 +337,6 @@ namespace pcpp
 			PCPP_LOG_ERROR("Failed to set direction for capturing packets, error code: '"
 			               << ret << "', error message: '" << pcap_geterr(pcap) << "'");
 		}
-#endif
 
 		if (pcap)
 		{
