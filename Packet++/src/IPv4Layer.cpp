@@ -281,6 +281,9 @@ namespace pcpp
 			case IPv6:
 				tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
+			default:
+				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+				break;
 			}
 			break;
 		}
@@ -293,6 +296,9 @@ namespace pcpp
 				break;
 			case GREv1:
 				tryConstructNextLayerWithFallback<GREv1Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				break;
+			default:
+				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			};
 			break;
@@ -319,6 +325,9 @@ namespace pcpp
 					tryConstructNextLayerWithFallback<IgmpV3ReportLayer, PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			}
+			default:
+				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+				break;
 			}
 			break;
 		}
@@ -341,6 +350,9 @@ namespace pcpp
 			case VRRPv3:
 				tryConstructNextLayerWithFallback<VrrpV3Layer, PayloadLayer>(payload, payloadLen, m_Packet,
 				                                                             IPAddress::IPv4AddressType);
+				break;
+			default:
+				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 				break;
 			}
 			break;
