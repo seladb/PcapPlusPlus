@@ -91,17 +91,6 @@ namespace pcpp
 	}
 #endif
 
-#if defined(_WIN32)
-	static void setTimestampProvider(pcap_t* pcap, const PcapLiveDevice::TimestampProvider timestampProvider)
-	{
-		PCPP_LOG_ERROR("Windows doesn't support timestampProvider option");
-	}
-
-	static void setTimestampPrecision(pcap_t* pcap, const PcapLiveDevice::TimestampPrecision timestampPrecision)
-	{
-		PCPP_LOG_ERROR("Windows doesn't support timestampPrecision option");
-	}
-#else
 	static int getPcapTimestampProvider(const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
 		switch (timestampProvider)
@@ -137,20 +126,21 @@ namespace pcpp
 	static bool isTimestampProviderSupportedByDevice(pcap_t* pcap,
 	                                                 const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
-#	ifdef PCAP_AVAILABLE_1_2
+#ifdef HAS_TIMESTAMP_TYPES_ENABLED
 		const auto tstampType = getPcapTimestampProvider(timestampProvider);
 
-		// Use unique_ptr with a custom deleter directly
-		std::unique_ptr<int[], void (*)(int*)> supportedTstampTypes(nullptr, [](int* ptr) {
-			if (ptr != nullptr)
+		int* supportedTstampTypesRaw;
+		const int numSupportedTstampTypes = pcap_list_tstamp_types(pcap, &supportedTstampTypesRaw);
+
+		struct TimestampTypesDeleter
+		{
+			void operator()(int* ptr) const noexcept
 			{
 				pcap_free_tstamp_types(ptr);
 			}
-		});
+		};
 
-		auto rawSupportedTstampTypesPtr = supportedTstampTypes.release();
-		const int numSupportedTstampTypes = pcap_list_tstamp_types(pcap, &rawSupportedTstampTypesPtr);
-		supportedTstampTypes.reset(rawSupportedTstampTypesPtr);
+		std::unique_ptr<int[], TimestampTypesDeleter> supportedTstampTypes(supportedTstampTypesRaw);
 
 		if (numSupportedTstampTypes < 0)
 		{
@@ -159,29 +149,17 @@ namespace pcpp
 			return false;
 		}
 
-		if (numSupportedTstampTypes == 1)
-		{
-			// If 1 is returned, then the only available timestamp is TimestampProvider::Host
-			return timestampProvider == PcapLiveDevice::TimestampProvider::Host;
-		}
-
-		for (int i = 0; i < numSupportedTstampTypes; ++i)
-		{
-			if (supportedTstampTypes[i] == tstampType)
-			{
-				return true;
-			}
-		}
-#	else
-		PCPP_LOG_ERROR("Error retrieving timestamp types - default 'Host' will be used. "
-		               << "pcap_list_tstamp_types is available only from libpcap 1.2");
-#	endif
-
+		return std::find(supportedTstampTypes.get(), supportedTstampTypes.get() + numSupportedTstampTypes,
+		                 tstampType) != supportedTstampTypes.get() + numSupportedTstampTypes;
+#else
+		PCPP_LOG_ERROR("Error retrieving timestamp types - it is available only from libpcap 1.2");
 		return false;
+#endif
 	}
 
 	static void setTimestampProvider(pcap_t* pcap, const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
+#ifdef HAS_TIMESTAMP_TYPES_ENABLED
 		if (isTimestampProviderSupportedByDevice(pcap, timestampProvider))
 		{
 			const int ret = pcap_set_tstamp_type(pcap, getPcapTimestampProvider(timestampProvider));
@@ -199,22 +177,35 @@ namespace pcpp
 		{
 			PCPP_LOG_ERROR("Selected timestamping provider is not supported");
 		}
+#else
+		PCPP_LOG_ERROR("Error setting timestamp provider - it is available only from libpcap 1.2");
+#endif
 	}
 
 	static void setTimestampPrecision(pcap_t* pcap, const PcapLiveDevice::TimestampPrecision timestampPrecision)
 	{
+#ifdef HAS_TIMESTAMP_PRECISION_ENABLED
 		const int ret = pcap_set_tstamp_precision(pcap, getPcapPrecision(timestampPrecision));
 		if (ret == 0)
 		{
 			PCPP_LOG_DEBUG("Timestamp precision was set");
+			return;
+		}
+
+		if (ret == PCAP_ERROR_TSTAMP_PRECISION_NOTSUP)
+		{
+			PCPP_LOG_ERROR(
+			    "Failed to set timestamping precision: the capture device does not support the requested precision");
 		}
 		else
 		{
 			PCPP_LOG_ERROR("Failed to set timestamping precision: '" << ret << "', error message: '"
 			                                                         << pcap_geterr(pcap) << "'");
 		}
-	}
+#else
+		PCPP_LOG_ERROR("Error setting timestamp precision - it is available only from libpcap 1.5");
 #endif
+	}
 
 	PcapLiveDevice::DeviceInterfaceDetails::DeviceInterfaceDetails(pcap_if_t* pInterface)
 	    : name(pInterface->name), isLoopback(pInterface->flags & PCAP_IF_LOOPBACK)
@@ -440,12 +431,12 @@ namespace pcpp
 		}
 #endif
 
-		if (config.timestampProvider != PcapLiveDevice::TimestampProvider::Host)
+		if (config.timestampProvider != TimestampProvider::Host)
 		{
 			setTimestampProvider(pcap, config.timestampProvider);
 		}
 
-		if (config.timestampPrecision != PcapLiveDevice::TimestampPrecision::Nanoseconds)
+		if (config.timestampPrecision != TimestampPrecision::Microseconds)
 		{
 			setTimestampPrecision(pcap, config.timestampPrecision);
 		}
