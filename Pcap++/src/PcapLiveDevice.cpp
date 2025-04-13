@@ -111,13 +111,13 @@ namespace pcpp
 		}
 		return PCAP_TSTAMP_HOST;
 #else
-		PCPP_LOG_ERROR("Error getting the timestamp provider - it is available only from libpcap 1.2");
-		return 0;
+		throw std::logic_error("Error getting the timestamp provider - it is available only from libpcap 1.2");
 #endif
 	}
 
 	static int getPcapPrecision(const PcapLiveDevice::TimestampPrecision timestampPrecision)
 	{
+#ifdef HAS_TIMESTAMP_PRECISION_ENABLED
 		switch (timestampPrecision)
 		{
 		case PcapLiveDevice::TimestampPrecision::Microseconds:
@@ -126,6 +126,9 @@ namespace pcpp
 			return PCAP_TSTAMP_PRECISION_NANO;
 		}
 		return PCAP_TSTAMP_PRECISION_MICRO;
+#else
+		throw std::logic_error("Error getting timestamp precision - it is available only from libpcap 1.5");
+#endif
 	}
 
 	static bool isTimestampProviderSupportedByDevice(pcap_t* pcap,
@@ -157,8 +160,7 @@ namespace pcpp
 		return std::find(supportedTstampTypes.get(), supportedTstampTypes.get() + numSupportedTstampTypes,
 		                 tstampType) != supportedTstampTypes.get() + numSupportedTstampTypes;
 #else
-		PCPP_LOG_ERROR("Error retrieving timestamp types - it is available only from libpcap 1.2");
-		return false;
+		throw std::logic_error("Error retrieving timestamp types - it is available only from libpcap 1.2");
 #endif
 	}
 
