@@ -20,7 +20,6 @@
 #  HAVE_PCAP_IMMEDIATE_MODE      If the version of libpcap found supports immediate mode
 #  HAVE_PCAP_TIMESTAMP_TYPES     If the version of libpcap found support for setting timestamp types
 #  HAVE_PCAP_TIMESTAMP_PRECISION If the version of libpcap found support for setting timestamp precision
-
 #
 # Hints and Backward Compatibility
 # ================================
