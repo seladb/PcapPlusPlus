@@ -238,10 +238,8 @@ namespace pcpp
 			{
 				return m_NextLayer;
 			}
-			else
-			{
-				return constructNextLayer<TFallback>(data, dataLen, packet);
-			}
+			
+			return constructNextLayer<TFallback>(data, dataLen, packet);
 		}
 
 		/// @brief Check if the data is large enough to reinterpret as a type
