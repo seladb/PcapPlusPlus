@@ -2,12 +2,10 @@
 
 #include <atomic>
 #include <vector>
-#include <string.h>
 #include <thread>
 #include <functional>
 
 #include "IpAddress.h"
-#include "Packet.h"
 #include "PcapDevice.h"
 
 // forward declarations for structs and typedefs that are defined in pcap.h

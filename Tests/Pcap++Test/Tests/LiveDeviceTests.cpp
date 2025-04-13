@@ -7,6 +7,7 @@
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
+#include "Packet.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
