@@ -13,11 +13,14 @@
 #
 # Variables defined by this module:
 #
-#  PCAP_FOUND                System has libpcap, include and library dirs found
-#  PCAP_INCLUDE_DIR          The libpcap include directories.
-#  PCAP_LIBRARY              The libpcap library (possibly includes a thread
-#                            library e.g. required by pf_ring's libpcap)
-#  HAVE_PCAP_IMMEDIATE_MODE  If the version of libpcap found supports immediate mode
+#  PCAP_FOUND                    System has libpcap, include and library dirs found
+#  PCAP_INCLUDE_DIR              The libpcap include directories.
+#  PCAP_LIBRARY                  The libpcap library (possibly includes a thread
+#                                library e.g. required by pf_ring's libpcap)
+#  HAVE_PCAP_IMMEDIATE_MODE      If the version of libpcap found supports immediate mode
+#  HAVE_PCAP_TIMESTAMP_TYPES     If the version of libpcap found support for setting timestamp types
+#  HAVE_PCAP_TIMESTAMP_PRECISION If the version of libpcap found support for setting timestamp precision
+
 #
 # Hints and Backward Compatibility
 # ================================
@@ -75,6 +78,8 @@ endif(NOT PCAP_LINKS_SOLO)
 include(CheckFunctionExists)
 set(CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARY})
 check_function_exists(pcap_set_immediate_mode HAVE_PCAP_IMMEDIATE_MODE)
+check_function_exists(pcap_list_tstamp_types HAVE_PCAP_TIMESTAMP_TYPES)
+check_function_exists(pcap_set_tstamp_precision HAVE_PCAP_TIMESTAMP_PRECISION)
 set(CMAKE_REQUIRED_LIBRARIES)
 
 # Check libPCAP version
