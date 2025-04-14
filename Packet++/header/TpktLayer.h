@@ -90,7 +90,7 @@ namespace pcpp
 		/// @return True if the data size is greater or equal than the size of tpkthdr
 		static bool isDataValid(const uint8_t* data, size_t dataSize)
 		{
-			return data && dataSize >= sizeof(tpkthdr);
+			return canReinterpretAs<tpkthdr>(data, dataSize);
 		}
 
 		std::string toString() const override;

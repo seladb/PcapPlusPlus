@@ -20,6 +20,7 @@ add_library(
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
   src/IgmpLayer.cpp
+  src/IPLayer.cpp
   src/IPReassembly.cpp
   src/IPSecLayer.cpp
   src/IPv4Layer.cpp

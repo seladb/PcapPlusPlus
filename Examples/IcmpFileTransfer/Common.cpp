@@ -5,6 +5,7 @@
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"
+#include "Packet.h"
 #include "PcapLiveDeviceList.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
