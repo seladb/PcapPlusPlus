@@ -25,7 +25,7 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -33,7 +33,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -301,42 +301,27 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
-	          << pcpp::AppName::get()
-	          << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r "
-	             "PROTOCOL] -n INTERFACE_NAME"
-	          << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -h|--help                                  : Displays this help message and exits" << std::endl
-	          << "    -v|--version                               : Displays the current version and exits" << std::endl
-	          << "    -l|--list                                  : Print the list of network interfaces and exit"
-	          << std::endl
-	          << "    -n|--interface-name       INTERFACE_NAME   : An interface name to open AF_XDP socket and receive "
-	             "packets from."
-	          << std::endl
-	          << "                                                 To see all available interfaces use the -l switch"
-	          << std::endl
-	          << "    -s|--send-matched-packets INTERFACE_NAME   : Network interface name to send matched packets to."
-	          << std::endl
-	          << "                                                 The app will open another AF_XDP socket for sending "
-	             "packets."
-	          << std::endl
-	          << "                                                 Note: this interface can be the same one used to "
-	             "receive packets."
-	          << std::endl
-	          << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
-	          << std::endl
-	          << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
-	          << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
-	          << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
-	          << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-	          << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
-	          << std::endl
-	          << std::endl;
+	std::cout
+	    << "\nUsage:"
+	       "\n------\n"
+	    << pcpp::AppName::get()
+	    << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL] -n INTERFACE_NAME\n"
+	       "\nOptions:\n"
+	       "\n    -h|--help                                  : Displays this help message and exits"
+	       "\n    -v|--version                               : Displays the current version and exits"
+	       "\n    -l|--list                                  : Print the list of network interfaces and exit"
+	       "\n    -n|--interface-name       INTERFACE_NAME   : An interface name to open AF_XDP socket and receive packets from."
+	       "\n                                                 To see all available interfaces use the -l switch"
+	       "\n    -s|--send-matched-packets INTERFACE_NAME   : Network interface name to send matched packets to."
+	       "\n                                                 The app will open another AF_XDP socket for sending packets."
+	       "\n                                                 Note: this interface can be the same one used to receive packets."
+	       "\n    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
+	       "\n    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address"
+	       "\n    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address"
+	       "\n    -p|--match-source-port    PORT             : Match source TCP/UDP port"
+	       "\n    -P|--match-dest-port      PORT             : Match destination TCP/UDP port"
+	       "\n    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
+	    << std::endl;
 }
 
 /**
@@ -344,9 +329,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -355,7 +339,7 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	std::cout << std::endl << "Network interfaces:" << std::endl;
+	std::cout << "\nNetwork interfaces:" << std::endl;
 	for (const auto& device : pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList())
 	{
 		if (device->getIPv4Address() != pcpp::IPv4Address::Zero)

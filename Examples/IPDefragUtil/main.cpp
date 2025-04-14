@@ -14,7 +14,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -61,29 +61,20 @@ struct DefragStats
 void printUsage()
 {
 	std::cout
-	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
-	    << pcpp::AppName::get() << " input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]"
-	    << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    input_file      : Input pcap/pcapng file" << std::endl
-	    << "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
-	    << std::endl
-	    << "    -d frag_ids     : De-fragment only fragments that match this comma-separated list of IP IDs (for IPv4) "
-	       "or"
-	    << std::endl
-	    << "                      fragment IDs (for IPv6) in decimal format" << std::endl
-	    << "    -f bpf_filter   : De-fragment only fragments that match bpf_filter. Filter should be provided in "
-	       "Berkeley Packet Filter (BPF)"
-	    << std::endl
-	    << "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
-	    << "    -a              : Copy all packets (those who were de-fragmented and those who weren't) to output file"
-	    << std::endl
-	    << "    -v              : Displays the current version and exits" << std::endl
-	    << "    -h              : Displays this help message and exits" << std::endl
+	    << "\nUsage:"
+	       "\n------\n"
+	    << pcpp::AppName::get()
+	    << " input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]\n"
+	       "\nOptions:\n"
+	       "\n    input_file      : Input pcap/pcapng file"
+	       "\n    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
+	       "\n    -d frag_ids     : De-fragment only fragments that match this comma-separated list of IP IDs (for IPv4) or"
+	       "\n                      fragment IDs (for IPv6) in decimal format"
+	       "\n    -f bpf_filter   : De-fragment only fragments that match bpf_filter. Filter should be provided in Berkeley Packet Filter (BPF)"
+	       "\n                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'"
+	       "\n    -a              : Copy all packets (those who were de-fragmented and those who weren't) to output file"
+	       "\n    -v              : Displays the current version and exits"
+	       "\n    -h              : Displays this help message and exits"
 	    << std::endl;
 }
 
@@ -92,9 +83,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -249,25 +239,25 @@ void printStats(const DefragStats& stats, bool filterByIpID, bool filterByBpf)
 	std::ostringstream stream;
 	stream << "Summary:\n";
 	stream << "========\n";
-	stream << "Total packets read:                      " << stats.totalPacketsRead << std::endl;
-	stream << "IPv4 packets read:                       " << stats.ipv4Packets << std::endl;
-	stream << "IPv6 packets read:                       " << stats.ipv6Packets << std::endl;
+	stream << "Total packets read:                      " << stats.totalPacketsRead << '\n';
+	stream << "IPv4 packets read:                       " << stats.ipv4Packets << '\n';
+	stream << "IPv6 packets read:                       " << stats.ipv6Packets << '\n';
 	if (filterByIpID)
 	{
-		stream << "IPv4 packets match fragment ID list:     " << stats.ipv4PacketsMatchIpIDs << std::endl;
-		stream << "IPv6 packets match fragment ID list:     " << stats.ipv6PacketsMatchFragIDs << std::endl;
+		stream << "IPv4 packets match fragment ID list:     " << stats.ipv4PacketsMatchIpIDs << '\n';
+		stream << "IPv6 packets match fragment ID list:     " << stats.ipv6PacketsMatchFragIDs << '\n';
 	}
 	if (filterByBpf)
-		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << std::endl;
+		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << '\n';
 	stream << "Total fragments matched:                 " << (stats.ipv4FragmentsMatched + stats.ipv6FragmentsMatched)
-	       << std::endl;
-	stream << "IPv4 fragments matched:                  " << stats.ipv4FragmentsMatched << std::endl;
-	stream << "IPv6 fragments matched:                  " << stats.ipv6FragmentsMatched << std::endl;
+	       << '\n';
+	stream << "IPv4 fragments matched:                  " << stats.ipv4FragmentsMatched << '\n';
+	stream << "IPv6 fragments matched:                  " << stats.ipv6FragmentsMatched << '\n';
 	stream << "Total packets reassembled:               "
-	       << (stats.ipv4PacketsDefragmented + stats.ipv6PacketsDefragmented) << std::endl;
-	stream << "IPv4 packets reassembled:                " << stats.ipv4PacketsDefragmented << std::endl;
-	stream << "IPv6 packets reassembled:                " << stats.ipv6PacketsDefragmented << std::endl;
-	stream << "Total packets written to output file:    " << stats.totalPacketsWritten << std::endl;
+	       << (stats.ipv4PacketsDefragmented + stats.ipv6PacketsDefragmented) << '\n';
+	stream << "IPv4 packets reassembled:                " << stats.ipv4PacketsDefragmented << '\n';
+	stream << "IPv6 packets reassembled:                " << stats.ipv6PacketsDefragmented << '\n';
+	stream << "Total packets written to output file:    " << stats.totalPacketsWritten << '\n';
 
 	std::cout << stream.str();
 }

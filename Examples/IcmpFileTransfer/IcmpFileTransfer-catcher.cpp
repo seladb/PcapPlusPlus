@@ -245,10 +245,8 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP)
 			                                std::remove(icmpFTStart.fileName.c_str()));
 		}
 
-		std::cout << std::endl
-		          << std::endl
-		          << "Finished getting file '" << icmpFTStart.fileName << "' "
-		          << "[received " << icmpFileContentData.fileSize << " bytes]" << std::endl;
+		std::cout << "\n\nFinished getting file '" << icmpFTStart.fileName << "' [received "
+		          << icmpFileContentData.fileSize << " bytes]" << std::endl;
 	}
 	else
 		EXIT_WITH_ERROR("Cannot create file");
@@ -475,10 +473,7 @@ void sendFile(const std::string& filePath, pcpp::IPv4Address pitcherIP, pcpp::IP
 		if (!res)
 			EXIT_WITH_ERROR("Cannot start capturing packets");
 
-		std::cout << std::endl
-		          << std::endl
-		          << "Finished sending '" << fileName << "' "
-		          << "[sent " << fileSize << " bytes]" << std::endl;
+		std::cout << "\n\nFinished sending '" << fileName << "' [sent " << fileSize << " bytes]" << std::endl;
 	}
 	else  // if file couldn't be opened
 		EXIT_WITH_ERROR("Cannot open file '" << filePath << "'");

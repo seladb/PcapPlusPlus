@@ -34,7 +34,7 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -82,9 +82,8 @@ namespace
 	 */
 	void printAppVersion()
 	{
-		std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-		          << "Built: " << pcpp::getBuildDateTime() << std::endl
-		          << "Built from: " << pcpp::getGitInfo() << std::endl;
+		std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+		          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 		exit(0);
 	}
 
@@ -93,23 +92,21 @@ namespace
 	 */
 	inline void printUsage()
 	{
-		std::cout << std::endl
-		          << "Usage:" << std::endl
-		          << "------" << std::endl
-		          << pcpp::AppName::get() << " [-hv] [-n KNI_DEVICE_NAME] [-p PORT] -s SRC_IPV4 -d DST_IPV4"
-		          << std::endl
-		          << std::endl
-		          << "Options:" << std::endl
-		          << "    -s --src SRC_IPV4           : IPv4 address to assign to the created KNI device" << std::endl
-		          << "    -d --dst DST_IPV4           : Virtual IPv4 address to communicate with. Must be in /24 "
-		             "subnet with SRC_IPV4"
-		          << std::endl
-		          << "    -n --name KNI_DEVICE_NAME   : Name for KNI device. Default: \"" << DEFAULT_KNI_NAME << "\""
-		          << std::endl
-		          << "    -p --port PORT              : Port for communication. Default: " << DEFAULT_PORT << std::endl
-		          << "    -v --version                : Displays the current version and exits" << std::endl
-		          << "    -h --help                   : Displays this help message and exits" << std::endl
-		          << std::endl;
+		std::cout
+		    << "\nUsage:"
+		    << "\n------\n"
+		    << pcpp::AppName::get() << " [-hv] [-n KNI_DEVICE_NAME] [-p PORT] -s SRC_IPV4 -d DST_IPV4\n"
+		    << "\nOptions:\n"
+		       "\n    -s --src SRC_IPV4           : IPv4 address to assign to the created KNI device"
+		       "\n    -d --dst DST_IPV4           : Virtual IPv4 address to communicate with. Must be in /24 subnet with SRC_IPV4"
+		       "\n    -n --name KNI_DEVICE_NAME   : Name for KNI device. Default: \""
+		    << DEFAULT_KNI_NAME
+		    << "\""
+		       "\n    -p --port PORT              : Port for communication. Default: "
+		    << DEFAULT_PORT
+		    << "\n    -v --version                : Displays the current version and exits"
+		       "\n    -h --help                   : Displays this help message and exits"
+		    << std::endl;
 	}
 
 	inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
@@ -331,7 +328,7 @@ namespace
 		if ((sock.m_Socket = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_FD)
 		{
 			int old_errno = errno;
-			EXIT_WITH_ERROR("Could not open socket" << std::endl << "Errno: " << std::strerror(old_errno));
+			EXIT_WITH_ERROR("Could not open socket\nErrno: " << std::strerror(old_errno));
 		}
 		// Bind socket to KNI device IP
 		struct sockaddr_in egress;
@@ -343,7 +340,7 @@ namespace
 		{
 			int old_errno = errno;
 			close(sock);
-			EXIT_WITH_ERROR("Could not bind socket" << std::endl << "Errno: " << std::strerror(old_errno));
+			EXIT_WITH_ERROR("Could not bind socket\nErrno: " << std::strerror(old_errno));
 		}
 
 		return sock;
@@ -488,7 +485,7 @@ namespace
 		{
 			int old_errno = errno;
 			close(sock);
-			EXIT_WITH_ERROR("Could not connect socket" << std::endl << "Errno: " << std::strerror(old_errno));
+			EXIT_WITH_ERROR("Could not connect socket\nErrno: " << std::strerror(old_errno));
 		}
 	}
 
@@ -588,7 +585,7 @@ namespace
 				if (old_errno != EINTR)
 				{
 					close(sock);
-					EXIT_WITH_ERROR("poll returned an error" << std::endl << "Errno: " << std::strerror(old_errno));
+					EXIT_WITH_ERROR("poll returned an error\nErrno: " << std::strerror(old_errno));
 				}
 				continue;
 			}
@@ -751,14 +748,11 @@ int main(int argc, char* argv[])
 	device->stopCapture();
 	device->close();
 	device->stopRequestHandlerThread();
-	std::cout << std::endl
-	          << std::endl
-	          << "Packet statistics from KNI thread:" << std::endl
-	          << "  Total packets met:         " << packetStats.totalPackets << std::endl
-	          << "  UDP packets met:           " << packetStats.udpPacketsIn << std::endl
-	          << "  Failed PONG packets:       " << packetStats.udpPacketsOutFail << std::endl
-	          << "  ARP packets met:           " << packetStats.arpPacketsIn << std::endl
-	          << "  Failed ARP replay packets: " << packetStats.arpPacketsOutFail << std::endl
-	          << std::endl;
+	std::cout << "\n\nPacket statistics from KNI thread:"
+	          << "\n  Total packets met:         " << packetStats.totalPackets
+	          << "\n  UDP packets met:           " << packetStats.udpPacketsIn
+	          << "\n  Failed PONG packets:       " << packetStats.udpPacketsOutFail
+	          << "\n  ARP packets met:           " << packetStats.arpPacketsIn
+	          << "\n  Failed ARP replay packets: " << packetStats.arpPacketsOutFail << std::endl;
 	return 0;
 }

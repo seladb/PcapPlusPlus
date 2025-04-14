@@ -11,7 +11,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -32,31 +32,22 @@ static struct option DNSResolverOptions[] = {
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
-	          << pcpp::AppName::get() << " [-hvl] [-t timeout] [-d dns_server] [-g gateway] [-i interface] -s hostname"
-	          << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -h           : Displays this help message and exits" << std::endl
-	          << "    -v           : Displays the current version and exists" << std::endl
-	          << "    -l           : Print the list of interfaces and exists" << std::endl
-	          << "    -s hostname  : Hostname to resolve" << std::endl
-	          << "    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
-	             "address. If not set"
-	          << std::endl
-	          << "                   one of the interfaces that has a default gateway will be used" << std::endl
-	          << "    -d dns_server: IPv4 address of DNS server to send the DNS request to. If not set the DNS request "
-	             "will be sent to the gateway"
-	          << std::endl
-	          << "    -g gateway   : IPv4 address of the gateway to send the DNS request to. If not set the default "
-	             "gateway will be chosen"
-	          << std::endl
-	          << "    -t timeout   : How long to wait for a reply (in seconds). Default timeout is 5 seconds"
-	          << std::endl
-	          << std::endl;
+	std::cout
+	    << "\nUsage:"
+	       "\n------\n"
+	    << pcpp::AppName::get()
+	    << " [-hvl] [-t timeout] [-d dns_server] [-g gateway] [-i interface] -s hostname\n"
+	       "\nOptions:\n"
+	       "\n    -h           : Displays this help message and exits"
+	       "\n    -v           : Displays the current version and exists"
+	       "\n    -l           : Print the list of interfaces and exists"
+	       "\n    -s hostname  : Hostname to resolve"
+	       "\n    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address. If not set"
+	       "\n                   one of the interfaces that has a default gateway will be used"
+	       "\n    -d dns_server: IPv4 address of DNS server to send the DNS request to. If not set the DNS request will be sent to the gateway"
+	       "\n    -g gateway   : IPv4 address of the gateway to send the DNS request to. If not set the default gateway will be chosen"
+	       "\n    -t timeout   : How long to wait for a reply (in seconds). Default timeout is 5 seconds"
+	    << std::endl;
 }
 
 /**
@@ -64,9 +55,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -78,11 +68,11 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
 	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	std::cout << std::endl << "Network interfaces:" << std::endl;
+	std::cout << std::endl << "Network interfaces:\n";
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-		          << std::endl;
+		          << '\n';
 	}
 	exit(0);
 }
@@ -221,17 +211,16 @@ int main(int argc, char* argv[])
 		    hostname, dev, responseTime, dnsTTL, timeoutSec, dnsServerIP, gatewayIP);
 		if (resultIP == pcpp::IPv4Address::Zero)
 		{
-			std::cout << std::endl << "Could not resolve hostname [" << hostname << "]" << std::endl;
+			std::cout << "\nCould not resolve hostname [" << hostname << "]" << std::endl;
 		}
 		else
 		{
-			std::cout << std::endl
-			          << "IP address of [" << hostname << "] is: " << resultIP << "  DNS-TTL=" << dnsTTL
+			std::cout << "\nIP address of [" << hostname << "] is: " << resultIP << "  DNS-TTL=" << dnsTTL
 			          << "  time=" << (int)responseTime << "ms" << std::endl;
 		}
 	}
 	catch (const std::exception&)
 	{
-		std::cout << std::endl << "Could not resolve hostname [" << hostname << "]" << std::endl;
+		std::cout << "\nCould not resolve hostname [" << hostname << "]" << std::endl;
 	}
 }

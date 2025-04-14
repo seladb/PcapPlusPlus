@@ -20,7 +20,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -47,24 +47,20 @@ static struct option ArpingOptions[] = {
 void printUsage()
 {
 	std::cout
-	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
-	    << pcpp::AppName::get() << " [-hvl] [-c count] [-w timeout] [-s mac_addr] [-S ip_addr] -i interface -T ip_addr"
-	    << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    -h           : Displays this help message and exits" << std::endl
-	    << "    -v           : Displays the current version and exists" << std::endl
-	    << "    -l           : Print the list of interfaces and exists" << std::endl
-	    << "    -c count     : Send 'count' requests" << std::endl
-	    << "    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address"
-	    << std::endl
-	    << "    -s mac_addr  : Set source MAC address" << std::endl
-	    << "    -S ip_addr   : Set source IP address" << std::endl
-	    << "    -T ip_addr   : Set target IP address" << std::endl
-	    << "    -w timeout   : How long to wait for a reply (in seconds)" << std::endl
+	    << "\nUsage:"
+	    << "\n------\n"
+	    << pcpp::AppName::get()
+	    << " [-hvl] [-c count] [-w timeout] [-s mac_addr] [-S ip_addr] -i interface -T ip_addr\n"
+	       "\nOptions:\n"
+	       "\n    -h           : Displays this help message and exits"
+	       "\n    -v           : Displays the current version and exists"
+	       "\n    -l           : Print the list of interfaces and exists"
+	       "\n    -c count     : Send 'count' requests"
+	       "\n    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address"
+	       "\n    -s mac_addr  : Set source MAC address"
+	       "\n    -S ip_addr   : Set source IP address"
+	       "\n    -T ip_addr   : Set target IP address"
+	       "\n    -w timeout   : How long to wait for a reply (in seconds)"
 	    << std::endl;
 }
 
@@ -73,9 +69,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -87,11 +82,11 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
 	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	std::cout << std::endl << "Network interfaces:" << std::endl;
+	std::cout << "\nNetwork interfaces:\n";
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-		          << std::endl;
+		          << "\n";
 	}
 	exit(0);
 }

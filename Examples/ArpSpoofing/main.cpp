@@ -14,7 +14,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -32,18 +32,16 @@ static struct option L3FwdOptions[] = {
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
-	          << pcpp::AppName::get() << " [-hv] -i interface_ip -c victim_ip -g gateway_ip" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -i interface_ip   : The IPv4 address of interface to use" << std::endl
-	          << "    -c victim_ip      : The IPv4 address of the victim" << std::endl
-	          << "    -g gateway_ip     : The IPv4 address of the gateway" << std::endl
-	          << "    -h                : Displays this help message and exits" << std::endl
-	          << "    -v                : Displays the current version and exists" << std::endl
+	std::cout << "\nUsage:"
+	             "\n------\n"
+	          << pcpp::AppName::get()
+	          << " [-hv] -i interface_ip -c victim_ip -g gateway_ip\n"
+	             "\nOptions:\n"
+	             "\n    -i interface_ip   : The IPv4 address of interface to use"
+	             "\n    -c victim_ip      : The IPv4 address of the victim"
+	             "\n    -g gateway_ip     : The IPv4 address of the gateway"
+	             "\n    -h                : Displays this help message and exits"
+	             "\n    -v                : Displays the current version and exists"
 	          << std::endl;
 }
 
@@ -52,9 +50,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -150,7 +147,7 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 	victimArpReply.computeCalculateFields();
 
 	// Send ARP replies to gateway and to victim every 5 seconds
-	std::cout << "Sending ARP replies to victim and to gateway every 5 seconds..." << std::endl << std::endl;
+	std::cout << "Sending ARP replies to victim and to gateway every 5 seconds...\n" << std::endl;
 	while (1)
 	{
 		pDevice->sendPacket(&gwArpReply);

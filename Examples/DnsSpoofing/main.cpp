@@ -37,7 +37,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -84,30 +84,23 @@ struct DnsSpoofingArgs
 void printUsage()
 {
 	std::cout
-	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
-	    << pcpp::AppName::get() << " [-hvl] [-o host1,host2,...,host_n] [-c ip_address] -i interface -d ip_address"
-	    << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    -h                          : Displays this help message and exits" << std::endl
-	    << "    -v                          : Displays the current version and exists" << std::endl
-	    << "    -l                          : Print the list of available interfaces" << std::endl
-	    << "    -i interface                : The interface name or interface IP address to use." << std::endl
-	    << "                                  Use the -l switch to see all interfaces" << std::endl
-	    << "    -d ip_address               : The IP address of the spoofed DNS server. Supports both IPv4 and IPv6"
-	    << std::endl
-	    << "                                  (all responses will be sent with this IP address)" << std::endl
-	    << "    -c ip_address               : Spoof only DNS requests coming from a specific IP address" << std::endl
-	    << "    -o host1,host2,...,host_n   : A comma-separated list of hosts to spoof. If list is not given,"
-	    << std::endl
-	    << "                                  all hosts will be spoofed. If an host contains '*' all sub-domains"
-	    << std::endl
-	    << "                                  will be spoofed, for example: if '*.google.com' is given" << std::endl
-	    << "                                  then 'mail.google.com', 'tools.google.com', etc. will be spoofed"
-	    << std::endl
+	    << "\nUsage:"
+	       "\n------\n"
+	    << pcpp::AppName::get()
+	    << " [-hvl] [-o host1,host2,...,host_n] [-c ip_address] -i interface -d ip_address\n"
+	       "\nOptions:\n"
+	       "\n    -h                          : Displays this help message and exits"
+	       "\n    -v                          : Displays the current version and exists"
+	       "\n    -l                          : Print the list of available interfaces"
+	       "\n    -i interface                : The interface name or interface IP address to use."
+	       "\n                                  Use the -l switch to see all interfaces"
+	       "\n    -d ip_address               : The IP address of the spoofed DNS server. Supports both IPv4 and IPv6"
+	       "\n                                  (all responses will be sent with this IP address)"
+	       "\n    -c ip_address               : Spoof only DNS requests coming from a specific IP address"
+	       "\n    -o host1,host2,...,host_n   : A comma-separated list of hosts to spoof. If list is not given,"
+	       "\n                                  all hosts will be spoofed. If an host contains '*' all sub-domains"
+	       "\n                                  will be spoofed, for example: if '*.google.com' is given"
+	       "\n                                  then 'mail.google.com', 'tools.google.com', etc. will be spoofed"
 	    << std::endl;
 }
 
@@ -116,9 +109,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -130,7 +122,7 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
 	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	std::cout << std::endl << "Network interfaces:" << std::endl;
+	std::cout << "\nNetwork interfaces:\n";
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
@@ -266,16 +258,14 @@ void onApplicationInterrupted(void* cookie)
 	DnsSpoofingArgs* args = (DnsSpoofingArgs*)cookie;
 	if (args->stats.spoofedHosts.size() == 0)
 	{
-		std::cout << std::endl << "Application closing. No hosts were spoofed." << std::endl;
+		std::cout << "\nApplication closing. No hosts were spoofed." << std::endl;
 	}
 	else
 	{
-		std::cout << std::endl
-		          << "Summary of spoofed hosts:" << std::endl
-		          << "-------------------------" << std::endl
-		          << std::endl
-		          << "Total spoofed:          " << args->stats.numOfSpoofedDnsRequests << std::endl
-		          << "Number of host spoofed: " << args->stats.spoofedHosts.size() << std::endl
+		std::cout << "\nSummary of spoofed hosts:"
+		          << "\n-------------------------\n"
+		          << "\nTotal spoofed:          " << args->stats.numOfSpoofedDnsRequests
+		          << "\nNumber of host spoofed: " << args->stats.spoofedHosts.size() << '\n'
 		          << std::endl;
 
 		// create a table

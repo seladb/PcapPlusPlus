@@ -185,9 +185,7 @@ static void getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev
 	if (pcpp::netToHost16(icmpLayer->getEchoReplyData()->header->id) != icmpFileContentData->expectedIcmpId)
 	{
 		icmpFileContentData->fileTransferError = true;
-		std::cout << std::endl
-		          << std::endl
-		          << "Didn't get expected ICMP message #" << icmpFileContentData->expectedIcmpId << ", got #"
+		std::cout << "\n\nDidn't get expected ICMP message #" << icmpFileContentData->expectedIcmpId << ", got #"
 		          << pcpp::netToHost16(icmpLayer->getEchoReplyData()->header->id) << std::endl;
 		return;
 	}
@@ -343,10 +341,8 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 		}
 
 		// file transfer was completed successfully
-		std::cout << std::endl
-		          << std::endl
-		          << "Finished getting file '" << icmpFTStart.fileName << "' "
-		          << "[received " << icmpFileContentData.fileSize << " bytes]" << std::endl;
+		std::cout << "\n\nFinished getting file '" << icmpFTStart.fileName << "' [received "
+		          << icmpFileContentData.fileSize << " bytes]" << std::endl;
 	}
 	else
 		EXIT_WITH_ERROR("Cannot create file");
@@ -537,10 +533,7 @@ void sendFile(const std::string& filePath, pcpp::IPv4Address pitcherIP, pcpp::IP
 		                     0))
 			EXIT_WITH_ERROR("Cannot send file transfer end message");
 
-		std::cout << std::endl
-		          << std::endl
-		          << "Finished sending '" << fileName << "' "
-		          << "[sent " << bytesSentSoFar << " bytes]" << std::endl;
+		std::cout << "\n\nFinished sending '" << fileName << "' [sent " << bytesSentSoFar << " bytes]" << std::endl;
 	}
 	else
 		EXIT_WITH_ERROR("Cannot open file '" << filePath << "'");
