@@ -273,6 +273,8 @@ namespace pcpp
 		{
 			PCPP_LOG_DEBUG("PMD '" << m_PMDName << "' doesn't support RSS, setting RSS hash functions to 0");
 			m_Config.rssHashFunction = RSS_NONE;
+			m_Config.rssKey = nullptr;
+			m_Config.rssKeyLength = 0;
 		}
 
 		if (!isDeviceSupportRssHashFunction(getConfiguredRssHashFunction()))
