@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "ProtocolType.h"
 #include <string>
+#include <stdexcept>
+#include <utility>
 
 /// @file
 
@@ -189,6 +191,92 @@ namespace pcpp
 
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
+
+		bool hasNextLayer() const
+		{
+			return m_NextLayer != nullptr;
+		}
+
+		/// Construct the next layer in the protocol stack. No validation is performed on the data.
+		/// @tparam T The type of the layer to construct
+		/// @tparam Args The types of the arguments to pass to the layer constructor
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		/// @param[in] extraArgs Extra arguments to be forwarded to the layer constructor
+		/// @return The constructed layer
+		template <typename T, typename... Args>
+		Layer* constructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		{
+			if (hasNextLayer())
+			{
+				throw std::runtime_error("Next layer already exists");
+			}
+
+			Layer* newLayer = new T(data, dataLen, this, packet, std::forward<Args>(extraArgs)...);
+			setNextLayer(newLayer);
+			return newLayer;
+		}
+
+		/// Try to construct the next layer in the protocol stack with a fallback option.
+		///
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, it constructs the layer of type TFallback.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam TFallback The fallback layer type to construct if T fails
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor of T
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		///	@param[in] extraArgs Extra arguments to be forwarded to the layer constructor of T
+		/// @return The constructed layer of type T or TFallback
+		template <typename T, typename TFallback, typename... Args>
+		Layer* tryConstructNextLayerWithFallback(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		{
+			if (tryConstructNextLayer<T>(data, dataLen, packet, std::forward<Args>(extraArgs)...))
+			{
+				return m_NextLayer;
+			}
+
+			return constructNextLayer<TFallback>(data, dataLen, packet);
+		}
+
+		/// @brief Check if the data is large enough to reinterpret as a type
+		///
+		/// The data must be non-null and at least as large as the type
+		///
+		/// @tparam T The type to reinterpret as
+		/// @param data The data to check
+		/// @param dataLen The length of the data
+		/// @return True if the data is large enough to reinterpret as T, false otherwise
+		template <typename T> static bool canReinterpretAs(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(T);
+		}
+
+	private:
+		/// Try to construct the next layer in the protocol stack.
+		///
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, a nullptr is returned.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		/// @param[in] extraArgs Extra arguments to be forwarded to the layer constructor
+		/// @return The constructed layer or nullptr if the data is invalid
+		template <typename T, typename... Args>
+		Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		{
+			if (T::isDataValid(data, dataLen))
+			{
+				return constructNextLayer<T>(data, dataLen, packet, std::forward<Args>(extraArgs)...);
+			}
+			return nullptr;
+		}
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)

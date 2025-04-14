@@ -106,6 +106,15 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an MPLS layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an MPLS layer
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return canReinterpretAs<mpls_header>(data, dataLen);
+		}
 	};
 
 }  // namespace pcpp
