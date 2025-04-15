@@ -687,13 +687,11 @@ jobs:
           distribution: "zulu"
           cache: "gradle"
 
-      - name: Change wrapper permissions
-        working-directory: ./ToyVpn-PcapPlusPlus
-        run: chmod +x ./gradlew
-
       - name: Build gradle project and run tests
         working-directory: ./ToyVpn-PcapPlusPlus
-        run: ./gradlew build -PabiFilter=${{ matrix.target}}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build -PabiFilter=${{ matrix.target}}
 
       - name: Enable KVM
         if: matrix.target == 'x86_64'
