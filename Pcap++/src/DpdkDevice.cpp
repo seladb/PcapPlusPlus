@@ -1056,7 +1056,7 @@ namespace pcpp
 			return 0;
 		}
 
-		rte_mbuf* mBufArr[MAX_BURST_SIZE];
+		rte_mbuf* mBufArr[MAX_BURST_SIZE] = {};
 
 		int packetIndex = 0;
 		int mBufArrIndex = 0;

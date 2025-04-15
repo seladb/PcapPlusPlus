@@ -200,7 +200,6 @@ public:
 	{
 		if (!m_Initialized)
 		{
-			std::cout << "Error: Thread " << coreId << " was not initialized" << std::endl;
 			return false;
 		}
 
@@ -208,7 +207,6 @@ public:
 
 		if (m_DpdkDevice == NULL)
 		{
-			std::cout << "Error: DpdkDevice is NULL";
 			return false;
 		}
 
@@ -225,7 +223,6 @@ public:
 			uint16_t packetsSent = m_DpdkDevice->sendPackets(mBufArr, packetReceived, m_QueueId);
 			if (packetsSent != packetReceived)
 			{
-				std::cout << "Error: Couldn't send all received packets on thread " << m_CoreId;
 				return false;
 			}
 		}
