@@ -668,7 +668,7 @@ jobs:
           ref: "new-toyvpn"
           submodules: true
 
-      - name: Install PcapPlusPlus
+      - name: Build and install PcapPlusPlus
         run: |
           TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
           PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
