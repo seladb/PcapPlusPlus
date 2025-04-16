@@ -34,6 +34,8 @@ set(
 # Set the public header that will be installed
 set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+target_compile_features(Common++ PUBLIC cxx_std_11)
+
 target_include_directories(
   Common++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
