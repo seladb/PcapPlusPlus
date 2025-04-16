@@ -348,7 +348,11 @@ namespace pcpp
 	bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesToInit)
 	{
 		rte_eth_dev_info devInfo;
-		rte_eth_dev_info_get(m_Id, &devInfo);
+		if (rte_eth_dev_info_get(m_Id, &devInfo) < 0)
+		{
+			return false;
+		}
+
 		if (numOfRxQueuesToInit > devInfo.max_rx_queues)
 		{
 			PCPP_LOG_ERROR("Num of RX queues requested for open [" << numOfRxQueuesToInit
@@ -502,7 +506,11 @@ namespace pcpp
 	void DpdkDevice::setDeviceInfo()
 	{
 		rte_eth_dev_info portInfo;
-		rte_eth_dev_info_get(m_Id, &portInfo);
+		if (rte_eth_dev_info_get(m_Id, &portInfo) < 0)
+		{
+			return;
+		}
+
 		m_PMDName = std::string(portInfo.driver_name);
 
 		if (m_PMDName == "eth_bond")
@@ -581,14 +589,20 @@ namespace pcpp
 		}
 	}
 
-	void DpdkDevice::getLinkStatus(LinkStatus& linkStatus) const
+	bool DpdkDevice::getLinkStatus(LinkStatus& linkStatus) const
 	{
 		struct rte_eth_link link;
-		rte_eth_link_get((uint8_t)m_Id, &link);
+		if (rte_eth_link_get((uint8_t)m_Id, &link) < 0)
+		{
+			return false;
+		}
+
 		linkStatus.linkUp = link.link_status;
 		linkStatus.linkSpeedMbps = (unsigned)link.link_speed;
 		linkStatus.linkDuplex =
 		    (link.link_duplex == DPDK_CONFIG_ETH_LINK_FULL_DUPLEX) ? LinkStatus::FULL_DUPLEX : LinkStatus::HALF_DUPLEX;
+
+		return true;
 	}
 
 	bool DpdkDevice::initCoreConfigurationByCoreMask(CoreMask coreMask)
@@ -1280,7 +1294,11 @@ namespace pcpp
 		if (rssHF == (uint64_t)-1)
 		{
 			rte_eth_dev_info devInfo;
-			rte_eth_dev_info_get(m_Id, &devInfo);
+			if (rte_eth_dev_info_get(m_Id, &devInfo) < 0)
+			{
+				return 0;
+			}
+
 			return devInfo.flow_type_rss_offloads;
 		}
 
@@ -1426,7 +1444,10 @@ namespace pcpp
 		uint64_t dpdkRssHF = convertRssHfToDpdkRssHf(rssHFMask);
 
 		rte_eth_dev_info devInfo;
-		rte_eth_dev_info_get(m_Id, &devInfo);
+		if (rte_eth_dev_info_get(m_Id, &devInfo) < 0)
+		{
+			return false;
+		}
 
 		return ((devInfo.flow_type_rss_offloads & dpdkRssHF) == dpdkRssHF);
 	}
@@ -1434,7 +1455,10 @@ namespace pcpp
 	uint64_t DpdkDevice::getSupportedRssHashFunctions() const
 	{
 		rte_eth_dev_info devInfo;
-		rte_eth_dev_info_get(m_Id, &devInfo);
+		if (rte_eth_dev_info_get(m_Id, &devInfo) < 0)
+		{
+			return 0;
+		}
 
 		return convertDpdkRssHfToRssHf(devInfo.flow_type_rss_offloads);
 	}

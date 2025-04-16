@@ -329,7 +329,7 @@ PTF_TEST_CASE(TestDpdkDevice)
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxQueues(), 1);
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedTxQueues(), 1);
 	pcpp::DpdkDevice::LinkStatus linkStatus;
-	dev->getLinkStatus(linkStatus);
+	PTF_ASSERT_TRUE(dev->getLinkStatus(linkStatus));
 	PTF_ASSERT_TRUE(linkStatus.linkUp);
 	PTF_ASSERT_GREATER_THAN(linkStatus.linkSpeedMbps, 0);
 
