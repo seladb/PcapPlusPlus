@@ -665,7 +665,7 @@ jobs:
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
-          ref: "new-toyvpn"
+          ref: "v2.0.0"
           submodules: true
 
       - name: Build and install PcapPlusPlus
