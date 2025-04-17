@@ -167,68 +167,78 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtp-u-1ext.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/gtp-u-2ext.dat");
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u1.dat");
+		READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtp-u-1ext.dat");
+		READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/gtp-u-2ext.dat");
 
-	pcpp::Packet gtpPacket1(&rawPacket1);
+		pcpp::Packet gtpPacket1(&rawPacket1);
 
-	pcpp::EthLayer ethLayer(*gtpPacket1.getLayerOfType<pcpp::EthLayer>());
-	pcpp::IPv4Layer ip4Layer(*gtpPacket1.getLayerOfType<pcpp::IPv4Layer>());
-	pcpp::UdpLayer udpLayer(*gtpPacket1.getLayerOfType<pcpp::UdpLayer>());
-	pcpp::GtpV1Layer gtpLayer(pcpp::GtpV1_GPDU, 1, true, 10461, false, 0);
-	pcpp::IPv4Layer ip4Layer2(
-	    *gtpPacket1.getNextLayerOfType<pcpp::IPv4Layer>(gtpPacket1.getLayerOfType<pcpp::UdpLayer>()));
-	pcpp::IcmpLayer icmpLayer(*gtpPacket1.getLayerOfType<pcpp::IcmpLayer>());
+		pcpp::EthLayer ethLayer(*gtpPacket1.getLayerOfType<pcpp::EthLayer>());
+		pcpp::IPv4Layer ip4Layer(*gtpPacket1.getLayerOfType<pcpp::IPv4Layer>());
+		pcpp::UdpLayer udpLayer(*gtpPacket1.getLayerOfType<pcpp::UdpLayer>());
+		pcpp::GtpV1Layer gtpLayer(pcpp::GtpV1_GPDU, 1, true, 10461, false, 0);
+		pcpp::IPv4Layer ip4Layer2(
+		    *gtpPacket1.getNextLayerOfType<pcpp::IPv4Layer>(gtpPacket1.getLayerOfType<pcpp::UdpLayer>()));
+		pcpp::IcmpLayer icmpLayer(*gtpPacket1.getLayerOfType<pcpp::IcmpLayer>());
 
-	pcpp::Packet newGtpPacket;
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ip4Layer));
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&udpLayer));
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&gtpLayer));
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ip4Layer2));
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&icmpLayer));
-	newGtpPacket.computeCalculateFields();
+		pcpp::Packet newGtpPacket;
+		PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ethLayer));
+		PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ip4Layer));
+		PTF_ASSERT_TRUE(newGtpPacket.addLayer(&udpLayer));
+		PTF_ASSERT_TRUE(newGtpPacket.addLayer(&gtpLayer));
+		PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ip4Layer2));
+		PTF_ASSERT_TRUE(newGtpPacket.addLayer(&icmpLayer));
+		newGtpPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength1, newGtpPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer1,
-	                       newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_EQUAL(bufferLength1, newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer1,
+		                       newGtpPacket.getRawPacket()->getRawDataLen());
 
-	pcpp::GtpV1Layer* newGtpLayer = newGtpPacket.getLayerOfType<pcpp::GtpV1Layer>();
+		pcpp::GtpV1Layer* newGtpLayer = newGtpPacket.getLayerOfType<pcpp::GtpV1Layer>();
 
-	pcpp::GtpV1Layer::GtpExtension newExt1 = newGtpLayer->addExtension(0xc0, 2308);
-	PTF_ASSERT_FALSE(newExt1.isNull());
-	PTF_ASSERT_EQUAL(newExt1.getExtensionType(), 0xc0);
-	PTF_ASSERT_EQUAL(newExt1.getTotalLength(), 4 * sizeof(uint8_t));
-	PTF_ASSERT_EQUAL(newExt1.getContentLength(), 2 * sizeof(uint8_t));
-	uint16_t* content = reinterpret_cast<uint16_t*>(newExt1.getContent());
-	PTF_ASSERT_EQUAL(be16toh(content[0]), 2308);
-	PTF_ASSERT_TRUE(newExt1.getNextExtension().isNull());
+		pcpp::GtpV1Layer::GtpExtension newExt1 = newGtpLayer->addExtension(0xc0, 2308);
+		PTF_ASSERT_FALSE(newExt1.isNull());
+		PTF_ASSERT_EQUAL(newExt1.getExtensionType(), 0xc0);
+		PTF_ASSERT_EQUAL(newExt1.getTotalLength(), 4 * sizeof(uint8_t));
+		PTF_ASSERT_EQUAL(newExt1.getContentLength(), 2 * sizeof(uint8_t));
+		uint16_t* content = reinterpret_cast<uint16_t*>(newExt1.getContent());
+		PTF_ASSERT_EQUAL(be16toh(content[0]), 2308);
+		PTF_ASSERT_TRUE(newExt1.getNextExtension().isNull());
 
-	newGtpPacket.computeCalculateFields();
+		newGtpPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength2, newGtpPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer2,
-	                       newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_EQUAL(bufferLength2, newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer2,
+		                       newGtpPacket.getRawPacket()->getRawDataLen());
 
-	pcpp::GtpV1Layer::GtpExtension newExt2 = newGtpLayer->addExtension(0x40, 1308);
-	PTF_ASSERT_FALSE(newExt2.isNull());
-	PTF_ASSERT_EQUAL(newExt2.getExtensionType(), 0x40);
-	PTF_ASSERT_EQUAL(newExt2.getTotalLength(), 4 * sizeof(uint8_t));
-	PTF_ASSERT_EQUAL(newExt2.getContentLength(), 2 * sizeof(uint8_t));
-	content = reinterpret_cast<uint16_t*>(newExt2.getContent());
-	PTF_ASSERT_EQUAL(be16toh(content[0]), 1308);
-	PTF_ASSERT_TRUE(newExt2.getNextExtension().isNull());
+		pcpp::GtpV1Layer::GtpExtension newExt2 = newGtpLayer->addExtension(0x40, 1308);
+		PTF_ASSERT_FALSE(newExt2.isNull());
+		PTF_ASSERT_EQUAL(newExt2.getExtensionType(), 0x40);
+		PTF_ASSERT_EQUAL(newExt2.getTotalLength(), 4 * sizeof(uint8_t));
+		PTF_ASSERT_EQUAL(newExt2.getContentLength(), 2 * sizeof(uint8_t));
+		content = reinterpret_cast<uint16_t*>(newExt2.getContent());
+		PTF_ASSERT_EQUAL(be16toh(content[0]), 1308);
+		PTF_ASSERT_TRUE(newExt2.getNextExtension().isNull());
 
-	newGtpPacket.computeCalculateFields();
+		newGtpPacket.computeCalculateFields();
 
-	PTF_ASSERT_FALSE(newGtpLayer->getNextExtension().isNull());
-	PTF_ASSERT_FALSE(newGtpLayer->getNextExtension().getNextExtension().isNull());
-	PTF_ASSERT_EQUAL(newGtpLayer->getNextExtension().getNextExtensionHeaderType(), 0x40);
+		PTF_ASSERT_FALSE(newGtpLayer->getNextExtension().isNull());
+		PTF_ASSERT_FALSE(newGtpLayer->getNextExtension().getNextExtension().isNull());
+		PTF_ASSERT_EQUAL(newGtpLayer->getNextExtension().getNextExtensionHeaderType(), 0x40);
 
-	PTF_ASSERT_EQUAL(bufferLength3, newGtpPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer3,
-	                       newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_EQUAL(bufferLength3, newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer3,
+		                       newGtpPacket.getRawPacket()->getRawDataLen());
+	}
+
+	{
+		// Regression - issue #1711
+		auto gtpLayer = std::unique_ptr<pcpp::GtpV1Layer>(
+		    new pcpp::GtpV1Layer(pcpp::GtpV1MessageType::GtpV1_VersionNotSupported, 0x12345678, true, 1, false, 0));
+		gtpLayer->getHeader()->messageType = 0xFF;
+		gtpLayer->addExtension(0x85, 0x1234);
+	}
 }  // GtpLayerCreationTest
 
 PTF_TEST_CASE(GtpV1LayerEditTest)
