@@ -147,8 +147,13 @@ option(
   OFF
 )
 
-# Set C++11
-set(CMAKE_CXX_STANDARD 11)
+
+# Set C++11 if not defined
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
 # Set Position Independent Code for static libraries

@@ -7,6 +7,7 @@
 #include "IPv6Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
+#include "Packet.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
 #include "../Common/GlobalTestArgs.h"

@@ -235,6 +235,15 @@ namespace pcpp
 
 		/// Calculate the IGMP checksum and set igmp_header#maxResponseTime to 0 (this field is unused in IGMPv1)
 		void computeCalculateFields() override;
+
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an IGMPv1 layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an IGMPv1 layer
+		static bool isDataValid(uint8_t const* data, size_t dataLen)
+		{
+			return canReinterpretAs<igmp_header>(data, dataLen);
+		}
 	};
 
 	/// @class IgmpV2Layer
@@ -269,6 +278,15 @@ namespace pcpp
 
 		/// Calculate the IGMP checksum
 		void computeCalculateFields() override;
+
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an IGMPv2 layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an IGMPv2 layer
+		static bool isDataValid(uint8_t const* data, size_t dataLen)
+		{
+			return canReinterpretAs<igmp_header>(data, dataLen);
+		}
 	};
 
 	/// @class IgmpV3QueryLayer
@@ -347,6 +365,15 @@ namespace pcpp
 		/// @return The message size in bytes which include the size of the basic header + the size of the source
 		/// address list
 		size_t getHeaderLen() const override;
+
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an IGMPv3 Query layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an IGMPv3 Query layer
+		static bool isDataValid(uint8_t const* data, size_t dataLen)
+		{
+			return canReinterpretAs<igmpv3_query_header>(data, dataLen);
+		}
 	};
 
 	/// @class IgmpV3ReportLayer
@@ -440,6 +467,15 @@ namespace pcpp
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
+		}
+
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an IGMPv3 Report layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an IGMPv3 Report layer
+		static bool isDataValid(uint8_t const* data, size_t dataLen)
+		{
+			return canReinterpretAs<igmpv3_report_header>(data, dataLen);
 		}
 	};
 
