@@ -33,7 +33,7 @@ def run_packet_tests(args: list[str], use_sudo: bool):
         raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
 
 def run_pcap_tests(interface: str, tcpreplay_dir: str, args: list[str], use_sudo: bool):
-    ip_address = get_if_addr(args.interface)
+    ip_address = get_if_addr(interface)
     print(f"IP address is: {ip_address}")
 
     with tcp_replay_worker(interface, tcpreplay_dir):
