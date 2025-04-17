@@ -36,7 +36,7 @@ def run_packet_tests(args: list[str], use_sudo: bool):
 
 def run_pcap_tests(interface: str, tcpreplay_dir: str, args: list[str], use_sudo: bool):
     ip_address = get_if_addr(args.interface)
-    print("IP address is: %s" % ip_address)
+    print(f"IP address is: {ip_address}")
 
     with tcp_replay_worker(interface, tcpreplay_dir):
         cmd_line = []
@@ -75,6 +75,10 @@ def main():
         help="tcpreplay directory",
     )
     args = parser.parse_args()
+
+    for test_suite in args.test_suites:
+        if test_suite not in ('packet', 'pcap'):
+            print(f"Unknown test suite: {test_suite}")
 
     if 'packet' in args.test_suites:
         run_packet_tests(args.packet_test_args.split(), args.use_sudo)
