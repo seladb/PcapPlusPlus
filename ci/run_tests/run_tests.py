@@ -8,7 +8,7 @@ PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pc
 
 
 @contextmanager
-def tcp_replay_worker(interface: str, dir: str):
+def tcp_replay_worker(interface: str, tcpreplay_dir: str):
     tcpreplay_proc = subprocess.Popen(
         ["tcpreplay", "-i", interface, "--mbps=10", "-l", "0", PCAP_FILE_PATH],
         cwd=tcpreplay_dir,
@@ -28,7 +28,7 @@ def run_packet_tests(args: list[str], use_sudo: bool):
     cmd_line += args
 
     completed_process = subprocess.run(cmd_line, cwd="Tests/Packet++Test")
-    
+
     if completed_process.returncode != 0:
         raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
 

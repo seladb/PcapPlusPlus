@@ -140,7 +140,6 @@ option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
 
-
 # Set C++11 if not defined
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 11)
@@ -211,7 +210,7 @@ if(PCAPPP_BUILD_PCAPPP)
   if(HAVE_PCAP_TIMESTAMP_TYPES)
     add_definitions(-DHAS_TIMESTAMP_TYPES_ENABLED)
   endif()
-  
+
   if(HAVE_PCAP_TIMESTAMP_PRECISION)
     add_definitions(-DHAS_TIMESTAMP_PRECISION_ENABLED)
   endif()
