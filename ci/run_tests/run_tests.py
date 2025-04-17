@@ -20,8 +20,6 @@ def tcp_replay_worker(interface: str, dir: str):
 
 
 def run_packet_tests(args: list[str], use_sudo: bool):
-    use_sudo = ["sudo"] if use_sudo else []
-    
     cmd_line = []
     if use_sudo:
         cmd_line += ["sudo"]
