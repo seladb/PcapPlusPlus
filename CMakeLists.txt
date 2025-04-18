@@ -49,8 +49,6 @@ endif()
 set(PCAPPP_INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
 set(PCAPPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
 set(PCAPPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
-# Used as an install location of the transition compatibility headers.
-set(PCAPPP_INSTALL_INCLUDEDIR_LEGACY ${CMAKE_INSTALL_INCLUDEDIR})
 set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 
 # Build options enable sanitizers

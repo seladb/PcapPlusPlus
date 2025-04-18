@@ -142,23 +142,6 @@ set(
   header/pcapplusplus/WireGuardLayer.h
 )
 
-set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
-file(MAKE_DIRECTORY ${generated_dir})
-
-set(generated_transition_headers)
-foreach(header IN LISTS public_headers)
-  file(RELATIVE_PATH relative_path "${CMAKE_CURRENT_SOURCE_DIR}/header" "${CMAKE_CURRENT_SOURCE_DIR}/${header}")
-
-  get_filename_component(filename "${relative_path}" NAME)
-
-  set(PCAPPP_INTERNAL_INCLUDE_LINK_FILE "${relative_path}")
-  set(output_file "${generated_dir}/${filename}")
-
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/TransitionHeaderTemplate.h.in" "${output_file}" @ONLY)
-
-  list(APPEND generated_transition_headers "${output_file}")
-endforeach()
-
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
 
@@ -166,7 +149,10 @@ target_compile_features(Packet++ PUBLIC cxx_std_11)
 
 target_include_directories(
   Packet++
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include>
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
+    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
@@ -183,8 +169,6 @@ if(PCAPPP_INSTALL)
     PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
     RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR}
   )
-
-  install(DIRECTORY "${generated_dir}/" DESTINATION "${PCAPPP_INSTALL_INCLUDEDIR_LEGACY}")
 endif()
 
 set_property(TARGET Packet++ PROPERTY OUTPUT_NAME "Packet++")

@@ -73,23 +73,6 @@ if(WIN32)
   )
 endif()
 
-set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
-file(MAKE_DIRECTORY ${generated_dir})
-
-set(generated_transition_headers)
-foreach(header IN LISTS public_headers)
-  file(RELATIVE_PATH relative_path "${CMAKE_CURRENT_SOURCE_DIR}/header" "${CMAKE_CURRENT_SOURCE_DIR}/${header}")
-
-  get_filename_component(filename "${relative_path}" NAME)
-
-  set(PCAPPP_INTERNAL_INCLUDE_LINK_FILE "${relative_path}")
-  set(output_file "${generated_dir}/${filename}")
-
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/TransitionHeaderTemplate.h.in" "${output_file}" @ONLY)
-
-  list(APPEND generated_transition_headers "${output_file}")
-endforeach()
-
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
 
 target_compile_features(Pcap++ PUBLIC cxx_std_11)
@@ -105,7 +88,10 @@ endif()
 
 target_include_directories(
   Pcap++
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include>
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
+    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
   PRIVATE
     $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
@@ -137,8 +123,6 @@ if(PCAPPP_INSTALL)
     PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
     RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR}
   )
-
-  install(DIRECTORY "${generated_dir}/" DESTINATION "${PCAPPP_INSTALL_INCLUDEDIR_LEGACY}")
 endif()
 
 set_property(TARGET Pcap++ PROPERTY OUTPUT_NAME "Pcap++")
