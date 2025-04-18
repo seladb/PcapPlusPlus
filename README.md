@@ -9,7 +9,7 @@
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/seladb/PcapPlusPlus/badge)](https://scorecard.dev/viewer/?uri=github.com/seladb/PcapPlusPlus)
 [![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)](https://github.com/seladb/PcapPlusPlus/graphs/contributors)
 
-[![Twitter Follow](https://img.shields.io/badge/follow-%40seladb-1DA1F2?logo=x&style=social)](https://x.com/intent/follow?screen_name=seladb)
+[![X Follow](https://img.shields.io/badge/follow-%40seladb-1DA1F2?logo=x&style=social)](https://x.com/intent/follow?screen_name=seladb)
 [![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)]()
 
 </div>
@@ -17,6 +17,8 @@
 [PcapPlusPlus](https://pcapplusplus.github.io/) is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.
 
 PcapPlusPlus enables decoding and forging capabilities for a large variety of network protocols. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
+
+Translations: English · [正體中文](./translation/README-zh-tw.md) · [한국어](./translation/README-kor.md)
 
 ## Table Of Contents
 
@@ -27,6 +29,7 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
   - [Build It Yourself](#build-it-yourself)
+  - [Verify your packages](#verify-your-packages)
 - [Feature Overview](#feature-overview)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
@@ -214,72 +217,73 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 ### Data Link Layer (L2)
 
-1. Ethernet II
-2. IEEE 802.3 Ethernet
-3. LLC (Only BPDU supported)
-4. Null/Loopback
-5. Packet trailer (a.k.a footer or padding)
-6. PPPoE
-7. SLL (Linux cooked capture)
-8. SLL2 (Linux cooked capture v2)
-9. STP
-10. VLAN
-11. VXLAN
-12. Wake on LAN (WoL)
-13. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
+1. Cisco HDLC
+2. Ethernet II
+3. IEEE 802.3 Ethernet
+4. LLC (Only BPDU supported)
+5. Null/Loopback
+6. Packet trailer (a.k.a footer or padding)
+7. PPPoE
+8. SLL (Linux cooked capture)
+9. SLL2 (Linux cooked capture v2)
+10. STP
+11. VLAN
+12. VXLAN
+13. Wake on LAN (WoL)
+14. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
 
 
 ### Network Layer (L3)
 
-14. ARP
-15. GRE
-16. ICMP
-17. ICMPv6
-18. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-19. IPv4
-20. IPv6
-21. MPLS
-22. NDP
-23. Raw IP (IPv4 & IPv6)
-24. VRRP (IPv4 & IPv6)
-25. WireGuard
+15. ARP
+16. GRE
+17. ICMP
+18. ICMPv6
+19. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+20. IPv4
+21. IPv6
+22. MPLS
+23. NDP
+24. Raw IP (IPv4 & IPv6)
+25. VRRP (IPv4 & IPv6)
+26. WireGuard
 
 ### Transport Layer (L4)
 
-26. COTP
-27. GTP (v1)
-28. IPSec AH & ESP - parsing only (no editing capabilities)
-29. TCP
-30. TPKT
-31. UDP
+27. COTP
+28. GTP (v1 & v2)
+29. IPSec AH & ESP - parsing only (no editing capabilities)
+30. TCP
+31. TPKT
+32. UDP
 
 ### Session Layer (L5)
 
-32. SDP
-33. SIP
+33. SDP
+34. SIP
 
 ### Presentation Layer (L6)
 
-34. SSL/TLS - parsing only (no editing capabilities)
+35. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-35. ASN.1 decoder and encoder
-36. BGP (v4)
-37. DHCP
-38. DHCPv6
-39. DNS
-40. FTP
-41. HTTP headers (request & response)
-42. LDAP
-43. NTP (v3, v4)
-44. Radius
-45. S7 Communication (S7comm)
-46. SMTP
-47. SOME/IP
-48. SSH - parsing only (no editing capabilities)
-49. Telnet - parsing only (no editing capabilities)
-50. Generic payload
+36. ASN.1 decoder and encoder
+37. BGP (v4)
+38. DHCP
+39. DHCPv6
+40. DNS
+41. FTP
+42. HTTP headers (request & response)
+43. LDAP
+44. NTP (v3, v4)
+45. Radius
+46. S7 Communication (S7comm)
+47. SMTP
+48. SOME/IP
+49. SSH - parsing only (no editing capabilities)
+50. Telnet - parsing only (no editing capabilities)
+51. Generic payload
 
 ## DPDK And PF_RING Support
 

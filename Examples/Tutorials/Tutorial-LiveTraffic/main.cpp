@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include "pcapplusplus/PcapLiveDeviceList.h"
+#include "pcapplusplus/Packet.h"
 #include "pcapplusplus/SystemUtils.h"
 /**
  * A struct for collecting packet statistics
@@ -152,7 +153,7 @@ int main(int argc, char* argv[])
 	dev->startCapture(onPacketArrives, &stats);
 
 	// sleep for 10 seconds in main thread, in the meantime packets are captured in the async thread
-	pcpp::multiPlatformSleep(10);
+	std::this_thread::sleep_for(std::chrono::seconds(10));
 
 	// stop capturing packets
 	dev->stopCapture();
@@ -176,7 +177,7 @@ int main(int argc, char* argv[])
 	dev->startCapture(packetVec);
 
 	// sleep for 10 seconds in main thread, in the meantime packets are captured in the async thread
-	pcpp::multiPlatformSleep(10);
+	std::this_thread::sleep_for(std::chrono::seconds(10));
 
 	// stop capturing packets
 	dev->stopCapture();
@@ -264,7 +265,7 @@ int main(int argc, char* argv[])
 	dev->startCapture(onPacketArrives, &stats);
 
 	// sleep for 10 seconds in main thread, in the meantime packets are captured in the async thread
-	pcpp::multiPlatformSleep(10);
+	std::this_thread::sleep_for(std::chrono::seconds(10));
 
 	// stop capturing packets
 	dev->stopCapture();

@@ -12,6 +12,9 @@ PTF_TEST_CASE(TestIPv4Network);
 PTF_TEST_CASE(TestIPv6Network);
 PTF_TEST_CASE(TestIPNetwork);
 
+// Implemented in ObjectPoolTests.cpp
+PTF_TEST_CASE(TestObjectPool);
+
 // Implemented in LoggerTests.cpp
 PTF_TEST_CASE(TestLogger);
 PTF_TEST_CASE(TestLoggerMultiThread);
@@ -80,6 +83,7 @@ PTF_TEST_CASE(TestTcpReassemblyMaxSeq);
 PTF_TEST_CASE(TestTcpReassemblyDisableOOOCleanup);
 PTF_TEST_CASE(TestTcpReassemblyTimeStamps);
 PTF_TEST_CASE(TestTcpReassemblyFinReset);
+PTF_TEST_CASE(TestTcpReassemblyHighPrecision);
 
 // Implemented in IPFragmentationTests.cpp
 PTF_TEST_CASE(TestIPFragmentationSanity);

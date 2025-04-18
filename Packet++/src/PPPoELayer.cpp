@@ -33,7 +33,7 @@ namespace pcpp
 
 	void PPPoELayer::computeCalculateFields()
 	{
-		pppoe_header* pppoeHdr = (pppoe_header*)m_Data;
+		pppoe_header* pppoeHdr = getPPPoEHeader();
 		pppoeHdr->payloadLength = htobe16(m_DataLen - sizeof(pppoe_header));
 	}
 
@@ -75,7 +75,7 @@ namespace pcpp
 			return 0;
 		}
 
-		uint16_t pppNextProto = *(uint16_t*)(m_Data + sizeof(pppoe_header));
+		uint16_t pppNextProto = *reinterpret_cast<uint16_t*>(m_Data + sizeof(pppoe_header));
 		return be16toh(pppNextProto);
 	}
 
@@ -87,7 +87,7 @@ namespace pcpp
 			return;
 		}
 
-		uint16_t* pppProto = (uint16_t*)(m_Data + sizeof(pppoe_header));
+		uint16_t* pppProto = reinterpret_cast<uint16_t*>(m_Data + sizeof(pppoe_header));
 		*pppProto = htobe16(nextProtocol);
 	}
 

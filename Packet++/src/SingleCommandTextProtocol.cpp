@@ -135,10 +135,12 @@ namespace pcpp
 		size_t offset = getArgumentFieldOffset();
 
 		// We don't want to get delimiter so add 1 for start unless there is no command,
-		// and we don't want to trailing newline characters so remove 2 and remove addition from start point
 		int addition = offset ? 1 : 0;
-		if (offset != (m_DataLen - 1))
+
+		// Check if command-only packet (-2 to account for len/position comparison and size of CRLF)
+		if (offset != (m_DataLen - 2))
 		{
+			// We don't want to trailing newline characters so remove 2 and remove addition from start point
 			auto option = std::string((char*)&m_Data[offset + addition], m_DataLen - (offset + 2 + addition));
 
 			// Remove XXX- and XXX<SP> since they are delimiters of the protocol where XXX is the usually status code

@@ -12,16 +12,20 @@ namespace pcpp
 	std::string byteArrayToHexString(const uint8_t* byteArr, size_t byteArrSize, int stringSizeLimit)
 	{
 		if (stringSizeLimit <= 0)
-			stringSizeLimit = byteArrSize;
+		{
+			stringSizeLimit = static_cast<int>(byteArrSize);
+		}
 
 		std::stringstream dataStream;
 		dataStream << std::hex;
 		for (size_t i = 0; i < byteArrSize; ++i)
 		{
-			if (i >= (size_t)stringSizeLimit)
+			if (i >= static_cast<size_t>(stringSizeLimit))
+			{
 				break;
+			}
 
-			dataStream << std::setw(2) << std::setfill('0') << (int)byteArr[i];
+			dataStream << std::setw(2) << std::setfill('0') << static_cast<int>(byteArr[i]);
 		}
 
 		return dataStream.str();
@@ -30,11 +34,17 @@ namespace pcpp
 	static int char2int(char input)
 	{
 		if (input >= '0' && input <= '9')
+		{
 			return input - '0';
+		}
 		if (input >= 'A' && input <= 'F')
+		{
 			return input - 'A' + 10;
+		}
 		if (input >= 'a' && input <= 'f')
+		{
 			return input - 'a' + 10;
+		}
 		return -1;
 	}
 
@@ -50,10 +60,12 @@ namespace pcpp
 		for (size_t i = 0; i < hexString.length(); i += 2)
 		{
 			if (i >= resultByteArrSize * 2)
+			{
 				return resultByteArrSize;
+			}
 
-			int firstChar = char2int(hexString[i]);
-			int secondChar = char2int(hexString[i + 1]);
+			const int firstChar = char2int(hexString[i]);
+			const int secondChar = char2int(hexString[i + 1]);
 			if (firstChar < 0 || secondChar < 0)
 			{
 				PCPP_LOG_ERROR("Input string has an illegal character");
@@ -69,10 +81,11 @@ namespace pcpp
 
 	char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char* needle, size_t needleLen)
 	{
-		char* ptr = (char*)haystack;
+		char* ptr = const_cast<char*>(haystack);
 		while (needleLen <= (haystackLen - (ptr - haystack)))
 		{
-			if (nullptr != (ptr = (char*)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
+			if (nullptr !=
+			    (ptr = static_cast<char*>(memchr(ptr, static_cast<int>(*needle), haystackLen - (ptr - haystack)))))
 			{
 				// check if there is room to do a memcmp
 				if (needleLen > (haystackLen - (ptr - haystack)))
@@ -81,12 +94,15 @@ namespace pcpp
 				}
 
 				if (0 == memcmp(ptr, needle, needleLen))
+				{
 					return ptr;
-				else
-					++ptr;
+				}
+				++ptr;
 			}
 			else
+			{
 				break;
+			}
 		}
 
 		return nullptr;

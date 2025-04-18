@@ -1,4 +1,4 @@
-exclude: '.*\.(pcap|pcapng|dat|txt)'
+exclude: '.*\.(pcap|pcapng|dat)|(PacketExamples|PcapExamples|expected_output|pcap_examples).*\.txt'
 fail_fast: false
 repos:
   - repo: local
@@ -8,7 +8,7 @@ repos:
         entry: python3 ./ci/check-clang-format-version.py
         language: system
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-case-conflict
       - id: check-executables-have-shebangs
@@ -22,7 +22,7 @@ repos:
         args: ['--fix=lf']
       - id: trailing-whitespace
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.8
+    rev: v0.11.2
     hooks:
       - id: ruff # Run the linter.
         types_or: [ python ]
@@ -37,13 +37,18 @@ repos:
         files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
+  - repo: https://github.com/BlankSpruce/gersemi
+    rev: 0.19.2
+    hooks:
+    - id: gersemi
+      args: ["-c"]
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.25.0
+    rev: v1
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']

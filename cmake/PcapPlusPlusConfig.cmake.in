@@ -1,8 +1,7 @@
 # ~~~
 # - Config file for the PcapPlusPlus package
 # It defines the following variables
-#  PcapPlusPlus_INCLUDE_DIRS - include directories for PcapPlusPlus
-#  PcapPlusPlus_LIBRARIES    - libraries to link against
+#  PcapPlusPlus_INCLUDE_DIR  - include directories for PcapPlusPlus
 # ~~~
 
 @PACKAGE_INIT@

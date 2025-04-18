@@ -62,7 +62,7 @@ namespace pcpp
 			std::cout << std::left << "| " << std::setw(m_ColumnWidths.at(i)) << val << " ";
 		}
 
-		std::cout << "|" << std::endl;
+		std::cout << "|" << '\n';
 
 		return true;
 	}
@@ -90,18 +90,22 @@ namespace pcpp
 		}
 
 		auto totalLen = std::accumulate(m_ColumnWidths.begin(), m_ColumnWidths.end(), m_ColumnWidths.size() * 3) + 1;
-		std::cout << std::string(totalLen, '-') << std::endl;
+		std::cout << std::string(totalLen, '-') << '\n';
 	}
 
 	void TablePrinter::closeTable()
 	{
 		// if this method was already called - do nothing
 		if (m_TableClosed)
+		{
 			return;
+		}
 
 		// if no rows were printed - do nothing
 		if (m_FirstRow)
+		{
 			return;
+		}
 
 		printSeparator();
 
@@ -124,7 +128,7 @@ namespace pcpp
 			std::cout << std::left << "| " << std::setw(m_ColumnWidths.at(i)) << m_ColumnNames.at(i) << " ";
 		}
 
-		std::cout << "|" << std::endl;
+		std::cout << "|" << '\n';
 
 		printSeparator();
 	}

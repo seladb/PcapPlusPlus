@@ -7,6 +7,7 @@
 #include "pcapplusplus/IPv6Layer.h"
 #include "pcapplusplus/TcpLayer.h"
 #include "pcapplusplus/UdpLayer.h"
+#include "pcapplusplus/Packet.h"
 #include "pcapplusplus/PcapLiveDeviceList.h"
 #include "pcapplusplus/PcapFileDevice.h"
 #include "../Common/GlobalTestArgs.h"
@@ -25,7 +26,7 @@ static int incSleep(const pcpp::RawPacketVector& capturedPackets, size_t expecte
 			return totalSleepTime;
 		}
 
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 	}
 

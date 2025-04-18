@@ -24,8 +24,8 @@ namespace pcpp
 #if defined(_WIN32)
 
 #	ifndef SIO_RCVALL
-/* SIO_RCVALL defined on w2k and later. Not defined in Mingw32 */
-/* 0x98000001 = _WSAIOW(IOC_VENDOR,1)       */
+// SIO_RCVALL defined on w2k and later. Not defined in Mingw32
+// 0x98000001 = _WSAIOW(IOC_VENDOR,1)
 #		define SIO_RCVALL 0x98000001
 #	endif  // SIO_RCVALL
 
@@ -456,7 +456,7 @@ namespace pcpp
 		int fd = socket(AF_PACKET, SOCK_RAW, htobe16(ETH_P_ALL));
 		if (fd < 0)
 		{
-			PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << errno);
+			PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << strerror(errno));
 			return false;
 		}
 
@@ -505,12 +505,15 @@ namespace pcpp
 		}
 
 		// bind raw socket to interface
-		struct ifreq ifr;
-		memset(&ifr, 0, sizeof(ifr));
-		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
-		if (setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, (void*)&ifr, sizeof(ifr)) == -1)
+		sockaddr_ll saddr;
+		memset(&saddr, 0, sizeof(saddr));
+		saddr.sll_family = AF_PACKET;
+		saddr.sll_protocol = htons(ETH_P_ALL);
+		saddr.sll_ifindex = if_nametoindex(ifaceName.c_str());
+
+		if (bind(fd, reinterpret_cast<sockaddr*>(&saddr), sizeof(saddr)) < 0)
 		{
-			PCPP_LOG_ERROR("Cannot bind raw socket to interface '" << ifaceName << "'");
+			PCPP_LOG_ERROR("Cannot bind raw socket to interface '" << ifaceName << "': " << strerror(errno));
 			::close(fd);
 			return false;
 		}

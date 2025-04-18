@@ -302,9 +302,9 @@ private:
 		if (m_FlowTable.size() != 0)
 		{
 			m_GeneralStats.averageAmountOfDataPerFlow =
-			    (double)m_GeneralStats.amountOfSSLTraffic / (double)m_FlowTable.size();
+			    static_cast<double>(m_GeneralStats.amountOfSSLTraffic) / static_cast<double>(m_FlowTable.size());
 			m_GeneralStats.averageNumOfPacketsPerFlow =
-			    (double)m_GeneralStats.numOfSSLPackets / (double)m_FlowTable.size();
+			    static_cast<double>(m_GeneralStats.numOfSSLPackets) / static_cast<double>(m_FlowTable.size());
 		}
 
 		return hashVal;
@@ -406,7 +406,7 @@ private:
 
 		gettimeofday(&tv, nullptr);
 
-		return (((double)tv.tv_sec) + (double)(tv.tv_usec / 1000000.0));
+		return ((static_cast<double>(tv.tv_sec)) + static_cast<double>(tv.tv_usec / 1000000.0));
 	}
 
 	SSLGeneralStats m_GeneralStats;

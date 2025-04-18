@@ -3,6 +3,7 @@
 #include "pcapplusplus/CotpLayer.h"
 #include "pcapplusplus/PayloadLayer.h"
 #include "EndianPortable.h"
+#include <cstring>
 #include <sstream>
 
 namespace pcpp

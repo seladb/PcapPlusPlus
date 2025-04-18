@@ -3,9 +3,10 @@
 #include "pcapplusplus/PayloadLayer.h"
 #include "pcapplusplus/LLCLayer.h"
 
+#include <cstring>
+
 namespace pcpp
 {
-
 	EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length) : Layer()
 	{
 		const size_t headerLen = sizeof(ether_dot3_header);
@@ -13,7 +14,7 @@ namespace pcpp
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
 
-		ether_dot3_header* ethHdr = (ether_dot3_header*)m_Data;
+		ether_dot3_header* ethHdr = getEthHeader();
 		destMac.copyTo(ethHdr->dstMac);
 		sourceMac.copyTo(ethHdr->srcMac);
 		ethHdr->length = be16toh(length);
@@ -43,20 +44,17 @@ namespace pcpp
 	{
 		if (dataLen >= sizeof(ether_dot3_header))
 		{
-			/**
-			 * LSAPs: ... Such a length must, when considered as an
-			 * unsigned integer, be less than 0x5DC or it could be mistaken as
-			 * an Ethertype...
-			 *
-			 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
-			 * More: IEEE Std 802.3 Clause 3.2.6
-			 */
-			return be16toh(*(uint16_t*)(data + 12)) <= (uint16_t)0x05DC;
+			// LSAPs: ... Such a length must, when considered as an
+			// unsigned integer, be less than 0x5DC or it could be mistaken as
+			// an Ethertype...
+			//
+			// From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
+			// More: IEEE Std 802.3 Clause 3.2.6
+			return be16toh(*reinterpret_cast<const uint16_t*>(data + 12)) <= static_cast<uint16_t>(0x05DC);
 		}
 		else
 		{
 			return false;
 		}
 	}
-
 }  // namespace pcpp

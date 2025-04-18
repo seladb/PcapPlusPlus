@@ -2,6 +2,8 @@
 #include "pcapplusplus/EthLayer.h"
 #include "EndianPortable.h"
 
+#include <cstring>
+
 namespace pcpp
 {
 

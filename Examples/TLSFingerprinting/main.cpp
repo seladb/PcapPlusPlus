@@ -21,6 +21,7 @@
 #include "pcapplusplus/TcpLayer.h"
 #include "pcapplusplus/SSLLayer.h"
 #include "pcapplusplus/SSLHandshake.h"
+#include "pcapplusplus/Packet.h"
 #include "pcapplusplus/PcapPlusPlusVersion.h"
 #include "pcapplusplus/PcapLiveDeviceList.h"
 #include "pcapplusplus/PcapFileDevice.h"
@@ -516,7 +517,7 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 
 	// run in an endless loop until the user press ctrl+c
 	while (!shouldStop)
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	// stop capturing and close the live device
 	dev->stopCapture();

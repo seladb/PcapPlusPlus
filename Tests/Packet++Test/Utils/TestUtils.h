@@ -7,12 +7,14 @@
 // clang-format on
 #include <cstdint>
 #include <cstdlib>
+#include <vector>
 
 namespace pcpp_tests
 {
 
 	int getFileLength(const char* filename);
 
+	std::vector<std::uint8_t> readFileIntoBuffer(const char* filename);
 	uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength);
 
 	void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uint8_t* buffer2, size_t buffer2Len);

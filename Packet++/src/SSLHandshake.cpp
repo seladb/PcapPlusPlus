@@ -685,10 +685,10 @@ namespace pcpp
 		return result;
 	}
 
-#define A 54059       /* a prime */
-#define B 76963       /* another prime */
-#define C 86969       /* yet another prime */
-#define FIRST_HASH 37 /* also prime */
+#define A 54059        ///< a prime
+#define B 76963        ///< another prime
+#define C 86969        ///< yet another prime
+#define FIRST_HASH 37  ///< also prime
 
 	static uint32_t hashString(std::string str)
 	{

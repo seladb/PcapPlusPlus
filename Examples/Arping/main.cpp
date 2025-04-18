@@ -101,7 +101,7 @@ void listInterfaces()
  */
 void onApplicationInterrupted(void* cookie)
 {
-	auto shouldStop = (bool*)cookie;
+	auto shouldStop = static_cast<bool*>(cookie);
 	*shouldStop = true;
 }
 

@@ -2,6 +2,8 @@
 #include "pcapplusplus/S7CommLayer.h"
 #include "pcapplusplus/PayloadLayer.h"
 
+#include <cstring>
+
 namespace pcpp
 {
 
@@ -11,7 +13,7 @@ namespace pcpp
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
-		cotphdr* cotpHdr = (cotphdr*)m_Data;
+		cotphdr* cotpHdr = getCotpHeader();
 		cotpHdr->length = 0x02;
 		cotpHdr->pduType = 0x0f;
 		cotpHdr->tpduNumber = tpduNumber;

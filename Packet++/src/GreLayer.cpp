@@ -221,7 +221,9 @@ namespace pcpp
 			m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
 			break;
 		case PCPP_ETHERTYPE_PPP:
-			m_NextLayer = new PPP_PPTPLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = PPP_PPTPLayer::isDataValid(payload, payloadLen)
+			                  ? static_cast<Layer*>(new PPP_PPTPLayer(payload, payloadLen, this, m_Packet))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 			break;
 		case PCPP_ETHERTYPE_ETHBRIDGE:
 			if (EthLayer::isDataValid(payload, payloadLen))

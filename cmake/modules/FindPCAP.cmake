@@ -13,12 +13,13 @@
 #
 # Variables defined by this module:
 #
-#  PCAP_FOUND                System has libpcap, include and library dirs found
-#  PCAP_INCLUDE_DIR          The libpcap include directories.
-#  PCAP_LIBRARY              The libpcap library (possibly includes a thread
-#                            library e.g. required by pf_ring's libpcap)
-#  HAVE_PCAP_IMMEDIATE_MODE  If the version of libpcap found supports immediate mode
-#  HAVE_PCAP_DIRECTION       If the version of libpcap found support for setting direction
+#  PCAP_FOUND                    System has libpcap, include and library dirs found
+#  PCAP_INCLUDE_DIR              The libpcap include directories.
+#  PCAP_LIBRARY                  The libpcap library (possibly includes a thread
+#                                library e.g. required by pf_ring's libpcap)
+#  HAVE_PCAP_IMMEDIATE_MODE      If the version of libpcap found supports immediate mode
+#  HAVE_PCAP_TIMESTAMP_TYPES     If the version of libpcap found support for setting timestamp types
+#  HAVE_PCAP_TIMESTAMP_PRECISION If the version of libpcap found support for setting timestamp precision
 #
 # Hints and Backward Compatibility
 # ================================
@@ -30,10 +31,7 @@
 # -DPCAP_ROOT=C:\path\to\packet [...])
 # ~~~
 
-find_path(
-  PCAP_INCLUDE_DIR
-  NAMES pcap/pcap.h pcap.h
-  PATH_SUFFIXES include Include)
+find_path(PCAP_INCLUDE_DIR NAMES pcap/pcap.h pcap.h PATH_SUFFIXES include Include)
 
 # The 64-bit Wpcap.lib is located under /x64
 if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -70,9 +68,7 @@ if(NOT PCAP_LINKS_SOLO)
   if(THREADS_FOUND AND PCAP_NEEDS_THREADS)
     set(_tmp ${PCAP_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
     list(REMOVE_DUPLICATES _tmp)
-    set(PCAP_LIBRARY
-        ${_tmp}
-        CACHE STRING "Libraries needed to link against libpcap" FORCE)
+    set(PCAP_LIBRARY ${_tmp} CACHE STRING "Libraries needed to link against libpcap" FORCE)
   else(THREADS_FOUND AND PCAP_NEEDS_THREADS)
     message(FATAL_ERROR "Couldn't determine how to link against libpcap")
   endif(THREADS_FOUND AND PCAP_NEEDS_THREADS)
@@ -81,17 +77,18 @@ endif(NOT PCAP_LINKS_SOLO)
 include(CheckFunctionExists)
 set(CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARY})
 check_function_exists(pcap_set_immediate_mode HAVE_PCAP_IMMEDIATE_MODE)
-check_function_exists(pcap_setdirection HAVE_PCAP_DIRECTION)
-check_function_exists(pcap_lib_version HAVE_PCAP_LIB_VERSION)
+check_function_exists(pcap_list_tstamp_types HAVE_PCAP_TIMESTAMP_TYPES)
+check_function_exists(pcap_set_tstamp_precision HAVE_PCAP_TIMESTAMP_PRECISION)
 set(CMAKE_REQUIRED_LIBRARIES)
 
 # Check libPCAP version
-if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
+if(NOT CMAKE_CROSSCOMPILING)
   # Simple C code to extract the libpcap version
-  set(PCAP_VERSION_CODE
-      "
-  #include <stdio.h>
-  #include <string.h>
+  set(
+    PCAP_VERSION_CODE
+    "
+  #include <cstdio>
+  #include <cstring>
   #include <pcap/pcap.h>
 
   int main() {
@@ -103,10 +100,11 @@ if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
     printf(\"%s\", version);
     return 0;
   }
-  ")
+  "
+  )
 
   # Write the code to a temporary file
-  set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.c")
+  set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.cpp")
   file(WRITE "${detect_pcap_version_file}" "${PCAP_VERSION_CODE}")
 
   # Try to compile and run the program
@@ -115,8 +113,10 @@ if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
     COMPILE_RESULT_VAR
     "${CMAKE_BINARY_DIR}"
     "${detect_pcap_version_file}"
-    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${PCAP_INCLUDE_DIR}" LINK_LIBRARIES ${PCAP_LIBRARY}
-    RUN_OUTPUT_VARIABLE PCAP_VERSION_OUTPUT)
+    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${PCAP_INCLUDE_DIR}"
+    LINK_LIBRARIES ${PCAP_LIBRARY}
+    RUN_OUTPUT_VARIABLE PCAP_VERSION_OUTPUT
+  )
 
   # If successful, parse the output to get the version string
   if(COMPILE_RESULT_VAR AND RUN_RESULT_VAR EQUAL 0)
@@ -125,19 +125,18 @@ if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  PCAP
-  REQUIRED_VARS PCAP_LIBRARY PCAP_INCLUDE_DIR
-  VERSION_VAR PCAP_VERSION)
+find_package_handle_standard_args(PCAP REQUIRED_VARS PCAP_LIBRARY PCAP_INCLUDE_DIR VERSION_VAR PCAP_VERSION)
 
 # create IMPORTED target for libpcap dependency
 if(NOT TARGET PCAP::PCAP)
   add_library(PCAP::PCAP IMPORTED SHARED)
   set_target_properties(
     PCAP::PCAP
-    PROPERTIES IMPORTED_LOCATION ${PCAP_LIBRARY}
-               IMPORTED_IMPLIB ${PCAP_LIBRARY}
-               INTERFACE_INCLUDE_DIRECTORIES ${PCAP_INCLUDE_DIR})
+    PROPERTIES
+      IMPORTED_LOCATION ${PCAP_LIBRARY}
+      IMPORTED_IMPLIB ${PCAP_LIBRARY}
+      INTERFACE_INCLUDE_DIRECTORIES ${PCAP_INCLUDE_DIR}
+  )
 endif()
 
 mark_as_advanced(PCAP_INCLUDE_DIR PCAP_LIBRARY)

@@ -846,7 +846,7 @@ extern "C"
 			wcstr[n] = 0;
 		}
 
-		/* Length of resuting multi-byte string WITH zero terminator */
+		/* Length of resulting multi-byte string WITH zero terminator */
 		if (pReturnValue)
 		{
 			*pReturnValue = n + 1;

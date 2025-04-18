@@ -55,22 +55,22 @@ Using the utility
 						  'round-robin'  - split the file in a round-robin manner - each packet to a
 										   different file
 
-		-p split-param  : The relevant parameter for the split method:
-						  'method = file-size'    => split-param is the max size per file (in bytes).
-													 split-param is required for this method
-						  'method = packet-count' => split-param is the number of packet per file.
-													 split-param is required for this method
-						  'method = client-ip'    => split-param is max number of files to open.
+		-p split_param  : The relevant parameter for the split method:
+						  'method = file-size'    => split_param is the max size per file (in bytes).
+													 split_param is required for this method
+						  'method = packet-count' => split_param is the number of packet per file.
+													 split_param is required for this method
+						  'method = client-ip'    => split_param is max number of files to open.
 													 If not provided the default is unlimited number of files
-						  'method = server-ip'    => split-param is max number of files to open.
+						  'method = server-ip'    => split_param is max number of files to open.
 													 If not provided the default is unlimited number of files
-						  'method = server-port'  => split-param is max number of files to open.
+						  'method = server-port'  => split_param is max number of files to open.
 													 If not provided the default is unlimited number of files
-						  'method = ip-src-dst'   => split-param is max number of files to open.
+						  'method = ip-src-dst'   => split_param is max number of files to open.
 													 If not provided the default is unlimited number of files
-						  'method = connection'   => split-param is max number of files to open.
+						  'method = connection'   => split_param is max number of files to open.
 													 If not provided the default is unlimited number of files
-						  'method = bpf-filter'   => split-param is the BPF filter to match upon
-						  'method = round-robin'  => split-param is number of files to round-robin packets between
+						  'method = bpf-filter'   => split_param is the BPF filter to match upon
+						  'method = round-robin'  => split_param is number of files to round-robin packets between
 		-i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split
 		-h              : Displays this help message and exits);

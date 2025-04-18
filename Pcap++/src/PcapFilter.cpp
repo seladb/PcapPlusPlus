@@ -31,7 +31,7 @@ namespace pcpp
 
 	namespace internal
 	{
-		void BpfProgramDeleter::operator()(bpf_program* ptr) const
+		void BpfProgramDeleter::operator()(bpf_program* ptr) const noexcept
 		{
 			pcap_freecode(ptr);
 			delete ptr;

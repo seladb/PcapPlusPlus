@@ -7,6 +7,7 @@
 #include "pcapplusplus/IPv4Layer.h"
 #include "pcapplusplus/UdpLayer.h"
 #include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/Packet.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
@@ -316,7 +317,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
-		pcpp::multiPlatformSleep(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
 			break;
@@ -377,7 +378,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
-		pcpp::multiPlatformSleep(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
 			break;
@@ -447,7 +448,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 6)
 	{
-		pcpp::multiPlatformSleep(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		pcpp::IPcapDevice::PcapStats statistics;
 		liveDev->getStatistics(statistics);
@@ -515,7 +516,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 		int totalSleepTime = 0;
 		while (totalSleepTime <= 5)
 		{
-			pcpp::multiPlatformSleep(1);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			totalSleepTime += 1;
 			if (packetCount > 0)
 				break;
@@ -554,7 +555,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 		totalSleepTime = 0;
 		while (totalSleepTime <= 5)
 		{
-			pcpp::multiPlatformSleep(1);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			totalSleepTime += 1;
 			if (packetCount > 0)
 				break;
@@ -599,7 +600,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
-		pcpp::multiPlatformSleep(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
 			break;
@@ -678,7 +679,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 
-#ifdef HAS_SET_DIRECTION_ENABLED
 	packetCount = 0;
 
 	// create a non-default configuration with only capturing incoming packets and open the device again
@@ -694,8 +694,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
-
-#endif
 
 	// create a non-default configuration with a snapshot length of 10 bytes
 	int snaplen = 20;
@@ -985,7 +983,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 			break;
 		}
 
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 	}
 
@@ -1021,6 +1019,12 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_EQUAL(static_cast<uint32_t>(stats.packetsRecv), capturedPacketsSize);
 
 	remoteDevice->close();
+
+	// Check clone method produces correct pointer.
+	pcpp::PcapLiveDevice* remoteDeviceCloned = remoteDevice->clone();
+	auto devCopyTeardown = DeviceTeardown(remoteDeviceCloned, true);
+	PTF_ASSERT_NOT_NULL(remoteDeviceCloned);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapRemoteDevice*>(remoteDeviceCloned));
 
 	delete remoteDevices;
 

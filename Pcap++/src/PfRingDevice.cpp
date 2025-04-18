@@ -10,15 +10,36 @@
 #include <pfring.h>
 #include <pthread.h>
 #include <chrono>
+#include <algorithm>
+#include <vector>
 
 #define DEFAULT_PF_RING_SNAPLEN 1600
 
 namespace pcpp
 {
+	namespace
+	{
+		void setThreadCoreAffinity(std::thread& thread, int coreId)
+		{
+			if (thread.get_id() == std::thread::id{})
+			{
+				throw std::invalid_argument("Can't set core affinity for a non-joinable thread");
+			}
+
+			cpu_set_t cpuset;
+			CPU_ZERO(&cpuset);
+			CPU_SET(coreId, &cpuset);
+			int err = pthread_setaffinity_np(thread.native_handle(), sizeof(cpu_set_t), &cpuset);
+			if (err != 0)
+			{
+				throw std::runtime_error("Error while binding thread to core " + std::to_string(coreId) +
+				                         ": errno=" + std::to_string(err));
+			}
+		}
+	}  // namespace
 
 	PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Zero)
 	{
-		m_NumOfOpenedRxChannels = 0;
 		m_DeviceOpened = false;
 		m_DeviceName = std::string(deviceName);
 		m_InterfaceIndex = -1;
@@ -30,13 +51,12 @@ namespace pcpp
 		m_DeviceMTU = 0;
 		m_IsFilterCurrentlySet = false;
 
-		m_PfRingDescriptors = new pfring*[MAX_NUM_RX_CHANNELS];
+		m_PfRingDescriptors.reserve(MAX_NUM_RX_CHANNELS);
 	}
 
 	PfRingDevice::~PfRingDevice()
 	{
 		close();
-		delete[] m_PfRingDescriptors;
 	}
 
 	bool PfRingDevice::open()
@@ -47,15 +67,15 @@ namespace pcpp
 			return false;
 		}
 
-		m_NumOfOpenedRxChannels = 0;
-
 		PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "]");
-		int res = openSingleRxChannel(m_DeviceName.c_str(), &m_PfRingDescriptors[0]);
+		pfring* newChannel;
+		int res = openSingleRxChannel(m_DeviceName.c_str(), newChannel);
 		if (res == 0)
 		{
-			PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
-			m_NumOfOpenedRxChannels = 1;
+			// Adds the newly opened channel to the list of opened channels
+			m_PfRingDescriptors.push_back(newChannel);
 			m_DeviceOpened = true;
+			PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
 			return true;
 		}
 		else if (res == 1)
@@ -72,7 +92,7 @@ namespace pcpp
 		return openMultiRxChannels(channelIds, 1);
 	}
 
-	int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring** ring)
+	int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring*& ring)
 	{
 		if (m_DeviceOpened)
 		{
@@ -81,9 +101,9 @@ namespace pcpp
 		}
 
 		uint32_t flags = PF_RING_PROMISC | PF_RING_HW_TIMESTAMP | PF_RING_DNA_SYMMETRIC_RSS;
-		*ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
+		ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
 
-		if (*ring == nullptr)
+		if (ring == nullptr)
 		{
 			return 1;
 		}
@@ -91,19 +111,31 @@ namespace pcpp
 
 		if (getIsHwClockEnable())
 		{
-			setPfRingDeviceClock(*ring);
+			setPfRingDeviceClock(ring);
 			PCPP_LOG_DEBUG("H/W clock set for device [" << m_DeviceName << "]");
 		}
 
-		if (pfring_enable_rss_rehash(*ring) < 0 || pfring_enable_ring(*ring) < 0)
+		if (pfring_enable_rss_rehash(ring) < 0 || pfring_enable_ring(ring) < 0)
 		{
-			pfring_close(*ring);
+			pfring_close(ring);
 			return 2;
 		}
 
 		PCPP_LOG_DEBUG("pfring enabled for device [" << m_DeviceName << "]");
 
 		return 0;
+	}
+
+	void PfRingDevice::closeAllRxChannels()
+	{
+		for (pfring* rxChannel : m_PfRingDescriptors)
+		{
+			if (rxChannel != nullptr)
+			{
+				pfring_close(rxChannel);
+			}
+		}
+		m_PfRingDescriptors.clear();
 	}
 
 	bool PfRingDevice::setPfRingDeviceClock(pfring* ring)
@@ -132,6 +164,11 @@ namespace pcpp
 			return false;
 		}
 
+		if (numOfChannelIds < 0)
+		{
+			throw std::invalid_argument("numOfChannelIds must be >= 0");
+		}
+
 		// I needed to add this verification because PF_RING doesn't provide it.
 		// It allows opening the device on a channel that doesn't exist, but of course no packets will be captured
 		uint8_t totalChannels = getTotalNumOfRxChannels();
@@ -146,8 +183,6 @@ namespace pcpp
 			}
 		}
 
-		m_NumOfOpenedRxChannels = 0;
-
 		for (int i = 0; i < numOfChannelIds; i++)
 		{
 			uint8_t channelId = channelIds[i];
@@ -156,12 +191,15 @@ namespace pcpp
 			std::string ringName = ringNameStream.str();
 			PCPP_LOG_DEBUG("Trying to open device [" << m_DeviceName << "] on channel [" << channelId
 			                                         << "]. Channel name [" << ringName << "]");
-			int res = openSingleRxChannel(ringName.c_str(), &m_PfRingDescriptors[i]);
+
+			pfring* newChannel;
+			int res = openSingleRxChannel(ringName.c_str(), newChannel);
 			if (res == 0)
 			{
+				// Adds the newly opened channel to the list of opened channels
+				m_PfRingDescriptors.push_back(newChannel);
 				PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "] on channel [" << channelId
 				                                            << "]. Channel name [" << ringName << "]");
-				m_NumOfOpenedRxChannels++;
 				continue;
 			}
 			else if (res == 1)
@@ -174,17 +212,12 @@ namespace pcpp
 			break;
 		}
 
-		if (m_NumOfOpenedRxChannels < numOfChannelIds)
+		if (m_PfRingDescriptors.size() < static_cast<size_t>(numOfChannelIds))
 		{
 			// if an error occurred, close all rings from index=0 to index=m_NumOfOpenedRxChannels-1
 			// there's no need to close m_PfRingDescriptors[m_NumOfOpenedRxChannels] because it has already been
 			// closed by openSingleRxChannel
-			for (int i = 0; i < m_NumOfOpenedRxChannels - 1; i++)
-			{
-				pfring_close(m_PfRingDescriptors[i]);
-			}
-
-			m_NumOfOpenedRxChannels = 0;
+			closeAllRxChannels();
 			return false;
 		}
 
@@ -200,8 +233,6 @@ namespace pcpp
 			PCPP_LOG_ERROR("Device already opened");
 			return false;
 		}
-
-		m_NumOfOpenedRxChannels = 0;
 
 		if (numOfRxChannelsToOpen > MAX_NUM_RX_CHANNELS)
 		{
@@ -219,7 +250,6 @@ namespace pcpp
 
 		cluster_type clusterType = (dist == RoundRobin) ? cluster_round_robin : cluster_per_flow;
 
-		int ringsOpen = 0;
 		for (uint8_t channelId = 0; channelId < numOfRxChannelsOnNIC; channelId++)
 		{
 			// no more channels to open
@@ -232,44 +262,48 @@ namespace pcpp
 			// open numOfRingsPerRxChannel rings per RX channel
 			for (uint8_t ringId = 0; ringId < numOfRingsPerRxChannel; ringId++)
 			{
-				m_PfRingDescriptors[ringsOpen] = pfring_open(ringName.str().c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
-				if (m_PfRingDescriptors[ringsOpen] == nullptr)
+				pfring* newChannel = pfring_open(ringName.str().c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
+				if (newChannel == nullptr)
 				{
 					PCPP_LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "]");
 					break;
 				}
 
 				// setting a cluster for all rings in the same channel to enable hashing between them
-				if (pfring_set_cluster(m_PfRingDescriptors[ringsOpen], channelId + 1, clusterType) < 0)
+				if (pfring_set_cluster(newChannel, channelId + 1, clusterType) < 0)
 				{
 					PCPP_LOG_ERROR("Couldn't set ring [" << (int)ringId << "] in channel [" << (int)channelId
 					                                     << "] to the cluster [" << (int)(channelId + 1) << "]");
+					pfring_close(newChannel);  // Closes the ring as its initialization was not successful.
 					break;
 				}
 
-				ringsOpen++;
+				// Assign the new channel to the list of opened channels
+				m_PfRingDescriptors.push_back(newChannel);
 			}
 
 			// open one more ring if remainder > 0
 			if (remainderRings > 0)
 			{
-				m_PfRingDescriptors[ringsOpen] = pfring_open(ringName.str().c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
-				if (m_PfRingDescriptors[ringsOpen] == nullptr)
+				pfring* newChannel = pfring_open(ringName.str().c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
+				if (newChannel == nullptr)
 				{
 					PCPP_LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "]");
 					break;
 				}
 
 				// setting a cluster for all rings in the same channel to enable hashing between them
-				if (pfring_set_cluster(m_PfRingDescriptors[ringsOpen], channelId + 1, clusterType) < 0)
+				if (pfring_set_cluster(newChannel, channelId + 1, clusterType) < 0)
 				{
 					PCPP_LOG_ERROR("Couldn't set ring [" << (int)(numOfRingsPerRxChannel + 1) << "] in channel ["
 					                                     << (int)channelId << "] to the cluster ["
 					                                     << (int)(channelId + 1) << "]");
+					pfring_close(newChannel);  // Closes the ring as its initialization was not successful.
 					break;
 				}
 
-				ringsOpen++;
+				// Assign the new channel to the list of opened channels
+				m_PfRingDescriptors.push_back(newChannel);
 				remainderRings--;
 				PCPP_LOG_DEBUG("Opened " << (int)(numOfRingsPerRxChannel + 1) << " rings on channel [" << (int)channelId
 				                         << "]");
@@ -279,36 +313,32 @@ namespace pcpp
 				                         << "]");
 		}
 
-		if (ringsOpen < numOfRxChannelsToOpen)
+		if (m_PfRingDescriptors.size() < numOfRxChannelsToOpen)
 		{
-			for (uint8_t i = 0; i < ringsOpen; i++)
-				pfring_close(m_PfRingDescriptors[i]);
+			closeAllRxChannels();
 			return false;
 		}
 
 		if (getIsHwClockEnable())
 		{
-			for (int i = 0; i < ringsOpen; i++)
+			for (pfring* rxChannel : m_PfRingDescriptors)
 			{
-				if (setPfRingDeviceClock(m_PfRingDescriptors[i]))
+				if (setPfRingDeviceClock(rxChannel))
 					PCPP_LOG_DEBUG("H/W clock set for device [" << m_DeviceName << "]");
 			}
 		}
 
 		// enable all rings
-		for (int i = 0; i < ringsOpen; i++)
+		for (size_t i = 0; i < m_PfRingDescriptors.size(); i++)
 		{
 			if (pfring_enable_rss_rehash(m_PfRingDescriptors[i]) < 0 || pfring_enable_ring(m_PfRingDescriptors[i]) < 0)
 			{
 				PCPP_LOG_ERROR("Unable to enable ring [" << i << "] for device [" << m_DeviceName << "]");
 				// close all pfring's that were enabled until now
-				for (int j = 0; j < ringsOpen; j++)
-					pfring_close(m_PfRingDescriptors[j]);
+				closeAllRxChannels();  // note: this function will clear the m_PfRingDescriptors vector
 				return false;
 			}
 		}
-
-		m_NumOfOpenedRxChannels = ringsOpen;
 
 		m_DeviceOpened = true;
 		return true;
@@ -316,7 +346,7 @@ namespace pcpp
 
 	uint8_t PfRingDevice::getTotalNumOfRxChannels() const
 	{
-		if (m_NumOfOpenedRxChannels > 0)
+		if (m_PfRingDescriptors.size() > 0)
 		{
 			uint8_t res = pfring_get_num_rx_channels(m_PfRingDescriptors[0]);
 			return res;
@@ -344,9 +374,9 @@ namespace pcpp
 			return false;
 		}
 
-		for (int i = 0; i < m_NumOfOpenedRxChannels; i++)
+		for (pfring* rxChannel : m_PfRingDescriptors)
 		{
-			int res = pfring_set_bpf_filter(m_PfRingDescriptors[i], (char*)filterAsString.c_str());
+			int res = pfring_set_bpf_filter(rxChannel, (char*)filterAsString.c_str());
 			if (res < 0)
 			{
 				if (res == PF_RING_ERROR_NOT_SUPPORTED)
@@ -369,9 +399,9 @@ namespace pcpp
 		if (!m_IsFilterCurrentlySet)
 			return true;
 
-		for (int i = 0; i < m_NumOfOpenedRxChannels; i++)
+		for (pfring* rxChannel : m_PfRingDescriptors)
 		{
-			int res = pfring_remove_bpf_filter(m_PfRingDescriptors[i]);
+			int res = pfring_remove_bpf_filter(rxChannel);
 			if (res < 0)
 			{
 				PCPP_LOG_ERROR("Couldn't remove filter");
@@ -392,11 +422,9 @@ namespace pcpp
 
 	void PfRingDevice::close()
 	{
-		for (int i = 0; i < m_NumOfOpenedRxChannels; i++)
-			pfring_close(m_PfRingDescriptors[i]);
+		closeAllRxChannels();
 		m_DeviceOpened = false;
 		clearCoreConfiguration();
-		m_NumOfOpenedRxChannels = 0;
 		m_IsFilterCurrentlySet = false;
 		PCPP_LOG_DEBUG("Device [" << m_DeviceName << "] closed");
 	}
@@ -440,18 +468,16 @@ namespace pcpp
 		if (!initCoreConfigurationByCoreMask(coreMask))
 			return false;
 
-		if (m_NumOfOpenedRxChannels != getCoresInUseCount())
+		if (m_PfRingDescriptors.size() != getCoresInUseCount())
 		{
 			PCPP_LOG_ERROR("Cannot use a different number of channels and cores. Opened "
-			               << m_NumOfOpenedRxChannels << " channels but set " << getCoresInUseCount()
+			               << m_PfRingDescriptors.size() << " channels but set " << getCoresInUseCount()
 			               << " cores in core mask");
 			clearCoreConfiguration();
 			return false;
 		}
 
-		std::mutex mutex;
-		std::condition_variable cond;
-		int startThread = 0;
+		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
 		m_StopThread = false;
 		int rxChannel = 0;
@@ -468,25 +494,36 @@ namespace pcpp
 			// create a new thread
 			m_CoreConfiguration[coreId].Channel = m_PfRingDescriptors[rxChannel++];
 			m_CoreConfiguration[coreId].RxThread =
-			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
+			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
 
-			// set affinity to cores
-			cpu_set_t cpuset;
-			CPU_ZERO(&cpuset);
-			CPU_SET(coreId, &cpuset);
-			int err = pthread_setaffinity_np(m_CoreConfiguration[coreId].RxThread.native_handle(), sizeof(cpu_set_t),
-			                                 &cpuset);
-			if (err != 0)
+			try
 			{
-				PCPP_LOG_ERROR("Error while binding thread to core " << coreId << ": errno=" << err);
-				startThread = 1;
+				setThreadCoreAffinity(m_CoreConfiguration[coreId].RxThread, coreId);
+			}
+			catch (const std::exception& e)
+			{
+				// If an exception occurred, stop all threads
+				m_StopThread = true;
+
+				// Wake up the threads so they can exit
+				startupBlock->notifyStartup();
+
+				// Wait for all threads to exit
+				for (int coreId2 = coreId; coreId2 >= 0; coreId2--)
+				{
+					if (!m_CoreConfiguration[coreId2].IsInUse)
+						continue;
+					m_CoreConfiguration[coreId2].RxThread.join();
+				}
+
 				clearCoreConfiguration();
+				PCPP_LOG_ERROR(e.what());
 				return false;
 			}
 		}
 
-		startThread = 2;
-		cond.notify_all();
+		// Initialization complete. Start the capture threads.
+		startupBlock->notifyStartup();
 
 		return true;
 	}
@@ -500,7 +537,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (m_NumOfOpenedRxChannels != 1)
+		if (m_PfRingDescriptors.size() != 1)
 		{
 			PCPP_LOG_ERROR("Cannot start capturing on a single thread when more than 1 RX channel is opened");
 			return false;
@@ -517,28 +554,35 @@ namespace pcpp
 
 		m_ReentrantMode = false;
 
-		std::mutex mutex;
-		std::condition_variable cond;
-		int startThread = 0;
+		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
-		cpu_set_t cpuset;
-		CPU_ZERO(&cpuset);
-		CPU_SET(0, &cpuset);
 		m_CoreConfiguration[0].IsInUse = true;
 		m_CoreConfiguration[0].Channel = m_PfRingDescriptors[0];
-		m_CoreConfiguration[0].RxThread =
-		    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
+		m_CoreConfiguration[0].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
 		m_CoreConfiguration[0].IsAffinitySet = false;
-		int err = pthread_setaffinity_np(m_CoreConfiguration[0].RxThread.native_handle(), sizeof(cpu_set_t), &cpuset);
-		if (err != 0)
+
+		try
 		{
-			startThread = 1;
-			PCPP_LOG_ERROR("Error while binding thread to core 0: errno=" << err);
+			setThreadCoreAffinity(m_CoreConfiguration[0].RxThread, 0);
+		}
+		catch (const std::exception& e)
+		{
+			// If an exception occurred, stop the thread
+			m_StopThread = true;
+
+			// Wake up the threads so they can exit
+			startupBlock->notifyStartup();
+
+			// Wait for the thread to exit
+			m_CoreConfiguration[0].RxThread.join();
+
 			clearCoreConfiguration();
+			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
-		startThread = 2;
-		cond.notify_all();
+
+		// Initialization complete. Start the capture thread.
+		startupBlock->notifyStartup();
 
 		PCPP_LOG_DEBUG("Capturing started for device [" << m_DeviceName << "]");
 		return true;
@@ -548,6 +592,7 @@ namespace pcpp
 	{
 		PCPP_LOG_DEBUG("Trying to stop capturing on device [" << m_DeviceName << "]");
 		m_StopThread = true;
+
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsInUse)
@@ -559,18 +604,24 @@ namespace pcpp
 		PCPP_LOG_DEBUG("All capturing threads stopped");
 	}
 
-	void PfRingDevice::captureThreadMain(std::condition_variable* startCond, std::mutex* startMutex,
-	                                     const int* startState)
+	void PfRingDevice::captureThreadMain(std::shared_ptr<StartupBlock> startupBlock)
 	{
-		while (*startState == 0)
+		if (startupBlock == nullptr)
 		{
-			std::unique_lock<std::mutex> lock(*startMutex);
-			startCond->wait_for(lock, std::chrono::milliseconds(100));
-		}
-		if (*startState == 1)
-		{
+			PCPP_LOG_ERROR("Capture thread started without a startup block. Exiting capture thread");
 			return;
 		}
+
+		startupBlock->waitForStartup();
+
+		if (m_StopThread)
+		{
+			PCPP_LOG_DEBUG("Capture thread stopped during initialization.");
+			return;
+		}
+
+		// Startup is complete. The block is no longer needed.
+		startupBlock = nullptr;
 
 		int coreId = this->getCurrentCoreId().Id;
 		pfring* ring = nullptr;
@@ -585,23 +636,27 @@ namespace pcpp
 			return;
 		}
 
+		// Zero copy is not supported in reentrant mode
+		const bool zeroCopySupported = !m_ReentrantMode;
+
+		// If the `bufferPtr` is set to nullptr, PF_RING will use zero copy mode and sets `bufferPtr` to point to the
+		// packet data.
+		uint8_t* bufferPtr = nullptr;
+		uint32_t bufferLen = 0;
+		std::vector<uint8_t> recvBuffer;
+
+		// If zero copy is not supported, allocate a buffer for the packet data.
+		if (!zeroCopySupported)
+		{
+			recvBuffer.resize(PCPP_MAX_PACKET_SIZE);
+			bufferPtr = recvBuffer.data();
+			bufferLen = recvBuffer.size();
+		}
+
 		while (!this->m_StopThread)
 		{
-			// if buffer is nullptr PF_RING avoids copy of the data
-			uint8_t* buffer = nullptr;
-			uint32_t bufferLen = 0;
-
-			// in multi-threaded mode flag PF_RING_REENTRANT is set, and this flag doesn't work with zero copy
-			// so I need to allocate a buffer and set buffer to point to it
-			if (this->m_ReentrantMode)
-			{
-				uint8_t tempBuffer[PCPP_MAX_PACKET_SIZE];
-				buffer = tempBuffer;
-				bufferLen = PCPP_MAX_PACKET_SIZE;
-			}
-
 			struct pfring_pkthdr pktHdr;
-			int recvRes = pfring_recv(ring, &buffer, bufferLen, &pktHdr, 0);
+			int recvRes = pfring_recv(ring, &bufferPtr, bufferLen, &pktHdr, 0);
 			if (recvRes > 0)
 			{
 				// if caplen < len it means we don't have the whole packet. Treat this case as packet drop
@@ -612,7 +667,7 @@ namespace pcpp
 				//				continue;
 				//			}
 
-				RawPacket rawPacket(buffer, pktHdr.caplen, pktHdr.ts, false);
+				RawPacket rawPacket(bufferPtr, pktHdr.caplen, pktHdr.ts, false);
 				this->m_OnPacketsArriveCallback(&rawPacket, 1, coreId, this, this->m_OnPacketsArriveUserCookie);
 			}
 			else if (recvRes < 0)
@@ -676,18 +731,14 @@ namespace pcpp
 
 	void PfRingDevice::clearCoreConfiguration()
 	{
-		for (int i = 0; i < MAX_NUM_OF_CORES; i++)
-			m_CoreConfiguration[i].clear();
+		for (auto& config : m_CoreConfiguration)
+			config.clear();
 	}
 
-	int PfRingDevice::getCoresInUseCount() const
+	size_t PfRingDevice::getCoresInUseCount() const
 	{
-		int res = 0;
-		for (int i = 0; i < MAX_NUM_OF_CORES; i++)
-			if (m_CoreConfiguration[i].IsInUse)
-				res++;
-
-		return res;
+		return std::count_if(m_CoreConfiguration.begin(), m_CoreConfiguration.end(),
+		                     [](const CoreConfiguration& config) { return config.IsInUse; });
 	}
 
 	void PfRingDevice::setPfRingDeviceAttributes()
@@ -697,7 +748,7 @@ namespace pcpp
 
 		pfring* ring = nullptr;
 		bool closeRing = false;
-		if (m_NumOfOpenedRxChannels > 0)
+		if (m_PfRingDescriptors.size() > 0)
 			ring = m_PfRingDescriptors[0];
 		else
 		{
@@ -758,8 +809,7 @@ namespace pcpp
 
 		uint8_t flushTxAsUint = (flushTxQueues ? 1 : 0);
 
-#define MAX_TRIES 5
-
+		constexpr int MAX_TRIES = 5;
 		int tries = 0;
 		int res = 0;
 		while (tries < MAX_TRIES)
@@ -841,8 +891,12 @@ namespace pcpp
 				packetsSent++;
 		}
 
-		// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
-		pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		// In case of failure due to closed device, there are not handles to flush.
+		if (m_PfRingDescriptors.size() > 0)
+		{
+			// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+			pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		}
 
 		PCPP_LOG_DEBUG(packetsSent << " out of " << arrLength << " raw packets were sent successfully");
 
@@ -861,8 +915,12 @@ namespace pcpp
 				packetsSent++;
 		}
 
-		// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
-		pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		// In case of failure due to closed device, there are not handles to flush.
+		if (m_PfRingDescriptors.size() > 0)
+		{
+			// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+			pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		}
 
 		PCPP_LOG_DEBUG(packetsSent << " out of " << arrLength << " packets were sent successfully");
 
@@ -880,8 +938,12 @@ namespace pcpp
 				packetsSent++;
 		}
 
-		// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
-		pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		// In case of failure due to closed device, there are not handles to flush.
+		if (m_PfRingDescriptors.size() > 0)
+		{
+			// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+			pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+		}
 
 		PCPP_LOG_DEBUG(packetsSent << " out of " << rawPackets.size() << " raw packets were sent successfully");
 
@@ -896,6 +958,19 @@ namespace pcpp
 		Channel = nullptr;
 		IsInUse = false;
 		IsAffinitySet = true;
+	}
+
+	void PfRingDevice::StartupBlock::notifyStartup()
+	{
+		std::lock_guard<std::mutex> lock(m_Mutex);
+		m_Ready = true;
+		m_Cv.notify_all();
+	}
+
+	void PfRingDevice::StartupBlock::waitForStartup()
+	{
+		std::unique_lock<std::mutex> lock(m_Mutex);
+		m_Cv.wait(lock, [&] { return m_Ready; });
 	}
 
 }  // namespace pcpp

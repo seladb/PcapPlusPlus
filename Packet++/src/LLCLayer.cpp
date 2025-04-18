@@ -4,6 +4,8 @@
 #include "pcapplusplus/PayloadLayer.h"
 #include "pcapplusplus/StpLayer.h"
 
+#include <cstring>
+
 namespace pcpp
 {
 

@@ -11,9 +11,9 @@
 namespace pcpp
 {
 
-#define VRRP_PRIO_STOP 0    /* priority to stop  */
-#define VRRP_PRIO_DEF 100   /* default priority */
-#define VRRP_PRIO_OWNER 255 /* priority of the ip owner */
+#define VRRP_PRIO_STOP 0     ///< priority to stop
+#define VRRP_PRIO_DEF 100    ///< default priority
+#define VRRP_PRIO_OWNER 255  ///< priority of the ip owner
 
 #define VRRP_PACKET_FIX_LEN 8
 #define VRRP_PACKET_MAX_IP_ADDRESS_NUM 255
@@ -21,9 +21,7 @@ namespace pcpp
 #define VRRP_V2_VERSION 2
 #define VRRP_V3_VERSION 3
 
-	/*************
-	 * VrrpLayer
-	 *************/
+	// -------- Class VrrpLayer -----------------
 
 	VrrpLayer::VrrpLayer(ProtocolType subProtocol, uint8_t virtualRouterId, uint8_t priority)
 	{
@@ -383,9 +381,7 @@ namespace pcpp
 		m_AddressType = addressType;
 	}
 
-	/*************
-	 * Vrrpv2Layer
-	 *************/
+	// -------- Class Vrrpv2Layer -----------------
 
 	VrrpV2Layer::VrrpV2Layer(uint8_t virtualRouterId, uint8_t priority, uint8_t advInt, uint8_t authType)
 	    : VrrpLayer(VRRPv2, virtualRouterId, priority)
@@ -451,9 +447,7 @@ namespace pcpp
 		return checksum;
 	}
 
-	/*************
-	 * Vrrpv3Layer
-	 *************/
+	// -------- Class Vrrpv3Layer -----------------
 
 	VrrpV3Layer::VrrpV3Layer(IPAddress::AddressType addressType, uint8_t virtualRouterId, uint8_t priority,
 	                         uint16_t maxAdvInt)
@@ -485,8 +479,7 @@ namespace pcpp
 		auto* ipLayer = m_Packet->getLayerOfType<pcpp::IPLayer>();
 		if (ipLayer == nullptr)
 		{
-			PCPP_LOG_ERROR("Calculate checksum failed, for can not get IPLayer"
-			               << "");
+			PCPP_LOG_ERROR("Calculate checksum failed, for can not get IPLayer" << "");
 			return 0;
 		}
 

@@ -1,4 +1,4 @@
-#define LOG_MODULE NetworkUtils
+#define LOG_MODULE PcapLogModuleNetworkUtils
 
 #include <condition_variable>
 #include <mutex>
@@ -56,7 +56,7 @@ namespace pcpp
 			return;
 
 		// verify it's the right ARP response
-		if (arpReplyLayer->getArpHeader()->hardwareType != htobe16(1) /* Ethernet */
+		if (arpReplyLayer->getArpHeader()->hardwareType != htobe16(1)  // Ethernet
 		    || arpReplyLayer->getArpHeader()->protocolType != htobe16(PCPP_ETHERTYPE_IP))
 			return;
 
@@ -105,10 +105,8 @@ namespace pcpp
 
 		Packet arpRequest(100);
 
-		MacAddress destMac(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-		EthLayer ethLayer(sourceMac, destMac);
-
-		ArpLayer arpLayer(ARP_REQUEST, sourceMac, destMac, sourceIP, ipAddr);
+		EthLayer ethLayer(sourceMac, MacAddress::Broadcast);
+		ArpLayer arpLayer(ArpRequest(sourceMac, sourceIP, ipAddr));
 
 		if (!arpRequest.addLayer(&ethLayer))
 		{
@@ -214,7 +212,7 @@ namespace pcpp
 			return;
 
 		// verify it's the right DNS response
-		if (dnsResponseLayer->getDnsHeader()->queryOrResponse != 1 /* DNS response */
+		if (dnsResponseLayer->getDnsHeader()->queryOrResponse != 1  // DNS response
 		    || dnsResponseLayer->getDnsHeader()->numberOfAnswers < htobe16(1) ||
 		    dnsResponseLayer->getDnsHeader()->transactionID != htobe16(data->transactionID))
 		{

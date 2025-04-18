@@ -2,6 +2,7 @@
 
 #include "pcapplusplus/S7CommLayer.h"
 #include <iostream>
+#include <cstring>
 #include <sstream>
 
 namespace pcpp
