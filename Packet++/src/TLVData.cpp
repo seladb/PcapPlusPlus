@@ -1,5 +1,5 @@
-#include "TLVData.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/TLVData.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include "EndianPortable.h"
 
 namespace pcpp

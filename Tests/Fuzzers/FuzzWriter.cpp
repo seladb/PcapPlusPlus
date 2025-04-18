@@ -1,8 +1,8 @@
 #include <functional>
-#include <Packet.h>
-#include <PcapFileDevice.h>
+#include <pcapplusplus/Logger.h>
+#include <pcapplusplus/Packet.h>
+#include <pcapplusplus/PcapFileDevice.h>
 
-#include "Logger.h"
 #include "DumpToFile.h"
 
 static std::string tmpName;

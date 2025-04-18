@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleRadiusLayer
-#include "RadiusLayer.h"
-#include "Logger.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/RadiusLayer.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include <sstream>
 #include "EndianPortable.h"
 

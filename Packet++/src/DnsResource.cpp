@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleDnsLayer
 
-#include "DnsResource.h"
-#include "Logger.h"
+#include "pcapplusplus/DnsResource.h"
+#include "pcapplusplus/Logger.h"
 #include <sstream>
 #include "EndianPortable.h"
 

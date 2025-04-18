@@ -2,7 +2,7 @@
 
 // clang-format off
 #ifdef PCPP_TESTS_DEBUG
-#include "Packet.h"
+#include "pcapplusplus/Packet.h"
 #endif
 // clang-format on
 #include <cstdint>

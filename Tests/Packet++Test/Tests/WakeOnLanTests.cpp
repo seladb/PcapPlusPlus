@@ -1,10 +1,10 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "GeneralUtils.h"
-#include "SystemUtils.h"
-#include "Logger.h"
-#include "Packet.h"
-#include "WakeOnLanLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/WakeOnLanLayer.h"
 
 PTF_TEST_CASE(WakeOnLanParsingTests)
 {

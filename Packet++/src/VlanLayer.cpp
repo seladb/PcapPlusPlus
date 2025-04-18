@@ -1,13 +1,13 @@
 #define LOG_MODULE PacketLogModuleVlanLayer
 
-#include "VlanLayer.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
-#include "PayloadLayer.h"
-#include "ArpLayer.h"
-#include "PPPoELayer.h"
-#include "MplsLayer.h"
-#include "LLCLayer.h"
+#include "pcapplusplus/VlanLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IPv6Layer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/ArpLayer.h"
+#include "pcapplusplus/PPPoELayer.h"
+#include "pcapplusplus/MplsLayer.h"
+#include "pcapplusplus/LLCLayer.h"
 #include <sstream>
 #include "EndianPortable.h"
 

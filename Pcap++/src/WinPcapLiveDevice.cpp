@@ -1,9 +1,9 @@
 #define LOG_MODULE PcapLogModuleWinPcapLiveDevice
 
-#include "WinPcapLiveDevice.h"
-#include "Logger.h"
-#include "TimespecTimeval.h"
-#include "pcap.h"
+#include "pcapplusplus/WinPcapLiveDevice.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/TimespecTimeval.h"
+#include <pcap.h>
 
 namespace pcpp
 {

@@ -6,16 +6,16 @@
 #include <cmath>
 #include <tuple>
 #include "EndianPortable.h"
-#include "Logger.h"
-#include "GeneralUtils.h"
-#include "IpUtils.h"
-#include "IpAddress.h"
-#include "IpAddressUtils.h"
-#include "MacAddress.h"
-#include "LRUList.h"
-#include "NetworkUtils.h"
-#include "PcapLiveDeviceList.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/IpUtils.h"
+#include "pcapplusplus/IpAddress.h"
+#include "pcapplusplus/IpAddressUtils.h"
+#include "pcapplusplus/MacAddress.h"
+#include "pcapplusplus/LRUList.h"
+#include "pcapplusplus/NetworkUtils.h"
+#include "pcapplusplus/PcapLiveDeviceList.h"
+#include "pcapplusplus/SystemUtils.h"
 
 extern PcapTestArgs PcapTestGlobalArgs;
 

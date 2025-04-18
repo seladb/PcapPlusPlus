@@ -1,7 +1,12 @@
 #pragma once
 
-#include <Packet.h>
-#include <PfRingDeviceList.h>
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/PfRingDeviceList.h"
+
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <iostream>
 #include <sstream>
 
 /**

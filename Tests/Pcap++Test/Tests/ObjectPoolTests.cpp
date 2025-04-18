@@ -1,7 +1,7 @@
 
 #include "../TestDefinition.h"
 
-#include "ObjectPool.h"
+#include "pcapplusplus/ObjectPool.h"
 
 PTF_TEST_CASE(TestObjectPool)
 {

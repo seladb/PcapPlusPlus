@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Splitters.h"
-#include "PcapDevice.h"
-#include "PcapFilter.h"
+#include "pcapplusplus/PcapDevice.h"
+#include "pcapplusplus/PcapFilter.h"
 
 /**
  * Splits a pcap file by number of packets

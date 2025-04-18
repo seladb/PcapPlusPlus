@@ -6,5 +6,5 @@ Name: @PROJECT_NAME@
 Description: @CMAKE_PROJECT_DESCRIPTION@
 URL: @CMAKE_PROJECT_HOMEPAGE_URL@
 Version: @PCAPPP_VERSION@
-Cflags: -I${includedir}/pcapplusplus
+Cflags: -I${includedir}
 Libs: @PCAPPP_PKGCONFIG_EXTRA_LIBS@ -L${libdir} -lPcap++ -lPacket++ -lCommon++ -lpcap -lpthread

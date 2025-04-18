@@ -1,9 +1,9 @@
 #define LOG_MODULE PacketLogModuleBgpLayer
 
-#include "Logger.h"
-#include "BgpLayer.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/BgpLayer.h"
 #include "EndianPortable.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/GeneralUtils.h"
 
 namespace pcpp
 {

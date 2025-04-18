@@ -4,11 +4,11 @@
 
 #include <cstdio>
 #include <array>
-#include "PfRingDeviceList.h"
-#include "SystemUtils.h"
-#include "DeviceUtils.h"
-#include "Logger.h"
-#include "pcap.h"
+#include "pcapplusplus/PfRingDeviceList.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/DeviceUtils.h"
+#include "pcapplusplus/Logger.h"
+#include <pcap.h>
 #include "pfring.h"
 
 namespace pcpp

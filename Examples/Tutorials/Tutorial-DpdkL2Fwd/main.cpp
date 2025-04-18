@@ -1,9 +1,10 @@
 #include <vector>
 #include <unistd.h>
 #include <sstream>
-#include "SystemUtils.h"
-#include "DpdkDeviceList.h"
-#include "TablePrinter.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/DpdkDeviceList.h"
+#include "pcapplusplus/TablePrinter.h"
+
 #include "WorkerThread.h"
 
 #define MBUF_POOL_SIZE 16 * 1024 - 1

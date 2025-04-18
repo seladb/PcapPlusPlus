@@ -1,12 +1,12 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "MacAddress.h"
-#include "Packet.h"
-#include "NflogLayer.h"
-#include "IPv4Layer.h"
-#include "SystemUtils.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/MacAddress.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/NflogLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/GeneralUtils.h"
 
 PTF_TEST_CASE(NflogPacketParsingTest)
 {

@@ -1,10 +1,10 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "GeneralUtils.h"
-#include "SystemUtils.h"
-#include "Packet.h"
-#include "StpLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/StpLayer.h"
 
 PTF_TEST_CASE(StpConfigurationParsingTests)
 {

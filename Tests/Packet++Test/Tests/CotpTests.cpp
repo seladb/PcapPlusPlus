@@ -1,8 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "CotpLayer.h"
-#include "Packet.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/CotpLayer.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/SystemUtils.h"
 
 using namespace std;
 

@@ -1,9 +1,9 @@
 #define LOG_MODULE PcapLogModuleXdpDevice
 
-#include "XdpDevice.h"
-#include "GeneralUtils.h"
-#include "Logger.h"
-#include "Packet.h"
+#include "pcapplusplus/XdpDevice.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/Packet.h"
 #include <bpf/libbpf.h>
 #include <bpf/xsk.h>
 #include <linux/if_link.h>

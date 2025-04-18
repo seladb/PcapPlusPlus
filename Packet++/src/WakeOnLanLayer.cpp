@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleWakeOnLanLayer
 
-#include "WakeOnLanLayer.h"
-#include "GeneralUtils.h"
-#include "Logger.h"
+#include "pcapplusplus/WakeOnLanLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/Logger.h"
 
 namespace pcpp
 {
