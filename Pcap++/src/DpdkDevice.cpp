@@ -105,6 +105,18 @@ namespace pcpp
 		0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A,
 	};
 
+	static bool getDeviceInfo(uint16_t devId, rte_eth_dev_info& devInfo)
+	{
+		auto ret = rte_eth_dev_info_get(devId, &devInfo);
+		if (ret < 0)
+		{
+			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
+			return false;
+		}
+
+		return true;
+	}
+
 	DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mBufDataSize)
 	    : m_Id(port), m_MacAddress(MacAddress::Zero),
 	      m_MBufDataSize(mBufDataSize < 1 ? RTE_MBUF_DEFAULT_BUF_SIZE : mBufDataSize)
@@ -348,10 +360,8 @@ namespace pcpp
 	bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesToInit)
 	{
 		rte_eth_dev_info devInfo;
-		auto ret = rte_eth_dev_info_get(m_Id, &devInfo);
-		if (ret < 0)
+		if (!getDeviceInfo(m_Id, devInfo))
 		{
-			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return false;
 		}
 
@@ -508,10 +518,8 @@ namespace pcpp
 	void DpdkDevice::setDeviceInfo()
 	{
 		rte_eth_dev_info portInfo;
-		auto ret = rte_eth_dev_info_get(m_Id, &portInfo);
-		if (ret < 0)
+		if (!getDeviceInfo(m_Id, portInfo))
 		{
-			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return;
 		}
 
@@ -1300,10 +1308,8 @@ namespace pcpp
 		if (rssHF == (uint64_t)-1)
 		{
 			rte_eth_dev_info devInfo;
-			auto ret = rte_eth_dev_info_get(m_Id, &devInfo);
-			if (ret < 0)
+			if (!getDeviceInfo(m_Id, devInfo))
 			{
-				PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 				return 0;
 			}
 
@@ -1452,10 +1458,8 @@ namespace pcpp
 		uint64_t dpdkRssHF = convertRssHfToDpdkRssHf(rssHFMask);
 
 		rte_eth_dev_info devInfo;
-		auto ret = rte_eth_dev_info_get(m_Id, &devInfo);
-		if (ret < 0)
+		if (!getDeviceInfo(m_Id, devInfo))
 		{
-			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return false;
 		}
 
@@ -1465,10 +1469,8 @@ namespace pcpp
 	uint64_t DpdkDevice::getSupportedRssHashFunctions() const
 	{
 		rte_eth_dev_info devInfo;
-		auto ret = rte_eth_dev_info_get(m_Id, &devInfo);
-		if (ret < 0)
+		if (!getDeviceInfo(m_Id, devInfo))
 		{
-			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return 0;
 		}
 
