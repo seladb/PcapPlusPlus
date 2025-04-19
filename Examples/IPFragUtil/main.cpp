@@ -16,7 +16,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -62,29 +62,20 @@ struct FragStats
 void printUsage()
 {
 	std::cout
-	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
-	    << pcpp::AppName::get() << " input_file -s frag_size -o output_file [-d ip_ids] [-f bpf_filter] [-a] [-h] [-v]"
-	    << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    input_file      : Input pcap/pcapng file" << std::endl
-	    << "    -s frag_size    : Size of each fragment" << std::endl
-	    << "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
-	    << std::endl
-	    << "    -d ip_ids       : Fragment only packets that match this comma-separated list of IP IDs in decimal "
-	       "format"
-	    << std::endl
-	    << "    -f bpf_filter   : Fragment only packets that match bpf_filter. Filter should be provided in Berkeley "
-	       "Packet Filter (BPF)"
-	    << std::endl
-	    << "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
-	    << "    -a              : Copy all packets (those who were fragmented and those who weren't) to output file"
-	    << std::endl
-	    << "    -v              : Displays the current version and exits" << std::endl
-	    << "    -h              : Displays this help message and exits" << std::endl
+	    << "\nUsage:"
+	       "\n------\n"
+	    << pcpp::AppName::get()
+	    << " input_file -s frag_size -o output_file [-d ip_ids] [-f bpf_filter] [-a] [-h] [-v]\n"
+	       "\nOptions:\n"
+	       "\n    input_file      : Input pcap/pcapng file"
+	       "\n    -s frag_size    : Size of each fragment"
+	       "\n    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
+	       "\n    -d ip_ids       : Fragment only packets that match this comma-separated list of IP IDs in decimal format"
+	       "\n    -f bpf_filter   : Fragment only packets that match bpf_filter. Filter should be provided in Berkeley Packet Filter (BPF)"
+	       "\n                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'"
+	       "\n    -a              : Copy all packets (those who were fragmented and those who weren't) to output file"
+	       "\n    -v              : Displays the current version and exits"
+	       "\n    -h              : Displays this help message and exits"
 	    << std::endl;
 }
 
@@ -351,17 +342,17 @@ void printStats(const FragStats& stats, bool filterByIpID, bool filterByBpf)
 	std::ostringstream stream;
 	stream << "Summary:\n";
 	stream << "========\n";
-	stream << "Total packets read:                      " << stats.totalPacketsRead << std::endl;
-	stream << "IPv4 packets read:                       " << stats.ipv4Packets << std::endl;
-	stream << "IPv6 packets read:                       " << stats.ipv6Packets << std::endl;
+	stream << "Total packets read:                      " << stats.totalPacketsRead << '\n';
+	stream << "IPv4 packets read:                       " << stats.ipv4Packets << '\n';
+	stream << "IPv6 packets read:                       " << stats.ipv6Packets << '\n';
 	if (filterByIpID)
-		stream << "IPv4 packets match IP ID list:           " << stats.ipv4PacketsMatchIpIDs << std::endl;
+		stream << "IPv4 packets match IP ID list:           " << stats.ipv4PacketsMatchIpIDs << '\n';
 	if (filterByBpf)
-		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << std::endl;
-	stream << "IP packets smaller than fragment size:   " << stats.ipPacketsUnderSize << std::endl;
-	stream << "IPv4 packets fragmented:                 " << stats.ipv4PacketsFragmented << std::endl;
-	stream << "IPv6 packets fragmented:                 " << stats.ipv6PacketsFragmented << std::endl;
-	stream << "Total packets written to output file:    " << stats.totalPacketsWritten << std::endl;
+		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << '\n';
+	stream << "IP packets smaller than fragment size:   " << stats.ipPacketsUnderSize << '\n';
+	stream << "IPv4 packets fragmented:                 " << stats.ipv4PacketsFragmented << '\n';
+	stream << "IPv6 packets fragmented:                 " << stats.ipv6PacketsFragmented << '\n';
+	stream << "Total packets written to output file:    " << stats.totalPacketsWritten << '\n';
 
 	std::cout << stream.str();
 }
