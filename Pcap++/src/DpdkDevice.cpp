@@ -348,8 +348,10 @@ namespace pcpp
 	bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesToInit)
 	{
 		rte_eth_dev_info devInfo;
-		if (rte_eth_dev_info_get(m_Id, &devInfo) < 0)
+		auto ret = rte_eth_dev_info_get(m_Id, &devInfo);
+		if (ret < 0)
 		{
+			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return false;
 		}
 
@@ -506,8 +508,10 @@ namespace pcpp
 	void DpdkDevice::setDeviceInfo()
 	{
 		rte_eth_dev_info portInfo;
-		if (rte_eth_dev_info_get(m_Id, &portInfo) < 0)
+		auto ret = rte_eth_dev_info_get(m_Id, &portInfo);
+		if (ret < 0)
 		{
+			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return;
 		}
 
@@ -592,8 +596,10 @@ namespace pcpp
 	bool DpdkDevice::getLinkStatus(LinkStatus& linkStatus) const
 	{
 		struct rte_eth_link link;
-		if (rte_eth_link_get((uint8_t)m_Id, &link) < 0)
+		auto ret = rte_eth_link_get((uint8_t)m_Id, &link);
+		if (ret < 0)
 		{
+			PCPP_LOG_ERROR("Couldn't get link info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return false;
 		}
 
@@ -1294,8 +1300,10 @@ namespace pcpp
 		if (rssHF == (uint64_t)-1)
 		{
 			rte_eth_dev_info devInfo;
-			if (rte_eth_dev_info_get(m_Id, &devInfo) < 0)
+			auto ret = rte_eth_dev_info_get(m_Id, &devInfo);
+			if (ret < 0)
 			{
+				PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 				return 0;
 			}
 
@@ -1444,8 +1452,10 @@ namespace pcpp
 		uint64_t dpdkRssHF = convertRssHfToDpdkRssHf(rssHFMask);
 
 		rte_eth_dev_info devInfo;
-		if (rte_eth_dev_info_get(m_Id, &devInfo) < 0)
+		auto ret = rte_eth_dev_info_get(m_Id, &devInfo);
+		if (ret < 0)
 		{
+			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return false;
 		}
 
@@ -1455,8 +1465,10 @@ namespace pcpp
 	uint64_t DpdkDevice::getSupportedRssHashFunctions() const
 	{
 		rte_eth_dev_info devInfo;
-		if (rte_eth_dev_info_get(m_Id, &devInfo) < 0)
+		auto ret = rte_eth_dev_info_get(m_Id, &devInfo);
+		if (ret < 0)
 		{
+			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
 			return 0;
 		}
 
