@@ -12,7 +12,6 @@ add_library(
   src/DnsResource.cpp
   src/DnsResourceData.cpp
   src/DoIpLayer.cpp
-  src/DoIpLayerData.cpp
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
@@ -85,7 +84,6 @@ set(
   header/DnsResourceData.h
   header/DnsResource.h
   header/DoIpLayer.h
-  header/DoIpLayerData.h
   header/EthDot3Layer.h
   header/EthLayer.h
   header/FtpLayer.h
