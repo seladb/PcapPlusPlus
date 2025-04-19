@@ -124,6 +124,21 @@ option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
 option(PCAPPP_BUILD_REPRODUCIBLE "Build a reproducible version" OFF)
 
+option(
+  PCAPPP_USE_DEPRECATED_INCLUDE
+  "Enables old style include paths that directly add pcapplusplus folder as an include root."
+  ON
+)
+if(PCAPPP_USE_DEPRECATED_INCLUDE)
+  message(
+    DEPRECATION
+    "PcapPlusPlus: Old style include directories are enabled. "
+    "This functionality is deprecated and will be removed in the future. "
+    "New include format should follow: \"#include <pcapplusplus/xxx.h>\" "
+    "This behaviour can be disabled by setting \"PCAPPP_USE_DEPRECATED_INCLUDE\" to OFF"
+  )
+endif()
+
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")

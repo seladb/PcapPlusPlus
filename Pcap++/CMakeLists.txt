@@ -91,7 +91,8 @@ target_include_directories(
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
     $<INSTALL_INTERFACE:include>
-    $<INSTALL_INTERFACE:include/pcapplusplus>
+    $<BUILD_INTERFACE:$<$<BOOL:PCAPPP_USE_OLD_INCLUDE>:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>>
+    $<INSTALL_INTERFACE:$<$<BOOL:PCAPPP_USE_OLD_INCLUDE>:include/pcapplusplus>>
   # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
   PRIVATE
     $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
