@@ -139,8 +139,12 @@ option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
 
-# Set C++11
-set(CMAKE_CXX_STANDARD 11)
+# Set C++11 if not defined
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
 # Set Position Independent Code for static libraries
@@ -170,30 +174,16 @@ if(WIN32)
   endif()
 endif()
 
-# Enable the option if it's available
-option(PCAPPP_ENABLE_PCAP_IMMEDIATE_MODE "Enable PCAP immediate Mode (supported on libpcap>=1.5)" OFF)
-
-# Check in case user force it but it's not available
-if(PCAPPP_ENABLE_PCAP_IMMEDIATE_MODE)
-  if(NOT HAVE_PCAP_IMMEDIATE_MODE)
-    message(FATAL_ERROR "PCAP library doesn't have Immediate Mode support!")
-  endif()
+if(HAVE_PCAP_IMMEDIATE_MODE)
   add_definitions(-DHAS_PCAP_IMMEDIATE_MODE)
 endif()
 
-# Enable the option if it's available
-option(
-  PCAPPP_ENABLE_PCAP_SET_DIRECTION
-  "Enable set direction for capturing incoming or outgoing packets (supported on libpcap>=0.9.1)"
-  OFF
-)
+if(HAVE_PCAP_TIMESTAMP_TYPES)
+  add_definitions(-DHAS_TIMESTAMP_TYPES_ENABLED)
+endif()
 
-# Check in case user force it but it's not available
-if(PCAPPP_ENABLE_PCAP_SET_DIRECTION)
-  if(NOT HAVE_PCAP_DIRECTION)
-    message(FATAL_ERROR "PCAP library doesn't have Direction support!")
-  endif()
-  add_definitions(-DHAS_SET_DIRECTION_ENABLED)
+if(HAVE_PCAP_TIMESTAMP_PRECISION)
+  add_definitions(-DHAS_TIMESTAMP_PRECISION_ENABLED)
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

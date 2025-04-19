@@ -21,6 +21,7 @@ add_library(
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
   src/IgmpLayer.cpp
+  src/IPLayer.cpp
   src/IPReassembly.cpp
   src/IPSecLayer.cpp
   src/IPv4Layer.cpp
@@ -145,6 +146,8 @@ set(
 
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+target_compile_features(Packet++ PUBLIC cxx_std_11)
 
 target_include_directories(
   Packet++
