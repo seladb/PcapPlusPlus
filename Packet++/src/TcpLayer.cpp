@@ -11,6 +11,7 @@
 #include "BgpLayer.h"
 #include "SSHLayer.h"
 #include "DnsLayer.h"
+#include "DoIpLayer.h"
 #include "TelnetLayer.h"
 #include "TpktLayer.h"
 #include "FtpLayer.h"
@@ -366,6 +367,9 @@ namespace pcpp
 		const uint16_t portSrc = getSrcPort();
 		const char* payloadChar = reinterpret_cast<const char*>(payload);
 
+		if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
+		    (DoIpLayer::isDataValid(payload, payloadLen)))
+			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet);
 		if (HttpMessage::isHttpPort(portDst) &&
 		    HttpRequestFirstLine::parseMethod(payloadChar, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
 		{
