@@ -633,7 +633,7 @@ namespace pcpp
 	{
 		std::vector<uint8_t> result;
 
- 		result.resize(m_ValueLength);
+		result.resize(m_ValueLength);
 
 		switch (m_ValueLength)
 		{
