@@ -543,7 +543,7 @@ namespace pcpp
 		void setProtocolVersion(DoIpProtocolVersion version);
 
 		/// Additional setter for raw protocol version (for testing/fuzzing/debugging)
-		/// @param[in] version the raw version of DOIP protocol to set
+		/// @param[in] Rawversion the raw version of DOIP protocol to set
 		void setProtocolVersion(uint8_t Rawversion);
 
 		/// Get the invert version of DOIP protocol

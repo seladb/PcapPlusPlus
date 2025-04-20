@@ -361,7 +361,7 @@ namespace pcpp
 		_activationType = static_cast<DoIpActivationTypes>(*dataPtr);
 		dataPtr += sizeof(_activationType);
 
-		memcpy(dataPtr, &_reservedIso, DoIpConstants::DOIP_RESERVED_ISO_LEN);
+		memcpy(&_reservedIso, dataPtr, DoIpConstants::DOIP_RESERVED_ISO_LEN);
 		dataPtr += DoIpConstants::DOIP_RESERVED_ISO_LEN;
 
 		if (dataLen - (RESERVED_OEM_OFFSET) == DoIpConstants::DOIP_RESERVED_OEM_LEN)
@@ -1085,6 +1085,7 @@ namespace pcpp
 
 	EntityStatusResponse::EntityStatusResponse(DoIpEntityStatus nodeType, uint8_t maxConcurrentSockets,
 	                                           uint8_t currentlyOpenSockets)
+	    : _hasMaxDataSize(false)
 	{
 		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN);
 		extendLayer(DoIpConstants::DOIP_HEADER_LEN, FIXED_LEN);
