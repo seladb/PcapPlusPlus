@@ -222,6 +222,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpInvalidPayloadTypePacketParsing, "doip");
 	PTF_RUN_TEST(DoIpInvalidPayloadLenPacketParsing, "doip");
+	PTF_RUN_TEST(DoIpInvalidProtocolVersionPacketParsing, "doip");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");

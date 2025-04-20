@@ -4,6 +4,7 @@
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include "Logger.h"
+#include "EndianPortable.h"
 #include <vector>
 
 /// @file
@@ -12,22 +13,23 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	/// @brief Length of the Equiepement Identifier (EID) field.
+	constexpr size_t DOIP_EID_LEN = 6;
 
-/// @brief Length of the External Identifier (EID) field.
-#define DOIP_EID_LEN 6
+	/// @brief Length of the Group Identifier (GID) field.
+	constexpr size_t DOIP_GID_LEN = 6;
 
-/// @brief Length of the Group Identifier (GID) field.
-#define DOIP_GID_LEN 6
+	/// @brief Length of the Vehicle Identification Number (VIN) field.
+	constexpr size_t DOIP_VIN_LEN = 17;
 
-/// @brief Length of the Vehicle Identification Number (VIN) field.
-#define DOIP_VIN_LEN 17
+	/// @brief Length of the Reserved ISO field.
+	constexpr size_t DOIP_RESERVED_ISO_LEN = 4;
 
-/// @brief Length of the Reserved ISO field.
-#define DOIP_RESERVED_ISO_LEN 4
+	/// @brief Length of the Reserved OEM field.
+	constexpr size_t DOIP_RESERVED_OEM_LEN = 4;
 
-/// @brief Length of the Reserved OEM field.
-#define DOIP_RESERVED_OEM_LEN 4
-
+	/// @brief Enum representing DoIP routing activation types.
+	/// These values specify the type of routing activation used in DoIP(Diagnostic over IP).
 	enum class DoIpActivationTypes : uint8_t
 	{
 		/// Default routing activation type.
@@ -73,7 +75,6 @@ namespace pcpp
 	/// Some codes are reserved for future use by ISO standards.
 	enum class DoIpActionCodes : uint8_t
 	{
-
 		/// No further action required.
 		/// Indicates that no additional steps are needed after the announcement.
 		NO_FURTHER_ACTION_REQUIRED = 0x00U,
@@ -227,7 +228,6 @@ namespace pcpp
 	/// in the DoIP protocol.
 	enum class DoIpDiagnosticMessageNackCodes : uint8_t
 	{
-
 		/// Reserved for ISO (0x00).
 		/// Reserved for future use as per ISO standards.
 		RESERVED_ISO_0x00 = 0x00U,
@@ -270,7 +270,6 @@ namespace pcpp
 	/// providing information about its readiness for diagnostic operations.
 	enum class DoIpDiagnosticPowerModeCodes : uint8_t
 	{
-
 		/// Not ready.
 		/// The DoIP entity is not ready to perform diagnostic operations.
 		NOT_READY = 0x00U,
@@ -289,9 +288,8 @@ namespace pcpp
 	/// in the DoIP protocol.
 	enum class DoIpDiagnosticAckCodes : uint8_t
 	{
-
-		/// Acknowledgment./// Indicates successful receipt or acknowledgment of a diagnostic message.
-
+		/// Acknowledgment.
+		/// Indicates successful receipt or acknowledgment of a diagnostic message.
 		ACK = 0x00U
 	};
 
@@ -313,7 +311,6 @@ namespace pcpp
 	/// These codes are used to indicate whether GID and VIN are synchronized or not.
 	enum class DoIpSyncStatus : uint8_t
 	{
-
 		/// VIN and or GID are synchronized.
 		VIN_AND_OR_GID_ARE_SINCHRONIZED = 0x00,
 
@@ -379,9 +376,6 @@ namespace pcpp
 
 		/// VIN and or GID are not synchronized.
 		VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED = 0x10U,
-
-		/// Check whether this field is initialised or not
-		NON_INITIALIZED
 	};
 
 	/// @brief Represents the DoIP (Diagnostics over IP) protocol versions.
@@ -408,7 +402,7 @@ namespace pcpp
 		DefaultVersion = 0xFFU,
 
 		/// Represents an unknown or unsupported protocol version (not specified by ISO).
-		/// Used to indicate an unsupported or unknown protocol version for internal handling.
+		/// Used to indicate an unsupported or unknown protocol version for internal usage.
 		UnknownVersion = 0xEF
 	};
 
@@ -479,16 +473,11 @@ namespace pcpp
 
 		/// Diagnostic message negative acknowledgment.
 		/// Indicates an error in processing a diagnostic message.
-		DIAGNOSTIC_MESSAGE_NEG_ACK = 0x8003U,
-
-		/// Represents an invalid payload type (not specified by ISO).
-		/// Used to indicate an unsupported or unrecognized payload type for internal handling.
-		UNKNOWN_PAYLOAD_TYPE = 0xFFFFU,
+		DIAGNOSTIC_MESSAGE_NEG_ACK = 0x8003U
 	};
 
 	/// @brief Enum representing DoIP diagnostic ports (ISO 13400).
 	/// These ports are used for communication in the DoIP protocol over different transport layers.
-
 	enum class DoIpPorts : uint16_t
 	{
 
@@ -546,6 +535,10 @@ namespace pcpp
 		/// @param[in] version the version of DOIP protocol to set, restricted to existent doip version
 		void setProtocolVersion(DoIpProtocolVersion version);
 
+		/// Additional setter for raw protocol version (for testing/fuzzing/debugging)
+		/// @param[in] version the raw version of DOIP protocol to set
+		void setProtocolVersion(uint8_t Rawversion);
+
 		/// Get the invert version of DOIP protocol
 		/// @return A uint8_t presenting the used protocol invert version (DOIPV)
 		uint8_t getInvertProtocolVersion() const;
@@ -557,10 +550,6 @@ namespace pcpp
 		/// Get the doip payload type as string
 		/// @return uint16_t presenting the message doip payload type as string
 		std::string getPayloadTypeAsStr() const;
-
-		/// Set the doip payload type
-		/// @param[in] payloadType the payload type to set
-		void setPayloadType(DoIpPayloadTypes payloadType);
 
 		/// Get the doip payload length
 		/// @return uint32_t presenting the length of doip paylad not including the header
@@ -610,7 +599,7 @@ namespace pcpp
 			return m_DataLen;
 		}
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		void computeCalculateFields() override {};
 
@@ -618,6 +607,9 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+	private:
+	
+		void setPayloadType(DoIpPayloadTypes payloadType);
 
 	protected:
 		// protected c'tors, this class cannot be instantiated by users
@@ -660,7 +652,7 @@ namespace pcpp
 
 		if (!isPayloadTypeValid(payloadRaw))
 			return false;
-
+		// if payload type is validated, we ensure passing a valid type to isProtocolVersionValid()
 		if (!isProtocolVersionValid(version, inVersion, payloadType))
 			return false;
 
@@ -676,24 +668,25 @@ namespace pcpp
 
 		switch (parsedVersion)
 		{
-		case DoIpProtocolVersion::DefaultVersion:
 		case DoIpProtocolVersion::ReservedVersion:
+		{
+			PCPP_LOG_ERROR("[Malformed doip packet]: Reserved ISO DoIP protocol version detected: 0x"
+			               << std::hex << static_cast<int>(version));
+			return false;
+		}
+		case DoIpProtocolVersion::DefaultVersion:
+			if (type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN &&
+			    type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID &&
+			    type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST)
+			{
+				PCPP_LOG_ERROR("[Malformed doip packet]: Invalid/unsupported DoIP version!");
+				return false;
+			}
 		case DoIpProtocolVersion::Version01Iso2010:
 		case DoIpProtocolVersion::Version02Iso2012:
 		case DoIpProtocolVersion::Version03Iso2019:
 		case DoIpProtocolVersion::Version04Iso2019_AMD1:
-			if (parsedVersion == DoIpProtocolVersion::UnknownVersion ||
-			    parsedVersion == DoIpProtocolVersion::ReservedVersion ||
-			    (parsedVersion == DoIpProtocolVersion::DefaultVersion &&
-			     type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN &&
-			     type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID &&
-			     type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST))
-			{
-				PCPP_LOG_ERROR("[Malformed doip packet]: Invalid or unsupported DoIP protocol version: 0x"
-				               << std::hex << static_cast<int>(version));
-				return false;
-			}
-
+		{
 			if (version != static_cast<uint8_t>(~inVersion))
 			{
 				PCPP_LOG_ERROR("[Malformed doip packet]: Protocol version and inverse version mismatch! Version: 0x"
@@ -701,9 +694,8 @@ namespace pcpp
 				               << static_cast<int>(inVersion));
 				return false;
 			}
-
 			return true;
-
+		}
 		default:
 			PCPP_LOG_ERROR("[Malformed doip packet]: Unknown DoIP protocol version: 0x" << std::hex
 			                                                                            << static_cast<int>(version));
@@ -796,7 +788,7 @@ namespace pcpp
 		DoIpActivationTypes getActivationType() const;
 
 		/// @brief Sets the activation type.
-		void setActivationType(const DoIpActivationTypes& activationType);
+		void setActivationType(DoIpActivationTypes activationType);
 
 		/// @brief Gets the reserved ISO bytes.
 		std::array<uint8_t, DOIP_RESERVED_ISO_LEN> getReservedIso() const;
@@ -1393,7 +1385,7 @@ namespace pcpp
 	/// @brief Represents a positive acknowledgment message in response to a DiagnosticMessage.
 	///
 	/// This message is sent by a DoIP node to acknowledge the correct reception and processing
-	/// of a diagnostic message. Optionally, the original message may be echoed back.
+	/// of a diagnostic message. Optionally, the original message (or part of it) may be echoed back.
 	class DiagnosticAckMessage : public DoIpLayer
 	{
 	public:
@@ -1434,7 +1426,7 @@ namespace pcpp
 
 		/// @brief Checks if a previous message is attached.
 		/// @return True if a previous message is present.
-		bool hasPreviousMessage();
+		bool hasPreviousMessage() const;
 
 		/// @brief Sets the previous echoed diagnostic message.
 		void setPreviousMessage(const std::vector<uint8_t>& msg);

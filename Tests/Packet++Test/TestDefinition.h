@@ -124,6 +124,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketCreation);
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing);
 PTF_TEST_CASE(DoIpInvalidPayloadTypePacketParsing);
 PTF_TEST_CASE(DoIpInvalidPayloadLenPacketParsing);
+PTF_TEST_CASE(DoIpInvalidProtocolVersionPacketParsing);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);

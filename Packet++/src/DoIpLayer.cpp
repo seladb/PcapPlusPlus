@@ -143,8 +143,7 @@ namespace pcpp
 		{ DoIpSyncStatus::RESERVED_ISO_0x0D,                   "Reserved by ISO 13400"               },
 		{ DoIpSyncStatus::RESERVED_ISO_0x0E,                   "Reserved by ISO 13400"               },
 		{ DoIpSyncStatus::RESERVED_ISO_0x0F,                   "Reserved by ISO 13400"               },
-		{ DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED, "VIN and/or GID are not synchronized" },
-		{ DoIpSyncStatus::NON_INITIALIZED,                     "NULL"                                }
+		{ DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED, "VIN and/or GID are not synchronized" }
 	};
 
 	// This unordered map provides human-readable descriptions for each version of the
@@ -180,8 +179,7 @@ namespace pcpp
 		{ DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE,          "Diagnostic power mode response information" },
 		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE,                 "Diagnostic message"                         },
 		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK,              "Diagnostic message Ack"                     },
-		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK,              "Diagnostic message Nack"                    },
-		{ DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE,                    "Unknown payload type"                       }
+		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK,              "Diagnostic message Nack"                    }
 	};
 
 	DoIpProtocolVersion DoIpLayer::getProtocolVersion() const
@@ -269,6 +267,11 @@ namespace pcpp
 		getDoIpHeader()->protocolVersion = static_cast<uint8_t>(version);
 	}
 
+	void DoIpLayer::setProtocolVersion(uint8_t version)
+	{
+		getDoIpHeader()->protocolVersion = version;
+	}
+
 	uint8_t DoIpLayer::getInvertProtocolVersion() const
 	{
 		return getDoIpHeader()->invertProtocolVersion;
@@ -307,9 +310,7 @@ namespace pcpp
 		DoIpPayloadTypes type = getPayloadType();
 
 		oss << "DoIP Layer, " << getPayloadTypeAsStr() << " (0x" << std::hex << std::setw(4) << std::setfill('0')
-		    << (type == DoIpPayloadTypes::UNKNOWN_PAYLOAD_TYPE ? (be16toh(getDoIpHeader()->payloadType))
-		                                                       : static_cast<uint16_t>(type))
-		    << ")";
+		    << static_cast<uint16_t>(type) << ")";
 
 		return oss.str();
 	}
@@ -378,12 +379,14 @@ namespace pcpp
 	}
 
 	RoutingActivationRequest::RoutingActivationRequest(uint16_t sourrceAddress, DoIpActivationTypes activationType)
-	    : _reservedIso{}, _hasReservedOem(false)
+	    : _hasReservedOem(false)
 	{
 		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN);
 		extendLayer(sizeof(doiphdr), FIXED_LEN);
+
 		setSourceAddress(sourrceAddress);
 		setActivationType(activationType);
+		setReservedIso({});
 	}
 
 	DoIpActivationTypes RoutingActivationRequest::getActivationType() const
@@ -391,7 +394,7 @@ namespace pcpp
 		return _activationType;
 	}
 
-	void RoutingActivationRequest::setActivationType(const DoIpActivationTypes& activationType)
+	void RoutingActivationRequest::setActivationType(DoIpActivationTypes activationType)
 	{
 		uint8_t* dataPtr = getDataPtr(sizeof(doiphdr) + sizeof(_sourceAddress));
 		memcpy(dataPtr, &activationType, sizeof(activationType));
@@ -522,7 +525,7 @@ namespace pcpp
 	}
 	RoutingActivationResponse::RoutingActivationResponse(uint16_t logicalAddressExternalTester, uint16_t sourceAddress,
 	                                                     DoIpRoutingResponseCodes responseCode)
-	    : _reservedIso{}, _reservedOem{}, _hasReservedOem(false)
+	    : _hasReservedOem(false)
 	{
 		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN);
 		extendLayer(sizeof(doiphdr), FIXED_LEN);
@@ -530,6 +533,7 @@ namespace pcpp
 		setLogicalAddressExternalTester(logicalAddressExternalTester);
 		setSourceAddress(sourceAddress);
 		setResponseCode(responseCode);
+		setReservedIso({});
 	}
 
 	uint16_t RoutingActivationResponse::getLogicalAddressExternalTester() const
@@ -1320,7 +1324,7 @@ namespace pcpp
 		*ptr = static_cast<uint8_t>(code);
 	}
 
-	bool DiagnosticAckMessage::hasPreviousMessage()
+	bool DiagnosticAckMessage::hasPreviousMessage() const
 	{
 		return _hasPreviousMessage;
 	}
