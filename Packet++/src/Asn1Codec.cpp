@@ -653,14 +653,14 @@ namespace pcpp
 		{
 			auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
 			result[0] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
-        	result[1] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
+			result[1] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
 			result[2] = static_cast<uint8_t>((hostValue >> 24) & 0xFF);
 			break;
 		}
 		case 4:
 		{
 			auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
-        	result[0] = static_cast<uint8_t>(hostValue & 0xFF);
+			result[0] = static_cast<uint8_t>(hostValue & 0xFF);
 			result[1] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
 			result[2] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
 			result[3] = static_cast<uint8_t>((hostValue >> 24) & 0xFF);
