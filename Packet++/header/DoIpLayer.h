@@ -13,20 +13,27 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-	/// @brief Length of the Equiepement Identifier (EID) field.
-	constexpr size_t DOIP_EID_LEN = 6;
+	/// @brief Represent doip constants fields length
+	struct DoIpConstants
+	{
+		/// @brief Length of the Equiepement Identifier (EID) field.
+		static constexpr size_t DOIP_EID_LEN = 6;
 
-	/// @brief Length of the Group Identifier (GID) field.
-	constexpr size_t DOIP_GID_LEN = 6;
+		/// @brief Length of the Group Identifier (GID) field.
+		static constexpr size_t DOIP_GID_LEN = 6;
 
-	/// @brief Length of the Vehicle Identification Number (VIN) field.
-	constexpr size_t DOIP_VIN_LEN = 17;
+		/// @brief Length of the Vehicle Identification Number (VIN) field.
+		static constexpr size_t DOIP_VIN_LEN = 17;
 
-	/// @brief Length of the Reserved ISO field.
-	constexpr size_t DOIP_RESERVED_ISO_LEN = 4;
+		/// @brief Length of the Reserved ISO field.
+		static constexpr size_t DOIP_RESERVED_ISO_LEN = 4;
 
-	/// @brief Length of the Reserved OEM field.
-	constexpr size_t DOIP_RESERVED_OEM_LEN = 4;
+		/// @brief Length of the Reserved OEM field.
+		static constexpr size_t DOIP_RESERVED_OEM_LEN = 4;
+
+		/// @brief fixed size of valid doip header
+		static constexpr size_t DOIP_HEADER_LEN = 8;
+	};
 
 	/// @brief Enum representing DoIP routing activation types.
 	/// These values specify the type of routing activation used in DoIP(Diagnostic over IP).
@@ -557,12 +564,12 @@ namespace pcpp
 
 		/// Set the doip payload length
 		/// @param[in] length the doip payload length to set
-		void setPayloadLength(uint32_t length) const;
+		void setPayloadLength(uint32_t length);
 
 		/// A static method that checks whether a port is considered as a DOIP port
 		/// @param[in] port The port number to check
 		/// @return True if this is a DOIP port number, false otherwise
-		static inline bool isDoIpPort(uint16_t port);
+		static inline bool isDoIpPort(const uint16_t port);
 
 		/// A static method that validates the input data
 		/// @param[in] data The pointer to the beginning of a byte stream of an DOIP layer
@@ -607,8 +614,8 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
 	private:
-	
 		void setPayloadType(DoIpPayloadTypes payloadType);
 
 	protected:
@@ -664,7 +671,7 @@ namespace pcpp
 
 	inline bool DoIpLayer::isProtocolVersionValid(uint8_t version, uint8_t inVersion, DoIpPayloadTypes type)
 	{
-		DoIpProtocolVersion parsedVersion = static_cast<DoIpProtocolVersion>(version);
+		const DoIpProtocolVersion parsedVersion = static_cast<DoIpProtocolVersion>(version);
 
 		switch (parsedVersion)
 		{
@@ -705,7 +712,7 @@ namespace pcpp
 
 	inline bool DoIpLayer::isPayloadTypeValid(uint16_t type)
 	{
-		DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(htobe16(type));
+		const DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(htobe16(type));
 
 		switch (payloadType)
 		{
@@ -735,15 +742,13 @@ namespace pcpp
 
 	inline bool DoIpLayer::isPayloadLengthValid(uint32_t payloadLength, size_t dataLen)
 	{
-		constexpr size_t headerSize = sizeof(doiphdr);
-
-		if (dataLen < headerSize)
+		if (dataLen < DoIpConstants::DOIP_HEADER_LEN)
 		{
 			PCPP_LOG_ERROR("[Malformed doip packet]: Data length is smaller than DOIP header size!");
 			return false;
 		}
 
-		size_t actualPayloadLen = dataLen - headerSize;
+		const size_t actualPayloadLen = dataLen - DoIpConstants::DOIP_HEADER_LEN;
 		if (payloadLength != actualPayloadLen)
 		{
 			PCPP_LOG_ERROR("[Malformed doip packet]: Payload length mismatch: expected "
@@ -791,16 +796,16 @@ namespace pcpp
 		void setActivationType(DoIpActivationTypes activationType);
 
 		/// @brief Gets the reserved ISO bytes.
-		std::array<uint8_t, DOIP_RESERVED_ISO_LEN> getReservedIso() const;
+		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN> getReservedIso() const;
 
 		/// @brief Sets the reserved ISO bytes.
-		void setReservedIso(const std::array<uint8_t, DOIP_RESERVED_ISO_LEN>& reservedIso);
+		void setReservedIso(const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN>& reservedIso);
 
 		/// @brief Gets the reserved OEM bytes if present.
-		const std::array<uint8_t, DOIP_RESERVED_OEM_LEN>* getReservedOem() const;
+		const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN>* getReservedOem() const;
 
 		/// @brief Sets the reserved OEM bytes.
-		void setReservedOem(const std::array<uint8_t, DOIP_RESERVED_OEM_LEN>& reservedOem);
+		void setReservedOem(const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN>& reservedOem);
 
 		/// @brief Checks if OEM reserved bytes are present.
 		bool hasReservedOem() const;
@@ -818,15 +823,16 @@ namespace pcpp
 		}
 
 	private:
-		uint16_t _sourceAddress;                                  ///< Source address of the tester.
-		DoIpActivationTypes _activationType;                      ///< Routing activation type.
-		std::array<uint8_t, DOIP_RESERVED_ISO_LEN> _reservedIso;  ///< ISO reserved bytes.
-		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> _reservedOem;  ///< OEM reserved bytes.
-		bool _hasReservedOem;                                     ///< Whether OEM bytes are set.
+		uint16_t _sourceAddress;                                                 ///< Source address of the tester.
+		DoIpActivationTypes _activationType;                                     ///< Routing activation type.
+		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN> _reservedIso;  ///< ISO reserved bytes.
+		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN> _reservedOem;  ///< OEM reserved bytes.
+		bool _hasReservedOem;                                                    ///< Whether OEM bytes are set.
 
-		static constexpr size_t FIXED_LEN = sizeof(_sourceAddress) + sizeof(_activationType) + DOIP_RESERVED_ISO_LEN;
-		static constexpr size_t RESERVED_OEM_OFFSET = sizeof(doiphdr) + FIXED_LEN;
-		static constexpr size_t OPT_LEN = FIXED_LEN + DOIP_RESERVED_OEM_LEN;
+		static constexpr size_t FIXED_LEN =
+		    sizeof(_sourceAddress) + sizeof(_activationType) + DoIpConstants::DOIP_RESERVED_ISO_LEN;
+		static constexpr size_t RESERVED_OEM_OFFSET = DoIpConstants::DOIP_HEADER_LEN + FIXED_LEN;
+		static constexpr size_t OPT_LEN = FIXED_LEN + DoIpConstants::DOIP_RESERVED_OEM_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -874,16 +880,16 @@ namespace pcpp
 		void setResponseCode(DoIpRoutingResponseCodes code);
 
 		/// @brief Gets the reserved ISO bytes.
-		std::array<uint8_t, DOIP_RESERVED_ISO_LEN> getReservedIso() const;
+		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN> getReservedIso() const;
 
 		/// @brief Sets the reserved ISO bytes.
-		void setReservedIso(const std::array<uint8_t, DOIP_RESERVED_ISO_LEN>& reservedIso);
+		void setReservedIso(const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN>& reservedIso);
 
 		/// @brief Gets the reserved OEM bytes if present.
-		const std::array<uint8_t, DOIP_RESERVED_OEM_LEN>* getReservedOem() const;
+		const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN>* getReservedOem() const;
 
 		/// @brief Sets the reserved OEM bytes.
-		void setReservedOem(const std::array<uint8_t, DOIP_RESERVED_OEM_LEN>& reservedOem);
+		void setReservedOem(const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN>& reservedOem);
 
 		/// @brief Checks if OEM reserved bytes are present.
 		bool hasReservedOem() const;
@@ -901,17 +907,17 @@ namespace pcpp
 		}
 
 	private:
-		uint16_t _logicalAddressExternalTester;                   ///< Logical address of the external tester.
-		uint16_t _sourceAddress;                                  ///< ECU source address.
-		DoIpRoutingResponseCodes _responseCode;                   ///< Routing response code.
-		std::array<uint8_t, DOIP_RESERVED_ISO_LEN> _reservedIso;  ///< ISO reserved bytes.
-		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> _reservedOem;  ///< OEM reserved bytes.
-		bool _hasReservedOem;                                     ///< Whether OEM bytes are set.
+		uint16_t _logicalAddressExternalTester;  ///< Logical address of the external tester.
+		uint16_t _sourceAddress;                 ///< ECU source address.
+		DoIpRoutingResponseCodes _responseCode;  ///< Routing response code.
+		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN> _reservedIso;  ///< ISO reserved bytes.
+		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN> _reservedOem;  ///< OEM reserved bytes.
+		bool _hasReservedOem;                                                    ///< Whether OEM bytes are set.
 
 		static constexpr size_t FIXED_LEN = sizeof(_logicalAddressExternalTester) + sizeof(_sourceAddress) +
-		                                    sizeof(_responseCode) + DOIP_RESERVED_ISO_LEN;
+		                                    sizeof(_responseCode) + DoIpConstants::DOIP_RESERVED_ISO_LEN;
 		static constexpr size_t RESERVED_OEM_OFFSET = sizeof(doiphdr) + FIXED_LEN;
-		static constexpr size_t OPT_LEN = FIXED_LEN + DOIP_RESERVED_OEM_LEN;
+		static constexpr size_t OPT_LEN = FIXED_LEN + DoIpConstants::DOIP_RESERVED_OEM_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~|
@@ -975,13 +981,13 @@ namespace pcpp
 
 		/// @brief Constructs the message using the specified EID.
 		/// @param[in] eid A 6-byte Entity ID used for vehicle identification.
-		explicit VehicleIdentificationRequestEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
+		explicit VehicleIdentificationRequestEID(const std::array<uint8_t, DoIpConstants::DOIP_EID_LEN>& eid);
 
 		/// @brief Gets the Entity ID (EID).
-		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
+		std::array<uint8_t, DoIpConstants::DOIP_EID_LEN> getEID() const;
 
 		/// @brief Sets the Entity ID (EID).
-		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
+		void setEID(const std::array<uint8_t, DoIpConstants::DOIP_EID_LEN>& eid);
 
 		/// @brief Returns a human-readable summary of the message.
 		std::string getSummary() const;
@@ -993,7 +999,7 @@ namespace pcpp
 		}
 
 	private:
-		std::array<uint8_t, DOIP_EID_LEN> _eid;  ///< The 6-byte Entity ID used for identification.
+		std::array<uint8_t, DoIpConstants::DOIP_EID_LEN> _eid;  ///< The 6-byte Entity ID used for identification.
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1016,13 +1022,13 @@ namespace pcpp
 
 		/// @brief Constructs the message using the specified VIN.
 		/// @param[in] vin A 17-byte Vehicle Identification Number.
-		explicit VehicleIdentificationRequestVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
+		explicit VehicleIdentificationRequestVIN(const std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN>& vin);
 
 		/// @brief Gets the Vehicle Identification Number (VIN).
-		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
+		std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN> getVIN() const;
 
 		/// @brief Sets the Vehicle Identification Number (VIN).
-		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
+		void setVIN(const std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN>& vin);
 
 		/// @brief Returns a human-readable summary of the message.
 		std::string getSummary() const;
@@ -1034,7 +1040,7 @@ namespace pcpp
 		}
 
 	private:
-		std::array<uint8_t, DOIP_VIN_LEN> _vin;  ///< The 17-byte Vehicle Identification Number.
+		std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN> _vin;  ///< The 17-byte Vehicle Identification Number.
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~|
@@ -1062,21 +1068,21 @@ namespace pcpp
 		/// @param[in] eid Entity Identifier (EID).
 		/// @param[in] gid Group Identifier (GID).
 		/// @param[in] actionCode Further action code.
-		VehicleAnnouncement(const std::array<uint8_t, DOIP_VIN_LEN>& vin, uint16_t logicalAddress,
-		                    const std::array<uint8_t, DOIP_EID_LEN>& eid, const std::array<uint8_t, DOIP_GID_LEN>& gid,
-		                    DoIpActionCodes actionCode);
+		VehicleAnnouncement(const std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN>& vin, uint16_t logicalAddress,
+		                    const std::array<uint8_t, DoIpConstants::DOIP_EID_LEN>& eid,
+		                    const std::array<uint8_t, DoIpConstants::DOIP_GID_LEN>& gid, DoIpActionCodes actionCode);
 
 		/// @brief Gets the Vehicle Identification Number (VIN).
-		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
+		std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN> getVIN() const;
 
 		/// @brief Gets the logical address of the vehicle.
 		uint16_t getLogicalAddress() const;
 
 		/// @brief Gets the Entity Identifier (EID).
-		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
+		std::array<uint8_t, DoIpConstants::DOIP_EID_LEN> getEID() const;
 
 		/// @brief Gets the Group Identifier (GID).
-		std::array<uint8_t, DOIP_GID_LEN> getGID() const;
+		std::array<uint8_t, DoIpConstants::DOIP_GID_LEN> getGID() const;
 
 		/// @brief Gets the further action required code.
 		DoIpActionCodes getFurtherActionRequired() const;
@@ -1085,16 +1091,16 @@ namespace pcpp
 		const DoIpSyncStatus* getSyncStatus() const;
 
 		/// @brief Sets the Vehicle Identification Number (VIN).
-		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
+		void setVIN(const std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN>& vin);
 
 		/// @brief Sets the logical address.
 		void setLogicalAddress(uint16_t address);
 
 		/// @brief Sets the Entity Identifier (EID).
-		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
+		void setEID(const std::array<uint8_t, DoIpConstants::DOIP_EID_LEN>& eid);
 
 		/// @brief Sets the Group Identifier (GID).
-		void setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid);
+		void setGID(const std::array<uint8_t, DoIpConstants::DOIP_GID_LEN>& gid);
 
 		/// @brief Sets the further action required code.
 		void setFurtherActionRequired(DoIpActionCodes action);
@@ -1118,16 +1124,17 @@ namespace pcpp
 		}
 
 	private:
-		std::array<uint8_t, DOIP_VIN_LEN> _vin;  ///< Vehicle Identification Number.
-		uint16_t _logicalAddress;                ///< Logical address of the vehicle.
-		std::array<uint8_t, DOIP_EID_LEN> _eid;  ///< Entity Identifier.
-		std::array<uint8_t, DOIP_GID_LEN> _gid;  ///< Group Identifier.
-		DoIpActionCodes _actionCode;             ///< Further action required code.
-		DoIpSyncStatus _syncStatus;              ///< Optional synchronization status.
-		bool _hasSyncStatus;                     ///< Indicates if sync status is set.
+		std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN> _vin;  ///< Vehicle Identification Number.
+		uint16_t _logicalAddress;                               ///< Logical address of the vehicle.
+		std::array<uint8_t, DoIpConstants::DOIP_EID_LEN> _eid;  ///< Entity Identifier.
+		std::array<uint8_t, DoIpConstants::DOIP_GID_LEN> _gid;  ///< Group Identifier.
+		DoIpActionCodes _actionCode;                            ///< Further action required code.
+		DoIpSyncStatus _syncStatus;                             ///< Optional synchronization status.
+		bool _hasSyncStatus;                                    ///< Indicates if sync status is set.
 
-		static constexpr size_t FIXED_LEN =
-		    DOIP_VIN_LEN + sizeof(_logicalAddress) + DOIP_EID_LEN + DOIP_GID_LEN + sizeof(_actionCode);
+		static constexpr size_t FIXED_LEN = DoIpConstants::DOIP_VIN_LEN + sizeof(_logicalAddress) +
+		                                    DoIpConstants::DOIP_EID_LEN + DoIpConstants::DoIpConstants::DOIP_GID_LEN +
+		                                    sizeof(_actionCode);
 		static constexpr size_t SYNC_STATUS_OFFSET = sizeof(doiphdr) + FIXED_LEN;
 		static constexpr size_t OPT_LEN = FIXED_LEN + sizeof(_syncStatus);
 	};
