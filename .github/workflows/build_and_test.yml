@@ -170,11 +170,9 @@ jobs:
     strategy:
       matrix:
         include:
+          - image: ubuntu2204-dpdk2411
+          - image: ubuntu2204-dpdk2311
           - image: ubuntu2204-dpdk2211
-          - image: ubuntu2004-dpdk2111
-            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
-          - image: ubuntu2004-dpdk2011
-            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
 
     steps:
       - name: Checkout code
