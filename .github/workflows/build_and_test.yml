@@ -73,7 +73,7 @@ jobs:
             config-zstd: OFF
           - image: ubuntu2004-zstd
             config-zstd: ON
-          - image: fedora40
+          - image: fedora42
             config-zstd: OFF
           - image: alpine320
             config-zstd: OFF
