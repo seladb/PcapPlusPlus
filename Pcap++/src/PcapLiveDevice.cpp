@@ -128,14 +128,14 @@ namespace pcpp
 #endif
 	}
 
-	static bool isTimestampProviderSupportedByDevice(pcap_t* pcap,
+	static bool isTimestampProviderSupportedByDevice(const internal::PcapHandle& pcap,
 	                                                 const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
 #ifdef HAS_TIMESTAMP_TYPES_ENABLED
 		const auto tstampType = getPcapTimestampProvider(timestampProvider);
 
 		int* supportedTstampTypesRaw;
-		const int numSupportedTstampTypes = pcap_list_tstamp_types(pcap, &supportedTstampTypesRaw);
+		const int numSupportedTstampTypes = pcap_list_tstamp_types(pcap.get(), &supportedTstampTypesRaw);
 
 		struct TimestampTypesDeleter
 		{
@@ -150,7 +150,7 @@ namespace pcpp
 		if (numSupportedTstampTypes < 0)
 		{
 			PCPP_LOG_ERROR("Error retrieving timestamp types - default 'Host' will be used, error message: "
-			               << pcap_geterr(pcap) << "'");
+			               << pcap_geterr(pcap.get()) << "'");
 			return false;
 		}
 
@@ -161,53 +161,48 @@ namespace pcpp
 #endif
 	}
 
-	static void setTimestampProvider(pcap_t* pcap, const PcapLiveDevice::TimestampProvider timestampProvider)
+	static void setTimestampProvider(internal::PcapHandle& pcap,
+	                                 const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
 #ifdef HAS_TIMESTAMP_TYPES_ENABLED
-		if (isTimestampProviderSupportedByDevice(pcap, timestampProvider))
+		if (!isTimestampProviderSupportedByDevice(pcap, timestampProvider))
 		{
-			const int ret = pcap_set_tstamp_type(pcap, getPcapTimestampProvider(timestampProvider));
-			if (ret == 0)
-			{
-				PCPP_LOG_DEBUG("Timestamp provider was set");
-			}
-			else
-			{
-				PCPP_LOG_ERROR("Failed to set timestamping provider: '" << ret << "', error message: '"
-				                                                        << pcap_geterr(pcap) << "'");
-			}
+			throw std::runtime_error("Selected timestamping provider is not supported");
 		}
-		else
+
+		const int ret = pcap_set_tstamp_type(pcap.get(), getPcapTimestampProvider(timestampProvider));
+		if (ret != 0)
 		{
-			PCPP_LOG_ERROR("Selected timestamping provider is not supported");
+			throw std::runtime_error("Cannot create the pcap device, error was: " +
+			                         std::string(pcap_geterr(pcap.get())));
 		}
+
 #else
-		PCPP_LOG_ERROR("Error setting timestamp provider - it is available only from libpcap 1.2");
+		throw std::runtime_error("Error setting timestamp provider - it is available only from libpcap 1.2");
 #endif
 	}
 
-	static void setTimestampPrecision(pcap_t* pcap, const PcapLiveDevice::TimestampPrecision timestampPrecision)
+	static void setTimestampPrecision(const internal::PcapHandle& pcap,
+	                                  const PcapLiveDevice::TimestampPrecision timestampPrecision)
 	{
 #ifdef HAS_TIMESTAMP_PRECISION_ENABLED
-		const int ret = pcap_set_tstamp_precision(pcap, getPcapPrecision(timestampPrecision));
+		const int ret = pcap_set_tstamp_precision(pcap.get(), getPcapPrecision(timestampPrecision));
 		if (ret == 0)
 		{
-			PCPP_LOG_DEBUG("Timestamp precision was set");
 			return;
 		}
 
 		if (ret == PCAP_ERROR_TSTAMP_PRECISION_NOTSUP)
 		{
-			PCPP_LOG_ERROR(
+			throw std::runtime_error(
 			    "Failed to set timestamping precision: the capture device does not support the requested precision");
 		}
-		else
-		{
-			PCPP_LOG_ERROR("Failed to set timestamping precision: '" << ret << "', error message: '"
-			                                                         << pcap_geterr(pcap) << "'");
-		}
+
+		throw std::runtime_error("Failed to set timestamping precision, error was: " +
+		                         std::string(pcap_geterr(pcap.get())));
+
 #else
-		PCPP_LOG_ERROR("Error setting timestamp precision - it is available only from libpcap 1.5");
+		throw std::runtime_error("Error setting timestamp precision - it is available only from libpcap 1.5");
 #endif
 	}
 
@@ -379,7 +374,7 @@ namespace pcpp
 		PCPP_LOG_DEBUG("Ended stats thread for device '" << m_InterfaceDetails.name << "'");
 	}
 
-	pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
+	internal::PcapHandle PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	{
 		char errbuf[PCAP_ERRBUF_SIZE] = { '\0' };
 		std::string device_name = m_InterfaceDetails.name;
@@ -389,49 +384,46 @@ namespace pcpp
 			device_name += ":" + std::to_string(config.nflogGroup & 0xffff);
 		}
 
-		pcap_t* pcap = pcap_create(device_name.c_str(), errbuf);
+		auto pcap = internal::PcapHandle(pcap_create(device_name.c_str(), errbuf));
 		if (!pcap)
 		{
-			PCPP_LOG_ERROR(errbuf);
-			return pcap;
+			throw std::runtime_error("Cannot create the pcap device, error was: " + std::string(errbuf));
 		}
-		int ret = pcap_set_snaplen(pcap, config.snapshotLength <= 0 ? DEFAULT_SNAPLEN : config.snapshotLength);
+
+		int ret = pcap_set_snaplen(pcap.get(), config.snapshotLength <= 0 ? DEFAULT_SNAPLEN : config.snapshotLength);
 		if (ret != 0)
 		{
-			PCPP_LOG_ERROR(pcap_geterr(pcap));
+			throw std::runtime_error("Cannot set snaplan, error was: " + std::string(pcap_geterr(pcap.get())));
 		}
-		ret = pcap_set_promisc(pcap, config.mode);
+
+		ret = pcap_set_promisc(pcap.get(), config.mode);
 		if (ret != 0)
 		{
-			PCPP_LOG_ERROR(pcap_geterr(pcap));
+			throw std::runtime_error("Cannot set promiscuous mode, error was: " + std::string(pcap_geterr(pcap.get())));
 		}
 
 		int timeout = (config.packetBufferTimeoutMs <= 0 ? LIBPCAP_OPEN_LIVE_TIMEOUT : config.packetBufferTimeoutMs);
-		ret = pcap_set_timeout(pcap, timeout);
+		ret = pcap_set_timeout(pcap.get(), timeout);
 		if (ret != 0)
 		{
-			PCPP_LOG_ERROR(pcap_geterr(pcap));
+			throw std::runtime_error("Cannot set timeout on device, error was: " +
+			                         std::string(pcap_geterr(pcap.get())));
 		}
 
 		if (config.packetBufferSize >= 100)
 		{
-			ret = pcap_set_buffer_size(pcap, config.packetBufferSize);
+			ret = pcap_set_buffer_size(pcap.get(), config.packetBufferSize);
 			if (ret != 0)
 			{
-				PCPP_LOG_ERROR(pcap_geterr(pcap));
+				throw std::runtime_error("Cannot set buffer size, error was: " + std::string(pcap_geterr(pcap.get())));
 			}
 		}
 
 #ifdef HAS_PCAP_IMMEDIATE_MODE
-		ret = pcap_set_immediate_mode(pcap, 1);
-		if (ret == 0)
+		ret = pcap_set_immediate_mode(pcap.get(), 1);
+		if (ret != 0)
 		{
-			PCPP_LOG_DEBUG("Immediate mode is activated");
-		}
-		else
-		{
-			PCPP_LOG_ERROR("Failed to activate immediate mode, error code: '" << ret << "', error message: '"
-			                                                                  << pcap_geterr(pcap) << "'");
+			throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap_geterr(pcap.get())));
 		}
 #endif
 
@@ -445,53 +437,49 @@ namespace pcpp
 			setTimestampPrecision(pcap, config.timestampPrecision);
 		}
 
-		ret = pcap_activate(pcap);
+		ret = pcap_activate(pcap.get());
 		if (ret != 0)
 		{
-			PCPP_LOG_ERROR(pcap_geterr(pcap));
-			pcap_close(pcap);
-			return nullptr;
+			throw std::runtime_error("Cannot activate the device, error was: " + std::string(pcap_geterr(pcap.get())));
 		}
 
-		pcap_direction_t directionToSet = directionTypeMap(config.direction);
-		ret = pcap_setdirection(pcap, directionToSet);
-		if (ret == 0)
+		if (config.direction != PCPP_INOUT)
 		{
-			if (config.direction == PCPP_IN)
+			pcap_direction_t directionToSet = directionTypeMap(config.direction);
+			ret = pcap_setdirection(pcap.get(), directionToSet);
+			if (ret != 0)
 			{
-				PCPP_LOG_DEBUG("Only incoming traffics will be captured");
+				throw std::runtime_error("Failed to set direction for capturing packets, error was: " +
+				                         std::string(pcap_geterr(pcap.get())));
 			}
-			else if (config.direction == PCPP_OUT)
-			{
-				PCPP_LOG_DEBUG("Only outgoing traffics will be captured");
-			}
-			else
-			{
-				PCPP_LOG_DEBUG("Both incoming and outgoing traffics will be captured");
-			}
+		}
+
+		if (config.direction == PCPP_IN)
+		{
+			PCPP_LOG_DEBUG("Only incoming traffics will be captured");
+		}
+		else if (config.direction == PCPP_OUT)
+		{
+			PCPP_LOG_DEBUG("Only outgoing traffics will be captured");
 		}
 		else
 		{
-			PCPP_LOG_ERROR("Failed to set direction for capturing packets, error code: '"
-			               << ret << "', error message: '" << pcap_geterr(pcap) << "'");
+			PCPP_LOG_DEBUG("Both incoming and outgoing traffics will be captured");
 		}
 
-		if (pcap)
+		int dlt = pcap_datalink(pcap.get());
+		const char* dlt_name = pcap_datalink_val_to_name(dlt);
+		if (dlt_name)
 		{
-			int dlt = pcap_datalink(pcap);
-			const char* dlt_name = pcap_datalink_val_to_name(dlt);
-			if (dlt_name)
-			{
-				PCPP_LOG_DEBUG("link-type " << dlt << ": " << dlt_name << " (" << pcap_datalink_val_to_description(dlt)
-				                            << ")");
-			}
-			else
-			{
-				PCPP_LOG_DEBUG("link-type " << dlt);
-			}
-
-			m_LinkType = static_cast<LinkLayerType>(dlt);
+			PCPP_LOG_DEBUG("link-type " << dlt << ": " << dlt_name << " (" << pcap_datalink_val_to_description(dlt)
+			                            << ")");
 		}
+		else
+		{
+			PCPP_LOG_DEBUG("link-type " << dlt);
+		}
+
+		m_LinkType = static_cast<LinkLayerType>(dlt);
 		return pcap;
 	}
 
@@ -503,7 +491,16 @@ namespace pcpp
 			return true;
 		}
 
-		auto pcapDescriptor = internal::PcapHandle(doOpen(config));
+		internal::PcapHandle pcapDescriptor;
+		try
+		{
+			pcapDescriptor = doOpen(config);
+		}
+		catch (std::exception& ex)
+		{
+			PCPP_LOG_ERROR(ex.what());
+		}
+
 		internal::PcapHandle pcapSendDescriptor;
 
 		// It's not possible to have two open instances of the same NFLOG device:group
@@ -513,7 +510,14 @@ namespace pcpp
 		}
 		else
 		{
-			pcapSendDescriptor = internal::PcapHandle(doOpen(config));
+			try
+			{
+				pcapSendDescriptor = doOpen(config);
+			}
+			catch (std::exception& ex)
+			{
+				PCPP_LOG_ERROR(ex.what());
+			}
 		}
 
 		if (pcapDescriptor == nullptr || (!isNflogDevice() && pcapSendDescriptor == nullptr))
