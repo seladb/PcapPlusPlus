@@ -16,7 +16,13 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 bool sendURLRequest(const std::string& url)
 {
-	const std::string cmd = "curl -s " + url;
+#if defined(_WIN32)
+	std::string cmd = "curl.exe -s -o NUL";
+#else
+	std::string cmd = "curl -s -o /dev/null";
+#endif
+
+	cmd += " " + url;
 	if (system(cmd.c_str()) == -1)
 		return false;
 	return true;
