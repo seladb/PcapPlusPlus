@@ -6,8 +6,11 @@
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Packet.h"
+#include <array>
+#include <vector>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 
 /// @file
@@ -44,21 +47,25 @@ namespace pcpp
 			void clear();
 		};
 
-		struct StartupBlock
+		class StartupBlock
 		{
-			std::mutex Mutex;
-			std::condition_variable Cond;
-			int State = 0;
+		public:
+			void notifyStartup();
+			void waitForStartup();
+
+		private:
+			std::mutex m_Mutex;
+			std::condition_variable m_Cv;
+			bool m_Ready = false;
 		};
 
-		pfring** m_PfRingDescriptors;
-		uint8_t m_NumOfOpenedRxChannels;
+		std::vector<pfring*> m_PfRingDescriptors;
 		std::string m_DeviceName;
 		int m_InterfaceIndex;
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
-		CoreConfiguration m_CoreConfiguration[MAX_NUM_OF_CORES];
-		bool m_StopThread;
+		std::array<CoreConfiguration, MAX_NUM_OF_CORES> m_CoreConfiguration;
+		std::atomic<bool> m_StopThread;
 		OnPfRingPacketsArriveCallback m_OnPacketsArriveCallback;
 		void* m_OnPacketsArriveUserCookie;
 		bool m_ReentrantMode;
@@ -70,7 +77,9 @@ namespace pcpp
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
 		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
 
-		int openSingleRxChannel(const char* deviceName, pfring** ring);
+		int openSingleRxChannel(const char* deviceName, pfring*& ring);
+		/// Closes all opened RX channels and clears the opened channels list (m_PfRingDescriptors)
+		void closeAllRxChannels();
 
 		bool getIsHwClockEnable()
 		{
@@ -80,7 +89,7 @@ namespace pcpp
 		bool setPfRingDeviceClock(pfring* ring);
 
 		void clearCoreConfiguration();
-		int getCoresInUseCount() const;
+		size_t getCoresInUseCount() const;
 
 		void setPfRingDeviceAttributes();
 
@@ -203,7 +212,7 @@ namespace pcpp
 		/// @return Number of opened RX channels
 		uint8_t getNumOfOpenedRxChannels() const
 		{
-			return m_NumOfOpenedRxChannels;
+			return static_cast<uint8_t>(m_PfRingDescriptors.size());
 		}
 
 		/// Gets the total number of RX channels (RX queues) this interface has

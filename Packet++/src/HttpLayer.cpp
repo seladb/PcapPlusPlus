@@ -10,7 +10,6 @@
 
 namespace pcpp
 {
-
 	// -------- Class HttpMessage -----------------
 
 	HeaderField* HttpMessage::addField(const std::string& fieldName, const std::string& fieldValue)
@@ -542,10 +541,8 @@ namespace pcpp
 		}
 	}
 
-	/**
-	 * @struct HttpResponseStatusCodeHash
-	 * @brief The helper structure for hash HttpResponseStatusCode while using std::unordered_map
-	 */
+	/// @struct HttpResponseStatusCodeHash
+	/// @brief The helper structure for hash HttpResponseStatusCode while using std::unordered_map
 	struct HttpResponseStatusCodeHash
 	{
 		size_t operator()(const HttpResponseStatusCode& status) const
@@ -984,5 +981,4 @@ namespace pcpp
 		}
 		return versionAsEnum->second;
 	}
-
 }  // namespace pcpp

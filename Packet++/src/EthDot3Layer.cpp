@@ -7,7 +7,6 @@
 
 namespace pcpp
 {
-
 	EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length) : Layer()
 	{
 		const size_t headerLen = sizeof(ether_dot3_header);
@@ -45,14 +44,12 @@ namespace pcpp
 	{
 		if (dataLen >= sizeof(ether_dot3_header))
 		{
-			/**
-			 * LSAPs: ... Such a length must, when considered as an
-			 * unsigned integer, be less than 0x5DC or it could be mistaken as
-			 * an Ethertype...
-			 *
-			 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
-			 * More: IEEE Std 802.3 Clause 3.2.6
-			 */
+			// LSAPs: ... Such a length must, when considered as an
+			// unsigned integer, be less than 0x5DC or it could be mistaken as
+			// an Ethertype...
+			//
+			// From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
+			// More: IEEE Std 802.3 Clause 3.2.6
 			return be16toh(*reinterpret_cast<const uint16_t*>(data + 12)) <= static_cast<uint16_t>(0x05DC);
 		}
 		else
@@ -60,5 +57,4 @@ namespace pcpp
 			return false;
 		}
 	}
-
 }  // namespace pcpp
