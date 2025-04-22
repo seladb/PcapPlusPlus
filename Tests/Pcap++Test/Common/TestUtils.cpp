@@ -23,9 +23,7 @@ bool sendURLRequest(const std::string& url)
 #endif
 
 	cmd += " " + url;
-	if (system(cmd.c_str()) == -1)
-		return false;
-	return true;
+	return system(cmd.c_str()) != -1;
 }
 
 bool readPcapIntoPacketVec(const std::string& pcapFileName, std::vector<pcpp::RawPacket>& packetStream,
