@@ -22,7 +22,7 @@ namespace pcpp
 		/// A deleter that cleans up a pfring structure by calling pfring_close.
 		struct PfRingCloseDeleter
 		{
-			void operator()(pfring* ptr) const
+			void operator()(pfring* ptr) const noexcept
 			{
 				pfring_close(ptr);
 			}

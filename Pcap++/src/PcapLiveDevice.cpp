@@ -66,10 +66,13 @@
 static const char* NFLOG_IFACE = "nflog";
 static const int DEFAULT_SNAPLEN = 9000;
 
+#ifndef PCAP_TSTAMP_HOST_HIPREC_UNSYNCED
+// PCAP_TSTAMP_HOST_HIPREC_UNSYNCED defined only in libpcap > 1.10.0
+#	define PCAP_TSTAMP_HOST_HIPREC_UNSYNCED 5
+#endif
+
 namespace pcpp
 {
-
-#ifdef HAS_SET_DIRECTION_ENABLED
 	static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction)
 	{
 		switch (direction)
@@ -84,7 +87,129 @@ namespace pcpp
 			throw std::invalid_argument("Unknown direction type");
 		}
 	}
+
+	static int getPcapTimestampProvider(const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+#ifdef HAS_TIMESTAMP_TYPES_ENABLED
+		switch (timestampProvider)
+		{
+		case PcapLiveDevice::TimestampProvider::Host:
+			return PCAP_TSTAMP_HOST;
+		case PcapLiveDevice::TimestampProvider::HostLowPrecision:
+			return PCAP_TSTAMP_HOST_LOWPREC;
+		case PcapLiveDevice::TimestampProvider::HostHighPrecision:
+			return PCAP_TSTAMP_HOST_HIPREC;
+		case PcapLiveDevice::TimestampProvider::Adapter:
+			return PCAP_TSTAMP_ADAPTER;
+		case PcapLiveDevice::TimestampProvider::AdapterUnsynced:
+			return PCAP_TSTAMP_ADAPTER_UNSYNCED;
+		case PcapLiveDevice::TimestampProvider::HostHighPrecisionUnsynced:
+			return PCAP_TSTAMP_HOST_HIPREC_UNSYNCED;
+		}
+		return PCAP_TSTAMP_HOST;
+#else
+		throw std::logic_error("Error getting the timestamp provider - it is available only from libpcap 1.2");
 #endif
+	}
+
+	static int getPcapPrecision(const PcapLiveDevice::TimestampPrecision timestampPrecision)
+	{
+#ifdef HAS_TIMESTAMP_PRECISION_ENABLED
+		switch (timestampPrecision)
+		{
+		case PcapLiveDevice::TimestampPrecision::Microseconds:
+			return PCAP_TSTAMP_PRECISION_MICRO;
+		case PcapLiveDevice::TimestampPrecision::Nanoseconds:
+			return PCAP_TSTAMP_PRECISION_NANO;
+		}
+		return PCAP_TSTAMP_PRECISION_MICRO;
+#else
+		throw std::logic_error("Error getting timestamp precision - it is available only from libpcap 1.5");
+#endif
+	}
+
+	static bool isTimestampProviderSupportedByDevice(pcap_t* pcap,
+	                                                 const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+#ifdef HAS_TIMESTAMP_TYPES_ENABLED
+		const auto tstampType = getPcapTimestampProvider(timestampProvider);
+
+		int* supportedTstampTypesRaw;
+		const int numSupportedTstampTypes = pcap_list_tstamp_types(pcap, &supportedTstampTypesRaw);
+
+		struct TimestampTypesDeleter
+		{
+			void operator()(int* ptr) const noexcept
+			{
+				pcap_free_tstamp_types(ptr);
+			}
+		};
+
+		std::unique_ptr<int[], TimestampTypesDeleter> supportedTstampTypes(supportedTstampTypesRaw);
+
+		if (numSupportedTstampTypes < 0)
+		{
+			PCPP_LOG_ERROR("Error retrieving timestamp types - default 'Host' will be used, error message: "
+			               << pcap_geterr(pcap) << "'");
+			return false;
+		}
+
+		return std::find(supportedTstampTypes.get(), supportedTstampTypes.get() + numSupportedTstampTypes,
+		                 tstampType) != supportedTstampTypes.get() + numSupportedTstampTypes;
+#else
+		throw std::logic_error("Error retrieving timestamp types - it is available only from libpcap 1.2");
+#endif
+	}
+
+	static void setTimestampProvider(pcap_t* pcap, const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+#ifdef HAS_TIMESTAMP_TYPES_ENABLED
+		if (isTimestampProviderSupportedByDevice(pcap, timestampProvider))
+		{
+			const int ret = pcap_set_tstamp_type(pcap, getPcapTimestampProvider(timestampProvider));
+			if (ret == 0)
+			{
+				PCPP_LOG_DEBUG("Timestamp provider was set");
+			}
+			else
+			{
+				PCPP_LOG_ERROR("Failed to set timestamping provider: '" << ret << "', error message: '"
+				                                                        << pcap_geterr(pcap) << "'");
+			}
+		}
+		else
+		{
+			PCPP_LOG_ERROR("Selected timestamping provider is not supported");
+		}
+#else
+		PCPP_LOG_ERROR("Error setting timestamp provider - it is available only from libpcap 1.2");
+#endif
+	}
+
+	static void setTimestampPrecision(pcap_t* pcap, const PcapLiveDevice::TimestampPrecision timestampPrecision)
+	{
+#ifdef HAS_TIMESTAMP_PRECISION_ENABLED
+		const int ret = pcap_set_tstamp_precision(pcap, getPcapPrecision(timestampPrecision));
+		if (ret == 0)
+		{
+			PCPP_LOG_DEBUG("Timestamp precision was set");
+			return;
+		}
+
+		if (ret == PCAP_ERROR_TSTAMP_PRECISION_NOTSUP)
+		{
+			PCPP_LOG_ERROR(
+			    "Failed to set timestamping precision: the capture device does not support the requested precision");
+		}
+		else
+		{
+			PCPP_LOG_ERROR("Failed to set timestamping precision: '" << ret << "', error message: '"
+			                                                         << pcap_geterr(pcap) << "'");
+		}
+#else
+		PCPP_LOG_ERROR("Error setting timestamp precision - it is available only from libpcap 1.5");
+#endif
+	}
 
 	PcapLiveDevice::DeviceInterfaceDetails::DeviceInterfaceDetails(pcap_if_t* pInterface)
 	    : name(pInterface->name), isLoopback(pInterface->flags & PCAP_IF_LOOPBACK)
@@ -259,7 +384,7 @@ namespace pcpp
 		char errbuf[PCAP_ERRBUF_SIZE] = { '\0' };
 		std::string device_name = m_InterfaceDetails.name;
 
-		if (device_name == NFLOG_IFACE)
+		if (isNflogDevice())
 		{
 			device_name += ":" + std::to_string(config.nflogGroup & 0xffff);
 		}
@@ -310,6 +435,16 @@ namespace pcpp
 		}
 #endif
 
+		if (config.timestampProvider != TimestampProvider::Host)
+		{
+			setTimestampProvider(pcap, config.timestampProvider);
+		}
+
+		if (config.timestampPrecision != TimestampPrecision::Microseconds)
+		{
+			setTimestampPrecision(pcap, config.timestampPrecision);
+		}
+
 		ret = pcap_activate(pcap);
 		if (ret != 0)
 		{
@@ -318,7 +453,6 @@ namespace pcpp
 			return nullptr;
 		}
 
-#ifdef HAS_SET_DIRECTION_ENABLED
 		pcap_direction_t directionToSet = directionTypeMap(config.direction);
 		ret = pcap_setdirection(pcap, directionToSet);
 		if (ret == 0)
@@ -341,7 +475,6 @@ namespace pcpp
 			PCPP_LOG_ERROR("Failed to set direction for capturing packets, error code: '"
 			               << ret << "', error message: '" << pcap_geterr(pcap) << "'");
 		}
-#endif
 
 		if (pcap)
 		{
@@ -374,7 +507,7 @@ namespace pcpp
 		internal::PcapHandle pcapSendDescriptor;
 
 		// It's not possible to have two open instances of the same NFLOG device:group
-		if (m_InterfaceDetails.name == NFLOG_IFACE)
+		if (isNflogDevice())
 		{
 			pcapSendDescriptor = nullptr;
 		}
@@ -383,7 +516,7 @@ namespace pcpp
 			pcapSendDescriptor = internal::PcapHandle(doOpen(config));
 		}
 
-		if (pcapDescriptor == nullptr || (m_InterfaceDetails.name != NFLOG_IFACE && pcapSendDescriptor == nullptr))
+		if (pcapDescriptor == nullptr || (!isNflogDevice() && pcapSendDescriptor == nullptr))
 		{
 			m_DeviceOpened = false;
 			return false;
@@ -395,7 +528,7 @@ namespace pcpp
 		m_PcapSendDescriptor = pcapSendDescriptor.release();
 		m_DeviceOpened = true;
 
-		if (!config.usePoll)
+		if (!config.usePoll || isNflogDevice())
 		{
 			m_UsePoll = false;
 			m_PcapSelectableFd = -1;
@@ -1046,6 +1179,7 @@ namespace pcpp
 					}
 					catch (const std::exception& e)
 					{
+						(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_ERROR is disabled
 						PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
 					}
 					break;
@@ -1217,6 +1351,11 @@ namespace pcpp
 	const std::vector<IPv4Address>& PcapLiveDevice::getDnsServers() const
 	{
 		return PcapLiveDeviceList::getInstance().getDnsServers();
+	}
+
+	bool PcapLiveDevice::isNflogDevice() const
+	{
+		return m_InterfaceDetails.name == NFLOG_IFACE;
 	}
 
 	PcapLiveDevice::~PcapLiveDevice()

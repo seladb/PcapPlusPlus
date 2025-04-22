@@ -4,6 +4,7 @@ add_library(
   src/ArpLayer.cpp
   src/Asn1Codec.cpp
   src/BgpLayer.cpp
+  src/CiscoHdlcLayer.cpp
   src/CotpLayer.cpp
   src/DhcpLayer.cpp
   src/DhcpV6Layer.cpp
@@ -19,6 +20,7 @@ add_library(
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
   src/IgmpLayer.cpp
+  src/IPLayer.cpp
   src/IPReassembly.cpp
   src/IPSecLayer.cpp
   src/IPv4Layer.cpp
@@ -73,6 +75,7 @@ set(
   header/ArpLayer.h
   header/Asn1Codec.h
   header/BgpLayer.h
+  header/CiscoHdlcLayer.h
   header/CotpLayer.h
   header/DhcpLayer.h
   header/DhcpV6Layer.h
@@ -141,6 +144,8 @@ set(
 
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+target_compile_features(Packet++ PUBLIC cxx_std_11)
 
 target_include_directories(
   Packet++

@@ -22,6 +22,7 @@ set(
   header/Logger.h
   header/LRUList.h
   header/MacAddress.h
+  header/ObjectPool.h
   header/OUILookup.h
   header/PcapPlusPlusVersion.h
   header/PointerVector.h
@@ -32,6 +33,8 @@ set(
 
 # Set the public header that will be installed
 set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+target_compile_features(Common++ PUBLIC cxx_std_11)
 
 target_include_directories(
   Common++

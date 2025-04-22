@@ -70,7 +70,7 @@ namespace pcpp
 		/// A deleter that cleans up a bpf_program object.
 		struct BpfProgramDeleter
 		{
-			void operator()(bpf_program* ptr) const;
+			void operator()(bpf_program* ptr) const noexcept;
 		};
 	}  // namespace internal
 

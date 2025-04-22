@@ -21,6 +21,7 @@
 #include "TcpLayer.h"
 #include "SSLLayer.h"
 #include "SSLHandshake.h"
+#include "Packet.h"
 #include "PcapPlusPlusVersion.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"

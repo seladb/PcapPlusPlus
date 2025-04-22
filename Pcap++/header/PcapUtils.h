@@ -18,14 +18,14 @@ namespace pcpp
 		/// A deleter that cleans up a pcap_t structure by calling pcap_close.
 		struct PcapCloseDeleter
 		{
-			void operator()(pcap_t* ptr) const;
+			void operator()(pcap_t* ptr) const noexcept;
 		};
 
 		/// @class PcapFreeAllDevsDeleter
 		/// A deleter that frees an interface list of pcap_if_t ptr by calling 'pcap_freealldevs' function on it.
 		struct PcapFreeAllDevsDeleter
 		{
-			void operator()(pcap_if_t* ptr) const;
+			void operator()(pcap_if_t* ptr) const noexcept;
 		};
 	}  // namespace internal
 

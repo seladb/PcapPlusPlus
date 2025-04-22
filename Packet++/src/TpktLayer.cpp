@@ -2,6 +2,7 @@
 #include "EndianPortable.h"
 #include "CotpLayer.h"
 #include "PayloadLayer.h"
+#include <cstring>
 #include <sstream>
 
 namespace pcpp

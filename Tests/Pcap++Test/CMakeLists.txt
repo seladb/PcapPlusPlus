@@ -11,6 +11,7 @@ add_executable(
   Tests/KniTests.cpp
   Tests/LiveDeviceTests.cpp
   Tests/LoggerTests.cpp
+  Tests/ObjectPoolTests.cpp
   Tests/PacketParsingTests.cpp
   Tests/PfRingTests.cpp
   Tests/RawSocketTests.cpp

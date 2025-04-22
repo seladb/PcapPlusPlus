@@ -5,6 +5,7 @@
 #include <csignal>
 #include <ctime>
 #include <string>
+#include <iostream>
 
 #include <unistd.h>
 #include <errno.h>

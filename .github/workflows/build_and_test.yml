@@ -11,6 +11,7 @@ env:
   BUILD_DIR: Dist
   GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
   CCACHE_DIR: ${{ github.workspace }}/.ccache
+  CPPCHECK_VERSION: 2.9
 
 permissions:
   contents: read
@@ -33,7 +34,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apk update && apk add cppcheck python3-dev
+          apk update && apk add python3-dev
+          git clone --branch $CPPCHECK_VERSION --single-branch https://github.com/danmar/cppcheck.git
+          cd cppcheck && mkdir build && cd build && cmake .. && cmake --build . && cmake --install . && cd ../../ && rm -rf cppcheck
           python3 -m venv .venv
           . .venv/bin/activate
           python3 -m pip install pre-commit setuptools clang-format==19.1.6 clang-tidy==18.1.8
@@ -91,7 +94,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -146,7 +149,7 @@ jobs:
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./coverage.xml
           flags: ${{ matrix.image }},unittest
@@ -156,7 +159,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -167,11 +170,9 @@ jobs:
     strategy:
       matrix:
         include:
+          - image: ubuntu2404-dpdk2411
+          - image: ubuntu2404-dpdk2311
           - image: ubuntu2204-dpdk2211
-          - image: ubuntu2004-dpdk2111
-            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
-          - image: ubuntu2004-dpdk2011
-            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
 
     steps:
       - name: Checkout code
@@ -179,7 +180,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -220,7 +221,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -239,7 +240,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -277,7 +278,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -321,7 +322,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
@@ -331,7 +332,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.os-version }}-${{ matrix.arch }}-ccache-${{ github.run_id }}
@@ -394,7 +395,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         if: ${{ matrix.host-arch == matrix.arch }}
         with:
           files: ./coverage.xml
@@ -405,7 +406,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -425,7 +426,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@c52d1fa9c7492275e60fe763540fb601f5f232a1 # v2.25.0
+        uses: msys2/setup-msys2@61f9e5e925871ba6c9e3e8da24ede83ea27fa91f # v2.27.0
         with:
           msystem: ${{matrix.sys}}
           install: >-
@@ -435,7 +436,7 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
         with:
           python-version: "3.12"
 
@@ -483,7 +484,7 @@ jobs:
         run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./coverage.xml
           flags: ${{ matrix.sys }},unittest
@@ -519,7 +520,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
         with:
           python-version: "3.12"
 
@@ -574,7 +575,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
@@ -592,7 +593,7 @@ jobs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Test in FreeBSD
       id: test
-      uses: vmactions/freebsd-vm@debf37ca7b7fa40e19c542ef7ba30d6054a706a4 # v1.1.5
+      uses: vmactions/freebsd-vm@8873d98fd1413b5977cb2f7348fe329775159892 # v1.1.9
       with:
         release: ${{ matrix.version }}
         usesh: true
@@ -624,20 +625,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - run-on-os: ubuntu-20.04
-            target: armeabi-v7a
-            api-version: 30
-          - run-on-os: ubuntu-20.04
+          - run-on-os: ubuntu-latest
+            target: x86_64
+            api-version: 35
+          - run-on-os: ubuntu-latest
             target: x86
-            api-version: 30
+            api-version: 35
+          - run-on-os: macos-15
+            target: armeabi-v7a
+            api-version: 35
           - run-on-os: macos-15
             target: arm64-v8a
-            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
-            api-version: 30
-          - run-on-os: macos-15
-            target: x86_64
-            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
-            api-version: 30
+            api-version: 35
 
     runs-on: ${{ matrix.run-on-os }}
 
@@ -646,7 +645,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # main
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -660,14 +659,14 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # master
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
+          ref: "v2.0.0"
           submodules: true
 
-      - name: Install locally PcapPlusPlus
-        # CMake install library in $prefix/lib ToyVpn want $prefix/$target/$api-version
+      - name: Build and install PcapPlusPlus
         run: |
           TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
           PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
@@ -679,26 +678,39 @@ jobs:
           mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
-      - name: Set up JDK 8
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: "8"
+          java-version: "17"
           distribution: "zulu"
+          cache: "gradle"
 
-      - name: Build ToyVpn-PcapPlusPlus
+      - name: Build gradle project and run tests
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
-          NDK_VERSION=$(echo "$ANDROID_NDK" | awk -F'/' '{print $NF}')
-          sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
-          if [[ "${{ matrix.run-on-os }}" == "macos"* ]]; then
-              sed -i.bak "/defaultConfig {/a\\
-                  ndkVersion \"$NDK_VERSION\"
-              " app/build.gradle
-          else
-              sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
-          fi
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          chmod +x ./gradlew
+          ./gradlew build -PabiFilter=${{ matrix.target}}
+
+      - name: Enable KVM
+        if: matrix.target == 'x86_64'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run instrumentation tests
+        if: matrix.target == 'x86_64'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-version }}
+          arch: ${{ matrix.target }}
+          working-directory: ./ToyVpn-PcapPlusPlus
+          script: ./gradlew -is connectedCheck -PabiFilter=${{ matrix.target}}
+# Uncomment to enable logs
+#          script: |
+#            adb logcat -c
+#            adb logcat &
+#            gradle -is connectedCheck
 
   xdp:
     runs-on: ubuntu-22.04
@@ -713,7 +725,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -743,7 +755,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./coverage.xml
           flags: xdp,unittest
@@ -753,7 +765,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -782,7 +794,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.engine }}-${{ matrix.sanitizer }}-ccache-${{ github.run_id }}
@@ -804,7 +816,7 @@ jobs:
           Tests/Fuzzers/RegressionTests/run_tests.sh
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}

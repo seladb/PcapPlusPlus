@@ -85,7 +85,8 @@ int main(int argc, char* argv[])
 #endif
 
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
-	pcpp::Logger::getInstance();
+	// Disables context pooling to avoid false positives in the memory leak check, as the contexts persist in the pool.
+	pcpp::Logger::getInstance().useContextPooling(false);
 
 	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
@@ -341,6 +342,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WireGuardTransportDataParsingTest, "wg");
 	PTF_RUN_TEST(WireGuardCreationTest, "wg");
 	PTF_RUN_TEST(WireGuardEditTest, "wg");
+
+	PTF_RUN_TEST(CiscoHdlcParsingTest, "chdlc");
+	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
+	PTF_RUN_TEST(CiscoHdlcLayerEditTest, "chdlc");
 
 	PTF_END_RUNNING_TESTS;
 }

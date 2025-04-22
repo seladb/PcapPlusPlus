@@ -95,6 +95,7 @@ namespace pcpp
 		}
 		catch (const std::exception& e)
 		{
+			(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_ERROR is disabled
 			PCPP_LOG_ERROR(e.what());
 			return nullptr;
 		}
@@ -112,6 +113,11 @@ namespace pcpp
 		}
 		catch (const std::exception& e)
 		{
+			for (auto device : devices)
+			{
+				delete device;
+			}
+			(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_ERROR is disabled
 			PCPP_LOG_ERROR("Error creating remote devices: " << e.what());
 			return nullptr;
 		}
