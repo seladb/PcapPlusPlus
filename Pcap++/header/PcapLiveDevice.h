@@ -107,7 +107,7 @@ namespace pcpp
 		private:
 			struct ThreadData
 			{
-				PcapLiveDevice const* m_PcapDevice;
+				PcapLiveDevice const* m_PcapDevice = nullptr;
 				OnStatsUpdateCallback m_cbOnStatsUpdate;
 				void* m_cbOnStatsUpdateUserCookie = nullptr;
 				unsigned int m_updateIntervalMs = 1000;  // Default update interval is 1 second
