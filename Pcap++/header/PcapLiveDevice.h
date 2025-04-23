@@ -88,7 +88,7 @@ namespace pcpp
 		public:
 			/// @brief Constructs and starts a worker thread that periodically calls the provided callback with updated
 			/// statistics.
-			/// @param pcapHandle A pcap handle to the device to be monitored.
+			/// @param pcapDevice A pointer to the PcapLiveDevice instance to be monitored.
 			/// @param onStatsUpdateCallback A callback function to be called with updated statistics.
 			/// @param m_cbOnStatsUpdateUserCookie A user-defined pointer that is passed to the callback function.
 			/// @param updateIntervalMs The interval in milliseconds between each callback invocation.
