@@ -115,7 +115,7 @@ namespace pcpp
 
 			struct SharedThreadData
 			{
-				std::atomic_bool m_stopRequested = false;
+				std::atomic_bool m_stopRequested{ false };
 			};
 
 			/// @brief Main function for the worker thread.
