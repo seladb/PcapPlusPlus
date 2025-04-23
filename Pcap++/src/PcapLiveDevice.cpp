@@ -150,7 +150,7 @@ namespace pcpp
 		if (numSupportedTstampTypes < 0)
 		{
 			PCPP_LOG_ERROR("Error retrieving timestamp types - default 'Host' will be used, error message: "
-			               << pcap_geterr(pcap.get()) << "'");
+			               << pcap.getLastError() << "'");
 			return false;
 		}
 
@@ -173,8 +173,7 @@ namespace pcpp
 		const int ret = pcap_set_tstamp_type(pcap.get(), getPcapTimestampProvider(timestampProvider));
 		if (ret != 0)
 		{
-			throw std::runtime_error("Cannot create the pcap device, error was: " +
-			                         std::string(pcap_geterr(pcap.get())));
+			throw std::runtime_error("Cannot create the pcap device, error was: " + std::string(pcap.getLastError()));
 		}
 
 #else
@@ -199,7 +198,7 @@ namespace pcpp
 		}
 
 		throw std::runtime_error("Failed to set timestamping precision, error was: " +
-		                         std::string(pcap_geterr(pcap.get())));
+		                         std::string(pcap.getLastError()));
 
 #else
 		throw std::runtime_error("Error setting timestamp precision - it is available only from libpcap 1.5");
@@ -393,21 +392,20 @@ namespace pcpp
 		int ret = pcap_set_snaplen(pcap.get(), config.snapshotLength <= 0 ? DEFAULT_SNAPLEN : config.snapshotLength);
 		if (ret != 0)
 		{
-			throw std::runtime_error("Cannot set snaplan, error was: " + std::string(pcap_geterr(pcap.get())));
+			throw std::runtime_error("Cannot set snaplan, error was: " + std::string(pcap.getLastError()));
 		}
 
 		ret = pcap_set_promisc(pcap.get(), config.mode);
 		if (ret != 0)
 		{
-			throw std::runtime_error("Cannot set promiscuous mode, error was: " + std::string(pcap_geterr(pcap.get())));
+			throw std::runtime_error("Cannot set promiscuous mode, error was: " + std::string(pcap.getLastError()));
 		}
 
 		int timeout = (config.packetBufferTimeoutMs <= 0 ? LIBPCAP_OPEN_LIVE_TIMEOUT : config.packetBufferTimeoutMs);
 		ret = pcap_set_timeout(pcap.get(), timeout);
 		if (ret != 0)
 		{
-			throw std::runtime_error("Cannot set timeout on device, error was: " +
-			                         std::string(pcap_geterr(pcap.get())));
+			throw std::runtime_error("Cannot set timeout on device, error was: " + std::string(pcap.getLastError()));
 		}
 
 		if (config.packetBufferSize >= 100)
@@ -415,7 +413,7 @@ namespace pcpp
 			ret = pcap_set_buffer_size(pcap.get(), config.packetBufferSize);
 			if (ret != 0)
 			{
-				throw std::runtime_error("Cannot set buffer size, error was: " + std::string(pcap_geterr(pcap.get())));
+				throw std::runtime_error("Cannot set buffer size, error was: " + std::string(pcap.getLastError()));
 			}
 		}
 
@@ -423,7 +421,7 @@ namespace pcpp
 		ret = pcap_set_immediate_mode(pcap.get(), 1);
 		if (ret != 0)
 		{
-			throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap_geterr(pcap.get())));
+			throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap.getLastError()));
 		}
 #endif
 
@@ -440,7 +438,7 @@ namespace pcpp
 		ret = pcap_activate(pcap.get());
 		if (ret != 0)
 		{
-			throw std::runtime_error("Cannot activate the device, error was: " + std::string(pcap_geterr(pcap.get())));
+			throw std::runtime_error("Cannot activate the device, error was: " + std::string(pcap.getLastError()));
 		}
 
 		if (config.direction != PCPP_INOUT)
@@ -450,7 +448,7 @@ namespace pcpp
 			if (ret != 0)
 			{
 				throw std::runtime_error("Failed to set direction for capturing packets, error was: " +
-				                         std::string(pcap_geterr(pcap.get())));
+				                         std::string(pcap.getLastError()));
 			}
 		}
 
