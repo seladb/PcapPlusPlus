@@ -233,6 +233,68 @@ namespace pcpp
 		}
 	}
 
+	PcapLiveDevice::StatisticsUpdateWorker::StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice,
+	                                                               OnStatsUpdateCallback onStatsUpdateCallback,
+	                                                               void* m_cbOnStatsUpdateUserCookie,
+	                                                               unsigned int updateIntervalMs)
+	{
+		// Setup thread data
+		m_sharedThreadData = std::make_shared<SharedThreadData>();
+
+		ThreadData threadData;
+		threadData.m_PcapDevice = &pcapDevice;
+		threadData.m_cbOnStatsUpdate = onStatsUpdateCallback;
+		threadData.m_cbOnStatsUpdateUserCookie = m_cbOnStatsUpdateUserCookie;
+		threadData.m_updateIntervalMs = updateIntervalMs;
+
+		// Start the thread
+		m_WorkerThread = std::thread(&StatisticsUpdateWorker::workerMain, m_sharedThreadData, std::move(threadData));
+	}
+
+	void PcapLiveDevice::StatisticsUpdateWorker::stopWorker()
+	{
+		m_sharedThreadData->m_stopRequested = true;
+		if (m_WorkerThread.joinable())
+		{
+			m_WorkerThread.join();
+		}
+	}
+
+	void PcapLiveDevice::StatisticsUpdateWorker::workerMain(std::shared_ptr<SharedThreadData> sharedThreadData,
+	                                                        ThreadData threadData)
+	{
+		if (sharedThreadData == nullptr)
+		{
+			PCPP_LOG_ERROR("Shared thread data is null");
+			return;
+		}
+
+		if (threadData.m_PcapDevice == nullptr)
+		{
+			PCPP_LOG_ERROR("Pcap device is null");
+			return;
+		}
+
+		if (threadData.m_cbOnStatsUpdate == nullptr)
+		{
+			PCPP_LOG_ERROR("Statistics Callback is null");
+			return;
+		}
+
+		PCPP_LOG_DEBUG("Started statistics thread");
+
+		PcapStats stats;
+		auto sleepDuration = std::chrono::milliseconds(threadData.m_updateIntervalMs);
+		while (!sharedThreadData->m_stopRequested)
+		{
+			threadData.m_PcapDevice->getStatistics(stats);
+			threadData.m_cbOnStatsUpdate(stats, threadData.m_cbOnStatsUpdateUserCookie);
+			std::this_thread::sleep_for(sleepDuration);
+		}
+
+		PCPP_LOG_DEBUG("Stopped statistics thread");
+	}
+
 	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
 	                               bool calculateDefaultGateway)
 	    : IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1),
@@ -266,17 +328,12 @@ namespace pcpp
 
 		// init all other members
 		m_CaptureThreadStarted = false;
-		m_StatsThreadStarted = false;
 		m_StopThread = false;
 		m_CaptureThread = {};
-		m_StatsThread = {};
 		m_cbOnPacketArrives = nullptr;
-		m_cbOnStatsUpdate = nullptr;
 		m_cbOnPacketArrivesBlockingMode = nullptr;
 		m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
-		m_IntervalToUpdateStats = 0;
 		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_cbOnStatsUpdateUserCookie = nullptr;
 		m_CaptureCallbackMode = true;
 		m_CapturedPackets = nullptr;
 		if (calculateMacAddress)
@@ -364,19 +421,6 @@ namespace pcpp
 			}
 		}
 		PCPP_LOG_DEBUG("Ended capture thread for device '" << m_InterfaceDetails.name << "'");
-	}
-
-	void PcapLiveDevice::statsThreadMain()
-	{
-		PCPP_LOG_DEBUG("Started stats thread for device '" << m_InterfaceDetails.name << "'");
-		while (!m_StopThread)
-		{
-			PcapStats stats;
-			getStatistics(stats);
-			m_cbOnStatsUpdate(stats, m_cbOnStatsUpdateUserCookie);
-			std::this_thread::sleep_for(std::chrono::seconds(m_IntervalToUpdateStats));
-		}
-		PCPP_LOG_DEBUG("Ended stats thread for device '" << m_InterfaceDetails.name << "'");
 	}
 
 	pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
@@ -606,8 +650,6 @@ namespace pcpp
 			return false;
 		}
 
-		m_IntervalToUpdateStats = intervalInSecondsToUpdateStats;
-
 		m_CaptureCallbackMode = true;
 		m_cbOnPacketArrives = std::move(onPacketArrives);
 		m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
@@ -625,12 +667,12 @@ namespace pcpp
 
 		if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 		{
-			m_cbOnStatsUpdate = std::move(onStatsUpdate);
-			m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
-			m_StatsThread = std::thread(&pcpp::PcapLiveDevice::statsThreadMain, this);
-			m_StatsThreadStarted = true;
-			PCPP_LOG_DEBUG("Successfully created stats thread for device '"
-			               << m_InterfaceDetails.name << "'. Thread id: " << m_StatsThread.get_id());
+			// Due to passing a this pointer, the current device object shouldn't be relocated, while toe worker is
+			// active.
+			m_StatisticsUpdateWorker = std::unique_ptr<StatisticsUpdateWorker>(new StatisticsUpdateWorker(
+			    *this, std::move(onStatsUpdate), onStatsUpdateUserCookie, intervalInSecondsToUpdateStats * 1000));
+
+			PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_InterfaceDetails.name << "'.");
 		}
 
 		return true;
@@ -684,9 +726,7 @@ namespace pcpp
 		}
 
 		m_cbOnPacketArrives = nullptr;
-		m_cbOnStatsUpdate = nullptr;
 		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_cbOnStatsUpdateUserCookie = nullptr;
 
 		m_cbOnPacketArrivesBlockingMode = std::move(onPacketArrives);
 		m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
@@ -805,11 +845,12 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
 		}
 		PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
-		if (m_StatsThreadStarted)
+
+		if (m_StatisticsUpdateWorker != nullptr)
 		{
 			PCPP_LOG_DEBUG("Stopping stats thread, waiting for it to join...");
-			m_StatsThread.join();
-			m_StatsThreadStarted = false;
+			m_StatisticsUpdateWorker->stopWorker();
+			m_StatisticsUpdateWorker.reset();
 			PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_InterfaceDetails.name << "'");
 		}
 
