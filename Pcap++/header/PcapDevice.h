@@ -18,6 +18,18 @@ namespace pcpp
 
 	namespace internal
 	{
+		/// @struct PcapStats
+		/// A container for pcap device statistics
+		struct PcapStats
+		{
+			/// Number of packets received
+			uint64_t packetsRecv;
+			/// Number of packets dropped
+			uint64_t packetsDrop;
+			/// number of packets dropped by interface (not supported on all platforms)
+			uint64_t packetsDropByInterface;
+		};
+
 		/// @class PcapHandle
 		/// @brief A wrapper class for pcap_t* which is the libpcap packet capture descriptor.
 		/// This class is used to manage the lifecycle of the pcap_t* object
@@ -77,6 +89,14 @@ namespace pcpp
 			/// @return True if the filter was removed successfully or if no filter was set, false otherwise.
 			bool clearFilter();
 
+			/// @brief Retrieves statistics from the pcap handle.
+			///
+			/// The function internally calls pcap_stats() to retrieve the statistics and only works on live devices.
+			///
+			/// @param stats Structure to store the statistics.
+			/// @return True if the statistics were retrieved successfully, false otherwise.
+			bool getStatistics(PcapStats& stats) const;
+
 			/// @return True if the handle is not null, false otherwise.
 			explicit operator bool() const noexcept
 			{
@@ -110,17 +130,7 @@ namespace pcpp
 		{}
 
 	public:
-		/// @struct PcapStats
-		/// A container for pcap device statistics
-		struct PcapStats
-		{
-			/// Number of packets received
-			uint64_t packetsRecv;
-			/// Number of packets dropped
-			uint64_t packetsDrop;
-			/// number of packets dropped by interface (not supported on all platforms)
-			uint64_t packetsDropByInterface;
-		};
+		using PcapStats = internal::PcapStats;
 
 		virtual ~IPcapDevice();
 

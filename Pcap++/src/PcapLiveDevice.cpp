@@ -823,15 +823,10 @@ namespace pcpp
 
 	void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	{
-		pcap_stat pcapStats;
-		if (pcap_stats(m_PcapDescriptor.get(), &pcapStats) < 0)
+		if (!m_PcapDescriptor.getStatistics(stats))
 		{
 			PCPP_LOG_ERROR("Error getting statistics from live device '" << m_InterfaceDetails.name << "'");
 		}
-
-		stats.packetsRecv = pcapStats.ps_recv;
-		stats.packetsDrop = pcapStats.ps_drop;
-		stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 	}
 
 	bool PcapLiveDevice::doMtuCheck(int packetPayloadLength) const
