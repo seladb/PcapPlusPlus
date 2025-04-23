@@ -190,7 +190,18 @@ namespace pcpp
 			// if totalLen == 0 this usually means TCP Segmentation Offload (TSO). In this case we should ignore the
 			// value of totalLen and look at the data captured on the wire
 			if ((totalLen < m_DataLen) && (totalLen != 0))
-				m_DataLen = totalLen;
+			{
+				auto headerLen = getHeaderLen();
+				// Make sure totalLen is larger than header len, otherwise it's a malformed packet
+				if (totalLen < headerLen)
+				{
+					m_DataLen = headerLen;
+				}
+				else
+				{
+					m_DataLen = totalLen;
+				}
+			}
 		}
 	}
 
