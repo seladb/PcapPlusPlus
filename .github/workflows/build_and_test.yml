@@ -80,7 +80,7 @@ jobs:
             image: ubuntu2004-zstd
             config-zstd: ON
           - runner: ubuntu-latest
-            image: fedora40
+            image: fedora42
             config-zstd: OFF
           - runner: ubuntu-latest
             image: alpine320
