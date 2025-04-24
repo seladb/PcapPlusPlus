@@ -34,6 +34,7 @@ def run_packet_tests(args: list[str], use_sudo: bool):
     if completed_process.returncode != 0:
         raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
 
+
 def run_pcap_tests(interface: str, tcpreplay_dir: str, args: list[str], use_sudo: bool):
     ip_address = get_if_addr(interface)
     print(f"IP address is: {ip_address}")
@@ -47,7 +48,10 @@ def run_pcap_tests(interface: str, tcpreplay_dir: str, args: list[str], use_sudo
 
         completed_process = subprocess.run(cmd_line, cwd="Tests/Pcap++Test")
         if completed_process.returncode != 0:
-            raise RuntimeError(f"Error while executing Pcap++ tests: {completed_process}")
+            raise RuntimeError(
+                f"Error while executing Pcap++ tests: {completed_process}"
+            )
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -55,7 +59,13 @@ def main():
     parser.add_argument(
         "--use-sudo", action="store_true", help="use sudo when running tests"
     )
-    parser.add_argument("--test-suites", nargs='+', type=str, default=['packet', 'pcap'], help="test suites to use")
+    parser.add_argument(
+        "--test-suites",
+        nargs="+",
+        type=str,
+        default=["packet", "pcap"],
+        help="test suites to use",
+    )
     parser.add_argument(
         "--packet-test-args",
         type=str,
@@ -77,14 +87,19 @@ def main():
     args = parser.parse_args()
 
     for test_suite in args.test_suites:
-        if test_suite not in ('packet', 'pcap'):
+        if test_suite not in ("packet", "pcap"):
             print(f"Unknown test suite: {test_suite}")
 
-    if 'packet' in args.test_suites:
+    if "packet" in args.test_suites:
         run_packet_tests(args.packet_test_args.split(), args.use_sudo)
 
-    if 'pcap' in args.test_suites:
-        run_pcap_tests(args.interface, args.tcpreplay_dir, args.pcap_test_args.split(), args.use_sudo)
+    if "pcap" in args.test_suites:
+        run_pcap_tests(
+            args.interface,
+            args.tcpreplay_dir,
+            args.pcap_test_args.split(),
+            args.use_sudo,
+        )
 
 
 if __name__ == "__main__":
