@@ -45,15 +45,14 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 11);
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Routing activation request (0x0005)");
 	PTF_ASSERT_EQUAL(doipLayer->getSourceAddress(), 0x0e80);
-	PTF_ASSERT_EQUAL(doipLayer->getActivationType(), pcpp::DoIpActivationTypes::Default, enumclass);
-	std::array<uint8_t, 4> isoField{};
+	PTF_ASSERT_EQUAL(doipLayer->getActivationType(), pcpp::DoIpActivationTypes::DEFAULT, enumclass);
+	std::array<uint8_t, 4> isoField = { 0x0, 0x0, 0x0, 0x0 };
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getReservedIso(), isoField);
 
 	PTF_ASSERT_TRUE(doipLayer->hasReservedOem());
 	PTF_ASSERT_NOT_NULL(doipLayer->getReservedOem());
-	std::array<uint8_t, 4> oemField = {};
-
-	PTF_ASSERT_TRUE(*doipLayer->getReservedOem() == oemField);
+	std::array<uint8_t, 4> oemField = { 0x0, 0x0, 0x0, 0x0 };
+	PTF_ASSERT_BUF_COMPARE(doipLayer->getReservedOem(), oemField.data(), 4);
 
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
@@ -83,7 +82,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
 	pcpp::RoutingActivationRequest doipLayer(0x00, pcpp::DoIpActivationTypes::WWH_OBD);
 
 	doipLayer.setSourceAddress(0x0e80);
-	doipLayer.setActivationType(pcpp::DoIpActivationTypes::Default);
+	doipLayer.setActivationType(pcpp::DoIpActivationTypes::DEFAULT);
 	doipLayer.setReservedIso(isoReserved);
 	doipLayer.setReservedOem(oemField);
 
@@ -105,12 +104,12 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
 	PTF_ASSERT_EQUAL(doipLayer.toString(), "DoIP Layer, Routing activation request (0x0005)");
 
 	PTF_ASSERT_EQUAL(doipLayer.getSourceAddress(), 0x0e80);
-	PTF_ASSERT_EQUAL(doipLayer.getActivationType(), pcpp::DoIpActivationTypes::Default, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer.getActivationType(), pcpp::DoIpActivationTypes::DEFAULT, enumclass);
 
 	PTF_ASSERT_TRUE(doipLayer.hasReservedOem());
-	PTF_ASSERT_VECTORS_EQUAL(*doipLayer.getReservedOem(), oemField);
+	PTF_ASSERT_BUF_COMPARE(doipLayer.getReservedOem(), oemField.data(), 4);
 
-	doipLayer.clearReserveOem();
+	doipLayer.clearReservedOem();
 
 	PTF_ASSERT_FALSE(doipLayer.hasReservedOem());
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 73 - 4);
@@ -149,10 +148,6 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
 	auto* doipLayer = RoutingActivationResponse.getLayerOfType<pcpp::RoutingActivationResponse>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
-	PTF_ASSERT_EQUAL(
-	    doipLayer->getSummary(),
-	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 00000000\n");
-
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE, enumclass);
@@ -167,6 +162,9 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getReservedIso(), resISO);
 	PTF_ASSERT_FALSE(doipLayer->hasReservedOem());
 	PTF_ASSERT_TRUE(doipLayer->getReservedOem() == nullptr);
+	PTF_ASSERT_EQUAL(
+	    doipLayer->getSummary(),
+	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 00000000\n");
 }
 
 PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
@@ -210,7 +208,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
 	std::array<uint8_t, 4> resOEM{ 0x5, 0x5, 0x5, 0x5 };
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer.getReservedIso(), resISO);
 	PTF_ASSERT_TRUE(doipLayer.hasReservedOem());
-	PTF_ASSERT_VECTORS_EQUAL(*doipLayer.getReservedOem(), resOEM);
+	PTF_ASSERT_BUF_COMPARE(doipLayer.getReservedOem(), resOEM.data(), 4);
 	PTF_ASSERT_EQUAL(
 	    doipLayer.getSummary(),
 	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 01020304\nReserved by OEM: 05050505\n");
@@ -774,11 +772,11 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "DOIP entity status response");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 7);
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, DOIP entity status response (0x4002)");
-	PTF_ASSERT_EQUAL(doipLayer->getNodeType(), pcpp::DoIpEntityStatus::GATEWAY, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getNodeType(), pcpp::DoIpEntityStatusResponse::GATEWAY, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getMaxConcurrentSockets(), 1);
 	PTF_ASSERT_EQUAL(doipLayer->getCurrentlyOpenSockets(), 0);
 	const std::array<uint8_t, 4>& maxDataSize{ 0x0, 0x0, 0x0f, 0xff };
-	PTF_ASSERT_TRUE(*doipLayer->getMaxDataSize() == maxDataSize);
+	PTF_ASSERT_BUF_COMPARE(doipLayer->getMaxDataSize(), maxDataSize.data(), 4);
 }  // DoIpEntityStatusResponsePacketParsing
 
 // DoIpEntityStatusResponsePacketCreation
@@ -797,13 +795,13 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	doIpPacket.computeCalculateFields();
 
 	unsigned char bytes[] = { 0x2, 0xfd, 0x40, 0x2, 0x0, 0x0, 0x0, 0x7, 0x0, 0x5, 0x2, 0xff, 0xff, 0xff, 0xff };
-	pcpp::EntityStatusResponse data(pcpp::DoIpEntityStatus::GATEWAY, 0, 0);
+	pcpp::EntityStatusResponse data(pcpp::DoIpEntityStatusResponse::GATEWAY, 0, 0);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&data));
 	doIpPacket.computeCalculateFields();
 	auto* doipLayer = doIpPacket.getLayerOfType<pcpp::EntityStatusResponse>();
 
-	doipLayer->setNodeType(pcpp::DoIpEntityStatus::GATEWAY);
+	doipLayer->setNodeType(pcpp::DoIpEntityStatusResponse::GATEWAY);
 	doipLayer->setMaxConcurrentSockets(5);
 	doipLayer->setCurrentlyOpenSockets(2);
 	const std::array<uint8_t, 4>& maxDataSize{ 0xff, 0xff, 0xff, 0xff };
@@ -819,11 +817,11 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "DOIP entity status response");
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 7);
 	PTF_ASSERT_EQUAL(_doipLayer2->toString(), "DoIP Layer, DOIP entity status response (0x4002)");
-	PTF_ASSERT_EQUAL(doipLayer->getNodeType(), pcpp::DoIpEntityStatus::GATEWAY, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getNodeType(), pcpp::DoIpEntityStatusResponse::GATEWAY, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getMaxConcurrentSockets(), 5);
 	PTF_ASSERT_EQUAL(doipLayer->getCurrentlyOpenSockets(), 2);
 	PTF_ASSERT_TRUE(doipLayer->hasMaxDataSize());
-	PTF_ASSERT_TRUE(*doipLayer->getMaxDataSize() == maxDataSize);
+	PTF_ASSERT_BUF_COMPARE(doipLayer->getMaxDataSize(), maxDataSize.data(), 4);
 	doipLayer->clearMaxDataSize();
 	PTF_ASSERT_FALSE(doipLayer->hasMaxDataSize());
 	PTF_ASSERT_TRUE(doipLayer->getMaxDataSize() == nullptr);
@@ -866,7 +864,9 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getSourceAddress(), 0xe80);
 	PTF_ASSERT_EQUAL(doipLayer->getTargetAddress(), 0x4010);
 	const std::vector<uint8_t>& diagData{ 0x10, 0x03 };
-	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getDiagnosticData(), diagData);
+	std::vector<uint8_t> actual = doipLayer->getDiagnosticData();
+	PTF_ASSERT_VECTORS_EQUAL(actual, diagData);
+
 }  // DoIpDiagnosticMessagePacketParsing
 
 // DoIpDiagnosticMessagePacketCreation
@@ -885,8 +885,8 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketCreation)
 	doIpPacket.computeCalculateFields();
 
 	unsigned char bytes[] = { 0x2, 0xfd, 0x80, 0x1, 0x0, 0x0, 0x0, 0x6, 0x20, 0x30, 0x40, 0x40, 0x10, 0x02 };
-	std::vector<uint8_t> diagnosticData{ 0x10, 0x02 };
-	std::vector<uint8_t> diagnosticData2{ 0x10, 0x02, 0x40, 0x50 };
+	const std::vector<uint8_t>& diagnosticData{ 0x10, 0x02 };
+	const std::vector<uint8_t>& diagnosticData2{ 0x10, 0x02, 0x40, 0x50 };
 	pcpp::DiagnosticMessage data(0x2030, 0x4040, diagnosticData);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&data));
@@ -954,7 +954,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getAckCode(), pcpp::DoIpDiagnosticAckCodes::ACK, enumclass);
 	PTF_ASSERT_TRUE(doipLayer->hasPreviousMessage());
 	const std::vector<uint8_t>& prev{ 0X22, 0Xf1, 0x01 };
-	PTF_ASSERT_TRUE(*doipLayer->getPreviousMessage() == prev);
+	PTF_ASSERT_TRUE(doipLayer->getPreviousMessage() == prev);
 }  // DoIpDiagnosticAckMessagePacketParsing
 
 // DoIpDiagnosticAckMessagePacketCreation
@@ -993,8 +993,9 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
 	PTF_ASSERT_EQUAL(doipLayer->getTargetAddress(), 0x0e80);
 	PTF_ASSERT_EQUAL(doipLayer->getAckCode(), pcpp::DoIpDiagnosticAckCodes::ACK, enumclass);
 	PTF_ASSERT_FALSE(doipLayer->hasPreviousMessage());
-	const std::vector<uint8_t>* nullprev = doipLayer->getPreviousMessage();
-	PTF_ASSERT_TRUE(nullprev == nullptr);
+	const std::vector<uint8_t> nullprev = doipLayer->getPreviousMessage();
+	const std::vector<uint8_t> expected{};
+	PTF_ASSERT_VECTORS_EQUAL(nullprev, expected);
 
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(), "Source Address: 0x4010\nTarget Address: 0xe80\nACK code: ACK (0x0)\n");
 
@@ -1005,7 +1006,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
 	PTF_ASSERT_EQUAL(doipLayer->getSourceAddress(), 0x7080);
 	PTF_ASSERT_EQUAL(doipLayer->getTargetAddress(), 0x9010);
 	PTF_ASSERT_TRUE(doipLayer->hasPreviousMessage());
-	PTF_ASSERT_TRUE(*doipLayer->getPreviousMessage() == prev);
+	PTF_ASSERT_TRUE(doipLayer->getPreviousMessage() == prev);
 
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
@@ -1050,7 +1051,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketParsing)
 
 	PTF_ASSERT_TRUE(nackLayer->hasPreviousMessage());
 	const std::vector<uint8_t> expectedPrev = { 0x22, 0xF1, 0x01 };
-	PTF_ASSERT_TRUE(*nackLayer->getPreviousMessage() == expectedPrev);
+	PTF_ASSERT_TRUE(nackLayer->getPreviousMessage() == expectedPrev);
 
 	PTF_ASSERT_EQUAL(
 	    nackLayer->getSummary(),
@@ -1086,7 +1087,8 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	PTF_ASSERT_EQUAL(layer->getTargetAddress(), 0x0e80);
 	PTF_ASSERT_EQUAL(layer->getNackCode(), pcpp::DoIpDiagnosticMessageNackCodes::INVALID_SOURCE_ADDRESS, enumclass);
 	PTF_ASSERT_FALSE(layer->hasPreviousMessage());
-	PTF_ASSERT_TRUE(layer->getPreviousMessage() == nullptr);
+	const std::vector<uint8_t> expectedPrev = {};
+	PTF_ASSERT_TRUE(layer->getPreviousMessage() == expectedPrev);
 
 	// Update fields and add previous message
 	layer->setSourceAddress(0xDEAD);
@@ -1097,7 +1099,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	PTF_ASSERT_EQUAL(layer->getSourceAddress(), 0xDEAD);
 	PTF_ASSERT_EQUAL(layer->getTargetAddress(), 0xBEEF);
 	PTF_ASSERT_TRUE(layer->hasPreviousMessage());
-	PTF_ASSERT_TRUE(*layer->getPreviousMessage() == prevMsg);
+	PTF_ASSERT_TRUE(layer->getPreviousMessage() == prevMsg);
 
 	PTF_ASSERT_EQUAL(
 	    layer->getSummary(),

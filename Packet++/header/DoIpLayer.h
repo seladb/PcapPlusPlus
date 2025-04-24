@@ -13,9 +13,11 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-	/// @brief Represent doip constants fields length
-	struct DoIpConstants
+	namespace DoIpConstants
 	{
+		// @brief Length of doip header
+		static constexpr size_t DOIP_HEADER_LEN = 8;
+
 		/// @brief Length of the Equiepement Identifier (EID) field.
 		static constexpr size_t DOIP_EID_LEN = 6;
 
@@ -31,9 +33,12 @@ namespace pcpp
 		/// @brief Length of the Reserved OEM field.
 		static constexpr size_t DOIP_RESERVED_OEM_LEN = 4;
 
-		/// @brief fixed size of valid doip header
-		static constexpr size_t DOIP_HEADER_LEN = 8;
-	};
+		/// @brief Length of the source address
+		static constexpr size_t DOIP_SOURCE_ADDRESS_LEN = 2;
+
+		/// @brief Length of the target address
+		static constexpr size_t DOIP_TARGET_ADDRESS_LEN = 2;
+	}  // namespace DoIpConstants
 
 	/// @brief Enum representing DoIP routing activation types.
 	/// These values specify the type of routing activation used in DoIP(Diagnostic over IP).
@@ -41,7 +46,7 @@ namespace pcpp
 	{
 		/// Default routing activation type.
 		/// Used when no specific type is required.
-		Default = 0x00U,
+		DEFAULT = 0x00U,
 
 		/// WWH-OBD (Worldwide Harmonized On-Board Diagnostics) routing activation type.
 		/// Used for vehicle diagnostics in compliance with WWH-OBD standards.
@@ -302,7 +307,7 @@ namespace pcpp
 
 	/// @brief Enum representing DoIP entity status response codes (ISO 13400).
 	/// These codes are used to indicate the role or type of a DoIP entity in the network.
-	enum class DoIpEntityStatus : uint8_t
+	enum class DoIpEntityStatusResponse : uint8_t
 	{
 		/// Gateway.
 		/// The entity functions as a gateway,
@@ -517,6 +522,8 @@ namespace pcpp
 	};
 #pragma pack(pop)
 	static_assert(sizeof(doiphdr) == 8, "DoIP header must be exactly 8 bytes.");
+
+	using namespace DoIpConstants;
 
 	/// @class DoIpLayer
 	/// Represents an DoIP protocol layer. Currently only IPv4 DoIP messages are supported
@@ -742,13 +749,13 @@ namespace pcpp
 
 	inline bool DoIpLayer::isPayloadLengthValid(uint32_t payloadLength, size_t dataLen)
 	{
-		if (dataLen < DoIpConstants::DOIP_HEADER_LEN)
+		if (dataLen < DOIP_HEADER_LEN)
 		{
 			PCPP_LOG_ERROR("[Malformed doip packet]: Data length is smaller than DOIP header size!");
 			return false;
 		}
 
-		const size_t actualPayloadLen = dataLen - DoIpConstants::DOIP_HEADER_LEN;
+		const size_t actualPayloadLen = dataLen - DOIP_HEADER_LEN;
 		if (payloadLength != actualPayloadLen)
 		{
 			PCPP_LOG_ERROR("[Malformed doip packet]: Payload length mismatch: expected "
@@ -783,6 +790,22 @@ namespace pcpp
 		/// @param[in] activationType Type of routing activation.
 		RoutingActivationRequest(uint16_t sourceAddress, DoIpActivationTypes activationType);
 
+/// @struct  Represents the Routing Activation Request data in DoIP.
+/// Routing Activation Response message structure (extends DoIP header).
+#pragma pack(push, 1)
+		struct routing_activation_request : doiphdr
+		{
+			/// @brief Source address of the tester.
+			uint16_t sourceAddress;
+
+			/// @brief Routing activation type.
+			DoIpActivationTypes activationType;
+
+			/// @brief ISO reserved bytes.
+			std::array<uint8_t, DOIP_RESERVED_ISO_LEN> reservedIso;
+		};
+#pragma pack(pop)
+
 		/// @brief Returns the source address.
 		uint16_t getSourceAddress() const;
 
@@ -796,22 +819,22 @@ namespace pcpp
 		void setActivationType(DoIpActivationTypes activationType);
 
 		/// @brief Gets the reserved ISO bytes.
-		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN> getReservedIso() const;
+		std::array<uint8_t, DOIP_RESERVED_ISO_LEN> getReservedIso() const;
 
 		/// @brief Sets the reserved ISO bytes.
-		void setReservedIso(const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN>& reservedIso);
+		void setReservedIso(const std::array<uint8_t, DOIP_RESERVED_ISO_LEN>& reservedIso);
 
-		/// @brief Gets the reserved OEM bytes if present.
-		const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN>* getReservedOem() const;
+		/// @brief Gets pointer to reserved OEM bytes if present.
+		const uint8_t* getReservedOem() const;
 
 		/// @brief Sets the reserved OEM bytes.
-		void setReservedOem(const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN>& reservedOem);
+		void setReservedOem(const std::array<uint8_t, DOIP_RESERVED_OEM_LEN>& reservedOem);
 
 		/// @brief Checks if OEM reserved bytes are present.
 		bool hasReservedOem() const;
 
 		/// @brief Clears the OEM reserved bytes.
-		void clearReserveOem();
+		void clearReservedOem();
 
 		/// @brief Returns a human-readable summary of the message.
 		std::string getSummary() const;
@@ -822,17 +845,22 @@ namespace pcpp
 			return DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST;
 		}
 
-	private:
-		uint16_t _sourceAddress;                                                 ///< Source address of the tester.
-		DoIpActivationTypes _activationType;                                     ///< Routing activation type.
-		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN> _reservedIso;  ///< ISO reserved bytes.
-		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN> _reservedOem;  ///< OEM reserved bytes.
-		bool _hasReservedOem;                                                    ///< Whether OEM bytes are set.
+		/// Get a pointer to Routing activation request message
+		/// Notice this points directly to the data, so any change will modify
+		/// the actual packet data
+		/// @return A pointer to a routing_activation_request structure containing the data
+		routing_activation_request* getRoutingRequest() const
+		{
+			return reinterpret_cast<routing_activation_request*>(m_Data);
+		}
 
+	private:
+		bool _hasReservedOem;  ///< Whether OEM bytes are set.
+
+		static constexpr size_t ACTIVATION_TYPE_LEN = 1;
 		static constexpr size_t FIXED_LEN =
-		    sizeof(_sourceAddress) + sizeof(_activationType) + DoIpConstants::DOIP_RESERVED_ISO_LEN;
-		static constexpr size_t RESERVED_OEM_OFFSET = DoIpConstants::DOIP_HEADER_LEN + FIXED_LEN;
-		static constexpr size_t OPT_LEN = FIXED_LEN + DoIpConstants::DOIP_RESERVED_OEM_LEN;
+		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + ACTIVATION_TYPE_LEN + DOIP_RESERVED_ISO_LEN;
+		static constexpr size_t OPT_LEN = FIXED_LEN + DOIP_RESERVED_OEM_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -861,6 +889,25 @@ namespace pcpp
 		RoutingActivationResponse(uint16_t logicalAddressExternalTester, uint16_t sourceAddress,
 		                          DoIpRoutingResponseCodes responseCode);
 
+/// @struct  Represents the Routing Activation Response data in DoIP.
+/// Routing Activation Response message structure (extends DoIP header).
+#pragma pack(push, 1)
+		struct routing_activation_response : doiphdr
+		{
+			/// @brief External tester's logical address.
+			uint16_t logicalAddressExternalTester;
+
+			/// @brief ECU source address.
+			uint16_t sourceAddress;
+
+			/// @brief Response code.
+			DoIpRoutingResponseCodes responseCode;
+
+			/// @brief ISO reserved bytes.
+			std::array<uint8_t, DOIP_RESERVED_ISO_LEN> reservedIso;
+		};
+#pragma pack(pop)
+
 		/// @brief Gets the logical address of the external tester.
 		uint16_t getLogicalAddressExternalTester() const;
 
@@ -880,16 +927,16 @@ namespace pcpp
 		void setResponseCode(DoIpRoutingResponseCodes code);
 
 		/// @brief Gets the reserved ISO bytes.
-		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN> getReservedIso() const;
+		std::array<uint8_t, DOIP_RESERVED_ISO_LEN> getReservedIso() const;
 
 		/// @brief Sets the reserved ISO bytes.
-		void setReservedIso(const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN>& reservedIso);
+		void setReservedIso(const std::array<uint8_t, DOIP_RESERVED_ISO_LEN>& reservedIso);
 
-		/// @brief Gets the reserved OEM bytes if present.
-		const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN>* getReservedOem() const;
+		/// @brief Gets pointer to reserved OEM bytes if present.
+		const uint8_t* getReservedOem() const;
 
 		/// @brief Sets the reserved OEM bytes.
-		void setReservedOem(const std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN>& reservedOem);
+		void setReservedOem(const std::array<uint8_t, DOIP_RESERVED_OEM_LEN>& reservedOem);
 
 		/// @brief Checks if OEM reserved bytes are present.
 		bool hasReservedOem() const;
@@ -906,18 +953,23 @@ namespace pcpp
 			return DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE;
 		}
 
-	private:
-		uint16_t _logicalAddressExternalTester;  ///< Logical address of the external tester.
-		uint16_t _sourceAddress;                 ///< ECU source address.
-		DoIpRoutingResponseCodes _responseCode;  ///< Routing response code.
-		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_ISO_LEN> _reservedIso;  ///< ISO reserved bytes.
-		std::array<uint8_t, DoIpConstants::DOIP_RESERVED_OEM_LEN> _reservedOem;  ///< OEM reserved bytes.
-		bool _hasReservedOem;                                                    ///< Whether OEM bytes are set.
+		/// Get a pointer to Routing activation response message
+		/// Notice this points directly to the data, so any change will modify
+		/// the actual packet data
+		/// @return A pointer to a routing_activation_response structure containing the data
+		routing_activation_response* getRoutingResponse() const
+		{
+			return reinterpret_cast<routing_activation_response*>(m_Data);
+		}
 
-		static constexpr size_t FIXED_LEN = sizeof(_logicalAddressExternalTester) + sizeof(_sourceAddress) +
-		                                    sizeof(_responseCode) + DoIpConstants::DOIP_RESERVED_ISO_LEN;
-		static constexpr size_t RESERVED_OEM_OFFSET = sizeof(doiphdr) + FIXED_LEN;
-		static constexpr size_t OPT_LEN = FIXED_LEN + DoIpConstants::DOIP_RESERVED_OEM_LEN;
+	private:
+		bool _hasReservedOem;  ///< Whether OEM bytes are set.
+
+		static constexpr size_t LOGICAL_ADDRESS_LEN = 2;
+		static constexpr size_t RESPONSE_CODE_LEN = 1;
+		static constexpr size_t FIXED_LEN =
+		    DOIP_HEADER_LEN + LOGICAL_ADDRESS_LEN + DOIP_SOURCE_ADDRESS_LEN + RESPONSE_CODE_LEN + DOIP_RESERVED_ISO_LEN;
+		static constexpr size_t OPT_LEN = FIXED_LEN + DOIP_RESERVED_OEM_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~|
@@ -948,6 +1000,9 @@ namespace pcpp
 		/// @brief Sets the NACK code.
 		void setNackCode(DoIpGenericHeaderNackCodes code);
 
+		/// @brief Sets the Raw NACK code for debugging/testing.
+		void setNackCode(uint8_t code);
+
 		/// @brief Returns a human-readable summary of the message.
 		std::string getSummary() const;
 
@@ -958,7 +1013,9 @@ namespace pcpp
 		}
 
 	private:
-		DoIpGenericHeaderNackCodes _nackCode;  ///< The NACK code indicating the error type.
+		static constexpr size_t NACK_CODE_OFFSET = DOIP_HEADER_LEN;
+		static constexpr size_t NACK_CODE_LEN = sizeof(uint8_t);
+		static constexpr size_t FIXED_LEN = NACK_CODE_OFFSET + NACK_CODE_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -981,13 +1038,13 @@ namespace pcpp
 
 		/// @brief Constructs the message using the specified EID.
 		/// @param[in] eid A 6-byte Entity ID used for vehicle identification.
-		explicit VehicleIdentificationRequestEID(const std::array<uint8_t, DoIpConstants::DOIP_EID_LEN>& eid);
+		explicit VehicleIdentificationRequestEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
 
 		/// @brief Gets the Entity ID (EID).
-		std::array<uint8_t, DoIpConstants::DOIP_EID_LEN> getEID() const;
+		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
 
 		/// @brief Sets the Entity ID (EID).
-		void setEID(const std::array<uint8_t, DoIpConstants::DOIP_EID_LEN>& eid);
+		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
 
 		/// @brief Returns a human-readable summary of the message.
 		std::string getSummary() const;
@@ -999,7 +1056,8 @@ namespace pcpp
 		}
 
 	private:
-		std::array<uint8_t, DoIpConstants::DOIP_EID_LEN> _eid;  ///< The 6-byte Entity ID used for identification.
+		static constexpr size_t EID_OFFSET = DOIP_HEADER_LEN;
+		static constexpr size_t FIXED_LEN = EID_OFFSET + DOIP_EID_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1022,13 +1080,13 @@ namespace pcpp
 
 		/// @brief Constructs the message using the specified VIN.
 		/// @param[in] vin A 17-byte Vehicle Identification Number.
-		explicit VehicleIdentificationRequestVIN(const std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN>& vin);
+		explicit VehicleIdentificationRequestVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
 
 		/// @brief Gets the Vehicle Identification Number (VIN).
-		std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN> getVIN() const;
+		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
 
 		/// @brief Sets the Vehicle Identification Number (VIN).
-		void setVIN(const std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN>& vin);
+		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
 
 		/// @brief Returns a human-readable summary of the message.
 		std::string getSummary() const;
@@ -1040,7 +1098,8 @@ namespace pcpp
 		}
 
 	private:
-		std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN> _vin;  ///< The 17-byte Vehicle Identification Number.
+		static constexpr size_t VIN_OFFSET = DOIP_HEADER_LEN;
+		static constexpr size_t FIXED_LEN = VIN_OFFSET + DOIP_VIN_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~|
@@ -1068,21 +1127,39 @@ namespace pcpp
 		/// @param[in] eid Entity Identifier (EID).
 		/// @param[in] gid Group Identifier (GID).
 		/// @param[in] actionCode Further action code.
-		VehicleAnnouncement(const std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN>& vin, uint16_t logicalAddress,
-		                    const std::array<uint8_t, DoIpConstants::DOIP_EID_LEN>& eid,
-		                    const std::array<uint8_t, DoIpConstants::DOIP_GID_LEN>& gid, DoIpActionCodes actionCode);
+		VehicleAnnouncement(const std::array<uint8_t, DOIP_VIN_LEN>& vin, uint16_t logicalAddress,
+		                    const std::array<uint8_t, DOIP_EID_LEN>& eid, const std::array<uint8_t, DOIP_GID_LEN>& gid,
+		                    DoIpActionCodes actionCode);
+#pragma pack(push, 1)
+		struct vehicle_announcement : doiphdr
+		{
+			/// @brief Vehicle Identification Number.
+			std::array<uint8_t, DOIP_VIN_LEN> vin;
 
+			/// @brief Logical address of the vehicle.
+			uint16_t logicalAddress;
+
+			/// @brief Entity Identifier.
+			std::array<uint8_t, DOIP_EID_LEN> eid;
+
+			/// @brief Group Identifier.
+			std::array<uint8_t, DOIP_GID_LEN> gid;
+
+			/// @brief Further action required code.
+			DoIpActionCodes actionCode;
+		};
+#pragma pack(pop)
 		/// @brief Gets the Vehicle Identification Number (VIN).
-		std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN> getVIN() const;
+		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
 
 		/// @brief Gets the logical address of the vehicle.
 		uint16_t getLogicalAddress() const;
 
 		/// @brief Gets the Entity Identifier (EID).
-		std::array<uint8_t, DoIpConstants::DOIP_EID_LEN> getEID() const;
+		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
 
 		/// @brief Gets the Group Identifier (GID).
-		std::array<uint8_t, DoIpConstants::DOIP_GID_LEN> getGID() const;
+		std::array<uint8_t, DOIP_GID_LEN> getGID() const;
 
 		/// @brief Gets the further action required code.
 		DoIpActionCodes getFurtherActionRequired() const;
@@ -1091,16 +1168,16 @@ namespace pcpp
 		const DoIpSyncStatus* getSyncStatus() const;
 
 		/// @brief Sets the Vehicle Identification Number (VIN).
-		void setVIN(const std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN>& vin);
+		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
 
 		/// @brief Sets the logical address.
 		void setLogicalAddress(uint16_t address);
 
 		/// @brief Sets the Entity Identifier (EID).
-		void setEID(const std::array<uint8_t, DoIpConstants::DOIP_EID_LEN>& eid);
+		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
 
 		/// @brief Sets the Group Identifier (GID).
-		void setGID(const std::array<uint8_t, DoIpConstants::DOIP_GID_LEN>& gid);
+		void setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid);
 
 		/// @brief Sets the further action required code.
 		void setFurtherActionRequired(DoIpActionCodes action);
@@ -1123,20 +1200,28 @@ namespace pcpp
 			return DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE;
 		}
 
-	private:
-		std::array<uint8_t, DoIpConstants::DOIP_VIN_LEN> _vin;  ///< Vehicle Identification Number.
-		uint16_t _logicalAddress;                               ///< Logical address of the vehicle.
-		std::array<uint8_t, DoIpConstants::DOIP_EID_LEN> _eid;  ///< Entity Identifier.
-		std::array<uint8_t, DoIpConstants::DOIP_GID_LEN> _gid;  ///< Group Identifier.
-		DoIpActionCodes _actionCode;                            ///< Further action required code.
-		DoIpSyncStatus _syncStatus;                             ///< Optional synchronization status.
-		bool _hasSyncStatus;                                    ///< Indicates if sync status is set.
+		/// Get a pointer to Routing vehicle announcement data
+		/// Notice this points directly to the data, so any change will modify
+		/// the actual packet data
+		/// @return A pointer to a vehicle_announcement structure containing the data
+		vehicle_announcement* getVehicleAnnouncement() const
+		{
+			return reinterpret_cast<vehicle_announcement*>(m_Data);
+		}
 
-		static constexpr size_t FIXED_LEN = DoIpConstants::DOIP_VIN_LEN + sizeof(_logicalAddress) +
-		                                    DoIpConstants::DOIP_EID_LEN + DoIpConstants::DoIpConstants::DOIP_GID_LEN +
-		                                    sizeof(_actionCode);
-		static constexpr size_t SYNC_STATUS_OFFSET = sizeof(doiphdr) + FIXED_LEN;
-		static constexpr size_t OPT_LEN = FIXED_LEN + sizeof(_syncStatus);
+	private:
+		bool _hasSyncStatus;
+
+		static constexpr size_t VIN_OFFSET = DOIP_HEADER_LEN;
+		static constexpr size_t LOGICAL_ADDRESS_LEN = 2;
+		static constexpr size_t ACTION_CODE_LEN = 1;
+		static constexpr size_t FIXED_LEN =
+		    VIN_OFFSET + DOIP_VIN_LEN + LOGICAL_ADDRESS_LEN + DOIP_EID_LEN + DOIP_GID_LEN + ACTION_CODE_LEN;
+
+		static constexpr size_t SYNC_STATUS_OFFSET = FIXED_LEN;
+		static constexpr size_t SYNC_STATUS_LEN = 1;
+
+		static constexpr size_t OPT_LEN = FIXED_LEN + SYNC_STATUS_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~|
@@ -1182,7 +1267,8 @@ namespace pcpp
 		}
 
 	private:
-		uint16_t _sourceAddress;  ///< Source address of the responder.
+		static constexpr size_t SOURCE_ADDRESS_OFFSET = DOIP_HEADER_LEN;
+		static constexpr size_t FIXED_LEN = SOURCE_ADDRESS_OFFSET + DOIP_SOURCE_ADDRESS_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1254,7 +1340,22 @@ namespace pcpp
 		/// @param[in] nodeType Type of the DoIP node (default: GATEWAY).
 		/// @param[in] maxConcurrentSockets Maximum supported concurrent sockets.
 		/// @param[in] currentlyOpenSockets Currently active sockets.
-		EntityStatusResponse(DoIpEntityStatus nodeType, uint8_t maxConcurrentSockets, uint8_t currentlyOpenSockets);
+		EntityStatusResponse(DoIpEntityStatusResponse nodeType, uint8_t maxConcurrentSockets,
+		                     uint8_t currentlyOpenSockets);
+
+		/// @struct  Represents the Routing Activation Request data in DoIP.
+		/// Routing Activation Response message structure (extends DoIP header).
+		struct entity_status_response : doiphdr
+		{
+			/// @brief Type of the DoIP node (e.g., gateway, ECU).
+			DoIpEntityStatusResponse nodeType;
+
+			/// @brief Maximum number of concurrent sockets supported.
+			uint8_t maxConcurrentSockets;
+
+			/// @brief Number of currently open sockets.
+			uint8_t currentlyOpenSockets;
+		};
 
 		/// @brief Returns the DoIP payload type.
 		/// @return DoIpPayloadTypes::ENTITY_STATUS_RESPONSE
@@ -1265,7 +1366,7 @@ namespace pcpp
 
 		/// @brief Gets the type of the DoIP node.
 		/// @return The DoIP entity status value.
-		DoIpEntityStatus getNodeType() const;
+		DoIpEntityStatusResponse getNodeType() const;
 
 		/// @brief Gets the maximum number of concurrent sockets supported.
 		/// @return Max supported concurrent sockets.
@@ -1277,11 +1378,11 @@ namespace pcpp
 
 		/// @brief Gets the optional maximum data size field.
 		/// @return Pointer to a 4-byte array representing max data size, or nullptr if not set.
-		const std::array<uint8_t, 4>* getMaxDataSize() const;
+		const uint8_t* getMaxDataSize() const;
 
 		/// @brief Sets the DoIP node type.
 		/// @param[in] status New DoIP entity status.
-		void setNodeType(DoIpEntityStatus status);
+		void setNodeType(DoIpEntityStatusResponse status);
 
 		/// @brief Sets the maximum number of concurrent sockets.
 		/// @param[in] sockets New maximum concurrent socket count.
@@ -1306,17 +1407,91 @@ namespace pcpp
 		/// @return A string summarizing the Entity Status Response.
 		std::string getSummary() const;
 
-	private:
-		DoIpEntityStatus _nodeType;           ///< Type of the DoIP node (e.g., gateway, ECU).
-		uint8_t _maxConcurrentSockets;        ///< Maximum number of concurrent sockets supported.
-		uint8_t _currentlyOpenSockets;        ///< Number of currently open sockets.
-		std::array<uint8_t, 4> _maxDataSize;  ///< Optional max data size field.
-		bool _hasMaxDataSize;                 ///< Indicates if max data size is set.
+		/// Get a pointer to entity status response data
+		/// Notice this points directly to the data, so any change will modify
+		/// the actual packet data
+		/// @return A pointer to a routing_activation_response structure containing the data
+		entity_status_response* getEntityStatusResponsePtr() const
+		{
+			return reinterpret_cast<entity_status_response*>(m_Data);
+		}
 
+	private:
+		bool _hasMaxDataSize;  ///< Indicates if max data size is set.
+
+		static constexpr size_t NODE_TYPE_LEN = 1;
+		static constexpr size_t MAX_CONCURRENT_SOCKETS_LEN = 1;
+		static constexpr size_t CURRENTLY_OPEN_SOCKETS_LEN = 1;
 		static constexpr size_t FIXED_LEN =
-		    sizeof(_nodeType) + sizeof(_maxConcurrentSockets) + sizeof(_currentlyOpenSockets);
-		static constexpr size_t MAX_DATA_SIZE_OFFSET = sizeof(doiphdr) + FIXED_LEN;
-		static constexpr size_t OPT_LEN = FIXED_LEN + sizeof(_maxDataSize);
+		    DOIP_HEADER_LEN + NODE_TYPE_LEN + MAX_CONCURRENT_SOCKETS_LEN + CURRENTLY_OPEN_SOCKETS_LEN;
+		static constexpr size_t MAX_DATA_SIZE_OFFSET = FIXED_LEN;
+		static constexpr size_t MAX_DATA_SIZE_LEN = 4;
+		static constexpr size_t OPT_LEN = FIXED_LEN + MAX_DATA_SIZE_LEN;
+	};
+
+	//~~~~~~~~~~~~~~~|
+	// DiagnosticBase|
+	//~~~~~~~~~~~~~~~|
+
+	/// @class DiagnosticBase
+	/// @brief Represents a DoIP Diagnostic Message sent between tester and ECU.
+	/// This message includes source and target addresses and carries diagnostic service data.
+	class DiagnosticBase : public DoIpLayer
+	{
+	public:
+		/// @brief Constructs the DiagnosticMessage from raw packet data.
+		/// @param[in] data Pointer to the raw payload data.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @param[in] prevLayer Pointer to the previous protocol layer.
+		/// @param[in] packet Pointer to the parent packet.
+		DiagnosticBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// @brief default c'tor.
+		DiagnosticBase() {};
+
+		/// @struct  Common first diagnostic data in DoIP
+		/// messages (diagnostic/diagnosticAck/diagnosticNack).
+		/// common_diagnostic_header message structure (extends DoIP header).
+		struct common_diagnostic_header : doiphdr
+		{
+			/// @brief Diagnostic source address
+			uint16_t sourceAddress;
+
+			/// @brief Diagnostic target address
+			uint16_t targetAddress;
+		};
+
+		/// @brief Gets the source logical address of the message.
+		/// @return 16-bit address of the source ECU.
+		uint16_t getSourceAddress() const;
+
+		/// @brief Gets the target logical address of the message.
+		/// @return 16-bit address of the destination ECU.
+		uint16_t getTargetAddress() const;
+
+		/// @brief Sets the source logical address.
+		/// @param[in] addr New 16-bit source address.
+		void setSourceAddress(uint16_t addr);
+
+		/// @brief Sets the target logical address.
+		/// @param[in] addr New 16-bit target address.
+		void setTargetAddress(uint16_t addr);
+
+		/// @brief Returns a human-readable summary of the message content.
+		/// @return A string summarizing the diagnostic message.
+		virtual std::string getSummary() const = 0;
+
+		/// Get a pointer to diagnostic message data
+		/// Notice this points directly to the data, so any change will modify
+		/// the actual packet data
+		/// @return A pointer to a common_diagnostic_header structure containing the data
+		common_diagnostic_header* getCommonDiagnosticHeader() const
+		{
+			return reinterpret_cast<common_diagnostic_header*>(m_Data);
+		}
+
+	private:
+		static constexpr size_t FIX_LEN = DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~|
@@ -1324,10 +1499,10 @@ namespace pcpp
 	//~~~~~~~~~~~~~~~~~~|
 
 	/// @class DiagnosticMessage
-	/// @brief Represents a DoIP Diagnostic Message sent between tester and ECU.
+	/// @brief Represents a DoIP Diagnostic message sent between tester and ECU.
 	///
 	/// This message includes source and target addresses and carries diagnostic service data.
-	class DiagnosticMessage : public DoIpLayer
+	class DiagnosticMessage : public DiagnosticBase
 	{
 	public:
 		/// @brief Constructs the DiagnosticMessage from raw packet data.
@@ -1343,6 +1518,18 @@ namespace pcpp
 		/// @param[in] diagData Vector containing UDS diagnostic service data.
 		DiagnosticMessage(uint16_t sourceAddress, uint16_t targetAddress, const std::vector<uint8_t>& diagData);
 
+		/// @brief Set the diagnostic data payload.
+		/// @param[in] data A vector containing the diagnostic data bytes to be stored.
+		void setDiagnosticData(const std::vector<uint8_t>& data);
+
+		/// @brief Get the diagnostic data payload.
+		/// @return A vector containing the diagnostic data bytes.
+		const std::vector<uint8_t> getDiagnosticData() const;
+
+		/// @brief Returns a human-readable summary of the message content.
+		/// @return A string summarizing the diagnostic message.
+		std::string getSummary() const override;
+
 		/// @brief Returns the DoIP payload type.
 		/// @return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE
 		DoIpPayloadTypes getPayloadType() const override
@@ -1350,38 +1537,11 @@ namespace pcpp
 			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE;
 		}
 
-		/// @brief Gets the source logical address of the message.
-		/// @return 16-bit address of the source ECU.
-		uint16_t getSourceAddress() const;
-
-		/// @brief Gets the target logical address of the message.
-		/// @return 16-bit address of the destination ECU.
-		uint16_t getTargetAddress() const;
-
-		/// @brief Gets the diagnostic data payload.
-		/// @return Reference to the vector containing UDS data.
-		const std::vector<uint8_t>& getDiagnosticData() const;
-
-		/// @brief Sets the source logical address.
-		/// @param[in] addr New 16-bit source address.
-		void setSourceAddress(uint16_t addr);
-
-		/// @brief Sets the target logical address.
-		/// @param[in] addr New 16-bit target address.
-		void setTargetAddress(uint16_t addr);
-
-		/// @brief Sets the diagnostic data payload.
-		/// @param[in] data New diagnostic data to send.
-		void setDiagnosticData(const std::vector<uint8_t>& data);
-
-		/// @brief Returns a human-readable summary of the message content.
-		/// @return A string summarizing the diagnostic message.
-		std::string getSummary() const;
-
 	private:
-		uint16_t _sourceAddress;               ///< Logical address of the sender.
-		uint16_t _targetAddress;               ///< Logical address of the receiver.
-		std::vector<uint8_t> _diagnosticData;  ///< Diagnostic (UDS) data payload.
+		static constexpr size_t DIAGNOSTIC_DATA_OFFSET =
+		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
+		static constexpr size_t MIN_LEN =
+		    DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN + 1; /*Min diagnostic message Len*/
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~|
@@ -1393,7 +1553,7 @@ namespace pcpp
 	///
 	/// This message is sent by a DoIP node to acknowledge the correct reception and processing
 	/// of a diagnostic message. Optionally, the original message (or part of it) may be echoed back.
-	class DiagnosticAckMessage : public DoIpLayer
+	class DiagnosticAckMessage : public DiagnosticBase
 	{
 	public:
 		/// @brief Constructs a DiagnosticAckMessage from raw packet data.
@@ -1409,24 +1569,12 @@ namespace pcpp
 		/// @param[in] ackCode Acknowledgment code describing the result.
 		DiagnosticAckMessage(uint16_t sourceAddress, uint16_t targetAddress, DoIpDiagnosticAckCodes ackCode);
 
-		/// @brief Gets the source logical address of the message.
-		uint16_t getSourceAddress() const;
-
-		/// @brief Gets the target logical address of the message.
-		uint16_t getTargetAddress() const;
-
 		/// @brief Gets the diagnostic acknowledgment code.
 		DoIpDiagnosticAckCodes getAckCode() const;
 
 		/// @brief Gets the optional previously echoed diagnostic message.
 		/// @return Pointer to the echoed message or nullptr if not present.
-		const std::vector<uint8_t>* getPreviousMessage() const;
-
-		/// @brief Sets the source logical address.
-		void setSourceAddress(uint16_t address);
-
-		/// @brief Sets the target logical address.
-		void setTargetAddress(uint16_t address);
+		const std::vector<uint8_t> getPreviousMessage() const;
 
 		/// @brief Sets the acknowledgment code.
 		void setAckCode(DoIpDiagnosticAckCodes code);
@@ -1442,7 +1590,7 @@ namespace pcpp
 		void clearPreviousMessage();
 
 		/// @brief Returns a human-readable summary of the message.
-		std::string getSummary() const;
+		std::string getSummary() const override;
 
 		/// @brief Returns the DoIP payload type.
 		DoIpPayloadTypes getPayloadType() const override
@@ -1451,13 +1599,12 @@ namespace pcpp
 		}
 
 	private:
-		uint16_t _sourceAddress;                ///< Logical address of the sender.
-		uint16_t _targetAddress;                ///< Logical address of the receiver.
-		DoIpDiagnosticAckCodes _ackCode;        ///< Acknowledgment result code.
-		std::vector<uint8_t> _previousMessage;  ///< Optional echoed diagnostic message.
-		bool _hasPreviousMessage;               ///< True if a previous message is present.
-		static constexpr size_t FIXED_LEN = sizeof(_sourceAddress) + sizeof(_targetAddress) + sizeof(_ackCode);
-		static constexpr size_t PREVIOUS_MSG_OFFSET = sizeof(doiphdr) + FIXED_LEN;
+		bool _hasPreviousMessage;  ///< True if a previous message is present.
+		static constexpr size_t DIAGNOSTIC_ACK_CODE_OFFSET =
+		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
+		static constexpr size_t DIAGNOSTIC_ACK_CODE_LEN = 1;
+		static constexpr size_t FIXED_LEN = DIAGNOSTIC_ACK_CODE_OFFSET + DIAGNOSTIC_ACK_CODE_LEN;
+		static constexpr size_t PREVIOUS_MSG_OFFSET = FIXED_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~|
@@ -1469,7 +1616,7 @@ namespace pcpp
 	///
 	/// This message is sent by a DoIP node when a diagnostic message is received but could not
 	/// be processed successfully. It may include the original message for reference.
-	class DiagnosticNackMessage : public DoIpLayer
+	class DiagnosticNackMessage : public DiagnosticBase
 	{
 	public:
 		/// @brief Constructs a DiagnosticNackMessage from raw packet data.
@@ -1485,27 +1632,15 @@ namespace pcpp
 		/// @param[in] nackCode Negative acknowledgment code describing the failure.
 		DiagnosticNackMessage(uint16_t sourceAddress, uint16_t targetAddress, DoIpDiagnosticMessageNackCodes nackCode);
 
-		/// @brief Gets the source logical address of the message.
-		uint16_t getSourceAddress() const;
-
-		/// @brief Gets the target logical address of the message.
-		uint16_t getTargetAddress() const;
-
 		/// @brief Gets the negative acknowledgment code.
 		DoIpDiagnosticMessageNackCodes getNackCode() const;
 
-		/// @brief Gets the optional previously echoed diagnostic message.
-		/// @return Pointer to the echoed message or nullptr if not present.
-		const std::vector<uint8_t>* getPreviousMessage() const;
-
-		/// @brief Sets the source logical address.
-		void setSourceAddress(uint16_t address);
-
-		/// @brief Sets the target logical address.
-		void setTargetAddress(uint16_t address);
-
 		/// @brief Sets the negative acknowledgment code.
 		void setNackCode(DoIpDiagnosticMessageNackCodes code);
+
+		/// @brief Gets the optional previously echoed diagnostic message.
+		/// @return Pointer to the echoed message or nullptr if not present.
+		const std::vector<uint8_t> getPreviousMessage() const;
 
 		/// @brief Checks if a previous message is attached.
 		/// @return True if a previous message is present.
@@ -1518,7 +1653,7 @@ namespace pcpp
 		void clearPreviousMessage();
 
 		/// @brief Returns a human-readable summary of the message.
-		std::string getSummary() const;
+		std::string getSummary() const override;
 
 		/// @brief Returns the DoIP payload type.
 		DoIpPayloadTypes getPayloadType() const override
@@ -1527,13 +1662,12 @@ namespace pcpp
 		}
 
 	private:
-		uint16_t _sourceAddress;                   ///< Logical address of the sender.
-		uint16_t _targetAddress;                   ///< Logical address of the receiver.
-		DoIpDiagnosticMessageNackCodes _nackCode;  ///< Negative acknowledgment result code.
-		std::vector<uint8_t> _previousMessage;     ///< Optional echoed diagnostic message.
-		bool _hasPreviousMessage;                  ///< True if a previous message is present.
-		static constexpr size_t FIXED_LEN = sizeof(_sourceAddress) + sizeof(_targetAddress) + sizeof(_nackCode);
-		static constexpr size_t PREVIOUS_MSG_OFFSET = sizeof(doiphdr) + FIXED_LEN;
+		bool _hasPreviousMessage;  ///< True if a previous message is present.
+		static constexpr size_t DIAGNOSTIC_NACK_CODE_OFFSET =
+		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
+		static constexpr size_t DIAGNOSTIC_NACK_CODE_LEN = 1;
+		static constexpr size_t FIXED_LEN = DIAGNOSTIC_NACK_CODE_OFFSET + DIAGNOSTIC_NACK_CODE_LEN;
+		static constexpr size_t PREVIOUS_MSG_OFFSET = FIXED_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~|
