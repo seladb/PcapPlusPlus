@@ -113,11 +113,11 @@ endif()
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_PCAPPP "Build Pcap++ project. Turning this off will build only Common++ and Packet++" ON)
 cmake_dependent_option(
-    PCAPPP_BUILD_EXAMPLES
-    "Build Examples"
-    ${PCAPPP_MAIN_PROJECT}
-    "PCAPPP_BUILD_PCAPPP"
-    OFF
+  PCAPPP_BUILD_EXAMPLES
+  "Build Examples"
+  ${PCAPPP_MAIN_PROJECT}
+  "PCAPPP_BUILD_PCAPPP"
+  OFF
 )
 cmake_dependent_option(
   PCAPPP_BUILD_TUTORIALS
