@@ -61,6 +61,10 @@ jobs:
         include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
           - image: ubuntu2404
             config-zstd: OFF
+          - image: ubuntu2404
+            config-zstd: OFF
+            additional-flags: -DPCAPPP_BUILD_PCAPPP=OFF
+            additional-test-flags: --test-suites "packet"
           - image: ubuntu2204
             config-zstd: OFF
           - image: ubuntu2204-icpx
@@ -119,9 +123,10 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
+          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.additional-test-flags }}
 
       - name: Test Examples
+        if: (!contains(matrix.additional-flags, '-DPCAPPP_BUILD_PCAPPP=OFF'))
         run: |
           . .venv/bin/activate
           cd Tests/ExamplesTest
@@ -135,11 +140,13 @@ jobs:
           cmake --install "$BUILD_DIR"
 
       - name: Build Tutorials
+        if: (!contains(matrix.additional-flags, '-DPCAPPP_BUILD_PCAPPP=OFF'))
         run: |
           cmake -DPCAPPP_BUILD_TUTORIALS=ON ${{ matrix.additional-flags }} -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
+        if: (!contains(matrix.additional-flags, '-DPCAPPP_BUILD_PCAPPP=OFF'))
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
