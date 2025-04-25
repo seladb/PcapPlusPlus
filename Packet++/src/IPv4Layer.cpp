@@ -193,14 +193,7 @@ namespace pcpp
 			{
 				auto headerLen = getHeaderLen();
 				// Make sure totalLen is larger than header len, otherwise it's a malformed packet
-				if (totalLen < headerLen)
-				{
-					m_DataLen = headerLen;
-				}
-				else
-				{
-					m_DataLen = totalLen;
-				}
+				m_DataLen = totalLen > headerLen ? totalLen : headerLen;
 			}
 		}
 	}
