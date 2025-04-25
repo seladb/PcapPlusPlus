@@ -1,11 +1,10 @@
 #pragma once
 
+#include <vector>
+#include <cstring>
 #include "Layer.h"
-#include "IpAddress.h"
-#include "MacAddress.h"
 #include "Logger.h"
 #include "EndianPortable.h"
-#include <vector>
 
 /// @file
 
@@ -1132,6 +1131,10 @@ namespace pcpp
 		VehicleAnnouncement(const std::array<uint8_t, DOIP_VIN_LEN>& vin, uint16_t logicalAddress,
 		                    const std::array<uint8_t, DOIP_EID_LEN>& eid, const std::array<uint8_t, DOIP_GID_LEN>& gid,
 		                    DoIpActionCodes actionCode);
+
+/// @struct  vehicle_announcement
+/// Represents the vehicle announcement data in DoIP.
+/// Vehicle announcement message structure (extends DoIP header).
 #pragma pack(push, 1)
 		struct vehicle_announcement : doiphdr
 		{

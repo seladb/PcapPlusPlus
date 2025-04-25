@@ -1,14 +1,11 @@
 #define LOG_MODULE PacketLogModuleDoIpLayer
 
-#include "DoIpLayer.h"
-#include "Packet.h"
-#include "PayloadLayer.h"
-#include "EndianPortable.h"
 #include <unordered_map>
 #include <sstream>
 #include <iomanip>
-#include <iostream>
+#include "DoIpLayer.h"
 #include "GeneralUtils.h"
+#include "PayloadLayer.h"
 
 namespace pcpp
 {
