@@ -64,6 +64,7 @@ def main():
         nargs="+",
         type=str,
         default=["packet", "pcap"],
+        choices=["packet", "pcap"],
         help="test suites to use",
     )
     parser.add_argument(
@@ -85,10 +86,6 @@ def main():
         help="tcpreplay directory",
     )
     args = parser.parse_args()
-
-    for test_suite in args.test_suites:
-        if test_suite not in ("packet", "pcap"):
-            print(f"Unknown test suite: {test_suite}")
 
     if "packet" in args.test_suites:
         run_packet_tests(args.packet_test_args.split(), args.use_sudo)
