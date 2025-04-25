@@ -46,7 +46,7 @@ namespace pcpp
 	/// vector, the element responsibility moves to the vector, meaning the PointerVector will free the object once it's
 	/// removed from the vector This class wraps std::vector and adds the capability of freeing objects once they're
 	/// removed from it
-	template <typename T> class PointerVector
+	template <typename T, typename Deleter = std::default_delete<T>> class PointerVector
 	{
 	public:
 		/// Iterator object that is used for iterating all elements in the vector
@@ -114,6 +114,11 @@ namespace pcpp
 		/// @return A reference to the current object.
 		PointerVector& operator=(PointerVector&& other) noexcept
 		{
+			if (this == &other)
+			{
+				return *this;
+			}
+
 			// Releases all current elements.
 			clear();
 			// Moves the elements of the other vector.
@@ -153,7 +158,7 @@ namespace pcpp
 			{
 				if (freeElementOnError)
 				{
-					delete element;
+					Deleter{}(element);
 				}
 				throw;
 			}
@@ -242,7 +247,7 @@ namespace pcpp
 		/// function call
 		VectorIterator erase(VectorIterator position)
 		{
-			delete (*position);
+			Deleter{}(*position);
 			return m_Vector.erase(position);
 		}
 
@@ -326,10 +331,7 @@ namespace pcpp
 			}
 			catch (const std::exception&)
 			{
-				for (auto obj : copyVec)
-				{
-					delete obj;
-				}
+				freeVectorUnsafe(copyVec);
 				throw;
 			}
 
@@ -344,7 +346,7 @@ namespace pcpp
 		{
 			for (auto& obj : origin)
 			{
-				delete obj;
+				Deleter{}(obj);
 			}
 		}
 
