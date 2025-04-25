@@ -22,12 +22,8 @@ def tcp_replay_worker(interface: str, tcpreplay_dir: str):
 
 
 def run_packet_tests(args: list[str], use_sudo: bool):
-    cmd_line = []
-    if use_sudo:
-        cmd_line += ["sudo"]
-
-    cmd_line += [os.path.join("Bin", "Packet++Test")]
-    cmd_line += args
+    cmd_line = ["sudo"] if use_sudo else []
+    cmd_line += [os.path.join("Bin", "Packet++Test"), *args]
 
     completed_process = subprocess.run(cmd_line, cwd="Tests/Packet++Test")
 
@@ -40,11 +36,8 @@ def run_pcap_tests(interface: str, tcpreplay_dir: str, args: list[str], use_sudo
     print(f"IP address is: {ip_address}")
 
     with tcp_replay_worker(interface, tcpreplay_dir):
-        cmd_line = []
-        if use_sudo:
-            cmd_line += ["sudo"]
-        cmd_line += [os.path.join("Bin", "Pcap++Test"), "-i", ip_address]
-        cmd_line += args
+        cmd_line = ["sudo"] if use_sudo else []
+        cmd_line += [os.path.join("Bin", "Pcap++Test"), "-i", ip_address, *args]
 
         completed_process = subprocess.run(cmd_line, cwd="Tests/Pcap++Test")
         if completed_process.returncode != 0:
