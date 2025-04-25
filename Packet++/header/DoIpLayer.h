@@ -790,7 +790,8 @@ namespace pcpp
 		/// @param[in] activationType Type of routing activation.
 		RoutingActivationRequest(uint16_t sourceAddress, DoIpActivationTypes activationType);
 
-/// @struct  Represents the Routing Activation Request data in DoIP.
+/// @struct  routing_activation_request
+/// Represents the Routing Activation Request data in DoIP.
 /// Routing Activation Response message structure (extends DoIP header).
 #pragma pack(push, 1)
 		struct routing_activation_request : doiphdr
@@ -889,7 +890,8 @@ namespace pcpp
 		RoutingActivationResponse(uint16_t logicalAddressExternalTester, uint16_t sourceAddress,
 		                          DoIpRoutingResponseCodes responseCode);
 
-/// @struct  Represents the Routing Activation Response data in DoIP.
+/// @struct  routing_activation_response
+/// Represents the Routing Activation Response data in DoIP.
 /// Routing Activation Response message structure (extends DoIP header).
 #pragma pack(push, 1)
 		struct routing_activation_response : doiphdr
@@ -1038,7 +1040,7 @@ namespace pcpp
 
 		/// @brief Constructs the message using the specified EID.
 		/// @param[in] eid A 6-byte Entity ID used for vehicle identification.
-		explicit VehicleIdentificationRequestEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
+		explicit VehicleIdentificationRequestEID(const std::array<uint8_t, DOIP_EID_LEN>& eid = {});
 
 		/// @brief Gets the Entity ID (EID).
 		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
@@ -1080,7 +1082,7 @@ namespace pcpp
 
 		/// @brief Constructs the message using the specified VIN.
 		/// @param[in] vin A 17-byte Vehicle Identification Number.
-		explicit VehicleIdentificationRequestVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
+		explicit VehicleIdentificationRequestVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin = {});
 
 		/// @brief Gets the Vehicle Identification Number (VIN).
 		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
@@ -1343,7 +1345,8 @@ namespace pcpp
 		EntityStatusResponse(DoIpEntityStatusResponse nodeType, uint8_t maxConcurrentSockets,
 		                     uint8_t currentlyOpenSockets);
 
-		/// @struct  Represents the Routing Activation Request data in DoIP.
+		/// @struct  entity_status_response
+		/// Represents the Routing Activation Request data in DoIP.
 		/// Routing Activation Response message structure (extends DoIP header).
 		struct entity_status_response : doiphdr
 		{
@@ -1449,7 +1452,8 @@ namespace pcpp
 		/// @brief default c'tor.
 		DiagnosticBase() {};
 
-		/// @struct  Common first diagnostic data in DoIP
+		/// @struct  common_diagnostic_header
+		/// Common first diagnostic data in DoIP
 		/// messages (diagnostic/diagnosticAck/diagnosticNack).
 		/// common_diagnostic_header message structure (extends DoIP header).
 		struct common_diagnostic_header : doiphdr
@@ -1544,6 +1548,51 @@ namespace pcpp
 		    DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN + 1; /*Min diagnostic message Len*/
 	};
 
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DiagnosticResponseMessageBase|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	/// @class DiagnosticResponseMessageBase
+	/// @brief Represents a Basic class for Diagnostic message (ACK/NACK) sent back to tester.
+	class DiagnosticResponseMessageBase : public DiagnosticBase
+	{
+	public:
+		/// @brief Constructs the DiagnosticMessage from raw packet data.
+		/// @param[in] data Pointer to the raw payload data.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @param[in] prevLayer Pointer to the previous protocol layer.
+		/// @param[in] packet Pointer to the parent packet.
+		DiagnosticResponseMessageBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// @brief  default c'tor
+		DiagnosticResponseMessageBase(uint16_t sourceAddress, uint16_t targetAddress, DoIpPayloadTypes type);
+
+		/// @brief Gets the acknowledgment/nack code (1-byte).
+		uint8_t getResponseCode() const;
+
+		/// @brief Sets the acknowledgment/nack code (1-byte).
+		void setResponseCode(uint8_t code);
+
+		/// @brief Gets the optional previously echoed diagnostic message.
+		const std::vector<uint8_t> getPreviousMessage() const;
+
+		/// @brief Checks if a previous message is attached.
+		bool hasPreviousMessage() const;
+
+		/// @brief Sets the previous echoed diagnostic message.
+		void setPreviousMessage(const std::vector<uint8_t>& msg);
+
+		/// @brief Clears the previously stored diagnostic message.
+		void clearPreviousMessage();
+
+	protected:
+		bool _hasPreviousMessage;  ///< True if a previous message is present.
+		static constexpr size_t DIAGNOSTIC_ACK_CODE_OFFSET =
+		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
+		static constexpr size_t DIAGNOSTIC_ACK_CODE_LEN = 1;
+		static constexpr size_t FIXED_LEN = DIAGNOSTIC_ACK_CODE_OFFSET + DIAGNOSTIC_ACK_CODE_LEN;
+		static constexpr size_t PREVIOUS_MSG_OFFSET = FIXED_LEN;
+	};
+
 	//~~~~~~~~~~~~~~~~~~~~~|
 	// DiagnosticAckMessage|
 	//~~~~~~~~~~~~~~~~~~~~~|
@@ -1553,7 +1602,7 @@ namespace pcpp
 	///
 	/// This message is sent by a DoIP node to acknowledge the correct reception and processing
 	/// of a diagnostic message. Optionally, the original message (or part of it) may be echoed back.
-	class DiagnosticAckMessage : public DiagnosticBase
+	class DiagnosticAckMessage : public DiagnosticResponseMessageBase
 	{
 	public:
 		/// @brief Constructs a DiagnosticAckMessage from raw packet data.
@@ -1572,22 +1621,8 @@ namespace pcpp
 		/// @brief Gets the diagnostic acknowledgment code.
 		DoIpDiagnosticAckCodes getAckCode() const;
 
-		/// @brief Gets the optional previously echoed diagnostic message.
-		/// @return Pointer to the echoed message or nullptr if not present.
-		const std::vector<uint8_t> getPreviousMessage() const;
-
 		/// @brief Sets the acknowledgment code.
 		void setAckCode(DoIpDiagnosticAckCodes code);
-
-		/// @brief Checks if a previous message is attached.
-		/// @return True if a previous message is present.
-		bool hasPreviousMessage() const;
-
-		/// @brief Sets the previous echoed diagnostic message.
-		void setPreviousMessage(const std::vector<uint8_t>& msg);
-
-		/// @brief Clears the previously stored diagnostic message.
-		void clearPreviousMessage();
 
 		/// @brief Returns a human-readable summary of the message.
 		std::string getSummary() const override;
@@ -1597,14 +1632,6 @@ namespace pcpp
 		{
 			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK;
 		}
-
-	private:
-		bool _hasPreviousMessage;  ///< True if a previous message is present.
-		static constexpr size_t DIAGNOSTIC_ACK_CODE_OFFSET =
-		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
-		static constexpr size_t DIAGNOSTIC_ACK_CODE_LEN = 1;
-		static constexpr size_t FIXED_LEN = DIAGNOSTIC_ACK_CODE_OFFSET + DIAGNOSTIC_ACK_CODE_LEN;
-		static constexpr size_t PREVIOUS_MSG_OFFSET = FIXED_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~|
@@ -1616,7 +1643,7 @@ namespace pcpp
 	///
 	/// This message is sent by a DoIP node when a diagnostic message is received but could not
 	/// be processed successfully. It may include the original message for reference.
-	class DiagnosticNackMessage : public DiagnosticBase
+	class DiagnosticNackMessage : public DiagnosticResponseMessageBase
 	{
 	public:
 		/// @brief Constructs a DiagnosticNackMessage from raw packet data.
@@ -1638,20 +1665,6 @@ namespace pcpp
 		/// @brief Sets the negative acknowledgment code.
 		void setNackCode(DoIpDiagnosticMessageNackCodes code);
 
-		/// @brief Gets the optional previously echoed diagnostic message.
-		/// @return Pointer to the echoed message or nullptr if not present.
-		const std::vector<uint8_t> getPreviousMessage() const;
-
-		/// @brief Checks if a previous message is attached.
-		/// @return True if a previous message is present.
-		bool hasPreviousMessage() const;
-
-		/// @brief Sets the previous echoed diagnostic message.
-		void setPreviousMessage(const std::vector<uint8_t>& msg);
-
-		/// @brief Clears the previously stored diagnostic message.
-		void clearPreviousMessage();
-
 		/// @brief Returns a human-readable summary of the message.
 		std::string getSummary() const override;
 
@@ -1660,14 +1673,6 @@ namespace pcpp
 		{
 			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK;
 		}
-
-	private:
-		bool _hasPreviousMessage;  ///< True if a previous message is present.
-		static constexpr size_t DIAGNOSTIC_NACK_CODE_OFFSET =
-		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
-		static constexpr size_t DIAGNOSTIC_NACK_CODE_LEN = 1;
-		static constexpr size_t FIXED_LEN = DIAGNOSTIC_NACK_CODE_OFFSET + DIAGNOSTIC_NACK_CODE_LEN;
-		static constexpr size_t PREVIOUS_MSG_OFFSET = FIXED_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~|

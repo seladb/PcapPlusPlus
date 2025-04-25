@@ -655,7 +655,7 @@ namespace pcpp
 			throw std::runtime_error("VehicleIdentificationRequestEID: Invalid payload length");
 	}
 
-	VehicleIdentificationRequestEID::VehicleIdentificationRequestEID(const std::array<uint8_t, DOIP_EID_LEN>& eid = {})
+	VehicleIdentificationRequestEID::VehicleIdentificationRequestEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
 	{
 		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), DOIP_EID_LEN);
 		extendLayer(EID_OFFSET, DOIP_EID_LEN);
@@ -690,7 +690,7 @@ namespace pcpp
 			throw std::runtime_error("VehicleIdentificationRequestVIN: Invalid payload length!");
 	}
 
-	VehicleIdentificationRequestVIN::VehicleIdentificationRequestVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin = {})
+	VehicleIdentificationRequestVIN::VehicleIdentificationRequestVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
 	{
 		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), DOIP_VIN_LEN);
 		extendLayer(VIN_OFFSET, DOIP_VIN_LEN);
@@ -1150,16 +1150,17 @@ namespace pcpp
 		return oss.str();
 	}
 
-	//~~~~~~~~~~~~~~~~~~~~~|
-	// DiagnosticAckMessage|
-	//~~~~~~~~~~~~~~~~~~~~~|
-	DiagnosticAckMessage::DiagnosticAckMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : DiagnosticBase(data, dataLen, prevLayer, packet)
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DiagnosticResponseMessageBase|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DiagnosticResponseMessageBase::DiagnosticResponseMessageBase(uint8_t* data, size_t dataLen, Layer* prevLayer,
+	                                                             Packet* packet)
+	    : DiagnosticBase(data, dataLen, prevLayer, packet), _hasPreviousMessage(false)
 	{
 		if (dataLen < PREVIOUS_MSG_OFFSET)
 			throw std::runtime_error("DiagnosticAckMessage: Invalid payload length");
 
-		const size_t remainingData = dataLen - (PREVIOUS_MSG_OFFSET);
+		const size_t remainingData = dataLen - PREVIOUS_MSG_OFFSET;
 		if (remainingData > 0)
 		{
 			_hasPreviousMessage = true;
@@ -1171,22 +1172,22 @@ namespace pcpp
 		}
 	}
 
-	DiagnosticAckMessage::DiagnosticAckMessage(uint16_t sourceAddress, uint16_t targetAddress,
-	                                           DoIpDiagnosticAckCodes ackCode)
+	DiagnosticResponseMessageBase::DiagnosticResponseMessageBase(uint16_t sourceAddress, uint16_t targetAddress,
+	                                                             DoIpPayloadTypes type)
 	    : _hasPreviousMessage(false)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
+		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, type, (FIXED_LEN - DOIP_HEADER_LEN));
 		extendLayer(DOIP_HEADER_LEN, (FIXED_LEN - DOIP_HEADER_LEN));
 		setSourceAddress(sourceAddress);
 		setTargetAddress(targetAddress);
-		setAckCode(ackCode);
 	}
 
-	DoIpDiagnosticAckCodes DiagnosticAckMessage::getAckCode() const
+	uint8_t DiagnosticResponseMessageBase::getResponseCode() const
 	{
-		return static_cast<DoIpDiagnosticAckCodes>(*(m_Data + DIAGNOSTIC_ACK_CODE_OFFSET));
+		return static_cast<uint8_t>(*(m_Data + DIAGNOSTIC_ACK_CODE_OFFSET));
 	}
-	const std::vector<uint8_t> DiagnosticAckMessage::getPreviousMessage() const
+
+	const std::vector<uint8_t> DiagnosticResponseMessageBase::getPreviousMessage() const
 	{
 		if (_hasPreviousMessage)
 		{
@@ -1199,17 +1200,17 @@ namespace pcpp
 		}
 	}
 
-	void DiagnosticAckMessage::setAckCode(DoIpDiagnosticAckCodes code)
+	void DiagnosticResponseMessageBase::setResponseCode(uint8_t code)
 	{
 		*(m_Data + DIAGNOSTIC_ACK_CODE_OFFSET) = static_cast<uint8_t>(code);
 	}
 
-	bool DiagnosticAckMessage::hasPreviousMessage() const
+	bool DiagnosticResponseMessageBase::hasPreviousMessage() const
 	{
 		return _hasPreviousMessage;
 	}
 
-	void DiagnosticAckMessage::setPreviousMessage(const std::vector<uint8_t>& msg)
+	void DiagnosticResponseMessageBase::setPreviousMessage(const std::vector<uint8_t>& msg)
 	{
 		size_t newPayloadLen = FIXED_LEN - DOIP_HEADER_LEN + msg.size();
 		size_t currentPayloadLen = m_DataLen - PREVIOUS_MSG_OFFSET;
@@ -1225,7 +1226,7 @@ namespace pcpp
 		_hasPreviousMessage = true;
 	}
 
-	void DiagnosticAckMessage::clearPreviousMessage()
+	void DiagnosticResponseMessageBase::clearPreviousMessage()
 	{
 		if (_hasPreviousMessage)
 		{
@@ -1237,6 +1238,30 @@ namespace pcpp
 		{
 			PCPP_LOG_DEBUG("doip packet has no PreviousMessage field!");
 		}
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~|
+	// DiagnosticAckMessage|
+	//~~~~~~~~~~~~~~~~~~~~~|
+	DiagnosticAckMessage::DiagnosticAckMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	    : DiagnosticResponseMessageBase(data, dataLen, prevLayer, packet)
+	{}
+
+	DiagnosticAckMessage::DiagnosticAckMessage(uint16_t sourceAddress, uint16_t targetAddress,
+	                                           DoIpDiagnosticAckCodes ackCode)
+	    : DiagnosticResponseMessageBase(sourceAddress, targetAddress, getPayloadType())
+	{
+		setAckCode(ackCode);
+	}
+
+	DoIpDiagnosticAckCodes DiagnosticAckMessage::getAckCode() const
+	{
+		return static_cast<DoIpDiagnosticAckCodes>(getResponseCode());
+	}
+
+	void DiagnosticAckMessage::setAckCode(DoIpDiagnosticAckCodes code)
+	{
+		setResponseCode(static_cast<uint8_t>(code));
 	}
 	// Summary method.
 	std::string DiagnosticAckMessage::getSummary() const
@@ -1266,91 +1291,24 @@ namespace pcpp
 	// DiagnosticNackMessage|
 	//~~~~~~~~~~~~~~~~~~~~~~|
 	DiagnosticNackMessage::DiagnosticNackMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : DiagnosticBase(data, dataLen, prevLayer, packet)
-	{
-		if (dataLen < PREVIOUS_MSG_OFFSET)
-			throw std::runtime_error("DiagnosticNackMessage: Invalid payload length");
-
-		const size_t remainingData = dataLen - (PREVIOUS_MSG_OFFSET);
-		if (remainingData > 0)
-		{
-			_hasPreviousMessage = true;
-		}
-		else
-		{
-			PCPP_LOG_INFO("PreviousMessage field is empty!");
-			_hasPreviousMessage = false;
-		}
-	}
+	    : DiagnosticResponseMessageBase(data, dataLen, prevLayer, packet)
+	{}
 
 	DiagnosticNackMessage::DiagnosticNackMessage(uint16_t sourceAddress, uint16_t targetAddress,
 	                                             DoIpDiagnosticMessageNackCodes nackCode)
-	    : _hasPreviousMessage(false)
+	    : DiagnosticResponseMessageBase(sourceAddress, targetAddress, getPayloadType())
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
-		extendLayer(DOIP_HEADER_LEN, (FIXED_LEN - DOIP_HEADER_LEN));
-
-		setSourceAddress(sourceAddress);
-		setTargetAddress(targetAddress);
 		setNackCode(nackCode);
 	}
 
 	DoIpDiagnosticMessageNackCodes DiagnosticNackMessage::getNackCode() const
 	{
-		return static_cast<DoIpDiagnosticMessageNackCodes>(*(m_Data + DIAGNOSTIC_NACK_CODE_OFFSET));
+		return static_cast<DoIpDiagnosticMessageNackCodes>(getResponseCode());
 	}
 
 	void DiagnosticNackMessage::setNackCode(DoIpDiagnosticMessageNackCodes code)
 	{
-		*(m_Data + DIAGNOSTIC_NACK_CODE_OFFSET) = static_cast<uint8_t>(code);
-	}
-
-	const std::vector<uint8_t> DiagnosticNackMessage::getPreviousMessage() const
-	{
-		if (_hasPreviousMessage)
-		{
-			uint8_t* dataPtr = m_Data + PREVIOUS_MSG_OFFSET;
-			return std::vector<uint8_t>(dataPtr, dataPtr + (m_DataLen - PREVIOUS_MSG_OFFSET));
-		}
-		else
-		{
-			return {};
-		}
-	}
-
-	bool DiagnosticNackMessage::hasPreviousMessage() const
-	{
-		return _hasPreviousMessage;
-	}
-
-	void DiagnosticNackMessage::setPreviousMessage(const std::vector<uint8_t>& msg)
-	{
-		size_t newPayloadLen = FIXED_LEN - DOIP_HEADER_LEN + msg.size();
-		size_t currentPayloadLen = m_DataLen - PREVIOUS_MSG_OFFSET;
-		setPayloadLength(newPayloadLen);
-		// clear memory for old previous message
-		if (_hasPreviousMessage)
-		{
-			shortenLayer(PREVIOUS_MSG_OFFSET, currentPayloadLen);
-		}
-		extendLayer(PREVIOUS_MSG_OFFSET, msg.size());
-		uint8_t* ptr = getDataPtr(PREVIOUS_MSG_OFFSET);
-		memcpy(ptr, msg.data(), msg.size());
-		_hasPreviousMessage = true;
-	}
-
-	void DiagnosticNackMessage::clearPreviousMessage()
-	{
-		if (_hasPreviousMessage)
-		{
-			shortenLayer(FIXED_LEN, (m_DataLen - FIXED_LEN));
-			_hasPreviousMessage = false;
-			PCPP_LOG_INFO("PreviousMessage has been removed successfully!");
-		}
-		else
-		{
-			PCPP_LOG_DEBUG("doip packet has no PreviousMessage field!");
-		}
+		setResponseCode(static_cast<uint8_t>(code));
 	}
 
 	std::string DiagnosticNackMessage::getSummary() const
