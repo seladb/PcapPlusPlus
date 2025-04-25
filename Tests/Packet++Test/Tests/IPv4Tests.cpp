@@ -97,7 +97,6 @@ PTF_TEST_CASE(IPv4PacketParsing)
 		PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 60);
 		PTF_ASSERT_NOT_NULL(ipv4Layer->getNextLayer());
 		PTF_ASSERT_EQUAL(ipv4Layer->getNextLayer()->getProtocol(), pcpp::ICMP, enum);
-
 	}
 
 	{
