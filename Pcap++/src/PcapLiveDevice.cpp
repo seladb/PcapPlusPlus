@@ -186,20 +186,23 @@ namespace pcpp
 	{
 #ifdef HAS_TIMESTAMP_PRECISION_ENABLED
 		const int ret = pcap_set_tstamp_precision(pcap.get(), getPcapPrecision(timestampPrecision));
-		if (ret == 0)
+		switch (ret)
+		{
+		case 0:
 		{
 			return;
 		}
-
-		if (ret == PCAP_ERROR_TSTAMP_PRECISION_NOTSUP)
+		case PCAP_ERROR_TSTAMP_PRECISION_NOTSUP:
 		{
 			throw std::runtime_error(
 			    "Failed to set timestamping precision: the capture device does not support the requested precision");
 		}
-
-		throw std::runtime_error("Failed to set timestamping precision, error was: " +
-		                         std::string(pcap.getLastError()));
-
+		default:
+		{
+			throw std::runtime_error("Failed to set timestamping precision, error was: " +
+			                         std::string(pcap.getLastError()));
+		}
+		}
 #else
 		throw std::runtime_error("Error setting timestamp precision - it is available only from libpcap 1.5");
 #endif
@@ -452,17 +455,20 @@ namespace pcpp
 			}
 		}
 
-		if (config.direction == PCPP_IN)
+		switch (config.direction)
+		{
+		case PCPP_IN:
 		{
 			PCPP_LOG_DEBUG("Only incoming traffics will be captured");
 		}
-		else if (config.direction == PCPP_OUT)
+		case PCPP_OUT:
 		{
 			PCPP_LOG_DEBUG("Only outgoing traffics will be captured");
 		}
-		else
+		default:
 		{
 			PCPP_LOG_DEBUG("Both incoming and outgoing traffics will be captured");
+		}
 		}
 
 		int dlt = pcap_datalink(pcap.get());
