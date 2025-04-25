@@ -729,16 +729,13 @@ namespace pcpp
 				if (m_UsePoll)
 				{
 #if !defined(_WIN32)
-					auto pollTimeoutDuration =
-					    std::chrono::duration_cast<std::chrono::milliseconds>(timeoutTimepoint - currentTime);
+					int64_t pollTimeoutMs =
+					    std::chrono::duration_cast<std::chrono::milliseconds>(timeoutTimepoint - currentTime).count();
 
 					// poll will be in blocking mode if negative value
-					if (pollTimeoutDuration < pollTimeoutDuration.zero())
-					{
-						pollTimeoutDuration = pollTimeoutDuration.zero();
-					}
+					pollTimeoutMs = std::max(pollTimeoutMs, static_cast<int64_t>(0));
 
-					int ready = poll(&pcapPollFd, 1, pollTimeoutDuration.count());  // wait the packets until timeout
+					int ready = poll(&pcapPollFd, 1, pollTimeoutMs);  // wait the packets until timeout
 
 					if (ready > 0)
 					{
