@@ -633,39 +633,37 @@ namespace pcpp
 	{
 		std::vector<uint8_t> result;
 
-#if !(defined(__MINGW64_VERSION_MAJOR) || defined(__MINGW32_MAJOR_VERSION))
-		result.reserve(m_ValueLength);
-#endif
+		result.resize(m_ValueLength);
 
 		switch (m_ValueLength)
 		{
 		case 1:
 		{
-			result.push_back(static_cast<uint8_t>(m_Value));
+			result[0] = static_cast<uint8_t>(m_Value);
 			break;
 		}
 		case 2:
 		{
-			uint8_t tempArr[sizeof(uint16_t)];
 			auto hostValue = htobe16(static_cast<uint16_t>(m_Value));
-			memcpy(tempArr, &hostValue, m_ValueLength);
-			std::copy(tempArr, tempArr + m_ValueLength, std::back_inserter(result));
+			result[0] = static_cast<uint8_t>(hostValue & 0xFF);
+			result[1] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
 			break;
 		}
 		case 3:
 		{
-			uint8_t tempArr[sizeof(uint32_t)];
 			auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
-			memcpy(tempArr, &hostValue, m_ValueLength + 1);
-			std::copy(tempArr + 1, tempArr + m_ValueLength + 1, std::back_inserter(result));
+			result[0] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
+			result[1] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
+			result[2] = static_cast<uint8_t>((hostValue >> 24) & 0xFF);
 			break;
 		}
 		case 4:
 		{
-			uint8_t tempArr[sizeof(uint32_t)];
 			auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
-			memcpy(tempArr, &hostValue, m_ValueLength);
-			std::copy(tempArr, tempArr + m_ValueLength, std::back_inserter(result));
+			result[0] = static_cast<uint8_t>(hostValue & 0xFF);
+			result[1] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
+			result[2] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
+			result[3] = static_cast<uint8_t>((hostValue >> 24) & 0xFF);
 			break;
 		}
 		default:

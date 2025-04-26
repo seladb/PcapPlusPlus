@@ -681,6 +681,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	packetCount = 0;
 
+	// Setting direction isn't available on Windows, and setting "outgoing only" isn't available on macOS
+#if !defined(_WIN32) && !defined(__APPLE__)
 	// create a non-default configuration with only capturing incoming packets and open the device again
 	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithDirection(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000,
 	                                                                 pcpp::PcapLiveDevice::PCPP_OUT);
@@ -694,6 +696,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
+#endif
 
 	// create a non-default configuration with a snapshot length of 10 bytes
 	int snaplen = 20;

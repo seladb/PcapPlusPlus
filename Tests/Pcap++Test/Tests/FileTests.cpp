@@ -111,7 +111,9 @@ PTF_TEST_CASE(TestPcapFilePrecision)
 	                 pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported());
 
 	// Write nano precision file
+	pcpp::Logger::getInstance().suppressLogs();
 	pcpp::PcapFileWriterDevice writerDevNano(EXAMPLE_PCAP_NANO_PATH, pcpp::LINKTYPE_ETHERNET, true);
+	pcpp::Logger::getInstance().enableLogs();
 	PTF_ASSERT_EQUAL(writerDevNano.getTimestampPrecision(),
 	                 pcpp::PcapFileWriterDevice::isNanoSecondPrecisionSupported()
 	                     ? pcpp::FileTimestampPrecision::Nanoseconds
