@@ -177,14 +177,9 @@ jobs:
 
   packet-only:
     runs-on: ubuntu-latest
-    container: seladb/${{ matrix.image }}
-    strategy:
-      matrix:
-        include:
-          - image: ubuntu2404
-            config-zstd: OFF
-            additional-flags: -DPCAPPP_BUILD_PCAPPP=OFF
-            additional-test-flags: --test-suites "packet"
+    container: seladb/${{ env.image }}
+    env:
+      image: ubuntu2404
 
     steps:
       - name: Checkout code
@@ -202,12 +197,12 @@ jobs:
             ${{ env.CCACHE_DIR }}
             !*.gcda
             !*.gcno
-          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+          key: ${{ env.image }}-ccache-${{ github.run_id }}
           restore-keys: |
-            ${{ matrix.image }}-ccache
+            ${{ env.image }}-ccache
 
       - name: Configure PcapPlusPlus
-        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+        run: cmake -DPCAPPP_BUILD_COVERAGE=ON -DPCAPPP_BUILD_PCAPPP=OFF -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
@@ -221,7 +216,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.additional-test-flags }}
+          python3 ci/run_tests/run_tests.py --interface eth0 --test-suites "packet"
 
       - name: Check installation
         run: |
@@ -233,13 +228,13 @@ jobs:
         run: |
           . .venv/bin/activate
           python3 -m pip install gcovr
-          gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./coverage.xml
-          flags: ${{ matrix.image }},unittest
+          flags: ${{ env.image }},unittest
           fail_ci_if_error: false
           verbose: true
         env:
