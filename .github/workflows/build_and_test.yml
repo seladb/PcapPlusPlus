@@ -175,7 +175,7 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
-  onlypacket:
+  packet-only:
     runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
     strategy:
