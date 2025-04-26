@@ -41,8 +41,7 @@ target_include_directories(
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
     $<INSTALL_INTERFACE:include>
-    $<$<BOOL:PCAPPP_USE_OLD_INCLUDE>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>>
-    $<$<BOOL:PCAPPP_USE_OLD_INCLUDE>:$<INSTALL_INTERFACE:include/pcapplusplus>>
+    $<$<BOOL:PCAPPP_ENABLE_OLD_STYLE_INCLUDE>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>$<INSTALL_INTERFACE:include/pcapplusplus>>
   # Don't link with EndianPortable and json as it won't be exported
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>
