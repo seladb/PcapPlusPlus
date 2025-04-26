@@ -16,8 +16,8 @@ endif()
 if(PCAPPP_ENABLE_OLD_STYLE_INCLUDE)
   message(
     DEPRECATION
-    "PcapPlusPlus: Old style include directories are enabled. "
-    "This functionality is deprecated and will be removed in the future. "
+    "PcapPlusPlus: Old style include directories are enabled, directly adding the <pcapplusplus> folder to the include directories."
+    "This functionality is deprecated and will be removed in the future."
     "New include format should follow: \"#include <pcapplusplus/xxx.h>\" "
     "This behaviour can be disabled by setting \"PCAPPP_ENABLE_OLD_STYLE_INCLUDE\" to OFF"
   )
