@@ -26,24 +26,23 @@ namespace pcpp
 {
 	namespace
 	{
-		void syncPointerVectors(std::vector<std::unique_ptr<PcapLiveDevice>> const& mainVector,
+		void syncPointerVectors(PointerVector<PcapLiveDevice> const& mainVector,
 		                        std::vector<PcapLiveDevice*>& viewVector)
 		{
 			viewVector.resize(mainVector.size());
 			// Full update of all elements of the view vector to synchronize them with the main vector.
-			std::transform(mainVector.begin(), mainVector.end(), viewVector.begin(),
-			               [](const std::unique_ptr<PcapLiveDevice>& ptr) { return ptr.get(); });
+			std::copy(mainVector.begin(), mainVector.end(), viewVector.begin());
 		}
 	}  // namespace
 
-	PcapLiveDeviceList::PcapLiveDeviceList() : m_LiveDeviceList(fetchAllLocalDevices()), m_DnsServers(fetchDnsServers())
+	PcapLiveDeviceList::PcapLiveDeviceList() : Base(fetchAllLocalDevices()), m_DnsServers(fetchDnsServers())
 	{
-		syncPointerVectors(m_LiveDeviceList, m_LiveDeviceListView);
+		syncPointerVectors(m_DeviceList, m_LiveDeviceListView);
 	}
 
-	std::vector<std::unique_ptr<PcapLiveDevice>> PcapLiveDeviceList::fetchAllLocalDevices()
+	PointerVector<PcapLiveDevice> PcapLiveDeviceList::fetchAllLocalDevices()
 	{
-		std::vector<std::unique_ptr<PcapLiveDevice>> deviceList;
+		PointerVector<PcapLiveDevice> deviceList;
 		std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 		try
 		{
@@ -65,7 +64,7 @@ namespace pcpp
 #else  //__linux__, __APPLE__, __FreeBSD__
 			auto dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
 #endif
-			deviceList.push_back(std::move(dev));
+			deviceList.pushBack(std::move(dev));
 		}
 		return deviceList;
 	}
@@ -279,22 +278,20 @@ namespace pcpp
 
 	PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
 	{
-		auto it = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
-		                       [&ipAddr](std::unique_ptr<PcapLiveDevice> const& devPtr) {
-			                       auto devIP = devPtr->getIPv4Address();
-			                       return devIP == ipAddr;
-		                       });
-		return it != m_LiveDeviceList.end() ? it->get() : nullptr;
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ipAddr](PcapLiveDevice* const& devPtr) {
+			auto devIP = devPtr->getIPv4Address();
+			return devIP == ipAddr;
+		});
+		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 	PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
 	{
-		auto it = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
-		                       [&ip6Addr](std::unique_ptr<PcapLiveDevice> const& devPtr) {
-			                       auto devIP = devPtr->getIPv6Address();
-			                       return devIP == ip6Addr;
-		                       });
-		return it != m_LiveDeviceList.end() ? it->get() : nullptr;
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip6Addr](PcapLiveDevice* devPtr) {
+			auto devIP = devPtr->getIPv6Address();
+			return devIP == ip6Addr;
+		});
+		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 	PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const
@@ -317,17 +314,16 @@ namespace pcpp
 	PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
 	{
 		PCPP_LOG_DEBUG("Searching all live devices...");
-		auto devIter =
-		    std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
-		                 [&name](const std::unique_ptr<PcapLiveDevice>& dev) { return dev->getName() == name; });
+		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		                            [&name](PcapLiveDevice* dev) { return dev->getName() == name; });
 
-		if (devIter == m_LiveDeviceList.end())
+		if (devIter == m_DeviceList.end())
 		{
 			PCPP_LOG_DEBUG("Found no live device with name '" << name << "'");
 			return nullptr;
 		}
 
-		return devIter->get();
+		return *devIter;
 	}
 
 	PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const
@@ -352,10 +348,10 @@ namespace pcpp
 	{
 		m_LiveDeviceListView.clear();
 
-		m_LiveDeviceList = fetchAllLocalDevices();
+		m_DeviceList = fetchAllLocalDevices();
 		m_DnsServers = fetchDnsServers();
 
-		syncPointerVectors(m_LiveDeviceList, m_LiveDeviceListView);
+		syncPointerVectors(m_DeviceList, m_LiveDeviceListView);
 	}
 
 }  // namespace pcpp

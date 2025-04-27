@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IpAddress.h"
+#include "DeviceListBase.h"
 #include "PcapLiveDevice.h"
 #include <vector>
 #include <memory>
@@ -16,10 +17,11 @@ namespace pcpp
 	/// (on Windows) instances. All live devices are initialized on startup and wrap the network interfaces installed on
 	/// the machine. This class enables access to them through their IP addresses or get a vector of all of them so the
 	/// user can search them in some other way
-	class PcapLiveDeviceList
+	class PcapLiveDeviceList : public internal::DeviceListBase<PcapLiveDevice>
 	{
 	private:
-		std::vector<std::unique_ptr<PcapLiveDevice>> m_LiveDeviceList;
+		using Base = internal::DeviceListBase<PcapLiveDevice>;
+
 		// Vector of raw device pointers to keep the signature of getPcapLiveDevicesList, as it returns a reference.
 		std::vector<PcapLiveDevice*> m_LiveDeviceListView;
 
@@ -28,7 +30,7 @@ namespace pcpp
 		// private c'tor
 		PcapLiveDeviceList();
 
-		static std::vector<std::unique_ptr<PcapLiveDevice>> fetchAllLocalDevices();
+		static PointerVector<PcapLiveDevice> fetchAllLocalDevices();
 		static std::vector<IPv4Address> fetchDnsServers();
 
 	public:
