@@ -111,7 +111,14 @@ if(PCAPPP_LOG_LEVEL)
 endif()
 
 # Build options (Turn on Examples and Tests if it's the main project)
-option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
+option(PCAPPP_BUILD_PCAPPP "Build Pcap++ project. Turning this off will build only Common++ and Packet++" ON)
+cmake_dependent_option(
+  PCAPPP_BUILD_EXAMPLES
+  "Build Examples"
+  ${PCAPPP_MAIN_PROJECT}
+  "PCAPPP_BUILD_PCAPPP"
+  OFF
+)
 cmake_dependent_option(
   PCAPPP_BUILD_TUTORIALS
   "Build Tutorials"
@@ -152,71 +159,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Export compile commands for external tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
-if(WIN32 AND PCAP_ROOT AND NOT Packet_ROOT)
-  set(Packet_ROOT ${PCAP_ROOT})
-endif()
-
-find_package(PCAP)
-if(NOT PCAP_FOUND)
-  if(WIN32)
-    message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
-  else()
-    message(FATAL_ERROR "PCAP library not found!")
-  endif()
-endif()
-
-# Look for Packet
-if(WIN32)
-  find_package(Packet)
-  if(NOT Packet_FOUND)
-    message(FATAL_ERROR "Please specify Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
-  endif()
-endif()
-
-if(HAVE_PCAP_IMMEDIATE_MODE)
-  add_definitions(-DHAS_PCAP_IMMEDIATE_MODE)
-endif()
-
-if(HAVE_PCAP_TIMESTAMP_TYPES)
-  add_definitions(-DHAS_TIMESTAMP_TYPES_ENABLED)
-endif()
-
-if(HAVE_PCAP_TIMESTAMP_PRECISION)
-  add_definitions(-DHAS_TIMESTAMP_PRECISION_ENABLED)
-endif()
-
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-if(MSVC)
-  # Other hacks for VStudio
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-else()
-  if(NOT CMAKE_USE_PTHREADS_INIT)
-    message(FATAL_ERROR "Pthreads not found!")
-  endif()
-endif()
-
-if(PCAPPP_USE_DPDK)
-  find_package(DPDK)
-  if(NOT DPDK_FOUND)
-    message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
-  endif()
-  add_definitions(-DUSE_DPDK)
-
-  # Check in case user force KNI but it's not available
-  if(PCAPPP_USE_DPDK_KNI)
-    if(NOT HAVE_DPDK_RTE_KNI)
-      message(FATAL_ERROR "DPDK library doesn't have KNI support!")
-    endif()
-    add_definitions(-DUSE_DPDK_KNI)
-  endif()
-
-  # Disable deprecated warnings when DPDK enabled since warnings are treated as errors
-  add_definitions("-Wno-deprecated-declarations")
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
-endif()
-
 # Git Commit and Branch
 find_package(Git)
 if(Git_FOUND)
@@ -237,20 +179,89 @@ if(Git_FOUND)
   add_compile_definitions(GIT_BRANCH="${PCAPPP_GIT_BRANCH}")
 endif()
 
-if(PCAPPP_USE_PF_RING)
-  find_package(PF_RING)
-  if(NOT PF_RING_FOUND)
-    message(FATAL_ERROR "Specify PF_RING Library with -DPF_RING_ROOT=<PF_RING_PATH>")
-  endif()
-  add_definitions(-DUSE_PF_RING)
+if(MSVC)
+  # Other hacks for VStudio
+  # fopen(), sscanf() and strncpy() are not safe
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-if(PCAPPP_USE_XDP)
-  find_package(BPF)
-  if(NOT BPF_FOUND)
-    message(FATAL_ERROR "libbpf not found!")
+# Required dependencies only for PCap++ project.
+if(PCAPPP_BUILD_PCAPPP)
+  # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
+  if(WIN32 AND PCAP_ROOT AND NOT Packet_ROOT)
+    set(Packet_ROOT ${PCAP_ROOT})
   endif()
-  add_definitions(-DUSE_XDP)
+
+  find_package(PCAP)
+  if(NOT PCAP_FOUND)
+    if(WIN32)
+      message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
+    else()
+      message(FATAL_ERROR "PCAP library not found!")
+    endif()
+  endif()
+
+  # Look for Packet
+  if(WIN32)
+    find_package(Packet)
+    if(NOT Packet_FOUND)
+      message(FATAL_ERROR "Please specify Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
+    endif()
+  endif()
+
+  if(HAVE_PCAP_IMMEDIATE_MODE)
+    add_definitions(-DHAS_PCAP_IMMEDIATE_MODE)
+  endif()
+
+  if(HAVE_PCAP_TIMESTAMP_TYPES)
+    add_definitions(-DHAS_TIMESTAMP_TYPES_ENABLED)
+  endif()
+
+  if(HAVE_PCAP_TIMESTAMP_PRECISION)
+    add_definitions(-DHAS_TIMESTAMP_PRECISION_ENABLED)
+  endif()
+
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_package(Threads REQUIRED)
+  if(NOT MSVC AND NOT CMAKE_USE_PTHREADS_INIT)
+    message(FATAL_ERROR "Pthreads not found!")
+  endif()
+
+  if(PCAPPP_USE_DPDK)
+    find_package(DPDK)
+    if(NOT DPDK_FOUND)
+      message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
+    endif()
+    add_definitions(-DUSE_DPDK)
+
+    # Check in case user force KNI but it's not available
+    if(PCAPPP_USE_DPDK_KNI)
+      if(NOT HAVE_DPDK_RTE_KNI)
+        message(FATAL_ERROR "DPDK library doesn't have KNI support!")
+      endif()
+      add_definitions(-DUSE_DPDK_KNI)
+    endif()
+
+    # Disable deprecated warnings when DPDK enabled since warnings are treated as errors
+    add_definitions("-Wno-deprecated-declarations")
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
+  endif()
+
+  if(PCAPPP_USE_PF_RING)
+    find_package(PF_RING)
+    if(NOT PF_RING_FOUND)
+      message(FATAL_ERROR "Specify PF_RING Library with -DPF_RING_ROOT=<PF_RING_PATH>")
+    endif()
+    add_definitions(-DUSE_PF_RING)
+  endif()
+
+  if(PCAPPP_USE_XDP)
+    find_package(BPF)
+    if(NOT BPF_FOUND)
+      message(FATAL_ERROR "libbpf not found!")
+    endif()
+    add_definitions(-DUSE_XDP)
+  endif()
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -302,13 +313,21 @@ if(PCAPPP_BUILD_COVERAGE)
 endif()
 
 add_subdirectory(3rdParty)
-add_subdirectory(Packet++)
-add_subdirectory(Pcap++)
 add_subdirectory(Common++)
+add_subdirectory(Packet++)
+
+if(PCAPPP_BUILD_PCAPPP)
+  add_subdirectory(Pcap++)
+endif()
 
 if(PCAPPP_BUILD_EXAMPLES)
-  set(PCAPPP_BINARY_EXAMPLES_DIR ${CMAKE_BINARY_DIR}/examples_bin)
-  add_subdirectory(Examples)
+  if(PCAPPP_BUILD_PCAPPP)
+    set(PCAPPP_BINARY_EXAMPLES_DIR ${CMAKE_BINARY_DIR}/examples_bin)
+    add_subdirectory(Examples)
+  else()
+    # Examples searches for Pcap++, so it needs to be built.
+    message(FATAL_ERROR "Examples require Pcap++ project to be built")
+  endif()
 endif()
 
 if(PCAPPP_BUILD_TESTS OR PCAPPP_BUILD_FUZZERS OR PCAPPP_BUILD_EXAMPLES)
