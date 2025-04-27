@@ -1,6 +1,6 @@
-#include "PcapUtils.h"
+#include "pcapplusplus/PcapUtils.h"
 
-#include "pcap.h"
+#include <pcap.h>
 
 namespace pcpp
 {

@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleDhcpLayer
 
-#include "DhcpLayer.h"
-#include "Logger.h"
+#include "pcapplusplus/DhcpLayer.h"
+#include "pcapplusplus/Logger.h"
 
 namespace pcpp
 {

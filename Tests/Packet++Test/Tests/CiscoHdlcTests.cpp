@@ -1,10 +1,10 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "Packet.h"
-#include "CiscoHdlcLayer.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/CiscoHdlcLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IPv6Layer.h"
+#include "pcapplusplus/SystemUtils.h"
 
 PTF_TEST_CASE(CiscoHdlcParsingTest)
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "DpdkDevice.h"
-#include "DpdkDeviceList.h"
+#include "pcapplusplus/DpdkDevice.h"
+#include "pcapplusplus/DpdkDeviceList.h"
 
 class L2FwdWorkerThread : public pcpp::DpdkWorkerThread
 {

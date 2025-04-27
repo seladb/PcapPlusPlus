@@ -1,12 +1,12 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "Packet.h"
-#include "EthLayer.h"
-#include "IPv4Layer.h"
-#include "DhcpLayer.h"
-#include "UdpLayer.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/DhcpLayer.h"
+#include "pcapplusplus/UdpLayer.h"
+#include "pcapplusplus/SystemUtils.h"
 
 PTF_TEST_CASE(DhcpParsingTest)
 {

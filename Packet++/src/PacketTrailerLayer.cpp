@@ -1,5 +1,5 @@
-#include "PacketTrailerLayer.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/PacketTrailerLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include <sstream>
 
 namespace pcpp

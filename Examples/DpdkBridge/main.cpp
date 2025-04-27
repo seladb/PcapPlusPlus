@@ -23,10 +23,10 @@
 #include "Common.h"
 #include "AppWorkerThread.h"
 
-#include "DpdkDeviceList.h"
-#include "SystemUtils.h"
-#include "PcapPlusPlusVersion.h"
-#include "TablePrinter.h"
+#include "pcapplusplus/DpdkDeviceList.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
+#include "pcapplusplus/TablePrinter.h"
 
 #include <vector>
 #include <iostream>

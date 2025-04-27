@@ -24,12 +24,12 @@
 #include "PacketMatchingEngine.h"
 #include "AppWorkerThread.h"
 
-#include "DpdkDeviceList.h"
-#include "TcpLayer.h"
-#include "UdpLayer.h"
-#include "SystemUtils.h"
-#include "PcapPlusPlusVersion.h"
-#include "TablePrinter.h"
+#include "pcapplusplus/DpdkDeviceList.h"
+#include "pcapplusplus/TcpLayer.h"
+#include "pcapplusplus/UdpLayer.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
+#include "pcapplusplus/TablePrinter.h"
 
 #include <vector>
 #include <iostream>

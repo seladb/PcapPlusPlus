@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleArpLayer
 
-#include "ArpLayer.h"
-#include "EthLayer.h"
+#include "pcapplusplus/ArpLayer.h"
+#include "pcapplusplus/EthLayer.h"
 #include "EndianPortable.h"
 
 namespace pcpp

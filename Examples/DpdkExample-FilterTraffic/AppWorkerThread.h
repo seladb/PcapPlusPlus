@@ -3,10 +3,10 @@
 #include "Common.h"
 #include "PacketMatchingEngine.h"
 
-#include "PacketUtils.h"
-#include "DpdkDevice.h"
-#include "DpdkDeviceList.h"
-#include "PcapFileDevice.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/DpdkDevice.h"
+#include "pcapplusplus/DpdkDeviceList.h"
+#include "pcapplusplus/PcapFileDevice.h"
 
 /**
  * The worker thread class which does all the work: receive packets from relevant DPDK port(s), matched them with the

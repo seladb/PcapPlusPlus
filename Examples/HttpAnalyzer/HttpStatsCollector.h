@@ -4,12 +4,12 @@
 
 #include <functional>
 #include <sstream>
-#include "HttpLayer.h"
-#include "TcpLayer.h"
-#include "IPv4Layer.h"
-#include "PayloadLayer.h"
-#include "PacketUtils.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/HttpLayer.h"
+#include "pcapplusplus/TcpLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/SystemUtils.h"
 
 /**
  * An auxiliary struct for encapsulating rate stats

@@ -6,8 +6,8 @@
 #include <string>
 #include <thread>
 
-#include "Logger.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/SystemUtils.h"
 
 namespace pcpp
 {

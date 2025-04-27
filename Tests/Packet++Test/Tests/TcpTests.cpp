@@ -1,14 +1,14 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "Packet.h"
-#include "EthLayer.h"
-#include "IPv4Layer.h"
-#include "TcpLayer.h"
-#include "PayloadLayer.h"
-#include "SystemUtils.h"
-#include "PacketUtils.h"
-#include "DeprecationUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/TcpLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/DeprecationUtils.h"
 
 // TODO: remove these macros, when deprecated code is gone
 DISABLE_WARNING_PUSH

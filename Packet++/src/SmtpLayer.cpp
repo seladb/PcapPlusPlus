@@ -1,6 +1,6 @@
 #define LOG_MODULE PacketLogModuleSmtpLayer
 
-#include "SmtpLayer.h"
+#include "pcapplusplus/SmtpLayer.h"
 
 #include <algorithm>
 

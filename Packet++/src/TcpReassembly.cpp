@@ -1,14 +1,14 @@
 #define LOG_MODULE PacketLogModuleTcpReassembly
 
-#include "TcpReassembly.h"
-#include "TcpLayer.h"
-#include "IPLayer.h"
-#include "PacketUtils.h"
-#include "Logger.h"
+#include "pcapplusplus/TcpReassembly.h"
+#include "pcapplusplus/TcpLayer.h"
+#include "pcapplusplus/IPLayer.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/Logger.h"
 #include <sstream>
 #include <vector>
 #include "EndianPortable.h"
-#include "TimespecTimeval.h"
+#include "pcapplusplus/TimespecTimeval.h"
 #ifdef _MSC_VER
 #	include <time.h>
 #endif

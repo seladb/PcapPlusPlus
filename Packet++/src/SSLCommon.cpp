@@ -1,6 +1,6 @@
 #define LOG_MODULE PacketLogModuleSSLLayer
 
-#include "SSLCommon.h"
+#include "pcapplusplus/SSLCommon.h"
 
 namespace pcpp
 {

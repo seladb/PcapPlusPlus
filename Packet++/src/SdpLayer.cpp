@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleSdpLayer
 
-#include "SdpLayer.h"
-#include "Logger.h"
+#include "pcapplusplus/SdpLayer.h"
+#include "pcapplusplus/Logger.h"
 #include <sstream>
 
 namespace pcpp

@@ -14,9 +14,9 @@
  * `./benchmark.sh libpcap PcapPlusPlus libtins libcrafter`
  */
 
-#include <Packet.h>
-#include <DnsLayer.h>
-#include <PcapFileDevice.h>
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/DnsLayer.h"
+#include "pcapplusplus/PcapFileDevice.h"
 #include <iostream>
 #include <chrono>
 #include <string>

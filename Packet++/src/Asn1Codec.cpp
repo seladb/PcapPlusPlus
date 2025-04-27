@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleAsn1Codec
 
-#include "Asn1Codec.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/Asn1Codec.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include "EndianPortable.h"
 #include <unordered_map>
 #include <numeric>

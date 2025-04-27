@@ -1,10 +1,10 @@
 #define LOG_MODULE PacketLogModulePPPoELayer
 
-#include "PPPoELayer.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
-#include "PayloadLayer.h"
-#include "Logger.h"
+#include "pcapplusplus/PPPoELayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IPv6Layer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/Logger.h"
 #include <unordered_map>
 #include <sstream>
 #include "EndianPortable.h"

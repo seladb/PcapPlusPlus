@@ -1,13 +1,13 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "EthLayer.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
-#include "Packet.h"
-#include "SmtpLayer.h"
-#include "SystemUtils.h"
-#include "TcpLayer.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IPv6Layer.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/SmtpLayer.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/TcpLayer.h"
 
 PTF_TEST_CASE(SmtpParsingTests)
 {

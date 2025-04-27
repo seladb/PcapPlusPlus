@@ -1,9 +1,9 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "Logger.h"
-#include "Packet.h"
-#include "DhcpV6Layer.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/DhcpV6Layer.h"
+#include "pcapplusplus/SystemUtils.h"
 
 PTF_TEST_CASE(DhcpV6ParsingTest)
 {

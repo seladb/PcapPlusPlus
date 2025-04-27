@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleHttpLayer
 
-#include "Logger.h"
-#include "GeneralUtils.h"
-#include "HttpLayer.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/HttpLayer.h"
 #include <cstring>
 #include <algorithm>
 #include <exception>

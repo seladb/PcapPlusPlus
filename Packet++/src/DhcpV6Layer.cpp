@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleDhcpV6Layer
 
-#include "DhcpV6Layer.h"
-#include "Logger.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/DhcpV6Layer.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include "EndianPortable.h"
 
 namespace pcpp

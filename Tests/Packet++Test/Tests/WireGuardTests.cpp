@@ -1,8 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "Packet.h"
-#include "WireGuardLayer.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/WireGuardLayer.h"
+#include "pcapplusplus/SystemUtils.h"
 #include <cstring>
 #include "EndianPortable.h"
 

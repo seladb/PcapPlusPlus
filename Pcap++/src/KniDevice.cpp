@@ -2,9 +2,9 @@
 
 #define LOG_MODULE PcapLogModuleKniDevice
 
-#include "KniDevice.h"
-#include "Logger.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/KniDevice.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/SystemUtils.h"
 
 #include <unistd.h>
 #include <time.h>
