@@ -149,7 +149,7 @@ target_compile_features(Packet++ PUBLIC cxx_std_11)
 
 target_include_directories(
   Packet++
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus> $<INSTALL_INTERFACE:include>
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
