@@ -35,7 +35,7 @@ bool assertConfig(const pcpp::XdpDevice::XdpDeviceConfiguration* config,
 
 std::string getDeviceName()
 {
-	auto pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+	auto pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
 	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	if (pcapLiveDev)
 	{

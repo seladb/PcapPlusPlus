@@ -690,7 +690,7 @@ int main(int argc, char* argv[])
 	{
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev =
-		    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
