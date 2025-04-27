@@ -55,7 +55,9 @@ namespace pcpp
 		/// Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
 		/// @param[in] ipAddr The IP address defined for the device
 		/// @return A pointer to the live device if this IP address exists. nullptr otherwise
-		PCPP_DEPRECATED("Use `getDeviceByIp`") PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const;
+		PCPP_DEPRECATED("Use `getDeviceByIp`")
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const;
+
 		/// Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
 		/// @param[in] ipAddr The IP address defined for the device
 		/// @return A pointer to the live device if this IP address exists. nullptr otherwise
@@ -64,7 +66,9 @@ namespace pcpp
 		/// Get a pointer to the live device by its IPv4 address
 		/// @param[in] ipAddr The IPv4 address defined for the device
 		/// @return A pointer to the live device if this IPv4 address exists. nullptr otherwise
-		PCPP_DEPRECATED("Use `getDeviceByIp`") PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const;
+		PCPP_DEPRECATED("Use `getDeviceByIp`")
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const;
+
 		/// Get a pointer to the live device by its IPv4 address
 		/// @param[in] ipAddr The IPv4 address defined for the device
 		/// @return A pointer to the live device if this IPv4 address exists. nullptr otherwise
@@ -73,7 +77,9 @@ namespace pcpp
 		/// Get a pointer to the live device by its IPv6 address
 		/// @param[in] ip6Addr The IPv6 address defined for the device
 		/// @return A pointer to the live device if this IPv6 address exists. nullptr otherwise
-		PCPP_DEPRECATED("Use `getDeviceByIp`") PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const;
+		PCPP_DEPRECATED("Use `getDeviceByIp`")
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const;
+
 		/// Get a pointer to the live device by its IPv6 address
 		/// @param[in] ip6Addr The IPv6 address defined for the device
 		/// @return A pointer to the live device if this IPv6 address exists. nullptr otherwise
@@ -85,6 +91,7 @@ namespace pcpp
 		/// @return A pointer to the live device if this IP address is valid and exists. nullptr otherwise
 		PCPP_DEPRECATED("Use `getDeviceByIp`")
 		PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const;
+
 		/// Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or
 		/// IPv6
 		/// @param[in] ipAddrAsString The IP address defined for the device as string
@@ -94,7 +101,9 @@ namespace pcpp
 		/// Get a pointer to the live device by its name
 		/// @param[in] name The name of the interface (e.g eth0)
 		/// @return A pointer to the live device if this name exists. nullptr otherwise
-		PCPP_DEPRECATED("Use `getDeviceByName`") PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const;
+		PCPP_DEPRECATED("Use `getDeviceByName`")
+		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const;
+
 		/// Get a pointer to the live device by its name
 		/// @param[in] name The name of the interface (e.g eth0)
 		/// @return A pointer to the live device if this name exists. nullptr otherwise
