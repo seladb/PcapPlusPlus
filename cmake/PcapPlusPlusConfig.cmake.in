@@ -39,4 +39,17 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
 
+# Restores target properties for Common++, Packet++ and Pcap++ that are required by generator expressions.
+set_target_properties(PcapPlusPlus::Common++ PROPERTIES
+    PCAPPP_ENABLE_OLD_STYLE_INCLUDE "${PCAPPP_ENABLE_OLD_STYLE_INCLUDE}"
+)
+
+set_target_properties(PcapPlusPlus::Packet++ PROPERTIES
+    PCAPPP_ENABLE_OLD_STYLE_INCLUDE "${PCAPPP_ENABLE_OLD_STYLE_INCLUDE}"
+)
+
+set_target_properties(PcapPlusPlus::Pcap++ PROPERTIES
+    PCAPPP_ENABLE_OLD_STYLE_INCLUDE "${PCAPPP_ENABLE_OLD_STYLE_INCLUDE}"
+)
+
 check_required_components(@PROJECT_NAME@)

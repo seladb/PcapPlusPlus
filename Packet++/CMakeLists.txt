@@ -145,6 +145,8 @@ set(
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+set_target_properties(Packet++ PROPERTIES PCAPPP_ENABLE_OLD_STYLE_INCLUDE "${PCAPPP_ENABLE_OLD_STYLE_INCLUDE}")
+
 target_compile_features(Packet++ PUBLIC cxx_std_11)
 
 target_include_directories(
@@ -152,7 +154,7 @@ target_include_directories(
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
     $<INSTALL_INTERFACE:include>
-    $<$<BOOL:PCAPPP_ENABLE_OLD_STYLE_INCLUDE>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>$<INSTALL_INTERFACE:include/pcapplusplus>>
+    $<$<BOOL:$<TARGET_PROPERTY:Packet++,PCAPPP_ENABLE_OLD_STYLE_INCLUDE>>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>$<INSTALL_INTERFACE:include/pcapplusplus>>
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>

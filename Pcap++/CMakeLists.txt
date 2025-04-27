@@ -75,6 +75,8 @@ endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+set_target_properties(Pcap++ PROPERTIES PCAPPP_ENABLE_OLD_STYLE_INCLUDE "${PCAPPP_ENABLE_OLD_STYLE_INCLUDE}")
+
 target_compile_features(Pcap++ PUBLIC cxx_std_11)
 
 if(APPLE)
@@ -91,7 +93,7 @@ target_include_directories(
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
     $<INSTALL_INTERFACE:include>
-    $<$<BOOL:PCAPPP_ENABLE_OLD_STYLE_INCLUDE>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>$<INSTALL_INTERFACE:include/pcapplusplus>>
+    $<$<BOOL:$<TARGET_PROPERTY:Pcap++,PCAPPP_ENABLE_OLD_STYLE_INCLUDE>>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>$<INSTALL_INTERFACE:include/pcapplusplus>>
   # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
   PRIVATE
     $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>

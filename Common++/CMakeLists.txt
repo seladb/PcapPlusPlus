@@ -34,6 +34,8 @@ set(
 # Set the public header that will be installed
 set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+set_target_properties(Common++ PROPERTIES PCAPPP_ENABLE_OLD_STYLE_INCLUDE "${PCAPPP_ENABLE_OLD_STYLE_INCLUDE}")
+
 target_compile_features(Common++ PUBLIC cxx_std_11)
 
 target_include_directories(
@@ -41,7 +43,7 @@ target_include_directories(
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
     $<INSTALL_INTERFACE:include>
-    $<$<BOOL:PCAPPP_ENABLE_OLD_STYLE_INCLUDE>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>$<INSTALL_INTERFACE:include/pcapplusplus>>
+    $<$<BOOL:$<TARGET_PROPERTY:Common++,PCAPPP_ENABLE_OLD_STYLE_INCLUDE>>:$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>$<INSTALL_INTERFACE:include/pcapplusplus>>
   # Don't link with EndianPortable and json as it won't be exported
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>
