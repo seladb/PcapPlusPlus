@@ -13,7 +13,7 @@ namespace pcpp
 
 			explicit DeviceListBase(PointerVector<T, Deleter> devices) : m_DeviceList(std::move(devices))
 			{}
-			
+
 			DeviceListBase(DeviceListBase const&) = default;
 			DeviceListBase(DeviceListBase&&) = default;
 			// Protected destructor to disallow deletion of derived class through a base class pointer
@@ -21,6 +21,7 @@ namespace pcpp
 
 			DeviceListBase& operator=(DeviceListBase const&) = default;
 			DeviceListBase& operator=(DeviceListBase&&) = default;
+
 		public:
 			using value_type = T*;
 			using size_type = std::size_t;
@@ -65,11 +66,11 @@ namespace pcpp
 				return m_DeviceList.cend();
 			}
 
-			/// @brief Check if the device list is empty  
-			/// @return True if the device list is empty, false otherwise  
-			bool empty() const  
-			{  
-				return m_DeviceList.empty();  
+			/// @brief Check if the device list is empty
+			/// @return True if the device list is empty, false otherwise
+			bool empty() const
+			{
+				return m_DeviceList.empty();
 			}
 
 			/// @brief Get the number of devices in the list
@@ -83,4 +84,4 @@ namespace pcpp
 			PointerVector<T, Deleter> m_DeviceList;
 		};
 	}  // namespace internal
-}  // namespace pcap
+}  // namespace pcpp
