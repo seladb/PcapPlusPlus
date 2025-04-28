@@ -13,6 +13,8 @@ FetchContent_Declare(
 )
 
 if(PCAPPP_INSTALL)
+  FetchContent_MakeAvailable(LightPcapNg)
+
   install(
     TARGETS light_pcapng
     EXPORT PcapPlusPlusTargets
