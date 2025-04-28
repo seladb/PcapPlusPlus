@@ -1,3 +1,10 @@
+cmake_minimum_required(VERSION 3.12)
+
+include(FetchContent)
+
+FetchContent_MakeAvailable(LightPcapNg)
+
+
 add_library(
   Pcap++
   src/DeviceUtils.cpp
