@@ -12,7 +12,6 @@ FetchContent_Declare(
     GIT_TAG copy-from-pcapplusplus
 )
 
-#[[
 if(PCAPPP_INSTALL)
   install(
     TARGETS light_pcapng
@@ -22,4 +21,3 @@ if(PCAPPP_INSTALL)
     PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
   )
 endif()
-]]
