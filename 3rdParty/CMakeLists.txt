@@ -4,7 +4,6 @@ add_subdirectory(EndianPortable)
 add_subdirectory(Getopt-for-Visual-Studio)
 add_subdirectory(hash-library)
 add_subdirectory(json)
-#add_subdirectory(LightPcapNg)
 add_subdirectory(MemPlumber/MemPlumber)
 
 FetchContent_Declare(
