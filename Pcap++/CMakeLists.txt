@@ -21,9 +21,11 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_XDP}>:src/XdpDevice.cpp>
   src/RawSocketDevice.cpp
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
-  # Force light pcapng to be link fully static
-  $<TARGET_OBJECTS:light_pcapng>
 )
+
+add_dependencies(Pcap++ LightPcapNg)
+include_directories(${CMAKE_BINARY_DIR}/3rdParty/LightPcapNg/include)
+link_directories(${CMAKE_BINARY_DIR}/3rdParty/LightPcapNg-build)
 
 set(
   public_headers
@@ -80,7 +82,7 @@ target_include_directories(
   # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
   PRIVATE
     $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
-    $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:LightPcapNg,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 target_link_libraries(
