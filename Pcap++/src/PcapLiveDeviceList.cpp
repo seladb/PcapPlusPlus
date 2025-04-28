@@ -269,6 +269,7 @@ namespace pcpp
 	{
 		return getDeviceByIp(ipAddr);
 	}
+
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const IPAddress& ipAddr) const
 	{
 		if (ipAddr.getType() == IPAddress::IPv4AddressType)
@@ -285,6 +286,7 @@ namespace pcpp
 	{
 		return getDeviceByIp(ipAddr);
 	}
+
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const IPv4Address& ipAddr) const
 	{
 		auto it = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
@@ -299,6 +301,7 @@ namespace pcpp
 	{
 		return getDeviceByIp(ip6Addr);
 	}
+
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const IPv6Address& ip6Addr) const
 	{
 		auto it = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
@@ -313,6 +316,7 @@ namespace pcpp
 	{
 		return getDeviceByIp(ipAddrAsString);
 	}
+
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const std::string& ipAddrAsString) const
 	{
 		IPAddress ipAddr;
@@ -334,6 +338,7 @@ namespace pcpp
 	{
 		return getDeviceByName(name);
 	}
+
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByName(const std::string& name) const
 	{
 		PCPP_LOG_DEBUG("Searching all live devices...");
@@ -354,6 +359,7 @@ namespace pcpp
 	{
 		return getDeviceByIpOrName(ipOrName);
 	}
+
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIpOrName(const std::string& ipOrName) const
 	{
 		try

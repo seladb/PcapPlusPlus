@@ -114,6 +114,7 @@ namespace pcpp
 		/// @return A pointer to the live device if exists, nullptr otherwise
 		PCPP_DEPRECATED("Use `getDeviceByIpOrName`")
 		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const;
+
 		/// Get a pointer to the live device by its IP address or name
 		/// @param[in] ipOrName An IP address or name of the interface
 		/// @return A pointer to the live device if exists, nullptr otherwise
