@@ -203,7 +203,7 @@ static bool getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev
 void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP)
 {
 	// identify the interface to listen and send packets to
-	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);
+	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(catcherIP);
 	if (dev == nullptr)
 		EXIT_WITH_ERROR("Cannot find network interface with IP '" << catcherIP << "'");
 
@@ -416,7 +416,7 @@ static bool sendContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, v
 void sendFile(const std::string& filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, size_t blockSize)
 {
 	// identify the interface to listen and send packets to
-	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);
+	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(catcherIP);
 	if (dev == nullptr)
 		EXIT_WITH_ERROR("Cannot find network interface with IP '" << catcherIP << "'");
 
