@@ -23,6 +23,10 @@ namespace pcpp
 			DeviceListBase& operator=(DeviceListBase&&) = default;
 
 		public:
+			using value_type = T*;
+			using size_type = std::size_t;
+			using difference_type = std::ptrdiff_t;
+
 			using iterator = typename PointerVector<T, Deleter>::VectorIterator;
 			using const_iterator = typename PointerVector<T, Deleter>::ConstVectorIterator;
 
