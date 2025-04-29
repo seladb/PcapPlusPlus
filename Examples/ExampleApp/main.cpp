@@ -1,7 +1,7 @@
 #include <iostream>
-#include <pcapplusplus/IPv4Layer.h>
-#include <pcapplusplus/Packet.h>
-#include <pcapplusplus/PcapFileDevice.h>
+#include <IPv4Layer.h>
+#include <Packet.h>
+#include <PcapFileDevice.h>
 
 int main(int argc, char* argv[])
 {
