@@ -7,9 +7,9 @@ add_subdirectory(json)
 add_subdirectory(MemPlumber/MemPlumber)
 
 FetchContent_Declare(
-    LightPcapNg
-    GIT_REPOSITORY https://github.com/PcapPlusPlus/LightPcapNg
-    GIT_TAG copy-from-pcapplusplus
+  LightPcapNg
+  GIT_REPOSITORY https://github.com/PcapPlusPlus/LightPcapNg
+  GIT_TAG copy-from-pcapplusplus
 )
 
 if(PCAPPP_INSTALL)
@@ -18,8 +18,8 @@ if(PCAPPP_INSTALL)
   install(
     TARGETS light_pcapng
     EXPORT PcapPlusPlusTargets
-    ARCHIVE DESTINATION ${PCAPPP_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${PCAPPP_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
+    ARCHIVE DESTINATION "${PCAPPP_INSTALL_LIBDIR}/vendor"
+    LIBRARY DESTINATION "${PCAPPP_INSTALL_LIBDIR}/vendor"
+    PUBLIC_HEADER DESTINATION "${PCAPPP_INSTALL_INCLUDEDIR}/vendor"
   )
 endif()
