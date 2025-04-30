@@ -370,7 +370,9 @@ namespace pcpp
 		if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
 		    (DoIpLayer::isDataValid(payload, payloadLen)))
 		{
-			setNextLayer(DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet));
+			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet);
+			if (!m_NextLayer)
+				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 		}
 		else if (HttpMessage::isHttpPort(portDst) &&
 		         HttpRequestFirstLine::parseMethod(payloadChar, payloadLen) != HttpRequestLayer::HttpMethodUnknown)

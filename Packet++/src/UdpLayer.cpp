@@ -133,7 +133,12 @@ namespace pcpp
 			m_NextLayer = new DhcpV6Layer(udpData, udpDataLen, this, m_Packet);
 		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
 		         (DoIpLayer::isDataValid(udpData, udpDataLen)))
+		{
 			m_NextLayer = DoIpLayer::parseDoIpLayer(udpData, udpDataLen, this, m_Packet);
+			if (!m_NextLayer)
+				constructNextLayer<PayloadLayer>(udpData, udpDataLen, m_Packet);
+		}
+
 		else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
 		         NtpLayer::isDataValid(udpData, udpDataLen))
 			m_NextLayer = new NtpLayer(udpData, udpDataLen, this, m_Packet);
