@@ -23,10 +23,6 @@ add_library(
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
 )
 
-add_dependencies(Pcap++ LightPcapNg)
-include_directories(${CMAKE_BINARY_DIR}/3rdParty/LightPcapNg/include)
-link_directories(${CMAKE_BINARY_DIR}/3rdParty/LightPcapNg-build)
-
 set(
   public_headers
   header/Device.h
@@ -79,10 +75,10 @@ endif()
 target_include_directories(
   Pcap++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
-  # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
+  # Don't link with EndianPortable nor light_pcapng as they won't be exported
   PRIVATE
     $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
-    $<TARGET_PROPERTY:LightPcapNg,INTERFACE_INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 target_link_libraries(
@@ -97,9 +93,7 @@ target_link_libraries(
     Threads::Threads
 )
 
-if(LIGHT_PCAPNG_ZSTD)
-  target_link_libraries(Pcap++ PRIVATE light_pcapng)
-endif()
+target_sources(Pcap++ PRIVATE $<TARGET_OBJECTS:light_pcapng>)
 
 if(PCAPPP_INSTALL)
   install(

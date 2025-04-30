@@ -4,16 +4,17 @@ add_subdirectory(hash-library)
 add_subdirectory(json)
 add_subdirectory(MemPlumber/MemPlumber)
 
-# Find CMake module for ExternalProject
-include(ExternalProject)
+include(FetchContent)
 
-ExternalProject_Add(
+set(LIGHT_PCAPNG_BUILD_TYPE OBJECT CACHE STRING "" FORCE)
+
+FetchContent_Declare(
   LightPcapNg
-  PREFIX ${CMAKE_BINARY_DIR}/3rdParty
   GIT_REPOSITORY https://github.com/PcapPlusPlus/LightPcapNg
   GIT_TAG copy-from-pcapplusplus  # TODO: Replace with master
-  INSTALL_COMMAND ""  # TODO: fix it
 )
+
+FetchContent_MakeAvailable(LightPcapNg)
 
 # TODO: do we still need it?
 #if(PCAPPP_INSTALL)
