@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 	// if interface name or IP was provided - find the device accordingly
 	if (interfaceNameOrIPProvided)
 	{
-		dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 	}
