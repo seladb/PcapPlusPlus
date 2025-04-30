@@ -112,9 +112,8 @@ namespace pcpp
 		if (!isInitialized())
 			return nullptr;
 
-		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [portId](KniDevice* device) {
-			return device && device->m_DeviceInfo.portId == portId);
-		});
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		                       [portId](KniDevice* device) { return device && device->m_DeviceInfo.portId == portId; });
 
 		return *it != m_DeviceList.end() ? *it : nullptr;
 	}
