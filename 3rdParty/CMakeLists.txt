@@ -17,13 +17,12 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(LightPcapNg)
 
-# TODO: do we still need it?
-#if(PCAPPP_INSTALL)
-#  install(
-#    TARGETS light_pcapng
-#    EXPORT PcapPlusPlusTargets
-#    ARCHIVE DESTINATION ${PCAPPP_INSTALL_LIBDIR}
-#    LIBRARY DESTINATION ${PCAPPP_INSTALL_LIBDIR}
-#    PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
-#  )
-#endif()
+if(PCAPPP_INSTALL)
+  install(
+    TARGETS light_pcapng
+    EXPORT PcapPlusPlusTargets
+    ARCHIVE DESTINATION ${PCAPPP_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${PCAPPP_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
+  )
+endif()

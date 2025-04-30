@@ -100,7 +100,7 @@ target_link_libraries(
 
 if(PCAPPP_INSTALL)
   install(
-    TARGETS Pcap++ light_pcapng
+    TARGETS Pcap++
     EXPORT PcapPlusPlusTargets
     ARCHIVE DESTINATION ${PCAPPP_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${PCAPPP_INSTALL_LIBDIR}
