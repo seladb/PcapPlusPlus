@@ -16,6 +16,7 @@ if(PCAPPP_INSTALL)
   FetchContent_MakeAvailable(LightPcapNg)
 
   # Needed as Cmake complains about the target not being in an export set for Pcap++ install
+  # Does not actually output anything if the target is an OBJECT library.
   install(
     TARGETS light_pcapng
     EXPORT PcapPlusPlusTargets
