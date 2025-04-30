@@ -32,6 +32,7 @@ add_library(
 set(
   public_headers
   header/Device.h
+  header/DeviceListBase.h
   header/NetworkUtils.h
   header/PcapDevice.h
   header/PcapFileDevice.h
@@ -80,7 +81,10 @@ endif()
 
 target_include_directories(
   Pcap++
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
+    $<INSTALL_INTERFACE:include/pcapplusplus>
+    $<INSTALL_INTERFACE:include>
   # Don't link with EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
 )
