@@ -85,7 +85,6 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
-  # $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 target_link_libraries(
@@ -101,11 +100,6 @@ target_link_libraries(
   PRIVATE light_pcapng
 )
 
-#[[
-if(LIGHT_PCAPNG_ZSTD)
-  target_link_libraries(Pcap++ PRIVATE light_pcapng)
-endif()
-]]
 
 if(PCAPPP_INSTALL)
   install(
