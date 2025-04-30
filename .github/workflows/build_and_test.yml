@@ -78,7 +78,7 @@ jobs:
             config-zstd: OFF
           - runner: ubuntu-latest
             image: ubuntu2004-zstd
-            config-zstd: ON
+            config-zstd: OFF
           - runner: ubuntu-latest
             image: fedora42
             config-zstd: OFF
@@ -376,7 +376,7 @@ jobs:
           - os-version: macos-13
             host-arch: x86_64
             arch: x86_64
-            config-zstd: ON
+            config-zstd: OFF
           - os-version: macos-13
             host-arch: x86_64
             arch: arm64
@@ -388,7 +388,7 @@ jobs:
           - os-version: macos-14
             host-arch: arm64
             arch: arm64
-            config-zstd: ON
+            config-zstd: OFF
           - os-version: macos-15
             host-arch: x86_64
             arch: x86_64
@@ -396,7 +396,7 @@ jobs:
           - os-version: macos-15
             host-arch: arm64
             arch: arm64
-            config-zstd: ON
+            config-zstd: OFF
 
     steps:
       - name: Checkout code
