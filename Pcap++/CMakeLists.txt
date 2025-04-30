@@ -102,7 +102,6 @@ target_link_libraries(
   PRIVATE light_pcapng
 )
 
-
 if(PCAPPP_INSTALL)
   install(
     TARGETS Pcap++
