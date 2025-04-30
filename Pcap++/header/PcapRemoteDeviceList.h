@@ -38,10 +38,10 @@ namespace pcpp
 
 	public:
 		/// Iterator object that can be used for iterating all PcapRemoteDevice in list
-		using RemoteDeviceListIterator = typename iterator;
+		using RemoteDeviceListIterator = iterator;
 
 		/// Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
-		using ConstRemoteDeviceListIterator = typename const_iterator;
+		using ConstRemoteDeviceListIterator = const_iterator;
 
 		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;
