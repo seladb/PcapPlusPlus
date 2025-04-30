@@ -27,8 +27,6 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_XDP}>:src/XdpDevice.cpp>
   src/RawSocketDevice.cpp
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
-  # Force light pcapng to be link fully static
-  $<TARGET_OBJECTS:light_pcapng>
 )
 
 set(
