@@ -159,6 +159,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Export compile commands for external tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Compile LightPcapNg as an object library to inline the library into Pcap++ library.
+set(LIGHT_PCAPNG_BUILD_TYPE "OBJECT")
+
 # Git Commit and Branch
 find_package(Git)
 if(Git_FOUND)
