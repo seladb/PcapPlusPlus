@@ -95,13 +95,12 @@ target_link_libraries(
     $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
     PCAP::PCAP
     Threads::Threads
+    light_pcapng
 )
-
-target_sources(Pcap++ PRIVATE $<TARGET_OBJECTS:light_pcapng>)
 
 if(PCAPPP_INSTALL)
   install(
-    TARGETS Pcap++
+    TARGETS Pcap++ light_pcapng
     EXPORT PcapPlusPlusTargets
     ARCHIVE DESTINATION ${PCAPPP_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${PCAPPP_INSTALL_LIBDIR}
