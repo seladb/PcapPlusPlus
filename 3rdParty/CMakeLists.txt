@@ -8,13 +8,14 @@ add_subdirectory(MemPlumber/MemPlumber)
 
 FetchContent_Declare(
   LightPcapNg
-  GIT_REPOSITORY https://github.com/PcapPlusPlus/LightPcapNg
-  GIT_TAG copy-from-pcapplusplus
+  GIT_REPOSITORY "https://github.com/PcapPlusPlus/LightPcapNg"
+  GIT_TAG "pcpp-copy-for-fetch-content-tests"
 )
 
 if(PCAPPP_INSTALL)
   FetchContent_MakeAvailable(LightPcapNg)
 
+  # Needed as Cmake complains about the target not being in an export set for Pcap++ install
   install(
     TARGETS light_pcapng
     EXPORT PcapPlusPlusTargets
