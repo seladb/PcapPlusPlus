@@ -73,7 +73,7 @@ static struct option PcapSplitterOptions[] = {
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << '\n' << std::endl;                                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -101,71 +101,53 @@ void printUsage()
 {
 	std::cout
 	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
-	    << pcpp::AppName::get() << " [-h] [-v] [-i filter] -f pcap_file -o output_dir -m split_method [-p split_param]"
-	    << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    -f pcap_file    : Input pcap file name" << std::endl
-	    << "    -o output_dir   : The directory where the output files shall be written" << std::endl
-	    << "    -m split_method : The method to split with. Can take one of the following params:" << std::endl
-	    << "                      'file-size'    - split files by size in bytes" << std::endl
-	    << "                      'packet-count' - split files by packet count" << std::endl
-	    << "                      'client-ip'    - split files by client IP, meaning all connections with" << std::endl
-	    << "                                       the same client IP will be in the same file" << std::endl
-	    << "                      'server-ip'    - split files by server IP, meaning all connections with" << std::endl
-	    << "                                       the same server IP will be in the same file" << std::endl
-	    << "                      'server-port'  - split files by server port, meaning all connections with"
-	    << std::endl
-	    << "                                       the same server port will be in the same file" << std::endl
-	    << "                      'client-port'  - split files by client port, meaning all connections with"
-	    << std::endl
-	    << "                                       the same client port will be in the same file" << std::endl
-	    << "                      'ip-src-dst'   - split files by IP src and dst (2-tuple), meaning all connections"
-	    << std::endl
-	    << "                                       with the same IPs will be in the same file" << std::endl
-	    << "                      'connection'   - split files by connection (5-tuple), meaning all packets"
-	    << std::endl
-	    << "                                       of a connection will be in the same file" << std::endl
-	    << "                      'bpf-filter'   - split file into two files: one that contains all packets"
-	    << std::endl
-	    << "                                       matching the given BPF filter (file #0) and one that contains"
-	    << std::endl
-	    << "                                       the rest of the packets (file #1)" << std::endl
-	    << "                      'round-robin'  - split the file in a round-robin manner - each packet to a"
-	    << std::endl
-	    << "                                       different file" << std::endl
-	    << "    -p split_param  : The relevant parameter for the split method:" << std::endl
-	    << "                      'method = file-size'    => split_param is the max size per file (in bytes)."
-	    << std::endl
-	    << "                                                 split_param is required for this method" << std::endl
-	    << "                      'method = packet-count' => split_param is the number of packet per file." << std::endl
-	    << "                                                 split_param is required for this method" << std::endl
-	    << "                      'method = client-ip'    => split_param is max number of files to open." << std::endl
-	    << "                                                 If not provided the default is unlimited number of files"
-	    << std::endl
-	    << "                      'method = server-ip'    => split_param is max number of files to open." << std::endl
-	    << "                                                 If not provided the default is unlimited number of files"
-	    << std::endl
-	    << "                      'method = server-port'  => split_param is max number of files to open." << std::endl
-	    << "                                                 If not provided the default is unlimited number of files"
-	    << std::endl
-	    << "                      'method = ip-src-dst'   => split_param is max number of files to open." << std::endl
-	    << "                                                 If not provided the default is unlimited number of files"
-	    << std::endl
-	    << "                      'method = connection'   => split_param is max number of files to open." << std::endl
-	    << "                                                 If not provided the default is unlimited number of files"
-	    << std::endl
-	    << "                      'method = bpf-filter'   => split_param is the BPF filter to match upon" << std::endl
-	    << "                      'method = round-robin'  => split_param is number of files to round-robin packets "
-	       "between"
-	    << std::endl
-	    << "    -i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split"
-	    << std::endl
-	    << "    -v              : Displays the current version and exists" << std::endl
-	    << "    -h              : Displays this help message and exits" << std::endl
+	    << "\nUsage:"
+	    << "\n------\n"
+	    << pcpp::AppName::get()
+	    << " [-h] [-v] [-i filter] -f pcap_file -o output_dir -m split_method [-p split_param]\n"
+	       "\nOptions:\n"
+	       "\n    -f pcap_file    : Input pcap file name"
+	       "\n    -o output_dir   : The directory where the output files shall be written"
+	       "\n    -m split_method : The method to split with. Can take one of the following params:"
+	       "\n                      'file-size'    - split files by size in bytes"
+	       "\n                      'packet-count' - split files by packet count"
+	       "\n                      'client-ip'    - split files by client IP, meaning all connections with"
+	       "\n                                       the same client IP will be in the same file"
+	       "\n                      'server-ip'    - split files by server IP, meaning all connections with"
+	       "\n                                       the same server IP will be in the same file"
+	       "\n                      'server-port'  - split files by server port, meaning all connections with"
+	       "\n                                       the same server port will be in the same file"
+	       "\n                      'client-port'  - split files by client port, meaning all connections with"
+	       "\n                                       the same client port will be in the same file"
+	       "\n                      'ip-src-dst'   - split files by IP src and dst (2-tuple), meaning all connections"
+	       "\n                                       with the same IPs will be in the same file"
+	       "\n                      'connection'   - split files by connection (5-tuple), meaning all packets"
+	       "\n                                       of a connection will be in the same file"
+	       "\n                      'bpf-filter'   - split file into two files: one that contains all packets"
+	       "\n                                       matching the given BPF filter (file #0) and one that contains"
+	       "\n                                       the rest of the packets (file #1)"
+	       "\n                      'round-robin'  - split the file in a round-robin manner - each packet to a"
+	       "\n                                       different file"
+	       "\n    -p split_param  : The relevant parameter for the split method:"
+	       "\n                      'method = file-size'    => split_param is the max size per file (in bytes)."
+	       "\n                                                 split_param is required for this method"
+	       "\n                      'method = packet-count' => split_param is the number of packet per file."
+	       "\n                                                 split_param is required for this method"
+	       "\n                      'method = client-ip'    => split_param is max number of files to open."
+	       "\n                                                 If not provided the default is unlimited number of files"
+	       "\n                      'method = server-ip'    => split_param is max number of files to open."
+	       "\n                                                 If not provided the default is unlimited number of files"
+	       "\n                      'method = server-port'  => split_param is max number of files to open."
+	       "\n                                                 If not provided the default is unlimited number of files"
+	       "\n                      'method = ip-src-dst'   => split_param is max number of files to open."
+	       "\n                                                 If not provided the default is unlimited number of files"
+	       "\n                      'method = connection'   => split_param is max number of files to open."
+	       "\n                                                 If not provided the default is unlimited number of files"
+	       "\n                      'method = bpf-filter'   => split_param is the BPF filter to match upon"
+	       "\n                      'method = round-robin'  => split_param is number of files to round-robin packets between"
+	       "\n    -i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split"
+	       "\n    -v              : Displays the current version and exists"
+	       "\n    -h              : Displays this help message and exits"
 	    << std::endl;
 }
 
@@ -174,9 +156,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 

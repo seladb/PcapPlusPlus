@@ -131,10 +131,9 @@ int main(int argc, char* argv[])
 	}
 
 	// print the source and dest MAC addresses and the Ether type
-	std::cout << std::endl
-	          << "Source MAC address: " << ethernetLayer->getSourceMac() << std::endl
-	          << "Destination MAC address: " << ethernetLayer->getDestMac() << std::endl
-	          << "Ether type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType)
+	std::cout << "\nSource MAC address: " << ethernetLayer->getSourceMac()                                       //
+	          << "\nDestination MAC address: " << ethernetLayer->getDestMac()                                    //
+	          << "\nEther type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType)  //
 	          << std::endl;
 
 	// let's get the IPv4 layer
@@ -146,11 +145,10 @@ int main(int argc, char* argv[])
 	}
 
 	// print source and dest IP addresses, IP ID and TTL
-	std::cout << std::endl
-	          << "Source IP address: " << ipLayer->getSrcIPAddress() << std::endl
-	          << "Destination IP address: " << ipLayer->getDstIPAddress() << std::endl
-	          << "IP ID: 0x" << std::hex << pcpp::netToHost16(ipLayer->getIPv4Header()->ipId) << std::endl
-	          << "TTL: " << std::dec << (int)ipLayer->getIPv4Header()->timeToLive << std::endl;
+	std::cout << "\nSource IP address: " << ipLayer->getSrcIPAddress()                           //
+	          << "\nDestination IP address: " << ipLayer->getDstIPAddress()                      //
+	          << "\nIP ID: 0x" << std::hex << pcpp::netToHost16(ipLayer->getIPv4Header()->ipId)  //
+	          << "\nTTL: " << std::dec << (int)ipLayer->getIPv4Header()->timeToLive << std::endl;
 
 	// let's get the TCP layer
 	auto* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
@@ -161,11 +159,10 @@ int main(int argc, char* argv[])
 	}
 
 	// print TCP source and dest ports, window size, and the TCP flags that are set in this layer
-	std::cout << std::endl
-	          << "Source TCP port: " << tcpLayer->getSrcPort() << std::endl
-	          << "Destination TCP port: " << tcpLayer->getDstPort() << std::endl
-	          << "Window size: " << pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize) << std::endl
-	          << "TCP flags: " << printTcpFlags(tcpLayer) << std::endl;
+	std::cout << "\nSource TCP port: " << tcpLayer->getSrcPort()                               //
+	          << "\nDestination TCP port: " << tcpLayer->getDstPort()                          //
+	          << "\nWindow size: " << pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize)  //
+	          << "\nTCP flags: " << printTcpFlags(tcpLayer) << std::endl;
 
 	std::cout << "TCP options: ";
 	for (pcpp::TcpOption tcpOption = tcpLayer->getFirstTcpOption(); tcpOption.isNotNull();
@@ -184,15 +181,13 @@ int main(int argc, char* argv[])
 	}
 
 	// print HTTP method and URI. Both appear in the first line of the HTTP request
-	std::cout << std::endl
-	          << "HTTP method: " << printHttpMethod(httpRequestLayer->getFirstLine()->getMethod()) << std::endl
-	          << "HTTP URI: " << httpRequestLayer->getFirstLine()->getUri() << std::endl;
+	std::cout << "\nHTTP method: " << printHttpMethod(httpRequestLayer->getFirstLine()->getMethod())  //
+	          << "\nHTTP URI: " << httpRequestLayer->getFirstLine()->getUri() << std::endl;
 
 	// print values of the following HTTP field: Host, User-Agent and Cookie
-	std::cout << "HTTP host: " << httpRequestLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue() << std::endl
-	          << "HTTP user-agent: " << httpRequestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD)->getFieldValue()
-	          << std::endl
-	          << "HTTP cookie: " << httpRequestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD)->getFieldValue()
+	std::cout << "HTTP host: " << httpRequestLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue()  //
+	          << "\nHTTP user-agent: " << httpRequestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD)->getFieldValue()
+	          << "\nHTTP cookie: " << httpRequestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD)->getFieldValue()  //
 	          << std::endl;
 
 	// print the full URL of this request

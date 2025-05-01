@@ -57,14 +57,15 @@ struct PacketStats
 	 */
 	void printToConsole()
 	{
-		std::cout << "Ethernet packet count: " << ethPacketCount << std::endl
-		          << "IPv4 packet count:     " << ipv4PacketCount << std::endl
-		          << "IPv6 packet count:     " << ipv6PacketCount << std::endl
-		          << "TCP packet count:      " << tcpPacketCount << std::endl
-		          << "UDP packet count:      " << udpPacketCount << std::endl
-		          << "DNS packet count:      " << dnsPacketCount << std::endl
-		          << "HTTP packet count:     " << httpPacketCount << std::endl
-		          << "SSL packet count:      " << sslPacketCount << std::endl;
+		std::cout << "Ethernet packet count: " << ethPacketCount     //
+		          << "\nIPv4 packet count:     " << ipv4PacketCount  //
+		          << "\nIPv6 packet count:     " << ipv6PacketCount  //
+		          << "\nTCP packet count:      " << tcpPacketCount   //
+		          << "\nUDP packet count:      " << udpPacketCount   //
+		          << "\nDNS packet count:      " << dnsPacketCount   //
+		          << "\nHTTP packet count:     " << httpPacketCount  //
+		          << "\nSSL packet count:      " << sslPacketCount   //
+		          << std::endl;
 	}
 };
 
@@ -121,12 +122,12 @@ int main(int argc, char* argv[])
 	// ~~~~~~~~~~~~~~~
 
 	// before capturing packets let's print some info about this interface
-	std::cout << "Interface info:" << std::endl
-	          << "   Interface name:        " << dev->getName() << std::endl            // get interface name
-	          << "   Interface description: " << dev->getDesc() << std::endl            // get interface description
-	          << "   MAC address:           " << dev->getMacAddress() << std::endl      // get interface MAC address
-	          << "   Default gateway:       " << dev->getDefaultGateway() << std::endl  // get default gateway
-	          << "   Interface MTU:         " << dev->getMtu() << std::endl;            // get interface MTU
+	std::cout << "Interface info:"
+	          << "\n   Interface name:        " << dev->getName()               // get interface name
+	          << "\n   Interface description: " << dev->getDesc()               // get interface description
+	          << "\n   MAC address:           " << dev->getMacAddress()         // get interface MAC address
+	          << "\n   Default gateway:       " << dev->getDefaultGateway()     // get default gateway
+	          << "\n   Interface MTU:         " << dev->getMtu() << std::endl;  // get interface MTU
 
 	if (!dev->getDnsServers().empty())
 	{
@@ -146,7 +147,7 @@ int main(int argc, char* argv[])
 	// Async packet capture with a callback function
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	std::cout << std::endl << "Starting async capture..." << std::endl;
+	std::cout << "\nStarting async capture..." << std::endl;
 
 	// start capture in async mode. Give a callback function to call to whenever a packet is captured and the stats
 	// object as the cookie
@@ -168,7 +169,7 @@ int main(int argc, char* argv[])
 	// Capturing packets in a packet vector
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	std::cout << std::endl << "Starting capture with packet vector..." << std::endl;
+	std::cout << "\nStarting capture with packet vector..." << std::endl;
 
 	// create an empty packet vector object
 	pcpp::RawPacketVector packetVec;
@@ -199,7 +200,7 @@ int main(int argc, char* argv[])
 	// Capturing packets in blocking mode
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	std::cout << std::endl << "Starting capture in blocking mode..." << std::endl;
+	std::cout << "\nStarting capture in blocking mode..." << std::endl;
 
 	// start capturing in blocking mode. Give a callback function to call to whenever a packet is captured, the stats
 	// object as the cookie and a 10 seconds timeout
@@ -216,7 +217,7 @@ int main(int argc, char* argv[])
 	// Sending single packets
 	// ~~~~~~~~~~~~~~~~~~~~~~
 
-	std::cout << std::endl << "Sending " << packetVec.size() << " packets one by one..." << std::endl;
+	std::cout << "\nSending " << packetVec.size() << " packets one by one..." << std::endl;
 
 	// go over the vector of packets and send them one by one
 	bool allSent = std::all_of(packetVec.begin(), packetVec.end(),
@@ -233,7 +234,7 @@ int main(int argc, char* argv[])
 	// Sending batch of packets
 	// ~~~~~~~~~~~~~~~~~~~~~~~~
 
-	std::cout << std::endl << "Sending " << packetVec.size() << " packets..." << std::endl;
+	std::cout << "\nSending " << packetVec.size() << " packets..." << std::endl;
 
 	// send all packets in the vector. The returned number shows how many packets were actually sent (expected to be
 	// equal to vector size)
@@ -258,7 +259,7 @@ int main(int argc, char* argv[])
 	// set the filter on the device
 	dev->setFilter(andFilter);
 
-	std::cout << std::endl << "Starting packet capture with a filter in place..." << std::endl;
+	std::cout << "\nStarting packet capture with a filter in place..." << std::endl;
 
 	// start capture in async mode. Give a callback function to call to whenever a packet is captured and the stats
 	// object as the cookie

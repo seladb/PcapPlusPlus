@@ -17,7 +17,7 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << '\n' << std::endl;                                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -25,7 +25,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		command;                                                                                                       \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << '\n' << std::endl;                                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 

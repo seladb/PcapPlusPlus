@@ -39,7 +39,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << '\n' << std::endl;                                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -284,33 +284,24 @@ typedef std::unordered_map<uint32_t, TcpReassemblyData> TcpReassemblyConnMgr;
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
-	          << pcpp::AppName::get()
-	          << " [-hvlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -r input_file : Input pcap/pcapng file to analyze. Required argument for reading from file"
-	          << std::endl
-	          << "    -i interface  : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
-	             "address. Required argument for capturing from live interface"
-	          << std::endl
-	          << "    -o output_dir : Specify output directory (default is '.')" << std::endl
-	          << "    -e bpf_filter : Apply a BPF filter to capture file or live interface, meaning TCP reassembly "
-	             "will only work on filtered packets"
-	          << std::endl
-	          << "    -f max_files  : Maximum number of file descriptors to use" << std::endl
-	          << "    -c            : Write all output to console (nothing will be written to files)" << std::endl
-	          << "    -m            : Write a metadata file for each connection" << std::endl
-	          << "    -s            : Write each side of each connection to a separate file (default is writing both "
-	             "sides of each connection to the same file)"
-	          << std::endl
-	          << "    -l            : Print the list of interfaces and exit" << std::endl
-	          << "    -v            : Display the current version and exit" << std::endl
-	          << "    -h            : Display this help message and exit" << std::endl
-	          << std::endl;
+	std::cout
+	    << "\nUsage:"
+	       "\n------\n"
+	    << pcpp::AppName::get()
+	    << " [-hvlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]\n"
+	    << "\nOptions:\n"
+	       "\n    -r input_file : Input pcap/pcapng file to analyze. Required argument for reading from file"
+	       "\n    -i interface  : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address. Required argument for capturing from live interface"
+	       "\n    -o output_dir : Specify output directory (default is '.')"
+	       "\n    -e bpf_filter : Apply a BPF filter to capture file or live interface, meaning TCP reassembly will only work on filtered packets"
+	       "\n    -f max_files  : Maximum number of file descriptors to use"
+	       "\n    -c            : Write all output to console (nothing will be written to files)"
+	       "\n    -m            : Write a metadata file for each connection"
+	       "\n    -s            : Write each side of each connection to a separate file (default is writing both sides of each connection to the same file)"
+	       "\n    -l            : Print the list of interfaces and exit"
+	       "\n    -v            : Display the current version and exit"
+	       "\n    -h            : Display this help message and exit"
+	    << std::endl;
 }
 
 /**

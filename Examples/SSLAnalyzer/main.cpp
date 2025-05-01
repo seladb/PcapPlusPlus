@@ -34,7 +34,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << '\n' << std::endl;                                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -70,37 +70,28 @@ struct SSLPacketArrivedData
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage: PCAP file mode:" << std::endl
-	          << "----------------------" << std::endl
-	          << pcpp::AppName::get() << " [-hv] -f input_file" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -f           : The input pcap/pcapng file to analyze. Required argument for this mode"
-	          << std::endl
-	          << "    -v           : Displays the current version and exists" << std::endl
-	          << "    -h           : Displays this help message and exits" << std::endl
-	          << std::endl
-	          << "Usage: Live traffic mode:" << std::endl
-	          << "-------------------------" << std::endl
-	          << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] -i interface" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
-	             "address"
-	          << std::endl
-	          << "    -o output_file : Save all captured SSL packets to a pcap file. Notice this may cause performance "
-	             "degradation"
-	          << std::endl
-	          << "    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
-	          << std::endl
-	          << "    -d             : Disable periodic rates calculation" << std::endl
-	          << "    -v             : Displays the current version and exists" << std::endl
-	          << "    -h             : Displays this help message and exits" << std::endl
-	          << "    -l             : Print the list of interfaces and exists" << std::endl
-	          << std::endl;
+	std::cout
+	    << "\nUsage: PCAP file mode:"
+	       "\n----------------------"
+	    << pcpp::AppName::get() << " [-hv] -f input_file\n"
+	    << "\nOptions:\n"
+	       "\n    -f           : The input pcap/pcapng file to analyze. Required argument for this mode"
+	       "\n    -v           : Displays the current version and exists"
+	       "\n    -h           : Displays this help message and exits"
+	       "\n\nUsage: Live traffic mode:"
+	       "\n-------------------------\n"
+	    << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] -i interface\n"
+	    << "\nOptions:\n"
+	       "\n    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
+	       "address"
+	       "\n    -o output_file : Save all captured SSL packets to a pcap file. Notice this may cause performance "
+	       "degradation"
+	       "\n    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
+	       "\n    -d             : Disable periodic rates calculation"
+	       "\n    -v             : Displays the current version and exists"
+	       "\n    -h             : Displays this help message and exits"
+	       "\n    -l             : Print the list of interfaces and exists"
+	    << std::endl;
 }
 
 /**
