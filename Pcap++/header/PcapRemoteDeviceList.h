@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "IpAddress.h"
+#include "DeviceListBase.h"
 #include "PcapRemoteDevice.h"
 #include "DeprecationUtils.h"
 
@@ -21,10 +22,11 @@ namespace pcpp
 	/// interface or by iterating the PcapRemoteDevice instances (through the
 	/// PcapRemoteDeviceList#RemoteDeviceListIterator iterator)<BR> Since Remote Capture is supported in WinPcap and
 	/// Npcap only, this class is available in Windows only
-	class PcapRemoteDeviceList
+	class PcapRemoteDeviceList : public internal::DeviceListBase<PcapRemoteDevice>
 	{
 	private:
-		std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
+		using Base = internal::DeviceListBase<PcapRemoteDevice>;
+
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
@@ -32,21 +34,19 @@ namespace pcpp
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::createRemoteDeviceList()
 		PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port,
 		                     std::shared_ptr<PcapRemoteAuthentication> remoteAuth,
-		                     std::vector<PcapRemoteDevice*> deviceList);
+		                     PointerVector<PcapRemoteDevice> deviceList);
 
 	public:
 		/// Iterator object that can be used for iterating all PcapRemoteDevice in list
-		using RemoteDeviceListIterator = typename std::vector<PcapRemoteDevice*>::iterator;
+		using RemoteDeviceListIterator = iterator;
 
 		/// Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
-		using ConstRemoteDeviceListIterator = typename std::vector<PcapRemoteDevice*>::const_iterator;
+		using ConstRemoteDeviceListIterator = const_iterator;
 
 		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;
 		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList& operator=(PcapRemoteDeviceList&&) noexcept = delete;
-
-		~PcapRemoteDeviceList();
 
 		/// A static method for creating a PcapRemoteDeviceList instance for a certain remote machine. This methods
 		/// creates the instance, and also creates a list of PcapRemoteDevice instances stored in it, one for each
@@ -156,29 +156,5 @@ namespace pcpp
 		/// @param[in] ipAddrAsString The IP address in string format
 		/// @return The PcapRemoteDevice if found, nullptr otherwise
 		PcapRemoteDevice* getRemoteDeviceByIP(const std::string& ipAddrAsString) const;
-
-		/// @return An iterator object pointing to the first PcapRemoteDevice in list
-		RemoteDeviceListIterator begin()
-		{
-			return m_RemoteDeviceList.begin();
-		}
-
-		/// @return A const iterator object pointing to the first PcapRemoteDevice in list
-		ConstRemoteDeviceListIterator begin() const
-		{
-			return m_RemoteDeviceList.begin();
-		}
-
-		/// @return An iterator object pointing to the last PcapRemoteDevice in list
-		RemoteDeviceListIterator end()
-		{
-			return m_RemoteDeviceList.end();
-		}
-
-		/// @return A const iterator object pointing to the last PcapRemoteDevice in list
-		ConstRemoteDeviceListIterator end() const
-		{
-			return m_RemoteDeviceList.end();
-		}
 	};
 }  // namespace pcpp
