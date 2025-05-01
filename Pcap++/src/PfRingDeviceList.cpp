@@ -91,9 +91,9 @@ namespace pcpp
 						m_PfRingVersion = readPfRingVersion(ring.get());
 						PCPP_LOG_DEBUG("PF_RING version is: " << m_PfRingVersion);
 					}
-					std::unique_ptr<PfRingDevice> newDev =
-					    std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
-					m_PfRingDeviceList.push_back(std::move(newDev));
+
+					auto newDev = std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
+					m_DeviceList.pushBack(std::move(newDev));
 					PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
 				}
 			}
@@ -106,25 +106,23 @@ namespace pcpp
 		PCPP_LOG_DEBUG("PfRingDeviceList init end");
 
 		// Full update of all elements of the view vector to synchronize them with the main vector.
-		m_PfRingDeviceListView.resize(m_PfRingDeviceList.size());
-		std::transform(m_PfRingDeviceList.begin(), m_PfRingDeviceList.end(), m_PfRingDeviceListView.begin(),
-		               [](const std::unique_ptr<PfRingDevice>& ptr) { return ptr.get(); });
+		m_PfRingDeviceListView.resize(m_DeviceList.size());
+		std::copy(m_DeviceList.begin(), m_DeviceList.end(), m_PfRingDeviceListView.begin());
 	}
 
 	PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string& devName) const
 	{
 		PCPP_LOG_DEBUG("Searching all live devices...");
-		auto devIter = std::find_if(
-		    m_PfRingDeviceList.begin(), m_PfRingDeviceList.end(),
-		    [&devName](const std::unique_ptr<PfRingDevice>& dev) { return dev->getDeviceName() == devName; });
+		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		                            [&devName](PfRingDevice const* dev) { return dev->getDeviceName() == devName; });
 
-		if (devIter == m_PfRingDeviceList.end())
+		if (devIter == m_DeviceList.end())
 		{
 			PCPP_LOG_DEBUG("Found no PF_RING devices with name '" << devName << "'");
 			return nullptr;
 		}
 
-		return devIter->get();
+		return *devIter;
 	}
 }  // namespace pcpp
 
