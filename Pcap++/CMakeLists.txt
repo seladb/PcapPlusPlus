@@ -95,8 +95,7 @@ target_link_libraries(
     $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
     PCAP::PCAP
     Threads::Threads
-  PRIVATE
-    light_pcapng
+  PRIVATE light_pcapng
 )
 
 if(PCAPPP_INSTALL)
