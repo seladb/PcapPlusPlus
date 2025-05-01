@@ -202,8 +202,8 @@ PTF_TEST_CASE(TestPfRingDevice)
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	PTF_ASSERT_GREATER_THAN(devList.getPfRingDevicesList().size(), 0);
 	PTF_ASSERT_NOT_EQUAL(devList.getPfRingVersion(), "");
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 
@@ -252,8 +252,8 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 #ifdef USE_PF_RING
 
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
@@ -293,8 +293,8 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 {
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
@@ -434,8 +434,8 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 {
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
@@ -499,8 +499,8 @@ PTF_TEST_CASE(TestPfRingSendPackets)
 {
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
@@ -542,8 +542,8 @@ PTF_TEST_CASE(TestPfRingFilters)
 {
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);

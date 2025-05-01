@@ -60,54 +60,71 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpPacket.dat");
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpPacket.dat");
 
-	pcpp::Packet ip4Packet(&rawPacket1);
-	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::Ethernet));
-	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::IP));
-	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::IPv4));
-	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::IPv4Layer>());
+		pcpp::Packet ip4Packet(&rawPacket1);
+		PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::Ethernet));
+		PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::EthLayer>());
+		PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::IP));
+		PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::IPv4));
+		PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::IPv4Layer>());
 
-	pcpp::EthLayer* ethLayer = ip4Packet.getLayerOfType<pcpp::EthLayer>();
-	PTF_ASSERT_EQUAL(be16toh(ethLayer->getEthHeader()->etherType), PCPP_ETHERTYPE_IP);
+		pcpp::EthLayer* ethLayer = ip4Packet.getLayerOfType<pcpp::EthLayer>();
+		PTF_ASSERT_EQUAL(be16toh(ethLayer->getEthHeader()->etherType), PCPP_ETHERTYPE_IP);
 
-	pcpp::IPv4Layer* ipv4Layer = ip4Packet.getLayerOfType<pcpp::IPv4Layer>();
-	pcpp::IPv4Address ip4addr1("10.0.0.4");
-	pcpp::IPv4Address ip4addr2("1.1.1.1");
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->protocol, 1);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipVersion, 4);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toInt());
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ip4addr2.toInt());
-	PTF_ASSERT_TRUE(ipv4Layer->getFirstOption().isNull());
-	PTF_ASSERT_TRUE(ipv4Layer->getOption(pcpp::IPV4OPT_CommercialSecurity).isNull());
-	PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 0);
+		pcpp::IPv4Layer* ipv4Layer = ip4Packet.getLayerOfType<pcpp::IPv4Layer>();
+		pcpp::IPv4Address ip4addr1("10.0.0.4");
+		pcpp::IPv4Address ip4addr2("1.1.1.1");
+		PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->protocol, 1);
+		PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipVersion, 4);
+		PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toInt());
+		PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ip4addr2.toInt());
+		PTF_ASSERT_TRUE(ipv4Layer->getFirstOption().isNull());
+		PTF_ASSERT_TRUE(ipv4Layer->getOption(pcpp::IPV4OPT_CommercialSecurity).isNull());
+		PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 0);
+	}
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4-TSO.dat");
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4-TSO.dat");
 
-	pcpp::Packet ip4TSO(&rawPacket2);
+		pcpp::Packet ip4TSO(&rawPacket1);
 
-	ipv4Layer = ip4TSO.getLayerOfType<pcpp::IPv4Layer>();
-	PTF_ASSERT_NOT_NULL(ipv4Layer);
-	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 20);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->totalLength, 0);
-	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 60);
-	PTF_ASSERT_NOT_NULL(ipv4Layer->getNextLayer());
-	PTF_ASSERT_EQUAL(ipv4Layer->getNextLayer()->getProtocol(), pcpp::ICMP, enum);
+		auto ipv4Layer = ip4TSO.getLayerOfType<pcpp::IPv4Layer>();
+		PTF_ASSERT_NOT_NULL(ipv4Layer);
+		PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 20);
+		PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->totalLength, 0);
+		PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 60);
+		PTF_ASSERT_NOT_NULL(ipv4Layer->getNextLayer());
+		PTF_ASSERT_EQUAL(ipv4Layer->getNextLayer()->getProtocol(), pcpp::ICMP, enum);
+	}
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IPv4-bad.dat");
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ipv4-malformed1.dat");
 
-	pcpp::Packet bogusPkt(&rawPacket3, pcpp::IPv4);
+		pcpp::Packet bogusPkt(&rawPacket1, pcpp::IPv4);
 
-	ipv4Layer = bogusPkt.getLayerOfType<pcpp::IPv4Layer>();
-	PTF_ASSERT_NULL(ipv4Layer);
+		auto ipv4Layer = bogusPkt.getLayerOfType<pcpp::IPv4Layer>();
+		PTF_ASSERT_NULL(ipv4Layer);
+	}
 
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IPv4-encapsulated-IPv6.dat");
-	pcpp::Packet encapsulatedPkt(&rawPacket4, pcpp::IPv6);
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ipv4-malformed2.dat");
 
-	pcpp::IPv6Layer* ipv6Layer = encapsulatedPkt.getLayerOfType<pcpp::IPv6Layer>();
-	PTF_ASSERT_NOT_NULL(ipv6Layer);
+		pcpp::Packet bogusPkt(&rawPacket1, pcpp::IPv4);
 
+		auto ipv4Layer = bogusPkt.getLayerOfType<pcpp::IPv4Layer>();
+		PTF_ASSERT_EQUAL(htobe16(ipv4Layer->getIPv4Header()->totalLength), 11);
+		PTF_ASSERT_EQUAL(ipv4Layer->getLayerPayloadSize(), 0);
+	}
+
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4-encapsulated-IPv6.dat");
+		pcpp::Packet encapsulatedPkt(&rawPacket1, pcpp::IPv6);
+
+		pcpp::IPv6Layer* ipv6Layer = encapsulatedPkt.getLayerOfType<pcpp::IPv6Layer>();
+		PTF_ASSERT_NOT_NULL(ipv6Layer);
+	}
 }  // Ipv4PacketParsing
 
 PTF_TEST_CASE(IPv4FragmentationTest)
