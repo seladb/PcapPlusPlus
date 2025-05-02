@@ -21,8 +21,6 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_XDP}>:src/XdpDevice.cpp>
   src/RawSocketDevice.cpp
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
-  # Force light pcapng to be link fully static
-  $<TARGET_OBJECTS:light_pcapng>
 )
 
 set(
@@ -81,7 +79,7 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
     $<INSTALL_INTERFACE:include/pcapplusplus>
     $<INSTALL_INTERFACE:include>
-  # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
+  # Don't link with EndianPortable nor light_pcapng as they won't be exported
   PRIVATE
     $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>
@@ -97,11 +95,8 @@ target_link_libraries(
     $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
     PCAP::PCAP
     Threads::Threads
+  PRIVATE light_pcapng
 )
-
-if(LIGHT_PCAPNG_ZSTD)
-  target_link_libraries(Pcap++ PRIVATE light_pcapng)
-endif()
 
 if(PCAPPP_INSTALL)
   install(
