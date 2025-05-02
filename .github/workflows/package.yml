@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
       attestations: write
@@ -28,20 +28,30 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: ubuntu2404
+          - runner: ubuntu-latest
+            image: ubuntu2404
             config-zstd: OFF
-          - image: ubuntu2204
+          - runner: ubuntu-24.04-arm
+            image: ubuntu2404-arm64
             config-zstd: OFF
-          - image: ubuntu2204-icpx
+          - runner: ubuntu-latest
+            image: ubuntu2204
+            config-zstd: OFF
+          - runner: ubuntu-latest
+            image: ubuntu2204-icpx
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-          - image: ubuntu2004
+          - runner: ubuntu-latest
+            image: ubuntu2004
             config-zstd: OFF
-          - image: rhel94
+          - runner: ubuntu-latest
+            image: rhel94
             config-zstd: OFF
-          - image: fedora40
+          - runner: ubuntu-latest
+            image: fedora42
             config-zstd: OFF
-          - image: alpine320
+          - runner: ubuntu-latest
+            image: alpine320
             config-zstd: OFF
 
     steps:
@@ -303,93 +313,93 @@ jobs:
           updateOnlyUnreleased: true
           artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
-  android-build:
-    strategy:
-      matrix:
-        include:
-          - target: "armeabi-v7a"
-            api-version: 30
-          - target: "x86"
-            api-version: 30
-          - target: "arm64-v8a"
-            api-version: 30
-          - target: "x86_64"
-            api-version: 30
+#  android-build:
+#    strategy:
+#      matrix:
+#        include:
+#          - target: "armeabi-v7a"
+#            api-version: 30
+#          - target: "x86"
+#            api-version: 30
+#          - target: "arm64-v8a"
+#            api-version: 30
+#          - target: "x86_64"
+#            api-version: 30
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+#
+#      - name: Checkout lipbcap for Android
+#        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # main
+#        with:
+#          repository: seladb/libpcap-android
+#          path: ./libpcap-android
+#
+#      - name: Configure and Build PcapPlusPlus
+#        run: |
+#          LIBPCAP_PATH="$(pwd)/libpcap-android"
+#          export LIB_DIR="${{ matrix.target }}/${{ matrix.api-version }}"
+#          export LOCAL_BUILD_DIR="${BUILD_DIR}/${LIB_DIR}"
+#          cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_LIBDIR="${LIB_DIR}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version }}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"
+#          cmake --build "$LOCAL_BUILD_DIR" -j --target package
+#
+#      - name: Prepare package
+#        run: |
+#          export LOCAL_BUILD_DIR="${BUILD_DIR}/${{ matrix.target }}/${{ matrix.api-version }}"
+#          export PACKAGE_FILE=$(ls ${LOCAL_BUILD_DIR} | grep pcapplusplus)
+#          export PACKAGE_DIR=$(basename ${PACKAGE_FILE%} .tar.gz)
+#          export COMBINED_PACKAGE_DIR=$(echo "$PACKAGE_DIR" | cut -f1,2,3 -d'-')
+#
+#          tar -xvf "${LOCAL_BUILD_DIR}/${PACKAGE_FILE}"
+#          mv "${PACKAGE_DIR}" "${COMBINED_PACKAGE_DIR}"
+#          find . -name example-app -type d -exec rm -r {} +
+#          find . -name cmake -type d -exec rm -r {} +
+#          find . -name pkgconfig -type d -exec rm -r {} +
+#          mv ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/* "${COMBINED_PACKAGE_DIR}/include/"
+#          rmdir "${COMBINED_PACKAGE_DIR}/include/pcapplusplus/"
+#          mkdir -p "android-package"
+#          mv "${COMBINED_PACKAGE_DIR}" "android-package"
+#
+#      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+#        with:
+#          path: android-package
+#          name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
+#          if-no-files-found: error
 
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Checkout lipbcap for Android
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # main
-        with:
-          repository: seladb/libpcap-android
-          path: ./libpcap-android
-
-      - name: Configure and Build PcapPlusPlus
-        run: |
-          LIBPCAP_PATH="$(pwd)/libpcap-android"
-          export LIB_DIR="${{ matrix.target }}/${{ matrix.api-version }}"
-          export LOCAL_BUILD_DIR="${BUILD_DIR}/${LIB_DIR}"
-          cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_LIBDIR="${LIB_DIR}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version }}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"
-          cmake --build "$LOCAL_BUILD_DIR" -j --target package
-
-      - name: Prepare package
-        run: |
-          export LOCAL_BUILD_DIR="${BUILD_DIR}/${{ matrix.target }}/${{ matrix.api-version }}"
-          export PACKAGE_FILE=$(ls ${LOCAL_BUILD_DIR} | grep pcapplusplus)
-          export PACKAGE_DIR=$(basename ${PACKAGE_FILE%} .tar.gz)
-          export COMBINED_PACKAGE_DIR=$(echo "$PACKAGE_DIR" | cut -f1,2,3 -d'-')
-
-          tar -xvf "${LOCAL_BUILD_DIR}/${PACKAGE_FILE}"
-          mv "${PACKAGE_DIR}" "${COMBINED_PACKAGE_DIR}"
-          find . -name example-app -type d -exec rm -r {} +
-          find . -name cmake -type d -exec rm -r {} +
-          find . -name pkgconfig -type d -exec rm -r {} +
-          mv ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/* "${COMBINED_PACKAGE_DIR}/include/"
-          rmdir "${COMBINED_PACKAGE_DIR}/include/pcapplusplus/"
-          mkdir -p "android-package"
-          mv "${COMBINED_PACKAGE_DIR}" "android-package"
-
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          path: android-package
-          name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
-          if-no-files-found: error
-
-  android-package:
-    needs: android-build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      attestations: write
-      id-token: write
-
-    steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          pattern: android-package-*
-          merge-multiple: true
-
-      - name: Package into archive
-        run: |
-          export PACKAGE_DIR=$(ls | grep pcapplusplus)
-          echo "PACKAGE_DIR=$PACKAGE_DIR" >> $GITHUB_ENV
-          tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
-
-      - name: Generate artifact attestation
-        if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
-        with:
-          subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
-
-      - name: Upload binaries to release
-        if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
-        with:
-          draft: true
-          allowUpdates: true
-          updateOnlyUnreleased: true
-          artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
+#  android-package:
+#    needs: android-build
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: write
+#      attestations: write
+#      id-token: write
+#
+#    steps:
+#      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+#        with:
+#          pattern: android-package-*
+#          merge-multiple: true
+#
+#      - name: Package into archive
+#        run: |
+#          export PACKAGE_DIR=$(ls | grep pcapplusplus)
+#          echo "PACKAGE_DIR=$PACKAGE_DIR" >> $GITHUB_ENV
+#          tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
+#
+#      - name: Generate artifact attestation
+#        if: github.ref_type == 'tag'
+#        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
+#        with:
+#          subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
+#
+#      - name: Upload binaries to release
+#        if: github.ref_type == 'tag'
+#        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
+#        with:
+#          draft: true
+#          allowUpdates: true
+#          updateOnlyUnreleased: true
+#          artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
