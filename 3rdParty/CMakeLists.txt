@@ -8,12 +8,7 @@ include(FetchContent)
 
 set(LIGHT_PCAPNG_BUILD_TYPE OBJECT CACHE STRING "" FORCE)
 
-FetchContent_Declare(
-  LightPcapNg
-  GIT_REPOSITORY https://github.com/PcapPlusPlus/LightPcapNg
-  GIT_TAG
-    copy-from-pcapplusplus # TODO: Replace with master
-)
+FetchContent_Declare(LightPcapNg GIT_REPOSITORY https://github.com/PcapPlusPlus/LightPcapNg GIT_TAG v1.0.0)
 
 FetchContent_MakeAvailable(LightPcapNg)
 
