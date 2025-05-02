@@ -218,25 +218,13 @@ namespace pcpp
 		}
 
 		/// @return A pointer of the first element in the vector
-		T* front()
-		{
-			return m_Vector.front();
-		}
-
-		/// @return A pointer to the first element in the vector
-		T const* front() const
+		T* front() const
 		{
 			return m_Vector.front();
 		}
 
 		/// @return A pointer to the last element in the vector
-		T* back()
-		{
-			return m_Vector.back();
-		}
-
-		/// @return A pointer to the last element in the vector.
-		T const* back() const
+		T* back() const
 		{
 			return m_Vector.back();
 		}
@@ -297,15 +285,7 @@ namespace pcpp
 		/// Return a pointer to the element in a certain index
 		/// @param[in] index The index to retrieve the element from
 		/// @return The element at the specified position in the vector
-		T* at(int index)
-		{
-			return m_Vector.at(index);
-		}
-
-		/// Return a const pointer to the element in a certain index
-		/// @param[in] index The index to retrieve the element from
-		/// @return The element at the specified position in the vector
-		const T* at(int index) const
+		T* at(int index) const
 		{
 			return m_Vector.at(index);
 		}
