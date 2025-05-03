@@ -338,13 +338,13 @@ jobs:
           repository: seladb/libpcap-android
           path: ./libpcap-android
 
-      - name: Configure PcapPlusPlus
+      - name: Configure and build PcapPlusPlus
         run: |
           LIBPCAP_PATH=$(pwd)/libpcap-android
-          cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        run: cmake --build "$BUILD_DIR" -j
+          export LIB_DIR="${{ matrix.target }}/${{ matrix.api-version }}
+          export LOCAL_BUILD_DIR="${BUILD_DIR}/${LIB_DIR}"
+          cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_LIBDIR="${LIB_DIR}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version }}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"
+          cmake --build "$LOCAL_BUILD_DIR" -j --target package
 
       - name: Prepare package
         run: |
