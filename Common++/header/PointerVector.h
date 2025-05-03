@@ -217,6 +217,22 @@ namespace pcpp
 			return m_Vector.size();
 		}
 
+		/// @brief Get the current capacity of the vector.
+		/// @return The number of elements that can be held in the vector without requiring a reallocation.
+		size_t capacity() const
+		{
+			return m_Vector.capacity();
+		}
+
+		/// @brief Reserve storage for the vector.
+		/// @param[in] size The number of elements to reserve space for.
+		/// @remarks This method ensures that the vector can hold at least the specified number of elements
+		/// without requiring a reallocation.
+		void reserve(size_t size)
+		{
+			m_Vector.reserve(size);
+		}
+
 		/// @return A pointer of the first element in the vector
 		T* front() const
 		{
@@ -237,6 +253,20 @@ namespace pcpp
 		{
 			Deleter{}(*position);
 			return m_Vector.erase(position);
+		}
+
+		/// Removes a range of elements from the vector and frees them.
+		/// @param[in] first An iterator pointing to the first element in the range to erase.
+		/// @param[in] last An iterator pointing to one past the last element in the range to erase.
+		/// @return An iterator pointing to the new location of the element that followed the last element erased by the
+		/// function call.
+		VectorIterator erase(ConstVectorIterator first, ConstVectorIterator last)
+		{
+			for (auto iter = first; iter != last; ++iter)
+			{
+				Deleter{}(*iter);
+			}
+			return m_Vector.erase(first, last);
 		}
 
 		/// Remove an element from the vector without freeing it

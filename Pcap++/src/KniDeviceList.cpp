@@ -39,7 +39,7 @@ namespace pcpp
 
 	KniDeviceList::KniDeviceList() : m_Devices(), m_Initialized(true), m_KniUniqueId(0)
 	{
-		m_Devices.reserve(MAX_KNI_DEVICES);
+		m_DeviceList.reserve(MAX_KNI_DEVICES);
 		if (!checkKniDriver())
 		{
 			m_Initialized = false;
@@ -63,8 +63,7 @@ namespace pcpp
 
 	KniDeviceList::~KniDeviceList()
 	{
-		for (size_t i = 0; i < m_Devices.size(); ++i)
-			delete m_Devices[i];
+		m_DeviceList.clear();
 		rte_kni_close();
 	}
 
@@ -96,14 +95,13 @@ namespace pcpp
 			}
 		}
 		kniDevice = new KniDevice(config, mempoolSize, m_KniUniqueId++);
-		m_Devices.push_back(kniDevice);
+		m_DeviceList.pushBack(kniDevice);
 		return kniDevice;
 	}
 
 	void KniDeviceList::destroyDevice(KniDevice* kniDevice)
 	{
-		m_Devices.erase(std::remove(m_Devices.begin(), m_Devices.end(), kniDevice), m_Devices.end());
-		delete kniDevice;
+		m_DeviceList.erase(std::remove(m_DeviceList.begin(), m_DeviceList.end(), kniDevice), m_DeviceList.end());
 	}
 
 	KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId)
@@ -111,30 +109,24 @@ namespace pcpp
 		//? Linear search here is optimal for low count of devices.
 		//? We assume that no one will create large count of devices or will rapidly search them.
 		//? Same for <getDeviceByName> function
-		KniDevice* kniDevice = nullptr;
 		if (!isInitialized())
-			return kniDevice;
-		for (size_t i = 0; i < m_Devices.size(); ++i)
-		{
-			kniDevice = m_Devices[i];
-			if (kniDevice && kniDevice->m_DeviceInfo.portId == portId)
-				return kniDevice;
-		}
-		return kniDevice = nullptr;
+			return nullptr;
+
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		                       [portId](KniDevice* device) { return device && device->m_DeviceInfo.portId == portId; });
+
+		return *it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 	KniDevice* KniDeviceList::getDeviceByName(const std::string& name)
 	{
-		KniDevice* kniDevice = nullptr;
 		if (!isInitialized())
-			return kniDevice;
-		for (size_t i = 0; i < m_Devices.size(); ++i)
-		{
-			kniDevice = m_Devices[i];
-			if (kniDevice && kniDevice->m_DeviceInfo.name == name)
-				return kniDevice;
-		}
-		return kniDevice = nullptr;
+			return nullptr;
+
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		                       [&name](KniDevice* device) { return device && device->m_DeviceInfo.name == name; });
+
+		return *it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 	KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion()
