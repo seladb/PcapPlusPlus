@@ -94,6 +94,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
   freebsd:
@@ -136,6 +137,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz"
 
   macos:
@@ -191,6 +193,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
   mingw-w64:
@@ -262,6 +265,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   visual-studio:
@@ -312,6 +316,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   android-build:
@@ -403,4 +408,5 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v25.05-beta
           artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
