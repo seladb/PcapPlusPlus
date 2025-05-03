@@ -338,9 +338,9 @@ jobs:
           repository: seladb/libpcap-android
           path: ./libpcap-android
 
-      - name: Configure and build PcapPlusPlus
+      - name: Configure and Build PcapPlusPlus
         run: |
-          LIBPCAP_PATH=$(pwd)/libpcap-android
+          LIBPCAP_PATH="$(pwd)/libpcap-android"
           export LIB_DIR="${{ matrix.target }}/${{ matrix.api-version }}"
           export LOCAL_BUILD_DIR="${BUILD_DIR}/${LIB_DIR}"
           cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_LIBDIR="${LIB_DIR}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version }}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"
