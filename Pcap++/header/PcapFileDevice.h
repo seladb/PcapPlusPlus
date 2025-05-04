@@ -491,7 +491,7 @@ namespace pcpp
 		/// @param[in] packet A reference for an existing RawPcket to write to the file
 		/// @return True if a packet was written successfully. False will be returned if the file isn't opened (an error
 		/// will be printed to log)
-		bool writePacket(RawPacket const& packet);
+		bool writePacket(RawPacket const& packet) override;
 
 		/// Write multiple RawPacket to the file. Before using this method please verify the file is opened using
 		/// open(). This method won't change the written packets or the RawPacketVector instance
@@ -500,7 +500,7 @@ namespace pcpp
 		/// @return True if all packets were written successfully to the file. False will be returned if the file isn't
 		/// opened (also, an error log will be printed) or if at least one of the packets wasn't written successfully to
 		/// the file
-		bool writePackets(const RawPacketVector& packets);
+		bool writePackets(const RawPacketVector& packets) override;
 
 		/// Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
 		/// overwritten, meaning all its current content will be deleted
@@ -545,17 +545,17 @@ namespace pcpp
 		void flush();
 
 		/// Flush and close the pcap-ng file
-		void close();
+		void close() override;
 
 		/// Get statistics of packets written so far.
 		/// @param[out] stats The stats struct where stats are returned
-		void getStatistics(PcapStats& stats) const;
+		void getStatistics(PcapStats& stats) const override;
 
 		/// Set a filter for PcapNG writer device. Only packets that match the filter will be persisted
 		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
 		/// (http://biot.com/capstats/bpf.html)
 		/// @return True if filter set successfully, false otherwise
-		bool setFilter(std::string filterAsString);
+		bool setFilter(std::string filterAsString) override;
 
 	private:
 		bool openImpl(bool appendMode, PcapNgMetadata const* metadata = nullptr);
