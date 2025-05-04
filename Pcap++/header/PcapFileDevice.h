@@ -471,7 +471,7 @@ namespace pcpp
 		/// A destructor for this class
 		virtual ~PcapNgFileWriterDevice()
 		{
-			close();
+			PcapNgFileWriterDevice::close();
 		}
 
 		/// The pcap-ng format allows adding a user-defined comment for each stored packet. This method writes a
