@@ -903,6 +903,12 @@ namespace pcpp
 
 		if (appendMode)
 		{
+			if (metadata != nullptr)
+			{
+				PCPP_LOG_ERROR("Pcap-ng file writer device cannot be opened in append mode with metadata");
+				return false;
+			}
+
 			m_LightPcapNg = light_pcapng_open_append(m_FileName.c_str());
 			if (m_LightPcapNg == nullptr)
 			{
@@ -925,17 +931,17 @@ namespace pcpp
 				                              metadata->captureApplication.c_str(), metadata->comment.c_str());
 			}
 
-		m_LightPcapNg = light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel);
-		if (m_LightPcapNg == nullptr)
-		{
-			PCPP_LOG_ERROR("Error opening file writer device for file '"
-			               << m_FileName << "': light_pcapng_open_write returned nullptr");
+			m_LightPcapNg = light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel);
+			if (m_LightPcapNg == nullptr)
+			{
+				PCPP_LOG_ERROR("Error opening file writer device for file '"
+				               << m_FileName << "': light_pcapng_open_write returned nullptr");
 
-			light_free_file_info(info);
+				light_free_file_info(info);
 
-			m_DeviceOpened = false;
-			return false;
-		}
+				m_DeviceOpened = false;
+				return false;
+			}
 		}
 
 		m_DeviceOpened = true;
