@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
       attestations: write
@@ -28,20 +28,30 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: ubuntu2404
+          - runner: ubuntu-latest
+            image: ubuntu2404
             config-zstd: OFF
-          - image: ubuntu2204
+          - runner: ubuntu-24.04-arm
+            image: ubuntu2404-arm64
             config-zstd: OFF
-          - image: ubuntu2204-icpx
+          - runner: ubuntu-latest
+            image: ubuntu2204
+            config-zstd: OFF
+          - runner: ubuntu-latest
+            image: ubuntu2204-icpx
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-          - image: ubuntu2004
+          - runner: ubuntu-latest
+            image: ubuntu2004
             config-zstd: OFF
-          - image: rhel94
+          - runner: ubuntu-latest
+            image: rhel94
             config-zstd: OFF
-          - image: fedora40
+          - runner: ubuntu-latest
+            image: fedora42
             config-zstd: OFF
-          - image: alpine320
+          - runner: ubuntu-latest
+            image: alpine320
             config-zstd: OFF
 
     steps:
@@ -308,13 +318,13 @@ jobs:
       matrix:
         include:
           - target: "armeabi-v7a"
-            api-version: 30
+            api-version: 35
           - target: "x86"
-            api-version: 30
+            api-version: 35
           - target: "arm64-v8a"
-            api-version: 30
+            api-version: 35
           - target: "x86_64"
-            api-version: 30
+            api-version: 35
 
     runs-on: ubuntu-latest
 
@@ -323,7 +333,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # main
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
