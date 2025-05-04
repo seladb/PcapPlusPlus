@@ -673,7 +673,7 @@ namespace pcpp
 	{
 		if (isOpened())
 		{
-			// TODO: Ambuguity in API
+			// TODO: Ambiguity in API
 			//   If appendMode is required but the file is already opened in write mode.
 			PCPP_LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
 			return true;
