@@ -260,6 +260,12 @@ namespace pcpp
 			close();
 		}
 
+		/// @brief The pcap-ng format allows storing metadata at the header of the file. This method fetches the
+		/// metadata if it exists.
+		/// @return A PcapNgMetadata object containing the metadata. If the file is not opened or the metadata is
+		/// missing an empty object is returned.
+		PcapNgMetadata getMetadata() const;
+
 		/// The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string
 		/// specifying the operating system that was used for capturing the packets. This method reads this string from
 		/// the metadata (if exists) and returns it

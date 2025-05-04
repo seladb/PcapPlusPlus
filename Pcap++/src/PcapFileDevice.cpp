@@ -469,80 +469,56 @@ namespace pcpp
 		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
 	}
 
-	std::string PcapNgFileReaderDevice::getOS() const
+	PcapNgMetadata PcapNgFileReaderDevice::getMetadata() const
 	{
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
-			return "";
+			return PcapNgMetadata{};
 		}
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
 		if (fileInfo == nullptr)
-			return "";
-		char* res = fileInfo->os_desc;
-		size_t len = fileInfo->os_desc_size;
-		if (len == 0 || res == nullptr)
-			return "";
+			return PcapNgMetadata{};
 
-		return std::string(res, len);
+		PcapNgMetadata metadata;
+		if (fileInfo->os_desc != nullptr && fileInfo->os_desc_size > 0)
+		{
+			metadata.os = std::string(fileInfo->os_desc, fileInfo->os_desc_size);
+		}
+		if (fileInfo->hardware_desc != nullptr && fileInfo->hardware_desc_size > 0)
+		{
+			metadata.hardware = std::string(fileInfo->hardware_desc, fileInfo->hardware_desc_size);
+		}
+		if (fileInfo->user_app_desc != nullptr && fileInfo->user_app_desc_size > 0)
+		{
+			metadata.captureApplication = std::string(fileInfo->user_app_desc, fileInfo->user_app_desc_size);
+		}
+		if (fileInfo->file_comment != nullptr && fileInfo->file_comment_size > 0)
+		{
+			metadata.comment = std::string(fileInfo->file_comment, fileInfo->file_comment_size);
+		}
+		return metadata;
+	}
+
+	std::string PcapNgFileReaderDevice::getOS() const
+	{
+		return getMetadata().os;
 	}
 
 	std::string PcapNgFileReaderDevice::getHardware() const
 	{
-		if (m_LightPcapNg == nullptr)
-		{
-			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
-			return "";
-		}
-
-		light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
-		if (fileInfo == nullptr)
-			return "";
-		char* res = fileInfo->hardware_desc;
-		size_t len = fileInfo->hardware_desc_size;
-		if (len == 0 || res == nullptr)
-			return "";
-
-		return std::string(res, len);
+		return getMetadata().hardware;
 	}
 
 	std::string PcapNgFileReaderDevice::getCaptureApplication() const
 	{
-		if (m_LightPcapNg == nullptr)
-		{
-			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
-			return "";
-		}
-
-		light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
-		if (fileInfo == nullptr)
-			return "";
-		char* res = fileInfo->user_app_desc;
-		size_t len = fileInfo->user_app_desc_size;
-		if (len == 0 || res == nullptr)
-			return "";
-
-		return std::string(res, len);
+		return getMetadata().captureApplication;
 	}
 
 	std::string PcapNgFileReaderDevice::getCaptureFileComment() const
 	{
-		if (m_LightPcapNg == nullptr)
-		{
-			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
-			return "";
-		}
-
-		light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
-		if (fileInfo == nullptr)
-			return "";
-		char* res = fileInfo->file_comment;
-		size_t len = fileInfo->file_comment_size;
-		if (len == 0 || res == nullptr)
-			return "";
-
-		return std::string(res, len);
+		return getMetadata().comment;
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
