@@ -11,6 +11,24 @@
 
 namespace pcpp
 {
+	namespace
+	{
+		/// @brief Converts a light_pcapng_t* to an opaque LightPcapNgHandle*.
+		/// @param pcapngHandle The light_pcapng_t* to convert.
+		/// @return An pointer to the opaque handle.
+		internal::LightPcapNgHandle* toLightPcapNgHandle(light_pcapng_t* pcapngHandle)
+		{
+			return reinterpret_cast<internal::LightPcapNgHandle*>(pcapngHandle);
+		}
+
+		/// @brief Converts an opaque LightPcapNgHandle* to a light_pcapng_t*.
+		/// @param pcapngHandle The LightPcapNgHandle* to convert.
+		/// @return A pointer to the light_pcapng_t.
+		light_pcapng_t* toLightPcapNgT(internal::LightPcapNgHandle* pcapngHandle)
+		{
+			return reinterpret_cast<light_pcapng_t*>(pcapngHandle);
+		}
+	}  // namespace
 
 	template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
 	{
@@ -373,7 +391,7 @@ namespace pcpp
 			return true;
 		}
 
-		m_LightPcapNg = light_pcapng_open_read(m_FileName.c_str(), LIGHT_FALSE);
+		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_read(m_FileName.c_str(), LIGHT_FALSE));
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Cannot open pcapng reader device for filename '" << m_FileName << "'");
@@ -400,7 +418,7 @@ namespace pcpp
 		light_packet_header pktHeader;
 		const uint8_t* pktData = nullptr;
 
-		if (!light_get_next_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, &pktData))
+		if (!light_get_next_packet(toLightPcapNgT(m_LightPcapNg), &pktHeader, &pktData))
 		{
 			PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
 			return false;
@@ -409,7 +427,7 @@ namespace pcpp
 		while (!m_BpfWrapper.matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp,
 		                                           pktHeader.data_link))
 		{
-			if (!light_get_next_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, &pktData))
+			if (!light_get_next_packet(toLightPcapNgT(m_LightPcapNg), &pktHeader, &pktData))
 			{
 				PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
 				return false;
@@ -462,7 +480,7 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 			return;
 
-		light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
+		light_pcapng_close(toLightPcapNgT(m_LightPcapNg));
 		m_LightPcapNg = nullptr;
 
 		m_DeviceOpened = false;
@@ -477,7 +495,7 @@ namespace pcpp
 			return "";
 		}
 
-		light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
+		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
 		if (fileInfo == nullptr)
 			return "";
 		char* res = fileInfo->os_desc;
@@ -496,7 +514,7 @@ namespace pcpp
 			return "";
 		}
 
-		light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
+		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
 		if (fileInfo == nullptr)
 			return "";
 		char* res = fileInfo->hardware_desc;
@@ -515,7 +533,7 @@ namespace pcpp
 			return "";
 		}
 
-		light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
+		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
 		if (fileInfo == nullptr)
 			return "";
 		char* res = fileInfo->user_app_desc;
@@ -534,7 +552,7 @@ namespace pcpp
 			return "";
 		}
 
-		light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
+		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
 		if (fileInfo == nullptr)
 			return "";
 		char* res = fileInfo->file_comment;
@@ -846,7 +864,7 @@ namespace pcpp
 		light_pcapng_file_info* info =
 		    light_create_file_info(os.c_str(), hardware.c_str(), captureApp.c_str(), fileComment.c_str());
 
-		m_LightPcapNg = light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel);
+		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel));
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '"
@@ -896,7 +914,7 @@ namespace pcpp
 
 		const uint8_t* pktData = ((RawPacket&)packet).getRawData();
 
-		light_write_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, pktData);
+		light_write_packet(toLightPcapNgT(m_LightPcapNg), &pktHeader, pktData);
 		m_NumOfPacketsWritten++;
 		return true;
 	}
@@ -930,7 +948,7 @@ namespace pcpp
 
 		light_pcapng_file_info* info = light_create_default_file_info();
 
-		m_LightPcapNg = light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel);
+		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel));
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '"
@@ -955,7 +973,7 @@ namespace pcpp
 		m_NumOfPacketsNotWritten = 0;
 		m_NumOfPacketsWritten = 0;
 
-		m_LightPcapNg = light_pcapng_open_append(m_FileName.c_str());
+		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_append(m_FileName.c_str()));
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device in append mode for file '"
@@ -974,7 +992,7 @@ namespace pcpp
 		if (!m_DeviceOpened || m_LightPcapNg == nullptr)
 			return;
 
-		light_pcapng_flush((light_pcapng_t*)m_LightPcapNg);
+		light_pcapng_flush(toLightPcapNgT(m_LightPcapNg));
 		PCPP_LOG_DEBUG("File writer flushed to file '" << m_FileName << "'");
 	}
 
@@ -983,7 +1001,7 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 			return;
 
-		light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
+		light_pcapng_close(toLightPcapNgT(m_LightPcapNg));
 		m_LightPcapNg = nullptr;
 
 		m_DeviceOpened = false;
