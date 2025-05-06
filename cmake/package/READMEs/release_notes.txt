@@ -13,7 +13,6 @@ Release notes (changes from v24.09)
 - Added support for timestamp-related libpcap options (thanks @vcomito-apexai !)
 - Overhauled the logging infrastructure for better performance and flexibility (thanks @Dimi1010 !)
 - Added multi-language README support (Traditional Chinese, Korean) (thanks @tigercosmos, @nadongjun !)
-- Improved ASN.1 length handling with stricter validation
 - Removed usage of VLAs (Variable Length Arrays) for C++ standard compliance (thanks @Dimi1010 !)
 - Enhanced Python testing and linting infrastructure with `ruff` (thanks @tigercosmos !)
 - Reworked `setFilter` handling in libpcap backend
@@ -24,6 +23,7 @@ Release notes (changes from v24.09)
   - Improve and modernize `PfRingDevice` (thanks @Dimi1010 !)
   - Refactor device list classes (`PcapLiveDeviceList`, `DpdkDeviceList`, etc.) to use smart pointers internally for memory management and consolidate common behavior under a base class (thanks @Dimi1010 !)
   - Reformat `CMakeLists` files using `gersemi` (thanks @egecetin !)
+  - Streamline packet parsing using templated next layer sub-construction (thanks @Dimi1010 !)
   - Numerous C++11 modernization efforts (thanks @Dimi1010, @egecetin, @lumiZGorlic, @kiwixz, @ol-imorozko !)
   - Use a forked version of [`LightPcapNg`](https://github.com/PcapPlusPlus/LightPcapNg) instead of including the sources in the repo
 - Many documentation improvements using triple-slash Doxygen formatting (thanks @Dimi1010, @tigercosmos !)
@@ -84,20 +84,12 @@ Contributors
 ## What's Changed
 * Change PcapLiveDevice to store IP information as IPAddresses. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1497
 * Improve pre-commit workflow in CI by @egecetin in https://github.com/seladb/PcapPlusPlus/pull/1602
-* Rework processing of ASN.1record length (unsized types, strict checks) by @1ndahous3 in https://github.com/seladb/PcapPlusPlus/pull/1616
 * Ignore list for clang-tidy checks in CI by @egecetin in https://github.com/seladb/PcapPlusPlus/pull/1638
-* Added static asserts to fixed length header structures. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1693
 * Moved `setFilter` pcap implementation to `PcapHandle`. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1752
-* Changed MAX_TRIES from macro define to constexpr. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1766
-* Templated next layer sub-construction. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1748
-* Change Cmake to use target_compiler_features than CMAKE_CXX_STANDARD to define cpp standard. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1767
 * Added a custom deleter extension point to `PointerVector`. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1787
-* Cleanup of WinPcapLiveDevice::sendPackets. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1784
-* Refactored blocking mode to precompute timeout by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1786
-* Simplified function names for fetching pcap live devices. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1791
 * Allow to use pcapplusplus/ as include prefix by @clementperon in https://github.com/seladb/PcapPlusPlus/pull/1789
 
 
 
 Last PR checked:
-* Updated `DpdkDeviceList` to use `internal::DeviceListBase`. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1796
+* https://github.com/seladb/PcapPlusPlus/pull/1805
