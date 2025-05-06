@@ -31,7 +31,7 @@ namespace pcpp
 
 	namespace DoIpConstants
 	{
-		// @brief Length of doip header
+		/// @brief Length of doip header
 		static constexpr size_t DOIP_HEADER_LEN = sizeof(doiphdr);
 
 		/// @brief Length of the Equiepement Identifier (EID) field.
@@ -70,7 +70,7 @@ namespace pcpp
 
 		/// Central security routing activation type.
 		/// Used for secure communications involving a central security system.
-		CENTRAL_SECURITY = 0xE0U
+		CENTRAL_SECURITY = 0xE0U,
 	};
 
 	/// @brief Enum representing DoIP Generic Header NACK codes (ISO 13400).
@@ -509,13 +509,9 @@ namespace pcpp
 	enum class DoIpPorts : uint16_t
 	{
 
-		/// UDP Port.
-		/// The standard port for DoIP communication over UDP.
-		UDP_PORT = 13400U,
-
-		/// TCP Port.
-		/// The standard port for DoIP communication over TCP.
-		TCP_PORT = 13400U,
+		/// TCP and UDP doip Ports.
+		/// The standard port for DoIP communication.
+		TCP_UDP_PORT = 13400U,
 
 		/// TLS Port.
 		/// The standard port for DoIP communication over a secure TLS connection.
@@ -550,8 +546,8 @@ namespace pcpp
 		void setProtocolVersion(DoIpProtocolVersion version);
 
 		/// Additional setter for raw protocol version (for testing/fuzzing/debugging)
-		/// @param[in] Rawversion the raw version of DOIP protocol to set
-		void setProtocolVersion(uint8_t Rawversion);
+		/// @param[in] rawVersion the raw version of DOIP protocol to set
+		void setProtocolVersion(uint8_t rawVersion);
 
 		/// Get the invert version of DOIP protocol
 		/// @return A uint8_t presenting the used protocol invert version (DOIPV)
@@ -614,7 +610,7 @@ namespace pcpp
 
 		static inline bool isPayloadTypeValid(uint16_t type);
 
-		static inline bool isProtocolVersionValid(uint8_t version, uint8_t invVersion, DoIpPayloadTypes type);
+		static inline bool isProtocolVersionValid(uint8_t version, uint8_t inVersion, DoIpPayloadTypes type);
 
 		static inline bool isPayloadLengthValid(uint32_t payloadLength, size_t dataLen);
 
@@ -636,17 +632,13 @@ namespace pcpp
 	inline bool DoIpLayer::isDoIpPort(uint16_t port)
 	{
 		auto portAsEnum = static_cast<DoIpPorts>(port);
-		return (portAsEnum == DoIpPorts::UDP_PORT || portAsEnum == DoIpPorts::TCP_PORT ||
-		        portAsEnum == DoIpPorts::TLS_PORT);
+		return (portAsEnum == DoIpPorts::TCP_UDP_PORT || portAsEnum == DoIpPorts::TLS_PORT);
 	}
 
 	inline bool DoIpLayer::isDataValid(uint8_t* data, size_t dataLen)
 	{
-		if (data == nullptr)
-		{
-			PCPP_LOG_DEBUG("Data pointer is null!");
+		if (data == nullptr || dataLen < DOIP_HEADER_LEN)
 			return false;
-		}
 
 		auto* doipHeader = reinterpret_cast<doiphdr*>(data);
 		const uint8_t version = doipHeader->protocolVersion;
@@ -778,23 +770,6 @@ namespace pcpp
 		/// @param[in] activationType Type of routing activation.
 		DoIpRoutingActivationRequest(uint16_t sourceAddress, DoIpActivationTypes activationType);
 
-/// @struct  routing_activation_request
-/// Represents the Routing Activation Request data in DoIP.
-/// Routing Activation Response message structure (extends DoIP header).
-#pragma pack(push, 1)
-		struct routing_activation_request : doiphdr
-		{
-			/// @brief Source address of the tester.
-			uint16_t sourceAddress;
-
-			/// @brief Routing activation type.
-			DoIpActivationTypes activationType;
-
-			/// @brief ISO reserved bytes.
-			std::array<uint8_t, DOIP_RESERVED_ISO_LEN> reservedIso;
-		};
-#pragma pack(pop)
-
 		/// @brief Returns the source address.
 		uint16_t getSourceAddress() const;
 
@@ -834,21 +809,31 @@ namespace pcpp
 			return DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST;
 		}
 
-		/// @brief Get a pointer to Routing activation request message
-		/// Notice this points directly to the data, so any change will modify
-		/// the actual packet data
-		/// @return A pointer to a routing_activation_request structure containing the data
+		/// @brief Checks if the routing activation request data length is valid.
+		/// @param[in] dataLen The length of the data.
+		/// @return true if the data is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct routing_activation_request : doiphdr
+		{
+			uint16_t sourceAddress;
+
+			uint8_t activationType;
+
+			std::array<uint8_t, DOIP_RESERVED_ISO_LEN> reservedIso;
+		};
+#pragma pack(pop)
+
 		routing_activation_request* getRoutingRequest() const
 		{
 			return reinterpret_cast<routing_activation_request*>(m_Data);
 		}
-
-	private:
-		bool _hasReservedOem;  ///< Whether OEM bytes are set.
-
-		static constexpr size_t ACTIVATION_TYPE_LEN = 1;
-		static constexpr size_t FIXED_LEN =
-		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + ACTIVATION_TYPE_LEN + DOIP_RESERVED_ISO_LEN;
+		static constexpr size_t FIXED_LEN = sizeof(routing_activation_request);
 		static constexpr size_t OPT_LEN = FIXED_LEN + DOIP_RESERVED_OEM_LEN;
 	};
 
@@ -877,26 +862,6 @@ namespace pcpp
 		/// @param[in] responseCode The routing response code.
 		DoIpRoutingActivationResponse(uint16_t logicalAddressExternalTester, uint16_t sourceAddress,
 		                              DoIpRoutingResponseCodes responseCode);
-
-/// @struct  routing_activation_response
-/// Represents the Routing Activation Response data in DoIP.
-/// Routing Activation Response message structure (extends DoIP header).
-#pragma pack(push, 1)
-		struct routing_activation_response : doiphdr
-		{
-			/// @brief External tester's logical address.
-			uint16_t logicalAddressExternalTester;
-
-			/// @brief ECU source address.
-			uint16_t sourceAddress;
-
-			/// @brief Response code.
-			DoIpRoutingResponseCodes responseCode;
-
-			/// @brief ISO reserved bytes.
-			std::array<uint8_t, DOIP_RESERVED_ISO_LEN> reservedIso;
-		};
-#pragma pack(pop)
 
 		/// @brief Gets the logical address of the external tester.
 		uint16_t getLogicalAddressExternalTester() const;
@@ -943,22 +908,32 @@ namespace pcpp
 			return DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE;
 		}
 
-		/// Get a pointer to Routing activation response message
-		/// Notice this points directly to the data, so any change will modify
-		/// the actual packet data
-		/// @return A pointer to a routing_activation_response structure containing the data
+		/// @brief Checks if the routing activation response data length is valid.
+		/// @param[in] dataLen The length of the data.
+		/// @return true if the data is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct routing_activation_response : doiphdr
+		{
+			uint16_t logicalAddressExternalTester;
+
+			uint16_t sourceAddress;
+
+			uint8_t responseCode;
+
+			std::array<uint8_t, DOIP_RESERVED_ISO_LEN> reservedIso;
+		};
+#pragma pack(pop)
 		routing_activation_response* getRoutingResponse() const
 		{
 			return reinterpret_cast<routing_activation_response*>(m_Data);
 		}
-
-	private:
-		bool _hasReservedOem;  ///< Whether OEM bytes are set.
-
-		static constexpr size_t LOGICAL_ADDRESS_LEN = 2;
-		static constexpr size_t RESPONSE_CODE_LEN = 1;
-		static constexpr size_t FIXED_LEN =
-		    DOIP_HEADER_LEN + LOGICAL_ADDRESS_LEN + DOIP_SOURCE_ADDRESS_LEN + RESPONSE_CODE_LEN + DOIP_RESERVED_ISO_LEN;
+		static constexpr size_t FIXED_LEN = sizeof(routing_activation_response);
 		static constexpr size_t OPT_LEN = FIXED_LEN + DOIP_RESERVED_OEM_LEN;
 	};
 
@@ -1000,6 +975,14 @@ namespace pcpp
 		DoIpPayloadTypes getPayloadType() const override
 		{
 			return DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK;
+		}
+
+		/// @brief Checks if the NACK data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
 		}
 
 	private:
@@ -1045,6 +1028,14 @@ namespace pcpp
 			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID;
 		}
 
+		/// @brief Checks if the EID data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
+		}
+
 	private:
 		static constexpr size_t EID_OFFSET = DOIP_HEADER_LEN;
 		static constexpr size_t FIXED_LEN = EID_OFFSET + DOIP_EID_LEN;
@@ -1087,6 +1078,14 @@ namespace pcpp
 			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN;
 		}
 
+		/// @brief Checks if the VIN data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
+		}
+
 	private:
 		static constexpr size_t VIN_OFFSET = DOIP_HEADER_LEN;
 		static constexpr size_t FIXED_LEN = VIN_OFFSET + DOIP_VIN_LEN;
@@ -1121,28 +1120,6 @@ namespace pcpp
 		                        const std::array<uint8_t, DOIP_EID_LEN>& eid,
 		                        const std::array<uint8_t, DOIP_GID_LEN>& gid, DoIpActionCodes actionCode);
 
-/// @struct  vehicle_announcement
-/// Represents the vehicle announcement data in DoIP.
-/// Vehicle announcement message structure (extends DoIP header).
-#pragma pack(push, 1)
-		struct vehicle_announcement : doiphdr
-		{
-			/// @brief Vehicle Identification Number.
-			std::array<uint8_t, DOIP_VIN_LEN> vin;
-
-			/// @brief Logical address of the vehicle.
-			uint16_t logicalAddress;
-
-			/// @brief Entity Identifier.
-			std::array<uint8_t, DOIP_EID_LEN> eid;
-
-			/// @brief Group Identifier.
-			std::array<uint8_t, DOIP_GID_LEN> gid;
-
-			/// @brief Further action required code.
-			DoIpActionCodes actionCode;
-		};
-#pragma pack(pop)
 		/// @brief Gets the Vehicle Identification Number (VIN).
 		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
 
@@ -1194,28 +1171,38 @@ namespace pcpp
 			return DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE;
 		}
 
-		/// Get a pointer to Routing vehicle announcement data
-		/// Notice this points directly to the data, so any change will modify
-		/// the actual packet data
-		/// @return A pointer to a vehicle_announcement structure containing the data
+		/// @brief checks if the vehicle announcement data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct vehicle_announcement : doiphdr
+		{
+			std::array<uint8_t, DOIP_VIN_LEN> vin;
+
+			uint16_t logicalAddress;
+
+			std::array<uint8_t, DOIP_EID_LEN> eid;
+
+			std::array<uint8_t, DOIP_GID_LEN> gid;
+
+			uint8_t actionCode;
+		};
+#pragma pack(pop)
+
 		vehicle_announcement* getVehicleAnnouncement() const
 		{
 			return reinterpret_cast<vehicle_announcement*>(m_Data);
 		}
-
-	private:
-		bool _hasSyncStatus;
-
-		static constexpr size_t VIN_OFFSET = DOIP_HEADER_LEN;
-		static constexpr size_t LOGICAL_ADDRESS_LEN = 2;
-		static constexpr size_t ACTION_CODE_LEN = 1;
-		static constexpr size_t FIXED_LEN =
-		    VIN_OFFSET + DOIP_VIN_LEN + LOGICAL_ADDRESS_LEN + DOIP_EID_LEN + DOIP_GID_LEN + ACTION_CODE_LEN;
-
+		static constexpr size_t FIXED_LEN = sizeof(vehicle_announcement);
 		static constexpr size_t SYNC_STATUS_OFFSET = FIXED_LEN;
 		static constexpr size_t SYNC_STATUS_LEN = 1;
-
-		static constexpr size_t OPT_LEN = FIXED_LEN + SYNC_STATUS_LEN;
+		static constexpr size_t OPT_LEN = SYNC_STATUS_OFFSET + SYNC_STATUS_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1258,6 +1245,13 @@ namespace pcpp
 		DoIpPayloadTypes getPayloadType() const override
 		{
 			return DoIpPayloadTypes::ALIVE_CHECK_RESPONSE;
+		}
+		/// @brief Checks if the Alive Check Response data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
 		}
 
 	private:
@@ -1307,8 +1301,18 @@ namespace pcpp
 			return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE;
 		}
 
+		/// @brief Checks if the Diagnostic Power Mode Response data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
+		}
+
 	private:
-		DoIpDiagnosticPowerModeCodes _powerModeCode;  ///< Diagnostic power mode code.
+		static constexpr size_t POWER_MODE_CODE_OFFSET = DOIP_HEADER_LEN;
+		static constexpr size_t POWER_MODE_CODE_LEN = sizeof(uint8_t);
+		static constexpr size_t FIXED_LEN = POWER_MODE_CODE_OFFSET + POWER_MODE_CODE_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1336,21 +1340,6 @@ namespace pcpp
 		/// @param[in] currentlyOpenSockets Currently active sockets.
 		DoIpEntityStatusResponse(DoIpEntityStatusResponseCode nodeType, uint8_t maxConcurrentSockets,
 		                         uint8_t currentlyOpenSockets);
-
-		/// @struct  entity_status_response
-		/// Represents the Routing Activation Request data in DoIP.
-		/// Routing Activation Response message structure (extends DoIP header).
-		struct entity_status_response : doiphdr
-		{
-			/// @brief Type of the DoIP node (e.g., gateway, ECU).
-			DoIpEntityStatusResponseCode nodeType;
-
-			/// @brief Maximum number of concurrent sockets supported.
-			uint8_t maxConcurrentSockets;
-
-			/// @brief Number of currently open sockets.
-			uint8_t currentlyOpenSockets;
-		};
 
 		/// @brief Returns the DoIP payload type.
 		/// @return DoIpPayloadTypes::ENTITY_STATUS_RESPONSE
@@ -1402,25 +1391,33 @@ namespace pcpp
 		/// @return A string summarizing the Entity Status Response.
 		std::string getSummary() const;
 
-		/// Get a pointer to entity status response data
-		/// Notice this points directly to the data, so any change will modify
-		/// the actual packet data
-		/// @return A pointer to a routing_activation_response structure containing the data
+		/// @brief  Checks if the Entity Status Response data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return  true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct entity_status_response : doiphdr
+		{
+			uint8_t nodeType;
+
+			uint8_t maxConcurrentSockets;
+
+			uint8_t currentlyOpenSockets;
+		};
+#pragma pack(pop)
+
 		entity_status_response* getEntityStatusResponsePtr() const
 		{
 			return reinterpret_cast<entity_status_response*>(m_Data);
 		}
-
-	private:
-		bool _hasMaxDataSize;  ///< Indicates if max data size is set.
-
-		static constexpr size_t NODE_TYPE_LEN = 1;
-		static constexpr size_t MAX_CONCURRENT_SOCKETS_LEN = 1;
-		static constexpr size_t CURRENTLY_OPEN_SOCKETS_LEN = 1;
-		static constexpr size_t FIXED_LEN =
-		    DOIP_HEADER_LEN + NODE_TYPE_LEN + MAX_CONCURRENT_SOCKETS_LEN + CURRENTLY_OPEN_SOCKETS_LEN;
+		static constexpr size_t FIXED_LEN = sizeof(entity_status_response);
 		static constexpr size_t MAX_DATA_SIZE_OFFSET = FIXED_LEN;
-		static constexpr size_t MAX_DATA_SIZE_LEN = 4;
+		static constexpr size_t MAX_DATA_SIZE_LEN = sizeof(uint32_t);
 		static constexpr size_t OPT_LEN = FIXED_LEN + MAX_DATA_SIZE_LEN;
 	};
 
@@ -1444,10 +1441,11 @@ namespace pcpp
 		/// @brief default c'tor.
 		DoIpDiagnosticBase() {};
 
-		/// @struct  common_diagnostic_header
-		/// Common first diagnostic data in DoIP
-		/// messages (diagnostic/diagnosticAck/diagnosticNack).
-		/// common_diagnostic_header message structure (extends DoIP header).
+/// @struct  common_diagnostic_header
+/// Common first diagnostic data in DoIP
+/// messages (diagnostic/diagnosticAck/diagnosticNack).
+/// common_diagnostic_header message structure (extends DoIP header).
+#pragma pack(push, 1)
 		struct common_diagnostic_header : doiphdr
 		{
 			/// @brief Diagnostic source address
@@ -1456,6 +1454,7 @@ namespace pcpp
 			/// @brief Diagnostic target address
 			uint16_t targetAddress;
 		};
+#pragma pack(pop)
 
 		/// @brief Gets the source logical address of the message.
 		/// @return 16-bit address of the source ECU.
@@ -1466,28 +1465,22 @@ namespace pcpp
 		uint16_t getTargetAddress() const;
 
 		/// @brief Sets the source logical address.
-		/// @param[in] addr New 16-bit source address.
-		void setSourceAddress(uint16_t addr);
+		/// @param[in] sourceAddress New 16-bit source address.
+		void setSourceAddress(uint16_t sourceAddress);
 
 		/// @brief Sets the target logical address.
-		/// @param[in] addr New 16-bit target address.
-		void setTargetAddress(uint16_t addr);
+		/// @param[in] targetAddress New 16-bit target address.
+		void setTargetAddress(uint16_t targetAddress);
 
 		/// @brief Returns a human-readable summary of the message content.
 		/// @return A string summarizing the diagnostic message.
 		virtual std::string getSummary() const = 0;
 
-		/// Get a pointer to diagnostic message data
-		/// Notice this points directly to the data, so any change will modify
-		/// the actual packet data
-		/// @return A pointer to a common_diagnostic_header structure containing the data
+	private:
 		common_diagnostic_header* getCommonDiagnosticHeader() const
 		{
 			return reinterpret_cast<common_diagnostic_header*>(m_Data);
 		}
-
-	private:
-		static constexpr size_t FIX_LEN = DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~|
@@ -1539,11 +1532,16 @@ namespace pcpp
 			return sizeof(doiphdr) + 2 * sizeof(uint16_t);
 		}
 
+		/// @brief Checks if the diagnostic data length is valid.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen > MIN_LEN);
+		}
+
 	private:
-		static constexpr size_t DIAGNOSTIC_DATA_OFFSET =
-		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
-		static constexpr size_t MIN_LEN =
-		    DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN + 1; /*Min diagnostic message Len*/
+		static constexpr size_t DIAGNOSTIC_DATA_OFFSET = sizeof(common_diagnostic_header);
+		static constexpr size_t MIN_LEN = DIAGNOSTIC_DATA_OFFSET + 1; /*Min diagnostic message Len*/
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1560,9 +1558,6 @@ namespace pcpp
 		/// @param[in] prevLayer Pointer to the previous protocol layer.
 		/// @param[in] packet Pointer to the parent packet.
 		DoIpDiagnosticResponseMessageBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
-		/// @brief  default c'tor
-		DoIpDiagnosticResponseMessageBase(uint16_t sourceAddress, uint16_t targetAddress, DoIpPayloadTypes type);
 
 		/// @brief Gets the acknowledgment/nack code (1-byte).
 		uint8_t getResponseCode() const;
@@ -1582,12 +1577,21 @@ namespace pcpp
 		/// @brief Clears the previously stored diagnostic message.
 		void clearPreviousMessage();
 
+		/// @brief Checks if data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen >= FIXED_LEN);
+		}
+
 	protected:
-		bool _hasPreviousMessage;  ///< True if a previous message is present.
-		static constexpr size_t DIAGNOSTIC_ACK_CODE_OFFSET =
-		    DOIP_HEADER_LEN + DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN;
-		static constexpr size_t DIAGNOSTIC_ACK_CODE_LEN = 1;
-		static constexpr size_t FIXED_LEN = DIAGNOSTIC_ACK_CODE_OFFSET + DIAGNOSTIC_ACK_CODE_LEN;
+		DoIpDiagnosticResponseMessageBase(uint16_t sourceAddress, uint16_t targetAddress, DoIpPayloadTypes type);
+
+	private:
+		static constexpr size_t DIAGNOSTIC_CODE_OFFSET = sizeof(common_diagnostic_header);
+		static constexpr size_t DIAGNOSTIC_CODE_LEN = sizeof(uint8_t);
+		static constexpr size_t FIXED_LEN = DIAGNOSTIC_CODE_OFFSET + DIAGNOSTIC_CODE_LEN;
 		static constexpr size_t PREVIOUS_MSG_OFFSET = FIXED_LEN;
 	};
 
@@ -1703,6 +1707,13 @@ namespace pcpp
 		{
 			return DoIpPayloadTypes::ALIVE_CHECK_REQUEST;
 		}
+		/// @brief Checks if the Alive Check Request data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == DOIP_HEADER_LEN);  // No payload
+		}
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1733,6 +1744,14 @@ namespace pcpp
 		DoIpPayloadTypes getPayloadType() const override
 		{
 			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST;
+		}
+
+		/// @brief Checks if the Vehicle Identification Request data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == DOIP_HEADER_LEN);  // No payload
 		}
 	};
 
@@ -1765,6 +1784,14 @@ namespace pcpp
 		{
 			return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST;
 		}
+
+		/// @brief Checks if the Entity Status Request data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == DOIP_HEADER_LEN);  // No payload
+		}
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1796,6 +1823,14 @@ namespace pcpp
 		DoIpPayloadTypes getPayloadType() const override
 		{
 			return DoIpPayloadTypes::ENTITY_STATUS_REQUEST;
+		}
+
+		/// @brief Checks if the Entity Status Request data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == DOIP_HEADER_LEN);  // No payload
 		}
 	};
 

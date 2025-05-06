@@ -32,7 +32,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
 	pcpp::TcpLayer* tcpLayer = RoutingActivationRequest.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 
-	PTF_ASSERT_EQUAL(tcpLayer->getDstPort(), pcpp::DoIpPorts::TCP_PORT);
+	PTF_ASSERT_EQUAL(tcpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = RoutingActivationRequest.getLayerOfType<pcpp::DoIpRoutingActivationRequest>();
 
@@ -142,7 +142,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 
 	PTF_ASSERT_EQUAL(tcpLayer->getDstPort(), 53850);
-	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_PORT);
+	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->headerChecksum, be16toh(0xa0a5));
 
 	auto* doipLayer = RoutingActivationResponse.getLayerOfType<pcpp::DoIpRoutingActivationResponse>();
@@ -235,7 +235,7 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketParsing)
 	pcpp::UdpLayer* udpLayer = GenericHeaderNack.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = GenericHeaderNack.getLayerOfType<pcpp::DoIpGenericHeaderNack>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -301,7 +301,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
 	pcpp::UdpLayer* udpLayer = VehicleIdentificationRequestEID.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), 65300);
 
 	auto* doipLayer = VehicleIdentificationRequestEID.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestEID>();
@@ -376,7 +376,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
 	pcpp::UdpLayer* udpLayer = VehicleIdentificationRequestVIN.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = VehicleIdentificationRequestVIN.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestVIN>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -457,8 +457,8 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 	pcpp::UdpLayer* udpLayer = VehicleAnnouncement.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
-	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	// DOIP fields for vehicle identification request
 	auto* doipLayer = VehicleAnnouncement.getLayerOfType<pcpp::DoIpVehicleAnnouncement>();
@@ -531,7 +531,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	PTF_ASSERT_EQUAL(*doipLayer->getSyncStatus(), pcpp::DoIpSyncStatus::VIN_AND_OR_GID_ARE_SINCHRONIZED, enumclass);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
-	    "VIN: BAUNEE4MZ17042403\nLogical address: 0x4010\nEID: 001a37bfee74\nGID: 001a37bfee74\nFurther action required: No further action required (0x0)\nVIN/GID sync status: VIN and/or GID are synchronized\n");
+	    "VIN: BAUNEE4MZ17042403\nLogical address: 0x4010\nEID: 001a37bfee74\nGID: 001a37bfee74\nFurther action required: No further action required (0x0)\nVIN/GID sync status: VIN and/or GID are synchronized (0x0)\n");
 	doipLayer->clearSyncStatus();
 	PTF_ASSERT_FALSE(doipLayer->hasSyncStatus());
 	PTF_ASSERT_TRUE(doipLayer->getSyncStatus() == nullptr);
@@ -556,7 +556,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketParsing)
 	pcpp::UdpLayer* udpLayer = vehicleIdentificationRequest.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = vehicleIdentificationRequest.getLayerOfType<pcpp::DoIpVehicleIdentificationRequest>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -619,7 +619,7 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketParsing)
 	auto* udpLayer = AliveCheckResponse.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = AliveCheckResponse.getLayerOfType<pcpp::DoIpAliveCheckResponse>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -687,7 +687,7 @@ PTF_TEST_CASE(DoIpPowerModeResponsePacketParsing)
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
 	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), 65300);
-	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = PowerModeResponse.getLayerOfType<pcpp::DoIpDiagnosticPowerModeResponse>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -757,7 +757,7 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketParsing)
 	pcpp::UdpLayer* udpLayer = EntityStatusResponse.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = EntityStatusResponse.getLayerOfType<pcpp::DoIpEntityStatusResponse>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -843,7 +843,7 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketParsing)
 	pcpp::TcpLayer* tcpLayer = DiagnosticMessagePacket.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 
-	PTF_ASSERT_EQUAL(tcpLayer->getDstPort(), pcpp::DoIpPorts::TCP_PORT);
+	PTF_ASSERT_EQUAL(tcpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = DiagnosticMessagePacket.getLayerOfType<pcpp::DoIpDiagnosticMessage>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -935,7 +935,7 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketParsing)
 	pcpp::TcpLayer* tcpLayer = DiagnosticAckMessage.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 
-	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_PORT);
+	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = DiagnosticAckMessage.getLayerOfType<pcpp::DoIpDiagnosticAckMessage>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -1032,7 +1032,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketParsing)
 
 	pcpp::TcpLayer* tcpLayer = diagnosticNackPacket.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
-	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_PORT);
+	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* nackLayer = diagnosticNackPacket.getLayerOfType<pcpp::DoIpDiagnosticNackMessage>();
 	PTF_ASSERT_NOT_NULL(nackLayer);
@@ -1129,7 +1129,7 @@ PTF_TEST_CASE(DoIpPowerModeRequestPacketParsing)
 	pcpp::UdpLayer* udpLayer = PowerModeRequest.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = PowerModeRequest.getLayerOfType<pcpp::DoIpDiagnosticPowerModeRequest>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -1191,7 +1191,7 @@ PTF_TEST_CASE(DoIpEntityStatusRequestPacketParsing)
 	pcpp::UdpLayer* udpLayer = EntityStatusRequest.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), 65300);
 	PTF_ASSERT_EQUAL(udpLayer->getUdpHeader()->headerChecksum, be16toh(0x4988));
 
@@ -1255,7 +1255,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketParsing)
 	pcpp::UdpLayer* udpLayer = AliveCheckRequest.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = AliveCheckRequest.getLayerOfType<pcpp::DoIpAliveCheckRequest>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -1317,7 +1317,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing)
 	auto* udpLayer = vehicleIdentificationRequest.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
-	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::UDP_PORT);
+	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
 	auto* doipLayer = vehicleIdentificationRequest.getLayerOfType<pcpp::DoIpVehicleIdentificationRequest>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
@@ -1328,7 +1328,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request");
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Vehicle identification request (0x0001)");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x0);
-}  // DoIpInvalidPayloadTypePacketPacketParsing
+}  // DoIpVehicleIdentificationRequestWithDEfaultVersPacketParsing
 
 // DoIpInvalidPayloadTypePacketParsing
 PTF_TEST_CASE(DoIpInvalidPayloadTypePacketParsing)
