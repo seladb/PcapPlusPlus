@@ -1,24 +1,51 @@
 Release notes (changes from v24.09)
 -----------------------------------
 
-- TBD
+- New protocol support:
+  - WireGuard (thanks @nadongjun !)
+  - GTPv2
+  - Cisco HDLC
+  - Add gratuitous ARP requests (thanks @Dimi1010 !)
+- Added support for DPDK 23.11 and 24.11
+- Added an option to build only Common++ and Packet++ libraries and not Pcap++, hence avoid the dependency on third party libraries like libpcap or WinPcap/Npcap (thanks @Dimi1010 !)
+- Introduced nanosecond timestamp precision in TCP reassembly
+- Introduced a new benchmark system using Google Benchmark (thanks @egecetin !)
+- Added support for timestamp-related libpcap options (thanks @vcomito-apexai !)
+- Overhauled the logging infrastructure for better performance and flexibility (thanks @Dimi1010 !)
+- Added multi-language README support (Traditional Chinese, Korean) (thanks @tigercosmos, @nadongjun !)
+- Improved ASN.1 length handling with stricter validation
+- Removed usage of VLAs (Variable Length Arrays) for C++ standard compliance (thanks @Dimi1010 !)
+- Enhanced Python testing and linting infrastructure with `ruff` (thanks @tigercosmos !)
+- Reworked `setFilter` handling in libpcap backend
+- Updated OS/platform support running in CI: Ubuntu ARM64, Alpine 3.20, Fedora 42, FreeBSD 13.4/14.1, newer macOS runners (thanks @clementperon !)
+- Migrated Android build to use the new version of ToyVPN
+- Code refactoring:
+  - Improve `MacAddress`, `IPAddress` and `IPNetwork` classes (thanks @Dimi1010 !)
+  - Improve and modernize `PfRingDevice` (thanks @Dimi1010 !)
+  - Refactor device list classes (`PcapLiveDeviceList`, `DpdkDeviceList`, etc.) to use smart pointers internally for memory management and consolidate common behavior under a base class (thanks @Dimi1010 !)
+  - Reformat `CMakeLists` files using `gersemi` (thanks @egecetin !)
+  - Numerous C++11 modernization efforts (thanks @Dimi1010, @egecetin, @lumiZGorlic, @kiwixz, @ol-imorozko !)
+  - Use a forked version of [`LightPcapNg`](https://github.com/PcapPlusPlus/LightPcapNg) instead of including the sources in the repo
+- Many documentation improvements using triple-slash Doxygen formatting (thanks @Dimi1010, @tigercosmos !)
+- Tons of bug fixes, security fixes and small improvements (thanks @Dimi1010, @clementperon, @rndx21033, @prudens, @Doekin, @egecetin, @ol-imorozko, @1ndahous3, @fxlb, @jj683, @oss-patch, @enomis101, @Shivam7-1, @orgads, @Alexis-Lapierre, @s-genereux !)
 
 Breaking changes
 ----------------
 
-This version includes a small number of breaking changes:
-- TBD
-
+- `Logger::LogLevel` was deprecated and moved to `LogLevel`. `LogLevel` is now an `enum class` so arithmetic operations on it will fail to compile
+-  Logger copy constructor and copy assignment marked as deleted
+- `Packet::getRawPacketReadOnly()` return type changed `RawPacket*` to `RawPacket const*`
+- Removed support for SSLv2 (non-functional previously) (thanks @droe !)
+- `LightPcapNg` is no longer included in the repo sources and is fetched during the build time
 
 Deprecation list
 ----------------
-
-The following methods that were marked as deprecated in previous versions were removed:
-- TBD
-
-The following methods are now marked as deprecated and will be removed in future versions:
-- TBD
-
+- The following methods that were marked as deprecated in previous versions were removed:
+  - `PcapLiveDevice::getAddresses()` that was previously deprecated was removed
+- `libpcap` versions < 0.9 are no longer supported. Hence, the following CMake options were removed: `PCAPPP_ENABLE_PCAP_IMMEDIATE_MODE` and `PCAPPP_ENABLE_PCAP_SET_DIRECTION`
+- The following methods are now marked as deprecated and will be removed in future versions:
+  - `Logger::Error`, `Logger::Info`, `Logger::Debug` are deprecated. Please use `LogLevel::XXX`
+  - `PcapLiveDeviceList::getPcapLiveDeviceBy***` methods have been deprecated in favour of `PcapLiveDeviceList::getDeviceBy***`
 
 Collaborators
 -------------
@@ -29,11 +56,48 @@ Collaborators
  - @clementperon
  - @seladb
 
-
 Contributors
 ------------
 
-- TBD
-
+- @nadongjun
+- @1ndahous3
+- @rndx21033
+- @prudens
+- @Doekin
+- @lumiZGorlic
+- @kiwixz
+- @fxlb
+- @jj683
+- @ol-imorozko
+- @Shivam7-1
+- @oss-patch
+- @enomis101
+- @s-genereux
+- @orgads
+- @Alexis-Lapierre
+- @vcomito-apexai
+- @droe
 
 **Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v24.09...v25.05
+
+
+## What's Changed
+* Change PcapLiveDevice to store IP information as IPAddresses. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1497
+* Improve pre-commit workflow in CI by @egecetin in https://github.com/seladb/PcapPlusPlus/pull/1602
+* Rework processing of ASN.1record length (unsized types, strict checks) by @1ndahous3 in https://github.com/seladb/PcapPlusPlus/pull/1616
+* Ignore list for clang-tidy checks in CI by @egecetin in https://github.com/seladb/PcapPlusPlus/pull/1638
+* Added static asserts to fixed length header structures. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1693
+* Moved `setFilter` pcap implementation to `PcapHandle`. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1752
+* Changed MAX_TRIES from macro define to constexpr. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1766
+* Templated next layer sub-construction. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1748
+* Change Cmake to use target_compiler_features than CMAKE_CXX_STANDARD to define cpp standard. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1767
+* Added a custom deleter extension point to `PointerVector`. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1787
+* Cleanup of WinPcapLiveDevice::sendPackets. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1784
+* Refactored blocking mode to precompute timeout by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1786
+* Simplified function names for fetching pcap live devices. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1791
+* Allow to use pcapplusplus/ as include prefix by @clementperon in https://github.com/seladb/PcapPlusPlus/pull/1789
+
+
+
+Last PR checked:
+* Updated `DpdkDeviceList` to use `internal::DeviceListBase`. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1796
