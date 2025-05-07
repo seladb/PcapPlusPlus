@@ -2,7 +2,6 @@
 
 // GCOVR_EXCL_START
 
-#include <pthread.h>
 #include <time.h>
 #include <vector>
 #include "MacAddress.h"
@@ -806,3 +805,5 @@ namespace pcpp
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP
+
+
