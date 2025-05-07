@@ -50,7 +50,7 @@ namespace pcpp
 		/// @return A pointer to the PF_RING device
 		PCPP_DEPRECATED("Use `getDeviceByName`")
 		PfRingDevice* getPfRingDeviceByName(const std::string& devName) const;
-		
+
 		/// Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
 		/// (e.g eth0, eth1, etc.)
 		/// @return A pointer to the PF_RING device
