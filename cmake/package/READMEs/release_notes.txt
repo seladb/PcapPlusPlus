@@ -37,7 +37,7 @@ Breaking changes
 - The `Logger` copy constructor and copy assignment operator are marked as deleted
 - The return type of `Packet::getRawPacketReadOnly()` has been changed from `RawPacket*` to `RawPacket const*`
 - SSLv2 support has been removed (it was non-functional in previous versions) (thanks to @droe!)
-- `LightPcapNg` is no longer included in the repository and is instead fetched at build time
+- `LightPcapNg` is no longer included in the repository and is instead fetched at CMake configuration time
 
 Deprecation list
 ----------------
