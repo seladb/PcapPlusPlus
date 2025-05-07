@@ -3,49 +3,50 @@ Release notes (changes from v24.09)
 
 - New protocol support:
   - WireGuard (thanks @nadongjun !)
+  - Add gratuitous ARP requests (thanks @Dimi1010 !)
   - GTPv2
   - Cisco HDLC
-  - Add gratuitous ARP requests (thanks @Dimi1010 !)
+- Added the option to build only `Common++` and `Packet++` libraries without `Pcap++`, removing the dependency on third-party libraries like libpcap or WinPcap/Npcap (thanks @Dimi1010 !)
+- Updated the CMake files to support using `pcapplusplus/` as the include prefix (thanks @clementperon !)
 - Added support for DPDK 23.11 and 24.11
-- Added an option to build only Common++ and Packet++ libraries and not Pcap++, hence avoid the dependency on third party libraries like libpcap or WinPcap/Npcap (thanks @Dimi1010 !)
-- Introduced nanosecond timestamp precision in TCP reassembly
-- Introduced a new benchmark system using Google Benchmark (thanks @egecetin !)
+- Introduced nanosecond precision for timestamps in TCP reassembly
 - Added support for timestamp-related libpcap options (thanks @vcomito-apexai !)
-- Overhauled the logging infrastructure for better performance and flexibility (thanks @Dimi1010 !)
 - Added multi-language README support (Traditional Chinese, Korean) (thanks @tigercosmos, @nadongjun !)
-- Removed usage of VLAs (Variable Length Arrays) for C++ standard compliance (thanks @Dimi1010 !)
-- Enhanced Python testing and linting infrastructure with `ruff` (thanks @tigercosmos !)
-- Reworked `setFilter` handling in libpcap backend
 - Updated OS/platform support running in CI: Ubuntu ARM64, Alpine 3.20, Fedora 42, FreeBSD 13.4/14.1, newer macOS runners (thanks @clementperon !)
 - Migrated Android build to use the new version of ToyVPN
+- Introduced a new benchmark system using Google Benchmark (thanks @egecetin !)
+- Enhanced Python testing and linting infrastructure with `ruff` (thanks @tigercosmos !)
 - Code refactoring:
-  - Improve `MacAddress`, `IPAddress` and `IPNetwork` classes (thanks @Dimi1010 !)
-  - Improve and modernize `PfRingDevice` (thanks @Dimi1010 !)
-  - Refactor device list classes (`PcapLiveDeviceList`, `DpdkDeviceList`, etc.) to use smart pointers internally for memory management and consolidate common behavior under a base class (thanks @Dimi1010 !)
-  - Reformat `CMakeLists` files using `gersemi` (thanks @egecetin !)
-  - Streamline packet parsing using templated next layer sub-construction (thanks @Dimi1010 !)
+  - Replaced the inclusion of the LightPcapNg source code in the repository with a forked version of [`LightPcapNg`](https://github.com/PcapPlusPlus/LightPcapNg)
+  - Overhauled the logging infrastructure for better performance and flexibility (thanks @Dimi1010 !)
+  - Reformatted `CMakeLists` files using `gersemi` (thanks @egecetin !)
+  - Updated the internal implementation of `PcapLiveDevice` to store IP information as `IPAddress` (thanks @Dimi1010 !)
+  - Streamlined packet parsing using templated next-layer sub-construction (thanks @Dimi1010 !)
+  - Refactored device list classes (`PcapLiveDeviceList`, `DpdkDeviceList`, etc.) to use smart pointers internally for memory management and consolidated common behavior under a base class (thanks @Dimi1010 !)
+  - Improved the internal implementation of `MacAddress`, `IPAddress` and `IPNetwork` classes (thanks @Dimi1010 !)
+  - Enhanced and modernized the internal implementation of `PfRingDevice` (thanks @Dimi1010 !)
+  - Removed usage of VLAs (Variable Length Arrays) for C++ standard compliance (thanks @Dimi1010 !)
   - Numerous C++11 modernization efforts (thanks @Dimi1010, @egecetin, @lumiZGorlic, @kiwixz, @ol-imorozko !)
-  - Use a forked version of [`LightPcapNg`](https://github.com/PcapPlusPlus/LightPcapNg) instead of including the sources in the repo
-- Many documentation improvements using triple-slash Doxygen formatting (thanks @Dimi1010, @tigercosmos !)
+- Improved documentation using triple-slash Doxygen formatting (thanks @Dimi1010, @tigercosmos !)
 - Tons of bug fixes, security fixes and small improvements (thanks @Dimi1010, @clementperon, @rndx21033, @prudens, @Doekin, @egecetin, @ol-imorozko, @1ndahous3, @fxlb, @jj683, @oss-patch, @enomis101, @Shivam7-1, @orgads, @Alexis-Lapierre, @s-genereux !)
 
 Breaking changes
 ----------------
 
-- `Logger::LogLevel` was deprecated and moved to `LogLevel`. `LogLevel` is now an `enum class` so arithmetic operations on it will fail to compile
--  Logger copy constructor and copy assignment marked as deleted
-- `Packet::getRawPacketReadOnly()` return type changed `RawPacket*` to `RawPacket const*`
-- Removed support for SSLv2 (non-functional previously) (thanks @droe !)
-- `LightPcapNg` is no longer included in the repo sources and is fetched during the build time
+- `Logger::LogLevel` has been deprecated and moved to `LogLevel`. `LogLevel` is now an `enum class`, so arithmetic operations on it will fail to compile
+- The `Logger` copy constructor and copy assignment operator are marked as deleted
+- The return type of `Packet::getRawPacketReadOnly()` has been changed from `RawPacket*` to `RawPacket const*`
+- SSLv2 support has been removed (it was non-functional in previous versions) (thanks to @droe!)
+- `LightPcapNg` is no longer included in the repository and is instead fetched at build time
 
 Deprecation list
 ----------------
-- The following methods that were marked as deprecated in previous versions were removed:
-  - `PcapLiveDevice::getAddresses()` that was previously deprecated was removed
-- `libpcap` versions < 0.9 are no longer supported. Hence, the following CMake options were removed: `PCAPPP_ENABLE_PCAP_IMMEDIATE_MODE` and `PCAPPP_ENABLE_PCAP_SET_DIRECTION`
-- The following methods are now marked as deprecated and will be removed in future versions:
-  - `Logger::Error`, `Logger::Info`, `Logger::Debug` are deprecated. Please use `LogLevel::XXX`
-  - `PcapLiveDeviceList::getPcapLiveDeviceBy***` methods have been deprecated in favour of `PcapLiveDeviceList::getDeviceBy***`
+
+- `PcapLiveDevice::getAddresses()`, which was previously deprecated, has now been removed
+- libpcap versions < 0.9 are no longer supported. As a result, the following CMake options have been removed: `PCAPPP_ENABLE_PCAP_IMMEDIATE_MODE` and `PCAPPP_ENABLE_PCAP_SET_DIRECTION`
+- The following methods are now deprecated and will be removed in future versions:
+  - `Logger::Error`, `Logger::Info`, and `Logger::Debug` are deprecated. Please use `LogLevel::XXX` instead
+  - `PcapLiveDeviceList::getPcapLiveDeviceBy***` methods have been deprecated in favor of `PcapLiveDeviceList::getDeviceBy***`
 
 Collaborators
 -------------
@@ -59,37 +60,23 @@ Collaborators
 Contributors
 ------------
 
-- @nadongjun
-- @1ndahous3
-- @rndx21033
-- @prudens
-- @Doekin
-- @lumiZGorlic
-- @kiwixz
-- @fxlb
-- @jj683
 - @ol-imorozko
-- @Shivam7-1
-- @oss-patch
-- @enomis101
+- @rndx21033
+- @nadongjun
+- @lumiZGorlic
+- @1ndahous3
 - @s-genereux
-- @orgads
-- @Alexis-Lapierre
+- @prudens
+- @oss-patch
+- @kiwixz
+- @jj683
+- @fxlb
+- @enomis101
 - @vcomito-apexai
+- @Shivam7-1
+- @orgads
+- @Doekin
+- @Alexis-Lapierre
 - @droe
 
 **Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v24.09...v25.05
-
-
-## What's Changed
-* Change PcapLiveDevice to store IP information as IPAddresses. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1497
-* Improve pre-commit workflow in CI by @egecetin in https://github.com/seladb/PcapPlusPlus/pull/1602
-* Ignore list for clang-tidy checks in CI by @egecetin in https://github.com/seladb/PcapPlusPlus/pull/1638
-* Moved `setFilter` pcap implementation to `PcapHandle`. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1752
-* Added a custom deleter extension point to `PointerVector`. by @Dimi1010 in https://github.com/seladb/PcapPlusPlus/pull/1787
-* Allow to use pcapplusplus/ as include prefix by @clementperon in https://github.com/seladb/PcapPlusPlus/pull/1789
-
-
-
-Last PR checked:
-* https://github.com/seladb/PcapPlusPlus/pull/1805
