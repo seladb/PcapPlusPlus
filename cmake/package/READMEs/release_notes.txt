@@ -28,7 +28,7 @@ Release notes (changes from v24.09)
   - Removed usage of VLAs (Variable Length Arrays) for C++ standard compliance (thanks @Dimi1010 !)
   - Numerous C++11 modernization efforts (thanks @Dimi1010, @egecetin, @lumiZGorlic, @kiwixz, @ol-imorozko !)
 - Improved documentation using triple-slash Doxygen formatting (thanks @Dimi1010, @tigercosmos !)
-- Tons of bug fixes, security fixes and small improvements (thanks @Dimi1010, @clementperon, @rndx21033, @prudens, @Doekin, @egecetin, @ol-imorozko, @1ndahous3, @fxlb, @jj683, @oss-patch, @enomis101, @Shivam7-1, @orgads, @Alexis-Lapierre, @s-genereux !)
+- Tons of bug fixes, security fixes and small improvements (thanks @Dimi1010, @clementperon, @rndx21033, @prudens, @Doekin, @egecetin, @ol-imorozko, @1ndahous3, @fxlb, @jj683, @oss-patch, @enomis101, @Shivam7-1, @orgads, @Alexis-Lapierre, @s-genereux, @fasonju !)
 
 Breaking changes
 ----------------
@@ -78,5 +78,6 @@ Contributors
 - @Doekin
 - @Alexis-Lapierre
 - @droe
+- @fasonju
 
 **Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v24.09...v25.05
