@@ -684,11 +684,32 @@ namespace pcpp
 
 	bool PcapFileWriterDevice::open()
 	{
-		if (m_PcapDescriptor != nullptr)
+		return open(false);
+	}
+
+	bool PcapFileWriterDevice::open(bool appendMode)
+	{
+		if (isOpened())
 		{
+			// TODO: Ambiguity in API
+			//   If appendMode is required but the file is already opened in write mode.
 			PCPP_LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
 			return true;
 		}
+
+		if (appendMode)
+		{
+			return openAppend();
+		}
+		else
+		{
+			return openWrite();
+		}
+	}
+
+	bool PcapFileWriterDevice::openWrite()
+	{
+		m_AppendMode = false;
 
 		switch (m_PcapLinkLayerType)
 		{
@@ -731,6 +752,59 @@ namespace pcpp
 		m_PcapDescriptor = std::move(pcapDescriptor);
 		m_DeviceOpened = true;
 		PCPP_LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully");
+		return true;
+	}
+
+	bool PcapFileWriterDevice::openAppend()
+	{
+		m_AppendMode = true;
+
+#if !defined(_WIN32)
+		m_File = fopen(m_FileName.c_str(), "r+");
+#else
+		m_File = fopen(m_FileName.c_str(), "rb+");
+#endif
+
+		if (m_File == nullptr)
+		{
+			PCPP_LOG_ERROR("Cannot open '" << m_FileName << "' for reading and writing");
+			return false;
+		}
+
+		pcap_file_header pcapFileHeader;
+		int amountRead = fread(&pcapFileHeader, 1, sizeof(pcapFileHeader), m_File);
+		if (amountRead != sizeof(pcap_file_header))
+		{
+			if (ferror(m_File))
+				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', error was: " << errno);
+			else
+				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', unknown error");
+
+			closeFile();
+			return false;
+		}
+
+		LinkLayerType linkLayerType = static_cast<LinkLayerType>(pcapFileHeader.linktype);
+		if (linkLayerType != m_PcapLinkLayerType)
+		{
+			PCPP_LOG_ERROR(
+			    "Pcap file has a different link layer type than the one chosen in PcapFileWriterDevice c'tor, "
+			    << linkLayerType << ", " << m_PcapLinkLayerType);
+			closeFile();
+			return false;
+		}
+
+		if (fseek(m_File, 0, SEEK_END) == -1)
+		{
+			PCPP_LOG_ERROR("Cannot read pcap file '" << m_FileName << "' to it's end, error was: " << errno);
+			closeFile();
+			return false;
+		}
+
+		m_PcapDumpHandler = reinterpret_cast<pcap_dumper_t*>(m_File);
+
+		m_DeviceOpened = true;
+		PCPP_LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully in append mode");
 		return true;
 	}
 
@@ -780,62 +854,6 @@ namespace pcpp
 		stats.packetsDrop = m_NumOfPacketsNotWritten;
 		stats.packetsDropByInterface = 0;
 		PCPP_LOG_DEBUG("Statistics received for writer device for filename '" << m_FileName << "'");
-	}
-
-	bool PcapFileWriterDevice::open(bool appendMode)
-	{
-		if (!appendMode)
-			return open();
-
-		m_AppendMode = appendMode;
-
-#if !defined(_WIN32)
-		m_File = fopen(m_FileName.c_str(), "r+");
-#else
-		m_File = fopen(m_FileName.c_str(), "rb+");
-#endif
-
-		if (m_File == nullptr)
-		{
-			PCPP_LOG_ERROR("Cannot open '" << m_FileName << "' for reading and writing");
-			return false;
-		}
-
-		pcap_file_header pcapFileHeader;
-		int amountRead = fread(&pcapFileHeader, 1, sizeof(pcapFileHeader), m_File);
-		if (amountRead != sizeof(pcap_file_header))
-		{
-			if (ferror(m_File))
-				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', error was: " << errno);
-			else
-				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', unknown error");
-
-			closeFile();
-			return false;
-		}
-
-		LinkLayerType linkLayerType = static_cast<LinkLayerType>(pcapFileHeader.linktype);
-		if (linkLayerType != m_PcapLinkLayerType)
-		{
-			PCPP_LOG_ERROR(
-			    "Pcap file has a different link layer type than the one chosen in PcapFileWriterDevice c'tor, "
-			    << linkLayerType << ", " << m_PcapLinkLayerType);
-			closeFile();
-			return false;
-		}
-
-		if (fseek(m_File, 0, SEEK_END) == -1)
-		{
-			PCPP_LOG_ERROR("Cannot read pcap file '" << m_FileName << "' to it's end, error was: " << errno);
-			closeFile();
-			return false;
-		}
-
-		m_PcapDumpHandler = ((pcap_dumper_t*)m_File);
-
-		m_DeviceOpened = true;
-		PCPP_LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully in append mode");
-		return true;
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
