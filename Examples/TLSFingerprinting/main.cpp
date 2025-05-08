@@ -44,7 +44,7 @@ static struct option TLSFingerprintingOptions[] = {
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << '\n' << std::endl;                                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -75,54 +75,33 @@ bool stringCountComparer(const std::pair<std::string, uint64_t>& first, const st
 void printUsage()
 {
 	std::cout
-	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
+	    << "\nUsage:"
+	       "\n------\n"
 	    << pcpp::AppName::get()
-	    << " [-hvlcms] [-r input_file] [-i interface] [-o output_file_name] [-s separator] [-t tls_fp_type] [-f "
-	       "bpf_filter]"
-	    << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    -r input_file       : Input pcap/pcapng file to analyze. Required argument for reading from file"
-	    << std::endl
-	    << "    -i interface        : Use the specified interface. Can be interface name (e.g eth0) or IP address."
-	    << std::endl
-	    << "                          Required argument for capturing from live interface" << std::endl
-	    << "    -o output_file_name : Output file name. This is a csv file (where 'tab' is the default separator)"
-	    << std::endl
-	    << "                          which contains information about all of the TLS fingerprints found in the"
-	    << std::endl
-	    << "                          capture file or live interface. It includes the TLS fingerprint itself"
-	    << std::endl
-	    << "                          (raw string and MD5), IP addresses, TCP ports and SSL message type (ClientHello"
-	    << std::endl
-	    << "                          or ServerHello). If this argument is not specified the output file name is the"
-	    << std::endl
-	    << "                          name of capture file or the live interface and it is written to the current"
-	    << std::endl
-	    << "                          directory ('.')" << std::endl
-	    << "    -s separator        : The separator to use in the csv output file. Valid values are a single character"
-	    << std::endl
-	    << "                          which is not alphanumeric and not one of the following: '.', ',', ':', '-'."
-	    << std::endl
-	    << "                          If this argument is not specified the default separator is 'tab' ('\\t')"
-	    << std::endl
-	    << "    -t tls_fp_type      : Specify whether to calculate TLS fingerprints for ClientHello packets only "
-	       "('ch'),"
-	    << std::endl
-	    << "                          ServerHello packets only ('sh') or both ('ch_sh'). The only valid values are"
-	    << std::endl
-	    << "                          'ch', 'sh', 'ch_sh'. If this argument is not specified the default value is"
-	    << std::endl
-	    << "                          ClientHello ('ch')" << std::endl
-	    << "    -f bpf_filter       : Apply a BPF filter to the capture file or live interface, meaning TLS fingerprint"
-	    << std::endl
-	    << "                          will only be generated for the filtered packets" << std::endl
-	    << "    -l                  : Print the list of interfaces and exit" << std::endl
-	    << "    -v                  : Display the current version and exit" << std::endl
-	    << "    -h                  : Display this help message and exit" << std::endl
+	    << " [-hvlcms] [-r input_file] [-i interface] [-o output_file_name] [-s separator] [-t tls_fp_type] [-f bpf_filter]\n"
+	    << "\nOptions:\n"
+	       "\n    -r input_file       : Input pcap/pcapng file to analyze. Required argument for reading from file"
+	       "\n    -i interface        : Use the specified interface. Can be interface name (e.g eth0) or IP address."
+	       "\n                          Required argument for capturing from live interface"
+	       "\n    -o output_file_name : Output file name. This is a csv file (where 'tab' is the default separator)"
+	       "\n                          which contains information about all of the TLS fingerprints found in the"
+	       "\n                          capture file or live interface. It includes the TLS fingerprint itself"
+	       "\n                          (raw string and MD5), IP addresses, TCP ports and SSL message type (ClientHello"
+	       "\n                          or ServerHello). If this argument is not specified the output file name is the"
+	       "\n                          name of capture file or the live interface and it is written to the current"
+	       "\n                          directory ('.')"
+	       "\n    -s separator        : The separator to use in the csv output file. Valid values are a single character"
+	       "\n                          which is not alphanumeric and not one of the following: '.', ',', ':', '-'."
+	       "\n                          If this argument is not specified the default separator is 'tab' ('\\t')"
+	       "\n    -t tls_fp_type      : Specify whether to calculate TLS fingerprints for ClientHello packets only ('ch'),"
+	       "\n                          ServerHello packets only ('sh') or both ('ch_sh'). The only valid values are"
+	       "\n                          'ch', 'sh', 'ch_sh'. If this argument is not specified the default value is"
+	       "\n                          ClientHello ('ch')"
+	       "\n    -f bpf_filter       : Apply a BPF filter to the capture file or live interface, meaning TLS fingerprint"
+	       "\n                          will only be generated for the filtered packets"
+	       "\n    -l                  : Print the list of interfaces and exit"
+	       "\n    -v                  : Display the current version and exit"
+	       "\n    -h                  : Display this help message and exit"
 	    << std::endl;
 }
 

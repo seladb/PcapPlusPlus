@@ -62,7 +62,7 @@ static struct option PcapSearchOptions[] = {
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << '\n' << std::endl;                                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -77,30 +77,22 @@ static struct option PcapSearchOptions[] = {
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
-	          << pcpp::AppName::get()
-	          << " [-h] [-v] [-n] [-r file_name] [-e extension_list] -d directory -s search_criteria" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -d directory        : Input directory" << std::endl
-	          << "    -n                  : Don't include sub-directories (default is include them)" << std::endl
-	          << "    -s search_criteria  : Criteria to search in Berkeley Packet Filter (BPF) syntax "
-	             "(http://biot.com/capstats/bpf.html)"
-	          << std::endl
-	          << "                          i.e: 'ip net 1.1.1.1'" << std::endl
-	          << "    -r file_name        : Write a detailed search report to a file" << std::endl
-	          << "    -e extension_list   : Set file extensions to search. The default is searching '.pcap' and "
-	             "'.pcapng' files."
-	          << std::endl
-	          << "                          extension_list should be a comma-separated list of extensions, for "
-	             "example: pcap,net,dmp"
-	          << std::endl
-	          << "    -v                  : Displays the current version and exists" << std::endl
-	          << "    -h                  : Displays this help message and exits" << std::endl
-	          << std::endl;
+	std::cout
+	    << "\nUsage:\n"
+	       "\n------\n"
+	    << pcpp::AppName::get()
+	    << " [-h] [-v] [-n] [-r file_name] [-e extension_list] -d directory -s search_criteria\n"
+	       "\nOptions:\n"
+	       "\n    -d directory        : Input directory"
+	       "\n    -n                  : Don't include sub-directories (default is include them)"
+	       "\n    -s search_criteria  : Criteria to search in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)"
+	       "\n                          i.e: 'ip net 1.1.1.1'"
+	       "\n    -r file_name        : Write a detailed search report to a file"
+	       "\n    -e extension_list   : Set file extensions to search. The default is searching '.pcap' and '.pcapng' files."
+	       "\n                          extension_list should be a comma-separated list of extensions, for example: pcap,net,dmp"
+	       "\n    -v                  : Displays the current version and exists"
+	       "\n    -h                  : Displays this help message and exits"
+	    << std::endl;
 }
 
 /**
@@ -108,9 +100,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -417,9 +408,7 @@ int main(int argc, char* argv[])
 	                  totalDirSearched, totalFilesSearched, totalPacketsFound);
 
 	// after search is done, close the report file and delete its instance
-	std::cout << std::endl
-	          << std::endl
-	          << "Done! Searched " << totalFilesSearched << " files in " << totalDirSearched << " directories, "
+	std::cout << "\n\nDone! Searched " << totalFilesSearched << " files in " << totalDirSearched << " directories, "
 	          << totalPacketsFound << " packets were matched to search criteria" << std::endl;
 
 	if (detailedReportFile != nullptr)

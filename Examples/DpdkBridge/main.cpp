@@ -57,34 +57,22 @@ static struct option DpdkBridgeOptions[] = {
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
-	          << pcpp::AppName::get() << " [-hlv] [-c CORE_MASK] [-m POOL_SIZE] [-q QUEUE_QTY] -d PORT_1,PORT_2"
-	          << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -h|--help                                  : Displays this help message and exits" << std::endl
-	          << "    -l|--list                                  : Print the list of DPDK ports and exits" << std::endl
-	          << "    -v|--version                               : Displays the current version and exits" << std::endl
-	          << "    -c|--core-mask CORE_MASK                   : Core mask of cores to use. For example: use 7 "
-	             "(binary 0111) to use cores 0,1,2."
-	          << std::endl
-	          << "                                                 Default is using all cores except management core"
-	          << std::endl
-	          << "    -m|--mbuf-pool-size POOL_SIZE              : DPDK mBuf pool size to initialize DPDK with. "
-	             "Default value is 4095\n"
-	          << std::endl
-	          << "    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of two DPDK port numbers to "
-	             "be bridged."
-	          << std::endl
-	          << "                                                 To see all available DPDK ports use the -l switch"
-	          << std::endl
-	          << "    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK "
-	             "device. Default value is 1"
-	          << std::endl
-	          << std::endl;
+	std::cout
+	    << "\nUsage:"
+	    << "\n------\n"
+	    << pcpp::AppName::get()
+	    << " [-hlv] [-c CORE_MASK] [-m POOL_SIZE] [-q QUEUE_QTY] -d PORT_1,PORT_2\n"
+	       "\nOptions:\n"
+	       "\n    -h|--help                                  : Displays this help message and exits"
+	       "\n    -l|--list                                  : Print the list of DPDK ports and exits"
+	       "\n    -v|--version                               : Displays the current version and exits"
+	       "\n    -c|--core-mask CORE_MASK                   : Core mask of cores to use. For example: use 7 (binary 0111) to use cores 0,1,2."
+	       "\n                                                 Default is using all cores except management core"
+	       "\n    -m|--mbuf-pool-size POOL_SIZE              : DPDK mBuf pool size to initialize DPDK with. Default value is 4095\n"
+	       "\n    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of two DPDK port numbers to be bridged."
+	       "\n                                                 To see all available DPDK ports use the -l switch"
+	       "\n    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK device. Default value is 1"
+	    << std::endl;
 }
 
 /**
@@ -92,9 +80,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -142,7 +129,7 @@ void onApplicationInterrupted(void* cookie)
 {
 	DpdkBridgeArgs* args = (DpdkBridgeArgs*)cookie;
 
-	std::cout << std::endl << std::endl << "Application stopped" << std::endl;
+	std::cout << "\n\nApplication stopped" << std::endl;
 
 	// stop worker threads
 	pcpp::DpdkDeviceList::getInstance().stopDpdkWorkerThreads();
@@ -158,7 +145,7 @@ void printStats(pcpp::DpdkDevice* device)
 	pcpp::DpdkDevice::DpdkDeviceStats stats;
 	device->getStatistics(stats);
 
-	std::cout << std::endl << "Statistics for port " << device->getDeviceId() << ":" << std::endl;
+	std::cout << "\nStatistics for port " << device->getDeviceId() << ":" << std::endl;
 
 	std::vector<std::string> columnNames;
 	columnNames.push_back(" ");

@@ -34,7 +34,7 @@ static struct option PcapPrinterOptions[] = {
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << '\n' << std::endl;                                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -43,21 +43,17 @@ static struct option PcapPrinterOptions[] = {
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
-	          << pcpp::AppName::get() << " pcap_file [-h] [-v] [-o output_file] [-c packet_count] [-i filter] [-s]"
-	          << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    pcap_file      : Input pcap/pcapng file name" << std::endl
-	          << "    -o output_file : Save output to text file (default output is stdout)" << std::endl
-	          << "    -c packet_count: Print only first packet_count number of packet" << std::endl
-	          << "    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed" << std::endl
-	          << "    -s             : Print only file summary and exit" << std::endl
-	          << "    -v             : Display the current version and exit" << std::endl
-	          << "    -h             : Display this help message and exit" << std::endl
+	std::cout << "\nUsage:"
+	             "\n------\n"
+	          << pcpp::AppName::get() << " pcap_file [-h] [-v] [-o output_file] [-c packet_count] [-i filter] [-s]\n"
+	          << "\nOptions:\n"
+	             "\n    pcap_file      : Input pcap/pcapng file name"
+	             "\n    -o output_file : Save output to text file (default output is stdout)"
+	             "\n    -c packet_count: Print only first packet_count number of packet"
+	             "\n    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed"
+	             "\n    -s             : Print only file summary and exit"
+	             "\n    -v             : Display the current version and exit"
+	             "\n    -h             : Display this help message and exit"
 	          << std::endl;
 }
 
@@ -66,9 +62,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 

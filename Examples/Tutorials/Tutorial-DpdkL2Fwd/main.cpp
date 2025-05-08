@@ -17,7 +17,7 @@ bool keepRunning = true;
 void onApplicationInterrupted(void* cookie)
 {
 	keepRunning = false;
-	std::cout << std::endl << "Shutting down..." << std::endl;
+	std::cout << "\nShutting down..." << std::endl;
 }
 
 void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
@@ -119,14 +119,14 @@ int main(int argc, char* argv[])
 			// Clear screen and move to top left
 			std::cout << "\033[2J\033[1;1H";
 
-			std::cout << "Stats #" << statsCounter++ << std::endl << "==========" << std::endl << std::endl;
+			std::cout << "Stats #" << statsCounter++ << "\n==========\n" << std::endl;
 
 			// Print stats of traffic going from Device1 to Device2
-			std::cout << std::endl << "Device1->Device2 stats:" << std::endl << std::endl;
+			std::cout << "\nDevice1->Device2 stats:\n" << std::endl;
 			printStats(device1, device2);
 
 			// Print stats of traffic going from Device2 to Device1
-			std::cout << std::endl << "Device2->Device1 stats:" << std::endl << std::endl;
+			std::cout << "\nDevice2->Device1 stats:\n" << std::endl;
 			printStats(device2, device1);
 		}
 		counter++;
