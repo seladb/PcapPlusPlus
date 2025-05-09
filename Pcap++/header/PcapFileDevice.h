@@ -14,6 +14,13 @@ typedef struct pcap_dumper pcap_dumper_t;
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	namespace internal
+	{
+		/// @struct LightPcapNgHandle
+		/// An opaque struct representing a handle for pcapng files.
+		struct LightPcapNgHandle;
+	}  // namespace internal
+
 	/// @enum FileTimestampPrecision
 	/// An enumeration representing the precision of timestamps in a pcap file.
 	/// The precision can be Unknown, Micro, or Nano.
@@ -226,7 +233,7 @@ namespace pcpp
 	class PcapNgFileReaderDevice : public IFileReaderDevice
 	{
 	private:
-		void* m_LightPcapNg;
+		internal::LightPcapNgHandle* m_LightPcapNg;
 		BpfFilterWrapper m_BpfWrapper;
 
 		// private copy c'tor
@@ -420,6 +427,10 @@ namespace pcpp
 		/// Get statistics of packets written so far.
 		/// @param[out] stats The stats struct where stats are returned
 		void getStatistics(PcapStats& stats) const override;
+
+	private:
+		bool openWrite();
+		bool openAppend();
 	};
 
 	/// @class PcapNgFileWriterDevice
@@ -430,7 +441,7 @@ namespace pcpp
 	class PcapNgFileWriterDevice : public IFileWriterDevice
 	{
 	private:
-		void* m_LightPcapNg;
+		internal::LightPcapNgHandle* m_LightPcapNg;
 		int m_CompressionLevel;
 		BpfFilterWrapper m_BpfWrapper;
 

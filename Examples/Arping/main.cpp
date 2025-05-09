@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 	// Search interface by name or IP
 	if (!ifaceNameOrIP.empty())
 	{
-		dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(ifaceNameOrIP);
+		dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(ifaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 	}

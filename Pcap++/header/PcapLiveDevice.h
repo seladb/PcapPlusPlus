@@ -641,7 +641,7 @@ namespace pcpp
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
-		pcap_t* doOpen(const DeviceConfiguration& config);
+		internal::PcapHandle doOpen(const DeviceConfiguration& config);
 
 	private:
 		bool isNflogDevice() const;

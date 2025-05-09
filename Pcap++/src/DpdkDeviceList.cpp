@@ -37,6 +37,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <memory>
 #include <algorithm>
 #include <unistd.h>
 
@@ -63,12 +64,7 @@ namespace pcpp
 
 	DpdkDeviceList::~DpdkDeviceList()
 	{
-		for (auto dev : m_DpdkDeviceList)
-		{
-			delete dev;
-		}
-
-		m_DpdkDeviceList.clear();
+		m_DpdkDeviceListView.clear();
 	}
 
 	bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize,
@@ -194,12 +190,16 @@ namespace pcpp
 		// Initialize a DpdkDevice per port
 		for (int i = 0; i < numOfPorts; i++)
 		{
-			DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize);
+			auto newDevice = std::unique_ptr<DpdkDevice>(new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize));
 			PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='"
 			                              << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName()
 			                              << "', MAC Addr='" << newDevice->getMacAddress() << "'");
-			m_DpdkDeviceList.push_back(newDevice);
+			m_DeviceList.pushBack(std::move(newDevice));
 		}
+
+		// Copy the devices into the view vector.
+		m_DpdkDeviceListView.resize(m_DeviceList.size());
+		std::copy(m_DeviceList.begin(), m_DeviceList.end(), m_DpdkDeviceListView.begin());
 
 		m_IsInitialized = true;
 		return true;
@@ -213,12 +213,12 @@ namespace pcpp
 			return nullptr;
 		}
 
-		if ((uint32_t)portId >= m_DpdkDeviceList.size())
+		if ((uint32_t)portId >= m_DeviceList.size())
 		{
 			return nullptr;
 		}
 
-		return m_DpdkDeviceList.at(portId);
+		return m_DeviceList.at(portId);
 	}
 
 	DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const std::string& pciAddr) const
@@ -229,10 +229,10 @@ namespace pcpp
 			return nullptr;
 		}
 
-		auto devIter = std::find_if(m_DpdkDeviceList.begin(), m_DpdkDeviceList.end(),
+		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
 		                            [&pciAddr](const DpdkDevice* dev) { return dev->getPciAddress() == pciAddr; });
 
-		if (devIter == m_DpdkDeviceList.end())
+		if (devIter == m_DeviceList.end())
 		{
 			PCPP_LOG_DEBUG("Found no DPDK devices with PCI address '" << pciAddr << "'");
 			return nullptr;
