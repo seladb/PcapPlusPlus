@@ -112,6 +112,11 @@ namespace pcpp
 
 	PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string& devName) const
 	{
+		return getDeviceByName(devName);
+	}
+
+	PfRingDevice* PfRingDeviceList::getDeviceByName(const std::string& devName) const
+	{
 		PCPP_LOG_DEBUG("Searching all live devices...");
 		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
 		                            [&devName](PfRingDevice const* dev) { return dev->getDeviceName() == devName; });
