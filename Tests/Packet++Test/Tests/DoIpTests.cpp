@@ -48,11 +48,9 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getActivationType(), pcpp::DoIpActivationTypes::DEFAULT, enumclass);
 	std::array<uint8_t, 4> isoField = { 0x0, 0x0, 0x0, 0x0 };
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getReservedIso(), isoField);
-
 	PTF_ASSERT_TRUE(doipLayer->hasReservedOem());
-	PTF_ASSERT_NOT_NULL(doipLayer->getReservedOem());
 	std::array<uint8_t, 4> oemField = { 0x0, 0x0, 0x0, 0x0 };
-	PTF_ASSERT_BUF_COMPARE(doipLayer->getReservedOem(), oemField.data(), 4);
+	PTF_ASSERT_BUF_COMPARE(doipLayer->getReservedOem().data(), oemField.data(), 4);
 
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
@@ -107,7 +105,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
 	PTF_ASSERT_EQUAL(doipLayer.getActivationType(), pcpp::DoIpActivationTypes::DEFAULT, enumclass);
 
 	PTF_ASSERT_TRUE(doipLayer.hasReservedOem());
-	PTF_ASSERT_BUF_COMPARE(doipLayer.getReservedOem(), oemField.data(), 4);
+	PTF_ASSERT_BUF_COMPARE(doipLayer.getReservedOem().data(), oemField.data(), 4);
 
 	doipLayer.clearReservedOem();
 
@@ -115,7 +113,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 73 - 4);
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (73 - 4) - 15, bytes, 15);
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer.getReservedIso(), isoReserved);
-	PTF_ASSERT_TRUE(doipLayer.getReservedOem() == nullptr);
+	PTF_ASSERT_FALSE(doipLayer.hasReservedOem());
 	PTF_ASSERT_EQUAL(doipLayer.getSummary(),
 	                 "Source Address: 0xe80\nActivation type: Default (0x0)\nReserved by ISO: 01020304\n");
 	doipLayer.setReservedOem(oemField);
@@ -161,7 +159,14 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
 	std::array<uint8_t, 4> resISO{};
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getReservedIso(), resISO);
 	PTF_ASSERT_FALSE(doipLayer->hasReservedOem());
-	PTF_ASSERT_TRUE(doipLayer->getReservedOem() == nullptr);
+	try
+	{
+		doipLayer->getReservedOem();
+	}
+	catch (const std::runtime_error& e)
+	{
+		PTF_ASSERT_EQUAL(std::string(e.what()), "Reserved OEM field not present!");
+	}
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
 	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 00000000\n");
@@ -208,7 +213,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
 	std::array<uint8_t, 4> resOEM{ 0x5, 0x5, 0x5, 0x5 };
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer.getReservedIso(), resISO);
 	PTF_ASSERT_TRUE(doipLayer.hasReservedOem());
-	PTF_ASSERT_BUF_COMPARE(doipLayer.getReservedOem(), resOEM.data(), 4);
+	PTF_ASSERT_BUF_COMPARE(doipLayer.getReservedOem().data(), resOEM.data(), 4);
 	PTF_ASSERT_EQUAL(
 	    doipLayer.getSummary(),
 	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 01020304\nReserved by OEM: 05050505\n");
@@ -481,7 +486,14 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getEID(), eid);
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getGID(), gid);
 	PTF_ASSERT_FALSE(doipLayer->hasSyncStatus());
-	PTF_ASSERT_NULL(doipLayer->getSyncStatus());
+	try
+	{
+		doipLayer->getSyncStatus();
+	}
+	catch (const std::runtime_error& e)
+	{
+		PTF_ASSERT_EQUAL(std::string(e.what()), "Sync status field not present!");
+	}
 }  // DoIpVehicleAnnouncementPacketParsing
 
 // DoIpVehicleAnnouncementPacketCreation
@@ -528,13 +540,12 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getEID(), eid);
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getGID(), gid);
 	PTF_ASSERT_TRUE(doipLayer->hasSyncStatus());
-	PTF_ASSERT_EQUAL(*doipLayer->getSyncStatus(), pcpp::DoIpSyncStatus::VIN_AND_OR_GID_ARE_SINCHRONIZED, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getSyncStatus(), pcpp::DoIpSyncStatus::VIN_AND_OR_GID_ARE_SINCHRONIZED, enumclass);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
 	    "VIN: BAUNEE4MZ17042403\nLogical address: 0x4010\nEID: 001a37bfee74\nGID: 001a37bfee74\nFurther action required: No further action required (0x0)\nVIN/GID sync status: VIN and/or GID are synchronized (0x0)\n");
 	doipLayer->clearSyncStatus();
 	PTF_ASSERT_FALSE(doipLayer->hasSyncStatus());
-	PTF_ASSERT_TRUE(doipLayer->getSyncStatus() == nullptr);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
 	    "VIN: BAUNEE4MZ17042403\nLogical address: 0x4010\nEID: 001a37bfee74\nGID: 001a37bfee74\nFurther action required: No further action required (0x0)\n");
@@ -775,8 +786,9 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getNodeType(), pcpp::DoIpEntityStatusResponseCode::GATEWAY, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getMaxConcurrentSockets(), 1);
 	PTF_ASSERT_EQUAL(doipLayer->getCurrentlyOpenSockets(), 0);
-	const std::array<uint8_t, 4>& maxDataSize{ 0x0, 0x0, 0x0f, 0xff };
-	PTF_ASSERT_BUF_COMPARE(doipLayer->getMaxDataSize(), maxDataSize.data(), 4);
+	PTF_ASSERT_TRUE(doipLayer->hasMaxDataSize());
+	const uint32_t maxDataSize = 0x000000fff;
+	PTF_ASSERT_EQUAL(doipLayer->getMaxDataSize(), maxDataSize);
 }  // DoIpEntityStatusResponsePacketParsing
 
 // DoIpEntityStatusResponsePacketCreation
@@ -794,7 +806,8 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
 	doIpPacket.computeCalculateFields();
 
-	unsigned char bytes[] = { 0x2, 0xfd, 0x40, 0x2, 0x0, 0x0, 0x0, 0x7, 0x0, 0x5, 0x2, 0xff, 0xff, 0xff, 0xff };
+	unsigned char bytesWithoutMaxDataSize[] = { 0x2, 0xfd, 0x40, 0x2, 0x0, 0x0, 0x0, 0x3, 0x0, 0x5, 0x2 };
+	unsigned char bytes[] = { 0x2, 0xfd, 0x40, 0x2, 0x0, 0x0, 0x0, 0x7, 0x0, 0x5, 0x2, 0x11, 0x22, 0x33, 0x44 };
 	pcpp::DoIpEntityStatusResponse data(pcpp::DoIpEntityStatusResponseCode::GATEWAY, 0, 0);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&data));
@@ -804,7 +817,20 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	doipLayer->setNodeType(pcpp::DoIpEntityStatusResponseCode::GATEWAY);
 	doipLayer->setMaxConcurrentSockets(5);
 	doipLayer->setCurrentlyOpenSockets(2);
-	const std::array<uint8_t, 4>& maxDataSize{ 0xff, 0xff, 0xff, 0xff };
+	PTF_ASSERT_FALSE(doipLayer->hasMaxDataSize());
+	try
+	{
+		doipLayer->getMaxDataSize();
+	}
+	catch (const std::runtime_error& e)
+	{
+		PTF_ASSERT_EQUAL(std::string(e.what()), "Max data size field not present!");
+	}
+	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 53);
+	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (57 - 15), bytesWithoutMaxDataSize, 11);
+
+	// add max data size
+	const uint32_t maxDataSize = 0x11223344;
 	doipLayer->setMaxDataSize(maxDataSize);
 
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 57);
@@ -821,10 +847,9 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	PTF_ASSERT_EQUAL(doipLayer->getMaxConcurrentSockets(), 5);
 	PTF_ASSERT_EQUAL(doipLayer->getCurrentlyOpenSockets(), 2);
 	PTF_ASSERT_TRUE(doipLayer->hasMaxDataSize());
-	PTF_ASSERT_BUF_COMPARE(doipLayer->getMaxDataSize(), maxDataSize.data(), 4);
+	PTF_ASSERT_EQUAL(doipLayer->getMaxDataSize(), maxDataSize);
 	doipLayer->clearMaxDataSize();
 	PTF_ASSERT_FALSE(doipLayer->hasMaxDataSize());
-	PTF_ASSERT_TRUE(doipLayer->getMaxDataSize() == nullptr);
 }  // DoIpEntityStatusResponsePacketCreation
 
 // DoIpDiagnosticMessagePacketParsing
