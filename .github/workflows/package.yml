@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - '*'
-    branches: ["bump-version-to-25.05"]
   pull_request:
     paths:
       # Also run this workflow when this package.yml is update by a PR
@@ -88,13 +87,12 @@ jobs:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
       - name: Upload binaries to release
-#        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
   freebsd:
@@ -131,13 +129,12 @@ jobs:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
 
       - name: Upload binaries to release
-#        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz"
 
   macos:
@@ -187,13 +184,12 @@ jobs:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
       - name: Upload binaries to release
-#        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
   mingw-w64:
@@ -259,13 +255,12 @@ jobs:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
       - name: Upload binaries to release
-#        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   visual-studio:
@@ -310,13 +305,12 @@ jobs:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
       - name: Upload binaries to release
-#        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          tag: v25.05-beta
           artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   android-build:
@@ -402,11 +396,10 @@ jobs:
           subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
 
       - name: Upload binaries to release
-#        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          tag: v25.05-beta
           artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
