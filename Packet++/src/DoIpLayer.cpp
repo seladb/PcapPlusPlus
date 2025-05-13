@@ -208,19 +208,17 @@ namespace pcpp
 		auto* doipHeader = reinterpret_cast<doiphdr*>(data);
 		const uint8_t version = doipHeader->protocolVersion;
 		const uint8_t inVersion = doipHeader->invertProtocolVersion;
-		const uint16_t payloadRaw = doipHeader->payloadType;
+		const uint16_t payloadTypeRaw = doipHeader->payloadType;
 		const uint32_t lengthRaw = doipHeader->payloadLength;
 
-		const uint32_t payloadLen = htobe32(lengthRaw);
-
-		if (!isPayloadTypeValid(payloadRaw))
+		if (!isPayloadTypeValid(htobe16(payloadTypeRaw)))
 			return false;
 		// if payload type is validated, we ensure passing a valid type to isProtocolVersionValid()
-		const DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(htobe16(payloadRaw));
+		const DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(htobe16(payloadTypeRaw));
 		if (!isProtocolVersionValid(version, inVersion, payloadType))
 			return false;
 
-		if (!isPayloadLengthValid(payloadLen, dataLen))
+		if (!isPayloadLengthValid(htobe32(lengthRaw), dataLen))
 			return false;
 
 		return true;

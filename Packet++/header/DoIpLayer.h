@@ -712,7 +712,7 @@ namespace pcpp
 
 	inline bool DoIpLayer::isPayloadTypeValid(uint16_t type)
 	{
-		const DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(htobe16(type));
+		const DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(type);
 
 		switch (payloadType)
 		{
