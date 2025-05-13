@@ -47,6 +47,7 @@ Deprecation list
 - The following methods are now deprecated and will be removed in future versions:
   - `Logger::Error`, `Logger::Info`, and `Logger::Debug` are deprecated. Please use `LogLevel::XXX` instead
   - `PcapLiveDeviceList::getPcapLiveDeviceBy***` methods have been deprecated in favor of `PcapLiveDeviceList::getDeviceBy***`
+  - `ArpLayer(ArpOpcode opCode, const MacAddress &senderMacAddr, const MacAddress &targetMacAddr, const IPv4Address &senderIpAddr, const IPv4Address &targetIpAddr)` constructor has been deprecated in favor of more explicit overloads
 
 Collaborators
 -------------
