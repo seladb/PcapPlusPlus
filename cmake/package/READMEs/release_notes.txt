@@ -1,126 +1,83 @@
-Release notes (changes from v23.09)
+Release notes (changes from v24.09)
 -----------------------------------
 
-- Added support for eBPF AF_XDP
-- New protocols:
-  - SMTP (thanks @egecetin !)
-  - ASN.1 encoding and decoding
-  - Enabled ASN.1 root record parsing in x509 certificates
-  - LDAP
-  - S7COMM (thanks @wivien19 !)
-- DPDK improvements:
-  - DPDK 22.11 support (thanks @clementperon !)
-  - Jumbo frames support (thanks @gyl30 !)
-  - Added an option to disable hugepages and driver verification on initialization (thanks @MatteO-Matic !)
-  - NUMA awareness (thanks @SesomB !)
-- Examples and utils:
-  - Added `XdpExample-FilterTraffic` to demonstrate `XdpDevice` usage
-  - `PcapSplitter`: updated output filenames with 5-tuple information (thanks @hidd3ncod3s !)
-- Added support for nanosecond precision in reading and writing pcap files (thanks @egecetin !)
-- Blocking mode packet capture now uses `poll()` (thanks @tigercosmos !)
-- Added millisecond precision timeout in `RawSocketDevice` (thanks @tigercosmos !)
-- Extended `IPFilter` to support IPv6 where possible (thanks @Dimi1010 !)
-- Boosted build time with Ccache (thanks @clementperon !)
-- Fixed precision issue in pcapng file reader (thanks @mserdarsanli !)
-- Improved method for retrieving the default gateway on macOS (thanks @zhengfeihe !)
-- Added security and code of conduct guidelines (thanks @egecetin !)
-- Refactoring and modernization of the code base:
-  - Refactored and cleaned up live devices (thanks @Dimi1010 !)
-    - Added a getter for fetching all IP addresses as `IPAddress` objects.
-  - Refactored IP address classes `IPv4Address`, `IPv6Address`, `IPAddress` (thanks @tigercosmos , @Dimi1010 !)
-    - Added equality operators between `IPAddress` and `in_addr` types
-  - Refactored the MAC address class `MacAddress` (thanks @tigercosmos !)
-  - Ported PcapPlusPlus libraries to C++11 (thanks @Dimi1010 , @tigercosmos , @egecetin , @WojtekMs , @rtmeng, @DeepakReddy1999 !)
-  - Ported most of the examples and tutorials to C++11 (thanks @jpcofr , @merttozer !)
-  - Refactored and cleaned up PF_RING devices (thanks @Dimi1010 !)
-  - Refactored and cleaned up the `PointerVector` class (thanks @Dimi1010 !)
-  - Converted Macro Guard to `pragma once` (thanks @clementperon !)
-  - Replaced `std::map` with `std::unordered_map` (thanks @tigercosmos !)
-  - Refactored large parts of the packet filtering code (thanks @Dimi1010 !)
-- Supported platforms update:
-  - Ubuntu: added 24.04 LTS and dropped 18.04 LTS (thanks @tigercosmos !)
-  - Added support for RHEL 9.4 (thanks @clementperon !)
-  - Fedora: added support for 39 and removed 37 (thanks @clementperon !)
-  - Removed support for CentOS 7
-  - FreeBSD: added support for 14.0 and dropped 12 (thanks @clementperon !)
-- Internal tools:
-  - Reformatted the entire code base using `clang-format` (thanks @tigercosmos , @Dimi1010 !)
-  - Added `dependabot` to keep GitHub Actions and Python packages up-to-date (thanks @egecetin !)
-  - Added OpenSSF Scorecard automation to monitor and enhance security (thanks @egecetin !)
-  - Transitioned from CirrusCI to GitHub Actions for all workflows (thanks @tigercosmos !)
-  - Scheduled regular CI builds (thanks @tigercosmos !)
-  - Replaced deprecated `netifaces` by `scapy` (thanks @zhengfeihe !)
-  - Improved fuzzing coverage and added Fuzz CI (thanks @sashashura !)
-  - Added a template for opening GitHub issues (thanks @tigercosmos !)
-  - Upgraded `LightPcapNg` to the latest from `master` (thanks @tigercosmos !)
-  - Fixed unhandled exceptions crashing the entire test suite (thanks @Dimi1010 !)
-- Tons of bug fixes, security fixes and small improvements (thanks @sashashura , @tigercosmos , @clementperon , @egecetin , @kraj , @liu0hy , @lucashc , @axmahr, @Double0101, @prudens , @MCredbear, @rahagal, @nadongjun !)
-
+- New protocol support:
+  - WireGuard (thanks @nadongjun !)
+  - Add gratuitous ARP requests (thanks @Dimi1010 !)
+  - GTPv2
+  - Cisco HDLC
+- Added the option to build only `Common++` and `Packet++` libraries without `Pcap++`, removing the dependency on third-party libraries like libpcap or WinPcap/Npcap (thanks @Dimi1010 !)
+- Updated the CMake files to support using `pcapplusplus/` as the include prefix (thanks @clementperon !)
+- Added support for DPDK 23.11 and 24.11
+- Introduced nanosecond precision for timestamps in TCP reassembly
+- Added support for timestamp-related libpcap options (thanks @vcomito-apexai !)
+- Added multi-language README support (Traditional Chinese, Korean) (thanks @tigercosmos, @nadongjun !)
+- Updated OS/platform support running in CI: Ubuntu ARM64, Alpine 3.20, Fedora 42, FreeBSD 13.4/14.1, newer macOS runners (thanks @clementperon !)
+- Migrated Android build to use the new version of ToyVPN
+- Introduced a new benchmark system using Google Benchmark (thanks @egecetin !)
+- Enhanced Python testing and linting infrastructure with `ruff` (thanks @tigercosmos !)
+- Code refactoring:
+  - Replaced the inclusion of the LightPcapNg source code in the repository with a forked version of [`LightPcapNg`](https://github.com/PcapPlusPlus/LightPcapNg)
+  - Overhauled the logging infrastructure for better performance and flexibility (thanks @Dimi1010 !)
+  - Reformatted `CMakeLists` files using `gersemi` (thanks @egecetin !)
+  - Updated the internal implementation of `PcapLiveDevice` to store IP information as `IPAddress` (thanks @Dimi1010 !)
+  - Streamlined packet parsing using templated next-layer sub-construction (thanks @Dimi1010 !)
+  - Refactored device list classes (`PcapLiveDeviceList`, `DpdkDeviceList`, etc.) to use smart pointers internally for memory management and consolidated common behavior under a base class (thanks @Dimi1010 !)
+  - Improved the internal implementation of `MacAddress`, `IPAddress` and `IPNetwork` classes (thanks @Dimi1010 !)
+  - Enhanced and modernized the internal implementation of `PfRingDevice` (thanks @Dimi1010 !)
+  - Removed usage of VLAs (Variable Length Arrays) for C++ standard compliance (thanks @Dimi1010 !)
+  - Numerous C++11 modernization efforts (thanks @Dimi1010, @egecetin, @lumiZGorlic, @kiwixz, @ol-imorozko !)
+- Improved documentation using triple-slash Doxygen formatting (thanks @Dimi1010, @tigercosmos !)
+- Tons of bug fixes, security fixes and small improvements (thanks @Dimi1010, @clementperon, @rndx21033, @prudens, @Doekin, @egecetin, @ol-imorozko, @1ndahous3, @fxlb, @jj683, @oss-patch, @enomis101, @Shivam7-1, @orgads, @Alexis-Lapierre, @s-genereux, @fasonju !)
 
 Breaking changes
 ----------------
 
-This version includes a small number of breaking changes:
-- Removed `isValid()` from `MacAddress,` `IPAddress`, `IPv4Address`, `IPv6Address`, instead they throw an exception if the input argument is invalid
-- Introduced a new `TcpOptionEnumType`
-- Removed the `dummy` argument in `PayloadLayer`'s constructor
-
+- `Logger::LogLevel` has been deprecated and moved to `LogLevel`. `LogLevel` is now an `enum class`, so arithmetic operations on it will fail to compile
+- The `Logger` copy constructor and copy assignment operator are marked as deleted
+- The return type of `Packet::getRawPacketReadOnly()` has been changed from `RawPacket*` to `RawPacket const*`
+- SSLv2 support has been removed (it was non-functional in previous versions) (thanks to @droe!)
+- `LightPcapNg` is no longer included in the repository and is instead fetched at CMake configuration time
 
 Deprecation list
 ----------------
 
-The following methods that were marked as deprecated in previous versions were removed:
-- `IPv4Address::matchSubnet()`
-
-The following methods are now marked as deprecated and will be removed in future versions:
-- `PointerVector::getAndRemoveFromVector()` -> replaced by `PointerVector::getAndDetach()`
-- `HttpResponseLayer::HttpResponseLayer(version, statusCode, statusCodeString)` -> use other constructors
-- `HttpResponseLayer::setStatusCode(newStatusCode, statusCodeString)` -> use the other overload
-- `TcpOptionType` enum -> replaced by `TcpOptionEnumType`
-- `TcpOption::getTcpOptionType()` -> replaced by `TcpOption::getTcpOptionEnumType()`
-- `TcpOptionBuilder::TcpOptionBuilder()` -> use other constructors
-- `TcpLayer::getTcpOption(TcpOptionType option)` -> use the other overload
-- `TcpLayer::addTcpOptionAfter()` -> replaced by `TcpLayer::insertTcpOptionAfter()`
-- `TcpLayer::removeTcpOption()` -> use the other overload
-- `PcapLiveDevice::getAddresses()` -> replaced by `PcapLiveDevice::getIPAddresses()`
-- `PcapRemoteDeviceList::getRemoteDeviceList()` -> replaced by `PcapRemoteDeviceList::createRemoteDeviceList()`
-
+- `PcapLiveDevice::getAddresses()`, which was previously deprecated, has now been removed
+- libpcap versions < 0.9 are no longer supported. As a result, the following CMake options have been removed: `PCAPPP_ENABLE_PCAP_IMMEDIATE_MODE` and `PCAPPP_ENABLE_PCAP_SET_DIRECTION`
+- The following methods are now deprecated and will be removed in future versions:
+  - `Logger::Error`, `Logger::Info`, and `Logger::Debug` are deprecated. Please use `LogLevel::XXX` instead
+  - `PcapLiveDeviceList::getPcapLiveDeviceBy***` methods have been deprecated in favor of `PcapLiveDeviceList::getDeviceBy***`
 
 Collaborators
 -------------
 
- - @tigercosmos
  - @Dimi1010
+ - @tigercosmos
  - @egecetin
  - @clementperon
  - @seladb
 
-
 Contributors
 ------------
 
-- @sashashura
-- @zhengfeihe
-- @wivien19
-- @gyl30
-- @MatteO-Matic
-- @SesomB
-- @jpcofr
-- @liu0hy
-- @merttozer
-- @lucashc
-- @axmahr
-- @Double0101
-- @prudens
-- @rtmeng
-- @hidd3ncod3s
-- @WojtekMs
-- @mserdarsanli
-- @MCredbear
-- @rahagal
-- @DeepakReddy1999
-- @kraj
+- @ol-imorozko
+- @rndx21033
 - @nadongjun
+- @lumiZGorlic
+- @1ndahous3
+- @s-genereux
+- @prudens
+- @oss-patch
+- @kiwixz
+- @jj683
+- @fxlb
+- @enomis101
+- @vcomito-apexai
+- @Shivam7-1
+- @orgads
+- @Doekin
+- @Alexis-Lapierre
+- @droe
+- @fasonju
 
-
-**Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v23.09...v24.09
+**Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v24.09...v25.05

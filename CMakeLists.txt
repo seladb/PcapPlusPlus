@@ -1,7 +1,7 @@
 # We need 3.14 or later, so that we can: (1) set policy CMP0074, see below; (2) Use FetchContent_MakeAvailable
 cmake_minimum_required(VERSION 3.14)
 
-set(PCAPPP_VERSION "24.09+")
+set(PCAPPP_VERSION "25.05")
 
 # MAIN_PROJECT CHECK
 set(PCAPPP_MAIN_PROJECT OFF)
