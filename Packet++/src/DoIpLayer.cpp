@@ -468,9 +468,9 @@ namespace pcpp
 
 	const std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationRequest::getReservedOem() const
 	{
-		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
 		if (hasReservedOem())
 		{
+			std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
 			memcpy(reservedOem.data(), m_Data + FIXED_LEN, DOIP_RESERVED_OEM_LEN);
 			return reservedOem;
 		}
@@ -594,9 +594,9 @@ namespace pcpp
 
 	const std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationResponse::getReservedOem() const
 	{
-		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
 		if (hasReservedOem())
 		{
+			std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
 			memcpy(reservedOem.data(), m_Data + FIXED_LEN, DOIP_RESERVED_OEM_LEN);
 			return reservedOem;
 		}
