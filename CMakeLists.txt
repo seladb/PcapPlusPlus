@@ -1,5 +1,5 @@
-# We need 3.14 or later, so that we can: (1) set policy CMP0074, see below; (2) Use FetchContent_MakeAvailable
-cmake_minimum_required(VERSION 3.14)
+# We need 3.12 or later, so that we can set policy CMP0074; see below.
+cmake_minimum_required(VERSION 3.12)
 
 set(PCAPPP_VERSION "25.05")
 
