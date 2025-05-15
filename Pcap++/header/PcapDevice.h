@@ -97,19 +97,12 @@ namespace pcpp
 		};
 	}  // namespace internal
 
-	/// @class IPcapDevice
-	/// An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and
-	/// RemoteCapture. This class is abstract and cannot be instantiated
-	class IPcapDevice : public IDevice, public IFilterableDevice
+	/// @brief An interface for providing Pcap-based device statistics
+	class IPcapStatisticsProvider
 	{
-	protected:
-		internal::PcapHandle m_PcapDescriptor;
-
-		// c'tor should not be public
-		IPcapDevice() : IDevice()
-		{}
-
 	public:
+		virtual ~IPcapStatisticsProvider() = default;
+
 		/// @struct PcapStats
 		/// A container for pcap device statistics
 		struct PcapStats
@@ -122,11 +115,29 @@ namespace pcpp
 			uint64_t packetsDropByInterface;
 		};
 
-		virtual ~IPcapDevice();
+		/// @brief Get statistics from the device
+		/// @return An object containing the stats
+		PcapStats getStatistics() const;
 
 		/// Get statistics from the device
 		/// @param[out] stats An object containing the stats
 		virtual void getStatistics(PcapStats& stats) const = 0;
+	};
+
+	/// @class IPcapDevice
+	/// An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and
+	/// RemoteCapture. This class is abstract and cannot be instantiated
+	class IPcapDevice : public IDevice, public IFilterableDevice, public IPcapStatisticsProvider
+	{
+	protected:
+		internal::PcapHandle m_PcapDescriptor;
+
+		// c'tor should not be public
+		IPcapDevice() : IDevice()
+		{}
+
+	public:
+		virtual ~IPcapDevice() = default;
 
 		/// A static method for retrieving pcap lib (libpcap/WinPcap/etc.) version information. This method is actually
 		/// a wrapper for [pcap_lib_version()](https://www.tcpdump.org/manpages/pcap_lib_version.3pcap.html)
