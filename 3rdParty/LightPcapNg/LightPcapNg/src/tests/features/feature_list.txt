@@ -1,0 +1,8 @@
+_f_data_transfered
+_f_trace_duration
+_f_avg_packet_interval
+_f_address_relation
+_f_protocol
+_f_packet_count
+_f_application_port_https
+_f_application_port_http
