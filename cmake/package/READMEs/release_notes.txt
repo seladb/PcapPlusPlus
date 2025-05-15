@@ -17,7 +17,6 @@ Release notes (changes from v24.09)
 - Introduced a new benchmark system using Google Benchmark (thanks @egecetin !)
 - Enhanced Python testing and linting infrastructure with `ruff` (thanks @tigercosmos !)
 - Code refactoring:
-  - Replaced the inclusion of the LightPcapNg source code in the repository with a forked version of [`LightPcapNg`](https://github.com/PcapPlusPlus/LightPcapNg)
   - Overhauled the logging infrastructure for better performance and flexibility (thanks @Dimi1010 !)
   - Reformatted `CMakeLists` files using `gersemi` (thanks @egecetin !)
   - Updated the internal implementation of `PcapLiveDevice` to store IP information as `IPAddress` (thanks @Dimi1010 !)
@@ -37,7 +36,6 @@ Breaking changes
 - The `Logger` copy constructor and copy assignment operator are marked as deleted
 - The return type of `Packet::getRawPacketReadOnly()` has been changed from `RawPacket*` to `RawPacket const*`
 - SSLv2 support has been removed (it was non-functional in previous versions) (thanks to @droe!)
-- `LightPcapNg` is no longer included in the repository and is instead fetched at CMake configuration time
 
 Deprecation list
 ----------------
