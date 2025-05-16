@@ -85,42 +85,30 @@ struct CaptureThreadArgs
 void printUsage()
 {
 	std::cout
-	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
+	    << "\nUsage:"
+	    << "\n------\n"
 	    << pcpp::AppName::get()
-	    << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]"
-	    << std::endl
-	    << "                    [-c NUM_OF_THREADS] -n INTERFACE_NAME" << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    -h|--help                                  : Displays this help message and exits" << std::endl
-	    << "    -v|--version                               : Displays the current version and exits" << std::endl
-	    << "    -l|--list                                  : Print the list of PF_RING devices and exit" << std::endl
-	    << "    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from."
-	    << std::endl
-	    << "                                                 To see all available interfaces use the -l switch"
-	    << std::endl
-	    << "    -s|--send-matched-packets INTERFACE_NAME   : PF_RING interface name to send matched packets to"
-	    << std::endl
-	    << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
-	    << std::endl
-	    << "                                                 Packets matched by thread X will be saved under"
-	    << std::endl
-	    << "                                                 'FILEPATH/ThreadX.pcap'" << std::endl
-	    << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
-	    << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
-	    << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
-	    << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-	    << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
-	    << std::endl
-	    << "    -t|--num-of-threads       NUM_OF_THREADS   : Number of capture threads to open. Should be in"
-	    << std::endl
-	    << "                                                 the range of 1 to NUM_OF_CORES_ON_MACHINE-1." << std::endl
-	    << "                                                 Default is using all machine cores except the core"
-	    << std::endl
-	    << "                                                 the application is running on" << std::endl
+	    << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]\n"
+	       "                    [-c NUM_OF_THREADS] -n INTERFACE_NAME\n"
+	       "\nOptions:\n"
+	       "\n    -h|--help                                  : Displays this help message and exits"
+	       "\n    -v|--version                               : Displays the current version and exits"
+	       "\n    -l|--list                                  : Print the list of PF_RING devices and exit"
+	       "\n    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from."
+	       "\n                                                 To see all available interfaces use the -l switch"
+	       "\n    -s|--send-matched-packets INTERFACE_NAME   : PF_RING interface name to send matched packets to"
+	       "\n    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
+	       "\n                                                 Packets matched by thread X will be saved under"
+	       "\n                                                 'FILEPATH/ThreadX.pcap'"
+	       "\n    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address"
+	       "\n    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address"
+	       "\n    -p|--match-source-port    PORT             : Match source TCP/UDP port"
+	       "\n    -P|--match-dest-port      PORT             : Match destination TCP/UDP port"
+	       "\n    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
+	       "\n    -t|--num-of-threads       NUM_OF_THREADS   : Number of capture threads to open. Should be in"
+	       "\n                                                 the range of 1 to NUM_OF_CORES_ON_MACHINE-1."
+	       "\n                                                 Default is using all machine cores except the core"
+	       "\n                                                 the application is running on"
 	    << std::endl;
 }
 
@@ -129,9 +117,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 

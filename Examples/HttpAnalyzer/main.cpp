@@ -35,7 +35,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << "\nERROR: " << reason << "\n\n" << std::flush;                                                    \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -72,39 +72,30 @@ struct HttpPacketArrivedData
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage: PCAP file mode:" << std::endl
-	          << "----------------------" << std::endl
-	          << pcpp::AppName::get() << " [-vh] -f input_file" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -f             : The input pcap/pcapng file to analyze. Required argument for this mode"
-	          << std::endl
-	          << "    -v             : Displays the current version and exists" << std::endl
-	          << "    -h             : Displays this help message and exits" << std::endl
-	          << std::endl
-	          << "Usage: Live traffic mode:" << std::endl
-	          << "-------------------------" << std::endl
-	          << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] [-p dst_port] -i interface"
-	          << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
-	             "address"
-	          << std::endl
-	          << "    -p dst_port    : Use the specified port (optional parameter, the default is 80)" << std::endl
-	          << "    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause "
-	             "performance degradation"
-	          << std::endl
-	          << "    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
-	          << std::endl
-	          << "    -d             : Disable periodic rates calculation" << std::endl
-	          << "    -h             : Displays this help message and exits" << std::endl
-	          << "    -v             : Displays the current version and exists" << std::endl
-	          << "    -l             : Print the list of interfaces and exists" << std::endl
-	          << std::endl;
+	std::cout
+	    << "\nUsage: PCAP file mode:"
+	       "\n----------------------\n"
+	    << pcpp::AppName::get()
+	    << " [-vh] -f input_file\n"
+	       "\nOptions:\n"
+	       "\n    -f             : The input pcap/pcapng file to analyze. Required argument for this mode"
+	       "\n    -v             : Displays the current version and exists"
+	       "\n    -h             : Displays this help message and exits"
+	       "\n"
+	       "\nUsage: Live traffic mode:"
+	       "\n-------------------------\n"
+	    << pcpp::AppName::get()
+	    << " [-hvld] [-o output_file] [-r calc_period] [-p dst_port] -i interface\n"
+	       "\nOptions:\n"
+	       "\n    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address"
+	       "\n    -p dst_port    : Use the specified port (optional parameter, the default is 80)"
+	       "\n    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause performance degradation"
+	       "\n    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
+	       "\n    -d             : Disable periodic rates calculation"
+	       "\n    -h             : Displays this help message and exits"
+	       "\n    -v             : Displays the current version and exists"
+	       "\n    -l             : Print the list of interfaces and exists"
+	    << std::endl;
 }
 
 /**
@@ -112,9 +103,8 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
+	          << "\nBuilt: " << pcpp::getBuildDateTime() << "\nBuilt from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -126,7 +116,7 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& liveDevices =
 	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	std::cout << std::endl << "Network interfaces:" << std::endl;
+	std::cout << "\nNetwork interfaces:" << std::endl;
 	for (const auto& device : liveDevices)
 	{
 		std::cout << "    -> Name: '" << device->getName() << "'   IP address: " << device->getIPv4Address().toString()
@@ -137,10 +127,7 @@ void listInterfaces()
 
 void printStatsHeadline(const std::string& description)
 {
-	std::cout << std::endl
-	          << description << std::endl
-	          << std::string(description.length(), '-') << std::endl
-	          << std::endl;
+	std::cout << '\n' << description << '\n' << std::string(description.length(), '-') << "\n\n" << std::flush;
 }
 
 /**
@@ -423,7 +410,9 @@ void analyzeHttpFromPcapFile(const std::string& pcapFileName, uint16_t dstPort)
 	}
 
 	// print stats summary
-	std::cout << std::endl << std::endl << "STATS SUMMARY" << std::endl << "=============" << std::endl;
+	std::cout << "\n\nSTATS SUMMARY"
+	             "\n============="
+	          << std::endl;
 	printStatsSummary(collector);
 
 	// close input file
@@ -486,7 +475,9 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 	collector.calcRates();
 
 	// print stats summary
-	std::cout << std::endl << std::endl << "STATS SUMMARY" << std::endl << "=============" << std::endl;
+	std::cout << "\n\nSTATS SUMMARY"
+	             "\n============="
+	          << std::endl;
 	printStatsSummary(collector);
 
 	// close and free the writer device
