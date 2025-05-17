@@ -106,6 +106,15 @@ namespace pcpp
 			return !(*this == rhs);
 		}
 
+        /// @brief Apply a subnet mask to the address
+		/// @param prefixLen The prefix length of the subnet mask (0-32)
+		/// @throws std::invalid_argument If the prefix length is not between 0 and 32
+        void applySubnetMask(uint8_t prefixLen);
+
+		/// @brief Apply a subnet mask to the address
+		/// @param mask The subnet mask to apply
+		void applySubnetMask(const IPv4Address& mask);
+
 		/// Checks whether the address matches a network.
 		/// @param network An IPv4Network network
 		/// @return True if the address matches the network or false otherwise
@@ -138,6 +147,7 @@ namespace pcpp
 		static const IPv4Address MulticastRangeUpperBound;
 
 	private:
+		// Stored address in network byte order
 		std::array<uint8_t, 4> m_Bytes = { 0 };
 	};  // class IPv4Address
 
