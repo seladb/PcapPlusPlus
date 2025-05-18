@@ -549,6 +549,7 @@ namespace pcpp
 					uint8_t const* ipData = buffer + offset;
 
 					// Copy the variable length IP address data to a fixed size array
+					// Garbage in the trailing bits is zeroed in IPv4Address::applySubnetMask
 					std::array<uint8_t, 4> ipBuffer;
 					std::copy(ipData, ipData + ipDataLen, ipBuffer.begin());
 
