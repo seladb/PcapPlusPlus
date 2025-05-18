@@ -372,8 +372,8 @@ namespace pcpp
 			constexpr size_t MIN_BGP_UPDATE_HEADER_SIZE =
 			    sizeof(internal::bgp_common_header) + 2 * sizeof(uint16_t);  // 23 bytes
 			static_assert(MIN_BGP_UPDATE_HEADER_SIZE == 23, "MIN_BGP_UPDATE_HEADER_SIZE is 23 bytes by spec");
-
-			struct PathAttirbuteLengthData
+			       
+			struct PathAttributeLengthData
 			{
 				size_t withdrawnRoutesLen = 0;
 				size_t pathAttributesLen = 0;
@@ -401,7 +401,7 @@ namespace pcpp
 				return withdrawnRoutesLen;
 			}
 
-			PathAttirbuteLengthData readPathAttributesLen(uint8_t const* buffer, size_t bufferLen)
+			PathAttributeLengthData readPathAttributesLen(uint8_t const* buffer, size_t bufferLen)
 			{
 				if (buffer == nullptr)
 					throw std::invalid_argument("Buffer is null");
@@ -423,7 +423,7 @@ namespace pcpp
 				    buffer + sizeof(internal::bgp_common_header) + sizeof(uint16_t) + withdrawnRoutesLen;
 				uint16_t pathAttributesLen = be16toh(*pathAttrLenPtr);
 
-				PathAttirbuteLengthData result;
+				PathAttributeLengthData result;
 				result.withdrawnRoutesLen = withdrawnRoutesLen;
 				result.pathAttributesLen = pathAttributesLen;
 				return result;
@@ -441,7 +441,7 @@ namespace pcpp
 					    "Buffer length is smaller than BGP UPDATE minimal message header size (23 bytes)");
 				}
 
-				PathAttirbuteLengthData const pathAttrLenData = readPathAttributesLen(buffer, bufferLen);
+				PathAttributeLengthData const pathAttrLenData = readPathAttributesLen(buffer, bufferLen);
 
 				size_t const withdrawnRoutesLen = pathAttrLenData.withdrawnRoutesLen;
 				size_t const pathAttributesLen = pathAttrLenData.pathAttributesLen;
