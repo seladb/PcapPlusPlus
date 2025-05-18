@@ -4,7 +4,7 @@ project(PcapPlusPlusExamples)
 
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
-# Set C++11
+# Set C++14
 set(CMAKE_CXX_STANDARD 14)
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
