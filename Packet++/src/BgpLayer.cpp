@@ -628,7 +628,7 @@ namespace pcpp
 	}  // namespace
 
 	BgpUpdateMessageConstView::PrefixAndIp::PrefixAndIp(uint8_t prefixLen, IPv4Address const& ipAddr)
-	    : m_prefixLength(prefixLen), ipAddress(ipAddr)
+	    : ipAddress(ipAddr), m_prefixLength(prefixLen)
 	{
 		if (prefixLen > 32)
 			throw std::invalid_argument("Prefix must be between 0 and 32");
