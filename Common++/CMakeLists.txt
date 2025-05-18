@@ -15,6 +15,7 @@ add_library(
 set(
   public_headers
   header/DeprecationUtils.h
+  header/EnumFlagUtils.h
   header/GeneralUtils.h
   header/IpAddress.h
   header/IpAddressUtils.h
