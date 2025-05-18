@@ -372,7 +372,7 @@ namespace pcpp
 			constexpr size_t MIN_BGP_UPDATE_HEADER_SIZE =
 			    sizeof(internal::bgp_common_header) + 2 * sizeof(uint16_t);  // 23 bytes
 			static_assert(MIN_BGP_UPDATE_HEADER_SIZE == 23, "MIN_BGP_UPDATE_HEADER_SIZE is 23 bytes by spec");
-			       
+
 			struct PathAttributeLengthData
 			{
 				size_t withdrawnRoutesLen = 0;
@@ -414,9 +414,14 @@ namespace pcpp
 
 				size_t const withdrawnRoutesLen = readWithdrawnRoutesLen(buffer, bufferLen);
 
-				if (withdrawnRoutesLen > bufferLen - MIN_BGP_UPDATE_HEADER_SIZE)
+				// Checks if the buffer is large enough to read:
+				// - the BGP common header
+				// - the withdrawn routes length
+				// - the withdrawn routes data
+				// - the path attribute length
+				if (bufferLen < MIN_BGP_UPDATE_HEADER_SIZE + withdrawnRoutesLen)
 				{
-					throw std::runtime_error("Recorded withdrawn routes length exceeds buffer length");
+					throw std::runtime_error("Buffer is too small to read path attribute length");
 				}
 
 				uint8_t const* pathAttrLenPtr =
@@ -445,7 +450,7 @@ namespace pcpp
 
 				size_t const withdrawnRoutesLen = pathAttrLenData.withdrawnRoutesLen;
 				size_t const pathAttributesLen = pathAttrLenData.pathAttributesLen;
-				if (withdrawnRoutesLen + pathAttributesLen > bufferLen - MIN_BGP_UPDATE_HEADER_SIZE)
+				if (bufferLen < withdrawnRoutesLen + pathAttributesLen + MIN_BGP_UPDATE_HEADER_SIZE)
 				{
 					throw std::runtime_error(
 					    "Recorded withdrawn routes and path attributes length exceeds buffer length");
@@ -453,7 +458,7 @@ namespace pcpp
 				size_t const NlriLen =
 				    bufferLen - (MIN_BGP_UPDATE_HEADER_SIZE + withdrawnRoutesLen + pathAttributesLen);
 
-				if (withdrawnRoutesLen + pathAttributesLen + NlriLen > bufferLen - MIN_BGP_UPDATE_HEADER_SIZE)
+				if (bufferLen < withdrawnRoutesLen + pathAttributesLen + NlriLen + MIN_BGP_UPDATE_HEADER_SIZE)
 				{
 					throw std::runtime_error("Recorded NLRI length exceeds buffer length");
 				}
