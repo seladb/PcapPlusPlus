@@ -7,7 +7,7 @@ GitHub page:            https://github.com/seladb/PcapPlusPlus
 This package contains:
 ----------------------
 
- - PcapPlusPlus compiled libraries for MinGW-w64 (under `lib\`)
+ - PcapPlusPlus compiled libraries for Visual Studio (under `lib\`)
     - Common++.lib
     - Packet++.lib
     - Pcap++.lib
