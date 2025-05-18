@@ -705,7 +705,8 @@ namespace pcpp
 		if (dataLen > MAX_INLINE_DATA_SIZE)
 		{
 			// Allocate memory for the data
-			m_HeapData = std::make_unique<uint8_t[]>(dataLen);
+			// TODO: Replace with std::make_unique
+			m_HeapData = std::unique_ptr<uint8_t[]>(new uint8_t[dataLen]);
 			m_Length = dataLen;
 			if (hexStringToByteArray(dataAsHexString, m_HeapData.get(), m_Length) != dataLen)
 			{
@@ -748,7 +749,8 @@ namespace pcpp
 			if (m_HeapData == nullptr)
 			{
 				// Allocate memory for the data
-				m_HeapData = std::make_unique<uint8_t[]>(dataLen);
+				// TODO: Replace with std::make_unique
+				m_HeapData = std::unique_ptr<uint8_t[]>(new uint8_t[dataLen]);
 			}
 			else if (m_HeapData && m_Length < dataLen)
 			{
