@@ -397,7 +397,7 @@ namespace pcpp
 				}
 
 				uint8_t const* withdrawnLenPtr = buffer + sizeof(internal::bgp_common_header);
-				uint16_t withdrawnRoutesLen = be16toh(*withdrawnLenPtr);
+				uint16_t withdrawnRoutesLen = be16toh((withdrawnLenPtr[0] << 8 | withdrawnLenPtr[1]));
 				return withdrawnRoutesLen;
 			}
 
@@ -421,7 +421,7 @@ namespace pcpp
 
 				uint8_t const* pathAttrLenPtr =
 				    buffer + sizeof(internal::bgp_common_header) + sizeof(uint16_t) + withdrawnRoutesLen;
-				uint16_t pathAttributesLen = be16toh(*pathAttrLenPtr);
+				uint16_t pathAttributesLen = be16toh((pathAttrLenPtr[0] << 8 | pathAttrLenPtr[1]));
 
 				PathAttributeLengthData result;
 				result.withdrawnRoutesLen = withdrawnRoutesLen;
