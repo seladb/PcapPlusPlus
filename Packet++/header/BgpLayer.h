@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include "Layer.h"
 #include "IpAddress.h"
+#include "EnumFlagUtils.h"
 
 /// @file
 /// This file contains classes for parsing, creating and editing Border Gateway Protocol (BGP) version 4 packets.
@@ -10,16 +12,136 @@
 /// represent the different BGP message types: OPEN, UPDATE, NOTIFICATION, KEEPALIVE and ROUTE-REFRESH.
 /// Each of these classes contains unique functionality for parsing. creating and editing of these message.
 
+namespace pcpp
+{
+	enum class BgpPathAttributeFlag : uint8_t
+	{
+		None = 0,
+		Optional = 1 << 7,
+		Transitive = 1 << 6,
+		Partial = 1 << 5,
+		ExtendedLength = 1 << 4,
+	};
+
+	enum class BgpPathAttributeType : uint8_t
+	{
+		Unknown = 0,
+		Origin = 1,
+		AsPath = 2,
+		NextHop = 3,
+		MED = 4,
+		LocalPref = 5,
+		AtomicAggregate = 6,
+		Aggregator = 7,
+	};
+
+	// BgpPathAttributeFlag uses EnumFlag operators that need to be pulled into the namespace for ADL
+	PCPP_USING_ENUM_FLAG_OPERATORS()
+}  // namespace pcpp
+
+// Required to be declared before template instantiation due to usage.
+// Enable enum flag operators for PathAttribute::AttributeFlag
+PCPP_DECLARE_ENUM_FLAG(pcpp::BgpPathAttributeFlag);
+
 /// @namespace pcpp
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	namespace internal
+	{
+#pragma pack(push, 1)
+		/// @struct bgp_common_header
+		/// Represents the common fields of a BGP 4 message
+		struct bgp_common_header
+		{
+			/// 16-octet marker
+			std::array<uint8_t, 16> marker;
+			/// Total length of the message, including the header
+			uint16_t length;
+			/// BGP message type
+			uint8_t messageType;
+		};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+		struct bgp_open_message : bgp_common_header
+		{
+			uint8_t version;
+			uint16_t myAutonomousSystem;
+			uint16_t holdTime;
+			uint32_t bgpId;
+			uint8_t optionalParameterLength;
+		};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+		/// @struct bgp_notification_message
+		/// BGP NOTIFICATION message structure
+		struct bgp_notification_message : bgp_common_header
+		{
+			/// BGP notification error code
+			uint8_t errorCode;
+			/// BGP notification error sub-code
+			uint8_t errorSubCode;
+		};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+		struct bgp_keep_alive_message : bgp_common_header
+		{
+		};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+		/// @struct bgp_route_refresh_message
+		/// BGP ROUTE-REFRESH message structure
+		struct bgp_route_refresh_message : bgp_common_header
+		{
+			/// Address Family Identifier
+			uint16_t afi;
+			/// Reserved field
+			uint8_t reserved;
+			/// Subsequent Address Family Identifier
+			uint8_t safi;
+		};
+#pragma pack(pop)
+
+		template <bool IsMutable> class BgpMessageViewBase;
+
+		class BgpBasicHeaderView;
+	}  // namespace internal
+
+	class BgpBasicHeaderConstView;
+	class BgpBasiciHeaderView;
+	class BgpOpenMessageConstView;
+	class BgpOpenMessageView;
+	class BgpUpdateMessageConstView;
+	class BgpUpdateMessageView;
+	class BgpNotificationMessageConstView;
+	class BgpNotificationMessageView;
+	class BgpKeepaliveMessageConstView;
+	class BgpKeepaliveMessageView;
+	class BgpRouteRefreshMessageConstView;
+	class BgpRouteRefreshMessageView;
 
 	/// @class BgpLayer
 	/// Represents Border Gateway Protocol (BGP) v4 protocol layer. This is an abstract class that cannot be
 	/// instantiated, and contains functionality which is common to all BGP message types.
 	class BgpLayer : public Layer
 	{
+		friend class BgpBasicHeaderConstView;
+		friend class BgpBasicHeaderView;
+		friend class BgpOpenMessageConstView;
+		friend class BgpOpenMessageView;
+		friend class BgpUpdateMessageConstView;
+		friend class BgpUpdateMessageView;
+		friend class BgpNotificationMessageConstView;
+		friend class BgpNotificationMessageView;
+		friend class BgpKeepaliveMessageConstView;
+		friend class BgpKeepaliveMessageView;
+		friend class BgpRouteRefreshMessageConstView;
+		friend class BgpRouteRefreshMessageView;
+
 	public:
 		/// An enum representing BGP message types
 		enum BgpMessageType
@@ -113,6 +235,274 @@ namespace pcpp
 		}
 
 		void setBgpFields(size_t messageLen = 0);
+	};
+
+	namespace internal
+	{
+		template <bool IsMutable> class BgpMessageViewBase
+		{
+		protected:
+			using BgpLayerRef = typename std::conditional<IsMutable, BgpLayer&, BgpLayer const&>::type;
+
+			explicit BgpMessageViewBase(BgpLayerRef layer) : m_Layer(layer)
+			{
+				if (m_Layer.getData() == nullptr)
+					throw std::invalid_argument("Layer contains no data");
+				if (m_Layer.getHeaderLen() < sizeof(bgp_common_header))
+					throw std::invalid_argument("Layer contains no BGP header");
+			}
+			~BgpMessageViewBase() = default;
+
+			BgpLayerRef m_Layer;
+		};
+	}  // namespace internal
+
+	class BgpBasicHeaderConstView : protected internal::BgpMessageViewBase<false>
+	{
+	public:
+		using BgpMessageViewBase<false>::BgpMessageViewBase;
+
+		uint16_t getBgpLength() const;
+	};
+
+	class BgpBasicHeaderView : protected internal::BgpMessageViewBase<true>
+	{
+	public:
+		using BgpMessageViewBase<true>::BgpMessageViewBase;
+
+		uint16_t getBgpLength() const;
+
+	protected:
+		void setBgpLength(uint16_t length);
+	};
+
+	class BgpOpenMessageConstView : protected BgpBasicHeaderConstView
+	{
+	public:
+		using bgp_open_message = internal::bgp_open_message;
+
+		struct OptionalParameter
+		{
+			uint8_t type = 0;
+			uint8_t length = 0;
+			std::array<uint8_t, 32> value{};
+
+			OptionalParameter() = default;
+			OptionalParameter(uint8_t type, std::string const& valueAsHexString);
+		};
+
+		explicit BgpOpenMessageConstView(BgpLayer const& layer);
+
+		IPv4Address getBgpId() const
+		{
+			return IPv4Address(getOpenMsgHeader()->bgpId);
+		}
+
+		size_t getOptionalPrametersLength() const;
+		std::vector<OptionalParameter> getOptionalParameters() const;
+		void getOptionalParameters(std::vector<OptionalParameter>& outOptionalParameters) const;
+
+		bgp_open_message const* getOpenMsgHeader() const
+		{
+			return reinterpret_cast<bgp_open_message const*>(m_Layer.getData());
+		}
+	};
+
+	class BgpOpenMessageView : protected BgpBasicHeaderView
+	{
+	public:
+		using bgp_open_message = internal::bgp_open_message;
+		using OptionalParameter = BgpOpenMessageConstView::OptionalParameter;
+
+		explicit BgpOpenMessageView(BgpLayer& layer);
+
+		IPv4Address getBgpId() const
+		{
+			return IPv4Address(getOpenMsgHeader()->bgpId);
+		}
+		void setBgpId(const IPv4Address& newBgpId)
+		{
+			getOpenMsgHeader()->bgpId = newBgpId.toInt();
+		}
+
+		size_t getOptionalPrametersLength() const;
+		std::vector<OptionalParameter> getOptionalParameters() const;
+		void getOptionalParameters(std::vector<OptionalParameter>& outOptionalParameters) const;
+
+		/// Set optional parameters in the message. This method will override all existing optional parameters currently
+		/// in the message. If the input is an empty vector all optional parameters will be cleared. This method
+		/// automatically sets the bgp_common_header#length and the bgp_open_message#optionalParameterLength fields on
+		/// the message
+		/// @param[in] optionalParameters A vector of new optional parameters to set in the message
+		/// @return True if all optional parameters were set successfully or false otherwise. In case of an error an
+		/// appropriate message will be printed to log
+		bool setOptionalParameters(const std::vector<OptionalParameter>& optionalParameters);
+
+		/// Clear all optional parameters currently in the message. This is equivalent to calling
+		/// setOptionalParameters() with an empty vector as a parameter
+		/// @return True if all optional parameters were successfully cleared or false otherwise. In case of an error an
+		/// appropriate message will be printed to log
+		bool clearOptionalParameters();
+
+		bgp_open_message* getOpenMsgHeader()
+		{
+			return reinterpret_cast<bgp_open_message*>(m_Layer.getData());
+		}
+		bgp_open_message const* getOpenMsgHeader() const
+		{
+			return reinterpret_cast<bgp_open_message const*>(m_Layer.getData());
+		}
+	};
+
+	class BgpUpdateMessageConstView : protected BgpBasicHeaderConstView
+	{
+	public:
+		struct PrefixAndIp
+		{
+			IPv4Address ipAddress;
+
+			PrefixAndIp() = default;
+			PrefixAndIp(uint8_t prefixLen, IPv4Address const& ipAddr);
+
+			uint8_t getPrefix() const
+			{
+				return m_prefixLength;
+			}
+
+			void setPrefix(uint8_t prefixLen);
+
+			size_t writeToBuffer(uint8_t* buffer, size_t bufferLen) const;
+
+		private:
+			uint8_t m_prefixLength = 0;
+		};
+
+		class PathAttribute
+		{
+		public:
+			/// A default c'tor that zeroes all data
+			PathAttribute() = default;
+
+			PathAttribute(BgpPathAttributeFlag flags, BgpPathAttributeType type, const std::string& dataAsHexString);
+			PathAttribute(BgpPathAttributeFlag flags, BgpPathAttributeType type, uint8_t const* data, uint16_t dataLen);
+
+			BgpPathAttributeFlag getFlags() const
+			{
+				return m_Flags;
+			}
+			void setFlags(BgpPathAttributeFlag flags)
+			{
+				m_Flags = flags;
+			}
+
+			void setFlagState(BgpPathAttributeFlag flag, bool state)
+			{
+				if (state)
+					m_Flags |= flag;
+				else
+					m_Flags &= ~flag;
+			}
+
+			BgpPathAttributeType getType() const
+			{
+				return m_Type;
+			}
+			void setType(BgpPathAttributeType type)
+			{
+				m_Type = type;
+			}
+
+			void assign(uint8_t const* data, uint16_t size);
+
+			uint8_t const* data() const
+			{
+				return m_HeapData ? m_HeapData.get() : m_InlineData.data();
+			}
+
+			uint16_t getLength() const
+			{
+				return m_Length;
+			}
+
+		private:
+			static constexpr uint16_t MAX_INLINE_DATA_SIZE = 32u;
+
+			bool isExtendedLength() const
+			{
+				return hasFlag(m_Flags, BgpPathAttributeFlag::ExtendedLength);
+			}
+
+			// Path attribute data.
+			// Using Inline data for small attributes and heap data for large attributes
+			// Unique Ptr used as the length is already stored.
+			std::unique_ptr<uint8_t[]> m_HeapData = nullptr;
+			std::array<uint8_t, MAX_INLINE_DATA_SIZE> m_InlineData{};
+			// Path attribute length (variable 1 or 2 bytes)
+			uint16_t m_Length = 0;
+			// Path attribute flags
+			BgpPathAttributeFlag m_Flags = BgpPathAttributeFlag::None;
+			// Path attribute type
+			BgpPathAttributeType m_Type = BgpPathAttributeType::Unknown;
+		};
+
+		explicit BgpUpdateMessageConstView(BgpLayer const& layer);
+
+		size_t getWithdrawnRoutesByteLength() const;
+		void getWithdrawnRoutes(std::vector<PrefixAndIp>& outWithdrawnRoutes) const;
+
+		size_t getPathAttributesByteLength() const;
+		void getPathAttributes(std::vector<PathAttribute>& outPathAttributes) const;
+
+		size_t getNetworkLayerReachabilityInfoByteLength() const;
+		void getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNetworkLayerreachabilityInfo) const;
+	};
+
+	class BgpUpdateMessageView : protected BgpBasicHeaderView
+	{
+	public:
+		using PrefixAndIp = BgpUpdateMessageConstView::PrefixAndIp;
+		using PathAttribute = BgpUpdateMessageConstView::PathAttribute;
+
+		explicit BgpUpdateMessageView(BgpLayer& layer);
+
+		size_t getWithdrawnRoutesByteLength() const;
+		void getWithdrawnRoutes(std::vector<PrefixAndIp>& outWithdrawnRoutes) const;
+		void setWithdrawnRoutes(const std::vector<PrefixAndIp>& withdrawnRoutes);
+		void clearWithdrawnRoutes();
+
+		size_t getPathAttributesByteLength() const;
+		void getPathAttributes(std::vector<PathAttribute>& outPathAttributes) const;
+		void setPathAttributes(const std::vector<PathAttribute>& pathAttributes);
+		void clearPathAttributes();
+
+		size_t getNetworkLayerReachabilityInfoByteLength() const;
+		void getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNetworkLayerreachabilityInfo) const;
+		void setNetworkLayerReachabilityInfo(const std::vector<PrefixAndIp>& networkLayerReachabilityInfo);
+		void clearNetworkLayerReachabilityInfo();
+	};
+
+	class BgpNotificationMessageConstView : protected BgpBasicHeaderConstView
+	{
+	};
+
+	class BgpNotificationMessageView : protected BgpBasicHeaderView
+	{
+	};
+
+	class BgpKeepaliveMessageConstView : protected BgpBasicHeaderConstView
+	{
+	};
+
+	class BgpKeepaliveMessageView : protected BgpBasicHeaderView
+	{
+	};
+
+	class BgpRouteRefreshMessageConstView : protected BgpBasicHeaderConstView
+	{
+	};
+
+	class BgpRouteRefreshMessageView : protected BgpBasicHeaderView
+	{
 	};
 
 	/// @class BgpOpenMessageLayer
