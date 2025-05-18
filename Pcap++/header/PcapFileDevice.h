@@ -427,6 +427,10 @@ namespace pcpp
 		/// Get statistics of packets written so far.
 		/// @param[out] stats The stats struct where stats are returned
 		void getStatistics(PcapStats& stats) const override;
+
+	private:
+		bool openWrite();
+		bool openAppend();
 	};
 
 	/// @class PcapNgFileWriterDevice

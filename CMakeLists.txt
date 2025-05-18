@@ -1,7 +1,7 @@
-# We need 3.14 or later, so that we can: (1) set policy CMP0074, see below; (2) Use FetchContent_MakeAvailable
-cmake_minimum_required(VERSION 3.14)
+# We need 3.12 or later, so that we can set policy CMP0074; see below.
+cmake_minimum_required(VERSION 3.12)
 
-set(PCAPPP_VERSION "24.09+")
+set(PCAPPP_VERSION "25.05+")
 
 # MAIN_PROJECT CHECK
 set(PCAPPP_MAIN_PROJECT OFF)
@@ -223,7 +223,7 @@ if(PCAPPP_BUILD_PCAPPP)
 
   set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_package(Threads REQUIRED)
-  if(NOT MSVC AND NOT CMAKE_USE_PTHREADS_INIT)
+  if(PCAPPP_USE_PF_RING AND NOT CMAKE_USE_PTHREADS_INIT)
     message(FATAL_ERROR "Pthreads not found!")
   endif()
 
