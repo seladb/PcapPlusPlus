@@ -621,6 +621,83 @@ namespace pcpp
 					offset += length;
 				}
 			}
+
+			template <typename It, typename std::enable_if<std::is_same<typename std::iterator_traits<It>::value_type,
+			                                                            BgpUpdateMessageView::PrefixAndIp>::value,
+			                                               bool>::type = false>
+			size_t writePrefixAndIpArrayToBuffer(It begin, It end, uint8_t* buffer, size_t bufferLen)
+			{
+				auto queryFunc = [](size_t sum, BgpUpdateMessageView::PrefixAndIp const& prefixAndIp) {
+					return sum + prefixAndIp.writeToBuffer(nullptr, 0);
+				};
+				size_t const requiredBytes = std::accumulate(begin, end, 0, queryFunc);
+
+				if (buffer == nullptr)
+				{
+					if (bufferLen == 0)
+					{
+						// Query mode
+						return requiredBytes;
+					}
+					else
+					{
+						throw std::invalid_argument("Buffer is nullptr");
+					}
+				}
+
+				if (bufferLen < requiredBytes)
+				{
+					// Insufficient buffer
+					return requiredBytes;
+				}
+
+				for (auto it = begin; it != end; ++it)
+				{
+					size_t writtenBytes = it->writeToBuffer(buffer, bufferLen);
+					buffer += writtenBytes;
+					bufferLen -= writtenBytes;
+				}
+
+				return requiredBytes;
+			}
+
+			template <typename It, typename std::enable_if<std::is_same<typename std::iterator_traits<It>::value_type,
+			                                                            BgpUpdateMessageView::PathAttribute>::value,
+			                                               bool>::type = false>
+			size_t writePathAttributeArrayToBuffer(It begin, It end, uint8_t* buffer, size_t bufferLen)
+			{
+				auto queryFunc = [](size_t sum, BgpUpdateMessageView::PathAttribute const& pathAttr) {
+					return sum + pathAttr.writeToBuffer(nullptr, 0);
+				};
+				size_t const requiredBytes = std::accumulate(begin, end, 0, queryFunc);
+				if (buffer == nullptr)
+				{
+					if (bufferLen == 0)
+					{
+						// Query mode
+						return requiredBytes;
+					}
+					else
+					{
+						throw std::invalid_argument("Buffer is nullptr");
+					}
+				}
+
+				if (bufferLen < requiredBytes)
+				{
+					// Insufficient buffer
+					return requiredBytes;
+				}
+
+				for (auto it = begin; it != end; ++it)
+				{
+					size_t writtenBytes = it->writeToBuffer(buffer, bufferLen);
+					buffer += writtenBytes;
+					bufferLen -= writtenBytes;
+				}
+
+				return requiredBytes;
+			}
 		}  // namespace update
 	}  // namespace
 
@@ -651,8 +728,9 @@ namespace pcpp
 				// Query mode
 				return requiredBytes;
 			}
+
 			// Invalid buffer
-			throw std::invalid_argument("Buffer is nullptr or has length 0");
+			throw std::invalid_argument("Buffer is nullptr");
 		}
 		if (bufferLen < requiredBytes)
 		{
@@ -767,6 +845,68 @@ namespace pcpp
 		}
 	}
 
+	size_t BgpUpdateMessageConstView::PathAttribute::writeToBuffer(uint8_t* buffer, size_t bufferLen) const
+	{
+		// The size of the static part of the path attribute
+		constexpr size_t STATIC_REQUIRED_SIZE =
+		    sizeof(BgpPathAttributeFlag) + sizeof(BgpPathAttributeType) + sizeof(uint8_t);
+
+		// Adds the additional octet if the extended length flag is set
+		// Adds the length of the data
+		const size_t requiredBytes = STATIC_REQUIRED_SIZE + sizeof(uint8_t) * isExtendedLength() + m_Length;
+
+		if (buffer == nullptr)
+		{
+			if (bufferLen == 0)
+			{
+				// Query mode
+				return requiredBytes;
+			}
+			else
+			{
+				throw std::invalid_argument("Buffer is nullptr");
+			}
+		}
+
+		if (bufferLen < requiredBytes)
+		{
+			// Insufficient buffer
+			return requiredBytes;
+		}
+
+		// Write the flags and type
+		buffer[0] = static_cast<uint8_t>(m_Flags);
+		buffer[1] = static_cast<uint8_t>(m_Type);
+
+		// Write the length
+		uint8_t* dataBlockPtr = buffer + STATIC_REQUIRED_SIZE;
+		if (isExtendedLength())
+		{
+			uint16_t lengthBE = htobe16(m_Length);
+			buffer[2] = static_cast<uint8_t>(lengthBE >> 8);
+			buffer[3] = static_cast<uint8_t>(lengthBE & 0xFF);
+
+			// Add to the offset as we wrote 2 bytes for the length
+			dataBlockPtr += 1;
+		}
+		else
+		{
+			buffer[2] = static_cast<uint8_t>(m_Length);
+		}
+
+		// Write the data
+		if (m_HeapData != nullptr)
+		{
+			std::memcpy(dataBlockPtr, m_HeapData.get(), m_Length);
+		}
+		else
+		{
+			std::memcpy(dataBlockPtr, m_InlineData.data(), m_Length);
+		}
+
+		return requiredBytes;
+	}
+
 	BgpUpdateMessageConstView::BgpUpdateMessageConstView(BgpLayer const& layer) : BgpBasicHeaderConstView(layer)
 	{
 		if (m_Layer.getBgpMessageType() != BgpLayer::BgpMessageType::Update)
@@ -821,7 +961,7 @@ namespace pcpp
 		    .networkLayerReachabilityInfoLen;
 	}
 
-	void BgpUpdateMessageConstView::getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNLRI) const
+	void BgpUpdateMessageConstView::getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNlri) const
 	{
 		auto const nlriBufferInfo = update::getNlriBuffer(m_Layer.getData(), m_Layer.getHeaderLen());
 
@@ -830,7 +970,196 @@ namespace pcpp
 			return;
 		}
 
-		update::parsePrefixAndIPDataBuffer(nlriBufferInfo.first, nlriBufferInfo.second, outNLRI);
+		update::parsePrefixAndIPDataBuffer(nlriBufferInfo.first, nlriBufferInfo.second, outNlri);
+	}
+
+	BgpUpdateMessageView::BgpUpdateMessageView(BgpLayer& layer) : BgpBasicHeaderView(layer)
+	{
+		if (m_Layer.getBgpMessageType() != BgpLayer::BgpMessageType::Update)
+			throw std::invalid_argument("Layer is not a BGP UPDATE message");
+		if (m_Layer.getHeaderLen() < update::MIN_BGP_UPDATE_HEADER_SIZE)
+		{
+			// The view enforces at least the fixed BGP header size + WithdrawnRoutesLength (1 byte) +
+			// PathAttributeLength (1 byte)
+			throw std::invalid_argument("Data length is smaller than BGP UPDATE minimal message header size");
+		}
+	}
+
+	size_t BgpUpdateMessageView::getWithdrawnRoutesByteLength() const
+	{
+		return BgpUpdateMessageConstView(internal::nocheck, m_Layer).getWithdrawnRoutesByteLength();
+	}
+
+	void BgpUpdateMessageView::getWithdrawnRoutes(std::vector<PrefixAndIp>& outWithdrawnRoutes) const
+	{
+		return BgpUpdateMessageConstView(internal::nocheck, m_Layer).getWithdrawnRoutes(outWithdrawnRoutes);
+	}
+
+	void BgpUpdateMessageView::setWithdrawnRoutes(const std::vector<PrefixAndIp>& withdrawnRoutes)
+	{
+		// Query the required size of the buffer
+		size_t newRoutesLen =
+		    update::writePrefixAndIpArrayToBuffer(withdrawnRoutes.begin(), withdrawnRoutes.end(), nullptr, 0);
+		size_t curRoutesLen = getWithdrawnRoutesByteLength();
+		constexpr size_t WITHDRAWN_ROUTES_DATA_OFFSET = sizeof(internal::bgp_common_header) + sizeof(uint16_t);
+
+		if (newRoutesLen > (std::numeric_limits<uint16_t>::max)())
+			throw std::invalid_argument("The total length of the withdrawn routes is too large");
+
+		if (newRoutesLen > curRoutesLen)
+		{
+			bool res = m_Layer.extendLayer(WITHDRAWN_ROUTES_DATA_OFFSET, newRoutesLen - curRoutesLen);
+			if (!res)
+			{
+				throw std::runtime_error("Couldn't extend BGP update layer to include the additional withdrawn routes");
+			}
+		}
+		else if (newRoutesLen < curRoutesLen)
+		{
+			bool res = m_Layer.shortenLayer(WITHDRAWN_ROUTES_DATA_OFFSET, curRoutesLen - newRoutesLen);
+			if (!res)
+			{
+				throw std::runtime_error(
+				    "Couldn't shorten BGP update layer to set the right size of the withdrawn routes data");
+			}
+		}
+
+		if (newRoutesLen > 0)
+		{
+			// Write directly into the layer buffer.
+			uint8_t* withdrawnRoutesData = m_Layer.getData() + WITHDRAWN_ROUTES_DATA_OFFSET;
+			update::writePrefixAndIpArrayToBuffer(withdrawnRoutes.begin(), withdrawnRoutes.end(), withdrawnRoutesData,
+			                                      newRoutesLen);
+		}
+
+		// Update the length field in the BGP header
+		setBgpLength(getBgpLength() + static_cast<uint16_t>(newRoutesLen - curRoutesLen));
+
+		uint16_t newRoutesLenBE = htobe16(static_cast<uint16_t>(newRoutesLen));
+		memcpy(m_Layer.getData() + sizeof(internal::bgp_common_header), &newRoutesLenBE, sizeof(uint16_t));
+	}
+
+	void BgpUpdateMessageView::clearWithdrawnRoutes()
+	{
+		return setWithdrawnRoutes({});
+	}
+
+	size_t BgpUpdateMessageView::getPathAttributesByteLength() const
+	{
+		return BgpUpdateMessageConstView(internal::nocheck, m_Layer).getPathAttributesByteLength();
+	}
+
+	void BgpUpdateMessageView::getPathAttributes(std::vector<PathAttribute>& outPathAttributes) const
+	{
+		return BgpUpdateMessageConstView(internal::nocheck, m_Layer).getPathAttributes(outPathAttributes);
+	}
+
+	void BgpUpdateMessageView::setPathAttributes(const std::vector<PathAttribute>& pathAttributes)
+	{
+		size_t newPathAttrLen =
+		    update::writePathAttributeArrayToBuffer(pathAttributes.begin(), pathAttributes.end(), nullptr, 0);
+		size_t currPathAttrLen = getPathAttributesByteLength();
+
+		if (newPathAttrLen > (std::numeric_limits<uint16_t>::max)())
+			throw std::invalid_argument("The total length of the path attributes is too large");
+
+		if (newPathAttrLen > currPathAttrLen)
+		{
+			bool res = m_Layer.extendLayer(sizeof(internal::bgp_common_header) + sizeof(uint16_t),
+			                               newPathAttrLen - currPathAttrLen);
+			if (!res)
+			{
+				throw std::runtime_error("Couldn't extend BGP update layer to include the additional path attributes");
+			}
+		}
+		else if (newPathAttrLen < currPathAttrLen)
+		{
+			bool res = m_Layer.shortenLayer(sizeof(internal::bgp_common_header) + sizeof(uint16_t),
+			                                currPathAttrLen - newPathAttrLen);
+			if (!res)
+			{
+				throw std::runtime_error(
+				    "Couldn't shorten BGP update layer to set the right size of the path attributes data");
+			}
+		}
+
+		if (newPathAttrLen > 0)
+		{
+			// Write directly into the layer buffer.
+			uint8_t* pathAttrData = m_Layer.getData() + sizeof(internal::bgp_common_header) + sizeof(uint16_t);
+			update::writePathAttributeArrayToBuffer(pathAttributes.begin(), pathAttributes.end(), pathAttrData,
+			                                        newPathAttrLen);
+		}
+
+		// Update the length field in the BGP header
+		setBgpLength(getBgpLength() + static_cast<uint16_t>(newPathAttrLen - currPathAttrLen));
+
+		uint16_t newPathAttrLenBE = htobe16(static_cast<uint16_t>(newPathAttrLen));
+		std::memcpy(m_Layer.getData() + sizeof(internal::bgp_common_header) + sizeof(uint16_t), &newPathAttrLenBE,
+		            sizeof(uint16_t));
+	}
+
+	void BgpUpdateMessageView::clearPathAttributes()
+	{
+		return setPathAttributes({});
+	}
+
+	size_t BgpUpdateMessageView::getNetworkLayerReachabilityInfoByteLength() const
+	{
+		return BgpUpdateMessageConstView(internal::nocheck, m_Layer).getNetworkLayerReachabilityInfoByteLength();
+	}
+
+	void BgpUpdateMessageView::getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNlri) const
+	{
+		return BgpUpdateMessageConstView(internal::nocheck, m_Layer).getNetworkLayerReachabilityInfo(outNlri);
+	}
+
+	void BgpUpdateMessageView::setNetworkLayerReachabilityInfo(const std::vector<PrefixAndIp>& Nlri)
+	{
+		size_t newNlriLen = update::writePrefixAndIpArrayToBuffer(Nlri.begin(), Nlri.end(), nullptr, 0);
+		size_t currNlriLen = getNetworkLayerReachabilityInfoByteLength();
+
+		if (newNlriLen > (std::numeric_limits<uint16_t>::max)())
+			throw std::invalid_argument("The total length of the network layer reachability info is too large");
+
+		if (newNlriLen > currNlriLen)
+		{
+			bool res = m_Layer.extendLayer(sizeof(internal::bgp_common_header) + sizeof(uint16_t) +
+			                                   getWithdrawnRoutesByteLength() + getPathAttributesByteLength(),
+			                               newNlriLen - currNlriLen);
+			if (!res)
+			{
+				throw std::runtime_error(
+				    "Couldn't extend BGP update layer to include the additional network layer reachability info");
+			}
+		}
+		else if (newNlriLen < currNlriLen)
+		{
+			bool res = m_Layer.shortenLayer(sizeof(internal::bgp_common_header) + sizeof(uint16_t) +
+			                                    getWithdrawnRoutesByteLength() + getPathAttributesByteLength(),
+			                                currNlriLen - newNlriLen);
+			if (!res)
+			{
+				throw std::runtime_error(
+				    "Couldn't shorten BGP update layer to set the right size of the network layer reachability info");
+			}
+		}
+
+		if (newNlriLen > 0)
+		{
+			// Write directly into the layer buffer.
+			uint8_t* nlriData = m_Layer.getData() + sizeof(internal::bgp_common_header) + sizeof(uint16_t) +
+			                    getWithdrawnRoutesByteLength() + getPathAttributesByteLength();
+			update::writePrefixAndIpArrayToBuffer(Nlri.begin(), Nlri.end(), nlriData, newNlriLen);
+		}
+
+		// Update the length field in the BGP header
+		setBgpLength(getBgpLength() + static_cast<uint16_t>(newNlriLen - currNlriLen));
+	}
+
+	void BgpUpdateMessageView::clearNetworkLayerReachabilityInfo()
+	{
+		return setNetworkLayerReachabilityInfo({});
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~
