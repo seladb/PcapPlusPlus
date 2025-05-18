@@ -15,25 +15,25 @@ namespace pcpp
 
 		template <typename EnumClass> constexpr EnableIfBitMask<EnumClass> operator|(EnumClass lhs, EnumClass rhs)
 		{
-			return static_cast<EnumClass>(static_cast<std::underlying_type<EnumClass>::type>(lhs) |
-			                              static_cast<std::underlying_type<EnumClass>::type>(rhs));
+			return static_cast<EnumClass>(static_cast<typename std::underlying_type<EnumClass>::type>(lhs) |
+			                              static_cast<typename std::underlying_type<EnumClass>::type>(rhs));
 		}
 
 		template <typename EnumClass> constexpr EnableIfBitMask<EnumClass> operator&(EnumClass lhs, EnumClass rhs)
 		{
-			return static_cast<EnumClass>(static_cast<std::underlying_type<EnumClass>::type>(lhs) &
-			                              static_cast<std::underlying_type<EnumClass>::type>(rhs));
+			return static_cast<EnumClass>(static_cast<typename std::underlying_type<EnumClass>::type>(lhs) &
+			                              static_cast<typename std::underlying_type<EnumClass>::type>(rhs));
 		}
 
 		template <typename EnumClass> constexpr EnableIfBitMask<EnumClass> operator^(EnumClass lhs, EnumClass rhs)
 		{
-			return static_cast<EnumClass>(static_cast<std::underlying_type<EnumClass>::type>(lhs) ^
-			                              static_cast<std::underlying_type<EnumClass>::type>(rhs));
+			return static_cast<EnumClass>(static_cast<typename std::underlying_type<EnumClass>::type>(lhs) ^
+			                              static_cast<typename std::underlying_type<EnumClass>::type>(rhs));
 		}
 
 		template <typename EnumClass> constexpr EnableIfBitMask<EnumClass> operator~(EnumClass rhs)
 		{
-			return static_cast<EnumClass>(~static_cast<std::underlying_type<EnumClass>::type>(rhs));
+			return static_cast<EnumClass>(~static_cast<typename std::underlying_type<EnumClass>::type>(rhs));
 		}
 
 		template <typename EnumClass> constexpr EnableIfBitMask<EnumClass>& operator|=(EnumClass& lhs, EnumClass rhs)
@@ -59,9 +59,15 @@ namespace pcpp
 }  // namespace pcpp
 
 #define PCPP_DECLARE_ENUM_FLAG(EnumClass)                                                                              \
-	template <> struct ::pcpp::internal::EnableBitMaskOperators<EnumClass> : std::true_type                            \
+	namespace pcpp                                                                                                     \
 	{                                                                                                                  \
-	};
+		namespace internal                                                                                             \
+		{                                                                                                              \
+			template <> struct EnableBitMaskOperators<EnumClass> : std::true_type                                      \
+			{                                                                                                          \
+			};                                                                                                         \
+		}                                                                                                              \
+	}
 
 #define PCPP_USING_ENUM_FLAG_OPERATORS()                                                                               \
 	using ::pcpp::internal::operator|;                                                                                 \
