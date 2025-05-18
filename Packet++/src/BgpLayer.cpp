@@ -414,7 +414,7 @@ namespace pcpp
 
 				size_t const withdrawnRoutesLen = readWithdrawnRoutesLen(buffer, bufferLen);
 
-				if (withdrawnRoutesLen > bufferLen + MIN_BGP_UPDATE_HEADER_SIZE)
+				if (withdrawnRoutesLen > bufferLen - MIN_BGP_UPDATE_HEADER_SIZE)
 				{
 					throw std::runtime_error("Recorded withdrawn routes length exceeds buffer length");
 				}
@@ -445,7 +445,7 @@ namespace pcpp
 
 				size_t const withdrawnRoutesLen = pathAttrLenData.withdrawnRoutesLen;
 				size_t const pathAttributesLen = pathAttrLenData.pathAttributesLen;
-				if (withdrawnRoutesLen + pathAttributesLen > bufferLen + MIN_BGP_UPDATE_HEADER_SIZE)
+				if (withdrawnRoutesLen + pathAttributesLen > bufferLen - MIN_BGP_UPDATE_HEADER_SIZE)
 				{
 					throw std::runtime_error(
 					    "Recorded withdrawn routes and path attributes length exceeds buffer length");
@@ -453,7 +453,7 @@ namespace pcpp
 				size_t const NlriLen =
 				    bufferLen - (MIN_BGP_UPDATE_HEADER_SIZE + withdrawnRoutesLen + pathAttributesLen);
 
-				if (withdrawnRoutesLen + pathAttributesLen + NlriLen > bufferLen + MIN_BGP_UPDATE_HEADER_SIZE)
+				if (withdrawnRoutesLen + pathAttributesLen + NlriLen > bufferLen - MIN_BGP_UPDATE_HEADER_SIZE)
 				{
 					throw std::runtime_error("Recorded NLRI length exceeds buffer length");
 				}
