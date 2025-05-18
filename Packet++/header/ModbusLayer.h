@@ -27,11 +27,10 @@ namespace pcpp
 		uint8_t functionCode;
 	};
 #pragma pack(pop)
-
+static_assert(sizeof(modbus_common_header) == 8, "modbus_common_header size is not 8 bytes");
 	class ModbusLayer : public Layer
 	{
 	public:
-		static_assert(sizeof(modbus_common_header) == 8, "modbus_common_header size is not 8 bytes");
 
 		/// A constructor that creates the layer with empty fields
 		ModbusLayer();
