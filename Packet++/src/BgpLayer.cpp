@@ -667,7 +667,7 @@ namespace pcpp
 		{
 			buffer[0] = m_prefixLength;
 			auto const& ipBytes = ipAddress.toByteArray();
-			for (size_t i = 0; i < (m_prefixLength + 7) / 8; ++i)
+			for (size_t i = 0; i < (static_cast<size_t>(m_prefixLength) + 7) / 8; ++i)
 			{
 				buffer[i + 1] = ipBytes[i];
 			}
