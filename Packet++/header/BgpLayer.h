@@ -49,6 +49,14 @@ namespace pcpp
 {
 	namespace internal
 	{
+		/// @brief Helper struct to skip validation of a view.
+		struct nocheck_t
+		{
+		};
+
+		/// @brief Helper variable to skip validation of a view.
+		constexpr nocheck_t nocheck;
+
 #pragma pack(push, 1)
 		/// @struct bgp_common_header
 		/// Represents the common fields of a BGP 4 message
@@ -251,6 +259,11 @@ namespace pcpp
 				if (m_Layer.getHeaderLen() < sizeof(bgp_common_header))
 					throw std::invalid_argument("Layer contains no BGP header");
 			}
+			explicit BgpMessageViewBase(nocheck_t, BgpLayerRef layer) : m_Layer(layer)
+			{
+				// No validation
+			}
+
 			~BgpMessageViewBase() = default;
 
 			BgpLayerRef m_Layer;
@@ -292,6 +305,11 @@ namespace pcpp
 		};
 
 		explicit BgpOpenMessageConstView(BgpLayer const& layer);
+		explicit BgpOpenMessageConstView(internal::nocheck_t nc, BgpLayer const& layer)
+		    : BgpBasicHeaderConstView(nc, layer)
+		{
+			// No validation
+		}
 
 		IPv4Address getBgpId() const
 		{
@@ -315,6 +333,10 @@ namespace pcpp
 		using OptionalParameter = BgpOpenMessageConstView::OptionalParameter;
 
 		explicit BgpOpenMessageView(BgpLayer& layer);
+		explicit BgpOpenMessageView(internal::nocheck_t nc, BgpLayer& layer) : BgpBasicHeaderView(nc, layer)
+		{
+			// No validation
+		}
 
 		IPv4Address getBgpId() const
 		{
@@ -424,6 +446,8 @@ namespace pcpp
 				return m_Length;
 			}
 
+			size_t writeToBuffer(uint8_t* buffer, size_t bufferLen) const;
+
 		private:
 			static constexpr uint16_t MAX_INLINE_DATA_SIZE = 32u;
 
@@ -446,6 +470,11 @@ namespace pcpp
 		};
 
 		explicit BgpUpdateMessageConstView(BgpLayer const& layer);
+		explicit BgpUpdateMessageConstView(internal::nocheck_t nc, BgpLayer const& layer)
+		    : BgpBasicHeaderConstView(nc, layer)
+		{
+			// No validation
+		}
 
 		size_t getWithdrawnRoutesByteLength() const;
 		void getWithdrawnRoutes(std::vector<PrefixAndIp>& outWithdrawnRoutes) const;
@@ -454,7 +483,7 @@ namespace pcpp
 		void getPathAttributes(std::vector<PathAttribute>& outPathAttributes) const;
 
 		size_t getNetworkLayerReachabilityInfoByteLength() const;
-		void getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNetworkLayerreachabilityInfo) const;
+		void getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNlri) const;
 	};
 
 	class BgpUpdateMessageView : protected BgpBasicHeaderView
@@ -464,6 +493,10 @@ namespace pcpp
 		using PathAttribute = BgpUpdateMessageConstView::PathAttribute;
 
 		explicit BgpUpdateMessageView(BgpLayer& layer);
+		explicit BgpUpdateMessageView(internal::nocheck_t nc, BgpLayer& layer) : BgpBasicHeaderView(nc, layer)
+		{
+			// No validation
+		}
 
 		size_t getWithdrawnRoutesByteLength() const;
 		void getWithdrawnRoutes(std::vector<PrefixAndIp>& outWithdrawnRoutes) const;
@@ -476,8 +509,8 @@ namespace pcpp
 		void clearPathAttributes();
 
 		size_t getNetworkLayerReachabilityInfoByteLength() const;
-		void getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNetworkLayerreachabilityInfo) const;
-		void setNetworkLayerReachabilityInfo(const std::vector<PrefixAndIp>& networkLayerReachabilityInfo);
+		void getNetworkLayerReachabilityInfo(std::vector<PrefixAndIp>& outNlri) const;
+		void setNetworkLayerReachabilityInfo(const std::vector<PrefixAndIp>& Nlri);
 		void clearNetworkLayerReachabilityInfo();
 	};
 

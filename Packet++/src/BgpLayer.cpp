@@ -292,26 +292,17 @@ namespace pcpp
 
 	size_t BgpOpenMessageView::getOptionalPrametersLength() const
 	{
-		// Optional param length is 1 byte. Endianness shouldn't matter;
-		static_assert(sizeof(bgp_open_message::optionalParameterLength) == 1, "Optional param length must be 1 byte");
-		return getOpenMsgHeader()->optionalParameterLength;
+		return BgpOpenMessageConstView(internal::nocheck, m_Layer).getOptionalPrametersLength();
 	}
 
 	std::vector<BgpOpenMessageView::OptionalParameter> BgpOpenMessageView::getOptionalParameters() const
 	{
-		std::vector<BgpOpenMessageView::OptionalParameter> result;
-		getOptionalParameters(result);
-		return result;
+		return BgpOpenMessageConstView(internal::nocheck, m_Layer).getOptionalParameters();
 	}
 
 	void BgpOpenMessageView::getOptionalParameters(std::vector<OptionalParameter>& outOptionalParameters) const
 	{
-		size_t const optionalParamsLen = getOptionalPrametersLength();
-		if (optionalParamsLen == 0)
-			return;
-
-		uint8_t const* optionalParamsData = m_Layer.getData() + sizeof(bgp_open_message);
-		open::readOptionalParamsFromBuffer(optionalParamsData, optionalParamsLen, outOptionalParameters);
+		return BgpOpenMessageConstView(internal::nocheck, m_Layer).getOptionalParameters(outOptionalParameters);
 	}
 
 	bool BgpOpenMessageView::setOptionalParameters(const std::vector<OptionalParameter>& optionalParameters)
