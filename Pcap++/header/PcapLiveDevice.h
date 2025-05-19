@@ -482,6 +482,7 @@ namespace pcpp
 		/// - Packet length is 0
 		/// - Packet length is larger than device MTU and checkMtu is true
 		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
+		PCPP_DEPRECATED("This method is deprecated. Use sendPacket(Packet const& packet, bool checkMtu) instead")
 		bool sendPacket(Packet const* packet, bool checkMtu = true)
 		{
 			return sendPacket(*packet, checkMtu);

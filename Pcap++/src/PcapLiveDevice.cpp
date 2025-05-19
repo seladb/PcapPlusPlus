@@ -888,7 +888,7 @@ namespace pcpp
 
 		RawPacket* rPacket = const_cast<RawPacket*>(&rawPacket);
 		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
-		return sendPacket(&parsedPacket, true);
+		return sendPacket(parsedPacket, true);
 	}
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
@@ -908,7 +908,7 @@ namespace pcpp
 		gettimeofday(&time, nullptr);
 		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
 		Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
-		return sendPacket(&parsedPacket, true);
+		return sendPacket(parsedPacket, true);
 	}
 
 	bool PcapLiveDevice::sendPacketDirect(uint8_t const* packetData, int packetDataLength)
@@ -973,7 +973,7 @@ namespace pcpp
 		}
 
 		return sendPacketsLoop(packetsArr, packetsArr + arrLength,
-		                       [this, checkMtu](Packet const* packet) { return sendPacket(packet, checkMtu); });
+		                       [this, checkMtu](Packet const* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
