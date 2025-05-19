@@ -1,7 +1,7 @@
-# We need 3.14 or later, so that we can: (1) set policy CMP0074, see below; (2) Use FetchContent_MakeAvailable
-cmake_minimum_required(VERSION 3.14)
+# We need 3.12 or later, so that we can set policy CMP0074; see below.
+cmake_minimum_required(VERSION 3.12)
 
-set(PCAPPP_VERSION "24.09+")
+set(PCAPPP_VERSION "25.05+")
 
 # MAIN_PROJECT CHECK
 set(PCAPPP_MAIN_PROJECT OFF)
@@ -146,9 +146,9 @@ option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
 
-# Set C++11 if not defined
+# Set C++14 if not defined
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
