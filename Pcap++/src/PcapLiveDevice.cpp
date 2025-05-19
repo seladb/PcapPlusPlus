@@ -913,7 +913,7 @@ namespace pcpp
 
 	bool PcapLiveDevice::sendPacket(Packet const* packet, bool checkMtu)
 	{
-		RawPacket* rawPacket = packet->getRawPacket();
+		RawPacket const* rawPacket = packet->getRawPacketReadOnly();
 		if (checkMtu)
 		{
 			int packetPayloadLength = 0;
