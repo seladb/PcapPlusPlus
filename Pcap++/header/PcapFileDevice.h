@@ -227,21 +227,6 @@ namespace pcpp
 		void close();
 	};
 
-	/// @struct PcapNgMetadata
-	/// @brief A struct for holding the metadata of a pcap-ng file. The metadata includes the operating system,
-	/// hardware, capture application and file comment.
-	struct PcapNgMetadata
-	{
-		/// The operating system that was used for capturing the packets
-		std::string os;
-		/// The hardware that was used for capturing the packets
-		std::string hardware;
-		/// The capture application that was used for capturing the packets
-		std::string captureApplication;
-		/// The comment that was written inside the file
-		std::string comment;
-	};
-
 	/// @class PcapNgFileReaderDevice
 	/// A class for opening a pcap-ng file in read-only mode. This class enable to open the file and read all packets,
 	/// packet-by-packet
@@ -266,12 +251,6 @@ namespace pcpp
 		{
 			close();
 		}
-
-		/// @brief The pcap-ng format allows storing metadata at the header of the file. This method fetches the
-		/// metadata if it exists.
-		/// @return A PcapNgMetadata object containing the metadata. If the file is not opened or the metadata is
-		/// missing an empty object is returned.
-		PcapNgMetadata getMetadata() const;
 
 		/// The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string
 		/// specifying the operating system that was used for capturing the packets. This method reads this string from
@@ -528,14 +507,6 @@ namespace pcpp
 		/// false, please refer to open() for return values
 		bool open(bool appendMode) override;
 
-		/// @brief Opens the file in write mode. If file doesn't exist, it will be created. If it does exist it will be
-		/// overwritten, meaning all its current content will be deleted. This method also allows writing metadata that
-		/// will be stored in the header of the file.
-		/// @param metadata A PcapNgMetadata object containing the metadata to be written in the file header.
-		/// @return True if the file was opened/created successfully or if the file is already opened. False if opening
-		/// the file failed for some reason (an error will be printed to log).
-		bool open(PcapNgMetadata const& metadata);
-
 		/// Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
 		/// overwritten, meaning all its current content will be deleted. As opposed to open(), this method also allows
 		/// writing several metadata attributes that will be stored in the header of the file
@@ -569,6 +540,21 @@ namespace pcpp
 		bool setFilter(std::string filterAsString) override;
 
 	private:
+		/// @struct PcapNgMetadata
+		/// @brief A struct for holding the metadata of a pcap-ng file. The metadata includes the operating system,
+		/// hardware, capture application and file comment.
+		struct PcapNgMetadata
+		{
+			/// The operating system that was used for capturing the packets
+			std::string os;
+			/// The hardware that was used for capturing the packets
+			std::string hardware;
+			/// The capture application that was used for capturing the packets
+			std::string captureApplication;
+			/// The comment that was written inside the file
+			std::string comment;
+		};
+
 		bool openWrite(PcapNgMetadata const* metadata = nullptr);
 		bool openAppend();
 	};
