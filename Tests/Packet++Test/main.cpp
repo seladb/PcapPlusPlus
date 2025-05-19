@@ -193,10 +193,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpRoutingActivationResponsePacketCreation, "doip");
 	PTF_RUN_TEST(DoIpGenericHeaderNackPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpGenericHeaderNackPacketCreation, "doip");
-	PTF_RUN_TEST(DoIpVehicleIdentificationRequestEIDPacketParsing, "doip");
-	PTF_RUN_TEST(DoIpVehicleIdentificationRequestEIDPacketCreation, "doip");
-	PTF_RUN_TEST(DoIpVehicleIdentificationRequestVINPacketParsing, "doip");
-	PTF_RUN_TEST(DoIpVehicleIdentificationRequestVINPacketCreation, "doip");
+	PTF_RUN_TEST(DoIpVehicleIdentificationRequestWEIDPacketParsing, "doip");
+	PTF_RUN_TEST(DoIpVehicleIdentificationRequestWEIDPacketCreation, "doip");
+	PTF_RUN_TEST(DoIpVehicleIdentificationRequestWVINPacketParsing, "doip");
+	PTF_RUN_TEST(DoIpVehicleIdentificationRequestWVINPacketCreation, "doip");
 	PTF_RUN_TEST(DoIpVehicleAnnouncementPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpVehicleAnnouncementPacketCreation, "doip");
 	PTF_RUN_TEST(DoIpAliveCheckResponsePacketParsing, "doip");

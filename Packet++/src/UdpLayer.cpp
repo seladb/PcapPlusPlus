@@ -131,6 +131,9 @@ namespace pcpp
 		else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) &&
 		         (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
 			m_NextLayer = new DhcpV6Layer(udpData, udpDataLen, this, m_Packet);
+		else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
+		         NtpLayer::isDataValid(udpData, udpDataLen))
+			m_NextLayer = new NtpLayer(udpData, udpDataLen, this, m_Packet);
 		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
 		         (DoIpLayer::isDataValid(udpData, udpDataLen)))
 		{
@@ -138,10 +141,6 @@ namespace pcpp
 			if (!m_NextLayer)
 				constructNextLayer<PayloadLayer>(udpData, udpDataLen, m_Packet);
 		}
-
-		else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
-		         NtpLayer::isDataValid(udpData, udpDataLen))
-			m_NextLayer = new NtpLayer(udpData, udpDataLen, this, m_Packet);
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 			m_NextLayer = SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet);
 		else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))

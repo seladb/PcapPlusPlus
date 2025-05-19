@@ -367,15 +367,8 @@ namespace pcpp
 		const uint16_t portSrc = getSrcPort();
 		const char* payloadChar = reinterpret_cast<const char*>(payload);
 
-		if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
-		    (DoIpLayer::isDataValid(payload, payloadLen)))
-		{
-			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet);
-			if (!m_NextLayer)
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
-		}
-		else if (HttpMessage::isHttpPort(portDst) &&
-		         HttpRequestFirstLine::parseMethod(payloadChar, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
+		if (HttpMessage::isHttpPort(portDst) &&
+		    HttpRequestFirstLine::parseMethod(payloadChar, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
 		{
 			constructNextLayer<HttpRequestLayer>(payload, payloadLen, m_Packet);
 		}
@@ -436,6 +429,13 @@ namespace pcpp
 		else if (FtpLayer::isFtpDataPort(portSrc) || FtpLayer::isFtpDataPort(portDst))
 		{
 			constructNextLayer<FtpDataLayer>(payload, payloadLen, m_Packet);
+		}
+		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
+		         (DoIpLayer::isDataValid(payload, payloadLen)))
+		{
+			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet);
+			if (!m_NextLayer)
+				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{

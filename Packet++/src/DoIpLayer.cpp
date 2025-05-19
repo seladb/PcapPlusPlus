@@ -211,14 +211,14 @@ namespace pcpp
 		const uint16_t payloadTypeRaw = doipHeader->payloadType;
 		const uint32_t lengthRaw = doipHeader->payloadLength;
 
-		if (!isPayloadTypeValid(htobe16(payloadTypeRaw)))
+		if (!isPayloadTypeValid(be16toh(payloadTypeRaw)))
 			return false;
 		// if payload type is validated, we ensure passing a valid type to isProtocolVersionValid()
-		const DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(htobe16(payloadTypeRaw));
+		const DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(be16toh(payloadTypeRaw));
 		if (!isProtocolVersionValid(version, inVersion, payloadType))
 			return false;
 
-		if (!isPayloadLengthValid(htobe32(lengthRaw), dataLen))
+		if (!isPayloadLengthValid(be32toh(lengthRaw), dataLen))
 			return false;
 
 		return true;
@@ -228,7 +228,7 @@ namespace pcpp
 	{
 		doiphdr* doipHeader = reinterpret_cast<doiphdr*>(data);
 		uint16_t payloadType = doipHeader->payloadType;
-		DoIpPayloadTypes detectedPayloadType = static_cast<DoIpPayloadTypes>(htobe16(payloadType));
+		DoIpPayloadTypes detectedPayloadType = static_cast<DoIpPayloadTypes>(be16toh(payloadType));
 
 		switch (detectedPayloadType)
 		{
@@ -245,12 +245,12 @@ namespace pcpp
 			           ? new DoIpGenericHeaderNack(data, dataLen, prevLayer, packet)
 			           : nullptr;
 		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID:
-			return (DoIpVehicleIdentificationRequestEID::isDataLenValid(dataLen))
-			           ? new DoIpVehicleIdentificationRequestEID(data, dataLen, prevLayer, packet)
+			return (DoIpVehicleIdentificationRequestWEID::isDataLenValid(dataLen))
+			           ? new DoIpVehicleIdentificationRequestWEID(data, dataLen, prevLayer, packet)
 			           : nullptr;
 		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN:
-			return (DoIpVehicleIdentificationRequestVIN::isDataLenValid(dataLen))
-			           ? new DoIpVehicleIdentificationRequestVIN(data, dataLen, prevLayer, packet)
+			return (DoIpVehicleIdentificationRequestWVIN::isDataLenValid(dataLen))
+			           ? new DoIpVehicleIdentificationRequestWVIN(data, dataLen, prevLayer, packet)
 			           : nullptr;
 		case DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE:
 			return (DoIpVehicleAnnouncement::isDataLenValid(dataLen))
@@ -322,8 +322,7 @@ namespace pcpp
 
 	std::string DoIpLayer::getProtocolVersionAsStr() const
 	{
-		auto it = DoIpEnumToStringProtocolVersion.find(getProtocolVersion());
-		return (it != DoIpEnumToStringProtocolVersion.end()) ? it->second : "Unknown Protocol Version";
+		return DoIpEnumToStringProtocolVersion.find(getProtocolVersion())->second;
 	}
 
 	void DoIpLayer::setProtocolVersion(DoIpProtocolVersion version)
@@ -415,11 +414,10 @@ namespace pcpp
 	{
 		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
 
-		auto* payload = getRoutingRequest();
-		payload->sourceAddress = htobe16(sourceAddress);
-		payload->activationType = static_cast<uint8_t>(activationType);
+		setSourceAddress(sourceAddress);
+		setActivationType(activationType);
 		// Reserved ISO is always all zeros
-		payload->reservedIso.fill(0);
+		setReservedIso({});
 	}
 
 	uint16_t DoIpRoutingActivationRequest::getSourceAddress() const
@@ -466,7 +464,7 @@ namespace pcpp
 		return (m_DataLen == OPT_LEN);
 	}
 
-	const std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationRequest::getReservedOem() const
+	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationRequest::getReservedOem() const
 	{
 		if (hasReservedOem())
 		{
@@ -509,8 +507,8 @@ namespace pcpp
 		oss << "Source Address: 0x" << std::hex << getSourceAddress() << "\n";
 
 		auto it = DoIpEnumToStringActivationTypes.find(getActivationType());
-		oss << "Activation type: " << ((it != DoIpEnumToStringActivationTypes.end()) ? it->second : "Unknown") << " (0x"
-		    << std::hex << static_cast<unsigned>(getActivationType()) << ")\n";
+		oss << "Activation type: " << it->second << " (0x" << std::hex
+		    << static_cast<unsigned>(getRoutingRequest()->activationType) << ")\n";
 
 		oss << "Reserved by ISO: " << pcpp::byteArrayToHexString(getReservedIso().data(), DOIP_RESERVED_ISO_LEN)
 		    << "\n";
@@ -536,16 +534,15 @@ namespace pcpp
 	{
 		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
 
-		auto* payload = getRoutingResponse();
-		payload->logicalAddressExternalTester = htobe16(logicalAddressExternalTester);
-		payload->sourceAddress = htobe16(sourceAddress);
-		payload->responseCode = static_cast<uint8_t>(responseCode);
-		payload->reservedIso.fill(0);
+		setLogicalAddressExternalTester(logicalAddressExternalTester);
+		setSourceAddress(sourceAddress);
+		setResponseCode(responseCode);
+		setReservedIso({});
 	}
 
 	uint16_t DoIpRoutingActivationResponse::getLogicalAddressExternalTester() const
 	{
-		return htobe16(getRoutingResponse()->logicalAddressExternalTester);
+		return be16toh(getRoutingResponse()->logicalAddressExternalTester);
 	}
 
 	void DoIpRoutingActivationResponse::setLogicalAddressExternalTester(uint16_t addr)
@@ -555,7 +552,7 @@ namespace pcpp
 
 	uint16_t DoIpRoutingActivationResponse::getSourceAddress() const
 	{
-		return htobe16(getRoutingResponse()->sourceAddress);
+		return be16toh(getRoutingResponse()->sourceAddress);
 	}
 
 	void DoIpRoutingActivationResponse::setSourceAddress(uint16_t sourceAddress)
@@ -567,9 +564,10 @@ namespace pcpp
 	{
 		uint8_t code = getRoutingResponse()->responseCode;
 		if (code <= static_cast<uint8_t>(DoIpRoutingResponseCodes::CONFIRMATION_REQUIRED))
+		{
 			return static_cast<DoIpRoutingResponseCodes>(code);
-		else
-			return DoIpRoutingResponseCodes::UNKNOWN;
+		}
+		return DoIpRoutingResponseCodes::UNKNOWN;
 	}
 
 	void DoIpRoutingActivationResponse::setResponseCode(DoIpRoutingResponseCodes code)
@@ -592,7 +590,7 @@ namespace pcpp
 		return (m_DataLen == OPT_LEN);
 	}
 
-	const std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationResponse::getReservedOem() const
+	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationResponse::getReservedOem() const
 	{
 		if (hasReservedOem())
 		{
@@ -636,9 +634,8 @@ namespace pcpp
 		oss << "Source Address: 0x" << std::hex << getSourceAddress() << "\n";
 
 		auto it = DoIpEnumToStringRoutingResponseCodes.find(getResponseCode());
-		oss << "Routing activation response code: "
-		    << ((it != DoIpEnumToStringRoutingResponseCodes.end()) ? it->second : "Unknown") << " (0x" << std::hex
-		    << static_cast<unsigned>(getResponseCode()) << ")\n";
+		oss << "Routing activation response code: " << it->second << " (0x" << std::hex
+		    << static_cast<unsigned>(getRoutingResponse()->responseCode) << ")\n";
 
 		oss << "Reserved by ISO: " << pcpp::byteArrayToHexString(getReservedIso().data(), DOIP_RESERVED_ISO_LEN)
 		    << "\n";
@@ -666,9 +663,10 @@ namespace pcpp
 	{
 		uint8_t nackCode = getGenericHeaderNack()->nackCode;
 		if (nackCode <= static_cast<uint8_t>(DoIpGenericHeaderNackCodes::INVALID_PAYLOAD_LENGTH))
+		{
 			return static_cast<DoIpGenericHeaderNackCodes>(nackCode);
-		else
-			return DoIpGenericHeaderNackCodes::UNKNOWN;
+		}
+		return DoIpGenericHeaderNackCodes::UNKNOWN;
 	}
 
 	void DoIpGenericHeaderNack::setNackCode(DoIpGenericHeaderNackCodes nackCode)
@@ -686,15 +684,15 @@ namespace pcpp
 		return oss.str();
 	}
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// VehicleIdentificationRequestEID |
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpVehicleIdentificationRequestEID::DoIpVehicleIdentificationRequestEID(uint8_t* data, size_t dataLen,
-	                                                                         Layer* prevLayer, Packet* packet)
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequestWEID|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpVehicleIdentificationRequestWEID::DoIpVehicleIdentificationRequestWEID(uint8_t* data, size_t dataLen,
+	                                                                           Layer* prevLayer, Packet* packet)
 	    : DoIpLayer(data, dataLen, prevLayer, packet)
 	{}
 
-	DoIpVehicleIdentificationRequestEID::DoIpVehicleIdentificationRequestEID(
+	DoIpVehicleIdentificationRequestWEID::DoIpVehicleIdentificationRequestWEID(
 	    const std::array<uint8_t, DOIP_EID_LEN>& eid)
 	    : DoIpLayer(FIXED_LEN)
 	{
@@ -702,32 +700,32 @@ namespace pcpp
 		setEID(eid);
 	}
 
-	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleIdentificationRequestEID::getEID() const
+	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleIdentificationRequestWEID::getEID() const
 	{
 		return getVehicleIdentificationRequestEID()->eid;
 	}
 
-	void DoIpVehicleIdentificationRequestEID::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
+	void DoIpVehicleIdentificationRequestWEID::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
 	{
 		getVehicleIdentificationRequestEID()->eid = eid;
 	}
 
-	std::string DoIpVehicleIdentificationRequestEID::getSummary() const
+	std::string DoIpVehicleIdentificationRequestWEID::getSummary() const
 	{
 		std::ostringstream oss;
 		oss << "EID: " << pcpp::byteArrayToHexString(getEID().data(), DOIP_EID_LEN) << "\n";
 		return oss.str();
 	}
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// VehicleIdentificationRequestVIN |
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpVehicleIdentificationRequestVIN::DoIpVehicleIdentificationRequestVIN(uint8_t* data, size_t dataLen,
-	                                                                         Layer* prevLayer, Packet* packet)
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// VehicleIdentificationRequestWVIN |
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpVehicleIdentificationRequestWVIN::DoIpVehicleIdentificationRequestWVIN(uint8_t* data, size_t dataLen,
+	                                                                           Layer* prevLayer, Packet* packet)
 	    : DoIpLayer(data, dataLen, prevLayer, packet)
 	{}
 
-	DoIpVehicleIdentificationRequestVIN::DoIpVehicleIdentificationRequestVIN(
+	DoIpVehicleIdentificationRequestWVIN::DoIpVehicleIdentificationRequestWVIN(
 	    const std::array<uint8_t, DOIP_VIN_LEN>& vin)
 	    : DoIpLayer(FIXED_LEN)
 	{
@@ -735,17 +733,17 @@ namespace pcpp
 		setVIN(vin);
 	}
 
-	std::array<uint8_t, DOIP_VIN_LEN> DoIpVehicleIdentificationRequestVIN::getVIN() const
+	std::array<uint8_t, DOIP_VIN_LEN> DoIpVehicleIdentificationRequestWVIN::getVIN() const
 	{
-		return getVehicleIdentificationRequestVIN()->vin;
+		return getVehicleIdentificationRequestWVIN()->vin;
 	}
 
-	void DoIpVehicleIdentificationRequestVIN::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
+	void DoIpVehicleIdentificationRequestWVIN::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
 	{
-		getVehicleIdentificationRequestVIN()->vin = vin;
+		getVehicleIdentificationRequestWVIN()->vin = vin;
 	}
 
-	std::string DoIpVehicleIdentificationRequestVIN::getSummary() const
+	std::string DoIpVehicleIdentificationRequestWVIN::getSummary() const
 	{
 		std::ostringstream oss;
 		oss << "VIN: " << std::string(reinterpret_cast<const char*>(getVIN().data()), DOIP_VIN_LEN) << "\n";
@@ -778,26 +776,30 @@ namespace pcpp
 	{
 		return getVehicleAnnouncement()->vin;
 	}
+
 	uint16_t DoIpVehicleAnnouncement::getLogicalAddress() const
 	{
-		return htobe16(getVehicleAnnouncement()->logicalAddress);
+		return be16toh(getVehicleAnnouncement()->logicalAddress);
 	}
 
 	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleAnnouncement::getEID() const
 	{
 		return getVehicleAnnouncement()->eid;
 	}
+
 	std::array<uint8_t, DOIP_GID_LEN> DoIpVehicleAnnouncement::getGID() const
 	{
 		return getVehicleAnnouncement()->gid;
 	}
+
 	DoIpActionCodes DoIpVehicleAnnouncement::getFurtherActionRequired() const
 	{
 		uint8_t actionCode = getVehicleAnnouncement()->actionCode;
 		if (actionCode <= static_cast<uint8_t>(DoIpActionCodes::ROUTING_ACTIVATION_REQUIRED))
+		{
 			return static_cast<DoIpActionCodes>(actionCode);
-		else
-			return DoIpActionCodes::UNKNOWN;
+		}
+		return DoIpActionCodes::UNKNOWN;
 	}
 
 	DoIpSyncStatus DoIpVehicleAnnouncement::getSyncStatus() const
@@ -806,9 +808,10 @@ namespace pcpp
 		{
 			uint8_t syncStatus = *(m_Data + SYNC_STATUS_OFFSET);
 			if (syncStatus <= static_cast<uint8_t>(DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED))
+			{
 				return static_cast<DoIpSyncStatus>(syncStatus);
-			else
-				return DoIpSyncStatus::UNKNOWN;
+			}
+			return DoIpSyncStatus::UNKNOWN;
 		}
 		else
 		{
@@ -828,6 +831,7 @@ namespace pcpp
 			PCPP_LOG_DEBUG("doip packet has no syncStatus!");
 		}
 	}
+
 	void DoIpVehicleAnnouncement::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
 	{
 		getVehicleAnnouncement()->vin = vin;
@@ -835,7 +839,7 @@ namespace pcpp
 
 	void DoIpVehicleAnnouncement::setLogicalAddress(uint16_t logicalAddress)
 	{
-		getVehicleAnnouncement()->logicalAddress = be16toh(logicalAddress);
+		getVehicleAnnouncement()->logicalAddress = htobe16(logicalAddress);
 	}
 
 	void DoIpVehicleAnnouncement::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
@@ -906,7 +910,7 @@ namespace pcpp
 
 	uint16_t DoIpAliveCheckResponse::getSourceAddress() const
 	{
-		return htobe16(getAliveCheckResponse()->sourceAddress);
+		return be16toh(getAliveCheckResponse()->sourceAddress);
 	}
 
 	void DoIpAliveCheckResponse::setSourceAddress(uint16_t sourceAddress)
@@ -940,9 +944,10 @@ namespace pcpp
 	{
 		uint8_t powerModeCode = getDiagnosticPowerModeResponse()->powerModeCode;
 		if (powerModeCode <= static_cast<uint8_t>(DoIpDiagnosticPowerModeCodes::NOT_SUPPORTED))
+		{
 			return static_cast<DoIpDiagnosticPowerModeCodes>(powerModeCode);
-		else
-			return DoIpDiagnosticPowerModeCodes::UNKNOWN;
+		}
+		return DoIpDiagnosticPowerModeCodes::UNKNOWN;
 	}
 
 	void DoIpDiagnosticPowerModeResponse::setPowerModeCode(DoIpDiagnosticPowerModeCodes code)
@@ -979,21 +984,24 @@ namespace pcpp
 	}
 	DoIpEntityStatusResponseCode DoIpEntityStatusResponse::getNodeType() const
 	{
-		uint8_t nodeType = getEntityStatusResponsePtr()->nodeType;
+		uint8_t nodeType = getEntityStatusResponse()->nodeType;
 		if (nodeType <= static_cast<uint8_t>(DoIpEntityStatusResponseCode::NODE))
+		{
 			return static_cast<DoIpEntityStatusResponseCode>(nodeType);
-		else
-			return DoIpEntityStatusResponseCode::UNKNOWN;
+		}
+		return DoIpEntityStatusResponseCode::UNKNOWN;
 	}
 
 	uint8_t DoIpEntityStatusResponse::getMaxConcurrentSockets() const
 	{
-		return getEntityStatusResponsePtr()->maxConcurrentSockets;
+		return getEntityStatusResponse()->maxConcurrentSockets;
 	}
+
 	uint8_t DoIpEntityStatusResponse::getCurrentlyOpenSockets() const
 	{
-		return getEntityStatusResponsePtr()->currentlyOpenSockets;
+		return getEntityStatusResponse()->currentlyOpenSockets;
 	}
+
 	uint32_t DoIpEntityStatusResponse::getMaxDataSize() const
 	{
 		if (!hasMaxDataSize())
@@ -1001,16 +1009,19 @@ namespace pcpp
 
 		uint32_t value;
 		std::memcpy(&value, m_Data + MAX_DATA_SIZE_OFFSET, MAX_DATA_SIZE_LEN);
-		return htobe32(value);
+		return be32toh(value);
 	}
+
 	void DoIpEntityStatusResponse::setNodeType(DoIpEntityStatusResponseCode nodeType)
 	{
-		getEntityStatusResponsePtr()->nodeType = static_cast<uint8_t>(nodeType);
+		getEntityStatusResponse()->nodeType = static_cast<uint8_t>(nodeType);
 	}
+
 	bool DoIpEntityStatusResponse::hasMaxDataSize() const
 	{
 		return (m_DataLen == OPT_LEN);
 	}
+
 	void DoIpEntityStatusResponse::clearMaxDataSize()
 	{
 		if (hasMaxDataSize())
@@ -1023,14 +1034,15 @@ namespace pcpp
 			PCPP_LOG_DEBUG("doip packet has no MaxDataSize field!");
 		}
 	}
+
 	void DoIpEntityStatusResponse::setMaxConcurrentSockets(uint8_t sockets)
 	{
-		getEntityStatusResponsePtr()->maxConcurrentSockets = sockets;
+		getEntityStatusResponse()->maxConcurrentSockets = sockets;
 	}
 
 	void DoIpEntityStatusResponse::setCurrentlyOpenSockets(uint8_t sockets)
 	{
-		getEntityStatusResponsePtr()->currentlyOpenSockets = sockets;
+		getEntityStatusResponse()->currentlyOpenSockets = sockets;
 	}
 
 	void DoIpEntityStatusResponse::setMaxDataSize(uint32_t data)
@@ -1047,10 +1059,10 @@ namespace pcpp
 	std::string DoIpEntityStatusResponse::getSummary() const
 	{
 		std::ostringstream oss;
-		DoIpEntityStatusResponseCode nodeType = getNodeType();
-		auto it = DoIpEnumToStringEntityStatusNodeTypes.find(nodeType);
-		oss << "Entity status: " << ((it != DoIpEnumToStringEntityStatusNodeTypes.end()) ? it->second : "Unknown")
-		    << " (0x" << std::hex << static_cast<unsigned>(nodeType) << ")" << "\n";
+		auto it = DoIpEnumToStringEntityStatusNodeTypes.find(getNodeType());
+
+		oss << "Entity status: " << it->second << " (0x" << std::hex
+		    << static_cast<unsigned>(getEntityStatusResponse()->nodeType) << ")" << "\n";
 		oss << "Max Concurrent Socket: " << static_cast<unsigned>(getMaxConcurrentSockets()) << "\n";
 		oss << "Currently Opened Socket: " << static_cast<unsigned>(getCurrentlyOpenSockets()) << "\n";
 		if (hasMaxDataSize())
@@ -1070,12 +1082,12 @@ namespace pcpp
 
 	uint16_t DoIpDiagnosticBase::getSourceAddress() const
 	{
-		return htobe16(getCommonDiagnosticHeader()->sourceAddress);
+		return be16toh(getCommonDiagnosticHeader()->sourceAddress);
 	}
 
 	uint16_t DoIpDiagnosticBase::getTargetAddress() const
 	{
-		return htobe16(getCommonDiagnosticHeader()->targetAddress);
+		return be16toh(getCommonDiagnosticHeader()->targetAddress);
 	}
 
 	void DoIpDiagnosticBase::setSourceAddress(uint16_t sourceAddress)
@@ -1105,7 +1117,7 @@ namespace pcpp
 		setDiagnosticData(diagData);
 	}
 
-	const std::vector<uint8_t> DoIpDiagnosticMessage::getDiagnosticData() const
+	std::vector<uint8_t> DoIpDiagnosticMessage::getDiagnosticData() const
 	{
 		const uint8_t* diagDataPtr = m_Data + DIAGNOSTIC_DATA_OFFSET;
 		return std::vector<uint8_t>(diagDataPtr, diagDataPtr + (m_DataLen - DIAGNOSTIC_DATA_OFFSET));
@@ -1113,16 +1125,19 @@ namespace pcpp
 
 	void DoIpDiagnosticMessage::setDiagnosticData(const std::vector<uint8_t>& data)
 	{
-		const size_t newPayloadlLength = DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN + data.size();
+		const size_t newPayloadLength = DOIP_SOURCE_ADDRESS_LEN + DOIP_TARGET_ADDRESS_LEN + data.size();
 		const size_t currentDiagnosticDataLen = m_DataLen - DIAGNOSTIC_DATA_OFFSET;
+		setPayloadLength(newPayloadLength);
 
-		setPayloadLength(newPayloadlLength);
-		// always clear the current diagnostic data and extendLayer with the new provided data
-		if (currentDiagnosticDataLen > 0)
+		auto layerExtensionLen = data.size() - currentDiagnosticDataLen;
+		if (layerExtensionLen > 0)
 		{
-			shortenLayer(DIAGNOSTIC_DATA_OFFSET, currentDiagnosticDataLen);
+			extendLayer(DIAGNOSTIC_DATA_OFFSET + currentDiagnosticDataLen, layerExtensionLen);
 		}
-		extendLayer(DIAGNOSTIC_DATA_OFFSET, data.size());
+		else if (layerExtensionLen < 0)
+		{
+			shortenLayer(DIAGNOSTIC_DATA_OFFSET, layerExtensionLen);
+		}
 		uint8_t* dataPtr = m_Data + DIAGNOSTIC_DATA_OFFSET;
 		memcpy(dataPtr, data.data(), data.size());
 	}
@@ -1159,7 +1174,7 @@ namespace pcpp
 
 	uint8_t DoIpDiagnosticResponseMessageBase::getResponseCode() const
 	{
-		return static_cast<uint8_t>(getDiagnosticResponseMessageBase()->diagnosticCode);
+		return getDiagnosticResponseMessageBase()->diagnosticCode;
 	}
 
 	const std::vector<uint8_t> DoIpDiagnosticResponseMessageBase::getPreviousMessage() const
@@ -1169,10 +1184,7 @@ namespace pcpp
 			uint8_t* dataPtr = m_Data + PREVIOUS_MSG_OFFSET;
 			return std::vector<uint8_t>(dataPtr, dataPtr + (m_DataLen - PREVIOUS_MSG_OFFSET));
 		}
-		else
-		{
-			return {};
-		}
+		return {};
 	}
 
 	bool DoIpDiagnosticResponseMessageBase::hasPreviousMessage() const
@@ -1182,15 +1194,19 @@ namespace pcpp
 
 	void DoIpDiagnosticResponseMessageBase::setPreviousMessage(const std::vector<uint8_t>& msg)
 	{
-		size_t newPayloadLen = FIXED_LEN - DOIP_HEADER_LEN + msg.size();
-		size_t currentPayloadLen = m_DataLen - PREVIOUS_MSG_OFFSET;
+		const size_t newPayloadLen = FIXED_LEN - DOIP_HEADER_LEN + msg.size();
+		const size_t currentPayloadLen = m_DataLen - PREVIOUS_MSG_OFFSET;
 		setPayloadLength(newPayloadLen);
-		// clear memory for old previous message
-		if (hasPreviousMessage())
+
+		auto layerExtensionLen = msg.size() - currentPayloadLen;
+		if (layerExtensionLen > 0)
+		{
+			extendLayer(PREVIOUS_MSG_OFFSET + currentPayloadLen, layerExtensionLen);
+		}
+		else if (layerExtensionLen < 0)
 		{
 			shortenLayer(PREVIOUS_MSG_OFFSET, currentPayloadLen);
 		}
-		extendLayer(PREVIOUS_MSG_OFFSET, msg.size());
 		uint8_t* ptr = getDataPtr(PREVIOUS_MSG_OFFSET);
 		memcpy(ptr, msg.data(), msg.size());
 	}
@@ -1225,9 +1241,10 @@ namespace pcpp
 	DoIpDiagnosticAckCodes DoIpDiagnosticAckMessage::getAckCode() const
 	{
 		if (getResponseCode() == static_cast<uint8_t>(DoIpDiagnosticAckCodes::ACK))
+		{
 			return DoIpDiagnosticAckCodes::ACK;
-		else
-			return DoIpDiagnosticAckCodes::UNKNOWN;
+		}
+		return DoIpDiagnosticAckCodes::UNKNOWN;
 	}
 
 	void DoIpDiagnosticAckMessage::setAckCode(DoIpDiagnosticAckCodes code)
@@ -1270,9 +1287,10 @@ namespace pcpp
 	{
 		uint8_t nackCode = getResponseCode();
 		if (nackCode <= static_cast<uint8_t>(DoIpDiagnosticMessageNackCodes::TRANSPORT_PROTOCOL_ERROR))
+		{
 			return static_cast<DoIpDiagnosticMessageNackCodes>(nackCode);
-		else
-			return DoIpDiagnosticMessageNackCodes::UNKNOWN;
+		}
+		return DoIpDiagnosticMessageNackCodes::UNKNOWN;
 	}
 
 	void DoIpDiagnosticNackMessage::setNackCode(DoIpDiagnosticMessageNackCodes code)

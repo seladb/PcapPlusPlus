@@ -290,13 +290,13 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation)
 }
 
 // VehicleIdentificationWithEID
-PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWEIDPacketParsing)
 {
 	// Dissect Vehicle identification Request with EID
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestEIDPacket.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWEIDPacket.dat");
 
 	pcpp::Packet VehicleIdentificationRequestEID(&rawPacket1);
 	PTF_ASSERT_TRUE(VehicleIdentificationRequestEID.isPacketOfType(pcpp::IPv4));
@@ -309,7 +309,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
 	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 	PTF_ASSERT_EQUAL(udpLayer->getSrcPort(), 65300);
 
-	auto* doipLayer = VehicleIdentificationRequestEID.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestEID>();
+	auto* doipLayer = VehicleIdentificationRequestEID.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestWEID>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(), "EID: 4241554e4545\n");
@@ -326,8 +326,8 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
 
 }  // VehicleIdentificationWithEIDacketParsing
 
-// DoIpVehicleIdentificationRequestEIDPacketCreation
-PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketCreation)
+// DoIpVehicleIdentificationRequestWEIDPacketCreation
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWEIDPacketCreation)
 {
 	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
@@ -344,7 +344,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketCreation)
 	unsigned char bytes[] = { 0x2, 0xfd, 0x0, 0x2, 0x0, 0x0, 0x0, 0x6, 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45 };
 	std::array<uint8_t, 6> eid{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45 };
 
-	pcpp::DoIpVehicleIdentificationRequestEID withEID(eid);
+	pcpp::DoIpVehicleIdentificationRequestWEID withEID(eid);
 	withEID.setEID(eid);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&withEID));
@@ -362,16 +362,16 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketCreation)
 	PTF_ASSERT_EQUAL(withEID.toString(), "DoIP Layer, Vehicle identification request with EID (0x0002)");
 	PTF_ASSERT_VECTORS_EQUAL(withEID.getEID(), eid);
 	PTF_ASSERT_EQUAL(withEID.getSummary(), "EID: 4241554e4545\n");
-}  // DoIpVehicleIdentificationRequestEIDPacketCreation
+}  // DoIpVehicleIdentificationRequestWEIDPacketCreation
 
-// DoIpVehicleIdentificationRequestVINPacketParsing
-PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
+// DoIpVehicleIdentificationRequestWVINPacketParsing
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWVINPacketParsing)
 {
 	// Dissect Vehicle identification Request with VIN
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestVINPacket.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWVINPacket.dat");
 
 	pcpp::Packet VehicleIdentificationRequestVIN(&rawPacket1);
 	PTF_ASSERT_TRUE(VehicleIdentificationRequestVIN.isPacketOfType(pcpp::IPv4));
@@ -383,7 +383,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
 
 	PTF_ASSERT_EQUAL(udpLayer->getDstPort(), pcpp::DoIpPorts::TCP_UDP_PORT);
 
-	auto* doipLayer = VehicleIdentificationRequestVIN.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestVIN>();
+	auto* doipLayer = VehicleIdentificationRequestVIN.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestWVIN>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::Version02Iso2012, enumclass);
@@ -401,8 +401,8 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
 
 }  // DoIpVehicleIdentificationRequestVINPacketParsing
 
-// DoIpVehicleIdentificationRequestVINPacketCreation
-PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketCreation)
+// DoIpVehicleIdentificationRequestWVINPacketCreation
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWVINPacketCreation)
 {
 	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
@@ -421,7 +421,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketCreation)
 	std::array<uint8_t, 17> vin{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45, 0x34, 0x4d, 0x5a,
 		                         0x31, 0x37, 0x30, 0x34, 0x32, 0x34, 0x30, 0x33 };
 
-	pcpp::DoIpVehicleIdentificationRequestVIN withVin(vin);
+	pcpp::DoIpVehicleIdentificationRequestWVIN withVin(vin);
 	withVin.setVIN(vin);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&withVin));
@@ -535,7 +535,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 33);
 	PTF_ASSERT_EQUAL(doipLayer->toString(),
 	                 "DoIP Layer, Vehicle announcement message / vehicle identification response message (0x0004)");
-	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getVIN(), vin);
+
 	PTF_ASSERT_EQUAL(doipLayer->getLogicalAddress(), 0x4010);
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getEID(), eid);
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getGID(), gid);

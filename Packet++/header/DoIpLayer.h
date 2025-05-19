@@ -806,7 +806,7 @@ namespace pcpp
 		/// @throw std::runtime_error if the reserved OEM bytes are not present.
 		/// @note To use this method safely, check beforehand if the reserved OEM bytes are present using
 		/// hasReservedOem().
-		const std::array<uint8_t, DOIP_RESERVED_ISO_LEN> getReservedOem() const;
+		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> getReservedOem() const;
 
 		/// @brief Sets the reserved OEM bytes.
 		/// @param[in] reservedOem The reserved OEM bytes to set.
@@ -918,7 +918,7 @@ namespace pcpp
 		/// @throw std::runtime_error if the reserved OEM bytes are not present.
 		/// @note before using this method, check beforehand if the reserved OEM bytes are present using
 		/// hasReservedOem().
-		const std::array<uint8_t, DOIP_RESERVED_OEM_LEN> getReservedOem() const;
+		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> getReservedOem() const;
 
 		/// @brief Sets the reserved OEM bytes.
 		/// @param[in] reservedOem The reserved OEM bytes to set.
@@ -1030,15 +1030,15 @@ namespace pcpp
 		static constexpr size_t FIXED_LEN = sizeof(generic_header_nack);
 	};
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleIdentificationRequestEID|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequestWEID|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 
-	/// @class DoIpVehicleIdentificationRequestEID
+	/// @class DoIpVehicleIdentificationRequestWEID
 	/// @brief Represents a DoIP Vehicle Identification Request with EID.
 	///
 	/// This message is used to identify a vehicle based on its Entity ID (EID).
-	class DoIpVehicleIdentificationRequestEID : public DoIpLayer
+	class DoIpVehicleIdentificationRequestWEID : public DoIpLayer
 	{
 	public:
 		/// @brief Constructs the layer from raw DoIP packet data.
@@ -1046,11 +1046,11 @@ namespace pcpp
 		/// @param[in] dataLen Length of the raw data.
 		/// @param[in] prevLayer Pointer to the previous layer.
 		/// @param[in] packet Pointer to the parent packet instance.
-		DoIpVehicleIdentificationRequestEID(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		DoIpVehicleIdentificationRequestWEID(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/// @brief Constructs the message using the specified EID.
 		/// @param[in] eid A 6-byte Entity ID used for vehicle identification.
-		explicit DoIpVehicleIdentificationRequestEID(const std::array<uint8_t, DOIP_EID_LEN>& eid = {});
+		explicit DoIpVehicleIdentificationRequestWEID(const std::array<uint8_t, DOIP_EID_LEN>& eid = {});
 
 		/// @brief Gets the Entity ID (EID).
 		/// @return A 6-byte Entity ID (EID).
@@ -1091,15 +1091,15 @@ namespace pcpp
 		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_eid);
 	};
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleIdentificationRequestVIN|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequestWVIN|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 
-	/// @class DoIpVehicleIdentificationRequestVIN
+	/// @class DoIpVehicleIdentificationRequestWVIN
 	/// @brief Represents a DoIP Vehicle Identification Request with VIN.
 	///
 	/// This message is used to identify a vehicle based on its Vehicle Identification Number (VIN).
-	class DoIpVehicleIdentificationRequestVIN : public DoIpLayer
+	class DoIpVehicleIdentificationRequestWVIN : public DoIpLayer
 	{
 	public:
 		/// @brief Constructs the layer from raw DoIP packet data.
@@ -1107,11 +1107,11 @@ namespace pcpp
 		/// @param[in] dataLen Length of the raw data.
 		/// @param[in] prevLayer Pointer to the previous layer.
 		/// @param[in] packet Pointer to the parent packet instance.
-		DoIpVehicleIdentificationRequestVIN(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		DoIpVehicleIdentificationRequestWVIN(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/// @brief Constructs the message using the specified VIN.
 		/// @param[in] vin A 17-byte Vehicle Identification Number.
-		explicit DoIpVehicleIdentificationRequestVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin = {});
+		explicit DoIpVehicleIdentificationRequestWVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin = {});
 
 		/// @brief Gets the Vehicle Identification Number (VIN).
 		/// @return A 17-byte Vehicle Identification Number (VIN).
@@ -1140,16 +1140,16 @@ namespace pcpp
 
 	private:
 #pragma pack(push, 1)
-		struct vehicle_identification_request_vin : doiphdr
+		struct vehicle_identification_request_with_vin : doiphdr
 		{
 			std::array<uint8_t, DOIP_VIN_LEN> vin;
 		};
 #pragma pack(pop)
-		vehicle_identification_request_vin* getVehicleIdentificationRequestVIN() const
+		vehicle_identification_request_with_vin* getVehicleIdentificationRequestWVIN() const
 		{
-			return reinterpret_cast<vehicle_identification_request_vin*>(m_Data);
+			return reinterpret_cast<vehicle_identification_request_with_vin*>(m_Data);
 		}
-		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_vin);
+		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_with_vin);
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1504,7 +1504,7 @@ namespace pcpp
 		};
 #pragma pack(pop)
 
-		entity_status_response* getEntityStatusResponsePtr() const
+		entity_status_response* getEntityStatusResponse() const
 		{
 			return reinterpret_cast<entity_status_response*>(m_Data);
 		}
@@ -1555,17 +1555,11 @@ namespace pcpp
 		virtual std::string getSummary() const = 0;
 
 	protected:
-/// @struct  common_diagnostic_header
-/// Common first diagnostic data in DoIP
-/// messages (diagnostic/diagnosticAck/diagnosticNack).
-/// common_diagnostic_header message structure (extends DoIP header).
 #pragma pack(push, 1)
 		struct common_diagnostic_header : doiphdr
 		{
-			/// @brief Diagnostic source address
 			uint16_t sourceAddress;
 
-			/// @brief Diagnostic target address
 			uint16_t targetAddress;
 		};
 #pragma pack(pop)
@@ -1605,7 +1599,7 @@ namespace pcpp
 
 		/// @brief Get the diagnostic data payload.
 		/// @return A vector containing the diagnostic data bytes.
-		const std::vector<uint8_t> getDiagnosticData() const;
+		std::vector<uint8_t> getDiagnosticData() const;
 
 		/// @brief Returns a human-readable summary of the message content.
 		/// @return A string summarizing the diagnostic message.
@@ -1628,7 +1622,7 @@ namespace pcpp
 		/// @return true if the data length is valid, false otherwise.
 		static inline bool isDataLenValid(size_t dataLen)
 		{
-			return (dataLen > MIN_LEN);
+			return (dataLen >= MIN_LEN);
 		}
 
 	private:
