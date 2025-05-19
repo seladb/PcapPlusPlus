@@ -569,7 +569,8 @@ namespace pcpp
 		bool setFilter(std::string filterAsString) override;
 
 	private:
-		bool openImpl(bool appendMode, PcapNgMetadata const* metadata = nullptr);
+		bool openWrite(PcapNgMetadata const* metadata = nullptr);
+		bool openAppend();
 	};
 
 }  // namespace pcpp

@@ -899,17 +899,17 @@ namespace pcpp
 
 	bool PcapNgFileWriterDevice::open()
 	{
-		return open(false);
+		return openWrite();
 	}
 
 	bool PcapNgFileWriterDevice::open(bool appendMode)
 	{
-		return openImpl(appendMode, nullptr);
+		return appendMode ? openAppend() : openWrite();
 	}
 
 	bool PcapNgFileWriterDevice::open(PcapNgMetadata const& metadata)
 	{
-		return openImpl(false, &metadata);
+		return openWrite(&metadata);
 	}
 
 	bool PcapNgFileWriterDevice::open(const std::string& os, const std::string& hardware, const std::string& captureApp,
@@ -920,10 +920,10 @@ namespace pcpp
 		metadata.hardware = hardware;
 		metadata.captureApplication = captureApp;
 		metadata.comment = fileComment;
-		return openImpl(false, &metadata);
+		return openWrite(&metadata);
 	}
 
-	bool PcapNgFileWriterDevice::openImpl(bool appendMode, PcapNgMetadata const* metadata)
+	bool PcapNgFileWriterDevice::openWrite(PcapNgMetadata const* metadata)
 	{
 		// TODO: Ambiguity in the API
 		//   If the user calls open() and then open(true) - should we close the first one or report failure?
@@ -937,47 +937,55 @@ namespace pcpp
 		m_NumOfPacketsNotWritten = 0;
 		m_NumOfPacketsWritten = 0;
 
-		if (appendMode)
+		light_pcapng_file_info* info;
+		if (metadata == nullptr)
 		{
-			if (metadata != nullptr)
-			{
-				PCPP_LOG_ERROR("Pcap-ng file writer device cannot be opened in append mode with metadata");
-				return false;
-			}
-
-			m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_append(m_FileName.c_str()));
-			if (m_LightPcapNg == nullptr)
-			{
-				PCPP_LOG_ERROR("Error opening file writer device in append mode for file '"
-				               << m_FileName << "': light_pcapng_open_append returned nullptr");
-				m_DeviceOpened = false;
-				return false;
-			}
+			info = light_create_default_file_info();
 		}
 		else
 		{
-			light_pcapng_file_info* info;
-			if (metadata == nullptr)
-			{
-				info = light_create_default_file_info();
-			}
-			else
-			{
-				info = light_create_file_info(metadata->os.c_str(), metadata->hardware.c_str(),
-				                              metadata->captureApplication.c_str(), metadata->comment.c_str());
-			}
+			info = light_create_file_info(metadata->os.c_str(), metadata->hardware.c_str(),
+			                              metadata->captureApplication.c_str(), metadata->comment.c_str());
+		}
 
-			m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel));
-			if (m_LightPcapNg == nullptr)
-			{
-				PCPP_LOG_ERROR("Error opening file writer device for file '"
-				               << m_FileName << "': light_pcapng_open_write returned nullptr");
+		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel));
+		if (m_LightPcapNg == nullptr)
+		{
+			PCPP_LOG_ERROR("Error opening file writer device for file '"
+			               << m_FileName << "': light_pcapng_open_write returned nullptr");
 
-				light_free_file_info(info);
+			light_free_file_info(info);
 
-				m_DeviceOpened = false;
-				return false;
-			}
+			m_DeviceOpened = false;
+			return false;
+		}
+
+		m_DeviceOpened = true;
+		PCPP_LOG_DEBUG("pcap-ng writer device for file '" << m_FileName << "' opened successfully");
+		return true;
+	}
+
+	bool PcapNgFileWriterDevice::openAppend()
+	{
+		// TODO: Ambiguity in the API
+		//   If the user calls open() and then open(true) - should we close the first one or report failure?
+		//   Currently the method reports a success, but the opened device would not match the appendMode.
+		if (m_LightPcapNg != nullptr)
+		{
+			PCPP_LOG_DEBUG("Pcap-ng descriptor already opened. Nothing to do");
+			return true;
+		}
+
+		m_NumOfPacketsNotWritten = 0;
+		m_NumOfPacketsWritten = 0;
+
+		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_append(m_FileName.c_str()));
+		if (m_LightPcapNg == nullptr)
+		{
+			PCPP_LOG_ERROR("Error opening file writer device in append mode for file '"
+			               << m_FileName << "': light_pcapng_open_append returned nullptr");
+			m_DeviceOpened = false;
+			return false;
 		}
 
 		m_DeviceOpened = true;
