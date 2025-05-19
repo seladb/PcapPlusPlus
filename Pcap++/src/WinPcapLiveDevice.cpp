@@ -60,6 +60,11 @@ namespace pcpp
 
 	int WinPcapLiveDevice::sendPackets(RawPacket const* rawPacketsArr, int arrLength)
 	{
+		return sendPacketsDirect(rawPacketsArr, arrLength);
+	}
+
+	int WinPcapLiveDevice::sendPacketsDirect(RawPacket const* rawPacketsArr, int arrLength)
+	{
 		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");

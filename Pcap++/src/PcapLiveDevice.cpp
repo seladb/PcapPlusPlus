@@ -956,20 +956,57 @@ namespace pcpp
 
 	int PcapLiveDevice::sendPackets(RawPacket const* rawPacketsArr, int arrLength, bool checkMtu)
 	{
+		if (!checkMtu)
+		{
+			return sendPacketsDirect(rawPacketsArr, arrLength);
+		}
+
 		return sendPacketsImpl(rawPacketsArr, rawPacketsArr + arrLength,
 		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(Packet const* const* packetsArr, int arrLength, bool checkMtu)
 	{
+		if(!checkMtu)
+		{
+			return sendPacketsDirect(packetsArr, arrLength);
+		}
+
 		return sendPacketsImpl(packetsArr, packetsArr + arrLength,
 		                       [this, checkMtu](Packet const* packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
+		if (!checkMtu)
+		{
+			return sendPacketsDirect(rawPackets.data(), static_cast<int>(rawPackets.size()));
+		}
+
 		return sendPacketsImpl(rawPackets.begin(), rawPackets.end(),
 		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
+	}
+
+	int PcapLiveDevice::sendPacketsDirect(RawPacket const* packetsArr, int arrLength)
+	{
+		return sendPacketsImpl(packetsArr, packetsArr + arrLength, [this](RawPacket const& packet) {
+			return sendPacketDirect(packet.getRawData(), packet.getRawDataLen());
+		});
+	}
+
+	int PcapLiveDevice::sendPacketsDirect(RawPacket const* const* packetsArr, int arrLength)
+	{
+		return sendPacketsImpl(packetsArr, packetsArr + arrLength, [this](RawPacket const* packet) {
+			return sendPacketDirect(packet->getRawData(), packet->getRawDataLen());
+		});
+	}
+
+	int PcapLiveDevice::sendPacketsDirect(Packet const* const* packetsArr,int arrLength)
+	{
+		return sendPacketsImpl(packetsArr, packetsArr + arrLength, [this](Packet const* packet) {
+			return sendPacketDirect(packet->getRawPacketReadOnly()->getRawData(),
+			                        packet->getRawPacketReadOnly()->getRawDataLen());
+		});
 	}
 
 	void PcapLiveDevice::setDeviceMtu()

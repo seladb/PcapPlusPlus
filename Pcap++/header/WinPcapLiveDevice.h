@@ -66,5 +66,9 @@ namespace pcpp
 		}
 
 		WinPcapLiveDevice* clone() const override;
+
+	protected:
+		// Override of the sendPackets method that uses pcap_sendqueue implementation.
+		int sendPacketsDirect(RawPacket const* rawPacketsArr, int arrLength) override;
 	};
 }  // namespace pcpp
