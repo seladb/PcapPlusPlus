@@ -937,14 +937,14 @@ namespace pcpp
 
 	namespace
 	{
-		template <typename It, typename Func> int sendPacketsImpl(It begin, It end, Func sendFunc, bool checkMtu)
+		template <typename It, typename Func> int sendPacketsImpl(It begin, It end, Func sendFunc)
 		{
 			int packetsSent = 0;
 			size_t totalPackets = std::distance(begin, end);
 
 			for (It iter = begin; iter != end; ++iter)
 			{
-				if (sendFunc(*iter, checkMtu))
+				if (sendFunc(*iter))
 					packetsSent++;
 			}
 
@@ -956,23 +956,20 @@ namespace pcpp
 
 	int PcapLiveDevice::sendPackets(RawPacket const* rawPacketsArr, int arrLength, bool checkMtu)
 	{
-		return sendPacketsImpl(
-		    rawPacketsArr, rawPacketsArr + arrLength,
-		    [this](RawPacket const& packet, bool checkMtu) { return sendPacket(packet, checkMtu); }, checkMtu);
+		return sendPacketsImpl(rawPacketsArr, rawPacketsArr + arrLength,
+		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(Packet const* const* packetsArr, int arrLength, bool checkMtu)
 	{
-		return sendPacketsImpl(
-		    packetsArr, packetsArr + arrLength,
-		    [this](Packet const* packet, bool checkMtu) { return sendPacket(packet, checkMtu); }, checkMtu);
+		return sendPacketsImpl(packetsArr, packetsArr + arrLength,
+		                       [this, checkMtu](Packet const* packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
-		return sendPacketsImpl(
-		    rawPackets.begin(), rawPackets.end(),
-		    [this](RawPacket const* packet, bool checkMtu) { return sendPacket(*packet, checkMtu); }, checkMtu);
+		return sendPacketsImpl(rawPackets.begin(), rawPackets.end(),
+		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	void PcapLiveDevice::setDeviceMtu()
