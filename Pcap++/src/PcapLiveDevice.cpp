@@ -967,7 +967,7 @@ namespace pcpp
 
 	int PcapLiveDevice::sendPackets(Packet const* const* packetsArr, int arrLength, bool checkMtu)
 	{
-		if(!checkMtu)
+		if (!checkMtu)
 		{
 			return sendPacketsDirect(packetsArr, arrLength);
 		}
@@ -1001,7 +1001,7 @@ namespace pcpp
 		});
 	}
 
-	int PcapLiveDevice::sendPacketsDirect(Packet const* const* packetsArr,int arrLength)
+	int PcapLiveDevice::sendPacketsDirect(Packet const* const* packetsArr, int arrLength)
 	{
 		return sendPacketsLoop(packetsArr, packetsArr + arrLength, [this](Packet const* packet) {
 			return sendPacketDirect(packet->getRawPacketReadOnly()->getRawData(),

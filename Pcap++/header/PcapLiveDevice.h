@@ -604,7 +604,7 @@ namespace pcpp
 
 		// Sends a packet directly to the network.
 		bool sendPacketDirect(uint8_t const* packetData, int packetDataLength);
-		
+
 		// Sends an array of packets directly to the network. Allows sending packets in bulk.
 		virtual int sendPacketsDirect(RawPacket const* packetsArr, int arrLength);
 		// Sends an array of packets directly to the network. Allows sending packets in bulk.
@@ -613,6 +613,7 @@ namespace pcpp
 		// Sends an array of packets directly to the network. Allows sending packets in bulk.
 		// Overload to accept an array of packet pointers.
 		virtual int sendPacketsDirect(Packet const* const* packetsArr, int arrLength);
+
 	private:
 		bool isNflogDevice() const;
 	};
