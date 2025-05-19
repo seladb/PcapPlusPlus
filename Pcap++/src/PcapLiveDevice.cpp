@@ -905,7 +905,7 @@ namespace pcpp
 		return true;
 	}
 
-	bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
+	bool PcapLiveDevice::sendPacket(Packet const* packet, bool checkMtu)
 	{
 		RawPacket* rawPacket = packet->getRawPacket();
 		if (checkMtu)
@@ -928,7 +928,7 @@ namespace pcpp
 		return sendPacket(*rawPacket, false);
 	}
 
-	int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
+	int PcapLiveDevice::sendPackets(RawPacket const* rawPacketsArr, int arrLength, bool checkMtu)
 	{
 		int packetsSent = 0;
 		for (int i = 0; i < arrLength; i++)
@@ -941,7 +941,7 @@ namespace pcpp
 		return packetsSent;
 	}
 
-	int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
+	int PcapLiveDevice::sendPackets(Packet const* const* packetsArr, int arrLength, bool checkMtu)
 	{
 		int packetsSent = 0;
 		for (int i = 0; i < arrLength; i++)

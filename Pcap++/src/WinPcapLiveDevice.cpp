@@ -58,7 +58,7 @@ namespace pcpp
 		return PcapLiveDevice::startCapture(intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
 	}
 
-	int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
+	int WinPcapLiveDevice::sendPackets(RawPacket const* rawPacketsArr, int arrLength)
 	{
 		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
