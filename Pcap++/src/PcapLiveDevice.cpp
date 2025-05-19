@@ -937,7 +937,7 @@ namespace pcpp
 
 	namespace
 	{
-		template <typename It, typename Func> int sendPacketsImpl(It begin, It end, Func sendFunc)
+		template <typename It, typename Func> int sendPacketsLoop(It begin, It end, Func sendFunc)
 		{
 			int packetsSent = 0;
 			size_t totalPackets = std::distance(begin, end);
@@ -961,7 +961,7 @@ namespace pcpp
 			return sendPacketsDirect(rawPacketsArr, arrLength);
 		}
 
-		return sendPacketsImpl(rawPacketsArr, rawPacketsArr + arrLength,
+		return sendPacketsLoop(rawPacketsArr, rawPacketsArr + arrLength,
 		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
 
@@ -972,7 +972,7 @@ namespace pcpp
 			return sendPacketsDirect(packetsArr, arrLength);
 		}
 
-		return sendPacketsImpl(packetsArr, packetsArr + arrLength,
+		return sendPacketsLoop(packetsArr, packetsArr + arrLength,
 		                       [this, checkMtu](Packet const* packet) { return sendPacket(packet, checkMtu); });
 	}
 
@@ -983,27 +983,27 @@ namespace pcpp
 			return sendPacketsDirect(rawPackets.data(), static_cast<int>(rawPackets.size()));
 		}
 
-		return sendPacketsImpl(rawPackets.begin(), rawPackets.end(),
+		return sendPacketsLoop(rawPackets.begin(), rawPackets.end(),
 		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPacketsDirect(RawPacket const* packetsArr, int arrLength)
 	{
-		return sendPacketsImpl(packetsArr, packetsArr + arrLength, [this](RawPacket const& packet) {
+		return sendPacketsLoop(packetsArr, packetsArr + arrLength, [this](RawPacket const& packet) {
 			return sendPacketDirect(packet.getRawData(), packet.getRawDataLen());
 		});
 	}
 
 	int PcapLiveDevice::sendPacketsDirect(RawPacket const* const* packetsArr, int arrLength)
 	{
-		return sendPacketsImpl(packetsArr, packetsArr + arrLength, [this](RawPacket const* packet) {
+		return sendPacketsLoop(packetsArr, packetsArr + arrLength, [this](RawPacket const* packet) {
 			return sendPacketDirect(packet->getRawData(), packet->getRawDataLen());
 		});
 	}
 
 	int PcapLiveDevice::sendPacketsDirect(Packet const* const* packetsArr,int arrLength)
 	{
-		return sendPacketsImpl(packetsArr, packetsArr + arrLength, [this](Packet const* packet) {
+		return sendPacketsLoop(packetsArr, packetsArr + arrLength, [this](Packet const* packet) {
 			return sendPacketDirect(packet->getRawPacketReadOnly()->getRawData(),
 			                        packet->getRawPacketReadOnly()->getRawDataLen());
 		});
