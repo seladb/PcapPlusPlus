@@ -210,6 +210,34 @@ namespace pcpp
 			return m_Vector.end();
 		}
 
+		/// @brief Provides direct access to the underlying array of element pointers.
+		/// The pointer is such that range [data(), data() + size()) is a valid range.
+		///
+		/// If this::size() == 0, the data() pointer is not dereferenceable.
+		///
+		/// All pointers provided by this method should be considered non-owning.
+		/// Elements in the vector have their lifetime managed by the vector and should not be freed manually.
+		///
+		/// @return A pointer to the underlying array of elements.
+		T* const* data()
+		{
+			return m_Vector.data();
+		}
+
+		/// @brief Provides direct access to the underlying array of element pointers.
+		/// The pointer is such that range [data(), data() + size()) is a valid range.
+		///
+		/// If this::size() == 0, the data() pointer is not dereferenceable.
+		///
+		/// All pointers provided by this method should be considered non-owning.
+		/// Elements in the vector have their lifetime managed by the vector and should not be freed manually.
+		///
+		/// @return A const pointer to the underlying array of elements.
+		T const* const* data() const
+		{
+			return m_Vector.data();
+		}
+
 		/// Get number of elements in the vector
 		/// @return The number of elements in the vector
 		size_t size() const
