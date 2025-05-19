@@ -862,13 +862,14 @@ namespace pcpp
 			Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
 			return sendPacket(&parsedPacket, true);
 		}
+
 		// Send packet without Mtu check
-		return sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen());
+		return sendPacketDirect(rawPacket.getRawData(), rawPacket.getRawDataLen());
 	}
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
 	{
-		return doMtuCheck(packetPayloadLength) && sendPacket(packetData, packetDataLength);
+		return doMtuCheck(packetPayloadLength) && sendPacketDirect(packetData, packetDataLength);
 	}
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu,
@@ -883,6 +884,11 @@ namespace pcpp
 			return sendPacket(&parsedPacket, true);
 		}
 
+		return sendPacketDirect(packetData, packetDataLength);
+	}
+
+	bool PcapLiveDevice::sendPacketDirect(uint8_t const* packetData,int packetDataLength)
+	{
 		if (!m_DeviceOpened)
 		{
 			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened!");
