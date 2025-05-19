@@ -482,7 +482,24 @@ namespace pcpp
 		/// - Packet length is 0
 		/// - Packet length is larger than device MTU and checkMtu is true
 		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
-		bool sendPacket(Packet const* packet, bool checkMtu = true);
+		bool sendPacket(Packet const* packet, bool checkMtu = true)
+		{
+			return sendPacket(*packet, checkMtu);
+		}
+
+		/// Send a parsed Packet to the network
+		/// @param[in] packet A reference to the packet to send. This method treats the packet as read-only, it doesn't
+		/// change anything in it
+		/// @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. Default
+		/// value is true, since the packet being passed in has already been parsed, so checking the MTU does not incur
+		/// significant processing overhead.
+		/// @return True if packet was sent successfully. False will be returned in the following cases (relevant log
+		/// error is printed in any case):
+		/// - Device is not opened
+		/// - Packet length is 0
+		/// - Packet length is larger than device MTU and checkMtu is true
+		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
+		bool sendPacket(Packet const& packet, bool checkMtu = true);
 
 		/// Send a RawPacket to the network
 		/// @param[in] rawPacket A reference to the raw packet to send. This method treats the raw packet as read-only,
