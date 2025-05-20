@@ -1,0 +1,8 @@
+LightPcapNg
+
+Library for general-purpose tracing based on PcapNg[1] file format.
+The current project represents work in progress to provide an API
+that can read, write and manipulate PcapNg files (possibly outside
+normal contexts).
+
+[1] https://github.com/pcapng/pcapng
