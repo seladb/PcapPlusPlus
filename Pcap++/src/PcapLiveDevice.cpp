@@ -675,7 +675,7 @@ namespace pcpp
 
 		if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 		{
-			// Due to passing a this pointer, the current device object shouldn't be relocated, while toe worker is
+			// Due to passing a 'this' pointer, the current device object shouldn't be relocated, while the worker is
 			// active.
 			m_StatisticsUpdateWorker = std::unique_ptr<StatisticsUpdateWorker>(new StatisticsUpdateWorker(
 			    *this, std::move(onStatsUpdate), onStatsUpdateUserCookie, intervalInSecondsToUpdateStats * 1000));
