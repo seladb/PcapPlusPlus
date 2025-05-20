@@ -886,30 +886,6 @@ namespace pcpp
 		return sendPacket(&parsedPacket, true);
 	}
 
-	bool PcapLiveDevice::sendPacketDirect(uint8_t const* packetData,int packetDataLength)
-	{
-		if (!m_DeviceOpened)
-		{
-			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened!");
-			return false;
-		}
-
-		if (packetDataLength == 0)
-		{
-			PCPP_LOG_ERROR("Trying to send a packet with length 0");
-			return false;
-		}
-
-		if (pcap_sendpacket(m_PcapSendDescriptor, packetData, packetDataLength) == -1)
-		{
-			PCPP_LOG_ERROR("Error sending packet: " << pcap_geterr(m_PcapSendDescriptor));
-			return false;
-		}
-
-		PCPP_LOG_DEBUG("Packet sent successfully. Packet length: " << packetDataLength);
-		return true;
-	}
-
 	bool PcapLiveDevice::sendPacket(Packet const* packet, bool checkMtu)
 	{
 		RawPacket const* rawPacket = packet->getRawPacketReadOnly();
@@ -933,6 +909,30 @@ namespace pcpp
 			return sendPacket(*rawPacket, false);
 		}
 		return doMtuCheck(packetPayloadLength) && sendPacket(*rawPacket, false);
+	}
+
+	bool PcapLiveDevice::sendPacketDirect(uint8_t const* packetData, int packetDataLength)
+	{
+		if (!m_DeviceOpened)
+		{
+			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened!");
+			return false;
+		}
+
+		if (packetDataLength == 0)
+		{
+			PCPP_LOG_ERROR("Trying to send a packet with length 0");
+			return false;
+		}
+
+		if (pcap_sendpacket(m_PcapSendDescriptor, packetData, packetDataLength) == -1)
+		{
+			PCPP_LOG_ERROR("Error sending packet: " << pcap_geterr(m_PcapSendDescriptor));
+			return false;
+		}
+
+		PCPP_LOG_DEBUG("Packet sent successfully. Packet length: " << packetDataLength);
+		return true;
 	}
 
 	int PcapLiveDevice::sendPackets(RawPacket const* rawPacketsArr, int arrLength, bool checkMtu)
