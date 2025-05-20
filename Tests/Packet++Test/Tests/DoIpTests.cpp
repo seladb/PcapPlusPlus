@@ -824,7 +824,7 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketCreation)
 	}
 	catch (const std::runtime_error& e)
 	{
-		PTF_ASSERT_EQUAL(std::string(e.what()), "Max data size field not present!");
+		PTF_ASSERT_EQUAL(std::string(e.what()), "MaxDataSize field not present!");
 	}
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 53);
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (57 - 15), bytesWithoutMaxDataSize, 11);

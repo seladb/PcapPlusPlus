@@ -853,6 +853,7 @@ namespace pcpp
 			return reinterpret_cast<routing_activation_request*>(m_Data);
 		}
 		static constexpr size_t FIXED_LEN = sizeof(routing_activation_request);
+		static constexpr size_t RESERVED_OEM_OFFSET = FIXED_LEN;
 		static constexpr size_t OPT_LEN = FIXED_LEN + DOIP_RESERVED_OEM_LEN;
 	};
 
@@ -966,6 +967,7 @@ namespace pcpp
 			return reinterpret_cast<routing_activation_response*>(m_Data);
 		}
 		static constexpr size_t FIXED_LEN = sizeof(routing_activation_response);
+		static constexpr size_t RESERVED_OEM_OFFSET = FIXED_LEN;
 		static constexpr size_t OPT_LEN = FIXED_LEN + DOIP_RESERVED_OEM_LEN;
 	};
 
@@ -1079,16 +1081,16 @@ namespace pcpp
 
 	private:
 #pragma pack(push, 1)
-		struct vehicle_identification_request_eid : doiphdr
+		struct vehicle_identification_request_with_eid : doiphdr
 		{
 			std::array<uint8_t, DOIP_EID_LEN> eid;
 		};
 #pragma pack(pop)
-		vehicle_identification_request_eid* getVehicleIdentificationRequestEID() const
+		vehicle_identification_request_with_eid* getVehicleIdentificationRequestWEID() const
 		{
-			return reinterpret_cast<vehicle_identification_request_eid*>(m_Data);
+			return reinterpret_cast<vehicle_identification_request_with_eid*>(m_Data);
 		}
-		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_eid);
+		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_with_eid);
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1185,47 +1187,47 @@ namespace pcpp
 		/// @return A 17-byte Vehicle Identification Number (VIN).
 		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
 
+		/// @brief Sets the Vehicle Identification Number (VIN).
+		/// @param[in] vin A 17-byte Vehicle Identification Number (VIN).
+		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
+
 		/// @brief Gets the logical address of the vehicle.
 		/// @return A 2-byte logical address of the vehicle.
 		uint16_t getLogicalAddress() const;
+
+		/// @brief Sets the logical address.
+		/// @param[in] address A 2-byte logical address of the vehicle.
+		void setLogicalAddress(uint16_t address);
 
 		/// @brief Gets the Entity Identifier (EID).
 		/// @return A 6-byte Entity Identifier (EID).
 		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
 
+		/// @brief Sets the Entity Identifier (EID).
+		/// @param[in] eid A 6-byte Entity Identifier (EID).
+		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
+
 		/// @brief Gets the Group Identifier (GID).
 		/// @return A 6-byte Group Identifier (GID).
 		std::array<uint8_t, DOIP_GID_LEN> getGID() const;
 
+		/// @brief Sets the Group Identifier (GID).
+		/// @param[in] gid A 6-byte Group Identifier (GID).
+		void setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid);
+
 		/// @brief Gets the further action required code.
 		/// @return enum DoIpActionCodes representing the further action required code.
 		DoIpActionCodes getFurtherActionRequired() const;
+
+		/// @brief Sets the further action required code.
+		/// @param[in] action enum DoIpActionCodes representing the further action required code to set.
+		void setFurtherActionRequired(DoIpActionCodes action);
 
 		/// @brief Gets the optional synchronization status if available.
 		/// @throw std::runtime_error if the sync status is not present.
 		/// @note To use this method safely, check beforehand if the sync status is present using hasSyncStatus().
 		/// @return A 1-byte synchronization status.
 		DoIpSyncStatus getSyncStatus() const;
-
-		/// @brief Sets the Vehicle Identification Number (VIN).
-		/// @param[in] vin A 17-byte Vehicle Identification Number (VIN).
-		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
-
-		/// @brief Sets the logical address.
-		/// @param[in] address A 2-byte logical address of the vehicle.
-		void setLogicalAddress(uint16_t address);
-
-		/// @brief Sets the Entity Identifier (EID).
-		/// @param[in] eid A 6-byte Entity Identifier (EID).
-		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
-
-		/// @brief Sets the Group Identifier (GID).
-		/// @param[in] gid A 6-byte Group Identifier (GID).
-		void setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid);
-
-		/// @brief Sets the further action required code.
-		/// @param[in] action enum DoIpActionCodes representing the further action required code to set.
-		void setFurtherActionRequired(DoIpActionCodes action);
 
 		/// @brief Sets the synchronization status.
 		/// @param[in] sync enum DoIpSyncStatus representing the synchronization status to set.
@@ -1538,13 +1540,13 @@ namespace pcpp
 		/// @return 16-bit address of the source ECU.
 		uint16_t getSourceAddress() const;
 
-		/// @brief Gets the target logical address of the message.
-		/// @return 16-bit address of the destination ECU.
-		uint16_t getTargetAddress() const;
-
 		/// @brief Sets the source logical address.
 		/// @param[in] sourceAddress 16-bit source address.
 		void setSourceAddress(uint16_t sourceAddress);
+
+		/// @brief Gets the target logical address of the message.
+		/// @return 16-bit address of the destination ECU.
+		uint16_t getTargetAddress() const;
 
 		/// @brief Sets the target logical address.
 		/// @param[in] targetAddress 16-bit target address.
@@ -1556,6 +1558,7 @@ namespace pcpp
 
 	protected:
 #pragma pack(push, 1)
+		/// An internal structure representing the common diagnostic header.
 		struct common_diagnostic_header : doiphdr
 		{
 			uint16_t sourceAddress;
@@ -1655,7 +1658,7 @@ namespace pcpp
 
 		/// @brief Gets the optional previously echoed diagnostic message.
 		/// @return A vector containing the previously echoed diagnostic message.
-		const std::vector<uint8_t> getPreviousMessage() const;
+		std::vector<uint8_t> getPreviousMessage() const;
 
 		/// @brief Checks if a previous message is attached.
 		/// @return true if a previous message is present, false otherwise.

@@ -459,17 +459,12 @@ namespace pcpp
 		getRoutingRequest()->reservedIso = reservedIso;
 	}
 
-	bool DoIpRoutingActivationRequest::hasReservedOem() const
-	{
-		return (m_DataLen == OPT_LEN);
-	}
-
 	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationRequest::getReservedOem() const
 	{
 		if (hasReservedOem())
 		{
 			std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
-			memcpy(reservedOem.data(), m_Data + FIXED_LEN, DOIP_RESERVED_OEM_LEN);
+			memcpy(reservedOem.data(), m_Data + RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
 			return reservedOem;
 		}
 		else
@@ -482,10 +477,15 @@ namespace pcpp
 	{
 		if (!hasReservedOem())
 		{
-			extendLayer(FIXED_LEN, DOIP_RESERVED_OEM_LEN);
+			extendLayer(RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
 		}
 		setPayloadLength(OPT_LEN - DOIP_HEADER_LEN);
-		memcpy((m_Data + FIXED_LEN), reservedOem.data(), DOIP_RESERVED_OEM_LEN);
+		memcpy((m_Data + RESERVED_OEM_OFFSET), reservedOem.data(), DOIP_RESERVED_OEM_LEN);
+	}
+
+	bool DoIpRoutingActivationRequest::hasReservedOem() const
+	{
+		return (m_DataLen == OPT_LEN);
 	}
 
 	void DoIpRoutingActivationRequest::clearReservedOem()
@@ -585,17 +585,12 @@ namespace pcpp
 		getRoutingResponse()->reservedIso = reservedIso;
 	}
 
-	bool DoIpRoutingActivationResponse::hasReservedOem() const
-	{
-		return (m_DataLen == OPT_LEN);
-	}
-
 	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationResponse::getReservedOem() const
 	{
 		if (hasReservedOem())
 		{
 			std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
-			memcpy(reservedOem.data(), m_Data + FIXED_LEN, DOIP_RESERVED_OEM_LEN);
+			memcpy(reservedOem.data(), m_Data + RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
 			return reservedOem;
 		}
 		else
@@ -608,10 +603,15 @@ namespace pcpp
 	{
 		if (!hasReservedOem())
 		{
-			extendLayer(FIXED_LEN, DOIP_RESERVED_OEM_LEN);
+			extendLayer(RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
 		}
 		setPayloadLength(OPT_LEN - DOIP_HEADER_LEN);
-		memcpy((m_Data + FIXED_LEN), reservedOem.data(), DOIP_RESERVED_OEM_LEN);
+		memcpy((m_Data + RESERVED_OEM_OFFSET), reservedOem.data(), DOIP_RESERVED_OEM_LEN);
+	}
+
+	bool DoIpRoutingActivationResponse::hasReservedOem() const
+	{
+		return (m_DataLen == OPT_LEN);
 	}
 
 	void DoIpRoutingActivationResponse::clearReservedOem()
@@ -623,7 +623,7 @@ namespace pcpp
 		}
 		else
 		{
-			PCPP_LOG_DEBUG("doip packet has no reserved OEM field!");
+			PCPP_LOG_DEBUG("DoIP packet has no reserved OEM field!");
 		}
 	}
 
@@ -702,12 +702,12 @@ namespace pcpp
 
 	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleIdentificationRequestWEID::getEID() const
 	{
-		return getVehicleIdentificationRequestEID()->eid;
+		return getVehicleIdentificationRequestWEID()->eid;
 	}
 
 	void DoIpVehicleIdentificationRequestWEID::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
 	{
-		getVehicleIdentificationRequestEID()->eid = eid;
+		getVehicleIdentificationRequestWEID()->eid = eid;
 	}
 
 	std::string DoIpVehicleIdentificationRequestWEID::getSummary() const
@@ -777,9 +777,19 @@ namespace pcpp
 		return getVehicleAnnouncement()->vin;
 	}
 
+	void DoIpVehicleAnnouncement::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
+	{
+		getVehicleAnnouncement()->vin = vin;
+	}
+
 	uint16_t DoIpVehicleAnnouncement::getLogicalAddress() const
 	{
 		return be16toh(getVehicleAnnouncement()->logicalAddress);
+	}
+
+	void DoIpVehicleAnnouncement::setLogicalAddress(uint16_t logicalAddress)
+	{
+		getVehicleAnnouncement()->logicalAddress = htobe16(logicalAddress);
 	}
 
 	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleAnnouncement::getEID() const
@@ -787,9 +797,19 @@ namespace pcpp
 		return getVehicleAnnouncement()->eid;
 	}
 
+	void DoIpVehicleAnnouncement::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
+	{
+		getVehicleAnnouncement()->eid = eid;
+	}
+
 	std::array<uint8_t, DOIP_GID_LEN> DoIpVehicleAnnouncement::getGID() const
 	{
 		return getVehicleAnnouncement()->gid;
+	}
+
+	void DoIpVehicleAnnouncement::setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid)
+	{
+		getVehicleAnnouncement()->gid = gid;
 	}
 
 	DoIpActionCodes DoIpVehicleAnnouncement::getFurtherActionRequired() const
@@ -800,6 +820,11 @@ namespace pcpp
 			return static_cast<DoIpActionCodes>(actionCode);
 		}
 		return DoIpActionCodes::UNKNOWN;
+	}
+
+	void DoIpVehicleAnnouncement::setFurtherActionRequired(DoIpActionCodes action)
+	{
+		getVehicleAnnouncement()->actionCode = static_cast<uint8_t>(action);
 	}
 
 	DoIpSyncStatus DoIpVehicleAnnouncement::getSyncStatus() const
@@ -819,44 +844,6 @@ namespace pcpp
 		}
 	}
 
-	void DoIpVehicleAnnouncement::clearSyncStatus()
-	{
-		if (m_DataLen == OPT_LEN)
-		{
-			shortenLayer(SYNC_STATUS_OFFSET, SYNC_STATUS_LEN);
-			PCPP_LOG_DEBUG("Sync status has been removed successfully!");
-		}
-		else
-		{
-			PCPP_LOG_DEBUG("doip packet has no syncStatus!");
-		}
-	}
-
-	void DoIpVehicleAnnouncement::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
-	{
-		getVehicleAnnouncement()->vin = vin;
-	}
-
-	void DoIpVehicleAnnouncement::setLogicalAddress(uint16_t logicalAddress)
-	{
-		getVehicleAnnouncement()->logicalAddress = htobe16(logicalAddress);
-	}
-
-	void DoIpVehicleAnnouncement::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
-	{
-		getVehicleAnnouncement()->eid = eid;
-	}
-
-	void DoIpVehicleAnnouncement::setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid)
-	{
-		getVehicleAnnouncement()->gid = gid;
-	}
-
-	void DoIpVehicleAnnouncement::setFurtherActionRequired(DoIpActionCodes action)
-	{
-		getVehicleAnnouncement()->actionCode = static_cast<uint8_t>(action);
-	}
-
 	void DoIpVehicleAnnouncement::setSyncStatus(DoIpSyncStatus syncStatus)
 	{
 		if (!hasSyncStatus())
@@ -870,6 +857,19 @@ namespace pcpp
 	bool DoIpVehicleAnnouncement::hasSyncStatus() const
 	{
 		return (m_DataLen == OPT_LEN);
+	}
+
+	void DoIpVehicleAnnouncement::clearSyncStatus()
+	{
+		if (hasSyncStatus())
+		{
+			shortenLayer(SYNC_STATUS_OFFSET, SYNC_STATUS_LEN);
+			PCPP_LOG_DEBUG("Sync status has been removed successfully!");
+		}
+		else
+		{
+			PCPP_LOG_DEBUG("DoIP packet has no syncStatus!");
+		}
 	}
 
 	std::string DoIpVehicleAnnouncement::getSummary() const
@@ -1005,7 +1005,7 @@ namespace pcpp
 	uint32_t DoIpEntityStatusResponse::getMaxDataSize() const
 	{
 		if (!hasMaxDataSize())
-			throw std::runtime_error("Max data size field not present!");
+			throw std::runtime_error("MaxDataSize field not present!");
 
 		uint32_t value;
 		std::memcpy(&value, m_Data + MAX_DATA_SIZE_OFFSET, MAX_DATA_SIZE_LEN);
@@ -1031,7 +1031,7 @@ namespace pcpp
 		}
 		else
 		{
-			PCPP_LOG_DEBUG("doip packet has no MaxDataSize field!");
+			PCPP_LOG_DEBUG("DoIP packet has no MaxDataSize field!");
 		}
 	}
 
@@ -1085,14 +1085,14 @@ namespace pcpp
 		return be16toh(getCommonDiagnosticHeader()->sourceAddress);
 	}
 
-	uint16_t DoIpDiagnosticBase::getTargetAddress() const
-	{
-		return be16toh(getCommonDiagnosticHeader()->targetAddress);
-	}
-
 	void DoIpDiagnosticBase::setSourceAddress(uint16_t sourceAddress)
 	{
 		getCommonDiagnosticHeader()->sourceAddress = htobe16(sourceAddress);
+	}
+
+	uint16_t DoIpDiagnosticBase::getTargetAddress() const
+	{
+		return be16toh(getCommonDiagnosticHeader()->targetAddress);
 	}
 
 	void DoIpDiagnosticBase::setTargetAddress(uint16_t targetAddress)
@@ -1138,8 +1138,7 @@ namespace pcpp
 		{
 			shortenLayer(DIAGNOSTIC_DATA_OFFSET, layerExtensionLen);
 		}
-		uint8_t* dataPtr = m_Data + DIAGNOSTIC_DATA_OFFSET;
-		memcpy(dataPtr, data.data(), data.size());
+		memcpy((m_Data + DIAGNOSTIC_DATA_OFFSET), data.data(), data.size());
 	}
 
 	std::string DoIpDiagnosticMessage::getSummary() const
@@ -1177,11 +1176,11 @@ namespace pcpp
 		return getDiagnosticResponseMessageBase()->diagnosticCode;
 	}
 
-	const std::vector<uint8_t> DoIpDiagnosticResponseMessageBase::getPreviousMessage() const
+	std::vector<uint8_t> DoIpDiagnosticResponseMessageBase::getPreviousMessage() const
 	{
 		if (hasPreviousMessage())
 		{
-			uint8_t* dataPtr = m_Data + PREVIOUS_MSG_OFFSET;
+			const uint8_t* dataPtr = m_Data + PREVIOUS_MSG_OFFSET;
 			return std::vector<uint8_t>(dataPtr, dataPtr + (m_DataLen - PREVIOUS_MSG_OFFSET));
 		}
 		return {};
@@ -1189,7 +1188,7 @@ namespace pcpp
 
 	bool DoIpDiagnosticResponseMessageBase::hasPreviousMessage() const
 	{
-		return (m_DataLen > PREVIOUS_MSG_OFFSET);
+		return (m_DataLen > FIXED_LEN);
 	}
 
 	void DoIpDiagnosticResponseMessageBase::setPreviousMessage(const std::vector<uint8_t>& msg)
@@ -1207,8 +1206,7 @@ namespace pcpp
 		{
 			shortenLayer(PREVIOUS_MSG_OFFSET, currentPayloadLen);
 		}
-		uint8_t* ptr = getDataPtr(PREVIOUS_MSG_OFFSET);
-		memcpy(ptr, msg.data(), msg.size());
+		memcpy((m_Data + PREVIOUS_MSG_OFFSET), msg.data(), msg.size());
 	}
 
 	void DoIpDiagnosticResponseMessageBase::clearPreviousMessage()
@@ -1220,7 +1218,7 @@ namespace pcpp
 		}
 		else
 		{
-			PCPP_LOG_DEBUG("doip packet has no PreviousMessage field!");
+			PCPP_LOG_DEBUG("DoIP packet has no PreviousMessage field!");
 		}
 	}
 
