@@ -107,22 +107,22 @@ namespace pcpp
 		private:
 			struct ThreadData
 			{
-				PcapLiveDevice const* m_PcapDevice = nullptr;
-				OnStatsUpdateCallback m_cbOnStatsUpdate;
-				void* m_cbOnStatsUpdateUserCookie = nullptr;
-				unsigned int m_updateIntervalMs = 1000;  // Default update interval is 1 second
+				PcapLiveDevice const* pcapDevice = nullptr;
+				OnStatsUpdateCallback cbOnStatsUpdate;
+				void* cbOnStatsUpdateUserCookie = nullptr;
+				unsigned int updateIntervalMs = 1000;  // Default update interval is 1 second
 			};
 
 			struct SharedThreadData
 			{
-				std::atomic_bool m_stopRequested{ false };
+				std::atomic_bool stopRequested{ false };
 			};
 
 			/// @brief Main function for the worker thread.
 			/// @remarks This function is static to allow the worker class to be movable.
 			static void workerMain(std::shared_ptr<SharedThreadData> sharedThreadData, ThreadData threadData);
 
-			std::shared_ptr<SharedThreadData> m_sharedThreadData;
+			std::shared_ptr<SharedThreadData> m_SharedThreadData;
 			std::thread m_WorkerThread;
 		};
 

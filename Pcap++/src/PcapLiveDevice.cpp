@@ -236,21 +236,21 @@ namespace pcpp
 	                                                               unsigned int updateIntervalMs)
 	{
 		// Setup thread data
-		m_sharedThreadData = std::make_shared<SharedThreadData>();
+		m_SharedThreadData = std::make_shared<SharedThreadData>();
 
 		ThreadData threadData;
-		threadData.m_PcapDevice = &pcapDevice;
-		threadData.m_cbOnStatsUpdate = onStatsUpdateCallback;
-		threadData.m_cbOnStatsUpdateUserCookie = m_cbOnStatsUpdateUserCookie;
-		threadData.m_updateIntervalMs = updateIntervalMs;
+		threadData.pcapDevice = &pcapDevice;
+		threadData.cbOnStatsUpdate = onStatsUpdateCallback;
+		threadData.cbOnStatsUpdateUserCookie = m_cbOnStatsUpdateUserCookie;
+		threadData.updateIntervalMs = updateIntervalMs;
 
 		// Start the thread
-		m_WorkerThread = std::thread(&StatisticsUpdateWorker::workerMain, m_sharedThreadData, std::move(threadData));
+		m_WorkerThread = std::thread(&StatisticsUpdateWorker::workerMain, m_SharedThreadData, std::move(threadData));
 	}
 
 	void PcapLiveDevice::StatisticsUpdateWorker::stopWorker()
 	{
-		m_sharedThreadData->m_stopRequested = true;
+		m_SharedThreadData->stopRequested = true;
 		if (m_WorkerThread.joinable())
 		{
 			m_WorkerThread.join();
@@ -266,13 +266,13 @@ namespace pcpp
 			return;
 		}
 
-		if (threadData.m_PcapDevice == nullptr)
+		if (threadData.pcapDevice == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcap device is null");
 			return;
 		}
 
-		if (threadData.m_cbOnStatsUpdate == nullptr)
+		if (threadData.cbOnStatsUpdate == nullptr)
 		{
 			PCPP_LOG_ERROR("Statistics Callback is null");
 			return;
@@ -281,11 +281,11 @@ namespace pcpp
 		PCPP_LOG_DEBUG("Started statistics thread");
 
 		PcapStats stats;
-		auto sleepDuration = std::chrono::milliseconds(threadData.m_updateIntervalMs);
-		while (!sharedThreadData->m_stopRequested)
+		auto sleepDuration = std::chrono::milliseconds(threadData.updateIntervalMs);
+		while (!sharedThreadData->stopRequested)
 		{
-			threadData.m_PcapDevice->getStatistics(stats);
-			threadData.m_cbOnStatsUpdate(stats, threadData.m_cbOnStatsUpdateUserCookie);
+			threadData.pcapDevice->getStatistics(stats);
+			threadData.cbOnStatsUpdate(stats, threadData.cbOnStatsUpdateUserCookie);
 			std::this_thread::sleep_for(sleepDuration);
 		}
 
