@@ -950,7 +950,7 @@ namespace pcpp
 	int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 	{
 		return sendPacketsLoop(rawPacketsArr, rawPacketsArr + arrLength,
-		                       [this, checkMtu](RawPacket* packet) { return sendPacket(*packet, checkMtu); });
+		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
@@ -962,7 +962,7 @@ namespace pcpp
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
 		return sendPacketsLoop(rawPackets.begin(), rawPackets.end(),
-		                       [this, checkMtu](const RawPacket& packet) { return sendPacket(packet, checkMtu); });
+		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	void PcapLiveDevice::setDeviceMtu()
