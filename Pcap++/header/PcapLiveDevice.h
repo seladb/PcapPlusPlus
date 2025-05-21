@@ -90,10 +90,10 @@ namespace pcpp
 			/// statistics.
 			/// @param pcapDevice A pointer to the PcapLiveDevice instance to be monitored.
 			/// @param onStatsUpdateCallback A callback function to be called with updated statistics.
-			/// @param m_cbOnStatsUpdateUserCookie A user-defined pointer that is passed to the callback function.
+			/// @param onStatsUpdateUserCookie A user-defined pointer that is passed to the callback function.
 			/// @param updateIntervalMs The interval in milliseconds between each callback invocation.
 			StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice, OnStatsUpdateCallback onStatsUpdateCallback,
-			                       void* m_cbOnStatsUpdateUserCookie = nullptr, unsigned int updateIntervalMs = 1000);
+			                       void* onStatsUpdateUserCookie = nullptr, unsigned int updateIntervalMs = 1000);
 
 			/// @brief Stops the worker thread.
 			void stopWorker();

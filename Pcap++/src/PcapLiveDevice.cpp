@@ -232,7 +232,7 @@ namespace pcpp
 
 	PcapLiveDevice::StatisticsUpdateWorker::StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice,
 	                                                               OnStatsUpdateCallback onStatsUpdateCallback,
-	                                                               void* m_cbOnStatsUpdateUserCookie,
+	                                                               void* onStatsUpdateUserCookie,
 	                                                               unsigned int updateIntervalMs)
 	{
 		// Setup thread data
@@ -241,7 +241,7 @@ namespace pcpp
 		ThreadData threadData;
 		threadData.pcapDevice = &pcapDevice;
 		threadData.cbOnStatsUpdate = onStatsUpdateCallback;
-		threadData.cbOnStatsUpdateUserCookie = m_cbOnStatsUpdateUserCookie;
+		threadData.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
 		threadData.updateIntervalMs = updateIntervalMs;
 
 		// Start the thread
