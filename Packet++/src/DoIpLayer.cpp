@@ -358,12 +358,12 @@ namespace pcpp
 
 	uint32_t DoIpLayer::getPayloadLength() const
 	{
-		return htobe32(getDoIpHeader()->payloadLength);
+		return be32toh(getDoIpHeader()->payloadLength);
 	}
 
 	void DoIpLayer::setPayloadLength(uint32_t payloadLength)
 	{
-		getDoIpHeader()->payloadLength = be32toh(payloadLength);
+		getDoIpHeader()->payloadLength = htobe32(payloadLength);
 	}
 
 	std::string DoIpLayer::toString() const
@@ -1129,14 +1129,15 @@ namespace pcpp
 		const size_t currentDiagnosticDataLen = m_DataLen - DIAGNOSTIC_DATA_OFFSET;
 		setPayloadLength(newPayloadLength);
 
-		auto layerExtensionLen = data.size() - currentDiagnosticDataLen;
+		ptrdiff_t layerExtensionLen =
+		    static_cast<ptrdiff_t>(data.size()) - static_cast<ptrdiff_t>(currentDiagnosticDataLen);
 		if (layerExtensionLen > 0)
 		{
 			extendLayer(DIAGNOSTIC_DATA_OFFSET + currentDiagnosticDataLen, layerExtensionLen);
 		}
 		else if (layerExtensionLen < 0)
 		{
-			shortenLayer(DIAGNOSTIC_DATA_OFFSET, layerExtensionLen);
+			shortenLayer(DIAGNOSTIC_DATA_OFFSET + data.size(), (-1 * layerExtensionLen));
 		}
 		memcpy((m_Data + DIAGNOSTIC_DATA_OFFSET), data.data(), data.size());
 	}
@@ -1197,14 +1198,14 @@ namespace pcpp
 		const size_t currentPayloadLen = m_DataLen - PREVIOUS_MSG_OFFSET;
 		setPayloadLength(newPayloadLen);
 
-		auto layerExtensionLen = msg.size() - currentPayloadLen;
+		ptrdiff_t layerExtensionLen = static_cast<ptrdiff_t>(msg.size()) - static_cast<ptrdiff_t>(currentPayloadLen);
 		if (layerExtensionLen > 0)
 		{
 			extendLayer(PREVIOUS_MSG_OFFSET + currentPayloadLen, layerExtensionLen);
 		}
 		else if (layerExtensionLen < 0)
 		{
-			shortenLayer(PREVIOUS_MSG_OFFSET, currentPayloadLen);
+			shortenLayer(PREVIOUS_MSG_OFFSET + msg.size(), (-1 * layerExtensionLen));
 		}
 		memcpy((m_Data + PREVIOUS_MSG_OFFSET), msg.data(), msg.size());
 	}
