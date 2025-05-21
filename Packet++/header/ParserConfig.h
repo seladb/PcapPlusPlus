@@ -61,8 +61,14 @@ namespace pcpp
 		/// @brief Add or replace a port rule for a specific protocol
 		/// @param protocol The protocol type to associate with the port rule
 		/// @param portRule The port rule to associate with the protocol
+		/// @throw std::invalid_argument if the port rule is null
 		void addPortRule(ProtocolType protocol, std::unique_ptr<PortRule> portRule)
 		{
+			if (portRule == nullptr)
+			{
+				throw std::invalid_argument("Port rule cannot be null");
+			}
+
 			m_ProtocolToPortRuleMap[protocol] = std::move(portRule);
 		}
 
@@ -80,6 +86,15 @@ namespace pcpp
 		{
 			auto it = m_ProtocolToPortRuleMap.find(protocol);
 			return it != m_ProtocolToPortRuleMap.end() ? it->second.get() : nullptr;
+		}
+
+		/// @brief Get the required port rule for a specific protocol
+		/// @param protocol The protocol type to get the port rule for
+		/// @return A reference to the port rule associated with the protocol
+		/// @throw std::out_of_range if the protocol is not found
+		PortRule const& getRequiredPortRule(ProtocolType protocol) const
+		{
+			return *m_ProtocolToPortRuleMap.at(protocol);
 		}
 
 	private:
