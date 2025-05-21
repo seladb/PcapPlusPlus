@@ -105,8 +105,12 @@ namespace pcpp
 		}
 	}  // namespace internal
 
-	IPcapDevice::~IPcapDevice()
-	{}
+	IPcapStatisticsProvider::PcapStats IPcapStatisticsProvider::getStatistics() const
+	{
+		PcapStats stats;
+		getStatistics(stats);
+		return stats;
+	}
 
 	bool IPcapDevice::setFilter(std::string filterAsString)
 	{
