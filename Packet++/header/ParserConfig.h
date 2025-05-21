@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <stdexcept>
 #include <unordered_map>
 
 #include "ProtocolType.h"
@@ -82,7 +83,7 @@ namespace pcpp
 		/// @brief Get the port rule for a specific protocol
 		/// @param protocol The protocol type to get the port rule for
 		/// @return A pointer to the port rule associated with the protocol, or nullptr if not found
-		const PortRule* getPortRule(ProtocolType protocol) const
+		const PortRule* tryGetPortRule(ProtocolType protocol) const
 		{
 			auto it = m_ProtocolToPortRuleMap.find(protocol);
 			return it != m_ProtocolToPortRuleMap.end() ? it->second.get() : nullptr;
@@ -92,7 +93,7 @@ namespace pcpp
 		/// @param protocol The protocol type to get the port rule for
 		/// @return A reference to the port rule associated with the protocol
 		/// @throw std::out_of_range if the protocol is not found
-		PortRule const& getRequiredPortRule(ProtocolType protocol) const
+		PortRule const& getPortRule(ProtocolType protocol) const
 		{
 			return *m_ProtocolToPortRuleMap.at(protocol);
 		}
