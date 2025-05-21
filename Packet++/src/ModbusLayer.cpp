@@ -49,4 +49,19 @@ namespace pcpp
 		return getModbusHeader()->functionCode;
 	}
 
+	void ModbusLayer::setTransactionId(uint16_t transactionId)
+	{
+		getModbusHeader()->transactionId = transactionId;
+	}
+
+	void ModbusLayer::setUnitId(uint8_t unitId)
+	{
+		getModbusHeader()->unitId = unitId;
+	}
+
+	void ModbusLayer::setFunctionCode(uint8_t functionCode)
+	{
+		getModbusHeader()->functionCode = functionCode;
+	}
+
 }  // namespace pcpp

@@ -52,6 +52,18 @@ namespace pcpp
 
 		/// @return MODBUS function code
 		uint8_t getFunctionCode();
+
+		/// @brief set the MODBUS transaction id
+		/// @param transactionId transaction id
+		void setTransactionId(uint16_t transactionId);
+
+		/// @brief set the MODBUS header unit id
+		/// @param unitId unit id
+		void setUnitId(uint8_t unitId);
+
+		/// @brief set the MODBUS header function code
+		/// @param functionCode function code
+		void setFunctionCode(uint8_t functionCode);
 	}
 
 }  // namespace pcpp
