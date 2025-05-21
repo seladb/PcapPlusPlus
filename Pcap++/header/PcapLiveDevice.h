@@ -95,12 +95,6 @@ namespace pcpp
 			StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice, OnStatsUpdateCallback onStatsUpdateCallback,
 			                       void* m_cbOnStatsUpdateUserCookie = nullptr, unsigned int updateIntervalMs = 1000);
 
-			bool isRunning() const
-			{
-				// TODO: A thread that has finished executing will be joinable, before join is called.
-				return m_WorkerThread.joinable();
-			}
-
 			/// @brief Stops the worker thread.
 			void stopWorker();
 
