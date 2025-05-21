@@ -531,7 +531,7 @@ namespace pcpp
 		/// - Packet length is 0
 		/// - Packet length is larger than device MTU and checkMtu is true
 		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
-		bool sendPacket(Packet const* packet, bool checkMtu = true);
+		bool sendPacket(Packet* packet, bool checkMtu = true);
 
 		/// Send an array of RawPacket objects to the network
 		/// @param[in] rawPacketsArr The array of RawPacket objects to send. This method treats all packets as
@@ -545,7 +545,7 @@ namespace pcpp
 		/// - Packet length is 0
 		/// - Packet length is larger than device MTU and checkMtu is true
 		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
-		virtual int sendPackets(RawPacket const* rawPacketsArr, int arrLength, bool checkMtu = false);
+		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu = false);
 
 		/// Send an array of pointers to Packet objects to the network
 		/// @param[in] packetsArr The array of pointers to Packet objects to send. This method treats all packets as
@@ -559,7 +559,7 @@ namespace pcpp
 		/// - Packet length is 0
 		/// - Packet length is larger than device MTU and checkMtu is true
 		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
-		virtual int sendPackets(Packet const* const* packetsArr, int arrLength, bool checkMtu = true);
+		virtual int sendPackets(Packet** packetsArr, int arrLength, bool checkMtu = true);
 
 		/// Send a vector of pointers to RawPacket objects to the network
 		/// @param[in] rawPackets The array of pointers to RawPacket objects to send. This method treats all packets as

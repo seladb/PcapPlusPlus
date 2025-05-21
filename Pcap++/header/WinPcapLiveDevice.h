@@ -48,7 +48,7 @@ namespace pcpp
 		}
 
 		using PcapLiveDevice::sendPackets;
-		virtual int sendPackets(RawPacket const* rawPacketsArr, int arrLength);
+		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
 
 		/// WinPcap/Npcap have a feature (that doesn't exist in libpcap) to change the minimum amount of data in the
 		/// kernel buffer that causes a read from the application to return (unless the timeout expires). Please see
