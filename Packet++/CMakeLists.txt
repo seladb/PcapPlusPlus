@@ -109,6 +109,7 @@ set(
   header/Packet.h
   header/PacketTrailerLayer.h
   header/PacketUtils.h
+  header/ParserConfig.h
   header/PayloadLayer.h
   header/PPPoELayer.h
   header/ProtocolType.h

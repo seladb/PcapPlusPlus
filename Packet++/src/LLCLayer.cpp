@@ -24,7 +24,7 @@ namespace pcpp
 		header->control = control;
 	}
 
-	void LLCLayer::parseNextLayer()
+	void LLCLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen <= sizeof(llc_header))
 			return;

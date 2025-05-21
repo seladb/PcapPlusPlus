@@ -356,7 +356,7 @@ namespace pcpp
 		return LdapOperationType::fromUintValue(tagType);
 	}
 
-	void LdapLayer::parseNextLayer()
+	void LdapLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen || headerLen == 0)

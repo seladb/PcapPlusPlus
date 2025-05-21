@@ -96,7 +96,7 @@ namespace pcpp
 		void setReserved(const std::array<uint8_t, 3>& reserved);
 
 		/// Does nothing for this layer (WireGuard layer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return Size of the header in bytes.

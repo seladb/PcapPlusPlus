@@ -84,7 +84,7 @@ namespace pcpp
 
 		/// Multiple BGP messages can reside in a single packet, and the only layer that can come after a BGP message
 		/// is another BGP message. This method checks for remaining data and parses it as another BGP layer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		std::string toString() const override;
 

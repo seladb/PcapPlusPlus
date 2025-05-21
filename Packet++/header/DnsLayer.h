@@ -350,7 +350,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Does nothing for this layer (DnsLayer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return The size of the DNS data in the packet including he DNS header and size of all queries, answers,

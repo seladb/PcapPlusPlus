@@ -101,7 +101,7 @@ namespace pcpp
 		return true;
 	}
 
-	void MplsLayer::parseNextLayer()
+	void MplsLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen < headerLen + 1)

@@ -168,7 +168,7 @@ namespace pcpp
 		/// - ESPLayer (IPSec)
 		///
 		/// Otherwise sets PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Size of @ref ip6_hdr
 		size_t getHeaderLen() const override

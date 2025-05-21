@@ -128,7 +128,7 @@ namespace pcpp
 		/// Currently identifies the following next layers:
 		///   IPv4Layer, IPv6Layer, VlanLayer, MplsLayer, PPP_PPTPLayer, EthLayer, EthDot3Layer
 		/// Otherwise sets PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Size of GRE header (may change if optional fields are added or removed)
 		size_t getHeaderLen() const override;
@@ -368,7 +368,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return The size of @ref ppp_pptp_header
 		size_t getHeaderLen() const override

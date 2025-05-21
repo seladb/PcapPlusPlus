@@ -559,7 +559,7 @@ namespace pcpp
 		return header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE;
 	}
 
-	void GtpV1Layer::parseNextLayer()
+	void GtpV1Layer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (headerLen < sizeof(gtpv1_header))
@@ -1302,7 +1302,7 @@ namespace pcpp
 		return GtpV2InformationElement(newInfoElementPtr);
 	}
 
-	void GtpV2Layer::parseNextLayer()
+	void GtpV2Layer::parseNextLayer(ParserConfiguration const& config)
 	{
 		auto headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

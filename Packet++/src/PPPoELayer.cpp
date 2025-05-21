@@ -40,7 +40,7 @@ namespace pcpp
 	/// PPPoESessionLayer
 	/// ~~~~~~~~~~~~~~~~~
 
-	void PPPoESessionLayer::parseNextLayer()
+	void PPPoESessionLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

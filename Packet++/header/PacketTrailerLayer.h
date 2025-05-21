@@ -62,7 +62,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Does nothing for this layer (PacketTrailerLayer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return trailer data length in bytes

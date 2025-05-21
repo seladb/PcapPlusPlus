@@ -201,7 +201,7 @@ namespace pcpp
 		// implement Layer's abstract methods
 
 		/// Currently set only PayloadLayer for the rest of the data
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return The message length
 		size_t getHeaderLen() const override;

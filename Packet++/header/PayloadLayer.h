@@ -54,7 +54,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Does nothing for this layer (PayloadLayer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return Payload data length in bytes

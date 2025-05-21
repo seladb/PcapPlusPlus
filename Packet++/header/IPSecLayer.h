@@ -93,7 +93,7 @@ namespace pcpp
 
 		/// Currently identifies the following next layers: UdpLayer, TcpLayer, IPv4Layer, IPv6Layer and ESPLayer.
 		/// Otherwise sets PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// Does nothing for this layer
 		void computeCalculateFields() override
@@ -152,7 +152,7 @@ namespace pcpp
 		}
 
 		/// The payload of an ESP layer is encrypted, hence the next layer is always a generic payload (PayloadLayer)
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// Does nothing for this layer
 		void computeCalculateFields() override

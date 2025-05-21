@@ -98,7 +98,7 @@ namespace pcpp
 
 		/// Several SSH records can reside in a single packets. This method examins the remaining data and creates
 		/// additional SSH records if applicable
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// Does nothing for this layer
 		void computeCalculateFields() override

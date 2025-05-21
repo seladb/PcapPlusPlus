@@ -101,7 +101,7 @@ namespace pcpp
 		/// Currently identifies only SDP if content-length field exists and set to a value greater than zero.
 		/// If content-length field doesn't exist or set to zero and still there is data after this layer, a
 		/// PayloadLayer will be created
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// Set the content-length only if a content-length field already exists and if its current value is different
 		/// than the total length of the next layer(s)
