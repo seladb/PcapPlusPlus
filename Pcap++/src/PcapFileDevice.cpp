@@ -492,18 +492,14 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
-			return "";
+			return {};
 		}
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
-		if (fileInfo == nullptr)
-			return "";
-		char* res = fileInfo->os_desc;
-		size_t len = fileInfo->os_desc_size;
-		if (len == 0 || res == nullptr)
-			return "";
+		if (fileInfo == nullptr || fileInfo->os_desc == nullptr || fileInfo->os_desc_size == 0)
+			return {};
 
-		return std::string(res, len);
+		return std::string(fileInfo->os_desc, fileInfo->os_desc_size);
 	}
 
 	std::string PcapNgFileReaderDevice::getHardware() const
@@ -511,18 +507,14 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
-			return "";
+			return {};
 		}
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
-		if (fileInfo == nullptr)
-			return "";
-		char* res = fileInfo->hardware_desc;
-		size_t len = fileInfo->hardware_desc_size;
-		if (len == 0 || res == nullptr)
-			return "";
+		if (fileInfo == nullptr || fileInfo->hardware_desc == nullptr || fileInfo->hardware_desc_size == 0)
+			return {};
 
-		return std::string(res, len);
+		return std::string(fileInfo->hardware_desc, fileInfo->hardware_desc_size);
 	}
 
 	std::string PcapNgFileReaderDevice::getCaptureApplication() const
@@ -530,18 +522,14 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
-			return "";
+			return {};
 		}
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
-		if (fileInfo == nullptr)
-			return "";
-		char* res = fileInfo->user_app_desc;
-		size_t len = fileInfo->user_app_desc_size;
-		if (len == 0 || res == nullptr)
-			return "";
+		if (fileInfo == nullptr || fileInfo->user_app_desc == nullptr || fileInfo->user_app_desc_size == 0)
+			return {};
 
-		return std::string(res, len);
+		return std::string(fileInfo->user_app_desc, fileInfo->user_app_desc_size);
 	}
 
 	std::string PcapNgFileReaderDevice::getCaptureFileComment() const
@@ -549,18 +537,14 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
-			return "";
+			return {};
 		}
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
-		if (fileInfo == nullptr)
-			return "";
-		char* res = fileInfo->file_comment;
-		size_t len = fileInfo->file_comment_size;
-		if (len == 0 || res == nullptr)
-			return "";
+		if (fileInfo == nullptr || fileInfo->file_comment == nullptr || fileInfo->file_comment_size == 0)
+			return {};
 
-		return std::string(res, len);
+		return std::string(fileInfo->file_comment, fileInfo->file_comment_size);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -867,38 +851,6 @@ namespace pcpp
 		m_CompressionLevel = compressionLevel;
 	}
 
-	bool PcapNgFileWriterDevice::open(const std::string& os, const std::string& hardware, const std::string& captureApp,
-	                                  const std::string& fileComment)
-	{
-		if (m_LightPcapNg != nullptr)
-		{
-			PCPP_LOG_DEBUG("Pcap-ng descriptor already opened. Nothing to do");
-			return true;
-		}
-
-		m_NumOfPacketsNotWritten = 0;
-		m_NumOfPacketsWritten = 0;
-
-		light_pcapng_file_info* info =
-		    light_create_file_info(os.c_str(), hardware.c_str(), captureApp.c_str(), fileComment.c_str());
-
-		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel));
-		if (m_LightPcapNg == nullptr)
-		{
-			PCPP_LOG_ERROR("Error opening file writer device for file '"
-			               << m_FileName << "': light_pcapng_open_write returned nullptr");
-
-			light_free_file_info(info);
-
-			m_DeviceOpened = false;
-			return false;
-		}
-
-		m_DeviceOpened = true;
-		PCPP_LOG_DEBUG("pcap-ng writer device for file '" << m_FileName << "' opened successfully");
-		return true;
-	}
-
 	bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const std::string& comment)
 	{
 		if (m_LightPcapNg == nullptr)
@@ -955,6 +907,30 @@ namespace pcpp
 
 	bool PcapNgFileWriterDevice::open()
 	{
+		return openWrite();
+	}
+
+	bool PcapNgFileWriterDevice::open(bool appendMode)
+	{
+		return appendMode ? openAppend() : openWrite();
+	}
+
+	bool PcapNgFileWriterDevice::open(const std::string& os, const std::string& hardware, const std::string& captureApp,
+	                                  const std::string& fileComment)
+	{
+		PcapNgMetadata metadata;
+		metadata.os = os;
+		metadata.hardware = hardware;
+		metadata.captureApplication = captureApp;
+		metadata.comment = fileComment;
+		return openWrite(&metadata);
+	}
+
+	bool PcapNgFileWriterDevice::openWrite(PcapNgMetadata const* metadata)
+	{
+		// TODO: Ambiguity in the API
+		//   If the user calls open() and then open(true) - should we close the first one or report failure?
+		//   Currently the method reports a success, but the opened device would not match the appendMode.
 		if (m_LightPcapNg != nullptr)
 		{
 			PCPP_LOG_DEBUG("Pcap-ng descriptor already opened. Nothing to do");
@@ -964,7 +940,16 @@ namespace pcpp
 		m_NumOfPacketsNotWritten = 0;
 		m_NumOfPacketsWritten = 0;
 
-		light_pcapng_file_info* info = light_create_default_file_info();
+		light_pcapng_file_info* info;
+		if (metadata == nullptr)
+		{
+			info = light_create_default_file_info();
+		}
+		else
+		{
+			info = light_create_file_info(metadata->os.c_str(), metadata->hardware.c_str(),
+			                              metadata->captureApplication.c_str(), metadata->comment.c_str());
+		}
 
 		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel));
 		if (m_LightPcapNg == nullptr)
@@ -983,10 +968,16 @@ namespace pcpp
 		return true;
 	}
 
-	bool PcapNgFileWriterDevice::open(bool appendMode)
+	bool PcapNgFileWriterDevice::openAppend()
 	{
-		if (!appendMode)
-			return open();
+		// TODO: Ambiguity in the API
+		//   If the user calls open() and then open(true) - should we close the first one or report failure?
+		//   Currently the method reports a success, but the opened device would not match the appendMode.
+		if (m_LightPcapNg != nullptr)
+		{
+			PCPP_LOG_DEBUG("Pcap-ng descriptor already opened. Nothing to do");
+			return true;
+		}
 
 		m_NumOfPacketsNotWritten = 0;
 		m_NumOfPacketsWritten = 0;
