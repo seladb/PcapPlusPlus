@@ -55,6 +55,7 @@ namespace pcpp
 
 		virtual uint8_t* getIPLayerPayload() = 0;
 		virtual size_t getIPLayerPayloadSize() = 0;
+		virtual size_t getIPLayerDataLen() = 0;
 
 		virtual ~IPFragmentWrapper()
 		{}
@@ -127,6 +128,11 @@ namespace pcpp
 		size_t getIPLayerPayloadSize() override
 		{
 			return m_IPLayer->getLayerPayloadSize();
+		}
+
+		size_t getIPLayerDataLen() override
+		{
+			return m_IPLayer->getDataLen();
 		}
 
 	private:
@@ -212,6 +218,11 @@ namespace pcpp
 		size_t getIPLayerPayloadSize() override
 		{
 			return m_IPLayer->getLayerPayloadSize();
+		}
+
+		size_t getIPLayerDataLen() override
+		{
+			return m_IPLayer->getDataLen();
 		}
 
 	private:
@@ -301,6 +312,12 @@ namespace pcpp
 			return fragment;
 		}
 
+		if (fragWrapper->getIPLayerPayloadSize() > fragWrapper->getIPLayerDataLen())
+		{
+			PCPP_LOG_DEBUG("Data length problem");
+			status = MALFORMED_FRAGMENT;
+			return fragment;
+		}
 		// create a hash from source IP, destination IP and IP/fragment ID
 		uint32_t hash = fragWrapper->hashPacket();
 
