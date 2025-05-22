@@ -602,6 +602,9 @@ namespace pcpp
 	protected:
 		internal::PcapHandle doOpen(const DeviceConfiguration& config);
 
+		// Sends a packet directly to the network.
+		bool sendPacketDirect(uint8_t const* packetData, int packetDataLength);
+
 	private:
 		bool isNflogDevice() const;
 	};
