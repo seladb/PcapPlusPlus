@@ -239,7 +239,7 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	dnsRequest.computeCalculateFields();
 
 	// send DNS response back to the network
-	if (!dev->sendPacket(&dnsRequest))
+	if (!dev->sendPacket(dnsRequest))
 		return;
 
 	args->stats.numOfSpoofedDnsRequests++;
