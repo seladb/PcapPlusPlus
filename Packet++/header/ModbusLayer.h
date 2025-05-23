@@ -34,8 +34,20 @@ namespace pcpp
 	class ModbusLayer : public Layer
 	{
 	public:
-		/// A constructor that creates the layer with empty fields
-		ModbusLayer();
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		ModbusLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, Modbus)
+		{}
+
+		/// A constructor that creates the layer from user inputs
+		/// @param[in] transactionId Transaction ID
+		/// @param[in] unitId Unit ID
+		/// @param[in] functionCode Function code
+		ModbusLayer(uint16_t transactionId, uint8_t unitId, uint8_t functionCode);
 
 		/// @return A pointer to the MODBUS header
 		modbus_common_header* getModbusHeader() const;

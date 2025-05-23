@@ -3,7 +3,7 @@
 
 namespace pcpp
 {
-	ModbusLayer::ModbusLayer()
+	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId, uint8_t functionCode)
 	{
 		const size_t headerLen = sizeof(modbus_common_header);
 		m_DataLen = headerLen;
@@ -12,11 +12,11 @@ namespace pcpp
 
 		// Initialize the header fields to default values
 		modbus_common_header* header = getModbusHeader();
-		header->transactionId = 0;
+		header->transactionId = htobe16(transactionId);
 		header->protocolId = 0;  // 0 for Modbus/TCP
 		header->length = 2;      // minimum length of the MODBUS payload + unit_id
-		header->unitId = 0;
-		header->functionCode = 0;
+		header->unitId = unitId;
+		header->functionCode = functionCode;
 	}
 
 	modbus_common_header* ModbusLayer::getModbusHeader() const
