@@ -1,4 +1,3 @@
-
 #include "ModbusLayer.h"
 #include "EndianPortable.h"
 
@@ -25,27 +24,27 @@ namespace pcpp
 		return (modbus_common_header*)m_Data;
 	}
 
-	uint16_t ModbusLayer::getTransactionId()
+	uint16_t ModbusLayer::getTransactionId() const
 	{
 		return be16toh(getModbusHeader()->transactionId);
 	}
 
-	uint16_t ModbusLayer::getProtocolId()
+	uint16_t ModbusLayer::getProtocolId() const
 	{
 		return be16toh(getModbusHeader()->protocolId);
 	}
 
-	uint16_t ModbusLayer::getLength()
+	uint16_t ModbusLayer::getLength() const
 	{
 		return be16toh(getModbusHeader()->length);
 	}
 
-	uint8_t ModbusLayer::getUnitId()
+	uint8_t ModbusLayer::getUnitId() const
 	{
 		return getModbusHeader()->unitId;
 	}
 
-	uint8_t ModbusLayer::getFunctionCode()
+	uint8_t ModbusLayer::getFunctionCode() const
 	{
 		return getModbusHeader()->functionCode;
 	}
