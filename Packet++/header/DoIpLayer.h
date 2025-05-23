@@ -446,27 +446,27 @@ namespace pcpp
 	{
 		/// @brief Reserved protocol version.
 		/// This value is used when the version is not specified.
-		ReservedVersion = 0x00U,
+		RESERVED_VER = 0x00U,
 
 		/// @brief Protocol version 1, based on ISO 2010 specification.
-		Version01Iso2010 = 0x01U,
+		ISO13400_2010 = 0x01U,
 
 		/// @brief Protocol version 2, based on ISO 2012 specification.
-		Version02Iso2012 = 0x02U,
+		ISO13400_2012 = 0x02U,
 
 		/// @brief Protocol version 3, based on ISO 2019 specification.
-		Version03Iso2019 = 0x03U,
+		ISO13400_2019 = 0x03U,
 
 		/// @brief Protocol version 4, based on ISO 2019 AMD1 (Amendment 1) specification.
-		Version04Iso2019_AMD1 = 0x04U,
+		ISO13400_2019_AMD1 = 0x04U,
 
 		/// @brief Default protocol version.
 		/// Used for broadcast Vehicle Identification Request Messages.
-		DefaultVersion = 0xFFU,
+		DEFAULT_VALUE = 0xFFU,
 
 		/// Represents an unknown or unsupported protocol version (not specified by ISO).
 		/// Used to indicate an unsupported or unknown protocol version for internal usage.
-		UnknownVersion = 0xEF
+		UNKNOWN = 0xEF
 	};
 
 	/// @brief Enum representing DoIP payload types.
@@ -675,13 +675,13 @@ namespace pcpp
 
 		switch (parsedVersion)
 		{
-		case DoIpProtocolVersion::ReservedVersion:
+		case DoIpProtocolVersion::RESERVED_VER:
 		{
 			PCPP_LOG_DEBUG("[Malformed doip packet]: Reserved ISO DoIP protocol version detected: 0x"
 			               << std::hex << static_cast<int>(version));
 			return false;
 		}
-		case DoIpProtocolVersion::DefaultVersion:
+		case DoIpProtocolVersion::DEFAULT_VALUE:
 			if (type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN &&
 			    type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID &&
 			    type != DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST)
@@ -689,10 +689,10 @@ namespace pcpp
 				PCPP_LOG_DEBUG("[Malformed doip packet]: Invalid/unsupported DoIP version!");
 				return false;
 			}
-		case DoIpProtocolVersion::Version01Iso2010:
-		case DoIpProtocolVersion::Version02Iso2012:
-		case DoIpProtocolVersion::Version03Iso2019:
-		case DoIpProtocolVersion::Version04Iso2019_AMD1:
+		case DoIpProtocolVersion::ISO13400_2010:
+		case DoIpProtocolVersion::ISO13400_2012:
+		case DoIpProtocolVersion::ISO13400_2019:
+		case DoIpProtocolVersion::ISO13400_2019_AMD1:
 		{
 			if (version != static_cast<uint8_t>(~inVersion))
 			{

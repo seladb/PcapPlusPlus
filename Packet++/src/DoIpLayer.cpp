@@ -84,7 +84,7 @@ namespace pcpp
 		{ DoIpRoutingResponseCodes::RESERVED_ISO_0x0F,                 "Reserved by ISO 13400"                                                     },
 		{ DoIpRoutingResponseCodes::ROUTING_SUCCESSFULLY_ACTIVATED,    "Routing successfully activated"                                            },
 		{ DoIpRoutingResponseCodes::CONFIRMATION_REQUIRED,             "Routing will be activated; confirmation required"                          },
-		{ DoIpRoutingResponseCodes::UNKNOWN,                           "Unknown routing activation response code"                                  }
+		{ DoIpRoutingResponseCodes::UNKNOWN,                           "Unknown"		                                                           }
 	};
 
 	// This unordered map provides human-readable descriptions for each NACK (negative acknowledgment) code
@@ -100,7 +100,7 @@ namespace pcpp
 		{ DoIpDiagnosticMessageNackCodes::TARGET_UNREACHABLE,       "Target unreachable"           },
 		{ DoIpDiagnosticMessageNackCodes::UNKNOWN_NETWORK,          "Unknown network"              },
 		{ DoIpDiagnosticMessageNackCodes::TRANSPORT_PROTOCOL_ERROR, "Transport protocol error"     },
-		{ DoIpDiagnosticMessageNackCodes::UNKNOWN,                  "Unknown NACK code"            }
+		{ DoIpDiagnosticMessageNackCodes::UNKNOWN,                  "Unknown"                      }
 	};
 
 	// This unordered map provides human-readable descriptions for each power mode code
@@ -157,13 +157,13 @@ namespace pcpp
 	// DoIP protocol as defined in ISO 13400. It maps the `DoIpProtocolVersion` enum values
 	// to their corresponding descriptions.
 	static const std::unordered_map<DoIpProtocolVersion, std::string> DoIpEnumToStringProtocolVersion{
-		{ DoIpProtocolVersion::DefaultVersion,        "Default value for vehicle identification request messages" },
-		{ DoIpProtocolVersion::Version01Iso2010,      "DoIP ISO/DIS 13400-2:2010"                                 },
-		{ DoIpProtocolVersion::Version02Iso2012,      "DoIP ISO 13400-2:2012"                                     },
-		{ DoIpProtocolVersion::Version03Iso2019,      "DoIP ISO 13400-2:2019"                                     },
-		{ DoIpProtocolVersion::Version04Iso2019_AMD1, "DoIP ISO 13400-2:2012 AMD1"                                },
-		{ DoIpProtocolVersion::ReservedVersion,       "Reserved"                                                  },
-		{ DoIpProtocolVersion::UnknownVersion,        "Unknown Protocol Version"                                  },
+		{ DoIpProtocolVersion::DEFAULT_VALUE,      "Default value for vehicle identification request messages" },
+		{ DoIpProtocolVersion::ISO13400_2010,      "DoIP ISO/DIS 13400-2:2010"                                 },
+		{ DoIpProtocolVersion::ISO13400_2012,      "DoIP ISO 13400-2:2012"                                     },
+		{ DoIpProtocolVersion::ISO13400_2019,      "DoIP ISO 13400-2:2019"                                     },
+		{ DoIpProtocolVersion::ISO13400_2019_AMD1, "DoIP ISO 13400-2:2012 AMD1"                                },
+		{ DoIpProtocolVersion::RESERVED_VER,       "Reserved"                                                  },
+		{ DoIpProtocolVersion::UNKNOWN,            "Unknown Protocol Version"                                  },
 	};
 
 	// This unordered map provides human-readable descriptions for each payload type
@@ -307,16 +307,16 @@ namespace pcpp
 
 		switch (static_cast<DoIpProtocolVersion>(version))
 		{
-		case DoIpProtocolVersion::ReservedVersion:
-		case DoIpProtocolVersion::Version01Iso2010:
-		case DoIpProtocolVersion::Version02Iso2012:
-		case DoIpProtocolVersion::Version03Iso2019:
-		case DoIpProtocolVersion::Version04Iso2019_AMD1:
-		case DoIpProtocolVersion::DefaultVersion:
+		case DoIpProtocolVersion::RESERVED_VER:
+		case DoIpProtocolVersion::ISO13400_2010:
+		case DoIpProtocolVersion::ISO13400_2012:
+		case DoIpProtocolVersion::ISO13400_2019:
+		case DoIpProtocolVersion::ISO13400_2019_AMD1:
+		case DoIpProtocolVersion::DEFAULT_VALUE:
 			return static_cast<DoIpProtocolVersion>(version);
 
 		default:
-			return DoIpProtocolVersion::UnknownVersion;
+			return DoIpProtocolVersion::UNKNOWN;
 		}
 	}
 
@@ -412,7 +412,7 @@ namespace pcpp
 	                                                           DoIpActivationTypes activationType)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
 
 		setSourceAddress(sourceAddress);
 		setActivationType(activationType);
@@ -461,16 +461,12 @@ namespace pcpp
 
 	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationRequest::getReservedOem() const
 	{
-		if (hasReservedOem())
-		{
-			std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
-			memcpy(reservedOem.data(), m_Data + RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
-			return reservedOem;
-		}
-		else
-		{
+		if (!hasReservedOem())
 			throw std::runtime_error("Reserved OEM field not present!");
-		}
+
+		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
+		memcpy(reservedOem.data(), m_Data + RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
+		return reservedOem;
 	}
 
 	void DoIpRoutingActivationRequest::setReservedOem(const std::array<uint8_t, DOIP_RESERVED_OEM_LEN>& reservedOem)
@@ -490,15 +486,15 @@ namespace pcpp
 
 	void DoIpRoutingActivationRequest::clearReservedOem()
 	{
-		if (hasReservedOem())
-		{
-			shortenLayer(FIXED_LEN, DOIP_RESERVED_OEM_LEN);
-			PCPP_LOG_DEBUG("Reserved OEM field has been removed successfully!");
-		}
-		else
+		if (!hasReservedOem())
 		{
 			PCPP_LOG_DEBUG("DoIP packet has no reserved OEM field!");
+			return;
 		}
+
+		shortenLayer(FIXED_LEN, DOIP_RESERVED_OEM_LEN);
+		setPayloadLength(FIXED_LEN - DOIP_HEADER_LEN);
+		PCPP_LOG_DEBUG("Reserved OEM field has been removed successfully!");
 	}
 
 	std::string DoIpRoutingActivationRequest::getSummary() const
@@ -532,7 +528,7 @@ namespace pcpp
 	                                                             DoIpRoutingResponseCodes responseCode)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
 
 		setLogicalAddressExternalTester(logicalAddressExternalTester);
 		setSourceAddress(sourceAddress);
@@ -587,16 +583,12 @@ namespace pcpp
 
 	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationResponse::getReservedOem() const
 	{
-		if (hasReservedOem())
-		{
-			std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
-			memcpy(reservedOem.data(), m_Data + RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
-			return reservedOem;
-		}
-		else
-		{
+		if (!hasReservedOem())
 			throw std::runtime_error("Reserved OEM field not present!");
-		}
+
+		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
+		memcpy(reservedOem.data(), m_Data + RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
+		return reservedOem;
 	}
 
 	void DoIpRoutingActivationResponse::setReservedOem(const std::array<uint8_t, DOIP_RESERVED_OEM_LEN>& reservedOem)
@@ -616,15 +608,15 @@ namespace pcpp
 
 	void DoIpRoutingActivationResponse::clearReservedOem()
 	{
-		if (hasReservedOem())
-		{
-			shortenLayer(FIXED_LEN, DOIP_RESERVED_OEM_LEN);
-			PCPP_LOG_DEBUG("Reserved OEM field has been removed successfully!");
-		}
-		else
+		if (!hasReservedOem())
 		{
 			PCPP_LOG_DEBUG("DoIP packet has no reserved OEM field!");
+			return;
 		}
+
+		shortenLayer(FIXED_LEN, DOIP_RESERVED_OEM_LEN);
+		setPayloadLength(FIXED_LEN - DOIP_HEADER_LEN);
+		PCPP_LOG_DEBUG("Reserved OEM field has been removed successfully!");
 	}
 
 	std::string DoIpRoutingActivationResponse::getSummary() const
@@ -655,7 +647,7 @@ namespace pcpp
 
 	DoIpGenericHeaderNack::DoIpGenericHeaderNack(DoIpGenericHeaderNackCodes nackCode) : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
 		setNackCode(nackCode);
 	}
 
@@ -696,7 +688,7 @@ namespace pcpp
 	    const std::array<uint8_t, DOIP_EID_LEN>& eid)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), DOIP_EID_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), DOIP_EID_LEN);
 		setEID(eid);
 	}
 
@@ -729,7 +721,7 @@ namespace pcpp
 	    const std::array<uint8_t, DOIP_VIN_LEN>& vin)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), DOIP_VIN_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), DOIP_VIN_LEN);
 		setVIN(vin);
 	}
 
@@ -764,7 +756,7 @@ namespace pcpp
 	                                                 DoIpActionCodes actionCode)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
 
 		setVIN(vin);
 		setLogicalAddress(logicalAddress);
@@ -772,6 +764,7 @@ namespace pcpp
 		setGID(gid);
 		setFurtherActionRequired(actionCode);
 	}
+
 	std::array<uint8_t, DOIP_VIN_LEN> DoIpVehicleAnnouncement::getVIN() const
 	{
 		return getVehicleAnnouncement()->vin;
@@ -829,19 +822,14 @@ namespace pcpp
 
 	DoIpSyncStatus DoIpVehicleAnnouncement::getSyncStatus() const
 	{
-		if (hasSyncStatus())
-		{
-			uint8_t syncStatus = *(m_Data + SYNC_STATUS_OFFSET);
-			if (syncStatus <= static_cast<uint8_t>(DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED))
-			{
-				return static_cast<DoIpSyncStatus>(syncStatus);
-			}
-			return DoIpSyncStatus::UNKNOWN;
-		}
-		else
-		{
+		if (!hasSyncStatus())
 			throw std::runtime_error("Sync status field not present!");
-		}
+
+		uint8_t syncStatus = *(m_Data + SYNC_STATUS_OFFSET);
+		if (syncStatus <= static_cast<uint8_t>(DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED))
+			return static_cast<DoIpSyncStatus>(syncStatus);
+
+		return DoIpSyncStatus::UNKNOWN;
 	}
 
 	void DoIpVehicleAnnouncement::setSyncStatus(DoIpSyncStatus syncStatus)
@@ -861,15 +849,13 @@ namespace pcpp
 
 	void DoIpVehicleAnnouncement::clearSyncStatus()
 	{
-		if (hasSyncStatus())
-		{
-			shortenLayer(SYNC_STATUS_OFFSET, SYNC_STATUS_LEN);
-			PCPP_LOG_DEBUG("Sync status has been removed successfully!");
-		}
-		else
+		if (!hasSyncStatus())
 		{
 			PCPP_LOG_DEBUG("DoIP packet has no syncStatus!");
+			return;
 		}
+		shortenLayer(SYNC_STATUS_OFFSET, SYNC_STATUS_LEN);
+		setPayloadLength(FIXED_LEN - DOIP_HEADER_LEN);
 	}
 
 	std::string DoIpVehicleAnnouncement::getSummary() const
@@ -904,7 +890,7 @@ namespace pcpp
 
 	DoIpAliveCheckResponse::DoIpAliveCheckResponse(uint16_t sourceAddress) : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), DOIP_SOURCE_ADDRESS_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), DOIP_SOURCE_ADDRESS_LEN);
 		setSourceAddress(sourceAddress);
 	}
 
@@ -936,7 +922,7 @@ namespace pcpp
 	DoIpDiagnosticPowerModeResponse::DoIpDiagnosticPowerModeResponse(DoIpDiagnosticPowerModeCodes code)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
 		setPowerModeCode(code);
 	}
 
@@ -976,7 +962,7 @@ namespace pcpp
 	                                                   uint8_t maxConcurrentSockets, uint8_t currentlyOpenSockets)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
 
 		setNodeType(nodeType);
 		setMaxConcurrentSockets(maxConcurrentSockets);
@@ -1024,15 +1010,14 @@ namespace pcpp
 
 	void DoIpEntityStatusResponse::clearMaxDataSize()
 	{
-		if (hasMaxDataSize())
-		{
-			shortenLayer(MAX_DATA_SIZE_OFFSET, MAX_DATA_SIZE_LEN);
-			PCPP_LOG_DEBUG("MaxDataSize has been removed successfully!");
-		}
-		else
+		if (!hasMaxDataSize())
 		{
 			PCPP_LOG_DEBUG("DoIP packet has no MaxDataSize field!");
+			return;
 		}
+		shortenLayer(MAX_DATA_SIZE_OFFSET, MAX_DATA_SIZE_LEN);
+		setPayloadLength(FIXED_LEN - DOIP_HEADER_LEN);
+		PCPP_LOG_DEBUG("MaxDataSize has been removed successfully!");
 	}
 
 	void DoIpEntityStatusResponse::setMaxConcurrentSockets(uint8_t sockets)
@@ -1111,7 +1096,7 @@ namespace pcpp
 	                                             const std::vector<uint8_t>& diagData)
 	    : DoIpDiagnosticBase(MIN_LEN + diagData.size())
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), MIN_LEN + diagData.size());
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), MIN_LEN + diagData.size());
 		setSourceAddress(sourceAddress);
 		setTargetAddress(targetAddress);
 		setDiagnosticData(diagData);
@@ -1162,7 +1147,7 @@ namespace pcpp
 	                                                                     DoIpPayloadTypes type)
 	    : DoIpDiagnosticBase(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, type, (FIXED_LEN - DOIP_HEADER_LEN));
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, type, (FIXED_LEN - DOIP_HEADER_LEN));
 		setSourceAddress(sourceAddress);
 		setTargetAddress(targetAddress);
 	}
@@ -1179,12 +1164,11 @@ namespace pcpp
 
 	std::vector<uint8_t> DoIpDiagnosticResponseMessageBase::getPreviousMessage() const
 	{
-		if (hasPreviousMessage())
-		{
-			const uint8_t* dataPtr = m_Data + PREVIOUS_MSG_OFFSET;
-			return std::vector<uint8_t>(dataPtr, dataPtr + (m_DataLen - PREVIOUS_MSG_OFFSET));
-		}
-		return {};
+		if (!hasPreviousMessage())
+			return {};
+
+		const uint8_t* dataPtr = m_Data + PREVIOUS_MSG_OFFSET;
+		return std::vector<uint8_t>(dataPtr, dataPtr + (m_DataLen - PREVIOUS_MSG_OFFSET));
 	}
 
 	bool DoIpDiagnosticResponseMessageBase::hasPreviousMessage() const
@@ -1198,7 +1182,7 @@ namespace pcpp
 		const size_t currentPayloadLen = m_DataLen - PREVIOUS_MSG_OFFSET;
 		setPayloadLength(newPayloadLen);
 
-		ptrdiff_t layerExtensionLen = static_cast<ptrdiff_t>(msg.size()) - static_cast<ptrdiff_t>(currentPayloadLen);
+		int layerExtensionLen = static_cast<int>(msg.size()) - static_cast<int>(currentPayloadLen);
 		if (layerExtensionLen > 0)
 		{
 			extendLayer(PREVIOUS_MSG_OFFSET + currentPayloadLen, layerExtensionLen);
@@ -1212,15 +1196,14 @@ namespace pcpp
 
 	void DoIpDiagnosticResponseMessageBase::clearPreviousMessage()
 	{
-		if (hasPreviousMessage())
-		{
-			shortenLayer(FIXED_LEN, (m_DataLen - FIXED_LEN));
-			PCPP_LOG_DEBUG("PreviousMessage has been removed successfully!");
-		}
-		else
+		if (!hasPreviousMessage())
 		{
 			PCPP_LOG_DEBUG("DoIP packet has no PreviousMessage field!");
+			return;
 		}
+		shortenLayer(FIXED_LEN, (m_DataLen - FIXED_LEN));
+		setPayloadLength(FIXED_LEN - DOIP_HEADER_LEN);
+		PCPP_LOG_DEBUG("PreviousMessage field has been removed successfully!");
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1320,7 +1303,7 @@ namespace pcpp
 	//~~~~~~~~~~~~~~~~~~~~~~|
 	DoIpAliveCheckRequest::DoIpAliveCheckRequest() : DoIpLayer(DOIP_HEADER_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), 0);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1328,7 +1311,7 @@ namespace pcpp
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	DoIpVehicleIdentificationRequest::DoIpVehicleIdentificationRequest() : DoIpLayer(DOIP_HEADER_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), 0);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1336,7 +1319,7 @@ namespace pcpp
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	DoIpDiagnosticPowerModeRequest::DoIpDiagnosticPowerModeRequest() : DoIpLayer(DOIP_HEADER_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), 0);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1344,6 +1327,6 @@ namespace pcpp
 	//~~~~~~~~~~~~~~~~~~~~~~~~|
 	DoIpEntityStatusRequest::DoIpEntityStatusRequest() : DoIpLayer(DOIP_HEADER_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::Version02Iso2012, getPayloadType(), 0);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
 	}
 }  // namespace pcpp
