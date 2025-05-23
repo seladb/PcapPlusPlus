@@ -28,6 +28,9 @@ namespace pcpp
 	};
 #pragma pack(pop)
 	static_assert(sizeof(modbus_common_header) == 8, "modbus_common_header size is not 8 bytes");
+
+	/// @class ModbusLayer
+	/// Represents the MODBUS Application Protocol layer
 	class ModbusLayer : public Layer
 	{
 	public:
@@ -64,6 +67,6 @@ namespace pcpp
 		/// @brief set the MODBUS header function code
 		/// @param functionCode function code
 		void setFunctionCode(uint8_t functionCode);
-	}
+	};
 
 }  // namespace pcpp
