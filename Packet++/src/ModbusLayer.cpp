@@ -1,5 +1,6 @@
 
 #include "ModbusLayer.h"
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -26,17 +27,17 @@ namespace pcpp
 
 	uint16_t ModbusLayer::getTransactionId()
 	{
-		return getModbusHeader()->transactionId;
+		return be16toh(getModbusHeader()->transactionId);
 	}
 
 	uint16_t ModbusLayer::getProtocolId()
 	{
-		return getModbusHeader()->protocolId;
+		return be16toh(getModbusHeader()->protocolId);
 	}
 
 	uint16_t ModbusLayer::getLength()
 	{
-		return getModbusHeader()->length;
+		return be16toh(getModbusHeader()->length);
 	}
 
 	uint8_t ModbusLayer::getUnitId()
@@ -51,7 +52,7 @@ namespace pcpp
 
 	void ModbusLayer::setTransactionId(uint16_t transactionId)
 	{
-		getModbusHeader()->transactionId = transactionId;
+		getModbusHeader()->transactionId = htobe16(transactionId);
 	}
 
 	void ModbusLayer::setUnitId(uint8_t unitId)
