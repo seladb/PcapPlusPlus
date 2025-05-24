@@ -136,6 +136,13 @@ namespace pcpp
 
 	void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 	{
+		// Check for overflow in the new length
+		if ((size_t)m_RawDataLen + dataToInsertLen < (size_t)m_RawDataLen)
+		{
+			throw std::length_error(
+			    "RawPacket::insertData: dataToInsertLen causes overflow in the new length calculation");
+		}
+
 		// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on
 		// overlapping src/dest ptrs if insertData is called with atIndex == m_RawDataLen, then no data is being moved.
 		// The data of the raw packet is still extended by dataToInsertLen
