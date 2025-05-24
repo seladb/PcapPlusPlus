@@ -139,8 +139,8 @@ namespace pcpp
 		// Check for overflow in the new length
 		if ((size_t)m_RawDataLen + dataToInsertLen < (size_t)m_RawDataLen)
 		{
-			PCPP_LOG_ERROR("RawPacket::insertData: dataToInsertLen causes overflow");
-			return;
+			throw std::length_error(
+			    "RawPacket::insertData: dataToInsertLen causes overflow in the new length calculation");
 		}
 
 		// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on
