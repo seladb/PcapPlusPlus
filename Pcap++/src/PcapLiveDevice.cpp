@@ -658,6 +658,16 @@ namespace pcpp
 			return false;
 		}
 
+		try
+		{
+			prepareCapture(true, onStatsUpdate != nullptr);
+		}
+		catch (std::exception const& ex)
+		{
+			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
+			return false;
+		}
+
 		m_CaptureCallbackMode = true;
 		m_cbOnPacketArrives = std::move(onPacketArrives);
 		m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
@@ -700,6 +710,16 @@ namespace pcpp
 			return false;
 		}
 
+		try
+		{
+			prepareCapture(true, false);
+		}
+		catch (const std::exception& ex)
+		{
+			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
+			return false;
+		}
+
 		m_CapturedPackets = &capturedPacketsVector;
 		m_CapturedPackets->clear();
 
@@ -733,6 +753,15 @@ namespace pcpp
 			return 0;
 		}
 
+		try
+		{
+			prepareCapture(false, false);
+		}
+		catch (const std::exception& ex)
+		{
+			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
+			return 0;
+		}
 		m_cbOnPacketArrives = nullptr;
 		m_cbOnPacketArrivesUserCookie = nullptr;
 

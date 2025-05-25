@@ -635,6 +635,16 @@ namespace pcpp
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
+		/// @brief Called before starting a capture to prepare the device for capturing packets.
+		///
+		/// This method can be overridden by derived classes to perform additional preparations before starting
+		/// the packet capture.
+		///
+		/// @param asyncCapture True if the capture is asynchronous (i.e. packets are captured in a separate thread),
+		/// @param captureStats True if statistics should be captured during the capture process.
+		virtual void prepareCapture(bool asyncCapture, bool captureStats)
+		{}
+
 		internal::PcapHandle doOpen(const DeviceConfiguration& config);
 
 		// Sends a packet directly to the network.
