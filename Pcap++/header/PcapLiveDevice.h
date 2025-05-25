@@ -404,7 +404,7 @@ namespace pcpp
 		/// - Capture is already running
 		/// - Device is not opened
 		/// - Capture thread could not be created
-		virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie);
+		virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie) final;
 
 		/// Start capturing packets on this network interface (device) with periodic stats collection. Each time a
 		/// packet is captured the onPacketArrives callback is called. In addition, each intervalInSecondsToUpdateStats
@@ -430,7 +430,7 @@ namespace pcpp
 		/// - Stats collection thread could not be created
 		virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie,
 		                          int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                          void* onStatsUpdateUserCookie);
+		                          void* onStatsUpdateUserCookie) final;
 
 		/// Start capturing packets on this network interface (device) with periodic stats collection only. This means
 		/// that packets arriving to the network interface aren't delivered to the user but only counted. Each
@@ -449,7 +449,7 @@ namespace pcpp
 		/// - Device is not opened
 		/// - Stats collection thread could not be created
 		virtual bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                          void* onStatsUpdateUserCookie);
+		                          void* onStatsUpdateUserCookie) final;
 
 		/// Start capturing packets on this network interface (device). All captured packets are added to
 		/// capturedPacketsVector, so at the end of the capture (when calling stopCapture()) this vector contains
@@ -464,7 +464,7 @@ namespace pcpp
 		/// - Capture is already running
 		/// - Device is not opened
 		/// - Capture thread could not be created
-		virtual bool startCapture(RawPacketVector& capturedPacketsVector);
+		virtual bool startCapture(RawPacketVector& capturedPacketsVector) final;
 
 		/// Start capturing packets on this network interface (device) in blocking mode, meaning this method blocks and
 		/// won't return until the user frees the blocking (via onPacketArrives callback) or until a user defined
@@ -490,7 +490,7 @@ namespace pcpp
 		/// @note On Unix-like systems, enabling the `usePoll` option in `DeviceConfiguration` prevents the method from
 		/// blocking indefinitely when no packets are available, even if a timeout is set.
 		virtual int startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie,
-		                                     const double timeout);
+		                                     const double timeout) final;
 
 		/// Stop a currently running packet capture. This method terminates gracefully both packet capture thread and
 		/// periodic stats collection thread (both if exist)
