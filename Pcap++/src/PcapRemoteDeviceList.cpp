@@ -123,6 +123,11 @@ namespace pcpp
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
 	{
+		return getDeviceByIP(ipAddrAsString);
+	}
+
+	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIP(const std::string& ipAddrAsString) const
+	{
 		IPAddress ipAddr;
 
 		try
@@ -135,23 +140,33 @@ namespace pcpp
 			return nullptr;
 		}
 
-		PcapRemoteDevice* result = getRemoteDeviceByIP(ipAddr);
+		PcapRemoteDevice* result = getDeviceByIP(ipAddr);
 		return result;
 	}
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
 	{
+		return getDeviceByIP(ipAddr);
+	}
+
+	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIP(const IPAddress& ipAddr) const
+	{
 		if (ipAddr.getType() == IPAddress::IPv4AddressType)
 		{
-			return getRemoteDeviceByIP(ipAddr.getIPv4());
+			return getDeviceByIP(ipAddr.getIPv4());
 		}
 		else  // IPAddress::IPv6AddressType
 		{
-			return getRemoteDeviceByIP(ipAddr.getIPv6());
+			return getDeviceByIP(ipAddr.getIPv6());
 		}
 	}
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
+	{
+		return getDeviceByIP(ip4Addr);
+	}
+
+	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIP(const IPv4Address& ip4Addr) const
 	{
 		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip4Addr](PcapRemoteDevice const* devPtr) {
 			auto devIP = devPtr->getIPv4Address();
@@ -161,6 +176,11 @@ namespace pcpp
 	}
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
+	{
+		return getDeviceByIP(ip6Addr);
+	}
+
+	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIP(const IPv6Address& ip6Addr) const
 	{
 		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip6Addr](PcapRemoteDevice const* devPtr) {
 			auto devIP = devPtr->getIPv6Address();

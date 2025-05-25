@@ -18,7 +18,7 @@ This package contains:
     - x86_64
  - PcapPlusPlus header files (under `include/`)
 
-The libraries are compiled with API version 30 but can be used with any API version as the binaries are similar regardless of the API version.
+The libraries are compiled with API version 35 but can be used with any API version as the binaries are similar regardless of the API version.
 
 
 Using these binaries in your Android app
@@ -29,9 +29,9 @@ Using these binaries in your Android app
  - You will most probably need lipcap for Android which you can get here: https://github.com/seladb/libpcap-android
 
 
-Using these binaris in ToyVpn-PcapPlusPlus
-------------------------------------------
+Using these binaries in ToyVpn-PcapPlusPlus
+-------------------------------------------
 
- - [ToyVpn-PcapPlusPlus](https://github.com/seladb/ToyVpn-PcapPlusPlus) is an example project that demonstrates how PcapPlusPlus can be used in Android apps. It is built on top of Android's ToyVpn Example and adds a layer of network traffic analysis for the packets processed by ToyVPN
+ - [ToyVpn-PcapPlusPlus](https://github.com/seladb/ToyVpn-PcapPlusPlus) is an Android application designed for monitoring and analyzing network traffic on an Android device. It achieves this by establishing a VPN tunnel and routing all network traffic through it
  - Copy the content of this package (everything under `include`, `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`) to `app/libs/pcapplusplus`
  - [ToyVpn-PcapPlusPlus's README file](https://github.com/seladb/ToyVpn-PcapPlusPlus/blob/master/README.md) contains detailed instructions on how to set up the app. You can of course skip the steps which show how to build PcapPlusPlus

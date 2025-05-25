@@ -8,7 +8,7 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-#define PCAPPLUSPLUS_VERSION "24.09+"
+#define PCAPPLUSPLUS_VERSION "25.05+"
 #define PCAPPLUSPLUS_VERSION_OFFICIAL "non-official release"
 
 #define PCAPPLUSPLUS_VERSION_FULL "v" PCAPPLUSPLUS_VERSION " (" PCAPPLUSPLUS_VERSION_OFFICIAL ")"
