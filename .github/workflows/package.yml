@@ -403,3 +403,55 @@ jobs:
           allowUpdates: true
           updateOnlyUnreleased: true
           artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
+          
+  build-deb:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
+    env:
+      BUILD_DIR: Dist
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends cmake make g++ libpcap-dev
+
+      - name: Build project
+        run: |
+          mkdir -p "${{ env.BUILD_DIR }}"
+          cd "${{ env.BUILD_DIR }}"
+          cmake ..
+          make -j$(nproc)
+          make install DESTDIR=$PWD/install-root
+
+      - name: Create DEB control file
+        run: |
+          cd "${{ env.BUILD_DIR }}/install-root"
+          mkdir -p DEBIAN
+          cat <<EOF > DEBIAN/control
+          Package: pcapplusplus
+          Version: ${{ github.event.release.tag_name }}
+          Section: libs
+          Architecture: amd64
+          Maintainer: Bhaskar Bhar <bhaskarbhar007@yahoo.com>
+          Description: PcapPlusPlus - C++ library for packet parsing and crafting
+          EOF
+
+      - name: Build DEB package
+        run: |
+          cd "${{ env.BUILD_DIR }}"
+          dpkg-deb --build install-root pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
+
+      - name: Upload DEB to release
+        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
+        with:
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          artifacts: "${{ env.BUILD_DIR }}/pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb"
+
