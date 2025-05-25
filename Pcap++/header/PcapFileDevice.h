@@ -461,24 +461,8 @@ namespace pcpp
 		/// A destructor for this class
 		virtual ~PcapNgFileWriterDevice()
 		{
-			close();
+			PcapNgFileWriterDevice::close();
 		}
-
-		/// Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
-		/// overwritten, meaning all its current content will be deleted. As opposed to open(), this method also allows
-		/// writing several metadata attributes that will be stored in the header of the file
-		/// @param[in] os A string describing the operating system that was used to capture the packets. If this string
-		/// is empty or null it will be ignored
-		/// @param[in] hardware A string describing the hardware that was used to capture the packets. If this string is
-		/// empty or null it will be ignored
-		/// @param[in] captureApp A string describing the application that was used to capture the packets. If this
-		/// string is empty or null it will be ignored
-		/// @param[in] fileComment A string containing a user-defined comment that will be part of the metadata of the
-		/// file. If this string is empty or null it will be ignored
-		/// @return True if file was opened/created successfully or if file is already opened. False if opening the file
-		/// failed for some reason (an error will be printed to log)
-		bool open(const std::string& os, const std::string& hardware, const std::string& captureApp,
-		          const std::string& fileComment);
 
 		/// The pcap-ng format allows adding a user-defined comment for each stored packet. This method writes a
 		/// RawPacket to the file and adds a comment to it. Before using this method please verify the file is opened
@@ -497,7 +481,7 @@ namespace pcpp
 		/// @param[in] packet A reference for an existing RawPcket to write to the file
 		/// @return True if a packet was written successfully. False will be returned if the file isn't opened (an error
 		/// will be printed to log)
-		bool writePacket(RawPacket const& packet);
+		bool writePacket(RawPacket const& packet) override;
 
 		/// Write multiple RawPacket to the file. Before using this method please verify the file is opened using
 		/// open(). This method won't change the written packets or the RawPacketVector instance
@@ -506,13 +490,13 @@ namespace pcpp
 		/// @return True if all packets were written successfully to the file. False will be returned if the file isn't
 		/// opened (also, an error log will be printed) or if at least one of the packets wasn't written successfully to
 		/// the file
-		bool writePackets(const RawPacketVector& packets);
+		bool writePackets(const RawPacketVector& packets) override;
 
 		/// Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
 		/// overwritten, meaning all its current content will be deleted
 		/// @return True if file was opened/created successfully or if file is already opened. False if opening the file
 		/// failed for some reason (an error will be printed to log)
-		bool open();
+		bool open() override;
 
 		/// Same as open(), but enables to open the file in append mode in which packets will be appended to the file
 		/// instead of overwrite its current content. In append mode file must exist, otherwise opening will fail
@@ -521,23 +505,58 @@ namespace pcpp
 		/// @return True of managed to open the file successfully. In case appendMode is set to true, false will be
 		/// returned if file wasn't found or couldn't be read, if file type is not pcap-ng. In case appendMode is set to
 		/// false, please refer to open() for return values
-		bool open(bool appendMode);
+		bool open(bool appendMode) override;
+
+		/// Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
+		/// overwritten, meaning all its current content will be deleted. As opposed to open(), this method also allows
+		/// writing several metadata attributes that will be stored in the header of the file
+		/// @param[in] os A string describing the operating system that was used to capture the packets. If this string
+		/// is empty or null it will be ignored
+		/// @param[in] hardware A string describing the hardware that was used to capture the packets. If this string is
+		/// empty or null it will be ignored
+		/// @param[in] captureApp A string describing the application that was used to capture the packets. If this
+		/// string is empty or null it will be ignored
+		/// @param[in] fileComment A string containing a user-defined comment that will be part of the metadata of the
+		/// file. If this string is empty or null it will be ignored
+		/// @return True if file was opened/created successfully or if file is already opened. False if opening the file
+		/// failed for some reason (an error will be printed to log)
+		bool open(const std::string& os, const std::string& hardware, const std::string& captureApp,
+		          const std::string& fileComment);
 
 		/// Flush packets to the pcap-ng file
 		void flush();
 
 		/// Flush and close the pcap-ng file
-		void close();
+		void close() override;
 
 		/// Get statistics of packets written so far.
 		/// @param[out] stats The stats struct where stats are returned
-		void getStatistics(PcapStats& stats) const;
+		void getStatistics(PcapStats& stats) const override;
 
 		/// Set a filter for PcapNG writer device. Only packets that match the filter will be persisted
 		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
 		/// (http://biot.com/capstats/bpf.html)
 		/// @return True if filter set successfully, false otherwise
-		bool setFilter(std::string filterAsString);
+		bool setFilter(std::string filterAsString) override;
+
+	private:
+		/// @struct PcapNgMetadata
+		/// @brief A struct for holding the metadata of a pcap-ng file. The metadata includes the operating system,
+		/// hardware, capture application and file comment.
+		struct PcapNgMetadata
+		{
+			/// The operating system that was used for capturing the packets
+			std::string os;
+			/// The hardware that was used for capturing the packets
+			std::string hardware;
+			/// The capture application that was used for capturing the packets
+			std::string captureApplication;
+			/// The comment that was written inside the file
+			std::string comment;
+		};
+
+		bool openWrite(PcapNgMetadata const* metadata = nullptr);
+		bool openAppend();
 	};
 
 }  // namespace pcpp
