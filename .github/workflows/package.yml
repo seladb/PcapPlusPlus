@@ -403,7 +403,7 @@ jobs:
           allowUpdates: true
           updateOnlyUnreleased: true
           artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
-          
+
   build-deb:
     runs-on: ubuntu-latest
     permissions:
@@ -454,4 +454,3 @@ jobs:
           allowUpdates: true
           updateOnlyUnreleased: true
           artifacts: "${{ env.BUILD_DIR }}/pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb"
-
