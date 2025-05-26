@@ -230,6 +230,68 @@ namespace pcpp
 		}
 	}
 
+	PcapLiveDevice::StatisticsUpdateWorker::StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice,
+	                                                               OnStatsUpdateCallback onStatsUpdateCallback,
+	                                                               void* onStatsUpdateUserCookie,
+	                                                               unsigned int updateIntervalMs)
+	{
+		// Setup thread data
+		m_SharedThreadData = std::make_shared<SharedThreadData>();
+
+		ThreadData threadData;
+		threadData.pcapDevice = &pcapDevice;
+		threadData.cbOnStatsUpdate = onStatsUpdateCallback;
+		threadData.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
+		threadData.updateIntervalMs = updateIntervalMs;
+
+		// Start the thread
+		m_WorkerThread = std::thread(&StatisticsUpdateWorker::workerMain, m_SharedThreadData, std::move(threadData));
+	}
+
+	void PcapLiveDevice::StatisticsUpdateWorker::stopWorker()
+	{
+		m_SharedThreadData->stopRequested = true;
+		if (m_WorkerThread.joinable())
+		{
+			m_WorkerThread.join();
+		}
+	}
+
+	void PcapLiveDevice::StatisticsUpdateWorker::workerMain(std::shared_ptr<SharedThreadData> sharedThreadData,
+	                                                        ThreadData threadData)
+	{
+		if (sharedThreadData == nullptr)
+		{
+			PCPP_LOG_ERROR("Shared thread data is null");
+			return;
+		}
+
+		if (threadData.pcapDevice == nullptr)
+		{
+			PCPP_LOG_ERROR("Pcap device is null");
+			return;
+		}
+
+		if (threadData.cbOnStatsUpdate == nullptr)
+		{
+			PCPP_LOG_ERROR("Statistics Callback is null");
+			return;
+		}
+
+		PCPP_LOG_DEBUG("Started statistics thread");
+
+		PcapStats stats;
+		auto sleepDuration = std::chrono::milliseconds(threadData.updateIntervalMs);
+		while (!sharedThreadData->stopRequested)
+		{
+			threadData.pcapDevice->getStatistics(stats);
+			threadData.cbOnStatsUpdate(stats, threadData.cbOnStatsUpdateUserCookie);
+			std::this_thread::sleep_for(sleepDuration);
+		}
+
+		PCPP_LOG_DEBUG("Stopped statistics thread");
+	}
+
 	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
 	                               bool calculateDefaultGateway)
 	    : IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1),
@@ -263,17 +325,12 @@ namespace pcpp
 
 		// init all other members
 		m_CaptureThreadStarted = false;
-		m_StatsThreadStarted = false;
 		m_StopThread = false;
 		m_CaptureThread = {};
-		m_StatsThread = {};
 		m_cbOnPacketArrives = nullptr;
-		m_cbOnStatsUpdate = nullptr;
 		m_cbOnPacketArrivesBlockingMode = nullptr;
 		m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
-		m_IntervalToUpdateStats = 0;
 		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_cbOnStatsUpdateUserCookie = nullptr;
 		m_CaptureCallbackMode = true;
 		m_CapturedPackets = nullptr;
 		if (calculateMacAddress)
@@ -361,19 +418,6 @@ namespace pcpp
 			}
 		}
 		PCPP_LOG_DEBUG("Ended capture thread for device '" << m_InterfaceDetails.name << "'");
-	}
-
-	void PcapLiveDevice::statsThreadMain()
-	{
-		PCPP_LOG_DEBUG("Started stats thread for device '" << m_InterfaceDetails.name << "'");
-		while (!m_StopThread)
-		{
-			PcapStats stats;
-			getStatistics(stats);
-			m_cbOnStatsUpdate(stats, m_cbOnStatsUpdateUserCookie);
-			std::this_thread::sleep_for(std::chrono::seconds(m_IntervalToUpdateStats));
-		}
-		PCPP_LOG_DEBUG("Ended stats thread for device '" << m_InterfaceDetails.name << "'");
 	}
 
 	internal::PcapHandle PcapLiveDevice::doOpen(const DeviceConfiguration& config)
@@ -614,8 +658,6 @@ namespace pcpp
 			return false;
 		}
 
-		m_IntervalToUpdateStats = intervalInSecondsToUpdateStats;
-
 		m_CaptureCallbackMode = true;
 		m_cbOnPacketArrives = std::move(onPacketArrives);
 		m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
@@ -633,12 +675,12 @@ namespace pcpp
 
 		if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 		{
-			m_cbOnStatsUpdate = std::move(onStatsUpdate);
-			m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
-			m_StatsThread = std::thread(&pcpp::PcapLiveDevice::statsThreadMain, this);
-			m_StatsThreadStarted = true;
-			PCPP_LOG_DEBUG("Successfully created stats thread for device '"
-			               << m_InterfaceDetails.name << "'. Thread id: " << m_StatsThread.get_id());
+			// Due to passing a 'this' pointer, the current device object shouldn't be relocated, while the worker is
+			// active.
+			m_StatisticsUpdateWorker = std::unique_ptr<StatisticsUpdateWorker>(new StatisticsUpdateWorker(
+			    *this, std::move(onStatsUpdate), onStatsUpdateUserCookie, intervalInSecondsToUpdateStats * 1000));
+
+			PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_InterfaceDetails.name << "'.");
 		}
 
 		return true;
@@ -692,9 +734,7 @@ namespace pcpp
 		}
 
 		m_cbOnPacketArrives = nullptr;
-		m_cbOnStatsUpdate = nullptr;
 		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_cbOnStatsUpdateUserCookie = nullptr;
 
 		m_cbOnPacketArrivesBlockingMode = std::move(onPacketArrives);
 		m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
@@ -814,11 +854,12 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
 		}
 		PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
-		if (m_StatsThreadStarted)
+
+		if (m_StatisticsUpdateWorker != nullptr)
 		{
 			PCPP_LOG_DEBUG("Stopping stats thread, waiting for it to join...");
-			m_StatsThread.join();
-			m_StatsThreadStarted = false;
+			m_StatisticsUpdateWorker->stopWorker();
+			m_StatisticsUpdateWorker.reset();
 			PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_InterfaceDetails.name << "'");
 		}
 
@@ -832,15 +873,10 @@ namespace pcpp
 
 	void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	{
-		pcap_stat pcapStats;
-		if (pcap_stats(m_PcapDescriptor.get(), &pcapStats) < 0)
+		if (!m_PcapDescriptor.getStatistics(stats))
 		{
 			PCPP_LOG_ERROR("Error getting statistics from live device '" << m_InterfaceDetails.name << "'");
 		}
-
-		stats.packetsRecv = pcapStats.ps_recv;
-		stats.packetsDrop = pcapStats.ps_drop;
-		stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 	}
 
 	bool PcapLiveDevice::doMtuCheck(int packetPayloadLength) const
@@ -856,7 +892,7 @@ namespace pcpp
 
 	bool PcapLiveDevice::sendPacket(Packet const& packet, bool checkMtu)
 	{
-		RawPacket* rawPacket = packet.getRawPacket();
+		RawPacket const* rawPacket = packet.getRawPacketReadOnly();
 		if (checkMtu)
 		{
 			int packetPayloadLength = 0;
@@ -879,33 +915,38 @@ namespace pcpp
 
 	bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 	{
-		if (checkMtu)
+		if (!checkMtu)
 		{
-			RawPacket* rPacket = const_cast<RawPacket*>(&rawPacket);
-			Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
-			return sendPacket(parsedPacket, true);
+			return sendPacketDirect(rawPacket.getRawData(), rawPacket.getRawDataLen());
 		}
-		// Send packet without Mtu check
-		return sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen());
+
+		RawPacket* rPacket = const_cast<RawPacket*>(&rawPacket);
+		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
+		return sendPacket(parsedPacket, true);
 	}
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
 	{
-		return doMtuCheck(packetPayloadLength) && sendPacket(packetData, packetDataLength);
+		return doMtuCheck(packetPayloadLength) && sendPacketDirect(packetData, packetDataLength);
 	}
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu,
 	                                pcpp::LinkLayerType linkType)
 	{
-		if (checkMtu)
+		if (!checkMtu)
 		{
-			timeval time;
-			gettimeofday(&time, nullptr);
-			pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
-			Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
-			return sendPacket(parsedPacket, true);
+			return sendPacketDirect(packetData, packetDataLength);
 		}
 
+		timeval time;
+		gettimeofday(&time, nullptr);
+		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
+		Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
+		return sendPacket(parsedPacket, true);
+	}
+
+	bool PcapLiveDevice::sendPacketDirect(uint8_t const* packetData, int packetDataLength)
+	{
 		if (!m_DeviceOpened)
 		{
 			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened!");
