@@ -1,6 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Common/TestUtils.h"
 #include "IPReassembly.h"
+#include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "HttpLayer.h"
 #include "PcapFileDevice.h"
@@ -1073,3 +1074,30 @@ PTF_TEST_CASE(TestIPFragWithPadding)
 	delete result;
 	delete[] buffer;
 }  // TestIPFragWithPadding
+
+PTF_TEST_CASE(TestIPv4MalformedFragment)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PcapExamples/ip4_bad_fragment.txt", bufferLength);
+	pcpp::RawPacket rawPacket(static_cast<const uint8_t*>(buffer), bufferLength, time, true) ;
+
+	pcpp::Packet frag1(&rawPacket);
+
+	pcpp::IPv4Layer* ipLayer = frag1.getLayerOfType<pcpp::IPv4Layer>();
+	PTF_ASSERT_NOT_NULL(ipLayer);
+	PTF_ASSERT_TRUE(ipLayer->isFragment());
+	PTF_ASSERT_FALSE(ipLayer->isFirstFragment());
+	PTF_ASSERT_TRUE(ipLayer->isLastFragment());
+	PTF_ASSERT_NOT_EQUAL(ipLayer->getFragmentOffset(), 0);
+	PTF_ASSERT_EQUAL((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS), 0);
+
+	pcpp::IPReassembly::ReassemblyStatus status;
+	pcpp::IPReassembly reassembler;
+
+	reassembler.processPacket(&frag1, status);
+	PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::MALFORMED_FRAGMENT);
+}  // TestIPv4MalformedFragment
+
