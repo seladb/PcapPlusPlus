@@ -969,44 +969,41 @@ namespace pcpp
 		return true;
 	}
 
+	namespace
+	{
+		template <typename It, typename Func> int sendPacketsLoop(It begin, It end, Func sendFunc)
+		{
+			int packetsSent = 0;
+			size_t totalPackets = std::distance(begin, end);
+
+			for (It iter = begin; iter != end; ++iter)
+			{
+				if (sendFunc(*iter))
+					packetsSent++;
+			}
+
+			PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << totalPackets - packetsSent
+			                           << " packets not sent");
+			return packetsSent;
+		}
+	}  // namespace
+
 	int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 	{
-		int packetsSent = 0;
-		for (int i = 0; i < arrLength; i++)
-		{
-			if (sendPacket(rawPacketsArr[i], checkMtu))
-				packetsSent++;
-		}
-
-		PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << arrLength - packetsSent << " packets not sent");
-		return packetsSent;
+		return sendPacketsLoop(rawPacketsArr, rawPacketsArr + arrLength,
+		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
 	{
-		int packetsSent = 0;
-		for (int i = 0; i < arrLength; i++)
-		{
-			if (sendPacket(*packetsArr[i], checkMtu))
-				packetsSent++;
-		}
-
-		PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << arrLength - packetsSent << " packets not sent");
-		return packetsSent;
+		return sendPacketsLoop(packetsArr, packetsArr + arrLength,
+		                       [this, checkMtu](Packet* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
-		int packetsSent = 0;
-		for (RawPacketVector::ConstVectorIterator iter = rawPackets.begin(); iter != rawPackets.end(); iter++)
-		{
-			if (sendPacket(**iter, checkMtu))
-				packetsSent++;
-		}
-
-		PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << (rawPackets.size() - packetsSent)
-		                           << " packets not sent");
-		return packetsSent;
+		return sendPacketsLoop(rawPackets.begin(), rawPackets.end(),
+		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	void PcapLiveDevice::setDeviceMtu()
