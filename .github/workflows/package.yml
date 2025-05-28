@@ -404,8 +404,9 @@ jobs:
           updateOnlyUnreleased: true
           artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
 
-  build-deb:
+    build-deb:
     runs-on: ubuntu-latest
+    container: seladb/ubuntu2404
     permissions:
       contents: write
       attestations: write
@@ -418,8 +419,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apt-get update
-          apt-get install -y --no-install-recommends cmake make g++ libpcap-dev
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake make g++ libpcap-dev dpkg-dev
 
       - name: Build project
         run: |
@@ -427,27 +428,41 @@ jobs:
           cd "${{ env.BUILD_DIR }}"
           cmake ..
           make -j$(nproc)
-          make install DESTDIR=$PWD/install-root
+          sudo make install DESTDIR=$PWD/install-root
 
       - name: Create DEB control file
         run: |
           cd "${{ env.BUILD_DIR }}/install-root"
           mkdir -p DEBIAN
-          cat <<EOF > DEBIAN/control
+          cat <<EOF | sudo tee DEBIAN/control
           Package: pcapplusplus
           Version: ${{ github.event.release.tag_name }}
           Section: libs
           Architecture: amd64
-          Maintainer: Bhaskar Bhar <bhaskarbhar007@yahoo.com>
+          Maintainer: PcapPlusPlus Team <pcapplusplus@gmail.com>
           Description: PcapPlusPlus - C++ library for packet parsing and crafting
           EOF
 
       - name: Build DEB package
         run: |
           cd "${{ env.BUILD_DIR }}"
-          dpkg-deb --build install-root pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
+          sudo dpkg-deb --build install-root pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
+
+      - name: Test DEB install
+        run: |
+          sudo apt-get install -y ./${{ env.BUILD_DIR }}/pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
+          echo '#include <PcapLiveDeviceList.h>
+          #include <iostream>
+          int main() {
+            auto devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+            std::cout << "Found " << devList.size() << " devices\n";
+            return 0;
+          }' > test.cpp
+          g++ test.cpp -o test -lPcapPlusPlus -lPacket++ -lCommon++
+          ./test
 
       - name: Upload DEB to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
         with:
           draft: true
