@@ -53,20 +53,20 @@ namespace pcpp
 		modbus_common_header* getModbusHeader() const;
 
 		/// @return MODBUS message type
-		uint16_t getTransactionId();
+		uint16_t getTransactionId() const;
 
 		/// @return MODBUS protocol id
-		uint16_t getProtocolId();
+		uint16_t getProtocolId() const;
 
 		/// @return MODBUS remaining bytes in frame starting from the unit id
 		/// @note This is the length of the MODBUS payload + unit_id, not the entire packet
-		uint16_t getLength();
+		uint16_t getLength() const;
 
 		/// @return MODBUS unit id
-		uint8_t getUnitId();
+		uint8_t getUnitId() const;
 
 		/// @return MODBUS function code
-		uint8_t getFunctionCode();
+		uint8_t getFunctionCode() const;
 
 		/// @brief set the MODBUS transaction id
 		/// @param transactionId transaction id
