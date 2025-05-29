@@ -929,7 +929,7 @@ namespace pcpp
 		if (checkMtu)
 		{
 			size_t packetPayloadLength = 0;
-			if (this->checkMtu(packetData, packetDataLength, linkType, true, &packetPayloadLength))
+			if (!this->checkMtu(packetData, packetDataLength, linkType, true, &packetPayloadLength))
 			{
 				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
 				                                         << m_DeviceMtu << "]");
