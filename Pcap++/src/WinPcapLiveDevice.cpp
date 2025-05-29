@@ -113,7 +113,7 @@ namespace pcpp
 		if (res < 0)
 		{
 			throw std::runtime_error("Error setting the mode for device '" + m_InterfaceDetails.name +
-			                         "': " + pcap_geterr(m_PcapDescriptor.get()));
+			                         "': " + m_PcapDescriptor.getLastError());
 		}
 	}
 
