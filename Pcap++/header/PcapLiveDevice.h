@@ -494,6 +494,7 @@ namespace pcpp
 
 		/// Stop a currently running packet capture. This method terminates gracefully both packet capture thread and
 		/// periodic stats collection thread (both if exist)
+		/// @remarks This method should not be called from the onPacketArrives callback, as it will cause a deadlock.
 		void stopCapture();
 
 		/// Check if a capture thread is running
