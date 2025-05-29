@@ -953,7 +953,7 @@ namespace pcpp
 			}
 		}
 
-		return sendPacket(*packet->getRawPacketReadOnly(), false);
+		return sendPacketUnchecked(*packet->getRawPacketReadOnly());
 	}
 
 	bool PcapLiveDevice::sendPacketUnchecked(uint8_t const* packetData, int packetDataLength)
