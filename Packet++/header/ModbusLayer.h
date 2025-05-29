@@ -79,6 +79,39 @@ namespace pcpp
 		/// @brief set the MODBUS header function code
 		/// @param functionCode function code
 		void setFunctionCode(uint8_t functionCode);
+
+		// Overridden methods
+
+		/// Does nothing for this layer (ModbusLayer is always last)
+		void parseNextLayer() override
+		{}
+
+		/// @brief Get the length of the MODBUS header
+		/// @return Length of the MODBUS header in bytes
+		size_t getHeaderLen() const override
+		{
+			return sizeof(modbus_common_header);
+		}
+
+		/// Each layer can compute field values automatically using this method. This is an abstract method
+		void computeCalculateFields() override
+		{}
+
+		/// @return A string representation of the layer most important data (should look like the layer description in
+		/// Wireshark)
+		std::string toString() const override
+		{
+			return "Modbus Layer, Transaction ID: " + std::to_string(getTransactionId()) +
+			       ", Protocol ID: " + std::to_string(getProtocolId()) + ", Length: " + std::to_string(getLength()) +
+			       ", Unit ID: " + std::to_string(getUnitId()) +
+			       ", Function Code: " + std::to_string(getFunctionCode());
+		}
+
+		/// @return The OSI Model layer this protocol belongs to
+		OsiModelLayer getOsiModelLayer() const override
+		{
+			return OsiModelApplicationLayer;
+		}
 	};
 
 }  // namespace pcpp
