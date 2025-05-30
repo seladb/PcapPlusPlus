@@ -1077,14 +1077,12 @@ PTF_TEST_CASE(TestIPFragWithPadding)
 
 PTF_TEST_CASE(TestIPv4MalformedFragment)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	std::vector<pcpp::RawPacket> packetStream;
+	std::string errMsg;
 
-	int bufferLength = 0;
-	uint8_t* buffer = readFileIntoBuffer("PcapExamples/ip4_bad_fragment.txt", bufferLength);
-	pcpp::RawPacket rawPacket(static_cast<const uint8_t*>(buffer), bufferLength, time, true) ;
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/ip4_bad_fragment.pcap", packetStream, errMsg));
 
-	pcpp::Packet frag1(&rawPacket);
+	pcpp::Packet frag1(&packetStream.at(0));
 
 	pcpp::IPv4Layer* ipLayer = frag1.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
