@@ -221,7 +221,7 @@
 #define PTF_ASSERT_RAISES(expression, exception_type, message)                                                         \
 	{                                                                                                                  \
 		auto rightExceptionCaught = false;                                                                             \
-		std::string messageCaught;                                                                                \
+		std::string messageCaught;                                                                                     \
 		try                                                                                                            \
 		{                                                                                                              \
 			_PTF_MSVC_SUPPRESS_C26444                                                                                  \
