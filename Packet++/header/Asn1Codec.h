@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include "PointerVector.h"
 
+#include <chrono>
+
 /// @file
 
 /// @namespace pcpp
@@ -491,5 +493,43 @@ namespace pcpp
 		{
 			return {};
 		}
+	};
+
+	/// @class Asn1UtcTimeRecord
+	/// Represents an ASN.1 record with a value of type UTCTime
+	class Asn1UtcTimeRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type UTC time
+		/// @param value A std::tm to set as the record value
+		/// @param withSeconds
+		explicit Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds = true)
+		    : m_Value(value), m_WithSeconds(withSeconds)
+		{}
+
+		/// @return The std::tm value of this record
+		std::chrono::system_clock::time_point getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		};
+
+		/// @param[in] format Requested value format
+		/// @return The value as string
+		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S", bool inUtc = true);
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() override;
+
+	private:
+		Asn1UtcTimeRecord() = default;
+
+		std::chrono::system_clock::time_point m_Value;
+		bool m_WithSeconds = true;
 	};
 }  // namespace pcpp

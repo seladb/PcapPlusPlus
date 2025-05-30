@@ -7,6 +7,7 @@
 #include <numeric>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cmath>
 #include <limits>
@@ -339,6 +340,11 @@ namespace pcpp
 				case Asn1UniversalTagType::Null:
 				{
 					newRecord = new Asn1NullRecord();
+					break;
+				}
+				case Asn1UniversalTagType::UTCTime:
+				{
+					newRecord = new Asn1UtcTimeRecord();
 					break;
 				}
 				default:
@@ -769,5 +775,68 @@ namespace pcpp
 	{
 		m_ValueLength = 0;
 		m_TotalLength = 2;
+	}
+
+	void Asn1UtcTimeRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
+
+		if (timeString.back() == 'Z')
+		{
+			timeString.pop_back();
+		}
+
+		if (timeString.size() == 12)
+		{
+			timeString.append("00");
+		}
+
+		std::tm tm = {};
+		std::istringstream sstream(timeString);
+		sstream >> std::get_time(&tm, "%Y%m%d%H%M%S");
+
+		if (sstream.fail())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 UTC time");
+		}
+
+		std::time_t timeValue = std::mktime(&tm);
+		if (timeValue == -1)
+		{
+			throw std::runtime_error("Failed to convert ASN.1 UTC time to time_t");
+		}
+
+		m_Value = std::chrono::system_clock::from_time_t(timeValue);
+	}
+
+	std::vector<uint8_t> Asn1UtcTimeRecord::encodeValue() const
+	{
+		std::time_t timeValue = std::chrono::system_clock::to_time_t(m_Value);
+
+		std::tm tm = *std::gmtime(&timeValue);
+
+		std::string pattern = std::string("%Y%m%d%H%M") + (m_WithSeconds ? "%S" : "");
+		std::ostringstream osstream;
+		osstream << std::put_time(&tm, pattern.c_str()) << 'Z';
+
+		std::string timeString = osstream.str();
+		std::vector<uint8_t> byte_vector(timeString.begin(), timeString.end());
+
+		return byte_vector;
+	}
+
+	std::string Asn1UtcTimeRecord::getValueAsString(const std::string& format, bool inUtc)
+	{
+		std::time_t timeValue = std::chrono::system_clock::to_time_t(getValue());
+		std::tm tmValue = inUtc ? *std::gmtime(&timeValue) : *std::localtime(&timeValue);
+
+		std::ostringstream oss;
+		oss << std::put_time(&tmValue, format.c_str());
+		return oss.str();
+	}
+
+	std::vector<std::string> Asn1UtcTimeRecord::toStringList()
+	{
+		return { Asn1Record::toStringList().front() + ", Value: " + getValueAsString() };
 	}
 }  // namespace pcpp
