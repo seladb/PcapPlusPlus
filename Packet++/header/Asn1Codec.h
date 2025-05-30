@@ -4,6 +4,7 @@
 #include <memory>
 #include <typeinfo>
 #include <stdexcept>
+#include <sstream>
 #include "PointerVector.h"
 
 /// @file
@@ -370,15 +371,39 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		template <typename T>
+		using EnableIfUnsignedIntegral =
+		    std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int>;
+
 		/// A constructor to create a record of type Integer
 		/// @param value An integer to set as the record value
-		explicit Asn1IntegerRecord(uint32_t value);
+		explicit Asn1IntegerRecord(uint64_t value);
+
+		/// A constructor to create a record of type Integer
+		/// @param value An integer represented as a hex stream to set as the record value
+		/// @throw std::invalid_argument if the value isn't a valid hex stream
+		explicit Asn1IntegerRecord(const std::string& value);
 
 		/// @return The integer value of this record
-		uint32_t getValue()
+		/// @throw std::invalid_argument if the value doesn't fit the requested integer size
+		template <typename T, EnableIfUnsignedIntegral<T> = 0> T getIntValue()
 		{
 			decodeValueIfNeeded();
-			return m_Value;
+			return m_Value.getInt<T>();
+		}
+
+		/// @deprecated This method is deprecated, please use getIntValue()
+		PCPP_DEPRECATED("Use getIntValue instead")
+		uint32_t getValue()
+		{
+			return getIntValue<uint32_t>();
+		}
+
+		/// @return A hex string representation of the record value
+		std::string getValueAsString()
+		{
+			decodeValueIfNeeded();
+			return m_Value.toString();
 		}
 
 	protected:
@@ -390,7 +415,64 @@ namespace pcpp
 		std::vector<std::string> toStringList() override;
 
 	private:
-		uint32_t m_Value = 0;
+		class BigInt
+		{
+		public:
+			BigInt() = default;
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> explicit BigInt(T value)
+			{
+				m_Value = initFromInt(value);
+			}
+
+			explicit BigInt(const std::string& value);
+			BigInt(const BigInt& other);
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> BigInt& operator=(T value)
+			{
+				m_Value = initFromInt(value);
+				return *this;
+			}
+			BigInt& operator=(const std::string& value);
+			size_t size() const;
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> T getInt() const
+			{
+				if (!canFit<T>())
+				{
+					throw std::invalid_argument("Value cannot fit into requested int type");
+				}
+
+				std::stringstream sstream;
+				sstream << std::hex << m_Value;
+
+				uint64_t result;
+				sstream >> result;
+				return static_cast<T>(result);
+			}
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> bool canFit() const
+			{
+				return sizeof(T) >= (m_Value.size() + 1) / 2;
+			}
+
+			std::string toString() const;
+			std::vector<uint8_t> toBytes() const;
+
+		private:
+			std::string m_Value;
+
+			static std::string initFromString(const std::string& value);
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> static std::string initFromInt(T value)
+			{
+				std::stringstream ss;
+				ss << std::hex << static_cast<uint64_t>(value);
+				return ss.str();
+			}
+		};
+
+		BigInt m_Value;
 	};
 
 	/// @class Asn1EnumeratedRecord
