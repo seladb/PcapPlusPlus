@@ -417,48 +417,46 @@ namespace pcpp
 				context->requestStop = true;
 			}
 		}
+
+		void captureThreadMain(std::atomic_bool& stopFlag, std::atomic_bool& isRunningFlag,
+		                       internal::PcapHandle const& pcapDescriptor, CaptureContext context)
+		{
+			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
+			isRunningFlag.store(true);
+
+			while (!stopFlag.load())
+			{
+				if (pcap_dispatch(pcapDescriptor.get(), -1, onPacketArrivesCallback,
+				                  reinterpret_cast<uint8_t*>(&context)) == -1)
+				{
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcapDescriptor.getLastError());
+					stopFlag.store(true);
+				}
+			}
+
+			isRunningFlag.store(false);
+			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
+		}
+
+		void captureThreadMainAccumulator(std::atomic_bool& stopFlag, std::atomic_bool& isRunningFlag,
+		                                  internal::PcapHandle const& pcapDescriptor, AccumulatorCaptureContext context)
+		{
+			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
+			isRunningFlag.store(true);
+			while (!stopFlag.load())
+			{
+				if (pcap_dispatch(pcapDescriptor.get(), 100, onPacketArrivesAccumulator,
+				                  reinterpret_cast<uint8_t*>(&context)) == -1)
+				{
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcapDescriptor.getLastError());
+					stopFlag.store(true);
+				}
+			}
+
+			isRunningFlag.store(false);
+			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
+		}
 	}  // namespace
-
-	void PcapLiveDevice::captureThreadMain()
-	{
-		PCPP_LOG_DEBUG("Started capture thread for device '" << m_InterfaceDetails.name << "'");
-		m_CaptureThreadStarted = true;
-
-		if (m_CaptureCallbackMode)
-		{
-			CaptureContext context;
-			context.device = this;
-			context.callback = m_cbOnPacketArrives;
-			context.userCookie = m_cbOnPacketArrivesUserCookie;
-
-			while (!m_StopThread)
-			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesCallback,
-				                  reinterpret_cast<uint8_t*>(&context)) == -1)
-				{
-					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
-					m_StopThread = true;
-				}
-			}
-		}
-		else
-		{
-			AccumulatorCaptureContext context;
-			context.device = this;
-			context.capturedPackets = m_CapturedPackets;
-
-			while (!m_StopThread)
-			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), 100, onPacketArrivesAccumulator,
-				                  reinterpret_cast<uint8_t*>(&context)) == -1)
-				{
-					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
-					m_StopThread = true;
-				}
-			}
-		}
-		PCPP_LOG_DEBUG("Ended capture thread for device '" << m_InterfaceDetails.name << "'");
-	}
 
 	internal::PcapHandle PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	{
@@ -709,10 +707,12 @@ namespace pcpp
 		}
 
 		m_CaptureCallbackMode = true;
-		m_cbOnPacketArrives = std::move(onPacketArrives);
-		m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
+		CaptureContext context;
+		context.device = this;
+		context.callback = std::move(onPacketArrives);
+		context.userCookie = onPacketArrivesUserCookie;
 
-		m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
+		m_CaptureThread = std::thread(&captureThreadMain, std::ref(m_StopThread), std::ref(m_CaptureThreadStarted), std::ref(m_PcapDescriptor), std::move(context));
 
 		// Wait thread to be start
 		// C++20 = m_CaptureThreadStarted.wait(true);
@@ -764,7 +764,11 @@ namespace pcpp
 		m_CapturedPackets->clear();
 
 		m_CaptureCallbackMode = false;
-		m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
+		AccumulatorCaptureContext context;
+		context.device = this;
+		context.capturedPackets = &capturedPacketsVector;
+		m_CaptureThread = std::thread(&captureThreadMainAccumulator, std::ref(m_StopThread),
+		                              std::ref(m_CaptureThreadStarted), std::ref(m_PcapDescriptor), std::move(context));
 		// Wait thread to be start
 		// C++20 = m_CaptureThreadStarted.wait(true);
 		while (m_CaptureThreadStarted != true)

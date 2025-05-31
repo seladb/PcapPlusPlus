@@ -162,9 +162,6 @@ namespace pcpp
 		void setDeviceMacAddress();
 		void setDefaultGateway();
 
-		// threads
-		void captureThreadMain();
-
 	public:
 		/// The type of the live device
 		enum LiveDeviceType
