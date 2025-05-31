@@ -37,16 +37,6 @@ namespace pcpp
 			return WinPcapDevice;
 		}
 
-		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie,
-		                  int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                  void* onStatsUpdateUserCookie) override;
-		bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                  void* onStatsUpdateUserCookie) override;
-		bool startCapture(RawPacketVector& capturedPacketsVector) override
-		{
-			return PcapLiveDevice::startCapture(capturedPacketsVector);
-		}
-
 		using PcapLiveDevice::sendPackets;
 		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
 
@@ -66,5 +56,8 @@ namespace pcpp
 		}
 
 		WinPcapLiveDevice* clone() const override;
+
+	protected:
+		void prepareCapture(bool asyncCapture, bool captureStats) override;
 	};
 }  // namespace pcpp
