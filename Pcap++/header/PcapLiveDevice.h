@@ -165,10 +165,6 @@ namespace pcpp
 		// threads
 		void captureThreadMain();
 
-		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-
 	public:
 		/// The type of the live device
 		enum LiveDeviceType

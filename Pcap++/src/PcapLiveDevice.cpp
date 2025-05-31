@@ -340,54 +340,82 @@ namespace pcpp
 		}
 	}
 
-	void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
+	namespace
 	{
-		PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
-		if (pThis == nullptr)
+		struct CaptureContext
 		{
-			PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-			return;
+			PcapLiveDevice* device;
+			OnPacketArrivesCallback callback;
+			void* userCookie;
+		};
+
+		struct AccumulatorCaptureContext
+		{
+			PcapLiveDevice* device;
+			RawPacketVector* capturedPackets;
+		};
+
+		struct CaptureContextST
+		{
+			PcapLiveDevice* device;
+			OnPacketArrivesStopBlocking callback;
+			void* userCookie;
+			bool requestStop = false;
+		};
+
+		void onPacketArrivesCallback(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{
+			CaptureContext* context = reinterpret_cast<CaptureContext*>(user);
+			if (context == nullptr || context->device == nullptr)
+			{
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
+				return;
+			}
+
+			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
+			if (context->callback != nullptr)
+				context->callback(&rawPacket, context->device, context->userCookie);
 		}
 
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
-
-		if (pThis->m_cbOnPacketArrives != nullptr)
-			pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
-	}
-
-	void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr,
-	                                               const uint8_t* packet)
-	{
-		PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
-		if (pThis == nullptr)
+		void onPacketArrivesAccumulator(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
 		{
-			PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-			return;
+			AccumulatorCaptureContext* context = reinterpret_cast<AccumulatorCaptureContext*>(user);
+			if (context == nullptr || context->device == nullptr || context->capturedPackets == nullptr)
+			{
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or captured packets vector");
+				return;
+			}
+
+			uint8_t* packetData = new uint8_t[pkthdr->caplen];
+			std::memcpy(packetData, packet, pkthdr->caplen);
+			auto rawPacket = std::make_unique<RawPacket>(packetData, pkthdr->caplen, pkthdr->ts, true,
+			                                             context->device->getLinkType());
+			context->capturedPackets->pushBack(std::move(rawPacket));
 		}
 
-		uint8_t* packetData = new uint8_t[pkthdr->caplen];
-		memcpy(packetData, packet, pkthdr->caplen);
-		RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
-		pThis->m_CapturedPackets->pushBack(rawPacketPtr);
-	}
-
-	void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr,
-	                                                 const uint8_t* packet)
-	{
-		PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
-		if (pThis == nullptr)
+		void onPacketArrivesCallbackWithCancellation(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
 		{
-			PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-			return;
+			CaptureContextST* context = reinterpret_cast<CaptureContextST*>(user);
+
+			if (context == nullptr || context->device == nullptr)
+			{
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
+				return;
+			}
+
+			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
+
+			if (context->callback != nullptr)
+			{
+				if (context->callback(&rawPacket, context->device, context->userCookie))
+				{
+					// If the callback returns true, it means that the user wants to stop the capture
+					context->requestStop = true;
+					return;
+				}
+			}
 		}
-
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
-
-		if (pThis->m_cbOnPacketArrivesBlockingMode != nullptr)
-			if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis,
-			                                           pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
-				pThis->m_StopThread = true;
-	}
+	}  // namespace
 
 	void PcapLiveDevice::captureThreadMain()
 	{
@@ -396,9 +424,15 @@ namespace pcpp
 
 		if (m_CaptureCallbackMode)
 		{
+			CaptureContext context;
+			context.device = this;
+			context.callback = m_cbOnPacketArrives;
+			context.userCookie = m_cbOnPacketArrivesUserCookie;
+
 			while (!m_StopThread)
 			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
+				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesCallback,
+				                  reinterpret_cast<uint8_t*>(&context)) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
 					m_StopThread = true;
@@ -407,10 +441,14 @@ namespace pcpp
 		}
 		else
 		{
+			AccumulatorCaptureContext context;
+			context.device = this;
+			context.capturedPackets = m_CapturedPackets;
+
 			while (!m_StopThread)
 			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), 100, onPacketArrivesNoCallback,
-				                  reinterpret_cast<uint8_t*>(this)) == -1)
+				if (pcap_dispatch(m_PcapDescriptor.get(), 100, onPacketArrivesAccumulator,
+				                  reinterpret_cast<uint8_t*>(&context)) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
 					m_StopThread = true;
@@ -784,15 +822,26 @@ namespace pcpp
 
 		bool shouldReturnError = false;
 
+		CaptureContextST context;
+		context.device = this;
+		context.callback = m_cbOnPacketArrivesBlockingMode;
+		context.userCookie = m_cbOnPacketArrivesBlockingModeUserCookie;
+		context.requestStop = false;
+
 		if (timeoutMs <= 0)
 		{
 			while (!m_StopThread)
 			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
-				                  reinterpret_cast<uint8_t*>(this)) == -1)
+				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesCallbackWithCancellation,
+				                  reinterpret_cast<uint8_t*>(&context)) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
 					shouldReturnError = true;
+					m_StopThread = true;
+				}
+				else if (context.requestStop)
+				{
+					// If the callback requested to stop the capture, we break the loop
 					m_StopThread = true;
 				}
 			}
@@ -816,11 +865,16 @@ namespace pcpp
 
 					if (ready > 0)
 					{
-						if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
-						                  reinterpret_cast<uint8_t*>(this)) == -1)
+						if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesCallbackWithCancellation,
+						                  reinterpret_cast<uint8_t*>(&context)) == -1)
 						{
 							PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
 							shouldReturnError = true;
+							m_StopThread = true;
+						}
+						else if (context.requestStop)
+						{
+							// If the callback requested to stop the capture, we break the loop
 							m_StopThread = true;
 						}
 					}
@@ -838,11 +892,16 @@ namespace pcpp
 				}
 				else
 				{
-					if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
-					                  reinterpret_cast<uint8_t*>(this)) == -1)
+					if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesCallbackWithCancellation,
+					                  reinterpret_cast<uint8_t*>(&context)) == -1)
 					{
 						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
 						shouldReturnError = true;
+						m_StopThread = true;
+					}
+					else if (context.requestStop)
+					{
+						// If the callback requested to stop the capture, we break the loop
 						m_StopThread = true;
 					}
 				}
