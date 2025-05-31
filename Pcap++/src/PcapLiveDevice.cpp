@@ -896,6 +896,22 @@ namespace pcpp
 		return true;
 	}
 
+	bool PcapLiveDevice::sendPacket(Packet const& packet, bool checkMtu)
+	{
+		if (checkMtu)
+		{
+			size_t packetPayloadLength = 0;
+			if (!this->checkMtu(packet, true, &packetPayloadLength))
+			{
+				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
+					<< m_DeviceMtu << "]");
+				return false;
+			}
+		}
+
+		return sendPacketUnchecked(*packet.getRawPacketReadOnly());
+	}
+
 	bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 	{
 		if (checkMtu)
@@ -938,22 +954,6 @@ namespace pcpp
 		}
 
 		return sendPacketUnchecked(packetData, packetDataLength);
-	}
-
-	bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
-	{
-		if (checkMtu)
-		{
-			size_t packetPayloadLength = 0;
-			if (!this->checkMtu(*packet, true, &packetPayloadLength))
-			{
-				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
-				                                         << m_DeviceMtu << "]");
-				return false;
-			}
-		}
-
-		return sendPacketUnchecked(*packet->getRawPacketReadOnly());
 	}
 
 	bool PcapLiveDevice::sendPacketUnchecked(uint8_t const* packetData, int packetDataLength)
@@ -1008,7 +1008,7 @@ namespace pcpp
 	int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
 	{
 		return sendPacketsLoop(packetsArr, packetsArr + arrLength,
-		                       [this, checkMtu](Packet* packet) { return sendPacket(packet, checkMtu); });
+		                       [this, checkMtu](Packet* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
