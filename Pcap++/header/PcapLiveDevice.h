@@ -82,44 +82,6 @@ namespace pcpp
 			bool isLoopback;
 		};
 
-		/// @brief A worker thread that periodically calls the provided callback with updated statistics.
-		class StatisticsUpdateWorker
-		{
-		public:
-			/// @brief Constructs and starts a worker thread that periodically calls the provided callback with updated
-			/// statistics.
-			/// @param pcapDevice A pointer to the PcapLiveDevice instance to be monitored.
-			/// @param onStatsUpdateCallback A callback function to be called with updated statistics.
-			/// @param onStatsUpdateUserCookie A user-defined pointer that is passed to the callback function.
-			/// @param updateIntervalMs The interval in milliseconds between each callback invocation.
-			StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice, OnStatsUpdateCallback onStatsUpdateCallback,
-			                       void* onStatsUpdateUserCookie = nullptr, unsigned int updateIntervalMs = 1000);
-
-			/// @brief Stops the worker thread.
-			void stopWorker();
-
-		private:
-			struct ThreadData
-			{
-				PcapLiveDevice const* pcapDevice = nullptr;
-				OnStatsUpdateCallback cbOnStatsUpdate;
-				void* cbOnStatsUpdateUserCookie = nullptr;
-				unsigned int updateIntervalMs = 1000;  // Default update interval is 1 second
-			};
-
-			struct SharedThreadData
-			{
-				std::atomic_bool stopRequested{ false };
-			};
-
-			/// @brief Main function for the worker thread.
-			/// @remarks This function is static to allow the worker class to be movable.
-			static void workerMain(std::shared_ptr<SharedThreadData> sharedThreadData, ThreadData threadData);
-
-			std::shared_ptr<SharedThreadData> m_SharedThreadData;
-			std::thread m_WorkerThread;
-		};
-
 		// This is a second descriptor for the same device. It is needed because of a bug
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
@@ -131,10 +93,9 @@ namespace pcpp
 		uint32_t m_DeviceMtu;
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
-		std::thread m_CaptureThread;
 
-		// TODO: Cpp17 Using std::optional might be better here
-		std::unique_ptr<StatisticsUpdateWorker> m_StatisticsUpdateWorker;
+		std::thread m_CaptureThread;
+		std::thread m_StatsThread;
 
 		// Should be set to true by the Caller for the Callee
 		std::atomic<bool> m_StopThread;
