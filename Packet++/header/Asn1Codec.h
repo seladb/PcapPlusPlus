@@ -509,7 +509,7 @@ namespace pcpp
 		    : m_Value(value), m_WithSeconds(withSeconds)
 		{}
 
-		/// @return The std::tm value of this record
+		/// @return The time-point value of this record
 		std::chrono::system_clock::time_point getValue()
 		{
 			decodeValueIfNeeded();

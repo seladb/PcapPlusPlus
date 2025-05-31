@@ -184,6 +184,57 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->toString(), "Null, Length: 2+0");
 	}
 
+	// UTC time
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3235303532343135333034355a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 15);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 13);
+		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count() ==
+		                1748129445000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 2025-05-24 23:30:45");
+	}
+
+	// UTC time - without seconds
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170b323530353234313533305a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 13);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 11);
+		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count() ==
+		                1748129400000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+11, Value: 2025-05-24 23:30:00");
+	}
+
+	// UTC time - before year 2000
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3835303332333035333030305a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 15);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 13);
+		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count() ==
+		                480432600000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "19850323");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 1985-03-23 13:30:00");
+	}
+
 	// Sequence
 	{
 		uint8_t data[20];

@@ -786,14 +786,26 @@ namespace pcpp
 			timeString.pop_back();
 		}
 
-		if (timeString.size() == 12)
+		m_WithSeconds = true;
+		if (timeString.size() == 10)
 		{
+			m_WithSeconds = false;
 			timeString.append("00");
+		}
+
+		auto year = std::stoi(timeString.substr(0, 2));
+		if (year <= 50)
+		{
+			timeString.insert(0, "20");
+		}
+		else
+		{
+			timeString.insert(0, "19");
 		}
 
 		std::tm tm = {};
 		std::istringstream sstream(timeString);
-		sstream >> std::get_time(&tm, "%Y%m%d%H%M%S");
+		sstream >> std::get_time(&tm, "%y%m%d%H%M%S");
 
 		if (sstream.fail())
 		{
