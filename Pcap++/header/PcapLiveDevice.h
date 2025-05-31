@@ -637,23 +637,23 @@ namespace pcpp
 	protected:
 		internal::PcapHandle doOpen(const DeviceConfiguration& config);
 
-		/// @brief Checks whether the packetPayloadLength is larger than the device MTU.
+		/// @brief Checks whether the packetPayloadLength is smaller or equal than the device MTU.
 		/// @param[in] payloadLength The length of the IP layer of the packet
 		/// @return True if the payloadLength is less than or equal to the device MTU
 		bool checkMtu(size_t payloadLength) const;
 
-		/// @brief Checks whether the packet's payload length is larger than the device MTU.
+		/// @brief Checks whether the packet's payload length is smaller or equal than the device MTU.
 		///
 		/// If allowUnknown is set to true, packets which's length cannot be determined will be allowed.
 		/// In such cases if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
 		///
-		/// @param packet The packet to check
-		/// @param allowUnknown Controls whether packets with unknown payload length are allowed.
-		/// @param outPayloadLength If not nullptr, the payload length of the packet will be written to this pointer.
+		/// @param[in] packet The packet to check
+		/// @param[in] allowUnknown Controls whether packets with unknown payload length are allowed.
+		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this pointer.
 		/// @return True if the packet's payload length is less than or equal to the device MTU.
 		bool checkMtu(Packet const& packet, bool allowUnknown = true, size_t* outPayloadLength = nullptr) const;
 
-		/// @brief Checks whether the payload length of a RawPacket is larger than the device MTU.
+		/// @brief Checks whether the payload length of a RawPacket is smaller or equal than the device MTU.
 		///
 		/// If allowUnknown is set to true, packets with unknown payload length are allowed.
 		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
@@ -665,7 +665,7 @@ namespace pcpp
 		/// @return True if the packet's payload length is less than or equal to the device MTU.
 		bool checkMtu(RawPacket const& rawPacket, bool allowUnknown = true, size_t* outPayloadLength = nullptr) const;
 
-		/// @brief Checks whether the payload length of a packet's raw data is larger than the device MTU.
+		/// @brief Checks whether the payload length of a packet's raw data is smaller or equal than the device MTU.
 		///
 		/// If allowUnknown is set to true, packets with unknown payload length are allowed.
 		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
