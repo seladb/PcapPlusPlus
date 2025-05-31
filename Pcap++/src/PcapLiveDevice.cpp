@@ -327,12 +327,6 @@ namespace pcpp
 		m_CaptureThreadStarted = false;
 		m_StopThread = false;
 		m_CaptureThread = {};
-		m_cbOnPacketArrives = nullptr;
-		m_cbOnPacketArrivesBlockingMode = nullptr;
-		m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
-		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_CaptureCallbackMode = true;
-		m_CapturedPackets = nullptr;
 		if (calculateMacAddress)
 		{
 			setDeviceMacAddress();
@@ -362,6 +356,9 @@ namespace pcpp
 			void* userCookie;
 			bool requestStop = false;
 		};
+
+		void onPacketArrivesNoop(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{}
 
 		void onPacketArrivesCallback(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
 		{
@@ -396,7 +393,7 @@ namespace pcpp
 		{
 			CaptureContextST* context = reinterpret_cast<CaptureContextST*>(user);
 
-			if (context == nullptr || context->device == nullptr || context->callback)
+			if (context == nullptr || context->device == nullptr || context->callback == nullptr)
 			{
 				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or callback");
 				return;
@@ -424,10 +421,14 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
 			isRunningFlag.store(true);
 
+			// If the callback is null, we use a no-op handler to avoid unnecessary overhead
+			// Statistics only capture still requires pcap_dispatch to be called, but we don't need to process packets.
+			pcap_handler callbackHandler = context.callback ? onPacketArrivesCallback : onPacketArrivesNoop;
+
 			while (!stopFlag.load())
 			{
-				if (pcap_dispatch(pcapDescriptor.get(), -1, onPacketArrivesCallback,
-				                  reinterpret_cast<uint8_t*>(&context)) == -1)
+				if (pcap_dispatch(pcapDescriptor.get(), -1, callbackHandler, reinterpret_cast<uint8_t*>(&context)) ==
+				    -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcapDescriptor.getLastError());
 					stopFlag.store(true);
@@ -706,13 +707,13 @@ namespace pcpp
 			return false;
 		}
 
-		m_CaptureCallbackMode = true;
 		CaptureContext context;
 		context.device = this;
 		context.callback = std::move(onPacketArrives);
 		context.userCookie = onPacketArrivesUserCookie;
 
-		m_CaptureThread = std::thread(&captureThreadMain, std::ref(m_StopThread), std::ref(m_CaptureThreadStarted), std::ref(m_PcapDescriptor), std::move(context));
+		m_CaptureThread = std::thread(&captureThreadMain, std::ref(m_StopThread), std::ref(m_CaptureThreadStarted),
+		                              std::ref(m_PcapDescriptor), std::move(context));
 
 		// Wait thread to be start
 		// C++20 = m_CaptureThreadStarted.wait(true);
@@ -760,10 +761,8 @@ namespace pcpp
 			return false;
 		}
 
-		m_CapturedPackets = &capturedPacketsVector;
-		m_CapturedPackets->clear();
+		capturedPacketsVector.clear();
 
-		m_CaptureCallbackMode = false;
 		AccumulatorCaptureContext context;
 		context.device = this;
 		context.capturedPackets = &capturedPacketsVector;
@@ -806,11 +805,6 @@ namespace pcpp
 			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
 			return 0;
 		}
-		m_cbOnPacketArrives = nullptr;
-		m_cbOnPacketArrivesUserCookie = nullptr;
-
-		m_cbOnPacketArrivesBlockingMode = std::move(onPacketArrives);
-		m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
 
 		m_CaptureThreadStarted = true;
 		m_StopThread = false;
@@ -830,8 +824,8 @@ namespace pcpp
 
 		CaptureContextST context;
 		context.device = this;
-		context.callback = m_cbOnPacketArrivesBlockingMode;
-		context.userCookie = m_cbOnPacketArrivesBlockingModeUserCookie;
+		context.callback = std::move(onPacketArrives);
+		context.userCookie = userCookie;
 		context.requestStop = false;
 
 		if (timeoutMs <= 0)
@@ -917,8 +911,6 @@ namespace pcpp
 
 		m_CaptureThreadStarted = false;
 		m_StopThread = false;
-		m_cbOnPacketArrivesBlockingMode = nullptr;
-		m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
 		if (shouldReturnError)
 		{
@@ -934,8 +926,8 @@ namespace pcpp
 
 	void PcapLiveDevice::stopCapture()
 	{
-		// in blocking mode stop capture isn't relevant
-		if (m_cbOnPacketArrivesBlockingMode != nullptr)
+		// In blocking mode, there is no capture thread, so we don't need to stop it
+		if (!m_CaptureThread.joinable())
 			return;
 
 		m_StopThread = true;

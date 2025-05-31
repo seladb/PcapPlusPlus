@@ -141,12 +141,6 @@ namespace pcpp
 		// Should be set to true by the Callee for the Caller
 		std::atomic<bool> m_CaptureThreadStarted;
 
-		OnPacketArrivesCallback m_cbOnPacketArrives;
-		void* m_cbOnPacketArrivesUserCookie;
-		OnPacketArrivesStopBlocking m_cbOnPacketArrivesBlockingMode;
-		void* m_cbOnPacketArrivesBlockingModeUserCookie;
-		RawPacketVector* m_CapturedPackets;
-		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
 		bool m_UsePoll;
 
