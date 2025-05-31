@@ -14,7 +14,7 @@ namespace pcpp
 		modbus_common_header* header = getModbusHeader();
 		header->transactionId = htobe16(transactionId);
 		header->protocolId = 0;  // 0 for Modbus/TCP
-		header->length = 2;      // minimum length of the MODBUS payload + unit_id
+		header->length = htobe16(2);      // minimum length of the MODBUS payload + unit_id
 		header->unitId = unitId;
 		header->functionCode = functionCode;
 	}
