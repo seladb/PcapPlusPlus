@@ -683,7 +683,8 @@ namespace pcpp
 		///
 		/// @param[in] packet The packet to check
 		/// @param[in] allowUnknown Controls whether packets with unknown payload length are allowed.
-		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this pointer.
+		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
+		/// pointer.
 		/// @return True if the packet's payload length is less than or equal to the device MTU.
 		bool checkMtu(Packet const& packet, bool allowUnknown = true, size_t* outPayloadLength = nullptr) const;
 
