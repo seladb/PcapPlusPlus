@@ -415,11 +415,11 @@ namespace pcpp
 			}
 		}
 
-		void captureThreadMain(std::atomic_bool& stopFlag, std::atomic_bool& isRunningFlag,
+		void captureThreadMain(std::atomic_bool& stopFlag, std::atomic_bool& hasStarted,
 		                       internal::PcapHandle const& pcapDescriptor, CaptureContext context)
 		{
 			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
-			isRunningFlag.store(true);
+			hasStarted.store(true);
 
 			// If the callback is null, we use a no-op handler to avoid unnecessary overhead
 			// Statistics only capture still requires pcap_dispatch to be called, but we don't need to process packets.
@@ -435,15 +435,14 @@ namespace pcpp
 				}
 			}
 
-			isRunningFlag.store(false);
 			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
 		}
 
-		void captureThreadMainAccumulator(std::atomic_bool& stopFlag, std::atomic_bool& isRunningFlag,
+		void captureThreadMainAccumulator(std::atomic_bool& stopFlag, std::atomic_bool& hasStarted,
 		                                  internal::PcapHandle const& pcapDescriptor, AccumulatorCaptureContext context)
 		{
 			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
-			isRunningFlag.store(true);
+			hasStarted.store(true);
 			while (!stopFlag.load())
 			{
 				if (pcap_dispatch(pcapDescriptor.get(), 100, onPacketArrivesAccumulator,
@@ -454,7 +453,6 @@ namespace pcpp
 				}
 			}
 
-			isRunningFlag.store(false);
 			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
 		}
 	}  // namespace
