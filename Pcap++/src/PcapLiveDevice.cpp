@@ -366,15 +366,14 @@ namespace pcpp
 		void onPacketArrivesCallback(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
 		{
 			CaptureContext* context = reinterpret_cast<CaptureContext*>(user);
-			if (context == nullptr || context->device == nullptr)
+			if (context == nullptr || context->device == nullptr || context->callback == nullptr)
 			{
-				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or callback");
 				return;
 			}
 
 			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
-			if (context->callback != nullptr)
-				context->callback(&rawPacket, context->device, context->userCookie);
+			context->callback(&rawPacket, context->device, context->userCookie);
 		}
 
 		void onPacketArrivesAccumulator(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
@@ -397,22 +396,25 @@ namespace pcpp
 		{
 			CaptureContextST* context = reinterpret_cast<CaptureContextST*>(user);
 
-			if (context == nullptr || context->device == nullptr)
+			if (context == nullptr || context->device == nullptr || context->callback)
 			{
-				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or callback");
+				return;
+			}
+
+			if (context->requestStop)
+			{
+				// If requestStop is true, there is no need to process the packet
+				PCPP_LOG_DEBUG("Capture request stop is set, skipping packet processing");
 				return;
 			}
 
 			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
 
-			if (context->callback != nullptr)
+			if (context->callback(&rawPacket, context->device, context->userCookie))
 			{
-				if (context->callback(&rawPacket, context->device, context->userCookie))
-				{
-					// If the callback returns true, it means that the user wants to stop the capture
-					context->requestStop = true;
-					return;
-				}
+				// If the callback returns true, it means that the user wants to stop the capture
+				context->requestStop = true;
 			}
 		}
 	}  // namespace
