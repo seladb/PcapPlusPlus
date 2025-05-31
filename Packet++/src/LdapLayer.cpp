@@ -312,7 +312,11 @@ namespace pcpp
 
 	uint16_t LdapLayer::getMessageID() const
 	{
-		return getRootAsn1Record()->getSubRecords().at(messageIdIndex)->castAs<Asn1IntegerRecord>()->getValue();
+		return getRootAsn1Record()
+		    ->getSubRecords()
+		    .at(messageIdIndex)
+		    ->castAs<Asn1IntegerRecord>()
+		    ->getIntValue<uint16_t>();
 	}
 
 	std::vector<LdapControl> LdapLayer::getControls() const
@@ -422,7 +426,7 @@ namespace pcpp
 		                                         ->getSubRecords()
 		                                         .at(resultCodeIndex)
 		                                         ->castAs<Asn1EnumeratedRecord>()
-		                                         ->getValue());
+		                                         ->getIntValue<uint8_t>());
 	}
 
 	std::string LdapResponseLayer::getMatchedDN() const
@@ -525,7 +529,11 @@ namespace pcpp
 
 	uint32_t LdapBindRequestLayer::getVersion() const
 	{
-		return getLdapOperationAsn1Record()->getSubRecords().at(versionIndex)->castAs<Asn1IntegerRecord>()->getValue();
+		return getLdapOperationAsn1Record()
+		    ->getSubRecords()
+		    .at(versionIndex)
+		    ->castAs<Asn1IntegerRecord>()
+		    ->getIntValue<uint32_t>();
 	}
 
 	std::string LdapBindRequestLayer::getName() const
@@ -741,8 +749,11 @@ namespace pcpp
 
 	LdapSearchRequestLayer::SearchRequestScope LdapSearchRequestLayer::getScope() const
 	{
-		return LdapSearchRequestLayer::SearchRequestScope::fromUintValue(
-		    getLdapOperationAsn1Record()->getSubRecords().at(scopeIndex)->castAs<Asn1EnumeratedRecord>()->getValue());
+		return LdapSearchRequestLayer::SearchRequestScope::fromUintValue(getLdapOperationAsn1Record()
+		                                                                     ->getSubRecords()
+		                                                                     .at(scopeIndex)
+		                                                                     ->castAs<Asn1EnumeratedRecord>()
+		                                                                     ->getIntValue<uint8_t>());
 	}
 
 	LdapSearchRequestLayer::DerefAliases LdapSearchRequestLayer::getDerefAlias() const
@@ -751,19 +762,25 @@ namespace pcpp
 		                                                               ->getSubRecords()
 		                                                               .at(derefAliasIndex)
 		                                                               ->castAs<Asn1EnumeratedRecord>()
-		                                                               ->getValue());
+		                                                               ->getIntValue<uint8_t>());
 	}
 
 	uint8_t LdapSearchRequestLayer::getSizeLimit() const
 	{
-		return static_cast<uint8_t>(
-		    getLdapOperationAsn1Record()->getSubRecords().at(sizeLimitIndex)->castAs<Asn1IntegerRecord>()->getValue());
+		return getLdapOperationAsn1Record()
+		    ->getSubRecords()
+		    .at(sizeLimitIndex)
+		    ->castAs<Asn1IntegerRecord>()
+		    ->getIntValue<uint8_t>();
 	}
 
 	uint8_t LdapSearchRequestLayer::getTimeLimit() const
 	{
-		return static_cast<uint8_t>(
-		    getLdapOperationAsn1Record()->getSubRecords().at(timeLimitIndex)->castAs<Asn1IntegerRecord>()->getValue());
+		return getLdapOperationAsn1Record()
+		    ->getSubRecords()
+		    .at(timeLimitIndex)
+		    ->castAs<Asn1IntegerRecord>()
+		    ->getIntValue<uint8_t>();
 	}
 
 	bool LdapSearchRequestLayer::getTypesOnly() const

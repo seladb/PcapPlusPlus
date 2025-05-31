@@ -572,113 +572,114 @@ namespace pcpp
 		m_IsConstructed = false;
 	}
 
-	Asn1IntegerRecord::Asn1IntegerRecord(uint32_t value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer)
+	Asn1IntegerRecord::BigInt::BigInt(const std::string& value)
 	{
-		m_Value = value;
-
-		if (m_Value <= std::numeric_limits<uint8_t>::max())
-		{
-			m_ValueLength = sizeof(uint8_t);
-		}
-		else if (value <= std::numeric_limits<uint16_t>::max())
-		{
-			m_ValueLength = sizeof(uint16_t);
-		}
-		else if (value <= std::pow(2, 3 * 8))
-		{
-			m_ValueLength = 3;
-		}
-		else
-		{
-			m_ValueLength = sizeof(uint32_t);
-		}
-
-		m_TotalLength = m_ValueLength + 2;
+		m_Value = initFromString(value);
 	}
 
-	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool lazy)
+	Asn1IntegerRecord::BigInt::BigInt(const BigInt& other)
 	{
-		switch (m_ValueLength)
-		{
-		case 1:
-		{
-			m_Value = *data;
-			break;
-		}
-		case 2:
-		{
-			m_Value = be16toh(*reinterpret_cast<uint16_t*>(data));
-			break;
-		}
-		case 3:
-		{
-			uint8_t tempData[4] = { 0 };
-			memcpy(tempData + 1, data, 3);
-			m_Value = be32toh(*reinterpret_cast<uint32_t*>(tempData));
-			break;
-		}
-		case 4:
-		{
-			m_Value = be32toh(*reinterpret_cast<uint32_t*>(data));
-			break;
-		}
-		default:
-		{
-			throw std::runtime_error("An integer ASN.1 record of more than 4 bytes is not supported");
-		}
-		}
+		m_Value = other.m_Value;
 	}
 
-	std::vector<uint8_t> Asn1IntegerRecord::encodeValue() const
+	std::string Asn1IntegerRecord::BigInt::initFromString(const std::string& value)
 	{
+		std::string valueStr = value;
+
+		// Optional 0x or 0X prefix
+		if (value.size() >= 2 && value[0] == '0' && (value[1] == 'x' || value[1] == 'X'))
+		{
+			valueStr = value.substr(2);
+		}
+
+		if (valueStr.empty())
+		{
+			throw std::invalid_argument("Value is not a valid hex stream");
+		}
+
+		for (const char i : valueStr)
+		{
+			if (!std::isxdigit(i))
+			{
+				throw std::invalid_argument("Value is not a valid hex stream");
+			}
+		}
+
+		return valueStr;
+	}
+
+	Asn1IntegerRecord::BigInt& Asn1IntegerRecord::BigInt::operator=(const std::string& value)
+	{
+		m_Value = initFromString(value);
+		return *this;
+	}
+
+	size_t Asn1IntegerRecord::BigInt::size() const
+	{
+		return m_Value.size() / 2;
+	}
+
+	std::string Asn1IntegerRecord::BigInt::toString() const
+	{
+		return m_Value;
+	}
+
+	std::vector<uint8_t> Asn1IntegerRecord::BigInt::toBytes() const
+	{
+		std::string value = m_Value;
+		if (m_Value.size() % 2 != 0)
+		{
+			value.insert(0, 1, '0');
+		}
+
 		std::vector<uint8_t> result;
-
-		result.resize(m_ValueLength);
-
-		switch (m_ValueLength)
+		for (std::size_t i = 0; i < value.size(); i += 2)
 		{
-		case 1:
-		{
-			result[0] = static_cast<uint8_t>(m_Value);
-			break;
-		}
-		case 2:
-		{
-			auto hostValue = htobe16(static_cast<uint16_t>(m_Value));
-			result[0] = static_cast<uint8_t>(hostValue & 0xFF);
-			result[1] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
-			break;
-		}
-		case 3:
-		{
-			auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
-			result[0] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
-			result[1] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
-			result[2] = static_cast<uint8_t>((hostValue >> 24) & 0xFF);
-			break;
-		}
-		case 4:
-		{
-			auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
-			result[0] = static_cast<uint8_t>(hostValue & 0xFF);
-			result[1] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
-			result[2] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
-			result[3] = static_cast<uint8_t>((hostValue >> 24) & 0xFF);
-			break;
-		}
-		default:
-		{
-			throw std::runtime_error("Integer value of more than 4 bytes is not supported");
-		}
+			std::string byteStr = value.substr(i, 2);
+			auto byte = static_cast<uint8_t>(std::stoul(byteStr, nullptr, 16));
+			result.push_back(byte);
 		}
 
 		return result;
 	}
 
+	Asn1IntegerRecord::Asn1IntegerRecord(uint64_t value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer)
+	{
+		m_Value = value;
+
+		std::size_t length = 0;
+		while (value != 0)
+		{
+			++length;
+			value >>= 8;
+		}
+		m_ValueLength = length == 0 ? 1 : length;
+
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	Asn1IntegerRecord::Asn1IntegerRecord(const std::string& value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer)
+	{
+		m_Value = value;
+		m_ValueLength = m_Value.size();
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		m_Value = pcpp::byteArrayToHexString(data, m_ValueLength);
+	}
+
+	std::vector<uint8_t> Asn1IntegerRecord::encodeValue() const
+	{
+		return m_Value.toBytes();
+	}
+
 	std::vector<std::string> Asn1IntegerRecord::toStringList()
 	{
-		return std::vector<std::string>(
-		    { Asn1Record::toStringList().front() + ", Value: " + std::to_string(getValue()) });
+		auto valueAsString =
+		    m_Value.canFit<uint64_t>() ? std::to_string(getIntValue<uint64_t>()) : "0x" + getValueAsString();
+		return std::vector<std::string>({ Asn1Record::toStringList().front() + ", Value: " + valueAsString });
 	}
 
 	Asn1EnumeratedRecord::Asn1EnumeratedRecord(uint32_t value) : Asn1IntegerRecord(value)

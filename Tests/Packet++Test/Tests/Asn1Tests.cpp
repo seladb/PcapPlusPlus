@@ -37,7 +37,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 3);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 1);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 6);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint8_t>(), 6);
 		PTF_ASSERT_EQUAL(record->toString(), "Integer, Length: 2+1, Value: 6");
 	}
 
@@ -52,7 +52,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 4);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 2);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint16_t>(), 1000);
 		PTF_ASSERT_EQUAL(record->toString(), "Integer, Length: 2+2, Value: 1000");
 	}
 
@@ -67,7 +67,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 5);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 3);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 100000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint32_t>(), 100000);
 		PTF_ASSERT_EQUAL(record->toString(), "Integer, Length: 2+3, Value: 100000");
 	}
 
@@ -82,16 +82,31 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 6);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 4);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint32_t>(), 10000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 10000000);
 		PTF_ASSERT_EQUAL(record->toString(), "Integer, Length: 2+4, Value: 10000000");
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint8_t>(), std::overflow_error,
+		                  "Value cannot fit into requested int type");
 	}
 
-	// Integer more than 4 bytes
+	// Big Integer
 	{
-		uint8_t data[20];
-		auto dataLen = pcpp::hexStringToByteArray("020502540be400", data, 20);
-		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen, false), std::runtime_error,
-		                  "An integer ASN.1 record of more than 4 bytes is not supported");
+		uint8_t data[22];
+		std::string bigIntValue = "21c28a1bff4aa8400226fc73409b54bbc1f06c5f";
+		auto dataLen = pcpp::hexStringToByteArray("0214" + bigIntValue, data, 22);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 22);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 20);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValueAsString(), bigIntValue);
+		std::ostringstream oss;
+		oss << "Integer, Length: 2+20, Value: 0x" << bigIntValue;
+		PTF_ASSERT_EQUAL(record->toString(), oss.str());
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint32_t>(), std::overflow_error,
+		                  "Value cannot fit into requested int type");
 	}
 
 	// Enumerated
@@ -105,7 +120,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Enumerated, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 4);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 2);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1EnumeratedRecord>()->getValue(), 8192);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1EnumeratedRecord>()->getIntValue<uint16_t>(), 8192);
 		PTF_ASSERT_EQUAL(record->toString(), "Enumerated, Length: 2+2, Value: 8192");
 	}
 
@@ -199,7 +214,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		auto& subRecords = record->castAs<pcpp::Asn1SequenceRecord>()->getSubRecords();
 		PTF_ASSERT_EQUAL(subRecords.size(), 2);
 		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
-		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint16_t>(), 1000);
 
 		std::ostringstream expectedString;
 		expectedString << "Sequence (constructed), Length: 2+10" << std::endl
@@ -223,7 +238,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		auto& subRecords = record->castAs<pcpp::Asn1SetRecord>()->getSubRecords();
 		PTF_ASSERT_EQUAL(subRecords.size(), 2);
-		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint16_t>(), 1000);
 		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
 
 		std::ostringstream expectedString;
@@ -249,7 +264,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		auto& subRecords = record->castAs<pcpp::Asn1ConstructedRecord>()->getSubRecords();
 		PTF_ASSERT_EQUAL(subRecords.size(), 2);
 		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
-		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint16_t>(), 1000);
 
 		std::ostringstream expectedString;
 		expectedString << "Application (3) (constructed), Length: 2+10" << std::endl
@@ -434,7 +449,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 3);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 1);
-		PTF_ASSERT_EQUAL(record.getValue(), 6);
+		PTF_ASSERT_EQUAL(record.getIntValue<uint8_t>(), 6);
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("020106", data, 20);
@@ -453,7 +468,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 4);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 2);
-		PTF_ASSERT_EQUAL(record.getValue(), 1000);
+		PTF_ASSERT_EQUAL(record.getIntValue<uint16_t>(), 1000);
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("020203e8", data, 20);
@@ -472,7 +487,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 5);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 3);
-		PTF_ASSERT_EQUAL(record.getValue(), 100000);
+		PTF_ASSERT_EQUAL(record.getIntValue<uint32_t>(), 100000);
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("02030186a0", data, 20);
@@ -491,7 +506,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 6);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 4);
-		PTF_ASSERT_EQUAL(record.getValue(), 100000000);
+		PTF_ASSERT_EQUAL(record.getIntValue<uint32_t>(), 100000000);
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("020405f5e100", data, 20);
@@ -499,6 +514,38 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		auto encodedValue = record.encode();
 		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// Big Integer
+	{
+		std::vector<std::string> recordValues = { "21c28a1bff4aa8400226fc73409b54bbc1f06c5f",
+			                                      "0x21c28a1bff4aa8400226fc73409b54bbc1f06c5f",
+			                                      "0X21c28a1bff4aa8400226fc73409b54bbc1f06c5f" };
+
+		for (const auto& recordValue : recordValues)
+		{
+			pcpp::Asn1IntegerRecord record(recordValue);
+
+			PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+			PTF_ASSERT_FALSE(record.isConstructed());
+			PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+			PTF_ASSERT_EQUAL(record.getTotalLength(), 22);
+			PTF_ASSERT_EQUAL(record.getValueLength(), 20);
+			PTF_ASSERT_EQUAL(record.getValueAsString(), "21c28a1bff4aa8400226fc73409b54bbc1f06c5f");
+
+			uint8_t data[22];
+			auto dataLen = pcpp::hexStringToByteArray("021421c28a1bff4aa8400226fc73409b54bbc1f06c5f", data, 22);
+
+			auto encodedValue = record.encode();
+			PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+			PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+		}
+	}
+
+	// Invalid big integer
+	{
+		PTF_ASSERT_RAISES(pcpp::Asn1IntegerRecord("invalid"), std::invalid_argument, "Value is not a valid hex stream");
+		PTF_ASSERT_RAISES(pcpp::Asn1IntegerRecord(""), std::invalid_argument, "Value is not a valid hex stream");
 	}
 
 	// Enumerated
@@ -510,7 +557,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Enumerated, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 4);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 2);
-		PTF_ASSERT_EQUAL(record.getValue(), 8192);
+		PTF_ASSERT_EQUAL(record.getIntValue<uint16_t>(), 8192);
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("0a022000", data, 20);
@@ -624,7 +671,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		auto& subRecords = record.getSubRecords();
 		PTF_ASSERT_EQUAL(subRecords.size(), 2);
 		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
-		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint16_t>(), 1000);
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("300a040461626364020203e8", data, 20);
@@ -663,7 +710,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		auto& subRecords = record.getSubRecords();
 		PTF_ASSERT_EQUAL(subRecords.size(), 2);
-		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint16_t>(), 1000);
 		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
 
 		uint8_t data[20];
