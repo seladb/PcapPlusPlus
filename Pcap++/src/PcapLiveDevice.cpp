@@ -305,22 +305,22 @@ namespace pcpp
 
 		struct CaptureContext
 		{
-			PcapLiveDevice* device;
+			PcapLiveDevice* device = nullptr;
 			OnPacketArrivesCallback callback;
-			void* userCookie;
+			void* userCookie = nullptr;
 		};
 
 		struct AccumulatorCaptureContext
 		{
-			PcapLiveDevice* device;
-			RawPacketVector* capturedPackets;
+			PcapLiveDevice* device = nullptr;
+			RawPacketVector* capturedPackets = nullptr;
 		};
 
 		struct CaptureContextST
 		{
-			PcapLiveDevice* device;
+			PcapLiveDevice* device = nullptr;
 			OnPacketArrivesStopBlocking callback;
-			void* userCookie;
+			void* userCookie = nullptr;
 			bool requestStop = false;
 		};
 
