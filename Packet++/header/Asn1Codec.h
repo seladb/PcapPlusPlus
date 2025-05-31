@@ -440,7 +440,7 @@ namespace pcpp
 			{
 				if (!canFit<T>())
 				{
-					throw std::invalid_argument("Value cannot fit into requested int type");
+					throw std::overflow_error("Value cannot fit into requested int type");
 				}
 
 				std::stringstream sstream;

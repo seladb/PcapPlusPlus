@@ -85,7 +85,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint32_t>(), 10000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 10000000);
 		PTF_ASSERT_EQUAL(record->toString(), "Integer, Length: 2+4, Value: 10000000");
-		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint8_t>(), std::invalid_argument,
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint8_t>(), std::overflow_error,
 		                  "Value cannot fit into requested int type");
 	}
 
@@ -105,7 +105,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		std::ostringstream oss;
 		oss << "Integer, Length: 2+20, Value: 0x" << bigIntValue;
 		PTF_ASSERT_EQUAL(record->toString(), oss.str());
-		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint32_t>(), std::invalid_argument,
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1IntegerRecord>()->getIntValue<uint32_t>(), std::overflow_error,
 		                  "Value cannot fit into requested int type");
 	}
 
