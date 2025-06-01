@@ -296,8 +296,21 @@ namespace pcpp
 			auto sleepDuration = std::chrono::milliseconds(context.updateIntervalMs);
 			while (!stopFlag.load())
 			{
-				pcapDescriptor.getStatistics(stats);
-				context.cbOnStatsUpdate(stats, context.cbOnStatsUpdateUserCookie);
+				try
+				{
+					pcapDescriptor.getStatistics(stats);
+					context.cbOnStatsUpdate(stats, context.cbOnStatsUpdateUserCookie);
+				}
+				catch (const std::exception& ex)
+				{
+					PCPP_LOG_ERROR("Exception occurred while invoking statistics update callback: " << ex.what());
+					break;
+				}
+				catch (...)
+				{
+					PCPP_LOG_ERROR("Unknown exception occurred while invoking statistics update callback");
+					break;
+				}
 				std::this_thread::sleep_for(sleepDuration);
 			}
 			PCPP_LOG_DEBUG("Ended statistics thread");
@@ -336,8 +349,19 @@ namespace pcpp
 				return;
 			}
 
-			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
-			context->callback(&rawPacket, context->device, context->userCookie);
+			try
+			{
+				RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
+				context->callback(&rawPacket, context->device, context->userCookie);
+			}
+			catch (const std::exception& ex)
+			{
+				PCPP_LOG_ERROR("Exception occurred while invoking packet arrival callback: " << ex.what());
+			}
+			catch (...)
+			{
+				PCPP_LOG_ERROR("Unknown exception occurred while invoking packet arrival callback");
+			}
 		}
 
 		void onPacketArrivesAccumulator(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
@@ -349,11 +373,22 @@ namespace pcpp
 				return;
 			}
 
-			uint8_t* packetData = new uint8_t[pkthdr->caplen];
-			std::memcpy(packetData, packet, pkthdr->caplen);
-			auto rawPacket = std::make_unique<RawPacket>(packetData, pkthdr->caplen, pkthdr->ts, true,
-			                                             context->device->getLinkType());
-			context->capturedPackets->pushBack(std::move(rawPacket));
+			try
+			{
+				uint8_t* packetData = new uint8_t[pkthdr->caplen];
+				std::memcpy(packetData, packet, pkthdr->caplen);
+				auto rawPacket = std::make_unique<RawPacket>(packetData, pkthdr->caplen, pkthdr->ts, true,
+				                                             context->device->getLinkType());
+				context->capturedPackets->pushBack(std::move(rawPacket));
+			}
+			catch (const std::exception& ex)
+			{
+				PCPP_LOG_ERROR("Exception occurred while invoking packet arrival callback: " << ex.what());
+			}
+			catch (...)
+			{
+				PCPP_LOG_ERROR("Unknown exception occurred while invoking packet arrival callback");
+			}
 		}
 
 		void onPacketArrivesCallbackWithCancellation(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
@@ -375,10 +410,23 @@ namespace pcpp
 
 			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
 
-			if (context->callback(&rawPacket, context->device, context->userCookie))
+			try
 			{
-				// If the callback returns true, it means that the user wants to stop the capture
-				context->requestStop = true;
+				if (context->callback(&rawPacket, context->device, context->userCookie))
+				{
+					// If the callback returns true, it means that the user wants to stop the capture
+					context->requestStop = true;
+				}
+			}
+			catch (const std::exception& ex)
+			{
+				PCPP_LOG_ERROR("Exception occurred while invoking packet arrival callback: " << ex.what());
+				context->requestStop = true;  // Stop capture on exception
+			}
+			catch (...)
+			{
+				PCPP_LOG_ERROR("Unknown exception occurred while invoking packet arrival callback");
+				context->requestStop = true;  // Stop capture on unknown exception
 			}
 		}
 
