@@ -102,6 +102,7 @@ namespace pcpp
 	bool RawPacket::initWithRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
 	                                LinkLayerType layerType)
 	{
+		m_DeleteRawDataAtDestructor = false;
 		return setRawData(pRawData, rawDataLen, timestamp, layerType);
 	}
 
