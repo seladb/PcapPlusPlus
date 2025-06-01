@@ -20,15 +20,14 @@ namespace pcpp
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
 	    : RawPacket(pRawData, rawDataLen, toTimespec(timestamp), deleteRawDataAtDestructor, layerType)
-	{
-	}
+	{}
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
-	    : m_RawData(const_cast<uint8_t*>(pRawData)), m_RawDataLen(rawDataLen), m_FrameLength(rawDataLen), m_TimeStamp(timestamp),
-	      m_DeleteRawDataAtDestructor(deleteRawDataAtDestructor), m_RawPacketSet(true), m_LinkLayerType(layerType)
-	{
-	}
+	    : m_RawData(const_cast<uint8_t*>(pRawData)), m_RawDataLen(rawDataLen), m_FrameLength(rawDataLen),
+	      m_TimeStamp(timestamp), m_DeleteRawDataAtDestructor(deleteRawDataAtDestructor), m_RawPacketSet(true),
+	      m_LinkLayerType(layerType)
+	{}
 
 	RawPacket::~RawPacket()
 	{
