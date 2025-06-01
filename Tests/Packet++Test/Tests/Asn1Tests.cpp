@@ -198,6 +198,20 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count() ==
 		                1748129445000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
+		std::vector<std::pair<std::string, std::string>> timezonesAndValues = {
+			{ "Z",     "2025-05-24 23:30:45" },
+            { "+0300", "2025-05-25 02:30:45" },
+            { "-1030", "2025-05-24 13:00:45" }
+		};
+		for (const auto& timezonesAndValue : timezonesAndValues)
+		{
+			PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y-%m-%d %H:%M:%S",
+			                                                                             timezonesAndValue.first),
+			                 timezonesAndValue.second);
+		}
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d", "invalid"),
+		                  std::invalid_argument, "Invalid timezone format. Use 'Z' or '+/-HHMM'.");
+
 		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 2025-05-24 23:30:45");
 	}
 

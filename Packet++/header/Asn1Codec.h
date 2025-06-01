@@ -495,41 +495,81 @@ namespace pcpp
 		}
 	};
 
+	/// @class Asn1TimeRecord
+	/// An abstract class for representing ASN.1 time records (UTCTime and GeneralizedTime).
+	/// This class is not instantiable, users should use either Asn1UtcTimeRecord or Asn1GeneralizedTimeRecord
+	class Asn1TimeRecord : public Asn1PrimitiveRecord
+	{
+	public:
+		/// @return The time-point value of this record
+		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. The default value it UTC
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		std::chrono::system_clock::time_point getValue(const std::string& timezone = "Z")
+		{
+			decodeValueIfNeeded();
+			return adjustToTimezone(m_Value, timezone);
+		};
+
+		/// @param[in] format Requested value format
+		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		/// @return The value as string
+		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S",
+		                             const std::string& timezone = "Z") const;
+
+	protected:
+		Asn1TimeRecord() = default;
+		explicit Asn1TimeRecord(const std::chrono::system_clock::time_point& value) : m_Value(value)
+		{}
+
+		std::chrono::system_clock::time_point m_Value;
+
+		std::vector<std::string> toStringList() override;
+		static std::chrono::system_clock::time_point adjustToTimezone(
+		    const std::chrono::system_clock::time_point& value, const std::string& timezone);
+	};
+
 	/// @class Asn1UtcTimeRecord
 	/// Represents an ASN.1 record with a value of type UTCTime
-	class Asn1UtcTimeRecord : public Asn1PrimitiveRecord
+	class Asn1UtcTimeRecord : public Asn1TimeRecord
 	{
 		friend class Asn1Record;
 
 	public:
 		/// A constructor to create a record of type UTC time
 		/// @param value A std::tm to set as the record value
-		/// @param withSeconds
+		/// @param withSeconds Write the ASN.1 record with second precision
 		explicit Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds = true)
-		    : m_Value(value), m_WithSeconds(withSeconds)
+		    : Asn1TimeRecord(value), m_WithSeconds(withSeconds)
 		{}
-
-		/// @return The time-point value of this record
-		std::chrono::system_clock::time_point getValue()
-		{
-			decodeValueIfNeeded();
-			return m_Value;
-		};
-
-		/// @param[in] format Requested value format
-		/// @return The value as string
-		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S", bool inUtc = true);
 
 	protected:
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
-		std::vector<std::string> toStringList() override;
-
 	private:
 		Asn1UtcTimeRecord() = default;
-
-		std::chrono::system_clock::time_point m_Value;
 		bool m_WithSeconds = true;
+	};
+
+	class Asn1GeneralizedTimeRecord : public Asn1TimeRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		explicit Asn1GeneralizedTimeRecord(const std::chrono::system_clock::time_point& value,
+		                                   const std::string& timezone = "Z")
+		    : Asn1TimeRecord(value), m_Timezone(timezone)
+		{}
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		Asn1GeneralizedTimeRecord() = default;
+		std::string m_Timezone;
 	};
 }  // namespace pcpp
