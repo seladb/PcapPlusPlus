@@ -262,7 +262,7 @@ namespace pcpp
 		int m_RawDataLen = 0;
 		int m_FrameLength = 0;
 		timespec m_TimeStamp{};  // Zero initialized
-		bool m_DeleteRawDataAtDestructor = false;
+		bool m_DeleteRawDataAtDestructor = true;
 		bool m_RawPacketSet = false;
 		LinkLayerType m_LinkLayerType = LinkLayerType::LINKTYPE_ETHERNET;
 
@@ -272,8 +272,10 @@ namespace pcpp
 		/// A default constructor that initializes class'es attributes to default value:
 		/// - data pointer is set to nullptr
 		/// - data length is set to 0
+		/// - frame length is set to 0
 		/// - deleteRawDataAtDestructor is set to 'true'
 		/// - timestamp is set to 0
+		/// - layer type is set to Ethernet
 		RawPacket() = default;
 
 		/// A constructor that receives a pointer to the raw data (allocated elsewhere). This constructor is usually
