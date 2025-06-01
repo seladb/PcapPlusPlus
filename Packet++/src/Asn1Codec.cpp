@@ -782,20 +782,49 @@ namespace pcpp
 		m_TotalLength = 2;
 	}
 
-	std::string Asn1TimeRecord::getValueAsString(const std::string& format, const std::string& timezone)
+	static int localToUtcOffsetSeconds = [] {
+		std::time_t now = std::time(nullptr);
+		auto utcTmNow = std::gmtime(&now);
+		auto localTmNow = std::localtime(&now);
+		return static_cast<int>(std::difftime(std::mktime(localTmNow), std::mktime(utcTmNow)));
+	}();
+
+	static time_t mkUtcTime(std::tm& tm)
+	{
+		auto localTimeValue = std::mktime(&tm);
+		if (localTimeValue == -1)
+		{
+			throw std::runtime_error("Failed to convert ASN.1 UTC time to time_t");
+		}
+
+		return localTimeValue + localToUtcOffsetSeconds;
+	}
+
+	std::string Asn1TimeRecord::getValueAsString(const std::string& format, const std::string& timezone,
+	                                             bool includeMilliseconds)
 	{
 		auto value = getValue(timezone);
 		auto timeValue = std::chrono::system_clock::to_time_t(value);
 		auto tmValue = *std::gmtime(&timeValue);
 
-		std::ostringstream oss;
-		oss << std::put_time(&tmValue, format.c_str());
-		return oss.str();
+		std::ostringstream osstream;
+		osstream << std::put_time(&tmValue, format.c_str());
+
+		if (includeMilliseconds)
+		{
+			auto milliseconds =
+			    std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch()).count() % 1000;
+			if (milliseconds != 0)
+			{
+				osstream << "." << std::setw(3) << std::setfill('0') << milliseconds;
+			}
+		}
+		return osstream.str();
 	}
 
 	std::vector<std::string> Asn1TimeRecord::toStringList()
 	{
-		return { Asn1Record::toStringList().front() + ", Value: " + getValueAsString() };
+		return { Asn1Record::toStringList().front() + ", Value: " + getValueAsString("%Y-%m-%d %H:%M:%S", "Z", true) };
 	}
 
 	std::chrono::system_clock::time_point Asn1TimeRecord::adjustToTimezone(
@@ -855,12 +884,7 @@ namespace pcpp
 			throw std::runtime_error("Failed to parse ASN.1 UTC time");
 		}
 
-		std::time_t timeValue = std::mktime(&tm);
-		if (timeValue == -1)
-		{
-			throw std::runtime_error("Failed to convert ASN.1 UTC time to time_t");
-		}
-
+		std::time_t timeValue = mkUtcTime(tm);
 		m_Value = std::chrono::system_clock::from_time_t(timeValue);
 	}
 
@@ -916,11 +940,7 @@ namespace pcpp
 			milliseconds = std::stoi(millisecondsStr);
 		}
 
-		auto timeValue = std::mktime(&tm);
-		if (timeValue == -1)
-		{
-			throw std::runtime_error("Failed to convert ASN.1 UTC time to time_t");
-		}
+		auto timeValue = mkUtcTime(tm);
 
 		m_Value = adjustToTimezone(
 		    std::chrono::system_clock::from_time_t(timeValue) + std::chrono::milliseconds(milliseconds), timezone);

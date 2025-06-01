@@ -514,10 +514,11 @@ namespace pcpp
 		/// @param[in] format Requested value format
 		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
 		/// timezones
+		/// @param includeMilliseconds Include milliseconds in the returned string
 		/// @throws std::invalid_argument if timezone is not in the correct format
 		/// @return The value as string
-		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S",
-		                             const std::string& timezone = "Z");
+		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
+		                             bool includeMilliseconds = false);
 
 	protected:
 		Asn1TimeRecord() = default;

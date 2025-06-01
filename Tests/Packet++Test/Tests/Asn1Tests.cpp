@@ -195,10 +195,10 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 15);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 13);
-		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count() ==
-		                1748129445000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count(),
+		                 1748100645000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
-		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 2025-05-24 23:30:45");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 2025-05-24 15:30:45");
 	}
 
 	// UTC time - without seconds
@@ -212,10 +212,10 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 13);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 11);
-		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count() ==
-		                1748129400000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count(),
+		                 1748100600000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
-		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+11, Value: 2025-05-24 23:30:00");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+11, Value: 2025-05-24 15:30:00");
 	}
 
 	// UTC time - before year 2000
@@ -229,14 +229,78 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 15);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 13);
-		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count() ==
-		                480432600000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count(),
+		                 480403800000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "19850323");
-		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 1985-03-23 13:30:00");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 1985-03-23 05:30:00");
 	}
 
-	// Generalized time
+	// UTC time - invalid data
 	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3835303332333035333037305a", data, 20);
+
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue(), std::runtime_error,
+		                  "Failed to parse ASN.1 UTC time");
+	}
+
+	// Generalized time - UTC
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("180f32303235303533313134333030305a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 17);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 15);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch().count(),
+		                 1748701800000000);
+		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+15, Value: 2025-05-31 14:30:00");
+	}
+
+	// Generalized time - non-UTC
+	{
+		uint8_t data[22];
+		auto dataLen = pcpp::hexStringToByteArray("181332303235303533313134333030302D30343030", data, 22);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 21);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 19);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch().count(),
+		                 1748687400000000);
+		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+19, Value: 2025-05-31 10:30:00");
+	}
+
+	// Generalized time - with milliseconds
+	{
+		uint8_t data[22];
+		auto dataLen = pcpp::hexStringToByteArray("181332303235303533313134333030302e3132335a", data, 22);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 21);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 19);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch().count(),
+		                 1748701800123000);
+		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+19, Value: 2025-05-31 14:30:00.123");
+	}
+
+	// Generalized time - invalid data
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("180f32303235303533313134333037305a", data, 20);
+
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue(), std::runtime_error,
+		                  "Failed to parse ASN.1 generalized time");
 	}
 
 	// Timezone conversions
@@ -247,9 +311,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		auto utcTimeRecord = record->castAs<pcpp::Asn1UtcTimeRecord>();
 
 		std::vector<std::pair<std::string, std::string>> timezonesAndValues = {
-			{ "Z",     "2025-05-24 23:30:45" },
-            { "+0300", "2025-05-25 02:30:45" },
-            { "-1030", "2025-05-24 13:00:45" }
+			{ "Z",     "2025-05-24 15:30:45" },
+            { "+1000", "2025-05-25 01:30:45" },
+            { "-1030", "2025-05-24 05:00:45" }
 		};
 		for (const auto& timezonesAndValue : timezonesAndValues)
 		{
