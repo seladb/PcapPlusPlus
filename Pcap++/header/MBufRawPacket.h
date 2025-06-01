@@ -163,7 +163,7 @@ namespace pcpp
 		/// size, if initialization failed or if copying the data to the mbuf failed. In all of these cases an error
 		/// will be printed to log
 		bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
-		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1) override;
 
 		/// Clears the object and frees the mbuf
 		void clear();
