@@ -198,20 +198,6 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count() ==
 		                1748129445000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
-		std::vector<std::pair<std::string, std::string>> timezonesAndValues = {
-			{ "Z",     "2025-05-24 23:30:45" },
-            { "+0300", "2025-05-25 02:30:45" },
-            { "-1030", "2025-05-24 13:00:45" }
-		};
-		for (const auto& timezonesAndValue : timezonesAndValues)
-		{
-			PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y-%m-%d %H:%M:%S",
-			                                                                             timezonesAndValue.first),
-			                 timezonesAndValue.second);
-		}
-		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d", "invalid"),
-		                  std::invalid_argument, "Invalid timezone format. Use 'Z' or '+/-HHMM'.");
-
 		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 2025-05-24 23:30:45");
 	}
 
@@ -247,6 +233,36 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		                480432600000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "19850323");
 		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 1985-03-23 13:30:00");
+	}
+
+	// Generalized time
+	{
+	}
+
+	// Timezone conversions
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3235303532343135333034355a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		auto utcTimeRecord = record->castAs<pcpp::Asn1UtcTimeRecord>();
+
+		std::vector<std::pair<std::string, std::string>> timezonesAndValues = {
+			{ "Z",     "2025-05-24 23:30:45" },
+            { "+0300", "2025-05-25 02:30:45" },
+            { "-1030", "2025-05-24 13:00:45" }
+		};
+		for (const auto& timezonesAndValue : timezonesAndValues)
+		{
+			PTF_ASSERT_EQUAL(utcTimeRecord->getValueAsString("%Y-%m-%d %H:%M:%S", timezonesAndValue.first),
+			                 timezonesAndValue.second);
+		}
+
+		std::vector<std::string> invalidTimezones = { "invalid", "abcde", "-a100", "+1a00", "-10a0", "+100a" };
+		for (const auto& invalidTimezone : invalidTimezones)
+		{
+			PTF_ASSERT_RAISES(utcTimeRecord->getValueAsString("%Y%m%d", invalidTimezone), std::invalid_argument,
+			                  "Invalid timezone format. Use 'Z' or '+/-HHMM'.");
+		}
 	}
 
 	// Sequence

@@ -517,7 +517,7 @@ namespace pcpp
 		/// @throws std::invalid_argument if timezone is not in the correct format
 		/// @return The value as string
 		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S",
-		                             const std::string& timezone = "Z") const;
+		                             const std::string& timezone = "Z");
 
 	protected:
 		Asn1TimeRecord() = default;

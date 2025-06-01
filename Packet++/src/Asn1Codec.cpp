@@ -782,9 +782,9 @@ namespace pcpp
 		m_TotalLength = 2;
 	}
 
-	std::string Asn1TimeRecord::getValueAsString(const std::string& format, const std::string& timezone) const
+	std::string Asn1TimeRecord::getValueAsString(const std::string& format, const std::string& timezone)
 	{
-		auto value = adjustToTimezone(m_Value, timezone);
+		auto value = getValue(timezone);
 		auto timeValue = std::chrono::system_clock::to_time_t(value);
 		auto tmValue = *std::gmtime(&timeValue);
 
