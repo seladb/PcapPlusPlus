@@ -1098,4 +1098,3 @@ PTF_TEST_CASE(TestIPv4MalformedFragment)
 	reassembler.processPacket(&frag1, status);
 	PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::MALFORMED_FRAGMENT);
 }  // TestIPv4MalformedFragment
-
