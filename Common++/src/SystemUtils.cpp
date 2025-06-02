@@ -258,8 +258,6 @@ namespace pcpp
 
 #else  // Linux
 
-#	include <ctime>
-
 		timespec tspec{};
 		const int res = clock_gettime(CLOCK_REALTIME, &tspec);
 		if (res == 0)
