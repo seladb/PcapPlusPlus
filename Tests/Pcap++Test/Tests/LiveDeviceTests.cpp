@@ -797,7 +797,7 @@ PTF_TEST_CASE(TestSendPacket)
 
 		// send packet as parsed EthPacekt
 		pcpp::Packet packet(&rawPacket);
-		PTF_ASSERT_TRUE(liveDev->sendPacket(&packet));
+		PTF_ASSERT_TRUE(liveDev->sendPacket(packet));
 
 		packetsSent++;
 	}
@@ -891,7 +891,7 @@ PTF_TEST_CASE(TestMtuSize)
 	PTF_PRINT_VERBOSE("Small packet: " << smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
 	PTF_ASSERT_EQUAL(smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)liveDev->getMtu(), ptr);
 	// Try sending the packet
-	PTF_ASSERT_TRUE(liveDev->sendPacket(&smallPacket));
+	PTF_ASSERT_TRUE(liveDev->sendPacket(smallPacket));
 	pcpp::RawPacket* rawSmallPacketPtr = smallPacket.getRawPacket();
 	pcpp::RawPacket& rawSmallPacketRef = *rawSmallPacketPtr;
 	PTF_ASSERT_TRUE(liveDev->sendPacket(rawSmallPacketRef, true));
@@ -924,7 +924,7 @@ PTF_TEST_CASE(TestMtuSize)
 	PTF_ASSERT_EQUAL(largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)(liveDev->getMtu() + 1), ptr);
 	// Try sending the packet
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->sendPacket(&largePacket));
+	PTF_ASSERT_FALSE(liveDev->sendPacket(largePacket));
 
 	pcpp::RawPacket* rawLargePacketPtr = largePacket.getRawPacket();
 	pcpp::RawPacket& rawLargePacketRef = *rawLargePacketPtr;
