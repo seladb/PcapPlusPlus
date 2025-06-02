@@ -258,8 +258,6 @@ namespace pcpp
 
 #else  // Linux
 
-#	include <ctime>
-
 		timespec tspec{};
 		const int res = clock_gettime(CLOCK_REALTIME, &tspec);
 		if (res == 0)
@@ -270,6 +268,24 @@ namespace pcpp
 		return res;
 
 #endif
+	}
+
+	static int localToUtcOffsetSeconds = [] {
+		std::time_t now = std::time(nullptr);
+		auto utcTmNow = std::gmtime(&now);
+		auto localTmNow = std::localtime(&now);
+		return static_cast<int>(std::difftime(std::mktime(localTmNow), std::mktime(utcTmNow)));
+	}();
+
+	time_t mkUtcTime(std::tm& tm)
+	{
+		auto localTimeValue = std::mktime(&tm);
+		if (localTimeValue == -1)
+		{
+			throw std::runtime_error("Failed to convert the give std::tm to time_t");
+		}
+
+		return localTimeValue + localToUtcOffsetSeconds;
 	}
 
 	void multiPlatformSleep(uint32_t seconds)
