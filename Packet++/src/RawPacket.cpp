@@ -21,10 +21,8 @@ namespace pcpp
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
 	{
-		timespec nsec_time = {};
-		TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
 		init(deleteRawDataAtDestructor);
-		setRawData(pRawData, rawDataLen, nsec_time, layerType);
+		setRawData(pRawData, rawDataLen, internal::toTimespec(timestamp), layerType);
 	}
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
@@ -90,9 +88,7 @@ namespace pcpp
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
-		timespec nsec_time;
-		TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
-		return setRawData(pRawData, rawDataLen, nsec_time, layerType, frameLength);
+		return setRawData(pRawData, rawDataLen, internal::toTimespec(timestamp), layerType, frameLength);
 	}
 
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
@@ -199,9 +195,7 @@ namespace pcpp
 
 	bool RawPacket::setPacketTimeStamp(timeval timestamp)
 	{
-		timespec nsec_time;
-		TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
-		return setPacketTimeStamp(nsec_time);
+		return setPacketTimeStamp(internal::toTimespec(timestamp));
 	}
 
 	bool RawPacket::setPacketTimeStamp(timespec timestamp)

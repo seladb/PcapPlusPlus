@@ -17,3 +17,25 @@
 			(tv)->tv_usec = (ts)->tv_nsec / 1000;                                                                      \
 		}
 #endif
+
+namespace pcpp
+{
+	namespace internal
+	{
+		/// Converts a timeval structure to a timespec structure
+		inline timespec toTimespec(timeval value)
+		{
+			timespec nsec_time = {};
+			TIMEVAL_TO_TIMESPEC(&value, &nsec_time);
+			return nsec_time;
+		}
+
+		/// Converts a timespec structure to a timeval structure
+		inline timeval toTimeval(timespec value)
+		{
+			timeval tv = {};
+			TIMESPEC_TO_TIMEVAL(&tv, &value);
+			return tv;
+		}
+	}  // namespace internal
+}  // namespace pcpp
