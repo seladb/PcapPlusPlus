@@ -806,12 +806,12 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// UTC time
 	{
 		std::tm tm{
-			.tm_year = 2025 - 1900,
-			.tm_mon = 5 - 1,
-			.tm_mday = 24,
-			.tm_hour = 15,
-			.tm_min = 30,
 			.tm_sec = 45,
+			.tm_min = 30,
+			.tm_hour = 15,
+			.tm_mday = 24,
+			.tm_mon = 5 - 1,
+			.tm_year = 2025 - 1900,
 			.tm_isdst = 0,
 		};
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
@@ -836,12 +836,12 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// UTC time - without seconds
 	{
 		std::tm tm{
-			.tm_year = 2025 - 1900,
-			.tm_mon = 5 - 1,
-			.tm_mday = 24,
-			.tm_hour = 15,
-			.tm_min = 30,
 			.tm_sec = 45,
+			.tm_min = 30,
+			.tm_hour = 15,
+			.tm_mday = 24,
+			.tm_mon = 5 - 1,
+			.tm_year = 2025 - 1900,
 			.tm_isdst = 0,
 		};
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
@@ -866,12 +866,12 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// Generalized time - UTC
 	{
 		std::tm tm{
-			.tm_year = 2025 - 1900,
-			.tm_mon = 5 - 1,
-			.tm_mday = 31,
-			.tm_hour = 14,
-			.tm_min = 30,
 			.tm_sec = 0,
+			.tm_min = 30,
+			.tm_hour = 14,
+			.tm_mday = 31,
+			.tm_mon = 5 - 1,
+			.tm_year = 2025 - 1900,
 			.tm_isdst = 0,
 		};
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
@@ -896,12 +896,12 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// Generalized time - non-UTC
 	{
 		std::tm tm{
-			.tm_year = 2025 - 1900,
-			.tm_mon = 5 - 1,
-			.tm_mday = 31,
-			.tm_hour = 14,
-			.tm_min = 30,
 			.tm_sec = 0,
+			.tm_min = 30,
+			.tm_hour = 14,
+			.tm_mday = 31,
+			.tm_mon = 5 - 1,
+			.tm_year = 2025 - 1900,
 			.tm_isdst = 0,
 		};
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
@@ -925,12 +925,12 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// Generalized time - with milliseconds
 	{
 		std::tm tm{
-			.tm_year = 2025 - 1900,
-			.tm_mon = 5 - 1,
-			.tm_mday = 31,
-			.tm_hour = 14,
-			.tm_min = 30,
 			.tm_sec = 0,
+			.tm_min = 30,
+			.tm_hour = 14,
+			.tm_mday = 31,
+			.tm_mon = 5 - 1,
+			.tm_year = 2025 - 1900,
 			.tm_isdst = 0,
 		};
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm)) + std::chrono::milliseconds(123);
@@ -954,12 +954,12 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// Generalized time - non-UTC + milliseconds
 	{
 		std::tm tm{
-			.tm_year = 2025 - 1900,
-			.tm_mon = 5 - 1,
-			.tm_mday = 31,
-			.tm_hour = 2,
-			.tm_min = 30,
 			.tm_sec = 45,
+			.tm_min = 30,
+			.tm_hour = 2,
+			.tm_mday = 31,
+			.tm_mon = 5 - 1,
+			.tm_year = 2025 - 1900,
 			.tm_isdst = 0,
 		};
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm)) + std::chrono::milliseconds(123);
@@ -983,12 +983,12 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// Generalized time - invalid timezone
 	{
 		std::tm tm{
-			.tm_year = 2025 - 1900,
-			.tm_mon = 5 - 1,
-			.tm_mday = 31,
-			.tm_hour = 14,
-			.tm_min = 30,
 			.tm_sec = 0,
+			.tm_min = 30,
+			.tm_hour = 14,
+			.tm_mday = 31,
+			.tm_mon = 5 - 1,
+			.tm_year = 2025 - 1900,
 			.tm_isdst = 0,
 		};
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
