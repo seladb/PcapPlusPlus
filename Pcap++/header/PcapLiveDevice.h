@@ -404,6 +404,7 @@ namespace pcpp
 		/// - Capture is already running
 		/// - Device is not opened
 		/// - Capture thread could not be created
+		/// @remarks This method is planned for conversion to non-virtual in the future, so it should not be overridden.
 		virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie);
 
 		/// Start capturing packets on this network interface (device) with periodic stats collection. Each time a
@@ -428,6 +429,7 @@ namespace pcpp
 		/// - Device is not opened
 		/// - Capture thread could not be created
 		/// - Stats collection thread could not be created
+		/// @remarks This method is planned for conversion to non-virtual in the future, so it should not be overridden.
 		virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie,
 		                          int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
 		                          void* onStatsUpdateUserCookie);
@@ -448,6 +450,7 @@ namespace pcpp
 		/// - Capture is already running
 		/// - Device is not opened
 		/// - Stats collection thread could not be created
+		/// @remarks This method is planned for conversion to non-virtual in the future, so it should not be overridden.
 		virtual bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
 		                          void* onStatsUpdateUserCookie);
 
@@ -464,6 +467,7 @@ namespace pcpp
 		/// - Capture is already running
 		/// - Device is not opened
 		/// - Capture thread could not be created
+		/// @remarks This method is planned for conversion to non-virtual in the future, so it should not be overridden.
 		virtual bool startCapture(RawPacketVector& capturedPacketsVector);
 
 		/// Start capturing packets on this network interface (device) in blocking mode, meaning this method blocks and
@@ -489,6 +493,7 @@ namespace pcpp
 		/// occurred (such as device not open etc.). When returning 0 an appropriate error message is printed to log
 		/// @note On Unix-like systems, enabling the `usePoll` option in `DeviceConfiguration` prevents the method from
 		/// blocking indefinitely when no packets are available, even if a timeout is set.
+		/// @remarks This method is planned for conversion to non-virtual in the future, so it should not be overridden.
 		virtual int startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie,
 		                                     const double timeout);
 
@@ -504,6 +509,39 @@ namespace pcpp
 		/// @param[in] packetPayloadLength The length of the IP layer of the packet
 		/// @return True if the packetPayloadLength is less than or equal to the device MTU
 		bool doMtuCheck(int packetPayloadLength) const;
+
+		/// Send a parsed Packet to the network
+		/// @param[in] packet A pointer to the packet to send. This method treats the packet as read-only, it doesn't
+		/// change anything in it
+		/// @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. Default
+		/// value is true, since the packet being passed in has already been parsed, so checking the MTU does not incur
+		/// significant processing overhead.
+		/// @return True if packet was sent successfully. False will be returned in the following cases (relevant log
+		/// error is printed in any case):
+		/// - Device is not opened
+		/// - Packet length is 0
+		/// - Packet length is larger than device MTU and checkMtu is true
+		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
+		/// @deprecated This method is deprecated. Use sendPacket(Packet const& packet, bool checkMtu) instead.
+		PCPP_DEPRECATED("This method is deprecated. Use sendPacket(Packet const& packet, bool checkMtu) instead")
+		bool sendPacket(Packet* packet, bool checkMtu = true)
+		{
+			return sendPacket(*packet, checkMtu);
+		}
+
+		/// Send a parsed Packet to the network
+		/// @param[in] packet A reference to the packet to send. This method treats the packet as read-only, it doesn't
+		/// change anything in it
+		/// @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. Default
+		/// value is true, since the packet being passed in has already been parsed, so checking the MTU does not incur
+		/// significant processing overhead.
+		/// @return True if packet was sent successfully. False will be returned in the following cases (relevant log
+		/// error is printed in any case):
+		/// - Device is not opened
+		/// - Packet length is 0
+		/// - Packet length is larger than device MTU and checkMtu is true
+		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
+		bool sendPacket(Packet const& packet, bool checkMtu = true);
 
 		/// Send a RawPacket to the network
 		/// @param[in] rawPacket A reference to the raw packet to send. This method treats the raw packet as read-only,
@@ -553,20 +591,6 @@ namespace pcpp
 		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		bool sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu = false,
 		                pcpp::LinkLayerType linkType = pcpp::LINKTYPE_ETHERNET);
-
-		/// Send a parsed Packet to the network
-		/// @param[in] packet A pointer to the packet to send. This method treats the packet as read-only, it doesn't
-		/// change anything in it
-		/// @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. Default
-		/// value is true, since the packet being passed in has already been parsed, so checking the MTU does not incur
-		/// significant processing overhead.
-		/// @return True if packet was sent successfully. False will be returned in the following cases (relevant log
-		/// error is printed in any case):
-		/// - Device is not opened
-		/// - Packet length is 0
-		/// - Packet length is larger than device MTU and checkMtu is true
-		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
-		bool sendPacket(Packet* packet, bool checkMtu = true);
 
 		/// Send an array of RawPacket objects to the network
 		/// @param[in] rawPacketsArr The array of RawPacket objects to send. This method treats all packets as
@@ -635,6 +659,16 @@ namespace pcpp
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
+		/// @brief Called before starting a capture to prepare the device for capturing packets.
+		///
+		/// This method can be overridden by derived classes to perform additional preparations before starting
+		/// the packet capture.
+		///
+		/// @param asyncCapture True if the capture is asynchronous (i.e. packets are captured in a separate thread),
+		/// @param captureStats True if statistics should be captured during the capture process.
+		virtual void prepareCapture(bool asyncCapture, bool captureStats)
+		{}
+
 		internal::PcapHandle doOpen(const DeviceConfiguration& config);
 
 		// Sends a packet directly to the network.
