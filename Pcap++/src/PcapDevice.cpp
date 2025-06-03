@@ -103,10 +103,35 @@ namespace pcpp
 		{
 			return setFilter("");
 		}
+
+		bool PcapHandle::getStatistics(PcapStats& stats) const
+		{
+			if (!isValid())
+			{
+				PCPP_LOG_ERROR("Cannot get stats from invalid handle");
+				return false;
+			}
+
+			pcap_stat pcapStats;
+			if (pcap_stats(m_PcapDescriptor, &pcapStats) < 0)
+			{
+				PCPP_LOG_ERROR("Error getting stats. Error message is: " << getLastError());
+				return false;
+			}
+
+			stats.packetsRecv = pcapStats.ps_recv;
+			stats.packetsDrop = pcapStats.ps_drop;
+			stats.packetsDropByInterface = pcapStats.ps_ifdrop;
+			return true;
+		}
 	}  // namespace internal
 
-	IPcapDevice::~IPcapDevice()
-	{}
+	IPcapStatisticsProvider::PcapStats IPcapStatisticsProvider::getStatistics() const
+	{
+		PcapStats stats;
+		getStatistics(stats);
+		return stats;
+	}
 
 	bool IPcapDevice::setFilter(std::string filterAsString)
 	{
