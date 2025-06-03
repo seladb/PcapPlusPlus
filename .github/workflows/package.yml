@@ -417,11 +417,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends cmake make g++ libpcap-dev dpkg-dev
-
       - name: Build project
         run: |
           mkdir -p "${{ env.BUILD_DIR }}"
