@@ -2,6 +2,13 @@
 /// Windows
 #pragma once
 
+#ifdef _MSC_VER
+#	include <winsock2.h>
+#	include <time.h>
+#else
+#	include <sys/time.h>
+#endif
+
 #ifndef TIMEVAL_TO_TIMESPEC
 #	define TIMEVAL_TO_TIMESPEC(tv, ts)                                                                                \
 		{                                                                                                              \
