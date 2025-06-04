@@ -54,6 +54,27 @@ namespace pcpp
 		}
 	}
 
+	void IPv4Address::applySubnetMask(uint8_t prefixLen)
+	{
+		if (prefixLen > 32)
+		{
+			throw std::invalid_argument("prefixLen must be an integer between 0 and 32");
+		}
+		const uint32_t mask = 0xffffffff ^ (prefixLen < 32 ? 0xffffffff >> prefixLen : 0);
+		m_Bytes[0] &= mask >> 24;
+		m_Bytes[1] &= mask >> 16;
+		m_Bytes[2] &= mask >> 8;
+		m_Bytes[3] &= mask;
+	}
+
+	void IPv4Address::applySubnetMask(const IPv4Address& maskAddress)
+	{
+		m_Bytes[0] &= maskAddress.m_Bytes[0];
+		m_Bytes[1] &= maskAddress.m_Bytes[1];
+		m_Bytes[2] &= maskAddress.m_Bytes[2];
+		m_Bytes[3] &= maskAddress.m_Bytes[3];
+	}
+
 	bool IPv4Address::matchNetwork(const IPv4Network& network) const
 	{
 		return network.includes(*this);
