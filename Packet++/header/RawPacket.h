@@ -429,7 +429,7 @@ namespace pcpp
 		bool m_ReallocationsAllowed = true;
 		bool m_RawPacketSet = false;
 
-		void copyDataFrom(const RawPacket& other, bool allocateData = true);
+		void copyDataFrom(const RawPacket& other);
 
 	public:
 		static bool isBufferPolicySupported(RawPacketBufferPolicy policy)

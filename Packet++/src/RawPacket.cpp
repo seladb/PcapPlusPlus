@@ -109,17 +109,40 @@ namespace pcpp
 
 	RawPacket::RawPacket(const RawPacket& other)
 	{
-		m_RawData = nullptr;
-		copyDataFrom(other, true);
+		// Reserves memory for the raw data buffer and copies the data from the other packet
+		if (!reserve(other.m_RawDataLen))
+			throw std::runtime_error("Failed to reserve memory for RawPacket");
+
+		if (other.m_RawData != nullptr)
+		{
+			if (appendData(other.m_RawData, other.m_RawDataLen) != other.m_RawDataLen)
+				throw std::runtime_error("Failed to copy data to RawPacket");
+		}
+
+		m_FrameLength = other.m_FrameLength;
+		m_RawPacketSet = other.m_RawPacketSet;
 	}
 
 	RawPacket& RawPacket::operator=(const RawPacket& other)
 	{
 		if (this != &other)
 		{
+			// TODO: Potential reuse of existing buffer if it matches the policy and capacity
 			clear();
 
-			copyDataFrom(other, true);
+			RawPacketBase::operator=(other);
+
+			if (!reserve(other.m_RawDataLen))
+				throw std::runtime_error("Failed to reserve memory for RawPacket");
+
+			if (other.m_RawData != nullptr)
+			{
+				if (appendData(other.m_RawData, other.m_RawDataLen) != other.m_RawDataLen)
+					throw std::runtime_error("Failed to copy data to RawPacket");
+			}
+
+			m_FrameLength = other.m_FrameLength;
+			m_RawDataCapacity = other.m_RawDataCapacity;
 		}
 
 		return *this;
@@ -130,21 +153,17 @@ namespace pcpp
 		return new RawPacket(*this);
 	}
 
-	void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
+	void RawPacket::copyDataFrom(const RawPacket& other)
 	{
-		if (!other.m_RawPacketSet)
-			return;
+		reserve(other.m_RawDataLen);
+		appendData(other.m_RawData, other.m_RawDataLen);
 
-		setPacketTimeStamp(other.getPacketTimeStamp());
+		m_RawData = new uint8_t[other.m_RawDataLen];
+		m_RawDataCapacity = other.m_RawDataLen;
+		m_DeleteRawDataAtDestructor = true;
+		m_RawDataLen = other.m_RawDataLen;
 
-		if (allocateData)
-		{
-			m_DeleteRawDataAtDestructor = true;
-			m_RawData = new uint8_t[other.m_RawDataLen];
-			m_RawDataLen = other.m_RawDataLen;
-		}
-
-		memcpy(m_RawData, other.m_RawData, other.m_RawDataLen);
+		std::memcpy(m_RawData, other.m_RawData, other.m_RawDataLen);
 		setLinkLayerType(other.getLinkLayerType());
 		m_FrameLength = other.m_FrameLength;
 		m_RawPacketSet = true;
@@ -256,6 +275,7 @@ namespace pcpp
 		m_RawDataLen = 0;
 		m_FrameLength = 0;
 		m_RawDataCapacity = 0;
+		m_ReallocationsAllowed = true;
 		m_RawPacketSet = false;
 	}
 
