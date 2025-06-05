@@ -125,26 +125,27 @@ namespace pcpp
 
 	RawPacket& RawPacket::operator=(const RawPacket& other)
 	{
-		if (this != &other)
+		if (this == &other)
 		{
-			// TODO: Potential reuse of existing buffer if it matches the policy and capacity
-			clear();
-
-			RawPacketBase::operator=(other);
-
-			if (!reserve(other.m_RawDataLen))
-				throw std::runtime_error("Failed to reserve memory for RawPacket");
-
-			if (other.m_RawData != nullptr)
-			{
-				if (appendData(other.m_RawData, other.m_RawDataLen) != other.m_RawDataLen)
-					throw std::runtime_error("Failed to copy data to RawPacket");
-			}
-
-			m_FrameLength = other.m_FrameLength;
-			m_RawDataCapacity = other.m_RawDataCapacity;
+			return *this;
 		}
 
+		// TODO: Potential reuse of existing buffer if it matches the policy and capacity
+		clear();
+
+		RawPacketBase::operator=(other);
+
+		if (!reserve(other.m_RawDataLen))
+			throw std::runtime_error("Failed to reserve memory for RawPacket");
+
+		if (other.m_RawData != nullptr)
+		{
+			if (appendData(other.m_RawData, other.m_RawDataLen) != other.m_RawDataLen)
+				throw std::runtime_error("Failed to copy data to RawPacket");
+		}
+
+		m_FrameLength = other.m_FrameLength;
+		m_RawDataCapacity = other.m_RawDataCapacity;
 		return *this;
 	}
 
