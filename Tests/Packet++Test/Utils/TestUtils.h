@@ -34,11 +34,14 @@ namespace pcpp_tests
 
 #define READ_FILE_AND_CREATE_PACKET(num, filename)                                                                     \
 	READ_FILE_INTO_BUFFER(num, filename);                                                                              \
-	pcpp::RawPacket rawPacket##num(static_cast<const uint8_t*>(buffer##num), bufferLength##num, time, true)
+	pcpp::RawPacket rawPacket##num(pcpp::RawPacketBufferPolicy::Move,                                                  \
+	                               pcpp::BufferInfo(static_cast<uint8_t*>(buffer##num), bufferLength##num), time)
 
 #define READ_FILE_AND_CREATE_PACKET_LINKTYPE(num, filename, linktype)                                                  \
 	READ_FILE_INTO_BUFFER(num, filename);                                                                              \
-	pcpp::RawPacket rawPacket##num(static_cast<const uint8_t*>(buffer##num), bufferLength##num, time, true, linktype)
+	pcpp::RawPacket rawPacket##num(pcpp::RawPacketBufferPolicy::Move,                                                  \
+	                               pcpp::BufferInfo(static_cast<uint8_t*>(buffer##num), bufferLength##num), time,      \
+	                               linktype)
 
 #ifdef PCPP_TESTS_DEBUG
 	void savePacketToPcap(pcpp::Packet& packet, const std::string& fileName);

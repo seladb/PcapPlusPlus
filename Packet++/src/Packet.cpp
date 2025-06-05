@@ -31,7 +31,7 @@ namespace pcpp
 		gettimeofday(&time, nullptr);
 		uint8_t* data = new uint8_t[maxPacketLen];
 		memset(data, 0, maxPacketLen);
-		m_RawPacket = new RawPacket(data, 0, time, true, linkType);
+		m_RawPacket = new RawPacket(RawPacketBufferPolicy::Move, BufferInfo(data, 0, maxPacketLen), time, linkType);
 	}
 
 	Packet::Packet(uint8_t* buffer, size_t bufferSize, LinkLayerType linkType)
@@ -41,7 +41,8 @@ namespace pcpp
 		timeval time;
 		gettimeofday(&time, nullptr);
 		memset(buffer, 0, bufferSize);
-		m_RawPacket = new RawPacket(buffer, 0, time, false, linkType);
+		// Using StrictReference to ensure backwards compatibility with existing code that expects it.
+		m_RawPacket = new RawPacket(RawPacketBufferPolicy::StrictReference, BufferInfo(buffer, 0, bufferSize), time, linkType);
 	}
 
 	void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,

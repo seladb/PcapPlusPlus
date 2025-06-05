@@ -349,7 +349,11 @@ namespace pcpp
 			return;
 		}
 
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
+		// Stripping const from packet pointer is necessary. It previously stripped it under the hood in constructor,
+		// but it is more explicit to strip it outside. This is a workaround for the fact that RawPacket constructor
+		// doesn't accept const uint8_t*. A copy would be safer but it would also be less efficient.
+		RawPacket rawPacket(RawPacketBufferPolicy::SoftReference,
+		                    BufferInfo(const_cast<uint8_t*>(packet), pkthdr->caplen), pkthdr->ts, pThis->getLinkType());
 
 		if (pThis->m_cbOnPacketArrives != nullptr)
 			pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
@@ -367,7 +371,8 @@ namespace pcpp
 
 		uint8_t* packetData = new uint8_t[pkthdr->caplen];
 		memcpy(packetData, packet, pkthdr->caplen);
-		RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
+		RawPacket* rawPacketPtr = new RawPacket(RawPacketBufferPolicy::Move, BufferInfo(packetData, pkthdr->caplen),
+		                                        pkthdr->ts, pThis->getLinkType());
 		pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 	}
 
@@ -381,7 +386,9 @@ namespace pcpp
 			return;
 		}
 
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
+		// Stripping const from packet pointer. See comment in `onPacketArrives` for details.
+		RawPacket rawPacket(RawPacketBufferPolicy::SoftReference,
+		                    BufferInfo(const_cast<uint8_t*>(packet), pkthdr->caplen), pkthdr->ts, pThis->getLinkType());
 
 		if (pThis->m_cbOnPacketArrivesBlockingMode != nullptr)
 			if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis,
@@ -971,7 +978,9 @@ namespace pcpp
 
 		timeval time;
 		gettimeofday(&time, nullptr);
-		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
+		// Stripping constness of packet data pointer. RawPacket should be used in read only.
+		pcpp::RawPacket rawPacket(RawPacketBufferPolicy::StrictReference,
+		                          BufferInfo(const_cast<uint8_t*>(packetData), packetDataLength), time, linkType);
 		Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
 		return sendPacket(parsedPacket, true);
 	}

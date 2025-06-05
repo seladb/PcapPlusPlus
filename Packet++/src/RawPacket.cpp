@@ -44,7 +44,8 @@ namespace pcpp
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
-	    : RawPacket(pRawData, rawDataLen, toTimespec(timestamp), deleteRawDataAtDestructor, layerType)
+	    : RawPacket(deleteRawDataAtDestructor ? RawPacketBufferPolicy::Move : RawPacketBufferPolicy::SoftReference,
+	                BufferInfo(const_cast<uint8_t*>(pRawData), rawDataLen), timestamp, layerType)
 	{}
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,

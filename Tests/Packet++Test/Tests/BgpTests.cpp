@@ -454,7 +454,8 @@ PTF_TEST_CASE(BgpLayerEditTest)
 	PTF_ASSERT_BUF_COMPARE(bgpNotificationMessage1->getData(), bgpNotificationMessage2->getData(),
 	                       bgpNotificationMessage2->getDataLen());
 
-	pcpp::RawPacket rawPacket1Tag(origBuffer, bufferLength1, time, false);
+	pcpp::RawPacket rawPacket1Tag(pcpp::RawPacketBufferPolicy::SoftReference,
+	                              pcpp::BufferInfo(origBuffer, bufferLength1), time);
 	bgpNotificationPacket1.setRawPacket(&rawPacket1Tag, false);
 	bgpNotificationMessage1 = bgpNotificationPacket1.getLayerOfType<pcpp::BgpNotificationMessageLayer>();
 	std::string notificationData =
