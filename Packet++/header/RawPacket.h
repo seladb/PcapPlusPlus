@@ -377,6 +377,7 @@ namespace pcpp
 			return m_TimeStamp;
 		}
 
+		using IRawPacket::setPacketTimeStamp;
 		bool setPacketTimeStamp(timespec timestamp) override final;
 
 	protected:
