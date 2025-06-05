@@ -136,7 +136,8 @@ namespace pcpp
 		{
 			timeval time;
 			gettimeofday(&time, nullptr);
-			rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_DLT_RAW1);
+			rawPacket.setRawData(RawPacketBufferPolicy::Move, reinterpret_cast<uint8_t*>(buffer), bufferLen, time,
+			                     LINKTYPE_DLT_RAW1);
 			return RecvSuccess;
 		}
 
@@ -199,7 +200,8 @@ namespace pcpp
 		{
 			timeval time;
 			gettimeofday(&time, nullptr);
-			rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_ETHERNET);
+			rawPacket.setRawData(RawPacketBufferPolicy::Move, reinterpret_cast<uint8_t*>(buffer), bufferLen, time,
+			                     LINKTYPE_ETHERNET);
 			return RecvSuccess;
 		}
 
