@@ -360,9 +360,9 @@ namespace pcpp
 		RawPacketBase(timespec timestamp, LinkLayerType layerType = LinkLayerType::LINKTYPE_ETHERNET);
 		RawPacketBase(timeval timestamp, LinkLayerType layerType = LinkLayerType::LINKTYPE_ETHERNET);
 
-		RawPacketBase(const RawPacketBase& other);
+		RawPacketBase(const RawPacketBase& other) = default;
 
-		RawPacketBase& operator=(const RawPacketBase& other);
+		RawPacketBase& operator=(const RawPacketBase& other) = default;
 
 		~RawPacketBase() override = default;
 
