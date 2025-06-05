@@ -281,6 +281,22 @@ namespace pcpp
 		SoftReference,
 	};
 
+	struct BufferInfo
+	{
+		/// @brief Pointer to the raw data buffer. This pointer may be null if the buffer is empty or not allocated.
+		uint8_t* ptr = nullptr;
+		/// @brief The size of the buffer, i.e. the number of bytes currently in use.
+		size_t size = 0;
+		/// @brief The capacity of the buffer, i.e. the maximum size it can grow to without reallocation.
+		size_t capacity = 0;
+
+		BufferInfo() = default;
+		BufferInfo(uint8_t* p, size_t s) : ptr(p), size(s), capacity(s)
+		{}
+		BufferInfo(uint8_t* p, size_t s, size_t c) : ptr(p), size(s), capacity(c)
+		{}
+	};
+
 	class IRawPacket
 	{
 	protected:
@@ -334,10 +350,10 @@ namespace pcpp
 
 		virtual bool supportsBufferPolicy(RawPacketBufferPolicy policy) const = 0;
 
-		bool setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timeval timestamp,
+		bool setRawData(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timeval timestamp,
 		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
-		virtual bool setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+		virtual bool setRawData(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timespec timestamp,
 		                        LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1) = 0;
 
 		virtual void clear() = 0;
@@ -453,9 +469,9 @@ namespace pcpp
 		RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
 		          LinkLayerType layerType = LINKTYPE_ETHERNET);
 
-		RawPacket(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timeval timestamp,
+		RawPacket(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timeval timestamp,
 		          LinkLayerType layerType = LINKTYPE_ETHERNET);
-		RawPacket(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+		RawPacket(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timespec timestamp,
 		          LinkLayerType layerType = LINKTYPE_ETHERNET);
 
 		/// A destructor for this class. Frees the raw data if deleteRawDataAtDestructor was set to 'true'
@@ -518,7 +534,7 @@ namespace pcpp
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
 		                        LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
-		bool setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+		bool setRawData(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timespec timestamp,
 		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1) override final;
 
 		/// Initialize a raw packet with data. The main difference between this method and setRawData() is that

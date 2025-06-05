@@ -22,10 +22,10 @@ namespace pcpp
 		return setPacketTimeStamp(toTimespec(timestamp));
 	}
 
-	bool IRawPacket::setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timeval timestamp,
+	bool IRawPacket::setRawData(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timeval timestamp,
 	                            LinkLayerType layerType, int frameLength)
 	{
-		return setRawData(bufPolicy, pRawData, rawDataLen, toTimespec(timestamp), layerType, frameLength);
+		return setRawData(bufPolicy, rawDataBuf, toTimespec(timestamp), layerType, frameLength);
 	}
 
 	RawPacketBase::RawPacketBase(timespec timestamp, LinkLayerType layerType)
@@ -49,17 +49,16 @@ namespace pcpp
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
-	    : RawPacketBase(timestamp, layerType), m_RawData(const_cast<uint8_t*>(pRawData)), m_RawDataLen(rawDataLen),
-	      m_FrameLength(rawDataLen), m_RawDataCapacity(rawDataLen),
-	      m_DeleteRawDataAtDestructor(deleteRawDataAtDestructor), m_RawPacketSet(true)
+	    : RawPacket(deleteRawDataAtDestructor ? RawPacketBufferPolicy::Move : RawPacketBufferPolicy::SoftReference,
+	                BufferInfo(const_cast<uint8_t*>(pRawData), rawDataLen), timestamp, layerType)
 	{}
 
-	RawPacket::RawPacket(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timeval timestamp,
+	RawPacket::RawPacket(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timeval timestamp,
 	                     LinkLayerType layerType)
-	    : RawPacket(bufPolicy, pRawData, rawDataLen, toTimespec(timestamp), layerType)
+	    : RawPacket(bufPolicy, rawDataBuf, toTimespec(timestamp), layerType)
 	{}
 
-	RawPacket::RawPacket(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+	RawPacket::RawPacket(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timespec timestamp,
 	                     LinkLayerType layerType)
 	    : RawPacketBase(timestamp, layerType)
 	{
@@ -67,14 +66,14 @@ namespace pcpp
 		{
 		case RawPacketBufferPolicy::Copy:
 		{
-			m_RawData = new uint8_t[rawDataLen];
+			m_RawData = new uint8_t[rawDataBuf.size];
 			m_DeleteRawDataAtDestructor = true;
-			std::memcpy(m_RawData, pRawData, rawDataLen);
+			std::memcpy(m_RawData, rawDataBuf.ptr, rawDataBuf.size);
 			break;
 		}
 		case RawPacketBufferPolicy::Move:
 		{
-			m_RawData = pRawData;
+			m_RawData = rawDataBuf.ptr;
 			m_DeleteRawDataAtDestructor = true;
 			break;
 		}
@@ -86,7 +85,7 @@ namespace pcpp
 		}
 		case RawPacketBufferPolicy::SoftReference:
 		{
-			m_RawData = pRawData;
+			m_RawData = rawDataBuf.ptr;
 			m_DeleteRawDataAtDestructor = false;  // no deletion of raw data at destructor
 			break;
 		}
@@ -94,9 +93,9 @@ namespace pcpp
 			throw std::invalid_argument("Invalid RawPacketBufferPolicy. Use Copy, Move, or Reference.");
 		}
 
-		m_RawDataLen = rawDataLen;
-		m_FrameLength = rawDataLen;
-		m_RawDataCapacity = rawDataLen;
+		m_RawDataLen = rawDataBuf.size;
+		m_FrameLength = rawDataBuf.size;
+		m_RawDataCapacity = rawDataBuf.capacity;
 		m_RawPacketSet = true;
 	}
 
@@ -157,7 +156,8 @@ namespace pcpp
 		// policy.
 		RawPacketBufferPolicy policy =
 		    m_DeleteRawDataAtDestructor ? RawPacketBufferPolicy::Move : RawPacketBufferPolicy::SoftReference;
-		return setRawData(policy, const_cast<uint8_t*>(pRawData), rawDataLen, timestamp, layerType, frameLength);
+		return setRawData(policy, BufferInfo(const_cast<uint8_t*>(pRawData), rawDataLen), timestamp, layerType,
+		                  frameLength);
 	}
 
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
@@ -169,10 +169,11 @@ namespace pcpp
 		// policy.
 		RawPacketBufferPolicy policy =
 		    m_DeleteRawDataAtDestructor ? RawPacketBufferPolicy::Move : RawPacketBufferPolicy::SoftReference;
-		return setRawData(policy, const_cast<uint8_t*>(pRawData), rawDataLen, timestamp, layerType, frameLength);
+		return setRawData(policy, BufferInfo(const_cast<uint8_t*>(pRawData), rawDataLen), timestamp, layerType,
+		                  frameLength);
 	}
 
-	bool RawPacket::setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+	bool RawPacket::setRawData(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timespec timestamp,
 	                           LinkLayerType layerType, int frameLength)
 	{
 		// Early check to maintain previous data if policy is invalid.
@@ -198,14 +199,14 @@ namespace pcpp
 		case RawPacketBufferPolicy::Copy:
 		{
 			// TODO: Consider reusing previous allocated buffer if the packet owns it and capacity is enough.
-			m_RawData = new uint8_t[rawDataLen];
+			m_RawData = new uint8_t[rawDataBuf.size];
 			m_DeleteRawDataAtDestructor = true;
-			std::memcpy(m_RawData, pRawData, rawDataLen);
+			std::memcpy(m_RawData, rawDataBuf.ptr, rawDataBuf.size);
 			break;
 		}
 		case RawPacketBufferPolicy::Move:
 		{
-			m_RawData = pRawData;
+			m_RawData = rawDataBuf.ptr;
 			m_DeleteRawDataAtDestructor = true;
 			break;
 		}
@@ -217,15 +218,15 @@ namespace pcpp
 		}
 		case RawPacketBufferPolicy::SoftReference:
 		{
-			m_RawData = pRawData;
+			m_RawData = rawDataBuf.ptr;
 			m_DeleteRawDataAtDestructor = false;
 			break;
 		}
 		}
 
-		m_RawDataLen = rawDataLen;
-		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
-		m_RawDataCapacity = rawDataLen;
+		m_RawDataLen = rawDataBuf.size;
+		m_FrameLength = (frameLength == -1) ? rawDataBuf.size : frameLength;
+		m_RawDataCapacity = rawDataBuf.capacity;
 		setPacketTimeStamp(timestamp);
 		setLinkLayerType(layerType);
 		m_RawPacketSet = true;
@@ -237,8 +238,8 @@ namespace pcpp
 	{
 		// Legacy method for compatibility with older code. The method was used when assigning a raw buffer that is
 		// externally managed.
-		return setRawData(RawPacketBufferPolicy::SoftReference, const_cast<uint8_t*>(pRawData), rawDataLen, timestamp,
-		                  layerType);
+		return setRawData(RawPacketBufferPolicy::SoftReference, BufferInfo(const_cast<uint8_t*>(pRawData), rawDataLen),
+		                  timestamp, layerType);
 	}
 
 	void RawPacket::clear()
