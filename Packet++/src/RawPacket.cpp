@@ -68,6 +68,7 @@ namespace pcpp
 		case RawPacketBufferPolicy::Copy:
 		{
 			m_RawData = new uint8_t[rawDataBuf.size];
+			m_RawDataCapacity = rawDataBuf.size;
 			m_DeleteRawDataAtDestructor = true;
 			std::memcpy(m_RawData, rawDataBuf.ptr, rawDataBuf.size);
 			break;
@@ -75,6 +76,7 @@ namespace pcpp
 		case RawPacketBufferPolicy::Move:
 		{
 			m_RawData = rawDataBuf.ptr;
+			m_RawDataCapacity = rawDataBuf.capacity;
 			m_DeleteRawDataAtDestructor = true;
 			break;
 		}
@@ -87,6 +89,7 @@ namespace pcpp
 		case RawPacketBufferPolicy::SoftReference:
 		{
 			m_RawData = rawDataBuf.ptr;
+			m_RawDataCapacity = rawDataBuf.capacity;
 			m_DeleteRawDataAtDestructor = false;  // no deletion of raw data at destructor
 			break;
 		}
@@ -96,7 +99,6 @@ namespace pcpp
 
 		m_RawDataLen = rawDataBuf.size;
 		m_FrameLength = rawDataBuf.size;
-		m_RawDataCapacity = rawDataBuf.capacity;
 		m_RawPacketSet = true;
 	}
 
@@ -201,6 +203,7 @@ namespace pcpp
 		{
 			// TODO: Consider reusing previous allocated buffer if the packet owns it and capacity is enough.
 			m_RawData = new uint8_t[rawDataBuf.size];
+			m_RawDataCapacity = rawDataBuf.size;
 			m_DeleteRawDataAtDestructor = true;
 			std::memcpy(m_RawData, rawDataBuf.ptr, rawDataBuf.size);
 			break;
@@ -208,6 +211,7 @@ namespace pcpp
 		case RawPacketBufferPolicy::Move:
 		{
 			m_RawData = rawDataBuf.ptr;
+			m_RawDataCapacity = rawDataBuf.capacity;
 			m_DeleteRawDataAtDestructor = true;
 			break;
 		}
@@ -220,6 +224,7 @@ namespace pcpp
 		case RawPacketBufferPolicy::SoftReference:
 		{
 			m_RawData = rawDataBuf.ptr;
+			m_RawDataCapacity = rawDataBuf.capacity;
 			m_DeleteRawDataAtDestructor = false;
 			break;
 		}
@@ -227,7 +232,6 @@ namespace pcpp
 
 		m_RawDataLen = rawDataBuf.size;
 		m_FrameLength = (frameLength == -1) ? rawDataBuf.size : frameLength;
-		m_RawDataCapacity = rawDataBuf.capacity;
 		setPacketTimeStamp(timestamp);
 		setLinkLayerType(layerType);
 		m_RawPacketSet = true;
