@@ -329,10 +329,10 @@ namespace pcpp
 
 	bool RawPacket::reallocateData(size_t newBufferLength)
 	{
-		if ((int)newBufferLength == m_RawDataLen)
+		if (newBufferLength == static_cast<size_t>(m_RawDataLen))
 			return true;
 
-		if ((int)newBufferLength < m_RawDataLen)
+		if (newBufferLength < static_cast<size_t>(m_RawDataLen))
 		{
 			PCPP_LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: "
 			               << m_RawDataLen << "; requested length: " << newBufferLength);
