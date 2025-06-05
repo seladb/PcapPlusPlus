@@ -190,6 +190,9 @@ namespace pcpp
 
 		clear();
 
+		// Set the flag to allow reallocations by default, as this is the most common use case
+		m_ReallocationsAllowed = true;
+
 		switch (bufPolicy)
 		{
 		case RawPacketBufferPolicy::Copy:
