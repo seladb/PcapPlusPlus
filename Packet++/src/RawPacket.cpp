@@ -115,7 +115,7 @@ namespace pcpp
 
 		if (other.m_RawData != nullptr)
 		{
-			if (appendData(other.m_RawData, other.m_RawDataLen) != other.m_RawDataLen)
+			if (appendData(other.m_RawData, other.m_RawDataLen) != static_cast<size_t>(other.m_RawDataLen))
 				throw std::runtime_error("Failed to copy data to RawPacket");
 		}
 
@@ -140,7 +140,7 @@ namespace pcpp
 
 		if (other.m_RawData != nullptr)
 		{
-			if (appendData(other.m_RawData, other.m_RawDataLen) != other.m_RawDataLen)
+			if (appendData(other.m_RawData, other.m_RawDataLen) != static_cast<size_t>(other.m_RawDataLen))
 				throw std::runtime_error("Failed to copy data to RawPacket");
 		}
 
