@@ -667,7 +667,7 @@ namespace pcpp
 				//				continue;
 				//			}
 
-				RawPacket rawPacket(bufferPtr, pktHdr.caplen, pktHdr.ts, false);
+				RawPacket rawPacket(RawPacketBufferPolicy::StrictReference, BufferInfo(bufferPtr, pktHdr.caplen), pktHdr.ts);
 				this->m_OnPacketsArriveCallback(&rawPacket, 1, coreId, this, this->m_OnPacketsArriveUserCookie);
 			}
 			else if (recvRes < 0)
