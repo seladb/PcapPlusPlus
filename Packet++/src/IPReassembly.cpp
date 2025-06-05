@@ -364,11 +364,9 @@ namespace pcpp
 				auto fragmentRawPacket = fragment->getRawPacket();
 				auto rawDataLen = fragWrapper->getIPLayerPayload() - fragmentRawPacket->getRawData() +
 				                  fragWrapper->getIPLayerPayloadSize();
-				auto rawData = new uint8_t[rawDataLen];
-				memcpy(rawData, fragmentRawPacket->getRawData(), rawDataLen);
 
 				fragData->data =
-				    new RawPacket(RawPacketBufferPolicy::Move, BufferInfo(rawData, rawDataLen),
+				    new RawPacket(RawPacketBufferPolicy::Copy, BufferInfo(fragmentRawPacket->getRawData(), rawDataLen),
 				                  fragmentRawPacket->getPacketTimeStamp(), fragmentRawPacket->getLinkLayerType());
 				fragData->currentOffset = fragWrapper->getIPLayerPayloadSize();
 				status = FIRST_FRAGMENT;
