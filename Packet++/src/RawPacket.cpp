@@ -17,6 +17,31 @@ namespace pcpp
 		}
 	}  // namespace
 
+	bool IRawPacket::setPacketTimeStamp(timeval timestamp)
+	{
+		return setPacketTimeStamp(toTimespec(timestamp));
+	}
+
+	bool IRawPacket::setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timeval timestamp,
+	                            LinkLayerType layerType, int frameLength)
+	{
+		return setRawData(bufPolicy, pRawData, rawDataLen, toTimespec(timestamp), layerType, frameLength);
+	}
+
+	RawPacketBase::RawPacketBase(timespec timestamp, LinkLayerType layerType)
+	    : m_TimeStamp(timestamp), m_LinkLayerType(layerType)
+	{}
+
+	RawPacketBase::RawPacketBase(timeval timestamp, LinkLayerType layerType)
+	    : m_TimeStamp(toTimespec(timestamp)), m_LinkLayerType(layerType)
+	{}
+
+	bool RawPacketBase::setPacketTimeStamp(timespec timestamp)
+	{
+		m_TimeStamp = timestamp;
+		return true;
+	}
+
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
 	    : RawPacket(pRawData, rawDataLen, toTimespec(timestamp), deleteRawDataAtDestructor, layerType)
@@ -24,10 +49,56 @@ namespace pcpp
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
-	    : m_RawData(const_cast<uint8_t*>(pRawData)), m_RawDataLen(rawDataLen), m_FrameLength(rawDataLen),
-	      m_TimeStamp(timestamp), m_DeleteRawDataAtDestructor(deleteRawDataAtDestructor), m_RawPacketSet(true),
-	      m_LinkLayerType(layerType)
+	    : RawPacketBase(timestamp, layerType), m_RawData(const_cast<uint8_t*>(pRawData)), m_RawDataLen(rawDataLen),
+	      m_FrameLength(rawDataLen), m_RawDataCapacity(rawDataLen),
+	      m_DeleteRawDataAtDestructor(deleteRawDataAtDestructor), m_RawPacketSet(true)
 	{}
+
+	RawPacket::RawPacket(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timeval timestamp,
+	                     LinkLayerType layerType)
+	    : RawPacket(bufPolicy, pRawData, rawDataLen, toTimespec(timestamp), layerType)
+	{}
+
+	RawPacket::RawPacket(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+	                     LinkLayerType layerType)
+	    : RawPacketBase(timestamp, layerType)
+	{
+		switch (bufPolicy)
+		{
+		case RawPacketBufferPolicy::Copy:
+		{
+			m_RawData = new uint8_t[rawDataLen];
+			m_DeleteRawDataAtDestructor = true;
+			std::memcpy(m_RawData, pRawData, rawDataLen);
+			break;
+		}
+		case RawPacketBufferPolicy::Move:
+		{
+			m_RawData = pRawData;
+			m_DeleteRawDataAtDestructor = true;
+			break;
+		}
+		case RawPacketBufferPolicy::StrictReference:
+		{
+			// StrictReference does not allow reallocation, so we set the flag to false
+			m_ReallocationsAllowed = false;
+			// fall through
+		}
+		case RawPacketBufferPolicy::SoftReference:
+		{
+			m_RawData = pRawData;
+			m_DeleteRawDataAtDestructor = false;  // no deletion of raw data at destructor
+			break;
+		}
+		default:
+			throw std::invalid_argument("Invalid RawPacketBufferPolicy. Use Copy, Move, or Reference.");
+		}
+
+		m_RawDataLen = rawDataLen;
+		m_FrameLength = rawDataLen;
+		m_RawDataCapacity = rawDataLen;
+		m_RawPacketSet = true;
+	}
 
 	RawPacket::~RawPacket()
 	{
@@ -62,7 +133,7 @@ namespace pcpp
 		if (!other.m_RawPacketSet)
 			return;
 
-		m_TimeStamp = other.m_TimeStamp;
+		setPacketTimeStamp(other.getPacketTimeStamp());
 
 		if (allocateData)
 		{
@@ -72,7 +143,7 @@ namespace pcpp
 		}
 
 		memcpy(m_RawData, other.m_RawData, other.m_RawDataLen);
-		m_LinkLayerType = other.m_LinkLayerType;
+		setLinkLayerType(other.getLinkLayerType());
 		m_FrameLength = other.m_FrameLength;
 		m_RawPacketSet = true;
 	}
@@ -80,28 +151,91 @@ namespace pcpp
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
-		return setRawData(pRawData, rawDataLen, toTimespec(timestamp), layerType, frameLength);
+		// Legacy method for compatibility with older code. The method was used when assigning a raw buffer that is
+		// externally managed.
+		// Deprecation due to ambiguity on buffer ownership as it assumes the buffer matches the previous buffer's
+		// policy.
+		RawPacketBufferPolicy policy =
+		    m_DeleteRawDataAtDestructor ? RawPacketBufferPolicy::Move : RawPacketBufferPolicy::SoftReference;
+		return setRawData(policy, const_cast<uint8_t*>(pRawData), rawDataLen, timestamp, layerType, frameLength);
 	}
 
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
+		// Legacy method for compatibility with older code. The method was used when assigning a raw buffer that is
+		// externally managed.
+		// Deprecation due to ambiguity on buffer ownership as it assumes the buffer matches the previous buffer's
+		// policy.
+		RawPacketBufferPolicy policy =
+		    m_DeleteRawDataAtDestructor ? RawPacketBufferPolicy::Move : RawPacketBufferPolicy::SoftReference;
+		return setRawData(policy, const_cast<uint8_t*>(pRawData), rawDataLen, timestamp, layerType, frameLength);
+	}
+
+	bool RawPacket::setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+	                           LinkLayerType layerType, int frameLength)
+	{
+		// Early check to maintain previous data if policy is invalid.
+		switch (bufPolicy)
+		{
+		case RawPacketBufferPolicy::Copy:
+		case RawPacketBufferPolicy::Move:
+		case RawPacketBufferPolicy::SoftReference:
+		case RawPacketBufferPolicy::StrictReference:
+			break;
+		default:
+			PCPP_LOG_ERROR("Invalid RawPacketBufferPolicy. Use Copy, Move, or Reference.");
+			return false;
+		}
+
 		clear();
 
-		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
-		m_RawData = (uint8_t*)pRawData;
+		switch (bufPolicy)
+		{
+		case RawPacketBufferPolicy::Copy:
+		{
+			// TODO: Consider reusing previous allocated buffer if the packet owns it and capacity is enough.
+			m_RawData = new uint8_t[rawDataLen];
+			m_DeleteRawDataAtDestructor = true;
+			std::memcpy(m_RawData, pRawData, rawDataLen);
+			break;
+		}
+		case RawPacketBufferPolicy::Move:
+		{
+			m_RawData = pRawData;
+			m_DeleteRawDataAtDestructor = true;
+			break;
+		}
+		case RawPacketBufferPolicy::StrictReference:
+		{
+			// StrictReference does not allow reallocation, so we set the flag to false
+			m_ReallocationsAllowed = false;
+			// fall through
+		}
+		case RawPacketBufferPolicy::SoftReference:
+		{
+			m_RawData = pRawData;
+			m_DeleteRawDataAtDestructor = false;
+			break;
+		}
+		}
+
 		m_RawDataLen = rawDataLen;
-		m_TimeStamp = timestamp;
+		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
+		m_RawDataCapacity = rawDataLen;
+		setPacketTimeStamp(timestamp);
+		setLinkLayerType(layerType);
 		m_RawPacketSet = true;
-		m_LinkLayerType = layerType;
 		return true;
 	}
 
 	bool RawPacket::initWithRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
 	                                LinkLayerType layerType)
 	{
-		m_DeleteRawDataAtDestructor = false;
-		return setRawData(pRawData, rawDataLen, timestamp, layerType);
+		// Legacy method for compatibility with older code. The method was used when assigning a raw buffer that is
+		// externally managed.
+		return setRawData(RawPacketBufferPolicy::SoftReference, const_cast<uint8_t*>(pRawData), rawDataLen, timestamp,
+		                  layerType);
 	}
 
 	void RawPacket::clear()
@@ -112,31 +246,85 @@ namespace pcpp
 		m_RawData = nullptr;
 		m_RawDataLen = 0;
 		m_FrameLength = 0;
+		m_RawDataCapacity = 0;
 		m_RawPacketSet = false;
 	}
 
-	void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
+	size_t RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 	{
-		memcpy((uint8_t*)m_RawData + m_RawDataLen, dataToAppend, dataToAppendLen);
+		if (dataToAppend == nullptr || dataToAppendLen == 0)
+			return 0;
+
+		if (dataToAppendLen + m_RawDataLen > m_RawDataCapacity)
+		{
+			if (!m_ReallocationsAllowed)
+			{
+				PCPP_LOG_ERROR("Cannot append data to raw packet because reallocation is not allowed");
+				return 0;
+			}
+			if (!reallocateData(m_RawDataLen + dataToAppendLen))
+			{
+				PCPP_LOG_ERROR("Failed to reallocate raw packet data buffer for appending new data");
+				return 0;
+			}
+		}
+
+		std::memcpy(m_RawData + m_RawDataLen, dataToAppend, dataToAppendLen);
 		m_RawDataLen += dataToAppendLen;
 		m_FrameLength = m_RawDataLen;
+		return dataToAppendLen;
 	}
 
-	void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
+	size_t RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 	{
+		if (dataToInsert == nullptr || dataToInsertLen == 0)
+			return 0;
+
+		// Insert an empty data block at the specified index
+		if (insertUninitializedData(atIndex, dataToInsertLen) != dataToInsertLen)
+		{
+			PCPP_LOG_ERROR("Failed to insert uninitialized data into raw packet");
+			return 0;
+		}
+
+		// Insert the actual data into the raw packet at the specified index
+		std::memcpy(m_RawData + atIndex, dataToInsert, dataToInsertLen);
+		return dataToInsertLen;
+	}
+
+	size_t RawPacket::insertUninitializedData(int atIndex, size_t length)
+	{
+		if (length == 0)
+			return 0;
+
+		if (atIndex < 0 || atIndex > m_RawDataLen)
+		{
+			PCPP_LOG_ERROR("Index to insert uninitialized data is out of raw packet bound");
+			return 0;
+		}
+
+		if (length + m_RawDataLen > m_RawDataCapacity)
+		{
+			if (!m_ReallocationsAllowed)
+			{
+				PCPP_LOG_ERROR("Cannot insert data to raw packet because reallocation is not allowed");
+				return 0;
+			}
+			if (!reallocateData(length + m_RawDataLen))
+			{
+				PCPP_LOG_ERROR("Failed to reallocate raw packet data buffer for inserting new data");
+				return 0;
+			}
+		}
+
 		// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on
 		// overlapping src/dest ptrs if insertData is called with atIndex == m_RawDataLen, then no data is being moved.
 		// The data of the raw packet is still extended by dataToInsertLen
-		memmove((uint8_t*)m_RawData + atIndex + dataToInsertLen, (uint8_t*)m_RawData + atIndex, m_RawDataLen - atIndex);
+		std::memmove(m_RawData + atIndex + length, m_RawData + atIndex, m_RawDataLen - atIndex);
 
-		if (dataToInsert != nullptr)
-		{
-			// insert data
-			memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);
-		}
-
-		m_RawDataLen += dataToInsertLen;
+		m_RawDataLen += length;
 		m_FrameLength = m_RawDataLen;
+		return length;
 	}
 
 	bool RawPacket::reallocateData(size_t newBufferLength)
@@ -151,15 +339,40 @@ namespace pcpp
 			return false;
 		}
 
-		uint8_t* newBuffer = new uint8_t[newBufferLength];
-		memset(newBuffer, 0, newBufferLength);
-		memcpy(newBuffer, m_RawData, m_RawDataLen);
-		if (m_DeleteRawDataAtDestructor)
+		reserve(newBufferLength);
+		return true;
+	}
+
+	bool RawPacket::reserve(size_t newCapacity)
+	{
+		if (newCapacity <= m_RawDataCapacity)
+			return true;
+
+		if (!m_ReallocationsAllowed)
+		{
+			PCPP_LOG_ERROR("Cannot reserve more space in raw packet because reallocation is not allowed");
+			return false;
+		}
+
+		std::unique_ptr<uint8_t[]> newBuffer = std::make_unique<uint8_t[]>(newCapacity);
+
+		// Copy the existing data to the new buffer if there is any
+		if (m_RawData != nullptr && m_RawDataLen > 0)
+		{
+			std::memcpy(newBuffer.get(), m_RawData, m_RawDataLen);
+		}
+
+		// Zero out the rest of the new buffer. Is this necessary?
+		std::memset(newBuffer.get() + m_RawDataLen, 0, newCapacity - m_RawDataLen);
+
+		// Deallocates the old buffer if it was allocated and we own it
+		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
 			delete[] m_RawData;
 
+		// Sets the new buffer as the raw data buffer
+		m_RawData = newBuffer.release();
 		m_DeleteRawDataAtDestructor = true;
-		m_RawData = newBuffer;
-
+		m_RawDataCapacity = newCapacity;
 		return true;
 	}
 
@@ -185,18 +398,7 @@ namespace pcpp
 		return true;
 	}
 
-	bool RawPacket::setPacketTimeStamp(timeval timestamp)
-	{
-		return setPacketTimeStamp(toTimespec(timestamp));
-	}
-
-	bool RawPacket::setPacketTimeStamp(timespec timestamp)
-	{
-		m_TimeStamp = timestamp;
-		return true;
-	}
-
-	bool RawPacket::isLinkTypeValid(int linkTypeValue)
+	bool IRawPacket::isLinkTypeValid(int linkTypeValue)
 	{
 		if ((linkTypeValue < 0 || linkTypeValue > 264) && linkTypeValue != 276)
 			return false;

@@ -9,6 +9,8 @@
 #endif
 #include <stddef.h>
 
+#include "DeprecationUtils.h"
+
 /// @file
 
 /// @namespace pcpp
@@ -251,24 +253,170 @@ namespace pcpp
 	/// Max packet size supported
 #define PCPP_MAX_PACKET_SIZE 65536
 
+	namespace internal
+	{
+		enum class RawPacketType
+		{
+			Unknown = 0,     ///< Unknown raw packet type, used as a sentinel value
+			Standard = 1,    ///< Standard raw packet, usually used in libpcap, WinPcap, Npcap, etc.
+			MBufPacket = 2,  ///< Raw packet that is based on mbuf structure (used in DPDK)
+		};
+	}  // namespace internal
+
+	enum class RawPacketBufferPolicy
+	{
+		/// @brief Allocate new buffer and copy the raw data to it.
+		Copy,
+
+		/// @brief Move the ownership of the raw data buffer to the RawPacket.
+		/// The original data must not be used after this call, and the RawPacket will take care of freeing the buffer.
+		Move,
+
+		/// @brief Reference the raw data, the original data must remain valid for the lifetime of the RawPacket.
+		/// The packet will not reallocate the data, and operations that exceed the original buffer size will fail.
+		StrictReference,
+
+		/// @brief Reference the raw data, the original data must remain valid for the lifetime of the RawPacket.
+		/// The packet may reallocate the data to an internal buffer if needed, and the original data will not be freed.
+		SoftReference,
+	};
+
+	class IRawPacket
+	{
+	protected:
+		IRawPacket() = default;
+
+	public:
+		/// A virtual destructor for this class
+		virtual ~IRawPacket() = default;
+
+		/// @brief Get the type of this raw packet
+		/// @return The type of this raw packet, see internal::RawPacketType for more details
+		virtual internal::RawPacketType getRawPacketType() const = 0;
+
+		PCPP_DEPRECATED("Use getRawPacketType()")
+		uint8_t getObjectType() const
+		{
+			return static_cast<uint8_t>(getRawPacketType());
+		}
+
+		/// @return The link layer type of this raw packet
+		virtual LinkLayerType getLinkLayerType() const = 0;
+
+		/// This static method validates whether a link type integer value is valid
+		/// @param[in] linkTypeValue Link type integer value
+		/// @return True if the link type value is valid and can be casted into LinkLayerType enum, false otherwise
+		static bool isLinkTypeValid(int linkTypeValue);
+
+		/// @return The raw data of this packet
+		virtual uint8_t const* getRawData() const = 0;
+		virtual uint8_t* getRawData() = 0;
+
+		/// @return The length of the raw data buffer in bytes
+		virtual int getRawDataLen() const = 0;
+		/// @return The frame length of this packet (the length of the entire packet including all layers)
+		virtual int getFrameLength() const = 0;
+		/// @return The true capacity of the raw data buffer, i.e. the maximum size it can grow to without reallocation
+		virtual size_t getRawDataCapacity() const = 0;
+
+		/// @return The timestamp when this packet was received by the NIC
+		virtual timespec getPacketTimeStamp() const = 0;
+
+		/// Set raw packet timestamp with usec precision
+		/// @param[in] timestamp The timestamp to set (with usec precision)
+		/// @return True if timestamp was set successfully, false otherwise
+		bool setPacketTimeStamp(timeval timestamp);
+
+		/// Set raw packet timestamp with nsec precision
+		/// @param[in] timestamp The timestamp to set (with nsec precision)
+		/// @return True if timestamp was set successfully, false otherwise
+		virtual bool setPacketTimeStamp(timespec timestamp) = 0;
+
+		virtual bool supportsBufferPolicy(RawPacketBufferPolicy policy) const = 0;
+
+		bool setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timeval timestamp,
+		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+
+		virtual bool setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+		                        LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1) = 0;
+
+		virtual void clear() = 0;
+		virtual size_t appendData(uint8_t const* dataToAppend, size_t dataToAppendLen) = 0;
+		virtual size_t insertData(int atIndex, uint8_t const* dataToInsert, size_t dataToInsertLen) = 0;
+		virtual size_t insertUninitializedData(int atIndex, size_t dataToInsertLen) = 0;
+		virtual bool removeData(int atIndex, size_t numOfBytesToRemove) = 0;
+
+		virtual bool supportsReallocation() const = 0;
+		virtual bool reallocateData(size_t newBufferLength) = 0;
+		virtual bool reserve(size_t newCapacity) = 0;
+
+		virtual IRawPacket* clone() const = 0;
+	};
+
+	class RawPacketBase : public IRawPacket
+	{
+	protected:
+		RawPacketBase() = default;
+		RawPacketBase(timespec timestamp, LinkLayerType layerType = LinkLayerType::LINKTYPE_ETHERNET);
+		RawPacketBase(timeval timestamp, LinkLayerType layerType = LinkLayerType::LINKTYPE_ETHERNET);
+
+		RawPacketBase(const RawPacketBase& other);
+
+		RawPacketBase& operator=(const RawPacketBase& other);
+
+		~RawPacketBase() override = default;
+
+	public:
+		LinkLayerType getLinkLayerType() const override final
+		{
+			return m_LinkLayerType;
+		}
+
+		timespec getPacketTimeStamp() const override final
+		{
+			return m_TimeStamp;
+		}
+
+		bool setPacketTimeStamp(timespec timestamp) override final;
+
+	protected:
+		void setLinkLayerType(LinkLayerType layerType)
+		{
+			m_LinkLayerType = layerType;
+		}
+
+	private:
+		timespec m_TimeStamp{};  // Zero initialized
+		LinkLayerType m_LinkLayerType = LinkLayerType::LINKTYPE_ETHERNET;
+	};
+
 	/// @class RawPacket
 	/// This class holds the packet as raw (not parsed) data. The data is held as byte array. In addition to the data
 	/// itself every instance also holds a timestamp representing the time the packet was received by the NIC. RawPacket
 	/// instance isn't read only. The user can change the packet data, add or remove data, etc.
-	class RawPacket
+	class RawPacket final : public RawPacketBase
 	{
 	protected:
 		uint8_t* m_RawData = nullptr;
 		int m_RawDataLen = 0;
 		int m_FrameLength = 0;
-		timespec m_TimeStamp{};  // Zero initialized
-		bool m_DeleteRawDataAtDestructor = true;
+		// The true capacity of the raw data buffer, i.e. the maximum size it can grow to without reallocation
+		size_t m_RawDataCapacity = 0;
+		bool m_DeleteRawDataAtDestructor = true;  // m_OwnsRawData indicates whether the raw data pointer
+		// Controls whether the raw data can be reallocated or not to allow for appending data exceeding the current
+		// capacity
+		bool m_ReallocationsAllowed = true;
 		bool m_RawPacketSet = false;
-		LinkLayerType m_LinkLayerType = LinkLayerType::LINKTYPE_ETHERNET;
 
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 
 	public:
+		static bool isBufferPolicySupported(RawPacketBufferPolicy policy)
+		{
+			return (policy == RawPacketBufferPolicy::Copy || policy == RawPacketBufferPolicy::Move ||
+			        policy == RawPacketBufferPolicy::SoftReference || policy == RawPacketBufferPolicy::StrictReference);
+		}
+
 		/// A default constructor that initializes class'es attributes to default value:
 		/// - data pointer is set to nullptr
 		/// - data length is set to 0
@@ -304,8 +452,13 @@ namespace pcpp
 		RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
 		          LinkLayerType layerType = LINKTYPE_ETHERNET);
 
+		RawPacket(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timeval timestamp,
+		          LinkLayerType layerType = LINKTYPE_ETHERNET);
+		RawPacket(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+		          LinkLayerType layerType = LINKTYPE_ETHERNET);
+
 		/// A destructor for this class. Frees the raw data if deleteRawDataAtDestructor was set to 'true'
-		virtual ~RawPacket();
+		~RawPacket() override;
 
 		/// A copy constructor that copies all data from another instance. Notice all raw data is copied (using memcpy),
 		/// so when the original or the other instance are freed, the other won't be affected
@@ -322,11 +475,17 @@ namespace pcpp
 		/// @return A pointer to the new RawPacket object which is a clone of this object
 		virtual RawPacket* clone() const;
 
-		/// @return RawPacket object type. Each derived class should return a different value
-		virtual uint8_t getObjectType() const
+		internal::RawPacketType getRawPacketType() const override
 		{
-			return 0;
+			return internal::RawPacketType::Standard;
 		}
+
+		bool supportsBufferPolicy(RawPacketBufferPolicy policy) const override
+		{
+			return isBufferPolicySupported(policy);
+		}
+
+		using RawPacketBase::setRawData;
 
 		/// Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be
 		/// freed first
@@ -338,6 +497,8 @@ namespace pcpp
 		/// actual packet length. This parameter represents the packet length. This parameter is optional, if not set or
 		/// set to -1 it is assumed both lengths are equal
 		/// @return True if raw data was set successfully, false otherwise
+		/// @deprecated Use setRawData() overload with RawPacketBufferPolicy
+		PCPP_DEPRECATED("Use setRawData() overload with RawPacketBufferPolicy")
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp,
 		                        LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
@@ -351,8 +512,13 @@ namespace pcpp
 		/// actual packet length. This parameter represents the packet length. This parameter is optional, if not set or
 		/// set to -1 it is assumed both lengths are equal
 		/// @return True if raw data was set successfully, false otherwise
+		/// @deprecated Use setRawData() overload with RawPacketBufferPolicy
+		PCPP_DEPRECATED("Use setRawData() overload with RawPacketBufferPolicy")
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
 		                        LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+
+		bool setRawData(RawPacketBufferPolicy bufPolicy, uint8_t* pRawData, int rawDataLen, timespec timestamp,
+		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1) override final;
 
 		/// Initialize a raw packet with data. The main difference between this method and setRawData() is that
 		/// setRawData() is meant for replacing the data in an existing raw packet, whereas this method is meant to be
@@ -362,57 +528,43 @@ namespace pcpp
 		/// @param timestamp The timestamp packet was received by the NIC (in nsec precision)
 		/// @param layerType The link layer type for this raw data
 		/// @return True if raw data was set successfully, false otherwise
+		/// @deprecated Use setRawData() overload with RawPacketBufferPolicy
+		PCPP_DEPRECATED("Use setRawData() overload with RawPacketBufferPolicy")
 		bool initWithRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
 		                     LinkLayerType layerType = LINKTYPE_ETHERNET);
 
 		/// Get raw data pointer
 		/// @return A read-only pointer to the raw data
-		const uint8_t* getRawData() const
+		uint8_t const* getRawData() const override final
 		{
 			return m_RawData;
 		}
 
-		/// Get the link layer type
-		/// @return the type of the link layer
-		LinkLayerType getLinkLayerType() const
+		/// Get raw data pointer
+		/// @return A pointer to the raw data.
+		uint8_t* getRawData() override final
 		{
-			return m_LinkLayerType;
+			return m_RawData;
 		}
-
-		/// This static method validates whether a link type integer value is valid
-		/// @param[in] linkTypeValue Link type integer value
-		/// @return True if the link type value is valid and can be casted into LinkLayerType enum, false otherwise
-		static bool isLinkTypeValid(int linkTypeValue);
 
 		/// Get raw data length in bytes
 		/// @return Raw data length in bytes
-		int getRawDataLen() const
+		int getRawDataLen() const override final
 		{
 			return m_RawDataLen;
 		}
 
 		/// Get frame length in bytes
 		/// @return frame length in bytes
-		int getFrameLength() const
+		int getFrameLength() const override final
 		{
 			return m_FrameLength;
 		}
-		/// Get raw data timestamp
-		/// @return Raw data timestamp
-		timespec getPacketTimeStamp() const
+
+		size_t getRawDataCapacity() const override final
 		{
-			return m_TimeStamp;
+			return m_RawDataCapacity;
 		}
-
-		/// Set raw packet timestamp with usec precision
-		/// @param[in] timestamp The timestamp to set (with usec precision)
-		/// @return True if timestamp was set successfully, false otherwise
-		virtual bool setPacketTimeStamp(timeval timestamp);
-
-		/// Set raw packet timestamp with nsec precision
-		/// @param[in] timestamp The timestamp to set (with nsec precision)
-		/// @return True if timestamp was set successfully, false otherwise
-		virtual bool setPacketTimeStamp(timespec timestamp);
 
 		/// Get an indication whether raw data was already set for this instance.
 		/// @return True if raw data was set for this instance. Raw data can be set using the non-default constructor,
@@ -426,15 +578,17 @@ namespace pcpp
 		/// Clears all members of this instance, meaning setting raw data to nullptr, raw data length to 0, etc.
 		/// Frees the raw data if deleteRawDataAtDestructor was set to 'true'
 		/// @todo set timestamp to a default value as well
-		virtual void clear();
+		void clear() override;
 
+		// TODO: Redo documentation
 		/// Append data to the end of current data. This method works without allocating more memory, it just uses
 		/// memcpy() to copy dataToAppend at the end of the current data. This means that the method assumes this memory
 		/// was already allocated by the user. If it isn't the case then this method will cause memory corruption
 		/// @param[in] dataToAppend A pointer to the data to append to current raw data
 		/// @param[in] dataToAppendLen Length in bytes of dataToAppend
-		virtual void appendData(const uint8_t* dataToAppend, size_t dataToAppendLen);
+		size_t appendData(const uint8_t* dataToAppend, size_t dataToAppendLen) override;
 
+		// TODO: Redo documentation
 		/// Insert new data at some index of the current data and shift the remaining old data to the end. This method
 		/// works without allocating more memory, it just copies dataToAppend at the relevant index and shifts the
 		/// remaining data to the end. This means that the method assumes this memory was already allocated by the user.
@@ -442,7 +596,9 @@ namespace pcpp
 		/// @param[in] atIndex The index to insert the new data to
 		/// @param[in] dataToInsert A pointer to the new data to insert
 		/// @param[in] dataToInsertLen Length in bytes of dataToInsert
-		virtual void insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen);
+		size_t insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen) override;
+
+		size_t insertUninitializedData(int atIndex, size_t length) override;
 
 		/// Remove certain number of bytes from current raw data buffer. All data after the removed bytes will be
 		/// shifted back
@@ -450,7 +606,12 @@ namespace pcpp
 		/// @param[in] numOfBytesToRemove Number of bytes to remove
 		/// @return True if all bytes were removed successfully, or false if atIndex+numOfBytesToRemove is out-of-bounds
 		/// of the raw data buffer
-		virtual bool removeData(int atIndex, size_t numOfBytesToRemove);
+		bool removeData(int atIndex, size_t numOfBytesToRemove) override;
+
+		bool supportsReallocation() const override
+		{
+			return m_ReallocationsAllowed;
+		}
 
 		/// Re-allocate raw packet buffer meaning add size to it without losing the current packet data. This method
 		/// allocates the required buffer size as instructed by the use and then copies the raw data from the current
@@ -460,7 +621,9 @@ namespace pcpp
 		/// @param[in] newBufferLength The new buffer length as required by the user. The method is responsible to
 		/// allocate the memory
 		/// @return True if data was reallocated successfully, false otherwise
-		virtual bool reallocateData(size_t newBufferLength);
+		bool reallocateData(size_t newBufferLength) override;
+
+		bool reserve(size_t newCapacity) override;
 	};
 
 }  // namespace pcpp
