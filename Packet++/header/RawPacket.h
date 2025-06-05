@@ -327,6 +327,10 @@ namespace pcpp
 		/// @return The raw data of this packet
 		virtual uint8_t const* getRawData() const = 0;
 		virtual uint8_t* getRawData() = 0;
+		uint8_t const* getRawDataReadOnly() const
+		{
+			return getRawData();
+		}
 
 		/// @return The length of the raw data buffer in bytes
 		virtual int getRawDataLen() const = 0;
