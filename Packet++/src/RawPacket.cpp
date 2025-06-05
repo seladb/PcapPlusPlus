@@ -145,7 +145,7 @@ namespace pcpp
 		}
 
 		m_FrameLength = other.m_FrameLength;
-		m_RawDataCapacity = other.m_RawDataCapacity;
+		m_RawPacketSet = other.m_RawPacketSet;
 		return *this;
 	}
 
