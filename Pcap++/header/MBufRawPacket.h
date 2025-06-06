@@ -41,7 +41,7 @@ namespace pcpp
 	///      create a linked list of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support
 	///      this capability so there is no way to access the mbufs linked to the mbuf wrapped by MBufRawPacket
 	///      instance. I hope I'll be able to add this support in the future
-	class MBufRawPacket : public RawPacket
+	class MBufRawPacket : public RawPacketBase
 	{
 		friend class DpdkDevice;
 #ifdef USE_DPDK_KNI
@@ -63,7 +63,7 @@ namespace pcpp
 		/// order to allocate an mbuf the user should call the init() method. Without calling init() the instance of
 		/// this class is not usable. This c'tor can be used for initializing an array of MBufRawPacket (which requires
 		/// an empty c'tor)
-		MBufRawPacket() : RawPacket(), m_MBuf(nullptr), m_Mempool(nullptr), m_MbufDataSize(0), m_FreeMbuf(true)
+		MBufRawPacket() : RawPacketBase(), m_MBuf(nullptr), m_Mempool(nullptr), m_MbufDataSize(0), m_FreeMbuf(true)
 		{
 			m_DeleteRawDataAtDestructor = false;
 		}
