@@ -405,62 +405,64 @@ jobs:
           artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
 
   build-deb:
-    runs-on: ubuntu-latest
-    container: seladb/ubuntu2404
-    permissions:
-      contents: write
-      attestations: write
-      id-token: write
-    env:
-      BUILD_DIR: Dist
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+  runs-on: ubuntu-latest
+  container: seladb/ubuntu2404
+  permissions:
+    contents: write
+    attestations: write
+    id-token: write
+  env:
+    BUILD_DIR: Dist
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Build project
-        run: |
-          mkdir -p "${{ env.BUILD_DIR }}"
-          cd "${{ env.BUILD_DIR }}"
-          cmake ..
-          make -j$(nproc)
-          make install DESTDIR=$PWD/install-root
+    - name: Build project
+      run: |
+        mkdir -p "${{ env.BUILD_DIR }}"
+        cd "${{ env.BUILD_DIR }}"
+        cmake ..
+        make -j$(nproc)
+        make install DESTDIR=$PWD/install-root
 
-      - name: Create DEB control file
-        run: |
-          cd "${{ env.BUILD_DIR }}/install-root"
-          mkdir -p DEBIAN
-          cat <<EOF | tee DEBIAN/control
-          Package: pcapplusplus
-          Version: ${{ github.event.release.tag_name }}
-          Section: libs
-          Architecture: amd64
-          Maintainer: PcapPlusPlus Team <pcapplusplus@gmail.com>
-          Description: PcapPlusPlus - C++ library for packet parsing and crafting
-          EOF
+    - name: Create DEB control file
+      run: |
+        cd "${{ env.BUILD_DIR }}/install-root"
+        mkdir -p DEBIAN
+        VERSION="${{ github.event.release.tag_name }}"
+        if [ -z "$VERSION" ]; then VERSION="${GITHUB_REF_NAME:-0.0.0-dev}"; fi
+        cat <<EOF | tee DEBIAN/control
+        Package: pcapplusplus
+        Version: $VERSION
+        Section: libs
+        Architecture: amd64
+        Maintainer: PcapPlusPlus Team <pcapplusplus@gmail.com>
+        Description: PcapPlusPlus - C++ library for packet parsing and crafting
+        EOF
 
-      - name: Build DEB package
-        run: |
-          cd "${{ env.BUILD_DIR }}"
-          dpkg-deb --build install-root pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
+    - name: Build DEB package
+      run: |
+        cd "${{ env.BUILD_DIR }}"
+        dpkg-deb --build install-root pcapplusplus_${{ github.ref_name }}_amd64.deb
 
-      - name: Test DEB install
-        run: |
-          apt-get install -y ./${{ env.BUILD_DIR }}/pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
-          echo '#include <PcapLiveDeviceList.h>
-          #include <iostream>
-          int main() {
-            auto devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
-            std::cout << "Found " << devList.size() << " devices\n";
-            return 0;
-          }' > test.cpp
-          g++ test.cpp -o test -lPcapPlusPlus -lPacket++ -lCommon++
-          ./test
+    - name: Test DEB install
+      run: |
+        apt-get install -y ./${{ env.BUILD_DIR }}/pcapplusplus_${{ github.ref_name }}_amd64.deb
+        echo '#include <PcapLiveDeviceList.h>
+        #include <iostream>
+        int main() {
+          auto devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+          std::cout << "Found " << devList.size() << " devices\n";
+          return 0;
+        }' > test.cpp
+        g++ test.cpp -o test -lPcapPlusPlus -lPacket++ -lCommon++
+        ./test
 
-      - name: Upload DEB to release
-        if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
-        with:
-          draft: true
-          allowUpdates: true
-          updateOnlyUnreleased: true
-          artifacts: "${{ env.BUILD_DIR }}/pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb"
+    - name: Upload DEB to release
+      if: github.ref_type == 'tag'
+      uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1.16.0
+      with:
+        draft: true
+        allowUpdates: true
+        updateOnlyUnreleased: true
+        artifacts: "${{ env.BUILD_DIR }}/pcapplusplus_${{ github.ref_name }}_amd64.deb"
