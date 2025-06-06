@@ -744,13 +744,21 @@ namespace pcpp
 
 		if (newNlriDataLen > curNlriDataLen)
 		{
-			bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
-			                           curPathAttributesDataLen,
-			                       newNlriDataLen - curNlriDataLen);
-			if (!res)
+			try
 			{
-				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
-				return res;
+				bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
+				                           curPathAttributesDataLen,
+				                       newNlriDataLen - curNlriDataLen);
+				if (!res)
+				{
+					PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
+					return res;
+				}
+			}
+			catch (const std::length_error& e)
+			{
+				PCPP_LOG_ERROR("Failed to extend BGP update layer: " << e.what());
+				return false;
 			}
 		}
 		else if (newNlriDataLen < curNlriDataLen)
