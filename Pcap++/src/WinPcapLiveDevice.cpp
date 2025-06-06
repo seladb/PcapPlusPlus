@@ -48,8 +48,7 @@ namespace pcpp
 		{
 			packetHeader[i].caplen = rawPacketsArr[i].getRawDataLen();
 			packetHeader[i].len = rawPacketsArr[i].getRawDataLen();
-			timespec packet_time = rawPacketsArr[i].getPacketTimeStamp();
-			TIMESPEC_TO_TIMEVAL(&packetHeader[i].ts, &packet_time);
+			packetHeader[i].ts = internal::toTimeval(rawPacketsArr[i].getPacketTimeStamp());
 			if (pcap_sendqueue_queue(sendQueue.get(), &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_send_queue is too small for all packets. Sending only " << i << " packets");
