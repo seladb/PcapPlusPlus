@@ -427,7 +427,7 @@ namespace pcpp
 
 		if (isNflogDevice())
 		{
-			device_name += ":";
+			device_name += ":"; // prevent UB in string concatenation
 			device_name += std::to_string(config.nflogGroup & 0xffff);
 		}
 
