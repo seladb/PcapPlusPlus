@@ -423,13 +423,13 @@ jobs:
           cd "${{ env.BUILD_DIR }}"
           cmake ..
           make -j$(nproc)
-          sudo make install DESTDIR=$PWD/install-root
+          make install DESTDIR=$PWD/install-root
 
       - name: Create DEB control file
         run: |
           cd "${{ env.BUILD_DIR }}/install-root"
           mkdir -p DEBIAN
-          cat <<EOF | sudo tee DEBIAN/control
+          cat <<EOF | tee DEBIAN/control
           Package: pcapplusplus
           Version: ${{ github.event.release.tag_name }}
           Section: libs
@@ -441,11 +441,11 @@ jobs:
       - name: Build DEB package
         run: |
           cd "${{ env.BUILD_DIR }}"
-          sudo dpkg-deb --build install-root pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
+          dpkg-deb --build install-root pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
 
       - name: Test DEB install
         run: |
-          sudo apt-get install -y ./${{ env.BUILD_DIR }}/pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
+          apt-get install -y ./${{ env.BUILD_DIR }}/pcapplusplus_${{ github.event.release.tag_name }}_amd64.deb
           echo '#include <PcapLiveDeviceList.h>
           #include <iostream>
           int main() {
