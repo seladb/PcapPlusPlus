@@ -268,8 +268,8 @@ namespace pcpp
 		}
 
 		/// @brief Copies the address value to a user-provided buffer.
-		/// @param buffer[in] A pointer to the buffer where the address will be copied
-		/// @param size[in] The size of the buffer in bytes
+		/// @param[in] buffer A pointer to the buffer where the address will be copied
+		/// @param[in] size The size of the buffer in bytes
 		/// @throws std::out_of_range If the provided size is smaller than 16 bytes.
 		void copyTo(uint8_t* buffer, size_t size) const
 		{

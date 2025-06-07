@@ -176,7 +176,7 @@ namespace pcpp
 		}
 
 		/// @brief Allocates a byte array and copies address value into it.
-		/// @param size[out] The size of the allocated array in bytes. Usually 6.
+		/// @param[out] size The size of the allocated array in bytes. Usually 6.
 		/// @return A unique pointer to the allocated byte array containing the MAC address.
 		std::unique_ptr<uint8_t[]> copyToNewBuffer(size_t& size) const
 		{
