@@ -281,7 +281,7 @@ namespace pcpp
 		}
 
 		/// @brief Allocates a byte array and copies address value into it.
-		/// @param[out] size Returns the size in bytes of the allocated array
+		/// @param[out] size Returns the size in bytes of the allocated array. Usually 16.
 		/// @return A unique pointer to the allocated byte array containing the address value
 		std::unique_ptr<uint8_t[]> copyToNewBuffer(size_t& size) const;
 
