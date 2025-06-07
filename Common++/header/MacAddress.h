@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <array>
+#include <memory>
 
 #include "DeprecationUtils.h"
 
