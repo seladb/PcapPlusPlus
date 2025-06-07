@@ -8,6 +8,8 @@
 #include <string>
 #include <array>
 
+#include "DeprecationUtils.h"
+
 /// @file
 
 /// @namespace pcpp
@@ -28,8 +30,20 @@ namespace pcpp
 		/// The byte array length should be 6 (as MAC address is 6-byte long), and the remaining bytes are ignored.
 		/// If the byte array is invalid, the constructor throws an exception.
 		/// @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
-		explicit MacAddress(const uint8_t addr[6])
+		/// @deprecated Deprecated in favor of sized MacAddress(const uint8_t addr[6], size_t size) constructor.
+		explicit MacAddress(const uint8_t addr[6]) : MacAddress(addr, 6)
+		{}
+
+		/// @brief A constructor that creates an instance of the class out of a byte array.
+		/// @param[in] addr The address as a byte array in network byte order
+		/// @param[in] size The size of the array in bytes
+		/// @throws std::out_of_range If the provided size is smaller than 6 bytes.
+		explicit MacAddress(const uint8_t addr[6], size_t size)
 		{
+			if (size < 6)
+			{
+				throw std::out_of_range("Buffer size is smaller than MAC address size");
+			}
 			std::copy(addr, addr + 6, m_Address.begin());
 		}
 
@@ -127,18 +141,47 @@ namespace pcpp
 		/// Allocates a byte array of length 6 and copies address value into it. Array deallocation is user
 		/// responsibility
 		/// @param[in] arr A pointer to where array will be allocated
+		/// @deprecated Use copyToNewBuffer instead as it returns a unique pointer to the allocated array.
+		PCPP_DEPRECATED("Use copyToNewBuffer instead as it returns a unique pointer to the allocated array.")
 		void copyTo(uint8_t** arr) const
 		{
-			*arr = new uint8_t[m_Address.size()];
-			std::copy(m_Address.begin(), m_Address.end(), *arr);
+			size_t size;
+			*arr = copyToNewBuffer(size).release();
 		}
 
 		/// Gets a pointer to an already allocated byte array and copies the address value to it.
 		/// This method assumes array allocated size is at least 6 (the size of a MAC address)
 		/// @param[in] arr A pointer to the array which address will be copied to
+		/// @remarks This method assumes that the provided array is at least 6 bytes long.
+		/// Prefer using the copyTo(uint8_t* buffer, size_t size) method if the array length is not guaranteed to be 6
+		/// bytes.
 		void copyTo(uint8_t arr[6]) const
 		{
-			std::copy(m_Address.begin(), m_Address.end(), arr);
+			return copyTo(arr, 6);
+		}
+
+		/// @brief Copies the address value to a user-provided buffer.
+		/// @param[in] buffer A pointer to the buffer where the address will be copied
+		/// @param[in] size The size of the buffer in bytes
+		/// @throws std::out_of_range If the provided size is smaller than 6 bytes.
+		void copyTo(uint8_t* buffer, size_t size) const
+		{
+			if (size < m_Address.size())
+			{
+				throw std::out_of_range("Buffer size is smaller than MAC address size");
+			}
+			std::copy(m_Address.begin(), m_Address.end(), buffer);
+		}
+
+		/// @brief Allocates a byte array and copies address value into it.
+		/// @param size[out] The size of the allocated array in bytes. Usually 6.
+		/// @return A unique pointer to the allocated byte array containing the MAC address.
+		std::unique_ptr<uint8_t[]> copyToNewBuffer(size_t& size) const
+		{
+			size = m_Address.size();
+			auto arr = std::make_unique<uint8_t[]>(size);
+			std::copy(m_Address.begin(), m_Address.end(), arr.get());
+			return arr;
 		}
 
 		/// A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"

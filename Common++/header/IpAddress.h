@@ -8,6 +8,8 @@
 #include <array>
 #include <memory>
 
+#include "DeprecationUtils.h"
+
 /// @file
 
 /// @namespace pcpp
@@ -39,8 +41,21 @@ namespace pcpp
 
 		/// A constructor that creates an instance of the class out of 4-byte array.
 		/// @param[in] bytes The address as 4-byte array in network byte order
-		IPv4Address(const uint8_t bytes[4])
+		/// @remarks This constructor assumes that the provided array is exactly 4 bytes long.
+		/// Prefer using the constructor with size parameter if the array length is not guaranteed to be 4 bytes.
+		IPv4Address(const uint8_t bytes[4]) : IPv4Address(bytes, 4)
+		{}
+
+		/// A constructor that creates an instance of the class out of a 4-byte array.
+		/// @param[in] bytes The address as 4-byte array in network byte order
+		/// @param[in] size The size of the array in bytes
+		/// @throws std::out_of_range If the provided size is smaller than 4 bytes.
+		IPv4Address(const uint8_t bytes[4], size_t size)
 		{
+			if (size < 4)
+			{
+				throw std::out_of_range("Buffer size is smaller than IPv4 address size");
+			}
 			memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t));
 		}
 
@@ -160,9 +175,22 @@ namespace pcpp
 
 		/// A constructor that creates an instance of the class out of 16-byte array.
 		/// @param[in] bytes The address as 16-byte array in network byte order
-		IPv6Address(const uint8_t bytes[16])
+		/// remarks This constructor assumes that the provided array is exactly 16 bytes long.
+		/// Prefer using the constructor with size parameter if the array length is not guaranteed to be 16 bytes.
+		IPv6Address(const uint8_t bytes[16]) : IPv6Address(bytes, 16)
+		{}
+
+		/// @brief A constructor that creates an instance of the class out of a 16-byte array.
+		/// @param bytes The address as 16-byte array in network byte order
+		/// @param size The size of the array in bytes
+		/// @throws std::out_of_range If the provided size is smaller than 16 bytes.
+		IPv6Address(const uint8_t bytes[16], size_t size)
 		{
-			memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t));
+			if (size < 16)
+			{
+				throw std::out_of_range("Buffer size is smaller than IPv6 address size");
+			}
+			std::memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t));
 		}
 
 		/// A constructor that creates an instance of the class out of a 16-byte standard array.
@@ -224,15 +252,38 @@ namespace pcpp
 		/// Allocates a byte array and copies address value into it. Array deallocation is user responsibility
 		/// @param[in] arr A pointer to where array will be allocated
 		/// @param[out] length Returns the length in bytes of the array that was allocated
+		/// @deprecated Use copyToNewBuffer instead as it returns a unique pointer to the allocated array.
+		PCPP_DEPRECATED("Use copyToNewBuffer instead.")
 		void copyTo(uint8_t** arr, size_t& length) const;
 
 		/// Gets a pointer to an already allocated byte array and copies the address value to it.
 		/// This method assumes array allocated size is at least 16 (the size of an IPv6 address)
 		/// @param[in] arr A pointer to the array which address will be copied to
+		/// @remarks This method assumes that the provided array is at least 16 bytes long.
+		/// Prefer using the copyTo(uint8_t* buffer, size_t size) method if the array length is not guaranteed to be 16
+		/// bytes.
 		void copyTo(uint8_t* arr) const
 		{
-			memcpy(arr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t));
+			return copyTo(arr, 16);
 		}
+
+		/// @brief Copies the address value to a user-provided buffer.
+		/// @param buffer[in] A pointer to the buffer where the address will be copied
+		/// @param size[in] The size of the buffer in bytes
+		/// @throws std::out_of_range If the provided size is smaller than 16 bytes.
+		void copyTo(uint8_t* buffer, size_t size) const
+		{
+			if (size < m_Bytes.size())
+			{
+				throw std::out_of_range("Buffer size is smaller than IPv6 address size");
+			}
+			memcpy(buffer, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t));
+		}
+
+		/// @brief Allocates a byte array and copies address value into it.
+		/// @param[out] size Returns the size in bytes of the allocated array
+		/// @return A unique pointer to the allocated byte array containing the address value
+		std::unique_ptr<uint8_t[]> copyToNewBuffer(size_t& size) const;
 
 		/// Checks whether the address matches a network.
 		/// @param network An IPv6Network network

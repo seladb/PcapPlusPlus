@@ -111,10 +111,15 @@ namespace pcpp
 
 	void IPv6Address::copyTo(uint8_t** arr, size_t& length) const
 	{
-		const size_t addrLen = m_Bytes.size() * sizeof(uint8_t);
-		length = addrLen;
-		*arr = new uint8_t[addrLen];
-		memcpy(*arr, m_Bytes.data(), addrLen);
+		*arr = copyToNewBuffer(length).release();
+	}
+
+	std::unique_ptr<uint8_t[]> IPv6Address::copyToNewBuffer(size_t& size) const
+	{
+		size = m_Bytes.size() * sizeof(uint8_t);
+		auto arr = std::make_unique<uint8_t[]>(size);
+		memcpy(arr.get(), m_Bytes.data(), size);
+		return arr;
 	}
 
 	bool IPv6Address::matchNetwork(const IPv6Network& network) const
