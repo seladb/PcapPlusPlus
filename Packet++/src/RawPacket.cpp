@@ -99,7 +99,6 @@ namespace pcpp
 
 		m_RawDataLen = rawDataBuf.size;
 		m_FrameLength = rawDataBuf.size;
-		m_RawPacketSet = true;
 	}
 
 	RawPacket::~RawPacket()
@@ -110,6 +109,7 @@ namespace pcpp
 	RawPacket::RawPacket(const RawPacket& other)
 	{
 		// Reserves memory for the raw data buffer and copies the data from the other packet
+		// If the other packet has no raw data, it will reserve 0 bytes which is a noop.
 		if (!reserve(other.m_RawDataLen))
 			throw std::runtime_error("Failed to reserve memory for RawPacket");
 
@@ -120,7 +120,6 @@ namespace pcpp
 		}
 
 		m_FrameLength = other.m_FrameLength;
-		m_RawPacketSet = other.m_RawPacketSet;
 	}
 
 	RawPacket& RawPacket::operator=(const RawPacket& other)
@@ -145,7 +144,6 @@ namespace pcpp
 		}
 
 		m_FrameLength = other.m_FrameLength;
-		m_RawPacketSet = other.m_RawPacketSet;
 		return *this;
 	}
 
@@ -238,7 +236,6 @@ namespace pcpp
 		m_FrameLength = (frameLength == -1) ? rawDataBuf.size : frameLength;
 		setPacketTimeStamp(timestamp);
 		setLinkLayerType(layerType);
-		m_RawPacketSet = true;
 		return true;
 	}
 
@@ -261,7 +258,6 @@ namespace pcpp
 		m_FrameLength = 0;
 		m_RawDataCapacity = 0;
 		m_ReallocationsAllowed = true;
-		m_RawPacketSet = false;
 	}
 
 	size_t RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)

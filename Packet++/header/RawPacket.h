@@ -427,7 +427,6 @@ namespace pcpp
 		// Controls whether the raw data can be reallocated or not to allow for appending data exceeding the current
 		// capacity
 		bool m_ReallocationsAllowed = true;
-		bool m_RawPacketSet = false;
 	
 	public:
 		static bool isBufferPolicySupported(RawPacketBufferPolicy policy)
@@ -593,7 +592,7 @@ namespace pcpp
 		/// for example: if the instance was created using the default constructor or clear() was called
 		bool isPacketSet() const
 		{
-			return m_RawPacketSet;
+			return m_RawData != nullptr;
 		}
 
 		/// Clears all members of this instance, meaning setting raw data to nullptr, raw data length to 0, etc.
