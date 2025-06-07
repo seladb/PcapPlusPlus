@@ -652,9 +652,9 @@ namespace pcpp
 
 	bool PcapFileWriterDevice::writePackets(const RawPacketVector& packets)
 	{
-		for (RawPacketVector::ConstVectorIterator iter = packets.begin(); iter != packets.end(); iter++)
+		for (auto packet : packets)
 		{
-			if (!writePacket(**iter))
+			if (!writePacket(*packet))
 				return false;
 		}
 
