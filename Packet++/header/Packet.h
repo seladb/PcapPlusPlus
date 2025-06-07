@@ -23,7 +23,7 @@ namespace pcpp
 		friend class Layer;
 
 	private:
-		RawPacket* m_RawPacket;
+		IRawPacket* m_RawPacket;
 		Layer* m_FirstLayer;
 		Layer* m_LastLayer;
 		size_t m_MaxPacketLen;
@@ -65,7 +65,7 @@ namespace pcpp
 		/// model (inclusive). Can be useful for cases when you need to parse only up to a certain OSI layer (for
 		/// example transport layer) and want to avoid the performance impact and memory consumption of parsing the
 		/// whole packet. Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
-		explicit Packet(RawPacket* rawPacket, bool freeRawPacket = false, ProtocolType parseUntil = UnknownProtocol,
+		explicit Packet(IRawPacket* rawPacket, bool freeRawPacket = false, ProtocolType parseUntil = UnknownProtocol,
 		                OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
@@ -77,7 +77,7 @@ namespace pcpp
 		/// @param[in] parseUntil Parse the packet until you reach a certain protocol (inclusive). Can be useful for
 		/// cases when you need to parse only up to a certain layer and want to avoid the performance impact and memory
 		/// consumption of parsing the whole packet
-		explicit Packet(RawPacket* rawPacket, ProtocolType parseUntil);
+		explicit Packet(IRawPacket* rawPacket, ProtocolType parseUntil);
 
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
 		/// that came from the network. When using this constructor a pointer to the RawPacket is saved (data isn't
@@ -88,7 +88,7 @@ namespace pcpp
 		/// @param[in] parseUntilFamily Parse the packet until you reach a certain protocol family (inclusive). Can be
 		/// useful for cases when you need to parse only up to a certain layer and want to avoid the performance impact
 		/// and memory consumption of parsing the whole packet
-		explicit Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily);
+		explicit Packet(IRawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily);
 
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
 		/// that came from the network. When using this constructor a pointer to the RawPacket is saved (data isn't
@@ -101,7 +101,7 @@ namespace pcpp
 		/// model (inclusive). Can be useful for cases when you need to parse only up to a certain OSI layer (for
 		/// example transport layer) and want to avoid the performance impact and memory consumption of parsing the
 		/// whole packet
-		explicit Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
+		explicit Packet(IRawPacket* rawPacket, OsiModelLayer parseUntilLayer);
 
 		/// A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers
 		/// that weren't allocated by this class, for example layers that were added by addLayer() or insertLayer() ).
@@ -130,7 +130,7 @@ namespace pcpp
 
 		/// Get a pointer to the Packet's RawPacket
 		/// @return A pointer to the Packet's RawPacket
-		RawPacket* getRawPacket() const
+		IRawPacket* getRawPacket() const
 		{
 			return m_RawPacket;
 		}
@@ -147,12 +147,12 @@ namespace pcpp
 		/// you need to parse only up to a certain layer and want to avoid the performance impact and memory consumption
 		/// of parsing the whole packet. Default value is ::OsiModelLayerUnknown which means don't take this parameter
 		/// into account
-		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil = UnknownProtocol,
+		void setRawPacket(IRawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil = UnknownProtocol,
 		                  OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/// Get a pointer to the Packet's RawPacket in a read-only manner
 		/// @return A pointer to the Packet's RawPacket
-		const RawPacket* getRawPacketReadOnly() const
+		const IRawPacket* getRawPacketReadOnly() const
 		{
 			return m_RawPacket;
 		}

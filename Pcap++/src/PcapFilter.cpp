@@ -91,7 +91,7 @@ namespace pcpp
 		m_FilterStr.clear();
 	}
 
-	bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket)
+	bool BpfFilterWrapper::matchPacketWithFilter(const IRawPacket* rawPacket)
 	{
 		return matchPacketWithFilter(rawPacket->getRawData(), rawPacket->getRawDataLen(),
 		                             rawPacket->getPacketTimeStamp(), rawPacket->getLinkLayerType());

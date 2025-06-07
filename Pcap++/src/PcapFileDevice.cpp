@@ -592,7 +592,7 @@ namespace pcpp
 		}
 	}
 
-	bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
+	bool PcapFileWriterDevice::writePacket(IRawPacket const& packet)
 	{
 		if ((!m_AppendMode && m_PcapDescriptor == nullptr) || (m_PcapDumpHandler == nullptr))
 		{
@@ -852,7 +852,7 @@ namespace pcpp
 		m_CompressionLevel = compressionLevel;
 	}
 
-	bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const std::string& comment)
+	bool PcapNgFileWriterDevice::writePacket(IRawPacket const& packet, const std::string& comment)
 	{
 		if (m_LightPcapNg == nullptr)
 		{
@@ -890,7 +890,7 @@ namespace pcpp
 		return true;
 	}
 
-	bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet)
+	bool PcapNgFileWriterDevice::writePacket(IRawPacket const& packet)
 	{
 		return writePacket(packet, std::string());
 	}

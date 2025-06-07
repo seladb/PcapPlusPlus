@@ -45,7 +45,7 @@ namespace pcpp
 		m_RawPacket = new RawPacket(RawPacketBufferPolicy::StrictReference, BufferInfo(buffer, 0, bufferSize), time, linkType);
 	}
 
-	void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
+	void Packet::setRawPacket(IRawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
 	                          OsiModelLayer parseUntilLayer)
 	{
 		destructPacketData();
@@ -114,7 +114,7 @@ namespace pcpp
 		}
 	}
 
-	Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
+	Packet::Packet(IRawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 	{
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
@@ -122,7 +122,7 @@ namespace pcpp
 		setRawPacket(rawPacket, freeRawPacket, parseUntil, parseUntilLayer);
 	}
 
-	Packet::Packet(RawPacket* rawPacket, ProtocolType parseUntil)
+	Packet::Packet(IRawPacket* rawPacket, ProtocolType parseUntil)
 	{
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
@@ -131,7 +131,7 @@ namespace pcpp
 		setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
 	}
 
-	Packet::Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily)
+	Packet::Packet(IRawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily)
 	{
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
@@ -139,7 +139,7 @@ namespace pcpp
 		setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
 	}
 
-	Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
+	Packet::Packet(IRawPacket* rawPacket, OsiModelLayer parseUntilLayer)
 	{
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
@@ -175,7 +175,7 @@ namespace pcpp
 
 	void Packet::copyDataFrom(const Packet& other)
 	{
-		m_RawPacket = new RawPacket(*(other.m_RawPacket));
+		m_RawPacket = other.m_RawPacket->clone();
 		m_FreeRawPacket = true;
 		m_MaxPacketLen = other.m_MaxPacketLen;
 		m_FirstLayer = createFirstLayer(m_RawPacket->getLinkLayerType());

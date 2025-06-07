@@ -111,7 +111,7 @@ namespace pcpp
 		/// @param[in] rawPacket A pointer to a raw packet which the filter will be matched against
 		/// @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
 		/// could not be compiled
-		bool matchPacketWithFilter(const RawPacket* rawPacket);
+		bool matchPacketWithFilter(const IRawPacket* rawPacket);
 
 		/// Match a packet data with the filter stored in this object. If the filter is empty the method returns "true".
 		/// If the link type provided is different than the one set in setFilter(), the filter will be re-compiled

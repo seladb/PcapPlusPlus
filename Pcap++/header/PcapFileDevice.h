@@ -328,7 +328,7 @@ namespace pcpp
 		virtual ~IFileWriterDevice()
 		{}
 
-		virtual bool writePacket(RawPacket const& packet) = 0;
+		virtual bool writePacket(IRawPacket const& packet) = 0;
 
 		virtual bool writePackets(const RawPacketVector& packets) = 0;
 
@@ -379,7 +379,7 @@ namespace pcpp
 		/// @return True if a packet was written successfully. False will be returned if the file isn't opened
 		/// or if the packet link layer type is different than the one defined for the file
 		/// (in all cases, an error will be printed to log)
-		bool writePacket(RawPacket const& packet) override;
+		bool writePacket(IRawPacket const& packet) override;
 
 		/// Write multiple RawPacket to the file. Before using this method please verify the file is opened using
 		/// open(). This method won't change the written packets or the RawPacketVector instance
@@ -472,7 +472,7 @@ namespace pcpp
 		/// ignored
 		/// @return True if a packet was written successfully. False will be returned if the file isn't opened (an error
 		/// will be printed to log)
-		bool writePacket(RawPacket const& packet, const std::string& comment);
+		bool writePacket(IRawPacket const& packet, const std::string& comment);
 
 		// overridden methods
 
@@ -481,7 +481,7 @@ namespace pcpp
 		/// @param[in] packet A reference for an existing RawPcket to write to the file
 		/// @return True if a packet was written successfully. False will be returned if the file isn't opened (an error
 		/// will be printed to log)
-		bool writePacket(RawPacket const& packet) override;
+		bool writePacket(IRawPacket const& packet) override;
 
 		/// Write multiple RawPacket to the file. Before using this method please verify the file is opened using
 		/// open(). This method won't change the written packets or the RawPacketVector instance
