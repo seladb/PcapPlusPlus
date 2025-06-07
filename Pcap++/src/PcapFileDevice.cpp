@@ -609,9 +609,9 @@ namespace pcpp
 		}
 
 		pcap_pkthdr pktHdr;
-		pktHdr.caplen = ((RawPacket&)packet).getRawDataLen();
-		pktHdr.len = ((RawPacket&)packet).getFrameLength();
-		timespec packet_timestamp = ((RawPacket&)packet).getPacketTimeStamp();
+		pktHdr.caplen = packet.getRawDataLen();
+		pktHdr.len = packet.getFrameLength();
+		timespec packet_timestamp = packet.getPacketTimeStamp();
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 		if (m_Precision != FileTimestampPrecision::Nanoseconds)
 		{
@@ -626,7 +626,7 @@ namespace pcpp
 		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 #endif
 		if (!m_AppendMode)
-			pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
+			pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, packet.getRawData());
 		else
 		{
 			// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on
@@ -644,7 +644,7 @@ namespace pcpp
 			pktHdrTemp.caplen = pktHdr.caplen;
 			pktHdrTemp.len = pktHdr.len;
 			fwrite(&pktHdrTemp, sizeof(pktHdrTemp), 1, m_File);
-			fwrite(((RawPacket&)packet).getRawData(), pktHdrTemp.caplen, 1, m_File);
+			fwrite(packet.getRawData(), pktHdrTemp.caplen, 1, m_File);
 		}
 		PCPP_LOG_DEBUG("Packet written successfully to '" << m_FileName << "'");
 		m_NumOfPacketsWritten++;
@@ -867,14 +867,14 @@ namespace pcpp
 		}
 
 		light_packet_header pktHeader;
-		pktHeader.captured_length = ((RawPacket&)packet).getRawDataLen();
-		pktHeader.original_length = ((RawPacket&)packet).getFrameLength();
-		pktHeader.timestamp = ((RawPacket&)packet).getPacketTimeStamp();
-		pktHeader.data_link = (uint16_t)packet.getLinkLayerType();
+		pktHeader.captured_length = packet.getRawDataLen();
+		pktHeader.original_length = packet.getFrameLength();
+		pktHeader.timestamp = packet.getPacketTimeStamp();
+		pktHeader.data_link = static_cast<uint16_t>(packet.getLinkLayerType());
 		pktHeader.interface_id = 0;
 		if (!comment.empty())
 		{
-			pktHeader.comment = (char*)comment.c_str();
+			pktHeader.comment = const_cast<char*>(comment.c_str());
 			pktHeader.comment_length = static_cast<uint16_t>(comment.size());
 		}
 		else
@@ -883,7 +883,7 @@ namespace pcpp
 			pktHeader.comment_length = 0;
 		}
 
-		const uint8_t* pktData = ((RawPacket&)packet).getRawData();
+		const uint8_t* pktData = packet.getRawData();
 
 		light_write_packet(toLightPcapNgT(m_LightPcapNg), &pktHeader, pktData);
 		m_NumOfPacketsWritten++;
