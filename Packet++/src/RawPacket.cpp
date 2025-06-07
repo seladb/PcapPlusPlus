@@ -307,7 +307,16 @@ namespace pcpp
 
 	size_t RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 	{
-		if (dataToInsert == nullptr || dataToInsertLen == 0)
+		if (dataToInsert == nullptr)
+		{
+			PCPP_LOG_WARN("Using RawPacket::insertData with nullptr data buffer to extend uninitialized buffer. "
+				            "This behaviour has been deprecated and will result errors in the future. "
+				            "Please use insertUninitializedData() instead to insert an uninitialized block of data.");
+			// Forward the call to insertUninitializedData for the duration of the deprecation period
+			return insertUninitializedData(atIndex, dataToInsertLen);
+		}
+
+		if (dataToInsertLen == 0)
 			return 0;
 
 		// Insert an empty data block at the specified index
