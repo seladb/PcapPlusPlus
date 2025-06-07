@@ -175,7 +175,7 @@ namespace pcpp
 
 		/// A constructor that creates an instance of the class out of 16-byte array.
 		/// @param[in] bytes The address as 16-byte array in network byte order
-		/// remarks This constructor assumes that the provided array is exactly 16 bytes long.
+		/// @remarks This constructor assumes that the provided array is exactly 16 bytes long.
 		/// Prefer using the constructor with size parameter if the array length is not guaranteed to be 16 bytes.
 		IPv6Address(const uint8_t bytes[16]) : IPv6Address(bytes, 16)
 		{}
