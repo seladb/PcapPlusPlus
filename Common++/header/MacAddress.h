@@ -31,7 +31,8 @@ namespace pcpp
 		/// The byte array length should be 6 (as MAC address is 6-byte long), and the remaining bytes are ignored.
 		/// If the byte array is invalid, the constructor throws an exception.
 		/// @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
-		/// @deprecated Deprecated in favor of sized MacAddress(const uint8_t addr[6], size_t size) constructor.
+		/// @remarks This constructor assumes that the provided array is exactly 6 bytes long.
+		/// Prefer using the constructor with size parameter if the array length is not guaranteed to be 6 bytes.
 		explicit MacAddress(const uint8_t addr[6]) : MacAddress(addr, 6)
 		{}
 
