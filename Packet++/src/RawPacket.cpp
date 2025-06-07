@@ -154,22 +154,6 @@ namespace pcpp
 		return new RawPacket(*this);
 	}
 
-	void RawPacket::copyDataFrom(const RawPacket& other)
-	{
-		reserve(other.m_RawDataLen);
-		appendData(other.m_RawData, other.m_RawDataLen);
-
-		m_RawData = new uint8_t[other.m_RawDataLen];
-		m_RawDataCapacity = other.m_RawDataLen;
-		m_DeleteRawDataAtDestructor = true;
-		m_RawDataLen = other.m_RawDataLen;
-
-		std::memcpy(m_RawData, other.m_RawData, other.m_RawDataLen);
-		setLinkLayerType(other.getLinkLayerType());
-		m_FrameLength = other.m_FrameLength;
-		m_RawPacketSet = true;
-	}
-
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
