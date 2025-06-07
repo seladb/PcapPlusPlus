@@ -625,7 +625,7 @@ namespace pcpp
 		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 #endif
 		if (!m_AppendMode)
-			pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, packet.getRawData());
+			pcap_dump(reinterpret_cast<uint8_t*>(m_PcapDumpHandler), &pktHdr, packet.getRawData());
 		else
 		{
 			// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on
