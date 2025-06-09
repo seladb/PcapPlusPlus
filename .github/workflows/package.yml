@@ -425,15 +425,20 @@ jobs:
           make -j$(nproc)
           make install DESTDIR=$PWD/install-root
 
+      - name: Set package version
+        run: |
+          RAW_VERSION="${{ github.event.release.tag_name }}"
+          if [ -z "$RAW_VERSION" ]; then RAW_VERSION="${GITHUB_REF_NAME:-0.0.0-dev}"; fi
+          VERSION="${RAW_VERSION//\//-}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Create DEB control file
         run: |
           cd "${{ env.BUILD_DIR }}/install-root"
           mkdir -p DEBIAN
-          VERSION="${{ github.event.release.tag_name }}"
-          if [ -z "$VERSION" ]; then VERSION="${GITHUB_REF_NAME:-0.0.0-dev}"; fi
-          cat <<EOF | tee DEBIAN/control
+          cat <<EOF > DEBIAN/control
           Package: pcapplusplus
-          Version: $VERSION
+          Version: ${{ env.VERSION }}
           Section: libs
           Architecture: amd64
           Maintainer: PcapPlusPlus Team <pcapplusplus@gmail.com>
@@ -443,17 +448,18 @@ jobs:
       - name: Build DEB package
         run: |
           cd "${{ env.BUILD_DIR }}"
-          dpkg-deb --build install-root pcapplusplus_${{ github.ref_name }}_amd64.deb
+          dpkg-deb --build install-root "pcapplusplus_${{ env.VERSION }}_amd64.deb"
 
       - name: Test DEB install
         run: |
-          apt-get install -y ./${{ env.BUILD_DIR }}/pcapplusplus_${{ github.ref_name }}_amd64.deb
+          apt-get update
+          apt-get install -y "./${{ env.BUILD_DIR }}/pcapplusplus_${{ env.VERSION }}_amd64.deb"
           echo '#include <PcapLiveDeviceList.h>
           #include <iostream>
           int main() {
-            auto devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
-            std::cout << "Found " << devList.size() << " devices\n";
-            return 0;
+          auto devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+          std::cout << "Found " << devList.size() << " devices\n";
+          return 0;
           }' > test.cpp
           g++ test.cpp -o test -lPcapPlusPlus -lPacket++ -lCommon++
           ./test
@@ -465,4 +471,4 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: "${{ env.BUILD_DIR }}/pcapplusplus_${{ github.ref_name }}_amd64.deb"
+          artifacts: "${{ env.BUILD_DIR }}/pcapplusplus_${{ env.VERSION }}_amd64.deb"
