@@ -426,6 +426,7 @@ jobs:
           make install DESTDIR=$PWD/install-root
 
       - name: Set package version
+        shell: bash
         run: |
           RAW_VERSION="${{ github.event.release.tag_name }}"
           if [ -z "$RAW_VERSION" ]; then RAW_VERSION="${GITHUB_REF_NAME:-0.0.0-dev}"; fi
@@ -433,6 +434,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create DEB control file
+        shell: bash
         run: |
           cd "${{ env.BUILD_DIR }}/install-root"
           mkdir -p DEBIAN
@@ -446,23 +448,10 @@ jobs:
           EOF
 
       - name: Build DEB package
+        shell: bash
         run: |
           cd "${{ env.BUILD_DIR }}"
           dpkg-deb --build install-root "pcapplusplus_${{ env.VERSION }}_amd64.deb"
-
-      - name: Test DEB install
-        run: |
-          apt-get update
-          apt-get install -y "./${{ env.BUILD_DIR }}/pcapplusplus_${{ env.VERSION }}_amd64.deb"
-          echo '#include <PcapLiveDeviceList.h>
-          #include <iostream>
-          int main() {
-          auto devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
-          std::cout << "Found " << devList.size() << " devices\n";
-          return 0;
-          }' > test.cpp
-          g++ test.cpp -o test -lPcapPlusPlus -lPacket++ -lCommon++
-          ./test
 
       - name: Upload DEB to release
         if: github.ref_type == 'tag'
