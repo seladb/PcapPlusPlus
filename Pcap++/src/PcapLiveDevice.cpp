@@ -873,6 +873,11 @@ namespace pcpp
 		if (m_cbOnPacketArrivesBlockingMode != nullptr)
 			return;
 
+		if (m_CaptureThread.get_id() != std::thread::id{} && m_CaptureThread.get_id() == std::this_thread::get_id())
+		{
+			throw std::runtime_error("Cannot stop capture from the capture thread itself");
+		}
+
 		m_StopThread = true;
 		if (m_CaptureThreadStarted)
 		{
