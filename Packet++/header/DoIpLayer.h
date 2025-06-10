@@ -1526,16 +1526,6 @@ namespace pcpp
 	class DoIpDiagnosticBase : public DoIpLayer
 	{
 	public:
-		/// @brief Constructs the DiagnosticMessage from raw packet data.
-		/// @param[in] data Pointer to the raw payload data.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @param[in] prevLayer Pointer to the previous protocol layer.
-		/// @param[in] packet Pointer to the parent packet.
-		DoIpDiagnosticBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
-		/// @brief default c'tor.
-		DoIpDiagnosticBase(size_t length) : DoIpLayer(length) {};
-
 		/// @brief Gets the source logical address of the message.
 		/// @return 16-bit address of the source ECU.
 		uint16_t getSourceAddress() const;
@@ -1557,6 +1547,10 @@ namespace pcpp
 		virtual std::string getSummary() const = 0;
 
 	protected:
+		DoIpDiagnosticBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		DoIpDiagnosticBase(size_t length) : DoIpLayer(length) {};
+
 #pragma pack(push, 1)
 		/// An internal structure representing the common diagnostic header.
 		struct common_diagnostic_header : doiphdr
@@ -1641,13 +1635,6 @@ namespace pcpp
 	class DoIpDiagnosticResponseMessageBase : public DoIpDiagnosticBase
 	{
 	public:
-		/// @brief Constructs the DiagnosticMessage from raw packet data.
-		/// @param[in] data Pointer to the raw payload data.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @param[in] prevLayer Pointer to the previous protocol layer.
-		/// @param[in] packet Pointer to the parent packet.
-		DoIpDiagnosticResponseMessageBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
 		/// @brief Gets the acknowledgment/nack code (1-byte).
 		/// @return The acknowledgment/nack code.
 		uint8_t getResponseCode() const;
@@ -1680,6 +1667,7 @@ namespace pcpp
 		}
 
 	protected:
+		DoIpDiagnosticResponseMessageBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 		DoIpDiagnosticResponseMessageBase(uint16_t sourceAddress, uint16_t targetAddress, DoIpPayloadTypes type);
 
 	private:
