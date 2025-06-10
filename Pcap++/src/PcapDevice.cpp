@@ -150,7 +150,7 @@ namespace pcpp
 		return m_PcapDescriptor.clearFilter();
 	}
 
-	bool IPcapDevice::matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket)
+	bool IPcapDevice::matchPacketWithFilter(GeneralFilter& filter, IRawPacket* rawPacket)
 	{
 		return filter.matchPacketWithFilter(rawPacket);
 	}

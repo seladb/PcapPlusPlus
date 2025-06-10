@@ -259,7 +259,7 @@ namespace pcpp
 		return packetCount;
 	}
 
-	bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
+	bool RawSocketDevice::sendPacket(const IRawPacket* rawPacket)
 	{
 #if defined(_WIN32)
 

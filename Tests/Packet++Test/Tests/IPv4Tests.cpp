@@ -34,7 +34,7 @@ PTF_TEST_CASE(IPv4PacketCreation)
 	PTF_ASSERT_FALSE(tmpPacket.addLayer(&ethLayer));
 	pcpp::Logger::getInstance().enableLogs();
 
-	pcpp::RawPacket* rawPacket = ip4Packet.getRawPacket();
+	pcpp::IRawPacket* rawPacket = ip4Packet.getRawPacket();
 	PTF_ASSERT_NOT_NULL(rawPacket);
 	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 14);
 

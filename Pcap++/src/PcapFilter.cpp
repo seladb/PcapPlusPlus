@@ -18,7 +18,7 @@ namespace pcpp
 
 	static const int DEFAULT_SNAPLEN = 9000;
 
-	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
+	bool GeneralFilter::matchPacketWithFilter(IRawPacket* rawPacket)
 	{
 		std::string filterStr;
 		parseToString(filterStr);

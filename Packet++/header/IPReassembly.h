@@ -399,7 +399,7 @@ namespace pcpp
 		/// - If the input fragment is the last one and the reassembled packet is ready - a pointer to the reassembled
 		///   packet is returned. Notice it's the user's responsibility to free this pointer when done using it
 		/// - If the reassembled packet isn't ready then nullptr is returned
-		Packet* processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil = UnknownProtocol,
+		Packet* processPacket(IRawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil = UnknownProtocol,
 		                      OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/// Get a partially reassembled packet. This method returns all the reassembled data that was gathered so far

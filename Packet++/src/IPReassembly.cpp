@@ -513,7 +513,7 @@ namespace pcpp
 		return nullptr;
 	}
 
-	Packet* IPReassembly::processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil,
+	Packet* IPReassembly::processPacket(IRawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil,
 	                                    OsiModelLayer parseUntilLayer)
 	{
 		Packet* parsedFragment = new Packet(fragment, false, parseUntil, parseUntilLayer);

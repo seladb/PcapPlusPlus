@@ -144,7 +144,7 @@ namespace pcpp
 		/// Match a raw packet with a given BPF filter.
 		/// @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
 		/// @return True if a raw packet matches the BPF filter or false otherwise
-		bool matchPacketWithFilter(RawPacket* rawPacket);
+		bool matchPacketWithFilter(IRawPacket* rawPacket);
 
 		GeneralFilter()
 		{}

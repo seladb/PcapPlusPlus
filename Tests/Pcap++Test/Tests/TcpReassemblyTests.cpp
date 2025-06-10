@@ -338,8 +338,8 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 	packet.computeCalculateFields();
 
 	delete[] newPayload;
-
-	return *(packet.getRawPacket());
+	// Static downcast to RawPacket because we know that the packet is a RawPacket
+	return *static_cast<pcpp::RawPacket*>(packet.getRawPacket());
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~

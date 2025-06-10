@@ -928,7 +928,7 @@ namespace pcpp
 
 	bool PcapLiveDevice::sendPacket(Packet const& packet, bool checkMtu)
 	{
-		RawPacket const* rawPacket = packet.getRawPacketReadOnly();
+		IRawPacket const* rawPacket = packet.getRawPacketReadOnly();
 
 		if (!checkMtu)
 		{
@@ -951,14 +951,14 @@ namespace pcpp
 		return doMtuCheck(packetPayloadLength) && sendPacket(*rawPacket, false);
 	}
 
-	bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
+	bool PcapLiveDevice::sendPacket(IRawPacket const& rawPacket, bool checkMtu)
 	{
 		if (!checkMtu)
 		{
 			return sendPacketDirect(rawPacket.getRawData(), rawPacket.getRawDataLen());
 		}
 
-		RawPacket* rPacket = const_cast<RawPacket*>(&rawPacket);
+		IRawPacket* rPacket = const_cast<IRawPacket*>(&rawPacket);
 		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
 		return sendPacket(parsedPacket, true);
 	}
@@ -1028,10 +1028,10 @@ namespace pcpp
 		}
 	}  // namespace
 
-	int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
+	int PcapLiveDevice::sendPackets(IRawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 	{
 		return sendPacketsLoop(rawPacketsArr, rawPacketsArr + arrLength,
-		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
+		                       [this, checkMtu](IRawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
@@ -1043,7 +1043,7 @@ namespace pcpp
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
 		return sendPacketsLoop(rawPackets.begin(), rawPackets.end(),
-		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
+		                       [this, checkMtu](IRawPacket const* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	void PcapLiveDevice::setDeviceMtu()
