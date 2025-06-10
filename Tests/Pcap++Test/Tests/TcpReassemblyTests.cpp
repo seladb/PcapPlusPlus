@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include <memory>
 #include "EndianPortable.h"
 #include "SystemUtils.h"
 #include "TcpReassembly.h"
@@ -227,14 +228,14 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
 static bool tcpReassemblyTest(const std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results,
                               bool monitorOpenCloseConns, bool closeConnsManually)
 {
-	pcpp::TcpReassembly* tcpReassembly = nullptr;
+	std::unique_ptr<pcpp::TcpReassembly> tcpReassembly = nullptr;
 
 	if (monitorOpenCloseConns)
 		tcpReassembly =
-		    new pcpp::TcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback,
+		    std::make_unique<pcpp::TcpReassembly>(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback,
 		                            tcpReassemblyConnectionEndCallback);
 	else
-		tcpReassembly = new pcpp::TcpReassembly(tcpReassemblyMsgReadyCallback, &results);
+		tcpReassembly = std::make_unique<pcpp::TcpReassembly>(tcpReassemblyMsgReadyCallback, &results);
 
 	for (auto iter : packetStream)
 	{
@@ -258,8 +259,6 @@ static bool tcpReassemblyTest(const std::vector<pcpp::RawPacket>& packetStream, 
 
 	if (closeConnsManually)
 		tcpReassembly->closeAllConnections();
-
-	delete tcpReassembly;
 
 	return true;
 }
@@ -310,16 +309,17 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 	if (numOfBytes <= 0)
 		numOfBytes = tcpPayloadSize - beginning;
 
-	uint8_t* newPayload = new uint8_t[numOfBytes];
+	 
+	auto newPayload = std::make_unique<uint8_t[]>(numOfBytes);
 
 	if (beginning + numOfBytes <= tcpPayloadSize)
 	{
-		memcpy(newPayload, tcpLayer->getLayerPayload() + beginning, numOfBytes);
+		memcpy(newPayload.get(), tcpLayer->getLayerPayload() + beginning, numOfBytes);
 	}
 	else
 	{
 		int bytesToCopy = tcpPayloadSize - beginning;
-		memcpy(newPayload, tcpLayer->getLayerPayload() + beginning, bytesToCopy);
+		memcpy(newPayload.get(), tcpLayer->getLayerPayload() + beginning, bytesToCopy);
 		for (int i = bytesToCopy; i < numOfBytes; i++)
 		{
 			newPayload[i] = '*';
@@ -332,12 +332,11 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(be32toh(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 
-	pcpp::PayloadLayer newPayloadLayer(newPayload, numOfBytes);
+	pcpp::PayloadLayer newPayloadLayer(newPayload.get(), numOfBytes);
 	packet.addLayer(&newPayloadLayer);
 
 	packet.computeCalculateFields();
 
-	delete[] newPayload;
 	// Static downcast to RawPacket because we know that the packet is a RawPacket
 	return *static_cast<pcpp::RawPacket*>(packet.getRawPacket());
 }
