@@ -136,7 +136,8 @@ namespace pcpp
 		{
 			timeval time;
 			gettimeofday(&time, nullptr);
-			rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_DLT_RAW1);
+			rawPacket.setRawData(RawPacketBufferPolicy::Move, BufferInfo(reinterpret_cast<uint8_t*>(buffer), bufferLen),
+			                     time, LINKTYPE_DLT_RAW1);
 			return RecvSuccess;
 		}
 
@@ -199,7 +200,8 @@ namespace pcpp
 		{
 			timeval time;
 			gettimeofday(&time, nullptr);
-			rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_ETHERNET);
+			rawPacket.setRawData(RawPacketBufferPolicy::Move, BufferInfo(reinterpret_cast<uint8_t*>(buffer), bufferLen), time,
+			                     LINKTYPE_ETHERNET);
 			return RecvSuccess;
 		}
 
@@ -257,7 +259,7 @@ namespace pcpp
 		return packetCount;
 	}
 
-	bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
+	bool RawSocketDevice::sendPacket(const IRawPacket* rawPacket)
 	{
 #if defined(_WIN32)
 

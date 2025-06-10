@@ -104,7 +104,7 @@ namespace pcpp
 		/// @param[in] rawPacket The packet to send
 		/// @return True if packet was sent successfully or false if the socket is not open, if the packet is not
 		/// Ethernet or if there was a failure sending the packet
-		bool sendPacket(const RawPacket* rawPacket);
+		bool sendPacket(const IRawPacket* rawPacket);
 
 		/// Send a set of Ethernet packets to the network. L2 protocols other than Ethernet are not supported by raw
 		/// sockets. The entire packet is sent as is, including the original Ethernet and IP data. This method is only

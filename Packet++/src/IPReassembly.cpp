@@ -364,11 +364,10 @@ namespace pcpp
 				auto fragmentRawPacket = fragment->getRawPacket();
 				auto rawDataLen = fragWrapper->getIPLayerPayload() - fragmentRawPacket->getRawData() +
 				                  fragWrapper->getIPLayerPayloadSize();
-				auto rawData = new uint8_t[rawDataLen];
-				memcpy(rawData, fragmentRawPacket->getRawData(), rawDataLen);
 
-				fragData->data = new RawPacket(rawData, rawDataLen, fragmentRawPacket->getPacketTimeStamp(), true,
-				                               fragmentRawPacket->getLinkLayerType());
+				fragData->data =
+				    new RawPacket(RawPacketBufferPolicy::Copy, BufferInfo(fragmentRawPacket->getRawData(), rawDataLen),
+				                  fragmentRawPacket->getPacketTimeStamp(), fragmentRawPacket->getLinkLayerType());
 				fragData->currentOffset = fragWrapper->getIPLayerPayloadSize();
 				status = FIRST_FRAGMENT;
 
@@ -514,7 +513,7 @@ namespace pcpp
 		return nullptr;
 	}
 
-	Packet* IPReassembly::processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil,
+	Packet* IPReassembly::processPacket(IRawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil,
 	                                    OsiModelLayer parseUntilLayer)
 	{
 		Packet* parsedFragment = new Packet(fragment, false, parseUntil, parseUntilLayer);

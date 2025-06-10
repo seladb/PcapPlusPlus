@@ -349,7 +349,11 @@ namespace pcpp
 			return;
 		}
 
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
+		// Stripping const from packet pointer is necessary. It previously stripped it under the hood in constructor,
+		// but it is more explicit to strip it outside. This is a workaround for the fact that RawPacket constructor
+		// doesn't accept const uint8_t*. A copy would be safer but it would also be less efficient.
+		RawPacket rawPacket(RawPacketBufferPolicy::SoftReference,
+		                    BufferInfo(const_cast<uint8_t*>(packet), pkthdr->caplen), pkthdr->ts, pThis->getLinkType());
 
 		if (pThis->m_cbOnPacketArrives != nullptr)
 			pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
@@ -367,7 +371,8 @@ namespace pcpp
 
 		uint8_t* packetData = new uint8_t[pkthdr->caplen];
 		memcpy(packetData, packet, pkthdr->caplen);
-		RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
+		RawPacket* rawPacketPtr = new RawPacket(RawPacketBufferPolicy::Move, BufferInfo(packetData, pkthdr->caplen),
+		                                        pkthdr->ts, pThis->getLinkType());
 		pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 	}
 
@@ -381,7 +386,9 @@ namespace pcpp
 			return;
 		}
 
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
+		// Stripping const from packet pointer. See comment in `onPacketArrives` for details.
+		RawPacket rawPacket(RawPacketBufferPolicy::SoftReference,
+		                    BufferInfo(const_cast<uint8_t*>(packet), pkthdr->caplen), pkthdr->ts, pThis->getLinkType());
 
 		if (pThis->m_cbOnPacketArrivesBlockingMode != nullptr)
 			if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis,
@@ -926,7 +933,7 @@ namespace pcpp
 
 	bool PcapLiveDevice::sendPacket(Packet const& packet, bool checkMtu)
 	{
-		RawPacket const* rawPacket = packet.getRawPacketReadOnly();
+		IRawPacket const* rawPacket = packet.getRawPacketReadOnly();
 
 		if (!checkMtu)
 		{
@@ -949,14 +956,14 @@ namespace pcpp
 		return doMtuCheck(packetPayloadLength) && sendPacket(*rawPacket, false);
 	}
 
-	bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
+	bool PcapLiveDevice::sendPacket(IRawPacket const& rawPacket, bool checkMtu)
 	{
 		if (!checkMtu)
 		{
 			return sendPacketDirect(rawPacket.getRawData(), rawPacket.getRawDataLen());
 		}
 
-		RawPacket* rPacket = const_cast<RawPacket*>(&rawPacket);
+		IRawPacket* rPacket = const_cast<IRawPacket*>(&rawPacket);
 		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
 		return sendPacket(parsedPacket, true);
 	}
@@ -976,7 +983,9 @@ namespace pcpp
 
 		timeval time;
 		gettimeofday(&time, nullptr);
-		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
+		// Stripping constness of packet data pointer. RawPacket should be used in read only.
+		pcpp::RawPacket rawPacket(RawPacketBufferPolicy::StrictReference,
+		                          BufferInfo(const_cast<uint8_t*>(packetData), packetDataLength), time, linkType);
 		Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
 		return sendPacket(parsedPacket, true);
 	}
@@ -1024,10 +1033,10 @@ namespace pcpp
 		}
 	}  // namespace
 
-	int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
+	int PcapLiveDevice::sendPackets(IRawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 	{
 		return sendPacketsLoop(rawPacketsArr, rawPacketsArr + arrLength,
-		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
+		                       [this, checkMtu](IRawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
@@ -1039,7 +1048,7 @@ namespace pcpp
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
 		return sendPacketsLoop(rawPackets.begin(), rawPackets.end(),
-		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
+		                       [this, checkMtu](IRawPacket const* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	void PcapLiveDevice::setDeviceMtu()

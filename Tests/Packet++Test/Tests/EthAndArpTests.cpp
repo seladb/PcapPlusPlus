@@ -47,7 +47,7 @@ PTF_TEST_CASE(EthPacketCreation)
 	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getSourceMac(), srcMac);
 	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_IP));
 
-	pcpp::RawPacket* rawPacket = ethPacket.getRawPacket();
+	pcpp::IRawPacket* rawPacket = ethPacket.getRawPacket();
 	PTF_ASSERT_NOT_NULL(rawPacket);
 	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 18);
 
@@ -77,7 +77,7 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getEthHeader()->etherType,
 	                 be16toh(PCPP_ETHERTYPE_IP));
 
-	pcpp::RawPacket* rawPacket = ethPacket->getRawPacket();
+	pcpp::IRawPacket* rawPacket = ethPacket->getRawPacket();
 	PTF_ASSERT_NOT_NULL(rawPacket);
 	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 18);
 

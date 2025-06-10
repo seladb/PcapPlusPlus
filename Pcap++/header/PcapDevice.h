@@ -159,7 +159,7 @@ namespace pcpp
 		/// @param[in] filter A filter class to test against
 		/// @param[in] rawPacket A pointer to the raw packet to match the filter with
 		/// @return True if raw packet matches the filter or false otherwise
-		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
+		static bool matchPacketWithFilter(GeneralFilter& filter, IRawPacket* rawPacket);
 
 		// implement abstract methods
 

@@ -239,8 +239,8 @@ namespace pcpp
 #else
 		struct timeval ts = pkthdr.ts;
 #endif
-		if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType),
-		                          pkthdr.len))
+		if (!rawPacket.setRawData(RawPacketBufferPolicy::Move, BufferInfo(pMyPacketData, pkthdr.caplen), ts,
+		                          static_cast<LinkLayerType>(m_PcapLinkLayerType), pkthdr.len))
 		{
 			PCPP_LOG_ERROR("Couldn't set data to raw packet");
 			return false;
@@ -346,7 +346,8 @@ namespace pcpp
 		}
 		timespec ts = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)),
 			            static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
-		if (!rawPacket.setRawData((const uint8_t*)packetData.release(), packetSize, ts,
+		if (!rawPacket.setRawData(RawPacketBufferPolicy::Move,
+		                          BufferInfo(reinterpret_cast<uint8_t*>(packetData.release()), packetSize), ts,
 		                          static_cast<LinkLayerType>(m_PcapLinkLayerType)))
 		{
 			PCPP_LOG_ERROR("Couldn't set data to raw packet");
@@ -442,8 +443,8 @@ namespace pcpp
 			PCPP_LOG_ERROR("Link layer type of raw packet could not be determined");
 		}
 
-		if (!rawPacket.setRawData(myPacketData, pktHeader.captured_length, pktHeader.timestamp, linkType,
-		                          pktHeader.original_length))
+		if (!rawPacket.setRawData(RawPacketBufferPolicy::Move, BufferInfo(myPacketData, pktHeader.captured_length),
+		                          pktHeader.timestamp, linkType, pktHeader.original_length))
 		{
 			PCPP_LOG_ERROR("Couldn't set data to raw packet");
 			return false;
@@ -591,7 +592,7 @@ namespace pcpp
 		}
 	}
 
-	bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
+	bool PcapFileWriterDevice::writePacket(IRawPacket const& packet)
 	{
 		if ((!m_AppendMode && m_PcapDescriptor == nullptr) || (m_PcapDumpHandler == nullptr))
 		{
@@ -608,9 +609,9 @@ namespace pcpp
 		}
 
 		pcap_pkthdr pktHdr;
-		pktHdr.caplen = ((RawPacket&)packet).getRawDataLen();
-		pktHdr.len = ((RawPacket&)packet).getFrameLength();
-		timespec packet_timestamp = ((RawPacket&)packet).getPacketTimeStamp();
+		pktHdr.caplen = packet.getRawDataLen();
+		pktHdr.len = packet.getFrameLength();
+		timespec packet_timestamp = packet.getPacketTimeStamp();
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 		if (m_Precision != FileTimestampPrecision::Nanoseconds)
 		{
@@ -625,7 +626,7 @@ namespace pcpp
 		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 #endif
 		if (!m_AppendMode)
-			pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
+			pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, packet.getRawData());
 		else
 		{
 			// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on
@@ -643,7 +644,7 @@ namespace pcpp
 			pktHdrTemp.caplen = pktHdr.caplen;
 			pktHdrTemp.len = pktHdr.len;
 			fwrite(&pktHdrTemp, sizeof(pktHdrTemp), 1, m_File);
-			fwrite(((RawPacket&)packet).getRawData(), pktHdrTemp.caplen, 1, m_File);
+			fwrite(packet.getRawData(), pktHdrTemp.caplen, 1, m_File);
 		}
 		PCPP_LOG_DEBUG("Packet written successfully to '" << m_FileName << "'");
 		m_NumOfPacketsWritten++;
@@ -851,7 +852,7 @@ namespace pcpp
 		m_CompressionLevel = compressionLevel;
 	}
 
-	bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const std::string& comment)
+	bool PcapNgFileWriterDevice::writePacket(IRawPacket const& packet, const std::string& comment)
 	{
 		if (m_LightPcapNg == nullptr)
 		{
@@ -866,14 +867,14 @@ namespace pcpp
 		}
 
 		light_packet_header pktHeader;
-		pktHeader.captured_length = ((RawPacket&)packet).getRawDataLen();
-		pktHeader.original_length = ((RawPacket&)packet).getFrameLength();
-		pktHeader.timestamp = ((RawPacket&)packet).getPacketTimeStamp();
-		pktHeader.data_link = (uint16_t)packet.getLinkLayerType();
+		pktHeader.captured_length = packet.getRawDataLen();
+		pktHeader.original_length = packet.getFrameLength();
+		pktHeader.timestamp = packet.getPacketTimeStamp();
+		pktHeader.data_link = static_cast<uint16_t>(packet.getLinkLayerType());
 		pktHeader.interface_id = 0;
 		if (!comment.empty())
 		{
-			pktHeader.comment = (char*)comment.c_str();
+			pktHeader.comment = const_cast<char*>(comment.c_str());
 			pktHeader.comment_length = static_cast<uint16_t>(comment.size());
 		}
 		else
@@ -882,14 +883,14 @@ namespace pcpp
 			pktHeader.comment_length = 0;
 		}
 
-		const uint8_t* pktData = ((RawPacket&)packet).getRawData();
+		const uint8_t* pktData = packet.getRawData();
 
 		light_write_packet(toLightPcapNgT(m_LightPcapNg), &pktHeader, pktData);
 		m_NumOfPacketsWritten++;
 		return true;
 	}
 
-	bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet)
+	bool PcapNgFileWriterDevice::writePacket(IRawPacket const& packet)
 	{
 		return writePacket(packet, std::string());
 	}

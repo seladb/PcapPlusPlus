@@ -57,7 +57,8 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 	// Malformed Cisco HDLC + IPv4
 	{
 		auto data = std::vector<uint8_t>{ 0x0f, 0x00, 0x08, 0x00, 0x45, 0xc0 };
-		auto rawPacket = pcpp::RawPacket(data.data(), data.size(), time, false, pcpp::LINKTYPE_C_HDLC);
+		auto rawPacket = pcpp::RawPacket(pcpp::RawPacketBufferPolicy::StrictReference,
+		                                 pcpp::BufferInfo(data.data(), data.size()), time, pcpp::LINKTYPE_C_HDLC);
 
 		const pcpp::Packet ciscoHdlcPacket(&rawPacket);
 

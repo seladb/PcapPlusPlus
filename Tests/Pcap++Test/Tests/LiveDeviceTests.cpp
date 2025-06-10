@@ -892,8 +892,8 @@ PTF_TEST_CASE(TestMtuSize)
 	PTF_ASSERT_EQUAL(smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)liveDev->getMtu(), ptr);
 	// Try sending the packet
 	PTF_ASSERT_TRUE(liveDev->sendPacket(smallPacket));
-	pcpp::RawPacket* rawSmallPacketPtr = smallPacket.getRawPacket();
-	pcpp::RawPacket& rawSmallPacketRef = *rawSmallPacketPtr;
+	pcpp::IRawPacket* rawSmallPacketPtr = smallPacket.getRawPacket();
+	pcpp::IRawPacket& rawSmallPacketRef = *rawSmallPacketPtr;
 	PTF_ASSERT_TRUE(liveDev->sendPacket(rawSmallPacketRef, true));
 	PTF_ASSERT_TRUE(liveDev->sendPacket(rawSmallPacketPtr->getRawData(), rawSmallPacketPtr->getRawDataLen(), true,
 	                                    pcpp::LINKTYPE_ETHERNET));
@@ -926,8 +926,8 @@ PTF_TEST_CASE(TestMtuSize)
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(liveDev->sendPacket(largePacket));
 
-	pcpp::RawPacket* rawLargePacketPtr = largePacket.getRawPacket();
-	pcpp::RawPacket& rawLargePacketRef = *rawLargePacketPtr;
+	pcpp::IRawPacket* rawLargePacketPtr = largePacket.getRawPacket();
+	pcpp::IRawPacket& rawLargePacketRef = *rawLargePacketPtr;
 	PTF_ASSERT_FALSE(liveDev->sendPacket(rawLargePacketRef, true));
 	PTF_ASSERT_FALSE(liveDev->sendPacket(rawLargePacketPtr->getRawData(), rawLargePacketPtr->getRawDataLen(), true,
 	                                     pcpp::LINKTYPE_ETHERNET));
@@ -999,7 +999,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 
 	// send multiple packets
 	pcpp::RawPacketVector packetsToSend;
-	std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
+	auto iter = capturedPackets.begin();
 
 	size_t capturedPacketsSize = capturedPackets.size();
 	while (iter != capturedPackets.end())
