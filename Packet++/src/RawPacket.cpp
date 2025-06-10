@@ -101,6 +101,12 @@ namespace pcpp
 		m_FrameLength = rawDataBuf.size;
 	}
 
+	RawPacket::RawPacket(IRawPacket const& source)
+	    : RawPacket(RawPacketBufferPolicy::Copy,
+	                BufferInfo(const_cast<uint8_t*>(source.getRawData()), source.getRawDataLen()),
+	                source.getPacketTimeStamp(), source.getLinkLayerType())
+	{}
+
 	RawPacket::~RawPacket()
 	{
 		clear();

@@ -477,6 +477,10 @@ namespace pcpp
 		RawPacket(RawPacketBufferPolicy bufPolicy, BufferInfo const& rawDataBuf, timespec timestamp,
 		          LinkLayerType layerType = LINKTYPE_ETHERNET);
 
+		/// @brief A conversion constructor that creates a RawPacket from an IRawPacket instance.
+		/// @param source The IRawPacket instance to convert to a RawPacket.
+		explicit RawPacket(IRawPacket const& source);
+
 		/// A destructor for this class. Frees the raw data if deleteRawDataAtDestructor was set to 'true'
 		~RawPacket() override;
 
