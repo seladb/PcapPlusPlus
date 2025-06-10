@@ -112,7 +112,7 @@ namespace pcpp
 		clear();
 	}
 
-	RawPacket::RawPacket(const RawPacket& other)
+	RawPacket::RawPacket(const RawPacket& other) : RawPacketBase(other)
 	{
 		// Reserves memory for the raw data buffer and copies the data from the other packet
 		// If the other packet has no raw data, it will reserve 0 bytes which is a noop.
