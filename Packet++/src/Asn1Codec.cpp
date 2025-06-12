@@ -960,7 +960,7 @@ namespace pcpp
 		else if (timezonePos != std::string::npos)
 		{
 			timezone = timeString.substr(timezonePos);
-			timeString = timeString.substr(0, timezonePos);
+			timeString.erase(timezonePos);
 		}
 
 		std::tm tm = {};
