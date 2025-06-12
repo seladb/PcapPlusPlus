@@ -212,7 +212,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 15);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 13);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count(),
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
 		                 1748100645000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
 		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 2025-05-24 15:30:45");
@@ -229,7 +231,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 13);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 11);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count(),
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
 		                 1748100600000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
 		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+11, Value: 2025-05-24 15:30:00");
@@ -246,7 +250,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 15);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 13);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch().count(),
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
 		                 480403800000000);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "19850323");
 		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 1985-03-23 05:30:00");
@@ -273,7 +279,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 17);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 15);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch().count(),
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
 		                 1748701800000000);
 		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+15, Value: 2025-05-31 14:30:00");
 	}
@@ -289,7 +297,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 21);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 19);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch().count(),
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
 		                 1748716200000000);
 		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+19, Value: 2025-05-31 18:30:00");
 	}
@@ -305,7 +315,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 21);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 19);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch().count(),
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
 		                 1748701800123000);
 		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+19, Value: 2025-05-31 14:30:00.123");
 	}
@@ -805,15 +817,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// UTC time
 	{
-		std::tm tm{
-			.tm_sec = 45,
-			.tm_min = 30,
-			.tm_hour = 15,
-			.tm_mday = 24,
-			.tm_mon = 5 - 1,
-			.tm_year = 2025 - 1900,
-			.tm_isdst = 0,
-		};
+		std::tm tm{ 45, 30, 15, 24, 5 - 1, 2025 - 1900, 0 };
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
 
 		pcpp::Asn1UtcTimeRecord record(timePoint);
@@ -835,15 +839,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// UTC time - without seconds
 	{
-		std::tm tm{
-			.tm_sec = 45,
-			.tm_min = 30,
-			.tm_hour = 15,
-			.tm_mday = 24,
-			.tm_mon = 5 - 1,
-			.tm_year = 2025 - 1900,
-			.tm_isdst = 0,
-		};
+		std::tm tm{ 45, 30, 15, 24, 5 - 1, 2025 - 1900, 0 };
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
 
 		pcpp::Asn1UtcTimeRecord record(timePoint, false);
@@ -865,15 +861,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// Generalized time - UTC
 	{
-		std::tm tm{
-			.tm_sec = 0,
-			.tm_min = 30,
-			.tm_hour = 14,
-			.tm_mday = 31,
-			.tm_mon = 5 - 1,
-			.tm_year = 2025 - 1900,
-			.tm_isdst = 0,
-		};
+		std::tm tm{ 0, 30, 14, 31, 5 - 1, 2025 - 1900, 0 };
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
 
 		pcpp::Asn1GeneralizedTimeRecord record(timePoint);
@@ -895,15 +883,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// Generalized time - non-UTC
 	{
-		std::tm tm{
-			.tm_sec = 0,
-			.tm_min = 30,
-			.tm_hour = 14,
-			.tm_mday = 31,
-			.tm_mon = 5 - 1,
-			.tm_year = 2025 - 1900,
-			.tm_isdst = 0,
-		};
+		std::tm tm{ 0, 30, 14, 31, 5 - 1, 2025 - 1900, 0 };
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
 
 		pcpp::Asn1GeneralizedTimeRecord record(timePoint, "-0400");
@@ -924,15 +904,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// Generalized time - with milliseconds
 	{
-		std::tm tm{
-			.tm_sec = 0,
-			.tm_min = 30,
-			.tm_hour = 14,
-			.tm_mday = 31,
-			.tm_mon = 5 - 1,
-			.tm_year = 2025 - 1900,
-			.tm_isdst = 0,
-		};
+		std::tm tm{ 0, 30, 14, 31, 5 - 1, 2025 - 1900, 0 };
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm)) + std::chrono::milliseconds(123);
 
 		pcpp::Asn1GeneralizedTimeRecord record(timePoint, "Z");
@@ -953,15 +925,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// Generalized time - non-UTC + milliseconds
 	{
-		std::tm tm{
-			.tm_sec = 45,
-			.tm_min = 30,
-			.tm_hour = 2,
-			.tm_mday = 31,
-			.tm_mon = 5 - 1,
-			.tm_year = 2025 - 1900,
-			.tm_isdst = 0,
-		};
+		std::tm tm{ 45, 30, 2, 31, 5 - 1, 2025 - 1900, 0 };
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm)) + std::chrono::milliseconds(123);
 
 		pcpp::Asn1GeneralizedTimeRecord record(timePoint, "+1000");
@@ -982,15 +946,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// Generalized time - invalid timezone
 	{
-		std::tm tm{
-			.tm_sec = 0,
-			.tm_min = 30,
-			.tm_hour = 14,
-			.tm_mday = 31,
-			.tm_mon = 5 - 1,
-			.tm_year = 2025 - 1900,
-			.tm_isdst = 0,
-		};
+		std::tm tm{ 0, 30, 14, 31, 5 - 1, 2025 - 1900, 0 };
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
 		PTF_ASSERT_RAISES(pcpp::Asn1GeneralizedTimeRecord(timePoint, "invalid"), std::invalid_argument,
 		                  "Invalid timezone format. Use 'Z' or '+/-HHMM'.");
