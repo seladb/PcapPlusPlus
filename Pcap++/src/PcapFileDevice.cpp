@@ -614,7 +614,7 @@ namespace pcpp
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 		if (m_Precision != FileTimestampPrecision::Nanoseconds)
 		{
-			TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
+			pktHdr.ts = internal::toTimeval(packet_timestamp);
 		}
 		else
 		{
@@ -622,7 +622,7 @@ namespace pcpp
 			pktHdr.ts.tv_usec = packet_timestamp.tv_nsec;
 		}
 #else
-		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
+		pktHdr.ts = internal::toTimeval(packet_timestamp);
 #endif
 		if (!m_AppendMode)
 			pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
