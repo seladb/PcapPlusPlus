@@ -1014,7 +1014,7 @@ namespace pcpp
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
 	{
-		if(packetDataLength < 0)
+		if (packetDataLength < 0)
 		{
 			PCPP_LOG_ERROR("Packet data length is negative: " << packetDataLength);
 			return false;
@@ -1026,7 +1026,7 @@ namespace pcpp
 			return false;
 		}
 
-		if(!isPayloadWithinMtu(packetPayloadLength))
+		if (!isPayloadWithinMtu(packetPayloadLength))
 		{
 			PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
 			                                         << m_DeviceMtu << "]");
