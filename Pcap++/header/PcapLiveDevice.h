@@ -508,6 +508,8 @@ namespace pcpp
 		/// Checks whether the packetPayloadLength is larger than the device MTU. Logs an error if check fails
 		/// @param[in] packetPayloadLength The length of the IP layer of the packet
 		/// @return True if the packetPayloadLength is less than or equal to the device MTU
+		/// @deprecated This method is deprecated. Use isPayloadWithinMtu(size_t packetPayloadLength) instead.
+		PCPP_DEPRECATED("This method is deprecated. Use isPayloadWithinMtu(size_t packetPayloadLength) instead.")
 		bool doMtuCheck(int packetPayloadLength) const;
 
 		/// @brief Checks whether the packetPayloadLength is smaller or equal than the device MTU.
