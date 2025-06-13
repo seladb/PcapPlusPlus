@@ -427,7 +427,8 @@ namespace pcpp
 
 		if (isNflogDevice())
 		{
-			device_name += ":" + std::to_string(config.nflogGroup & 0xffff);
+			device_name += ":";  // prevent UB in string concatenation
+			device_name += std::to_string(config.nflogGroup & 0xffff);
 		}
 
 		auto pcap = internal::PcapHandle(pcap_create(device_name.c_str(), errbuf));
