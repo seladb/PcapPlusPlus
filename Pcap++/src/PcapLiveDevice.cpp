@@ -1014,9 +1014,15 @@ namespace pcpp
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
 	{
+		if(packetDataLength < 0)
+		{
+			PCPP_LOG_ERROR("Packet data length is negative: " << packetDataLength);
+			return false;
+		}
+
 		if (packetPayloadLength < 0)
 		{
-			PCPP_LOG_ERROR("Payload length [" << packetPayloadLength << "] is negative");
+			PCPP_LOG_ERROR("Payload length is negative: " << packetPayloadLength);
 			return false;
 		}
 
