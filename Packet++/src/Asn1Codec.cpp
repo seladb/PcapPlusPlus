@@ -907,7 +907,7 @@ namespace pcpp
 
 		std::tm tm = {};
 		std::istringstream sstream(timeString);
-		sstream >> std::get_time(&tm, "%y%m%d%H%M%S");
+		sstream >> std::get_time(&tm, "%Y%m%d%H%M%S");
 
 		if (sstream.fail())
 		{

@@ -200,7 +200,9 @@ namespace pcpp
 
 	bool directoryExists(const std::string& dirPath)
 	{
-		struct stat info{};
+		struct stat info
+		{
+		};
 
 		if (stat(dirPath.c_str(), &info) != 0)
 		{
@@ -270,25 +272,12 @@ namespace pcpp
 #endif
 	}
 
-	static int localToUtcOffsetSeconds = [] {
-		std::time_t now = std::time(nullptr);
-		auto utcTmNow = std::gmtime(&now);
-		auto localTmNow = std::localtime(&now);
-		return static_cast<int>(std::difftime(std::mktime(localTmNow), std::mktime(utcTmNow)));
-	}();
-
 	time_t mkUtcTime(std::tm& tm)
 	{
-#ifdef __linux__
-		return timegm(&tm);
+#if defined(_WIN32)
+		return _mkgmtime(&tm);
 #else
-		auto localTimeValue = std::mktime(&tm);
-		if (localTimeValue == -1)
-		{
-			throw std::runtime_error("Failed to convert the give std::tm to time_t");
-		}
-
-		return localTimeValue + localToUtcOffsetSeconds;
+		return timegm(&tm);
 #endif
 	}
 
@@ -388,7 +377,9 @@ namespace pcpp
 #if defined(_WIN32)
 		SetConsoleCtrlHandler((PHANDLER_ROUTINE)handlerRoutine, TRUE);
 #else
-		struct sigaction action{};
+		struct sigaction action
+		{
+		};
 		memset(&action, 0, sizeof(struct sigaction));
 		action.sa_handler = handlerRoutine;
 		sigemptyset(&action.sa_mask);
