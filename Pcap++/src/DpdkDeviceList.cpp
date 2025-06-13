@@ -65,6 +65,14 @@ namespace pcpp
 	DpdkDeviceList::~DpdkDeviceList()
 	{
 		m_DpdkDeviceListView.clear();
+		if (m_IsInitialized)
+		{
+			int ret = rte_eal_cleanup();
+			if (ret < 0)
+			{
+				PCPP_LOG_ERROR("failed to cleanup the DPDK EAL");
+			}
+		}
 	}
 
 	bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize,
