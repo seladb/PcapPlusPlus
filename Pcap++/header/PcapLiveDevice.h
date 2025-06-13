@@ -521,7 +521,8 @@ namespace pcpp
 		/// @brief Checks whether the packet's payload length is smaller or equal than the device MTU.
 		///
 		/// If allowUnknownLength is set to true, packets which's length cannot be determined will be allowed.
-		/// In such cases if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
+		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
+		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
 		///
 		/// @param[in] packet The packet to check
 		/// @param[in] allowUnknownLength Controls whether packets with unknown payload length are allowed.
@@ -535,7 +536,8 @@ namespace pcpp
 		/// @brief Checks whether the payload length of a RawPacket is smaller or equal than the device MTU.
 		///
 		/// If allowUnknownLength is set to true, packets with unknown payload length are allowed.
-		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
+		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
+		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
 		///
 		/// @param[in] rawPacket The RawPacket to check.
 		/// @param[in] allowUnknownLength Controls whether packets with unknown payload length are allowed.
@@ -549,7 +551,8 @@ namespace pcpp
 		/// @brief Checks whether the payload length of a packet's raw data is smaller or equal than the device MTU.
 		///
 		/// If allowUnknownLength is set to true, packets with unknown payload length are allowed.
-		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
+		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
+		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
 		///
 		/// @param[in] packetData A pointer to the raw data of the packet.
 		/// @param[in] packetLen The length of the raw data in bytes.
