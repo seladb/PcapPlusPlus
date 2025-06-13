@@ -985,6 +985,7 @@ namespace pcpp
 		if (checkMtu)
 		{
 			size_t packetPayloadLength = 0;
+			// Unknown length is allowed due to legacy behavior of this function
 			if (!isPayloadWithinMtu(packet, true, &packetPayloadLength))
 			{
 				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
@@ -1001,6 +1002,7 @@ namespace pcpp
 		if (checkMtu)
 		{
 			size_t packetPayloadLength = 0;
+			// Unknown length is allowed due to legacy behavior of this function
 			if (!isPayloadWithinMtu(rawPacket, true, &packetPayloadLength))
 			{
 				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
@@ -1048,6 +1050,7 @@ namespace pcpp
 		if (checkMtu)
 		{
 			size_t packetPayloadLength = 0;
+			// Unknown length is allowed due to legacy behavior of this function
 			if (!isPayloadWithinMtu(packetData, packetDataLength, linkType, true, &packetPayloadLength))
 			{
 				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
