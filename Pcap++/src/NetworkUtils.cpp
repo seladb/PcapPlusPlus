@@ -152,7 +152,7 @@ namespace pcpp
 		device->startCapture(arpPacketReceived, &data);
 
 		// send the ARP request
-		device->sendPacket(&arpRequest);
+		device->sendPacket(arpRequest);
 
 		// block on the conditional mutex until capture thread signals or until timeout expires
 		// cppcheck-suppress localMutex
@@ -395,7 +395,7 @@ namespace pcpp
 		device->startCapture(dnsResponseReceived, &data);
 
 		// send the DNS request
-		device->sendPacket(&dnsRequest);
+		device->sendPacket(dnsRequest);
 
 		// block on the conditional mutex until capture thread signals or until timeout expires
 		// cppcheck-suppress localMutex
