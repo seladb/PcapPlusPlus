@@ -916,7 +916,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (!checkMtu(packetPayloadLength))
+		if (!isPayloadWithinMtu(packetPayloadLength))
 		{
 			PCPP_LOG_ERROR("Payload length [" << packetPayloadLength << "] is larger than device MTU [" << m_DeviceMtu
 			                                  << "]");
@@ -925,12 +925,67 @@ namespace pcpp
 		return true;
 	}
 
+	bool PcapLiveDevice::isPayloadWithinMtu(size_t packetPayloadLength) const
+	{
+		return packetPayloadLength <= static_cast<size_t>(m_DeviceMtu);
+	}
+
+	bool PcapLiveDevice::isPayloadWithinMtu(Packet const& packet, bool allowUnknownLength,
+	                                        size_t* outPayloadLength) const
+	{
+		size_t packetPayloadLength = 0;
+		switch (packet.getFirstLayer()->getOsiModelLayer())
+		{
+		case pcpp::OsiModelDataLinkLayer:
+			packetPayloadLength = packet.getFirstLayer()->getLayerPayloadSize();
+			break;
+		case pcpp::OsiModelNetworkLayer:
+			packetPayloadLength = packet.getFirstLayer()->getDataLen();
+			break;
+		default:
+		{
+			// If the packet length is unknown, the MTU check is skipped.
+			// In such cases the output payload length is set to the maximum size and the return value is the
+			// allowUnknownLength value.
+			if (outPayloadLength != nullptr)
+			{
+				*outPayloadLength = (std::numeric_limits<size_t>::max)();
+			}
+			return allowUnknownLength;
+		}
+		}
+
+		if (outPayloadLength != nullptr)
+		{
+			*outPayloadLength = packetPayloadLength;
+		}
+		return isPayloadWithinMtu(packetPayloadLength);
+	}
+
+	bool PcapLiveDevice::isPayloadWithinMtu(RawPacket const& rawPacket, bool allowUnknownLength,
+	                                        size_t* outPayloadLength) const
+	{
+		// Const cast because Packet requires a non-const RawPacket pointer
+		// and we don't modify the RawPacket in this function.
+		return isPayloadWithinMtu(Packet(const_cast<RawPacket*>(&rawPacket), OsiModelDataLinkLayer), allowUnknownLength,
+		                          outPayloadLength);
+	}
+
+	bool PcapLiveDevice::isPayloadWithinMtu(uint8_t const* packetData, size_t packetLen, LinkLayerType linkType,
+	                                        bool allowUnknown, size_t* outPayloadLength) const
+	{
+		timeval time;
+		gettimeofday(&time, nullptr);
+		return isPayloadWithinMtu(RawPacket(packetData, packetLen, time, false, linkType), allowUnknown,
+		                          outPayloadLength);
+	}
+
 	bool PcapLiveDevice::sendPacket(Packet const& packet, bool checkMtu)
 	{
 		if (checkMtu)
 		{
 			size_t packetPayloadLength = 0;
-			if (!this->checkMtu(packet, true, &packetPayloadLength))
+			if (!isPayloadWithinMtu(packet, true, &packetPayloadLength))
 			{
 				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
 				                                         << m_DeviceMtu << "]");
@@ -946,7 +1001,7 @@ namespace pcpp
 		if (checkMtu)
 		{
 			size_t packetPayloadLength = 0;
-			if (!this->checkMtu(rawPacket, true, &packetPayloadLength))
+			if (!isPayloadWithinMtu(rawPacket, true, &packetPayloadLength))
 			{
 				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
 				                                         << m_DeviceMtu << "]");
@@ -959,7 +1014,20 @@ namespace pcpp
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
 	{
-		return doMtuCheck(packetPayloadLength) && sendPacketUnchecked(packetData, packetDataLength);
+		if (packetPayloadLength < 0)
+		{
+			PCPP_LOG_ERROR("Payload length [" << packetPayloadLength << "] is negative");
+			return false;
+		}
+
+		if(!isPayloadWithinMtu(packetPayloadLength))
+		{
+			PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
+			                                         << m_DeviceMtu << "]");
+			return false;
+		}
+
+		return sendPacketUnchecked(packetData, packetDataLength);
 	}
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu,
@@ -974,7 +1042,7 @@ namespace pcpp
 		if (checkMtu)
 		{
 			size_t packetPayloadLength = 0;
-			if (!this->checkMtu(packetData, packetDataLength, linkType, true, &packetPayloadLength))
+			if (!isPayloadWithinMtu(packetData, packetDataLength, linkType, true, &packetPayloadLength))
 			{
 				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
 				                                         << m_DeviceMtu << "]");
@@ -1044,58 +1112,6 @@ namespace pcpp
 	{
 		return sendPacketsLoop(rawPackets.begin(), rawPackets.end(),
 		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
-	}
-
-	bool PcapLiveDevice::checkMtu(size_t packetPayloadLength) const
-	{
-		return packetPayloadLength <= static_cast<size_t>(m_DeviceMtu);
-	}
-
-	bool PcapLiveDevice::checkMtu(Packet const& packet, bool allowUnknown, size_t* outPayloadLength) const
-	{
-		size_t packetPayloadLength = 0;
-		switch (packet.getFirstLayer()->getOsiModelLayer())
-		{
-		case pcpp::OsiModelDataLinkLayer:
-			packetPayloadLength = packet.getFirstLayer()->getLayerPayloadSize();
-			break;
-		case pcpp::OsiModelNetworkLayer:
-			packetPayloadLength = packet.getFirstLayer()->getDataLen();
-			break;
-		default:
-		{
-			// If the packet length is unknown, the MTU check is skipped.
-			// In such cases the output payload length is set to the maximum size and the return value is the
-			// allowUnknown value.
-			if (outPayloadLength != nullptr)
-			{
-				*outPayloadLength = (std::numeric_limits<size_t>::max)();
-			}
-			return allowUnknown;
-		}
-		}
-
-		if (outPayloadLength != nullptr)
-		{
-			*outPayloadLength = packetPayloadLength;
-		}
-		return checkMtu(packetPayloadLength);
-	}
-
-	bool PcapLiveDevice::checkMtu(RawPacket const& rawPacket, bool allowUnknown, size_t* outPayloadLength) const
-	{
-		// Const cast because Packet requires a non-const RawPacket pointer
-		// and we don't modify the RawPacket in this function.
-		return checkMtu(Packet(const_cast<RawPacket*>(&rawPacket), OsiModelDataLinkLayer), allowUnknown,
-		                outPayloadLength);
-	}
-
-	bool PcapLiveDevice::checkMtu(uint8_t const* packetData, size_t packetLen, LinkLayerType linkType,
-	                              bool allowUnknown, size_t* outPayloadLength) const
-	{
-		timeval time;
-		gettimeofday(&time, nullptr);
-		return checkMtu(RawPacket(packetData, packetLen, time, false, linkType), allowUnknown, outPayloadLength);
 	}
 
 	void PcapLiveDevice::setDeviceMtu()

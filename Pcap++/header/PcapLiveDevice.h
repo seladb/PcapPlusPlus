@@ -510,6 +510,53 @@ namespace pcpp
 		/// @return True if the packetPayloadLength is less than or equal to the device MTU
 		bool doMtuCheck(int packetPayloadLength) const;
 
+		/// @brief Checks whether the packetPayloadLength is smaller or equal than the device MTU.
+		/// @param[in] payloadLength The length of the IP layer of the packet
+		/// @return True if the payloadLength is less than or equal to the device MTU
+		bool isPayloadWithinMtu(size_t payloadLength) const;
+
+		/// @brief Checks whether the packet's payload length is smaller or equal than the device MTU.
+		///
+		/// If allowUnknownLength is set to true, packets which's length cannot be determined will be allowed.
+		/// In such cases if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
+		///
+		/// @param[in] packet The packet to check
+		/// @param[in] allowUnknownLength Controls whether packets with unknown payload length are allowed.
+		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
+		/// pointer.
+		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		bool isPayloadWithinMtu(Packet const& packet, bool allowUnknownLength = false,
+		                        size_t* outPayloadLength = nullptr) const;
+
+		/// @brief Checks whether the payload length of a RawPacket is smaller or equal than the device MTU.
+		///
+		/// If allowUnknownLength is set to true, packets with unknown payload length are allowed.
+		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
+		///
+		/// @param[in] rawPacket The RawPacket to check.
+		/// @param[in] allowUnknownLength Controls whether packets with unknown payload length are allowed.
+		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
+		/// pointer.
+		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		bool isPayloadWithinMtu(RawPacket const& rawPacket, bool allowUnknownLength = false,
+		                        size_t* outPayloadLength = nullptr) const;
+
+		/// @brief Checks whether the payload length of a packet's raw data is smaller or equal than the device MTU.
+		///
+		/// If allowUnknownLength is set to true, packets with unknown payload length are allowed.
+		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
+		///
+		/// @param[in] packetData A pointer to the raw data of the packet.
+		/// @param[in] packetLen The length of the raw data in bytes.
+		/// @param[in] linkType The link layer type of the packet. Default is pcpp::LINKTYPE_ETHERNET.
+		/// @param[in] allowUnknownLength Controls whether packets with unknown payload length are allowed.
+		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
+		/// pointer.
+		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		bool isPayloadWithinMtu(uint8_t const* packetData, size_t packetLen,
+		                        LinkLayerType linkType = pcpp::LINKTYPE_ETHERNET, bool allowUnknownLength = false,
+		                        size_t* outPayloadLength = nullptr) const;
+
 		/// Send a parsed Packet to the network
 		/// @param[in] packet A pointer to the packet to send. This method treats the packet as read-only, it doesn't
 		/// change anything in it
@@ -670,50 +717,6 @@ namespace pcpp
 		{}
 
 		internal::PcapHandle doOpen(const DeviceConfiguration& config);
-
-		/// @brief Checks whether the packetPayloadLength is smaller or equal than the device MTU.
-		/// @param[in] payloadLength The length of the IP layer of the packet
-		/// @return True if the payloadLength is less than or equal to the device MTU
-		bool checkMtu(size_t payloadLength) const;
-
-		/// @brief Checks whether the packet's payload length is smaller or equal than the device MTU.
-		///
-		/// If allowUnknown is set to true, packets which's length cannot be determined will be allowed.
-		/// In such cases if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
-		///
-		/// @param[in] packet The packet to check
-		/// @param[in] allowUnknown Controls whether packets with unknown payload length are allowed.
-		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
-		/// pointer.
-		/// @return True if the packet's payload length is less than or equal to the device MTU.
-		bool checkMtu(Packet const& packet, bool allowUnknown = true, size_t* outPayloadLength = nullptr) const;
-
-		/// @brief Checks whether the payload length of a RawPacket is smaller or equal than the device MTU.
-		///
-		/// If allowUnknown is set to true, packets with unknown payload length are allowed.
-		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
-		///
-		/// @param[in] rawPacket The RawPacket to check.
-		/// @param[in] allowUnknown Controls whether packets with unknown payload length are allowed.
-		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
-		/// pointer.
-		/// @return True if the packet's payload length is less than or equal to the device MTU.
-		bool checkMtu(RawPacket const& rawPacket, bool allowUnknown = true, size_t* outPayloadLength = nullptr) const;
-
-		/// @brief Checks whether the payload length of a packet's raw data is smaller or equal than the device MTU.
-		///
-		/// If allowUnknown is set to true, packets with unknown payload length are allowed.
-		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum possible payload length.
-		///
-		/// @param[in] packetData A pointer to the raw data of the packet.
-		/// @param[in] packetLen The length of the raw data in bytes.
-		/// @param[in] linkType The link layer type of the packet. Default is pcpp::LINKTYPE_ETHERNET.
-		/// @param[in] allowUnknown Controls whether packets with unknown payload length are allowed.
-		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
-		/// pointer.
-		/// @return True if the packet's payload length is less than or equal to the device MTU.
-		bool checkMtu(uint8_t const* packetData, size_t packetLen, LinkLayerType linkType = pcpp::LINKTYPE_ETHERNET,
-		              bool allowUnknown = true, size_t* outPayloadLength = nullptr) const;
 
 		// Sends a packet directly to the network.
 		bool sendPacketUnchecked(uint8_t const* packetData, int packetDataLength);
