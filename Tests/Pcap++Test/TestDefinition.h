@@ -93,6 +93,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags);
 PTF_TEST_CASE(TestIPFragMapOverflow);
 PTF_TEST_CASE(TestIPFragRemove);
 PTF_TEST_CASE(TestIPFragWithPadding);
+PTF_TEST_CASE(TestIPv4MalformedFragment);
 
 // Implemented in PfRingTests.cpp
 PTF_TEST_CASE(TestPfRingDevice);

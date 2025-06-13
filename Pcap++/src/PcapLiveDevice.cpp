@@ -427,7 +427,8 @@ namespace pcpp
 
 		if (isNflogDevice())
 		{
-			device_name += ":" + std::to_string(config.nflogGroup & 0xffff);
+			device_name += ":";  // prevent UB in string concatenation
+			device_name += std::to_string(config.nflogGroup & 0xffff);
 		}
 
 		auto pcap = internal::PcapHandle(pcap_create(device_name.c_str(), errbuf));
@@ -872,6 +873,11 @@ namespace pcpp
 		// in blocking mode stop capture isn't relevant
 		if (m_cbOnPacketArrivesBlockingMode != nullptr)
 			return;
+
+		if (m_CaptureThread.get_id() != std::thread::id{} && m_CaptureThread.get_id() == std::this_thread::get_id())
+		{
+			throw std::runtime_error("Cannot stop capture from the capture thread itself");
+		}
 
 		m_StopThread = true;
 		if (m_CaptureThreadStarted)
