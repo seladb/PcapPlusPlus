@@ -279,6 +279,9 @@ namespace pcpp
 
 	time_t mkUtcTime(std::tm& tm)
 	{
+#ifdef __linux__
+		return timegm(&tm);
+#else
 		auto localTimeValue = std::mktime(&tm);
 		if (localTimeValue == -1)
 		{
@@ -286,6 +289,7 @@ namespace pcpp
 		}
 
 		return localTimeValue + localToUtcOffsetSeconds;
+#endif
 	}
 
 	void multiPlatformSleep(uint32_t seconds)

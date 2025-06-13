@@ -980,7 +980,8 @@ namespace pcpp
 			// Limit the milliseconds to 3 digits
 			if (millisecondsStr.length() > 3)
 			{
-				millisecondsStr = millisecondsStr.substr(0, 3);
+				timeString.erase(timezonePos);
+				millisecondsStr.resize(3);
 			}
 			milliseconds = std::stoi(millisecondsStr);
 		}
