@@ -519,8 +519,8 @@ namespace pcpp
 		bool isPayloadWithinMtu(size_t payloadLength) const;
 
 		/// @brief Checks whether the packet's payload length is smaller or equal than the device MTU.
-		///
-		/// If allowUnknownLength is set to true, packets which's length cannot be determined will be allowed.
+		/// 
+		/// If the payload length cannot be determined, the function will return the value of allowUnknownLength.
 		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
 		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
 		///
@@ -535,7 +535,7 @@ namespace pcpp
 
 		/// @brief Checks whether the payload length of a RawPacket is smaller or equal than the device MTU.
 		///
-		/// If allowUnknownLength is set to true, packets with unknown payload length are allowed.
+		/// If the payload length cannot be determined, the function will return the value of allowUnknownLength.
 		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
 		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
 		///
@@ -550,7 +550,7 @@ namespace pcpp
 
 		/// @brief Checks whether the payload length of a packet's raw data is smaller or equal than the device MTU.
 		///
-		/// If allowUnknownLength is set to true, packets with unknown payload length are allowed.
+		/// If the payload length cannot be determined, the function will return the value of allowUnknownLength.
 		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
 		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
 		///
