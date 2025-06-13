@@ -528,6 +528,7 @@ namespace pcpp
 		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
 		/// pointer.
 		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		/// If the packet's length cannot be determined, it will return true if allowUnknownLength is true.
 		bool isPayloadWithinMtu(Packet const& packet, bool allowUnknownLength = false,
 		                        size_t* outPayloadLength = nullptr) const;
 
@@ -541,6 +542,7 @@ namespace pcpp
 		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
 		/// pointer.
 		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		/// If the packet's length cannot be determined, it will return true if allowUnknownLength is true.
 		bool isPayloadWithinMtu(RawPacket const& rawPacket, bool allowUnknownLength = false,
 		                        size_t* outPayloadLength = nullptr) const;
 
@@ -556,6 +558,7 @@ namespace pcpp
 		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
 		/// pointer.
 		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		/// If the packet's length cannot be determined, it will return true if allowUnknownLength is true.
 		bool isPayloadWithinMtu(uint8_t const* packetData, size_t packetLen,
 		                        LinkLayerType linkType = pcpp::LINKTYPE_ETHERNET, bool allowUnknownLength = false,
 		                        size_t* outPayloadLength = nullptr) const;
