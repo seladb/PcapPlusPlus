@@ -428,6 +428,12 @@ if(PCAPPP_PACKAGE)
   set(CPACK_PACKAGE_NAME "pcapplusplus")
   set(CPACK_PACKAGE_VERSION "${PCAPPP_VERSION}")
   set(CPACK_PACKAGE_MAINTAINER "seladb")
+  set(CPACK_COMPONENTS_ALL runtime devel examples)
+  set(CPACK_COMPONENT_RUNTIME_DESCRIPTION "Shared libraries and runtime files required to run PcapPlusPlus-based applications.")
+  set(CPACK_COMPONENT_DEVEL_DESCRIPTION "Header files, CMake configuration, and other resources needed for developing with PcapPlusPlus.")
+  set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION "A collection of example applications demonstrating how to use PcapPlusPlus features and APIs.")
+  set(CPACK_COMPONENT_STATIC_DESCRIPTION "Static library files for linking PcapPlusPlus directly into your applications.")
+
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_MAINTAINER}")
   set(
     CPACK_PACKAGE_DESCRIPTION_SUMMARY
@@ -436,6 +442,8 @@ if(PCAPPP_PACKAGE)
 
   # Default output a .tar.gz
   set(CPACK_GENERATOR "TGZ")
+  # Archive will include all components (Runtime, Development, Examples, Static, etc.)
+  set(CPACK_ARCHIVE_COMPONENT_INSTALL OFF)
 
   # Remove the tweak for Compiler Version
   string(REPLACE "." ";" VERSION_LIST ${CMAKE_CXX_COMPILER_VERSION})
