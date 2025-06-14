@@ -585,7 +585,7 @@ namespace pcpp
 	public:
 		/// @return The time-point value of this record
 		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
-		/// timezones. The default value it UTC
+		/// timezones. The default value is UTC
 		/// @throws std::invalid_argument if timezone is not in the correct format
 		std::chrono::system_clock::time_point getValue(const std::string& timezone = "Z")
 		{
@@ -595,8 +595,8 @@ namespace pcpp
 
 		/// @param[in] format Requested value format
 		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
-		/// timezones
-		/// @param includeMilliseconds Include milliseconds in the returned string
+		/// timezones. The default value is UTC
+		/// @param[in] includeMilliseconds Should Include milliseconds in the returned string
 		/// @throws std::invalid_argument if timezone is not in the correct format
 		/// @return The value as string
 		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
@@ -625,8 +625,8 @@ namespace pcpp
 
 	public:
 		/// A constructor to create a record of type UTC time
-		/// @param value A time-point to set as the record value
-		/// @param withSeconds Write the ASN.1 record with second precision
+		/// @param[in] value A time-point to set as the record value
+		/// @param[in] withSeconds Should write the ASN.1 record with second precision. The default is true
 		explicit Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds = true);
 
 	protected:
@@ -646,8 +646,10 @@ namespace pcpp
 
 	public:
 		/// A constructor to create a record of type generalized time
-		/// @param value A time-point to set as the record value
-		/// @param timezone The time-point's timezone. If not provided it's assumed the timezone is UTC
+		/// @param[in] value A time-point to set as the record value
+		/// @param[in] timezone The time-point's timezone - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. If not provided it's assumed the timezone is UTC
+		/// @throws std::invalid_argument if timezone is not in the correct format
 		explicit Asn1GeneralizedTimeRecord(const std::chrono::system_clock::time_point& value,
 		                                   const std::string& timezone = "Z");
 
