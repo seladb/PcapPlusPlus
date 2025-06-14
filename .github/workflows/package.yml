@@ -417,14 +417,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Build project
-        run: |
-          mkdir -p "${{ env.BUILD_DIR }}"
-          cd "${{ env.BUILD_DIR }}"
-          cmake ..
-          make -j$(nproc)
-          make install DESTDIR=$PWD/install-root
-
       - name: Set package version
         shell: bash
         run: |
@@ -433,25 +425,17 @@ jobs:
           VERSION="${RAW_VERSION//\//-}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Create DEB control file
-        shell: bash
+      - name: Configure and build with CMake
         run: |
-          cd "${{ env.BUILD_DIR }}/install-root"
-          mkdir -p DEBIAN
-          cat <<EOF > DEBIAN/control
-          Package: pcapplusplus
-          Version: ${{ env.VERSION }}
-          Section: libs
-          Architecture: amd64
-          Maintainer: PcapPlusPlus Team <pcapplusplus@gmail.com>
-          Description: PcapPlusPlus - C++ library for packet parsing and crafting
-          EOF
+          mkdir -p "${{ env.BUILD_DIR }}"
+          cd "${{ env.BUILD_DIR }}"
+          cmake -DPCAPPP_PACKAGE=ON -DPCAPPP_INSTALL=ON -DPROJECT_VERSION=${{ env.VERSION }} ..
+          make -j$(nproc)
 
-      - name: Build DEB package
-        shell: bash
+      - name: Package with CPack (DEB)
         run: |
           cd "${{ env.BUILD_DIR }}"
-          dpkg-deb --build install-root "pcapplusplus_${{ env.VERSION }}_amd64.deb"
+          cpack -G DEB
 
       - name: Upload DEB to release
         if: github.ref_type == 'tag'
@@ -460,4 +444,4 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: "${{ env.BUILD_DIR }}/pcapplusplus_${{ env.VERSION }}_amd64.deb"
+          artifacts: "${{ env.BUILD_DIR }}/*.deb"
