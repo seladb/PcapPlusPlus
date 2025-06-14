@@ -370,7 +370,11 @@ if(PCAPPP_INSTALL)
       "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
       @ONLY
     )
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    install(
+      FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
+      DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+      COMPONENT devel
+    )
   endif()
 
   # CMake helpers to compile Pcap++ with CMake
@@ -392,7 +396,7 @@ if(PCAPPP_INSTALL)
     pcapp_install_cmake_module(ZSTD)
   endif()
 
-  install(EXPORT PcapPlusPlusTargets DESTINATION ${PCAPPP_INSTALL_CMAKEDIR} NAMESPACE PcapPlusPlus::)
+  install(EXPORT PcapPlusPlusTargets DESTINATION ${PCAPPP_INSTALL_CMAKEDIR} NAMESPACE PcapPlusPlus:: COMPONENT devel)
 
   configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in"
