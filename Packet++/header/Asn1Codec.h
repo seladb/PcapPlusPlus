@@ -583,9 +583,9 @@ namespace pcpp
 	class Asn1TimeRecord : public Asn1PrimitiveRecord
 	{
 	public:
-		/// @return The time-point value of this record
 		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
 		/// timezones. The default value is UTC
+		/// @return The time-point value of this record
 		/// @throws std::invalid_argument if timezone is not in the correct format
 		std::chrono::system_clock::time_point getValue(const std::string& timezone = "Z")
 		{
@@ -597,8 +597,8 @@ namespace pcpp
 		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
 		/// timezones. The default value is UTC
 		/// @param[in] includeMilliseconds Should Include milliseconds in the returned string
-		/// @throws std::invalid_argument if timezone is not in the correct format
 		/// @return The value as string
+		/// @throws std::invalid_argument if timezone is not in the correct format
 		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
 		                             bool includeMilliseconds = false);
 
