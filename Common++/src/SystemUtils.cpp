@@ -258,8 +258,6 @@ namespace pcpp
 
 #else  // Linux
 
-#	include <ctime>
-
 		timespec tspec{};
 		const int res = clock_gettime(CLOCK_REALTIME, &tspec);
 		if (res == 0)
@@ -269,6 +267,15 @@ namespace pcpp
 		}
 		return res;
 
+#endif
+	}
+
+	time_t mkUtcTime(std::tm& tm)
+	{
+#if defined(_WIN32)
+		return _mkgmtime(&tm);
+#else
+		return timegm(&tm);
 #endif
 	}
 
