@@ -744,21 +744,25 @@ namespace pcpp
 
 		if (newNlriDataLen > curNlriDataLen)
 		{
-			try
+			
+			// offsetInLayer, numOfBytesToExtend
+			//		int indexToInsertData = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
+			auto bytesToExtend = newNlriDataLen - curNlriDataLen;
+			if(m_Data != nullptr 
+				&& m_Packet != nullptr 
+				&& static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen()) + bytesToExtend < static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen()) )
 			{
-				bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
-				                           curPathAttributesDataLen,
-				                       newNlriDataLen - curNlriDataLen);
-				if (!res)
-				{
-					PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
-					return res;
-				}
-			}
-			catch (const std::length_error& e)
-			{
-				PCPP_LOG_ERROR("Failed to extend BGP update layer: " << e.what());
+				PCPP_LOG_ERROR("Failed to extend BGP update layer, the new data length exceeds the raw packet's data length");
 				return false;
+			}
+			
+			bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
+										curPathAttributesDataLen,
+									bytesToExtend);
+			if (!res)
+			{
+				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
+				return res;
 			}
 		}
 		else if (newNlriDataLen < curNlriDataLen)

@@ -115,7 +115,7 @@ namespace pcpp
 	void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 	{
 		// Check for overflow in the new length
-		if ((size_t)m_RawDataLen + dataToInsertLen < (size_t)m_RawDataLen)
+		if (static_cast<size_t>(m_RawDataLen) + dataToInsertLen < static_cast<size_t>(m_RawDataLen))
 		{
 			throw std::length_error(
 			    "RawPacket::insertData: dataToInsertLen causes overflow in the new length calculation");
