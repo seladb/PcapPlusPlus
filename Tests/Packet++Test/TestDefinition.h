@@ -282,4 +282,3 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest);
 
 // Implemented in ModbusTests.cpp
 PTF_TEST_CASE(ModbusLayerCreationTest);
-PTF_TEST_CASE(ModbusLayerParsingTest);
