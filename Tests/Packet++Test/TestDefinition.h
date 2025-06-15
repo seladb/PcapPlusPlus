@@ -279,3 +279,6 @@ PTF_TEST_CASE(WireGuardEditTest);
 PTF_TEST_CASE(CiscoHdlcParsingTest);
 PTF_TEST_CASE(CiscoHdlcLayerCreationTest);
 PTF_TEST_CASE(CiscoHdlcLayerEditTest);
+
+// Implemented in ModbusTests.cpp
+PTF_TEST_CASE(ModbusLayerCreationTest);
