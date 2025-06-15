@@ -1,5 +1,6 @@
 #include "ModbusLayer.h"
 #include "EndianPortable.h"
+#include <cstring>
 
 namespace pcpp
 {
@@ -13,8 +14,8 @@ namespace pcpp
 		// Initialize the header fields to default values
 		modbus_common_header* header = getModbusHeader();
 		header->transactionId = htobe16(transactionId);
-		header->protocolId = 0;  // 0 for Modbus/TCP
-		header->length = htobe16(2);      // minimum length of the MODBUS payload + unit_id
+		header->protocolId = 0;       // 0 for Modbus/TCP
+		header->length = htobe16(2);  // minimum length of the MODBUS payload + unit_id
 		header->unitId = unitId;
 		header->functionCode = functionCode;
 	}
