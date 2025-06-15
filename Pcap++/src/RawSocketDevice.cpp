@@ -116,7 +116,7 @@ namespace pcpp
 		ioctlsocket(fd, FIONBIO, &blockingMode);
 
 		DWORD timeoutVal = timeout * 1000;  // convert to milliseconds
-		setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
+		setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeoutVal), sizeof(timeoutVal));
 
 		// recvfrom(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0, (struct sockaddr*)&sockAddr,(socklen_t*)&sockAddrLen);
 		int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);
@@ -272,7 +272,7 @@ namespace pcpp
 			return false;
 		}
 
-		Packet packet((RawPacket*)rawPacket, OsiModelDataLinkLayer);
+		Packet packet(const_cast<RawPacket*>(rawPacket), OsiModelDataLinkLayer);
 		if (!packet.isPacketOfType(pcpp::Ethernet))
 		{
 			PCPP_LOG_ERROR("Can't send non-Ethernet packets");
@@ -292,8 +292,8 @@ namespace pcpp
 		MacAddress dstMac = ethLayer->getDestMac();
 		dstMac.copyTo((uint8_t*)&(addr.sll_addr));
 
-		if (::sendto(fd, ((RawPacket*)rawPacket)->getRawData(), ((RawPacket*)rawPacket)->getRawDataLen(), 0,
-		             (struct sockaddr*)&addr, sizeof(addr)) == -1)
+		if (::sendto(fd, rawPacket->getRawData(), rawPacket->getRawDataLen(), 0, reinterpret_cast<sockaddr*>(&addr),
+		             sizeof(addr)) == -1)
 		{
 			PCPP_LOG_ERROR("Failed to send packet. Error was: '" << strerror(errno) << "'");
 			return false;
@@ -324,20 +324,21 @@ namespace pcpp
 			return 0;
 		}
 
-		int fd = ((SocketContainer*)m_Socket)->fd;
+		auto* socketContainer = static_cast<SocketContainer*>(m_Socket);
+		int fd = socketContainer->fd;
 
 		sockaddr_ll addr;
 		memset(&addr, 0, sizeof(struct sockaddr_ll));
 		addr.sll_family = htobe16(PF_PACKET);
 		addr.sll_protocol = htobe16(ETH_P_ALL);
 		addr.sll_halen = 6;
-		addr.sll_ifindex = ((SocketContainer*)m_Socket)->interfaceIndex;
+		addr.sll_ifindex = socketContainer->interfaceIndex;
 
 		int sendCount = 0;
 
-		for (RawPacketVector::ConstVectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
+		for (auto rawPacket : packetVec)
 		{
-			Packet packet(*iter, OsiModelDataLinkLayer);
+			Packet packet(rawPacket, OsiModelDataLinkLayer);
 			if (!packet.isPacketOfType(pcpp::Ethernet))
 			{
 				PCPP_LOG_DEBUG("Can't send non-Ethernet packets");
@@ -348,7 +349,7 @@ namespace pcpp
 			MacAddress dstMac = ethLayer->getDestMac();
 			dstMac.copyTo((uint8_t*)&(addr.sll_addr));
 
-			if (::sendto(fd, (*iter)->getRawData(), (*iter)->getRawDataLen(), 0, (struct sockaddr*)&addr,
+			if (::sendto(fd, rawPacket->getRawData(), rawPacket->getRawDataLen(), 0, reinterpret_cast<sockaddr*>(&addr),
 			             sizeof(addr)) == -1)
 			{
 				PCPP_LOG_DEBUG("Failed to send packet. Error was: '" << strerror(errno) << "'");
@@ -420,7 +421,7 @@ namespace pcpp
 			localAddrSize = sizeof(localAddrIPv6);
 		}
 
-		if (bind(fd, (struct sockaddr*)localAddr, localAddrSize) == SOCKET_ERROR)
+		if (bind(fd, static_cast<sockaddr*>(localAddr), localAddrSize) == SOCKET_ERROR)
 		{
 			PCPP_LOG_ERROR("Failed to bind to interface. Error code was '" << WSAGetLastError() << "'");
 			closesocket(fd);
@@ -440,7 +441,7 @@ namespace pcpp
 		}
 
 		m_Socket = new SocketContainer();
-		((SocketContainer*)m_Socket)->fd = fd;
+		static_cast<SocketContainer*>(m_Socket)->fd = fd;
 
 		m_DeviceOpened = true;
 
@@ -540,7 +541,7 @@ namespace pcpp
 	{
 		if (m_Socket != nullptr && isOpened())
 		{
-			SocketContainer* sockContainer = (SocketContainer*)m_Socket;
+			SocketContainer* sockContainer = static_cast<SocketContainer*>(m_Socket);
 #if defined(_WIN32)
 			closesocket(sockContainer->fd);
 #elif defined(__linux__)
