@@ -18,6 +18,7 @@
 #include "SmtpLayer.h"
 #include "LdapLayer.h"
 #include "GtpLayer.h"
+#include "ModbusLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "DeprecationUtils.h"
@@ -455,6 +456,10 @@ namespace pcpp
 		         GtpV2Layer::isDataValid(payload, payloadLen))
 		{
 			constructNextLayer<GtpV2Layer>(payload, payloadLen, m_Packet);
+		}
+		else if (ModbusLayer::isModbusPort(portDst))
+		{
+			constructNextLayer<ModbusLayer>(payload, payloadLen, m_Packet);
 		}
 		else
 		{

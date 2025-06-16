@@ -49,6 +49,14 @@ namespace pcpp
 		/// @param[in] functionCode Function code
 		ModbusLayer(uint16_t transactionId, uint8_t unitId, uint8_t functionCode);
 
+		/// @brief  Check if a port is a valid MODBUS port
+		/// @param port
+		/// @return
+		static bool isModbusPort(uint16_t port)
+		{
+			return port == 502;
+		}
+
 		/// @return A pointer to the MODBUS header
 		modbus_common_header* getModbusHeader() const;
 

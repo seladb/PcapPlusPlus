@@ -348,6 +348,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(CiscoHdlcLayerEditTest, "chdlc");
 
 	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
+	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
 
 	PTF_END_RUNNING_TESTS;
 }
