@@ -341,6 +341,11 @@ namespace pcpp
 					newRecord = new Asn1NullRecord();
 					break;
 				}
+				case Asn1UniversalTagType::ObjectIdentifier:
+				{
+					newRecord = new Asn1OidRecord();
+					break;
+				}
 				default:
 				{
 					newRecord = new Asn1GenericRecord();
@@ -770,5 +775,159 @@ namespace pcpp
 	{
 		m_ValueLength = 0;
 		m_TotalLength = 2;
+	}
+
+	Asn1ObjectIdentifier::Asn1ObjectIdentifier(const uint8_t* data, size_t dataLen)
+	{
+		if (!data || dataLen == 0)
+		{
+			throw std::invalid_argument("Malformed OID: Not enough bytes for the first component");
+		}
+
+		size_t currentByteIndex = 0;
+		std::vector<uint32_t> components;
+
+		uint8_t firstByte = data[currentByteIndex++];
+		components.push_back(static_cast<uint32_t>(firstByte / 40));
+		components.push_back(static_cast<uint32_t>(firstByte % 40));
+
+		uint32_t currentComponentValue = 0;
+		bool componentStarted = false;
+
+		while (currentByteIndex < dataLen)
+		{
+			uint8_t byte = data[currentByteIndex++];
+
+			currentComponentValue = (currentComponentValue << 7) | (byte & 0x7f);
+			componentStarted = true;
+
+			if ((byte & 0x80) == 0)
+			{
+				components.push_back(currentComponentValue);
+				currentComponentValue = 0;
+				componentStarted = false;
+			}
+		}
+
+		if (componentStarted)
+		{
+			throw std::invalid_argument("Malformed OID: Incomplete component at end of data");
+		}
+
+		m_Components = components;
+	}
+
+	Asn1ObjectIdentifier::Asn1ObjectIdentifier(const std::string& oidString)
+	{
+		std::vector<uint32_t> components;
+		std::istringstream stream(oidString);
+		std::string token;
+
+		while (std::getline(stream, token, '.'))
+		{
+			if (token.empty())
+			{
+				throw std::invalid_argument("Malformed OID: empty component");
+			}
+
+			unsigned long long value;
+			try
+			{
+				value = std::stoull(token);
+			}
+			catch (const std::exception&)
+			{
+				throw std::invalid_argument("Malformed OID: invalid component");
+			}
+
+			if (value > std::numeric_limits<uint32_t>::max())
+			{
+				throw std::invalid_argument("Malformed OID: component out of uint32_t range");
+			}
+
+			components.push_back(static_cast<uint32_t>(value));
+		}
+
+		if (components.size() < 2)
+		{
+			throw std::invalid_argument("Malformed OID: an OID must have at least two components");
+		}
+
+		if (components[0] > 2)
+		{
+			throw std::invalid_argument("Malformed OID: first component must be 0, 1, or 2");
+		}
+
+		if ((components[0] == 0 || components[0] == 1) && components[1] >= 40)
+		{
+			throw std::invalid_argument(
+			    "Malformed OID: second component must be less than 40 when first component is 0 or 1");
+		}
+
+		m_Components = components;
+	}
+
+	std::vector<uint8_t> Asn1ObjectIdentifier::toBytes() const
+	{
+		if (m_Components.size() < 2)
+		{
+			throw std::runtime_error("OID must have at least two components to encode.");
+		}
+
+		std::vector<uint8_t> encoded;
+
+		// Step 1: Encode the first byte
+		uint32_t first = m_Components[0];
+		uint32_t second = m_Components[1];
+
+		if (first > 2 || (first < 2 && second >= 40))
+		{
+			throw std::runtime_error(
+			    "Invalid OID: first component must be 0, 1, or 2; second must be < 40 if first is 0 or 1.");
+		}
+
+		encoded.push_back(static_cast<uint8_t>(first * 40 + second));
+
+		// Step 2: Encode remaining components
+		for (size_t i = 2; i < m_Components.size(); ++i)
+		{
+			uint32_t value = m_Components[i];
+			std::vector<uint8_t> temp;
+
+			// At least one byte is needed even for value == 0
+			do
+			{
+				temp.push_back(static_cast<uint8_t>(value & 0x7F));
+				value >>= 7;
+			} while (value > 0);
+
+			// Reverse the bytes and set MSBs appropriately
+			for (size_t j = temp.size(); j-- > 0;)
+			{
+				uint8_t byte = temp[j];
+				if (j != 0)
+				{
+					byte |= 0x80;  // Set MSB on all but last
+				}
+				encoded.push_back(byte);
+			}
+		}
+
+		return encoded;
+	}
+
+	void Asn1OidRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		m_Value = Asn1ObjectIdentifier(data, m_ValueLength);
+	}
+
+	std::vector<uint8_t> Asn1OidRecord::encodeValue() const
+	{
+		return m_Value.toBytes();
+	}
+
+	std::vector<std::string> Asn1OidRecord::toStringList()
+	{
+		return { Asn1Record::toStringList().front() + ", Value: " + getValue().toString() };
 	}
 }  // namespace pcpp

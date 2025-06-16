@@ -332,6 +332,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(Asn1DecodingTest, "asn1");
 	PTF_RUN_TEST(Asn1EncodingTest, "asn1");
+	PTF_RUN_TEST(Asn1ObjectIdentifierTest, "asn1");
 
 	PTF_RUN_TEST(LdapParsingTest, "ldap");
 	PTF_RUN_TEST(LdapCreationTest, "ldap");

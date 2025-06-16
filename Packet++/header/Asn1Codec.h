@@ -574,4 +574,104 @@ namespace pcpp
 			return {};
 		}
 	};
+
+	/**
+	 * @class Asn1ObjectIdentifier
+	 * Represents an ASN.1 Object Identifier (OID).
+	 *
+	 * Stores the numeric components of an OID. Provides methods for adding components
+	 * and converting the OID to a human-readable string.
+	 */
+	class Asn1ObjectIdentifier
+	{
+	public:
+		Asn1ObjectIdentifier() = default;
+
+		explicit Asn1ObjectIdentifier(const uint8_t* data, size_t dataLen);
+
+		/**
+		 * @brief Constructs an OID from its string representation (e.g., "1.2.840.113549").
+		 * @param oidString The string representation of the OID.
+		 * @throws std::invalid_argument if the string is malformed or contains invalid components.
+		 */
+		explicit Asn1ObjectIdentifier(const std::string& oidString);
+
+		/**
+		 * @brief Returns the vector of OID components.
+		 * @return A const reference to the internal vector of components.
+		 */
+		const std::vector<uint32_t>& getComponents() const
+		{
+			return m_Components;
+		}
+
+		/**
+		 * @brief Equality operator to compare two OIDs.
+		 * @param other Another Asn1ObjectIdentifier instance.
+		 * @return true if the OIDs have the same components; false otherwise.
+		 */
+		bool operator==(const Asn1ObjectIdentifier& other) const
+		{
+			return m_Components == other.m_Components;
+		}
+
+		bool operator!=(const Asn1ObjectIdentifier& other) const
+		{
+			return m_Components != other.m_Components;
+		}
+
+		/**
+		 * @brief Converts the OID to its string representation (e.g., "1.2.840.113549").
+		 * @return A string representing the OID.
+		 */
+		std::string toString() const
+		{
+			if (m_Components.empty())
+			{
+				return "";
+			}
+
+			std::ostringstream stream;
+			stream << m_Components[0];
+
+			for (size_t i = 1; i < m_Components.size(); ++i)
+			{
+				stream << "." << m_Components[i];
+			}
+			return stream.str();
+		}
+
+		std::vector<uint8_t> toBytes() const;
+
+		friend std::ostream& operator<<(std::ostream& os, const Asn1ObjectIdentifier& oid)
+		{
+			return os << oid.toString();
+		}
+
+	private:
+		std::vector<uint32_t> m_Components;
+	};
+
+	/// @class Asn1OidRecord
+	/// Represents an ASN.1 record with a value of type ObjectIdentifier
+	class Asn1OidRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		const Asn1ObjectIdentifier& getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		}
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() override;
+
+	private:
+		Asn1ObjectIdentifier m_Value;
+	};
 }  // namespace pcpp
