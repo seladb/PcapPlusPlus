@@ -22,7 +22,7 @@ repos:
         args: ['--fix=lf']
       - id: trailing-whitespace
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.7
+    rev: v0.11.12
     hooks:
       - id: ruff # Run the linter.
         types_or: [ python ]
@@ -38,7 +38,7 @@ repos:
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
   - repo: https://github.com/BlankSpruce/gersemi
-    rev: 0.19.2
+    rev: 0.19.3
     hooks:
     - id: gersemi
       args: ["-c"]
