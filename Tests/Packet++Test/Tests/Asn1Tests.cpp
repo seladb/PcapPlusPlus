@@ -212,7 +212,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::ObjectIdentifier, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 11);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 9);
-		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1OidRecord>()->getValue(), "1.2.840.113549.1.1.11");
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1ObjectIdentifierRecord>()->getValue(), "1.2.840.113549.1.1.11");
 	}
 
 	// Sequence

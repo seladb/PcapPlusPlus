@@ -624,22 +624,7 @@ namespace pcpp
 		 * @brief Converts the OID to its string representation (e.g., "1.2.840.113549").
 		 * @return A string representing the OID.
 		 */
-		std::string toString() const
-		{
-			if (m_Components.empty())
-			{
-				return "";
-			}
-
-			std::ostringstream stream;
-			stream << m_Components[0];
-
-			for (size_t i = 1; i < m_Components.size(); ++i)
-			{
-				stream << "." << m_Components[i];
-			}
-			return stream.str();
-		}
+		std::string toString() const;
 
 		std::vector<uint8_t> toBytes() const;
 
@@ -652,9 +637,9 @@ namespace pcpp
 		std::vector<uint32_t> m_Components;
 	};
 
-	/// @class Asn1OidRecord
+	/// @class Asn1ObjectIdentifierRecord
 	/// Represents an ASN.1 record with a value of type ObjectIdentifier
-	class Asn1OidRecord : public Asn1PrimitiveRecord
+	class Asn1ObjectIdentifierRecord : public Asn1PrimitiveRecord
 	{
 		friend class Asn1Record;
 

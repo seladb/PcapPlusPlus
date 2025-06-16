@@ -343,7 +343,7 @@ namespace pcpp
 				}
 				case Asn1UniversalTagType::ObjectIdentifier:
 				{
-					newRecord = new Asn1OidRecord();
+					newRecord = new Asn1ObjectIdentifierRecord();
 					break;
 				}
 				default:
@@ -867,6 +867,23 @@ namespace pcpp
 		m_Components = components;
 	}
 
+	std::string Asn1ObjectIdentifier::toString() const
+	{
+		if (m_Components.empty())
+		{
+			return "";
+		}
+
+		std::ostringstream stream;
+		stream << m_Components[0];
+
+		for (size_t i = 1; i < m_Components.size(); ++i)
+		{
+			stream << "." << m_Components[i];
+		}
+		return stream.str();
+	}
+
 	std::vector<uint8_t> Asn1ObjectIdentifier::toBytes() const
 	{
 		if (m_Components.size() < 2)
@@ -916,17 +933,17 @@ namespace pcpp
 		return encoded;
 	}
 
-	void Asn1OidRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1ObjectIdentifierRecord::decodeValue(uint8_t* data, bool lazy)
 	{
 		m_Value = Asn1ObjectIdentifier(data, m_ValueLength);
 	}
 
-	std::vector<uint8_t> Asn1OidRecord::encodeValue() const
+	std::vector<uint8_t> Asn1ObjectIdentifierRecord::encodeValue() const
 	{
 		return m_Value.toBytes();
 	}
 
-	std::vector<std::string> Asn1OidRecord::toStringList()
+	std::vector<std::string> Asn1ObjectIdentifierRecord::toStringList()
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + getValue().toString() };
 	}
