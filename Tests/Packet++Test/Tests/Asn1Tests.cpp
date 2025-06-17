@@ -2,7 +2,6 @@
 #include "Asn1Codec.h"
 #include "RawPacket.h"
 #include "GeneralUtils.h"
-
 #include <functional>
 #include <cstring>
 #include <sstream>
