@@ -19,6 +19,17 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 	PTF_ASSERT_EQUAL(modbusLayer.toString(),
 	                 "Modbus Layer, Transaction ID: 12345, Protocol ID: 0, Length: 2, Unit ID: 1, Function Code: 3");
 	PTF_ASSERT_EQUAL(modbusLayer.getOsiModelLayer(), pcpp::OsiModelApplicationLayer);
+
+	modbusLayer.setTransactionId(54321);
+	PTF_ASSERT_EQUAL(modbusLayer.getTransactionId(), 54321);
+	modbusLayer.setUnitId(2);
+	PTF_ASSERT_EQUAL(modbusLayer.getUnitId(), 2);
+	modbusLayer.setFunctionCode(6);
+	PTF_ASSERT_EQUAL(modbusLayer.getFunctionCode(), 6);
+
+	// just to pass the codecov
+	modbusLayer.computeCalculateFields();
+
 }  // ModbusLayerCreationTest
 
 PTF_TEST_CASE(ModbusLayerParsingTest)
