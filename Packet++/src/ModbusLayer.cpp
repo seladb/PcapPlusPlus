@@ -1,5 +1,7 @@
 #include "ModbusLayer.h"
 #include "EndianPortable.h"
+#include <iostream>
+#include <iomanip>
 #include <cstring>
 
 namespace pcpp
