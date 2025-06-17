@@ -3,7 +3,6 @@
 #include "RawPacket.h"
 #include "GeneralUtils.h"
 
-#include <array>
 #include <functional>
 #include <cstring>
 #include <sstream>
