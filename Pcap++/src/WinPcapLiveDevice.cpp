@@ -18,46 +18,6 @@ namespace pcpp
 		m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
 	}
 
-	bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie,
-	                                     int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-	                                     void* onStatsUpdateUserCookie)
-	{
-		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
-		{
-			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
-			return false;
-		}
-
-		// Put the interface in capture mode
-		if (pcap_setmode(m_PcapDescriptor.get(), MODE_CAPT) < 0)
-		{
-			PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_InterfaceDetails.name << "'");
-			return false;
-		}
-
-		return PcapLiveDevice::startCapture(onPacketArrives, onPacketArrivesUserCookie, intervalInSecondsToUpdateStats,
-		                                    onStatsUpdate, onStatsUpdateUserCookie);
-	}
-
-	bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-	                                     void* onStatsUpdateUserCookie)
-	{
-		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
-		{
-			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
-			return false;
-		}
-
-		// Put the interface in statistics mode
-		if (pcap_setmode(m_PcapDescriptor.get(), MODE_STAT) < 0)
-		{
-			PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_InterfaceDetails.name << "'");
-			return false;
-		}
-
-		return PcapLiveDevice::startCapture(intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
-	}
-
 	int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	{
 		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
@@ -88,8 +48,7 @@ namespace pcpp
 		{
 			packetHeader[i].caplen = rawPacketsArr[i].getRawDataLen();
 			packetHeader[i].len = rawPacketsArr[i].getRawDataLen();
-			timespec packet_time = rawPacketsArr[i].getPacketTimeStamp();
-			TIMESPEC_TO_TIMEVAL(&packetHeader[i].ts, &packet_time);
+			packetHeader[i].ts = internal::toTimeval(rawPacketsArr[i].getPacketTimeStamp());
 			if (pcap_sendqueue_queue(sendQueue.get(), &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_send_queue is too small for all packets. Sending only " << i << " packets");
@@ -143,6 +102,18 @@ namespace pcpp
 	WinPcapLiveDevice* WinPcapLiveDevice::clone() const
 	{
 		return new WinPcapLiveDevice(m_InterfaceDetails, true, true, true);
+	}
+
+	void WinPcapLiveDevice::prepareCapture(bool asyncCapture, bool captureStats)
+	{
+
+		int mode = captureStats ? MODE_STAT : MODE_CAPT;
+		int res = pcap_setmode(m_PcapDescriptor.get(), mode);
+		if (res < 0)
+		{
+			throw std::runtime_error("Error setting the mode for device '" + m_InterfaceDetails.name +
+			                         "': " + m_PcapDescriptor.getLastError());
+		}
 	}
 
 }  // namespace pcpp

@@ -255,7 +255,7 @@ bool sendIcmpMessage(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcp
 	packet.computeCalculateFields();
 
 	// send the packet through the device
-	return dev->sendPacket(&packet);
+	return dev->sendPacket(packet);
 }
 
 bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, const pcpp::MacAddress dstMacAddr,
