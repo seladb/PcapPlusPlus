@@ -893,44 +893,41 @@ namespace pcpp
 
 		std::vector<uint8_t> encoded;
 
-		// Step 1: Encode the first byte
-		uint32_t first = m_Components[0];
-		uint32_t second = m_Components[1];
+		uint32_t firstComponent = m_Components[0];
+		uint32_t secondComponent = m_Components[1];
+		encoded.push_back(static_cast<uint8_t>(firstComponent * 40 + secondComponent));
 
-		if (first > 2 || (first < 2 && second >= 40))
-		{
-			throw std::runtime_error(
-			    "Invalid OID: first component must be 0, 1, or 2; second must be < 40 if first is 0 or 1.");
-		}
-
-		encoded.push_back(static_cast<uint8_t>(first * 40 + second));
-
-		// Step 2: Encode remaining components
 		for (size_t i = 2; i < m_Components.size(); ++i)
 		{
-			uint32_t value = m_Components[i];
+			uint32_t currentComponent = m_Components[i];
 			std::vector<uint8_t> temp;
 
-			// At least one byte is needed even for value == 0
 			do
 			{
-				temp.push_back(static_cast<uint8_t>(value & 0x7F));
-				value >>= 7;
-			} while (value > 0);
+				temp.push_back(static_cast<uint8_t>(currentComponent & 0x7F));
+				currentComponent >>= 7;
+			} while (currentComponent > 0);
 
-			// Reverse the bytes and set MSBs appropriately
 			for (size_t j = temp.size(); j-- > 0;)
 			{
 				uint8_t byte = temp[j];
 				if (j != 0)
 				{
-					byte |= 0x80;  // Set MSB on all but last
+					byte |= 0x80;
 				}
 				encoded.push_back(byte);
 			}
 		}
 
 		return encoded;
+	}
+
+	Asn1ObjectIdentifierRecord::Asn1ObjectIdentifierRecord(const Asn1ObjectIdentifier& value)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::ObjectIdentifier)
+	{
+		m_Value = value;
+		m_ValueLength = value.toBytes().size();
+		m_TotalLength = m_ValueLength + 2;
 	}
 
 	void Asn1ObjectIdentifierRecord::decodeValue(uint8_t* data, bool lazy)

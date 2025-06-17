@@ -672,6 +672,19 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
 	}
 
+	// ObjectIdentifier (OID)
+	{
+		pcpp::Asn1ObjectIdentifier oid("1.2.840.113549.1.1.11");
+		pcpp::Asn1ObjectIdentifierRecord record(oid);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("06092a864886f70d01010b", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
 	// Sequence
 	{
 		pcpp::Asn1OctetStringRecord octestStringRecord("abcd");
@@ -831,6 +844,13 @@ PTF_TEST_CASE(Asn1ObjectIdentifierTest)
 			PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier oid(malformedValuesAndException.first), std::invalid_argument,
 			                  malformedValuesAndException.second);
 		}
+	}
+
+	// Encode
+	{
+		pcpp::Asn1ObjectIdentifier oid("1.2.840.113549.1.1.11");
+		PTF_ASSERT_VECTORS_EQUAL(oid.toBytes(),
+		                         std::vector<uint8_t>({ 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b }));
 	}
 
 }  // Asn1ObjectIdentifierTest

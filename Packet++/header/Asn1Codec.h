@@ -644,6 +644,8 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		explicit Asn1ObjectIdentifierRecord(const Asn1ObjectIdentifier& value);
+
 		const Asn1ObjectIdentifier& getValue()
 		{
 			decodeValueIfNeeded();
@@ -658,5 +660,7 @@ namespace pcpp
 
 	private:
 		Asn1ObjectIdentifier m_Value;
+
+		Asn1ObjectIdentifierRecord() = default;
 	};
 }  // namespace pcpp
