@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <stdexcept>
 #include <sstream>
+#include <bitset>
 #include "PointerVector.h"
 
 /// @file
