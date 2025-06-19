@@ -796,7 +796,7 @@ namespace pcpp
 				m_Data.push_back(bs);
 				i += 8;
 			}
-			catch (std::invalid_argument e)
+			catch (const std::invalid_argument&)
 			{
 				throw std::invalid_argument("Invalid bit string");
 			}
