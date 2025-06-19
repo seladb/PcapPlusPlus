@@ -574,4 +574,91 @@ namespace pcpp
 			return {};
 		}
 	};
+
+	/// @class Asn1ObjectIdentifier
+	/// Represents an ASN.1 Object Identifier (OID).
+	class Asn1ObjectIdentifier
+	{
+		friend class Asn1ObjectIdentifierRecord;
+
+	public:
+		/// Construct an OID from an encoded byte buffer
+		/// @param[in] data The byte buffer of the encoded OID data
+		/// @param[in] dataLen The byte buffer size
+		explicit Asn1ObjectIdentifier(const uint8_t* data, size_t dataLen);
+
+		/// Construct an OID from its string representation (e.g., "1.2.840.113549").
+		/// @param[in] oidString The string representation of the OID
+		/// @throws std::invalid_argument if the string is malformed or contains invalid components
+		explicit Asn1ObjectIdentifier(const std::string& oidString);
+
+		/// @return A const reference to the internal vector of components
+		const std::vector<uint32_t>& getComponents() const
+		{
+			return m_Components;
+		}
+
+		/// Equality operator to compare two OIDs
+		/// @param[in] other Another Asn1ObjectIdentifier instance
+		bool operator==(const Asn1ObjectIdentifier& other) const
+		{
+			return m_Components == other.m_Components;
+		}
+
+		/// Inequality operator to compare two OIDs
+		/// @param[in] other Another Asn1ObjectIdentifier instance
+		bool operator!=(const Asn1ObjectIdentifier& other) const
+		{
+			return m_Components != other.m_Components;
+		}
+
+		/// Convert the OID to its string representation (e.g., "1.2.840.113549")
+		/// @return A string representing the OID
+		std::string toString() const;
+
+		/// Encode the OID to a byte buffer
+		/// @return A byte buffer containing the encoded OID value
+		std::vector<uint8_t> toBytes() const;
+
+		friend std::ostream& operator<<(std::ostream& os, const Asn1ObjectIdentifier& oid)
+		{
+			return os << oid.toString();
+		}
+
+	protected:
+		Asn1ObjectIdentifier() = default;
+
+	private:
+		std::vector<uint32_t> m_Components;
+	};
+
+	/// @class Asn1ObjectIdentifierRecord
+	/// Represents an ASN.1 record with a value of type ObjectIdentifier
+	class Asn1ObjectIdentifierRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a ObjectIdentifier record
+		/// @param[in] value The ObjectIdentifier (OID) to set as the record value
+		explicit Asn1ObjectIdentifierRecord(const Asn1ObjectIdentifier& value);
+
+		/// @return The OID value of this record
+		const Asn1ObjectIdentifier& getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		}
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() override;
+
+	private:
+		Asn1ObjectIdentifier m_Value;
+
+		Asn1ObjectIdentifierRecord() = default;
+	};
 }  // namespace pcpp
