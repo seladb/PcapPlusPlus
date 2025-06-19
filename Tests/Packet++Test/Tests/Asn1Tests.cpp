@@ -201,6 +201,20 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->toString(), "Null, Length: 2+0");
 	}
 
+	// ObjectIdentifier (OID)
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("06092a864886f70d01010b", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::ObjectIdentifier, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 11);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 9);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1ObjectIdentifierRecord>()->getValue(), "1.2.840.113549.1.1.11");
+	}
+
 	// UTC time
 	{
 		uint8_t data[20];
@@ -815,6 +829,19 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
 	}
 
+	// ObjectIdentifier (OID)
+	{
+		pcpp::Asn1ObjectIdentifier oid("1.2.840.113549.1.1.11");
+		pcpp::Asn1ObjectIdentifierRecord record(oid);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("06092a864886f70d01010b", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
 	// UTC time
 	{
 		std::tm tm{ 45, 30, 15, 24, 5 - 1, 2025 - 1900, 0 };
@@ -1032,3 +1059,92 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
 	}
 }  // Asn1EncodingTest
+
+PTF_TEST_CASE(Asn1ObjectIdentifierTest)
+{
+	// Generate from byte array - First byte
+	{
+		std::vector<std::pair<std::vector<uint8_t>, std::string>> encodedDataAndExpectedStrings = {
+			{ { 0x16 }, "0.22" },
+			{ { 0x35 }, "1.13" },
+			{ { 0x76 }, "2.38" },
+		};
+
+		for (auto encodedDataAndExpectedString : encodedDataAndExpectedStrings)
+		{
+			pcpp::Asn1ObjectIdentifier oid(encodedDataAndExpectedString.first.data(),
+			                               encodedDataAndExpectedString.first.size());
+			PTF_ASSERT_EQUAL(oid.toString(), encodedDataAndExpectedString.second);
+		}
+	}
+
+	// Generate from byte array - Small and large value components
+	{
+		std::vector<std::pair<std::vector<uint8_t>, std::string>> encodedDataAndExpectedStrings = {
+			{ { 0x2a, 0x26, 0x7f },                         "1.2.38.127"        },
+			{ { 0x2a, 0x95, 0x8c, 0x4e },                   "1.2.345678"        },
+			{ { 0x2a, 0x95, 0x8c, 0x4e, 0x01, 0xcd, 0x14 }, "1.2.345678.1.9876" },
+		};
+
+		for (auto encodedDataAndExpectedString : encodedDataAndExpectedStrings)
+		{
+			pcpp::Asn1ObjectIdentifier oid(encodedDataAndExpectedString.first.data(),
+			                               encodedDataAndExpectedString.first.size());
+			PTF_ASSERT_EQUAL(oid.toString(), encodedDataAndExpectedString.second);
+		}
+	}
+
+	// Generate from byte array - Invalid values
+	{
+		PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier(nullptr, 2), std::invalid_argument,
+		                  "Malformed OID: Not enough bytes for the first component");
+		PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier(std::vector<uint8_t>({ 0x85 }).data(), 0), std::invalid_argument,
+		                  "Malformed OID: Not enough bytes for the first component");
+		PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier(std::vector<uint8_t>({ 0x2a, 0x95 }).data(), 2),
+		                  std::invalid_argument, "Malformed OID: Incomplete component at end of data");
+	}
+
+	// Generate from string - Valid values
+	{
+		std::vector<std::pair<std::string, std::vector<uint32_t>>> inputAndExpectedComponents = {
+			{ "0.9.2342.19200300.100.1.1", { 0x0, 0x9, 0x926, 0x124F92C, 0x64, 0x1, 0x1 } },
+			{ "1.3.6.1.4.1.12345",         { 0x1, 0x3, 0x6, 0x1, 0x4, 0x1, 0x3039 }       },
+			{ "2.5.4.3",                   { 0x2, 0x5, 0x4, 0x3 }                         }
+		};
+
+		for (auto inputAndExpectedComponent : inputAndExpectedComponents)
+		{
+			pcpp::Asn1ObjectIdentifier oid(inputAndExpectedComponent.first);
+			PTF_ASSERT_VECTORS_EQUAL(oid.getComponents(), inputAndExpectedComponent.second);
+			PTF_ASSERT_EQUAL(oid.toString(), inputAndExpectedComponent.first)
+		}
+	}
+
+	// Generate from string - Invalid values
+	{
+		std::vector<std::pair<std::string, std::string>> malformedValuesAndExceptions = {
+			{ "invalid",          "Malformed OID: invalid component"                                                    },
+			{ "1.invalid",        "Malformed OID: invalid component"                                                    },
+			{ "1..1",             "Malformed OID: empty component"                                                      },
+			{ "1.2.999999999999", "Malformed OID: component out of uint32_t range"                                      },
+			{ "1",                "Malformed OID: an OID must have at least two components"                             },
+			{ "3.2",              "Malformed OID: first component must be 0, 1, or 2"                                   },
+			{ "0.40",             "Malformed OID: second component must be less than 40 when first component is 0 or 1" },
+			{ "1.40",             "Malformed OID: second component must be less than 40 when first component is 0 or 1" }
+		};
+
+		for (auto malformedValuesAndException : malformedValuesAndExceptions)
+		{
+			PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier oid(malformedValuesAndException.first), std::invalid_argument,
+			                  malformedValuesAndException.second);
+		}
+	}
+
+	// Encode
+	{
+		pcpp::Asn1ObjectIdentifier oid("1.2.840.113549.1.1.11");
+		PTF_ASSERT_VECTORS_EQUAL(oid.toBytes(),
+		                         std::vector<uint8_t>({ 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b }));
+	}
+
+}  // Asn1ObjectIdentifierTest
