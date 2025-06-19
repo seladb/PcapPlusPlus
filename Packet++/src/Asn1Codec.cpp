@@ -346,6 +346,11 @@ namespace pcpp
 					newRecord = new Asn1NullRecord();
 					break;
 				}
+				case Asn1UniversalTagType::ObjectIdentifier:
+				{
+					newRecord = new Asn1ObjectIdentifierRecord();
+					break;
+				}
 				default:
 				{
 					newRecord = new Asn1GenericRecord();
@@ -775,6 +780,188 @@ namespace pcpp
 	{
 		m_ValueLength = 0;
 		m_TotalLength = 2;
+	}
+
+	Asn1ObjectIdentifier::Asn1ObjectIdentifier(const uint8_t* data, size_t dataLen)
+	{
+		// A description of OID encoding can be found here:
+		// https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier?redirectedfrom=MSDN
+
+		if (!data || dataLen == 0)
+		{
+			throw std::invalid_argument("Malformed OID: Not enough bytes for the first component");
+		}
+
+		size_t currentByteIndex = 0;
+		std::vector<uint32_t> components;
+
+		uint8_t firstByte = data[currentByteIndex++];
+		// Decode the first byte: first_component * 40 + second_component
+		components.push_back(static_cast<uint32_t>(firstByte / 40));
+		components.push_back(static_cast<uint32_t>(firstByte % 40));
+
+		uint32_t currentComponentValue = 0;
+		bool componentStarted = false;
+
+		// Process remaining bytes using base-128 encoding
+		while (currentByteIndex < dataLen)
+		{
+			uint8_t byte = data[currentByteIndex++];
+
+			// Shift previous bits left by 7 and append lower 7 bits
+			currentComponentValue = (currentComponentValue << 7) | (byte & 0x7f);
+			componentStarted = true;
+
+			// If the MSB is 0, this is the final byte of the current value
+			if ((byte & 0x80) == 0)
+			{
+				components.push_back(currentComponentValue);
+				currentComponentValue = 0;
+				componentStarted = false;
+			}
+		}
+
+		if (componentStarted)
+		{
+			throw std::invalid_argument("Malformed OID: Incomplete component at end of data");
+		}
+
+		m_Components = components;
+	}
+
+	Asn1ObjectIdentifier::Asn1ObjectIdentifier(const std::string& oidString)
+	{
+		std::vector<uint32_t> components;
+		std::istringstream stream(oidString);
+		std::string token;
+
+		while (std::getline(stream, token, '.'))
+		{
+			if (token.empty())
+			{
+				throw std::invalid_argument("Malformed OID: empty component");
+			}
+
+			unsigned long long value;
+			try
+			{
+				value = std::stoull(token);
+			}
+			catch (const std::exception&)
+			{
+				throw std::invalid_argument("Malformed OID: invalid component");
+			}
+
+			if (value > std::numeric_limits<uint32_t>::max())
+			{
+				throw std::invalid_argument("Malformed OID: component out of uint32_t range");
+			}
+
+			components.push_back(static_cast<uint32_t>(value));
+		}
+
+		if (components.size() < 2)
+		{
+			throw std::invalid_argument("Malformed OID: an OID must have at least two components");
+		}
+
+		if (components[0] > 2)
+		{
+			throw std::invalid_argument("Malformed OID: first component must be 0, 1, or 2");
+		}
+
+		if ((components[0] == 0 || components[0] == 1) && components[1] >= 40)
+		{
+			throw std::invalid_argument(
+			    "Malformed OID: second component must be less than 40 when first component is 0 or 1");
+		}
+
+		m_Components = components;
+	}
+
+	std::string Asn1ObjectIdentifier::toString() const
+	{
+		if (m_Components.empty())
+		{
+			return "";
+		}
+
+		std::ostringstream stream;
+		stream << m_Components[0];
+
+		for (size_t i = 1; i < m_Components.size(); ++i)
+		{
+			stream << "." << m_Components[i];
+		}
+		return stream.str();
+	}
+
+	std::vector<uint8_t> Asn1ObjectIdentifier::toBytes() const
+	{
+		// A description of OID encoding can be found here:
+		// https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier?redirectedfrom=MSDN
+
+		if (m_Components.size() < 2)
+		{
+			throw std::runtime_error("OID must have at least two components to encode.");
+		}
+
+		std::vector<uint8_t> encoded;
+
+		// Encode the first two components into one byte
+		uint32_t firstComponent = m_Components[0];
+		uint32_t secondComponent = m_Components[1];
+		encoded.push_back(static_cast<uint8_t>(firstComponent * 40 + secondComponent));
+
+		// Encode remaining components using base-128 encoding
+		for (size_t i = 2; i < m_Components.size(); ++i)
+		{
+			uint32_t currentComponent = m_Components[i];
+			std::vector<uint8_t> temp;
+
+			// At least one byte must be generated even if value is 0
+			do
+			{
+				temp.push_back(static_cast<uint8_t>(currentComponent & 0x7F));
+				currentComponent >>= 7;
+			} while (currentComponent > 0);
+
+			// Set continuation bits (MSB) for all but the last byte
+			for (size_t j = temp.size(); j-- > 0;)
+			{
+				uint8_t byte = temp[j];
+				if (j != 0)
+				{
+					byte |= 0x80;
+				}
+				encoded.push_back(byte);
+			}
+		}
+
+		return encoded;
+	}
+
+	Asn1ObjectIdentifierRecord::Asn1ObjectIdentifierRecord(const Asn1ObjectIdentifier& value)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::ObjectIdentifier)
+	{
+		m_Value = value;
+		m_ValueLength = value.toBytes().size();
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1ObjectIdentifierRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		m_Value = Asn1ObjectIdentifier(data, m_ValueLength);
+	}
+
+	std::vector<uint8_t> Asn1ObjectIdentifierRecord::encodeValue() const
+	{
+		return m_Value.toBytes();
+	}
+
+	std::vector<std::string> Asn1ObjectIdentifierRecord::toStringList()
+	{
+		return { Asn1Record::toStringList().front() + ", Value: " + getValue().toString() };
 	}
 
 	void Asn1BitStringRecord::BitSet::initFromString(const std::string& value)
