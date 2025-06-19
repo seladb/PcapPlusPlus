@@ -3,10 +3,12 @@
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 #include <unordered_map>
 #include <numeric>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cmath>
 #include <limits>
@@ -344,6 +346,16 @@ namespace pcpp
 				case Asn1UniversalTagType::ObjectIdentifier:
 				{
 					newRecord = new Asn1ObjectIdentifierRecord();
+					break;
+				}
+				case Asn1UniversalTagType::UTCTime:
+				{
+					newRecord = new Asn1UtcTimeRecord();
+					break;
+				}
+				case Asn1UniversalTagType::GeneralizedTime:
+				{
+					newRecord = new Asn1GeneralizedTimeRecord();
 					break;
 				}
 				default:
@@ -957,5 +969,238 @@ namespace pcpp
 	std::vector<std::string> Asn1ObjectIdentifierRecord::toStringList()
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + getValue().toString() };
+	}
+
+	Asn1TimeRecord::Asn1TimeRecord(Asn1UniversalTagType tagType, const std::chrono::system_clock::time_point& value,
+	                               const std::string& timezone)
+	    : Asn1PrimitiveRecord(tagType)
+	{
+		validateTimezone(timezone);
+		m_Value = adjustTimezones(value, timezone, "Z");
+	}
+
+	std::string Asn1TimeRecord::getValueAsString(const std::string& format, const std::string& timezone,
+	                                             bool includeMilliseconds)
+	{
+		auto value = getValue(timezone);
+		auto timeValue = std::chrono::system_clock::to_time_t(value);
+		auto tmValue = *std::gmtime(&timeValue);
+
+		std::ostringstream osstream;
+		osstream << std::put_time(&tmValue, format.c_str());
+
+		if (includeMilliseconds)
+		{
+			auto milliseconds =
+			    std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch()).count() % 1000;
+			if (milliseconds != 0)
+			{
+				osstream << "." << std::setw(3) << std::setfill('0') << milliseconds;
+			}
+		}
+
+		if (timezone != "Z")
+		{
+			osstream << " UTC" << timezone;
+		}
+
+		return osstream.str();
+	}
+
+	std::vector<std::string> Asn1TimeRecord::toStringList()
+	{
+		return { Asn1Record::toStringList().front() + ", Value: " + getValueAsString("%Y-%m-%d %H:%M:%S", "Z", true) };
+	}
+
+	void Asn1TimeRecord::validateTimezone(const std::string& timezone)
+	{
+		if (timezone == "Z")
+		{
+			return;
+		}
+
+		if (timezone.length() != 5 || (timezone[0] != '+' && timezone[0] != '-') || !std::isdigit(timezone[1]) ||
+		    !std::isdigit(timezone[2]) || !std::isdigit(timezone[3]) || !std::isdigit(timezone[4]))
+		{
+			throw std::invalid_argument("Invalid timezone format. Use 'Z' or '+/-HHMM'.");
+		}
+	}
+
+	std::chrono::system_clock::time_point Asn1TimeRecord::adjustTimezones(
+	    const std::chrono::system_clock::time_point& value, const std::string& fromTimezone,
+	    const std::string& toTimezone)
+	{
+		validateTimezone(fromTimezone);
+		validateTimezone(toTimezone);
+
+		int fromOffsetSeconds = 0;
+		if (fromTimezone != "Z")
+		{
+			int fromSign = (fromTimezone[0] == '+') ? 1 : -1;
+			auto fromHours = std::stoi(fromTimezone.substr(1, 2));
+			auto fromMinutes = std::stoi(fromTimezone.substr(3, 2));
+			fromOffsetSeconds = fromSign * (fromHours * 3600 + fromMinutes * 60);
+		}
+
+		int toOffsetSeconds = 0;
+		if (toTimezone != "Z")
+		{
+			int toSign = (toTimezone[0] == '+') ? 1 : -1;
+			auto toHours = std::stoi(toTimezone.substr(1, 2));
+			auto toMinutes = std::stoi(toTimezone.substr(3, 2));
+			toOffsetSeconds = toSign * (toHours * 3600 + toMinutes * 60);
+		}
+
+		return value + std::chrono::seconds(toOffsetSeconds - fromOffsetSeconds);
+	}
+
+	Asn1UtcTimeRecord::Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds)
+	    : Asn1TimeRecord(Asn1UniversalTagType::UTCTime, value, "Z"), m_WithSeconds(withSeconds)
+	{
+		m_ValueLength = 11;
+		if (withSeconds)
+		{
+			m_ValueLength += 2;
+		}
+
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1UtcTimeRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
+
+		if (timeString.back() == 'Z')
+		{
+			timeString.pop_back();
+		}
+
+		m_WithSeconds = true;
+		if (timeString.size() == 10)
+		{
+			m_WithSeconds = false;
+			timeString.append("00");
+		}
+
+		auto year = std::stoi(timeString.substr(0, 2));
+		if (year <= 50)
+		{
+			timeString.insert(0, "20");
+		}
+		else
+		{
+			timeString.insert(0, "19");
+		}
+
+		std::tm tm = {};
+		std::istringstream sstream(timeString);
+		sstream >> std::get_time(&tm, "%Y%m%d%H%M%S");
+
+		if (sstream.fail())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 UTC time");
+		}
+
+		std::time_t timeValue = mkUtcTime(tm);
+		m_Value = std::chrono::system_clock::from_time_t(timeValue);
+	}
+
+	std::vector<uint8_t> Asn1UtcTimeRecord::encodeValue() const
+	{
+		auto timeValue = std::chrono::system_clock::to_time_t(m_Value);
+
+		auto tm = *std::gmtime(&timeValue);
+
+		auto pattern = std::string("%y%m%d%H%M") + (m_WithSeconds ? "%S" : "");
+		std::ostringstream osstream;
+		osstream << std::put_time(&tm, pattern.c_str()) << 'Z';
+
+		auto timeString = osstream.str();
+		return { timeString.begin(), timeString.end() };
+	}
+
+	Asn1GeneralizedTimeRecord::Asn1GeneralizedTimeRecord(const std::chrono::system_clock::time_point& value,
+	                                                     const std::string& timezone)
+	    : Asn1TimeRecord(Asn1UniversalTagType::GeneralizedTime, value, timezone), m_Timezone(timezone)
+	{
+		m_ValueLength = 14 + (timezone == "Z" ? 1 : 5);
+
+		auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch()).count();
+		if (milliseconds % 1000 != 0)
+		{
+			m_ValueLength += 4;
+		}
+
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1GeneralizedTimeRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
+
+		std::string timezone = "Z";
+		auto timezonePos = timeString.find_first_of("+-");
+		if (timeString.back() == 'Z')
+		{
+			timeString.pop_back();
+		}
+		else if (timezonePos != std::string::npos)
+		{
+			timezone = timeString.substr(timezonePos);
+			timeString.erase(timezonePos);
+		}
+
+		std::tm tm = {};
+		std::istringstream sstream(timeString);
+		sstream >> std::get_time(&tm, "%Y%m%d%H%M%S");
+
+		if (sstream.fail())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 generalized time");
+		}
+
+		size_t dotPos = timeString.find('.');
+		int milliseconds = 0;
+		if (dotPos != std::string::npos)
+		{
+			std::string millisecondsStr = timeString.substr(dotPos + 1);
+			// Limit the milliseconds to 3 digits
+			if (millisecondsStr.length() > 3)
+			{
+				timeString.erase(timezonePos);
+				millisecondsStr.resize(3);
+			}
+			milliseconds = std::stoi(millisecondsStr);
+		}
+
+		auto timeValue = mkUtcTime(tm);
+
+		m_Timezone = timezone;
+		m_Value = adjustTimezones(
+		    std::chrono::system_clock::from_time_t(timeValue) + std::chrono::milliseconds(milliseconds), timezone, "Z");
+	}
+
+	std::vector<uint8_t> Asn1GeneralizedTimeRecord::encodeValue() const
+	{
+		auto value = adjustTimezones(m_Value, "Z", m_Timezone);
+		auto timeValue = std::chrono::system_clock::to_time_t(value);
+
+		auto tm = *std::gmtime(&timeValue);
+
+		auto pattern = std::string("%Y%m%d%H%M%S");
+		std::ostringstream osstream;
+		osstream << std::put_time(&tm, pattern.c_str());
+
+		auto milliseconds =
+		    std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch()).count() % 1000;
+		if (milliseconds != 0)
+		{
+			osstream << "." << std::setw(3) << std::setfill('0') << milliseconds;
+		}
+
+		osstream << m_Timezone;
+
+		auto timeString = osstream.str();
+		return { timeString.begin(), timeString.end() };
 	}
 }  // namespace pcpp
