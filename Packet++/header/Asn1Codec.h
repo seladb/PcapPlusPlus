@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <stdexcept>
 #include <sstream>
+#include <chrono>
 #include <bitset>
 #include "PointerVector.h"
 
@@ -661,6 +662,91 @@ namespace pcpp
 		Asn1ObjectIdentifier m_Value;
 
 		Asn1ObjectIdentifierRecord() = default;
+	};
+
+	/// @class Asn1TimeRecord
+	/// An abstract class for representing ASN.1 time records (UTCTime and GeneralizedTime).
+	/// This class is not instantiable, users should use either Asn1UtcTimeRecord or Asn1GeneralizedTimeRecord
+	class Asn1TimeRecord : public Asn1PrimitiveRecord
+	{
+	public:
+		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. The default value is UTC
+		/// @return The time-point value of this record
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		std::chrono::system_clock::time_point getValue(const std::string& timezone = "Z")
+		{
+			decodeValueIfNeeded();
+			return adjustTimezones(m_Value, "Z", timezone);
+		};
+
+		/// @param[in] format Requested value format
+		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. The default value is UTC
+		/// @param[in] includeMilliseconds Should Include milliseconds in the returned string
+		/// @return The value as string
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
+		                             bool includeMilliseconds = false);
+
+	protected:
+		Asn1TimeRecord() = default;
+		explicit Asn1TimeRecord(Asn1UniversalTagType tagType, const std::chrono::system_clock::time_point& value,
+		                        const std::string& timezone);
+
+		std::chrono::system_clock::time_point m_Value;
+
+		std::vector<std::string> toStringList() override;
+
+		static void validateTimezone(const std::string& timezone);
+		static std::chrono::system_clock::time_point adjustTimezones(const std::chrono::system_clock::time_point& value,
+		                                                             const std::string& fromTimezone,
+		                                                             const std::string& toTimezone);
+	};
+
+	/// @class Asn1UtcTimeRecord
+	/// Represents an ASN.1 record with a value of type UTCTime
+	class Asn1UtcTimeRecord : public Asn1TimeRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type UTC time
+		/// @param[in] value A time-point to set as the record value
+		/// @param[in] withSeconds Should write the ASN.1 record with second precision. The default is true
+		explicit Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds = true);
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		Asn1UtcTimeRecord() = default;
+		bool m_WithSeconds = true;
+	};
+
+	/// @class Asn1GeneralizedTimeRecord
+	/// Represents an ASN.1 record with a value of type GeneralizedTime
+	class Asn1GeneralizedTimeRecord : public Asn1TimeRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type generalized time
+		/// @param[in] value A time-point to set as the record value
+		/// @param[in] timezone The time-point's timezone - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. If not provided it's assumed the timezone is UTC
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		explicit Asn1GeneralizedTimeRecord(const std::chrono::system_clock::time_point& value,
+		                                   const std::string& timezone = "Z");
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		Asn1GeneralizedTimeRecord() = default;
+		std::string m_Timezone;
 	};
 
 	/// @class Asn1BitStringRecord
