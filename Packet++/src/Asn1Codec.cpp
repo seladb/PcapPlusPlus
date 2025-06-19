@@ -828,12 +828,9 @@ namespace pcpp
 
 	std::string Asn1BitStringRecord::BitSet::toString() const
 	{
-		std::string result;
-		for (const auto bs : m_Data)
-		{
-			result += bs.to_string();
-		}
-		return result.substr(0, m_NumBits);
+		return std::accumulate(m_Data.begin(), m_Data.end(), std::string(),
+		                       [](const std::string& acc, const auto& bs) { return acc + bs.to_string(); })
+		    .substr(0, m_NumBits);
 	}
 
 	std::vector<uint8_t> Asn1BitStringRecord::BitSet::toBytes() const
