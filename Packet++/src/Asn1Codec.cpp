@@ -336,6 +336,11 @@ namespace pcpp
 					newRecord = new Asn1BooleanRecord();
 					break;
 				}
+				case Asn1UniversalTagType::BitString:
+				{
+					newRecord = new Asn1BitStringRecord();
+					break;
+				}
 				case Asn1UniversalTagType::Null:
 				{
 					newRecord = new Asn1NullRecord();
@@ -771,4 +776,107 @@ namespace pcpp
 		m_ValueLength = 0;
 		m_TotalLength = 2;
 	}
+
+	void Asn1BitStringRecord::BitSet::initFromString(const std::string& value)
+	{
+		m_NumBits = value.length();
+
+		size_t numBytes = (m_NumBits + 7) / 8;
+		m_Data.clear();
+		m_Data.reserve(numBytes);
+
+		size_t i = 0;
+		while (i < value.length())
+		{
+			std::string curByteString = value.substr(i, 8);
+			curByteString.append(8 - curByteString.length(), '0');
+			try
+			{
+				std::bitset<8> bs(curByteString);
+				m_Data.push_back(bs);
+				i += 8;
+			}
+			catch (std::invalid_argument e)
+			{
+				throw std::invalid_argument("Invalid bit string");
+			}
+		}
+	}
+
+	Asn1BitStringRecord::BitSet::BitSet(const std::string& value)
+	{
+		initFromString(value);
+	}
+
+	Asn1BitStringRecord::BitSet::BitSet(const uint8_t* data, size_t numBits) : m_NumBits(numBits)
+	{
+		if (!data || !numBits)
+		{
+			throw std::invalid_argument("Provided data is null or num of bits is 0");
+		}
+
+		size_t requiredBytes = (m_NumBits + 7) / 8;
+		m_Data.resize(requiredBytes);
+		std::copy_n(data, requiredBytes, m_Data.begin());
+	}
+
+	Asn1BitStringRecord::BitSet& Asn1BitStringRecord::BitSet::operator=(const std::string& value)
+	{
+		initFromString(value);
+		return *this;
+	}
+
+	std::string Asn1BitStringRecord::BitSet::toString() const
+	{
+		std::string result;
+		for (const auto bs : m_Data)
+		{
+			result += bs.to_string();
+		}
+		return result.substr(0, m_NumBits);
+	}
+
+	std::vector<uint8_t> Asn1BitStringRecord::BitSet::toBytes() const
+	{
+		std::vector<uint8_t> result;
+		for (const auto bs : m_Data)
+		{
+			result.push_back(static_cast<uint8_t>(bs.to_ulong()));
+		}
+
+		return result;
+	}
+
+	size_t Asn1BitStringRecord::BitSet::sizeInBytes() const
+	{
+		return m_Data.size();
+	}
+
+	Asn1BitStringRecord::Asn1BitStringRecord(const std::string& value)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::BitString)
+	{
+		m_Value = value;
+		m_ValueLength = m_Value.sizeInBytes() + 1;
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1BitStringRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		auto numBits = (m_ValueLength - 1) * 8 - static_cast<size_t>(data[0]);
+		m_Value = BitSet(data + 1, numBits);
+	}
+
+	std::vector<uint8_t> Asn1BitStringRecord::encodeValue() const
+	{
+		auto result = m_Value.toBytes();
+		size_t unusedBits = m_Value.sizeInBytes() * 8 - m_Value.getNumBits();
+		result.insert(result.begin(), static_cast<uint8_t>(unusedBits));
+		return result;
+	}
+
+	std::vector<std::string> Asn1BitStringRecord::toStringList()
+	{
+		return { Asn1Record::toStringList().front() + ", Value: " + m_Value.toString() };
+	}
+
 }  // namespace pcpp
