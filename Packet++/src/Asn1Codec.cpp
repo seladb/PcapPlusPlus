@@ -779,6 +779,9 @@ namespace pcpp
 
 	Asn1ObjectIdentifier::Asn1ObjectIdentifier(const uint8_t* data, size_t dataLen)
 	{
+		// A description of OID encoding can be found here:
+		// https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier?redirectedfrom=MSDN
+
 		if (!data || dataLen == 0)
 		{
 			throw std::invalid_argument("Malformed OID: Not enough bytes for the first component");
@@ -788,19 +791,23 @@ namespace pcpp
 		std::vector<uint32_t> components;
 
 		uint8_t firstByte = data[currentByteIndex++];
+		// Decode the first byte: first_component * 40 + second_component
 		components.push_back(static_cast<uint32_t>(firstByte / 40));
 		components.push_back(static_cast<uint32_t>(firstByte % 40));
 
 		uint32_t currentComponentValue = 0;
 		bool componentStarted = false;
 
+		// Process remaining bytes using base-128 encoding
 		while (currentByteIndex < dataLen)
 		{
 			uint8_t byte = data[currentByteIndex++];
 
+			// Shift previous bits left by 7 and append lower 7 bits
 			currentComponentValue = (currentComponentValue << 7) | (byte & 0x7f);
 			componentStarted = true;
 
+			// If the MSB is 0, this is the final byte of the current value
 			if ((byte & 0x80) == 0)
 			{
 				components.push_back(currentComponentValue);
@@ -886,6 +893,9 @@ namespace pcpp
 
 	std::vector<uint8_t> Asn1ObjectIdentifier::toBytes() const
 	{
+		// A description of OID encoding can be found here:
+		// https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier?redirectedfrom=MSDN
+
 		if (m_Components.size() < 2)
 		{
 			throw std::runtime_error("OID must have at least two components to encode.");
@@ -893,21 +903,25 @@ namespace pcpp
 
 		std::vector<uint8_t> encoded;
 
+		// Encode the first two components into one byte
 		uint32_t firstComponent = m_Components[0];
 		uint32_t secondComponent = m_Components[1];
 		encoded.push_back(static_cast<uint8_t>(firstComponent * 40 + secondComponent));
 
+		// Encode remaining components using base-128 encoding
 		for (size_t i = 2; i < m_Components.size(); ++i)
 		{
 			uint32_t currentComponent = m_Components[i];
 			std::vector<uint8_t> temp;
 
+			// At least one byte must be generated even if value is 0
 			do
 			{
 				temp.push_back(static_cast<uint8_t>(currentComponent & 0x7F));
 				currentComponent >>= 7;
 			} while (currentComponent > 0);
 
+			// Set continuation bits (MSB) for all but the last byte
 			for (size_t j = temp.size(); j-- > 0;)
 			{
 				uint8_t byte = temp[j];
