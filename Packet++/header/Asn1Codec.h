@@ -545,6 +545,28 @@ namespace pcpp
 		Asn1OctetStringRecord() = default;
 	};
 
+	class Asn1UTF8StringRecord : public Asn1StringRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		explicit Asn1UTF8StringRecord(const std::string& value);
+
+	private:
+		Asn1UTF8StringRecord() = default;
+	};
+
+	class Asn1PrintableStringRecord : public Asn1StringRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		explicit Asn1PrintableStringRecord(const std::string& value);
+
+	private:
+		Asn1PrintableStringRecord() = default;
+	};
+
 	/// @class Asn1BooleanRecord
 	/// Represents an ASN.1 record with a value of type Boolean
 	class Asn1BooleanRecord : public Asn1PrimitiveRecord

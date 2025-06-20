@@ -333,6 +333,16 @@ namespace pcpp
 					newRecord = new Asn1OctetStringRecord();
 					break;
 				}
+				case Asn1UniversalTagType::UTF8String:
+				{
+					newRecord = new Asn1UTF8StringRecord();
+					break;
+				}
+				case Asn1UniversalTagType::PrintableString:
+				{
+					newRecord = new Asn1PrintableStringRecord();
+					break;
+				}
 				case Asn1UniversalTagType::Boolean:
 				{
 					newRecord = new Asn1BooleanRecord();
@@ -775,6 +785,12 @@ namespace pcpp
 		hexStringToByteArray(m_Value, rawValue.data(), rawValueSize);
 		return rawValue;
 	}
+
+	Asn1UTF8StringRecord::Asn1UTF8StringRecord(const std::string& value) : Asn1StringRecord(value, Asn1UniversalTagType::UTF8String)
+	{}
+
+	Asn1PrintableStringRecord::Asn1PrintableStringRecord(const std::string& value) : Asn1StringRecord(value, Asn1UniversalTagType::PrintableString)
+	{}
 
 	Asn1BooleanRecord::Asn1BooleanRecord(bool value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Boolean)
 	{

@@ -173,7 +173,6 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 	// OctetString with non-printable value
 	{
-		std::cout << "START TEST" << std::endl;
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("04083006020201f40400", data, 20);
 		auto record = pcpp::Asn1Record::decode(data, dataLen);
@@ -185,7 +184,36 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getValueLength(), 8);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "3006020201f40400");
 		PTF_ASSERT_EQUAL(record->toString(), "OctetString, Length: 2+8, Value: 3006020201f40400");
-		std::cout << "END TEST" << std::endl;
+	}
+
+	// UTF8String
+	{
+		uint8_t data[32];
+		auto dataLen = pcpp::hexStringToByteArray("0c1ce0a4b8e0a4bee0a4a7e0a4bee0a4b0e0a4a320e0a4a8e0a4bee0a4ae", data, 32);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTF8String, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 30);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 28);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UTF8StringRecord>()->getValue(), "साधारण नाम");
+		PTF_ASSERT_EQUAL(record->toString(), "UTF8String, Length: 2+28, Value: साधारण नाम");
+	}
+
+	// PrintableString
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("13027573", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::PrintableString, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 4);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 2);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1PrintableStringRecord>()->getValue(), "us");
+		PTF_ASSERT_EQUAL(record->toString(), "PrintableString, Length: 2+2, Value: us");
 	}
 
 	// Null
@@ -755,6 +783,44 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("0411737562736368656d61537562656e747279", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// UTF8String
+	{
+		pcpp::Asn1UTF8StringRecord record("साधारण नाम");
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::UTF8String, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 30);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 28);
+		PTF_ASSERT_EQUAL(record.getValue(), "साधारण नाम");
+
+		uint8_t data[32];
+		auto dataLen = pcpp::hexStringToByteArray("0c1ce0a4b8e0a4bee0a4a7e0a4bee0a4b0e0a4a320e0a4a8e0a4bee0a4ae", data, 32);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// PrintableString
+	{
+		pcpp::Asn1PrintableStringRecord record("us");
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::PrintableString, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 4);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 2);
+		PTF_ASSERT_EQUAL(record.getValue(), "us");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("13027573", data, 20);
 
 		auto encodedValue = record.encode();
 		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
