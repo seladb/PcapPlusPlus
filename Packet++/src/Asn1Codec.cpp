@@ -1268,7 +1268,8 @@ namespace pcpp
 	std::vector<uint8_t> Asn1BitStringRecord::BitSet::toBytes() const
 	{
 		std::vector<uint8_t> result;
-		for (const auto bs : m_Data)
+		result.reserve(m_Data.size());
+		for (const auto& bs : m_Data)
 		{
 			result.push_back(static_cast<uint8_t>(bs.to_ulong()));
 		}
