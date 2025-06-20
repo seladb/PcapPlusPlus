@@ -8,6 +8,8 @@
 #include <chrono>
 #include "PointerVector.h"
 
+#include <iostream>
+
 /// @file
 
 /// @namespace pcpp
@@ -491,9 +493,35 @@ namespace pcpp
 		Asn1EnumeratedRecord() = default;
 	};
 
+	/// @class Asn1StringRecord
+	/// An abstract class for representing ASN.1 string records.
+	/// This class is not instantiable, users should use the derived classes
+	class Asn1StringRecord : public Asn1PrimitiveRecord
+	{
+	public:
+		/// @return The string value of this record
+		std::string getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		};
+
+	protected:
+		Asn1StringRecord() = default;
+		Asn1StringRecord(const std::string& value, Asn1UniversalTagType tagType);
+		Asn1StringRecord(const uint8_t* value, size_t valueLength, Asn1UniversalTagType tagType);
+
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() override;
+
+		std::string m_Value;
+	};
+
 	/// @class Asn1OctetStringRecord
 	/// Represents an ASN.1 record with a value of type Octet String
-	class Asn1OctetStringRecord : public Asn1PrimitiveRecord
+	class Asn1OctetStringRecord : public Asn1StringRecord
 	{
 		friend class Asn1Record;
 
@@ -507,21 +535,11 @@ namespace pcpp
 		/// @param valueLength The length of the byte array
 		explicit Asn1OctetStringRecord(const uint8_t* value, size_t valueLength);
 
-		/// @return The string value of this record
-		std::string getValue()
-		{
-			decodeValueIfNeeded();
-			return m_Value;
-		};
-
 	protected:
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
-		std::vector<std::string> toStringList() override;
-
 	private:
-		std::string m_Value;
 		bool m_IsPrintable = true;
 
 		Asn1OctetStringRecord() = default;

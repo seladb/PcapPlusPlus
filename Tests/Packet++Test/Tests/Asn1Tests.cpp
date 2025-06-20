@@ -173,6 +173,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 	// OctetString with non-printable value
 	{
+		std::cout << "START TEST" << std::endl;
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("04083006020201f40400", data, 20);
 		auto record = pcpp::Asn1Record::decode(data, dataLen);
@@ -184,6 +185,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getValueLength(), 8);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "3006020201f40400");
 		PTF_ASSERT_EQUAL(record->toString(), "OctetString, Length: 2+8, Value: 3006020201f40400");
+		std::cout << "END TEST" << std::endl;
 	}
 
 	// Null
