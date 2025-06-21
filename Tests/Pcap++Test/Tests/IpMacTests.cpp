@@ -275,15 +275,18 @@ PTF_TEST_CASE(TestMacAddress)
 	oss << macAddr1;
 	PTF_ASSERT_EQUAL(oss.str(), "11:02:33:04:55:06");
 
-	uint8_t* arrToCopyTo = nullptr;
-	macAddr3.copyTo(&arrToCopyTo);
+	std::unique_ptr<uint8_t[]> arrToCopyTo;
+	{
+		uint8_t* arrToCopyToRaw = nullptr;
+		macAddr3.copyTo(&arrToCopyToRaw);
+		arrToCopyTo.reset(arrToCopyToRaw);
+	}
 	PTF_ASSERT_EQUAL(arrToCopyTo[0], 0x11, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[1], 0x02, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[2], 0x33, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[3], 0x04, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[4], 0x55, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[5], 0x06, hex);
-	delete[] arrToCopyTo;
 
 	uint8_t macBytes[6];
 	macAddr3.copyTo(macBytes);
