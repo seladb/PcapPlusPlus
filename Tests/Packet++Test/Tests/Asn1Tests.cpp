@@ -417,6 +417,36 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		}
 	}
 
+	// BitString with 0 unused bytes
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030300a3b5", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::BitString, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 5);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 3);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getValue(), "1010001110110101");
+		PTF_ASSERT_EQUAL(record->toString(), "BitString, Length: 2+3, Value: 1010001110110101");
+	}
+
+	// BitString with unused bytes
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030306b2c0", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::BitString, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 5);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 3);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getValue(), "1011001011");
+		PTF_ASSERT_EQUAL(record->toString(), "BitString, Length: 2+3, Value: 1011001011");
+	}
+
 	// Sequence
 	{
 		uint8_t data[20];
@@ -1079,6 +1109,35 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
 		PTF_ASSERT_RAISES(pcpp::Asn1GeneralizedTimeRecord(timePoint, "invalid"), std::invalid_argument,
 		                  "Invalid timezone format. Use 'Z' or '+/-HHMM'.");
+	}
+
+	// BitString with 0 unused bytes
+	{
+		pcpp::Asn1BitStringRecord record("1010001110110101");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030300a3b5", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// BitString with unused bytes
+	{
+		pcpp::Asn1BitStringRecord record("1011001011");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030306b2c0", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// BitString invalid value
+	{
+		PTF_ASSERT_RAISES(pcpp::Asn1BitStringRecord record("0011invalid"), std::invalid_argument, "Invalid bit string");
 	}
 
 	// Sequence

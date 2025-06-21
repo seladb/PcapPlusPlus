@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <chrono>
+#include <bitset>
 #include <iostream>
 #include "PointerVector.h"
 
@@ -801,5 +802,60 @@ namespace pcpp
 	private:
 		Asn1GeneralizedTimeRecord() = default;
 		std::string m_Timezone;
+	};
+
+	/// @class Asn1BitStringRecord
+	/// Represents an ASN.1 record with a value of type BitString
+	class Asn1BitStringRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type BitString
+		/// @param value A bit string to set as the record value
+		/// @throw std::invalid_argument if the string is not a valid bit string
+		explicit Asn1BitStringRecord(const std::string& value);
+
+		/// @return The bit string value of this record
+		std::string getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value.toString();
+		};
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() override;
+
+	private:
+		class BitSet
+		{
+		public:
+			BitSet() = default;
+			explicit BitSet(const std::string& value);
+			BitSet(const uint8_t* data, size_t numBits);
+
+			BitSet& operator=(const std::string& value);
+
+			size_t sizeInBytes() const;
+			std::string toString() const;
+			std::vector<uint8_t> toBytes() const;
+			size_t getNumBits() const
+			{
+				return m_NumBits;
+			}
+
+		private:
+			void initFromString(const std::string& value);
+
+			std::vector<std::bitset<8>> m_Data;
+			size_t m_NumBits = 0;
+		};
+
+		Asn1BitStringRecord() = default;
+
+		BitSet m_Value;
 	};
 }  // namespace pcpp
