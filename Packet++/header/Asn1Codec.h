@@ -7,7 +7,6 @@
 #include <sstream>
 #include <chrono>
 #include <bitset>
-#include <iostream>
 #include "PointerVector.h"
 
 /// @file
