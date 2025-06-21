@@ -268,7 +268,8 @@ PTF_TEST_CASE(TestMacAddress)
 	                  "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
 
 	PTF_ASSERT_RAISES(MacAddress(nullptr, 0), std::invalid_argument, "Address pointer is null");
-	PTF_ASSERT_RAISES(MacAddress(addrAsArr, 4), std::out_of_range, "Buffer size is smaller than MAC address size (6 bytes)")
+	PTF_ASSERT_RAISES(MacAddress(addrAsArr, 4), std::out_of_range,
+	                  "Buffer size is smaller than MAC address size (6 bytes)")
 
 	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06");
 	std::ostringstream oss;
@@ -288,9 +289,25 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_EQUAL(arrToCopyTo[4], 0x55, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[5], 0x06, hex);
 
-	uint8_t macBytes[6];
-	macAddr3.copyTo(macBytes);
-	PTF_ASSERT_BUF_COMPARE(macBytes, addrAsArr, 6);
+	std::array<uint8_t, 6> macBytes;
+	macAddr3.copyTo(macBytes.data());
+	PTF_ASSERT_BUF_COMPARE(macBytes.data(), addrAsArr, 6);
+
+	// Test copyTo with a buffer of size 6
+	macBytes.fill(0);
+	PTF_ASSERT_EQUAL(macAddr3.copyTo(macBytes.data(), macBytes.size()), macBytes.size());
+	PTF_ASSERT_BUF_COMPARE(macBytes.data(), addrAsArr, 6);
+
+	// Test copyTo with a buffer smaller than 6 bytes
+	macBytes.fill(0);
+	PTF_ASSERT_EQUAL(macAddr3.copyTo(macBytes.data(), 4), 6);
+	PTF_ASSERT_TRUE(std::all_of(macBytes.begin() + 4, macBytes.end(), [](uint8_t byte) { return byte == 0; }));
+
+	// Test copyTo with a null buffer and size 0 (Query mode)
+	PTF_ASSERT_EQUAL(macAddr3.copyTo(nullptr, 0), 6);
+
+	// Test copyTo with a null buffer and non-zero size
+	PTF_ASSERT_RAISES(macAddr3.copyTo(nullptr, 4), std::invalid_argument, "Buffer is null but size is not zero");
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 	pcpp::MacAddress macCpp11Valid{ 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
