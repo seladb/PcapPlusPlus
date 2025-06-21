@@ -268,12 +268,13 @@ namespace pcpp
 		}
 
 		/// @brief Copies the address value to a user-provided buffer.
-		/// 
+		///
 		/// This function supports querying. If the buffer is null and size is zero, it returns the required size.
-		/// 
+		///
 		/// @param[in] buffer A pointer to the buffer where the address will be copied
 		/// @param[in] size The size of the buffer in bytes
-		/// @return The number of bytes copied to the buffer or the number of required bytes, which is always 16 for IPv6 addresses.
+		/// @return The number of bytes copied to the buffer or the number of required bytes, which is always 16 for
+		/// IPv6 addresses.
 		size_t copyTo(uint8_t* buffer, size_t size) const
 		{
 			const size_t requiredSize = m_Bytes.size();
@@ -284,7 +285,7 @@ namespace pcpp
 				{
 					throw std::invalid_argument("Buffer is null but size is not zero");
 				}
-				
+
 				return requiredSize;
 			}
 

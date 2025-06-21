@@ -163,9 +163,9 @@ namespace pcpp
 		}
 
 		/// @brief Copies the address value to a user-provided buffer.
-		/// 
+		///
 		/// This function supports querying. If the buffer is null and size is zero, it returns the required size.
-		/// 
+		///
 		/// @param[in] buffer A pointer to the buffer where the address will be copied
 		/// @param[in] size The size of the buffer in bytes
 		/// @return The number of bytes copied to the buffer or the required size if the buffer is too small.
@@ -187,7 +187,7 @@ namespace pcpp
 			{
 				return requiredSize;
 			}
-			
+
 			std::copy(m_Address.begin(), m_Address.end(), buffer);
 			return requiredSize;
 		}
