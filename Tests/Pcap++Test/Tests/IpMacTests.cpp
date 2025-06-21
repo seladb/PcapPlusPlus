@@ -129,14 +129,36 @@ PTF_TEST_CASE(TestIPAddress)
 		oss << ip6AddrFromIpAddr;
 		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4");
 	}
-	uint8_t addrAsByteArray[16];
-	ip6AddrFromIpAddr.copyTo(addrAsByteArray);
-	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51,
-		                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
+
+	std::array<uint8_t, 16> addrAsByteArray;
+	ip6AddrFromIpAddr.copyTo(addrAsByteArray.data());
+	std::array<uint8_t, 16> expectedByteArray = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51,
+		                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
 	for (int i = 0; i < 16; i++)
 	{
 		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
 	}
+
+	// Test copyTo with size
+	addrAsByteArray.fill(0);
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr.copyTo(addrAsByteArray.data(), addrAsByteArray.size()), 16);
+
+	for (int i = 0; i < 16; i++)
+	{
+		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
+	}
+
+	// Test copyTo with size less than 16
+	addrAsByteArray.fill(0);
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr.copyTo(addrAsByteArray.data(), 8), 16);
+	PTF_ASSERT_TRUE(
+	    std::all_of(addrAsByteArray.begin(), addrAsByteArray.end(), [](uint8_t byte) { return byte == 0; }));
+
+	// Test copyTo in query mode
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr.copyTo(nullptr, 0), 16);
+
+	// Test copyTo with null pointer and non-zero size
+	PTF_ASSERT_RAISES(ip6AddrFromIpAddr.copyTo(nullptr, 16), std::invalid_argument, "Buffer is null but size is not zero");
 
 	{
 		in6_addr in_ipv6_addr;
