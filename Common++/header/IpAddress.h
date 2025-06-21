@@ -252,8 +252,8 @@ namespace pcpp
 		/// Allocates a byte array and copies address value into it. Array deallocation is user responsibility
 		/// @param[in] arr A pointer to where array will be allocated
 		/// @param[out] length Returns the length in bytes of the array that was allocated
-		/// @deprecated Use copyToNewBuffer instead as it returns a unique pointer to the allocated array.
-		PCPP_DEPRECATED("Use copyToNewBuffer instead.")
+		/// @deprecated Allocating copyTo API is deprecated.
+		PCPP_DEPRECATED("Allocating copyTo API is deprecated.")
 		void copyTo(uint8_t** arr, size_t& length) const;
 
 		/// Gets a pointer to an already allocated byte array and copies the address value to it.
@@ -264,26 +264,38 @@ namespace pcpp
 		/// bytes.
 		void copyTo(uint8_t* arr) const
 		{
-			return copyTo(arr, 16);
+			copyTo(arr, 16);
 		}
 
 		/// @brief Copies the address value to a user-provided buffer.
+		/// 
+		/// This function supports querying. If the buffer is null and size is zero, it returns the required size.
+		/// 
 		/// @param[in] buffer A pointer to the buffer where the address will be copied
 		/// @param[in] size The size of the buffer in bytes
-		/// @throws std::out_of_range If the provided size is smaller than 16 bytes.
-		void copyTo(uint8_t* buffer, size_t size) const
+		/// @return The number of bytes copied to the buffer or the number of required bytes, which is always 16 for IPv6 addresses.
+		size_t copyTo(uint8_t* buffer, size_t size) const
 		{
-			if (size < m_Bytes.size())
-			{
-				throw std::out_of_range("Buffer size is smaller than IPv6 address size");
-			}
-			memcpy(buffer, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t));
-		}
+			const size_t requiredSize = m_Bytes.size();
 
-		/// @brief Allocates a byte array and copies address value into it.
-		/// @param[out] size Returns the size in bytes of the allocated array. Usually 16.
-		/// @return A unique pointer to the allocated byte array containing the address value
-		std::unique_ptr<uint8_t[]> copyToNewBuffer(size_t& size) const;
+			if (buffer == nullptr)
+			{
+				if (size != 0)
+				{
+					throw std::invalid_argument("Buffer is null but size is not zero");
+				}
+				
+				return requiredSize;
+			}
+
+			if (size < requiredSize)
+			{
+				return requiredSize;
+			}
+
+			memcpy(buffer, m_Bytes.data(), requiredSize);
+			return requiredSize;
+		}
 
 		/// Checks whether the address matches a network.
 		/// @param network An IPv6Network network
