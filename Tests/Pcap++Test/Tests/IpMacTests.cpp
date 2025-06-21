@@ -317,7 +317,7 @@ PTF_TEST_CASE(TestMacAddress)
 	// Test copyTo with a buffer smaller than 6 bytes
 	macBytes.fill(0);
 	PTF_ASSERT_EQUAL(macAddr3.copyTo(macBytes.data(), 4), 6);
-	PTF_ASSERT_TRUE(std::all_of(macBytes.begin() + 4, macBytes.end(), [](uint8_t byte) { return byte == 0; }));
+	PTF_ASSERT_TRUE(std::all_of(macBytes.begin(), macBytes.end(), [](uint8_t byte) { return byte == 0; }));
 
 	// Test copyTo with a null buffer and size 0 (Query mode)
 	PTF_ASSERT_EQUAL(macAddr3.copyTo(nullptr, 0), 6);
