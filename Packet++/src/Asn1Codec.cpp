@@ -333,6 +333,21 @@ namespace pcpp
 					newRecord = new Asn1OctetStringRecord();
 					break;
 				}
+				case Asn1UniversalTagType::UTF8String:
+				{
+					newRecord = new Asn1UTF8StringRecord();
+					break;
+				}
+				case Asn1UniversalTagType::PrintableString:
+				{
+					newRecord = new Asn1PrintableStringRecord();
+					break;
+				}
+				case Asn1UniversalTagType::IA5String:
+				{
+					newRecord = new Asn1IA5StringRecord();
+					break;
+				}
 				case Asn1UniversalTagType::Boolean:
 				{
 					newRecord = new Asn1BooleanRecord();
@@ -709,22 +724,11 @@ namespace pcpp
 		m_TagType = static_cast<uint8_t>(Asn1UniversalTagType::Enumerated);
 	}
 
-	Asn1OctetStringRecord::Asn1OctetStringRecord(const std::string& value)
-	    : Asn1PrimitiveRecord(Asn1UniversalTagType::OctetString)
-	{
-		m_Value = value;
-		m_ValueLength = value.size();
-		m_TotalLength = m_ValueLength + 2;
-		m_IsPrintable = true;
-	}
-
-	Asn1OctetStringRecord::Asn1OctetStringRecord(const uint8_t* value, size_t valueLength)
-	    : Asn1PrimitiveRecord(Asn1UniversalTagType::OctetString)
+	Asn1OctetStringRecord::Asn1OctetStringRecord(const uint8_t* value, size_t valueLength) : m_IsPrintable(false)
 	{
 		m_Value = byteArrayToHexString(value, valueLength);
 		m_ValueLength = valueLength;
 		m_TotalLength = m_ValueLength + 2;
-		m_IsPrintable = false;
 	}
 
 	void Asn1OctetStringRecord::decodeValue(uint8_t* data, bool lazy)
@@ -735,7 +739,7 @@ namespace pcpp
 
 		if (m_IsPrintable)
 		{
-			m_Value = std::string(value, m_ValueLength);
+			Asn1StringRecord::decodeValue(data, lazy);
 		}
 		else
 		{
@@ -747,7 +751,7 @@ namespace pcpp
 	{
 		if (m_IsPrintable)
 		{
-			return { m_Value.begin(), m_Value.end() };
+			return Asn1StringRecord::encodeValue();
 		}
 
 		// converting the hex stream to a byte array.
@@ -758,11 +762,6 @@ namespace pcpp
 		rawValue.resize(rawValueSize);
 		hexStringToByteArray(m_Value, rawValue.data(), rawValueSize);
 		return rawValue;
-	}
-
-	std::vector<std::string> Asn1OctetStringRecord::toStringList()
-	{
-		return { Asn1Record::toStringList().front() + ", Value: " + getValue() };
 	}
 
 	Asn1BooleanRecord::Asn1BooleanRecord(bool value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Boolean)

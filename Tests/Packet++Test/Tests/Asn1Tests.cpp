@@ -186,6 +186,51 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->toString(), "OctetString, Length: 2+8, Value: 3006020201f40400");
 	}
 
+	// UTF8String
+	{
+		uint8_t data[30];
+		auto dataLen = pcpp::hexStringToByteArray("0c1ae697a5ed959ce0b8aae0a48541cea9d0afd7a9e4bda0f09f8c8d", data, 30);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTF8String, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 28);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 26);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UTF8StringRecord>()->getValue(), "日한สअAΩЯש你🌍");
+		PTF_ASSERT_EQUAL(record->toString(), "UTF8String, Length: 2+26, Value: 日한สअAΩЯש你🌍");
+	}
+
+	// PrintableString
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("13027573", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::PrintableString, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 4);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 2);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1PrintableStringRecord>()->getValue(), "us");
+		PTF_ASSERT_EQUAL(record->toString(), "PrintableString, Length: 2+2, Value: us");
+	}
+
+	// IA5String
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("1609414243313233402324", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::IA5String, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 11);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 9);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IA5StringRecord>()->getValue(), "ABC123@#$");
+		PTF_ASSERT_EQUAL(record->toString(), "IA5String, Length: 2+9, Value: ABC123@#$");
+	}
+
 	// Null
 	{
 		uint8_t data[20];
@@ -804,6 +849,63 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("04083006020201f40400", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// UTF8String
+	{
+		pcpp::Asn1UTF8StringRecord record("日한สअAΩЯש你🌍");
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::UTF8String, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 28);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 26);
+		PTF_ASSERT_EQUAL(record.getValue(), "日한สअAΩЯש你🌍");
+
+		uint8_t data[30];
+		auto dataLen = pcpp::hexStringToByteArray("0c1ae697a5ed959ce0b8aae0a48541cea9d0afd7a9e4bda0f09f8c8d", data, 30);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// PrintableString
+	{
+		pcpp::Asn1PrintableStringRecord record("us");
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::PrintableString, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 4);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 2);
+		PTF_ASSERT_EQUAL(record.getValue(), "us");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("13027573", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// IA5String
+	{
+		pcpp::Asn1IA5StringRecord record("ABC123@#$");
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::IA5String, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 11);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 9);
+		PTF_ASSERT_EQUAL(record.getValue(), "ABC123@#$");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("1609414243313233402324", data, 20);
 
 		auto encodedValue = record.encode();
 		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
