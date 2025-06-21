@@ -6,9 +6,8 @@
 #include <stdexcept>
 #include <sstream>
 #include <chrono>
-#include "PointerVector.h"
-
 #include <iostream>
+#include "PointerVector.h"
 
 /// @file
 
@@ -496,9 +495,19 @@ namespace pcpp
 	/// @class Asn1StringRecord
 	/// An abstract class for representing ASN.1 string records.
 	/// This class is not instantiable, users should use the derived classes
+	template <Asn1UniversalTagType TagType,
+	          typename std::enable_if<std::is_same<decltype(TagType), Asn1UniversalTagType>::value, bool>::type = false>
 	class Asn1StringRecord : public Asn1PrimitiveRecord
 	{
 	public:
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1StringRecord(const std::string& value) : Asn1PrimitiveRecord(TagType), m_Value(value)
+		{
+			m_ValueLength = value.size();
+			m_TotalLength = m_ValueLength + 2;
+		}
+
 		/// @return The string value of this record
 		std::string getValue()
 		{
@@ -507,28 +516,34 @@ namespace pcpp
 		};
 
 	protected:
-		Asn1StringRecord() = default;
-		Asn1StringRecord(const std::string& value, Asn1UniversalTagType tagType);
-		Asn1StringRecord(const uint8_t* value, size_t valueLength, Asn1UniversalTagType tagType);
+		friend class Asn1Record;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
-		std::vector<uint8_t> encodeValue() const override;
+		Asn1StringRecord() : Asn1PrimitiveRecord(TagType)
+		{}
 
-		std::vector<std::string> toStringList() override;
+		void decodeValue(uint8_t* data, bool lazy) override
+		{
+			m_Value = std::string(reinterpret_cast<char*>(data), m_ValueLength);
+		}
+		std::vector<uint8_t> encodeValue() const override
+		{
+			return { m_Value.begin(), m_Value.end() };
+		}
+
+		std::vector<std::string> toStringList() override
+		{
+			return { Asn1Record::toStringList().front() + ", Value: " + getValue() };
+		}
 
 		std::string m_Value;
 	};
 
 	/// @class Asn1OctetStringRecord
 	/// Represents an ASN.1 record with a value of type Octet String
-	class Asn1OctetStringRecord : public Asn1StringRecord
+	class Asn1OctetStringRecord : public Asn1StringRecord<Asn1UniversalTagType::OctetString>
 	{
-		friend class Asn1Record;
-
 	public:
-		/// A constructor to create a record of type Octet String from a printable value
-		/// @param value A string to set as the record value
-		explicit Asn1OctetStringRecord(const std::string& value);
+		using Asn1StringRecord::Asn1StringRecord;
 
 		/// A constructor to create a record of type Octet String from a non-printable value
 		/// @param value A byte array to set as the record value
@@ -541,30 +556,30 @@ namespace pcpp
 
 	private:
 		bool m_IsPrintable = true;
-
-		Asn1OctetStringRecord() = default;
 	};
 
-	class Asn1UTF8StringRecord : public Asn1StringRecord
+	/// @class Asn1UTF8StringRecord
+	/// Represents an ASN.1 record with a value of type UTF8 String
+	class Asn1UTF8StringRecord : public Asn1StringRecord<Asn1UniversalTagType::UTF8String>
 	{
-		friend class Asn1Record;
-
 	public:
-		explicit Asn1UTF8StringRecord(const std::string& value);
-
-	private:
-		Asn1UTF8StringRecord() = default;
+		using Asn1StringRecord::Asn1StringRecord;
 	};
 
-	class Asn1PrintableStringRecord : public Asn1StringRecord
+	/// @class Asn1PrintableStringRecord
+	/// Represents an ASN.1 record with a value of type Printable String
+	class Asn1PrintableStringRecord : public Asn1StringRecord<Asn1UniversalTagType::PrintableString>
 	{
-		friend class Asn1Record;
-
 	public:
-		explicit Asn1PrintableStringRecord(const std::string& value);
+		using Asn1StringRecord::Asn1StringRecord;
+	};
 
-	private:
-		Asn1PrintableStringRecord() = default;
+	/// @class Asn1IA5StringRecord
+	/// Represents an ASN.1 record with a value of type IA5 String
+	class Asn1IA5StringRecord : public Asn1StringRecord<Asn1UniversalTagType::IA5String>
+	{
+	public:
+		using Asn1StringRecord::Asn1StringRecord;
 	};
 
 	/// @class Asn1BooleanRecord

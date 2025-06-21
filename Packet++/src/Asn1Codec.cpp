@@ -343,6 +343,11 @@ namespace pcpp
 					newRecord = new Asn1PrintableStringRecord();
 					break;
 				}
+				case Asn1UniversalTagType::IA5String:
+				{
+					newRecord = new Asn1IA5StringRecord();
+					break;
+				}
 				case Asn1UniversalTagType::Boolean:
 				{
 					newRecord = new Asn1BooleanRecord();
@@ -714,44 +719,12 @@ namespace pcpp
 		m_TagType = static_cast<uint8_t>(Asn1UniversalTagType::Enumerated);
 	}
 
-	Asn1StringRecord::Asn1StringRecord(const std::string& value, Asn1UniversalTagType tagType)
-	    : Asn1PrimitiveRecord(tagType)
-	{
-		m_Value = value;
-		m_ValueLength = value.size();
-		m_TotalLength = m_ValueLength + 2;
-	}
-
-	Asn1StringRecord::Asn1StringRecord(const uint8_t* value, size_t valueLength, Asn1UniversalTagType tagType)
-	    : Asn1PrimitiveRecord(tagType)
+	Asn1OctetStringRecord::Asn1OctetStringRecord(const uint8_t* value, size_t valueLength) : m_IsPrintable(false)
 	{
 		m_Value = byteArrayToHexString(value, valueLength);
 		m_ValueLength = valueLength;
 		m_TotalLength = m_ValueLength + 2;
 	}
-
-	void Asn1StringRecord::decodeValue(uint8_t* data, bool lazy)
-	{
-		m_Value = std::string(reinterpret_cast<char*>(data), m_ValueLength);
-	}
-
-	std::vector<uint8_t> Asn1StringRecord::encodeValue() const
-	{
-		return { m_Value.begin(), m_Value.end() };
-	}
-
-	std::vector<std::string> Asn1StringRecord::toStringList()
-	{
-		return { Asn1Record::toStringList().front() + ", Value: " + getValue() };
-	}
-
-	Asn1OctetStringRecord::Asn1OctetStringRecord(const std::string& value)
-	    : Asn1StringRecord(value, Asn1UniversalTagType::OctetString)
-	{}
-
-	Asn1OctetStringRecord::Asn1OctetStringRecord(const uint8_t* value, size_t valueLength)
-	    : Asn1StringRecord(value, valueLength, Asn1UniversalTagType::OctetString), m_IsPrintable(false)
-	{}
 
 	void Asn1OctetStringRecord::decodeValue(uint8_t* data, bool lazy)
 	{
@@ -785,12 +758,6 @@ namespace pcpp
 		hexStringToByteArray(m_Value, rawValue.data(), rawValueSize);
 		return rawValue;
 	}
-
-	Asn1UTF8StringRecord::Asn1UTF8StringRecord(const std::string& value) : Asn1StringRecord(value, Asn1UniversalTagType::UTF8String)
-	{}
-
-	Asn1PrintableStringRecord::Asn1PrintableStringRecord(const std::string& value) : Asn1StringRecord(value, Asn1UniversalTagType::PrintableString)
-	{}
 
 	Asn1BooleanRecord::Asn1BooleanRecord(bool value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Boolean)
 	{
