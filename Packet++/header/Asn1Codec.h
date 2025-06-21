@@ -516,8 +516,6 @@ namespace pcpp
 		};
 
 	protected:
-		friend class Asn1Record;
-
 		Asn1StringRecord() : Asn1PrimitiveRecord(TagType)
 		{}
 
@@ -542,6 +540,8 @@ namespace pcpp
 	/// Represents an ASN.1 record with a value of type Octet String
 	class Asn1OctetStringRecord : public Asn1StringRecord<Asn1UniversalTagType::OctetString>
 	{
+		friend class Asn1Record;
+
 	public:
 		using Asn1StringRecord::Asn1StringRecord;
 
@@ -555,6 +555,8 @@ namespace pcpp
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
+		Asn1OctetStringRecord() = default;
+
 		bool m_IsPrintable = true;
 	};
 
