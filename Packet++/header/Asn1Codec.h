@@ -495,9 +495,7 @@ namespace pcpp
 	/// @class Asn1StringRecord
 	/// An abstract class for representing ASN.1 string records.
 	/// This class is not instantiable, users should use the derived classes
-	template <Asn1UniversalTagType TagType,
-	          typename std::enable_if<std::is_same<decltype(TagType), Asn1UniversalTagType>::value, bool>::type = false>
-	class Asn1StringRecord : public Asn1PrimitiveRecord
+	template <Asn1UniversalTagType TagType> class Asn1StringRecord : public Asn1PrimitiveRecord
 	{
 	public:
 		/// A constructor to create a record from a printable string value
