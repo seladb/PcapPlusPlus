@@ -43,7 +43,7 @@ namespace pcpp
 		/// @throws std::out_of_range If the provided size is smaller than 6 bytes.
 		explicit MacAddress(const uint8_t* addr, size_t size)
 		{
-			if(addr == nullptr)
+			if (addr == nullptr)
 			{
 				throw std::invalid_argument("Address pointer is null");
 			}

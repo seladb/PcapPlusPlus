@@ -158,7 +158,8 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr.copyTo(nullptr, 0), 16);
 
 	// Test copyTo with null pointer and non-zero size
-	PTF_ASSERT_RAISES(ip6AddrFromIpAddr.copyTo(nullptr, 16), std::invalid_argument, "Buffer is null but size is not zero");
+	PTF_ASSERT_RAISES(ip6AddrFromIpAddr.copyTo(nullptr, 16), std::invalid_argument,
+	                  "Buffer is null but size is not zero");
 
 	{
 		in6_addr in_ipv6_addr;
