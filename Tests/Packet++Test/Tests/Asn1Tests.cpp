@@ -2,6 +2,8 @@
 #include "Asn1Codec.h"
 #include "RawPacket.h"
 #include "GeneralUtils.h"
+#include "SystemUtils.h"
+
 #include <functional>
 #include <cstring>
 #include <sstream>
@@ -197,6 +199,207 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getValueLength(), 0);
 		PTF_ASSERT_NOT_NULL(record->castAs<pcpp::Asn1NullRecord>());
 		PTF_ASSERT_EQUAL(record->toString(), "Null, Length: 2+0");
+	}
+
+	// ObjectIdentifier (OID)
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("06092a864886f70d01010b", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::ObjectIdentifier, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 11);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 9);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1ObjectIdentifierRecord>()->getValue(), "1.2.840.113549.1.1.11");
+	}
+
+	// UTC time
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3235303532343135333034355a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 15);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 13);
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
+		                 1748100645000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 2025-05-24 15:30:45");
+	}
+
+	// UTC time - without seconds
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170b323530353234313533305a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 13);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 11);
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
+		                 1748100600000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "20250524");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+11, Value: 2025-05-24 15:30:00");
+	}
+
+	// UTC time - before year 2000
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3835303332333035333030305a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 15);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 13);
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
+		                 480403800000000);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValueAsString("%Y%m%d"), "19850323");
+		PTF_ASSERT_EQUAL(record->toString(), "UTCTime, Length: 2+13, Value: 1985-03-23 05:30:00");
+	}
+
+	// UTC time - invalid data
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3835303332333035333037305a", data, 20);
+
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue(), std::runtime_error,
+		                  "Failed to parse ASN.1 UTC time");
+	}
+
+	// Generalized time - UTC
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("180f32303235303533313134333030305a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 17);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 15);
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
+		                 1748701800000000);
+		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+15, Value: 2025-05-31 14:30:00");
+	}
+
+	// Generalized time - non-UTC
+	{
+		uint8_t data[22];
+		auto dataLen = pcpp::hexStringToByteArray("181332303235303533313134333030302D30343030", data, 22);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 21);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 19);
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
+		                 1748716200000000);
+		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+19, Value: 2025-05-31 18:30:00");
+	}
+
+	// Generalized time - with milliseconds
+	{
+		uint8_t data[22];
+		auto dataLen = pcpp::hexStringToByteArray("181332303235303533313134333030302e3132335a", data, 22);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 21);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 19);
+		PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+		                     record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch())
+		                     .count(),
+		                 1748701800123000);
+		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+19, Value: 2025-05-31 14:30:00.123");
+	}
+
+	// Generalized time - invalid data
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("180f32303235303533313134333037305a", data, 20);
+
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue(), std::runtime_error,
+		                  "Failed to parse ASN.1 generalized time");
+	}
+
+	// Timezone conversions
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3235303532343135333034355a", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		auto utcTimeRecord = record->castAs<pcpp::Asn1UtcTimeRecord>();
+
+		std::vector<std::pair<std::string, std::string>> timezonesAndValues = {
+			{ "Z",     "2025-05-24 15:30:45"          },
+			{ "+1000", "2025-05-25 01:30:45 UTC+1000" },
+			{ "-1030", "2025-05-24 05:00:45 UTC-1030" }
+		};
+		for (const auto& timezonesAndValue : timezonesAndValues)
+		{
+			PTF_ASSERT_EQUAL(utcTimeRecord->getValueAsString("%Y-%m-%d %H:%M:%S", timezonesAndValue.first),
+			                 timezonesAndValue.second);
+		}
+
+		std::vector<std::string> invalidTimezones = { "invalid", "abcde", "-a100", "+1a00", "-10a0", "+100a" };
+		for (const auto& invalidTimezone : invalidTimezones)
+		{
+			PTF_ASSERT_RAISES(utcTimeRecord->getValueAsString("%Y%m%d", invalidTimezone), std::invalid_argument,
+			                  "Invalid timezone format. Use 'Z' or '+/-HHMM'.");
+		}
+	}
+
+	// BitString with 0 unused bytes
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030300a3b5", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::BitString, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 5);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 3);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getValue(), "1010001110110101");
+		PTF_ASSERT_EQUAL(record->toString(), "BitString, Length: 2+3, Value: 1010001110110101");
+	}
+
+	// BitString with unused bytes
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030306b2c0", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record->isConstructed());
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::BitString, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 5);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 3);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getValue(), "1011001011");
+		PTF_ASSERT_EQUAL(record->toString(), "BitString, Length: 2+3, Value: 1011001011");
 	}
 
 	// Sequence
@@ -656,6 +859,185 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
 	}
 
+	// ObjectIdentifier (OID)
+	{
+		pcpp::Asn1ObjectIdentifier oid("1.2.840.113549.1.1.11");
+		pcpp::Asn1ObjectIdentifierRecord record(oid);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("06092a864886f70d01010b", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// UTC time
+	{
+		std::tm tm{ 45, 30, 15, 24, 5 - 1, 2025 - 1900, 0 };
+		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
+
+		pcpp::Asn1UtcTimeRecord record(timePoint);
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 15);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 13);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170d3235303532343135333034355a", data, 20);
+
+		record.getValue();
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// UTC time - without seconds
+	{
+		std::tm tm{ 45, 30, 15, 24, 5 - 1, 2025 - 1900, 0 };
+		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
+
+		pcpp::Asn1UtcTimeRecord record(timePoint, false);
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::UTCTime, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 13);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 11);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("170b323530353234313533305a", data, 20);
+
+		record.getValue();
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// Generalized time - UTC
+	{
+		std::tm tm{ 0, 30, 14, 31, 5 - 1, 2025 - 1900, 0 };
+		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
+
+		pcpp::Asn1GeneralizedTimeRecord record(timePoint);
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 17);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 15);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("180f32303235303533313134333030305a", data, 20);
+
+		record.getValue();
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
+	}
+
+	// Generalized time - non-UTC
+	{
+		std::tm tm{ 0, 30, 14, 31, 5 - 1, 2025 - 1900, 0 };
+		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
+
+		pcpp::Asn1GeneralizedTimeRecord record(timePoint, "-0400");
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 21);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 19);
+
+		uint8_t data[22];
+		auto dataLen = pcpp::hexStringToByteArray("181332303235303533313134333030302D30343030", data, 22);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
+	}
+
+	// Generalized time - with milliseconds
+	{
+		std::tm tm{ 0, 30, 14, 31, 5 - 1, 2025 - 1900, 0 };
+		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm)) + std::chrono::milliseconds(123);
+
+		pcpp::Asn1GeneralizedTimeRecord record(timePoint, "Z");
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 21);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 19);
+
+		uint8_t data[22];
+		auto dataLen = pcpp::hexStringToByteArray("181332303235303533313134333030302e3132335a", data, 22);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
+	}
+
+	// Generalized time - non-UTC + milliseconds
+	{
+		std::tm tm{ 45, 30, 2, 31, 5 - 1, 2025 - 1900, 0 };
+		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm)) + std::chrono::milliseconds(123);
+
+		pcpp::Asn1GeneralizedTimeRecord record(timePoint, "+1000");
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::GeneralizedTime, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 25);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 23);
+
+		uint8_t data[25];
+		auto dataLen = pcpp::hexStringToByteArray("181732303235303533313032333034352e3132332b31303030", data, 25);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
+	}
+
+	// Generalized time - invalid timezone
+	{
+		std::tm tm{ 0, 30, 14, 31, 5 - 1, 2025 - 1900, 0 };
+		auto timePoint = std::chrono::system_clock::from_time_t(pcpp::mkUtcTime(tm));
+		PTF_ASSERT_RAISES(pcpp::Asn1GeneralizedTimeRecord(timePoint, "invalid"), std::invalid_argument,
+		                  "Invalid timezone format. Use 'Z' or '+/-HHMM'.");
+	}
+
+	// BitString with 0 unused bytes
+	{
+		pcpp::Asn1BitStringRecord record("1010001110110101");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030300a3b5", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// BitString with unused bytes
+	{
+		pcpp::Asn1BitStringRecord record("1011001011");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030306b2c0", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// BitString invalid value
+	{
+		PTF_ASSERT_RAISES(pcpp::Asn1BitStringRecord record("0011invalid"), std::invalid_argument, "Invalid bit string");
+	}
+
 	// Sequence
 	{
 		pcpp::Asn1OctetStringRecord octestStringRecord("abcd");
@@ -736,3 +1118,92 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
 	}
 }  // Asn1EncodingTest
+
+PTF_TEST_CASE(Asn1ObjectIdentifierTest)
+{
+	// Generate from byte array - First byte
+	{
+		std::vector<std::pair<std::vector<uint8_t>, std::string>> encodedDataAndExpectedStrings = {
+			{ { 0x16 }, "0.22" },
+			{ { 0x35 }, "1.13" },
+			{ { 0x76 }, "2.38" },
+		};
+
+		for (auto encodedDataAndExpectedString : encodedDataAndExpectedStrings)
+		{
+			pcpp::Asn1ObjectIdentifier oid(encodedDataAndExpectedString.first.data(),
+			                               encodedDataAndExpectedString.first.size());
+			PTF_ASSERT_EQUAL(oid.toString(), encodedDataAndExpectedString.second);
+		}
+	}
+
+	// Generate from byte array - Small and large value components
+	{
+		std::vector<std::pair<std::vector<uint8_t>, std::string>> encodedDataAndExpectedStrings = {
+			{ { 0x2a, 0x26, 0x7f },                         "1.2.38.127"        },
+			{ { 0x2a, 0x95, 0x8c, 0x4e },                   "1.2.345678"        },
+			{ { 0x2a, 0x95, 0x8c, 0x4e, 0x01, 0xcd, 0x14 }, "1.2.345678.1.9876" },
+		};
+
+		for (auto encodedDataAndExpectedString : encodedDataAndExpectedStrings)
+		{
+			pcpp::Asn1ObjectIdentifier oid(encodedDataAndExpectedString.first.data(),
+			                               encodedDataAndExpectedString.first.size());
+			PTF_ASSERT_EQUAL(oid.toString(), encodedDataAndExpectedString.second);
+		}
+	}
+
+	// Generate from byte array - Invalid values
+	{
+		PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier(nullptr, 2), std::invalid_argument,
+		                  "Malformed OID: Not enough bytes for the first component");
+		PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier(std::vector<uint8_t>({ 0x85 }).data(), 0), std::invalid_argument,
+		                  "Malformed OID: Not enough bytes for the first component");
+		PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier(std::vector<uint8_t>({ 0x2a, 0x95 }).data(), 2),
+		                  std::invalid_argument, "Malformed OID: Incomplete component at end of data");
+	}
+
+	// Generate from string - Valid values
+	{
+		std::vector<std::pair<std::string, std::vector<uint32_t>>> inputAndExpectedComponents = {
+			{ "0.9.2342.19200300.100.1.1", { 0x0, 0x9, 0x926, 0x124F92C, 0x64, 0x1, 0x1 } },
+			{ "1.3.6.1.4.1.12345",         { 0x1, 0x3, 0x6, 0x1, 0x4, 0x1, 0x3039 }       },
+			{ "2.5.4.3",                   { 0x2, 0x5, 0x4, 0x3 }                         }
+		};
+
+		for (auto inputAndExpectedComponent : inputAndExpectedComponents)
+		{
+			pcpp::Asn1ObjectIdentifier oid(inputAndExpectedComponent.first);
+			PTF_ASSERT_VECTORS_EQUAL(oid.getComponents(), inputAndExpectedComponent.second);
+			PTF_ASSERT_EQUAL(oid.toString(), inputAndExpectedComponent.first)
+		}
+	}
+
+	// Generate from string - Invalid values
+	{
+		std::vector<std::pair<std::string, std::string>> malformedValuesAndExceptions = {
+			{ "invalid",          "Malformed OID: invalid component"                                                    },
+			{ "1.invalid",        "Malformed OID: invalid component"                                                    },
+			{ "1..1",             "Malformed OID: empty component"                                                      },
+			{ "1.2.999999999999", "Malformed OID: component out of uint32_t range"                                      },
+			{ "1",                "Malformed OID: an OID must have at least two components"                             },
+			{ "3.2",              "Malformed OID: first component must be 0, 1, or 2"                                   },
+			{ "0.40",             "Malformed OID: second component must be less than 40 when first component is 0 or 1" },
+			{ "1.40",             "Malformed OID: second component must be less than 40 when first component is 0 or 1" }
+		};
+
+		for (auto malformedValuesAndException : malformedValuesAndExceptions)
+		{
+			PTF_ASSERT_RAISES(pcpp::Asn1ObjectIdentifier oid(malformedValuesAndException.first), std::invalid_argument,
+			                  malformedValuesAndException.second);
+		}
+	}
+
+	// Encode
+	{
+		pcpp::Asn1ObjectIdentifier oid("1.2.840.113549.1.1.11");
+		PTF_ASSERT_VECTORS_EQUAL(oid.toBytes(),
+		                         std::vector<uint8_t>({ 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b }));
+	}
+
+}  // Asn1ObjectIdentifierTest
