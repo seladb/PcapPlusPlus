@@ -49,9 +49,15 @@ namespace pcpp
 		/// A constructor that creates an instance of the class out of a 4-byte array.
 		/// @param[in] bytes The address as 4-byte array in network byte order
 		/// @param[in] size The size of the array in bytes
+		/// @throws std::invalid_argument If the provided bytes pointer is null.
 		/// @throws std::out_of_range If the provided size is smaller than 4 bytes.
-		IPv4Address(const uint8_t bytes[4], size_t size)
+		IPv4Address(const uint8_t* bytes, size_t size)
 		{
+			if (bytes == nullptr)
+			{
+				throw std::invalid_argument("Buffer pointer is null");
+			}
+
 			if (size < 4)
 			{
 				throw std::out_of_range("Buffer size is smaller than IPv4 address size");
@@ -183,9 +189,15 @@ namespace pcpp
 		/// @brief A constructor that creates an instance of the class out of a 16-byte array.
 		/// @param bytes The address as 16-byte array in network byte order
 		/// @param size The size of the array in bytes
+		/// @throws std::invalid_argument If the provided buffer is null.
 		/// @throws std::out_of_range If the provided size is smaller than 16 bytes.
-		IPv6Address(const uint8_t bytes[16], size_t size)
+		IPv6Address(const uint8_t* bytes, size_t size)
 		{
+			if (bytes == nullptr)
+			{
+				throw std::invalid_argument("Buffer pointer is null");
+			}
+
 			if (size < 16)
 			{
 				throw std::out_of_range("Buffer size is smaller than IPv6 address size");

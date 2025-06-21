@@ -21,6 +21,22 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 PTF_TEST_CASE(TestIPAddress)
 {
+	using pcpp::IPAddress;
+	using pcpp::IPv4Address;
+	using pcpp::IPv6Address;
+
+	{
+		std::array<uint8_t, 16> buf;
+
+		PTF_ASSERT_RAISES(IPv4Address(nullptr, 0), std::invalid_argument, "Buffer pointer is null");
+		PTF_ASSERT_RAISES(IPv4Address(buf.data(), 3), std::out_of_range,
+		                  "Buffer size is smaller than IPv4 address size");
+
+		PTF_ASSERT_RAISES(IPv6Address(nullptr, 0), std::invalid_argument, "Buffer pointer is null");
+		PTF_ASSERT_RAISES(IPv6Address(buf.data(), 15), std::out_of_range,
+		                  "Buffer size is smaller than IPv6 address size");
+	}
+
 	pcpp::IPAddress ip4Addr = pcpp::IPAddress("10.0.0.4");
 	PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
 	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4");
