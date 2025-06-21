@@ -36,16 +36,23 @@ namespace pcpp
 		explicit MacAddress(const uint8_t addr[6]) : MacAddress(addr, 6)
 		{}
 
-		/// @brief A constructor that creates an instance of the class out of a byte array.
+		/// @brief A constructor that creates an instance of the class out of a byte array of 6 bytes.
 		/// @param[in] addr The address as a byte array in network byte order
 		/// @param[in] size The size of the array in bytes
+		/// @throws std::invalid_argument If the address pointer is null.
 		/// @throws std::out_of_range If the provided size is smaller than 6 bytes.
-		explicit MacAddress(const uint8_t addr[6], size_t size)
+		explicit MacAddress(const uint8_t* addr, size_t size)
 		{
+			if(addr == nullptr)
+			{
+				throw std::invalid_argument("Address pointer is null");
+			}
+
 			if (size < 6)
 			{
-				throw std::out_of_range("Buffer size is smaller than MAC address size");
+				throw std::out_of_range("Buffer size is smaller than MAC address size (6 bytes)");
 			}
+
 			std::copy(addr, addr + 6, m_Address.begin());
 		}
 

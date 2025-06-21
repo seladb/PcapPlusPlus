@@ -249,6 +249,8 @@ PTF_TEST_CASE(TestIPAddress)
 
 PTF_TEST_CASE(TestMacAddress)
 {
+	using pcpp::MacAddress;
+
 	pcpp::MacAddress macAddr1(0x11, 0x2, 0x33, 0x4, 0x55, 0x6);
 	pcpp::MacAddress macAddr2(0x11, 0x2, 0x33, 0x4, 0x55, 0x6);
 	PTF_ASSERT_EQUAL(macAddr1, macAddr2);
@@ -264,6 +266,9 @@ PTF_TEST_CASE(TestMacAddress)
 	char invalidCharArrayAddress[6] = { 0x11, 0x2, 0x33, 0x4, 0x55, 0x6 };
 	PTF_ASSERT_RAISES(pcpp::MacAddress{ invalidCharArrayAddress }, std::invalid_argument,
 	                  "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
+
+	PTF_ASSERT_RAISES(MacAddress(nullptr, 0), std::invalid_argument, "Address pointer is null");
+	PTF_ASSERT_RAISES(MacAddress(addrAsArr, 4), std::out_of_range, "Buffer size is smaller than MAC address size (6 bytes)")
 
 	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06");
 	std::ostringstream oss;
