@@ -498,14 +498,6 @@ namespace pcpp
 	template <Asn1UniversalTagType TagType> class Asn1StringRecord : public Asn1PrimitiveRecord
 	{
 	public:
-		/// A constructor to create a record from a printable string value
-		/// @param value A string to set as the record value
-		explicit Asn1StringRecord(const std::string& value) : Asn1PrimitiveRecord(TagType), m_Value(value)
-		{
-			m_ValueLength = value.size();
-			m_TotalLength = m_ValueLength + 2;
-		}
-
 		/// @return The string value of this record
 		std::string getValue()
 		{
@@ -516,6 +508,12 @@ namespace pcpp
 	protected:
 		Asn1StringRecord() : Asn1PrimitiveRecord(TagType)
 		{}
+
+		explicit Asn1StringRecord(const std::string& value) : Asn1PrimitiveRecord(TagType), m_Value(value)
+		{
+			m_ValueLength = value.size();
+			m_TotalLength = m_ValueLength + 2;
+		}
 
 		void decodeValue(uint8_t* data, bool lazy) override
 		{
@@ -548,6 +546,11 @@ namespace pcpp
 		/// @param valueLength The length of the byte array
 		explicit Asn1OctetStringRecord(const uint8_t* value, size_t valueLength);
 
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1OctetStringRecord(const std::string& value) : Asn1StringRecord(value)
+		{}
+
 	protected:
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
@@ -562,24 +565,48 @@ namespace pcpp
 	/// Represents an ASN.1 record with a value of type UTF8 String
 	class Asn1UTF8StringRecord : public Asn1StringRecord<Asn1UniversalTagType::UTF8String>
 	{
+		friend class Asn1Record;
+
 	public:
-		using Asn1StringRecord::Asn1StringRecord;
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1UTF8StringRecord(const std::string& value) : Asn1StringRecord(value)
+		{}
+
+	private:
+		Asn1UTF8StringRecord() = default;
 	};
 
 	/// @class Asn1PrintableStringRecord
 	/// Represents an ASN.1 record with a value of type Printable String
 	class Asn1PrintableStringRecord : public Asn1StringRecord<Asn1UniversalTagType::PrintableString>
 	{
+		friend class Asn1Record;
+
 	public:
-		using Asn1StringRecord::Asn1StringRecord;
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1PrintableStringRecord(const std::string& value) : Asn1StringRecord(value)
+		{}
+
+	private:
+		Asn1PrintableStringRecord() = default;
 	};
 
 	/// @class Asn1IA5StringRecord
 	/// Represents an ASN.1 record with a value of type IA5 String
 	class Asn1IA5StringRecord : public Asn1StringRecord<Asn1UniversalTagType::IA5String>
 	{
+		friend class Asn1Record;
+
 	public:
-		using Asn1StringRecord::Asn1StringRecord;
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1IA5StringRecord(const std::string& value) : Asn1StringRecord(value)
+		{}
+
+	private:
+		Asn1IA5StringRecord() = default;
 	};
 
 	/// @class Asn1BooleanRecord
