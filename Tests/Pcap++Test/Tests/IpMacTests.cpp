@@ -155,6 +155,25 @@ PTF_TEST_CASE(TestIPAddress)
 	                  "Buffer is null but size is not zero");
 
 	{
+		size_t unused = 0;
+		PTF_ASSERT_RAISES(ip6AddrFromIpAddr.copyToNewBuffer(nullptr, unused), std::invalid_argument,
+		                  "Buffer pointer is null");
+	}
+
+	{
+		// Test copyToNewBuffer
+		uint8_t* buffer = nullptr;
+		size_t size = 0;
+		bool success = ip6AddrFromIpAddr.copyToNewBuffer(&buffer, size);
+		std::unique_ptr<uint8_t[]> bufferCleanup(buffer);
+
+		PTF_ASSERT_TRUE(success);
+		PTF_ASSERT_EQUAL(size, expectedByteArray.size());
+		PTF_ASSERT_NOT_NULL(buffer);
+		PTF_ASSERT_BUF_COMPARE(buffer, expectedByteArray.data(), expectedByteArray.size());
+	}
+
+	{
 		in6_addr in_ipv6_addr;
 		PTF_ASSERT_EQUAL(inet_pton(AF_INET6, "2607:f0d0:1002:51::4", &in_ipv6_addr), 1);
 
@@ -340,6 +359,25 @@ PTF_TEST_CASE(TestMacAddress)
 
 	// Test copyTo with a null buffer and non-zero size
 	PTF_ASSERT_RAISES(macAddr3.copyTo(nullptr, 4), std::invalid_argument, "Buffer is null but size is not zero");
+
+	// Test copyToNewBuffer with a null buffer and size 0
+	{
+		size_t unused = 0;
+		PTF_ASSERT_RAISES(macAddr3.copyToNewBuffer(nullptr, unused), std::invalid_argument, "Buffer pointer is null");
+	}
+
+	{
+		// Test copyToNewBuffer
+		uint8_t* buffer = nullptr;
+		size_t size = 0;
+		bool success = macAddr3.copyToNewBuffer(&buffer, size);
+		std::unique_ptr<uint8_t[]> bufferCleanup(buffer);
+
+		PTF_ASSERT_TRUE(success);
+		PTF_ASSERT_EQUAL(size, 6);
+		PTF_ASSERT_NOT_NULL(buffer);
+		PTF_ASSERT_BUF_COMPARE(buffer, addrAsArr, 6);
+	}
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 	pcpp::MacAddress macCpp11Valid{ 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
