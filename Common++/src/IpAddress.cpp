@@ -117,6 +117,49 @@ namespace pcpp
 		memcpy(*arr, m_Bytes.data(), addrLen);
 	}
 
+	size_t IPv6Address::copyTo(uint8_t* buffer, size_t size) const
+	{
+		const size_t requiredSize = m_Bytes.size();
+
+		if (buffer == nullptr)
+		{
+			if (size != 0)
+			{
+				throw std::invalid_argument("Buffer is null but size is not zero");
+			}
+
+			return requiredSize;
+		}
+
+		if (size < requiredSize)
+		{
+			return requiredSize;
+		}
+
+		std::memcpy(buffer, m_Bytes.data(), requiredSize);
+		return requiredSize;
+	}
+
+	bool IPv6Address::copyToNewBuffer(uint8_t** buffer, size_t& size) const
+	{
+		if (buffer == nullptr)
+		{
+			throw std::invalid_argument("Buffer pointer is null");
+		}
+		
+		size = copyTo(nullptr, 0);
+		*buffer = new uint8_t[size];
+		if(copyTo(*buffer, size) != size)
+		{
+			delete[] *buffer;
+			*buffer = nullptr;
+			size = 0;
+			return false;
+		}
+
+		return true;
+	}
+
 	bool IPv6Address::matchNetwork(const IPv6Network& network) const
 	{
 		return network.includes(*this);

@@ -150,12 +150,13 @@ namespace pcpp
 		/// Allocates a byte array of length 6 and copies address value into it. Array deallocation is user
 		/// responsibility
 		/// @param[in] arr A pointer to where array will be allocated
-		/// @deprecated Allocating copyTo API is deprecated.
-		PCPP_DEPRECATED("Allocating copyTo API is deprecated.")
+		/// @throws std::invalid_argument If the buffer pointer is null.
+		/// @deprecated Use copyToNewBuffer instead.
+		PCPP_DEPRECATED("Use copyToNewBuffer instead.")
 		void copyTo(uint8_t** arr) const
 		{
-			*arr = new uint8_t[m_Address.size()];
-			std::copy(m_Address.begin(), m_Address.end(), *arr);
+			size_t unused = 0;
+			copyToNewBuffer(arr, unused);
 		}
 
 		/// Gets a pointer to an already allocated byte array and copies the address value to it.
@@ -176,28 +177,17 @@ namespace pcpp
 		/// @param[in] buffer A pointer to the buffer where the address will be copied
 		/// @param[in] size The size of the buffer in bytes
 		/// @return The number of bytes copied to the buffer or the required size if the buffer is too small.
-		size_t copyTo(uint8_t* buffer, size_t size) const
-		{
-			const size_t requiredSize = m_Address.size();
+		/// @throws std::invalid_argument If the provided buffer is null and size is not zero.
+		size_t copyTo(uint8_t* buffer, size_t size) const;
 
-			if (buffer == nullptr)
-			{
-				if (size != 0)
-				{
-					throw std::invalid_argument("Buffer is null but size is not zero");
-				}
-
-				return requiredSize;
-			}
-
-			if (size < m_Address.size())
-			{
-				return requiredSize;
-			}
-
-			std::copy(m_Address.begin(), m_Address.end(), buffer);
-			return requiredSize;
-		}
+		/// @brief Allocates a new buffer and copies the address value to it.
+		/// The user is responsible for deallocating the buffer.
+		/// 
+		/// @param buffer A pointer to a pointer where the new buffer will be allocated
+		/// @param size A reference to a size_t variable that will be updated with the size of the allocated buffer
+		/// @return True if the buffer was successfully allocated and the address was copied, false otherwise.
+		/// @throws std::invalid_argument If the buffer pointer is null.
+		bool copyToNewBuffer(uint8_t** buffer, size_t& size) const;
 
 		/// A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		static MacAddress Zero;
