@@ -265,8 +265,8 @@ namespace pcpp
 		/// @param[in] arr A pointer to where array will be allocated
 		/// @param[out] length Returns the length in bytes of the array that was allocated
 		/// @throws std::invalid_argument If the provided pointer is null.
-		/// @deprecated Use copyToNewBufer instead.
-		PCPP_DEPRECATED("Use copyToNewBufer instead.")
+		/// @deprecated Use copyToNewBuffer instead.
+		PCPP_DEPRECATED("Use copyToNewBuffer instead.")
 		void copyTo(uint8_t** arr, size_t& length) const;
 
 		/// Gets a pointer to an already allocated byte array and copies the address value to it.
