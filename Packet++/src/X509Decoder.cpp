@@ -304,7 +304,26 @@ namespace pcpp
 
 	std::string X509RelativeDistinguishedName::getValue() const
 	{
-		return getRecord(m_ValueOffset)->toString();
+		auto valueRecord = getRecord(m_ValueOffset);
+		switch (valueRecord->getUniversalTagType())
+		{
+		case Asn1UniversalTagType::PrintableString:
+		{
+			return valueRecord->castAs<Asn1PrintableStringRecord>()->getValue();
+		}
+		case Asn1UniversalTagType::IA5String:
+		{
+			return valueRecord->castAs<Asn1IA5StringRecord>()->getValue();
+		}
+		case Asn1UniversalTagType::UTF8String:
+		{
+			return valueRecord->castAs<Asn1UTF8StringRecord>()->getValue();
+		}
+		default:
+		{
+			throw std::runtime_error("Unsupported X509RelativeDistinguishedName value: " + std::to_string(static_cast<int>(valueRecord->getUniversalTagType())));
+		}
+		}
 	}
 
 	std::vector<X509RelativeDistinguishedName> X509Name::getComponents() const
@@ -324,14 +343,14 @@ namespace pcpp
 		return X509Algorithm::fromOidValue(oidRecord->getValue());
 	}
 
-	std::string X509Validity::getNotBeforeValue() const
+	std::string X509Validity::getNotBeforeValue(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
 	{
-		return m_Root->getSubRecords().at(m_NotBeforeOffset)->castAs<Asn1TimeRecord>()->getValueAsString();
+		return m_Root->getSubRecords().at(m_NotBeforeOffset)->castAs<Asn1TimeRecord>()->getValueAsString(format, timezone, includeMilliseconds);
 	}
 
-	std::string X509Validity::getNotAfterValue() const
+	std::string X509Validity::getNotAfterValue(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
 	{
-		return m_Root->getSubRecords().at(m_NotAfterOffset)->castAs<Asn1TimeRecord>()->getValueAsString();
+		return m_Root->getSubRecords().at(m_NotAfterOffset)->castAs<Asn1TimeRecord>()->getValueAsString(format, timezone, includeMilliseconds);
 	}
 
 	X509AlgorithmIdentifier X509SubjectPublicKeyInfo::getAlgorithm() const

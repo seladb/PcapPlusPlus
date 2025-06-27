@@ -230,8 +230,10 @@ namespace pcpp
 		using X509Base::X509Base;
 
 	public:
-		std::string getNotBeforeValue() const;
-		std::string getNotAfterValue() const;
+		std::string getNotBeforeValue(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
+									 bool includeMilliseconds = false) const;
+		std::string getNotAfterValue(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
+									 bool includeMilliseconds = false) const;
 
 	private:
 		static constexpr int m_NotBeforeOffset = 0;
