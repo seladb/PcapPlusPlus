@@ -146,10 +146,10 @@ namespace pcpp
 		{
 			throw std::invalid_argument("Buffer pointer is null");
 		}
-		
+
 		size = copyTo(nullptr, 0);
 		*buffer = new uint8_t[size];
-		if(copyTo(*buffer, size) != size)
+		if (copyTo(*buffer, size) != size)
 		{
 			delete[] *buffer;
 			*buffer = nullptr;

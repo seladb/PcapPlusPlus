@@ -293,7 +293,7 @@ namespace pcpp
 
 		/// @brief Allocates a new buffer and copies the address value to it.
 		/// The user is responsible for deallocating the buffer.
-		/// 
+		///
 		/// @param buffer A pointer to a pointer where the new buffer will be allocated
 		/// @param size A reference to a size_t variable that will be updated with the size of the allocated buffer
 		/// @return True if the buffer was successfully allocated and the address was copied, false otherwise.
