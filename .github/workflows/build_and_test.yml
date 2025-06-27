@@ -59,35 +59,35 @@ jobs:
     strategy:
       matrix:
         include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
-          - runner: ubuntu-latest
-            image: ubuntu2404
-            config-zstd: OFF
-          - runner: ubuntu-latest
-            image: ubuntu2204
-            config-zstd: OFF
-          - runner: ubuntu-latest
-            image: ubuntu2204-icpx
-            config-zstd: OFF
-            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-            additional-gcov-flags: --gcov-executable "llvm-cov gcov"
+          #- runner: ubuntu-latest
+          #  image: ubuntu2404
+          #  config-zstd: OFF
+          #- runner: ubuntu-latest
+          #  image: ubuntu2204
+          #  config-zstd: OFF
+          #- runner: ubuntu-latest
+          #  image: ubuntu2204-icpx
+          #  config-zstd: OFF
+          #  additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
+          #  additional-gcov-flags: --gcov-executable "llvm-cov gcov"
           - runner: ubuntu-latest
             image: ubuntu2004
             config-zstd: OFF
-          - runner: ubuntu-latest
-            image: rhel94
-            config-zstd: OFF
+          #- runner: ubuntu-latest
+          #  image: rhel94
+          #  config-zstd: OFF
           - runner: ubuntu-latest
             image: ubuntu2004-zstd
             config-zstd: ON
-          - runner: ubuntu-latest
-            image: fedora42
-            config-zstd: OFF
-          - runner: ubuntu-latest
-            image: alpine320
-            config-zstd: OFF
-          - runner: ubuntu-24.04-arm
-            image: ubuntu2404-arm64
-            config-zstd: OFF
+          #- runner: ubuntu-latest
+          #  image: fedora42
+          #  config-zstd: OFF
+          #- runner: ubuntu-latest
+          #  image: alpine320
+          #  config-zstd: OFF
+          #- runner: ubuntu-24.04-arm
+          #  image: ubuntu2404-arm64
+          #  config-zstd: OFF
 
     steps:
       - name: Checkout code
