@@ -280,3 +280,6 @@ PTF_TEST_CASE(WireGuardEditTest);
 PTF_TEST_CASE(CiscoHdlcParsingTest);
 PTF_TEST_CASE(CiscoHdlcLayerCreationTest);
 PTF_TEST_CASE(CiscoHdlcLayerEditTest);
+
+// Implemented in X509Tests.cpp
+PTF_TEST_CASE(X509ParsingTest);
