@@ -155,6 +155,7 @@ jobs:
 
       - name: Create Cobertura Report
         run: |
+          sudo apt-get install libxml2-dev libxslt-dev
           . .venv/bin/activate
           python3 -m pip install gcovr
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
