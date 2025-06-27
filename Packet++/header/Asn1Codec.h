@@ -4,6 +4,9 @@
 #include <memory>
 #include <typeinfo>
 #include <stdexcept>
+#include <sstream>
+#include <chrono>
+#include <bitset>
 #include "PointerVector.h"
 
 /// @file
@@ -370,15 +373,39 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		template <typename T>
+		using EnableIfUnsignedIntegral =
+		    std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int>;
+
 		/// A constructor to create a record of type Integer
 		/// @param value An integer to set as the record value
-		explicit Asn1IntegerRecord(uint32_t value);
+		explicit Asn1IntegerRecord(uint64_t value);
+
+		/// A constructor to create a record of type Integer
+		/// @param value An integer represented as a hex stream to set as the record value
+		/// @throw std::invalid_argument if the value isn't a valid hex stream
+		explicit Asn1IntegerRecord(const std::string& value);
 
 		/// @return The integer value of this record
-		uint32_t getValue()
+		/// @throw std::invalid_argument if the value doesn't fit the requested integer size
+		template <typename T, EnableIfUnsignedIntegral<T> = 0> T getIntValue()
 		{
 			decodeValueIfNeeded();
-			return m_Value;
+			return m_Value.getInt<T>();
+		}
+
+		/// @deprecated This method is deprecated, please use getIntValue()
+		PCPP_DEPRECATED("Use getIntValue instead")
+		uint32_t getValue()
+		{
+			return getIntValue<uint32_t>();
+		}
+
+		/// @return A hex string representation of the record value
+		std::string getValueAsString()
+		{
+			decodeValueIfNeeded();
+			return m_Value.toString();
 		}
 
 	protected:
@@ -390,7 +417,64 @@ namespace pcpp
 		std::vector<std::string> toStringList() override;
 
 	private:
-		uint32_t m_Value = 0;
+		class BigInt
+		{
+		public:
+			BigInt() = default;
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> explicit BigInt(T value)
+			{
+				m_Value = initFromInt(value);
+			}
+
+			explicit BigInt(const std::string& value);
+			BigInt(const BigInt& other);
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> BigInt& operator=(T value)
+			{
+				m_Value = initFromInt(value);
+				return *this;
+			}
+			BigInt& operator=(const std::string& value);
+			size_t size() const;
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> T getInt() const
+			{
+				if (!canFit<T>())
+				{
+					throw std::overflow_error("Value cannot fit into requested int type");
+				}
+
+				std::stringstream sstream;
+				sstream << std::hex << m_Value;
+
+				uint64_t result;
+				sstream >> result;
+				return static_cast<T>(result);
+			}
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> bool canFit() const
+			{
+				return sizeof(T) >= (m_Value.size() + 1) / 2;
+			}
+
+			std::string toString() const;
+			std::vector<uint8_t> toBytes() const;
+
+		private:
+			std::string m_Value;
+
+			static std::string initFromString(const std::string& value);
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> static std::string initFromInt(T value)
+			{
+				std::stringstream ss;
+				ss << std::hex << static_cast<uint64_t>(value);
+				return ss.str();
+			}
+		};
+
+		BigInt m_Value;
 	};
 
 	/// @class Asn1EnumeratedRecord
@@ -491,5 +575,232 @@ namespace pcpp
 		{
 			return {};
 		}
+	};
+
+	/// @class Asn1ObjectIdentifier
+	/// Represents an ASN.1 Object Identifier (OID).
+	class Asn1ObjectIdentifier
+	{
+		friend class Asn1ObjectIdentifierRecord;
+
+	public:
+		/// Construct an OID from an encoded byte buffer
+		/// @param[in] data The byte buffer of the encoded OID data
+		/// @param[in] dataLen The byte buffer size
+		explicit Asn1ObjectIdentifier(const uint8_t* data, size_t dataLen);
+
+		/// Construct an OID from its string representation (e.g., "1.2.840.113549").
+		/// @param[in] oidString The string representation of the OID
+		/// @throws std::invalid_argument if the string is malformed or contains invalid components
+		explicit Asn1ObjectIdentifier(const std::string& oidString);
+
+		/// @return A const reference to the internal vector of components
+		const std::vector<uint32_t>& getComponents() const
+		{
+			return m_Components;
+		}
+
+		/// Equality operator to compare two OIDs
+		/// @param[in] other Another Asn1ObjectIdentifier instance
+		bool operator==(const Asn1ObjectIdentifier& other) const
+		{
+			return m_Components == other.m_Components;
+		}
+
+		/// Inequality operator to compare two OIDs
+		/// @param[in] other Another Asn1ObjectIdentifier instance
+		bool operator!=(const Asn1ObjectIdentifier& other) const
+		{
+			return m_Components != other.m_Components;
+		}
+
+		/// Convert the OID to its string representation (e.g., "1.2.840.113549")
+		/// @return A string representing the OID
+		std::string toString() const;
+
+		/// Encode the OID to a byte buffer
+		/// @return A byte buffer containing the encoded OID value
+		std::vector<uint8_t> toBytes() const;
+
+		friend std::ostream& operator<<(std::ostream& os, const Asn1ObjectIdentifier& oid)
+		{
+			return os << oid.toString();
+		}
+
+	protected:
+		Asn1ObjectIdentifier() = default;
+
+	private:
+		std::vector<uint32_t> m_Components;
+	};
+
+	/// @class Asn1ObjectIdentifierRecord
+	/// Represents an ASN.1 record with a value of type ObjectIdentifier
+	class Asn1ObjectIdentifierRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a ObjectIdentifier record
+		/// @param[in] value The ObjectIdentifier (OID) to set as the record value
+		explicit Asn1ObjectIdentifierRecord(const Asn1ObjectIdentifier& value);
+
+		/// @return The OID value of this record
+		const Asn1ObjectIdentifier& getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		}
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() override;
+
+	private:
+		Asn1ObjectIdentifier m_Value;
+
+		Asn1ObjectIdentifierRecord() = default;
+	};
+
+	/// @class Asn1TimeRecord
+	/// An abstract class for representing ASN.1 time records (UTCTime and GeneralizedTime).
+	/// This class is not instantiable, users should use either Asn1UtcTimeRecord or Asn1GeneralizedTimeRecord
+	class Asn1TimeRecord : public Asn1PrimitiveRecord
+	{
+	public:
+		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. The default value is UTC
+		/// @return The time-point value of this record
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		std::chrono::system_clock::time_point getValue(const std::string& timezone = "Z")
+		{
+			decodeValueIfNeeded();
+			return adjustTimezones(m_Value, "Z", timezone);
+		};
+
+		/// @param[in] format Requested value format
+		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. The default value is UTC
+		/// @param[in] includeMilliseconds Should Include milliseconds in the returned string
+		/// @return The value as string
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
+		                             bool includeMilliseconds = false);
+
+	protected:
+		Asn1TimeRecord() = default;
+		explicit Asn1TimeRecord(Asn1UniversalTagType tagType, const std::chrono::system_clock::time_point& value,
+		                        const std::string& timezone);
+
+		std::chrono::system_clock::time_point m_Value;
+
+		std::vector<std::string> toStringList() override;
+
+		static void validateTimezone(const std::string& timezone);
+		static std::chrono::system_clock::time_point adjustTimezones(const std::chrono::system_clock::time_point& value,
+		                                                             const std::string& fromTimezone,
+		                                                             const std::string& toTimezone);
+	};
+
+	/// @class Asn1UtcTimeRecord
+	/// Represents an ASN.1 record with a value of type UTCTime
+	class Asn1UtcTimeRecord : public Asn1TimeRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type UTC time
+		/// @param[in] value A time-point to set as the record value
+		/// @param[in] withSeconds Should write the ASN.1 record with second precision. The default is true
+		explicit Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds = true);
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		Asn1UtcTimeRecord() = default;
+		bool m_WithSeconds = true;
+	};
+
+	/// @class Asn1GeneralizedTimeRecord
+	/// Represents an ASN.1 record with a value of type GeneralizedTime
+	class Asn1GeneralizedTimeRecord : public Asn1TimeRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type generalized time
+		/// @param[in] value A time-point to set as the record value
+		/// @param[in] timezone The time-point's timezone - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. If not provided it's assumed the timezone is UTC
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		explicit Asn1GeneralizedTimeRecord(const std::chrono::system_clock::time_point& value,
+		                                   const std::string& timezone = "Z");
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		Asn1GeneralizedTimeRecord() = default;
+		std::string m_Timezone;
+	};
+
+	/// @class Asn1BitStringRecord
+	/// Represents an ASN.1 record with a value of type BitString
+	class Asn1BitStringRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type BitString
+		/// @param value A bit string to set as the record value
+		/// @throw std::invalid_argument if the string is not a valid bit string
+		explicit Asn1BitStringRecord(const std::string& value);
+
+		/// @return The bit string value of this record
+		std::string getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value.toString();
+		};
+
+	protected:
+		void decodeValue(uint8_t* data, bool lazy) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() override;
+
+	private:
+		class BitSet
+		{
+		public:
+			BitSet() = default;
+			explicit BitSet(const std::string& value);
+			BitSet(const uint8_t* data, size_t numBits);
+
+			BitSet& operator=(const std::string& value);
+
+			size_t sizeInBytes() const;
+			std::string toString() const;
+			std::vector<uint8_t> toBytes() const;
+			size_t getNumBits() const
+			{
+				return m_NumBits;
+			}
+
+		private:
+			void initFromString(const std::string& value);
+
+			std::vector<std::bitset<8>> m_Data;
+			size_t m_NumBits = 0;
+		};
+
+		Asn1BitStringRecord() = default;
+
+		BitSet m_Value;
 	};
 }  // namespace pcpp

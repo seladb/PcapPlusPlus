@@ -3,10 +3,12 @@
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 #include <unordered_map>
 #include <numeric>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cmath>
 #include <limits>
@@ -336,9 +338,29 @@ namespace pcpp
 					newRecord = new Asn1BooleanRecord();
 					break;
 				}
+				case Asn1UniversalTagType::BitString:
+				{
+					newRecord = new Asn1BitStringRecord();
+					break;
+				}
 				case Asn1UniversalTagType::Null:
 				{
 					newRecord = new Asn1NullRecord();
+					break;
+				}
+				case Asn1UniversalTagType::ObjectIdentifier:
+				{
+					newRecord = new Asn1ObjectIdentifierRecord();
+					break;
+				}
+				case Asn1UniversalTagType::UTCTime:
+				{
+					newRecord = new Asn1UtcTimeRecord();
+					break;
+				}
+				case Asn1UniversalTagType::GeneralizedTime:
+				{
+					newRecord = new Asn1GeneralizedTimeRecord();
 					break;
 				}
 				default:
@@ -572,113 +594,114 @@ namespace pcpp
 		m_IsConstructed = false;
 	}
 
-	Asn1IntegerRecord::Asn1IntegerRecord(uint32_t value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer)
+	Asn1IntegerRecord::BigInt::BigInt(const std::string& value)
 	{
-		m_Value = value;
-
-		if (m_Value <= std::numeric_limits<uint8_t>::max())
-		{
-			m_ValueLength = sizeof(uint8_t);
-		}
-		else if (value <= std::numeric_limits<uint16_t>::max())
-		{
-			m_ValueLength = sizeof(uint16_t);
-		}
-		else if (value <= std::pow(2, 3 * 8))
-		{
-			m_ValueLength = 3;
-		}
-		else
-		{
-			m_ValueLength = sizeof(uint32_t);
-		}
-
-		m_TotalLength = m_ValueLength + 2;
+		m_Value = initFromString(value);
 	}
 
-	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool lazy)
+	Asn1IntegerRecord::BigInt::BigInt(const BigInt& other)
 	{
-		switch (m_ValueLength)
-		{
-		case 1:
-		{
-			m_Value = *data;
-			break;
-		}
-		case 2:
-		{
-			m_Value = be16toh(*reinterpret_cast<uint16_t*>(data));
-			break;
-		}
-		case 3:
-		{
-			uint8_t tempData[4] = { 0 };
-			memcpy(tempData + 1, data, 3);
-			m_Value = be32toh(*reinterpret_cast<uint32_t*>(tempData));
-			break;
-		}
-		case 4:
-		{
-			m_Value = be32toh(*reinterpret_cast<uint32_t*>(data));
-			break;
-		}
-		default:
-		{
-			throw std::runtime_error("An integer ASN.1 record of more than 4 bytes is not supported");
-		}
-		}
+		m_Value = other.m_Value;
 	}
 
-	std::vector<uint8_t> Asn1IntegerRecord::encodeValue() const
+	std::string Asn1IntegerRecord::BigInt::initFromString(const std::string& value)
 	{
+		std::string valueStr = value;
+
+		// Optional 0x or 0X prefix
+		if (value.size() >= 2 && value[0] == '0' && (value[1] == 'x' || value[1] == 'X'))
+		{
+			valueStr = value.substr(2);
+		}
+
+		if (valueStr.empty())
+		{
+			throw std::invalid_argument("Value is not a valid hex stream");
+		}
+
+		for (const char i : valueStr)
+		{
+			if (!std::isxdigit(i))
+			{
+				throw std::invalid_argument("Value is not a valid hex stream");
+			}
+		}
+
+		return valueStr;
+	}
+
+	Asn1IntegerRecord::BigInt& Asn1IntegerRecord::BigInt::operator=(const std::string& value)
+	{
+		m_Value = initFromString(value);
+		return *this;
+	}
+
+	size_t Asn1IntegerRecord::BigInt::size() const
+	{
+		return m_Value.size() / 2;
+	}
+
+	std::string Asn1IntegerRecord::BigInt::toString() const
+	{
+		return m_Value;
+	}
+
+	std::vector<uint8_t> Asn1IntegerRecord::BigInt::toBytes() const
+	{
+		std::string value = m_Value;
+		if (m_Value.size() % 2 != 0)
+		{
+			value.insert(0, 1, '0');
+		}
+
 		std::vector<uint8_t> result;
-
-		result.resize(m_ValueLength);
-
-		switch (m_ValueLength)
+		for (std::size_t i = 0; i < value.size(); i += 2)
 		{
-		case 1:
-		{
-			result[0] = static_cast<uint8_t>(m_Value);
-			break;
-		}
-		case 2:
-		{
-			auto hostValue = htobe16(static_cast<uint16_t>(m_Value));
-			result[0] = static_cast<uint8_t>(hostValue & 0xFF);
-			result[1] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
-			break;
-		}
-		case 3:
-		{
-			auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
-			result[0] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
-			result[1] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
-			result[2] = static_cast<uint8_t>((hostValue >> 24) & 0xFF);
-			break;
-		}
-		case 4:
-		{
-			auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
-			result[0] = static_cast<uint8_t>(hostValue & 0xFF);
-			result[1] = static_cast<uint8_t>((hostValue >> 8) & 0xFF);
-			result[2] = static_cast<uint8_t>((hostValue >> 16) & 0xFF);
-			result[3] = static_cast<uint8_t>((hostValue >> 24) & 0xFF);
-			break;
-		}
-		default:
-		{
-			throw std::runtime_error("Integer value of more than 4 bytes is not supported");
-		}
+			std::string byteStr = value.substr(i, 2);
+			auto byte = static_cast<uint8_t>(std::stoul(byteStr, nullptr, 16));
+			result.push_back(byte);
 		}
 
 		return result;
 	}
 
+	Asn1IntegerRecord::Asn1IntegerRecord(uint64_t value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer)
+	{
+		m_Value = value;
+
+		std::size_t length = 0;
+		while (value != 0)
+		{
+			++length;
+			value >>= 8;
+		}
+		m_ValueLength = length == 0 ? 1 : length;
+
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	Asn1IntegerRecord::Asn1IntegerRecord(const std::string& value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer)
+	{
+		m_Value = value;
+		m_ValueLength = m_Value.size();
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		m_Value = pcpp::byteArrayToHexString(data, m_ValueLength);
+	}
+
+	std::vector<uint8_t> Asn1IntegerRecord::encodeValue() const
+	{
+		return m_Value.toBytes();
+	}
+
 	std::vector<std::string> Asn1IntegerRecord::toStringList()
 	{
-		return std::vector<std::string>(
-		    { Asn1Record::toStringList().front() + ", Value: " + std::to_string(getValue()) });
+		auto valueAsString =
+		    m_Value.canFit<uint64_t>() ? std::to_string(getIntValue<uint64_t>()) : "0x" + getValueAsString();
+		return std::vector<std::string>({ Asn1Record::toStringList().front() + ", Value: " + valueAsString });
 	}
 
 	Asn1EnumeratedRecord::Asn1EnumeratedRecord(uint32_t value) : Asn1IntegerRecord(value)
@@ -770,4 +793,525 @@ namespace pcpp
 		m_ValueLength = 0;
 		m_TotalLength = 2;
 	}
+
+	Asn1ObjectIdentifier::Asn1ObjectIdentifier(const uint8_t* data, size_t dataLen)
+	{
+		// A description of OID encoding can be found here:
+		// https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier?redirectedfrom=MSDN
+
+		if (!data || dataLen == 0)
+		{
+			throw std::invalid_argument("Malformed OID: Not enough bytes for the first component");
+		}
+
+		size_t currentByteIndex = 0;
+		std::vector<uint32_t> components;
+
+		uint8_t firstByte = data[currentByteIndex++];
+		// Decode the first byte: first_component * 40 + second_component
+		components.push_back(static_cast<uint32_t>(firstByte / 40));
+		components.push_back(static_cast<uint32_t>(firstByte % 40));
+
+		uint32_t currentComponentValue = 0;
+		bool componentStarted = false;
+
+		// Process remaining bytes using base-128 encoding
+		while (currentByteIndex < dataLen)
+		{
+			uint8_t byte = data[currentByteIndex++];
+
+			// Shift previous bits left by 7 and append lower 7 bits
+			currentComponentValue = (currentComponentValue << 7) | (byte & 0x7f);
+			componentStarted = true;
+
+			// If the MSB is 0, this is the final byte of the current value
+			if ((byte & 0x80) == 0)
+			{
+				components.push_back(currentComponentValue);
+				currentComponentValue = 0;
+				componentStarted = false;
+			}
+		}
+
+		if (componentStarted)
+		{
+			throw std::invalid_argument("Malformed OID: Incomplete component at end of data");
+		}
+
+		m_Components = components;
+	}
+
+	Asn1ObjectIdentifier::Asn1ObjectIdentifier(const std::string& oidString)
+	{
+		std::vector<uint32_t> components;
+		std::istringstream stream(oidString);
+		std::string token;
+
+		while (std::getline(stream, token, '.'))
+		{
+			if (token.empty())
+			{
+				throw std::invalid_argument("Malformed OID: empty component");
+			}
+
+			unsigned long long value;
+			try
+			{
+				value = std::stoull(token);
+			}
+			catch (const std::exception&)
+			{
+				throw std::invalid_argument("Malformed OID: invalid component");
+			}
+
+			if (value > std::numeric_limits<uint32_t>::max())
+			{
+				throw std::invalid_argument("Malformed OID: component out of uint32_t range");
+			}
+
+			components.push_back(static_cast<uint32_t>(value));
+		}
+
+		if (components.size() < 2)
+		{
+			throw std::invalid_argument("Malformed OID: an OID must have at least two components");
+		}
+
+		if (components[0] > 2)
+		{
+			throw std::invalid_argument("Malformed OID: first component must be 0, 1, or 2");
+		}
+
+		if ((components[0] == 0 || components[0] == 1) && components[1] >= 40)
+		{
+			throw std::invalid_argument(
+			    "Malformed OID: second component must be less than 40 when first component is 0 or 1");
+		}
+
+		m_Components = components;
+	}
+
+	std::string Asn1ObjectIdentifier::toString() const
+	{
+		if (m_Components.empty())
+		{
+			return "";
+		}
+
+		std::ostringstream stream;
+		stream << m_Components[0];
+
+		for (size_t i = 1; i < m_Components.size(); ++i)
+		{
+			stream << "." << m_Components[i];
+		}
+		return stream.str();
+	}
+
+	std::vector<uint8_t> Asn1ObjectIdentifier::toBytes() const
+	{
+		// A description of OID encoding can be found here:
+		// https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier?redirectedfrom=MSDN
+
+		if (m_Components.size() < 2)
+		{
+			throw std::runtime_error("OID must have at least two components to encode.");
+		}
+
+		std::vector<uint8_t> encoded;
+
+		// Encode the first two components into one byte
+		uint32_t firstComponent = m_Components[0];
+		uint32_t secondComponent = m_Components[1];
+		encoded.push_back(static_cast<uint8_t>(firstComponent * 40 + secondComponent));
+
+		// Encode remaining components using base-128 encoding
+		for (size_t i = 2; i < m_Components.size(); ++i)
+		{
+			uint32_t currentComponent = m_Components[i];
+			std::vector<uint8_t> temp;
+
+			// At least one byte must be generated even if value is 0
+			do
+			{
+				temp.push_back(static_cast<uint8_t>(currentComponent & 0x7F));
+				currentComponent >>= 7;
+			} while (currentComponent > 0);
+
+			// Set continuation bits (MSB) for all but the last byte
+			for (size_t j = temp.size(); j-- > 0;)
+			{
+				uint8_t byte = temp[j];
+				if (j != 0)
+				{
+					byte |= 0x80;
+				}
+				encoded.push_back(byte);
+			}
+		}
+
+		return encoded;
+	}
+
+	Asn1ObjectIdentifierRecord::Asn1ObjectIdentifierRecord(const Asn1ObjectIdentifier& value)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::ObjectIdentifier)
+	{
+		m_Value = value;
+		m_ValueLength = value.toBytes().size();
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1ObjectIdentifierRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		m_Value = Asn1ObjectIdentifier(data, m_ValueLength);
+	}
+
+	std::vector<uint8_t> Asn1ObjectIdentifierRecord::encodeValue() const
+	{
+		return m_Value.toBytes();
+	}
+
+	std::vector<std::string> Asn1ObjectIdentifierRecord::toStringList()
+	{
+		return { Asn1Record::toStringList().front() + ", Value: " + getValue().toString() };
+	}
+
+	Asn1TimeRecord::Asn1TimeRecord(Asn1UniversalTagType tagType, const std::chrono::system_clock::time_point& value,
+	                               const std::string& timezone)
+	    : Asn1PrimitiveRecord(tagType)
+	{
+		validateTimezone(timezone);
+		m_Value = adjustTimezones(value, timezone, "Z");
+	}
+
+	std::string Asn1TimeRecord::getValueAsString(const std::string& format, const std::string& timezone,
+	                                             bool includeMilliseconds)
+	{
+		auto value = getValue(timezone);
+		auto timeValue = std::chrono::system_clock::to_time_t(value);
+		auto tmValue = *std::gmtime(&timeValue);
+
+		std::ostringstream osstream;
+		osstream << std::put_time(&tmValue, format.c_str());
+
+		if (includeMilliseconds)
+		{
+			auto milliseconds =
+			    std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch()).count() % 1000;
+			if (milliseconds != 0)
+			{
+				osstream << "." << std::setw(3) << std::setfill('0') << milliseconds;
+			}
+		}
+
+		if (timezone != "Z")
+		{
+			osstream << " UTC" << timezone;
+		}
+
+		return osstream.str();
+	}
+
+	std::vector<std::string> Asn1TimeRecord::toStringList()
+	{
+		return { Asn1Record::toStringList().front() + ", Value: " + getValueAsString("%Y-%m-%d %H:%M:%S", "Z", true) };
+	}
+
+	void Asn1TimeRecord::validateTimezone(const std::string& timezone)
+	{
+		if (timezone == "Z")
+		{
+			return;
+		}
+
+		if (timezone.length() != 5 || (timezone[0] != '+' && timezone[0] != '-') || !std::isdigit(timezone[1]) ||
+		    !std::isdigit(timezone[2]) || !std::isdigit(timezone[3]) || !std::isdigit(timezone[4]))
+		{
+			throw std::invalid_argument("Invalid timezone format. Use 'Z' or '+/-HHMM'.");
+		}
+	}
+
+	std::chrono::system_clock::time_point Asn1TimeRecord::adjustTimezones(
+	    const std::chrono::system_clock::time_point& value, const std::string& fromTimezone,
+	    const std::string& toTimezone)
+	{
+		validateTimezone(fromTimezone);
+		validateTimezone(toTimezone);
+
+		int fromOffsetSeconds = 0;
+		if (fromTimezone != "Z")
+		{
+			int fromSign = (fromTimezone[0] == '+') ? 1 : -1;
+			auto fromHours = std::stoi(fromTimezone.substr(1, 2));
+			auto fromMinutes = std::stoi(fromTimezone.substr(3, 2));
+			fromOffsetSeconds = fromSign * (fromHours * 3600 + fromMinutes * 60);
+		}
+
+		int toOffsetSeconds = 0;
+		if (toTimezone != "Z")
+		{
+			int toSign = (toTimezone[0] == '+') ? 1 : -1;
+			auto toHours = std::stoi(toTimezone.substr(1, 2));
+			auto toMinutes = std::stoi(toTimezone.substr(3, 2));
+			toOffsetSeconds = toSign * (toHours * 3600 + toMinutes * 60);
+		}
+
+		return value + std::chrono::seconds(toOffsetSeconds - fromOffsetSeconds);
+	}
+
+	Asn1UtcTimeRecord::Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds)
+	    : Asn1TimeRecord(Asn1UniversalTagType::UTCTime, value, "Z"), m_WithSeconds(withSeconds)
+	{
+		m_ValueLength = 11;
+		if (withSeconds)
+		{
+			m_ValueLength += 2;
+		}
+
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1UtcTimeRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
+
+		if (timeString.back() == 'Z')
+		{
+			timeString.pop_back();
+		}
+
+		m_WithSeconds = true;
+		if (timeString.size() == 10)
+		{
+			m_WithSeconds = false;
+			timeString.append("00");
+		}
+
+		auto year = std::stoi(timeString.substr(0, 2));
+		if (year <= 50)
+		{
+			timeString.insert(0, "20");
+		}
+		else
+		{
+			timeString.insert(0, "19");
+		}
+
+		std::tm tm = {};
+		std::istringstream sstream(timeString);
+		sstream >> std::get_time(&tm, "%Y%m%d%H%M%S");
+
+		if (sstream.fail())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 UTC time");
+		}
+
+		std::time_t timeValue = mkUtcTime(tm);
+		m_Value = std::chrono::system_clock::from_time_t(timeValue);
+	}
+
+	std::vector<uint8_t> Asn1UtcTimeRecord::encodeValue() const
+	{
+		auto timeValue = std::chrono::system_clock::to_time_t(m_Value);
+
+		auto tm = *std::gmtime(&timeValue);
+
+		auto pattern = std::string("%y%m%d%H%M") + (m_WithSeconds ? "%S" : "");
+		std::ostringstream osstream;
+		osstream << std::put_time(&tm, pattern.c_str()) << 'Z';
+
+		auto timeString = osstream.str();
+		return { timeString.begin(), timeString.end() };
+	}
+
+	Asn1GeneralizedTimeRecord::Asn1GeneralizedTimeRecord(const std::chrono::system_clock::time_point& value,
+	                                                     const std::string& timezone)
+	    : Asn1TimeRecord(Asn1UniversalTagType::GeneralizedTime, value, timezone), m_Timezone(timezone)
+	{
+		m_ValueLength = 14 + (timezone == "Z" ? 1 : 5);
+
+		auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch()).count();
+		if (milliseconds % 1000 != 0)
+		{
+			m_ValueLength += 4;
+		}
+
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1GeneralizedTimeRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
+
+		std::string timezone = "Z";
+		auto timezonePos = timeString.find_first_of("+-");
+		if (timeString.back() == 'Z')
+		{
+			timeString.pop_back();
+		}
+		else if (timezonePos != std::string::npos)
+		{
+			timezone = timeString.substr(timezonePos);
+			timeString.erase(timezonePos);
+		}
+
+		std::tm tm = {};
+		std::istringstream sstream(timeString);
+		sstream >> std::get_time(&tm, "%Y%m%d%H%M%S");
+
+		if (sstream.fail())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 generalized time");
+		}
+
+		size_t dotPos = timeString.find('.');
+		int milliseconds = 0;
+		if (dotPos != std::string::npos)
+		{
+			std::string millisecondsStr = timeString.substr(dotPos + 1);
+			// Limit the milliseconds to 3 digits
+			if (millisecondsStr.length() > 3)
+			{
+				timeString.erase(timezonePos);
+				millisecondsStr.resize(3);
+			}
+			milliseconds = std::stoi(millisecondsStr);
+		}
+
+		auto timeValue = mkUtcTime(tm);
+
+		m_Timezone = timezone;
+		m_Value = adjustTimezones(
+		    std::chrono::system_clock::from_time_t(timeValue) + std::chrono::milliseconds(milliseconds), timezone, "Z");
+	}
+
+	std::vector<uint8_t> Asn1GeneralizedTimeRecord::encodeValue() const
+	{
+		auto value = adjustTimezones(m_Value, "Z", m_Timezone);
+		auto timeValue = std::chrono::system_clock::to_time_t(value);
+
+		auto tm = *std::gmtime(&timeValue);
+
+		auto pattern = std::string("%Y%m%d%H%M%S");
+		std::ostringstream osstream;
+		osstream << std::put_time(&tm, pattern.c_str());
+
+		auto milliseconds =
+		    std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch()).count() % 1000;
+		if (milliseconds != 0)
+		{
+			osstream << "." << std::setw(3) << std::setfill('0') << milliseconds;
+		}
+
+		osstream << m_Timezone;
+
+		auto timeString = osstream.str();
+		return { timeString.begin(), timeString.end() };
+	}
+
+	void Asn1BitStringRecord::BitSet::initFromString(const std::string& value)
+	{
+		m_NumBits = value.length();
+
+		size_t numBytes = (m_NumBits + 7) / 8;
+		m_Data.clear();
+		m_Data.reserve(numBytes);
+
+		size_t i = 0;
+		while (i < value.length())
+		{
+			std::string curByteString = value.substr(i, 8);
+			curByteString.append(8 - curByteString.length(), '0');
+			try
+			{
+				std::bitset<8> bs(curByteString);
+				m_Data.push_back(bs);
+				i += 8;
+			}
+			catch (const std::invalid_argument&)
+			{
+				throw std::invalid_argument("Invalid bit string");
+			}
+		}
+	}
+
+	Asn1BitStringRecord::BitSet::BitSet(const std::string& value)
+	{
+		initFromString(value);
+	}
+
+	Asn1BitStringRecord::BitSet::BitSet(const uint8_t* data, size_t numBits) : m_NumBits(numBits)
+	{
+		if (!data || !numBits)
+		{
+			throw std::invalid_argument("Provided data is null or num of bits is 0");
+		}
+
+		size_t requiredBytes = (m_NumBits + 7) / 8;
+		m_Data.resize(requiredBytes);
+		std::copy_n(data, requiredBytes, m_Data.begin());
+	}
+
+	Asn1BitStringRecord::BitSet& Asn1BitStringRecord::BitSet::operator=(const std::string& value)
+	{
+		initFromString(value);
+		return *this;
+	}
+
+	std::string Asn1BitStringRecord::BitSet::toString() const
+	{
+		std::string result;
+		result.reserve(m_Data.size() * 8);
+		for (const auto bs : m_Data)
+		{
+			result += bs.to_string();
+		}
+		result.resize(m_NumBits);
+		return result;
+	}
+
+	std::vector<uint8_t> Asn1BitStringRecord::BitSet::toBytes() const
+	{
+		std::vector<uint8_t> result;
+		result.reserve(m_Data.size());
+		for (const auto& bs : m_Data)
+		{
+			result.push_back(static_cast<uint8_t>(bs.to_ulong()));
+		}
+
+		return result;
+	}
+
+	size_t Asn1BitStringRecord::BitSet::sizeInBytes() const
+	{
+		return m_Data.size();
+	}
+
+	Asn1BitStringRecord::Asn1BitStringRecord(const std::string& value)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::BitString)
+	{
+		m_Value = value;
+		m_ValueLength = m_Value.sizeInBytes() + 1;
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1BitStringRecord::decodeValue(uint8_t* data, bool lazy)
+	{
+		auto numBits = (m_ValueLength - 1) * 8 - static_cast<size_t>(data[0]);
+		m_Value = BitSet(data + 1, numBits);
+	}
+
+	std::vector<uint8_t> Asn1BitStringRecord::encodeValue() const
+	{
+		auto result = m_Value.toBytes();
+		size_t unusedBits = m_Value.sizeInBytes() * 8 - m_Value.getNumBits();
+		result.insert(result.begin(), static_cast<uint8_t>(unusedBits));
+		return result;
+	}
+
+	std::vector<std::string> Asn1BitStringRecord::toStringList()
+	{
+		return { Asn1Record::toStringList().front() + ", Value: " + m_Value.toString() };
+	}
+
 }  // namespace pcpp
