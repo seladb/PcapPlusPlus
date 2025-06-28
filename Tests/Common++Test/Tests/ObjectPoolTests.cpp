@@ -31,7 +31,7 @@ namespace pcpp
 
 		TEST(DynamicObjectPoolTest, Preallocation)
 		{
-			DynamicObjectPool<int> pool(10, 5);         // Create a pool with limit 10 and preallocate 5 objects
+			DynamicObjectPool<int> pool(10, 5);  // Create a pool with limit 10 and preallocate 5 objects
 			EXPECT_EQ(pool.maxSize(), 10);
 			EXPECT_EQ(pool.size(), 5);
 		}
@@ -39,7 +39,7 @@ namespace pcpp
 		TEST(DynamicObjectPoolTest, MaxPoolSize)
 		{
 			DynamicObjectPool<int> pool(2);  // Create a pool with limit 2 objects
-			
+
 			for (int i = 0; i < 4; ++i)
 			{
 				auto obj = std::make_unique<int>(i);

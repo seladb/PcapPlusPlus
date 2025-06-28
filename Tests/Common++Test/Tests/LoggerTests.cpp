@@ -87,8 +87,8 @@ namespace pcpp
 
 #pragma pop_macro("LOG_MODULE")
 
-		static void logPrinterTrampoline(LogLevel logLevel, const std::string& logMessage,
-		                                 const std::string& fileName, const std::string& method, const int line)
+		static void logPrinterTrampoline(LogLevel logLevel, const std::string& logMessage, const std::string& fileName,
+		                                 const std::string& method, const int line)
 		{
 			if (m_LogCallbackMock != nullptr)
 			{
