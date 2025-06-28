@@ -1,10 +1,6 @@
-#include <array>
-#include <cstring>
-#include <memory>
+#include "pch.h"
+
 #include <string>
-#include <sstream>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include "Logger.h"
 

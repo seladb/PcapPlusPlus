@@ -1,9 +1,7 @@
-#include <array>
+#include "pch.h"
+
 #include <algorithm>
-#include <memory>
 #include <stdexcept>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include "MemoryLeakDetectorFixture.hpp"
 

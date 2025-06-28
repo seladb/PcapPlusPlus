@@ -35,7 +35,8 @@ target_link_libraries(
           gtest
           gmock)
 
-target_include_directories(Common++Test PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Utils>)
+target_include_directories(Common++Test PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>)
+target_precompile_headers(Common++Test PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pch.h>)
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio
