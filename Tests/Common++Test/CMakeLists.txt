@@ -18,14 +18,15 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(
   Common++Test
-  main.cpp
-  Tests/GeneralUtilsTests.cpp
-  Tests/IPAddressTests.cpp
-  Tests/LoggerTests.cpp
-  Tests/LRUListTests.cpp
-  Tests/MacAddressTests.cpp
-  Tests/PointerVectorTests.cpp
-  Tests/SystemUtilsTests.cpp)
+  "main.cpp"
+  "Tests/GeneralUtilsTests.cpp"
+  "Tests/IPAddressTests.cpp"
+  "Tests/LoggerTests.cpp"
+  "Tests/LRUListTests.cpp"
+  "Tests/MacAddressTests.cpp"
+  "Tests/ObjectPoolTests.cpp"
+  "Tests/PointerVectorTests.cpp"
+  "Tests/SystemUtilsTests.cpp")
 
 target_link_libraries(
   Common++Test
