@@ -2,7 +2,6 @@
 
 // GCOVR_EXCL_START
 
-#include <pthread.h>
 #include <time.h>
 #include <vector>
 #include "MacAddress.h"
@@ -405,7 +404,8 @@ namespace pcpp
 
 		/// Get the link status (link up/down, link speed and link duplex)
 		/// @param[out] linkStatus A reference to object the result shall be written to
-		void getLinkStatus(LinkStatus& linkStatus) const;
+		/// @return True if managed to fetch the link status and `linkStatus` was updated, false otherwise
+		bool getLinkStatus(LinkStatus& linkStatus) const;
 
 		/// @return The core ID used in this context
 		uint32_t getCurrentCoreId() const;

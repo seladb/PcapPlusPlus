@@ -7,6 +7,7 @@
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
+#include "Packet.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
@@ -271,23 +272,21 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 
 	std::string devName(liveDev->getName());
 	pcpp::PcapLiveDevice* liveDev2 = nullptr;
-	liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName);
+	liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getDeviceByName(devName);
 	PTF_ASSERT_NOT_NULL(liveDev2);
 	PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName());
 
-	pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName);
+	pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(devName);
 	PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
-	liveDev3 =
-	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
+	liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
 	PTF_ASSERT_EQUAL(liveDev3, liveDev, ptr);
 
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250");
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp("255.255.255.250");
 	PTF_ASSERT_NULL(liveDev);
 }  // TestPcapLiveDeviceListSearch
 
@@ -295,7 +294,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
@@ -349,7 +348,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 
 	{
-		pcpp::PcapLiveDevice* originalDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+		pcpp::PcapLiveDevice* originalDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 		PTF_ASSERT_NOT_NULL(originalDev);
 
 #ifdef _WIN32
@@ -428,7 +427,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 	// a negative test - check invalid IP address
 	liveDev = nullptr;
 	pcpp::Logger::getInstance().suppressLogs();
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("eth0");
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp("eth0");
 	pcpp::Logger::getInstance().enableLogs();
 	PTF_ASSERT_NULL(liveDev);
 
@@ -436,8 +435,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 
 PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 {
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev);
@@ -487,8 +486,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	for (const auto& config : configs)
 	{
 		// open device
-		pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-		    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+		pcpp::PcapLiveDevice* liveDev =
+		    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 		PTF_ASSERT_NOT_NULL(liveDev);
 		PTF_ASSERT_TRUE(liveDev->open(config));
 		DeviceTeardown devTeardown(liveDev);
@@ -578,7 +577,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
@@ -625,8 +624,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 	};
 
 	// open device
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev);
@@ -645,8 +644,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 {
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 
 	// open device in default mode
@@ -678,9 +677,10 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 
-#ifdef HAS_SET_DIRECTION_ENABLED
 	packetCount = 0;
 
+	// Setting direction isn't available on Windows, and setting "outgoing only" isn't available on macOS
+#if !defined(_WIN32) && !defined(__APPLE__)
 	// create a non-default configuration with only capturing incoming packets and open the device again
 	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithDirection(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000,
 	                                                                 pcpp::PcapLiveDevice::PCPP_OUT);
@@ -694,7 +694,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
-
 #endif
 
 	// create a non-default configuration with a snapshot length of 10 bytes
@@ -717,8 +716,8 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 {
 #if defined(_WIN32)
 
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_EQUAL(liveDev->getDeviceType(), pcpp::PcapLiveDevice::WinPcapDevice, enum);
 
@@ -754,8 +753,8 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	pcpp::Logger::getInstance().enableLogs();
 
 #else
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_EQUAL(liveDev->getDeviceType(), pcpp::PcapLiveDevice::LibPcapDevice, enum);
 #endif
@@ -766,7 +765,7 @@ PTF_TEST_CASE(TestSendPacket)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev);
@@ -798,7 +797,7 @@ PTF_TEST_CASE(TestSendPacket)
 
 		// send packet as parsed EthPacekt
 		pcpp::Packet packet(&rawPacket);
-		PTF_ASSERT_TRUE(liveDev->sendPacket(&packet));
+		PTF_ASSERT_TRUE(liveDev->sendPacket(packet));
 
 		packetsSent++;
 	}
@@ -815,7 +814,7 @@ PTF_TEST_CASE(TestSendPackets)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev);
@@ -852,7 +851,7 @@ PTF_TEST_CASE(TestMtuSize)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTearDown(liveDev);
@@ -892,7 +891,7 @@ PTF_TEST_CASE(TestMtuSize)
 	PTF_PRINT_VERBOSE("Small packet: " << smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
 	PTF_ASSERT_EQUAL(smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)liveDev->getMtu(), ptr);
 	// Try sending the packet
-	PTF_ASSERT_TRUE(liveDev->sendPacket(&smallPacket));
+	PTF_ASSERT_TRUE(liveDev->sendPacket(smallPacket));
 	pcpp::RawPacket* rawSmallPacketPtr = smallPacket.getRawPacket();
 	pcpp::RawPacket& rawSmallPacketRef = *rawSmallPacketPtr;
 	PTF_ASSERT_TRUE(liveDev->sendPacket(rawSmallPacketRef, true));
@@ -925,7 +924,7 @@ PTF_TEST_CASE(TestMtuSize)
 	PTF_ASSERT_EQUAL(largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)(liveDev->getMtu() + 1), ptr);
 	// Try sending the packet
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->sendPacket(&largePacket));
+	PTF_ASSERT_FALSE(liveDev->sendPacket(largePacket));
 
 	pcpp::RawPacket* rawLargePacketPtr = largePacket.getRawPacket();
 	pcpp::RawPacket& rawLargePacketRef = *rawLargePacketPtr;

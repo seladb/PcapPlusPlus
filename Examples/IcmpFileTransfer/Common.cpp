@@ -5,6 +5,7 @@
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"
+#include "Packet.h"
 #include "PcapLiveDeviceList.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
@@ -174,7 +175,7 @@ void readCommandLineArguments(int argc, char* argv[], const std::string& thisSid
 	}
 	catch (const std::exception&)
 	{
-		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
+		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByName(interfaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR_PRINT_USAGE("Cannot find interface by provided name");
 
@@ -254,7 +255,7 @@ bool sendIcmpMessage(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcp
 	packet.computeCalculateFields();
 
 	// send the packet through the device
-	return dev->sendPacket(&packet);
+	return dev->sendPacket(packet);
 }
 
 bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, const pcpp::MacAddress dstMacAddr,

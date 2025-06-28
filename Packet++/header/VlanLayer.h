@@ -111,5 +111,14 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an VLAN layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an VLAN layer
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return canReinterpretAs<vlan_header>(data, dataLen);
+		}
 	};
 }  // namespace pcpp

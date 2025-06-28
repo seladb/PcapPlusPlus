@@ -7,6 +7,7 @@
 #include "IPv6Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
+#include "Packet.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
 #include "../Common/GlobalTestArgs.h"
@@ -36,7 +37,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 
 	std::string filterAsString;

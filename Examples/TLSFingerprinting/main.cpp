@@ -21,6 +21,7 @@
 #include "TcpLayer.h"
 #include "SSLLayer.h"
 #include "SSLHandshake.h"
+#include "Packet.h"
 #include "PcapPlusPlusVersion.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
@@ -462,7 +463,7 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
                                       const std::string& separator, bool chFP, bool shFP, const std::string& bpfFilter)
 {
 	// extract pcap live device by interface name or IP address
-	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 	if (dev == nullptr)
 		EXIT_WITH_ERROR("Couldn't find interface by given IP address or name");
 

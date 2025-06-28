@@ -28,6 +28,7 @@ add_library(
 set(
   public_headers
   header/Device.h
+  header/DeviceListBase.h
   header/NetworkUtils.h
   header/PcapDevice.h
   header/PcapFileDevice.h
@@ -63,6 +64,8 @@ endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+target_compile_features(Pcap++ PUBLIC cxx_std_14)
+
 if(APPLE)
   target_link_libraries(Pcap++ PRIVATE "-framework CoreFoundation" "-framework SystemConfiguration")
 elseif(WIN32)
@@ -74,7 +77,10 @@ endif()
 
 target_include_directories(
   Pcap++
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
+    $<INSTALL_INTERFACE:include/pcapplusplus>
+    $<INSTALL_INTERFACE:include>
   # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
   PRIVATE
     $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>

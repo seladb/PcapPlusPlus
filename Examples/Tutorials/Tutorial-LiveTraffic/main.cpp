@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include "PcapLiveDeviceList.h"
+#include "Packet.h"
 #include "SystemUtils.h"
 /**
  * A struct for collecting packet statistics
@@ -109,7 +110,7 @@ int main(int argc, char* argv[])
 	std::string interfaceIPAddr = "10.0.0.1";
 
 	// find the interface by IP address
-	auto* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
+	auto* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(interfaceIPAddr);
 	if (dev == nullptr)
 	{
 		std::cerr << "Cannot find interface with IPv4 address of '" << interfaceIPAddr << "'" << std::endl;

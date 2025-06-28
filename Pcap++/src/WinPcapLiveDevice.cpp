@@ -5,6 +5,9 @@
 #include "TimespecTimeval.h"
 #include "pcap.h"
 
+#include <memory>
+#include <vector>
+
 namespace pcpp
 {
 
@@ -13,46 +16,6 @@ namespace pcpp
 	    : PcapLiveDevice(std::move(interfaceDetails), calculateMTU, calculateMacAddress, calculateDefaultGateway)
 	{
 		m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
-	}
-
-	bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie,
-	                                     int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-	                                     void* onStatsUpdateUserCookie)
-	{
-		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
-		{
-			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
-			return false;
-		}
-
-		// Put the interface in capture mode
-		if (pcap_setmode(m_PcapDescriptor.get(), MODE_CAPT) < 0)
-		{
-			PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_InterfaceDetails.name << "'");
-			return false;
-		}
-
-		return PcapLiveDevice::startCapture(onPacketArrives, onPacketArrivesUserCookie, intervalInSecondsToUpdateStats,
-		                                    onStatsUpdate, onStatsUpdateUserCookie);
-	}
-
-	bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-	                                     void* onStatsUpdateUserCookie)
-	{
-		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
-		{
-			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
-			return false;
-		}
-
-		// Put the interface in statistics mode
-		if (pcap_setmode(m_PcapDescriptor.get(), MODE_STAT) < 0)
-		{
-			PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_InterfaceDetails.name << "'");
-			return false;
-		}
-
-		return PcapLiveDevice::startCapture(intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
 	}
 
 	int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
@@ -68,16 +31,25 @@ namespace pcpp
 		for (int i = 0; i < arrLength; i++)
 			dataSize += rawPacketsArr[i].getRawDataLen();
 
-		pcap_send_queue* sendQueue = pcap_sendqueue_alloc(dataSize + arrLength * sizeof(pcap_pkthdr));
+		struct PcapSendQueueDeleter
+		{
+			void operator()(pcap_send_queue* ptr) const noexcept
+			{
+				pcap_sendqueue_destroy(ptr);
+			}
+		};
+
+		auto sendQueue = std::unique_ptr<pcap_send_queue, PcapSendQueueDeleter>(
+		    pcap_sendqueue_alloc(dataSize + arrLength * sizeof(pcap_pkthdr)));
 		PCPP_LOG_DEBUG("Allocated send queue of size " << (dataSize + arrLength * sizeof(pcap_pkthdr)));
-		struct pcap_pkthdr* packetHeader = new struct pcap_pkthdr[arrLength];
+
+		std::vector<pcap_pkthdr> packetHeader(arrLength);
 		for (int i = 0; i < arrLength; i++)
 		{
 			packetHeader[i].caplen = rawPacketsArr[i].getRawDataLen();
 			packetHeader[i].len = rawPacketsArr[i].getRawDataLen();
-			timespec packet_time = rawPacketsArr[i].getPacketTimeStamp();
-			TIMESPEC_TO_TIMEVAL(&packetHeader[i].ts, &packet_time);
-			if (pcap_sendqueue_queue(sendQueue, &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
+			packetHeader[i].ts = internal::toTimeval(rawPacketsArr[i].getPacketTimeStamp());
+			if (pcap_sendqueue_queue(sendQueue.get(), &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_send_queue is too small for all packets. Sending only " << i << " packets");
 				break;
@@ -87,8 +59,8 @@ namespace pcpp
 
 		PCPP_LOG_DEBUG(packetsSent << " packets were queued successfully");
 
-		int res;
-		if ((res = pcap_sendqueue_transmit(m_PcapDescriptor.get(), sendQueue, 0)) < static_cast<int>(sendQueue->len))
+		int res = pcap_sendqueue_transmit(m_PcapDescriptor.get(), sendQueue.get(), 0);
+		if (res < static_cast<int>(sendQueue->len))
 		{
 			PCPP_LOG_ERROR("An error occurred sending the packets: " << m_PcapDescriptor.getLastError() << ". Only "
 			                                                         << res << " bytes were sent");
@@ -107,10 +79,6 @@ namespace pcpp
 		}
 		PCPP_LOG_DEBUG("Packets were sent successfully");
 
-		pcap_sendqueue_destroy(sendQueue);
-		PCPP_LOG_DEBUG("Send queue destroyed");
-
-		delete[] packetHeader;
 		return packetsSent;
 	}
 
@@ -134,6 +102,18 @@ namespace pcpp
 	WinPcapLiveDevice* WinPcapLiveDevice::clone() const
 	{
 		return new WinPcapLiveDevice(m_InterfaceDetails, true, true, true);
+	}
+
+	void WinPcapLiveDevice::prepareCapture(bool asyncCapture, bool captureStats)
+	{
+
+		int mode = captureStats ? MODE_STAT : MODE_CAPT;
+		int res = pcap_setmode(m_PcapDescriptor.get(), mode);
+		if (res < 0)
+		{
+			throw std::runtime_error("Error setting the mode for device '" + m_InterfaceDetails.name +
+			                         "': " + m_PcapDescriptor.getLastError());
+		}
 	}
 
 }  // namespace pcpp

@@ -111,7 +111,7 @@ namespace pcpp
 		struct pcap_pkthdr pktHdr;
 		pktHdr.caplen = packetDataLength;
 		pktHdr.len = packetDataLength;
-		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
+		pktHdr.ts = internal::toTimeval(packetTimestamp);
 
 		return (pcap_offline_filter(m_Program.get(), &pktHdr, packetData) != 0);
 	}

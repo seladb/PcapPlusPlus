@@ -258,17 +258,26 @@ namespace pcpp
 	class RawPacket
 	{
 	protected:
-		uint8_t* m_RawData;
-		int m_RawDataLen;
-		int m_FrameLength;
-		timespec m_TimeStamp;
-		bool m_DeleteRawDataAtDestructor;
-		bool m_RawPacketSet;
-		LinkLayerType m_LinkLayerType;
-		void init(bool deleteRawDataAtDestructor = true);
+		uint8_t* m_RawData = nullptr;
+		int m_RawDataLen = 0;
+		int m_FrameLength = 0;
+		timespec m_TimeStamp{};  // Zero initialized
+		bool m_DeleteRawDataAtDestructor = true;
+		bool m_RawPacketSet = false;
+		LinkLayerType m_LinkLayerType = LinkLayerType::LINKTYPE_ETHERNET;
+
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 
 	public:
+		/// A default constructor that initializes class'es attributes to default value:
+		/// - data pointer is set to nullptr
+		/// - data length is set to 0
+		/// - frame length is set to 0
+		/// - deleteRawDataAtDestructor is set to 'true'
+		/// - timestamp is set to 0
+		/// - layer type is set to Ethernet
+		RawPacket() = default;
+
 		/// A constructor that receives a pointer to the raw data (allocated elsewhere). This constructor is usually
 		/// used when packet is captured using a packet capturing engine (like libPcap. WinPcap, Npcap, PF_RING, etc.).
 		/// The capturing engine allocates the raw data memory and give the user a pointer to it + a timestamp it has
@@ -294,13 +303,6 @@ namespace pcpp
 		/// @param[in] layerType The link layer type of this raw packet. The default is Ethernet
 		RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
 		          LinkLayerType layerType = LINKTYPE_ETHERNET);
-
-		/// A default constructor that initializes class'es attributes to default value:
-		/// - data pointer is set to nullptr
-		/// - data length is set to 0
-		/// - deleteRawDataAtDestructor is set to 'true'
-		/// @todo timestamp isn't set here to a default value
-		RawPacket();
 
 		/// A destructor for this class. Frees the raw data if deleteRawDataAtDestructor was set to 'true'
 		virtual ~RawPacket();
