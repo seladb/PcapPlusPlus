@@ -26,7 +26,8 @@ add_executable(
   "Tests/MacAddressTests.cpp"
   "Tests/ObjectPoolTests.cpp"
   "Tests/PointerVectorTests.cpp"
-  "Tests/SystemUtilsTests.cpp")
+  "Tests/SystemUtilsTests.cpp"
+  "Tests/TimespecTimevalTests.cpp")
 
 target_link_libraries(
   Common++Test
