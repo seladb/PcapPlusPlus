@@ -116,4 +116,9 @@ namespace pcpp
 		}
 	}
 
+	std::unique_ptr<WinPcapLiveDevice> WinPcapLiveDevice::createWinPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
+	{
+		return std::unique_ptr<WinPcapLiveDevice>(new WinPcapLiveDevice(pInterface, calculateMTU, calculateMacAddress, calculateDefaultGateway));
+	}
+
 }  // namespace pcpp

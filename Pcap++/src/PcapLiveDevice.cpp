@@ -688,8 +688,8 @@ namespace pcpp
 		{
 			// Due to passing a 'this' pointer, the current device object shouldn't be relocated, while the worker is
 			// active.
-			m_StatisticsUpdateWorker = std::unique_ptr<StatisticsUpdateWorker>(new StatisticsUpdateWorker(
-			    *this, std::move(onStatsUpdate), onStatsUpdateUserCookie, intervalInSecondsToUpdateStats * 1000));
+			m_StatisticsUpdateWorker = std::make_unique<StatisticsUpdateWorker>(
+				*this, std::move(onStatsUpdate), onStatsUpdateUserCookie, intervalInSecondsToUpdateStats * 1000);
 
 			PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_InterfaceDetails.name << "'.");
 		}
@@ -1530,5 +1530,10 @@ namespace pcpp
 
 	PcapLiveDevice::~PcapLiveDevice()
 	{}
+
+	std::unique_ptr<PcapLiveDevice> PcapLiveDevice::createPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
+	{
+		return std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(pInterface, calculateMTU, calculateMacAddress, calculateDefaultGateway));
+	}
 
 }  // namespace pcpp

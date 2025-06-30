@@ -60,9 +60,9 @@ namespace pcpp
 		     currInterface = currInterface->next)
 		{
 #if defined(_WIN32)
-			auto dev = std::unique_ptr<PcapLiveDevice>(new WinPcapLiveDevice(currInterface, true, true, true));
+			auto dev = WinPcapLiveDevice::createWinPcapLiveDevice(currInterface, true, true, true);
 #else  //__linux__, __APPLE__, __FreeBSD__
-			auto dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
+			auto dev = PcapLiveDevice::createPcapLiveDevice(currInterface, true, true, true);
 #endif
 			deviceList.pushBack(std::move(dev));
 		}

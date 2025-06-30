@@ -158,6 +158,17 @@ namespace pcpp
 		PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
 		               bool calculateDefaultGateway);
 
+	public:
+		/// @brief Creates a new PcapLiveDevice instance.
+		/// This factory method is needed because the constructor is protected and std::make_unique cannot access it.
+		/// @param[in] pInterface Pointer to the pcap_if_t structure.
+		/// @param[in] calculateMTU Whether to calculate the MTU.
+		/// @param[in] calculateMacAddress Whether to calculate the MAC address.
+		/// @param[in] calculateDefaultGateway Whether to calculate the default gateway.
+		/// @return A unique_ptr to the created PcapLiveDevice.
+		static std::unique_ptr<PcapLiveDevice> createPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
+
+	protected:
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
