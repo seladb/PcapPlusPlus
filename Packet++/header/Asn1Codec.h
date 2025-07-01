@@ -849,6 +849,12 @@ namespace pcpp
 			return m_Value.toString();
 		};
 
+		std::vector<uint8_t> getVecValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value.toBytes();
+		}
+
 	protected:
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
