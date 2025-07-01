@@ -29,17 +29,6 @@ namespace pcpp
 		                  bool calculateDefaultGateway);
 
 	public:
-		/// @brief Creates a new WinPcapLiveDevice instance.
-		/// This factory method is needed because the constructor is protected and std::make_unique cannot access it.
-		/// @param[in] pInterface Pointer to the pcap_if_t structure.
-		/// @param[in] calculateMTU Whether to calculate the MTU.
-		/// @param[in] calculateMacAddress Whether to calculate the MAC address.
-		/// @param[in] calculateDefaultGateway Whether to calculate the default gateway.
-		/// @return A unique_ptr to the created WinPcapLiveDevice.
-		static std::unique_ptr<WinPcapLiveDevice> createWinPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU,
-		                                                                  bool calculateMacAddress,
-		                                                                  bool calculateDefaultGateway);
-
 		WinPcapLiveDevice(const WinPcapLiveDevice& other) = delete;
 		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other) = delete;
 

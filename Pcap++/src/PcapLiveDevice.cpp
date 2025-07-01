@@ -1531,12 +1531,4 @@ namespace pcpp
 	PcapLiveDevice::~PcapLiveDevice()
 	{}
 
-	std::unique_ptr<PcapLiveDevice> PcapLiveDevice::createPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU,
-	                                                                     bool calculateMacAddress,
-	                                                                     bool calculateDefaultGateway)
-	{
-		return std::unique_ptr<PcapLiveDevice>(
-		    new PcapLiveDevice(pInterface, calculateMTU, calculateMacAddress, calculateDefaultGateway));
-	}
-
 }  // namespace pcpp
