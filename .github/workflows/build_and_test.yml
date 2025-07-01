@@ -578,19 +578,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: "windows-2025"
-            platform: "Visual Studio 17 2022"
-            arch: "x64"
-            pcap_lib: "npcap"
           - os: windows-2025
             platform: "Visual Studio 17 2022"
             arch: Win32
             pcap_lib: "winpcap"
-          - os: windows-2022
+          - os: windows-2025
             platform: "Visual Studio 17 2022"
             arch: "x64"
             pcap_lib: "winpcap"
-          - os: windows-2022
+          - os: windows-2025
             platform: "Visual Studio 17 2022"
             arch: "x64"
             pcap_lib: "npcap"

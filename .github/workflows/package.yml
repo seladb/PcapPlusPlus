@@ -266,7 +266,7 @@ jobs:
   visual-studio:
     strategy:
       matrix:
-        os: [ windows-2025, windows-2022 ]
+        os: [ windows-2025 ]
         arch: [ Win32, x64 ]
         configuration: [ Debug, Release ]
 
