@@ -92,7 +92,8 @@ namespace pcpp
 						PCPP_LOG_DEBUG("PF_RING version is: " << m_PfRingVersion);
 					}
 
-					auto newDev = std::make_unique<PfRingDevice>(currInterface->name);
+					// Not using std::make_unique because ctor of PfRingDevice is private
+					auto newDev = std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
 					m_DeviceList.pushBack(std::move(newDev));
 					PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
 				}

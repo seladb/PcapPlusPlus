@@ -198,7 +198,8 @@ namespace pcpp
 		// Initialize a DpdkDevice per port
 		for (int i = 0; i < numOfPorts; i++)
 		{
-			auto newDevice = std::make_unique<DpdkDevice>(i, mBufPoolSizePerDevice, mBufDataSize);
+			// Not using std::make_unique because ctor of DpdkDevice is private
+			auto newDevice = std::unique_ptr<DpdkDevice>(new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize));
 			PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='"
 			                              << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName()
 			                              << "', MAC Addr='" << newDevice->getMacAddress() << "'");
