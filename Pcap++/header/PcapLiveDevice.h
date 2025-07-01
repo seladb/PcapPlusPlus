@@ -166,7 +166,9 @@ namespace pcpp
 		/// @param[in] calculateMacAddress Whether to calculate the MAC address.
 		/// @param[in] calculateDefaultGateway Whether to calculate the default gateway.
 		/// @return A unique_ptr to the created PcapLiveDevice.
-		static std::unique_ptr<PcapLiveDevice> createPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
+		static std::unique_ptr<PcapLiveDevice> createPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU,
+		                                                            bool calculateMacAddress,
+		                                                            bool calculateDefaultGateway);
 
 	protected:
 		void setDeviceMtu();

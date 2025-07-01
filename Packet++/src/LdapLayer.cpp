@@ -206,7 +206,7 @@ namespace pcpp
 		if (!messageRecords.empty())
 		{
 			messageRootRecord =
-				std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::Application, operationType, messageRecords);
+			    std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::Application, operationType, messageRecords);
 		}
 		else
 		{
@@ -237,7 +237,7 @@ namespace pcpp
 				}
 			}
 			controlsRecord =
-				std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::ContextSpecific, 0, controlsSubRecords);
+			    std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::ContextSpecific, 0, controlsSubRecords);
 			rootSubRecords.push_back(controlsRecord.get());
 		}
 
@@ -404,8 +404,8 @@ namespace pcpp
 			{
 				referralSubRecords.pushBack(new Asn1OctetStringRecord(uri));
 			}
-			referralRecord =
-				std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::ContextSpecific, referralTagType, referralSubRecords);
+			referralRecord = std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::ContextSpecific, referralTagType,
+			                                                         referralSubRecords);
 			messageRecords.push_back(referralRecord.get());
 		}
 
@@ -490,9 +490,9 @@ namespace pcpp
 		{
 			auto data = reinterpret_cast<const uint8_t*>(simpleAuthentication.data());
 			simpleAuthenticationRecord = std::make_unique<Asn1GenericRecord>(
-				Asn1TagClass::ContextSpecific, false,
-				static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Simple), data,
-				simpleAuthentication.size());
+			    Asn1TagClass::ContextSpecific, false,
+			    static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Simple), data,
+			    simpleAuthentication.size());
 			messageRecords.push_back(simpleAuthenticationRecord.get());
 		}
 
@@ -519,8 +519,8 @@ namespace pcpp
 			}
 
 			saslAuthenticationRecord = std::make_unique<Asn1ConstructedRecord>(
-				Asn1TagClass::ContextSpecific, static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Sasl),
-				saslAuthenticationRecords);
+			    Asn1TagClass::ContextSpecific, static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Sasl),
+			    saslAuthenticationRecords);
 			messageRecords.push_back(saslAuthenticationRecord.get());
 		}
 
@@ -625,9 +625,9 @@ namespace pcpp
 		std::unique_ptr<Asn1Record> serverSaslCredentialsRecord;
 		if (!serverSaslCredentials.empty())
 		{
-			serverSaslCredentialsRecord = std::make_unique<Asn1GenericRecord>(
-				Asn1TagClass::ContextSpecific, false, serverSaslCredentialsTagType, serverSaslCredentials.data(),
-				serverSaslCredentials.size());
+			serverSaslCredentialsRecord =
+			    std::make_unique<Asn1GenericRecord>(Asn1TagClass::ContextSpecific, false, serverSaslCredentialsTagType,
+			                                        serverSaslCredentials.data(), serverSaslCredentials.size());
 			additionalRecords.push_back(serverSaslCredentialsRecord.get());
 		}
 
