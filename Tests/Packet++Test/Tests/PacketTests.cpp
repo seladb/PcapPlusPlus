@@ -818,7 +818,7 @@ PTF_TEST_CASE(PacketTrailerTest)
 
 	// add layer after trailer (result with an error)
 	uint8_t payload[4] = { 0x1, 0x2, 0x3, 0x4 };
-	std::unique_ptr<pcpp::PayloadLayer> newPayloadLayer(new pcpp::PayloadLayer(payload, 4));
+	std::unique_ptr<pcpp::PayloadLayer> newPayloadLayer = std::make_unique<pcpp::PayloadLayer>(payload, 4);
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(newPayloadLayer.get(), true));
 	pcpp::Logger::getInstance().enableLogs();
