@@ -77,6 +77,7 @@ light_file light_open(const char *file_name, const __read_mode_t mode)
 	{
 		if (light_is_compressed_file(file_name))
 		{
+			free(fd);  // PCPP PATCH
 			return light_open_decompression(file_name, mode);
 		}
 		fd->file = fopen(file_name, "rb");
