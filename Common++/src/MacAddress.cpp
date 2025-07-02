@@ -35,4 +35,42 @@ namespace pcpp
 		}
 	}
 
+	size_t MacAddress::copyTo(uint8_t* buffer, size_t size) const
+	{
+		const size_t requiredSize = m_Address.size();
+		if (buffer == nullptr)
+		{
+			if (size != 0)
+			{
+				throw std::invalid_argument("Buffer is null but size is not zero");
+			}
+			return requiredSize;
+		}
+		if (size < m_Address.size())
+		{
+			return requiredSize;
+		}
+		std::copy(m_Address.begin(), m_Address.end(), buffer);
+		return requiredSize;
+	}
+
+	bool MacAddress::copyToNewBuffer(uint8_t** buffer, size_t& size) const
+	{
+		if (buffer == nullptr)
+		{
+			throw std::invalid_argument("Buffer pointer is null");
+		}
+
+		size = copyTo(nullptr, 0);          // Get the required size
+		*buffer = new uint8_t[size];        // Allocate memory for the buffer
+		if (copyTo(*buffer, size) != size)  // Copy the address to the newly allocated buffer
+		{
+			delete[] *buffer;  // Clean up if copy fails
+			*buffer = nullptr;
+			size = 0;
+			return false;
+		}
+
+		return true;
+	}
 }  // namespace pcpp
