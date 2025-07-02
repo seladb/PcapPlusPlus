@@ -266,7 +266,7 @@ jobs:
   visual-studio:
     strategy:
       matrix:
-        os: [ windows-2019, windows-2022 ]
+        os: [ windows-2025 ]
         arch: [ Win32, x64 ]
         configuration: [ Debug, Release ]
 
@@ -289,7 +289,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          $platform = if ("${{ matrix.os }}" -eq "windows-2019") { "Visual Studio 16 2019" } else { "Visual Studio 17 2022" }
+          $platform = "Visual Studio 17 2022"
           cmake -A ${{ matrix.arch }} -G "$platform" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DPCAPPP_PACKAGE=ON -S . -B "$env:BUILD_DIR"
 
       - name: Build PcapPlusPlus
