@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 #include "Asn1Codec.h"
 
 namespace pcpp
@@ -15,30 +16,30 @@ namespace pcpp
 	public:
 		enum Value : uint8_t
 		{
-			Sha1,
-			Sha256,
-			Sha384,
-			Sha512,
-			Md5,
-			RsaEncryption,
-			Sha1WithRsaEncryption,
-			Sha256WithRsaEncryption,
-			Sha384WithRsaEncryption,
-			Sha512WithRsaEncryption,
-			EcdsaWithSha1,
-			EcdsaWithSha256,
-			EcdsaWithSha384,
-			EcdsaWithSha512,
-			DsaWithSha1,
-			DsaWithSha256,
+			SHA1,
+			SHA256,
+			SHA384,
+			SHA512,
+			MD5,
+			RSAEncryption,
+			SHA1WithRSAEncryption,
+			SHA256WithRSAEncryption,
+			SHA384WithRSAEncryption,
+			SHA512WithRSAEncryption,
+			ECDSAWithSHA1,
+			ECDSAWithSHA256,
+			ECDSAWithSHA384,
+			ECDSAWithSHA512,
+			DSAWithSHA1,
+			DSAWithSHA256,
 
-			Rsa,
-			Dsa,
-			Ecdsa,
-			Ed25519,
-			Ed448,
+			RSA,
+			DSA,
+			ECDSA,
+			ED25519,
+			ED448,
 			DiffieHellman,
-			RsaPss,
+			RSAPSS,
 
 			Unknown,
 		};
@@ -136,6 +137,7 @@ namespace pcpp
 			PolicyConstraints,
 			NameConstraints,
 			InhibitAnyPolicy,
+			CTPrecertificateSCTs,
 
 			Unknown
 		};
@@ -155,6 +157,34 @@ namespace pcpp
 
 	private:
 		Value m_Value = Unknown;
+	};
+
+	class X509Timestamp
+	{
+	public:
+		std::string toString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
+					 bool includeMilliseconds = false) const;
+
+		std::chrono::system_clock::time_point getTimestamp(const std::string& timezone = "Z") const;
+
+		X509Timestamp(Asn1TimeRecord* timeRecord) : m_Record(timeRecord)
+		{}
+
+	private:
+		Asn1TimeRecord* m_Record;
+	};
+
+	class X509Key
+	{
+	public:
+		std::string toString(const std::string& delimiter = ":") const;
+		const std::vector<uint8_t>& getBytes() const;
+
+		X509Key(const std::vector<uint8_t>& key) : m_Key(key)
+		{}
+
+	private:
+		std::vector<uint8_t> m_Key;
 	};
 
 	namespace X509Internal
@@ -233,10 +263,8 @@ namespace pcpp
 			using X509Base::X509Base;
 
 		public:
-			std::string getNotBefore(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
-										 bool includeMilliseconds = false) const;
-			std::string getNotAfter(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
-										 bool includeMilliseconds = false) const;
+			X509Timestamp getNotBefore() const;
+			X509Timestamp getNotAfter() const;
 
 		private:
 			static constexpr int m_NotBeforeOffset = 0;
@@ -249,7 +277,7 @@ namespace pcpp
 
 		public:
 			X509AlgorithmIdentifier getAlgorithm() const;
-			std::vector<uint8_t> getSubjectPublicKey() const;
+			X509Key getSubjectPublicKey() const;
 
 		private:
 			static constexpr int m_AlgorithmOffset = 0;
@@ -323,7 +351,8 @@ namespace pcpp
 		public:
 			X509TBSCertificate getTbsCertificate() const;
 			X509AlgorithmIdentifier getSignatureAlgorithm() const;
-			std::vector<uint8_t> getSignature() const;
+			X509Key getSignature() const;
+			Asn1SequenceRecord* getAsn1Root() const;
 
 			static std::unique_ptr<X509Certificate> decode(const uint8_t* data, size_t dataLen);
 			std::vector<uint8_t> encode();
@@ -333,9 +362,8 @@ namespace pcpp
 			static constexpr int m_SignatureAlgorithmOffset = 1;
 			static constexpr int m_SignatureOffset = 2;
 
-			explicit X509Certificate(std::unique_ptr<Asn1Record> root) : m_Root(std::move(root)) {}
-
-			Asn1SequenceRecord* getRoot() const;
+			explicit X509Certificate(std::unique_ptr<Asn1Record> root) : m_Root(std::move(root))
+			{}
 
 			std::unique_ptr<Asn1Record> m_Root;
 		};
@@ -353,9 +381,25 @@ namespace pcpp
 		{
 			X520DistinguishedName type;
 			std::string value;
+
+			bool operator==(const RDN& other) const
+			{
+				return type == other.type && value == other.value;
+			}
+
+			bool operator!=(const RDN& other) const
+			{
+				return !(*this == other);
+			}
+
+			friend std::ostream& operator<<(std::ostream& os, const RDN& rdn)
+			{
+				os << "RDN{type=" << rdn.type.getShortName() << ", value=" << rdn.value << "}";
+				return os;
+			}
 		};
 
-		std::string toString() const;
+		std::string toString(const std::string& delimiter = ", ") const;
 		std::vector<RDN> getRDNs() const { return m_RDNs; };
 
 	private:
@@ -367,36 +411,37 @@ namespace pcpp
 	class X509Certificate
 	{
 	public:
-		static std::unique_ptr<X509Certificate> fromDER(const uint8_t* derData, size_t derDataLen);
+		static std::unique_ptr<X509Certificate> fromDER(const uint8_t* derData, size_t derDataLen, bool ownDerData = false);
 		static std::unique_ptr<X509Certificate> fromDER(const std::string& derData);
 		static std::unique_ptr<X509Certificate> fromDERFile(const std::string& derFileName);
 
 		X509Version getVersion() const;
 
 		// Basic info
-		X509Name getSubject() const;
-		X509Name getIssuer() const;
 		std::string getSerialNumber() const;
+		X509Name getIssuer() const;
+		X509Name getSubject() const;
 
 		// Validity
-		std::string getNotBefore(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
-							 bool includeMilliseconds = false) const;
-		std::string getNotAfter(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
-									 bool includeMilliseconds = false) const;
+		X509Timestamp getNotBefore() const;
+		X509Timestamp getNotAfter() const;
 
 		// Public Key
 		X509Algorithm getPublicKeyAlgorithm() const;
-		std::vector<uint8_t> getPublicKey() const;
+		X509Key getPublicKey() const;
 
 		// Signature
 		X509Algorithm getSignatureAlgorithm() const;
-		std::vector<uint8_t> getSignature() const;
+		X509Key getSignature() const;
 
 		// Extensions
+		size_t getExtensionCount() const;
 		bool hasExtension(const X509ExtensionType& extensionType) const;
 
 		// Utility
 		std::vector<uint8_t> toDER() const;
+
+		std::string toJson(int indent = -1) const;
 
 		const X509Internal::X509Certificate* getRawCertificate() const;
 

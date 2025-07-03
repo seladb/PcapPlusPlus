@@ -1,6 +1,7 @@
 #include "X509Decoder.h"
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
+#include "json.hpp"
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
@@ -11,28 +12,28 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case Sha1:                     return "Sha1";
-		case Sha256:                   return "Sha256";
-		case Sha384:                   return "Sha384";
-		case Sha512:                   return "Sha512";
-		case Md5:                      return "Md5";
-		case RsaEncryption:           return "RsaEncryption";
-		case Sha1WithRsaEncryption:   return "Sha1WithRsaEncryption";
-		case Sha256WithRsaEncryption: return "Sha256WithRsaEncryption";
-		case Sha384WithRsaEncryption: return "Sha384WithRsaEncryption";
-		case Sha512WithRsaEncryption: return "Sha512WithRsaEncryption";
-		case Ecdsa:                   return "Ecdsa";
-		case EcdsaWithSha1:           return "EcdsaWithSha1";
-		case EcdsaWithSha256:         return "EcdsaWithSha256";
-		case EcdsaWithSha384:         return "EcdsaWithSha384";
-		case EcdsaWithSha512:         return "EcdsaWithSha512";
-		case Ed25519:                 return "Ed25519";
-		case Ed448:                   return "Ed448";
-		case Dsa:                     return "Dsa";
-		case DsaWithSha1:             return "DsaWithSha1";
-		case DsaWithSha256:           return "DsaWithSha256";
-		case Rsa:                     return "Rsa";
-		case RsaPss:                  return "RsaPss";
+		case SHA1:                     return "SHA1";
+		case SHA256:                   return "SHA256";
+		case SHA384:                   return "SHA384";
+		case SHA512:                   return "SHA512";
+		case MD5:                      return "MD5";
+		case RSAEncryption:           return "RSAEncryption";
+		case SHA1WithRSAEncryption:   return "SHA1WithRSAEncryption";
+		case SHA256WithRSAEncryption: return "SHA256WithRSAEncryption";
+		case SHA384WithRSAEncryption: return "SHA384WithRSAEncryption";
+		case SHA512WithRSAEncryption: return "SHA512WithRSAEncryption";
+		case ECDSA:                   return "ECDSA";
+		case ECDSAWithSHA1:           return "ECDSAWithSHA1";
+		case ECDSAWithSHA256:         return "ECDSAWithSHA256";
+		case ECDSAWithSHA384:         return "ECDSAWithSHA384";
+		case ECDSAWithSHA512:         return "ECDSAWithSHA512";
+		case ED25519:                 return "ED25519";
+		case ED448:                   return "ED448";
+		case DSA:                     return "DSA";
+		case DSAWithSHA1:             return "DSAWithSHA1";
+		case DSAWithSHA256:           return "DSAWithSHA256";
+		case RSA:                     return "RSA";
+		case RSAPSS:                  return "RSAPSS";
 		case DiffieHellman:           return "DiffieHellman";
 		case Unknown:
 		default:                      return "Unknown";
@@ -43,33 +44,33 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case Sha1:                     return "1.3.14.3.2.26";
-		case Sha256:                   return "2.16.840.1.101.3.4.2.1";
-		case Sha384:                   return "2.16.840.1.101.3.4.2.2";
-		case Sha512:                   return "2.16.840.1.101.3.4.2.3";
-		case Md5:                      return "1.2.840.113549.2.5";
+		case SHA1:                     return "1.3.14.3.2.26";
+		case SHA256:                   return "2.16.840.1.101.3.4.2.1";
+		case SHA384:                   return "2.16.840.1.101.3.4.2.2";
+		case SHA512:                   return "2.16.840.1.101.3.4.2.3";
+		case MD5:                      return "1.2.840.113549.2.5";
 
-		case RsaEncryption:           return "1.2.840.113549.1.1.1";
-		case Sha1WithRsaEncryption:   return "1.2.840.113549.1.1.5";
-		case Sha256WithRsaEncryption: return "1.2.840.113549.1.1.11";
-		case Sha384WithRsaEncryption: return "1.2.840.113549.1.1.12";
-		case Sha512WithRsaEncryption: return "1.2.840.113549.1.1.13";
+		case RSAEncryption:           return "1.2.840.113549.1.1.1";
+		case SHA1WithRSAEncryption:   return "1.2.840.113549.1.1.5";
+		case SHA256WithRSAEncryption: return "1.2.840.113549.1.1.11";
+		case SHA384WithRSAEncryption: return "1.2.840.113549.1.1.12";
+		case SHA512WithRSAEncryption: return "1.2.840.113549.1.1.13";
 
-		case Ecdsa:                   return "1.2.840.10045.2.1";
-		case EcdsaWithSha1:           return "1.2.840.10045.4.1";
-		case EcdsaWithSha256:         return "1.2.840.10045.4.3.2";
-		case EcdsaWithSha384:         return "1.2.840.10045.4.3.3";
-		case EcdsaWithSha512:         return "1.2.840.10045.4.3.4";
+		case ECDSA:                   return "1.2.840.10045.2.1";
+		case ECDSAWithSHA1:           return "1.2.840.10045.4.1";
+		case ECDSAWithSHA256:         return "1.2.840.10045.4.3.2";
+		case ECDSAWithSHA384:         return "1.2.840.10045.4.3.3";
+		case ECDSAWithSHA512:         return "1.2.840.10045.4.3.4";
 
-		case Ed25519:                 return "1.3.101.112";
-		case Ed448:                   return "1.3.101.113";
+		case ED25519:                 return "1.3.101.112";
+		case ED448:                   return "1.3.101.113";
 
-		case Dsa:                     return "1.2.840.10040.4.1";
-		case DsaWithSha1:             return "1.2.840.10040.4.3";
-		case DsaWithSha256:           return "2.16.840.1.101.3.4.3.2";
+		case DSA:                     return "1.2.840.10040.4.1";
+		case DSAWithSHA1:             return "1.2.840.10040.4.3";
+		case DSAWithSHA256:           return "2.16.840.1.101.3.4.3.2";
 
-		case Rsa:                     return "1.2.840.113549.1.1.1";
-		case RsaPss:                  return "1.2.840.113549.1.1.10";
+		case RSA:                     return "1.2.840.113549.1.1.1";
+		case RSAPSS:                  return "1.2.840.113549.1.1.10";
 
 		case DiffieHellman:           return "1.2.840.113549.1.3.1";
 
@@ -82,33 +83,33 @@ namespace pcpp
 	{
 		std::string oidStringValue = value.toString();
 		static const std::unordered_map<std::string, Value> oidMap = {
-			{"1.3.14.3.2.26", Sha1},
-			{"2.16.840.1.101.3.4.2.1", Sha256},
-			{"2.16.840.1.101.3.4.2.2", Sha384},
-			{"2.16.840.1.101.3.4.2.3", Sha512},
-			{"1.2.840.113549.2.5", Md5},
+			{"1.3.14.3.2.26", SHA1},
+			{"2.16.840.1.101.3.4.2.1", SHA256},
+			{"2.16.840.1.101.3.4.2.2", SHA384},
+			{"2.16.840.1.101.3.4.2.3", SHA512},
+			{"1.2.840.113549.2.5", MD5},
 
-			{"1.2.840.113549.1.1.1", RsaEncryption},
-			{"1.2.840.113549.1.1.5", Sha1WithRsaEncryption},
-			{"1.2.840.113549.1.1.11", Sha256WithRsaEncryption},
-			{"1.2.840.113549.1.1.12", Sha384WithRsaEncryption},
-			{"1.2.840.113549.1.1.13", Sha512WithRsaEncryption},
+			{"1.2.840.113549.1.1.1", RSAEncryption},
+			{"1.2.840.113549.1.1.5", SHA1WithRSAEncryption},
+			{"1.2.840.113549.1.1.11", SHA256WithRSAEncryption},
+			{"1.2.840.113549.1.1.12", SHA384WithRSAEncryption},
+			{"1.2.840.113549.1.1.13", SHA512WithRSAEncryption},
 
-			{"1.2.840.10045.2.1", Ecdsa},
-			{"1.2.840.10045.4.1", EcdsaWithSha1},
-			{"1.2.840.10045.4.3.2", EcdsaWithSha256},
-			{"1.2.840.10045.4.3.3", EcdsaWithSha384},
-			{"1.2.840.10045.4.3.4", EcdsaWithSha512},
+			{"1.2.840.10045.2.1", ECDSA},
+			{"1.2.840.10045.4.1", ECDSAWithSHA1},
+			{"1.2.840.10045.4.3.2", ECDSAWithSHA256},
+			{"1.2.840.10045.4.3.3", ECDSAWithSHA384},
+			{"1.2.840.10045.4.3.4", ECDSAWithSHA512},
 
-			{"1.2.840.10040.4.1", Dsa},
-			{"1.2.840.10040.4.3", DsaWithSha1},
-			{"2.16.840.1.101.3.4.3.2", DsaWithSha256},
+			{"1.2.840.10040.4.1", DSA},
+			{"1.2.840.10040.4.3", DSAWithSHA1},
+			{"2.16.840.1.101.3.4.3.2", DSAWithSHA256},
 
-			{"1.3.101.112", Ed25519},
-			{"1.3.101.113", Ed448},
+			{"1.3.101.112", ED25519},
+			{"1.3.101.113", ED448},
 
-			{"1.2.840.113549.1.1.1", Rsa},
-			{"1.2.840.113549.1.1.10", RsaPss},
+			{"1.2.840.113549.1.1.1", RSA},
+			{"1.2.840.113549.1.1.10", RSAPSS},
 
 			{"1.2.840.113549.1.3.1", DiffieHellman}
 		};
@@ -246,6 +247,7 @@ namespace pcpp
 		case PolicyConstraints:     return "PolicyConstraints";
 		case NameConstraints:       return "NameConstraints";
 		case InhibitAnyPolicy:      return "InhibitAnyPolicy";
+		case CTPrecertificateSCTs:  return "CTPrecertificateSCTs";
 		case Unknown:
 		default:                    return "Unknown";
 		}
@@ -269,6 +271,7 @@ namespace pcpp
 		case PolicyConstraints:      return "2.5.29.36";
 		case NameConstraints:        return "2.5.29.30";
 		case InhibitAnyPolicy:       return "2.5.29.54";
+		case CTPrecertificateSCTs:   return "1.3.6.1.4.1.11129.2.4.2";
 		case Unknown:
 		default:                     return "0.0";
 		}
@@ -291,7 +294,8 @@ namespace pcpp
 			{"2.5.29.33",  PolicyMappings},
 			{"2.5.29.36",  PolicyConstraints},
 			{"2.5.29.30",  NameConstraints},
-			{"2.5.29.54",  InhibitAnyPolicy}
+			{"2.5.29.54",  InhibitAnyPolicy},
+			{"1.3.6.1.4.1.11129.2.4.2", CTPrecertificateSCTs}
 		};
 
 		auto it = oidMap.find(oidStr);
@@ -299,6 +303,39 @@ namespace pcpp
 			return {it->second};
 
 		return {Unknown};
+	}
+
+	std::string X509Timestamp::toString(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
+	{
+		return m_Record->getValueAsString(format, timezone, includeMilliseconds);
+	}
+
+	std::chrono::system_clock::time_point X509Timestamp::getTimestamp(const std::string& timezone) const
+	{
+		return m_Record->getValue(timezone);
+	}
+
+	std::string X509Key::toString(const std::string& delimiter) const
+	{
+		std::ostringstream result;
+		bool first = true;
+
+		for (const auto& byte : m_Key)
+		{
+			if (!first)
+			{
+				result << delimiter;
+			}
+			result << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
+			first = false;
+		}
+
+		return result.str();
+	}
+
+	const std::vector<uint8_t>& X509Key::getBytes() const
+	{
+		return m_Key;
 	}
 
 	namespace X509Internal
@@ -372,14 +409,14 @@ namespace pcpp
 			return X509Algorithm::fromOidValue(oidRecord->getValue());
 		}
 
-		std::string X509Validity::getNotBefore(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
+		X509Timestamp X509Validity::getNotBefore() const
 		{
-			return m_Root->getSubRecords().at(m_NotBeforeOffset)->castAs<Asn1TimeRecord>()->getValueAsString(format, timezone, includeMilliseconds);
+			return { m_Root->getSubRecords().at(m_NotBeforeOffset)->castAs<Asn1TimeRecord>() };
 		}
 
-		std::string X509Validity::getNotAfter(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
+		X509Timestamp X509Validity::getNotAfter() const
 		{
-			return m_Root->getSubRecords().at(m_NotAfterOffset)->castAs<Asn1TimeRecord>()->getValueAsString(format, timezone, includeMilliseconds);
+			return { m_Root->getSubRecords().at(m_NotAfterOffset)->castAs<Asn1TimeRecord>() };
 		}
 
 		X509AlgorithmIdentifier X509SubjectPublicKeyInfo::getAlgorithm() const
@@ -388,9 +425,9 @@ namespace pcpp
 			return X509AlgorithmIdentifier(root);
 		}
 
-		std::vector<uint8_t> X509SubjectPublicKeyInfo::getSubjectPublicKey() const
+		X509Key X509SubjectPublicKeyInfo::getSubjectPublicKey() const
 		{
-			return m_Root->getSubRecords().at(m_SubjectPublicKeyOffset)->castAs<Asn1BitStringRecord>()->getVecValue();
+			return {m_Root->getSubRecords().at(m_SubjectPublicKeyOffset)->castAs<Asn1BitStringRecord>()->getVecValue()};
 		}
 
 		X509Extension::X509Extension(Asn1SequenceRecord* root) : X509Base(root)
@@ -538,26 +575,26 @@ namespace pcpp
 			return std::unique_ptr<X509Certificate>(new X509Certificate(Asn1Record::decode(data, dataLen)));
 		}
 
-		Asn1SequenceRecord* X509Certificate::getRoot() const
+		Asn1SequenceRecord* X509Certificate::getAsn1Root() const
 		{
 			return m_Root->castAs<Asn1SequenceRecord>();
 		}
 
 		X509TBSCertificate X509Certificate::getTbsCertificate() const
 		{
-			auto root = getRoot()->getSubRecords().at(m_TBSCertificateOffset)->castAs<Asn1SequenceRecord>();
+			auto root = getAsn1Root()->getSubRecords().at(m_TBSCertificateOffset)->castAs<Asn1SequenceRecord>();
 			return X509TBSCertificate(root);
 		}
 
 		X509AlgorithmIdentifier X509Certificate::getSignatureAlgorithm() const
 		{
-			auto root = getRoot()->getSubRecords().at(m_SignatureAlgorithmOffset)->castAs<Asn1SequenceRecord>();
+			auto root = getAsn1Root()->getSubRecords().at(m_SignatureAlgorithmOffset)->castAs<Asn1SequenceRecord>();
 			return X509AlgorithmIdentifier(root);
 		}
 
-		std::vector<uint8_t> X509Certificate::getSignature() const
+		X509Key X509Certificate::getSignature() const
 		{
-			return getRoot()->getSubRecords().at(m_SignatureOffset)->castAs<Asn1BitStringRecord>()->getVecValue();
+			return {getAsn1Root()->getSubRecords().at(m_SignatureOffset)->castAs<Asn1BitStringRecord>()->getVecValue()};
 		}
 
 		std::vector<uint8_t> X509Certificate::encode()
@@ -574,7 +611,7 @@ namespace pcpp
 		}
 	}
 
-	std::string X509Name::toString() const
+	std::string X509Name::toString(const std::string& delimiter) const
 	{
 		std::ostringstream result;
 		bool first = true;
@@ -583,7 +620,7 @@ namespace pcpp
 		{
 			if (!first)
 			{
-				result << ", ";
+				result << delimiter;
 			}
 			result << rdn.type.getShortName() << "=" << rdn.value;
 			first = false;
@@ -600,9 +637,9 @@ namespace pcpp
 		}
 	}
 
-	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const uint8_t* derData, size_t derDataLen)
+	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const uint8_t* derData, size_t derDataLen, bool ownDerData)
 	{
-		return std::unique_ptr<X509Certificate>(new X509Certificate(const_cast<uint8_t*>(derData), derDataLen, false));
+		return std::unique_ptr<X509Certificate>(new X509Certificate(const_cast<uint8_t*>(derData), derDataLen, ownDerData));
 	}
 
 	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const std::string& derData)
@@ -651,6 +688,11 @@ namespace pcpp
 		});
 	}
 
+	size_t X509Certificate::getExtensionCount() const
+	{
+		return m_TBSCertificate.getExtensions()->getExtensions().size();
+	}
+
 	X509Name X509Certificate::getSubject() const
 	{
 		return {m_TBSCertificate.getSubject()};
@@ -666,14 +708,14 @@ namespace pcpp
 		return m_TBSCertificate.getSerialNumber();
 	}
 
-	std::string X509Certificate::getNotBefore(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
+	X509Timestamp X509Certificate::getNotBefore() const
 	{
-		return m_TBSCertificate.getValidity().getNotBefore(format, timezone, includeMilliseconds);
+		return m_TBSCertificate.getValidity().getNotBefore();
 	}
 
-	std::string X509Certificate::getNotAfter(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
+	X509Timestamp X509Certificate::getNotAfter() const
 	{
-		return m_TBSCertificate.getValidity().getNotAfter(format, timezone, includeMilliseconds);
+		return m_TBSCertificate.getValidity().getNotAfter();
 	}
 
 	X509Algorithm X509Certificate::getPublicKeyAlgorithm() const
@@ -681,7 +723,7 @@ namespace pcpp
 		return m_TBSCertificate.getSubjectPublicKeyInfo().getAlgorithm().getAlgorithm();
 	}
 
-	std::vector<uint8_t> X509Certificate::getPublicKey() const
+	X509Key X509Certificate::getPublicKey() const
 	{
 		return m_TBSCertificate.getSubjectPublicKeyInfo().getSubjectPublicKey();
 	}
@@ -691,7 +733,7 @@ namespace pcpp
 		return m_X509Internal->getSignatureAlgorithm().getAlgorithm();
 	}
 
-	std::vector<uint8_t> X509Certificate::getSignature() const
+	X509Key X509Certificate::getSignature() const
 	{
 		return m_X509Internal->getSignature();
 	}
@@ -704,5 +746,28 @@ namespace pcpp
 	std::vector<uint8_t> X509Certificate::toDER() const
 	{
 		return m_X509Internal->encode();
+	}
+
+	std::string X509Certificate::toJson(int indent) const
+	{
+		nlohmann::ordered_json certificateJson = {
+			{"version", getVersion()},
+			{"serialNumber", getSerialNumber()},
+			{"issuer", getIssuer().toString()},
+			{"validity", {
+				{"notBefore", getNotBefore().toString()},
+				{"notAfter", getNotAfter().toString()},
+			}},
+			{"subject", getSubject().toString()},
+			{"subjectPublicKeyInfo", {
+				{"subjectPublicKeyAlgorithm", getPublicKeyAlgorithm().toString()},
+				{"subjectPublicKey", getPublicKey().toString()}
+			}},
+			{"extensions", getExtensionCount()},
+			{"signatureAlgorithm", getSignatureAlgorithm().toString()},
+			{"signature", getSignature().toString()}
+		};
+
+		return certificateJson.dump(indent);
 	}
 }
