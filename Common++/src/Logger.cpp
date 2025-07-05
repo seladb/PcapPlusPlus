@@ -67,7 +67,7 @@ namespace pcpp
 			ctx->init(level, source);
 			return ctx;
 		}
-		return std::unique_ptr<internal::LogContext>(new internal::LogContext(level, source));
+		return std::make_unique<internal::LogContext>(level, source);
 	}
 
 	void Logger::emit(std::unique_ptr<internal::LogContext> message)
