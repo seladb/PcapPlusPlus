@@ -20,6 +20,8 @@
 #include "rte_cycles.h"
 #include <string>
 #include <unistd.h>
+#include <chrono>
+#include <thread>
 
 #define MAX_BURST_SIZE 64
 
@@ -1115,7 +1117,7 @@ namespace pcpp
 					{
 						PCPP_LOG_DEBUG(
 						    "Since NIC couldn't send all packet in this iteration, waiting for 0.2 second for H/W descriptors to get free");
-						usleep(200000);
+						std::this_thread::sleep_for(std::chrono::microseconds(200000));
 						lastSleep = packetsSent;
 					}
 				}

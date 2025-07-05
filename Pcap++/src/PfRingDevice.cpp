@@ -831,7 +831,7 @@ namespace pcpp
 				    "Try #"
 				    << tries
 				    << ": Got ENOBUFS (write buffer full) error while sending packet. Sleeping 20 usec and trying again");
-				usleep(2000);
+				std::this_thread::sleep_for(std::chrono::microseconds(2000));
 			}
 			else
 				break;

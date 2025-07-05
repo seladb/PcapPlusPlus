@@ -316,7 +316,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 
 			// if rate limit was set by the user, sleep between sending packets
 			if (packetPerSec > 1)
-				usleep(sleepBetweenPackets);
+				std::this_thread::sleep_for(std::chrono::microseconds(sleepBetweenPackets));
 			else if (packetPerSec == 1)
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -334,7 +334,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 			{
 				sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_ABORT,
 				                nullptr, 0);
-				usleep(SLEEP_BETWEEN_ABORT_MESSAGES);
+				std::this_thread::sleep_for(std::chrono::microseconds(SLEEP_BETWEEN_ABORT_MESSAGES));
 			}
 
 			file.close();
@@ -502,7 +502,7 @@ void sendFile(const std::string& filePath, pcpp::IPv4Address pitcherIP, pcpp::IP
 
 			// use usleep or sleep (see comment a few lines below)
 			if (packetPerSec > 1)
-				usleep(sleepBetweenPackets);
+				std::this_thread::sleep_for(std::chrono::microseconds(sleepBetweenPackets));
 			else if (packetPerSec == 1)
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 

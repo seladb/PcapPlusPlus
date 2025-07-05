@@ -31,7 +31,7 @@ namespace pcpp
 		std::mutex& mutex;
 		std::condition_variable& cond;
 		IPv4Address ipAddr;
-		clock_t start;
+		std::chrono::steady_clock::time_point start;
 		MacAddress result;
 		double arpResponseTime;
 	};
@@ -39,7 +39,7 @@ namespace pcpp
 	static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice*, void* userCookie)
 	{
 		// extract timestamp of packet
-		clock_t receiveTime = clock();
+		auto receiveTime = std::chrono::steady_clock::now();
 
 		// get the data from the main thread
 		ArpingReceivedData* data = (ArpingReceivedData*)userCookie;
@@ -66,8 +66,8 @@ namespace pcpp
 			return;
 
 		// measure response time
-		double diffticks = receiveTime - data->start;
-		double diffms = (diffticks * 1000) / CLOCKS_PER_SEC;
+		auto duration = receiveTime - data->start;
+		auto diffms = std::chrono::duration<double, std::milli>(duration).count();
 
 		data->arpResponseTime = diffms;
 		data->result = arpReplyLayer->getSenderMacAddress();
@@ -143,7 +143,7 @@ namespace pcpp
 		// this is the token that passes between the 2 threads. It contains pointers to the conditional mutex, the
 		// target IP for identifying the ARP response, the iteration index and a timestamp to calculate the response
 		// time
-		ArpingReceivedData data = { mutex, cond, ipAddr, clock(), MacAddress::Zero, 0 };
+		ArpingReceivedData data = { mutex, cond, ipAddr, std::chrono::steady_clock::now(), MacAddress::Zero, 0 };
 
 		struct timeval now;
 		gettimeofday(&now, nullptr);
@@ -186,7 +186,7 @@ namespace pcpp
 		std::condition_variable& cond;
 		std::string hostname;
 		uint16_t transactionID;
-		clock_t start;
+		std::chrono::steady_clock::time_point start;
 		IPv4Address result;
 		uint32_t ttl;
 		double dnsResponseTime;
@@ -195,7 +195,7 @@ namespace pcpp
 	static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice*, void* userCookie)
 	{
 		// extract timestamp of packet
-		clock_t receiveTime = clock();
+		auto receiveTime = std::chrono::steady_clock::now();
 
 		// get data from the main thread
 		DNSReceivedData* data = (DNSReceivedData*)userCookie;
@@ -268,8 +268,8 @@ namespace pcpp
 		// if we got here it means an IPv4 resolving was found
 
 		// measure response time
-		clock_t diffticks = receiveTime - data->start;
-		double diffms = (diffticks * 1000.0) / CLOCKS_PER_SEC;
+		auto duration = receiveTime - data->start;
+		auto diffms = std::chrono::duration<double, std::milli>(duration).count();
 
 		data->dnsResponseTime = diffms;
 		data->result = dnsAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress();
@@ -386,7 +386,9 @@ namespace pcpp
 		std::condition_variable cond;
 
 		// this is the token that passes between the 2 threads
-		DNSReceivedData data = { mutex, cond, hostname, transactionID, clock(), IPv4Address::Zero, 0, 0 };
+		DNSReceivedData data = {
+			mutex, cond, hostname, transactionID, std::chrono::steady_clock::now(), IPv4Address::Zero, 0, 0
+		};
 
 		struct timeval now;
 		gettimeofday(&now, nullptr);
