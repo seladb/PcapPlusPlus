@@ -46,6 +46,20 @@ namespace pcpp
 		       (operator<(MulticastRangeUpperBound) || operator==(MulticastRangeUpperBound));
 	}
 
+	IPv4Address::IPv4Address(const uint8_t* bytes, size_t size)
+	{
+		if (bytes == nullptr)
+		{
+			throw std::invalid_argument("Buffer pointer is null");
+		}
+
+		if (size < 4)
+		{
+			throw std::out_of_range("Buffer size is smaller than IPv4 address size");
+		}
+		memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t));
+	}
+
 	IPv4Address::IPv4Address(const std::string& addrAsString)
 	{
 		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes.data()) <= 0)
@@ -99,6 +113,20 @@ namespace pcpp
 	bool IPv6Address::isMulticast() const
 	{
 		return !operator<(MulticastRangeLowerBound);
+	}
+
+	IPv6Address::IPv6Address(const uint8_t* bytes, size_t size)
+	{
+		if (bytes == nullptr)
+		{
+			throw std::invalid_argument("Buffer pointer is null");
+		}
+
+		if (size < 16)
+		{
+			throw std::out_of_range("Buffer size is smaller than IPv6 address size");
+		}
+		std::memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t));
 	}
 
 	IPv6Address::IPv6Address(const std::string& addrAsString)

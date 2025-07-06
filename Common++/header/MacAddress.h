@@ -41,20 +41,7 @@ namespace pcpp
 		/// @param[in] size The size of the array in bytes
 		/// @throws std::invalid_argument If the address pointer is null.
 		/// @throws std::out_of_range If the provided size is smaller than 6 bytes.
-		explicit MacAddress(const uint8_t* addr, size_t size)
-		{
-			if (addr == nullptr)
-			{
-				throw std::invalid_argument("Address pointer is null");
-			}
-
-			if (size < 6)
-			{
-				throw std::out_of_range("Buffer size is smaller than MAC address size (6 bytes)");
-			}
-
-			std::copy(addr, addr + 6, m_Address.begin());
-		}
+		explicit MacAddress(const uint8_t* addr, size_t size);
 
 		/// A constructor that creates an instance of the class out of a std::array.
 		/// The array length should be 6 (as MAC address is 6-byte long).

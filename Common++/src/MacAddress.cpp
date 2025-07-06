@@ -18,6 +18,21 @@ namespace pcpp
 		return str;
 	}
 
+	MacAddress::MacAddress(const uint8_t* addr, size_t size)
+	{
+		if (addr == nullptr)
+		{
+			throw std::invalid_argument("Address pointer is null");
+		}
+
+		if (size < 6)
+		{
+			throw std::out_of_range("Buffer size is smaller than MAC address size (6 bytes)");
+		}
+
+		std::copy(addr, addr + 6, m_Address.begin());
+	}
+
 	MacAddress::MacAddress(const std::string& address)
 	{
 		constexpr size_t validMacAddressLength = 17;
