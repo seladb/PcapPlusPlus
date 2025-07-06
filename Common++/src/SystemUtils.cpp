@@ -212,11 +212,11 @@ namespace pcpp
 		auto now = system_clock::now();
 		auto duration = now.time_since_epoch();
 
-		auto seconds = duration_cast<std::chrono::seconds>(duration);
-		auto nanoseconds = duration_cast<std::chrono::nanoseconds>(duration - seconds);
+		auto secondsDuration = duration_cast<seconds>(duration);
+		auto nanosecondsDuration = duration_cast<nanoseconds>(duration - secondsDuration);
 
-		sec = static_cast<long>(seconds.count());
-		nsec = static_cast<long>(nanoseconds.count());
+		sec = static_cast<long>(secondsDuration.count());
+		nsec = static_cast<long>(nanosecondsDuration.count());
 
 		return 0;
 	}
