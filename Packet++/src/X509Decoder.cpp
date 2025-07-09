@@ -12,31 +12,30 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case SHA1:                     return "SHA1";
-		case SHA256:                   return "SHA256";
-		case SHA384:                   return "SHA384";
-		case SHA512:                   return "SHA512";
-		case MD5:                      return "MD5";
-		case RSAEncryption:           return "RSAEncryption";
-		case SHA1WithRSAEncryption:   return "SHA1WithRSAEncryption";
-		case SHA256WithRSAEncryption: return "SHA256WithRSAEncryption";
-		case SHA384WithRSAEncryption: return "SHA384WithRSAEncryption";
-		case SHA512WithRSAEncryption: return "SHA512WithRSAEncryption";
-		case ECDSA:                   return "ECDSA";
-		case ECDSAWithSHA1:           return "ECDSAWithSHA1";
-		case ECDSAWithSHA256:         return "ECDSAWithSHA256";
-		case ECDSAWithSHA384:         return "ECDSAWithSHA384";
-		case ECDSAWithSHA512:         return "ECDSAWithSHA512";
-		case ED25519:                 return "ED25519";
-		case ED448:                   return "ED448";
-		case DSA:                     return "DSA";
-		case DSAWithSHA1:             return "DSAWithSHA1";
-		case DSAWithSHA256:           return "DSAWithSHA256";
-		case RSA:                     return "RSA";
-		case RSAPSS:                  return "RSAPSS";
-		case DiffieHellman:           return "DiffieHellman";
+		case SHA1:             return "SHA1";
+		case SHA256:           return "SHA256";
+		case SHA384:           return "SHA384";
+		case SHA512:           return "SHA512";
+		case MD5:              return "MD5";
+		case RSA:              return "RSA";
+		case RSAWithSHA1:      return "RSAWithSHA1";
+		case RSAWithSHA256:    return "RSAWithSHA256";
+		case RSAWithSHA384:    return "RSAWithSHA384";
+		case RSAWithSHA512:    return "RSAWithSHA512";
+		case RSAPSS:           return "RSAPSS";
+		case ECDSA:            return "ECDSA";
+		case ECDSAWithSHA1:    return "ECDSAWithSHA1";
+		case ECDSAWithSHA256:  return "ECDSAWithSHA256";
+		case ECDSAWithSHA384:  return "ECDSAWithSHA384";
+		case ECDSAWithSHA512:  return "ECDSAWithSHA512";
+		case ED25519:          return "ED25519";
+		case ED448:            return "ED448";
+		case DSA:              return "DSA";
+		case DSAWithSHA1:      return "DSAWithSHA1";
+		case DSAWithSHA256:    return "DSAWithSHA256";
+		case DiffieHellman:    return "DiffieHellman";
 		case Unknown:
-		default:                      return "Unknown";
+		default:               return "Unknown";
 		}
 	}
 
@@ -44,38 +43,36 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case SHA1:                     return "1.3.14.3.2.26";
-		case SHA256:                   return "2.16.840.1.101.3.4.2.1";
-		case SHA384:                   return "2.16.840.1.101.3.4.2.2";
-		case SHA512:                   return "2.16.840.1.101.3.4.2.3";
-		case MD5:                      return "1.2.840.113549.2.5";
+		case SHA1:             return "1.3.14.3.2.26";
+		case SHA256:           return "2.16.840.1.101.3.4.2.1";
+		case SHA384:           return "2.16.840.1.101.3.4.2.2";
+		case SHA512:           return "2.16.840.1.101.3.4.2.3";
+		case MD5:              return "1.2.840.113549.2.5";
 
-		case RSAEncryption:           return "1.2.840.113549.1.1.1";
-		case SHA1WithRSAEncryption:   return "1.2.840.113549.1.1.5";
-		case SHA256WithRSAEncryption: return "1.2.840.113549.1.1.11";
-		case SHA384WithRSAEncryption: return "1.2.840.113549.1.1.12";
-		case SHA512WithRSAEncryption: return "1.2.840.113549.1.1.13";
+		case RSA:              return "1.2.840.113549.1.1.1";
+		case RSAWithSHA1:      return "1.2.840.113549.1.1.5";
+		case RSAWithSHA256:    return "1.2.840.113549.1.1.11";
+		case RSAWithSHA384:    return "1.2.840.113549.1.1.12";
+		case RSAWithSHA512:    return "1.2.840.113549.1.1.13";
+		case RSAPSS:           return "1.2.840.113549.1.1.10";
 
-		case ECDSA:                   return "1.2.840.10045.2.1";
-		case ECDSAWithSHA1:           return "1.2.840.10045.4.1";
-		case ECDSAWithSHA256:         return "1.2.840.10045.4.3.2";
-		case ECDSAWithSHA384:         return "1.2.840.10045.4.3.3";
-		case ECDSAWithSHA512:         return "1.2.840.10045.4.3.4";
+		case ECDSA:            return "1.2.840.10045.2.1";
+		case ECDSAWithSHA1:    return "1.2.840.10045.4.1";
+		case ECDSAWithSHA256:  return "1.2.840.10045.4.3.2";
+		case ECDSAWithSHA384:  return "1.2.840.10045.4.3.3";
+		case ECDSAWithSHA512:  return "1.2.840.10045.4.3.4";
 
-		case ED25519:                 return "1.3.101.112";
-		case ED448:                   return "1.3.101.113";
+		case ED25519:          return "1.3.101.112";
+		case ED448:            return "1.3.101.113";
 
-		case DSA:                     return "1.2.840.10040.4.1";
-		case DSAWithSHA1:             return "1.2.840.10040.4.3";
-		case DSAWithSHA256:           return "2.16.840.1.101.3.4.3.2";
+		case DSA:              return "1.2.840.10040.4.1";
+		case DSAWithSHA1:      return "1.2.840.10040.4.3";
+		case DSAWithSHA256:    return "2.16.840.1.101.3.4.3.2";
 
-		case RSA:                     return "1.2.840.113549.1.1.1";
-		case RSAPSS:                  return "1.2.840.113549.1.1.10";
-
-		case DiffieHellman:           return "1.2.840.113549.1.3.1";
+		case DiffieHellman:    return "1.2.840.113549.1.3.1";
 
 		case Unknown:
-		default:                      return "0.0";
+		default:               return "0.0";
 		}
 	}
 
@@ -89,11 +86,12 @@ namespace pcpp
 			{"2.16.840.1.101.3.4.2.3", SHA512},
 			{"1.2.840.113549.2.5", MD5},
 
-			{"1.2.840.113549.1.1.1", RSAEncryption},
-			{"1.2.840.113549.1.1.5", SHA1WithRSAEncryption},
-			{"1.2.840.113549.1.1.11", SHA256WithRSAEncryption},
-			{"1.2.840.113549.1.1.12", SHA384WithRSAEncryption},
-			{"1.2.840.113549.1.1.13", SHA512WithRSAEncryption},
+			{"1.2.840.113549.1.1.1", RSA},
+			{"1.2.840.113549.1.1.5", RSAWithSHA1},
+			{"1.2.840.113549.1.1.11", RSAWithSHA256},
+			{"1.2.840.113549.1.1.12", RSAWithSHA384},
+			{"1.2.840.113549.1.1.13", RSAWithSHA512},
+			{"1.2.840.113549.1.1.10", RSAPSS},
 
 			{"1.2.840.10045.2.1", ECDSA},
 			{"1.2.840.10045.4.1", ECDSAWithSHA1},
@@ -107,9 +105,6 @@ namespace pcpp
 
 			{"1.3.101.112", ED25519},
 			{"1.3.101.113", ED448},
-
-			{"1.2.840.113549.1.1.1", RSA},
-			{"1.2.840.113549.1.1.10", RSAPSS},
 
 			{"1.2.840.113549.1.3.1", DiffieHellman}
 		};
@@ -143,6 +138,9 @@ namespace pcpp
 		case DnQualifier:         return "DnQualifier";
 		case DomainComponent:     return "DomainComponent";
 		case EmailAddress:        return "EmailAddress";
+		case PostalCode:          return "PostalCode";
+		case StreetAddress:       return  "StreetAddress";
+		case BusinessCategory:    return "BusinessCategory";
 		case Unknown:
 		default:                  return "Unknown";
 		}
@@ -161,13 +159,16 @@ namespace pcpp
 		case Organization:        return "O";
 		case OrganizationalUnit:  return "OU";
 		case Title:               return "T";
-		case GivenName:           return "GN";
+		case GivenName:           return "G";
 		case Initials:            return "Initials";
 		case Pseudonym:           return "Pseudonym";
 		case GenerationQualifier: return "GENERATION";
 		case DnQualifier:         return "dnQualifier";
 		case DomainComponent:     return "DC";
-		case EmailAddress:        return "emailAddress";
+		case EmailAddress:        return "E";
+		case PostalCode:          return "postalCode";
+		case StreetAddress:       return  "STREET";
+		case BusinessCategory:    return "businessCategory";
 		case Unknown:
 		default:                  return "Unknown";
 		}
@@ -191,8 +192,11 @@ namespace pcpp
 		case GenerationQualifier: return "2.5.4.44";
 		case DnQualifier:         return "2.5.4.46";
 		case Pseudonym:           return "2.5.4.65";
-		case DomainComponent:     return "0.9.2342.19200300.100.1.25"; // from pilot attributes
-		case EmailAddress:        return "1.2.840.113549.1.9.1";      // pkcs9 emailAddress
+		case DomainComponent:     return "0.9.2342.19200300.100.1.25";
+		case EmailAddress:        return "1.2.840.113549.1.9.1";
+		case PostalCode:          return "2.5.4.17";
+		case StreetAddress:       return  "2.5.4.9";
+		case BusinessCategory:    return "2.5.4.15";
 		case Unknown:
 		default:                  return "0.0";
 		}
@@ -217,7 +221,10 @@ namespace pcpp
 		    {"2.5.4.46", DnQualifier},
 		    {"2.5.4.65", Pseudonym},
 		    {"0.9.2342.19200300.100.1.25", DomainComponent},
-		    {"1.2.840.113549.1.9.1", EmailAddress}
+		    {"1.2.840.113549.1.9.1", EmailAddress},
+			{"2.5.4.17", PostalCode},
+			{"2.5.4.9", StreetAddress},
+			{"2.5.4.15", BusinessCategory}
 		};
 
 		auto it = oidMap.find(oidStringValue);
@@ -233,21 +240,26 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case BasicConstraints:      return "BasicConstraints";
-		case KeyUsage:              return "KeyUsage";
-		case ExtendedKeyUsage:      return "ExtendedKeyUsage";
-		case SubjectKeyIdentifier:  return "SubjectKeyIdentifier";
-		case AuthorityKeyIdentifier:return "AuthorityKeyIdentifier";
-		case SubjectAltName:        return "SubjectAltName";
-		case IssuerAltName:         return "IssuerAltName";
-		case CrlDistributionPoints: return "CRLDistributionPoints";
-		case AuthorityInfoAccess:   return "AuthorityInfoAccess";
-		case CertificatePolicies:   return "CertificatePolicies";
-		case PolicyMappings:        return "PolicyMappings";
-		case PolicyConstraints:     return "PolicyConstraints";
-		case NameConstraints:       return "NameConstraints";
-		case InhibitAnyPolicy:      return "InhibitAnyPolicy";
-		case CTPrecertificateSCTs:  return "CTPrecertificateSCTs";
+		case BasicConstraints:            return "BasicConstraints";
+		case KeyUsage:                    return "KeyUsage";
+		case ExtendedKeyUsage:            return "ExtendedKeyUsage";
+		case SubjectKeyIdentifier:        return "SubjectKeyIdentifier";
+		case AuthorityKeyIdentifier:      return "AuthorityKeyIdentifier";
+		case SubjectAltName:              return "SubjectAltName";
+		case IssuerAltName:               return "IssuerAltName";
+		case CrlDistributionPoints:       return "CRLDistributionPoints";
+		case AuthorityInfoAccess:         return "AuthorityInfoAccess";
+		case CertificatePolicies:         return "CertificatePolicies";
+		case PolicyMappings:              return "PolicyMappings";
+		case PolicyConstraints:           return "PolicyConstraints";
+		case NameConstraints:             return "NameConstraints";
+		case InhibitAnyPolicy:            return "InhibitAnyPolicy";
+		case CTPrecertificateSCTs:        return "CTPrecertificateSCTs";
+		case SubjectInfoAccess:           return "SubjectInfoAccess";
+		case FreshestCRL:                 return "FreshestCRL";
+		case TLSFeature:                  return "TLSFeature";
+		case OcspNoCheck:                 return "OcspNoCheck";
+		case SubjectDirectoryAttributes:  return "SubjectDirectoryAttributes";
 		case Unknown:
 		default:                    return "Unknown";
 		}
@@ -257,21 +269,26 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case BasicConstraints:       return "2.5.29.19";
-		case KeyUsage:               return "2.5.29.15";
-		case ExtendedKeyUsage:       return "2.5.29.37";
-		case SubjectKeyIdentifier:   return "2.5.29.14";
-		case AuthorityKeyIdentifier: return "2.5.29.35";
-		case SubjectAltName:         return "2.5.29.17";
-		case IssuerAltName:          return "2.5.29.18";
-		case CrlDistributionPoints:  return "2.5.29.31";
-		case AuthorityInfoAccess:    return "1.3.6.1.5.5.7.1.1";
-		case CertificatePolicies:    return "2.5.29.32";
-		case PolicyMappings:         return "2.5.29.33";
-		case PolicyConstraints:      return "2.5.29.36";
-		case NameConstraints:        return "2.5.29.30";
-		case InhibitAnyPolicy:       return "2.5.29.54";
-		case CTPrecertificateSCTs:   return "1.3.6.1.4.1.11129.2.4.2";
+		case BasicConstraints:            return "2.5.29.19";
+		case KeyUsage:                    return "2.5.29.15";
+		case ExtendedKeyUsage:            return "2.5.29.37";
+		case SubjectKeyIdentifier:        return "2.5.29.14";
+		case AuthorityKeyIdentifier:      return "2.5.29.35";
+		case SubjectAltName:              return "2.5.29.17";
+		case IssuerAltName:               return "2.5.29.18";
+		case CrlDistributionPoints:       return "2.5.29.31";
+		case AuthorityInfoAccess:         return "1.3.6.1.5.5.7.1.1";
+		case CertificatePolicies:         return "2.5.29.32";
+		case PolicyMappings:              return "2.5.29.33";
+		case PolicyConstraints:           return "2.5.29.36";
+		case NameConstraints:             return "2.5.29.30";
+		case InhibitAnyPolicy:            return "2.5.29.54";
+		case CTPrecertificateSCTs:        return "1.3.6.1.4.1.11129.2.4.2";
+		case SubjectInfoAccess:           return "1.3.6.1.5.5.7.1.11";
+		case FreshestCRL:                 return "2.5.29.46";
+		case TLSFeature:                  return "1.3.6.1.5.5.7.1.24";
+		case OcspNoCheck:                 return "1.3.6.1.5.5.7.48.1.5";
+		case SubjectDirectoryAttributes:  return "2.5.29.9";
 		case Unknown:
 		default:                     return "0.0";
 		}
@@ -295,7 +312,12 @@ namespace pcpp
 			{"2.5.29.36",  PolicyConstraints},
 			{"2.5.29.30",  NameConstraints},
 			{"2.5.29.54",  InhibitAnyPolicy},
-			{"1.3.6.1.4.1.11129.2.4.2", CTPrecertificateSCTs}
+			{"1.3.6.1.4.1.11129.2.4.2", CTPrecertificateSCTs},
+			{"1.3.6.1.5.5.7.1.11", SubjectInfoAccess},
+			{"2.5.29.46", FreshestCRL},
+			{"1.3.6.1.5.5.7.1.24", TLSFeature},
+			{"1.3.6.1.5.5.7.48.1.5", OcspNoCheck},
+			{"2.5.29.9", SubjectDirectoryAttributes},
 		};
 
 		auto it = oidMap.find(oidStr);
@@ -303,6 +325,37 @@ namespace pcpp
 			return {it->second};
 
 		return {Unknown};
+	}
+
+	std::string X509SerialNumber::toString(const std::string& delimiter) const
+	{
+		// Remove leading zeros
+		auto firstNonZero = m_SerialNumber.find_first_not_of('0');
+		if (firstNonZero == std::string::npos)
+		{
+			return "0";
+		}
+
+		auto tempResult = m_SerialNumber.substr(firstNonZero);
+		if (delimiter.empty())
+		{
+			return tempResult;
+		}
+
+		// Add delimiter
+		std::string result;
+		result.reserve(tempResult.length() + delimiter.size() * ((tempResult.length() / 2) - 1));
+
+		for (auto i = 0; i < tempResult.length(); ++i)
+		{
+			result += tempResult[i];
+			// Add a delimiter after every two characters, except for the very last pair
+			if ((i + 1) % 2 == 0 && (i + 1) < tempResult.length())
+			{
+				result += delimiter;
+			}
+		}
+		return result;
 	}
 
 	std::string X509Timestamp::toString(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
@@ -476,9 +529,10 @@ namespace pcpp
 			return (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 3 && record->isConstructed());
 		}
 
-		std::string X509TBSCertificate::getSerialNumber() const
+		X509SerialNumber X509TBSCertificate::getSerialNumber() const
 		{
-			return m_Root->getSubRecords().at(getIndex(m_SerialNumberOffset))->castAs<Asn1IntegerRecord>()->getValueAsString();
+			auto serialNumber = m_Root->getSubRecords().at(getIndex(m_SerialNumberOffset))->castAs<Asn1IntegerRecord>()->getValueAsString();
+			return X509SerialNumber(serialNumber);
 		}
 
 		X509AlgorithmIdentifier X509TBSCertificate::getSignature() const
@@ -703,7 +757,7 @@ namespace pcpp
 		return {m_TBSCertificate.getIssuer()};
 	}
 
-	std::string X509Certificate::getSerialNumber() const
+	X509SerialNumber X509Certificate::getSerialNumber() const
 	{
 		return m_TBSCertificate.getSerialNumber();
 	}
@@ -751,8 +805,8 @@ namespace pcpp
 	std::string X509Certificate::toJson(int indent) const
 	{
 		nlohmann::ordered_json certificateJson = {
-			{"version", getVersion()},
-			{"serialNumber", getSerialNumber()},
+			{"version", static_cast<int>(getVersion()) + 1},
+			{"serialNumber", getSerialNumber().toString()},
 			{"issuer", getIssuer().toString()},
 			{"validity", {
 				{"notBefore", getNotBefore().toString()},

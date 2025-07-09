@@ -21,25 +21,27 @@ namespace pcpp
 			SHA384,
 			SHA512,
 			MD5,
-			RSAEncryption,
-			SHA1WithRSAEncryption,
-			SHA256WithRSAEncryption,
-			SHA384WithRSAEncryption,
-			SHA512WithRSAEncryption,
+
+			RSA,
+			RSAWithSHA1,
+			RSAWithSHA256,
+			RSAWithSHA384,
+			RSAWithSHA512,
+			RSAPSS,
+
+			ECDSA,
 			ECDSAWithSHA1,
 			ECDSAWithSHA256,
 			ECDSAWithSHA384,
 			ECDSAWithSHA512,
+
+			DSA,
 			DSAWithSHA1,
 			DSAWithSHA256,
 
-			RSA,
-			DSA,
-			ECDSA,
 			ED25519,
 			ED448,
 			DiffieHellman,
-			RSAPSS,
 
 			Unknown,
 		};
@@ -59,7 +61,7 @@ namespace pcpp
 		/// A static method that creates LdapOperationType from an integer value
 		/// @param[in] value The operation type integer value
 		/// @return The operation type that corresponds to the integer value. If the integer value
-		/// doesn't corresponds to any operation type, LdapOperationType::Unknown is returned
+		/// doesn't correspond to any operation type, LdapOperationType::Unknown is returned
 		static X509Algorithm fromOidValue(const Asn1ObjectIdentifier& value);
 
 		// Allow switch and comparisons.
@@ -96,6 +98,9 @@ namespace pcpp
 			DnQualifier,
 			DomainComponent,
 			EmailAddress,
+			PostalCode,
+			StreetAddress,
+			BusinessCategory,
 			Unknown
 		};
 
@@ -138,7 +143,11 @@ namespace pcpp
 			NameConstraints,
 			InhibitAnyPolicy,
 			CTPrecertificateSCTs,
-
+			SubjectInfoAccess,
+			FreshestCRL,
+			TLSFeature,
+			OcspNoCheck,
+			SubjectDirectoryAttributes,
 			Unknown
 		};
 
@@ -157,6 +166,17 @@ namespace pcpp
 
 	private:
 		Value m_Value = Unknown;
+	};
+
+	class X509SerialNumber
+	{
+	public:
+		std::string toString(const std::string& delimiter = ":") const;
+		X509SerialNumber(const std::string& serialNumber) : m_SerialNumber(serialNumber)
+		{}
+
+	private:
+		std::string m_SerialNumber;
 	};
 
 	class X509Timestamp
@@ -320,7 +340,7 @@ namespace pcpp
 
 		public:
 			X509Version getVersion() const;
-			std::string getSerialNumber() const;
+			X509SerialNumber getSerialNumber() const;
 			X509AlgorithmIdentifier getSignature() const;
 			X509Name getIssuer() const;
 			X509Validity getValidity() const;
@@ -418,7 +438,7 @@ namespace pcpp
 		X509Version getVersion() const;
 
 		// Basic info
-		std::string getSerialNumber() const;
+		X509SerialNumber getSerialNumber() const;
 		X509Name getIssuer() const;
 		X509Name getSubject() const;
 
