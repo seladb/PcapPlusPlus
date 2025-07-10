@@ -25,7 +25,7 @@ namespace pcpp
 		{
 			std::unique_ptr<T> operator()(const T& obj) const
 			{
-				return std::unique_ptr<T>(new T(obj));
+				return std::make_unique<T>(obj);
 			}
 		};
 
