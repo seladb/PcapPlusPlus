@@ -251,3 +251,44 @@ PTF_TEST_CASE(X509VariantsParsingTest)
 		PTF_ASSERT_EQUAL(x509Cert->getSerialNumber().toString(), "80");
 	}
 }
+
+PTF_TEST_CASE(X509InvalidDataTest)
+{
+	// Partial data - invalid ASN.1 root record
+	{
+		std::string partialData = "3082010e3081c1a0030201";
+		PTF_ASSERT_RAISES(pcpp::X509Certificate::fromDER(partialData), std::invalid_argument, "Cannot decode ASN.1 record, data doesn't contain the entire record");
+	}
+
+	// Partial data - missing ASN.1 records
+	{
+		std::string partialData = "300ba0030201020204075bcd15";
+		PTF_ASSERT_RAISES(pcpp::X509Certificate::fromDER(partialData), std::runtime_error, "Invalid X509 certificate data: TBS Certificate");
+	}
+
+	// Invalid version
+	{
+		std::string dataWithInvalidVersion = "3082010e3081c1a0030201040214294861014feb660ccfea3232e4352f7d34df2f7c300506032b657030163114301206035504030c0b6578616d706c652e636f6d301e170d3235303730383039353234365a170d3236303730383039353234365a30163114301206035504030c0b6578616d706c652e636f6d302a300506032b6570032100d20266ed1c28501e0b0dbd0aee37aaff4326b1167fea1381f3da303643bba8d3a321301f301d0603551d0e0416041484b078c94e3e9ee4ecebcc9fcd6ef75ed0815887300506032b6570034100bd3cbb731c6aa2d54528b14315d0c44b173d11be0bbff8458d6298e06f63e6f1fa400a78d962d8e49350192582e624042fcce4fb158b9fbd1c85faa1c3b7340a";
+		auto x509Certificate = pcpp::X509Certificate::fromDER(dataWithInvalidVersion);
+		PTF_ASSERT_RAISES(x509Certificate->getVersion(), std::runtime_error, "Invalid X509 version value: 4");
+	}
+
+	// Invalid NotBefore field
+	{
+		std::string dataWithInvalidNotBefore = "3082010e3081c1a0030201040214294861014feb660ccfea3232e4352f7d34df2f7c300506032b657030163114301206035504030c0b6578616d706c652e636f6d301e120d3235303730383039353234365a170d3236303730383039353234365a30163114301206035504030c0b6578616d706c652e636f6d302a300506032b6570032100d20266ed1c28501e0b0dbd0aee37aaff4326b1167fea1381f3da303643bba8d3a321301f301d0603551d0e0416041484b078c94e3e9ee4ecebcc9fcd6ef75ed0815887300506032b6570034100bd3cbb731c6aa2d54528b14315d0c44b173d11be0bbff8458d6298e06f63e6f1fa400a78d962d8e49350192582e624042fcce4fb158b9fbd1c85faa1c3b7340a";
+		auto x509Certificate = pcpp::X509Certificate::fromDER(dataWithInvalidNotBefore);
+		PTF_ASSERT_RAISES(x509Certificate->getNotBefore().toString(), std::runtime_error, "Invalid X509 certificate data: Not Before");
+	}
+
+	// Invalid RDN value
+	{
+		std::string dataWithInvalidRDNValue = "3082010e3081c1a0030201020214294861014feb660ccfea3232e4352f7d34df2f7c300506032b657030163114301206035504030c0b6578616d706c652e636f6d301e170d3235303730383039353234365a170d3236303730383039353234365a30163114301206035504030a0b6578616d706c652e636f6d302a300506032b6570032100d20266ed1c28501e0b0dbd0aee37aaff4326b1167fea1381f3da303643bba8d3a321301f301d0603551d0e0416041484b078c94e3e9ee4ecebcc9fcd6ef75ed0815887300506032b6570034100bd3cbb731c6aa2d54528b14315d0c44b173d11be0bbff8458d6298e06f63e6f1fa400a78d962d8e49350192582e624042fcce4fb158b9fbd1c85faa1c3b7340a";
+		auto x509Certificate = pcpp::X509Certificate::fromDER(dataWithInvalidRDNValue);
+		PTF_ASSERT_RAISES(x509Certificate->getSubject().toString(), std::runtime_error, "Invalid X509 certificate data: unsupported RDN value ASN.1 type: 10");
+	}
+
+	// DER file doesn't exist
+	{
+		PTF_ASSERT_RAISES(pcpp::X509Certificate::fromDERFile("PacketExamples/missing_file.der"), std::runtime_error, "DER file doesn't exist or cannot be opened");
+	}
+}

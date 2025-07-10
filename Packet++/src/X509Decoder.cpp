@@ -2,7 +2,6 @@
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "json.hpp"
-#include <iostream>
 #include <fstream>
 #include <unordered_map>
 
@@ -327,6 +326,30 @@ namespace pcpp
 		return {Unknown};
 	}
 
+	template <class Asn1RecordType> static Asn1RecordType* castRecordAs(Asn1Record* record, const std::string& fieldName)
+	{
+		try
+		{
+			return record->castAs<Asn1RecordType>();
+		}
+		catch (const std::bad_cast&)
+		{
+			throw std::runtime_error("Invalid X509 certificate data: " + fieldName);
+		}
+	}
+
+	template <class Asn1RecordType> static Asn1RecordType* getSubRecordAndCast(Asn1ConstructedRecord* record, int index, const std::string& fieldName)
+	{
+		try
+		{
+			return castRecordAs<Asn1RecordType>(record->getSubRecords().at(index), fieldName);
+		}
+		catch (const std::out_of_range&)
+		{
+			throw std::runtime_error("Invalid X509 certificate data: " + fieldName);
+		}
+	}
+
 	std::string X509SerialNumber::toString(const std::string& delimiter) const
 	{
 		// Remove leading zeros
@@ -344,13 +367,13 @@ namespace pcpp
 
 		// Add delimiter
 		std::string result;
-		result.reserve(tempResult.length() + delimiter.size() * ((tempResult.length() / 2) - 1));
+		result.reserve(tempResult.length() + delimiter.size() * (tempResult.length() / 2 - 1));
 
 		for (auto i = 0; i < tempResult.length(); ++i)
 		{
 			result += tempResult[i];
 			// Add a delimiter after every two characters, except for the very last pair
-			if ((i + 1) % 2 == 0 && (i + 1) < tempResult.length())
+			if ((i + 1) % 2 == 0 && i + 1 < tempResult.length())
 			{
 				result += delimiter;
 			}
@@ -395,7 +418,7 @@ namespace pcpp
 	{
 		X509Version X509VersionRecord::getVersion() const
 		{
-			auto intValue = m_Root->getSubRecords().at(0)->castAs<Asn1IntegerRecord>()->getIntValue<uint8_t>();
+			auto intValue = getSubRecordAndCast<Asn1IntegerRecord>(m_Root, 0, "Version")->getIntValue<uint8_t>();
 			if (intValue > 3)
 			{
 				throw std::runtime_error("Invalid X509 version value: " + std::to_string(intValue));
@@ -406,18 +429,26 @@ namespace pcpp
 
 		bool X509VersionRecord::isValidVersionRecord(const Asn1Record* record)
 		{
-			return (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 0 && record->isConstructed());
+			return record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 0 && record->isConstructed();
 		}
 
 		Asn1Record* X509RelativeDistinguishedName::getRecord(int index) const
 		{
-			auto attributeTypeAndValue = m_Root->getSubRecords().at(0)->castAs<Asn1SequenceRecord>();
-			return attributeTypeAndValue->getSubRecords().at(index);
+			auto attributeTypeAndValue = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, 0, "RDN");
+			try
+			{
+				return attributeTypeAndValue->getSubRecords().at(index);
+			}
+			catch (const std::out_of_range&)
+			{
+				throw std::runtime_error("Invalid X509 certificate data: RDN");
+			}
+
 		}
 
 		X520DistinguishedName X509RelativeDistinguishedName::getType() const
 		{
-			auto oidRecord = getRecord(m_TypeOffset)->castAs<Asn1ObjectIdentifierRecord>();
+			auto oidRecord = castRecordAs<Asn1ObjectIdentifierRecord>(getRecord(m_TypeOffset), "RDN Type");
 			return X520DistinguishedName::fromOidValue(oidRecord->getValue());
 		}
 
@@ -440,7 +471,7 @@ namespace pcpp
 			}
 			default:
 			{
-				throw std::runtime_error("Unsupported X509RelativeDistinguishedName value: " + std::to_string(static_cast<int>(valueRecord->getUniversalTagType())));
+				throw std::runtime_error("Invalid X509 certificate data: unsupported RDN value ASN.1 type: " + std::to_string(static_cast<int>(valueRecord->getUniversalTagType())));
 			}
 			}
 		}
@@ -450,7 +481,7 @@ namespace pcpp
 			std::vector<X509RelativeDistinguishedName> result;
 			for (auto const& subRecord: m_Root->getSubRecords())
 			{
-				result.push_back(X509RelativeDistinguishedName(subRecord->castAs<Asn1SetRecord>()));
+				result.push_back(X509RelativeDistinguishedName(castRecordAs<Asn1SetRecord>(subRecord, "RDN")));
 			}
 
 			return result;
@@ -458,29 +489,29 @@ namespace pcpp
 
 		X509Algorithm X509AlgorithmIdentifier::getAlgorithm() const
 		{
-			auto oidRecord = m_Root->getSubRecords().at(m_AlgorithmOffset)->castAs<Asn1ObjectIdentifierRecord>();
+			auto oidRecord = getSubRecordAndCast<Asn1ObjectIdentifierRecord>(m_Root, m_AlgorithmOffset, "Algorithm");
 			return X509Algorithm::fromOidValue(oidRecord->getValue());
 		}
 
 		X509Timestamp X509Validity::getNotBefore() const
 		{
-			return { m_Root->getSubRecords().at(m_NotBeforeOffset)->castAs<Asn1TimeRecord>() };
+			return {getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotBeforeOffset, "Not Before")};
 		}
 
 		X509Timestamp X509Validity::getNotAfter() const
 		{
-			return { m_Root->getSubRecords().at(m_NotAfterOffset)->castAs<Asn1TimeRecord>() };
+			return {getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotAfterOffset, "Not After")};
 		}
 
 		X509AlgorithmIdentifier X509SubjectPublicKeyInfo::getAlgorithm() const
 		{
-			auto root = m_Root->getSubRecords().at(m_AlgorithmOffset)->castAs<Asn1SequenceRecord>();
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_AlgorithmOffset, "Subject Public Key Algorithm");
 			return X509AlgorithmIdentifier(root);
 		}
 
 		X509Key X509SubjectPublicKeyInfo::getSubjectPublicKey() const
 		{
-			return {m_Root->getSubRecords().at(m_SubjectPublicKeyOffset)->castAs<Asn1BitStringRecord>()->getVecValue()};
+			return {getSubRecordAndCast<Asn1BitStringRecord>(m_Root, m_SubjectPublicKeyOffset, "Subject Public Key")->getVecValue()};
 		}
 
 		X509Extension::X509Extension(Asn1SequenceRecord* root) : X509Base(root)
@@ -494,7 +525,7 @@ namespace pcpp
 
 		X509ExtensionType X509Extension::getType() const
 		{
-			auto extensionTypeRecord = m_Root->getSubRecords().at(m_ExtensionIdOffset)->castAs<Asn1ObjectIdentifierRecord>();
+			auto extensionTypeRecord = getSubRecordAndCast<Asn1ObjectIdentifierRecord>(m_Root, m_ExtensionIdOffset, "Extension Type");
 			return X509ExtensionType::fromOidValue(extensionTypeRecord->getValue());
 		}
 
@@ -505,20 +536,21 @@ namespace pcpp
 				return false;
 			}
 
-			return m_Root->getSubRecords().at(m_CriticalOffset)->castAs<Asn1BooleanRecord>()->getValue();
+			return getSubRecordAndCast<Asn1BooleanRecord>(m_Root, m_CriticalOffset, "Extension Critical")->getValue();
 		}
 
 		std::string X509Extension::getValue() const
 		{
-			return m_Root->getSubRecords().at(m_ExtensionValueOffset)->castAs<Asn1OctetStringRecord>()->getValue();
+			return getSubRecordAndCast<Asn1OctetStringRecord>(m_Root, m_ExtensionValueOffset, "Extension Value")->getValue();
 		}
 
 		std::vector<X509Extension> X509Extensions::getExtensions() const
 		{
 			std::vector<X509Extension> result;
-			for (const auto& extension : m_Root->getSubRecords().at(0)->castAs<Asn1SequenceRecord>()->getSubRecords())
+			auto extensionsRecord = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, 0, "Extensions");
+			for (const auto& extension : extensionsRecord->getSubRecords())
 			{
-				result.push_back({extension->castAs<Asn1SequenceRecord>()});
+				result.push_back({castRecordAs<Asn1SequenceRecord>(extension, "Extension")});
 			}
 
 			return result;
@@ -531,49 +563,56 @@ namespace pcpp
 
 		X509SerialNumber X509TBSCertificate::getSerialNumber() const
 		{
-			auto serialNumber = m_Root->getSubRecords().at(getIndex(m_SerialNumberOffset))->castAs<Asn1IntegerRecord>()->getValueAsString();
+			auto serialNumber = getSubRecordAndCast<Asn1IntegerRecord>(m_Root, m_SerialNumberOffset, "Serial Number")->getValueAsString();
 			return X509SerialNumber(serialNumber);
 		}
 
 		X509AlgorithmIdentifier X509TBSCertificate::getSignature() const
 		{
-			auto root = m_Root->getSubRecords().at(getIndex(m_SignatureOffset))->castAs<Asn1SequenceRecord>();
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_SignatureOffset, "Signature Algorithm");
 			return X509AlgorithmIdentifier(root);
 		}
 
 		X509TBSCertificate::X509TBSCertificate(Asn1SequenceRecord* root) : X509Base(root)
 		{
-			int currIndex = 0;
-			auto record = root->getSubRecords().at(currIndex);
-			if (X509VersionRecord::isValidVersionRecord(record))
+			try
 			{
-				m_VersionOffset = currIndex++;
-			}
+				int currIndex = 0;
+				auto record = root->getSubRecords().at(currIndex);
+				if (X509VersionRecord::isValidVersionRecord(record))
+				{
+					m_VersionOffset = currIndex++;
+				}
 
-			m_SerialNumberOffset = currIndex++;
-			m_SignatureOffset = currIndex++;
-			m_IssuerOffset = currIndex++;
-			m_ValidityOffset = currIndex++;
-			m_SubjectOffset = currIndex++;
-			m_SubjectPublicKeyInfoOffset = currIndex++;
+				m_SerialNumberOffset = currIndex++;
+				m_SignatureOffset = currIndex++;
+				m_IssuerOffset = currIndex++;
+				m_ValidityOffset = currIndex++;
+				m_SubjectOffset = currIndex++;
+				m_SubjectPublicKeyInfoOffset = currIndex++;
 
-			record = root->getSubRecords().at(currIndex);
-
-			if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 1)
-			{
-				m_IssuerUniqueID = currIndex++;
 				record = root->getSubRecords().at(currIndex);
-			}
 
-			if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 2)
-			{
-				m_SubjectUniqueID = currIndex++;
-				record = root->getSubRecords().at(currIndex);
-			}
+				if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 1)
+				{
+					m_IssuerUniqueID = currIndex++;
+					record = root->getSubRecords().at(currIndex);
+				}
 
-			if (X509Extensions::isValidExtensionsRecord(record))
+				if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 2)
+				{
+					m_SubjectUniqueID = currIndex++;
+					record = root->getSubRecords().at(currIndex);
+				}
+
+				if (X509Extensions::isValidExtensionsRecord(record))
+				{
+					m_ExtensionsOffset = currIndex++;
+				}
+			}
+			catch (const std::out_of_range&)
 			{
-				m_ExtensionsOffset = currIndex++;
+				throw std::runtime_error("Invalid X509 certificate data: TBS Certificate");
 			}
 		}
 
@@ -584,32 +623,32 @@ namespace pcpp
 				return X509Version::V1;
 			}
 
-			auto root = m_Root->getSubRecords().at(m_VersionOffset);
-			auto versionRecord = X509VersionRecord(root->castAs<Asn1ConstructedRecord>());
+			auto versionAsn1Record = getSubRecordAndCast<Asn1ConstructedRecord>(m_Root, m_VersionOffset, "Version");
+			auto versionRecord = X509VersionRecord(versionAsn1Record);
 			return versionRecord.getVersion();
 		}
 
 		X509Name X509TBSCertificate::getIssuer() const
 		{
-			auto root = m_Root->getSubRecords().at(getIndex(m_IssuerOffset))->castAs<Asn1SequenceRecord>();
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_IssuerOffset), "Issuer");
 			return X509Name(root);
 		}
 
 		X509Validity X509TBSCertificate::getValidity() const
 		{
-			auto root = m_Root->getSubRecords().at(getIndex(m_ValidityOffset))->castAs<Asn1SequenceRecord>();
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_ValidityOffset), "Validity");
 			return X509Validity(root);
 		}
 
 		X509Name X509TBSCertificate::getSubject() const
 		{
-			auto root = m_Root->getSubRecords().at(getIndex(m_SubjectOffset))->castAs<Asn1SequenceRecord>();
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_SubjectOffset), "Subject");
 			return X509Name(root);
 		}
 
 		X509SubjectPublicKeyInfo X509TBSCertificate::getSubjectPublicKeyInfo() const
 		{
-			auto root = m_Root->getSubRecords().at(getIndex(m_SubjectPublicKeyInfoOffset))->castAs<Asn1SequenceRecord>();
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_SubjectPublicKeyInfoOffset), "Subject Public Key Info");
 			return X509SubjectPublicKeyInfo(root);
 		}
 
@@ -620,7 +659,7 @@ namespace pcpp
 				return nullptr;
 			}
 
-			auto root = m_Root->getSubRecords().at(getIndex(m_ExtensionsOffset))->castAs<Asn1ConstructedRecord>();
+			auto root = getSubRecordAndCast<Asn1ConstructedRecord>(m_Root, getIndex(m_ExtensionsOffset), "Extensions");
 			return std::unique_ptr<X509Extensions>(new X509Extensions(root));
 		}
 
@@ -631,24 +670,24 @@ namespace pcpp
 
 		Asn1SequenceRecord* X509Certificate::getAsn1Root() const
 		{
-			return m_Root->castAs<Asn1SequenceRecord>();
+			return castRecordAs<Asn1SequenceRecord>(m_Root.get(), "Root");
 		}
 
 		X509TBSCertificate X509Certificate::getTbsCertificate() const
 		{
-			auto root = getAsn1Root()->getSubRecords().at(m_TBSCertificateOffset)->castAs<Asn1SequenceRecord>();
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), m_TBSCertificateOffset, "TBS Certificate");
 			return X509TBSCertificate(root);
 		}
 
 		X509AlgorithmIdentifier X509Certificate::getSignatureAlgorithm() const
 		{
-			auto root = getAsn1Root()->getSubRecords().at(m_SignatureAlgorithmOffset)->castAs<Asn1SequenceRecord>();
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), m_SignatureAlgorithmOffset, "Signature Algorithm");
 			return X509AlgorithmIdentifier(root);
 		}
 
 		X509Key X509Certificate::getSignature() const
 		{
-			return {getAsn1Root()->getSubRecords().at(m_SignatureOffset)->castAs<Asn1BitStringRecord>()->getVecValue()};
+			return {getSubRecordAndCast<Asn1BitStringRecord>(getAsn1Root(), m_SignatureOffset, "Signature")->getVecValue()};
 		}
 
 		std::vector<uint8_t> X509Certificate::encode()
@@ -707,9 +746,9 @@ namespace pcpp
 	std::unique_ptr<X509Certificate> X509Certificate::fromDERFile(const std::string& derFileName)
 	{
 		std::ifstream derFile(derFileName, std::ios::binary);
-		if (!derFile)
+		if (!derFile.good())
 		{
-			throw std::runtime_error("Failed to open DER file");
+			throw std::runtime_error("DER file doesn't exist or cannot be opened");
 		}
 
 		derFile.seekg(0, std::ios::end);
@@ -734,6 +773,7 @@ namespace pcpp
 	{
 		return m_TBSCertificate.getVersion();
 	}
+
 	bool X509Certificate::hasExtension(const X509ExtensionType& extensionType) const
 	{
 		auto extensions = m_TBSCertificate.getExtensions()->getExtensions();
