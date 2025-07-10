@@ -106,8 +106,7 @@ namespace pcpp
 
 		X520DistinguishedName() = default;
 
-		constexpr X520DistinguishedName(Value value)
-			: m_Value(value)
+		constexpr X520DistinguishedName(Value value) : m_Value(value)
 		{}
 
 		std::string toString() const;
@@ -116,7 +115,10 @@ namespace pcpp
 
 		static X520DistinguishedName fromOidValue(const Asn1ObjectIdentifier& value);
 
-		constexpr operator Value() const { return m_Value; }
+		constexpr operator Value() const
+		{
+			return m_Value;
+		}
 		explicit operator bool() const = delete;
 
 	private:
@@ -154,14 +156,18 @@ namespace pcpp
 		X509ExtensionType() = default;
 
 		// cppcheck-suppress noExplicitConstructor
-		constexpr X509ExtensionType(Value value) : m_Value(value) {}
+		constexpr X509ExtensionType(Value value) : m_Value(value)
+		{}
 
 		std::string toString() const;
 		std::string getOidValue() const;
 
 		static X509ExtensionType fromOidValue(const Asn1ObjectIdentifier& value);
 
-		constexpr operator Value() const { return m_Value; }
+		constexpr operator Value() const
+		{
+			return m_Value;
+		}
 		explicit operator bool() const = delete;
 
 	private:
@@ -183,7 +189,7 @@ namespace pcpp
 	{
 	public:
 		std::string toString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
-					 bool includeMilliseconds = false) const;
+		                     bool includeMilliseconds = false) const;
 
 		std::chrono::system_clock::time_point getTimestamp(const std::string& timezone = "Z") const;
 
@@ -224,7 +230,8 @@ namespace pcpp
 			friend class X509Name;
 			friend class X509SubjectPublicKeyInfo;
 			friend class X509Extension;
-			explicit X509Base(Asn1RecordType* root) : m_Root(root) {}
+			explicit X509Base(Asn1RecordType* root) : m_Root(root)
+			{}
 
 		protected:
 			Asn1RecordType* m_Root;
@@ -275,7 +282,6 @@ namespace pcpp
 
 		private:
 			static constexpr int m_AlgorithmOffset = 0;
-
 		};
 
 		class X509Validity : public X509Base<Asn1SequenceRecord>
@@ -363,7 +369,10 @@ namespace pcpp
 			int m_ExtensionsOffset = -1;
 
 			X509TBSCertificate(Asn1SequenceRecord* root);
-			int getIndex(int offset) const { return m_VersionOffset + offset; }
+			int getIndex(int offset) const
+			{
+				return m_VersionOffset + offset;
+			}
 		};
 
 		class X509Certificate
@@ -387,7 +396,7 @@ namespace pcpp
 
 			std::unique_ptr<Asn1Record> m_Root;
 		};
-	}
+	}  // namespace X509Internal
 
 	// Forward declerations
 	class X509Certificate;
@@ -420,7 +429,10 @@ namespace pcpp
 		};
 
 		std::string toString(const std::string& delimiter = ", ") const;
-		std::vector<RDN> getRDNs() const { return m_RDNs; };
+		std::vector<RDN> getRDNs() const
+		{
+			return m_RDNs;
+		};
 
 	private:
 		X509Name(const X509Internal::X509Name& internalName);
@@ -431,7 +443,8 @@ namespace pcpp
 	class X509Certificate
 	{
 	public:
-		static std::unique_ptr<X509Certificate> fromDER(const uint8_t* derData, size_t derDataLen, bool ownDerData = false);
+		static std::unique_ptr<X509Certificate> fromDER(const uint8_t* derData, size_t derDataLen,
+		                                                bool ownDerData = false);
 		static std::unique_ptr<X509Certificate> fromDER(const std::string& derData);
 		static std::unique_ptr<X509Certificate> fromDERFile(const std::string& derFileName);
 

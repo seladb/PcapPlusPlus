@@ -11,30 +11,53 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case SHA1:             return "SHA1";
-		case SHA256:           return "SHA256";
-		case SHA384:           return "SHA384";
-		case SHA512:           return "SHA512";
-		case MD5:              return "MD5";
-		case RSA:              return "RSA";
-		case RSAWithSHA1:      return "RSAWithSHA1";
-		case RSAWithSHA256:    return "RSAWithSHA256";
-		case RSAWithSHA384:    return "RSAWithSHA384";
-		case RSAWithSHA512:    return "RSAWithSHA512";
-		case RSAPSS:           return "RSAPSS";
-		case ECDSA:            return "ECDSA";
-		case ECDSAWithSHA1:    return "ECDSAWithSHA1";
-		case ECDSAWithSHA256:  return "ECDSAWithSHA256";
-		case ECDSAWithSHA384:  return "ECDSAWithSHA384";
-		case ECDSAWithSHA512:  return "ECDSAWithSHA512";
-		case ED25519:          return "ED25519";
-		case ED448:            return "ED448";
-		case DSA:              return "DSA";
-		case DSAWithSHA1:      return "DSAWithSHA1";
-		case DSAWithSHA256:    return "DSAWithSHA256";
-		case DiffieHellman:    return "DiffieHellman";
+		case SHA1:
+			return "SHA1";
+		case SHA256:
+			return "SHA256";
+		case SHA384:
+			return "SHA384";
+		case SHA512:
+			return "SHA512";
+		case MD5:
+			return "MD5";
+		case RSA:
+			return "RSA";
+		case RSAWithSHA1:
+			return "RSAWithSHA1";
+		case RSAWithSHA256:
+			return "RSAWithSHA256";
+		case RSAWithSHA384:
+			return "RSAWithSHA384";
+		case RSAWithSHA512:
+			return "RSAWithSHA512";
+		case RSAPSS:
+			return "RSAPSS";
+		case ECDSA:
+			return "ECDSA";
+		case ECDSAWithSHA1:
+			return "ECDSAWithSHA1";
+		case ECDSAWithSHA256:
+			return "ECDSAWithSHA256";
+		case ECDSAWithSHA384:
+			return "ECDSAWithSHA384";
+		case ECDSAWithSHA512:
+			return "ECDSAWithSHA512";
+		case ED25519:
+			return "ED25519";
+		case ED448:
+			return "ED448";
+		case DSA:
+			return "DSA";
+		case DSAWithSHA1:
+			return "DSAWithSHA1";
+		case DSAWithSHA256:
+			return "DSAWithSHA256";
+		case DiffieHellman:
+			return "DiffieHellman";
 		case Unknown:
-		default:               return "Unknown";
+		default:
+			return "Unknown";
 		}
 	}
 
@@ -42,36 +65,59 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case SHA1:             return "1.3.14.3.2.26";
-		case SHA256:           return "2.16.840.1.101.3.4.2.1";
-		case SHA384:           return "2.16.840.1.101.3.4.2.2";
-		case SHA512:           return "2.16.840.1.101.3.4.2.3";
-		case MD5:              return "1.2.840.113549.2.5";
+		case SHA1:
+			return "1.3.14.3.2.26";
+		case SHA256:
+			return "2.16.840.1.101.3.4.2.1";
+		case SHA384:
+			return "2.16.840.1.101.3.4.2.2";
+		case SHA512:
+			return "2.16.840.1.101.3.4.2.3";
+		case MD5:
+			return "1.2.840.113549.2.5";
 
-		case RSA:              return "1.2.840.113549.1.1.1";
-		case RSAWithSHA1:      return "1.2.840.113549.1.1.5";
-		case RSAWithSHA256:    return "1.2.840.113549.1.1.11";
-		case RSAWithSHA384:    return "1.2.840.113549.1.1.12";
-		case RSAWithSHA512:    return "1.2.840.113549.1.1.13";
-		case RSAPSS:           return "1.2.840.113549.1.1.10";
+		case RSA:
+			return "1.2.840.113549.1.1.1";
+		case RSAWithSHA1:
+			return "1.2.840.113549.1.1.5";
+		case RSAWithSHA256:
+			return "1.2.840.113549.1.1.11";
+		case RSAWithSHA384:
+			return "1.2.840.113549.1.1.12";
+		case RSAWithSHA512:
+			return "1.2.840.113549.1.1.13";
+		case RSAPSS:
+			return "1.2.840.113549.1.1.10";
 
-		case ECDSA:            return "1.2.840.10045.2.1";
-		case ECDSAWithSHA1:    return "1.2.840.10045.4.1";
-		case ECDSAWithSHA256:  return "1.2.840.10045.4.3.2";
-		case ECDSAWithSHA384:  return "1.2.840.10045.4.3.3";
-		case ECDSAWithSHA512:  return "1.2.840.10045.4.3.4";
+		case ECDSA:
+			return "1.2.840.10045.2.1";
+		case ECDSAWithSHA1:
+			return "1.2.840.10045.4.1";
+		case ECDSAWithSHA256:
+			return "1.2.840.10045.4.3.2";
+		case ECDSAWithSHA384:
+			return "1.2.840.10045.4.3.3";
+		case ECDSAWithSHA512:
+			return "1.2.840.10045.4.3.4";
 
-		case ED25519:          return "1.3.101.112";
-		case ED448:            return "1.3.101.113";
+		case ED25519:
+			return "1.3.101.112";
+		case ED448:
+			return "1.3.101.113";
 
-		case DSA:              return "1.2.840.10040.4.1";
-		case DSAWithSHA1:      return "1.2.840.10040.4.3";
-		case DSAWithSHA256:    return "2.16.840.1.101.3.4.3.2";
+		case DSA:
+			return "1.2.840.10040.4.1";
+		case DSAWithSHA1:
+			return "1.2.840.10040.4.3";
+		case DSAWithSHA256:
+			return "2.16.840.1.101.3.4.3.2";
 
-		case DiffieHellman:    return "1.2.840.113549.1.3.1";
+		case DiffieHellman:
+			return "1.2.840.113549.1.3.1";
 
 		case Unknown:
-		default:               return "0.0";
+		default:
+			return "0.0";
 		}
 	}
 
@@ -79,69 +125,89 @@ namespace pcpp
 	{
 		std::string oidStringValue = value.toString();
 		static const std::unordered_map<std::string, Value> oidMap = {
-			{"1.3.14.3.2.26", SHA1},
-			{"2.16.840.1.101.3.4.2.1", SHA256},
-			{"2.16.840.1.101.3.4.2.2", SHA384},
-			{"2.16.840.1.101.3.4.2.3", SHA512},
-			{"1.2.840.113549.2.5", MD5},
+			{ "1.3.14.3.2.26",          SHA1            },
+			{ "2.16.840.1.101.3.4.2.1", SHA256          },
+			{ "2.16.840.1.101.3.4.2.2", SHA384          },
+			{ "2.16.840.1.101.3.4.2.3", SHA512          },
+			{ "1.2.840.113549.2.5",     MD5             },
 
-			{"1.2.840.113549.1.1.1", RSA},
-			{"1.2.840.113549.1.1.5", RSAWithSHA1},
-			{"1.2.840.113549.1.1.11", RSAWithSHA256},
-			{"1.2.840.113549.1.1.12", RSAWithSHA384},
-			{"1.2.840.113549.1.1.13", RSAWithSHA512},
-			{"1.2.840.113549.1.1.10", RSAPSS},
+			{ "1.2.840.113549.1.1.1",   RSA             },
+			{ "1.2.840.113549.1.1.5",   RSAWithSHA1     },
+			{ "1.2.840.113549.1.1.11",  RSAWithSHA256   },
+			{ "1.2.840.113549.1.1.12",  RSAWithSHA384   },
+			{ "1.2.840.113549.1.1.13",  RSAWithSHA512   },
+			{ "1.2.840.113549.1.1.10",  RSAPSS          },
 
-			{"1.2.840.10045.2.1", ECDSA},
-			{"1.2.840.10045.4.1", ECDSAWithSHA1},
-			{"1.2.840.10045.4.3.2", ECDSAWithSHA256},
-			{"1.2.840.10045.4.3.3", ECDSAWithSHA384},
-			{"1.2.840.10045.4.3.4", ECDSAWithSHA512},
+			{ "1.2.840.10045.2.1",      ECDSA           },
+			{ "1.2.840.10045.4.1",      ECDSAWithSHA1   },
+			{ "1.2.840.10045.4.3.2",    ECDSAWithSHA256 },
+			{ "1.2.840.10045.4.3.3",    ECDSAWithSHA384 },
+			{ "1.2.840.10045.4.3.4",    ECDSAWithSHA512 },
 
-			{"1.2.840.10040.4.1", DSA},
-			{"1.2.840.10040.4.3", DSAWithSHA1},
-			{"2.16.840.1.101.3.4.3.2", DSAWithSHA256},
+			{ "1.2.840.10040.4.1",      DSA             },
+			{ "1.2.840.10040.4.3",      DSAWithSHA1     },
+			{ "2.16.840.1.101.3.4.3.2", DSAWithSHA256   },
 
-			{"1.3.101.112", ED25519},
-			{"1.3.101.113", ED448},
+			{ "1.3.101.112",            ED25519         },
+			{ "1.3.101.113",            ED448           },
 
-			{"1.2.840.113549.1.3.1", DiffieHellman}
+			{ "1.2.840.113549.1.3.1",   DiffieHellman   }
 		};
 
 		auto it = oidMap.find(oidStringValue);
 		if (it != oidMap.end())
 		{
-			return {it->second};
+			return { it->second };
 		}
 
-		return {Unknown};
+		return { Unknown };
 	}
 
 	std::string X520DistinguishedName::toString() const
 	{
 		switch (m_Value)
 		{
-		case CommonName:          return "CommonName";
-		case Surname:             return "Surname";
-		case SerialNumber:        return "SerialNumber";
-		case Country:             return "Country";
-		case Locality:            return "Locality";
-		case StateOrProvince:     return "StateOrProvinceName";
-		case Organization:        return "Organization";
-		case OrganizationalUnit:  return "OrganizationalUnit";
-		case Title:               return "Title";
-		case GivenName:           return "GivenName";
-		case Initials:            return "Initials";
-		case Pseudonym:           return "Pseudonym";
-		case GenerationQualifier: return "GenerationQualifier";
-		case DnQualifier:         return "DnQualifier";
-		case DomainComponent:     return "DomainComponent";
-		case EmailAddress:        return "EmailAddress";
-		case PostalCode:          return "PostalCode";
-		case StreetAddress:       return  "StreetAddress";
-		case BusinessCategory:    return "BusinessCategory";
+		case CommonName:
+			return "CommonName";
+		case Surname:
+			return "Surname";
+		case SerialNumber:
+			return "SerialNumber";
+		case Country:
+			return "Country";
+		case Locality:
+			return "Locality";
+		case StateOrProvince:
+			return "StateOrProvinceName";
+		case Organization:
+			return "Organization";
+		case OrganizationalUnit:
+			return "OrganizationalUnit";
+		case Title:
+			return "Title";
+		case GivenName:
+			return "GivenName";
+		case Initials:
+			return "Initials";
+		case Pseudonym:
+			return "Pseudonym";
+		case GenerationQualifier:
+			return "GenerationQualifier";
+		case DnQualifier:
+			return "DnQualifier";
+		case DomainComponent:
+			return "DomainComponent";
+		case EmailAddress:
+			return "EmailAddress";
+		case PostalCode:
+			return "PostalCode";
+		case StreetAddress:
+			return "StreetAddress";
+		case BusinessCategory:
+			return "BusinessCategory";
 		case Unknown:
-		default:                  return "Unknown";
+		default:
+			return "Unknown";
 		}
 	}
 
@@ -149,27 +215,47 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case CommonName:          return "CN";
-		case Surname:             return "SN";
-		case SerialNumber:        return "SERIALNUMBER";
-		case Country:             return "C";
-		case Locality:            return "L";
-		case StateOrProvince:     return "ST";
-		case Organization:        return "O";
-		case OrganizationalUnit:  return "OU";
-		case Title:               return "T";
-		case GivenName:           return "G";
-		case Initials:            return "Initials";
-		case Pseudonym:           return "Pseudonym";
-		case GenerationQualifier: return "GENERATION";
-		case DnQualifier:         return "dnQualifier";
-		case DomainComponent:     return "DC";
-		case EmailAddress:        return "E";
-		case PostalCode:          return "postalCode";
-		case StreetAddress:       return  "STREET";
-		case BusinessCategory:    return "businessCategory";
+		case CommonName:
+			return "CN";
+		case Surname:
+			return "SN";
+		case SerialNumber:
+			return "SERIALNUMBER";
+		case Country:
+			return "C";
+		case Locality:
+			return "L";
+		case StateOrProvince:
+			return "ST";
+		case Organization:
+			return "O";
+		case OrganizationalUnit:
+			return "OU";
+		case Title:
+			return "T";
+		case GivenName:
+			return "G";
+		case Initials:
+			return "Initials";
+		case Pseudonym:
+			return "Pseudonym";
+		case GenerationQualifier:
+			return "GENERATION";
+		case DnQualifier:
+			return "dnQualifier";
+		case DomainComponent:
+			return "DC";
+		case EmailAddress:
+			return "E";
+		case PostalCode:
+			return "postalCode";
+		case StreetAddress:
+			return "STREET";
+		case BusinessCategory:
+			return "businessCategory";
 		case Unknown:
-		default:                  return "Unknown";
+		default:
+			return "Unknown";
 		}
 	}
 
@@ -177,27 +263,47 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case CommonName:          return "2.5.4.3";
-		case Surname:             return "2.5.4.4";
-		case SerialNumber:        return "2.5.4.5";
-		case Country:             return "2.5.4.6";
-		case Locality:            return "2.5.4.7";
-		case StateOrProvince:     return "2.5.4.8";
-		case Organization:        return "2.5.4.10";
-		case OrganizationalUnit:  return "2.5.4.11";
-		case Title:               return "2.5.4.12";
-		case GivenName:           return "2.5.4.42";
-		case Initials:            return "2.5.4.43";
-		case GenerationQualifier: return "2.5.4.44";
-		case DnQualifier:         return "2.5.4.46";
-		case Pseudonym:           return "2.5.4.65";
-		case DomainComponent:     return "0.9.2342.19200300.100.1.25";
-		case EmailAddress:        return "1.2.840.113549.1.9.1";
-		case PostalCode:          return "2.5.4.17";
-		case StreetAddress:       return  "2.5.4.9";
-		case BusinessCategory:    return "2.5.4.15";
+		case CommonName:
+			return "2.5.4.3";
+		case Surname:
+			return "2.5.4.4";
+		case SerialNumber:
+			return "2.5.4.5";
+		case Country:
+			return "2.5.4.6";
+		case Locality:
+			return "2.5.4.7";
+		case StateOrProvince:
+			return "2.5.4.8";
+		case Organization:
+			return "2.5.4.10";
+		case OrganizationalUnit:
+			return "2.5.4.11";
+		case Title:
+			return "2.5.4.12";
+		case GivenName:
+			return "2.5.4.42";
+		case Initials:
+			return "2.5.4.43";
+		case GenerationQualifier:
+			return "2.5.4.44";
+		case DnQualifier:
+			return "2.5.4.46";
+		case Pseudonym:
+			return "2.5.4.65";
+		case DomainComponent:
+			return "0.9.2342.19200300.100.1.25";
+		case EmailAddress:
+			return "1.2.840.113549.1.9.1";
+		case PostalCode:
+			return "2.5.4.17";
+		case StreetAddress:
+			return "2.5.4.9";
+		case BusinessCategory:
+			return "2.5.4.15";
 		case Unknown:
-		default:                  return "0.0";
+		default:
+			return "0.0";
 		}
 	}
 
@@ -205,62 +311,83 @@ namespace pcpp
 	{
 		std::string oidStringValue = value.toString();
 		static const std::unordered_map<std::string, Value> oidMap = {
-		    {"2.5.4.3", CommonName},
-		    {"2.5.4.4", Surname},
-		    {"2.5.4.5", SerialNumber},
-		    {"2.5.4.6", Country},
-		    {"2.5.4.7", Locality},
-		    {"2.5.4.8", StateOrProvince},
-		    {"2.5.4.10", Organization},
-		    {"2.5.4.11", OrganizationalUnit},
-		    {"2.5.4.12", Title},
-		    {"2.5.4.42", GivenName},
-		    {"2.5.4.43", Initials},
-		    {"2.5.4.44", GenerationQualifier},
-		    {"2.5.4.46", DnQualifier},
-		    {"2.5.4.65", Pseudonym},
-		    {"0.9.2342.19200300.100.1.25", DomainComponent},
-		    {"1.2.840.113549.1.9.1", EmailAddress},
-			{"2.5.4.17", PostalCode},
-			{"2.5.4.9", StreetAddress},
-			{"2.5.4.15", BusinessCategory}
+			{ "2.5.4.3",                    CommonName          },
+			{ "2.5.4.4",                    Surname             },
+			{ "2.5.4.5",                    SerialNumber        },
+			{ "2.5.4.6",                    Country             },
+			{ "2.5.4.7",                    Locality            },
+			{ "2.5.4.8",                    StateOrProvince     },
+			{ "2.5.4.10",                   Organization        },
+			{ "2.5.4.11",                   OrganizationalUnit  },
+			{ "2.5.4.12",                   Title               },
+			{ "2.5.4.42",                   GivenName           },
+			{ "2.5.4.43",                   Initials            },
+			{ "2.5.4.44",                   GenerationQualifier },
+			{ "2.5.4.46",                   DnQualifier         },
+			{ "2.5.4.65",                   Pseudonym           },
+			{ "0.9.2342.19200300.100.1.25", DomainComponent     },
+			{ "1.2.840.113549.1.9.1",       EmailAddress        },
+			{ "2.5.4.17",                   PostalCode          },
+			{ "2.5.4.9",                    StreetAddress       },
+			{ "2.5.4.15",                   BusinessCategory    }
 		};
 
 		auto it = oidMap.find(oidStringValue);
 		if (it != oidMap.end())
 		{
-			return {it->second};
+			return { it->second };
 		}
 
-		return {Unknown};
+		return { Unknown };
 	}
 
 	std::string X509ExtensionType::toString() const
 	{
 		switch (m_Value)
 		{
-		case BasicConstraints:            return "BasicConstraints";
-		case KeyUsage:                    return "KeyUsage";
-		case ExtendedKeyUsage:            return "ExtendedKeyUsage";
-		case SubjectKeyIdentifier:        return "SubjectKeyIdentifier";
-		case AuthorityKeyIdentifier:      return "AuthorityKeyIdentifier";
-		case SubjectAltName:              return "SubjectAltName";
-		case IssuerAltName:               return "IssuerAltName";
-		case CrlDistributionPoints:       return "CRLDistributionPoints";
-		case AuthorityInfoAccess:         return "AuthorityInfoAccess";
-		case CertificatePolicies:         return "CertificatePolicies";
-		case PolicyMappings:              return "PolicyMappings";
-		case PolicyConstraints:           return "PolicyConstraints";
-		case NameConstraints:             return "NameConstraints";
-		case InhibitAnyPolicy:            return "InhibitAnyPolicy";
-		case CTPrecertificateSCTs:        return "CTPrecertificateSCTs";
-		case SubjectInfoAccess:           return "SubjectInfoAccess";
-		case FreshestCRL:                 return "FreshestCRL";
-		case TLSFeature:                  return "TLSFeature";
-		case OcspNoCheck:                 return "OcspNoCheck";
-		case SubjectDirectoryAttributes:  return "SubjectDirectoryAttributes";
+		case BasicConstraints:
+			return "BasicConstraints";
+		case KeyUsage:
+			return "KeyUsage";
+		case ExtendedKeyUsage:
+			return "ExtendedKeyUsage";
+		case SubjectKeyIdentifier:
+			return "SubjectKeyIdentifier";
+		case AuthorityKeyIdentifier:
+			return "AuthorityKeyIdentifier";
+		case SubjectAltName:
+			return "SubjectAltName";
+		case IssuerAltName:
+			return "IssuerAltName";
+		case CrlDistributionPoints:
+			return "CRLDistributionPoints";
+		case AuthorityInfoAccess:
+			return "AuthorityInfoAccess";
+		case CertificatePolicies:
+			return "CertificatePolicies";
+		case PolicyMappings:
+			return "PolicyMappings";
+		case PolicyConstraints:
+			return "PolicyConstraints";
+		case NameConstraints:
+			return "NameConstraints";
+		case InhibitAnyPolicy:
+			return "InhibitAnyPolicy";
+		case CTPrecertificateSCTs:
+			return "CTPrecertificateSCTs";
+		case SubjectInfoAccess:
+			return "SubjectInfoAccess";
+		case FreshestCRL:
+			return "FreshestCRL";
+		case TLSFeature:
+			return "TLSFeature";
+		case OcspNoCheck:
+			return "OcspNoCheck";
+		case SubjectDirectoryAttributes:
+			return "SubjectDirectoryAttributes";
 		case Unknown:
-		default:                    return "Unknown";
+		default:
+			return "Unknown";
 		}
 	}
 
@@ -268,28 +395,49 @@ namespace pcpp
 	{
 		switch (m_Value)
 		{
-		case BasicConstraints:            return "2.5.29.19";
-		case KeyUsage:                    return "2.5.29.15";
-		case ExtendedKeyUsage:            return "2.5.29.37";
-		case SubjectKeyIdentifier:        return "2.5.29.14";
-		case AuthorityKeyIdentifier:      return "2.5.29.35";
-		case SubjectAltName:              return "2.5.29.17";
-		case IssuerAltName:               return "2.5.29.18";
-		case CrlDistributionPoints:       return "2.5.29.31";
-		case AuthorityInfoAccess:         return "1.3.6.1.5.5.7.1.1";
-		case CertificatePolicies:         return "2.5.29.32";
-		case PolicyMappings:              return "2.5.29.33";
-		case PolicyConstraints:           return "2.5.29.36";
-		case NameConstraints:             return "2.5.29.30";
-		case InhibitAnyPolicy:            return "2.5.29.54";
-		case CTPrecertificateSCTs:        return "1.3.6.1.4.1.11129.2.4.2";
-		case SubjectInfoAccess:           return "1.3.6.1.5.5.7.1.11";
-		case FreshestCRL:                 return "2.5.29.46";
-		case TLSFeature:                  return "1.3.6.1.5.5.7.1.24";
-		case OcspNoCheck:                 return "1.3.6.1.5.5.7.48.1.5";
-		case SubjectDirectoryAttributes:  return "2.5.29.9";
+		case BasicConstraints:
+			return "2.5.29.19";
+		case KeyUsage:
+			return "2.5.29.15";
+		case ExtendedKeyUsage:
+			return "2.5.29.37";
+		case SubjectKeyIdentifier:
+			return "2.5.29.14";
+		case AuthorityKeyIdentifier:
+			return "2.5.29.35";
+		case SubjectAltName:
+			return "2.5.29.17";
+		case IssuerAltName:
+			return "2.5.29.18";
+		case CrlDistributionPoints:
+			return "2.5.29.31";
+		case AuthorityInfoAccess:
+			return "1.3.6.1.5.5.7.1.1";
+		case CertificatePolicies:
+			return "2.5.29.32";
+		case PolicyMappings:
+			return "2.5.29.33";
+		case PolicyConstraints:
+			return "2.5.29.36";
+		case NameConstraints:
+			return "2.5.29.30";
+		case InhibitAnyPolicy:
+			return "2.5.29.54";
+		case CTPrecertificateSCTs:
+			return "1.3.6.1.4.1.11129.2.4.2";
+		case SubjectInfoAccess:
+			return "1.3.6.1.5.5.7.1.11";
+		case FreshestCRL:
+			return "2.5.29.46";
+		case TLSFeature:
+			return "1.3.6.1.5.5.7.1.24";
+		case OcspNoCheck:
+			return "1.3.6.1.5.5.7.48.1.5";
+		case SubjectDirectoryAttributes:
+			return "2.5.29.9";
 		case Unknown:
-		default:                     return "0.0";
+		default:
+			return "0.0";
 		}
 	}
 
@@ -297,36 +445,37 @@ namespace pcpp
 	{
 		std::string oidStr = value.toString();
 		static const std::unordered_map<std::string, Value> oidMap = {
-			{"2.5.29.19",  BasicConstraints},
-			{"2.5.29.15",  KeyUsage},
-			{"2.5.29.37",  ExtendedKeyUsage},
-			{"2.5.29.14",  SubjectKeyIdentifier},
-			{"2.5.29.35",  AuthorityKeyIdentifier},
-			{"2.5.29.17",  SubjectAltName},
-			{"2.5.29.18",  IssuerAltName},
-			{"2.5.29.31",  CrlDistributionPoints},
-			{"1.3.6.1.5.5.7.1.1", AuthorityInfoAccess},
-			{"2.5.29.32",  CertificatePolicies},
-			{"2.5.29.33",  PolicyMappings},
-			{"2.5.29.36",  PolicyConstraints},
-			{"2.5.29.30",  NameConstraints},
-			{"2.5.29.54",  InhibitAnyPolicy},
-			{"1.3.6.1.4.1.11129.2.4.2", CTPrecertificateSCTs},
-			{"1.3.6.1.5.5.7.1.11", SubjectInfoAccess},
-			{"2.5.29.46", FreshestCRL},
-			{"1.3.6.1.5.5.7.1.24", TLSFeature},
-			{"1.3.6.1.5.5.7.48.1.5", OcspNoCheck},
-			{"2.5.29.9", SubjectDirectoryAttributes},
+			{ "2.5.29.19",               BasicConstraints           },
+			{ "2.5.29.15",               KeyUsage                   },
+			{ "2.5.29.37",               ExtendedKeyUsage           },
+			{ "2.5.29.14",               SubjectKeyIdentifier       },
+			{ "2.5.29.35",               AuthorityKeyIdentifier     },
+			{ "2.5.29.17",               SubjectAltName             },
+			{ "2.5.29.18",               IssuerAltName              },
+			{ "2.5.29.31",               CrlDistributionPoints      },
+			{ "1.3.6.1.5.5.7.1.1",       AuthorityInfoAccess        },
+			{ "2.5.29.32",               CertificatePolicies        },
+			{ "2.5.29.33",               PolicyMappings             },
+			{ "2.5.29.36",               PolicyConstraints          },
+			{ "2.5.29.30",               NameConstraints            },
+			{ "2.5.29.54",               InhibitAnyPolicy           },
+			{ "1.3.6.1.4.1.11129.2.4.2", CTPrecertificateSCTs       },
+			{ "1.3.6.1.5.5.7.1.11",      SubjectInfoAccess          },
+			{ "2.5.29.46",               FreshestCRL                },
+			{ "1.3.6.1.5.5.7.1.24",      TLSFeature                 },
+			{ "1.3.6.1.5.5.7.48.1.5",    OcspNoCheck                },
+			{ "2.5.29.9",                SubjectDirectoryAttributes },
 		};
 
 		auto it = oidMap.find(oidStr);
 		if (it != oidMap.end())
-			return {it->second};
+			return { it->second };
 
-		return {Unknown};
+		return { Unknown };
 	}
 
-	template <class Asn1RecordType> static Asn1RecordType* castRecordAs(Asn1Record* record, const std::string& fieldName)
+	template <class Asn1RecordType>
+	static Asn1RecordType* castRecordAs(Asn1Record* record, const std::string& fieldName)
 	{
 		try
 		{
@@ -338,7 +487,8 @@ namespace pcpp
 		}
 	}
 
-	template <class Asn1RecordType> static Asn1RecordType* getSubRecordAndCast(Asn1ConstructedRecord* record, int index, const std::string& fieldName)
+	template <class Asn1RecordType>
+	static Asn1RecordType* getSubRecordAndCast(Asn1ConstructedRecord* record, int index, const std::string& fieldName)
 	{
 		try
 		{
@@ -381,7 +531,8 @@ namespace pcpp
 		return result;
 	}
 
-	std::string X509Timestamp::toString(const std::string& format, const std::string& timezone, bool includeMilliseconds) const
+	std::string X509Timestamp::toString(const std::string& format, const std::string& timezone,
+	                                    bool includeMilliseconds) const
 	{
 		return m_Record->getValueAsString(format, timezone, includeMilliseconds);
 	}
@@ -429,7 +580,8 @@ namespace pcpp
 
 		bool X509VersionRecord::isValidVersionRecord(const Asn1Record* record)
 		{
-			return record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 0 && record->isConstructed();
+			return record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 0 &&
+			       record->isConstructed();
 		}
 
 		Asn1Record* X509RelativeDistinguishedName::getRecord(int index) const
@@ -443,7 +595,6 @@ namespace pcpp
 			{
 				throw std::runtime_error("Invalid X509 certificate data: RDN");
 			}
-
 		}
 
 		X520DistinguishedName X509RelativeDistinguishedName::getType() const
@@ -471,7 +622,8 @@ namespace pcpp
 			}
 			default:
 			{
-				throw std::runtime_error("Invalid X509 certificate data: unsupported RDN value ASN.1 type: " + std::to_string(static_cast<int>(valueRecord->getUniversalTagType())));
+				throw std::runtime_error("Invalid X509 certificate data: unsupported RDN value ASN.1 type: " +
+				                         std::to_string(static_cast<int>(valueRecord->getUniversalTagType())));
 			}
 			}
 		}
@@ -479,7 +631,7 @@ namespace pcpp
 		std::vector<X509RelativeDistinguishedName> X509Name::getRDNs() const
 		{
 			std::vector<X509RelativeDistinguishedName> result;
-			for (auto const& subRecord: m_Root->getSubRecords())
+			for (auto const& subRecord : m_Root->getSubRecords())
 			{
 				result.push_back(X509RelativeDistinguishedName(castRecordAs<Asn1SetRecord>(subRecord, "RDN")));
 			}
@@ -495,23 +647,25 @@ namespace pcpp
 
 		X509Timestamp X509Validity::getNotBefore() const
 		{
-			return {getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotBeforeOffset, "Not Before")};
+			return { getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotBeforeOffset, "Not Before") };
 		}
 
 		X509Timestamp X509Validity::getNotAfter() const
 		{
-			return {getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotAfterOffset, "Not After")};
+			return { getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotAfterOffset, "Not After") };
 		}
 
 		X509AlgorithmIdentifier X509SubjectPublicKeyInfo::getAlgorithm() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_AlgorithmOffset, "Subject Public Key Algorithm");
+			auto root =
+			    getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_AlgorithmOffset, "Subject Public Key Algorithm");
 			return X509AlgorithmIdentifier(root);
 		}
 
 		X509Key X509SubjectPublicKeyInfo::getSubjectPublicKey() const
 		{
-			return {getSubRecordAndCast<Asn1BitStringRecord>(m_Root, m_SubjectPublicKeyOffset, "Subject Public Key")->getVecValue()};
+			return { getSubRecordAndCast<Asn1BitStringRecord>(m_Root, m_SubjectPublicKeyOffset, "Subject Public Key")
+				         ->getVecValue() };
 		}
 
 		X509Extension::X509Extension(Asn1SequenceRecord* root) : X509Base(root)
@@ -525,7 +679,8 @@ namespace pcpp
 
 		X509ExtensionType X509Extension::getType() const
 		{
-			auto extensionTypeRecord = getSubRecordAndCast<Asn1ObjectIdentifierRecord>(m_Root, m_ExtensionIdOffset, "Extension Type");
+			auto extensionTypeRecord =
+			    getSubRecordAndCast<Asn1ObjectIdentifierRecord>(m_Root, m_ExtensionIdOffset, "Extension Type");
 			return X509ExtensionType::fromOidValue(extensionTypeRecord->getValue());
 		}
 
@@ -541,7 +696,8 @@ namespace pcpp
 
 		std::string X509Extension::getValue() const
 		{
-			return getSubRecordAndCast<Asn1OctetStringRecord>(m_Root, m_ExtensionValueOffset, "Extension Value")->getValue();
+			return getSubRecordAndCast<Asn1OctetStringRecord>(m_Root, m_ExtensionValueOffset, "Extension Value")
+			    ->getValue();
 		}
 
 		std::vector<X509Extension> X509Extensions::getExtensions() const
@@ -550,7 +706,7 @@ namespace pcpp
 			auto extensionsRecord = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, 0, "Extensions");
 			for (const auto& extension : extensionsRecord->getSubRecords())
 			{
-				result.push_back({castRecordAs<Asn1SequenceRecord>(extension, "Extension")});
+				result.push_back({ castRecordAs<Asn1SequenceRecord>(extension, "Extension") });
 			}
 
 			return result;
@@ -558,12 +714,14 @@ namespace pcpp
 
 		bool X509Extensions::isValidExtensionsRecord(const Asn1Record* record)
 		{
-			return (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 3 && record->isConstructed());
+			return (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 3 &&
+			        record->isConstructed());
 		}
 
 		X509SerialNumber X509TBSCertificate::getSerialNumber() const
 		{
-			auto serialNumber = getSubRecordAndCast<Asn1IntegerRecord>(m_Root, m_SerialNumberOffset, "Serial Number")->getValueAsString();
+			auto serialNumber = getSubRecordAndCast<Asn1IntegerRecord>(m_Root, m_SerialNumberOffset, "Serial Number")
+			                        ->getValueAsString();
 			return X509SerialNumber(serialNumber);
 		}
 
@@ -648,7 +806,8 @@ namespace pcpp
 
 		X509SubjectPublicKeyInfo X509TBSCertificate::getSubjectPublicKeyInfo() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_SubjectPublicKeyInfoOffset), "Subject Public Key Info");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_SubjectPublicKeyInfoOffset),
+			                                                    "Subject Public Key Info");
 			return X509SubjectPublicKeyInfo(root);
 		}
 
@@ -675,32 +834,36 @@ namespace pcpp
 
 		X509TBSCertificate X509Certificate::getTbsCertificate() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), m_TBSCertificateOffset, "TBS Certificate");
+			auto root =
+			    getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), m_TBSCertificateOffset, "TBS Certificate");
 			return X509TBSCertificate(root);
 		}
 
 		X509AlgorithmIdentifier X509Certificate::getSignatureAlgorithm() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), m_SignatureAlgorithmOffset, "Signature Algorithm");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), m_SignatureAlgorithmOffset,
+			                                                    "Signature Algorithm");
 			return X509AlgorithmIdentifier(root);
 		}
 
 		X509Key X509Certificate::getSignature() const
 		{
-			return {getSubRecordAndCast<Asn1BitStringRecord>(getAsn1Root(), m_SignatureOffset, "Signature")->getVecValue()};
+			return {
+				getSubRecordAndCast<Asn1BitStringRecord>(getAsn1Root(), m_SignatureOffset, "Signature")->getVecValue()
+			};
 		}
 
 		std::vector<uint8_t> X509Certificate::encode()
 		{
 			return m_Root->encode();
 		}
-	}
+	}  // namespace X509Internal
 
 	X509Name::X509Name(const X509Internal::X509Name& internalName)
 	{
 		for (const auto& rdn : internalName.getRDNs())
 		{
-			m_RDNs.push_back({rdn.getType(), rdn.getValue()});
+			m_RDNs.push_back({ rdn.getType(), rdn.getValue() });
 		}
 	}
 
@@ -722,7 +885,9 @@ namespace pcpp
 		return result.str();
 	}
 
-	X509Certificate::X509Certificate(uint8_t* derData, size_t derDataLen, bool ownDerData) : m_X509Internal(X509Internal::X509Certificate::decode(derData, derDataLen)), m_TBSCertificate(m_X509Internal->getTbsCertificate())
+	X509Certificate::X509Certificate(uint8_t* derData, size_t derDataLen, bool ownDerData)
+	    : m_X509Internal(X509Internal::X509Certificate::decode(derData, derDataLen)),
+	      m_TBSCertificate(m_X509Internal->getTbsCertificate())
 	{
 		if (ownDerData)
 		{
@@ -730,9 +895,11 @@ namespace pcpp
 		}
 	}
 
-	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const uint8_t* derData, size_t derDataLen, bool ownDerData)
+	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const uint8_t* derData, size_t derDataLen,
+	                                                          bool ownDerData)
 	{
-		return std::unique_ptr<X509Certificate>(new X509Certificate(const_cast<uint8_t*>(derData), derDataLen, ownDerData));
+		return std::unique_ptr<X509Certificate>(
+		    new X509Certificate(const_cast<uint8_t*>(derData), derDataLen, ownDerData));
 	}
 
 	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const std::string& derData)
@@ -766,7 +933,8 @@ namespace pcpp
 			throw std::runtime_error("Failed to read DER file");
 		}
 
-		return std::unique_ptr<X509Certificate>(new X509Certificate(reinterpret_cast<uint8_t*>(derData), derDataLen, true));
+		return std::unique_ptr<X509Certificate>(
+		    new X509Certificate(reinterpret_cast<uint8_t*>(derData), derDataLen, true));
 	}
 
 	X509Version X509Certificate::getVersion() const
@@ -777,9 +945,8 @@ namespace pcpp
 	bool X509Certificate::hasExtension(const X509ExtensionType& extensionType) const
 	{
 		auto extensions = m_TBSCertificate.getExtensions()->getExtensions();
-		return std::any_of(extensions.begin(), extensions.end(), [extensionType](const auto& ext) {
-			return ext.getType() == extensionType;
-		});
+		return std::any_of(extensions.begin(), extensions.end(),
+		                   [extensionType](const auto& ext) { return ext.getType() == extensionType; });
 	}
 
 	size_t X509Certificate::getExtensionCount() const
@@ -789,12 +956,12 @@ namespace pcpp
 
 	X509Name X509Certificate::getSubject() const
 	{
-		return {m_TBSCertificate.getSubject()};
+		return { m_TBSCertificate.getSubject() };
 	}
 
 	X509Name X509Certificate::getIssuer() const
 	{
-		return {m_TBSCertificate.getIssuer()};
+		return { m_TBSCertificate.getIssuer() };
 	}
 
 	X509SerialNumber X509Certificate::getSerialNumber() const
@@ -845,23 +1012,23 @@ namespace pcpp
 	std::string X509Certificate::toJson(int indent) const
 	{
 		nlohmann::ordered_json certificateJson = {
-			{"version", static_cast<int>(getVersion()) + 1},
-			{"serialNumber", getSerialNumber().toString()},
-			{"issuer", getIssuer().toString()},
-			{"validity", {
-				{"notBefore", getNotBefore().toString()},
-				{"notAfter", getNotAfter().toString()},
-			}},
-			{"subject", getSubject().toString()},
-			{"subjectPublicKeyInfo", {
-				{"subjectPublicKeyAlgorithm", getPublicKeyAlgorithm().toString()},
-				{"subjectPublicKey", getPublicKey().toString()}
-			}},
-			{"extensions", getExtensionCount()},
-			{"signatureAlgorithm", getSignatureAlgorithm().toString()},
-			{"signature", getSignature().toString()}
+			{ "version",              static_cast<int>(getVersion()) + 1 },
+			{ "serialNumber",         getSerialNumber().toString()       },
+			{ "issuer",               getIssuer().toString()             },
+			{ "validity",
+             {
+			      { "notBefore", getNotBefore().toString() },
+			      { "notAfter", getNotAfter().toString() },
+			  }			                                              },
+			{ "subject",              getSubject().toString()            },
+			{ "subjectPublicKeyInfo",
+             { { "subjectPublicKeyAlgorithm", getPublicKeyAlgorithm().toString() },
+			    { "subjectPublicKey", getPublicKey().toString() } }      },
+			{ "extensions",           getExtensionCount()                },
+			{ "signatureAlgorithm",   getSignatureAlgorithm().toString() },
+			{ "signature",            getSignature().toString()          }
 		};
 
 		return certificateJson.dump(indent);
 	}
-}
+}  // namespace pcpp
