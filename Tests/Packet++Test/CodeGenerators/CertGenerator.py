@@ -10,6 +10,7 @@ import argparse
 CERT_DIR = Path("certs")
 CERT_DIR.mkdir(exist_ok=True)
 
+
 class Algorithm(Enum):
     RSA = auto()
     ECDSA = auto()
@@ -44,22 +45,58 @@ def gen_key(alg: Algorithm) -> Generator[str, None, None]:
     with tempfile.NamedTemporaryFile(mode="w+") as tmpfile:
         match alg:
             case Algorithm.RSA:
-                run(["openssl", "genpkey", "-algorithm", "RSA", "-out", tmpfile.name, "-pkeyopt", "rsa_keygen_bits:2048"])
+                run(
+                    [
+                        "openssl",
+                        "genpkey",
+                        "-algorithm",
+                        "RSA",
+                        "-out",
+                        tmpfile.name,
+                        "-pkeyopt",
+                        "rsa_keygen_bits:2048",
+                    ]
+                )
             case Algorithm.ECDSA:
-                run(["openssl", "ecparam", "-name", "prime256v1", "-genkey", "-noout", "-out", tmpfile.name])
+                run(
+                    [
+                        "openssl",
+                        "ecparam",
+                        "-name",
+                        "prime256v1",
+                        "-genkey",
+                        "-noout",
+                        "-out",
+                        tmpfile.name,
+                    ]
+                )
             case Algorithm.ED25519:
-                run(["openssl", "genpkey", "-algorithm", "ed25519", "-out", tmpfile.name])
+                run(
+                    [
+                        "openssl",
+                        "genpkey",
+                        "-algorithm",
+                        "ed25519",
+                        "-out",
+                        tmpfile.name,
+                    ]
+                )
             case Algorithm.DSA:
                 with tempfile.NamedTemporaryFile(mode="w+") as dsa_param_file:
                     run(["openssl", "dsaparam", "-out", dsa_param_file.name, "2048"])
-                    run(["openssl", "gendsa", "-out", tmpfile.name, dsa_param_file.name])
+                    run(
+                        ["openssl", "gendsa", "-out", tmpfile.name, dsa_param_file.name]
+                    )
 
         yield tmpfile.name
 
 
 @contextmanager
 def gen_csr(key: str, conf: str | None = None) -> Generator[str, None, None]:
-    with optional_create_temp_file(conf) as conf_file, tempfile.NamedTemporaryFile(mode="w+") as tmpfile:
+    with (
+        optional_create_temp_file(conf) as conf_file,
+        tempfile.NamedTemporaryFile(mode="w+") as tmpfile,
+    ):
         cmd = ["openssl", "req", "-new", "-key", key, "-out", tmpfile.name]
         if conf:
             cmd.extend(["-config", conf_file])
@@ -70,9 +107,31 @@ def gen_csr(key: str, conf: str | None = None) -> Generator[str, None, None]:
         yield tmpfile.name
 
 
-def gen_x509(key: str, csr: str, outfile_name: str, file_format: FileFormat, exts: str | None = None, serial: str | None = None, days: int = 365):
+def gen_x509(
+    key: str,
+    csr: str,
+    outfile_name: str,
+    file_format: FileFormat,
+    exts: str | None = None,
+    serial: str | None = None,
+    days: int = 365,
+):
     outfile_path = CERT_DIR / f"x509_cert_{outfile_name}.{file_format.value.lower()}"
-    cmd = ["openssl", "x509", "-req", "-in", str(csr), "-signkey", str(key), "-outform", file_format.value, "-out", str(outfile_path),  "-days", str(days)]
+    cmd = [
+        "openssl",
+        "x509",
+        "-req",
+        "-in",
+        str(csr),
+        "-signkey",
+        str(key),
+        "-outform",
+        file_format.value,
+        "-out",
+        str(outfile_path),
+        "-days",
+        str(days),
+    ]
     if serial:
         cmd.extend(["-set_serial", serial])
     if exts:
@@ -80,10 +139,12 @@ def gen_x509(key: str, csr: str, outfile_name: str, file_format: FileFormat, ext
 
     run(cmd)
 
+
 def generate_with_all_algorithms(file_format: FileFormat):
     for alg in list(Algorithm):
         with gen_key(alg) as key_file, gen_csr(key_file) as csr_file:
             gen_x509(key_file, csr_file, alg.name.lower(), file_format)
+
 
 def generate_with_all_rdns(file_format: FileFormat):
     conf = """[ req ]
@@ -123,7 +184,14 @@ def generate_with_generalized_time(file_format: FileFormat):
     expiration_date = datetime(2051, 1, 2)
     days_until_2051 = expiration_date - datetime.now()
     with gen_key(Algorithm.ECDSA) as key_file, gen_csr(key_file) as csr_file:
-        gen_x509(key_file, csr_file, "long_expiration", file_format, days=days_until_2051.days)
+        gen_x509(
+            key_file,
+            csr_file,
+            "long_expiration",
+            file_format,
+            days=days_until_2051.days,
+        )
+
 
 def generate_with_many_extension_types(file_format: FileFormat):
     conf = """[ req ]
@@ -163,45 +231,6 @@ email.1 = admin@example.com
     """
 
     exts = """[ v3_req ]
-# Required basic constraints
-basicConstraints = critical,CA:FALSE
-
-# Key usage restrictions
-keyUsage = critical, digitalSignature, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign
-
-# Extended key usage
-extendedKeyUsage = serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, OCSPSigning
-
-# Subject alternative names
-subjectAltName = @alt_names
-
-# Unique identifiers
-subjectKeyIdentifier = hash
-authorityKeyIdentifier = keyid,issuer
-
-# Certificate policies
-certificatePolicies = 1.3.6.1.4.1.99999.1.1.1
-
-# Constraints
-policyConstraints = requireExplicitPolicy:0
-inhibitAnyPolicy = 1
-nameConstraints = permitted;DNS:.example.com
-
-# CRL and OCSP
-crlDistributionPoints = URI:http://example.com/crl.pem
-authorityInfoAccess = OCSP;URI:http://ocsp.example.com/, caIssuers;URI:http://example.com/ca.pem
-
-# Custom OID extension
-1.2.3.4.5.6.7.8.1 = ASN1:UTF8String:Custom Certificate Extension
-
-[ alt_names ]
-DNS.1 = example.com
-DNS.2 = www.example.com
-IP.1 = 192.168.1.10
-email.1 = admin@example.com
-    """
-
-    exts2 = """[ v3_req ]
 # Basic constraints: Not a CA cert
 basicConstraints = critical,CA:FALSE
 
@@ -264,10 +293,17 @@ IP.1 = 192.168.1.10
 email.1 = admin@example.com
     """
 
-    with gen_key(Algorithm.RSA) as key_file, gen_csr(key_file, conf) as csr_file, tempfile.NamedTemporaryFile(mode="w+") as exts_file:
-        exts_file.write(exts2)
+    with (
+        gen_key(Algorithm.RSA) as key_file,
+        gen_csr(key_file, conf) as csr_file,
+        tempfile.NamedTemporaryFile(mode="w+") as exts_file,
+    ):
+        exts_file.write(exts)
         exts_file.flush()
-        gen_x509(key_file, csr_file, "many_extensions", file_format, exts=exts_file.name)
+        gen_x509(
+            key_file, csr_file, "many_extensions", file_format, exts=exts_file.name
+        )
+
 
 def generate_multilang(file_format: FileFormat):
     conf = """[ req ]
@@ -290,6 +326,7 @@ emailAddress = info@example.com
 
     with gen_key(Algorithm.ECDSA) as key_file, gen_csr(key_file, conf) as csr_file:
         gen_x509(key_file, csr_file, "multilang", file_format)
+
 
 def generate_with_leading_zeros_serial_number(file_format: FileFormat):
     with gen_key(Algorithm.ECDSA) as key_file, gen_csr(key_file) as csr_file:
