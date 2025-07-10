@@ -168,11 +168,19 @@ namespace pcpp
 		{}
 
 		std::string toString() const;
+
+		/// Gets the short name (abbreviation) of the distinguished name
+		/// @return The short name (e.g., "CN" for CommonName)
 		std::string getShortName() const;
+
 		std::string getOidValue() const;
 
+		/// Creates an X520DistinguishedName from an OID value
+		/// @param[in] value The ASN.1 object identifier
+		/// @return The corresponding X520DistinguishedName value, or Unknown if no match is found
 		static X520DistinguishedName fromOidValue(const Asn1ObjectIdentifier& value);
 
+		// Allow switch and comparisons.
 		constexpr operator Value() const
 		{
 			return m_Value;
@@ -251,6 +259,9 @@ namespace pcpp
 		std::string toString() const;
 		std::string getOidValue() const;
 
+		/// Creates an X509ExtensionType from an OID value
+		/// @param[in] value The ASN.1 object identifier
+		/// @return The corresponding X509ExtensionType value, or Unknown if no match is found
 		static X509ExtensionType fromOidValue(const Asn1ObjectIdentifier& value);
 
 		constexpr operator Value() const
@@ -269,6 +280,9 @@ namespace pcpp
 	{
 	public:
 		std::string toString(const std::string& delimiter = ":") const;
+
+		/// Constructs an X509SerialNumber from a serial number hex string
+		/// @param[in] serialNumber The serial number as a hex string
 		explicit X509SerialNumber(const std::string& serialNumber) : m_SerialNumber(serialNumber)
 		{}
 
@@ -281,11 +295,23 @@ namespace pcpp
 	class X509Timestamp
 	{
 	public:
+		/// Converts the timestamp to a formatted string
+		/// @param[in] format The format string (strftime format, default: "%Y-%m-%d %H:%M:%S")
+		/// @param[in] timezone The timezone to use in the format of "Z" for UTC or +=HHMM for other timezones
+		/// (default: "Z" for UTC)
+		/// @param[in] includeMilliseconds Whether to include milliseconds in the output
+		/// @return A formatted string representation of the timestamp
 		std::string toString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
 		                     bool includeMilliseconds = false) const;
 
+		/// Gets the timestamp as a system_clock::time_point
+		/// @param[in] timezone The timezone to use in the format of "Z" for UTC or +=HHMM for other timezones
+		/// (default: "Z" for UTC)
+		/// @return A time_point representing the timestamp
 		std::chrono::system_clock::time_point getTimestamp(const std::string& timezone = "Z") const;
 
+		/// Constructs an X509Timestamp from an ASN.1 time record
+		/// @param[in] timeRecord Pointer to the ASN.1 time record
 		explicit X509Timestamp(Asn1TimeRecord* timeRecord) : m_Record(timeRecord)
 		{}
 
@@ -299,8 +325,13 @@ namespace pcpp
 	{
 	public:
 		std::string toString(const std::string& delimiter = ":") const;
+
+		/// Gets the raw key bytes
+		/// @return A const reference to the vector containing the key bytes
 		const std::vector<uint8_t>& getBytes() const;
 
+		/// Constructs an X509Key from a byte vector
+		/// @param[in] key The key data as a vector of bytes
 		explicit X509Key(const std::vector<uint8_t>& key) : m_Key(key)
 		{}
 
