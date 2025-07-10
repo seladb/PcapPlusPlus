@@ -33,6 +33,7 @@ PTF_TEST_CASE(IPv6ExtensionsTest);
 // Implemented in TcpTests.cpp
 PTF_TEST_CASE(TcpPacketNoOptionsParsing);
 PTF_TEST_CASE(TcpPacketWithOptionsParsing);
+PTF_TEST_CASE(TcpPacketWithAccurateEcnParsing);
 PTF_TEST_CASE(TcpPacketWithOptionsParsing2);
 PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
