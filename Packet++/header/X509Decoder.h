@@ -91,6 +91,8 @@ namespace pcpp
 
 		/// @return A string representation of the operation type
 		std::string toString() const;
+
+		/// @return The OID value of the operation type
 		std::string getOidValue() const;
 
 		/// A static method that creates LdapOperationType from an integer value
@@ -167,12 +169,14 @@ namespace pcpp
 		constexpr X520DistinguishedName(Value value) : m_Value(value)
 		{}
 
+		/// @return A string representation of the distinguished name
 		std::string toString() const;
 
 		/// Gets the short name (abbreviation) of the distinguished name
 		/// @return The short name (e.g., "CN" for CommonName)
 		std::string getShortName() const;
 
+		/// @return The OID value of the distinguished name
 		std::string getOidValue() const;
 
 		/// Creates an X520DistinguishedName from an OID value
@@ -256,7 +260,10 @@ namespace pcpp
 		constexpr X509ExtensionType(Value value) : m_Value(value)
 		{}
 
+		/// @return A string representation of the extension type
 		std::string toString() const;
+
+		/// @return The OID value of the extension
 		std::string getOidValue() const;
 
 		/// Creates an X509ExtensionType from an OID value
@@ -264,6 +271,7 @@ namespace pcpp
 		/// @return The corresponding X509ExtensionType value, or Unknown if no match is found
 		static X509ExtensionType fromOidValue(const Asn1ObjectIdentifier& value);
 
+		// Allow switch and comparisons.
 		constexpr operator Value() const
 		{
 			return m_Value;
@@ -279,6 +287,9 @@ namespace pcpp
 	class X509SerialNumber
 	{
 	public:
+		/// Converts the serial number to a formatted string
+		/// @param[in] delimiter The delimiter to use between the bytes (default: ":")
+		/// @return A formatted string representation of the serial number
 		std::string toString(const std::string& delimiter = ":") const;
 
 		/// Constructs an X509SerialNumber from a serial number hex string
@@ -324,6 +335,9 @@ namespace pcpp
 	class X509Key
 	{
 	public:
+		/// Converts the key to a formatted string
+		/// @param[in] delimiter The delimiter to use between the bytes (default: ":")
+		/// @return A formatted string representation of the key
 		std::string toString(const std::string& delimiter = ":") const;
 
 		/// Gets the raw key bytes
