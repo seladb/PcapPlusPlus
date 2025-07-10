@@ -647,12 +647,12 @@ namespace pcpp
 
 		X509Timestamp X509Validity::getNotBefore() const
 		{
-			return { getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotBeforeOffset, "Not Before") };
+			return X509Timestamp(getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotBeforeOffset, "Not Before"));
 		}
 
 		X509Timestamp X509Validity::getNotAfter() const
 		{
-			return { getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotAfterOffset, "Not After") };
+			return X509Timestamp(getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotAfterOffset, "Not After"));
 		}
 
 		X509AlgorithmIdentifier X509SubjectPublicKeyInfo::getAlgorithm() const
@@ -664,8 +664,9 @@ namespace pcpp
 
 		X509Key X509SubjectPublicKeyInfo::getSubjectPublicKey() const
 		{
-			return { getSubRecordAndCast<Asn1BitStringRecord>(m_Root, m_SubjectPublicKeyOffset, "Subject Public Key")
-				         ->getVecValue() };
+			return X509Key(
+			    getSubRecordAndCast<Asn1BitStringRecord>(m_Root, m_SubjectPublicKeyOffset, "Subject Public Key")
+			        ->getVecValue());
 		}
 
 		X509Extension::X509Extension(Asn1SequenceRecord* root) : X509Base(root)
@@ -706,7 +707,7 @@ namespace pcpp
 			auto extensionsRecord = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, 0, "Extensions");
 			for (const auto& extension : extensionsRecord->getSubRecords())
 			{
-				result.push_back({ castRecordAs<Asn1SequenceRecord>(extension, "Extension") });
+				result.push_back(X509Extension(castRecordAs<Asn1SequenceRecord>(extension, "Extension")));
 			}
 
 			return result;
@@ -848,9 +849,8 @@ namespace pcpp
 
 		X509Key X509Certificate::getSignature() const
 		{
-			return {
-				getSubRecordAndCast<Asn1BitStringRecord>(getAsn1Root(), m_SignatureOffset, "Signature")->getVecValue()
-			};
+			return X509Key(
+			    getSubRecordAndCast<Asn1BitStringRecord>(getAsn1Root(), m_SignatureOffset, "Signature")->getVecValue());
 		}
 
 		std::vector<uint8_t> X509Certificate::encode()
@@ -956,12 +956,12 @@ namespace pcpp
 
 	X509Name X509Certificate::getSubject() const
 	{
-		return { m_TBSCertificate.getSubject() };
+		return X509Name(m_TBSCertificate.getSubject());
 	}
 
 	X509Name X509Certificate::getIssuer() const
 	{
-		return { m_TBSCertificate.getIssuer() };
+		return X509Name(m_TBSCertificate.getIssuer());
 	}
 
 	X509SerialNumber X509Certificate::getSerialNumber() const

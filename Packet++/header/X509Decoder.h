@@ -2,8 +2,12 @@
 #include <chrono>
 #include "Asn1Codec.h"
 
+/// @namespace pcpp
+/// The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	/// @enum X509Version
+	/// Represents the version of an X.509 certificate
 	enum class X509Version : uint8_t
 	{
 		V1 = 0,
@@ -11,9 +15,14 @@ namespace pcpp
 		V3 = 2,
 	};
 
+	/// @class X509Algorithm
+	/// Represents cryptographic algorithms used in X.509 certificates
+	/// This class encapsulates various hashing and signature algorithms that can be used
+	/// in X.509 certificates for signing and key exchange.
 	class X509Algorithm
 	{
 	public:
+		/// Define enum types and the corresponding int values
 		enum Value : uint8_t
 		{
 			SHA1,
@@ -77,9 +86,12 @@ namespace pcpp
 		Value m_Value = Unknown;
 	};
 
+	/// @class X520DistinguishedName
+	/// Represents a distinguished name in an X.509 certificate
 	class X520DistinguishedName
 	{
 	public:
+		/// Define enum types and the corresponding int values
 		enum Value : uint8_t
 		{
 			CommonName,
@@ -125,9 +137,13 @@ namespace pcpp
 		Value m_Value = Unknown;
 	};
 
+	/// @class X509ExtensionType
+	/// Represents an X.509 extension type
 	class X509ExtensionType
 	{
 	public:
+		/// @enum Value
+		/// Enumeration of supported X.509 extension types
 		enum Value : uint8_t
 		{
 			BasicConstraints,
@@ -156,6 +172,8 @@ namespace pcpp
 		X509ExtensionType() = default;
 
 		// cppcheck-suppress noExplicitConstructor
+		/// Construct X509ExtensionType from Value enum
+		/// @param[in] value the extension type enum value
 		constexpr X509ExtensionType(Value value) : m_Value(value)
 		{}
 
@@ -174,17 +192,21 @@ namespace pcpp
 		Value m_Value = Unknown;
 	};
 
+	/// @class X509SerialNumber
+	/// Represents the serial number of an X.509 certificate
 	class X509SerialNumber
 	{
 	public:
 		std::string toString(const std::string& delimiter = ":") const;
-		X509SerialNumber(const std::string& serialNumber) : m_SerialNumber(serialNumber)
+		explicit X509SerialNumber(const std::string& serialNumber) : m_SerialNumber(serialNumber)
 		{}
 
 	private:
 		std::string m_SerialNumber;
 	};
 
+	/// @class X509Timestamp
+	/// Represents a timestamp in an X.509 certificate
 	class X509Timestamp
 	{
 	public:
@@ -193,26 +215,30 @@ namespace pcpp
 
 		std::chrono::system_clock::time_point getTimestamp(const std::string& timezone = "Z") const;
 
-		X509Timestamp(Asn1TimeRecord* timeRecord) : m_Record(timeRecord)
+		explicit X509Timestamp(Asn1TimeRecord* timeRecord) : m_Record(timeRecord)
 		{}
 
 	private:
 		Asn1TimeRecord* m_Record;
 	};
 
+	/// @class X509Key
+	/// Represents a key in an X.509 certificate
 	class X509Key
 	{
 	public:
 		std::string toString(const std::string& delimiter = ":") const;
 		const std::vector<uint8_t>& getBytes() const;
 
-		X509Key(const std::vector<uint8_t>& key) : m_Key(key)
+		explicit X509Key(const std::vector<uint8_t>& key) : m_Key(key)
 		{}
 
 	private:
 		std::vector<uint8_t> m_Key;
 	};
 
+	/// @namespace X509Internal
+	/// Internal implementation details for X.509 certificate parsing
 	namespace X509Internal
 	{
 		// Forward declarations
@@ -223,6 +249,9 @@ namespace pcpp
 		class X509Extension;
 		class X509Extensions;
 
+		/// @class X509Base
+		/// @tparam Asn1RecordType The type of ASN.1 record this class wraps
+		/// Base class for X.509 data structures that wrap ASN.1 records
 		template <typename Asn1RecordType> class X509Base
 		{
 			friend class X509Certificate;
@@ -230,6 +259,9 @@ namespace pcpp
 			friend class X509Name;
 			friend class X509SubjectPublicKeyInfo;
 			friend class X509Extension;
+
+			/// Constructs an X509Base with the given ASN.1 record
+			/// @param[in] root The ASN.1 record to wrap
 			explicit X509Base(Asn1RecordType* root) : m_Root(root)
 			{}
 
@@ -237,25 +269,39 @@ namespace pcpp
 			Asn1RecordType* m_Root;
 		};
 
+		/// @class X509VersionRecord
+		/// Internal class for handling X.509 version records
 		class X509VersionRecord : public X509Base<Asn1ConstructedRecord>
 		{
 			using X509Base::X509Base;
 
 		public:
+			/// Gets the X.509 version from the version record
+			/// @return The X.509 version
 			X509Version getVersion() const;
 
+			/// Checks if the given ASN.1 record is a valid version record
+			/// @param[in] record The ASN.1 record to check
+			/// @return true if the record is a valid version record, false otherwise
 			static bool isValidVersionRecord(const Asn1Record* record);
 
 		private:
 			static constexpr int m_VersionOffset = 0;
 		};
 
+		/// @class X509RelativeDistinguishedName
+		/// Internal class for handling X.509 Relative Distinguished Names (RDNs)
 		class X509RelativeDistinguishedName : public X509Base<Asn1SetRecord>
 		{
 			using X509Base::X509Base;
 
 		public:
+			/// Gets the type of the RDN
+			/// @return The X520DistinguishedName type of this RDN
 			X520DistinguishedName getType() const;
+
+			/// Gets the value of the RDN
+			/// @return The string value of this RDN
 			std::string getValue() const;
 
 		private:
@@ -265,31 +311,46 @@ namespace pcpp
 			Asn1Record* getRecord(int index) const;
 		};
 
+		/// @class X509Name
+		/// Internal class for handling X.509 distinguished names
 		class X509Name : public X509Base<Asn1SequenceRecord>
 		{
 			using X509Base::X509Base;
 
 		public:
+			/// Gets all Relative Distinguished Names (RDNs) in this name
+			/// @return A vector of X509RelativeDistinguishedName objects
 			std::vector<X509RelativeDistinguishedName> getRDNs() const;
 		};
 
+		/// @class X509AlgorithmIdentifier
+		/// Internal class for handling X.509 algorithm identifiers
 		class X509AlgorithmIdentifier : public X509Base<Asn1SequenceRecord>
 		{
 			using X509Base::X509Base;
 
 		public:
+			/// Gets the algorithm represented by this identifier
+			/// @return The X509Algorithm value
 			X509Algorithm getAlgorithm() const;
 
 		private:
 			static constexpr int m_AlgorithmOffset = 0;
 		};
 
+		/// @class X509Validity
+		/// Internal class for handling X.509 certificate validity periods
 		class X509Validity : public X509Base<Asn1SequenceRecord>
 		{
 			using X509Base::X509Base;
 
 		public:
+			/// Gets the notBefore timestamp of the validity period
+			/// @return The notBefore timestamp
 			X509Timestamp getNotBefore() const;
+
+			/// Gets the notAfter timestamp of the validity period
+			/// @return The notAfter timestamp
 			X509Timestamp getNotAfter() const;
 
 		private:
@@ -297,12 +358,19 @@ namespace pcpp
 			static constexpr int m_NotAfterOffset = 1;
 		};
 
+		/// @class X509SubjectPublicKeyInfo
+		/// Internal class for handling X.509 subject public key information
 		class X509SubjectPublicKeyInfo : public X509Base<Asn1SequenceRecord>
 		{
 			using X509Base::X509Base;
 
 		public:
+			/// Gets the algorithm identifier for the public key
+			/// @return The X509AlgorithmIdentifier for the public key
 			X509AlgorithmIdentifier getAlgorithm() const;
+
+			/// Gets the subject's public key
+			/// @return The X509Key containing the public key
 			X509Key getSubjectPublicKey() const;
 
 		private:
@@ -310,14 +378,24 @@ namespace pcpp
 			static constexpr int m_SubjectPublicKeyOffset = 1;
 		};
 
+		/// @class X509Extension
+		/// Internal class for handling X.509 extension records
 		class X509Extension : public X509Base<Asn1SequenceRecord>
 		{
 			friend class X509Extensions;
 			using X509Base::X509Base;
 
 		public:
+			/// Gets the type of this extension
+			/// @return The X509ExtensionType of this extension
 			X509ExtensionType getType() const;
+
+			/// Checks if this extension is marked as critical
+			/// @return true if the extension is critical, false otherwise
 			bool getCritical() const;
+
+			/// Gets the value of this extension
+			/// @return The extension value as a string
 			std::string getValue() const;
 
 		private:
@@ -329,31 +407,61 @@ namespace pcpp
 			X509Extension(Asn1SequenceRecord* root);
 		};
 
+		/// @class X509Extensions
+		/// Internal class for handling X.509 extensions record
 		class X509Extensions : public X509Base<Asn1ConstructedRecord>
 		{
 			using X509Base::X509Base;
 
 		public:
+			/// Gets all extensions in this record
+			/// @return A vector of X509Extension objects
 			std::vector<X509Extension> getExtensions() const;
 
+			/// Checks if the given ASN.1 record is a valid extensions record
+			/// @param[in] record The ASN.1 record to check
+			/// @return true if the record is a valid extensions record, false otherwise
 			static bool isValidExtensionsRecord(const Asn1Record* record);
 		};
 
+		/// @class X509TBSCertificate
+		/// Internal class for handling the To-Be-Signed (TBS) portion of an X.509 certificate
 		class X509TBSCertificate : public X509Base<Asn1SequenceRecord>
 		{
 			friend class X509Certificate;
 			using X509Base::X509Base;
 
 		public:
+			/// Gets the version of the TBS certificate
+			/// @return The X509Version of the certificate
 			X509Version getVersion() const;
+
+			/// Gets the serial number of the TBS certificate
+			/// @return The X509SerialNumber of the certificate
 			X509SerialNumber getSerialNumber() const;
+
+			/// Gets the signature algorithm of the TBS certificate
+			/// @return The X509AlgorithmIdentifier for the signature
 			X509AlgorithmIdentifier getSignature() const;
+
+			/// Gets the issuer name from the TBS certificate
+			/// @return The X509Name of the issuer
 			X509Name getIssuer() const;
+
+			/// Gets the validity period of the TBS certificate
+			/// @return The X509Validity object containing notBefore and notAfter timestamps
 			X509Validity getValidity() const;
+
+			/// Gets the subject name from the TBS certificate
+			/// @return The X509Name of the subject
 			X509Name getSubject() const;
+
+			/// Gets the subject's public key information
+			/// @return The X509SubjectPublicKeyInfo containing the public key
 			X509SubjectPublicKeyInfo getSubjectPublicKeyInfo() const;
-			// TODO: getIssuerUniqueID()
-			// TODO: getSubjectUniqueID()
+
+			/// Gets the extensions from the TBS certificate
+			/// @return A unique_ptr to X509Extensions, or nullptr if no extensions are present
 			std::unique_ptr<X509Extensions> getExtensions() const;
 
 		private:
@@ -375,15 +483,35 @@ namespace pcpp
 			}
 		};
 
+		/// @class X509Certificate
+		/// Internal class for handling X.509 certificate parsing and encoding
 		class X509Certificate
 		{
 		public:
+			/// Gets the TBS (To Be Signed) portion of the certificate
+			/// @return The X509TBSCertificate containing the TBS data
 			X509TBSCertificate getTbsCertificate() const;
+
+			/// Gets the signature algorithm used to sign the certificate
+			/// @return The X509AlgorithmIdentifier for the signature
 			X509AlgorithmIdentifier getSignatureAlgorithm() const;
+
+			/// Gets the signature value from the certificate
+			/// @return The X509Key containing the signature
 			X509Key getSignature() const;
+
+			/// Gets the root ASN.1 record of the certificate
+			/// @return Pointer to the root ASN.1 sequence record
 			Asn1SequenceRecord* getAsn1Root() const;
 
+			/// Decodes an X.509 certificate from binary data
+			/// @param[in] data Pointer to the binary certificate data
+			/// @param[in] dataLen Length of the binary data
+			/// @return A unique_ptr to the decoded X509Certificate, or nullptr on failure
 			static std::unique_ptr<X509Certificate> decode(const uint8_t* data, size_t dataLen);
+
+			/// Encodes the certificate to binary DER format
+			/// @return A vector containing the DER-encoded certificate
 			std::vector<uint8_t> encode();
 
 		private:
@@ -401,26 +529,33 @@ namespace pcpp
 	// Forward declerations
 	class X509Certificate;
 
+	/// @class X509Name
+	/// Represents a name in an X.509 certificate
 	class X509Name
 	{
 		friend class X509Certificate;
 
 	public:
+		/// @struct RDN
+		/// Represents a Relative Distinguished Name (RDN) in an X.509 certificate
 		struct RDN
 		{
-			X520DistinguishedName type;
-			std::string value;
+			X520DistinguishedName type;  ///< The type of the distinguished name
+			std::string value;           ///< The value of the distinguished name
 
+			/// Equality comparison operator
 			bool operator==(const RDN& other) const
 			{
 				return type == other.type && value == other.value;
 			}
 
+			/// Inequality comparison operator
 			bool operator!=(const RDN& other) const
 			{
 				return !(*this == other);
 			}
 
+			/// Stream output operator for RDN
 			friend std::ostream& operator<<(std::ostream& os, const RDN& rdn)
 			{
 				os << "RDN{type=" << rdn.type.getShortName() << ", value=" << rdn.value << "}";
@@ -428,54 +563,110 @@ namespace pcpp
 			}
 		};
 
+		/// Converts the X509Name to a string representation, e.g C=US, ST=California, CN=example.com
+		/// @param[in] delimiter The delimiter to use between RDNs (default: ", ")
+		/// @return A string representation of the X509Name
 		std::string toString(const std::string& delimiter = ", ") const;
+
+		/// Gets the list of Relative Distinguished Names (RDNs)
+		/// @return A vector of RDN objects
 		std::vector<RDN> getRDNs() const
 		{
 			return m_RDNs;
-		};
+		}
 
 	private:
-		X509Name(const X509Internal::X509Name& internalName);
-
+		explicit X509Name(const X509Internal::X509Name& internalName);
 		std::vector<RDN> m_RDNs;
 	};
 
+	/// @class X509Certificate
+	/// Represents an X.509 certificate
 	class X509Certificate
 	{
 	public:
+		/// Creates an X509Certificate from DER-encoded data
+		/// @param[in] derData Pointer to the DER-encoded certificate data
+		/// @param[in] derDataLen Length of the DER-encoded data
+		/// @param[in] ownDerData If true, the certificate will take ownership of the data and free it when the
+		/// certificate class is destructed
+		/// @return A unique pointer to the created X509Certificate
+		/// @throws An exception if the data is not a valid ASN.1 record
 		static std::unique_ptr<X509Certificate> fromDER(const uint8_t* derData, size_t derDataLen,
 		                                                bool ownDerData = false);
+
+		/// Creates an X509Certificate from a hex string containing DER-encoded data
+		/// @param[in] derData Hex string containing DER-encoded certificate data
+		/// @return A unique pointer to the created X509Certificate
+		/// @throws An exception if the data is not a valid ASN.1 record
 		static std::unique_ptr<X509Certificate> fromDER(const std::string& derData);
+
+		/// Creates an X509Certificate from a file containing DER-encoded data
+		/// @param[in] derFileName Path to the file containing DER-encoded certificate
+		/// @return A unique pointer to the created X509Certificate
+		/// @throws An exception if the file doesn't exist, cannot be read or contains invalid data
 		static std::unique_ptr<X509Certificate> fromDERFile(const std::string& derFileName);
 
+		/// Gets the version of the certificate
+		/// @return The X509Version of the certificate
 		X509Version getVersion() const;
 
-		// Basic info
+		/// Gets the serial number of the certificate
+		/// @return The certificate's serial number
 		X509SerialNumber getSerialNumber() const;
+
+		/// Gets the issuer of the certificate
+		/// @return The certificate's issuer name
 		X509Name getIssuer() const;
+
+		/// Gets the subject of the certificate
+		/// @return The certificate's subject name
 		X509Name getSubject() const;
 
-		// Validity
+		/// Gets the notBefore timestamp of the certificate's validity period
+		/// @return The notBefore timestamp
 		X509Timestamp getNotBefore() const;
+
+		/// Gets the notAfter timestamp of the certificate's validity period
+		/// @return The notAfter timestamp
 		X509Timestamp getNotAfter() const;
 
-		// Public Key
+		/// Gets the public key algorithm used in the certificate
+		/// @return The public key algorithm
 		X509Algorithm getPublicKeyAlgorithm() const;
+
+		/// Gets the public key from the certificate
+		/// @return The public key
 		X509Key getPublicKey() const;
 
-		// Signature
+		/// Gets the signature algorithm used to sign the certificate
+		/// @return The signature algorithm
 		X509Algorithm getSignatureAlgorithm() const;
+
+		/// Gets the signature of the certificate
+		/// @return The certificate's signature
 		X509Key getSignature() const;
 
-		// Extensions
+		/// Gets the number of extensions in the certificate
+		/// @return The number of extensions
 		size_t getExtensionCount() const;
+
+		/// Checks if the certificate has a specific extension
+		/// @param[in] extensionType The extension type to check for
+		/// @return true if the extension is present, false otherwise
 		bool hasExtension(const X509ExtensionType& extensionType) const;
 
-		// Utility
+		/// Converts the certificate to DER-encoded format
+		/// @return A byte vector containing the DER-encoded data
 		std::vector<uint8_t> toDER() const;
 
+		/// Converts the certificate to a JSON string representation
+		/// @param[in] indent Number of spaces to use for indentation (-1 for no pretty printing)
+		/// @return A JSON string representation of the certificate
 		std::string toJson(int indent = -1) const;
 
+		/// Gets the raw internal certificate object
+		/// @return Pointer to the internal X509Certificate implementation
 		const X509Internal::X509Certificate* getRawCertificate() const;
 
 		// Prevent copying
