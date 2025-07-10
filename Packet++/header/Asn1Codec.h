@@ -849,6 +849,7 @@ namespace pcpp
 			return m_Value.toString();
 		};
 
+		/// @return The byte vector value of this record
 		std::vector<uint8_t> getVecValue()
 		{
 			decodeValueIfNeeded();
