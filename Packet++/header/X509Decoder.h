@@ -10,8 +10,11 @@ namespace pcpp
 	/// Represents the version of an X.509 certificate
 	enum class X509Version : uint8_t
 	{
+		/// X.509 Version 1
 		V1 = 0,
+		/// X.509 Version 2
 		V2 = 1,
+		/// X.509 Version 3
 		V3 = 2,
 	};
 
@@ -25,33 +28,56 @@ namespace pcpp
 		/// Define enum types and the corresponding int values
 		enum Value : uint8_t
 		{
+			/// SHA-1 hashing algorithm
 			SHA1,
+			/// SHA-256 hashing algorithm
 			SHA256,
+			/// SHA-384 hashing algorithm
 			SHA384,
+			/// SHA-512 hashing algorithm
 			SHA512,
+			/// MD5 hashing algorithm (considered cryptographically broken)
 			MD5,
 
+			/// RSA encryption/signature algorithm
 			RSA,
+			/// RSA with SHA-1 signature algorithm
 			RSAWithSHA1,
+			/// RSA with SHA-256 signature algorithm
 			RSAWithSHA256,
+			/// RSA with SHA-384 signature algorithm
 			RSAWithSHA384,
+			/// RSA with SHA-512 signature algorithm
 			RSAWithSHA512,
+			/// RSA Probabilistic Signature Scheme (PSS)
 			RSAPSS,
 
+			/// Elliptic Curve Digital Signature Algorithm
 			ECDSA,
+			/// ECDSA with SHA-1 signature algorithm
 			ECDSAWithSHA1,
+			/// ECDSA with SHA-256 signature algorithm
 			ECDSAWithSHA256,
+			/// ECDSA with SHA-384 signature algorithm
 			ECDSAWithSHA384,
+			/// ECDSA with SHA-512 signature algorithm
 			ECDSAWithSHA512,
 
+			/// Digital Signature Algorithm
 			DSA,
+			/// DSA with SHA-1 signature algorithm
 			DSAWithSHA1,
+			/// DSA with SHA-256 signature algorithm
 			DSAWithSHA256,
 
+			/// EdDSA using Curve25519 (Ed25519)
 			ED25519,
+			/// EdDSA using Curve448 (Ed448)
 			ED448,
+			/// Diffie-Hellman key exchange algorithm
 			DiffieHellman,
 
+			/// Unknown or unsupported algorithm
 			Unknown,
 		};
 
@@ -94,25 +120,45 @@ namespace pcpp
 		/// Define enum types and the corresponding int values
 		enum Value : uint8_t
 		{
+			/// Common Name (CN) - Typically the fully qualified domain name (FQDN)
 			CommonName,
+			/// Surname (SN) - Family name of a person
 			Surname,
+			/// Serial Number - Serial number of the certificate
 			SerialNumber,
+			/// Country Name (C) - Two-letter ISO 3166-1 alpha-2 country code
 			Country,
+			/// Locality (L) - City or locality name
 			Locality,
+			/// State or Province Name (ST) - State or province name
 			StateOrProvince,
+			/// Organization Name (O) - Name of the organization
 			Organization,
+			/// Organizational Unit (OU) - Department or division within an organization
 			OrganizationalUnit,
+			/// Title - Job title or position
 			Title,
+			/// Given Name (GN) - First name of a person
 			GivenName,
+			/// Initials - Initials of a person's name
 			Initials,
+			/// Pseudonym - A person's nickname or alias
 			Pseudonym,
+			/// Generation Qualifier - A qualifier indicating a person's generation (e.g., Jr., Sr., III)
 			GenerationQualifier,
+			/// Distinguished Name Qualifier - Disambiguates similar distinguished names
 			DnQualifier,
+			/// Domain Component (DC) - Domain component in domain names (e.g., "example" in "example.com")
 			DomainComponent,
+			/// Email Address - Email address in the format user@domain
 			EmailAddress,
+			/// Postal Code - Postal or ZIP code
 			PostalCode,
+			/// Street Address - Physical street address
 			StreetAddress,
+			/// Business Category - Type of business or organization
 			BusinessCategory,
+			/// Unknown or unsupported distinguished name type
 			Unknown
 		};
 
@@ -146,26 +192,51 @@ namespace pcpp
 		/// Enumeration of supported X.509 extension types
 		enum Value : uint8_t
 		{
+			/// Basic Constraints - Indicates if the subject is a CA and the maximum path length
 			BasicConstraints,
+			/// Key Usage - Defines the purpose of the key contained in the certificate
 			KeyUsage,
+			/// Extended Key Usage - Indicates one or more purposes for which the certified public key may be used
 			ExtendedKeyUsage,
+			/// Subject Key Identifier - Provides a means of identifying certificates that contain a particular public
+			/// key
 			SubjectKeyIdentifier,
+			/// Authority Key Identifier - Identifies the public key used to verify the signature on this certificate
 			AuthorityKeyIdentifier,
+			/// Subject Alternative Name - Allows identities to be bound to the subject of the certificate
 			SubjectAltName,
+			/// Issuer Alternative Name - Allows additional identities to be associated with the issuer
 			IssuerAltName,
+			/// CRL Distribution Points - Identifies how CRL information is obtained
 			CrlDistributionPoints,
+			/// Authority Information Access - Describes how to access CA information and services
 			AuthorityInfoAccess,
+			/// Certificate Policies - Contains a sequence of one or more policy terms
 			CertificatePolicies,
+			/// Policy Mappings - Used in CA certificates to indicate that one or more policies can be considered
+			/// equivalent
 			PolicyMappings,
+			/// Policy Constraints - Specifies constraints on path validation
 			PolicyConstraints,
+			/// Name Constraints - Indicates a name space within which all subject names in subsequent certificates must
+			/// be located
 			NameConstraints,
+			/// Inhibit Any Policy - Indicates that the special anyPolicy OID is not considered an explicit match for
+			/// other certificate policies
 			InhibitAnyPolicy,
+			/// Signed Certificate Timestamp - Contains a list of SCTs from Certificate Transparency logs
 			CTPrecertificateSCTs,
+			/// Subject Information Access - Describes how to access additional information about the subject
 			SubjectInfoAccess,
+			/// Freshest CRL - Identifies how delta CRL information is obtained
 			FreshestCRL,
+			/// TLS Feature - Indicates which TLS features are required for the certificate to be used
 			TLSFeature,
+			/// OCSP No Check - Indicates that an OCSP client should trust the certificate for OCSP signing
 			OcspNoCheck,
+			/// Subject Directory Attributes - Conveys identification attributes of the subject
 			SubjectDirectoryAttributes,
+			/// Unknown or unsupported extension type
 			Unknown
 		};
 
