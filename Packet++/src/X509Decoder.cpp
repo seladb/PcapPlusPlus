@@ -519,7 +519,7 @@ namespace pcpp
 		std::string result;
 		result.reserve(tempResult.length() + delimiter.size() * (tempResult.length() / 2 - 1));
 
-		for (auto i = 0; i < tempResult.length(); ++i)
+		for (size_t i = 0; i < tempResult.length(); ++i)
 		{
 			result += tempResult[i];
 			// Add a delimiter after every two characters, except for the very last pair
