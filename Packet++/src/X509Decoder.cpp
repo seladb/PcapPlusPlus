@@ -893,6 +893,13 @@ namespace pcpp
 		}
 	}
 
+	X509Certificate::X509Certificate(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
+	    : m_X509Internal(X509Internal::X509Certificate::decode(derData.get(), derDataLen)),
+	      m_TBSCertificate(m_X509Internal->getTbsCertificate())
+	{
+		m_DerData = std::move(derData);
+	}
+
 	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const uint8_t* derData, size_t derDataLen,
 	                                                          bool ownDerData)
 	{
@@ -905,7 +912,7 @@ namespace pcpp
 		size_t derDataBufferLen = derData.length() / 2;
 		std::unique_ptr<uint8_t[]> derDataBuffer(new uint8_t[derDataBufferLen]);
 		hexStringToByteArray(derData, derDataBuffer.get(), derDataBufferLen);
-		return std::unique_ptr<X509Certificate>(new X509Certificate(derDataBuffer.release(), derDataBufferLen, true));
+		return std::unique_ptr<X509Certificate>(new X509Certificate(std::move(derDataBuffer), derDataBufferLen));
 	}
 
 	std::unique_ptr<X509Certificate> X509Certificate::fromDERFile(const std::string& derFileName)
@@ -924,15 +931,15 @@ namespace pcpp
 		}
 		derFile.seekg(0, std::ios::beg);
 
-		std::unique_ptr<char[]> derData(new char[derDataLen]);
+		std::unique_ptr<char[]> derDataFromFile(new char[derDataLen]);
 
-		if (!derFile.read(derData.get(), derDataLen))
+		if (!derFile.read(derDataFromFile.get(), derDataLen))
 		{
 			throw std::runtime_error("Failed to read DER file");
 		}
 
-		return std::unique_ptr<X509Certificate>(
-		    new X509Certificate(reinterpret_cast<uint8_t*>(derData.release()), derDataLen, true));
+		std::unique_ptr<uint8_t[]> derData(reinterpret_cast<uint8_t*>(derDataFromFile.release()));
+		return std::unique_ptr<X509Certificate>(new X509Certificate(std::move(derData), derDataLen));
 	}
 
 	X509Version X509Certificate::getVersion() const

@@ -793,6 +793,7 @@ namespace pcpp
 	private:
 		// Constructor/Destructor
 		X509Certificate(uint8_t* derData, size_t derDataLen, bool ownDerData);
+		X509Certificate(std::unique_ptr<uint8_t[]> derData, size_t derDataLen);
 
 		std::unique_ptr<X509Internal::X509Certificate> m_X509Internal;
 		X509Internal::X509TBSCertificate m_TBSCertificate;
