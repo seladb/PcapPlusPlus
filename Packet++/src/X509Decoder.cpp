@@ -121,41 +121,37 @@ namespace pcpp
 		}
 	}
 
+	static const std::unordered_map<std::string, X509Algorithm::Value> X509AlgorithmOidMap = {
+		{ "1.3.14.3.2.26",          X509Algorithm::SHA1            },
+		{ "2.16.840.1.101.3.4.2.1", X509Algorithm::SHA256          },
+		{ "2.16.840.1.101.3.4.2.2", X509Algorithm::SHA384          },
+		{ "2.16.840.1.101.3.4.2.3", X509Algorithm::SHA512          },
+		{ "1.2.840.113549.2.5",     X509Algorithm::MD5             },
+		{ "1.2.840.113549.1.1.1",   X509Algorithm::RSA             },
+		{ "1.2.840.113549.1.1.5",   X509Algorithm::RSAWithSHA1     },
+		{ "1.2.840.113549.1.1.11",  X509Algorithm::RSAWithSHA256   },
+		{ "1.2.840.113549.1.1.12",  X509Algorithm::RSAWithSHA384   },
+		{ "1.2.840.113549.1.1.13",  X509Algorithm::RSAWithSHA512   },
+		{ "1.2.840.113549.1.1.10",  X509Algorithm::RSAPSS          },
+		{ "1.2.840.10045.2.1",      X509Algorithm::ECDSA           },
+		{ "1.2.840.10045.4.1",      X509Algorithm::ECDSAWithSHA1   },
+		{ "1.2.840.10045.4.3.2",    X509Algorithm::ECDSAWithSHA256 },
+		{ "1.2.840.10045.4.3.3",    X509Algorithm::ECDSAWithSHA384 },
+		{ "1.2.840.10045.4.3.4",    X509Algorithm::ECDSAWithSHA512 },
+		{ "1.2.840.10040.4.1",      X509Algorithm::DSA             },
+		{ "1.2.840.10040.4.3",      X509Algorithm::DSAWithSHA1     },
+		{ "2.16.840.1.101.3.4.3.2", X509Algorithm::DSAWithSHA256   },
+		{ "1.3.101.112",            X509Algorithm::ED25519         },
+		{ "1.3.101.113",            X509Algorithm::ED448           },
+		{ "1.2.840.113549.1.3.1",   X509Algorithm::DiffieHellman   }
+	};
+
 	X509Algorithm X509Algorithm::fromOidValue(const Asn1ObjectIdentifier& value)
 	{
 		std::string oidStringValue = value.toString();
-		static const std::unordered_map<std::string, Value> oidMap = {
-			{ "1.3.14.3.2.26",          SHA1            },
-			{ "2.16.840.1.101.3.4.2.1", SHA256          },
-			{ "2.16.840.1.101.3.4.2.2", SHA384          },
-			{ "2.16.840.1.101.3.4.2.3", SHA512          },
-			{ "1.2.840.113549.2.5",     MD5             },
 
-			{ "1.2.840.113549.1.1.1",   RSA             },
-			{ "1.2.840.113549.1.1.5",   RSAWithSHA1     },
-			{ "1.2.840.113549.1.1.11",  RSAWithSHA256   },
-			{ "1.2.840.113549.1.1.12",  RSAWithSHA384   },
-			{ "1.2.840.113549.1.1.13",  RSAWithSHA512   },
-			{ "1.2.840.113549.1.1.10",  RSAPSS          },
-
-			{ "1.2.840.10045.2.1",      ECDSA           },
-			{ "1.2.840.10045.4.1",      ECDSAWithSHA1   },
-			{ "1.2.840.10045.4.3.2",    ECDSAWithSHA256 },
-			{ "1.2.840.10045.4.3.3",    ECDSAWithSHA384 },
-			{ "1.2.840.10045.4.3.4",    ECDSAWithSHA512 },
-
-			{ "1.2.840.10040.4.1",      DSA             },
-			{ "1.2.840.10040.4.3",      DSAWithSHA1     },
-			{ "2.16.840.1.101.3.4.3.2", DSAWithSHA256   },
-
-			{ "1.3.101.112",            ED25519         },
-			{ "1.3.101.113",            ED448           },
-
-			{ "1.2.840.113549.1.3.1",   DiffieHellman   }
-		};
-
-		auto it = oidMap.find(oidStringValue);
-		if (it != oidMap.end())
+		auto it = X509AlgorithmOidMap.find(oidStringValue);
+		if (it != X509AlgorithmOidMap.end())
 		{
 			return { it->second };
 		}
@@ -307,33 +303,34 @@ namespace pcpp
 		}
 	}
 
+	static const std::unordered_map<std::string, X520DistinguishedName::Value> X520DistinguishedNameOidMap = {
+		{ "2.5.4.3",                    X520DistinguishedName::CommonName          },
+		{ "2.5.4.4",                    X520DistinguishedName::Surname             },
+		{ "2.5.4.5",                    X520DistinguishedName::SerialNumber        },
+		{ "2.5.4.6",                    X520DistinguishedName::Country             },
+		{ "2.5.4.7",                    X520DistinguishedName::Locality            },
+		{ "2.5.4.8",                    X520DistinguishedName::StateOrProvince     },
+		{ "2.5.4.10",                   X520DistinguishedName::Organization        },
+		{ "2.5.4.11",                   X520DistinguishedName::OrganizationalUnit  },
+		{ "2.5.4.12",                   X520DistinguishedName::Title               },
+		{ "2.5.4.42",                   X520DistinguishedName::GivenName           },
+		{ "2.5.4.43",                   X520DistinguishedName::Initials            },
+		{ "2.5.4.44",                   X520DistinguishedName::GenerationQualifier },
+		{ "2.5.4.46",                   X520DistinguishedName::DnQualifier         },
+		{ "2.5.4.65",                   X520DistinguishedName::Pseudonym           },
+		{ "0.9.2342.19200300.100.1.25", X520DistinguishedName::DomainComponent     },
+		{ "1.2.840.113549.1.9.1",       X520DistinguishedName::EmailAddress        },
+		{ "2.5.4.17",                   X520DistinguishedName::PostalCode          },
+		{ "2.5.4.9",                    X520DistinguishedName::StreetAddress       },
+		{ "2.5.4.15",                   X520DistinguishedName::BusinessCategory    }
+	};
+
 	X520DistinguishedName X520DistinguishedName::fromOidValue(const Asn1ObjectIdentifier& value)
 	{
 		std::string oidStringValue = value.toString();
-		static const std::unordered_map<std::string, Value> oidMap = {
-			{ "2.5.4.3",                    CommonName          },
-			{ "2.5.4.4",                    Surname             },
-			{ "2.5.4.5",                    SerialNumber        },
-			{ "2.5.4.6",                    Country             },
-			{ "2.5.4.7",                    Locality            },
-			{ "2.5.4.8",                    StateOrProvince     },
-			{ "2.5.4.10",                   Organization        },
-			{ "2.5.4.11",                   OrganizationalUnit  },
-			{ "2.5.4.12",                   Title               },
-			{ "2.5.4.42",                   GivenName           },
-			{ "2.5.4.43",                   Initials            },
-			{ "2.5.4.44",                   GenerationQualifier },
-			{ "2.5.4.46",                   DnQualifier         },
-			{ "2.5.4.65",                   Pseudonym           },
-			{ "0.9.2342.19200300.100.1.25", DomainComponent     },
-			{ "1.2.840.113549.1.9.1",       EmailAddress        },
-			{ "2.5.4.17",                   PostalCode          },
-			{ "2.5.4.9",                    StreetAddress       },
-			{ "2.5.4.15",                   BusinessCategory    }
-		};
 
-		auto it = oidMap.find(oidStringValue);
-		if (it != oidMap.end())
+		auto it = X520DistinguishedNameOidMap.find(oidStringValue);
+		if (it != X520DistinguishedNameOidMap.end())
 		{
 			return { it->second };
 		}
@@ -441,34 +438,35 @@ namespace pcpp
 		}
 	}
 
+	static const std::unordered_map<std::string, X509ExtensionType::Value> X509ExtensionTypeOidMap = {
+		{ "2.5.29.19",               X509ExtensionType::BasicConstraints           },
+		{ "2.5.29.15",               X509ExtensionType::KeyUsage                   },
+		{ "2.5.29.37",               X509ExtensionType::ExtendedKeyUsage           },
+		{ "2.5.29.14",               X509ExtensionType::SubjectKeyIdentifier       },
+		{ "2.5.29.35",               X509ExtensionType::AuthorityKeyIdentifier     },
+		{ "2.5.29.17",               X509ExtensionType::SubjectAltName             },
+		{ "2.5.29.18",               X509ExtensionType::IssuerAltName              },
+		{ "2.5.29.31",               X509ExtensionType::CrlDistributionPoints      },
+		{ "1.3.6.1.5.5.7.1.1",       X509ExtensionType::AuthorityInfoAccess        },
+		{ "2.5.29.32",               X509ExtensionType::CertificatePolicies        },
+		{ "2.5.29.33",               X509ExtensionType::PolicyMappings             },
+		{ "2.5.29.36",               X509ExtensionType::PolicyConstraints          },
+		{ "2.5.29.30",               X509ExtensionType::NameConstraints            },
+		{ "2.5.29.54",               X509ExtensionType::InhibitAnyPolicy           },
+		{ "1.3.6.1.4.1.11129.2.4.2", X509ExtensionType::CTPrecertificateSCTs       },
+		{ "1.3.6.1.5.5.7.1.11",      X509ExtensionType::SubjectInfoAccess          },
+		{ "2.5.29.46",               X509ExtensionType::FreshestCRL                },
+		{ "1.3.6.1.5.5.7.1.24",      X509ExtensionType::TLSFeature                 },
+		{ "1.3.6.1.5.5.7.48.1.5",    X509ExtensionType::OcspNoCheck                },
+		{ "2.5.29.9",                X509ExtensionType::SubjectDirectoryAttributes },
+	};
+
 	X509ExtensionType X509ExtensionType::fromOidValue(const Asn1ObjectIdentifier& value)
 	{
 		std::string oidStr = value.toString();
-		static const std::unordered_map<std::string, Value> oidMap = {
-			{ "2.5.29.19",               BasicConstraints           },
-			{ "2.5.29.15",               KeyUsage                   },
-			{ "2.5.29.37",               ExtendedKeyUsage           },
-			{ "2.5.29.14",               SubjectKeyIdentifier       },
-			{ "2.5.29.35",               AuthorityKeyIdentifier     },
-			{ "2.5.29.17",               SubjectAltName             },
-			{ "2.5.29.18",               IssuerAltName              },
-			{ "2.5.29.31",               CrlDistributionPoints      },
-			{ "1.3.6.1.5.5.7.1.1",       AuthorityInfoAccess        },
-			{ "2.5.29.32",               CertificatePolicies        },
-			{ "2.5.29.33",               PolicyMappings             },
-			{ "2.5.29.36",               PolicyConstraints          },
-			{ "2.5.29.30",               NameConstraints            },
-			{ "2.5.29.54",               InhibitAnyPolicy           },
-			{ "1.3.6.1.4.1.11129.2.4.2", CTPrecertificateSCTs       },
-			{ "1.3.6.1.5.5.7.1.11",      SubjectInfoAccess          },
-			{ "2.5.29.46",               FreshestCRL                },
-			{ "1.3.6.1.5.5.7.1.24",      TLSFeature                 },
-			{ "1.3.6.1.5.5.7.48.1.5",    OcspNoCheck                },
-			{ "2.5.29.9",                SubjectDirectoryAttributes },
-		};
 
-		auto it = oidMap.find(oidStr);
-		if (it != oidMap.end())
+		auto it = X509ExtensionTypeOidMap.find(oidStr);
+		if (it != X509ExtensionTypeOidMap.end())
 			return { it->second };
 
 		return { Unknown };
@@ -905,9 +903,9 @@ namespace pcpp
 	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const std::string& derData)
 	{
 		size_t derDataBufferLen = derData.length() / 2;
-		auto derDataBuffer = new uint8_t[derDataBufferLen];
-		hexStringToByteArray(derData, derDataBuffer, derDataBufferLen);
-		return std::unique_ptr<X509Certificate>(new X509Certificate(derDataBuffer, derDataBufferLen, true));
+		std::unique_ptr<uint8_t[]> derDataBuffer(new uint8_t[derDataBufferLen]);
+		hexStringToByteArray(derData, derDataBuffer.get(), derDataBufferLen);
+		return std::unique_ptr<X509Certificate>(new X509Certificate(derDataBuffer.release(), derDataBufferLen, true));
 	}
 
 	std::unique_ptr<X509Certificate> X509Certificate::fromDERFile(const std::string& derFileName)
@@ -926,16 +924,15 @@ namespace pcpp
 		}
 		derFile.seekg(0, std::ios::beg);
 
-		auto derData = new char[derDataLen];
+		std::unique_ptr<char[]> derData(new char[derDataLen]);
 
-		if (!derFile.read(derData, derDataLen))
+		if (!derFile.read(derData.get(), derDataLen))
 		{
-			delete[] derData;
 			throw std::runtime_error("Failed to read DER file");
 		}
 
 		return std::unique_ptr<X509Certificate>(
-		    new X509Certificate(reinterpret_cast<uint8_t*>(derData), derDataLen, true));
+		    new X509Certificate(reinterpret_cast<uint8_t*>(derData.release()), derDataLen, true));
 	}
 
 	X509Version X509Certificate::getVersion() const
