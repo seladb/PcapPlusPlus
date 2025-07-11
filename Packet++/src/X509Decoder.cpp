@@ -930,6 +930,7 @@ namespace pcpp
 
 		if (!derFile.read(derData, derDataLen))
 		{
+			delete[] derData;
 			throw std::runtime_error("Failed to read DER file");
 		}
 

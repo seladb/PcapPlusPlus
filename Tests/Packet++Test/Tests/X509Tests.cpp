@@ -1,6 +1,8 @@
 #include "../TestDefinition.h"
 #include "GeneralUtils.h"
 #include "X509Decoder.h"
+#include <tuple>
+#include <algorithm>
 
 PTF_TEST_CASE(X509ParsingTest)
 {

@@ -152,7 +152,7 @@ namespace pcpp
 			DnQualifier,
 			/// Domain Component (DC) - Domain component in domain names (e.g., "example" in "example.com")
 			DomainComponent,
-			/// Email Address - Email address in the format user@domain
+			/// Email Address - Email address in the format user\@domain
 			EmailAddress,
 			/// Postal Code - Postal or ZIP code
 			PostalCode,
@@ -370,18 +370,10 @@ namespace pcpp
 		/// Base class for X.509 data structures that wrap ASN.1 records
 		template <typename Asn1RecordType> class X509Base
 		{
-			friend class X509Certificate;
-			friend class X509TBSCertificate;
-			friend class X509Name;
-			friend class X509SubjectPublicKeyInfo;
-			friend class X509Extension;
-
-			/// Constructs an X509Base with the given ASN.1 record
-			/// @param[in] root The ASN.1 record to wrap
+		protected:
 			explicit X509Base(Asn1RecordType* root) : m_Root(root)
 			{}
 
-		protected:
 			Asn1RecordType* m_Root;
 		};
 
@@ -390,6 +382,7 @@ namespace pcpp
 		class X509VersionRecord : public X509Base<Asn1ConstructedRecord>
 		{
 			using X509Base::X509Base;
+			friend class X509TBSCertificate;
 
 		public:
 			/// Gets the X.509 version from the version record
@@ -410,6 +403,7 @@ namespace pcpp
 		class X509RelativeDistinguishedName : public X509Base<Asn1SetRecord>
 		{
 			using X509Base::X509Base;
+			friend class X509Name;
 
 		public:
 			/// Gets the type of the RDN
@@ -432,6 +426,7 @@ namespace pcpp
 		class X509Name : public X509Base<Asn1SequenceRecord>
 		{
 			using X509Base::X509Base;
+			friend class X509TBSCertificate;
 
 		public:
 			/// Gets all Relative Distinguished Names (RDNs) in this name
@@ -444,6 +439,9 @@ namespace pcpp
 		class X509AlgorithmIdentifier : public X509Base<Asn1SequenceRecord>
 		{
 			using X509Base::X509Base;
+			friend class X509SubjectPublicKeyInfo;
+			friend class X509TBSCertificate;
+			friend class X509Certificate;
 
 		public:
 			/// Gets the algorithm represented by this identifier
@@ -459,6 +457,7 @@ namespace pcpp
 		class X509Validity : public X509Base<Asn1SequenceRecord>
 		{
 			using X509Base::X509Base;
+			friend class X509TBSCertificate;
 
 		public:
 			/// Gets the notBefore timestamp of the validity period
@@ -479,6 +478,7 @@ namespace pcpp
 		class X509SubjectPublicKeyInfo : public X509Base<Asn1SequenceRecord>
 		{
 			using X509Base::X509Base;
+			friend class X509TBSCertificate;
 
 		public:
 			/// Gets the algorithm identifier for the public key
@@ -528,6 +528,7 @@ namespace pcpp
 		class X509Extensions : public X509Base<Asn1ConstructedRecord>
 		{
 			using X509Base::X509Base;
+			friend class X509TBSCertificate;
 
 		public:
 			/// Gets all extensions in this record
@@ -544,8 +545,8 @@ namespace pcpp
 		/// Internal class for handling the To-Be-Signed (TBS) portion of an X.509 certificate
 		class X509TBSCertificate : public X509Base<Asn1SequenceRecord>
 		{
-			friend class X509Certificate;
 			using X509Base::X509Base;
+			friend class X509Certificate;
 
 		public:
 			/// Gets the version of the TBS certificate
@@ -642,7 +643,7 @@ namespace pcpp
 		};
 	}  // namespace X509Internal
 
-	// Forward declerations
+	// Forward declarations
 	class X509Certificate;
 
 	/// @class X509Name
