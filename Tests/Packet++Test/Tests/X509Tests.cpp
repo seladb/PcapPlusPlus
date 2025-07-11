@@ -223,12 +223,15 @@ PTF_TEST_CASE(X509VariantsParsingTest)
 		}
 	}
 
+	// Doesn't work on 32-bit systems because max time is 2038
+#ifndef __MINGW32__
 	// Long expiration
 	{
 		auto x509Cert = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_long_expiration.der");
 		PTF_ASSERT_EQUAL(x509Cert->getNotBefore().toString(), "2025-07-08 07:00:24");
 		PTF_ASSERT_EQUAL(x509Cert->getNotAfter().toString(), "2051-01-01 07:00:24");
 	}
+#endif
 
 	// Multiple extensions
 	{
