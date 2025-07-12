@@ -28,7 +28,10 @@ namespace pcpp
 		/// Acknowledgment number
 		uint32_t ackNumber;
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		uint16_t reserved : 4;
+		/// Accurate ECN flag
+		uint16_t accurateEcnFlag : 1;
+		/// Reserved bits
+		uint16_t reserved : 3;
 		/// Specifies the size of the TCP header in 32-bit words
 		uint16_t dataOffset : 4;
 		/// FIN flag
@@ -51,7 +54,9 @@ namespace pcpp
 		/// Specifies the size of the TCP header in 32-bit words
 		uint16_t dataOffset : 4;
 		/// Reserved
-		uint16_t reserved : 4;
+		uint16_t reserved : 3;
+		/// Accurate ECN flag
+		uint16_t accurateEcnFlag : 1;
 		/// CWR flag
 		uint16_t cwrFlag : 1;
 		/// ECE flag
