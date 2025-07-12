@@ -88,23 +88,60 @@ namespace pcpp
 		EXPECT_EQ(mac.toString(), "01:02:03:04:05:06");
 	}
 
-	TEST(MacAddressTest, CopyToAllocatedArray)
+	TEST(MacAddressTest, CopyToBuffer)
 	{
-		pcpp::MacAddress mac(1, 2, 3, 4, 5, 6);
-		uint8_t* arr = nullptr;
-		mac.copyTo(&arr);
-		std::array<uint8_t, 6> expected = { 1, 2, 3, 4, 5, 6 };
-		EXPECT_EQ(std::memcmp(arr, expected.data(), 6), 0);
-		delete[] arr;
+		pcpp::MacAddress macAddr(1, 2, 3, 4, 5, 6);
+
+		constexpr size_t expectedRequiredBytes = 6;
+		std::array<uint8_t, expectedRequiredBytes> expected = { 1, 2, 3, 4, 5, 6 };
+
+		// Test query mode
+		EXPECT_EQ(macAddr.copyTo(nullptr, 0), 6);
+
+		// Test with null buffer and non-zero size
+		EXPECT_THROW(macAddr.copyTo(nullptr, 1), std::invalid_argument);
+
+		std::array<uint8_t, 10> buffer{};
+
+		// Test with smaller buffer.
+		EXPECT_EQ(macAddr.copyTo(buffer.data(), 5), expectedRequiredBytes);
+		EXPECT_THAT(buffer, ::testing::Each(::testing::Eq(0)));
+
+		// Test with precise buffer
+		buffer.fill(0);
+		EXPECT_EQ(macAddr.copyTo(buffer.data(), expectedRequiredBytes), expectedRequiredBytes);
+		EXPECT_EQ(std::memcmp(buffer.data(), expected.data(), expectedRequiredBytes), 0);
+		EXPECT_TRUE(std::all_of(buffer.begin() + 6, buffer.end(), [](uint8_t x) { return x == 0; }));
+
+		// Test with a buffer that is larger
+		buffer.fill(0);
+		EXPECT_EQ(macAddr.copyTo(buffer.data(), buffer.size()), expectedRequiredBytes);
+		EXPECT_EQ(std::memcmp(buffer.data(), expected.data(), expectedRequiredBytes), 0);
+		EXPECT_TRUE(std::all_of(buffer.begin() + 6, buffer.end(), [](uint8_t x) { return x == 0; }));
 	}
 
-	TEST(MacAddressTest, CopyToPreAllocatedArray)
+	TEST(MacAddressTest, CopyToNewBuffer)
 	{
-		pcpp::MacAddress mac(1, 2, 3, 4, 5, 6);
-		std::array<uint8_t, 6> arr;
-		mac.copyTo(arr.data());
-		std::array<uint8_t, 6> expected = { 1, 2, 3, 4, 5, 6 };
-		EXPECT_EQ(arr, expected);
+		pcpp::MacAddress macAddr(1, 2, 3, 4, 5, 6);
+
+		constexpr size_t expectedRequiredBytes = 6;
+		std::array<uint8_t, expectedRequiredBytes> expected = { 1, 2, 3, 4, 5, 6 };
+
+		uint8_t* newBuffer = nullptr;
+		size_t newBufferSize = 0;
+
+		EXPECT_THROW(macAddr.copyToNewBuffer(nullptr, newBufferSize), std::invalid_argument)
+		    << "IPv6Address::copyToNewBuffer does not throw for null buffer pointer.";
+
+		EXPECT_TRUE(macAddr.copyToNewBuffer(&newBuffer, newBufferSize));
+		std::unique_ptr<uint8_t[]> bufferGuard(newBuffer);
+
+		ASSERT_NE(newBuffer, nullptr) << "IPv6Address::copyToNewBuffer did not allocate a new buffer.";
+		ASSERT_EQ(newBufferSize, expectedRequiredBytes)
+		    << "IPv6Address::copyToNewBuffer did not return the correct size.";
+
+		EXPECT_EQ(std::memcmp(newBuffer, expected.data(), expectedRequiredBytes), 0)
+		    << "IPv6Address::copyToNewBuffer did not copy the address correctly.";
 	}
 
 	TEST(MacAddressTest, OutputStreamOperator)

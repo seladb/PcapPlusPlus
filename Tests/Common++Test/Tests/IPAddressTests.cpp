@@ -206,6 +206,59 @@ namespace pcpp
 		EXPECT_FALSE(addr6 < addr4);
 	}
 
+	TEST(IPv6AddressTest, CopyToBuffer)
+	{
+		IPv6Address addr("2001:db8:85a3::8a2e:370:7334");
+		std::array<uint8_t, 16> expected = { 0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00,
+			                                 0x00, 0x00, 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34 };
+
+		// Test query mode
+		EXPECT_EQ(addr.copyTo(nullptr, 0), 16);
+
+		// Test with null buffer and non-zero size
+		EXPECT_THROW(addr.copyTo(nullptr, 1), std::invalid_argument);
+
+		std::array<uint8_t, 20> buffer{};
+
+		// Test with smaller buffer.
+		EXPECT_EQ(addr.copyTo(buffer.data(), 5), 16);
+		EXPECT_THAT(buffer, ::testing::Each(::testing::Eq(0)));
+
+		// Test with precise buffer
+		buffer.fill(0);
+		EXPECT_EQ(addr.copyTo(buffer.data(), 16), 16);
+		EXPECT_EQ(std::memcmp(buffer.data(), expected.data(), 16), 0);
+		EXPECT_TRUE(std::all_of(buffer.begin() + 16, buffer.end(), [](uint8_t x) { return x == 0; }));
+
+		// Test with a buffer that is larger
+		buffer.fill(0);
+		EXPECT_EQ(addr.copyTo(buffer.data(), buffer.size()), 16);
+		EXPECT_EQ(std::memcmp(buffer.data(), expected.data(), 16), 0);
+		EXPECT_TRUE(std::all_of(buffer.begin() + 16, buffer.end(), [](uint8_t x) { return x == 0; }));
+	}
+
+	TEST(IPv6AddressTest, CopyToBufferNewBuffer)
+	{
+		IPv6Address addr("2001:db8:85a3::8a2e:370:7334");
+		std::array<uint8_t, 16> expected = { 0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00,
+			                                 0x00, 0x00, 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34 };
+
+		uint8_t* newBuffer = nullptr;
+		size_t newBufferSize = 0;
+
+		EXPECT_THROW(addr.copyToNewBuffer(nullptr, newBufferSize), std::invalid_argument)
+		    << "IPv6Address::copyToNewBuffer does not throw for null buffer pointer.";
+
+		EXPECT_TRUE(addr.copyToNewBuffer(&newBuffer, newBufferSize));
+		std::unique_ptr<uint8_t[]> bufferGuard(newBuffer);
+
+		ASSERT_NE(newBuffer, nullptr) << "IPv6Address::copyToNewBuffer did not allocate a new buffer.";
+		ASSERT_EQ(newBufferSize, 16) << "IPv6Address::copyToNewBuffer did not return the correct size.";
+
+		EXPECT_EQ(std::memcmp(newBuffer, expected.data(), 16), 0)
+		    << "IPv6Address::copyToNewBuffer did not copy the address correctly.";
+	}
+
 	TEST(IPv6AddressTest, MatchNetworkMethodWithIPv6Network)
 	{
 		IPv6Address addr4("2001:db8:85a3::8a2e:370:7334");
