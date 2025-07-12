@@ -67,19 +67,22 @@ def run_common_tests():
         os.path.join("Bin", "Common++Test"),
         cwd=os.path.join("Tests", "Common++Test"),
         shell=True,
-        check=True, # Raise exception if the worker returns in non-zero status code
+        check=True,  # Raise exception if the worker returns in non-zero status code
     )
+
 
 def run_common_coverage():
     raise NotImplementedError
+
 
 def run_packet_tests():
     return subprocess.run(
         os.path.join("Bin", "Packet++Test"),
         cwd=os.path.join("Tests", "Packet++Test"),
         shell=True,
-        check=True, # Raise exception if the worker returns in non-zero status code
+        check=True,  # Raise exception if the worker returns in non-zero status code
     )
+
 
 def run_packet_coverage():
     return subprocess.run(
@@ -101,8 +104,9 @@ def run_packet_coverage():
         ],
         cwd=os.path.join("Tests", "Packet++Test"),
         shell=True,
-        check=True, # Raise exception if the worker returns in non-zero status code
+        check=True,  # Raise exception if the worker returns in non-zero status code
     )
+
 
 def run_pcap_tests(ip_address: str, skip_tests: list[str]):
     return subprocess.run(
@@ -115,8 +119,9 @@ def run_pcap_tests(ip_address: str, skip_tests: list[str]):
         ],
         cwd=os.path.join("Tests", "Pcap++Test"),
         shell=True,
-        check=True, # Raise exception if the worker returns in non-zero status code
+        check=True,  # Raise exception if the worker returns in non-zero status code
     )
+
 
 def run_pcap_coverage(ip_address: str, skip_tests: list[str]):
     return subprocess.run(
@@ -142,7 +147,7 @@ def run_pcap_coverage(ip_address: str, skip_tests: list[str]):
         ],
         cwd=os.path.join("Tests", "Pcap++Test"),
         shell=True,
-        check=True, # Raise exception if the worker returns in non-zero status code
+        check=True,  # Raise exception if the worker returns in non-zero status code
     )
 
 
