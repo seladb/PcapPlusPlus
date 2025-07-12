@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 include(FetchContent)
 
+# TODO: This may have issues with brew as it doesn't allow the use of FetchContent.
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
