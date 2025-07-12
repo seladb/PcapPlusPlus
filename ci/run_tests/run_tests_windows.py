@@ -62,10 +62,18 @@ def find_interface():
     return None, None
 
 
-def run_common_tests(args: list[str]):
+def run_common_tests():
+    return subprocess.run(
+        os.path.join("Bin", "Common++Test"),
+        cwd=os.path.join("Tests", "Common++Test"),
+        shell=True,
+        check=True, # Raise exception if the worker returns in non-zero status code
+    )
+
+def run_common_coverage():
     raise NotImplementedError
 
-def run_packet_tests(args: list[str]):
+def run_packet_tests():
     return subprocess.run(
         os.path.join("Bin", "Packet++Test"),
         cwd=os.path.join("Tests", "Packet++Test"),
@@ -172,6 +180,7 @@ def main():
         if args.coverage:
             run_packet_coverage()
         else:
+            run_common_tests()
             run_packet_tests()
 
         skip_tests = ["TestRemoteCapture"] + args.skip_tests
