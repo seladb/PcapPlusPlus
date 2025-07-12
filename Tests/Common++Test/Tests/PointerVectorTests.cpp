@@ -12,7 +12,7 @@ namespace pcpp
 	class TestObject
 	{
 	public:
-		TestObject(int value) : m_Value(value)
+		explicit TestObject(int value) : m_Value(value)
 		{}
 		int getValue() const
 		{
