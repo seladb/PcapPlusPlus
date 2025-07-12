@@ -220,6 +220,9 @@ namespace pcpp
 	/// Cisco HDLC protocol
 	const ProtocolType CiscoHDLC = 58;
 
+	/// Diagnostic over IP protocol (DOIP)
+	const ProtocolType DOIP = 59;
+
 	/// An enum representing OSI model layers
 	enum OsiModelLayer
 	{
