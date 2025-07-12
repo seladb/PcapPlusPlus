@@ -67,6 +67,7 @@ add_library(
   src/VxlanLayer.cpp
   src/WakeOnLanLayer.cpp
   src/WireGuardLayer.cpp
+  src/X509Decoder.cpp
   # Force hash-library pcapng to be link fully static
 )
 
@@ -140,6 +141,7 @@ set(
   header/VxlanLayer.h
   header/WakeOnLanLayer.h
   header/WireGuardLayer.h
+  header/X509Decoder.h
 )
 
 # Don't use set_target_properties CMake limit to 50 elements
@@ -153,9 +155,10 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
     $<INSTALL_INTERFACE:include/pcapplusplus>
     $<INSTALL_INTERFACE:include>
-  # Don't link with hash-library nor EndianPortable as they won't be exported
+  # Don't link with hash-library, EndianPortable and json as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
+  PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 target_link_libraries(Packet++ PUBLIC Common++)

@@ -429,6 +429,8 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 5);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 3);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getValue(), "1010001110110101");
+		PTF_ASSERT_VECTORS_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getVecValue(),
+		                         std::vector<uint8_t>({ 0xa3, 0xb5 }));
 		PTF_ASSERT_EQUAL(record->toString(), "BitString, Length: 2+3, Value: 1010001110110101");
 	}
 
@@ -444,6 +446,8 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 5);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 3);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getValue(), "1011001011");
+		PTF_ASSERT_VECTORS_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getVecValue(),
+		                         std::vector<uint8_t>({ 0xb2, 0xc0 }));
 		PTF_ASSERT_EQUAL(record->toString(), "BitString, Length: 2+3, Value: 1011001011");
 	}
 
