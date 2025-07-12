@@ -18,6 +18,21 @@ namespace pcpp
 		return str;
 	}
 
+	MacAddress::MacAddress(const uint8_t* addr, size_t size)
+	{
+		if (addr == nullptr)
+		{
+			throw std::invalid_argument("Address pointer is null");
+		}
+
+		if (size < 6)
+		{
+			throw std::out_of_range("Buffer size is smaller than MAC address size (6 bytes)");
+		}
+
+		std::copy(addr, addr + 6, m_Address.begin());
+	}
+
 	MacAddress::MacAddress(const std::string& address)
 	{
 		constexpr size_t validMacAddressLength = 17;
@@ -35,4 +50,42 @@ namespace pcpp
 		}
 	}
 
+	size_t MacAddress::copyTo(uint8_t* buffer, size_t size) const
+	{
+		const size_t requiredSize = m_Address.size();
+		if (buffer == nullptr)
+		{
+			if (size != 0)
+			{
+				throw std::invalid_argument("Buffer is null but size is not zero");
+			}
+			return requiredSize;
+		}
+		if (size < m_Address.size())
+		{
+			return requiredSize;
+		}
+		std::copy(m_Address.begin(), m_Address.end(), buffer);
+		return requiredSize;
+	}
+
+	bool MacAddress::copyToNewBuffer(uint8_t** buffer, size_t& size) const
+	{
+		if (buffer == nullptr)
+		{
+			throw std::invalid_argument("Buffer pointer is null");
+		}
+
+		size = copyTo(nullptr, 0);          // Get the required size
+		*buffer = new uint8_t[size];        // Allocate memory for the buffer
+		if (copyTo(*buffer, size) != size)  // Copy the address to the newly allocated buffer
+		{
+			delete[] *buffer;  // Clean up if copy fails
+			*buffer = nullptr;
+			size = 0;
+			return false;
+		}
+
+		return true;
+	}
 }  // namespace pcpp
