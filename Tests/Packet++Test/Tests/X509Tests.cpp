@@ -52,21 +52,38 @@ PTF_TEST_CASE(X509ParsingTest)
 	    x509Certificate->getSignature().toString(),
 	    "30:46:02:21:00:df:06:da:82:75:83:9e:65:db:92:d8:a1:7b:5e:3c:8d:e8:d6:61:e9:39:ce:2e:e5:59:92:f3:8f:0a:4f:43:f5:02:21:00:8f:df:13:b1:a5:e0:10:f5:e1:7b:86:96:50:7d:a8:63:dd:18:67:d4:7e:94:f2:1b:a6:40:c6:e9:60:76:11:60");
 
-	PTF_ASSERT_EQUAL(x509Certificate->getExtensionCount(), 10);
-	std::vector<pcpp::X509ExtensionType> existingExtensionTypes = { pcpp::X509ExtensionType::KeyUsage,
-		                                                            pcpp::X509ExtensionType::ExtendedKeyUsage,
-		                                                            pcpp::X509ExtensionType::BasicConstraints,
-		                                                            pcpp::X509ExtensionType::SubjectKeyIdentifier,
-		                                                            pcpp::X509ExtensionType::AuthorityKeyIdentifier,
-		                                                            pcpp::X509ExtensionType::AuthorityInfoAccess,
-		                                                            pcpp::X509ExtensionType::SubjectAltName,
-		                                                            pcpp::X509ExtensionType::CertificatePolicies,
-		                                                            pcpp::X509ExtensionType::CrlDistributionPoints,
-		                                                            pcpp::X509ExtensionType::CTPrecertificateSCTs };
-	for (const auto& extensionType : existingExtensionTypes)
+	std::vector<std::tuple<pcpp::X509ExtensionType, bool, std::string>> expectedExtensions = {
+		{ pcpp::X509ExtensionType::KeyUsage,               true,  "03020780"		                                                                                                                                                                                                                                                                                                                                                                                                                                    },
+		{ pcpp::X509ExtensionType::ExtendedKeyUsage,       false, "300a06082b06010505070301"		                                                                                                                                                                                                                                                                                                                                                                                                                    },
+		{ pcpp::X509ExtensionType::BasicConstraints,       true,  "3000"		                                                                                                                                                                                                                                                                                                                                                                                                                                        },
+		{ pcpp::X509ExtensionType::SubjectKeyIdentifier,   false, "04149b9dcac58952129eff05e58637f09d6ace2d0a96"		                                                                                                                                                                                                                                                                                                                                                                                                },
+		{ pcpp::X509ExtensionType::AuthorityKeyIdentifier, false, "301680149077923567c4ffa8cca9e67bd980797bcc93f938"		                                                                                                                                                                                                                                                                                                                                                                                            },
+		{ pcpp::X509ExtensionType::AuthorityInfoAccess,    false,
+         "3050302706082b06010505073001861b687474703a2f2f6f2e706b692e676f6f672f732f7765312f6a3377302506082b060105050730028619687474703a2f2f692e706b692e676f6f672f7765312e637274"		                                                                                                                                                                                                                                                                                                                                 },
+		{ pcpp::X509ExtensionType::SubjectAltName,         false,
+         "301c820b636861746770742e636f6d820d2a2e636861746770742e636f6d"		                                                                                                                                                                                                                                                                                                                                                                                                                                         },
+		{ pcpp::X509ExtensionType::CertificatePolicies,    false, "300a3008060667810c010201"		                                                                                                                                                                                                                                                                                                                                                                                                                    },
+		{ pcpp::X509ExtensionType::CrlDistributionPoints,  false,
+         "302d302ba029a0278625687474703a2f2f632e706b692e676f6f672f7765312f4450325053387a516e56732e63726c"		                                                                                                                                                                                                                                                                                                                                                                                                       },
+		{ pcpp::X509ExtensionType::CTPrecertificateSCTs,   false,
+         "0481f300f100760012f14e34bd53724c840619c38f3f7a13f8e7b56287889c6d300584ebe586263a00000197292a8d190000040300473045022100c6d289a41c9d63e7c549c444d724d5c78286fcb753b71ca0d070377c74526e3c022043f3a4548f4530b0041cd07a37f05e53f7960db800b9dc34472b55a2bb85e39a0077000de1f2302bd30dc140621209ea552efc47747cb1d7e930ef0e421eb47e4eaa3400000197292a8d260000040300483046022100b71d1b1f0b0dd4506acafa8fdd3dff65b0e362b47ed5edca98c79bfc1ea49c210221009eda8fcdbb2a985adb2f8d038dfa4e60ebbab3daf027efa236e273fc4120218e" }
+	};
+
+	PTF_ASSERT_EQUAL(x509Certificate->getExtensions().size(), 10);
+	int i = 0;
+	for (auto const& extension : x509Certificate->getExtensions())
 	{
-		PTF_ASSERT_TRUE(x509Certificate->hasExtension(extensionType));
+		PTF_ASSERT_EQUAL(extension.getType(), std::get<0>(expectedExtensions[i]));
+		PTF_ASSERT_EQUAL(extension.isCritical(), std::get<1>(expectedExtensions[i]));
+		PTF_ASSERT_EQUAL(extension.getRawDataAsHexString(), std::get<2>(expectedExtensions[i]));
+		i++;
 	}
+
+	for (auto const& expectedExtension : expectedExtensions)
+	{
+		PTF_ASSERT_TRUE(x509Certificate->hasExtension(std::get<0>(expectedExtension)));
+	}
+
 	std::vector<pcpp::X509ExtensionType> missingExtensionTypes = { pcpp::X509ExtensionType::IssuerAltName,
 		                                                           pcpp::X509ExtensionType::PolicyMappings,
 		                                                           pcpp::X509ExtensionType::PolicyConstraints };
@@ -76,7 +93,7 @@ PTF_TEST_CASE(X509ParsingTest)
 	}
 
 	std::string expectedJson =
-	    "{\"version\":3,\"serialNumber\":\"8f:7c:fe:10:9e:fa:98:7f:11:68:12:e1:98:00:84:97\",\"issuer\":\"C=US, O=Google Trust Services, CN=WE1\",\"validity\":{\"notBefore\":\"2025-06-01 00:45:43\",\"notAfter\":\"2025-08-30 01:45:39\"},\"subject\":\"CN=chatgpt.com\",\"subjectPublicKeyInfo\":{\"subjectPublicKeyAlgorithm\":\"ECDSA\",\"subjectPublicKey\":\"04:1b:6f:da:7f:7d:ec:43:96:ae:83:17:01:f7:92:ce:0a:18:50:18:73:9f:e4:27:5b:4b:d4:b6:42:b8:9c:01:32:94:31:d3:69:f4:2d:ca:9e:b9:86:35:53:20:6a:d9:45:e6:03:13:0c:fd:94:51:55:21:84:06:6f:df:5b:b9:99\"},\"extensions\":10,\"signatureAlgorithm\":\"ECDSAWithSHA256\",\"signature\":\"30:46:02:21:00:df:06:da:82:75:83:9e:65:db:92:d8:a1:7b:5e:3c:8d:e8:d6:61:e9:39:ce:2e:e5:59:92:f3:8f:0a:4f:43:f5:02:21:00:8f:df:13:b1:a5:e0:10:f5:e1:7b:86:96:50:7d:a8:63:dd:18:67:d4:7e:94:f2:1b:a6:40:c6:e9:60:76:11:60\"}";
+	    "{\"version\":3,\"serialNumber\":\"8f:7c:fe:10:9e:fa:98:7f:11:68:12:e1:98:00:84:97\",\"issuer\":\"C=US, O=Google Trust Services, CN=WE1\",\"validity\":{\"notBefore\":\"2025-06-01 00:45:43\",\"notAfter\":\"2025-08-30 01:45:39\"},\"subject\":\"CN=chatgpt.com\",\"subjectPublicKeyInfo\":{\"subjectPublicKeyAlgorithm\":\"ECDSA\",\"subjectPublicKey\":\"04:1b:6f:da:7f:7d:ec:43:96:ae:83:17:01:f7:92:ce:0a:18:50:18:73:9f:e4:27:5b:4b:d4:b6:42:b8:9c:01:32:94:31:d3:69:f4:2d:ca:9e:b9:86:35:53:20:6a:d9:45:e6:03:13:0c:fd:94:51:55:21:84:06:6f:df:5b:b9:99\"},\"extensions\":[{\"type\":\"KeyUsage\",\"isCritical\":true},{\"type\":\"ExtendedKeyUsage\",\"isCritical\":false},{\"type\":\"BasicConstraints\",\"isCritical\":true},{\"type\":\"SubjectKeyIdentifier\",\"isCritical\":false},{\"type\":\"AuthorityKeyIdentifier\",\"isCritical\":false},{\"type\":\"AuthorityInfoAccess\",\"isCritical\":false},{\"type\":\"SubjectAltName\",\"isCritical\":false},{\"type\":\"CertificatePolicies\",\"isCritical\":false},{\"type\":\"CRLDistributionPoints\",\"isCritical\":false},{\"type\":\"CTPrecertificateSCTs\",\"isCritical\":false}],\"signatureAlgorithm\":\"ECDSAWithSHA256\",\"signature\":\"30:46:02:21:00:df:06:da:82:75:83:9e:65:db:92:d8:a1:7b:5e:3c:8d:e8:d6:61:e9:39:ce:2e:e5:59:92:f3:8f:0a:4f:43:f5:02:21:00:8f:df:13:b1:a5:e0:10:f5:e1:7b:86:96:50:7d:a8:63:dd:18:67:d4:7e:94:f2:1b:a6:40:c6:e9:60:76:11:60\"}";
 	PTF_ASSERT_EQUAL(x509Certificate->toJson(), expectedJson);
 
 	std::string expectedAsn1String = R"(Sequence (constructed), Length: 4+935
@@ -236,7 +253,7 @@ PTF_TEST_CASE(X509VariantsParsingTest)
 	// Multiple extensions
 	{
 		auto x509Cert = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
-		PTF_ASSERT_EQUAL(x509Cert->getExtensionCount(), 18);
+		PTF_ASSERT_EQUAL(x509Cert->getExtensions().size(), 18);
 		std::vector<pcpp::X509ExtensionType> extensionTypes = {
 			pcpp::X509ExtensionType::BasicConstraints,
 			pcpp::X509ExtensionType::KeyUsage,
@@ -328,5 +345,94 @@ PTF_TEST_CASE(X509InvalidDataTest)
 	{
 		PTF_ASSERT_RAISES(pcpp::X509Certificate::fromDERFile("PacketExamples/missing_file.der"), std::runtime_error,
 		                  "DER file doesn't exist or cannot be opened");
+	}
+}
+
+PTF_TEST_CASE(X509ExtensionDataTest)
+{
+	// BasicConstraints - with data
+	{
+		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::BasicConstraints);
+		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_TRUE(extensionDataPtr->castAs<pcpp::X509BasicConstraintsExtension>()->isCA());
+		PTF_ASSERT_EQUAL(extensionDataPtr->castAs<pcpp::X509BasicConstraintsExtension>()->getPathLenConstraint(), 12);
+	}
+
+	// BasicConstraints - no data
+	{
+		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_chatgpt.der");
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::BasicConstraints);
+		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_FALSE(extensionDataPtr->castAs<pcpp::X509BasicConstraintsExtension>()->isCA());
+		PTF_ASSERT_EQUAL(extensionDataPtr->castAs<pcpp::X509BasicConstraintsExtension>()->getPathLenConstraint(), 0);
+	}
+
+	// SubjectKeyIdentifier
+	{
+		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_chatgpt.der");
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::SubjectKeyIdentifier);
+		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_EQUAL(extensionDataPtr->castAs<pcpp::X509SubjectKeyIdentifierExtension>()->getKeyIdentifier(),
+		                 "9b9dcac58952129eff05e58637f09d6ace2d0a96");
+	}
+
+	// KeyUsage - 1 bit exists
+	{
+		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_chatgpt.der");
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::KeyUsage);
+		auto extensionDataPtr = extension.getData();
+		auto extensionData = extensionDataPtr->castAs<pcpp::X509KeyUsageExtension>();
+		PTF_ASSERT_TRUE(extensionData->isDigitalSignature());
+		PTF_ASSERT_FALSE(extensionData->isKeyEncipherment());
+		PTF_ASSERT_FALSE(extensionData->isNonRepudiation());
+		PTF_ASSERT_FALSE(extensionData->isDataEncipherment());
+		PTF_ASSERT_FALSE(extensionData->isKeyAgreement());
+		PTF_ASSERT_FALSE(extensionData->isKeyCertSign());
+		PTF_ASSERT_FALSE(extensionData->isCRLSign());
+		PTF_ASSERT_FALSE(extensionData->isEncipherOnly());
+		PTF_ASSERT_FALSE(extensionData->isDecipherOnly());
+	}
+
+	// KeyUsage - 5 bits exist
+	{
+		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::KeyUsage);
+		auto extensionDataPtr = extension.getData();
+		auto extensionData = extensionDataPtr->castAs<pcpp::X509KeyUsageExtension>();
+		PTF_ASSERT_TRUE(extensionData->isDigitalSignature());
+		PTF_ASSERT_TRUE(extensionData->isKeyEncipherment());
+		PTF_ASSERT_TRUE(extensionData->isNonRepudiation());
+		PTF_ASSERT_FALSE(extensionData->isDataEncipherment());
+		PTF_ASSERT_TRUE(extensionData->isKeyAgreement());
+		PTF_ASSERT_FALSE(extensionData->isKeyCertSign());
+		PTF_ASSERT_FALSE(extensionData->isCRLSign());
+		PTF_ASSERT_FALSE(extensionData->isEncipherOnly());
+		PTF_ASSERT_FALSE(extensionData->isDecipherOnly());
+	}
+
+	// ExtendedKeyUsage
+	{
+		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::ExtendedKeyUsage);
+		auto extensionDataPtr = extension.getData();
+
+		std::vector<pcpp::X509ExtendedKeyUsagePurpose> expectedPurposes = {
+			pcpp::X509ExtendedKeyUsagePurpose::ServerAuth,   pcpp::X509ExtendedKeyUsagePurpose::ClientAuth,
+			pcpp::X509ExtendedKeyUsagePurpose::CodeSigning,  pcpp::X509ExtendedKeyUsagePurpose::EmailProtection,
+			pcpp::X509ExtendedKeyUsagePurpose::TimeStamping, pcpp::X509ExtendedKeyUsagePurpose::OCSPSigning,
+		};
+
+		PTF_ASSERT_VECTORS_EQUAL(extensionDataPtr->castAs<pcpp::X509ExtendedKeyUsageExtension>()->getPurposes(),
+		                         expectedPurposes);
+	}
+
+	// Cast to invalid type
+	{
+		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::ExtendedKeyUsage);
+		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_RAISES(extensionDataPtr->castAs<pcpp::X509KeyUsageExtension>(), std::runtime_error,
+		                  "Trying to cast X509 extension data to the wrong type");
 	}
 }

@@ -285,3 +285,4 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest);
 PTF_TEST_CASE(X509ParsingTest);
 PTF_TEST_CASE(X509VariantsParsingTest);
 PTF_TEST_CASE(X509InvalidDataTest);
+PTF_TEST_CASE(X509ExtensionDataTest);

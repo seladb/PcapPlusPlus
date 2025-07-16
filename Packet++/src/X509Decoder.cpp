@@ -683,7 +683,7 @@ namespace pcpp
 			return X509ExtensionType::fromOidValue(extensionTypeRecord->getValue());
 		}
 
-		bool X509Extension::getCritical() const
+		bool X509Extension::isCritical() const
 		{
 			if (m_CriticalOffset == -1)
 			{
@@ -883,6 +883,38 @@ namespace pcpp
 		return result.str();
 	}
 
+	X509Extension::X509Extension(const X509Internal::X509Extension& internalExtension)
+	    : m_IsCritical(internalExtension.isCritical()), m_Type(internalExtension.getType()),
+	      m_Data(internalExtension.getValue())
+	{}
+
+	std::unique_ptr<X509ExtensionData> X509Extension::getData() const
+	{
+		switch (m_Type)
+		{
+		case X509ExtensionType::BasicConstraints:
+		{
+			return std::unique_ptr<X509ExtensionData>(new X509BasicConstraintsExtension(m_Data));
+		}
+		case X509ExtensionType::SubjectKeyIdentifier:
+		{
+			return std::unique_ptr<X509ExtensionData>(new X509SubjectKeyIdentifierExtension(m_Data));
+		}
+		case X509ExtensionType::KeyUsage:
+		{
+			return std::unique_ptr<X509ExtensionData>(new X509KeyUsageExtension(m_Data));
+		}
+		case X509ExtensionType::ExtendedKeyUsage:
+		{
+			return std::unique_ptr<X509ExtensionData>(new X509ExtendedKeyUsageExtension(m_Data));
+		}
+		default:
+		{
+			return std::unique_ptr<X509ExtensionData>(new X509ExtensionData());
+		}
+		}
+	}
+
 	X509Certificate::X509Certificate(uint8_t* derData, size_t derDataLen, bool ownDerData)
 	    : m_X509Internal(X509Internal::X509Certificate::decode(derData, derDataLen)),
 	      m_TBSCertificate(m_X509Internal->getTbsCertificate())
@@ -947,6 +979,20 @@ namespace pcpp
 		return m_TBSCertificate.getVersion();
 	}
 
+	const std::vector<X509Extension>& X509Certificate::getExtensions() const
+	{
+		if (!m_ExtensionsParsed)
+		{
+			for (const auto& extension : m_TBSCertificate.getExtensions()->getExtensions())
+			{
+				m_Extensions.emplace_back(X509Extension(extension));
+			}
+			m_ExtensionsParsed = true;
+		}
+
+		return m_Extensions;
+	}
+
 	bool X509Certificate::hasExtension(const X509ExtensionType& extensionType) const
 	{
 		auto extensions = m_TBSCertificate.getExtensions()->getExtensions();
@@ -954,9 +1000,18 @@ namespace pcpp
 		                   [extensionType](const auto& ext) { return ext.getType() == extensionType; });
 	}
 
-	size_t X509Certificate::getExtensionCount() const
+	const X509Extension& X509Certificate::getExtension(const X509ExtensionType& extensionType) const
 	{
-		return m_TBSCertificate.getExtensions()->getExtensions().size();
+		auto matchExtension =
+		    std::find_if(getExtensions().begin(), getExtensions().end(),
+		                 [extensionType](X509Extension extension) { return extension.getType() == extensionType; });
+
+		if (matchExtension != getExtensions().end())
+		{
+			return *matchExtension;
+		}
+
+		throw std::runtime_error("Extension of type " + extensionType.toString() + " not found");
 	}
 
 	X509Name X509Certificate::getSubject() const
@@ -1016,6 +1071,15 @@ namespace pcpp
 
 	std::string X509Certificate::toJson(int indent) const
 	{
+		auto extensions = nlohmann::ordered_json::array();
+		for (const auto& extension : getExtensions())
+		{
+			extensions.push_back({
+			    { "type",       extension.getType().toString() },
+			    { "isCritical", extension.isCritical()         },
+			});
+		}
+
 		nlohmann::ordered_json certificateJson = {
 			{ "version",              static_cast<int>(getVersion()) + 1 },
 			{ "serialNumber",         getSerialNumber().toString()       },
@@ -1029,7 +1093,7 @@ namespace pcpp
 			{ "subjectPublicKeyInfo",
              { { "subjectPublicKeyAlgorithm", getPublicKeyAlgorithm().toString() },
 			    { "subjectPublicKey", getPublicKey().toString() } }      },
-			{ "extensions",           getExtensionCount()                },
+			{ "extensions",           extensions                         },
 			{ "signatureAlgorithm",   getSignatureAlgorithm().toString() },
 			{ "signature",            getSignature().toString()          }
 		};
