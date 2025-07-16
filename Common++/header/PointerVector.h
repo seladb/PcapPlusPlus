@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <type_traits>
+#include <utility>
 
 #include "DeprecationUtils.h"
 

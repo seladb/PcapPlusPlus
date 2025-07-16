@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleIPv6Layer
 
 #include <stdexcept>
+#include <utility>
 #include "IPv6Layer.h"
 #include "IPv4Layer.h"
 #include "PayloadLayer.h"
@@ -153,9 +154,7 @@ namespace pcpp
 		IPv6Extension* curExt = m_FirstExtension;
 		while (curExt != nullptr)
 		{
-			IPv6Extension* tmpExt = curExt->getNextHeader();
-			delete curExt;
-			curExt = tmpExt;
+			delete std::exchange(curExt, curExt->getNextHeader());
 		}
 
 		m_FirstExtension = nullptr;
