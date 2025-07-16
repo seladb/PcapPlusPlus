@@ -193,8 +193,6 @@ namespace pcpp
 
 		Asn1Record() = default;
 
-		static std::unique_ptr<Asn1Record> decodeInternal(const uint8_t* data, size_t dataLen, bool lazy);
-
 		/// @brief Decodes the record value from a byte array into the mutable cache variables.
 		/// This method is marked as const as it can be called on a const instance of the record for lazy decoding.
 		virtual void decodeValue(uint8_t const* data) const = 0;

@@ -91,7 +91,24 @@ namespace pcpp
 
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		return decodeInternal(data, dataLen, lazy);
+		uint8_t tagLen;
+		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
+
+		uint8_t lengthLen;
+		lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
+
+		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
+		if (decodedRecord->m_TotalLength < decodedRecord->m_ValueLength ||  // check for overflow
+		    decodedRecord->m_TotalLength > dataLen)
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
+		}
+
+		uint8_t const* startOfData = data + tagLen + lengthLen;
+		internal::LazyLoadPolicy policy = lazy ? internal::LazyLoadPolicy::Lazy : internal::LazyLoadPolicy::Eager;
+		decodedRecord->setSource(startOfData, policy);
+
+		return decodedRecord;
 	}
 
 	uint8_t Asn1Record::encodeTag()
@@ -173,28 +190,6 @@ namespace pcpp
 		result.insert(result.end(), encodedValue.begin(), encodedValue.end());
 
 		return result;
-	}
-
-	std::unique_ptr<Asn1Record> Asn1Record::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
-	{
-		uint8_t tagLen;
-		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
-
-		uint8_t lengthLen;
-		lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
-
-		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
-		if (decodedRecord->m_TotalLength < decodedRecord->m_ValueLength ||  // check for overflow
-		    decodedRecord->m_TotalLength > dataLen)
-		{
-			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
-		}
-
-		uint8_t const* startOfData = data + tagLen + lengthLen;
-		internal::LazyLoadPolicy policy = lazy ? internal::LazyLoadPolicy::Lazy : internal::LazyLoadPolicy::Eager;
-		decodedRecord->setSource(startOfData, policy);
-
-		return decodedRecord;
 	}
 
 	Asn1UniversalTagType Asn1Record::getUniversalTagType() const
@@ -512,7 +507,7 @@ namespace pcpp
 
 		while (valueLen > 0)
 		{
-			auto subRecord = Asn1Record::decodeInternal(value, valueLen, LazySubRecordDecoding);
+			auto subRecord = Asn1Record::decode(value, valueLen, LazySubRecordDecoding);
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
