@@ -19,6 +19,7 @@ set(
   header/IpAddress.h
   header/IpAddressUtils.h
   header/IpUtils.h
+  header/Lazy.h
   header/Logger.h
   header/LRUList.h
   header/MacAddress.h
