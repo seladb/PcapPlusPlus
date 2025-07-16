@@ -46,7 +46,7 @@ namespace pcpp
 	/// Calculates alignment.
 	/// @param[in] number Given number
 	/// @return The aligned number
-	template <int alignment> static int align(int number)
+	template <int alignment> static constexpr auto align(int number)
 	{
 		// Only works for alignment with power of 2
 		constexpr bool isPowerOfTwo = alignment && ((alignment & (alignment - 1)) == 0);
@@ -60,7 +60,7 @@ namespace pcpp
 	template <typename EnumClass, typename std::enable_if<std::is_enum<EnumClass>::value, bool>::type = false>
 	struct EnumClassHash
 	{
-		size_t operator()(EnumClass value) const
+		auto operator()(EnumClass value) const
 		{
 			return static_cast<typename std::underlying_type<EnumClass>::type>(value);
 		}

@@ -288,7 +288,7 @@ namespace pcpp
 
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const IPv4Address& ipAddr) const
 	{
-		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ipAddr](PcapLiveDevice const* devPtr) {
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ipAddr](auto const* devPtr) {
 			auto devIP = devPtr->getIPv4Address();
 			return devIP == ipAddr;
 		});
@@ -302,7 +302,7 @@ namespace pcpp
 
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const IPv6Address& ip6Addr) const
 	{
-		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip6Addr](PcapLiveDevice const* devPtr) {
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip6Addr](auto const* devPtr) {
 			auto devIP = devPtr->getIPv6Address();
 			return devIP == ip6Addr;
 		});
@@ -340,7 +340,7 @@ namespace pcpp
 	{
 		PCPP_LOG_DEBUG("Searching all live devices...");
 		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
-		                            [&name](PcapLiveDevice* dev) { return dev->getName() == name; });
+		                            [&name](auto dev) { return dev->getName() == name; });
 
 		if (devIter == m_DeviceList.end())
 		{
