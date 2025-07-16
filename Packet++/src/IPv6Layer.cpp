@@ -154,7 +154,9 @@ namespace pcpp
 		IPv6Extension* curExt = m_FirstExtension;
 		while (curExt != nullptr)
 		{
-			delete std::exchange(curExt, curExt->getNextHeader());
+			IPv6Extension* tmpExt = curExt->getNextHeader();
+			delete curExt;
+			curExt = tmpExt;
 		}
 
 		m_FirstExtension = nullptr;

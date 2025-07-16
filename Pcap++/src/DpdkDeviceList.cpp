@@ -239,7 +239,7 @@ namespace pcpp
 		}
 
 		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
-		                            [&pciAddr](const auto* dev) { return dev->getPciAddress() == pciAddr; });
+		                            [&pciAddr](const DpdkDevice* dev) { return dev->getPciAddress() == pciAddr; });
 
 		if (devIter == m_DeviceList.end())
 		{

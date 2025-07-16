@@ -622,9 +622,15 @@ namespace pcpp
 
 		/// Returns the delimiter for joining filter strings for the composite logic filter operation.
 		/// @return A string literal to place between the different filter strings to produce a composite expression.
-		template <CompositeLogicFilterOp op> constexpr const char* getCompositeLogicOpDelimiter = nullptr;
-		template <> constexpr const char* getCompositeLogicOpDelimiter<CompositeLogicFilterOp::AND> = " and ";
-		template <> constexpr const char* getCompositeLogicOpDelimiter<CompositeLogicFilterOp::OR> = " or ";
+		template <CompositeLogicFilterOp op> constexpr const char* getCompositeLogicOpDelimiter() = delete;
+		template <> constexpr const char* getCompositeLogicOpDelimiter<CompositeLogicFilterOp::AND>()
+		{
+			return " and ";
+		};
+		template <> constexpr const char* getCompositeLogicOpDelimiter<CompositeLogicFilterOp::OR>()
+		{
+			return " or ";
+		};
 	}  // namespace internal
 
 	/// @class CompositeLogicFilter
@@ -646,7 +652,7 @@ namespace pcpp
 				result += '(' + innerFilter + ')';
 				if (m_FilterList.cend() - 1 != it)
 				{
-					result += internal::getCompositeLogicOpDelimiter<op>;
+					result += internal::getCompositeLogicOpDelimiter<op>();
 				}
 			}
 		}
