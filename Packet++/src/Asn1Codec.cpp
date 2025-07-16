@@ -416,11 +416,6 @@ namespace pcpp
 		return 1 + actualLengthBytes;
 	}
 
-	void Asn1Record::decodeValueIfNeeded() const
-	{
-		ensureEvaluated();
-	}
-
 	std::string Asn1Record::toString()
 	{
 		// Decode the value if it hasn't been decoded yet to ensure we have the correct value

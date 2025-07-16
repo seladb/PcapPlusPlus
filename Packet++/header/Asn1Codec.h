@@ -213,7 +213,10 @@ namespace pcpp
 		static std::unique_ptr<Asn1Record> decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen,
 		                                                            uint8_t& tagLen);
 		uint8_t decodeLength(const uint8_t* data, size_t dataLen);
-		void decodeValueIfNeeded() const;
+		void decodeValueIfNeeded() const
+		{
+			ensureEvaluated();
+		}
 
 		uint8_t encodeTag();
 		std::vector<uint8_t> encodeLength() const;
