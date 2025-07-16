@@ -190,13 +190,13 @@ namespace pcpp
 		size_t m_ValueLength = 0;
 		size_t m_TotalLength = 0;
 
-		uint8_t* m_EncodedValue = nullptr;
+		uint8_t const* m_EncodedValue = nullptr;
 
 		Asn1Record() = default;
 
 		static std::unique_ptr<Asn1Record> decodeInternal(const uint8_t* data, size_t dataLen, bool lazy);
 
-		virtual void decodeValue(uint8_t* data, bool lazy) = 0;
+		virtual void decodeValue(uint8_t const* data, bool lazy) = 0;
 		virtual std::vector<uint8_t> encodeValue() const = 0;
 
 		static std::unique_ptr<Asn1Record> decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen,
@@ -248,7 +248,7 @@ namespace pcpp
 	protected:
 		Asn1GenericRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
@@ -289,7 +289,7 @@ namespace pcpp
 	protected:
 		Asn1ConstructedRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
@@ -412,7 +412,7 @@ namespace pcpp
 	protected:
 		Asn1IntegerRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
@@ -516,9 +516,9 @@ namespace pcpp
 			m_TotalLength = m_ValueLength + 2;
 		}
 
-		void decodeValue(uint8_t* data, bool lazy) override
+		void decodeValue(uint8_t const* data, bool lazy) override
 		{
-			m_Value = std::string(reinterpret_cast<char*>(data), m_ValueLength);
+			m_Value = std::string(reinterpret_cast<char const*>(data), m_ValueLength);
 		}
 		std::vector<uint8_t> encodeValue() const override
 		{
@@ -553,7 +553,7 @@ namespace pcpp
 		{}
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
@@ -629,7 +629,7 @@ namespace pcpp
 		};
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
@@ -651,7 +651,7 @@ namespace pcpp
 		Asn1NullRecord();
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override
+		void decodeValue(uint8_t const* data, bool lazy) override
 		{}
 		std::vector<uint8_t> encodeValue() const override
 		{
@@ -735,7 +735,7 @@ namespace pcpp
 		}
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
@@ -799,7 +799,7 @@ namespace pcpp
 		explicit Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds = true);
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
@@ -823,7 +823,7 @@ namespace pcpp
 		                                   const std::string& timezone = "Z");
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
@@ -851,7 +851,7 @@ namespace pcpp
 		};
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
