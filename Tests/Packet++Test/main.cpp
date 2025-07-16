@@ -201,8 +201,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpVehicleAnnouncementPacketCreation, "doip");
 	PTF_RUN_TEST(DoIpAliveCheckResponsePacketParsing, "doip");
 	PTF_RUN_TEST(DoIpAliveCheckResponsePacketCreation, "doip");
-	PTF_RUN_TEST(DoIpPowerModeResponsePacketParsing, "doip");
-	PTF_RUN_TEST(DoIpPowerModeResponsePacketCreation, "doip");
+	PTF_RUN_TEST(DoIpDiagnosticPowerModeResponsePacketParsing, "doip");
+	PTF_RUN_TEST(DoIpDiagnosticPowerModeResponsePacketCreation, "doip");
 	PTF_RUN_TEST(DoIpEntityStatusResponsePacketParsing, "doip");
 	PTF_RUN_TEST(DoIpEntityStatusResponsePacketCreation, "doip");
 	PTF_RUN_TEST(DoIpDiagnosticMessagePacketParsing, "doip");
@@ -213,16 +213,14 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpDiagnosticNackMessagePacketCreation, "doip");
 	PTF_RUN_TEST(DoIpVehicleIdentificationRequestPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpVehicleIdentificationRequestPacketCreation, "doip");
-	PTF_RUN_TEST(DoIpPowerModeRequestPacketParsing, "doip");
-	PTF_RUN_TEST(DoIpPowerModeRequestPacketCreation, "doip");
+	PTF_RUN_TEST(DoIpDiagnosticPowerModeRequestPacketParsing, "doip");
+	PTF_RUN_TEST(DoIpDiagnosticPowerModeRequestPacketCreation, "doip");
 	PTF_RUN_TEST(DoIpEntityStatusRequestPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpEntityStatusRequestPacketCreation, "doip");
 	PTF_RUN_TEST(DoIpAliveCheckRequestPacketParsing, "doip");
 	PTF_RUN_TEST(DoIpAliveCheckRequestPacketCreation, "doip");
 	PTF_RUN_TEST(DoIpVehicleIdentificationRequestWithDefaultVersPacketParsing, "doip");
-	PTF_RUN_TEST(DoIpInvalidPayloadTypePacketParsing, "doip");
-	PTF_RUN_TEST(DoIpInvalidPayloadLenPacketParsing, "doip");
-	PTF_RUN_TEST(DoIpInvalidProtocolVersionPacketParsing, "doip");
+	PTF_RUN_TEST(DoIpInvalidPackets, "doip");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");

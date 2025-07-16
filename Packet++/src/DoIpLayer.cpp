@@ -107,10 +107,10 @@ namespace pcpp
 	// related to DoIP diagnostics, as per ISO 13400. It maps the `DoIpDiagnosticPowerMode` enum
 	// values to their corresponding descriptions.
 	static const std::unordered_map<DoIpDiagnosticPowerModeCodes, std::string> DoIpEnumToStringDiagnosticPowerModeCodes{
-		{ DoIpDiagnosticPowerModeCodes::NOT_READY,     "not ready"     },
-		{ DoIpDiagnosticPowerModeCodes::READY,         "ready"         },
-		{ DoIpDiagnosticPowerModeCodes::NOT_SUPPORTED, "not supported" },
-		{ DoIpDiagnosticPowerModeCodes::UNKNOWN,       "unknown"       }
+		{ DoIpDiagnosticPowerModeCodes::NOT_READY,     "Not ready"     },
+		{ DoIpDiagnosticPowerModeCodes::READY,         "Ready"         },
+		{ DoIpDiagnosticPowerModeCodes::NOT_SUPPORTED, "Not supported" },
+		{ DoIpDiagnosticPowerModeCodes::UNKNOWN,       "Unknown"       }
 	};
 
 	// This unordered map provides human-readable descriptions for the entity status codes
@@ -412,7 +412,7 @@ namespace pcpp
 	                                                           DoIpActivationTypes activationType)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
 
 		setSourceAddress(sourceAddress);
 		setActivationType(activationType);
@@ -647,7 +647,7 @@ namespace pcpp
 
 	DoIpGenericHeaderNack::DoIpGenericHeaderNack(DoIpGenericHeaderNackCodes nackCode) : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
 		setNackCode(nackCode);
 	}
 
@@ -756,7 +756,7 @@ namespace pcpp
 	                                                 DoIpActionCodes actionCode)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
 
 		setVIN(vin);
 		setLogicalAddress(logicalAddress);
@@ -922,7 +922,7 @@ namespace pcpp
 	DoIpDiagnosticPowerModeResponse::DoIpDiagnosticPowerModeResponse(DoIpDiagnosticPowerModeCodes code)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
 		setPowerModeCode(code);
 	}
 
@@ -962,7 +962,7 @@ namespace pcpp
 	                                                   uint8_t maxConcurrentSockets, uint8_t currentlyOpenSockets)
 	    : DoIpLayer(FIXED_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), FIXED_LEN - DOIP_HEADER_LEN);
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
 
 		setNodeType(nodeType);
 		setMaxConcurrentSockets(maxConcurrentSockets);
@@ -1222,11 +1222,9 @@ namespace pcpp
 
 	DoIpDiagnosticAckCodes DoIpDiagnosticAckMessage::getAckCode() const
 	{
-		if (getResponseCode() == static_cast<uint8_t>(DoIpDiagnosticAckCodes::ACK))
-		{
-			return DoIpDiagnosticAckCodes::ACK;
-		}
-		return DoIpDiagnosticAckCodes::UNKNOWN;
+		return (getResponseCode() == static_cast<uint8_t>(DoIpDiagnosticAckCodes::ACK))
+		           ? DoIpDiagnosticAckCodes::ACK
+		           : DoIpDiagnosticAckCodes::UNKNOWN;
 	}
 
 	void DoIpDiagnosticAckMessage::setAckCode(DoIpDiagnosticAckCodes code)
