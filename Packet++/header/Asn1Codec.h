@@ -200,6 +200,7 @@ namespace pcpp
 		virtual void decodeValue(uint8_t const* data) const = 0;
 		
 		/// @brief Encodes the record value into a byte array
+		/// Prefer using encodeValueSafe() to ensure the value is decoded first if needed
 		virtual std::vector<uint8_t> encodeValue() const = 0;
 		
 		/// @brief Encodes the record value into a byte array, ensuring that the value is decoded first if needed
