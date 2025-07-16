@@ -169,7 +169,7 @@ namespace pcpp
 		auto lengthBytes = encodeLength();
 		result.insert(result.end(), lengthBytes.begin(), lengthBytes.end());
 
-		auto encodedValue = encodeValue();
+		auto encodedValue = encodeValueSafe();
 		result.insert(result.end(), encodedValue.begin(), encodedValue.end());
 
 		return result;
@@ -190,14 +190,9 @@ namespace pcpp
 			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
 		}
 
-		if (!lazy)
-		{
-			decodedRecord->decodeValue(data + tagLen + lengthLen, lazy);
-		}
-		else
-		{
-			decodedRecord->m_EncodedValue = data + tagLen + lengthLen;
-		}
+		uint8_t const* startOfData = data + tagLen + lengthLen;
+		internal::LazyLoadPolicy policy = lazy ? internal::LazyLoadPolicy::Lazy : internal::LazyLoadPolicy::Eager;
+		decodedRecord->setSource(startOfData, policy);
 
 		return decodedRecord;
 	}
@@ -421,17 +416,15 @@ namespace pcpp
 		return 1 + actualLengthBytes;
 	}
 
-	void Asn1Record::decodeValueIfNeeded()
+	void Asn1Record::decodeValueIfNeeded() const
 	{
-		if (m_EncodedValue != nullptr)
-		{
-			decodeValue(m_EncodedValue, true);
-			m_EncodedValue = nullptr;
-		}
+		ensureEvaluated();
 	}
 
 	std::string Asn1Record::toString()
 	{
+		// Decode the value if it hasn't been decoded yet to ensure we have the correct value
+		decodeValueIfNeeded();
 		auto lines = toStringList();
 
 		auto commaSeparated = [](std::string str1, std::string str2) {
@@ -441,7 +434,7 @@ namespace pcpp
 		return std::accumulate(std::next(lines.begin()), lines.end(), lines[0], commaSeparated);
 	}
 
-	std::vector<std::string> Asn1Record::toStringList()
+	std::vector<std::string> Asn1Record::toStringList() const
 	{
 		std::ostringstream stream;
 
@@ -477,7 +470,7 @@ namespace pcpp
 		init(tagClass, isConstructed, tagType, reinterpret_cast<const uint8_t*>(value.c_str()), value.size());
 	}
 
-	void Asn1GenericRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1GenericRecord::decodeValue(uint8_t const* data) const
 	{
 		m_Value = std::make_unique<uint8_t[]>(m_ValueLength);
 		std::memcpy(m_Value.get(), data, m_ValueLength);
@@ -512,7 +505,7 @@ namespace pcpp
 		init(tagClass, tagType, subRecords.begin(), subRecords.end());
 	}
 
-	void Asn1ConstructedRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1ConstructedRecord::decodeValue(uint8_t const* data) const
 	{
 		if (!(data || m_ValueLength))
 		{
@@ -524,7 +517,7 @@ namespace pcpp
 
 		while (valueLen > 0)
 		{
-			auto subRecord = Asn1Record::decodeInternal(value, valueLen, lazy);
+			auto subRecord = Asn1Record::decodeInternal(value, valueLen, LazySubRecordDecoding);
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
@@ -546,7 +539,7 @@ namespace pcpp
 		return result;
 	}
 
-	std::vector<std::string> Asn1ConstructedRecord::toStringList()
+	std::vector<std::string> Asn1ConstructedRecord::toStringList() const
 	{
 		decodeValueIfNeeded();
 		std::vector<std::string> result = { Asn1Record::toStringList().front() };
@@ -678,7 +671,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1IntegerRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1IntegerRecord::decodeValue(uint8_t const* data) const
 	{
 		m_Value = pcpp::byteArrayToHexString(data, m_ValueLength);
 	}
@@ -688,7 +681,7 @@ namespace pcpp
 		return m_Value.toBytes();
 	}
 
-	std::vector<std::string> Asn1IntegerRecord::toStringList()
+	std::vector<std::string> Asn1IntegerRecord::toStringList() const
 	{
 		auto valueAsString =
 		    m_Value.canFit<uint64_t>() ? std::to_string(getIntValue<uint64_t>()) : "0x" + getValueAsString();
@@ -707,7 +700,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1OctetStringRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1OctetStringRecord::decodeValue(uint8_t const* data) const
 	{
 		auto value = reinterpret_cast<char const*>(data);
 
@@ -715,7 +708,7 @@ namespace pcpp
 
 		if (m_IsPrintable)
 		{
-			Asn1StringRecord::decodeValue(data, lazy);
+			Asn1StringRecord::decodeValue(data);
 		}
 		else
 		{
@@ -747,7 +740,7 @@ namespace pcpp
 		m_TotalLength = 3;
 	}
 
-	void Asn1BooleanRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1BooleanRecord::decodeValue(uint8_t const* data) const
 	{
 		m_Value = data[0] != 0;
 	}
@@ -758,7 +751,7 @@ namespace pcpp
 		return { byte };
 	}
 
-	std::vector<std::string> Asn1BooleanRecord::toStringList()
+	std::vector<std::string> Asn1BooleanRecord::toStringList() const
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + (getValue() ? "true" : "false") };
 	}
@@ -936,7 +929,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1ObjectIdentifierRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1ObjectIdentifierRecord::decodeValue(uint8_t const* data) const
 	{
 		m_Value = Asn1ObjectIdentifier(data, m_ValueLength);
 	}
@@ -946,7 +939,7 @@ namespace pcpp
 		return m_Value.toBytes();
 	}
 
-	std::vector<std::string> Asn1ObjectIdentifierRecord::toStringList()
+	std::vector<std::string> Asn1ObjectIdentifierRecord::toStringList() const
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + getValue().toString() };
 	}
@@ -960,7 +953,7 @@ namespace pcpp
 	}
 
 	std::string Asn1TimeRecord::getValueAsString(const std::string& format, const std::string& timezone,
-	                                             bool includeMilliseconds)
+	                                             bool includeMilliseconds) const
 	{
 		auto value = getValue(timezone);
 		auto timeValue = std::chrono::system_clock::to_time_t(value);
@@ -987,7 +980,7 @@ namespace pcpp
 		return osstream.str();
 	}
 
-	std::vector<std::string> Asn1TimeRecord::toStringList()
+	std::vector<std::string> Asn1TimeRecord::toStringList() const
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + getValueAsString("%Y-%m-%d %H:%M:%S", "Z", true) };
 	}
@@ -1046,7 +1039,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1UtcTimeRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1UtcTimeRecord::decodeValue(uint8_t const* data) const
 	{
 		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
 
@@ -1114,7 +1107,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1GeneralizedTimeRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1GeneralizedTimeRecord::decodeValue(uint8_t const* data) const
 	{
 		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
 
@@ -1270,7 +1263,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1BitStringRecord::decodeValue(uint8_t const* data, bool lazy)
+	void Asn1BitStringRecord::decodeValue(uint8_t const* data) const
 	{
 		auto numBits = (m_ValueLength - 1) * 8 - static_cast<size_t>(data[0]);
 		m_Value = BitSet(data + 1, numBits);
@@ -1284,8 +1277,9 @@ namespace pcpp
 		return result;
 	}
 
-	std::vector<std::string> Asn1BitStringRecord::toStringList()
+	std::vector<std::string> Asn1BitStringRecord::toStringList() const
 	{
+		decodeValueIfNeeded();
 		return { Asn1Record::toStringList().front() + ", Value: " + m_Value.toString() };
 	}
 
