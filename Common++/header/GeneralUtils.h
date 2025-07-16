@@ -60,7 +60,7 @@ namespace pcpp
 	template <typename EnumClass, typename std::enable_if<std::is_enum<EnumClass>::value, bool>::type = false>
 	struct EnumClassHash
 	{
-		auto operator()(EnumClass value) const
+		size_t operator()(EnumClass value) const
 		{
 			return static_cast<typename std::underlying_type<EnumClass>::type>(value);
 		}

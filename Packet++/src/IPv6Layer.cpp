@@ -1,7 +1,6 @@
 #define LOG_MODULE PacketLogModuleIPv6Layer
 
 #include <stdexcept>
-#include <utility>
 #include "IPv6Layer.h"
 #include "IPv4Layer.h"
 #include "PayloadLayer.h"
