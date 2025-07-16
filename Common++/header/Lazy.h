@@ -6,12 +6,12 @@ namespace pcpp
 {
 	namespace internal
 	{
-		enum class LazyInitPolicy
+		enum class LazyLoadPolicy
 		{
 			/// The value is evaluated on first access
-			OnFirstAccess,
-			/// The value is evaluated on construction
-			OnConstruction
+			Lazy,
+			/// The value is evaluated immediately on construction
+			Eager
 		};
 
 		enum class LazyState : int
@@ -51,7 +51,7 @@ namespace pcpp
 			explicit Lazy(T&& value) : m_Value(std::forward<T>(value)), m_State(LazyState::Evaluated)
 			{}
 
-			explicit Lazy(LazyInitPolicy policy, std::unique_ptr<Evaluator> evaluator)
+			explicit Lazy(LazyLoadPolicy policy, std::unique_ptr<Evaluator> evaluator)
 			    : m_Evaluator(std::move(evaluator))
 			{
 				if (!m_Evaluator)
@@ -62,7 +62,7 @@ namespace pcpp
 				// The decoder is set, but the value is not decoded yet.
 				// The state is set to NotDecoded.
 
-				if (policy == LazyInitPolicy::OnConstruction)
+				if (policy == LazyLoadPolicy::Eager)
 				{
 					// If the policy is OnConstruction, we evaluate the value immediately
 					ensureEvaluated();
@@ -70,13 +70,13 @@ namespace pcpp
 			}
 
 			template <typename = std::enable_if_t<std::is_move_constructible<Evaluator>::value>>
-			explicit Lazy(LazyInitPolicy policy, Evaluator&& evaluator)
+			explicit Lazy(LazyLoadPolicy policy, Evaluator&& evaluator)
 			    : m_Evaluator(std::make_unique<Evaluator>(std::move(evaluator)))
 			{
 				// The decoder is set, but the value is not decoded yet.
 				// The state is set to NotDecoded.
 
-				if (policy == LazyInitPolicy::OnConstruction)
+				if (policy == LazyLoadPolicy::Eager)
 				{
 					// If the policy is OnConstruction, we evaluate the value immediately
 					ensureEvaluated();
@@ -268,6 +268,108 @@ namespace pcpp
 			mutable T m_Value;
 			mutable std::atomic<LazyState> m_State{ LazyState::NotEvaluated };
 			std::unique_ptr<Evaluator> m_Evaluator = nullptr;
+		};
+
+		template <typename T> class LazyFieldEvaluationMixin
+		{
+		public:
+			void ensureEvaluated() const
+			{
+				// If the value has not been evaluated yet, atomically set the state to Evaluaing
+				// Memory orders:
+				// - On success - acquire-release semantics to ensure the most recent value is available and immediately
+				// visible after modification.
+				// - On failure - acquire semantics to ensure that the value is not modified by another thread while we
+				// are checking the state.
+				LazyState expected = LazyState::NotEvaluated;
+				if (m_State.compare_exchange_strong(expected, LazyState::Evaluating, std::memory_order_acq_rel,
+				                                    std::memory_order_acquire))
+				{
+					// The value was not evaluated yet, so we are evaluating it.
+
+					try
+					{
+						// Call the decoder to decode the value
+						evaluateFields(m_Source);
+					}
+					catch (...)
+					{
+						// If an exception occurs during decoding, we set the state to Failed
+						m_State.store(LazyState::Error, std::memory_order_release);
+						throw;
+					}
+
+					// If the evaluation was successful, we set the state to Evaluated
+					m_State.store(LazyState::Evaluated, std::memory_order_release);
+				}
+				else
+				{
+					// The value is already being evaluated by another thread or has been evaluated already.
+
+					// Todo Cpp20: Replace with 'm_State.wait(LazyState::Evaluating, std::memory_order_acquire)'
+					while (m_State.load(std::memory_order_acquire) == LazyState::Evaluating)
+					{
+						// The value is being evaluated by another thread, so we wait until it is done.
+						// Yield the time slice to allow other threads to proceed.
+						std::this_thread::yield();
+					}
+				}
+
+				// The value is now either evaluated or failed to evaluate.
+				LazyState finalState = m_State.load(std::memory_order_acquire);
+				switch (finalState)
+				{
+				case LazyState::Error:
+					// If the state is Failed, it means that the value could not be evaluated.
+					throw std::runtime_error("Failed to evaluate the value!");
+				case LazyState::Evaluated:
+					// The value is now evaluated and can be accessed safely.
+					return;
+				default:
+					// The state should be either Evaluated or Failed at this point.
+					throw std::logic_error("Unexpected state after evaluating: " +
+					                       std::to_string(static_cast<int>(finalState)));
+				}
+			}
+
+		protected:
+			/// @brief Creates a mixin that is set to Evaluated state and has no source.
+			/// This is useful for derived classes that set their fields manually.
+			LazyFieldEvaluationMixin() = default;
+
+			/// @brief Creates a mixin that evaluates fields from a source object.
+			/// @param policy The policy that determines when the fields are evaluated.
+			/// @param source The source object from which the fields are evaluated.
+			LazyFieldEvaluationMixin(LazyLoadPolicy policy, T source) : m_Source(std::move(source))
+			{
+				if (policy == LazyLoadPolicy::Eager)
+				{
+					// If the policy is OnConstruction, we evaluate the fields immediately
+					evaluateFields(m_Source);
+					m_State.store(LazyState::Evaluated, std::memory_order_release);
+				}
+			}
+
+			void setSource(T const& source, LazyLoadPolicy policy = LazyLoadPolicy::Lazy)
+			{
+				m_Source = source;
+				m_State.store(LazyState::NotEvaluated, std::memory_order_release);
+
+				if (policy == LazyLoadPolicy::Eager)
+				{
+					ensureEvaluated();
+				}
+			}
+
+		private:
+			/// @brief Evaluates the fields from the source object.
+			/// @param source The source object from which the fields are evaluated.
+			/// @remarks This method is marked const as it should only update cache fields that are marked as mutable.
+			virtual void evaluateFields(T const& source) const = 0;
+
+			T m_Source{};
+			// By default, the source is not set, so the state is set to Evaluated.
+			mutable std::atomic<LazyState> m_State{ LazyState::Evaluated };
 		};
 	}  // namespace internal
 }  // namespace pcpp
