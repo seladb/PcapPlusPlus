@@ -477,22 +477,15 @@ namespace pcpp
 		init(tagClass, isConstructed, tagType, reinterpret_cast<const uint8_t*>(value.c_str()), value.size());
 	}
 
-	Asn1GenericRecord::~Asn1GenericRecord()
-	{
-		delete m_Value;
-	}
-
 	void Asn1GenericRecord::decodeValue(uint8_t const* data, bool lazy)
 	{
-		delete m_Value;
-
-		m_Value = new uint8_t[m_ValueLength];
-		memcpy(m_Value, data, m_ValueLength);
+		m_Value = std::make_unique<uint8_t[]>(m_ValueLength);
+		std::memcpy(m_Value.get(), data, m_ValueLength);
 	}
 
 	std::vector<uint8_t> Asn1GenericRecord::encodeValue() const
 	{
-		return { m_Value, m_Value + m_ValueLength };
+		return { m_Value.get(), m_Value.get() + m_ValueLength };
 	}
 
 	void Asn1GenericRecord::init(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value,
@@ -501,8 +494,8 @@ namespace pcpp
 		m_TagType = tagType;
 		m_TagClass = tagClass;
 		m_IsConstructed = isConstructed;
-		m_Value = new uint8_t[valueLen];
-		memcpy(m_Value, value, valueLen);
+		m_Value = std::make_unique<uint8_t[]>(valueLen);
+		std::memcpy(m_Value.get(), value, valueLen);
 		m_ValueLength = valueLen;
 		m_TotalLength = m_ValueLength + 2;
 	}

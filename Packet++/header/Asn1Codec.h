@@ -236,13 +236,13 @@ namespace pcpp
 		/// @param value A string representing the tag value
 		Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const std::string& value);
 
-		~Asn1GenericRecord() override;
+		~Asn1GenericRecord() override = default;
 
 		/// @return A pointer to the tag value
 		const uint8_t* getValue()
 		{
 			decodeValueIfNeeded();
-			return m_Value;
+			return m_Value.get();
 		}
 
 	protected:
@@ -252,7 +252,7 @@ namespace pcpp
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
-		uint8_t* m_Value = nullptr;
+		std::unique_ptr<uint8_t[]> m_Value = nullptr;
 
 		void init(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen);
 	};
