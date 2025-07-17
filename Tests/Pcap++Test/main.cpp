@@ -1,5 +1,6 @@
 #include "PcapPlusPlusVersion.h"
 #include "Logger.h"
+#include "ParserConfig.h"
 #include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
 #include "Common/GlobalTestArgs.h"
@@ -146,6 +147,10 @@ int main(int argc, char* argv[])
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check.
 	// Disables context pooling to avoid false positives in the memory leak check, as the contexts persist in the pool.
 	pcpp::Logger::getInstance().useContextPooling(false);
+
+	// Required to initialize the logger singleton before running tests.
+	// Lazy initialization will be detected as a false positive memory leak
+	pcpp::ParserConfiguration::getDefault();
 
 	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
