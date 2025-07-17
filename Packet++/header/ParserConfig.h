@@ -42,8 +42,7 @@ namespace pcpp
 
 namespace std
 {
-	template <>
-	struct hash<pcpp::PortPair>
+	template <> struct hash<pcpp::PortPair>
 	{
 		size_t operator()(const pcpp::PortPair& portPair) const noexcept
 		{
@@ -63,12 +62,14 @@ namespace pcpp
 		/// @brief Add a port mapping to the port mapper.
 		/// @param port The port number to map.
 		/// @param protocol The ProtocolType to associate with the port.
-		/// @param symmetrical If true, the mapping is considered symmetrical (both src and dst ports are the interchangable).
+		/// @param symmetrical If true, the mapping is considered symmetrical (both src and dst ports are the
+		/// interchangeable).
 		void addPortMapping(PortPair port, ProtocolType protocol, bool symmetrical = false);
 
 		/// @brief Remove a port mapping from the port mapper.
 		/// @param port The port number to remove from the mapping.
-		/// @param symmetrical If true, the mapping is considered symmetrical (both src and dst ports are the interchangable).
+		/// @param symmetrical If true, the mapping is considered symmetrical (both src and dst ports are the
+		/// interchangeable).
 		void removePortMapping(PortPair port, bool symmetrical = false);
 
 		/// @brief Get the protocol type associated with a specific port.

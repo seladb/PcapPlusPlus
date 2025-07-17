@@ -97,4 +97,4 @@ namespace pcpp
 		config.portMapper = PortMapper::makeDefaultPortMapper();
 		return config;
 	}
-}
+}  // namespace pcpp
