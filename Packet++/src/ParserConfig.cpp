@@ -2,6 +2,17 @@
 
 namespace pcpp
 {
+	PortMapper PortMapper::makeDefaultPortMapper()
+	{
+		PortMapper mapper;
+		// Add HTTP port mappings
+		mapper.addPortMapping(PortPair::fromDst(80), HTTPRequest, false);
+		mapper.addPortMapping(PortPair::fromSrc(80), HTTPResponse, false);
+		mapper.addPortMapping(PortPair::fromDst(8080), HTTPRequest, false);
+		mapper.addPortMapping(PortPair::fromSrc(8080), HTTPResponse, false);
+		return mapper;
+	}
+
 	void PortMapper::addPortMapping(PortPair port, ProtocolType protocol, bool symmetrical)
 	{
 		if (port == PortPair())
@@ -78,5 +89,12 @@ namespace pcpp
 		}
 
 		return UnknownProtocol;  // Return UnknownProtocol if port not found
+	}
+
+	ParserConfiguration ParserConfiguration::makeDefaultConfiguration()
+	{
+		ParserConfiguration config;
+		config.portMapper = PortMapper::makeDefaultPortMapper();
+		return config;
 	}
 }

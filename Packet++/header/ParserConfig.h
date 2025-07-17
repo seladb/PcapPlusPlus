@@ -90,16 +90,7 @@ namespace pcpp
 			return getProtocolByPortPair(port) == protocol;
 		}
 
-		static PortMapper makeDefaultPortMapper()
-		{
-			PortMapper mapper;
-			// Add HTTP port mappings
-			mapper.addPortMapping(PortPair::fromDst(80), HTTPRequest, false);
-			mapper.addPortMapping(PortPair::fromSrc(80), HTTPResponse, false);
-			mapper.addPortMapping(PortPair::fromDst(8080), HTTPRequest, false);
-			mapper.addPortMapping(PortPair::fromSrc(8080), HTTPResponse, false);
-			return mapper;
-		}
+		static PortMapper makeDefaultPortMapper();
 
 	private:
 		std::unordered_map<PortPair, ProtocolType> m_PortToProtocolMap;
@@ -116,12 +107,7 @@ namespace pcpp
 		/// Prefer using `getDefault()` to obtain the default configuration if a new instance is not required.
 		///
 		/// @return A ParserConfiguration instance with default port mappings.
-		static ParserConfiguration makeDefaultConfiguration()
-		{
-			ParserConfiguration config;
-			config.portMapper = PortMapper::makeDefaultPortMapper();
-			return config;
-		}
+		static ParserConfiguration makeDefaultConfiguration();
 
 		/// @brief Get the default parser configuration.
 		///
