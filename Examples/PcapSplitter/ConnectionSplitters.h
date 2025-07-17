@@ -199,8 +199,17 @@ public:
 			if (udpLayer != nullptr)
 			{
 				sstream << "udp_";
-				updateStringStream(sstream, getSrcIPString(packet), udpLayer->getSrcPort(), getDstIPString(packet),
-				                   udpLayer->getDstPort());
+
+				auto srcPort = udpLayer->getSrcPort();
+				auto dstPort = udpLayer->getDstPort();
+
+				uint16_t firstPort = srcPort < dstPort ? dstPort : srcPort;
+				uint16_t secondPort = srcPort < dstPort ? srcPort : dstPort;
+
+				std::string firstIP = (srcPort < dstPort) ? getDstIPString(packet) : getSrcIPString(packet);
+				std::string secondIP = (srcPort < dstPort) ? getSrcIPString(packet) : getDstIPString(packet);
+
+				updateStringStream(sstream, firstIP, firstPort, secondIP, secondPort);
 				return outputPcapBasePath + sstream.str();
 			}
 		}
