@@ -128,7 +128,7 @@ namespace pcpp
 
 		/// Encode this record and convert it to a byte stream
 		/// @return A vector of bytes representing the record
-		std::vector<uint8_t> encode();
+		std::vector<uint8_t> encode() const;
 
 		/// @return The ASN.1 tag class
 		Asn1TagClass getTagClass() const
@@ -165,7 +165,7 @@ namespace pcpp
 		}
 
 		/// @return A string representation of the record
-		std::string toString();
+		std::string toString() const;
 
 		/// A templated method that accepts a class derived from Asn1Record as its template argument and attempts
 		/// to cast the current instance to that type
@@ -216,7 +216,7 @@ namespace pcpp
 			ensureEvaluated();
 		}
 
-		uint8_t encodeTag();
+		uint8_t encodeTag() const;
 		std::vector<uint8_t> encodeLength() const;
 
 		virtual std::vector<std::string> toStringList() const;

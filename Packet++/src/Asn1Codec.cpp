@@ -111,7 +111,7 @@ namespace pcpp
 		return decodedRecord;
 	}
 
-	uint8_t Asn1Record::encodeTag()
+	uint8_t Asn1Record::encodeTag() const
 	{
 		uint8_t tagByte;
 
@@ -177,7 +177,7 @@ namespace pcpp
 		return result;
 	}
 
-	std::vector<uint8_t> Asn1Record::encode()
+	std::vector<uint8_t> Asn1Record::encode() const
 	{
 		std::vector<uint8_t> result;
 
@@ -411,7 +411,7 @@ namespace pcpp
 		return 1 + actualLengthBytes;
 	}
 
-	std::string Asn1Record::toString()
+	std::string Asn1Record::toString() const
 	{
 		// Decode the value if it hasn't been decoded yet to ensure we have the correct value
 		decodeValueIfNeeded();
