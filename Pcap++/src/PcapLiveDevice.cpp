@@ -230,6 +230,68 @@ namespace pcpp
 		}
 	}
 
+	PcapLiveDevice::StatisticsUpdateWorker::StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice,
+	                                                               OnStatsUpdateCallback onStatsUpdateCallback,
+	                                                               void* onStatsUpdateUserCookie,
+	                                                               unsigned int updateIntervalMs)
+	{
+		// Setup thread data
+		m_SharedThreadData = std::make_shared<SharedThreadData>();
+
+		ThreadData threadData;
+		threadData.pcapDevice = &pcapDevice;
+		threadData.cbOnStatsUpdate = onStatsUpdateCallback;
+		threadData.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
+		threadData.updateIntervalMs = updateIntervalMs;
+
+		// Start the thread
+		m_WorkerThread = std::thread(&StatisticsUpdateWorker::workerMain, m_SharedThreadData, std::move(threadData));
+	}
+
+	void PcapLiveDevice::StatisticsUpdateWorker::stopWorker()
+	{
+		m_SharedThreadData->stopRequested = true;
+		if (m_WorkerThread.joinable())
+		{
+			m_WorkerThread.join();
+		}
+	}
+
+	void PcapLiveDevice::StatisticsUpdateWorker::workerMain(std::shared_ptr<SharedThreadData> sharedThreadData,
+	                                                        ThreadData threadData)
+	{
+		if (sharedThreadData == nullptr)
+		{
+			PCPP_LOG_ERROR("Shared thread data is null");
+			return;
+		}
+
+		if (threadData.pcapDevice == nullptr)
+		{
+			PCPP_LOG_ERROR("Pcap device is null");
+			return;
+		}
+
+		if (threadData.cbOnStatsUpdate == nullptr)
+		{
+			PCPP_LOG_ERROR("Statistics Callback is null");
+			return;
+		}
+
+		PCPP_LOG_DEBUG("Started statistics thread");
+
+		PcapStats stats;
+		auto sleepDuration = std::chrono::milliseconds(threadData.updateIntervalMs);
+		while (!sharedThreadData->stopRequested)
+		{
+			threadData.pcapDevice->getStatistics(stats);
+			threadData.cbOnStatsUpdate(stats, threadData.cbOnStatsUpdateUserCookie);
+			std::this_thread::sleep_for(sleepDuration);
+		}
+
+		PCPP_LOG_DEBUG("Stopped statistics thread");
+	}
+
 	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
 	                               bool calculateDefaultGateway)
 	    : IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1),
@@ -263,17 +325,12 @@ namespace pcpp
 
 		// init all other members
 		m_CaptureThreadStarted = false;
-		m_StatsThreadStarted = false;
 		m_StopThread = false;
 		m_CaptureThread = {};
-		m_StatsThread = {};
 		m_cbOnPacketArrives = nullptr;
-		m_cbOnStatsUpdate = nullptr;
 		m_cbOnPacketArrivesBlockingMode = nullptr;
 		m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
-		m_IntervalToUpdateStats = 0;
 		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_cbOnStatsUpdateUserCookie = nullptr;
 		m_CaptureCallbackMode = true;
 		m_CapturedPackets = nullptr;
 		if (calculateMacAddress)
@@ -363,19 +420,6 @@ namespace pcpp
 		PCPP_LOG_DEBUG("Ended capture thread for device '" << m_InterfaceDetails.name << "'");
 	}
 
-	void PcapLiveDevice::statsThreadMain()
-	{
-		PCPP_LOG_DEBUG("Started stats thread for device '" << m_InterfaceDetails.name << "'");
-		while (!m_StopThread)
-		{
-			PcapStats stats;
-			getStatistics(stats);
-			m_cbOnStatsUpdate(stats, m_cbOnStatsUpdateUserCookie);
-			std::this_thread::sleep_for(std::chrono::seconds(m_IntervalToUpdateStats));
-		}
-		PCPP_LOG_DEBUG("Ended stats thread for device '" << m_InterfaceDetails.name << "'");
-	}
-
 	internal::PcapHandle PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	{
 		char errbuf[PCAP_ERRBUF_SIZE] = { '\0' };
@@ -383,7 +427,8 @@ namespace pcpp
 
 		if (isNflogDevice())
 		{
-			device_name += ":" + std::to_string(config.nflogGroup & 0xffff);
+			device_name += ":";  // prevent UB in string concatenation
+			device_name += std::to_string(config.nflogGroup & 0xffff);
 		}
 
 		auto pcap = internal::PcapHandle(pcap_create(device_name.c_str(), errbuf));
@@ -614,7 +659,15 @@ namespace pcpp
 			return false;
 		}
 
-		m_IntervalToUpdateStats = intervalInSecondsToUpdateStats;
+		try
+		{
+			prepareCapture(true, onStatsUpdate != nullptr);
+		}
+		catch (std::exception const& ex)
+		{
+			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
+			return false;
+		}
 
 		m_CaptureCallbackMode = true;
 		m_cbOnPacketArrives = std::move(onPacketArrives);
@@ -633,12 +686,12 @@ namespace pcpp
 
 		if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 		{
-			m_cbOnStatsUpdate = std::move(onStatsUpdate);
-			m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
-			m_StatsThread = std::thread(&pcpp::PcapLiveDevice::statsThreadMain, this);
-			m_StatsThreadStarted = true;
-			PCPP_LOG_DEBUG("Successfully created stats thread for device '"
-			               << m_InterfaceDetails.name << "'. Thread id: " << m_StatsThread.get_id());
+			// Due to passing a 'this' pointer, the current device object shouldn't be relocated, while the worker is
+			// active.
+			m_StatisticsUpdateWorker = std::make_unique<StatisticsUpdateWorker>(
+			    *this, std::move(onStatsUpdate), onStatsUpdateUserCookie, intervalInSecondsToUpdateStats * 1000);
+
+			PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_InterfaceDetails.name << "'.");
 		}
 
 		return true;
@@ -655,6 +708,16 @@ namespace pcpp
 		if (captureActive())
 		{
 			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' already capturing traffic");
+			return false;
+		}
+
+		try
+		{
+			prepareCapture(true, false);
+		}
+		catch (const std::exception& ex)
+		{
+			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
 			return false;
 		}
 
@@ -691,10 +754,17 @@ namespace pcpp
 			return 0;
 		}
 
+		try
+		{
+			prepareCapture(false, false);
+		}
+		catch (const std::exception& ex)
+		{
+			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
+			return 0;
+		}
 		m_cbOnPacketArrives = nullptr;
-		m_cbOnStatsUpdate = nullptr;
 		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_cbOnStatsUpdateUserCookie = nullptr;
 
 		m_cbOnPacketArrivesBlockingMode = std::move(onPacketArrives);
 		m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
@@ -804,6 +874,11 @@ namespace pcpp
 		if (m_cbOnPacketArrivesBlockingMode != nullptr)
 			return;
 
+		if (m_CaptureThread.get_id() != std::thread::id{} && m_CaptureThread.get_id() == std::this_thread::get_id())
+		{
+			throw std::runtime_error("Cannot stop capture from the capture thread itself");
+		}
+
 		m_StopThread = true;
 		if (m_CaptureThreadStarted)
 		{
@@ -814,11 +889,12 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
 		}
 		PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
-		if (m_StatsThreadStarted)
+
+		if (m_StatisticsUpdateWorker != nullptr)
 		{
 			PCPP_LOG_DEBUG("Stopping stats thread, waiting for it to join...");
-			m_StatsThread.join();
-			m_StatsThreadStarted = false;
+			m_StatisticsUpdateWorker->stopWorker();
+			m_StatisticsUpdateWorker.reset();
 			PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_InterfaceDetails.name << "'");
 		}
 
@@ -832,20 +908,21 @@ namespace pcpp
 
 	void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	{
-		pcap_stat pcapStats;
-		if (pcap_stats(m_PcapDescriptor.get(), &pcapStats) < 0)
+		if (!m_PcapDescriptor.getStatistics(stats))
 		{
 			PCPP_LOG_ERROR("Error getting statistics from live device '" << m_InterfaceDetails.name << "'");
 		}
-
-		stats.packetsRecv = pcapStats.ps_recv;
-		stats.packetsDrop = pcapStats.ps_drop;
-		stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 	}
 
 	bool PcapLiveDevice::doMtuCheck(int packetPayloadLength) const
 	{
-		if (packetPayloadLength > static_cast<int>(m_DeviceMtu))
+		if (packetPayloadLength < 0)
+		{
+			PCPP_LOG_ERROR("Payload length [" << packetPayloadLength << "] is negative");
+			return false;
+		}
+
+		if (!isPayloadWithinMtu(packetPayloadLength))
 		{
 			PCPP_LOG_ERROR("Payload length [" << packetPayloadLength << "] is larger than device MTU [" << m_DeviceMtu
 			                                  << "]");
@@ -854,35 +931,145 @@ namespace pcpp
 		return true;
 	}
 
+	bool PcapLiveDevice::isPayloadWithinMtu(size_t packetPayloadLength) const
+	{
+		return packetPayloadLength <= static_cast<size_t>(m_DeviceMtu);
+	}
+
+	bool PcapLiveDevice::isPayloadWithinMtu(Packet const& packet, bool allowUnknownLength,
+	                                        size_t* outPayloadLength) const
+	{
+		size_t packetPayloadLength = 0;
+		switch (packet.getFirstLayer()->getOsiModelLayer())
+		{
+		case pcpp::OsiModelDataLinkLayer:
+			packetPayloadLength = packet.getFirstLayer()->getLayerPayloadSize();
+			break;
+		case pcpp::OsiModelNetworkLayer:
+			packetPayloadLength = packet.getFirstLayer()->getDataLen();
+			break;
+		default:
+		{
+			// If the packet length is unknown, the MTU check is skipped.
+			// In such cases the output payload length is set to the maximum size and the return value is the
+			// allowUnknownLength value.
+			if (outPayloadLength != nullptr)
+			{
+				*outPayloadLength = (std::numeric_limits<size_t>::max)();
+			}
+			return allowUnknownLength;
+		}
+		}
+
+		if (outPayloadLength != nullptr)
+		{
+			*outPayloadLength = packetPayloadLength;
+		}
+		return isPayloadWithinMtu(packetPayloadLength);
+	}
+
+	bool PcapLiveDevice::isPayloadWithinMtu(RawPacket const& rawPacket, bool allowUnknownLength,
+	                                        size_t* outPayloadLength) const
+	{
+		// Const cast because Packet requires a non-const RawPacket pointer
+		// and we don't modify the RawPacket in this function.
+		return isPayloadWithinMtu(Packet(const_cast<RawPacket*>(&rawPacket), OsiModelDataLinkLayer), allowUnknownLength,
+		                          outPayloadLength);
+	}
+
+	bool PcapLiveDevice::isPayloadWithinMtu(uint8_t const* packetData, size_t packetLen, LinkLayerType linkType,
+	                                        bool allowUnknown, size_t* outPayloadLength) const
+	{
+		timeval time;
+		gettimeofday(&time, nullptr);
+		return isPayloadWithinMtu(RawPacket(packetData, packetLen, time, false, linkType), allowUnknown,
+		                          outPayloadLength);
+	}
+
+	bool PcapLiveDevice::sendPacket(Packet const& packet, bool checkMtu)
+	{
+		if (checkMtu)
+		{
+			size_t packetPayloadLength = 0;
+			// Unknown length is allowed due to legacy behavior of this function
+			if (!isPayloadWithinMtu(packet, true, &packetPayloadLength))
+			{
+				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
+				                                         << m_DeviceMtu << "]");
+				return false;
+			}
+		}
+
+		return sendPacketUnchecked(*packet.getRawPacketReadOnly());
+	}
+
 	bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 	{
 		if (checkMtu)
 		{
-			RawPacket* rPacket = const_cast<RawPacket*>(&rawPacket);
-			Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
-			return sendPacket(&parsedPacket, true);
+			size_t packetPayloadLength = 0;
+			// Unknown length is allowed due to legacy behavior of this function
+			if (!isPayloadWithinMtu(rawPacket, true, &packetPayloadLength))
+			{
+				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
+				                                         << m_DeviceMtu << "]");
+				return false;
+			}
 		}
-		// Send packet without Mtu check
-		return sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen());
+
+		return sendPacketUnchecked(rawPacket);
 	}
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
 	{
-		return doMtuCheck(packetPayloadLength) && sendPacket(packetData, packetDataLength);
+		if (packetDataLength < 0)
+		{
+			PCPP_LOG_ERROR("Packet data length is negative: " << packetDataLength);
+			return false;
+		}
+
+		if (packetPayloadLength < 0)
+		{
+			PCPP_LOG_ERROR("Payload length is negative: " << packetPayloadLength);
+			return false;
+		}
+
+		if (!isPayloadWithinMtu(packetPayloadLength))
+		{
+			PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
+			                                         << m_DeviceMtu << "]");
+			return false;
+		}
+
+		return sendPacketUnchecked(packetData, packetDataLength);
 	}
 
 	bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu,
 	                                pcpp::LinkLayerType linkType)
 	{
-		if (checkMtu)
+		if (packetDataLength < 0)
 		{
-			timeval time;
-			gettimeofday(&time, nullptr);
-			pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
-			Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
-			return sendPacket(&parsedPacket, true);
+			PCPP_LOG_ERROR("Packet data length is negative: " << packetDataLength);
+			return false;
 		}
 
+		if (checkMtu)
+		{
+			size_t packetPayloadLength = 0;
+			// Unknown length is allowed due to legacy behavior of this function
+			if (!isPayloadWithinMtu(packetData, packetDataLength, linkType, true, &packetPayloadLength))
+			{
+				PCPP_LOG_ERROR("Packet payload length [" << packetPayloadLength << "] is larger than device MTU ["
+				                                         << m_DeviceMtu << "]");
+				return false;
+			}
+		}
+
+		return sendPacketUnchecked(packetData, packetDataLength);
+	}
+
+	bool PcapLiveDevice::sendPacketUnchecked(uint8_t const* packetData, int packetDataLength)
+	{
 		if (!m_DeviceOpened)
 		{
 			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened!");
@@ -905,67 +1092,41 @@ namespace pcpp
 		return true;
 	}
 
-	bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
+	namespace
 	{
-		RawPacket* rawPacket = packet->getRawPacket();
-		if (checkMtu)
+		template <typename It, typename Func> int sendPacketsLoop(It begin, It end, Func sendFunc)
 		{
-			int packetPayloadLength = 0;
-			switch (packet->getFirstLayer()->getOsiModelLayer())
+			int packetsSent = 0;
+			size_t totalPackets = std::distance(begin, end);
+
+			for (It iter = begin; iter != end; ++iter)
 			{
-			case (pcpp::OsiModelDataLinkLayer):
-				packetPayloadLength = static_cast<int>(packet->getFirstLayer()->getLayerPayloadSize());
-				break;
-			case (pcpp::OsiModelNetworkLayer):
-				packetPayloadLength = static_cast<int>(packet->getFirstLayer()->getDataLen());
-				break;
-			default:
-				// if packet layer is not known, do not perform MTU check.
-				return sendPacket(*rawPacket, false);
+				if (sendFunc(*iter))
+					packetsSent++;
 			}
-			return doMtuCheck(packetPayloadLength) && sendPacket(*rawPacket, false);
+
+			PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << totalPackets - packetsSent
+			                           << " packets not sent");
+			return packetsSent;
 		}
-		return sendPacket(*rawPacket, false);
-	}
+	}  // namespace
 
 	int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 	{
-		int packetsSent = 0;
-		for (int i = 0; i < arrLength; i++)
-		{
-			if (sendPacket(rawPacketsArr[i], checkMtu))
-				packetsSent++;
-		}
-
-		PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << arrLength - packetsSent << " packets not sent");
-		return packetsSent;
+		return sendPacketsLoop(rawPacketsArr, rawPacketsArr + arrLength,
+		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
 	{
-		int packetsSent = 0;
-		for (int i = 0; i < arrLength; i++)
-		{
-			if (sendPacket(packetsArr[i], checkMtu))
-				packetsSent++;
-		}
-
-		PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << arrLength - packetsSent << " packets not sent");
-		return packetsSent;
+		return sendPacketsLoop(packetsArr, packetsArr + arrLength,
+		                       [this, checkMtu](Packet* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
-		int packetsSent = 0;
-		for (RawPacketVector::ConstVectorIterator iter = rawPackets.begin(); iter != rawPackets.end(); iter++)
-		{
-			if (sendPacket(**iter, checkMtu))
-				packetsSent++;
-		}
-
-		PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << (rawPackets.size() - packetsSent)
-		                           << " packets not sent");
-		return packetsSent;
+		return sendPacketsLoop(rawPackets.begin(), rawPackets.end(),
+		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
 	}
 
 	void PcapLiveDevice::setDeviceMtu()
