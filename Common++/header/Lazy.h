@@ -94,19 +94,10 @@ namespace pcpp
 			/// This is useful for derived classes that set their fields manually.
 			LazyFieldEvaluationBase() = default;
 
-			/// @brief Initializes the class with a source object and a policy that determines when the fields are
-			/// evaluated.
-			/// @param policy The policy that determines when the fields are evaluated.
+			/// @brief Initializes the class with a source object.
 			/// @param source The source object from which the fields are evaluated.
-			LazyFieldEvaluationBase(LazyLoadPolicy policy, T source) : m_Source(std::move(source))
-			{
-				if (policy == LazyLoadPolicy::Eager)
-				{
-					// If the policy is OnConstruction, we evaluate the fields immediately
-					evaluateLazyFields(m_Source);
-					m_State.store(LazyState::Evaluated, std::memory_order_release);
-				}
-			}
+			explicit LazyFieldEvaluationBase(T source) : m_Source(std::move(source))
+			{}
 
 			/// @brief Sets a new source object and resets the evaluation state.
 			/// @param source The new source object from which the fields are evaluated.
