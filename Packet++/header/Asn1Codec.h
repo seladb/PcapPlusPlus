@@ -194,12 +194,13 @@ namespace pcpp
 
 		Asn1Record() = default;
 
-		static Asn1Record* decodeInternal(const uint8_t* data, size_t dataLen, bool lazy);
+		static std::unique_ptr<Asn1Record> decodeInternal(const uint8_t* data, size_t dataLen, bool lazy);
 
 		virtual void decodeValue(uint8_t* data, bool lazy) = 0;
 		virtual std::vector<uint8_t> encodeValue() const = 0;
 
-		static Asn1Record* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, uint8_t& tagLen);
+		static std::unique_ptr<Asn1Record> decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen,
+		                                                            uint8_t& tagLen);
 		uint8_t decodeLength(const uint8_t* data, size_t dataLen);
 		void decodeValueIfNeeded();
 

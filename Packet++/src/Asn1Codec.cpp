@@ -91,8 +91,7 @@ namespace pcpp
 
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		auto record = decodeInternal(data, dataLen, lazy);
-		return std::unique_ptr<Asn1Record>(record);
+		return decodeInternal(data, dataLen, lazy);
 	}
 
 	uint8_t Asn1Record::encodeTag()
@@ -176,41 +175,24 @@ namespace pcpp
 		return result;
 	}
 
-	Asn1Record* Asn1Record::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
+	std::unique_ptr<Asn1Record> Asn1Record::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
 	{
 		uint8_t tagLen;
 		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
 
 		uint8_t lengthLen;
-		try
-		{
-			lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
-		}
-		catch (...)
-		{
-			delete decodedRecord;
-			throw;
-		}
+		lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
 
 		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
 		if (decodedRecord->m_TotalLength < decodedRecord->m_ValueLength ||  // check for overflow
 		    decodedRecord->m_TotalLength > dataLen)
 		{
-			delete decodedRecord;
 			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
 		}
 
 		if (!lazy)
 		{
-			try
-			{
-				decodedRecord->decodeValue(const_cast<uint8_t*>(data) + tagLen + lengthLen, lazy);
-			}
-			catch (...)
-			{
-				delete decodedRecord;
-				throw;
-			}
+			decodedRecord->decodeValue(const_cast<uint8_t*>(data) + tagLen + lengthLen, lazy);
 		}
 		else
 		{
@@ -230,7 +212,8 @@ namespace pcpp
 		return Asn1UniversalTagType::NotApplicable;
 	}
 
-	Asn1Record* Asn1Record::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, uint8_t& tagLen)
+	std::unique_ptr<Asn1Record> Asn1Record::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen,
+	                                                                 uint8_t& tagLen)
 	{
 		if (dataLen < 1)
 		{
@@ -282,7 +265,7 @@ namespace pcpp
 			tagLen = 2;
 		}
 
-		Asn1Record* newRecord;
+		std::unique_ptr<Asn1Record> newRecord;
 
 		if (isConstructed)
 		{
@@ -292,23 +275,23 @@ namespace pcpp
 				{
 				case Asn1UniversalTagType::Sequence:
 				{
-					newRecord = new Asn1SequenceRecord();
+					newRecord.reset(new Asn1SequenceRecord());
 					break;
 				}
 				case Asn1UniversalTagType::Set:
 				{
-					newRecord = new Asn1SetRecord();
+					newRecord.reset(new Asn1SetRecord());
 					break;
 				}
 				default:
 				{
-					newRecord = new Asn1ConstructedRecord();
+					newRecord.reset(new Asn1ConstructedRecord());
 				}
 				}
 			}
 			else
 			{
-				newRecord = new Asn1ConstructedRecord();
+				newRecord.reset(new Asn1ConstructedRecord());
 			}
 		}
 		else
@@ -320,73 +303,73 @@ namespace pcpp
 				{
 				case Asn1UniversalTagType::Integer:
 				{
-					newRecord = new Asn1IntegerRecord();
+					newRecord.reset(new Asn1IntegerRecord());
 					break;
 				}
 				case Asn1UniversalTagType::Enumerated:
 				{
-					newRecord = new Asn1EnumeratedRecord();
+					newRecord.reset(new Asn1EnumeratedRecord());
 					break;
 				}
 				case Asn1UniversalTagType::OctetString:
 				{
-					newRecord = new Asn1OctetStringRecord();
+					newRecord.reset(new Asn1OctetStringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::UTF8String:
 				{
-					newRecord = new Asn1UTF8StringRecord();
+					newRecord.reset(new Asn1UTF8StringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::PrintableString:
 				{
-					newRecord = new Asn1PrintableStringRecord();
+					newRecord.reset(new Asn1PrintableStringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::IA5String:
 				{
-					newRecord = new Asn1IA5StringRecord();
+					newRecord.reset(new Asn1IA5StringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::Boolean:
 				{
-					newRecord = new Asn1BooleanRecord();
+					newRecord.reset(new Asn1BooleanRecord());
 					break;
 				}
 				case Asn1UniversalTagType::BitString:
 				{
-					newRecord = new Asn1BitStringRecord();
+					newRecord.reset(new Asn1BitStringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::Null:
 				{
-					newRecord = new Asn1NullRecord();
+					newRecord.reset(new Asn1NullRecord());
 					break;
 				}
 				case Asn1UniversalTagType::ObjectIdentifier:
 				{
-					newRecord = new Asn1ObjectIdentifierRecord();
+					newRecord.reset(new Asn1ObjectIdentifierRecord());
 					break;
 				}
 				case Asn1UniversalTagType::UTCTime:
 				{
-					newRecord = new Asn1UtcTimeRecord();
+					newRecord.reset(new Asn1UtcTimeRecord());
 					break;
 				}
 				case Asn1UniversalTagType::GeneralizedTime:
 				{
-					newRecord = new Asn1GeneralizedTimeRecord();
+					newRecord.reset(new Asn1GeneralizedTimeRecord());
 					break;
 				}
 				default:
 				{
-					newRecord = new Asn1GenericRecord();
+					newRecord.reset(new Asn1GenericRecord());
 				}
 				}
 			}
 			else
 			{
-				newRecord = new Asn1GenericRecord();
+				newRecord.reset(new Asn1GenericRecord());
 			}
 		}
 
@@ -552,7 +535,7 @@ namespace pcpp
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
-			m_SubRecords.pushBack(subRecord);
+			m_SubRecords.pushBack(std::move(subRecord));
 		}
 	}
 
