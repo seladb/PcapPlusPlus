@@ -815,7 +815,7 @@ namespace pcpp
 		return 0;
 	}
 
-#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
+#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1'000'000'000.0 + (end.tv_nsec - begin.tv_nsec))
 
 	void DpdkDevice::getStatistics(DpdkDeviceStats& stats) const
 	{
@@ -824,7 +824,7 @@ namespace pcpp
 		struct rte_eth_stats rteStats;
 		rte_eth_stats_get(m_Id, &rteStats);
 
-		double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1000000000.0;
+		double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1'000'000'000.0;
 
 		stats.devId = m_Id;
 		stats.timestamp = timestamp;

@@ -261,7 +261,7 @@ namespace pcpp
 
 	void IPv4Network::initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen)
 	{
-		m_Mask = be32toh(0xffffffff ^ (prefixLen < 32 ? 0xffffffff >> prefixLen : 0));
+		m_Mask = be32toh(0xffff'ffff ^ (prefixLen < 32 ? 0xffff'ffff >> prefixLen : 0));
 		m_NetworkPrefix = address.toInt() & m_Mask;
 	}
 

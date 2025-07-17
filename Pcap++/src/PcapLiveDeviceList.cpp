@@ -340,7 +340,7 @@ namespace pcpp
 	{
 		PCPP_LOG_DEBUG("Searching all live devices...");
 		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
-		                            [&name](PcapLiveDevice* dev) { return dev->getName() == name; });
+		                            [&name](auto dev) { return dev->getName() == name; });
 
 		if (devIter == m_DeviceList.end())
 		{
