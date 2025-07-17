@@ -114,7 +114,7 @@ namespace pcpp
 	/// Represents an ASN.1 record, as described in ITU-T Recommendation X.680:
 	/// <https://www.itu.int/rec/T-REC-X.680/en>
 	/// <https://en.wikipedia.org/wiki/ASN.1>
-	class Asn1Record : private internal::LazyFieldEvaluationMixin<uint8_t const*>
+	class Asn1Record : private internal::LazyFieldEvaluationBase<uint8_t const*>
 	{
 	public:
 		/// A static method to decode a byte array into an Asn1Record
@@ -223,9 +223,8 @@ namespace pcpp
 
 		friend class Asn1ConstructedRecord;
 
-	private:
 		// Forwards the evaluate fields call to decode value.
-		void evaluateFields(uint8_t const* const& source) const override final
+		void evaluateLazyFields(uint8_t const* const& source) const override final
 		{
 			decodeValue(source);
 		}

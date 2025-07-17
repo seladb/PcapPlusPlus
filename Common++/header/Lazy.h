@@ -22,13 +22,14 @@ namespace pcpp
 			Error = 3
 		};
 
-		/// @brief A mixin class that provides lazy evaluation of fields from a source object.
+		/// @brief A base class that provides lazy evaluation of fields from a source object.
 		/// @tparam T The type of the source object from which the fields are evaluated.
-		template <typename T> class LazyFieldEvaluationMixin
+		template <typename T> class LazyFieldEvaluationBase
 		{
 		public:
 			/// @brief Ensures that the fields are evaluated. If the fields are not evaluated yet, it evaluates them.
-			/// @remarks This method is thread-safe and ensures that the fields are evaluated only once even if called from multiple threads.
+			/// @remarks This method is thread-safe and ensures that the fields are evaluated only once even if called
+			/// from multiple threads.
 			void ensureEvaluated() const
 			{
 				// If the value has not been evaluated yet, atomically set the state to Evaluaing
@@ -46,7 +47,7 @@ namespace pcpp
 					try
 					{
 						// Call the decoder to decode the value
-						evaluateFields(m_Source);
+						evaluateLazyFields(m_Source);
 					}
 					catch (...)
 					{
@@ -89,19 +90,20 @@ namespace pcpp
 			}
 
 		protected:
-			/// @brief Creates a mixin that is set to Evaluated state and has no source.
+			/// @brief Initializes the class without a source object and sets the state to Evaluated.
 			/// This is useful for derived classes that set their fields manually.
-			LazyFieldEvaluationMixin() = default;
+			LazyFieldEvaluationBase() = default;
 
-			/// @brief Creates a mixin that evaluates fields from a source object.
+			/// @brief Initializes the class with a source object and a policy that determines when the fields are
+			/// evaluated.
 			/// @param policy The policy that determines when the fields are evaluated.
 			/// @param source The source object from which the fields are evaluated.
-			LazyFieldEvaluationMixin(LazyLoadPolicy policy, T source) : m_Source(std::move(source))
+			LazyFieldEvaluationBase(LazyLoadPolicy policy, T source) : m_Source(std::move(source))
 			{
 				if (policy == LazyLoadPolicy::Eager)
 				{
 					// If the policy is OnConstruction, we evaluate the fields immediately
-					evaluateFields(m_Source);
+					evaluateLazyFields(m_Source);
 					m_State.store(LazyState::Evaluated, std::memory_order_release);
 				}
 			}
@@ -120,12 +122,18 @@ namespace pcpp
 				}
 			}
 
-		private:
 			/// @brief Evaluates the fields from the source object.
+			///
+			/// This method should be implemented by derived classes to evaluate the fields from the source object.
+			/// The method is marked as const, because it should not modify the logical state of the object, only the
+			/// cache fields that are marked as mutable.
+			///
+			/// The method should not be called directly, but rather through `ensureEvaluated()`.
+			///
 			/// @param source The source object from which the fields are evaluated.
-			/// @remarks This method is marked const as it should only update cache fields that are marked as mutable.
-			virtual void evaluateFields(T const& source) const = 0;
+			virtual void evaluateLazyFields(T const& source) const = 0;
 
+		private:
 			T m_Source{};
 			// By default, the source is not set, so the state is set to Evaluated.
 			mutable std::atomic<LazyState> m_State{ LazyState::Evaluated };
