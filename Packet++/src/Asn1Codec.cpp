@@ -690,6 +690,7 @@ namespace pcpp
 
 	std::vector<std::string> Asn1IntegerRecord::toStringList()
 	{
+		decodeValueIfNeeded();
 		auto valueAsString =
 		    m_Value.canFit<uint64_t>() ? std::to_string(getIntValue<uint64_t>()) : "0x" + getValueAsString();
 		return std::vector<std::string>({ Asn1Record::toStringList().front() + ", Value: " + valueAsString });
