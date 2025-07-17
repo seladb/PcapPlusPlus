@@ -120,5 +120,11 @@ namespace pcpp
 			static ParserConfiguration defaultConfig = makeDefaultConfiguration();
 			return defaultConfig;
 		}
+
+		/// @brief Reset the default parser configuration to its initial state.
+		static inline void resetDefault()
+		{
+			getDefault() = makeDefaultConfiguration();
+		}
 	};
 }  // namespace pcpp
