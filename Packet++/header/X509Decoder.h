@@ -307,7 +307,8 @@ namespace pcpp
 	{
 	public:
 		/// Constructs an X509Timestamp from an ASN.1 time record
-		/// @param[in] timeRecord Pointer to the ASN.1 time record
+		/// @param[in] timeRecord Pointer to the ASN.1 time record. Note: this class doesn't assume
+		/// ownership over the record
 		explicit X509Timestamp(Asn1TimeRecord* timeRecord) : m_Record(timeRecord)
 		{}
 
