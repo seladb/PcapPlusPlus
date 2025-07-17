@@ -46,7 +46,7 @@ namespace std
 	{
 		size_t operator()(const pcpp::PortPair& portPair) const noexcept
 		{
-			return std::hash<uint32_t>()(portPair.portDst << 16 | portPair.portSrc);
+			return std::hash<uint32_t>()(static_cast<uint32_t>(portPair.portDst) << 16 | portPair.portSrc);
 		}
 	};
 }  // namespace std
