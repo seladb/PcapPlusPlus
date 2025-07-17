@@ -10,18 +10,26 @@
 
 namespace pcpp
 {
+	/// @brief A structure representing a pair of ports.
 	struct PortPair
 	{
+		/// @brief Represents a value that indicates any port can be matched.
 		static constexpr uint16_t AnyPort = 0;
 
 		uint16_t portSrc = AnyPort;  ///< Source port number
 		uint16_t portDst = AnyPort;  ///< Destination port number
 
+		/// @brief Constructs a PortPair with the specified source port and destination port set to AnyPort.
+		/// @param portSrc Source port number.
+		/// @return A PortPair with the specified source port and destination port set to AnyPort.
 		constexpr static PortPair fromSrc(uint16_t portSrc)
 		{
 			return { portSrc, AnyPort };
 		}
 
+		/// @brief Constructs a PortPair with the specified destination port and source port set to AnyPort.
+		/// @param portDst Destination port number.
+		/// @return A PortPair with the specified destination port and source port set to AnyPort.
 		constexpr static PortPair fromDst(uint16_t portDst)
 		{
 			return { AnyPort, portDst };
@@ -42,6 +50,7 @@ namespace pcpp
 
 namespace std
 {
+	/// @brief Specialization of std::hash for PortPair.
 	template <> struct hash<pcpp::PortPair>
 	{
 		size_t operator()(const pcpp::PortPair& portPair) const noexcept
@@ -53,6 +62,7 @@ namespace std
 
 namespace pcpp
 {
+	/// @brief A class that maps port pairs to protocol types.
 	class PortMapper
 	{
 	public:
@@ -91,12 +101,15 @@ namespace pcpp
 			return getProtocolByPortPair(port) == protocol;
 		}
 
+		/// @brief Creates a default PortMapper with common port mappings.
+		/// @return A PortMapper instance with default port mappings.
 		static PortMapper makeDefaultPortMapper();
 
 	private:
 		std::unordered_map<PortPair, ProtocolType> m_PortToProtocolMap;
 	};
 
+	/// @brief A parser configuration that can be used to configure the behavior of the packet parser.
 	struct ParserConfiguration
 	{
 		ParserConfiguration() = default;
