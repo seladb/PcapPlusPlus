@@ -5,101 +5,147 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#include "Logger.h"
 #include "ProtocolType.h"
 
 namespace pcpp
 {
-	class PortRule
+	struct PortPair
 	{
-	public:
-		virtual ~PortRule() = default;
+		static constexpr uint16_t AnyPort = 0;
 
-		/// @brief Check if the port rule matches a specific source or destination port
-		/// @param srcPort The source port to check
-		/// @return True if the port rule matches the source port, false otherwise
-		virtual bool matchesSrcPort(uint16_t srcPort) const = 0;
+		uint16_t portSrc = AnyPort;  ///< Source port number
+		uint16_t portDst = AnyPort;  ///< Destination port number
 
-		/// @brief Check if the port rule matches a specific destination port
-		/// @param dstPort The destination port to check
-		/// @return True if the port rule matches the destination port, false otherwise
-		virtual bool matchesDstPort(uint16_t dstPort) const = 0;
-
-		/// @brief Check if the port rule matches a specific combination of source and destination ports
-		/// @param srcPort The source port to check
-		/// @param dstPort The destination port to check
-		/// @return True if the port rule matches the combination of source and destination ports, false otherwise
-		virtual bool matches(uint16_t srcPort, uint16_t dstPort) const = 0;
-	};
-
-	// TODO: Better Name?
-	class SinglePortRule : public PortRule
-	{
-	public:
-		SinglePortRule(uint16_t port) : port(port)
-		{}
-
-		bool matchesSrcPort(uint16_t srcPort) const override
+		constexpr static PortPair fromSrc(uint16_t portSrc)
 		{
-			return srcPort == port;
-		}
-		bool matchesDstPort(uint16_t dstPort) const override
-		{
-			return dstPort == port;
-		}
-		bool matches(uint16_t srcPort, uint16_t dstPort) const override
-		{
-			return matchesSrcPort(srcPort) || matchesDstPort(dstPort);
+			return { portSrc, AnyPort };
 		}
 
-		uint16_t port;
+		constexpr static PortPair fromDst(uint16_t portDst)
+		{
+			return { AnyPort, portDst };
+		}
 	};
 
 	class PortMapper
 	{
 	public:
+		/// @brief Create an empty PortMapper.
 		PortMapper() = default;
+		/// @brief Create a PortMapper with a predefined mapping of ports to protocol types.
+		/// @param portToProtocolMap An unordered map where keys are port numbers and values are ProtocolType values.
+		PortMapper(std::unordered_map<PortPair, ProtocolType> portToProtocolMap)
+		    : m_PortToProtocolMap(std::move(portToProtocolMap))
+		{}
 
-		/// @brief Add or replace a port rule for a specific protocol
-		/// @param protocol The protocol type to associate with the port rule
-		/// @param portRule The port rule to associate with the protocol
-		/// @throw std::invalid_argument if the port rule is null
-		void addPortRule(ProtocolType protocol, std::unique_ptr<PortRule> portRule)
+		/// @brief Add a port mapping to the port mapper.
+		/// @param port The port number to map.
+		/// @param protocol The ProtocolType to associate with the port.
+		/// @param symmetrical If true, the mapping is considered symmetrical (both src and dst ports are the same).
+		void addPortMapping(PortPair port, ProtocolType protocol, bool symmetrical = false)
 		{
-			if (portRule == nullptr)
+			if (port == PortPair())
 			{
-				throw std::invalid_argument("Port rule cannot be null");
+				throw std::invalid_argument("PortPair cannot be empty (both src and dst ports are 0)");
 			}
 
-			m_ProtocolToPortRuleMap[protocol] = std::move(portRule);
+			auto insertResult = m_PortToProtocolMap.insert({ port, protocol });
+			insertResult.first->second = protocol;  // Update the protocol if it already exists
+			if (!insertResult.second)
+			{
+				PCPP_LOG_WARN("Port " << port << " is already mapped to protocol " << insertResult.first->second
+				                      << ", updating to " << protocol);
+			}
+
+			if (symmetrical && port.portSrc != port.portDst)
+			{
+				// Add the symmetrical mapping
+				PortPair symmetricalPort = { port.portDst, port.portSrc };
+				addPortMapping(symmetricalPort, protocol, false);
+			}
 		}
 
-		/// @brief Remove the port rule for a specific protocol
-		/// @param protocol The protocol type to remove the port rule for
-		void removePortRule(ProtocolType protocol)
+		/// @brief Remove a port mapping from the port mapper.
+		/// @param port The port number to remove from the mapping.
+		void removePortMapping(PortPair port)
 		{
-			m_ProtocolToPortRuleMap.erase(protocol);
+			auto it = m_PortToProtocolMap.find(port);
+			if (it != m_PortToProtocolMap.end())
+			{
+				m_PortToProtocolMap.erase(it);
+			}
+			else
+			{
+				PCPP_LOG_DEBUG("Port " << port << " not found in port mapper, nothing to remove");
+			}
 		}
 
-		/// @brief Get the port rule for a specific protocol
-		/// @param protocol The protocol type to get the port rule for
-		/// @return A pointer to the port rule associated with the protocol, or nullptr if not found
-		const PortRule* tryGetPortRule(ProtocolType protocol) const
+		/// @brief Get the protocol type associated with a specific port.
+		/// 
+		/// The method checks for an exact match of the port pair first.
+		/// If `exact` is false, it will also check for a match on either the source or destination port.
+		/// 
+		/// @param port The port number to look up.
+		/// @param exact If true, only an exact match of the port pair is considered. If false, src or dst port matches
+		/// @return The ProtocolType associated with the port, or UnknownProtocol if not found.
+		ProtocolType getProtocolByPortPair(PortPair port, bool exact = true) const
 		{
-			auto it = m_ProtocolToPortRuleMap.find(protocol);
-			return it != m_ProtocolToPortRuleMap.end() ? it->second.get() : nullptr;
+			// Order of precedence:
+			// 1. Check for exact match of port pair
+			// 1.a If exact is true, return the protocol type if found, go to step 4 if not found
+			// 2. If not found, check for src port match
+			// 3. If not found, check for dst port match
+			// 4. If still not found, return UnknownProtocol
+
+			auto it = m_PortToProtocolMap.find(port);
+			if (it != m_PortToProtocolMap.end())
+			{
+				return it->second;
+			}
+			
+			if (exact)
+				return UnknownProtocol;  // Return UnknownProtocol if exact match not found
+
+			// Check for src port match
+			it = m_PortToProtocolMap.find(PortPair::fromSrc(port.portSrc));
+			if (it != m_PortToProtocolMap.end())
+			{
+				return it->second;
+			}
+
+			// Check for dst port match
+			it = m_PortToProtocolMap.find(PortPair::fromDst(port.portDst));
+			if (it != m_PortToProtocolMap.end())
+			{
+				return it->second;
+			}
+
+			return UnknownProtocol;  // Return UnknownProtocol if port not found
 		}
 
-		/// @brief Get the required port rule for a specific protocol
-		/// @param protocol The protocol type to get the port rule for
-		/// @return A reference to the port rule associated with the protocol
-		/// @throw std::out_of_range if the protocol is not found
-		PortRule const& getPortRule(ProtocolType protocol) const
+		/// @brief Check if a port matches a specific protocol type.
+		/// @param port The port number to check.
+		/// @param protocol The ProtocolType to match against.
+		/// @return True if the port matches the protocol type, false otherwise.
+		bool matchesPortAndProtocol(PortPair port, ProtocolType protocol) const
 		{
-			return *m_ProtocolToPortRuleMap.at(protocol);
+			return getProtocolByPortPair(port) == protocol;
+		}
+
+		static PortMapper makeDefaultPortMapper()
+		{
+			PortMapper mapper;
+			// Add HTTP port mappings
+			mapper.addPortMapping(PortPair::fromDst(80), HTTPRequest, false);
+			mapper.addPortMapping(PortPair::fromSrc(80), HTTPResponse, false);
+			mapper.addPortMapping(PortPair::fromDst(8080), HTTPRequest, false);
+			mapper.addPortMapping(PortPair::fromSrc(8080), HTTPResponse, false);
+			return mapper;
 		}
 
 	private:
-		std::unordered_map<ProtocolType, std::unique_ptr<PortRule>> m_ProtocolToPortRuleMap;
+		std::unordered_map<PortPair, ProtocolType> m_PortToProtocolMap;
 	};
 
 	struct ParserConfiguration
@@ -107,5 +153,28 @@ namespace pcpp
 		ParserConfiguration() = default;
 
 		PortMapper portMapper;
+
+		/// @brief Creates a new instance of ParserConfiguration with default settings.
+		/// 
+		/// Prefer using `getDefault()` to obtain the default configuration if a new instance is not required.
+		/// 
+		/// @return A ParserConfiguration instance with default port mappings.
+		static ParserConfiguration makeDefaultConfiguration()
+		{
+			ParserConfiguration config;
+			config.portMapper = PortMapper::makeDefaultPortMapper();
+			return config;
+		}
+
+		/// @brief Get the default parser configuration.
+		/// 
+		/// The returned reference can be used to configure the parser globally.
+		/// 
+		/// @return A reference to the default ParserConfiguration instance.
+		static inline ParserConfiguration& getDefault()
+		{
+			static ParserConfiguration defaultConfig = makeDefaultConfiguration();
+			return defaultConfig;
+		}
 	};
 }  // namespace pcpp

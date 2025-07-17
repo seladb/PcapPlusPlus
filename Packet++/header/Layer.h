@@ -145,7 +145,7 @@ namespace pcpp
 		/// Each layer is responsible for parsing the next layer
 		void parseNextLayer()
 		{
-			parseNextLayer(ParserConfiguration());
+			parseNextLayer(ParserConfiguration::getDefault());
 		}
 
 		virtual void parseNextLayer(ParserConfiguration const& config) = 0;
