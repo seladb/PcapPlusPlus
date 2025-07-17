@@ -872,6 +872,13 @@ namespace pcpp
 			return m_Value.toString();
 		};
 
+		/// @return The byte vector value of this record
+		std::vector<uint8_t> getVecValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value.toBytes();
+		}
+
 	protected:
 		void decodeValue(uint8_t const* data) const override;
 		std::vector<uint8_t> encodeValue() const override;
