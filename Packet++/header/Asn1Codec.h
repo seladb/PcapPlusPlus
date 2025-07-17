@@ -196,11 +196,11 @@ namespace pcpp
 		/// @brief Decodes the record value from a byte array into the mutable cache variables.
 		/// This method is marked as const as it can be called on a const instance of the record for lazy decoding.
 		virtual void decodeValue(uint8_t const* data) const = 0;
-		
+
 		/// @brief Encodes the record value into a byte array
 		/// Prefer using encodeValueSafe() to ensure the value is decoded first if needed
 		virtual std::vector<uint8_t> encodeValue() const = 0;
-		
+
 		/// @brief Encodes the record value into a byte array, ensuring that the value is decoded first if needed
 		std::vector<uint8_t> encodeValueSafe() const
 		{
@@ -268,7 +268,7 @@ namespace pcpp
 
 		void decodeValue(uint8_t const* data) const override;
 		std::vector<uint8_t> encodeValue() const override;
-		
+
 	private:
 		mutable std::unique_ptr<uint8_t[]> m_Value = nullptr;
 
