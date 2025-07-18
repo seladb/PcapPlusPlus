@@ -136,6 +136,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IPv6ExtensionsTest, "ipv6");
 
 	PTF_RUN_TEST(TcpPacketNoOptionsParsing, "tcp");
+	PTF_RUN_TEST(TcpPacketWithAccurateEcnParsing, "tcp");
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing, "tcp");
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
