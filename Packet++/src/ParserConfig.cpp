@@ -73,7 +73,39 @@ namespace pcpp
 		mapper.addPortMapping(PortPair::fromDst(389), LDAP, true);  // LDAP over TCP
 
 		// GTP port mappings
-		mapper.addPortMapping(PortPair::fromDst(2123), GTPv2, true);  // GTPv2-C over UDP / TCP
+		mapper.addPortMapping(PortPair::fromDst(2152), GTPv1, true);  // GTP-U over UDP
+
+		// Note: GTP v1 and v2 both utilize port (2123) for GTP-C over UDP / TCP.
+		//   Parser implementations must determine the version based on the packet content.
+		mapper.addPortMapping(PortPair::fromDst(2123), GTPv2, true);  // GTP-C over UDP / TCP (v2 only)
+
+		// DCHP port mappings
+		mapper.addPortMapping(PortPair{ 67, 67 }, DHCP, true);  // DHCP over UDP
+		mapper.addPortMapping(PortPair{ 68, 67 }, DHCP, true);  // DHCP over UDP (client to server)
+
+		// DCHPv6 port mappings
+		mapper.addPortMapping(PortPair::fromDst(546), DHCPv6, true);  // DHCPv6 over UDP
+		mapper.addPortMapping(PortPair::fromDst(547), DHCPv6, true);  // DHCPv6 over UDP
+
+		// VXLAN port mappings
+		mapper.addPortMapping(PortPair::fromDst(4789), VXLAN, false);  // VXLAN over UDP
+
+		// Radius port mappings
+		mapper.addPortMapping(PortPair::fromDst(1812), Radius, true);  // RADIUS over UDP
+		mapper.addPortMapping(PortPair::fromDst(1813), Radius, true);  // RADIUS accounting over UDP
+		mapper.addPortMapping(PortPair::fromDst(3799), Radius, true);  // RADIUS over TCP
+
+		// NTP port mappings
+		mapper.addPortMapping(PortPair::fromDst(123), NTP, true);  // NTP over UDP
+
+		// Wake-on-LAN port mappings
+		mapper.addPortMapping(PortPair::fromDst(9), WakeOnLan, false);  // Wake-on-LAN over UDP
+		mapper.addPortMapping(PortPair::fromDst(7), WakeOnLan, false);  // Wake-on-LAN over UDP
+		// Would result in Pair (0, 0) which is invalid for the mapper.
+		// mapper.addPortMapping(PortPair::fromDst(0), WakeOnLan, false);  // Wake-on-LAN over UDP (broadcast)
+
+		// WireGuard port mappings
+		mapper.addPortMapping(PortPair::fromDst(51820), WireGuard, true);  // WireGuard over UDP
 
 		return mapper;
 	}
@@ -88,8 +120,8 @@ namespace pcpp
 		auto insertResult = m_PortToProtocolMap.insert({ port, protocol });
 		if (!insertResult.second)
 		{
-			PCPP_LOG_WARN("Port " << port << " is already mapped to protocol " << std::to_string(insertResult.first->second)
-			                      << ", updating to " << protocol);
+			PCPP_LOG_WARN("Port " << port << " is already mapped to protocol "
+			                      << std::to_string(insertResult.first->second) << ", updating to " << protocol);
 		}
 		insertResult.first->second = protocol;  // Update the protocol if it already exists
 
