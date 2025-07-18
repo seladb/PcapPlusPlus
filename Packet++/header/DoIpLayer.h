@@ -476,7 +476,7 @@ namespace pcpp
 	{
 		/// Generic header negative acknowledgment.
 		/// Indicates a failure or error in processing the generic header.
-		GENERIC_HEADER_NEG_ACK = 0x0000U,
+		GENERIC_HEADER_NACK = 0x0000U,
 
 		/// Vehicle identification request.
 		/// Used to request identification details of a vehicle.
@@ -490,9 +490,9 @@ namespace pcpp
 		/// Requests identification using the vehicle's VIN (Vehicle Identification Number).
 		VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN = 0x0003U,
 
-		/// Announcement message.
+		/// Vehicle announcement message.
 		/// Sent to announce the availability of a DoIP entity.
-		ANNOUNCEMENT_MESSAGE = 0x0004U,
+		VEHICLE_ANNOUNCEMENT_MESSAGE = 0x0004U,
 
 		/// Routing activation request.
 		/// Initiates a routing activation procedure.
@@ -528,15 +528,15 @@ namespace pcpp
 
 		/// Diagnostic message type.
 		/// Represents a generic diagnostic message.
-		DIAGNOSTIC_MESSAGE_TYPE = 0x8001U,
+		DIAGNOSTIC_MESSAGE = 0x8001U,
 
 		/// Diagnostic message positive acknowledgment.
 		/// Indicates successful processing of a diagnostic message.
-		DIAGNOSTIC_MESSAGE_POS_ACK = 0x8002U,
+		DIAGNOSTIC_MESSAGE_ACK = 0x8002U,
 
 		/// Diagnostic message negative acknowledgment.
 		/// Indicates an error in processing a diagnostic message.
-		DIAGNOSTIC_MESSAGE_NEG_ACK = 0x8003U
+		DIAGNOSTIC_MESSAGE_NACK = 0x8003U
 	};
 
 	/// @brief Enum representing DoIP diagnostic ports (ISO 13400).
@@ -716,22 +716,22 @@ namespace pcpp
 
 		switch (payloadType)
 		{
-		case DoIpPayloadTypes::ALIVE_CHECK_REQUEST:
-		case DoIpPayloadTypes::ALIVE_CHECK_RESPONSE:
-		case DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE:
-		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK:
-		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK:
-		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE:
-		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST:
-		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE:
-		case DoIpPayloadTypes::ENTITY_STATUS_REQUEST:
-		case DoIpPayloadTypes::ENTITY_STATUS_RESPONSE:
-		case DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK:
-		case DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST:
-		case DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE:
+		case DoIpPayloadTypes::GENERIC_HEADER_NACK:
 		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST:
 		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID:
 		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN:
+		case DoIpPayloadTypes::VEHICLE_ANNOUNCEMENT_MESSAGE:
+		case DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST:
+		case DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE:
+		case DoIpPayloadTypes::ALIVE_CHECK_REQUEST:
+		case DoIpPayloadTypes::ALIVE_CHECK_RESPONSE:
+		case DoIpPayloadTypes::ENTITY_STATUS_REQUEST:
+		case DoIpPayloadTypes::ENTITY_STATUS_RESPONSE:
+		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST:
+		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE:
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE:
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_ACK:
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NACK:
 			return true;
 
 		default:
@@ -754,9 +754,360 @@ namespace pcpp
 		return true;
 	}
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// RoutingActivationRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~|
+	//~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpGenericHeaderNack|
+	//~~~~~~~~~~~~~~~~~~~~~~|
+
+	/// @class DoIpGenericHeaderNack
+	/// @brief Represents a DoIP Generic Header Negative Acknowledgement message.
+	///
+	/// This message indicates that a received DoIP header was invalid or unsupported.
+	class DoIpGenericHeaderNack : public DoIpLayer
+	{
+	public:
+		/// @brief Constructs the layer from raw DoIP packet data.
+		/// @param[in] data Pointer to raw packet data.
+		/// @param[in] dataLen Length of the raw data.
+		/// @param[in] prevLayer Pointer to the previous layer.
+		/// @param[in] packet Pointer to the parent packet instance.
+		DoIpGenericHeaderNack(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// @brief Constructs the message with a specific NACK code.
+		/// @param[in] nackCode The generic header NACK code.
+		explicit DoIpGenericHeaderNack(DoIpGenericHeaderNackCodes nackCode);
+
+		/// @brief Gets the NACK code.
+		/// @return enum DoIpGenericHeaderNackCodes representing the NACK code.
+		DoIpGenericHeaderNackCodes getNackCode() const;
+
+		/// @brief Sets the NACK code.
+		/// @param[in] code enum DoIpGenericHeaderNackCodes representing the NACK code to set.
+		void setNackCode(DoIpGenericHeaderNackCodes code);
+
+		/// @brief Returns a human-readable summary of the message.
+		std::string getSummary() const;
+
+		/// @brief Returns the DoIP payload type for this message.
+		DoIpPayloadTypes getPayloadType() const override
+		{
+			return DoIpPayloadTypes::GENERIC_HEADER_NACK;
+		}
+
+		/// @brief Checks if the NACK data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct generic_header_nack : doiphdr
+		{
+			uint8_t nackCode;
+		};
+#pragma pack(pop)
+		generic_header_nack* getGenericHeaderNack() const
+		{
+			return reinterpret_cast<generic_header_nack*>(m_Data);
+		}
+		static constexpr size_t FIXED_LEN = sizeof(generic_header_nack);
+	};
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequest|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+
+	/// @class DoIpVehicleIdentificationRequest
+	/// @brief Represents a Vehicle Identification Request message in the DoIP protocol.
+	///
+	/// This message is sent by a tester to request vehicle identification information
+	/// such as VIN, logical addresses, and other metadata. It can be broadcast or directed.
+	class DoIpVehicleIdentificationRequest : public DoIpLayer
+	{
+	public:
+		/// @brief Constructs a VehicleIdentificationRequest from raw packet data.
+		/// @param[in] data Pointer to the raw payload data.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @param[in] prevLayer Pointer to the previous protocol layer.
+		/// @param[in] packet Pointer to the parent packet.
+		DoIpVehicleIdentificationRequest(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : DoIpLayer(data, dataLen, prevLayer, packet)
+		{}
+
+		/// @brief Default constructor to create an empty VehicleIdentificationRequest.
+		DoIpVehicleIdentificationRequest();
+
+		/// @brief Returns the DoIP payload type.
+		DoIpPayloadTypes getPayloadType() const override
+		{
+			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST;
+		}
+
+		/// @brief Checks if the Vehicle Identification Request data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == DOIP_HEADER_LEN);  // No payload
+		}
+	};
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequestWithEID|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+
+	/// @class DoIpVehicleIdentificationRequestWithEID
+	/// @brief Represents a DoIP Vehicle Identification Request with EID.
+	///
+	/// This message is used to identify a vehicle based on its Entity ID (EID).
+	class DoIpVehicleIdentificationRequestWithEID : public DoIpLayer
+	{
+	public:
+		/// @brief Constructs the layer from raw DoIP packet data.
+		/// @param[in] data Pointer to raw packet data.
+		/// @param[in] dataLen Length of the raw data.
+		/// @param[in] prevLayer Pointer to the previous layer.
+		/// @param[in] packet Pointer to the parent packet instance.
+		DoIpVehicleIdentificationRequestWithEID(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// @brief Constructs the message using the specified EID.
+		/// @param[in] eid A 6-byte Entity ID used for vehicle identification.
+		explicit DoIpVehicleIdentificationRequestWithEID(const std::array<uint8_t, DOIP_EID_LEN>& eid = {});
+
+		/// @brief Gets the Entity ID (EID).
+		/// @return A 6-byte Entity ID (EID).
+		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
+
+		/// @brief Sets the Entity ID (EID).
+		/// @param[in] eid A 6-byte Entity ID (EID).
+		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
+
+		/// @brief Returns a human-readable summary of the message.
+		std::string getSummary() const;
+
+		/// @brief Returns the DoIP payload type for this message.
+		DoIpPayloadTypes getPayloadType() const override
+		{
+			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID;
+		}
+
+		/// @brief Checks if the EID data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct vehicle_identification_request_with_eid : doiphdr
+		{
+			std::array<uint8_t, DOIP_EID_LEN> eid;
+		};
+#pragma pack(pop)
+		vehicle_identification_request_with_eid* getVehicleIdentificationRequestWEID() const
+		{
+			return reinterpret_cast<vehicle_identification_request_with_eid*>(m_Data);
+		}
+		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_with_eid);
+	};
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequestWithVIN|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+
+	/// @class DoIpVehicleIdentificationRequestWithVIN
+	/// @brief Represents a DoIP Vehicle Identification Request with VIN.
+	///
+	/// This message is used to identify a vehicle based on its Vehicle Identification Number (VIN).
+	class DoIpVehicleIdentificationRequestWithVIN : public DoIpLayer
+	{
+	public:
+		/// @brief Constructs the layer from raw DoIP packet data.
+		/// @param[in] data Pointer to raw packet data.
+		/// @param[in] dataLen Length of the raw data.
+		/// @param[in] prevLayer Pointer to the previous layer.
+		/// @param[in] packet Pointer to the parent packet instance.
+		DoIpVehicleIdentificationRequestWithVIN(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// @brief Constructs the message using the specified VIN.
+		/// @param[in] vin A 17-byte Vehicle Identification Number.
+		explicit DoIpVehicleIdentificationRequestWithVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin = {});
+
+		/// @brief Gets the Vehicle Identification Number (VIN).
+		/// @return A 17-byte Vehicle Identification Number (VIN).
+		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
+
+		/// @brief Sets the Vehicle Identification Number (VIN).
+		/// @param[in] vin A 17-byte Vehicle Identification Number (VIN).
+		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
+
+		/// @brief Returns a human-readable summary of the message.
+		std::string getSummary() const;
+
+		/// @brief Returns the DoIP payload type for this message.
+		DoIpPayloadTypes getPayloadType() const override
+		{
+			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN;
+		}
+
+		/// @brief Checks if the VIN data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct vehicle_identification_request_with_vin : doiphdr
+		{
+			std::array<uint8_t, DOIP_VIN_LEN> vin;
+		};
+#pragma pack(pop)
+		vehicle_identification_request_with_vin* getVehicleIdentificationRequestWVIN() const
+		{
+			return reinterpret_cast<vehicle_identification_request_with_vin*>(m_Data);
+		}
+		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_with_vin);
+	};
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleAnnouncementMessage|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+
+	/// @class DoIpVehicleAnnouncementMessage
+	/// @brief Represents a DoIP Vehicle Announcement message.
+	///
+	/// This message is broadcasted by a vehicle to announce its presence, including VIN,
+	/// logical address, EID, GID, and optionally synchronization status.
+	class DoIpVehicleAnnouncementMessage : public DoIpLayer
+	{
+	public:
+		/// @brief Constructs the layer from raw DoIP packet data.
+		/// @param[in] data Pointer to the raw data buffer.
+		/// @param[in] dataLen Size of the data buffer in bytes.
+		/// @param[in] prevLayer Pointer to the previous protocol layer.
+		/// @param[in] packet Pointer to the parent packet.
+		DoIpVehicleAnnouncementMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// @brief Constructs the message using specified field values.
+		/// @param[in] vin Vehicle Identification Number (VIN).
+		/// @param[in] logicalAddress Logical address of the vehicle.
+		/// @param[in] eid Entity Identifier (EID).
+		/// @param[in] gid Group Identifier (GID).
+		/// @param[in] actionCode Further action code.
+		DoIpVehicleAnnouncementMessage(const std::array<uint8_t, DOIP_VIN_LEN>& vin, uint16_t logicalAddress,
+		                               const std::array<uint8_t, DOIP_EID_LEN>& eid,
+		                               const std::array<uint8_t, DOIP_GID_LEN>& gid, DoIpActionCodes actionCode);
+
+		/// @brief Gets the Vehicle Identification Number (VIN).
+		/// @return A 17-byte Vehicle Identification Number (VIN).
+		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
+
+		/// @brief Sets the Vehicle Identification Number (VIN).
+		/// @param[in] vin A 17-byte Vehicle Identification Number (VIN).
+		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
+
+		/// @brief Gets the logical address of the vehicle.
+		/// @return A 2-byte logical address of the vehicle.
+		uint16_t getLogicalAddress() const;
+
+		/// @brief Sets the logical address.
+		/// @param[in] address A 2-byte logical address of the vehicle.
+		void setLogicalAddress(uint16_t address);
+
+		/// @brief Gets the Entity Identifier (EID).
+		/// @return A 6-byte Entity Identifier (EID).
+		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
+
+		/// @brief Sets the Entity Identifier (EID).
+		/// @param[in] eid A 6-byte Entity Identifier (EID).
+		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
+
+		/// @brief Gets the Group Identifier (GID).
+		/// @return A 6-byte Group Identifier (GID).
+		std::array<uint8_t, DOIP_GID_LEN> getGID() const;
+
+		/// @brief Sets the Group Identifier (GID).
+		/// @param[in] gid A 6-byte Group Identifier (GID).
+		void setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid);
+
+		/// @brief Gets the further action required code.
+		/// @return enum DoIpActionCodes representing the further action required code.
+		DoIpActionCodes getFurtherActionRequired() const;
+
+		/// @brief Sets the further action required code.
+		/// @param[in] action enum DoIpActionCodes representing the further action required code to set.
+		void setFurtherActionRequired(DoIpActionCodes action);
+
+		/// @brief Gets the optional synchronization status if available.
+		/// @throw std::runtime_error if the sync status is not present.
+		/// @note To use this method safely, check beforehand if the sync status is present using hasSyncStatus().
+		/// @return A 1-byte synchronization status.
+		DoIpSyncStatus getSyncStatus() const;
+
+		/// @brief Sets the synchronization status.
+		/// @param[in] sync enum DoIpSyncStatus representing the synchronization status to set.
+		void setSyncStatus(DoIpSyncStatus sync);
+
+		/// @brief Checks whether the sync status is present.
+		/// @return true if the sync status is present, false otherwise.
+		bool hasSyncStatus() const;
+
+		/// @brief Clears the optional sync status field.
+		void clearSyncStatus();
+
+		/// @brief Returns a human-readable summary of the message.
+		std::string getSummary() const;
+
+		/// @brief Returns the DoIP payload type.
+		DoIpPayloadTypes getPayloadType() const override
+		{
+			return DoIpPayloadTypes::VEHICLE_ANNOUNCEMENT_MESSAGE;
+		}
+
+		/// @brief checks if the vehicle announcement data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct vehicle_announcement_message : doiphdr
+		{
+			std::array<uint8_t, DOIP_VIN_LEN> vin;
+
+			uint16_t logicalAddress;
+
+			std::array<uint8_t, DOIP_EID_LEN> eid;
+
+			std::array<uint8_t, DOIP_GID_LEN> gid;
+
+			uint8_t actionCode;
+		};
+#pragma pack(pop)
+
+		vehicle_announcement_message* getVehicleAnnouncementMessage() const
+		{
+			return reinterpret_cast<vehicle_announcement_message*>(m_Data);
+		}
+		static constexpr size_t FIXED_LEN = sizeof(vehicle_announcement_message);
+		static constexpr size_t SYNC_STATUS_OFFSET = FIXED_LEN;
+		static constexpr size_t SYNC_STATUS_LEN = sizeof(uint8_t);
+		static constexpr size_t OPT_LEN = FIXED_LEN + SYNC_STATUS_LEN;
+	};
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpRoutingActivationRequest|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 
 	/// @class DoIpRoutingActivationRequest
 	/// @brief Represents a DoIP Routing Activation Request message.
@@ -848,7 +1199,7 @@ namespace pcpp
 		};
 #pragma pack(pop)
 
-		routing_activation_request* getRoutingRequest() const
+		routing_activation_request* getRoutingActivationRequest() const
 		{
 			return reinterpret_cast<routing_activation_request*>(m_Data);
 		}
@@ -962,7 +1313,7 @@ namespace pcpp
 			std::array<uint8_t, DOIP_RESERVED_ISO_LEN> reservedIso;
 		};
 #pragma pack(pop)
-		routing_activation_response* getRoutingResponse() const
+		routing_activation_response* getRoutingActivationResponse() const
 		{
 			return reinterpret_cast<routing_activation_response*>(m_Data);
 		}
@@ -972,315 +1323,42 @@ namespace pcpp
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpGenericHeaderNack|
+	// DoIpAliveCheckRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~|
 
-	/// @class DoIpGenericHeaderNack
-	/// @brief Represents a DoIP Generic Header Negative Acknowledgement message.
+	/// @class DoIpAliveCheckRequest
+	/// @brief Represents an Alive Check Request message in the DoIP protocol.
 	///
-	/// This message indicates that a received DoIP header was invalid or unsupported.
-	class DoIpGenericHeaderNack : public DoIpLayer
+	/// This message is sent by a tester to verify if a DoIP entity is responsive.
+	/// The responding DoIP node should reply with an Alive Check Response.
+	class DoIpAliveCheckRequest : public DoIpLayer
 	{
 	public:
-		/// @brief Constructs the layer from raw DoIP packet data.
-		/// @param[in] data Pointer to raw packet data.
-		/// @param[in] dataLen Length of the raw data.
-		/// @param[in] prevLayer Pointer to the previous layer.
-		/// @param[in] packet Pointer to the parent packet instance.
-		DoIpGenericHeaderNack(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
-		/// @brief Constructs the message with a specific NACK code.
-		/// @param[in] nackCode The generic header NACK code.
-		explicit DoIpGenericHeaderNack(DoIpGenericHeaderNackCodes nackCode);
-
-		/// @brief Gets the NACK code.
-		/// @return enum DoIpGenericHeaderNackCodes representing the NACK code.
-		DoIpGenericHeaderNackCodes getNackCode() const;
-
-		/// @brief Sets the NACK code.
-		/// @param[in] code enum DoIpGenericHeaderNackCodes representing the NACK code to set.
-		void setNackCode(DoIpGenericHeaderNackCodes code);
-
-		/// @brief Returns a human-readable summary of the message.
-		std::string getSummary() const;
-
-		/// @brief Returns the DoIP payload type for this message.
-		DoIpPayloadTypes getPayloadType() const override
-		{
-			return DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK;
-		}
-
-		/// @brief Checks if the NACK data length is valid.
+		/// @brief Constructs an AliveCheckRequest from raw packet data.
+		/// @param[in] data Pointer to the raw payload data.
 		/// @param[in] dataLen Length of the data buffer.
-		/// @return true if the data length is valid, false otherwise.
-		static inline bool isDataLenValid(size_t dataLen)
-		{
-			return (dataLen == FIXED_LEN);
-		}
-
-	private:
-#pragma pack(push, 1)
-		struct generic_header_nack : doiphdr
-		{
-			uint8_t nackCode;
-		};
-#pragma pack(pop)
-		generic_header_nack* getGenericHeaderNack() const
-		{
-			return reinterpret_cast<generic_header_nack*>(m_Data);
-		}
-		static constexpr size_t FIXED_LEN = sizeof(generic_header_nack);
-	};
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleIdentificationRequestWEID|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-
-	/// @class DoIpVehicleIdentificationRequestWEID
-	/// @brief Represents a DoIP Vehicle Identification Request with EID.
-	///
-	/// This message is used to identify a vehicle based on its Entity ID (EID).
-	class DoIpVehicleIdentificationRequestWEID : public DoIpLayer
-	{
-	public:
-		/// @brief Constructs the layer from raw DoIP packet data.
-		/// @param[in] data Pointer to raw packet data.
-		/// @param[in] dataLen Length of the raw data.
-		/// @param[in] prevLayer Pointer to the previous layer.
-		/// @param[in] packet Pointer to the parent packet instance.
-		DoIpVehicleIdentificationRequestWEID(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
-		/// @brief Constructs the message using the specified EID.
-		/// @param[in] eid A 6-byte Entity ID used for vehicle identification.
-		explicit DoIpVehicleIdentificationRequestWEID(const std::array<uint8_t, DOIP_EID_LEN>& eid = {});
-
-		/// @brief Gets the Entity ID (EID).
-		/// @return A 6-byte Entity ID (EID).
-		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
-
-		/// @brief Sets the Entity ID (EID).
-		/// @param[in] eid A 6-byte Entity ID (EID).
-		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
-
-		/// @brief Returns a human-readable summary of the message.
-		std::string getSummary() const;
-
-		/// @brief Returns the DoIP payload type for this message.
-		DoIpPayloadTypes getPayloadType() const override
-		{
-			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID;
-		}
-
-		/// @brief Checks if the EID data length is valid.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @return true if the data length is valid, false otherwise.
-		static inline bool isDataLenValid(size_t dataLen)
-		{
-			return (dataLen == FIXED_LEN);
-		}
-
-	private:
-#pragma pack(push, 1)
-		struct vehicle_identification_request_with_eid : doiphdr
-		{
-			std::array<uint8_t, DOIP_EID_LEN> eid;
-		};
-#pragma pack(pop)
-		vehicle_identification_request_with_eid* getVehicleIdentificationRequestWEID() const
-		{
-			return reinterpret_cast<vehicle_identification_request_with_eid*>(m_Data);
-		}
-		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_with_eid);
-	};
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleIdentificationRequestWVIN|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-
-	/// @class DoIpVehicleIdentificationRequestWVIN
-	/// @brief Represents a DoIP Vehicle Identification Request with VIN.
-	///
-	/// This message is used to identify a vehicle based on its Vehicle Identification Number (VIN).
-	class DoIpVehicleIdentificationRequestWVIN : public DoIpLayer
-	{
-	public:
-		/// @brief Constructs the layer from raw DoIP packet data.
-		/// @param[in] data Pointer to raw packet data.
-		/// @param[in] dataLen Length of the raw data.
-		/// @param[in] prevLayer Pointer to the previous layer.
-		/// @param[in] packet Pointer to the parent packet instance.
-		DoIpVehicleIdentificationRequestWVIN(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
-		/// @brief Constructs the message using the specified VIN.
-		/// @param[in] vin A 17-byte Vehicle Identification Number.
-		explicit DoIpVehicleIdentificationRequestWVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin = {});
-
-		/// @brief Gets the Vehicle Identification Number (VIN).
-		/// @return A 17-byte Vehicle Identification Number (VIN).
-		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
-
-		/// @brief Sets the Vehicle Identification Number (VIN).
-		/// @param[in] vin A 17-byte Vehicle Identification Number (VIN).
-		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
-
-		/// @brief Returns a human-readable summary of the message.
-		std::string getSummary() const;
-
-		/// @brief Returns the DoIP payload type for this message.
-		DoIpPayloadTypes getPayloadType() const override
-		{
-			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN;
-		}
-
-		/// @brief Checks if the VIN data length is valid.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @return true if the data length is valid, false otherwise.
-		static inline bool isDataLenValid(size_t dataLen)
-		{
-			return (dataLen == FIXED_LEN);
-		}
-
-	private:
-#pragma pack(push, 1)
-		struct vehicle_identification_request_with_vin : doiphdr
-		{
-			std::array<uint8_t, DOIP_VIN_LEN> vin;
-		};
-#pragma pack(pop)
-		vehicle_identification_request_with_vin* getVehicleIdentificationRequestWVIN() const
-		{
-			return reinterpret_cast<vehicle_identification_request_with_vin*>(m_Data);
-		}
-		static constexpr size_t FIXED_LEN = sizeof(vehicle_identification_request_with_vin);
-	};
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleAnnouncement|
-	//~~~~~~~~~~~~~~~~~~~~~~~~|
-
-	/// @class DoIpVehicleAnnouncement
-	/// @brief Represents a DoIP Vehicle Announcement message.
-	///
-	/// This message is broadcasted by a vehicle to announce its presence, including VIN,
-	/// logical address, EID, GID, and optionally synchronization status.
-	class DoIpVehicleAnnouncement : public DoIpLayer
-	{
-	public:
-		/// @brief Constructs the layer from raw DoIP packet data.
-		/// @param[in] data Pointer to the raw data buffer.
-		/// @param[in] dataLen Size of the data buffer in bytes.
 		/// @param[in] prevLayer Pointer to the previous protocol layer.
 		/// @param[in] packet Pointer to the parent packet.
-		DoIpVehicleAnnouncement(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		DoIpAliveCheckRequest(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : DoIpLayer(data, dataLen, prevLayer, packet)
+		{}
 
-		/// @brief Constructs the message using specified field values.
-		/// @param[in] vin Vehicle Identification Number (VIN).
-		/// @param[in] logicalAddress Logical address of the vehicle.
-		/// @param[in] eid Entity Identifier (EID).
-		/// @param[in] gid Group Identifier (GID).
-		/// @param[in] actionCode Further action code.
-		DoIpVehicleAnnouncement(const std::array<uint8_t, DOIP_VIN_LEN>& vin, uint16_t logicalAddress,
-		                        const std::array<uint8_t, DOIP_EID_LEN>& eid,
-		                        const std::array<uint8_t, DOIP_GID_LEN>& gid, DoIpActionCodes actionCode);
+		/// @brief Default constructor to create an empty AliveCheckRequest message.
+		DoIpAliveCheckRequest();
 
-		/// @brief Gets the Vehicle Identification Number (VIN).
-		/// @return A 17-byte Vehicle Identification Number (VIN).
-		std::array<uint8_t, DOIP_VIN_LEN> getVIN() const;
-
-		/// @brief Sets the Vehicle Identification Number (VIN).
-		/// @param[in] vin A 17-byte Vehicle Identification Number (VIN).
-		void setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin);
-
-		/// @brief Gets the logical address of the vehicle.
-		/// @return A 2-byte logical address of the vehicle.
-		uint16_t getLogicalAddress() const;
-
-		/// @brief Sets the logical address.
-		/// @param[in] address A 2-byte logical address of the vehicle.
-		void setLogicalAddress(uint16_t address);
-
-		/// @brief Gets the Entity Identifier (EID).
-		/// @return A 6-byte Entity Identifier (EID).
-		std::array<uint8_t, DOIP_EID_LEN> getEID() const;
-
-		/// @brief Sets the Entity Identifier (EID).
-		/// @param[in] eid A 6-byte Entity Identifier (EID).
-		void setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid);
-
-		/// @brief Gets the Group Identifier (GID).
-		/// @return A 6-byte Group Identifier (GID).
-		std::array<uint8_t, DOIP_GID_LEN> getGID() const;
-
-		/// @brief Sets the Group Identifier (GID).
-		/// @param[in] gid A 6-byte Group Identifier (GID).
-		void setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid);
-
-		/// @brief Gets the further action required code.
-		/// @return enum DoIpActionCodes representing the further action required code.
-		DoIpActionCodes getFurtherActionRequired() const;
-
-		/// @brief Sets the further action required code.
-		/// @param[in] action enum DoIpActionCodes representing the further action required code to set.
-		void setFurtherActionRequired(DoIpActionCodes action);
-
-		/// @brief Gets the optional synchronization status if available.
-		/// @throw std::runtime_error if the sync status is not present.
-		/// @note To use this method safely, check beforehand if the sync status is present using hasSyncStatus().
-		/// @return A 1-byte synchronization status.
-		DoIpSyncStatus getSyncStatus() const;
-
-		/// @brief Sets the synchronization status.
-		/// @param[in] sync enum DoIpSyncStatus representing the synchronization status to set.
-		void setSyncStatus(DoIpSyncStatus sync);
-
-		/// @brief Checks whether the sync status is present.
-		/// @return true if the sync status is present, false otherwise.
-		bool hasSyncStatus() const;
-
-		/// @brief Clears the optional sync status field.
-		void clearSyncStatus();
-
-		/// @brief Returns a human-readable summary of the message.
-		std::string getSummary() const;
-
-		/// @brief Returns the DoIP payload type.
+		/// @brief Returns the DoIP payload type for this message.
 		DoIpPayloadTypes getPayloadType() const override
 		{
-			return DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE;
+			return DoIpPayloadTypes::ALIVE_CHECK_REQUEST;
 		}
 
-		/// @brief checks if the vehicle announcement data length is valid.
+		/// @brief Checks if the Alive Check Request data length is valid.
 		/// @param[in] dataLen Length of the data buffer.
 		/// @return true if the data length is valid, false otherwise.
 		static inline bool isDataLenValid(size_t dataLen)
 		{
-			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
+			return (dataLen == DOIP_HEADER_LEN);  // No payload
 		}
-
-	private:
-#pragma pack(push, 1)
-		struct vehicle_announcement : doiphdr
-		{
-			std::array<uint8_t, DOIP_VIN_LEN> vin;
-
-			uint16_t logicalAddress;
-
-			std::array<uint8_t, DOIP_EID_LEN> eid;
-
-			std::array<uint8_t, DOIP_GID_LEN> gid;
-
-			uint8_t actionCode;
-		};
-#pragma pack(pop)
-
-		vehicle_announcement* getVehicleAnnouncement() const
-		{
-			return reinterpret_cast<vehicle_announcement*>(m_Data);
-		}
-		static constexpr size_t FIXED_LEN = sizeof(vehicle_announcement);
-		static constexpr size_t SYNC_STATUS_OFFSET = FIXED_LEN;
-		static constexpr size_t SYNC_STATUS_LEN = sizeof(uint8_t);
-		static constexpr size_t OPT_LEN = SYNC_STATUS_OFFSET + SYNC_STATUS_LEN;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1345,67 +1423,44 @@ namespace pcpp
 		static constexpr size_t FIXED_LEN = sizeof(alive_check_response);
 	};
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpDiagnosticPowerModeResponse|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	//~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpEntityStatusRequest|
+	//~~~~~~~~~~~~~~~~~~~~~~~~|
 
-	/// @class DoIpDiagnosticPowerModeResponse
-	/// @brief Represents a DoIP Diagnostic Power Mode Response message.
+	/// @class DoIpEntityStatusRequest
+	/// @brief Represents an Entity Status Request message in the DoIP protocol.
 	///
-	/// This message is used to communicate the current power mode of the vehicle
-	/// or control unit in response to a diagnostic power mode request.
-	class DoIpDiagnosticPowerModeResponse : public DoIpLayer
+	/// This message is sent by a tester to request the current status of the DoIP entity,
+	/// including capabilities such as maximum number of concurrent socket connections
+	/// and optionally the maximum data size supported.
+	class DoIpEntityStatusRequest : public DoIpLayer
 	{
 	public:
-		/// @brief Constructs the layer from raw DoIP packet data.
-		/// @param[in] data Pointer to the raw data buffer.
-		/// @param[in] dataLen Size of the data buffer in bytes.
+		/// @brief Constructs an EntityStatusRequest from raw packet data.
+		/// @param[in] data Pointer to the raw payload data.
+		/// @param[in] dataLen Length of the data buffer.
 		/// @param[in] prevLayer Pointer to the previous protocol layer.
 		/// @param[in] packet Pointer to the parent packet.
-		DoIpDiagnosticPowerModeResponse(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		DoIpEntityStatusRequest(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : DoIpLayer(data, dataLen, prevLayer, packet)
+		{}
 
-		/// @brief Constructs the message using the specified power mode code.
-		/// @param[in] modeCode Diagnostic power mode code to set.
-		explicit DoIpDiagnosticPowerModeResponse(DoIpDiagnosticPowerModeCodes modeCode);
+		/// @brief Default constructor to create an empty EntityStatusRequest message.
+		DoIpEntityStatusRequest();
 
-		/// @brief Gets the current power mode code.
-		/// @return The diagnostic power mode code.
-		DoIpDiagnosticPowerModeCodes getPowerModeCode() const;
-
-		/// @brief Sets the power mode code.
-		/// @param[in] code enum DoIpDiagnosticPowerModeCodes representing the power mode code to set.
-		void setPowerModeCode(DoIpDiagnosticPowerModeCodes code);
-
-		/// @brief Returns a human-readable summary of the message.
-		std::string getSummary() const;
-
-		/// @brief Returns the DoIP payload type.
-		/// @return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE
+		/// @brief Returns the DoIP payload type for this message.
 		DoIpPayloadTypes getPayloadType() const override
 		{
-			return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE;
+			return DoIpPayloadTypes::ENTITY_STATUS_REQUEST;
 		}
 
-		/// @brief Checks if the Diagnostic Power Mode Response data length is valid.
+		/// @brief Checks if the Entity Status Request data length is valid.
 		/// @param[in] dataLen Length of the data buffer.
 		/// @return true if the data length is valid, false otherwise.
 		static inline bool isDataLenValid(size_t dataLen)
 		{
-			return (dataLen == FIXED_LEN);
+			return (dataLen == DOIP_HEADER_LEN);  // No payload
 		}
-
-	private:
-#pragma pack(push, 1)
-		struct diagnostic_power_mode_response : doiphdr
-		{
-			uint8_t powerModeCode;
-		};
-#pragma pack(pop)
-		diagnostic_power_mode_response* getDiagnosticPowerModeResponse() const
-		{
-			return reinterpret_cast<diagnostic_power_mode_response*>(m_Data);
-		}
-		static constexpr size_t FIXED_LEN = sizeof(diagnostic_power_mode_response);
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1516,6 +1571,108 @@ namespace pcpp
 		static constexpr size_t OPT_LEN = FIXED_LEN + MAX_DATA_SIZE_LEN;
 	};
 
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpDiagnosticPowerModeRequest|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+
+	/// @class DoIpDiagnosticPowerModeRequest
+	/// @brief Represents a Diagnostic Power Mode Request message in the DoIP protocol.
+	///
+	/// This message is sent to inquire about the current power mode status of the vehicle,
+	/// which helps determine if diagnostic communication can be initiated or continued.
+	class DoIpDiagnosticPowerModeRequest : public DoIpLayer
+	{
+	public:
+		/// @brief Constructs a DiagnosticPowerModeRequest from raw packet data.
+		/// @param[in] data Pointer to the raw payload data.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @param[in] prevLayer Pointer to the previous protocol layer.
+		/// @param[in] packet Pointer to the parent packet.
+		DoIpDiagnosticPowerModeRequest(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : DoIpLayer(data, dataLen, prevLayer, packet)
+		{}
+
+		/// @brief Default constructor to create an empty DiagnosticPowerModeRequest.
+		DoIpDiagnosticPowerModeRequest();
+
+		/// @brief Returns the DoIP payload type.
+		DoIpPayloadTypes getPayloadType() const override
+		{
+			return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST;
+		}
+
+		/// @brief Checks if the Entity Status Request data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == DOIP_HEADER_LEN);  // No payload
+		}
+	};
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpDiagnosticPowerModeResponse|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+
+	/// @class DoIpDiagnosticPowerModeResponse
+	/// @brief Represents a DoIP Diagnostic Power Mode Response message.
+	///
+	/// This message is used to communicate the current power mode of the vehicle
+	/// or control unit in response to a diagnostic power mode request.
+	class DoIpDiagnosticPowerModeResponse : public DoIpLayer
+	{
+	public:
+		/// @brief Constructs the layer from raw DoIP packet data.
+		/// @param[in] data Pointer to the raw data buffer.
+		/// @param[in] dataLen Size of the data buffer in bytes.
+		/// @param[in] prevLayer Pointer to the previous protocol layer.
+		/// @param[in] packet Pointer to the parent packet.
+		DoIpDiagnosticPowerModeResponse(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// @brief Constructs the message using the specified power mode code.
+		/// @param[in] modeCode Diagnostic power mode code to set.
+		explicit DoIpDiagnosticPowerModeResponse(DoIpDiagnosticPowerModeCodes modeCode);
+
+		/// @brief Gets the current power mode code.
+		/// @return The diagnostic power mode code.
+		DoIpDiagnosticPowerModeCodes getPowerModeCode() const;
+
+		/// @brief Sets the power mode code.
+		/// @param[in] code enum DoIpDiagnosticPowerModeCodes representing the power mode code to set.
+		void setPowerModeCode(DoIpDiagnosticPowerModeCodes code);
+
+		/// @brief Returns a human-readable summary of the message.
+		std::string getSummary() const;
+
+		/// @brief Returns the DoIP payload type.
+		/// @return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE
+		DoIpPayloadTypes getPayloadType() const override
+		{
+			return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE;
+		}
+
+		/// @brief Checks if the Diagnostic Power Mode Response data length is valid.
+		/// @param[in] dataLen Length of the data buffer.
+		/// @return true if the data length is valid, false otherwise.
+		static inline bool isDataLenValid(size_t dataLen)
+		{
+			return (dataLen == FIXED_LEN);
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct diagnostic_power_mode_response : doiphdr
+		{
+			uint8_t powerModeCode;
+		};
+#pragma pack(pop)
+		diagnostic_power_mode_response* getDiagnosticPowerModeResponse() const
+		{
+			return reinterpret_cast<diagnostic_power_mode_response*>(m_Data);
+		}
+		static constexpr size_t FIXED_LEN = sizeof(diagnostic_power_mode_response);
+	};
+
 	//~~~~~~~~~~~~~~~~~~~|
 	// DoIpDiagnosticBase|
 	//~~~~~~~~~~~~~~~~~~~|
@@ -1603,10 +1760,10 @@ namespace pcpp
 		std::string getSummary() const override;
 
 		/// @brief Returns the DoIP payload type.
-		/// @return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE
+		/// @return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE
 		DoIpPayloadTypes getPayloadType() const override
 		{
-			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE;
+			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE;
 		}
 
 		// override getHeaderLen()
@@ -1686,15 +1843,15 @@ namespace pcpp
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpDiagnosticAckMessage|
+	// DoIpDiagnosticMessageAck|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~|
 
-	/// @class DoIpDiagnosticAckMessage
+	/// @class DoIpDiagnosticMessageAck
 	/// @brief Represents a positive acknowledgment message in response to a DiagnosticMessage.
 	///
 	/// This message is sent by a DoIP node to acknowledge the correct reception and processing
 	/// of a diagnostic message. Optionally, the original message (or part of it) may be echoed back.
-	class DoIpDiagnosticAckMessage : public DoIpDiagnosticResponseMessageBase
+	class DoIpDiagnosticMessageAck : public DoIpDiagnosticResponseMessageBase
 	{
 	public:
 		/// @brief Constructs a DiagnosticAckMessage from raw packet data.
@@ -1702,13 +1859,13 @@ namespace pcpp
 		/// @param[in] dataLen Length of the data buffer.
 		/// @param[in] prevLayer Pointer to the previous protocol layer.
 		/// @param[in] packet Pointer to the parent packet.
-		DoIpDiagnosticAckMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		DoIpDiagnosticMessageAck(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/// @brief Constructs a DiagnosticAckMessage from specified field values.
 		/// @param[in] sourceAddress Address of the sending ECU.
 		/// @param[in] targetAddress Address of the receiving ECU.
 		/// @param[in] ackCode Acknowledgment code describing the result.
-		DoIpDiagnosticAckMessage(uint16_t sourceAddress, uint16_t targetAddress, DoIpDiagnosticAckCodes ackCode);
+		DoIpDiagnosticMessageAck(uint16_t sourceAddress, uint16_t targetAddress, DoIpDiagnosticAckCodes ackCode);
 
 		/// @brief Gets the diagnostic acknowledgment code.
 		/// @return enum DoIpDiagnosticAckCodes describing the acknowledgment code.
@@ -1724,20 +1881,20 @@ namespace pcpp
 		/// @brief Returns the DoIP payload type.
 		DoIpPayloadTypes getPayloadType() const override
 		{
-			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK;
+			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_ACK;
 		}
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpDiagnosticNackMessage|
+	// DoIpDiagnosticMessageNack|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
 
-	/// @class DoIpDiagnosticNackMessage
+	/// @class DoIpDiagnosticMessageNack
 	/// @brief Represents a negative acknowledgment message in response to a DiagnosticMessage.
 	///
 	/// This message is sent by a DoIP node when a diagnostic message is received but could not
 	/// be processed successfully. It may include the original message for reference.
-	class DoIpDiagnosticNackMessage : public DoIpDiagnosticResponseMessageBase
+	class DoIpDiagnosticMessageNack : public DoIpDiagnosticResponseMessageBase
 	{
 	public:
 		/// @brief Constructs a DiagnosticNackMessage from raw packet data.
@@ -1745,13 +1902,13 @@ namespace pcpp
 		/// @param[in] dataLen Length of the data buffer.
 		/// @param[in] prevLayer Pointer to the previous protocol layer.
 		/// @param[in] packet Pointer to the parent packet.
-		DoIpDiagnosticNackMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		DoIpDiagnosticMessageNack(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/// @brief Constructs a DiagnosticNackMessage from specified field values.
 		/// @param[in] sourceAddress Address of the sending ECU.
 		/// @param[in] targetAddress Address of the receiving ECU.
 		/// @param[in] nackCode Negative acknowledgment code describing the failure.
-		DoIpDiagnosticNackMessage(uint16_t sourceAddress, uint16_t targetAddress,
+		DoIpDiagnosticMessageNack(uint16_t sourceAddress, uint16_t targetAddress,
 		                          DoIpDiagnosticMessageNackCodes nackCode);
 
 		/// @brief Gets the negative acknowledgment code.
@@ -1768,164 +1925,7 @@ namespace pcpp
 		/// @brief Returns the DoIP payload type.
 		DoIpPayloadTypes getPayloadType() const override
 		{
-			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK;
-		}
-	};
-
-	//~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpAliveCheckRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~|
-
-	/// @class DoIpAliveCheckRequest
-	/// @brief Represents an Alive Check Request message in the DoIP protocol.
-	///
-	/// This message is sent by a tester to verify if a DoIP entity is responsive.
-	/// The responding DoIP node should reply with an Alive Check Response.
-	class DoIpAliveCheckRequest : public DoIpLayer
-	{
-	public:
-		/// @brief Constructs an AliveCheckRequest from raw packet data.
-		/// @param[in] data Pointer to the raw payload data.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @param[in] prevLayer Pointer to the previous protocol layer.
-		/// @param[in] packet Pointer to the parent packet.
-		DoIpAliveCheckRequest(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : DoIpLayer(data, dataLen, prevLayer, packet)
-		{}
-
-		/// @brief Default constructor to create an empty AliveCheckRequest message.
-		DoIpAliveCheckRequest();
-
-		/// @brief Returns the DoIP payload type for this message.
-		DoIpPayloadTypes getPayloadType() const override
-		{
-			return DoIpPayloadTypes::ALIVE_CHECK_REQUEST;
-		}
-
-		/// @brief Checks if the Alive Check Request data length is valid.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @return true if the data length is valid, false otherwise.
-		static inline bool isDataLenValid(size_t dataLen)
-		{
-			return (dataLen == DOIP_HEADER_LEN);  // No payload
-		}
-	};
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleIdentificationRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-
-	/// @class DoIpVehicleIdentificationRequest
-	/// @brief Represents a Vehicle Identification Request message in the DoIP protocol.
-	///
-	/// This message is sent by a tester to request vehicle identification information
-	/// such as VIN, logical addresses, and other metadata. It can be broadcast or directed.
-	class DoIpVehicleIdentificationRequest : public DoIpLayer
-	{
-	public:
-		/// @brief Constructs a VehicleIdentificationRequest from raw packet data.
-		/// @param[in] data Pointer to the raw payload data.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @param[in] prevLayer Pointer to the previous protocol layer.
-		/// @param[in] packet Pointer to the parent packet.
-		DoIpVehicleIdentificationRequest(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : DoIpLayer(data, dataLen, prevLayer, packet)
-		{}
-
-		/// @brief Default constructor to create an empty VehicleIdentificationRequest.
-		DoIpVehicleIdentificationRequest();
-
-		/// @brief Returns the DoIP payload type.
-		DoIpPayloadTypes getPayloadType() const override
-		{
-			return DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST;
-		}
-
-		/// @brief Checks if the Vehicle Identification Request data length is valid.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @return true if the data length is valid, false otherwise.
-		static inline bool isDataLenValid(size_t dataLen)
-		{
-			return (dataLen == DOIP_HEADER_LEN);  // No payload
-		}
-	};
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpDiagnosticPowerModeRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-
-	/// @class DoIpDiagnosticPowerModeRequest
-	/// @brief Represents a Diagnostic Power Mode Request message in the DoIP protocol.
-	///
-	/// This message is sent to inquire about the current power mode status of the vehicle,
-	/// which helps determine if diagnostic communication can be initiated or continued.
-	class DoIpDiagnosticPowerModeRequest : public DoIpLayer
-	{
-	public:
-		/// @brief Constructs a DiagnosticPowerModeRequest from raw packet data.
-		/// @param[in] data Pointer to the raw payload data.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @param[in] prevLayer Pointer to the previous protocol layer.
-		/// @param[in] packet Pointer to the parent packet.
-		DoIpDiagnosticPowerModeRequest(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : DoIpLayer(data, dataLen, prevLayer, packet)
-		{}
-
-		/// @brief Default constructor to create an empty DiagnosticPowerModeRequest.
-		DoIpDiagnosticPowerModeRequest();
-
-		/// @brief Returns the DoIP payload type.
-		DoIpPayloadTypes getPayloadType() const override
-		{
-			return DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST;
-		}
-
-		/// @brief Checks if the Entity Status Request data length is valid.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @return true if the data length is valid, false otherwise.
-		static inline bool isDataLenValid(size_t dataLen)
-		{
-			return (dataLen == DOIP_HEADER_LEN);  // No payload
-		}
-	};
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpEntityStatusRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~~~|
-
-	/// @class DoIpEntityStatusRequest
-	/// @brief Represents an Entity Status Request message in the DoIP protocol.
-	///
-	/// This message is sent by a tester to request the current status of the DoIP entity,
-	/// including capabilities such as maximum number of concurrent socket connections
-	/// and optionally the maximum data size supported.
-	class DoIpEntityStatusRequest : public DoIpLayer
-	{
-	public:
-		/// @brief Constructs an EntityStatusRequest from raw packet data.
-		/// @param[in] data Pointer to the raw payload data.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @param[in] prevLayer Pointer to the previous protocol layer.
-		/// @param[in] packet Pointer to the parent packet.
-		DoIpEntityStatusRequest(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : DoIpLayer(data, dataLen, prevLayer, packet)
-		{}
-
-		/// @brief Default constructor to create an empty EntityStatusRequest message.
-		DoIpEntityStatusRequest();
-
-		/// @brief Returns the DoIP payload type for this message.
-		DoIpPayloadTypes getPayloadType() const override
-		{
-			return DoIpPayloadTypes::ENTITY_STATUS_REQUEST;
-		}
-
-		/// @brief Checks if the Entity Status Request data length is valid.
-		/// @param[in] dataLen Length of the data buffer.
-		/// @return true if the data length is valid, false otherwise.
-		static inline bool isDataLenValid(size_t dataLen)
-		{
-			return (dataLen == DOIP_HEADER_LEN);  // No payload
+			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NACK;
 		}
 	};
 

@@ -170,11 +170,11 @@ namespace pcpp
 	// defined in the DoIP protocol as per ISO 13400. It maps the `DoIpPayloadTypes` enum values
 	// to their corresponding descriptions.
 	static const std::unordered_map<DoIpPayloadTypes, std::string> DoIpEnumToStringPayloadType{
-		{ DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK,                  "Generic DOIP header Nack"                   },
+		{ DoIpPayloadTypes::GENERIC_HEADER_NACK,                     "Generic DOIP header Nack"                   },
 		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST,          "Vehicle identification request"             },
 		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID, "Vehicle identification request with EID"    },
 		{ DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN, "Vehicle identification request with VIN"    },
-		{ DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE,
+		{ DoIpPayloadTypes::VEHICLE_ANNOUNCEMENT_MESSAGE,
          "Vehicle announcement message / vehicle identification response message"                                 },
 		{ DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST,              "Routing activation request"                 },
 		{ DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE,             "Routing activation response"                },
@@ -184,9 +184,9 @@ namespace pcpp
 		{ DoIpPayloadTypes::ENTITY_STATUS_RESPONSE,                  "DOIP entity status response"                },
 		{ DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST,           "Diagnostic power mode request information"  },
 		{ DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE,          "Diagnostic power mode response information" },
-		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE,                 "Diagnostic message"                         },
-		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK,              "Diagnostic message Ack"                     },
-		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK,              "Diagnostic message Nack"                    }
+		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE,                      "Diagnostic message"                         },
+		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_ACK,                  "Diagnostic message Ack"                     },
+		{ DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NACK,                 "Diagnostic message Nack"                    }
 	};
 
 	DoIpLayer::DoIpLayer(size_t length)
@@ -232,6 +232,26 @@ namespace pcpp
 
 		switch (detectedPayloadType)
 		{
+		case DoIpPayloadTypes::GENERIC_HEADER_NACK:
+			return (DoIpGenericHeaderNack::isDataLenValid(dataLen))
+			           ? new DoIpGenericHeaderNack(data, dataLen, prevLayer, packet)
+			           : nullptr;
+		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST:
+			return (DoIpVehicleIdentificationRequest::isDataLenValid(dataLen))
+			           ? new DoIpVehicleIdentificationRequest(data, dataLen, prevLayer, packet)
+			           : nullptr;
+		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID:
+			return (DoIpVehicleIdentificationRequestWithEID::isDataLenValid(dataLen))
+			           ? new DoIpVehicleIdentificationRequestWithEID(data, dataLen, prevLayer, packet)
+			           : nullptr;
+		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN:
+			return (DoIpVehicleIdentificationRequestWithVIN::isDataLenValid(dataLen))
+			           ? new DoIpVehicleIdentificationRequestWithVIN(data, dataLen, prevLayer, packet)
+			           : nullptr;
+		case DoIpPayloadTypes::VEHICLE_ANNOUNCEMENT_MESSAGE:
+			return (DoIpVehicleAnnouncementMessage::isDataLenValid(dataLen))
+			           ? new DoIpVehicleAnnouncementMessage(data, dataLen, prevLayer, packet)
+			           : nullptr;
 		case DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST:
 			return (DoIpRoutingActivationRequest::isDataLenValid(dataLen))
 			           ? new DoIpRoutingActivationRequest(data, dataLen, prevLayer, packet)
@@ -240,61 +260,41 @@ namespace pcpp
 			return (DoIpRoutingActivationResponse::isDataLenValid(dataLen))
 			           ? new DoIpRoutingActivationResponse(data, dataLen, prevLayer, packet)
 			           : nullptr;
-		case DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK:
-			return (DoIpGenericHeaderNack::isDataLenValid(dataLen))
-			           ? new DoIpGenericHeaderNack(data, dataLen, prevLayer, packet)
-			           : nullptr;
-		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID:
-			return (DoIpVehicleIdentificationRequestWEID::isDataLenValid(dataLen))
-			           ? new DoIpVehicleIdentificationRequestWEID(data, dataLen, prevLayer, packet)
-			           : nullptr;
-		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN:
-			return (DoIpVehicleIdentificationRequestWVIN::isDataLenValid(dataLen))
-			           ? new DoIpVehicleIdentificationRequestWVIN(data, dataLen, prevLayer, packet)
-			           : nullptr;
-		case DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE:
-			return (DoIpVehicleAnnouncement::isDataLenValid(dataLen))
-			           ? new DoIpVehicleAnnouncement(data, dataLen, prevLayer, packet)
+		case DoIpPayloadTypes::ALIVE_CHECK_REQUEST:
+			return (DoIpAliveCheckRequest::isDataLenValid(dataLen))
+			           ? new DoIpAliveCheckRequest(data, dataLen, prevLayer, packet)
 			           : nullptr;
 		case DoIpPayloadTypes::ALIVE_CHECK_RESPONSE:
 			return (DoIpAliveCheckResponse::isDataLenValid(dataLen))
 			           ? new DoIpAliveCheckResponse(data, dataLen, prevLayer, packet)
 			           : nullptr;
-		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE:
-			return (DoIpDiagnosticPowerModeResponse::isDataLenValid(dataLen))
-			           ? new DoIpDiagnosticPowerModeResponse(data, dataLen, prevLayer, packet)
+		case DoIpPayloadTypes::ENTITY_STATUS_REQUEST:
+			return (DoIpEntityStatusRequest::isDataLenValid(dataLen))
+			           ? new DoIpEntityStatusRequest(data, dataLen, prevLayer, packet)
 			           : nullptr;
 		case DoIpPayloadTypes::ENTITY_STATUS_RESPONSE:
 			return (DoIpEntityStatusResponse::isDataLenValid(dataLen))
 			           ? new DoIpEntityStatusResponse(data, dataLen, prevLayer, packet)
 			           : nullptr;
-		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE:
-			return (DoIpDiagnosticMessage::isDataLenValid(dataLen))
-			           ? new DoIpDiagnosticMessage(data, dataLen, prevLayer, packet)
-			           : nullptr;
-		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK:
-			return (DoIpDiagnosticAckMessage::isDataLenValid(dataLen))
-			           ? new DoIpDiagnosticAckMessage(data, dataLen, prevLayer, packet)
-			           : nullptr;
-		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK:
-			return (DoIpDiagnosticNackMessage::isDataLenValid(dataLen))
-			           ? new DoIpDiagnosticNackMessage(data, dataLen, prevLayer, packet)
-			           : nullptr;
-		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST:
-			return (DoIpVehicleIdentificationRequest::isDataLenValid(dataLen))
-			           ? new DoIpVehicleIdentificationRequest(data, dataLen, prevLayer, packet)
-			           : nullptr;
-		case DoIpPayloadTypes::ALIVE_CHECK_REQUEST:
-			return (DoIpAliveCheckRequest::isDataLenValid(dataLen))
-			           ? new DoIpAliveCheckRequest(data, dataLen, prevLayer, packet)
-			           : nullptr;
 		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST:
 			return (DoIpDiagnosticPowerModeRequest::isDataLenValid(dataLen))
 			           ? new DoIpDiagnosticPowerModeRequest(data, dataLen, prevLayer, packet)
 			           : nullptr;
-		case DoIpPayloadTypes::ENTITY_STATUS_REQUEST:
-			return (DoIpEntityStatusRequest::isDataLenValid(dataLen))
-			           ? new DoIpEntityStatusRequest(data, dataLen, prevLayer, packet)
+		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE:
+			return (DoIpDiagnosticPowerModeResponse::isDataLenValid(dataLen))
+			           ? new DoIpDiagnosticPowerModeResponse(data, dataLen, prevLayer, packet)
+			           : nullptr;
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE:
+			return (DoIpDiagnosticMessage::isDataLenValid(dataLen))
+			           ? new DoIpDiagnosticMessage(data, dataLen, prevLayer, packet)
+			           : nullptr;
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_ACK:
+			return (DoIpDiagnosticMessageAck::isDataLenValid(dataLen))
+			           ? new DoIpDiagnosticMessageAck(data, dataLen, prevLayer, packet)
+			           : nullptr;
+		case DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NACK:
+			return (DoIpDiagnosticMessageNack::isDataLenValid(dataLen))
+			           ? new DoIpDiagnosticMessageNack(data, dataLen, prevLayer, packet)
 			           : nullptr;
 		default:
 			return nullptr;
@@ -384,7 +384,7 @@ namespace pcpp
 
 	void DoIpLayer::parseNextLayer()
 	{
-		if (getPayloadType() == DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE)
+		if (getPayloadType() == DoIpPayloadTypes::DIAGNOSTIC_MESSAGE)
 		{
 			size_t headerLen = getHeaderLen();
 
@@ -398,6 +398,258 @@ namespace pcpp
 
 			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 		}
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpGenericHeaderNack|
+	//~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpGenericHeaderNack::DoIpGenericHeaderNack(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	    : DoIpLayer(data, dataLen, prevLayer, packet)
+	{}
+
+	DoIpGenericHeaderNack::DoIpGenericHeaderNack(DoIpGenericHeaderNackCodes nackCode) : DoIpLayer(FIXED_LEN)
+	{
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
+		setNackCode(nackCode);
+	}
+
+	DoIpGenericHeaderNackCodes DoIpGenericHeaderNack::getNackCode() const
+	{
+		uint8_t nackCode = getGenericHeaderNack()->nackCode;
+		if (nackCode <= static_cast<uint8_t>(DoIpGenericHeaderNackCodes::INVALID_PAYLOAD_LENGTH))
+		{
+			return static_cast<DoIpGenericHeaderNackCodes>(nackCode);
+		}
+		return DoIpGenericHeaderNackCodes::UNKNOWN;
+	}
+
+	void DoIpGenericHeaderNack::setNackCode(DoIpGenericHeaderNackCodes nackCode)
+	{
+		getGenericHeaderNack()->nackCode = static_cast<uint8_t>(nackCode);
+	}
+
+	std::string DoIpGenericHeaderNack::getSummary() const
+	{
+		std::ostringstream oss;
+		DoIpGenericHeaderNackCodes nackCode = getNackCode();
+		auto it = DoIpEnumToStringGenericHeaderNackCodes.find(nackCode);
+		oss << "Generic header nack code: " << it->second << " (0x" << std::hex
+		    << static_cast<unsigned>(getGenericHeaderNack()->nackCode) << ")\n";
+		return oss.str();
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequest|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpVehicleIdentificationRequest::DoIpVehicleIdentificationRequest() : DoIpLayer(DOIP_HEADER_LEN)
+	{
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequestWithEID|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpVehicleIdentificationRequestWithEID::DoIpVehicleIdentificationRequestWithEID(uint8_t* data, size_t dataLen,
+	                                                                                 Layer* prevLayer, Packet* packet)
+	    : DoIpLayer(data, dataLen, prevLayer, packet)
+	{}
+
+	DoIpVehicleIdentificationRequestWithEID::DoIpVehicleIdentificationRequestWithEID(
+	    const std::array<uint8_t, DOIP_EID_LEN>& eid)
+	    : DoIpLayer(FIXED_LEN)
+	{
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), DOIP_EID_LEN);
+		setEID(eid);
+	}
+
+	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleIdentificationRequestWithEID::getEID() const
+	{
+		return getVehicleIdentificationRequestWEID()->eid;
+	}
+
+	void DoIpVehicleIdentificationRequestWithEID::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
+	{
+		getVehicleIdentificationRequestWEID()->eid = eid;
+	}
+
+	std::string DoIpVehicleIdentificationRequestWithEID::getSummary() const
+	{
+		std::ostringstream oss;
+		oss << "EID: " << pcpp::byteArrayToHexString(getEID().data(), DOIP_EID_LEN) << "\n";
+		return oss.str();
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleIdentificationRequestWithVIN|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpVehicleIdentificationRequestWithVIN::DoIpVehicleIdentificationRequestWithVIN(uint8_t* data, size_t dataLen,
+	                                                                                 Layer* prevLayer, Packet* packet)
+	    : DoIpLayer(data, dataLen, prevLayer, packet)
+	{}
+
+	DoIpVehicleIdentificationRequestWithVIN::DoIpVehicleIdentificationRequestWithVIN(
+	    const std::array<uint8_t, DOIP_VIN_LEN>& vin)
+	    : DoIpLayer(FIXED_LEN)
+	{
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), DOIP_VIN_LEN);
+		setVIN(vin);
+	}
+
+	std::array<uint8_t, DOIP_VIN_LEN> DoIpVehicleIdentificationRequestWithVIN::getVIN() const
+	{
+		return getVehicleIdentificationRequestWVIN()->vin;
+	}
+
+	void DoIpVehicleIdentificationRequestWithVIN::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
+	{
+		getVehicleIdentificationRequestWVIN()->vin = vin;
+	}
+
+	std::string DoIpVehicleIdentificationRequestWithVIN::getSummary() const
+	{
+		std::ostringstream oss;
+		oss << "VIN: " << std::string(reinterpret_cast<const char*>(getVIN().data()), DOIP_VIN_LEN) << "\n";
+		return oss.str();
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpVehicleAnnouncementMessage|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpVehicleAnnouncementMessage::DoIpVehicleAnnouncementMessage(uint8_t* data, size_t dataLen, Layer* prevLayer,
+	                                                               Packet* packet)
+	    : DoIpLayer(data, dataLen, prevLayer, packet)
+	{}
+
+	DoIpVehicleAnnouncementMessage::DoIpVehicleAnnouncementMessage(const std::array<uint8_t, DOIP_VIN_LEN>& vin,
+	                                                               uint16_t logicalAddress,
+	                                                               const std::array<uint8_t, DOIP_EID_LEN>& eid,
+	                                                               const std::array<uint8_t, DOIP_GID_LEN>& gid,
+	                                                               DoIpActionCodes actionCode)
+	    : DoIpLayer(FIXED_LEN)
+	{
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
+
+		setVIN(vin);
+		setLogicalAddress(logicalAddress);
+		setEID(eid);
+		setGID(gid);
+		setFurtherActionRequired(actionCode);
+	}
+
+	std::array<uint8_t, DOIP_VIN_LEN> DoIpVehicleAnnouncementMessage::getVIN() const
+	{
+		return getVehicleAnnouncementMessage()->vin;
+	}
+
+	void DoIpVehicleAnnouncementMessage::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
+	{
+		getVehicleAnnouncementMessage()->vin = vin;
+	}
+
+	uint16_t DoIpVehicleAnnouncementMessage::getLogicalAddress() const
+	{
+		return be16toh(getVehicleAnnouncementMessage()->logicalAddress);
+	}
+
+	void DoIpVehicleAnnouncementMessage::setLogicalAddress(uint16_t logicalAddress)
+	{
+		getVehicleAnnouncementMessage()->logicalAddress = htobe16(logicalAddress);
+	}
+
+	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleAnnouncementMessage::getEID() const
+	{
+		return getVehicleAnnouncementMessage()->eid;
+	}
+
+	void DoIpVehicleAnnouncementMessage::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
+	{
+		getVehicleAnnouncementMessage()->eid = eid;
+	}
+
+	std::array<uint8_t, DOIP_GID_LEN> DoIpVehicleAnnouncementMessage::getGID() const
+	{
+		return getVehicleAnnouncementMessage()->gid;
+	}
+
+	void DoIpVehicleAnnouncementMessage::setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid)
+	{
+		getVehicleAnnouncementMessage()->gid = gid;
+	}
+
+	DoIpActionCodes DoIpVehicleAnnouncementMessage::getFurtherActionRequired() const
+	{
+		uint8_t actionCode = getVehicleAnnouncementMessage()->actionCode;
+		if (actionCode <= static_cast<uint8_t>(DoIpActionCodes::ROUTING_ACTIVATION_REQUIRED))
+		{
+			return static_cast<DoIpActionCodes>(actionCode);
+		}
+		return DoIpActionCodes::UNKNOWN;
+	}
+
+	void DoIpVehicleAnnouncementMessage::setFurtherActionRequired(DoIpActionCodes action)
+	{
+		getVehicleAnnouncementMessage()->actionCode = static_cast<uint8_t>(action);
+	}
+
+	DoIpSyncStatus DoIpVehicleAnnouncementMessage::getSyncStatus() const
+	{
+		if (!hasSyncStatus())
+			throw std::runtime_error("Sync status field not present!");
+
+		uint8_t syncStatus = *(m_Data + SYNC_STATUS_OFFSET);
+		if (syncStatus <= static_cast<uint8_t>(DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED))
+			return static_cast<DoIpSyncStatus>(syncStatus);
+
+		return DoIpSyncStatus::UNKNOWN;
+	}
+
+	void DoIpVehicleAnnouncementMessage::setSyncStatus(DoIpSyncStatus syncStatus)
+	{
+		if (!hasSyncStatus())
+		{
+			extendLayer(SYNC_STATUS_OFFSET, SYNC_STATUS_LEN);
+		}
+		setPayloadLength(OPT_LEN - DOIP_HEADER_LEN);
+		*(m_Data + SYNC_STATUS_OFFSET) = static_cast<uint8_t>(syncStatus);
+	}
+
+	bool DoIpVehicleAnnouncementMessage::hasSyncStatus() const
+	{
+		return (m_DataLen == OPT_LEN);
+	}
+
+	void DoIpVehicleAnnouncementMessage::clearSyncStatus()
+	{
+		if (!hasSyncStatus())
+		{
+			PCPP_LOG_DEBUG("DoIP packet has no syncStatus!");
+			return;
+		}
+		shortenLayer(SYNC_STATUS_OFFSET, SYNC_STATUS_LEN);
+		setPayloadLength(FIXED_LEN - DOIP_HEADER_LEN);
+	}
+
+	std::string DoIpVehicleAnnouncementMessage::getSummary() const
+	{
+		std::ostringstream oss;
+		oss << "VIN: " << std::string(reinterpret_cast<const char*>(getVIN().data()), DOIP_VIN_LEN) << "\n";
+		oss << "Logical address: 0x" << std::hex << getLogicalAddress() << "\n";
+		oss << "EID: " << pcpp::byteArrayToHexString(getEID().data(), DOIP_EID_LEN) << "\n";
+		oss << "GID: " << pcpp::byteArrayToHexString(getGID().data(), DOIP_GID_LEN) << "\n";
+
+		auto it = DoIpEnumToStringActionCodes.find(getFurtherActionRequired());
+		oss << "Further action required: " << it->second << " (0x" << std::hex
+		    << static_cast<unsigned>(getVehicleAnnouncementMessage()->actionCode) << ")\n";
+
+		if (hasSyncStatus())
+		{
+			auto syncStatus = getSyncStatus();
+			auto itSync = DoIpEnumToStringSyncStatus.find(syncStatus);
+			oss << "VIN/GID sync status: " << itSync->second << " (0x" << std::hex
+			    << static_cast<unsigned>(*(m_Data + SYNC_STATUS_OFFSET)) << ")\n";
+		}
+
+		return oss.str();
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -422,17 +674,17 @@ namespace pcpp
 
 	uint16_t DoIpRoutingActivationRequest::getSourceAddress() const
 	{
-		return be16toh(getRoutingRequest()->sourceAddress);
+		return be16toh(getRoutingActivationRequest()->sourceAddress);
 	}
 
 	void DoIpRoutingActivationRequest::setSourceAddress(uint16_t value)
 	{
-		getRoutingRequest()->sourceAddress = htobe16(value);
+		getRoutingActivationRequest()->sourceAddress = htobe16(value);
 	}
 
 	DoIpActivationTypes DoIpRoutingActivationRequest::getActivationType() const
 	{
-		auto activationType = static_cast<DoIpActivationTypes>(getRoutingRequest()->activationType);
+		auto activationType = static_cast<DoIpActivationTypes>(getRoutingActivationRequest()->activationType);
 		switch (activationType)
 		{
 		case DoIpActivationTypes::DEFAULT:
@@ -446,17 +698,17 @@ namespace pcpp
 
 	void DoIpRoutingActivationRequest::setActivationType(DoIpActivationTypes activationType)
 	{
-		getRoutingRequest()->activationType = static_cast<uint8_t>(activationType);
+		getRoutingActivationRequest()->activationType = static_cast<uint8_t>(activationType);
 	}
 
 	std::array<uint8_t, DOIP_RESERVED_ISO_LEN> DoIpRoutingActivationRequest::getReservedIso() const
 	{
-		return getRoutingRequest()->reservedIso;
+		return getRoutingActivationRequest()->reservedIso;
 	}
 
 	void DoIpRoutingActivationRequest::setReservedIso(const std::array<uint8_t, DOIP_RESERVED_ISO_LEN>& reservedIso)
 	{
-		getRoutingRequest()->reservedIso = reservedIso;
+		getRoutingActivationRequest()->reservedIso = reservedIso;
 	}
 
 	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationRequest::getReservedOem() const
@@ -504,7 +756,7 @@ namespace pcpp
 
 		auto it = DoIpEnumToStringActivationTypes.find(getActivationType());
 		oss << "Activation type: " << it->second << " (0x" << std::hex
-		    << static_cast<unsigned>(getRoutingRequest()->activationType) << ")\n";
+		    << static_cast<unsigned>(getRoutingActivationRequest()->activationType) << ")\n";
 
 		oss << "Reserved by ISO: " << pcpp::byteArrayToHexString(getReservedIso().data(), DOIP_RESERVED_ISO_LEN)
 		    << "\n";
@@ -538,27 +790,27 @@ namespace pcpp
 
 	uint16_t DoIpRoutingActivationResponse::getLogicalAddressExternalTester() const
 	{
-		return be16toh(getRoutingResponse()->logicalAddressExternalTester);
+		return be16toh(getRoutingActivationResponse()->logicalAddressExternalTester);
 	}
 
 	void DoIpRoutingActivationResponse::setLogicalAddressExternalTester(uint16_t addr)
 	{
-		getRoutingResponse()->logicalAddressExternalTester = htobe16(addr);
+		getRoutingActivationResponse()->logicalAddressExternalTester = htobe16(addr);
 	}
 
 	uint16_t DoIpRoutingActivationResponse::getSourceAddress() const
 	{
-		return be16toh(getRoutingResponse()->sourceAddress);
+		return be16toh(getRoutingActivationResponse()->sourceAddress);
 	}
 
 	void DoIpRoutingActivationResponse::setSourceAddress(uint16_t sourceAddress)
 	{
-		getRoutingResponse()->sourceAddress = htobe16(sourceAddress);
+		getRoutingActivationResponse()->sourceAddress = htobe16(sourceAddress);
 	}
 
 	DoIpRoutingResponseCodes DoIpRoutingActivationResponse::getResponseCode() const
 	{
-		uint8_t code = getRoutingResponse()->responseCode;
+		uint8_t code = getRoutingActivationResponse()->responseCode;
 		if (code <= static_cast<uint8_t>(DoIpRoutingResponseCodes::CONFIRMATION_REQUIRED))
 		{
 			return static_cast<DoIpRoutingResponseCodes>(code);
@@ -568,17 +820,17 @@ namespace pcpp
 
 	void DoIpRoutingActivationResponse::setResponseCode(DoIpRoutingResponseCodes code)
 	{
-		getRoutingResponse()->responseCode = static_cast<uint8_t>(code);
+		getRoutingActivationResponse()->responseCode = static_cast<uint8_t>(code);
 	}
 
 	std::array<uint8_t, DOIP_RESERVED_ISO_LEN> DoIpRoutingActivationResponse::getReservedIso() const
 	{
-		return getRoutingResponse()->reservedIso;
+		return getRoutingActivationResponse()->reservedIso;
 	}
 
 	void DoIpRoutingActivationResponse::setReservedIso(const std::array<uint8_t, DOIP_RESERVED_ISO_LEN>& reservedIso)
 	{
-		getRoutingResponse()->reservedIso = reservedIso;
+		getRoutingActivationResponse()->reservedIso = reservedIso;
 	}
 
 	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationResponse::getReservedOem() const
@@ -627,7 +879,7 @@ namespace pcpp
 
 		auto it = DoIpEnumToStringRoutingResponseCodes.find(getResponseCode());
 		oss << "Routing activation response code: " << it->second << " (0x" << std::hex
-		    << static_cast<unsigned>(getRoutingResponse()->responseCode) << ")\n";
+		    << static_cast<unsigned>(getRoutingActivationResponse()->responseCode) << ")\n";
 
 		oss << "Reserved by ISO: " << pcpp::byteArrayToHexString(getReservedIso().data(), DOIP_RESERVED_ISO_LEN)
 		    << "\n";
@@ -639,246 +891,11 @@ namespace pcpp
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpGenericHeaderNack|
+	// DoIpAliveCheckRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpGenericHeaderNack::DoIpGenericHeaderNack(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : DoIpLayer(data, dataLen, prevLayer, packet)
-	{}
-
-	DoIpGenericHeaderNack::DoIpGenericHeaderNack(DoIpGenericHeaderNackCodes nackCode) : DoIpLayer(FIXED_LEN)
+	DoIpAliveCheckRequest::DoIpAliveCheckRequest() : DoIpLayer(DOIP_HEADER_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
-		setNackCode(nackCode);
-	}
-
-	DoIpGenericHeaderNackCodes DoIpGenericHeaderNack::getNackCode() const
-	{
-		uint8_t nackCode = getGenericHeaderNack()->nackCode;
-		if (nackCode <= static_cast<uint8_t>(DoIpGenericHeaderNackCodes::INVALID_PAYLOAD_LENGTH))
-		{
-			return static_cast<DoIpGenericHeaderNackCodes>(nackCode);
-		}
-		return DoIpGenericHeaderNackCodes::UNKNOWN;
-	}
-
-	void DoIpGenericHeaderNack::setNackCode(DoIpGenericHeaderNackCodes nackCode)
-	{
-		getGenericHeaderNack()->nackCode = static_cast<uint8_t>(nackCode);
-	}
-
-	std::string DoIpGenericHeaderNack::getSummary() const
-	{
-		std::ostringstream oss;
-		DoIpGenericHeaderNackCodes nackCode = getNackCode();
-		auto it = DoIpEnumToStringGenericHeaderNackCodes.find(nackCode);
-		oss << "Generic header nack code: " << it->second << " (0x" << std::hex
-		    << static_cast<unsigned>(getGenericHeaderNack()->nackCode) << ")\n";
-		return oss.str();
-	}
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleIdentificationRequestWEID|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpVehicleIdentificationRequestWEID::DoIpVehicleIdentificationRequestWEID(uint8_t* data, size_t dataLen,
-	                                                                           Layer* prevLayer, Packet* packet)
-	    : DoIpLayer(data, dataLen, prevLayer, packet)
-	{}
-
-	DoIpVehicleIdentificationRequestWEID::DoIpVehicleIdentificationRequestWEID(
-	    const std::array<uint8_t, DOIP_EID_LEN>& eid)
-	    : DoIpLayer(FIXED_LEN)
-	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), DOIP_EID_LEN);
-		setEID(eid);
-	}
-
-	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleIdentificationRequestWEID::getEID() const
-	{
-		return getVehicleIdentificationRequestWEID()->eid;
-	}
-
-	void DoIpVehicleIdentificationRequestWEID::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
-	{
-		getVehicleIdentificationRequestWEID()->eid = eid;
-	}
-
-	std::string DoIpVehicleIdentificationRequestWEID::getSummary() const
-	{
-		std::ostringstream oss;
-		oss << "EID: " << pcpp::byteArrayToHexString(getEID().data(), DOIP_EID_LEN) << "\n";
-		return oss.str();
-	}
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// VehicleIdentificationRequestWVIN |
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpVehicleIdentificationRequestWVIN::DoIpVehicleIdentificationRequestWVIN(uint8_t* data, size_t dataLen,
-	                                                                           Layer* prevLayer, Packet* packet)
-	    : DoIpLayer(data, dataLen, prevLayer, packet)
-	{}
-
-	DoIpVehicleIdentificationRequestWVIN::DoIpVehicleIdentificationRequestWVIN(
-	    const std::array<uint8_t, DOIP_VIN_LEN>& vin)
-	    : DoIpLayer(FIXED_LEN)
-	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), DOIP_VIN_LEN);
-		setVIN(vin);
-	}
-
-	std::array<uint8_t, DOIP_VIN_LEN> DoIpVehicleIdentificationRequestWVIN::getVIN() const
-	{
-		return getVehicleIdentificationRequestWVIN()->vin;
-	}
-
-	void DoIpVehicleIdentificationRequestWVIN::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
-	{
-		getVehicleIdentificationRequestWVIN()->vin = vin;
-	}
-
-	std::string DoIpVehicleIdentificationRequestWVIN::getSummary() const
-	{
-		std::ostringstream oss;
-		oss << "VIN: " << std::string(reinterpret_cast<const char*>(getVIN().data()), DOIP_VIN_LEN) << "\n";
-		return oss.str();
-	}
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleAnnouncement|
-	//~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpVehicleAnnouncement::DoIpVehicleAnnouncement(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : DoIpLayer(data, dataLen, prevLayer, packet)
-	{}
-
-	DoIpVehicleAnnouncement::DoIpVehicleAnnouncement(const std::array<uint8_t, DOIP_VIN_LEN>& vin,
-	                                                 uint16_t logicalAddress,
-	                                                 const std::array<uint8_t, DOIP_EID_LEN>& eid,
-	                                                 const std::array<uint8_t, DOIP_GID_LEN>& gid,
-	                                                 DoIpActionCodes actionCode)
-	    : DoIpLayer(FIXED_LEN)
-	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
-
-		setVIN(vin);
-		setLogicalAddress(logicalAddress);
-		setEID(eid);
-		setGID(gid);
-		setFurtherActionRequired(actionCode);
-	}
-
-	std::array<uint8_t, DOIP_VIN_LEN> DoIpVehicleAnnouncement::getVIN() const
-	{
-		return getVehicleAnnouncement()->vin;
-	}
-
-	void DoIpVehicleAnnouncement::setVIN(const std::array<uint8_t, DOIP_VIN_LEN>& vin)
-	{
-		getVehicleAnnouncement()->vin = vin;
-	}
-
-	uint16_t DoIpVehicleAnnouncement::getLogicalAddress() const
-	{
-		return be16toh(getVehicleAnnouncement()->logicalAddress);
-	}
-
-	void DoIpVehicleAnnouncement::setLogicalAddress(uint16_t logicalAddress)
-	{
-		getVehicleAnnouncement()->logicalAddress = htobe16(logicalAddress);
-	}
-
-	std::array<uint8_t, DOIP_EID_LEN> DoIpVehicleAnnouncement::getEID() const
-	{
-		return getVehicleAnnouncement()->eid;
-	}
-
-	void DoIpVehicleAnnouncement::setEID(const std::array<uint8_t, DOIP_EID_LEN>& eid)
-	{
-		getVehicleAnnouncement()->eid = eid;
-	}
-
-	std::array<uint8_t, DOIP_GID_LEN> DoIpVehicleAnnouncement::getGID() const
-	{
-		return getVehicleAnnouncement()->gid;
-	}
-
-	void DoIpVehicleAnnouncement::setGID(const std::array<uint8_t, DOIP_GID_LEN>& gid)
-	{
-		getVehicleAnnouncement()->gid = gid;
-	}
-
-	DoIpActionCodes DoIpVehicleAnnouncement::getFurtherActionRequired() const
-	{
-		uint8_t actionCode = getVehicleAnnouncement()->actionCode;
-		if (actionCode <= static_cast<uint8_t>(DoIpActionCodes::ROUTING_ACTIVATION_REQUIRED))
-		{
-			return static_cast<DoIpActionCodes>(actionCode);
-		}
-		return DoIpActionCodes::UNKNOWN;
-	}
-
-	void DoIpVehicleAnnouncement::setFurtherActionRequired(DoIpActionCodes action)
-	{
-		getVehicleAnnouncement()->actionCode = static_cast<uint8_t>(action);
-	}
-
-	DoIpSyncStatus DoIpVehicleAnnouncement::getSyncStatus() const
-	{
-		if (!hasSyncStatus())
-			throw std::runtime_error("Sync status field not present!");
-
-		uint8_t syncStatus = *(m_Data + SYNC_STATUS_OFFSET);
-		if (syncStatus <= static_cast<uint8_t>(DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED))
-			return static_cast<DoIpSyncStatus>(syncStatus);
-
-		return DoIpSyncStatus::UNKNOWN;
-	}
-
-	void DoIpVehicleAnnouncement::setSyncStatus(DoIpSyncStatus syncStatus)
-	{
-		if (!hasSyncStatus())
-		{
-			extendLayer(SYNC_STATUS_OFFSET, SYNC_STATUS_LEN);
-		}
-		setPayloadLength(OPT_LEN - DOIP_HEADER_LEN);
-		*(m_Data + SYNC_STATUS_OFFSET) = static_cast<uint8_t>(syncStatus);
-	}
-
-	bool DoIpVehicleAnnouncement::hasSyncStatus() const
-	{
-		return (m_DataLen == OPT_LEN);
-	}
-
-	void DoIpVehicleAnnouncement::clearSyncStatus()
-	{
-		if (!hasSyncStatus())
-		{
-			PCPP_LOG_DEBUG("DoIP packet has no syncStatus!");
-			return;
-		}
-		shortenLayer(SYNC_STATUS_OFFSET, SYNC_STATUS_LEN);
-		setPayloadLength(FIXED_LEN - DOIP_HEADER_LEN);
-	}
-
-	std::string DoIpVehicleAnnouncement::getSummary() const
-	{
-		std::ostringstream oss;
-		oss << "VIN: " << std::string(reinterpret_cast<const char*>(getVIN().data()), DOIP_VIN_LEN) << "\n";
-		oss << "Logical address: 0x" << std::hex << getLogicalAddress() << "\n";
-		oss << "EID: " << pcpp::byteArrayToHexString(getEID().data(), DOIP_EID_LEN) << "\n";
-		oss << "GID: " << pcpp::byteArrayToHexString(getGID().data(), DOIP_GID_LEN) << "\n";
-
-		auto it = DoIpEnumToStringActionCodes.find(getFurtherActionRequired());
-		oss << "Further action required: " << it->second << " (0x" << std::hex
-		    << static_cast<unsigned>(getVehicleAnnouncement()->actionCode) << ")\n";
-
-		if (hasSyncStatus())
-		{
-			auto syncStatus = getSyncStatus();
-			auto itSync = DoIpEnumToStringSyncStatus.find(syncStatus);
-			oss << "VIN/GID sync status: " << itSync->second << " (0x" << std::hex
-			    << static_cast<unsigned>(*(m_Data + SYNC_STATUS_OFFSET)) << ")\n";
-		}
-
-		return oss.str();
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~|
@@ -911,44 +928,12 @@ namespace pcpp
 		return oss.str();
 	}
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpDiagnosticPowerModeResponse|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpDiagnosticPowerModeResponse::DoIpDiagnosticPowerModeResponse(uint8_t* data, size_t dataLen, Layer* prevLayer,
-	                                                                 Packet* packet)
-	    : DoIpLayer(data, dataLen, prevLayer, packet)
-	{}
-
-	DoIpDiagnosticPowerModeResponse::DoIpDiagnosticPowerModeResponse(DoIpDiagnosticPowerModeCodes code)
-	    : DoIpLayer(FIXED_LEN)
+	//~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpEntityStatusRequest|
+	//~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpEntityStatusRequest::DoIpEntityStatusRequest() : DoIpLayer(DOIP_HEADER_LEN)
 	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
-		setPowerModeCode(code);
-	}
-
-	DoIpDiagnosticPowerModeCodes DoIpDiagnosticPowerModeResponse::getPowerModeCode() const
-	{
-		uint8_t powerModeCode = getDiagnosticPowerModeResponse()->powerModeCode;
-		if (powerModeCode <= static_cast<uint8_t>(DoIpDiagnosticPowerModeCodes::NOT_SUPPORTED))
-		{
-			return static_cast<DoIpDiagnosticPowerModeCodes>(powerModeCode);
-		}
-		return DoIpDiagnosticPowerModeCodes::UNKNOWN;
-	}
-
-	void DoIpDiagnosticPowerModeResponse::setPowerModeCode(DoIpDiagnosticPowerModeCodes code)
-	{
-		getDiagnosticPowerModeResponse()->powerModeCode = static_cast<uint8_t>(code);
-	}
-
-	std::string DoIpDiagnosticPowerModeResponse::getSummary() const
-	{
-		std::ostringstream oss;
-		DoIpDiagnosticPowerModeCodes powerModeCode = getPowerModeCode();
-		auto it = DoIpEnumToStringDiagnosticPowerModeCodes.find(powerModeCode);
-		oss << "Diagnostic power mode: " << it->second << " (0x" << std::hex
-		    << static_cast<unsigned>(getDiagnosticPowerModeResponse()->powerModeCode) << ")\n";
-		return oss.str();
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1055,6 +1040,54 @@ namespace pcpp
 			oss << "Max Data Size: "
 			    << "0x" << pcpp::byteArrayToHexString((m_Data + MAX_DATA_SIZE_OFFSET), MAX_DATA_SIZE_LEN) << "\n";
 		}
+		return oss.str();
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpDiagnosticPowerModeRequest|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpDiagnosticPowerModeRequest::DoIpDiagnosticPowerModeRequest() : DoIpLayer(DOIP_HEADER_LEN)
+	{
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	// DoIpDiagnosticPowerModeResponse|
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+	DoIpDiagnosticPowerModeResponse::DoIpDiagnosticPowerModeResponse(uint8_t* data, size_t dataLen, Layer* prevLayer,
+	                                                                 Packet* packet)
+	    : DoIpLayer(data, dataLen, prevLayer, packet)
+	{}
+
+	DoIpDiagnosticPowerModeResponse::DoIpDiagnosticPowerModeResponse(DoIpDiagnosticPowerModeCodes code)
+	    : DoIpLayer(FIXED_LEN)
+	{
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), (FIXED_LEN - DOIP_HEADER_LEN));
+		setPowerModeCode(code);
+	}
+
+	DoIpDiagnosticPowerModeCodes DoIpDiagnosticPowerModeResponse::getPowerModeCode() const
+	{
+		uint8_t powerModeCode = getDiagnosticPowerModeResponse()->powerModeCode;
+		if (powerModeCode <= static_cast<uint8_t>(DoIpDiagnosticPowerModeCodes::NOT_SUPPORTED))
+		{
+			return static_cast<DoIpDiagnosticPowerModeCodes>(powerModeCode);
+		}
+		return DoIpDiagnosticPowerModeCodes::UNKNOWN;
+	}
+
+	void DoIpDiagnosticPowerModeResponse::setPowerModeCode(DoIpDiagnosticPowerModeCodes code)
+	{
+		getDiagnosticPowerModeResponse()->powerModeCode = static_cast<uint8_t>(code);
+	}
+
+	std::string DoIpDiagnosticPowerModeResponse::getSummary() const
+	{
+		std::ostringstream oss;
+		DoIpDiagnosticPowerModeCodes powerModeCode = getPowerModeCode();
+		auto it = DoIpEnumToStringDiagnosticPowerModeCodes.find(powerModeCode);
+		oss << "Diagnostic power mode: " << it->second << " (0x" << std::hex
+		    << static_cast<unsigned>(getDiagnosticPowerModeResponse()->powerModeCode) << ")\n";
 		return oss.str();
 	}
 
@@ -1207,32 +1240,32 @@ namespace pcpp
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpDiagnosticAckMessage|
+	// DoIpDiagnosticMessageAck|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpDiagnosticAckMessage::DoIpDiagnosticAckMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	DoIpDiagnosticMessageAck::DoIpDiagnosticMessageAck(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	    : DoIpDiagnosticResponseMessageBase(data, dataLen, prevLayer, packet)
 	{}
 
-	DoIpDiagnosticAckMessage::DoIpDiagnosticAckMessage(uint16_t sourceAddress, uint16_t targetAddress,
+	DoIpDiagnosticMessageAck::DoIpDiagnosticMessageAck(uint16_t sourceAddress, uint16_t targetAddress,
 	                                                   DoIpDiagnosticAckCodes ackCode)
 	    : DoIpDiagnosticResponseMessageBase(sourceAddress, targetAddress, getPayloadType())
 	{
 		setAckCode(ackCode);
 	}
 
-	DoIpDiagnosticAckCodes DoIpDiagnosticAckMessage::getAckCode() const
+	DoIpDiagnosticAckCodes DoIpDiagnosticMessageAck::getAckCode() const
 	{
 		return (getResponseCode() == static_cast<uint8_t>(DoIpDiagnosticAckCodes::ACK))
 		           ? DoIpDiagnosticAckCodes::ACK
 		           : DoIpDiagnosticAckCodes::UNKNOWN;
 	}
 
-	void DoIpDiagnosticAckMessage::setAckCode(DoIpDiagnosticAckCodes code)
+	void DoIpDiagnosticMessageAck::setAckCode(DoIpDiagnosticAckCodes code)
 	{
 		setResponseCode(static_cast<uint8_t>(code));
 	}
-	// Summary method.
-	std::string DoIpDiagnosticAckMessage::getSummary() const
+
+	std::string DoIpDiagnosticMessageAck::getSummary() const
 	{
 		std::ostringstream oss;
 		DoIpDiagnosticAckCodes ackCode = getAckCode();
@@ -1249,21 +1282,21 @@ namespace pcpp
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpDiagnosticNackMessage|
+	// DoIpDiagnosticMessageNack|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpDiagnosticNackMessage::DoIpDiagnosticNackMessage(uint8_t* data, size_t dataLen, Layer* prevLayer,
+	DoIpDiagnosticMessageNack::DoIpDiagnosticMessageNack(uint8_t* data, size_t dataLen, Layer* prevLayer,
 	                                                     Packet* packet)
 	    : DoIpDiagnosticResponseMessageBase(data, dataLen, prevLayer, packet)
 	{}
 
-	DoIpDiagnosticNackMessage::DoIpDiagnosticNackMessage(uint16_t sourceAddress, uint16_t targetAddress,
+	DoIpDiagnosticMessageNack::DoIpDiagnosticMessageNack(uint16_t sourceAddress, uint16_t targetAddress,
 	                                                     DoIpDiagnosticMessageNackCodes nackCode)
 	    : DoIpDiagnosticResponseMessageBase(sourceAddress, targetAddress, getPayloadType())
 	{
 		setNackCode(nackCode);
 	}
 
-	DoIpDiagnosticMessageNackCodes DoIpDiagnosticNackMessage::getNackCode() const
+	DoIpDiagnosticMessageNackCodes DoIpDiagnosticMessageNack::getNackCode() const
 	{
 		uint8_t nackCode = getResponseCode();
 		if (nackCode <= static_cast<uint8_t>(DoIpDiagnosticMessageNackCodes::TRANSPORT_PROTOCOL_ERROR))
@@ -1273,12 +1306,12 @@ namespace pcpp
 		return DoIpDiagnosticMessageNackCodes::UNKNOWN;
 	}
 
-	void DoIpDiagnosticNackMessage::setNackCode(DoIpDiagnosticMessageNackCodes code)
+	void DoIpDiagnosticMessageNack::setNackCode(DoIpDiagnosticMessageNackCodes code)
 	{
 		setResponseCode(static_cast<uint8_t>(code));
 	}
 
-	std::string DoIpDiagnosticNackMessage::getSummary() const
+	std::string DoIpDiagnosticMessageNack::getSummary() const
 	{
 		std::ostringstream oss;
 		DoIpDiagnosticMessageNackCodes nackCode = getNackCode();
@@ -1294,37 +1327,5 @@ namespace pcpp
 			    << pcpp::byteArrayToHexString(getPreviousMessage().data(), getPreviousMessage().size()) << "\n";
 		}
 		return oss.str();
-	}
-
-	//~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpAliveCheckRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpAliveCheckRequest::DoIpAliveCheckRequest() : DoIpLayer(DOIP_HEADER_LEN)
-	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
-	}
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpVehicleIdentificationRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpVehicleIdentificationRequest::DoIpVehicleIdentificationRequest() : DoIpLayer(DOIP_HEADER_LEN)
-	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
-	}
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpDiagnosticPowerModeRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpDiagnosticPowerModeRequest::DoIpDiagnosticPowerModeRequest() : DoIpLayer(DOIP_HEADER_LEN)
-	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
-	}
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~|
-	// DoIpEntityStatusRequest|
-	//~~~~~~~~~~~~~~~~~~~~~~~~|
-	DoIpEntityStatusRequest::DoIpEntityStatusRequest() : DoIpLayer(DOIP_HEADER_LEN)
-	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), 0);
 	}
 }  // namespace pcpp

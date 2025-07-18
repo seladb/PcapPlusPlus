@@ -211,7 +211,7 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketParsing)
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::ISO13400_2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
-	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::GENERIC_HEADER_NACK, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Generic DOIP header Nack");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 1);
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Generic DOIP header Nack (0x0000)");
@@ -255,19 +255,19 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation)
 	PTF_ASSERT_EQUAL(doipLayer.getSummary(), "Generic header nack code: Unknown payload type (0x1)\n");
 }  // DoIpGenericHeaderNackPacketCreation
 
-// DoIpVehicleIdentificationRequestWEIDPacketParsing
-PTF_TEST_CASE(DoIpVehicleIdentificationRequestWEIDPacketParsing)
+// DoIpVehicleIdentificationRequestWithEIDPacketParsing
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithEIDPacketParsing)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWEIDPacket.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWithEIDPacket.dat");
 
 	pcpp::Packet VehicleIdentificationRequestWEIDPacket(&rawPacket1);
 	PTF_ASSERT_TRUE(VehicleIdentificationRequestWEIDPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer =
-	    VehicleIdentificationRequestWEIDPacket.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestWEID>();
+	    VehicleIdentificationRequestWEIDPacket.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestWithEID>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(), "EID: 4241554e4545\n");
@@ -282,10 +282,10 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWEIDPacketParsing)
 	std::array<uint8_t, 6> eid{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45 };
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getEID(), eid);
 
-}  // DoIpVehicleIdentificationRequestWEIDPacketParsing
+}  // DoIpVehicleIdentificationRequestWithEIDPacketParsing
 
-// DoIpVehicleIdentificationRequestWEIDPacketCreation
-PTF_TEST_CASE(DoIpVehicleIdentificationRequestWEIDPacketCreation)
+// DoIpVehicleIdentificationRequestWithEIDPacketCreation
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithEIDPacketCreation)
 {
 	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
@@ -303,7 +303,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWEIDPacketCreation)
 		                                                      0x6, 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45 };
 	std::array<uint8_t, 6> eid{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45 };
 
-	pcpp::DoIpVehicleIdentificationRequestWEID newVehicleIdentificationRequestWEID(eid);
+	pcpp::DoIpVehicleIdentificationRequestWithEID newVehicleIdentificationRequestWEID(eid);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newVehicleIdentificationRequestWEID));
 	doIpPacket.computeCalculateFields();
@@ -314,21 +314,21 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWEIDPacketCreation)
 
 	PTF_ASSERT_VECTORS_EQUAL(newVehicleIdentificationRequestWEID.getEID(), eid);
 	PTF_ASSERT_EQUAL(newVehicleIdentificationRequestWEID.getSummary(), "EID: 4241554e4545\n");
-}  // DoIpVehicleIdentificationRequestWEIDPacketCreation
+}  // DoIpVehicleIdentificationRequestWithEIDPacketCreation
 
-// DoIpVehicleIdentificationRequestWVINPacketParsing
-PTF_TEST_CASE(DoIpVehicleIdentificationRequestWVINPacketParsing)
+// DoIpVehicleIdentificationRequestWithVINPacketParsing
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithVINPacketParsing)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWVINPacket.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWithVINPacket.dat");
 
 	pcpp::Packet VehicleIdentificationRequestWVINPacket(&rawPacket1);
 	PTF_ASSERT_TRUE(VehicleIdentificationRequestWVINPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer =
-	    VehicleIdentificationRequestWVINPacket.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestWVIN>();
+	    VehicleIdentificationRequestWVINPacket.getLayerOfType<pcpp::DoIpVehicleIdentificationRequestWithVIN>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::ISO13400_2012, enumclass);
@@ -346,8 +346,8 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWVINPacketParsing)
 
 }  // DoIpVehicleIdentificationRequestVINPacketParsing
 
-// DoIpVehicleIdentificationRequestWVINPacketCreation
-PTF_TEST_CASE(DoIpVehicleIdentificationRequestWVINPacketCreation)
+// DoIpVehicleIdentificationRequestWithVINPacketCreation
+PTF_TEST_CASE(DoIpVehicleIdentificationRequestWithVINPacketCreation)
 {
 	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
@@ -367,7 +367,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWVINPacketCreation)
 	std::array<uint8_t, 17> vin{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45, 0x34, 0x4d, 0x5a,
 		                         0x31, 0x37, 0x30, 0x34, 0x32, 0x34, 0x30, 0x33 };
 
-	pcpp::DoIpVehicleIdentificationRequestWVIN newVehicleIdentificationRequestWVIN(vin);
+	pcpp::DoIpVehicleIdentificationRequestWithVIN newVehicleIdentificationRequestWVIN(vin);
 	newVehicleIdentificationRequestWVIN.setVIN(vin);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newVehicleIdentificationRequestWVIN));
@@ -381,14 +381,14 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestWVINPacketCreation)
 	PTF_ASSERT_VECTORS_EQUAL(newVehicleIdentificationRequestWVIN.getVIN(), vin);
 }  // DoIpVehicleIdentificationRequestVINPacketCreation
 
-// DoIpVehicleAnnouncementPacketParsing
-PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
+// DoIpVehicleAnnouncementMessagePacketParsing
+PTF_TEST_CASE(DoIpVehicleAnnouncementMessagePacketParsing)
 {
 	// Dissect Vehicle Announcement message
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleAnnouncementPacket.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleAnnouncementMessagePacket.dat");
 
 	std::array<uint8_t, 6> eid{ 0x0, 0x1a, 0x37, 0xbf, 0xee, 0x74 };
 	std::array<uint8_t, 6> gid{ 0x0, 0x1a, 0x37, 0xbf, 0xee, 0x74 };
@@ -398,7 +398,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 	pcpp::Packet VehicleAnnouncementPacket(&rawPacket1);
 	PTF_ASSERT_TRUE(VehicleAnnouncementPacket.isPacketOfType(pcpp::DOIP));
 
-	auto* doipLayer = VehicleAnnouncementPacket.getLayerOfType<pcpp::DoIpVehicleAnnouncement>();
+	auto* doipLayer = VehicleAnnouncementPacket.getLayerOfType<pcpp::DoIpVehicleAnnouncementMessage>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	PTF_ASSERT_EQUAL(
@@ -407,7 +407,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::ISO13400_2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
-	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_ANNOUNCEMENT_MESSAGE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(),
 	                 "Vehicle announcement message / vehicle identification response message");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 32);
@@ -421,10 +421,10 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 	                 enumclass);
 	PTF_ASSERT_FALSE(doipLayer->hasSyncStatus());
 	PTF_ASSERT_RAISES(doipLayer->getSyncStatus(), std::runtime_error, "Sync status field not present!");
-}  // DoIpVehicleAnnouncementPacketParsing
+}  // DoIpVehicleAnnouncementMessagePacketParsing
 
-// DoIpVehicleAnnouncementPacketCreation
-PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
+// DoIpVehicleAnnouncementMessagePacketCreation
+PTF_TEST_CASE(DoIpVehicleAnnouncementMessagePacketCreation)
 {
 	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
@@ -447,15 +447,15 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	std::array<uint8_t, 17> vin{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45, 0x34, 0x4d, 0x5a,
 		                         0x31, 0x37, 0x30, 0x34, 0x32, 0x34, 0x30, 0x33 };
 
-	pcpp::DoIpVehicleAnnouncement newVehicleAnnouncement(vin, 0x4010, eid, gid,
-	                                                     pcpp::DoIpActionCodes::NO_FURTHER_ACTION_REQUIRED);
+	pcpp::DoIpVehicleAnnouncementMessage newVehicleAnnouncement(vin, 0x4010, eid, gid,
+	                                                            pcpp::DoIpActionCodes::NO_FURTHER_ACTION_REQUIRED);
 	newVehicleAnnouncement.setSyncStatus(pcpp::DoIpSyncStatus::VIN_AND_OR_GID_ARE_SINCHRONIZED);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newVehicleAnnouncement));
 	doIpPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 83);
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (83 - 41), vehicleAnnouncementLayer, 41);
-	auto* doipLayer = doIpPacket.getLayerOfType<pcpp::DoIpVehicleAnnouncement>();
+	auto* doipLayer = doIpPacket.getLayerOfType<pcpp::DoIpVehicleAnnouncementMessage>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	PTF_ASSERT_TRUE(doipLayer->hasSyncStatus());
@@ -468,7 +468,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
 	    "VIN: BAUNEE4MZ17042403\nLogical address: 0x4010\nEID: 001a37bfee74\nGID: 001a37bfee74\nFurther action required: No further action required (0x0)\n");
-}  // DoIpVehicleAnnouncementPacketCreation
+}  // DoIpVehicleAnnouncementMessagePacketCreation
 
 // DoIpVehicleIdentificationRequestPacketParsing
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketParsing)
@@ -720,7 +720,7 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketParsing)
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::ISO13400_2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
-	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic message");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 6);
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Diagnostic message (0x8001)");
@@ -767,23 +767,23 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketCreation)
 	PTF_ASSERT_EQUAL(newDiagnosticMessage.getSummary(), "Source Address: 0x2030\nTarget Address: 0x4040\n");
 }  // DoIpDiagnosticMessagePacketCreation
 
-// DoIpDiagnosticAckMessagePacketParsing
-PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketParsing)
+// DoIpDiagnosticMessageAckPacketParsing
+PTF_TEST_CASE(DoIpDiagnosticMessageAckPacketParsing)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpDiagnosticAckMessagePacket.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpDiagnosticMessageAckPacket.dat");
 
 	pcpp::Packet diagnosticAckMessagePacket(&rawPacket1);
 	PTF_ASSERT_TRUE(diagnosticAckMessagePacket.isPacketOfType(pcpp::DOIP));
 
-	auto* doipLayer = diagnosticAckMessagePacket.getLayerOfType<pcpp::DoIpDiagnosticAckMessage>();
+	auto* doipLayer = diagnosticAckMessagePacket.getLayerOfType<pcpp::DoIpDiagnosticMessageAck>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::ISO13400_2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
-	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK, enumclass);
+	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_ACK, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic message Ack");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 8);
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Diagnostic message Ack (0x8002)");
@@ -796,10 +796,10 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(),
 	                 "Source Address: 0x4010\nTarget Address: 0xe80\nACK code: ACK (0x0)\nPrevious message: 22f101\n");
 
-}  // DoIpDiagnosticAckMessagePacketParsing
+}  // DoIpDiagnosticMessageAckPacketParsing
 
-// DoIpDiagnosticAckMessagePacketCreation
-PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
+// DoIpDiagnosticMessageAckPacketCreation
+PTF_TEST_CASE(DoIpDiagnosticMessageAckPacketCreation)
 {
 	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
@@ -816,14 +816,14 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
 	unsigned char diagnosticAckMessageLayer[] = {
 		0x2, 0xfd, 0x80, 0x2, 0x0, 0x0, 0x0, 0x5, 0x40, 0x10, 0xe, 0x80, 0x0
 	};
-	pcpp::DoIpDiagnosticAckMessage newDiagnosticAckMessage(0x4010, 0xe80, pcpp::DoIpDiagnosticAckCodes::ACK);
+	pcpp::DoIpDiagnosticMessageAck newDiagnosticAckMessage(0x4010, 0xe80, pcpp::DoIpDiagnosticAckCodes::ACK);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newDiagnosticAckMessage));
 	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 67);
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (67 - 13), diagnosticAckMessageLayer, 13);
-	auto* doipLayer = doIpPacket.getLayerOfType<pcpp::DoIpDiagnosticAckMessage>();
+	auto* doipLayer = doIpPacket.getLayerOfType<pcpp::DoIpDiagnosticMessageAck>();
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	PTF_ASSERT_FALSE(doipLayer->hasPreviousMessage());
@@ -847,25 +847,25 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketCreation)
 		                                                 0x80, 0x90, 0x10, 0x0, 0x10, 0x20, 0x30, 0x40, 0x50 };
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 72);
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (72 - 18), newDiagnosticAckWPreviousMessage, 18);
-}  // DoIpDiagnosticAckMessagePacketCreation
+}  // DoIpDiagnosticMessageAckPacketCreation
 
-// DoIpDiagnosticNackMessagePacketParsing
-PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketParsing)
+// DoIpDiagnosticMessageNackPacketParsing
+PTF_TEST_CASE(DoIpDiagnosticMessageNackPacketParsing)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpDiagnosticNackMessagePacket.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpDiagnosticMessageNackPacket.dat");
 
 	pcpp::Packet diagnosticNackPacket(&rawPacket1);
 	PTF_ASSERT_TRUE(diagnosticNackPacket.isPacketOfType(pcpp::DOIP));
 
-	auto* nackLayer = diagnosticNackPacket.getLayerOfType<pcpp::DoIpDiagnosticNackMessage>();
+	auto* nackLayer = diagnosticNackPacket.getLayerOfType<pcpp::DoIpDiagnosticMessageNack>();
 	PTF_ASSERT_NOT_NULL(nackLayer);
 
 	PTF_ASSERT_EQUAL(nackLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::ISO13400_2012, enumclass);
 	PTF_ASSERT_EQUAL(nackLayer->getInvertProtocolVersion(), 0xFD);
-	PTF_ASSERT_EQUAL(nackLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK, enumclass);
+	PTF_ASSERT_EQUAL(nackLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NACK, enumclass);
 	PTF_ASSERT_EQUAL(nackLayer->getPayloadTypeAsStr(), "Diagnostic message Nack");
 	PTF_ASSERT_EQUAL(nackLayer->getPayloadLength(), 8);
 	PTF_ASSERT_EQUAL(nackLayer->toString(), "DoIP Layer, Diagnostic message Nack (0x8003)");
@@ -880,10 +880,10 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketParsing)
 	PTF_ASSERT_EQUAL(
 	    nackLayer->getSummary(),
 	    "Source Address: 0x4010\nTarget Address: 0xe80\nNACK code: Invalid source address (0x2)\nPrevious message: 22f101\n");
-}  // DoIpDiagnosticNackMessagePacketParsing
+}  // DoIpDiagnosticMessageNackPacketParsing
 
-// DoIpDiagnosticNackMessagePacketCreation
-PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
+// DoIpDiagnosticMessageNackPacketCreation
+PTF_TEST_CASE(DoIpDiagnosticMessageNackPacketCreation)
 {
 	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
@@ -897,7 +897,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	doIpPacket.computeCalculateFields();
 
 	// Create NACK message with no previous message
-	pcpp::DoIpDiagnosticNackMessage newDiagnosticnackMessage(
+	pcpp::DoIpDiagnosticMessageNack newDiagnosticnackMessage(
 	    0x4010, 0x0e80, pcpp::DoIpDiagnosticMessageNackCodes::INVALID_SOURCE_ADDRESS);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newDiagnosticnackMessage));
 	doIpPacket.computeCalculateFields();
@@ -908,7 +908,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 67);
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (67 - 13), diagnosticnackMessageLayer, 13);
 
-	auto* doipLayer = doIpPacket.getLayerOfType<pcpp::DoIpDiagnosticNackMessage>();
+	auto* doipLayer = doIpPacket.getLayerOfType<pcpp::DoIpDiagnosticMessageNack>();
 
 	PTF_ASSERT_FALSE(doipLayer->hasPreviousMessage());
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getPreviousMessage(), std::vector<uint8_t>{});
@@ -934,7 +934,7 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketCreation)
 	PTF_ASSERT_EQUAL(doIpPacket.getRawPacket()->getRawDataLen(), 70);
 	PTF_ASSERT_BUF_COMPARE(doIpPacket.getRawPacket()->getRawData() + (70 - 16),
 	                       diagnosticnackMessageLayerWPreviousMessage, 16);
-}  // DoIpDiagnosticNackMessagePacketCreation
+}  // DoIpDiagnosticMessageNackPacketCreation
 
 // DoIpDiagnosticPowerModeRequestPacketParsing
 PTF_TEST_CASE(DoIpDiagnosticPowerModeRequestPacketParsing)
