@@ -10,6 +10,69 @@ namespace pcpp
 		mapper.addPortMapping(PortPair::fromSrc(80), HTTPResponse, false);
 		mapper.addPortMapping(PortPair::fromDst(8080), HTTPRequest, false);
 		mapper.addPortMapping(PortPair::fromSrc(8080), HTTPResponse, false);
+
+		// SSL and TLS port mappings
+		mapper.addPortMapping(PortPair::fromDst(443), SSL, true);  // HTTPS
+		mapper.addPortMapping(PortPair::fromDst(261), SSL, true);  // NSIIOPS
+		mapper.addPortMapping(PortPair::fromDst(448), SSL, true);  // DDM-SSL
+		mapper.addPortMapping(PortPair::fromDst(465), SSL, true);  // SMTPS
+		mapper.addPortMapping(PortPair::fromDst(563), SSL, true);  // NNTPS
+		mapper.addPortMapping(PortPair::fromDst(614), SSL, true);  // SSHELL
+		mapper.addPortMapping(PortPair::fromDst(636), SSL, true);  // LDAPS
+		mapper.addPortMapping(PortPair::fromDst(989), SSL, true);  // FTPS - data
+		mapper.addPortMapping(PortPair::fromDst(990), SSL, true);  // FTPS - control
+		mapper.addPortMapping(PortPair::fromDst(992), SSL, true);  // Telnet over TLS/SSL
+		mapper.addPortMapping(PortPair::fromDst(993), SSL, true);  // IMAPS
+		mapper.addPortMapping(PortPair::fromDst(994), SSL, true);  // IRCS
+		mapper.addPortMapping(PortPair::fromDst(995), SSL, true);  // POP3S
+
+		// SIP port mappings
+		mapper.addPortMapping(PortPair::fromDst(5060), SIP, true);  // SIP over UDP
+		mapper.addPortMapping(PortPair::fromDst(5061), SIP, true);  // SIP over TLS
+
+		// BGP port mappings
+		mapper.addPortMapping(PortPair::fromDst(179), BGP, true);  // BGP over TCP
+
+		// SSH port mappings
+		mapper.addPortMapping(PortPair::fromDst(22), SSH, true);  // SSH over TCP
+
+		// DNS port mappings
+		mapper.addPortMapping(PortPair::fromDst(53), DNS, true);    // DNS over TCP/UDP
+		mapper.addPortMapping(PortPair::fromDst(5353), DNS, true);  // mDNS
+		mapper.addPortMapping(PortPair::fromDst(5355), DNS, true);  // LLMNR
+
+		// Telnet port mappings
+		mapper.addPortMapping(PortPair::fromDst(23), Telnet, true);  // Telnet over TCP
+
+		// FTP port mappings
+		// FTP Control parses to FTPRequest and FTPResponse, but only one FTP protocol type is defined.
+		// The specific parsing determined based on if the port is src or dst.
+		// A port pairing (21, 21) for example is UB.
+		mapper.addPortMapping(PortPair{ 21, 21 }, UnknownProtocol, false);  // Symmetrical connection is UB
+		mapper.addPortMapping(PortPair::fromSrc(21), FTP, false);  // FTP control
+		mapper.addPortMapping(PortPair::fromDst(21), FTP, false);  // FTP control
+		// TODO: FTP data needs a separate ProtocolType
+		// mapper.addPortMapping(PortPair::fromDst(20), FTP, false);  // FTP data
+
+		// SomeIP port mappings
+		mapper.addPortMapping(PortPair::fromDst(30490), SomeIP, true);  // SomeIP over UDP or TCP
+
+		// Tpkt port mappings
+		makeDefaultPortMapper().addPortMapping(PortPair::fromDst(102), TPKT, true);  // TPKT over TCP
+
+		// Smtp port mappings
+		// NOTE: Symmetrical mapping but decodes to SMTPRequest and SMTPResponse
+		// A port pairing (25, 25) for example is UB.
+		mapper.addPortMapping(PortPair{ 25, 25 }, UnknownProtocol, false);  // Symmetrical connection is UB
+		mapper.addPortMapping(PortPair::fromDst(25), SMTP, true);           // SMTP over TCP
+		mapper.addPortMapping(PortPair::fromDst(587), SMTP, true);          // SMTP over TCP (submission)
+
+		// LDAP port mappings
+		mapper.addPortMapping(PortPair::fromDst(389), LDAP, true);  // LDAP over TCP
+
+		// GTP port mappings
+		mapper.addPortMapping(PortPair::fromDst(2123), GTPv2, true);  // GTPv2-C over UDP / TCP
+
 		return mapper;
 	}
 
