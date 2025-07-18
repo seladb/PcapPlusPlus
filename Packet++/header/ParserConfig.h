@@ -36,6 +36,16 @@ namespace pcpp
 			return { AnyPort, portDst };
 		}
 
+		constexpr PortPair onlyDest() const
+		{
+			return fromDst(portDst);
+		}
+
+		constexpr PortPair onlySrc() const
+		{
+			return fromSrc(portSrc);
+		}
+
 		constexpr bool operator==(const PortPair& other) const noexcept
 		{
 			return portSrc == other.portSrc && portDst == other.portDst;
