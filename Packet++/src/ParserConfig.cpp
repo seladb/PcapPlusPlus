@@ -86,12 +86,12 @@ namespace pcpp
 		}
 
 		auto insertResult = m_PortToProtocolMap.insert({ port, protocol });
-		insertResult.first->second = protocol;  // Update the protocol if it already exists
 		if (!insertResult.second)
 		{
-			PCPP_LOG_WARN("Port " << port << " is already mapped to protocol " << insertResult.first->second
+			PCPP_LOG_WARN("Port " << port << " is already mapped to protocol " << std::to_string(insertResult.first->second)
 			                      << ", updating to " << protocol);
 		}
+		insertResult.first->second = protocol;  // Update the protocol if it already exists
 
 		if (symmetrical && port.portSrc != port.portDst)
 		{
