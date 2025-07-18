@@ -104,7 +104,8 @@ namespace pcpp
 	}
 
 	template <class Asn1RecordType>
-	static Asn1RecordType* castRecordAs(Asn1Record* record, const std::string& fieldName)
+	static Asn1RecordType* castRecordAs(Asn1Record* record, const std::string& extensionName,
+	                                    const std::string& fieldName)
 	{
 		try
 		{
@@ -112,20 +113,21 @@ namespace pcpp
 		}
 		catch (const std::bad_cast&)
 		{
-			throw std::runtime_error("Invalid X509 certificate data: " + fieldName);
+			throw std::runtime_error("Invalid X509 certificate " + extensionName + " extension data: " + fieldName);
 		}
 	}
 
 	template <class Asn1RecordType>
-	static Asn1RecordType* getSubRecordAndCast(Asn1ConstructedRecord* record, int index, const std::string& fieldName)
+	static Asn1RecordType* getSubRecordAndCast(Asn1ConstructedRecord* record, int index,
+	                                           const std::string& extensionName, const std::string& fieldName)
 	{
 		try
 		{
-			return castRecordAs<Asn1RecordType>(record->getSubRecords().at(index), fieldName);
+			return castRecordAs<Asn1RecordType>(record->getSubRecords().at(index), extensionName, fieldName);
 		}
 		catch (const std::out_of_range&)
 		{
-			throw std::runtime_error("Invalid X509 certificate data: " + fieldName);
+			throw std::runtime_error("Invalid X509 certificate " + extensionName + "extension data: " + fieldName);
 		}
 	}
 
@@ -144,21 +146,20 @@ namespace pcpp
 		{
 			std::vector<uint8_t> rawDataBytes;
 			auto record = decodeAsn1Data(rawData, rawDataBytes);
-			auto basicConstraintsRecord =
-			    castRecordAs<Asn1SequenceRecord>(record.get(), "Basic Constraints Extension Value");
+			auto basicConstraintsRecord = castRecordAs<Asn1SequenceRecord>(record.get(), "Basic Constraints", "Value");
 			bool isCA = false;
 			uint8_t pathLenConstraint = 0;
 			if (basicConstraintsRecord->getSubRecords().size() > isCAOffset)
 			{
-				isCA = getSubRecordAndCast<Asn1BooleanRecord>(basicConstraintsRecord, isCAOffset,
-				                                              "Basic Constraints CA Value")
+				isCA = getSubRecordAndCast<Asn1BooleanRecord>(basicConstraintsRecord, isCAOffset, "Basic Constraints",
+				                                              "Is CA")
 				           ->getValue();
 			}
 			if (basicConstraintsRecord->getSubRecords().size() > pathLenConstraintOffset)
 			{
 				pathLenConstraint =
 				    getSubRecordAndCast<Asn1IntegerRecord>(basicConstraintsRecord, pathLenConstraintOffset,
-				                                           "Basic Constraints Path Length Constraint Value")
+				                                           "Basic Constraints", "Path Length Constraint")
 				        ->getIntValue<uint8_t>();
 			}
 
@@ -172,7 +173,8 @@ namespace pcpp
 			std::vector<uint8_t> rawDataBytes;
 			auto record = decodeAsn1Data(rawData, rawDataBytes);
 			auto keyIdentifier =
-			    castRecordAs<Asn1OctetStringRecord>(record.get(), "Subject Key Identifier Extension Value")->getValue();
+			    castRecordAs<Asn1OctetStringRecord>(record.get(), "Subject Key Identifier", "Key Identifier")
+			        ->getValue();
 			return std::unique_ptr<X509SubjectKeyIdentifierDataDecoder>(
 			    new X509SubjectKeyIdentifierDataDecoder(keyIdentifier));
 		}
@@ -181,7 +183,7 @@ namespace pcpp
 		{
 			std::vector<uint8_t> rawDataBytes;
 			auto record = decodeAsn1Data(rawData, rawDataBytes);
-			auto keyUsage = castRecordAs<Asn1BitStringRecord>(record.get(), "Key Usage Extension Value")->getValue();
+			auto keyUsage = castRecordAs<Asn1BitStringRecord>(record.get(), "Key Usage", "Key Usage")->getValue();
 			return std::unique_ptr<X509KeyUsageDataDecoder>(new X509KeyUsageDataDecoder(keyUsage));
 		}
 
@@ -191,7 +193,7 @@ namespace pcpp
 			std::vector<uint8_t> rawDataBytes;
 			auto record = decodeAsn1Data(rawData, rawDataBytes);
 			auto extendedKeyUsageRecord =
-			    castRecordAs<Asn1SequenceRecord>(record.get(), "Extended Key Usage Extension Value");
+			    castRecordAs<Asn1SequenceRecord>(record.get(), "Extended Key Usage", "Purposes List");
 			auto result = std::unique_ptr<X509ExtendedKeyUsageDataDecoder>(new X509ExtendedKeyUsageDataDecoder());
 			for (const auto& subRecord : extendedKeyUsageRecord->getSubRecords())
 			{
