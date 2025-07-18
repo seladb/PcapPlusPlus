@@ -60,7 +60,7 @@ namespace pcpp
 		mapper.addPortMapping(PortPair::fromDst(30490), SomeIP, true);  // SomeIP over UDP or TCP
 
 		// Tpkt port mappings
-		makeDefaultPortMapper().addPortMapping(PortPair::fromDst(102), TPKT, true);  // TPKT over TCP
+		mapper.addPortMapping(PortPair::fromDst(102), TPKT, true);  // TPKT over TCP
 
 		// Smtp port mappings
 		// NOTE: Symmetrical mapping but decodes to SMTPRequest and SMTPResponse
