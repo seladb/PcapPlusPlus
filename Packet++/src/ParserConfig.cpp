@@ -91,6 +91,33 @@ namespace pcpp
 		return UnknownProtocol;  // Return UnknownProtocol if port not found
 	}
 
+	std::array<ProtocolType, 3> PortMapper::getProtocolMappingsMatrixForPortPair(PortPair port) const
+	{
+		std::array<ProtocolType, 3> protocols = { UnknownProtocol, UnknownProtocol, UnknownProtocol };
+		// Check for exact match
+		auto it = m_PortToProtocolMap.find(port);
+		if (it != m_PortToProtocolMap.end())
+		{
+			protocols[0] = it->second;  // Full match
+			return protocols;
+		}
+
+		// Check for src port match
+		it = m_PortToProtocolMap.find(PortPair::fromSrc(port.portSrc));
+		if (it != m_PortToProtocolMap.end())
+		{
+			protocols[1] = it->second;  // Src port match
+		}
+
+		// Check for dst port match
+		it = m_PortToProtocolMap.find(PortPair::fromDst(port.portDst));
+		if (it != m_PortToProtocolMap.end())
+		{
+			protocols[2] = it->second;  // Dst port match
+		}
+		return protocols;
+	}
+
 	ParserConfiguration ParserConfiguration::makeDefaultConfiguration()
 	{
 		ParserConfiguration config;
