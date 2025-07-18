@@ -997,18 +997,20 @@ namespace pcpp
 		                   [extensionType](const auto& ext) { return ext.getType() == extensionType; });
 	}
 
-	const X509Extension& X509Certificate::getExtension(const X509ExtensionType& extensionType) const
+	const X509Extension* X509Certificate::getExtension(const X509ExtensionType& extensionType) const
 	{
+		const auto& extensions = getExtensions();
 		auto matchExtension =
-		    std::find_if(getExtensions().begin(), getExtensions().end(),
-		                 [extensionType](X509Extension extension) { return extension.getType() == extensionType; });
+		    std::find_if(extensions.begin(), extensions.end(), [&extensionType](const X509Extension& extension) {
+			    return extension.getType() == extensionType;
+		    });
 
-		if (matchExtension != getExtensions().end())
+		if (matchExtension != extensions.end())
 		{
-			return *matchExtension;
+			return &(*matchExtension);
 		}
 
-		throw std::runtime_error("Extension of type " + extensionType.toString() + " not found");
+		return nullptr;
 	}
 
 	X509Name X509Certificate::getSubject() const

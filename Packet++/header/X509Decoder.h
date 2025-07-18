@@ -799,7 +799,10 @@ namespace pcpp
 		/// @return true if the extension is present, false otherwise
 		bool hasExtension(const X509ExtensionType& extensionType) const;
 
-		const X509Extension& getExtension(const X509ExtensionType& extensionType) const;
+		/// Gets an extension by its type
+		/// @param[in] extensionType The type of extension to get
+		/// @return Pointer to the extension if found, nullptr otherwise
+		const X509Extension* getExtension(const X509ExtensionType& extensionType) const;
 
 		/// Converts the certificate to DER-encoded format
 		/// @return A byte vector containing the DER-encoded data

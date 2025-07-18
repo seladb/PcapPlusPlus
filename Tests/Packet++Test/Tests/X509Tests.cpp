@@ -82,6 +82,7 @@ PTF_TEST_CASE(X509ParsingTest)
 	for (auto const& expectedExtension : expectedExtensions)
 	{
 		PTF_ASSERT_TRUE(x509Certificate->hasExtension(std::get<0>(expectedExtension)));
+		PTF_ASSERT_NOT_NULL(x509Certificate->getExtension(std::get<0>(expectedExtension)));
 	}
 
 	std::vector<pcpp::X509ExtensionType> missingExtensionTypes = { pcpp::X509ExtensionType::IssuerAltName,
@@ -90,6 +91,7 @@ PTF_TEST_CASE(X509ParsingTest)
 	for (const auto& extensionType : missingExtensionTypes)
 	{
 		PTF_ASSERT_FALSE(x509Certificate->hasExtension(extensionType));
+		PTF_ASSERT_NULL(x509Certificate->getExtension(extensionType));
 	}
 
 	std::string expectedJson =
@@ -354,7 +356,8 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 	{
 		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
 		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::BasicConstraints);
-		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_NOT_NULL(extension);
+		auto extensionDataPtr = extension->getData();
 		PTF_ASSERT_TRUE(extensionDataPtr->castAs<pcpp::X509BasicConstraintsExtension>()->isCA());
 		PTF_ASSERT_EQUAL(extensionDataPtr->castAs<pcpp::X509BasicConstraintsExtension>()->getPathLenConstraint(), 12);
 	}
@@ -363,7 +366,8 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 	{
 		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_chatgpt.der");
 		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::BasicConstraints);
-		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_NOT_NULL(extension);
+		auto extensionDataPtr = extension->getData();
 		PTF_ASSERT_FALSE(extensionDataPtr->castAs<pcpp::X509BasicConstraintsExtension>()->isCA());
 		PTF_ASSERT_EQUAL(extensionDataPtr->castAs<pcpp::X509BasicConstraintsExtension>()->getPathLenConstraint(), 0);
 	}
@@ -372,7 +376,8 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 	{
 		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_chatgpt.der");
 		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::SubjectKeyIdentifier);
-		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_NOT_NULL(extension);
+		auto extensionDataPtr = extension->getData();
 		PTF_ASSERT_EQUAL(extensionDataPtr->castAs<pcpp::X509SubjectKeyIdentifierExtension>()->getKeyIdentifier(),
 		                 "9b9dcac58952129eff05e58637f09d6ace2d0a96");
 	}
@@ -381,7 +386,8 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 	{
 		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_chatgpt.der");
 		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::KeyUsage);
-		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_NOT_NULL(extension);
+		auto extensionDataPtr = extension->getData();
 		auto extensionData = extensionDataPtr->castAs<pcpp::X509KeyUsageExtension>();
 		PTF_ASSERT_TRUE(extensionData->isDigitalSignature());
 		PTF_ASSERT_FALSE(extensionData->isKeyEncipherment());
@@ -398,7 +404,8 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 	{
 		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
 		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::KeyUsage);
-		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_NOT_NULL(extension);
+		auto extensionDataPtr = extension->getData();
 		auto extensionData = extensionDataPtr->castAs<pcpp::X509KeyUsageExtension>();
 		PTF_ASSERT_TRUE(extensionData->isDigitalSignature());
 		PTF_ASSERT_TRUE(extensionData->isKeyEncipherment());
@@ -415,7 +422,8 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 	{
 		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
 		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::ExtendedKeyUsage);
-		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_NOT_NULL(extension);
+		auto extensionDataPtr = extension->getData();
 
 		std::vector<pcpp::X509ExtendedKeyUsagePurpose> expectedPurposes = {
 			pcpp::X509ExtendedKeyUsagePurpose::ServerAuth,   pcpp::X509ExtendedKeyUsagePurpose::ClientAuth,
@@ -431,8 +439,31 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 	{
 		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
 		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::ExtendedKeyUsage);
-		auto extensionDataPtr = extension.getData();
+		PTF_ASSERT_NOT_NULL(extension);
+		auto extensionDataPtr = extension->getData();
 		PTF_ASSERT_RAISES(extensionDataPtr->castAs<pcpp::X509KeyUsageExtension>(), std::runtime_error,
 		                  "Trying to cast X509 extension data to the wrong type");
+	}
+
+	// Invalid extension - wrong ASN.1 type
+	{
+		std::string dataWithInvalidSubjectKeyIdentifierData =
+		    "3082010e3081c1a0030201020214283c4642303a207d3252acc93fde28a3be53d2c1300506032b657030163114301206035504030c0b6578616d706c652e636f6d301e170d3235303731363036353735345a170d3236303731363036353735345a30163114301206035504030c0b6578616d706c652e636f6d302a300506032b6570032100929aa980b434df25d72a989042b527f7ad34a40f221be06c6adb1c19c5950b7ca321301f301d0603551d0e041603146af318be2f8cc3a402d01b9802208dd9bf071f27300506032b6570034100ec2612468af716fae16cefaa2c42ce1f544c535f5b0033cbdcbbf7e0bdae213c53c027be9a63c59bd53003cd78174ece077b3f69fcbe5d34f64471dc25a54f08";
+		auto x509Certificate = pcpp::X509Certificate::fromDER(dataWithInvalidSubjectKeyIdentifierData);
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::SubjectKeyIdentifier);
+		PTF_ASSERT_NOT_NULL(extension);
+		PTF_ASSERT_RAISES(extension->getData(), std::runtime_error,
+		                  "Invalid X509 certificate Subject Key Identifier extension data: Key Identifier");
+	}
+
+	// Invalid extension - wrong ASN.1 type in a sequence
+	{
+		std::string dataWithInvalidBasicConstraintsData =
+		    "3082068a30820572a0030201020214727a3a165c5f9d570b038308253b73f4573ec969300d06092a864886f70d01010b05003081a1310b30090603550406130255533113301106035504080c0a43616c69666f726e69613116301406035504070c0d53616e204672616e636973636f31153013060355040a0c0c4578616d706c6520436f727031163014060355040b0c0d4954204465706172746d656e743114301206035504030c0b6578616d706c652e636f6d3120301e06092a864886f70d010901161161646d696e406578616d706c652e636f6d301e170d3235303731363036353735355a170d3236303731363036353735355a3081a1310b30090603550406130255533113301106035504080c0a43616c69666f726e69613116301406035504070c0d53616e204672616e636973636f31153013060355040a0c0c4578616d706c6520436f727031163014060355040b0c0d4954204465706172746d656e743114301206035504030c0b6578616d706c652e636f6d3120301e06092a864886f70d010901161161646d696e406578616d706c652e636f6d30820122300d06092a864886f70d01010105000382010f003082010a0282010100c1df5863dcaa9083479b8b597239da32bf1cf074d4235d25a3baad8c8fb50f5a701851663f2e5394209e4d5dc908de5654000a677d2282ca2ab91c2b464732ada47bdda20297e840456ca174842fe3031d37539c8188d968b924aaa2a0138c3d082c47c32dbb01e840e5b0262b641e0bad80b446d4fc9fd28e8e4091c2a6badb30608698057f5744fd7902471a83321b746748482e74e9b392844b8849ebaac6a514448d58e60780ffd03c774a65513bf9650eed3c6ba75be3389cd47f4a5e935878712721a3f06ecbbdc4ccfe1932a568ee856d5844b9db9d48439bd18364cfd5dfeb92199c0677a9d9d6c901e65cc2afdc612b8105acf307f44ca62e148efd0203010001a38202b6308202b230120603551d130101ff040830060201ff02010c300e0603551d0f0101ff0404030203b830450603551d25043e303c06082b0601050507030106082b0601050507030206082b0601050507030306082b0601050507030406082b0601050507030806082b0601050507030930400603551d1104393037820b6578616d706c652e636f6d820f7777772e6578616d706c652e636f6d8704c0a8010a811161646d696e406578616d706c652e636f6d301d0603551d0e0416041415147d240141ac94de2329a3bfdbb8d7fdde535730180603551d200411300f300d060b2b06010401868d1f010101300c0603551d2404053003800100300a0603551d360403020101301b0603551d1e04143012a010300e820c2e6578616d706c652e636f6d302b0603551d1f042430223020a01ea01c861a687474703a2f2f6578616d706c652e636f6d2f63726c2e70656d305b06082b06010505070101044f304d302406082b060105050730018618687474703a2f2f6f6373702e6578616d706c652e636f6d2f302506082b060105050730028619687474703a2f2f6578616d706c652e636f6d2f63612e70656d303906082b0601050507010b042d302b302906082b06010505070308861d687474703a2f2f74696d657374616d702e6578616d706c652e636f6d2f30310603551d2e042a30283026a024a0228620687474703a2f2f6578616d706c652e636f6d2f64656c74612d63726c2e70656d301c06082b0601050507011804100c0e7374617475735f72657175657374300f06092b0601050507300105040205003012060a2b06010401d679020402040404030201302c0603551d0904250c234578616d706c65207375626a656374206469726563746f727920617474726962757465302a06082a03040506070801041e0c1c437573746f6d20436572746966696361746520457874656e73696f6e300d06092a864886f70d01010b05000382010100a48337e50cfcfe4e0cd422b18ead3f7997910a1d2cf08d7caf505743648ec4a4314bc6ad5b337a5974f2b6e04b16d191a99b65eeff7723e102b74f856935d43b39e841c39941cb1e2265f1cefb96fb8edc662dc8990996762dd2647d2c150f9b3b487cab9727385b2e07e42b51feb64a163c51909b412232c5c41d3341fe00765e4bdae9066cd347ddfcbb0fe2db332bf6dfb3bcc1c01b54f244b8aeee99f4a6fabc57c3583471d7cf7d3ae5cf96cb0d39eaae1e6da2f2ce1c38079363d9c706dc7145f04413986ce21bcd7f5c3b95ceb97e7a467c3b80acff4b03ec0d577c8d83c56297d347bb0834b98b50360b65a1d67acbe4d4dfd5d45b8331b3c2483d51";
+		auto x509Certificate = pcpp::X509Certificate::fromDER(dataWithInvalidBasicConstraintsData);
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::BasicConstraints);
+		PTF_ASSERT_NOT_NULL(extension);
+		PTF_ASSERT_RAISES(extension->getData(), std::runtime_error,
+		                  "Invalid X509 certificate Basic Constraints extension data: Is CA");
 	}
 }
