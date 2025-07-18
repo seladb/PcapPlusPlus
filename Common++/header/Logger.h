@@ -27,8 +27,9 @@
 // Allows for conditional removal of unwanted log calls at compile time.
 #define PCPP_LOG_LEVEL_OFF 0
 #define PCPP_LOG_LEVEL_ERROR 1
-#define PCPP_LOG_LEVEL_INFO 2
-#define PCPP_LOG_LEVEL_DEBUG 3
+#define PCPP_LOG_LEVEL_WARN 2
+#define PCPP_LOG_LEVEL_INFO 3
+#define PCPP_LOG_LEVEL_DEBUG 4
 
 // All log messages built via a PCPP_LOG_* macro below the PCPP_ACTIVE_LOG_LEVEL will be removed at compile time.
 // Uses the PCPP_ACTIVE_LOG_LEVEL if it is defined, otherwise defaults to PCAP_LOG_LEVEL_DEBUG
@@ -146,6 +147,7 @@ namespace pcpp
 	{
 		Off = PCPP_LOG_LEVEL_OFF,      ///< No log messages are emitted.
 		Error = PCPP_LOG_LEVEL_ERROR,  ///< Error level logs are emitted.
+		Warn = PCPP_LOG_LEVEL_WARN,    ///< Warning level logs and above are emitted.
 		Info = PCPP_LOG_LEVEL_INFO,    ///< Info level logs and above are emitted.
 		Debug = PCPP_LOG_LEVEL_DEBUG   ///< Debug level logs and above are emitted.
 	};
@@ -428,6 +430,12 @@ namespace pcpp
 #	define PCPP_LOG_DEBUG(message) PCPP_LOG(pcpp::LogLevel::Debug, message)
 #else
 #	define PCPP_LOG_DEBUG(message) (void)0
+#endif
+
+#if PCPP_ACTIVE_LOG_LEVEL >= PCPP_LOG_LEVEL_WARN
+#	define PCPP_LOG_WARN(message) PCPP_LOG(pcpp::LogLevel::Warn, message)
+#else
+#	define PCPP_LOG_WARN(message) (void)0
 #endif
 
 #if PCPP_ACTIVE_LOG_LEVEL >= PCPP_LOG_LEVEL_INFO

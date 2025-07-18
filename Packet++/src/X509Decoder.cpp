@@ -597,13 +597,13 @@ namespace pcpp
 
 		X520DistinguishedName X509RelativeDistinguishedName::getType() const
 		{
-			auto oidRecord = castRecordAs<Asn1ObjectIdentifierRecord>(getRecord(m_TypeOffset), "RDN Type");
+			auto oidRecord = castRecordAs<Asn1ObjectIdentifierRecord>(getRecord(typeOffset), "RDN Type");
 			return X520DistinguishedName::fromOidValue(oidRecord->getValue());
 		}
 
 		std::string X509RelativeDistinguishedName::getValue() const
 		{
-			auto valueRecord = getRecord(m_ValueOffset);
+			auto valueRecord = getRecord(valueOffset);
 			switch (valueRecord->getUniversalTagType())
 			{
 			case Asn1UniversalTagType::PrintableString:
@@ -639,31 +639,31 @@ namespace pcpp
 
 		X509Algorithm X509AlgorithmIdentifier::getAlgorithm() const
 		{
-			auto oidRecord = getSubRecordAndCast<Asn1ObjectIdentifierRecord>(m_Root, m_AlgorithmOffset, "Algorithm");
+			auto oidRecord = getSubRecordAndCast<Asn1ObjectIdentifierRecord>(m_Root, algorithmOffset, "Algorithm");
 			return X509Algorithm::fromOidValue(oidRecord->getValue());
 		}
 
 		X509Timestamp X509Validity::getNotBefore() const
 		{
-			return X509Timestamp(getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotBeforeOffset, "Not Before"));
+			return X509Timestamp(getSubRecordAndCast<Asn1TimeRecord>(m_Root, notBeforeOffset, "Not Before"));
 		}
 
 		X509Timestamp X509Validity::getNotAfter() const
 		{
-			return X509Timestamp(getSubRecordAndCast<Asn1TimeRecord>(m_Root, m_NotAfterOffset, "Not After"));
+			return X509Timestamp(getSubRecordAndCast<Asn1TimeRecord>(m_Root, notAfterOffset, "Not After"));
 		}
 
 		X509AlgorithmIdentifier X509SubjectPublicKeyInfo::getAlgorithm() const
 		{
 			auto root =
-			    getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_AlgorithmOffset, "Subject Public Key Algorithm");
+			    getSubRecordAndCast<Asn1SequenceRecord>(m_Root, algorithmOffset, "Subject Public Key Algorithm");
 			return X509AlgorithmIdentifier(root);
 		}
 
 		X509Key X509SubjectPublicKeyInfo::getSubjectPublicKey() const
 		{
 			return X509Key(
-			    getSubRecordAndCast<Asn1BitStringRecord>(m_Root, m_SubjectPublicKeyOffset, "Subject Public Key")
+			    getSubRecordAndCast<Asn1BitStringRecord>(m_Root, subjectPublicKeyOffset, "Subject Public Key")
 			        ->getVecValue());
 		}
 
@@ -679,7 +679,7 @@ namespace pcpp
 		X509ExtensionType X509Extension::getType() const
 		{
 			auto extensionTypeRecord =
-			    getSubRecordAndCast<Asn1ObjectIdentifierRecord>(m_Root, m_ExtensionIdOffset, "Extension Type");
+			    getSubRecordAndCast<Asn1ObjectIdentifierRecord>(m_Root, extensionIdOffset, "Extension Type");
 			return X509ExtensionType::fromOidValue(extensionTypeRecord->getValue());
 		}
 
@@ -833,22 +833,21 @@ namespace pcpp
 
 		X509TBSCertificate X509Certificate::getTbsCertificate() const
 		{
-			auto root =
-			    getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), m_TBSCertificateOffset, "TBS Certificate");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), tbsCertificateOffset, "TBS Certificate");
 			return X509TBSCertificate(root);
 		}
 
 		X509AlgorithmIdentifier X509Certificate::getSignatureAlgorithm() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), m_SignatureAlgorithmOffset,
-			                                                    "Signature Algorithm");
+			auto root =
+			    getSubRecordAndCast<Asn1SequenceRecord>(getAsn1Root(), signatureAlgorithmOffset, "Signature Algorithm");
 			return X509AlgorithmIdentifier(root);
 		}
 
 		X509Key X509Certificate::getSignature() const
 		{
 			return X509Key(
-			    getSubRecordAndCast<Asn1BitStringRecord>(getAsn1Root(), m_SignatureOffset, "Signature")->getVecValue());
+			    getSubRecordAndCast<Asn1BitStringRecord>(getAsn1Root(), signatureOffset, "Signature")->getVecValue());
 		}
 
 		std::vector<uint8_t> X509Certificate::encode()
@@ -861,7 +860,7 @@ namespace pcpp
 	{
 		for (const auto& rdn : internalName.getRDNs())
 		{
-			m_RDNs.push_back({ rdn.getType(), rdn.getValue() });
+			m_RDNs.emplace_back(RDN{ rdn.getType(), rdn.getValue() });
 		}
 	}
 
@@ -932,11 +931,9 @@ namespace pcpp
 		m_DerData = std::move(derData);
 	}
 
-	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const uint8_t* derData, size_t derDataLen,
-	                                                          bool ownDerData)
+	std::unique_ptr<X509Certificate> X509Certificate::fromDER(uint8_t* derData, size_t derDataLen, bool ownDerData)
 	{
-		return std::unique_ptr<X509Certificate>(
-		    new X509Certificate(const_cast<uint8_t*>(derData), derDataLen, ownDerData));
+		return std::unique_ptr<X509Certificate>(new X509Certificate(derData, derDataLen, ownDerData));
 	}
 
 	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const std::string& derData)

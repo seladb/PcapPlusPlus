@@ -11,9 +11,18 @@
 
 namespace pcpp
 {
+#define PCPP_TEST_EXPECTED_DEBUG_LOG_LINE 20
+#define PCPP_TEST_EXPECTED_WARN_LOG_LINE 25
+#define PCPP_TEST_EXPECTED_ERROR_LOG_LINE 30
+
 	void invokeDebugLog()
 	{
 		PCPP_LOG_DEBUG("debug log");
+	}
+
+	void invokeWarnLog(const std::string& message = "")
+	{
+		PCPP_LOG_WARN("warn log" << message);
 	}
 
 	void invokeErrorLog(const std::string& message = "")
@@ -208,6 +217,7 @@ PTF_TEST_CASE(TestLogger)
 		PTF_ASSERT_FALSE(logger.isDebugEnabled(moduleEnum));
 
 		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Error, moduleEnum));
+		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Warn, moduleEnum));
 		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Info, moduleEnum));
 		PTF_ASSERT_FALSE(logger.shouldLog(LogLevel::Debug, moduleEnum));
 		PTF_ASSERT_FALSE(logger.shouldLog(LogLevel::Off, moduleEnum));
@@ -224,31 +234,38 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_NULL(LogPrinter::lastMethodSeen);
 
 	pcpp::invokeErrorLog();
-	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)LogLevel::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 21);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, PCPP_TEST_EXPECTED_ERROR_LOG_LINE);
 
 	// change one module log level
-	logger.setLogLevel(pcpp::PacketLogModuleArpLayer, pcpp::Logger::Debug);
+	logger.setLogLevel(pcpp::PacketLogModuleArpLayer, LogLevel::Debug);
 	PTF_ASSERT_EQUAL(logger.getLogLevel(pcpp::PacketLogModuleArpLayer), pcpp::LogLevel::Debug, enum);
 	PTF_ASSERT_TRUE(logger.isDebugEnabled(pcpp::PacketLogModuleArpLayer));
 
-	// invoke debug and error logs - expect to see both
+	// invoke debug, warn and error logs - expect to see all
 	pcpp::invokeDebugLog();
-	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Debug);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)LogLevel::Debug);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeDebugLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 16);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, PCPP_TEST_EXPECTED_DEBUG_LOG_LINE);
+
+	pcpp::invokeWarnLog();
+	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)LogLevel::Warn);
+	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "warn log");
+	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
+	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeWarnLog");
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, PCPP_TEST_EXPECTED_WARN_LOG_LINE);
 
 	pcpp::invokeErrorLog();
-	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)LogLevel::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 21);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, PCPP_TEST_EXPECTED_ERROR_LOG_LINE);
 
 	// verify the last error message
 	PTF_ASSERT_EQUAL(logger.getLastError(), "error log");
@@ -263,6 +280,7 @@ PTF_TEST_CASE(TestLogger)
 		PTF_ASSERT_TRUE(logger.isDebugEnabled(static_cast<LogModule>(moduleEnum)));
 
 		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Error, moduleEnum));
+		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Warn, moduleEnum));
 		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Info, moduleEnum));
 		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Debug, moduleEnum));
 		PTF_ASSERT_FALSE(logger.shouldLog(LogLevel::Off, moduleEnum));
@@ -274,7 +292,7 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeDebugLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 16);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, PCPP_TEST_EXPECTED_DEBUG_LOG_LINE);
 
 	// suppress logs
 	PTF_ASSERT_TRUE(logger.logsEnabled())
@@ -305,7 +323,7 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
 	PTF_ASSERT_EQUAL(logger.getLastError(), "error log");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 21);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, PCPP_TEST_EXPECTED_ERROR_LOG_LINE);
 
 	// reset LogPrinter
 	LogPrinter::clean();

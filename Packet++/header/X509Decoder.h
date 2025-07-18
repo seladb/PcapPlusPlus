@@ -288,15 +288,15 @@ namespace pcpp
 	class X509SerialNumber
 	{
 	public:
-		/// Converts the serial number to a formatted string
-		/// @param[in] delimiter The delimiter to use between the bytes (default: ":")
-		/// @return A formatted string representation of the serial number
-		std::string toString(const std::string& delimiter = ":") const;
-
 		/// Constructs an X509SerialNumber from a serial number hex string
 		/// @param[in] serialNumber The serial number as a hex string
 		explicit X509SerialNumber(const std::string& serialNumber) : m_SerialNumber(serialNumber)
 		{}
+
+		/// Converts the serial number to a formatted string
+		/// @param[in] delimiter The delimiter to use between the bytes (default: ":")
+		/// @return A formatted string representation of the serial number
+		std::string toString(const std::string& delimiter = ":") const;
 
 	private:
 		std::string m_SerialNumber;
@@ -307,6 +307,12 @@ namespace pcpp
 	class X509Timestamp
 	{
 	public:
+		/// Constructs an X509Timestamp from an ASN.1 time record
+		/// @param[in] timeRecord Pointer to the ASN.1 time record. Note: this class doesn't assume
+		/// ownership over the record
+		explicit X509Timestamp(Asn1TimeRecord* timeRecord) : m_Record(timeRecord)
+		{}
+
 		/// Converts the timestamp to a formatted string
 		/// @param[in] format The format string (strftime format, default: "%Y-%m-%d %H:%M:%S")
 		/// @param[in] timezone The timezone to use in the format of "Z" for UTC or +=HHMM for other timezones
@@ -322,11 +328,6 @@ namespace pcpp
 		/// @return A time_point representing the timestamp
 		std::chrono::system_clock::time_point getTimestamp(const std::string& timezone = "Z") const;
 
-		/// Constructs an X509Timestamp from an ASN.1 time record
-		/// @param[in] timeRecord Pointer to the ASN.1 time record
-		explicit X509Timestamp(Asn1TimeRecord* timeRecord) : m_Record(timeRecord)
-		{}
-
 	private:
 		Asn1TimeRecord* m_Record;
 	};
@@ -336,6 +337,11 @@ namespace pcpp
 	class X509Key
 	{
 	public:
+		/// Constructs an X509Key from a byte vector
+		/// @param[in] key The key data as a vector of bytes
+		explicit X509Key(const std::vector<uint8_t>& key) : m_Key(key)
+		{}
+
 		/// Converts the key to a formatted string
 		/// @param[in] delimiter The delimiter to use between the bytes (default: ":")
 		/// @return A formatted string representation of the key
@@ -344,11 +350,6 @@ namespace pcpp
 		/// Gets the raw key bytes
 		/// @return A const reference to the vector containing the key bytes
 		const std::vector<uint8_t>& getBytes() const;
-
-		/// Constructs an X509Key from a byte vector
-		/// @param[in] key The key data as a vector of bytes
-		explicit X509Key(const std::vector<uint8_t>& key) : m_Key(key)
-		{}
 
 	private:
 		std::vector<uint8_t> m_Key;
@@ -396,7 +397,7 @@ namespace pcpp
 			static bool isValidVersionRecord(const Asn1Record* record);
 
 		private:
-			static constexpr int m_VersionOffset = 0;
+			static constexpr int versionOffset = 0;
 		};
 
 		/// @class X509RelativeDistinguishedName
@@ -416,8 +417,8 @@ namespace pcpp
 			std::string getValue() const;
 
 		private:
-			static constexpr int m_TypeOffset = 0;
-			static constexpr int m_ValueOffset = 1;
+			static constexpr int typeOffset = 0;
+			static constexpr int valueOffset = 1;
 
 			Asn1Record* getRecord(int index) const;
 		};
@@ -450,7 +451,7 @@ namespace pcpp
 			X509Algorithm getAlgorithm() const;
 
 		private:
-			static constexpr int m_AlgorithmOffset = 0;
+			static constexpr int algorithmOffset = 0;
 		};
 
 		/// @class X509Validity
@@ -470,8 +471,8 @@ namespace pcpp
 			X509Timestamp getNotAfter() const;
 
 		private:
-			static constexpr int m_NotBeforeOffset = 0;
-			static constexpr int m_NotAfterOffset = 1;
+			static constexpr int notBeforeOffset = 0;
+			static constexpr int notAfterOffset = 1;
 		};
 
 		/// @class X509SubjectPublicKeyInfo
@@ -491,8 +492,8 @@ namespace pcpp
 			X509Key getSubjectPublicKey() const;
 
 		private:
-			static constexpr int m_AlgorithmOffset = 0;
-			static constexpr int m_SubjectPublicKeyOffset = 1;
+			static constexpr int algorithmOffset = 0;
+			static constexpr int subjectPublicKeyOffset = 1;
 		};
 
 		/// @class X509Extension
@@ -516,7 +517,7 @@ namespace pcpp
 			std::string getValue() const;
 
 		private:
-			static constexpr int m_ExtensionIdOffset = 0;
+			static constexpr int extensionIdOffset = 0;
 
 			int m_CriticalOffset = -1;
 			int m_ExtensionValueOffset = 1;
@@ -633,9 +634,9 @@ namespace pcpp
 			std::vector<uint8_t> encode();
 
 		private:
-			static constexpr int m_TBSCertificateOffset = 0;
-			static constexpr int m_SignatureAlgorithmOffset = 1;
-			static constexpr int m_SignatureOffset = 2;
+			static constexpr int tbsCertificateOffset = 0;
+			static constexpr int signatureAlgorithmOffset = 1;
+			static constexpr int signatureOffset = 2;
 
 			explicit X509Certificate(std::unique_ptr<Asn1Record> root) : m_Root(std::move(root))
 			{}
@@ -688,7 +689,7 @@ namespace pcpp
 
 		/// Gets the list of Relative Distinguished Names (RDNs)
 		/// @return A vector of RDN objects
-		std::vector<RDN> getRDNs() const
+		const std::vector<RDN>& getRDNs() const
 		{
 			return m_RDNs;
 		}
@@ -737,8 +738,7 @@ namespace pcpp
 		/// certificate class is destructed
 		/// @return A unique pointer to the created X509Certificate
 		/// @throws An exception if the data is not a valid ASN.1 record
-		static std::unique_ptr<X509Certificate> fromDER(const uint8_t* derData, size_t derDataLen,
-		                                                bool ownDerData = false);
+		static std::unique_ptr<X509Certificate> fromDER(uint8_t* derData, size_t derDataLen, bool ownDerData = false);
 
 		/// Creates an X509Certificate from a hex string containing DER-encoded data
 		/// @param[in] derData Hex string containing DER-encoded certificate data
