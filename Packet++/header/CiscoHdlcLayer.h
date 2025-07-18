@@ -73,7 +73,7 @@ namespace pcpp
 		void computeCalculateFields() override;
 
 		/// Parses the next layer. Currently, supports IPv4 and IPv6
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		std::string toString() const override;
 

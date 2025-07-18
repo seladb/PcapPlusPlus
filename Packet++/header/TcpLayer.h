@@ -554,7 +554,7 @@ namespace pcpp
 
 		/// Currently identifies the following next layers: HttpRequestLayer, HttpResponseLayer. Otherwise sets
 		/// PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Size of @ref tcphdr + all TCP options
 		size_t getHeaderLen() const override

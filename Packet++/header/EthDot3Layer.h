@@ -94,7 +94,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Parses next layer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Size of ether_dot3_header
 		size_t getHeaderLen() const override

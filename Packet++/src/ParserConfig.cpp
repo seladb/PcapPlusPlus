@@ -1,0 +1,192 @@
+#include "ParserConfig.h"
+
+namespace pcpp
+{
+	PortMapper PortMapper::makeDefaultPortMapper()
+	{
+		PortMapper mapper;
+		// Add HTTP port mappings
+		mapper.addPortMapping(PortPair::fromDst(80), HTTPRequest, false);
+		mapper.addPortMapping(PortPair::fromSrc(80), HTTPResponse, false);
+		mapper.addPortMapping(PortPair::fromDst(8080), HTTPRequest, false);
+		mapper.addPortMapping(PortPair::fromSrc(8080), HTTPResponse, false);
+
+		// SSL and TLS port mappings
+		mapper.addPortMapping(PortPair::fromDst(443), SSL, true);  // HTTPS
+		mapper.addPortMapping(PortPair::fromDst(261), SSL, true);  // NSIIOPS
+		mapper.addPortMapping(PortPair::fromDst(448), SSL, true);  // DDM-SSL
+		mapper.addPortMapping(PortPair::fromDst(465), SSL, true);  // SMTPS
+		mapper.addPortMapping(PortPair::fromDst(563), SSL, true);  // NNTPS
+		mapper.addPortMapping(PortPair::fromDst(614), SSL, true);  // SSHELL
+		mapper.addPortMapping(PortPair::fromDst(636), SSL, true);  // LDAPS
+		mapper.addPortMapping(PortPair::fromDst(989), SSL, true);  // FTPS - data
+		mapper.addPortMapping(PortPair::fromDst(990), SSL, true);  // FTPS - control
+		mapper.addPortMapping(PortPair::fromDst(992), SSL, true);  // Telnet over TLS/SSL
+		mapper.addPortMapping(PortPair::fromDst(993), SSL, true);  // IMAPS
+		mapper.addPortMapping(PortPair::fromDst(994), SSL, true);  // IRCS
+		mapper.addPortMapping(PortPair::fromDst(995), SSL, true);  // POP3S
+
+		// SIP port mappings
+		mapper.addPortMapping(PortPair::fromDst(5060), SIPRequest, false);   // SIP over UDP / TCP
+		mapper.addPortMapping(PortPair::fromSrc(5060), SIPResponse, false);  // SIP over UDP / TCP
+		mapper.addPortMapping(PortPair::fromDst(5061), SIPRequest, false);   // SIP over TLS
+		mapper.addPortMapping(PortPair::fromSrc(5061), SIPResponse, false);  // SIP over TLS
+
+		// BGP port mappings
+		mapper.addPortMapping(PortPair::fromDst(179), BGP, true);  // BGP over TCP
+
+		// SSH port mappings
+		mapper.addPortMapping(PortPair::fromDst(22), SSH, true);  // SSH over TCP
+
+		// DNS port mappings
+		mapper.addPortMapping(PortPair::fromDst(53), DNS, true);    // DNS over TCP/UDP
+		mapper.addPortMapping(PortPair::fromDst(5353), DNS, true);  // mDNS
+		mapper.addPortMapping(PortPair::fromDst(5355), DNS, true);  // LLMNR
+
+		// Telnet port mappings
+		mapper.addPortMapping(PortPair::fromDst(23), Telnet, true);  // Telnet over TCP
+
+		// FTP port mappings
+		// FTP Control parses to FTPRequest and FTPResponse, but only one FTP protocol type is defined.
+		// The specific parsing determined based on if the port is src or dst.
+		// A port pairing (21, 21) for example is UB.
+		mapper.addPortMapping(PortPair{ 21, 21 }, UnknownProtocol, false);  // Symmetrical connection is UB
+		mapper.addPortMapping(PortPair::fromSrc(21), FTP, false);  // FTP control
+		mapper.addPortMapping(PortPair::fromDst(21), FTP, false);  // FTP control
+		// TODO: FTP data needs a separate ProtocolType
+		// mapper.addPortMapping(PortPair::fromDst(20), FTP, false);  // FTP data
+
+		// SomeIP port mappings
+		mapper.addPortMapping(PortPair::fromDst(30490), SomeIP, true);  // SomeIP over UDP or TCP
+
+		// Tpkt port mappings
+		mapper.addPortMapping(PortPair::fromDst(102), TPKT, true);  // TPKT over TCP
+
+		// Smtp port mappings
+		// NOTE: Symmetrical mapping but decodes to SMTPRequest and SMTPResponse
+		// A port pairing (25, 25) for example is UB.
+		mapper.addPortMapping(PortPair{ 25, 25 }, UnknownProtocol, false);  // Symmetrical connection is UB
+		mapper.addPortMapping(PortPair::fromDst(25), SMTP, true);           // SMTP over TCP
+		mapper.addPortMapping(PortPair::fromDst(587), SMTP, true);          // SMTP over TCP (submission)
+
+		// LDAP port mappings
+		mapper.addPortMapping(PortPair::fromDst(389), LDAP, true);  // LDAP over TCP
+
+		// GTP port mappings
+		mapper.addPortMapping(PortPair::fromDst(2123), GTPv2, true);  // GTPv2-C over UDP / TCP
+
+		return mapper;
+	}
+
+	void PortMapper::addPortMapping(PortPair port, ProtocolType protocol, bool symmetrical)
+	{
+		if (port == PortPair())
+		{
+			throw std::invalid_argument("PortPair cannot be empty (both src and dst ports are 0)");
+		}
+
+		auto insertResult = m_PortToProtocolMap.insert({ port, protocol });
+		insertResult.first->second = protocol;  // Update the protocol if it already exists
+		if (!insertResult.second)
+		{
+			PCPP_LOG_WARN("Port " << port << " is already mapped to protocol " << insertResult.first->second
+			                      << ", updating to " << protocol);
+		}
+
+		if (symmetrical && port.portSrc != port.portDst)
+		{
+			// Add the symmetrical mapping
+			PortPair symmetricalPort = { port.portDst, port.portSrc };
+			addPortMapping(symmetricalPort, protocol, false);
+		}
+	}
+
+	void PortMapper::removePortMapping(PortPair port, bool symmetrical)
+	{
+		auto it = m_PortToProtocolMap.find(port);
+		if (it != m_PortToProtocolMap.end())
+		{
+			m_PortToProtocolMap.erase(it);
+		}
+		else
+		{
+			PCPP_LOG_DEBUG("Port " << port << " not found in port mapper, nothing to remove");
+		}
+
+		if (symmetrical && port.portSrc != port.portDst)
+		{
+			// Remove the symmetrical mapping
+			PortPair symmetricalPort = { port.portDst, port.portSrc };
+			removePortMapping(symmetricalPort, false);
+		}
+	}
+
+	ProtocolType PortMapper::getProtocolByPortPair(PortPair port, bool exact) const
+	{
+		// Order of precedence:
+		// 1. Check for exact match of port pair
+		// 1.a If exact is true, return the protocol type if found, go to step 4 if not found
+		// 2. If not found, check for src port match
+		// 3. If not found, check for dst port match
+		// 4. If still not found, return UnknownProtocol
+
+		auto it = m_PortToProtocolMap.find(port);
+		if (it != m_PortToProtocolMap.end())
+		{
+			return it->second;
+		}
+
+		if (exact)
+			return UnknownProtocol;  // Return UnknownProtocol if exact match not found
+
+		// Check for src port match
+		it = m_PortToProtocolMap.find(PortPair::fromSrc(port.portSrc));
+		if (it != m_PortToProtocolMap.end())
+		{
+			return it->second;
+		}
+
+		// Check for dst port match
+		it = m_PortToProtocolMap.find(PortPair::fromDst(port.portDst));
+		if (it != m_PortToProtocolMap.end())
+		{
+			return it->second;
+		}
+
+		return UnknownProtocol;  // Return UnknownProtocol if port not found
+	}
+
+	std::array<ProtocolType, 3> PortMapper::getProtocolMappingsMatrixForPortPair(PortPair port) const
+	{
+		std::array<ProtocolType, 3> protocols = { UnknownProtocol, UnknownProtocol, UnknownProtocol };
+		// Check for exact match
+		auto it = m_PortToProtocolMap.find(port);
+		if (it != m_PortToProtocolMap.end())
+		{
+			protocols[0] = it->second;  // Full match
+			return protocols;
+		}
+
+		// Check for src port match
+		it = m_PortToProtocolMap.find(PortPair::fromSrc(port.portSrc));
+		if (it != m_PortToProtocolMap.end())
+		{
+			protocols[1] = it->second;  // Src port match
+		}
+
+		// Check for dst port match
+		it = m_PortToProtocolMap.find(PortPair::fromDst(port.portDst));
+		if (it != m_PortToProtocolMap.end())
+		{
+			protocols[2] = it->second;  // Dst port match
+		}
+		return protocols;
+	}
+
+	ParserConfiguration ParserConfiguration::makeDefaultConfiguration()
+	{
+		ParserConfiguration config;
+		config.portMapper = PortMapper::makeDefaultPortMapper();
+		return config;
+	}
+}  // namespace pcpp

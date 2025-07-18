@@ -403,7 +403,7 @@ namespace pcpp
 		return result;
 	}
 
-	void TextBasedProtocolMessage::parseNextLayer()
+	void TextBasedProtocolMessage::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

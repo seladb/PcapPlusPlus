@@ -89,7 +89,7 @@ namespace pcpp
 		return checksumRes;
 	}
 
-	void UdpLayer::parseNextLayer()
+	void UdpLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen <= sizeof(udphdr))
 			return;
