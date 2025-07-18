@@ -79,11 +79,11 @@ namespace pcpp
 		//   Parser implementations must determine the version based on the packet content.
 		mapper.addPortMapping(PortPair::fromDst(2123), GTPv2, true);  // GTP-C over UDP / TCP (v2 only)
 
-		// DCHP port mappings
+		// DHCP port mappings
 		mapper.addPortMapping(PortPair{ 67, 67 }, DHCP, true);  // DHCP over UDP
 		mapper.addPortMapping(PortPair{ 68, 67 }, DHCP, true);  // DHCP over UDP (client to server)
 
-		// DCHPv6 port mappings
+		// DHCPv6 port mappings
 		mapper.addPortMapping(PortPair::fromDst(546), DHCPv6, true);  // DHCPv6 over UDP
 		mapper.addPortMapping(PortPair::fromDst(547), DHCPv6, true);  // DHCPv6 over UDP
 

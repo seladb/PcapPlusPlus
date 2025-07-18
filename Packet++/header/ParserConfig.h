@@ -94,20 +94,20 @@ namespace pcpp
 		ProtocolType getProtocolByPortPair(PortPair port, bool exact = true) const;
 
 		/// @brief Get the protocol mappings that correspond to a specific port pair.
-		/// 
+		///
 		/// The method returns an array of ProtocolType values associated with the port pair.
-		/// 
+		///
 		/// The elements in the array represent the following mappings:
 		///             Src Port  |   Dst Port  |  Match Type
 		/// - Index 0:  Original  |   Original  |  Full Match
 		/// - Index 1:  Original  |   Any Port  |  Src Port Match
 		/// - Index 2:  Any Port  |   Original  |  Dst Port Match
-		/// 
+		///
 		/// If the comparison
-		/// 
+		///
 		/// If a port pair is not found, the corresponding index in the array will contain UnknownProtocol.
 		/// If a port pair is not mapped to any protocol, the array will contain UnknownProtocol in all indices.
-		/// 
+		///
 		/// @param port The port pair to look up.
 		/// @return An array of ProtocolType values representing the protocols associated with the port pair.
 		std::array<ProtocolType, 3> getProtocolMappingsMatrixForPortPair(PortPair port) const;
