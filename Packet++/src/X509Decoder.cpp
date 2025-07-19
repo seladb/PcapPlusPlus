@@ -909,7 +909,7 @@ namespace pcpp
 		}
 		default:
 		{
-			return std::unique_ptr<X509ExtensionData>(new X509ExtensionData());
+			return { nullptr };
 		}
 		}
 	}

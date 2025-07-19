@@ -435,6 +435,14 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 		                         expectedPurposes);
 	}
 
+	// Extension data doesn't exist
+	{
+		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_chatgpt.der");
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::CertificatePolicies);
+		PTF_ASSERT_NOT_NULL(extension);
+		PTF_ASSERT_NULL(extension->getData());
+	}
+
 	// Cast to invalid type
 	{
 		auto x509Certificate = pcpp::X509Certificate::fromDERFile("PacketExamples/x509_cert_many_extensions.der");
