@@ -27,10 +27,8 @@ namespace pcpp
 		mapper.addPortMapping(PortPair::fromDst(995), SSL, true);  // POP3S
 
 		// SIP port mappings
-		mapper.addPortMapping(PortPair::fromDst(5060), SIPRequest, false);   // SIP over UDP / TCP
-		mapper.addPortMapping(PortPair::fromSrc(5060), SIPResponse, false);  // SIP over UDP / TCP
-		mapper.addPortMapping(PortPair::fromDst(5061), SIPRequest, false);   // SIP over TLS
-		mapper.addPortMapping(PortPair::fromSrc(5061), SIPResponse, false);  // SIP over TLS
+		mapper.addPortMapping(PortPair::fromDst(5060), SIP, true);  // SIP over UDP / TCP
+		mapper.addPortMapping(PortPair::fromDst(5061), SIP, true);  // SIP over TLS
 
 		// BGP port mappings
 		mapper.addPortMapping(PortPair::fromDst(179), BGP, true);  // BGP over TCP
