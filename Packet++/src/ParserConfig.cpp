@@ -77,7 +77,7 @@ namespace pcpp
 
 		// Note: GTP v1 and v2 both utilize port (2123) for GTP-C over UDP / TCP.
 		//   Parser implementations must determine the version based on the packet content.
-		mapper.addPortMapping(PortPair::fromDst(2123), GTPv2, true);  // GTP-C over UDP / TCP (v2 only)
+		mapper.addPortMapping(PortPair::fromDst(2123), GTP, true);  // GTP-C over UDP / TCP (v2 only)
 
 		// DHCP port mappings
 		mapper.addPortMapping(PortPair{ 67, 67 }, DHCP, true);  // DHCP over UDP
