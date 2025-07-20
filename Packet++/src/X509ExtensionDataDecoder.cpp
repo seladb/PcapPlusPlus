@@ -1,7 +1,6 @@
 #include "X509ExtensionDataDecoder.h"
 #include "GeneralUtils.h"
 #include <unordered_map>
-#include <iostream>
 
 namespace pcpp
 {
@@ -127,7 +126,7 @@ namespace pcpp
 		}
 		catch (const std::out_of_range&)
 		{
-			throw std::runtime_error("Invalid X509 certificate " + extensionName + "extension data: " + fieldName);
+			throw std::runtime_error("Invalid X509 certificate " + extensionName + " extension data: " + fieldName);
 		}
 	}
 
