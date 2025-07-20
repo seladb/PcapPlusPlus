@@ -122,6 +122,18 @@ namespace pcpp
 		/// @return An array of ProtocolTypeFamily values representing the protocols associated with the port pair.
 		std::array<ProtocolTypeFamily, 3> getProtocolMappingsMatrixForPortPair(PortPair port) const;
 
+		/// @brief Get the protocol mappings that correspond to a specific port pair.
+		/// 
+		/// See `getProtocolMappingsMatrixForPortPair(PortPair port)` for details.
+		/// 
+		/// @param portSrc The source port number.
+		/// @param portDst The destination port number.
+		/// @return An array of ProtocolTypeFamily values representing the protocols associated with the port pair.
+		std::array<ProtocolTypeFamily, 3> getProtocolMappingsMatrixForPortPair(uint16_t portSrc, uint16_t portDst) const
+		{
+			return getProtocolMappingsMatrixForPortPair({ portSrc, portDst });
+		}
+
 		/// @brief Check if a port matches a specific protocol type.
 		/// @param port The port number to check.
 		/// @param protocol The ProtocolTypeFamily to match against.
