@@ -7,7 +7,6 @@
 #include <sstream>
 #include <chrono>
 #include <bitset>
-#include "Lazy.h"
 #include "PointerVector.h"
 
 /// @file
@@ -110,11 +109,30 @@ namespace pcpp
 		NotApplicable = 255
 	};
 
+	namespace internal
+	{
+		enum class LazyLoadPolicy
+		{
+			/// The value is evaluated on first access
+			Lazy,
+			/// The value is evaluated immediately on construction
+			Eager
+		};
+
+		enum class LazyState : int
+		{
+			NotEvaluated = 0,
+			Evaluating = 1,
+			Evaluated = 2,
+			Error = 3
+		};
+	}  // namespace internal
+
 	/// @class Asn1Record
 	/// Represents an ASN.1 record, as described in ITU-T Recommendation X.680:
 	/// <https://www.itu.int/rec/T-REC-X.680/en>
 	/// <https://en.wikipedia.org/wiki/ASN.1>
-	class Asn1Record : private internal::LazyFieldEvaluationBase<uint8_t const*>
+	class Asn1Record
 	{
 	public:
 		/// A static method to decode a byte array into an Asn1Record
@@ -211,10 +229,7 @@ namespace pcpp
 		static std::unique_ptr<Asn1Record> decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen,
 		                                                            uint8_t& tagLen);
 		uint8_t decodeLength(const uint8_t* data, size_t dataLen);
-		void decodeValueIfNeeded() const
-		{
-			ensureEvaluated();
-		}
+		void decodeValueIfNeeded() const;
 
 		uint8_t encodeTag() const;
 		std::vector<uint8_t> encodeLength() const;
@@ -223,11 +238,14 @@ namespace pcpp
 
 		friend class Asn1ConstructedRecord;
 
-		// Forwards the evaluate fields call to decode value.
-		void evaluateLazyFields(uint8_t const* const& source) const override final
-		{
-			decodeValue(source);
-		}
+	private:
+		void setEncodedValue(uint8_t const* dataSource,
+		                     internal::LazyLoadPolicy loadPolicy = internal::LazyLoadPolicy::Lazy);
+
+		uint8_t const* m_EncodedValue = nullptr;
+		// By default, the value is considered evaluated, meaning it has been decoded or is not needed to be decoded
+		// This is useful for records that are constructed directly and not decoded from a byte stream
+		mutable internal::LazyState m_LazyDecodeState = internal::LazyState::Evaluated;
 	};
 
 	/// @class Asn1GenericRecord

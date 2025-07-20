@@ -106,7 +106,7 @@ namespace pcpp
 
 		uint8_t const* startOfData = data + tagLen + lengthLen;
 		internal::LazyLoadPolicy policy = lazy ? internal::LazyLoadPolicy::Lazy : internal::LazyLoadPolicy::Eager;
-		decodedRecord->setSource(startOfData, policy);
+		decodedRecord->setEncodedValue(startOfData, policy);
 
 		return decodedRecord;
 	}
@@ -411,6 +411,39 @@ namespace pcpp
 		return 1 + actualLengthBytes;
 	}
 
+	void Asn1Record::decodeValueIfNeeded() const
+	{
+		// TODO: This is not thread-safe and can cause issues if multiple threads access the same record
+		if (m_LazyDecodeState == internal::LazyState::NotEvaluated)
+		{
+			if (m_EncodedValue == nullptr /* || m_ValueLength == 0 */)
+			{
+				throw std::invalid_argument("Cannot decode ASN.1 record value, no data available");
+			}
+			try
+			{
+				decodeValue(m_EncodedValue);
+				m_LazyDecodeState = internal::LazyState::Evaluated;
+			}
+			catch (...)
+			{
+				m_LazyDecodeState = internal::LazyState::Error;
+				throw;
+			}
+		}
+
+		switch (m_LazyDecodeState)
+		{
+		case internal::LazyState::Evaluated:
+			// Value is already decoded, nothing to do
+			break;
+		case internal::LazyState::Error:
+			throw std::runtime_error("ASN.1 record value decoding failed");
+		default:
+			throw std::logic_error("ASN.1 record value decoding state is not 'evaluated' or 'error'");
+		}
+	}
+
 	std::string Asn1Record::toString() const
 	{
 		// Decode the value if it hasn't been decoded yet to ensure we have the correct value
@@ -446,6 +479,17 @@ namespace pcpp
 		stream << ", Length: " << m_TotalLength - m_ValueLength << "+" << m_ValueLength;
 
 		return { stream.str() };
+	}
+
+	void Asn1Record::setEncodedValue(uint8_t const* dataSource, internal::LazyLoadPolicy loadPolicy)
+	{
+		m_EncodedValue = dataSource;
+		m_LazyDecodeState = internal::LazyState::NotEvaluated;
+
+		if (loadPolicy == internal::LazyLoadPolicy::Eager)
+		{
+			decodeValueIfNeeded();
+		}
 	}
 
 	Asn1GenericRecord::Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType,
