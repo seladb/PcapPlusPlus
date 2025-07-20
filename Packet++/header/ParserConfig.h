@@ -113,8 +113,6 @@ namespace pcpp
 		/// - Index 1:  Original  |   Any Port  |  Src Port Match
 		/// - Index 2:  Any Port  |   Original  |  Dst Port Match
 		///
-		/// If the comparison
-		///
 		/// If a port pair is not found, the corresponding index in the array will contain UnknownProtocol.
 		/// If a port pair is not mapped to any protocol, the array will contain UnknownProtocol in all indices.
 		///
