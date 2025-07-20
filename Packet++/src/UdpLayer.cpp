@@ -100,52 +100,137 @@ namespace pcpp
 		uint8_t* udpData = m_Data + sizeof(udphdr);
 		size_t udpDataLen = m_DataLen - sizeof(udphdr);
 
-		if (DhcpLayer::isDhcpPorts(portSrc, portDst))
-			m_NextLayer = new DhcpLayer(udpData, udpDataLen, this, m_Packet);
-		else if (VxlanLayer::isVxlanPort(portDst))
-			m_NextLayer = new VxlanLayer(udpData, udpDataLen, this, m_Packet);
-		else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
-		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
-			m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
-		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
+		// Queries the port mapper for protocol mappings based on the source and destination ports
+		// The returned array protocol family for exact match, source only match, destination only match.
+		// The first protocol family that passes secondary validation (if any) will be used to construct the next layer.
+		auto const portMatrix = config.portMapper.getProtocolMappingsMatrixForPortPair(portSrc, portDst);
+
+		for (auto protoFamily : portMatrix)
 		{
-			if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown)
-				m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
-			else if (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) !=
-			             SipResponseLayer::SipStatusCodeUnknown &&
-			         SipResponseFirstLine::parseVersion((char*)udpData, udpDataLen) != "")
-				m_NextLayer = new SipResponseLayer(udpData, udpDataLen, this, m_Packet);
-			else
-				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+			// If the protocol family is UnknownProtocol, skip all other checks
+			if (protoFamily == UnknownProtocol)
+				continue;
+
+			switch (protoFamily)
+			{
+			case DHCP:
+			{
+				constructNextLayer<DhcpLayer>(udpData, udpDataLen, m_Packet);
+				break;
+			}
+			case VXLAN:
+			{
+				constructNextLayer<VxlanLayer>(udpData, udpDataLen, m_Packet);
+				break;
+			}
+			case DNS:
+			{
+				if (DnsLayer::isDataValid(udpData, udpDataLen))
+				{
+					constructNextLayer<DnsLayer>(udpData, udpDataLen, m_Packet);
+				}
+				break;
+			}
+			case SIPRequest:
+			case SIPResponse:
+			case SIP:
+			{
+				if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown)
+				{
+					constructNextLayer<SipRequestLayer>(udpData, udpDataLen, m_Packet);
+				}
+				else if (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) !=
+				             SipResponseLayer::SipStatusCodeUnknown &&
+				         SipResponseFirstLine::parseVersion((char*)udpData, udpDataLen) != "")
+				{
+					constructNextLayer<SipResponseLayer>(udpData, udpDataLen, m_Packet);
+				}
+				else
+				{
+					// todo: If the data is not a valid SIP request or response, should be instead try to continue
+					// matching?
+					constructNextLayer<PayloadLayer>(udpData, udpDataLen, m_Packet);
+				}
+				break;
+			}
+			case Radius:
+			{
+				if (RadiusLayer::isDataValid(udpData, udpDataLen))
+				{
+					constructNextLayer<RadiusLayer>(udpData, udpDataLen, m_Packet);
+				}
+				break;
+			}
+			case GTPv1:
+			case GTPv2:
+			case GTP:
+			{
+				// GTP can be either v1 or v2
+				if (GtpV1Layer::isGTPv1(udpData, udpDataLen))
+				{
+					constructNextLayer<GtpV1Layer>(udpData, udpDataLen, m_Packet);
+				}
+				else if (GtpV2Layer::isDataValid(udpData, udpDataLen))
+				{
+					constructNextLayer<GtpV2Layer>(udpData, udpDataLen, m_Packet);
+				}
+				break;
+			}
+			case DHCPv6:
+			{
+				if (DhcpV6Layer::isDataValid(udpData, udpDataLen))
+				{
+					constructNextLayer<DhcpV6Layer>(udpData, udpDataLen, m_Packet);
+				}
+				break;
+			}
+			case NTP:
+			{
+				if (NtpLayer::isDataValid(udpData, udpDataLen))
+				{
+					constructNextLayer<NtpLayer>(udpData, udpDataLen, m_Packet);
+				}
+				break;
+			}
+			case SomeIP:
+			{
+				setNextLayer(SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet));
+				break;
+			}
+			case WakeOnLan:
+			{
+				if (WakeOnLanLayer::isDataValid(udpData, udpDataLen))
+				{
+					constructNextLayer<WakeOnLanLayer>(udpData, udpDataLen, m_Packet);
+				}
+				break;
+			}
+			case WireGuard:
+			{
+				if (WireGuardLayer::isDataValid(udpData, udpDataLen))
+				{
+					setNextLayer(WireGuardLayer::parseWireGuardLayer(udpData, udpDataLen, this, m_Packet));
+					if (!m_NextLayer)
+					{
+						// If parsing failed, fallback to PayloadLayer
+						// todo: Maybe continue matching partial matches instead?
+						constructNextLayer<PayloadLayer>(udpData, udpDataLen, m_Packet);
+					}
+				}
+				break;
+			}
+			}
+
+			// If we already have a next layer, we don't need to parse further
+			if (hasNextLayer())
+				break;
 		}
-		else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
-		         RadiusLayer::isDataValid(udpData, udpDataLen))
-			m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, m_Packet);
-		else if ((GtpV1Layer::isGTPv1Port(portDst) || GtpV1Layer::isGTPv1Port(portSrc)) &&
-		         GtpV1Layer::isGTPv1(udpData, udpDataLen))
-			m_NextLayer = new GtpV1Layer(udpData, udpDataLen, this, m_Packet);
-		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
-		         GtpV2Layer::isDataValid(udpData, udpDataLen))
-			m_NextLayer = new GtpV2Layer(udpData, udpDataLen, this, m_Packet);
-		else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) &&
-		         (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
-			m_NextLayer = new DhcpV6Layer(udpData, udpDataLen, this, m_Packet);
-		else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
-		         NtpLayer::isDataValid(udpData, udpDataLen))
-			m_NextLayer = new NtpLayer(udpData, udpDataLen, this, m_Packet);
-		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
-			m_NextLayer = SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet);
-		else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
-			m_NextLayer = new WakeOnLanLayer(udpData, udpDataLen, this, m_Packet);
-		else if ((WireGuardLayer::isWireGuardPorts(portDst, portSrc) &&
-		          WireGuardLayer::isDataValid(udpData, udpDataLen)))
+
+		if (!hasNextLayer())
 		{
-			m_NextLayer = WireGuardLayer::parseWireGuardLayer(udpData, udpDataLen, this, m_Packet);
-			if (!m_NextLayer)
-				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+			// No specific layer matched, set as PayloadLayer
+			constructNextLayer<PayloadLayer>(udpData, udpDataLen, m_Packet);
 		}
-		else
-			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 	}
 
 	void UdpLayer::computeCalculateFields()
