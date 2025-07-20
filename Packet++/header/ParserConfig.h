@@ -141,7 +141,7 @@ namespace pcpp
 		static PortMapper makeDefaultPortMapper();
 
 	private:
-		// todo: A flat map might be more performant here, due to cache locality.
+		// todo: profile lookup performance.
 		std::unordered_map<PortPair, ProtocolTypeFamily> m_PortToProtocolMap;
 	};
 
