@@ -136,7 +136,7 @@ namespace pcpp
 
 		/// @brief Check if a port matches a specific protocol type.
 		/// @param port The port number to check.
-		/// @param protocol The ProtocolTypeFamily to match against.
+		/// @param protocolFamily The ProtocolTypeFamily to match against.
 		/// @return True if the port matches the protocol type, false otherwise.
 		bool matchesPortAndProtocol(PortPair port, ProtocolTypeFamily protocolFamily) const
 		{
