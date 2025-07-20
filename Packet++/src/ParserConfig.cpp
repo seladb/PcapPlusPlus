@@ -151,39 +151,15 @@ namespace pcpp
 		}
 	}
 
-	ProtocolTypeFamily PortMapper::getProtocolByPortPair(PortPair port, bool exact) const
+	ProtocolTypeFamily PortMapper::getProtocolByPortPair(PortPair port) const
 	{
-		// Order of precedence:
-		// 1. Check for exact match of port pair
-		// 1.a If exact is true, return the protocol type if found, go to step 4 if not found
-		// 2. If not found, check for src port match
-		// 3. If not found, check for dst port match
-		// 4. If still not found, return UnknownProtocol
-
 		auto it = m_PortToProtocolMap.find(port);
 		if (it != m_PortToProtocolMap.end())
 		{
 			return it->second;
 		}
 
-		if (exact)
-			return UnknownProtocol;  // Return UnknownProtocol if exact match not found
-
-		// Check for src port match
-		it = m_PortToProtocolMap.find(PortPair::fromSrc(port.portSrc));
-		if (it != m_PortToProtocolMap.end())
-		{
-			return it->second;
-		}
-
-		// Check for dst port match
-		it = m_PortToProtocolMap.find(PortPair::fromDst(port.portDst));
-		if (it != m_PortToProtocolMap.end())
-		{
-			return it->second;
-		}
-
-		return UnknownProtocol;  // Return UnknownProtocol if port not found
+		return UnknownProtocol;  // Return UnknownProtocol if exact match not found
 	}
 
 	std::array<ProtocolTypeFamily, 3> PortMapper::getProtocolMappingsMatrixForPortPair(PortPair port) const

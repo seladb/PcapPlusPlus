@@ -94,14 +94,9 @@ namespace pcpp
 		void removePortMapping(PortPair port, bool symmetrical = false);
 
 		/// @brief Get the protocol type associated with a specific port.
-		///
-		/// The method checks for an exact match of the port pair first.
-		/// If `exact` is false, it will also check for a match on either the source or destination port.
-		///
 		/// @param port The port number to look up.
-		/// @param exact If true, only an exact match of the port pair is considered. If false, src or dst port matches
 		/// @return The ProtocolTypeFamily associated with the port, or UnknownProtocol if not found.
-		ProtocolTypeFamily getProtocolByPortPair(PortPair port, bool exact = true) const;
+		ProtocolTypeFamily getProtocolByPortPair(PortPair port) const;
 
 		/// @brief Get the protocol mappings that correspond to a specific port pair.
 		///
