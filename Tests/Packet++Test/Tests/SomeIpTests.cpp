@@ -22,6 +22,34 @@ public:
 	}
 };
 
+class SomeIpScopedPortRegistration
+{
+public:
+	SomeIpScopedPortRegistration(pcpp::PortPair portPair) : m_RegisteredPort(portPair)
+	{
+		auto& portMapper = pcpp::ParserConfiguration::getDefault().portMapper;
+		m_PreviousMapping = portMapper.getProtocolByPortPair(m_RegisteredPort, true);
+		portMapper.addPortMapping(m_RegisteredPort, pcpp::SomeIP, true);
+	}
+	~SomeIpScopedPortRegistration()
+	{
+		auto& portMapper = pcpp::ParserConfiguration::getDefault().portMapper;
+
+		if (m_PreviousMapping != pcpp::UnknownProtocol)
+		{
+			portMapper.addPortMapping(m_RegisteredPort, m_PreviousMapping, true);
+		}
+		else
+		{
+			portMapper.removePortMapping(m_RegisteredPort, true);
+		}
+	}
+
+private:
+	pcpp::PortPair m_RegisteredPort;
+	pcpp::ProtocolTypeFamily m_PreviousMapping;
+};
+
 PTF_TEST_CASE(SomeIpPortTest)
 {
 	// cppcheck-suppress unusedVariable
@@ -50,6 +78,9 @@ PTF_TEST_CASE(SomeIpParsingTest)
 
 	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
+
+	// Add port mapping for SOME/IP
+	SomeIpScopedPortRegistration someIpPortRegistration(pcpp::PortPair::fromDst(29180));
 	pcpp::SomeIpLayer::addSomeIpPort(29180);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/someip.dat");
@@ -122,6 +153,9 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	PTF_ASSERT_EQUAL(someIpLayer2_2->getPduPayload()[19], 0x14);
 	PTF_ASSERT_EQUAL(someIpLayer2_2->toString(), "SOME/IP Layer, Service ID: 0x6060, Method ID: 0x410d, Length: 28");
 	PTF_ASSERT_NULL(someIpLayer2_2->getNextLayer());
+
+	// Remove port mapping for SOME/IP
+	pcpp::ParserConfiguration::getDefault().portMapper.removePortMapping(pcpp::PortPair::fromDst(29180), true);
 }
 
 PTF_TEST_CASE(SomeIpCreationTest)
@@ -183,6 +217,7 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 
 	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
+	SomeIpScopedPortRegistration someIpPortRegistration(pcpp::PortPair::fromDst(16832));
 	pcpp::SomeIpLayer::addSomeIpPort(16832);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SomeIpTp1.dat");
