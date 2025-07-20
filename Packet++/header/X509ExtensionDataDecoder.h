@@ -1,7 +1,6 @@
 #pragma once
 #include "Asn1Codec.h"
 
-
 /// @namespace pcpp
 /// The main namespace for the PcapPlusPlus lib
 namespace pcpp
