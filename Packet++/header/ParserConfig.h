@@ -82,10 +82,10 @@ namespace pcpp
 
 		/// @brief Add a port mapping to the port mapper.
 		/// @param port The port number to map.
-		/// @param protocol The ProtocolType to associate with the port.
+		/// @param protocolFamily The ProtocolTypeFamily to associate with the port.
 		/// @param symmetrical If true, the mapping is considered symmetrical (both src and dst ports are the
 		/// interchangeable).
-		void addPortMapping(PortPair port, ProtocolType protocol, bool symmetrical = false);
+		void addPortMapping(PortPair port, ProtocolTypeFamily protocolFamily, bool symmetrical = false);
 
 		/// @brief Remove a port mapping from the port mapper.
 		/// @param port The port number to remove from the mapping.
@@ -100,8 +100,8 @@ namespace pcpp
 		///
 		/// @param port The port number to look up.
 		/// @param exact If true, only an exact match of the port pair is considered. If false, src or dst port matches
-		/// @return The ProtocolType associated with the port, or UnknownProtocol if not found.
-		ProtocolType getProtocolByPortPair(PortPair port, bool exact = true) const;
+		/// @return The ProtocolTypeFamily associated with the port, or UnknownProtocol if not found.
+		ProtocolTypeFamily getProtocolByPortPair(PortPair port, bool exact = true) const;
 
 		/// @brief Get the protocol mappings that correspond to a specific port pair.
 		///
@@ -119,16 +119,16 @@ namespace pcpp
 		/// If a port pair is not mapped to any protocol, the array will contain UnknownProtocol in all indices.
 		///
 		/// @param port The port pair to look up.
-		/// @return An array of ProtocolType values representing the protocols associated with the port pair.
-		std::array<ProtocolType, 3> getProtocolMappingsMatrixForPortPair(PortPair port) const;
+		/// @return An array of ProtocolTypeFamily values representing the protocols associated with the port pair.
+		std::array<ProtocolTypeFamily, 3> getProtocolMappingsMatrixForPortPair(PortPair port) const;
 
 		/// @brief Check if a port matches a specific protocol type.
 		/// @param port The port number to check.
-		/// @param protocol The ProtocolType to match against.
+		/// @param protocol The ProtocolTypeFamily to match against.
 		/// @return True if the port matches the protocol type, false otherwise.
-		bool matchesPortAndProtocol(PortPair port, ProtocolType protocol) const
+		bool matchesPortAndProtocol(PortPair port, ProtocolTypeFamily protocolFamily) const
 		{
-			return getProtocolByPortPair(port) == protocol;
+			return getProtocolByPortPair(port) == protocolFamily;
 		}
 
 		/// @brief Creates a default PortMapper with common port mappings.
@@ -136,7 +136,7 @@ namespace pcpp
 		static PortMapper makeDefaultPortMapper();
 
 	private:
-		std::unordered_map<PortPair, ProtocolType> m_PortToProtocolMap;
+		std::unordered_map<PortPair, ProtocolTypeFamily> m_PortToProtocolMap;
 	};
 
 	/// @brief A parser configuration that can be used to configure the behavior of the packet parser.

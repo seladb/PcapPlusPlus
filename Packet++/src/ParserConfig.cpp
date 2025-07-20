@@ -110,7 +110,7 @@ namespace pcpp
 		return mapper;
 	}
 
-	void PortMapper::addPortMapping(PortPair port, ProtocolType protocol, bool symmetrical)
+	void PortMapper::addPortMapping(PortPair port, ProtocolTypeFamily protocol, bool symmetrical)
 	{
 		if (port == PortPair())
 		{
@@ -153,7 +153,7 @@ namespace pcpp
 		}
 	}
 
-	ProtocolType PortMapper::getProtocolByPortPair(PortPair port, bool exact) const
+	ProtocolTypeFamily PortMapper::getProtocolByPortPair(PortPair port, bool exact) const
 	{
 		// Order of precedence:
 		// 1. Check for exact match of port pair
@@ -188,9 +188,9 @@ namespace pcpp
 		return UnknownProtocol;  // Return UnknownProtocol if port not found
 	}
 
-	std::array<ProtocolType, 3> PortMapper::getProtocolMappingsMatrixForPortPair(PortPair port) const
+	std::array<ProtocolTypeFamily, 3> PortMapper::getProtocolMappingsMatrixForPortPair(PortPair port) const
 	{
-		std::array<ProtocolType, 3> protocols = { UnknownProtocol, UnknownProtocol, UnknownProtocol };
+		std::array<ProtocolTypeFamily, 3> protocols = { UnknownProtocol, UnknownProtocol, UnknownProtocol };
 		// Check for exact match
 		auto it = m_PortToProtocolMap.find(port);
 		if (it != m_PortToProtocolMap.end())
