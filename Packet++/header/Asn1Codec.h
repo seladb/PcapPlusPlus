@@ -111,19 +111,30 @@ namespace pcpp
 
 	namespace internal
 	{
+		/// @enum LazyLoadPolicy
+		/// @brief Policy for when to evaluate (decode) ASN.1 record values.
+		/// Determines whether the value is decoded immediately (eager) or on first access (lazy).
 		enum class LazyLoadPolicy
 		{
-			/// The value is evaluated on first access
+			/// The value is evaluated on first access (lazy decoding).
 			Lazy,
-			/// The value is evaluated immediately on construction
+			/// The value is evaluated immediately on construction (eager decoding).
 			Eager
 		};
 
+		/// @enum LazyState
+		/// @brief Represents the state of lazy evaluation for ASN.1 record decoding.
+		/// Used internally to track whether a record's value has been decoded, is being decoded, or if an error
+		/// occurred.
 		enum class LazyState : int
 		{
+			/// The value has not been evaluated (decoded) yet.
 			NotEvaluated = 0,
+			/// The value is currently being evaluated (decoded).
 			Evaluating = 1,
+			/// The value has been successfully evaluated (decoded).
 			Evaluated = 2,
+			/// An error occurred during evaluation (decoding).
 			Error = 3
 		};
 	}  // namespace internal
