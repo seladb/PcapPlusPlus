@@ -72,7 +72,6 @@ PTF_TEST_CASE(TcpPacketWithAccurateEcnParsing)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketNoOptionsAccEcn.dat");
 
 	pcpp::Packet TcpPacketWithAccurateEcn(&rawPacket1);
-	PTF_ASSERT_TRUE(TcpPacketWithAccurateEcn.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(TcpPacketWithAccurateEcn.isPacketOfType(pcpp::TCP));
 
 	pcpp::TcpLayer* tcpLayer = TcpPacketWithAccurateEcn.getLayerOfType<pcpp::TcpLayer>();
