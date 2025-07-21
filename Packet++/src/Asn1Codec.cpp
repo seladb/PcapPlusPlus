@@ -416,9 +416,9 @@ namespace pcpp
 		// TODO: This is not thread-safe and can cause issues if multiple threads access the same record
 		if (m_LazyDecodeState == internal::LazyState::NotEvaluated)
 		{
-			if (m_EncodedValue == nullptr /* || m_ValueLength == 0 */)
+			if (m_EncodedValue == nullptr)
 			{
-				throw std::invalid_argument("Cannot decode ASN.1 record value, no data available");
+				throw std::runtime_error("Cannot decode ASN.1 record value, no data available");
 			}
 			try
 			{
