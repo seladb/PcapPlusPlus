@@ -262,6 +262,7 @@ PTF_TEST_CASE(SmtpEditTests);
 // Implemented in Asn1Tests.cpp
 PTF_TEST_CASE(Asn1DecodingTest);
 PTF_TEST_CASE(Asn1EncodingTest);
+PTF_TEST_CASE(Asn1ObjectIdentifierTest);
 
 // Implemented in LdapTests.cpp
 PTF_TEST_CASE(LdapParsingTest);
@@ -283,3 +284,9 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest);
 // Implemented in ModbusTests.cpp
 PTF_TEST_CASE(ModbusLayerCreationTest);
 PTF_TEST_CASE(ModbusLayerParsingTest);
+
+// Implemented in X509Tests.cpp
+PTF_TEST_CASE(X509ParsingTest);
+PTF_TEST_CASE(X509VariantsParsingTest);
+PTF_TEST_CASE(X509InvalidDataTest);
+PTF_TEST_CASE(X509ExtensionDataTest);

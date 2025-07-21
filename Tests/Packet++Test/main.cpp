@@ -332,6 +332,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(Asn1DecodingTest, "asn1");
 	PTF_RUN_TEST(Asn1EncodingTest, "asn1");
+	PTF_RUN_TEST(Asn1ObjectIdentifierTest, "asn1");
 
 	PTF_RUN_TEST(LdapParsingTest, "ldap");
 	PTF_RUN_TEST(LdapCreationTest, "ldap");
@@ -347,8 +348,14 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerEditTest, "chdlc");
 
+
 	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
+
+	PTF_RUN_TEST(X509ParsingTest, "x509");
+	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
+	PTF_RUN_TEST(X509InvalidDataTest, "x509");
+	PTF_RUN_TEST(X509ExtensionDataTest, "x509");
 
 	PTF_END_RUNNING_TESTS;
 }

@@ -338,7 +338,7 @@ namespace pcpp
 		{
 			return false;
 		}
-		std::unique_ptr<char[]> packetData(new char[packetSize]);
+		std::unique_ptr<char[]> packetData = std::make_unique<char[]>(packetSize);
 		m_snoopFile.read(packetData.get(), packetSize);
 		if (!m_snoopFile)
 		{

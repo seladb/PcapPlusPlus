@@ -7,7 +7,6 @@
 #include "SystemUtils.h"
 
 #include <unistd.h>
-#include <time.h>
 #include <thread>
 #include <sys/ioctl.h>
 #include <net/if.h>
@@ -410,7 +409,8 @@ namespace pcpp
 		struct rte_kni* kni_dev = device->m_Device;
 		for (;;)
 		{
-			nanosleep(&sleepTime, nullptr);
+			std::this_thread::sleep_for(std::chrono::seconds(sleepTime.tv_sec) +
+			                            std::chrono::nanoseconds(sleepTime.tv_nsec));
 			rte_kni_handle_request(kni_dev);
 			if (stopThread)
 			{

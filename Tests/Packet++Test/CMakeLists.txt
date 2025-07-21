@@ -45,6 +45,7 @@ add_executable(
   Tests/VrrpTest.cpp
   Tests/WakeOnLanTests.cpp
   Tests/WireGuardTests.cpp
+  Tests/X509Tests.cpp
   Utils/TestUtils.cpp
 )
 
