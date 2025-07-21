@@ -18,7 +18,7 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread
 {
 private:
 	AppWorkerConfig& m_WorkerConfig;
-	bool m_Stop;
+	bool m_Stop{ true };
 	uint32_t m_CoreId;
 	PacketStats m_Stats;
 	PacketMatchingEngine& m_PacketMatchingEngine;
@@ -26,11 +26,10 @@ private:
 
 public:
 	AppWorkerThread(AppWorkerConfig& workerConfig, PacketMatchingEngine& matchingEngine)
-	    : m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES + 1),
-	      m_PacketMatchingEngine(matchingEngine)
+	    : m_WorkerConfig(workerConfig), m_CoreId(MAX_NUM_OF_CORES + 1), m_PacketMatchingEngine(matchingEngine)
 	{}
 
-	virtual ~AppWorkerThread()
+	~AppWorkerThread() override
 	{
 		// do nothing
 	}
@@ -42,7 +41,7 @@ public:
 
 	// implement abstract methods
 
-	bool run(uint32_t coreId)
+	bool run(uint32_t coreId) override
 	{
 		m_CoreId = coreId;
 		m_Stop = false;
@@ -53,7 +52,7 @@ public:
 		// if needed, create the pcap file writer which all matched packets will be written into
 		if (m_WorkerConfig.writeMatchedPacketsToFile)
 		{
-			pcapWriter = new pcpp::PcapFileWriterDevice(m_WorkerConfig.pathToWritePackets.c_str());
+			pcapWriter = new pcpp::PcapFileWriterDevice(m_WorkerConfig.pathToWritePackets);
 			if (!pcapWriter->open())
 			{
 				EXIT_WITH_ERROR("Couldn't open pcap writer device");
@@ -61,7 +60,7 @@ public:
 		}
 
 		// if no DPDK devices were assigned to this worker/core don't enter the main loop and exit
-		if (m_WorkerConfig.inDataCfg.size() == 0)
+		if (m_WorkerConfig.inDataCfg.empty())
 		{
 			return true;
 		}
@@ -82,7 +81,7 @@ public:
 					pcpp::DpdkDevice* dev = iter.first;
 
 					// receive packets from network on the specified DPDK device and RX queue
-					uint16_t packetsReceived = dev->receivePackets(packetArr, MAX_RECEIVE_BURST, iter2);
+					const uint16_t packetsReceived = dev->receivePackets(packetArr, MAX_RECEIVE_BURST, iter2);
 
 					for (int i = 0; i < packetsReceived; i++)
 					{
@@ -92,11 +91,11 @@ public:
 						// collect packet statistics
 						m_Stats.collectStats(parsedPacket);
 
-						bool packetMatched;
+						bool packetMatched = false;
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to
 						// an existing or new flow
-						uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
+						const uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
 						auto iter3 = m_FlowTable.find(hash);
 
 						// if packet belongs to an already existing flow
@@ -146,28 +145,25 @@ public:
 		}
 
 		// free packet array (frees all mbufs as well)
-		for (int i = 0; i < MAX_RECEIVE_BURST; i++)
+		for (auto& i : packetArr)
 		{
-			if (packetArr[i] != nullptr)
-				delete packetArr[i];
+
+			delete i;
 		}
 
 		// close and delete pcap file writer
-		if (pcapWriter != nullptr)
-		{
-			delete pcapWriter;
-		}
+		delete pcapWriter;
 
 		return true;
 	}
 
-	void stop()
+	void stop() override
 	{
 		// assign the stop flag which will cause the main loop to end
 		m_Stop = true;
 	}
 
-	uint32_t getCoreId() const
+	uint32_t getCoreId() const override
 	{
 		return m_CoreId;
 	}

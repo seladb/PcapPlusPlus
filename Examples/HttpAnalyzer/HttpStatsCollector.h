@@ -82,16 +82,15 @@ struct HttpGeneralStats
 struct HttpMessageStats
 {
 	// total number of HTTP messages of that type (request/response)
-	int numOfMessages;
+	int numOfMessages{};
 	// rate of HTTP messages of that type
-	Rate messageRate;
+	Rate messageRate{};
 	// total size (in bytes) of data in headers
-	int totalMessageHeaderSize;
+	int totalMessageHeaderSize{};
 	// average header size
-	double averageMessageHeaderSize;
+	double averageMessageHeaderSize{};
 
-	virtual ~HttpMessageStats()
-	{}
+	virtual ~HttpMessageStats() = default;
 
 	virtual void clear()
 	{
@@ -130,11 +129,11 @@ struct HttpResponseStats : HttpMessageStats
 	// a map for counting the content-types seen in traffic
 	std::unordered_map<std::string, int> contentTypeCount;
 	// total number of responses containing the "content-length" field
-	int numOfMessagesWithContentLength;
+	int numOfMessagesWithContentLength{};
 	// total body size extracted by responses containing "content-length" field
-	int totalContentLengthSize;
+	int totalContentLengthSize{};
 	// average body size
-	double averageContentLengthSize;
+	double averageContentLengthSize{};
 
 	void clear() override
 	{
@@ -156,10 +155,9 @@ public:
 	/**
 	 * C'tor - clear all structures
 	 */
-	explicit HttpStatsCollector(uint16_t dstPort)
+	explicit HttpStatsCollector(uint16_t dstPort) : m_DstPort(dstPort)
 	{
 		clear();
-		m_DstPort = dstPort;
 	}
 
 	/**
@@ -169,29 +167,33 @@ public:
 	{
 		// verify packet is TCP
 		if (!httpPacket->isPacketOfType(pcpp::TCP))
+		{
 			return;
+		}
 
 		// verify packet is port 80
-		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
-		if (!(tcpLayer->getDstPort() == m_DstPort || tcpLayer->getSrcPort() == m_DstPort))
+		auto* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+		if (tcpLayer->getDstPort() != m_DstPort && tcpLayer->getSrcPort() != m_DstPort)
+		{
 			return;
+		}
 
 		// collect general HTTP traffic stats on this packet
-		uint32_t hashVal = collectHttpTrafficStats(httpPacket);
+		const uint32_t hashVal = collectHttpTrafficStats(httpPacket);
 
 		// if packet is an HTTP request - collect HTTP request stats on this packet
 		if (httpPacket->isPacketOfType(pcpp::HTTPRequest))
 		{
-			pcpp::HttpRequestLayer* req = httpPacket->getLayerOfType<pcpp::HttpRequestLayer>();
-			pcpp::TcpLayer* tcpLayer1 = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+			auto* req = httpPacket->getLayerOfType<pcpp::HttpRequestLayer>();
+			auto* tcpLayer1 = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 			collectHttpGeneralStats(tcpLayer1, req, hashVal);
 			collectRequestStats(req);
 		}
 		// if packet is an HTTP response - collect HTTP response stats on this packet
 		else if (httpPacket->isPacketOfType(pcpp::HTTPResponse))
 		{
-			pcpp::HttpResponseLayer* res = httpPacket->getLayerOfType<pcpp::HttpResponseLayer>();
-			pcpp::TcpLayer* tcpLayer1 = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+			auto* res = httpPacket->getLayerOfType<pcpp::HttpResponseLayer>();
+			auto* tcpLayer1 = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 			collectHttpGeneralStats(tcpLayer1, res, hashVal);
 			collectResponseStats(res);
 		}
@@ -206,10 +208,10 @@ public:
 	void calcRates()
 	{
 		// getting current machine time
-		double curTime = getCurTime();
+		const double curTime = getCurTime();
 
 		// getting time from last rate calculation until now
-		double diffSec = curTime - m_LastCalcRateTime;
+		const double diffSec = curTime - m_LastCalcRateTime;
 
 		// calculating current rates which are the changes from last rate calculation until now divided by the time
 		// passed from last rate calculation until now
@@ -230,7 +232,7 @@ public:
 		}
 
 		// getting the time from the beginning of stats collection until now
-		double diffSecTotal = curTime - m_StartTime;
+		const double diffSecTotal = curTime - m_StartTime;
 
 		// calculating total rate which is the change from beginning of stats collection until now divided by time
 		// passed from beginning of stats collection until now
@@ -324,7 +326,7 @@ private:
 	 */
 	uint32_t collectHttpTrafficStats(pcpp::Packet* httpPacket)
 	{
-		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+		auto* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 
 		// count traffic
 		m_GeneralStats.amountOfHttpTraffic += tcpLayer->getLayerPayloadSize();
@@ -333,7 +335,7 @@ private:
 		m_GeneralStats.numOfHttpPackets++;
 
 		// calculate a hash key for this flow to be used in the flow table
-		uint32_t hashVal = pcpp::hash5Tuple(httpPacket);
+		const uint32_t hashVal = pcpp::hash5Tuple(httpPacket);
 
 		// if flow is a new flow (meaning it's not already in the flow table)
 		if (m_FlowTable.find(hashVal) == m_FlowTable.end())
@@ -344,7 +346,7 @@ private:
 		}
 
 		// calculate averages
-		if (m_FlowTable.size() != 0)
+		if (!m_FlowTable.empty())
 		{
 			m_GeneralStats.averageAmountOfDataPerFlow =
 			    static_cast<double>(m_GeneralStats.amountOfHttpTraffic) / static_cast<double>(m_FlowTable.size());
@@ -362,7 +364,9 @@ private:
 	{
 		// if num of current opened transaction is negative it means something went completely wrong
 		if (m_FlowTable[flowKey].numOfOpenTransactions < 0)
+		{
 			return;
+		}
 
 		if (message->getProtocol() == pcpp::HTTPRequest)
 		{
@@ -370,7 +374,9 @@ private:
 			// a re-transmitted packet and should be ignored
 			if (m_FlowTable[flowKey].curSeqNumberRequests >=
 			    pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
+			{
 				return;
+			}
 
 			// a new request - increase num of open transactions
 			m_FlowTable[flowKey].numOfOpenTransactions++;
@@ -395,7 +401,9 @@ private:
 			// a re-transmitted packet and should be ignored
 			if (m_FlowTable[flowKey].curSeqNumberResponses >=
 			    pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
+			{
 				return;
+			}
 
 			// a response - decrease num of open transactions
 			m_FlowTable[flowKey].numOfOpenTransactions--;
@@ -417,10 +425,12 @@ private:
 				m_GeneralStats.numOfHttpTransactions++;
 
 				// calc average transactions per flow
-				if (m_FlowTable.size() != 0)
+				if (!m_FlowTable.empty())
+				{
 					m_GeneralStats.averageNumOfHttpTransactionsPerFlow =
 					    static_cast<double>(m_GeneralStats.numOfHttpTransactions) /
 					    static_cast<double>(m_FlowTable.size());
+				}
 			}
 
 			// set last seen sequence number
@@ -436,13 +446,17 @@ private:
 		m_RequestStats.numOfMessages++;
 		m_RequestStats.totalMessageHeaderSize += req->getHeaderLen();
 		if (m_RequestStats.numOfMessages != 0)
+		{
 			m_RequestStats.averageMessageHeaderSize = static_cast<double>(m_RequestStats.totalMessageHeaderSize) /
 			                                          static_cast<double>(m_RequestStats.numOfMessages);
+		}
 
 		// extract hostname and add to hostname count map
 		pcpp::HeaderField* hostField = req->getFieldByName(PCPP_HTTP_HOST_FIELD);
 		if (hostField != nullptr)
+		{
 			m_RequestStats.hostnameCount[hostField->getFieldValue()]++;
+		}
 
 		m_RequestStats.methodCount[req->getFirstLine()->getMethod()]++;
 	}
@@ -455,8 +469,10 @@ private:
 		m_ResponseStats.numOfMessages++;
 		m_ResponseStats.totalMessageHeaderSize += res->getHeaderLen();
 		if (m_ResponseStats.numOfMessages != 0)
+		{
 			m_ResponseStats.averageMessageHeaderSize = static_cast<double>(m_ResponseStats.totalMessageHeaderSize) /
 			                                           static_cast<double>(m_ResponseStats.numOfMessages);
+		}
 
 		// extract content-length (if exists)
 		pcpp::HeaderField* contentLengthField = res->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
@@ -465,9 +481,11 @@ private:
 			m_ResponseStats.numOfMessagesWithContentLength++;
 			m_ResponseStats.totalContentLengthSize += atoi(contentLengthField->getFieldValue().c_str());
 			if (m_ResponseStats.numOfMessagesWithContentLength != 0)
+			{
 				m_ResponseStats.averageContentLengthSize =
 				    static_cast<double>(m_ResponseStats.totalContentLengthSize) /
 				    static_cast<double>(m_ResponseStats.numOfMessagesWithContentLength);
+			}
 		}
 
 		// extract content-type and add to content-type map
@@ -479,9 +497,11 @@ private:
 			// sometimes content-type contains also the charset it uses.
 			// for example: "application/javascript; charset=UTF-8"
 			// remove charset as it's not relevant for these stats
-			size_t charsetPos = contentType.find(";");
+			size_t const charsetPos = contentType.find(';');
 			if (charsetPos != std::string::npos)
+			{
 				contentType.resize(charsetPos);
+			}
 
 			m_ResponseStats.contentTypeCount[contentType]++;
 		}
@@ -489,21 +509,21 @@ private:
 		// collect status code - create one string from status code and status description (for example: 200 OK)
 		std::ostringstream stream;
 		stream << res->getFirstLine()->getStatusCodeAsInt();
-		std::string statusCode = stream.str() + " " + res->getFirstLine()->getStatusCodeString();
+		const std::string statusCode = stream.str() + " " + res->getFirstLine()->getStatusCodeString();
 		m_ResponseStats.statusCodeCount[statusCode]++;
 	}
 
-	double getCurTime(void)
+	static double getCurTime()
 	{
-		struct timeval tv;
+		struct timeval tv{};
 
 		gettimeofday(&tv, nullptr);
 
 		return ((static_cast<double>(tv.tv_sec)) + static_cast<double>(tv.tv_usec / 1000000.0));
 	}
 
-	HttpGeneralStats m_GeneralStats;
-	HttpGeneralStats m_PrevGeneralStats;
+	HttpGeneralStats m_GeneralStats{};
+	HttpGeneralStats m_PrevGeneralStats{};
 	HttpRequestStats m_RequestStats;
 	HttpRequestStats m_PrevRequestStats;
 	HttpResponseStats m_ResponseStats;
@@ -511,7 +531,7 @@ private:
 
 	std::unordered_map<uint32_t, HttpFlowData> m_FlowTable;
 
-	double m_LastCalcRateTime;
-	double m_StartTime;
+	double m_LastCalcRateTime{};
+	double m_StartTime{};
 	uint16_t m_DstPort;
 };

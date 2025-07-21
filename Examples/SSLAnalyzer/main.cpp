@@ -43,7 +43,10 @@
 	          << std::fixed << std::showpoint << std::setprecision(3) << counter << " [" << measurement << "]"         \
 	          << std::endl;
 
-#define DEFAULT_CALC_RATES_PERIOD_SEC 2
+enum
+{
+	DEFAULT_CALC_RATES_PERIOD_SEC = 2
+};
 
 // clang-format off
 static struct option SSLAnalyzerOptions[] = {
@@ -70,37 +73,36 @@ struct SSLPacketArrivedData
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage: PCAP file mode:" << std::endl
-	          << "----------------------" << std::endl
-	          << pcpp::AppName::get() << " [-hv] -f input_file" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -f           : The input pcap/pcapng file to analyze. Required argument for this mode"
-	          << std::endl
-	          << "    -v           : Displays the current version and exists" << std::endl
-	          << "    -h           : Displays this help message and exits" << std::endl
-	          << std::endl
-	          << "Usage: Live traffic mode:" << std::endl
-	          << "-------------------------" << std::endl
-	          << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] -i interface" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
+	std::cout << '\n'
+	          << "Usage: PCAP file mode:" << '\n'
+	          << "----------------------" << '\n'
+	          << pcpp::AppName::get() << " [-hv] -f input_file" << '\n'
+	          << '\n'
+	          << "Options:" << '\n'
+	          << '\n'
+	          << "    -f           : The input pcap/pcapng file to analyze. Required argument for this mode" << '\n'
+	          << "    -v           : Displays the current version and exists" << '\n'
+	          << "    -h           : Displays this help message and exits" << '\n'
+	          << '\n'
+	          << "Usage: Live traffic mode:" << '\n'
+	          << "-------------------------" << '\n'
+	          << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] -i interface" << '\n'
+	          << '\n'
+	          << "Options:" << '\n'
+	          << '\n'
 	          << "    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
 	             "address"
-	          << std::endl
+	          << '\n'
 	          << "    -o output_file : Save all captured SSL packets to a pcap file. Notice this may cause performance "
 	             "degradation"
-	          << std::endl
+	          << '\n'
 	          << "    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
-	          << std::endl
-	          << "    -d             : Disable periodic rates calculation" << std::endl
-	          << "    -v             : Displays the current version and exists" << std::endl
-	          << "    -h             : Displays this help message and exits" << std::endl
-	          << "    -l             : Print the list of interfaces and exists" << std::endl
-	          << std::endl;
+	          << '\n'
+	          << "    -d             : Disable periodic rates calculation" << '\n'
+	          << "    -v             : Displays the current version and exists" << '\n'
+	          << "    -h             : Displays this help message and exits" << '\n'
+	          << "    -l             : Print the list of interfaces and exists" << '\n'
+	          << '\n';
 }
 
 /**
@@ -108,9 +110,9 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << '\n'
+	          << "Built: " << pcpp::getBuildDateTime() << '\n'
+	          << "Built from: " << pcpp::getGitInfo() << '\n';
 	exit(0);
 }
 
@@ -122,11 +124,11 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
 	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	std::cout << std::endl << "Network interfaces:" << std::endl;
+	std::cout << '\n' << "Network interfaces:" << '\n';
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-		          << std::endl;
+		          << '\n';
 	}
 	exit(0);
 }
@@ -139,18 +141,18 @@ void printStatsHeadline(const std::string& description)
 		underline += "-";
 	}
 
-	std::cout << std::endl << description << std::endl << underline << std::endl << std::endl;
+	std::cout << '\n' << description << '\n' << underline << '\n' << '\n';
 }
 
 /**
  * packet capture callback - called whenever a packet arrives
  */
-void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
+void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* /*dev*/, void* cookie)
 {
 	// parse the packet
 	pcpp::Packet parsedPacket(packet);
 
-	SSLPacketArrivedData* data = static_cast<SSLPacketArrivedData*>(cookie);
+	auto* data = static_cast<SSLPacketArrivedData*>(cookie);
 
 	// give the packet to the collector
 	data->statsCollector->collectStats(&parsedPacket);
@@ -193,8 +195,8 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 {
 	// create the table
 	std::vector<std::string> columnNames;
-	columnNames.push_back("Hostname");
-	columnNames.push_back("Count");
+	columnNames.emplace_back("Hostname");
+	columnNames.emplace_back("Count");
 	std::vector<int> columnsWidths;
 	columnsWidths.push_back(40);
 	columnsWidths.push_back(5);
@@ -223,7 +225,7 @@ void printVersions(std::unordered_map<uint16_t, int>& versionMap, const std::str
 	// create the table
 	std::vector<std::string> columnNames;
 	columnNames.push_back(headline);
-	columnNames.push_back("Count");
+	columnNames.emplace_back("Count");
 	std::vector<int> columnsWidths;
 	columnsWidths.push_back(28);
 	columnsWidths.push_back(5);
@@ -250,8 +252,8 @@ void printCipherSuites(ServerHelloStats& serverHelloStats)
 {
 	// create the table
 	std::vector<std::string> columnNames;
-	columnNames.push_back("Cipher-suite");
-	columnNames.push_back("Count");
+	columnNames.emplace_back("Cipher-suite");
+	columnNames.emplace_back("Count");
 	std::vector<int> columnsWidths;
 	columnsWidths.push_back(50);
 	columnsWidths.push_back(5);
@@ -276,8 +278,8 @@ void printPorts(SSLGeneralStats& stats)
 {
 	// create the table
 	std::vector<std::string> columnNames;
-	columnNames.push_back("SSL/TLS ports");
-	columnNames.push_back("Count");
+	columnNames.emplace_back("SSL/TLS ports");
+	columnNames.emplace_back("Count");
 	std::vector<int> columnsWidths;
 	columnsWidths.push_back(13);
 	columnsWidths.push_back(5);
@@ -363,7 +365,9 @@ void analyzeSSLFromPcapFile(const std::string& pcapFileName)
 	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(pcapFileName));
 
 	if (!reader->open())
+	{
 		EXIT_WITH_ERROR("Could not open input pcap file");
+	}
 
 	// read the input file packet by packet and give it to the SSLStatsCollector for collecting stats
 	SSLStatsCollector collector;
@@ -375,7 +379,7 @@ void analyzeSSLFromPcapFile(const std::string& pcapFileName)
 	}
 
 	// print stats summary
-	std::cout << std::endl << std::endl << "STATS SUMMARY" << std::endl << "=============" << std::endl;
+	std::cout << '\n' << '\n' << "STATS SUMMARY" << '\n' << "=============" << '\n';
 	printStatsSummary(collector);
 
 	// close input file
@@ -390,7 +394,9 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 {
 	// open the device
 	if (!dev->open())
+	{
 		EXIT_WITH_ERROR("Could not open the device");
+	}
 
 	// set SSL/TLS ports filter on the live device to capture only SSL/TLS packets
 	std::vector<pcpp::GeneralFilter*> portFilterVec;
@@ -399,8 +405,12 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 	// The check is made for well known ports because currently SSLLayer does not support customizing of ports
 	// considered as SSL/TLS.
 	for (uint16_t port = 0; port < 1024; ++port)
+	{
 		if (pcpp::SSLLayer::isSSLPort(port))
+		{
 			portFilterVec.push_back(new pcpp::PortFilter(port, pcpp::SRC_OR_DST));
+		}
+	}
 
 	// make an OR filter out of all port filters
 	pcpp::OrFilter orFilter(portFilterVec);
@@ -415,9 +425,9 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 
 	// if needed to save the captured packets to file - open a writer device
 	std::unique_ptr<pcpp::PcapFileWriterDevice> pcapWriter;
-	if (savePacketsToFileName != "")
+	if (!savePacketsToFileName.empty())
 	{
-		pcapWriter.reset(new pcpp::PcapFileWriterDevice(savePacketsToFileName));
+		pcapWriter = std::make_unique<pcpp::PcapFileWriterDevice>(savePacketsToFileName);
 		if (!pcapWriter->open())
 		{
 			EXIT_WITH_ERROR("Could not open pcap file for writing");
@@ -425,7 +435,7 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 	}
 
 	// start capturing packets and collecting stats
-	SSLPacketArrivedData data;
+	SSLPacketArrivedData data{};
 	SSLStatsCollector collector;
 	data.statsCollector = &collector;
 	data.pcapWriter = pcapWriter.get();
@@ -455,7 +465,7 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 	collector.calcRates();
 
 	// print stats summary
-	std::cout << std::endl << std::endl << "STATS SUMMARY" << std::endl << "=============" << std::endl;
+	std::cout << '\n' << '\n' << "STATS SUMMARY" << '\n' << "=============" << '\n';
 	printStatsSummary(collector);
 
 	// close and free the writer device
@@ -472,12 +482,12 @@ int main(int argc, char* argv[])
 {
 	pcpp::AppName::init(argc, argv);
 
-	std::string interfaceNameOrIP = "";
+	std::string interfaceNameOrIP;
 	bool printRatesPeriodically = true;
 	int printRatePeriod = DEFAULT_CALC_RATES_PERIOD_SEC;
-	std::string savePacketsToFileName = "";
+	std::string savePacketsToFileName;
 
-	std::string readPacketsFromPcapFileName = "";
+	std::string readPacketsFromPcapFileName;
 
 	int optionIndex = 0;
 	int opt = 0;
@@ -520,11 +530,13 @@ int main(int argc, char* argv[])
 	}
 
 	// if no interface nor input pcap file were provided - exit with error
-	if (readPacketsFromPcapFileName == "" && interfaceNameOrIP == "")
+	if (readPacketsFromPcapFileName.empty() && interfaceNameOrIP.empty())
+	{
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
+	}
 
 	// analyze in pcap file mode
-	if (readPacketsFromPcapFileName != "")
+	if (!readPacketsFromPcapFileName.empty())
 	{
 		analyzeSSLFromPcapFile(readPacketsFromPcapFileName);
 	}
@@ -533,7 +545,9 @@ int main(int argc, char* argv[])
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
+		}
 
 		// start capturing and analyzing traffic
 		analyzeSSLFromLiveTraffic(dev, printRatesPeriodically, printRatePeriod, savePacketsToFileName);

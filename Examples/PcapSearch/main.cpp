@@ -77,30 +77,30 @@ static struct option PcapSearchOptions[] = {
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
+	std::cout << '\n'
+	          << "Usage:" << '\n'
+	          << "------" << '\n'
 	          << pcpp::AppName::get()
-	          << " [-h] [-v] [-n] [-r file_name] [-e extension_list] -d directory -s search_criteria" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -d directory        : Input directory" << std::endl
-	          << "    -n                  : Don't include sub-directories (default is include them)" << std::endl
+	          << " [-h] [-v] [-n] [-r file_name] [-e extension_list] -d directory -s search_criteria" << '\n'
+	          << '\n'
+	          << "Options:" << '\n'
+	          << '\n'
+	          << "    -d directory        : Input directory" << '\n'
+	          << "    -n                  : Don't include sub-directories (default is include them)" << '\n'
 	          << "    -s search_criteria  : Criteria to search in Berkeley Packet Filter (BPF) syntax "
 	             "(http://biot.com/capstats/bpf.html)"
-	          << std::endl
-	          << "                          i.e: 'ip net 1.1.1.1'" << std::endl
-	          << "    -r file_name        : Write a detailed search report to a file" << std::endl
+	          << '\n'
+	          << "                          i.e: 'ip net 1.1.1.1'" << '\n'
+	          << "    -r file_name        : Write a detailed search report to a file" << '\n'
 	          << "    -e extension_list   : Set file extensions to search. The default is searching '.pcap' and "
 	             "'.pcapng' files."
-	          << std::endl
+	          << '\n'
 	          << "                          extension_list should be a comma-separated list of extensions, for "
 	             "example: pcap,net,dmp"
-	          << std::endl
-	          << "    -v                  : Displays the current version and exists" << std::endl
-	          << "    -h                  : Displays this help message and exits" << std::endl
-	          << std::endl;
+	          << '\n'
+	          << "    -v                  : Displays the current version and exists" << '\n'
+	          << "    -h                  : Displays this help message and exits" << '\n'
+	          << '\n';
 }
 
 /**
@@ -108,9 +108,9 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << '\n'
+	          << "Built: " << pcpp::getBuildDateTime() << '\n'
+	          << "Built from: " << pcpp::getGitInfo() << '\n';
 	exit(0);
 }
 
@@ -119,7 +119,7 @@ void printAppVersion()
  */
 std::string getExtension(const std::string& fileName)
 {
-	return fileName.substr(fileName.find_last_of(".") + 1);
+	return fileName.substr(fileName.find_last_of('.') + 1);
 }
 
 /**
@@ -137,9 +137,9 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 		if (detailedReportFile != nullptr)
 		{
 			// PcapPlusPlus logger saves the last internal error. Write this error to the report file
-			(*detailedReportFile) << "File '" << pcapFilePath << "':" << std::endl;
+			(*detailedReportFile) << "File '" << pcapFilePath << "':" << '\n';
 			(*detailedReportFile) << "    ";
-			(*detailedReportFile) << pcpp::Logger::getInstance().getLastError() << std::endl;
+			(*detailedReportFile) << pcpp::Logger::getInstance().getLastError() << '\n';
 		}
 
 		// free the reader memory and return
@@ -157,7 +157,7 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 
 	if (detailedReportFile != nullptr)
 	{
-		(*detailedReportFile) << "File '" << pcapFilePath << "':" << std::endl;
+		(*detailedReportFile) << "File '" << pcapFilePath << "':" << '\n';
 	}
 
 	int packetCount = 0;
@@ -170,14 +170,16 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 		if (detailedReportFile != nullptr)
 		{
 			// parse the packet
-			pcpp::Packet parsedPacket(&rawPacket);
+			const pcpp::Packet parsedPacket(&rawPacket);
 
 			// print layer by layer by layer as we want to add a few spaces before each layer
 			std::vector<std::string> packetLayers;
 			parsedPacket.toStringList(packetLayers);
 			for (const auto& layer : packetLayers)
+			{
 				(*detailedReportFile) << "\n    " << layer;
-			(*detailedReportFile) << std::endl;
+			}
+			(*detailedReportFile) << '\n';
 		}
 
 		// count the packet read
@@ -191,9 +193,11 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 	if (detailedReportFile != nullptr)
 	{
 		if (packetCount > 0)
+		{
 			(*detailedReportFile) << "\n";
+		}
 
-		(*detailedReportFile) << "    ----> Found " << packetCount << " packets" << std::endl << std::endl;
+		(*detailedReportFile) << "    ----> Found " << packetCount << " packets" << '\n' << '\n';
 	}
 
 	// free the reader memory
@@ -217,7 +221,9 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 
 	// dir is null usually when user has no access permissions
 	if (dir == nullptr)
+	{
 		return;
+	}
 
 	struct dirent* entry = readdir(dir);
 
@@ -226,17 +232,18 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 	// go over all files in this directory
 	while (entry != nullptr)
 	{
-		std::string name(entry->d_name);
+		const std::string name(entry->d_name);
 
 		// construct directory full path
 		std::string dirPath = directory;
-		std::string dirSep = DIR_SEPARATOR;
-		if (0 != directory.compare(directory.length() - dirSep.length(), dirSep.length(),
-		                           dirSep))  // directory doesn't contain separator in the end
+		const std::string dirSep = DIR_SEPARATOR;
+		if (0 != directory.compare(directory.length() - dirSep.length(), dirSep.length(), dirSep))
+		{  // directory doesn't contain separator in the end
 			dirPath += DIR_SEPARATOR;
+		}
 		dirPath += name;
 
-		struct stat info;
+		struct stat info{};
 
 		// get file attributes
 		if (stat(dirPath.c_str(), &info) != 0)
@@ -246,12 +253,14 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 		}
 
 		// if the file is not a directory
-		if (!(info.st_mode & S_IFDIR))
+		if ((info.st_mode & S_IFDIR) == 0U)
 		{
 			// check if the file extension matches the requested extensions to search. If it does, put the file name in
 			// a list of files that should be searched (don't do the search just yet)
 			if (extensionsToSearch.find(getExtension(name)) != extensionsToSearch.end())
+			{
 				pcapList.push_back(dirPath);
+			}
 			entry = readdir(dir);
 			continue;
 		}
@@ -266,8 +275,10 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 		// if we got to here it means the file is actually a directory. If required to search sub-directories, call this
 		// method recursively to search inside this sub-directory
 		if (includeSubDirectories)
+		{
 			searchDirectories(dirPath, true, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched,
 			                  totalFilesSearched, totalPacketsFound);
+		}
 
 		// move to the next file
 		entry = readdir(dir);
@@ -283,13 +294,13 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 	for (const auto& iter : pcapList)
 	{
 		// do the actual search
-		int packetsFound = searchPcap(iter, searchCriteria, detailedReportFile);
+		const int packetsFound = searchPcap(iter, searchCriteria, detailedReportFile);
 
 		// add to total matched packets
 		totalFilesSearched++;
 		if (packetsFound > 0)
 		{
-			std::cout << packetsFound << " packets found in '" << iter << "'" << std::endl;
+			std::cout << packetsFound << " packets found in '" << iter << "'" << '\n';
 			totalPacketsFound += packetsFound;
 		}
 	}
@@ -302,13 +313,13 @@ int main(int argc, char* argv[])
 {
 	pcpp::AppName::init(argc, argv);
 
-	std::string inputDirectory = "";
+	std::string inputDirectory;
 
-	std::string searchCriteria = "";
+	std::string searchCriteria;
 
 	bool includeSubDirectories = true;
 
-	std::string detailedReportFileName = "";
+	std::string detailedReportFileName;
 
 	std::unordered_map<std::string, bool> extensionsToSearch;
 
@@ -341,7 +352,7 @@ int main(int argc, char* argv[])
 		{
 			// read the extension list into the map
 			extensionsToSearch.clear();
-			std::string extensionsListAsString = std::string(optarg);
+			const std::string extensionsListAsString = std::string(optarg);
 			std::stringstream stream(extensionsListAsString);
 			std::string extension;
 			// break comma-separated string into string list
@@ -349,7 +360,9 @@ int main(int argc, char* argv[])
 			{
 				// add the extension into the map if it doesn't already exist
 				if (extensionsToSearch.find(extension) == extensionsToSearch.end())
+				{
 					extensionsToSearch[extension] = true;
+				}
 			}
 
 			// verify list is not empty
@@ -371,12 +384,12 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (inputDirectory == "")
+	if (inputDirectory.empty())
 	{
 		EXIT_WITH_ERROR("Input directory was not given");
 	}
 
-	if (searchCriteria == "")
+	if (searchCriteria.empty())
 	{
 		EXIT_WITH_ERROR("Search criteria was not given");
 	}
@@ -397,7 +410,7 @@ int main(int argc, char* argv[])
 
 	// open the detailed report file if requested by the user
 	std::ofstream* detailedReportFile = nullptr;
-	if (detailedReportFileName != "")
+	if (!detailedReportFileName.empty())
 	{
 		detailedReportFile = new std::ofstream();
 		detailedReportFile->open(detailedReportFileName.c_str());
@@ -407,7 +420,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	std::cout << "Searching..." << std::endl;
+	std::cout << "Searching..." << '\n';
 	int totalDirSearched = 0;
 	int totalFilesSearched = 0;
 	int totalPacketsFound = 0;
@@ -417,18 +430,20 @@ int main(int argc, char* argv[])
 	                  totalDirSearched, totalFilesSearched, totalPacketsFound);
 
 	// after search is done, close the report file and delete its instance
-	std::cout << std::endl
-	          << std::endl
+	std::cout << '\n'
+	          << '\n'
 	          << "Done! Searched " << totalFilesSearched << " files in " << totalDirSearched << " directories, "
-	          << totalPacketsFound << " packets were matched to search criteria" << std::endl;
+	          << totalPacketsFound << " packets were matched to search criteria" << '\n';
 
 	if (detailedReportFile != nullptr)
 	{
 		if (detailedReportFile->is_open())
+		{
 			detailedReportFile->close();
+		}
 
 		delete detailedReportFile;
-		std::cout << "Detailed report written to '" << detailedReportFileName << "'" << std::endl;
+		std::cout << "Detailed report written to '" << detailedReportFileName << "'" << '\n';
 	}
 
 	return 0;

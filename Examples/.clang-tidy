@@ -1,0 +1,2 @@
+Checks: '-concurrency-mt-unsafe'
+InheritParentConfig: true

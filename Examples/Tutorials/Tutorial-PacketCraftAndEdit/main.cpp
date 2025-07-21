@@ -11,7 +11,7 @@
 #include "DnsLayer.h"
 #include "PcapFileDevice.h"
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 	// Packet Editing
 	// ~~~~~~~~~~~~~~
@@ -23,14 +23,14 @@ int main(int argc, char* argv[])
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)
 	{
-		std::cerr << "Cannot determine reader for file type" << std::endl;
+		std::cerr << "Cannot determine reader for file type" << '\n';
 		return 1;
 	}
 
 	// open the reader for reading
 	if (!reader->open())
 	{
-		std::cerr << "Cannot open input.pcap for reading" << std::endl;
+		std::cerr << "Cannot open input.pcap for reading" << '\n';
 		return 1;
 	}
 
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	pcpp::RawPacket rawPacket;
 	if (!reader->getNextPacket(rawPacket))
 	{
-		std::cerr << "Couldn't read the first packet in the file" << std::endl;
+		std::cerr << "Couldn't read the first packet in the file" << '\n';
 		return 1;
 	}
 

@@ -16,22 +16,22 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread
 {
 private:
 	AppWorkerConfig& m_WorkerConfig;
-	bool m_Stop;
+	bool m_Stop{ true };
 	uint32_t m_CoreId;
 
 public:
 	explicit AppWorkerThread(AppWorkerConfig& workerConfig)
-	    : m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES + 1)
+	    : m_WorkerConfig(workerConfig), m_CoreId(MAX_NUM_OF_CORES + 1)
 	{}
 
-	virtual ~AppWorkerThread()
+	~AppWorkerThread() override
 	{
 		// do nothing
 	}
 
 	// implement abstract methods
 
-	bool run(uint32_t coreId)
+	bool run(uint32_t coreId) override
 	{
 		m_CoreId = coreId;
 		m_Stop = false;
@@ -39,7 +39,7 @@ public:
 		pcpp::DpdkDevice* txDevice = m_WorkerConfig.TxDevice;
 
 		// if no DPDK devices were assigned to this worker/core don't enter the main loop and exit
-		if (!rxDevice || !txDevice)
+		if ((rxDevice == nullptr) || (txDevice == nullptr))
 		{
 			return true;
 		}
@@ -53,7 +53,7 @@ public:
 			for (uint16_t i = 0; i < m_WorkerConfig.RxQueues; i++)
 			{
 				// receive packets from network on the specified DPDK device
-				uint16_t packetsReceived = rxDevice->receivePackets(packetArr, MAX_RECEIVE_BURST, i);
+				const uint16_t packetsReceived = rxDevice->receivePackets(packetArr, MAX_RECEIVE_BURST, i);
 
 				if (packetsReceived > 0)
 				{
@@ -64,22 +64,24 @@ public:
 		}
 
 		// free packet array (frees all mbufs as well)
-		for (int i = 0; i < MAX_RECEIVE_BURST; i++)
+		for (auto& i : packetArr)
 		{
-			if (packetArr[i] != nullptr)
-				delete packetArr[i];
+			if (i != nullptr)
+			{
+				delete i;
+			}
 		}
 
 		return true;
 	}
 
-	void stop()
+	void stop() override
 	{
 		// assign the stop flag which will cause the main loop to end
 		m_Stop = true;
 	}
 
-	uint32_t getCoreId() const
+	uint32_t getCoreId() const override
 	{
 		return m_CoreId;
 	}

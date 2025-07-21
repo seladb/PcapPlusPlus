@@ -1,5 +1,6 @@
 #include <vector>
 #include <unistd.h>
+#include <iostream>
 #include <sstream>
 #include "SystemUtils.h"
 #include "DpdkDeviceList.h"

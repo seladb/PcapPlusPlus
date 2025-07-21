@@ -17,34 +17,33 @@ public:
 	/**
 	 * A c'tor for this class which gets the packet count for each split file
 	 */
-	explicit PacketCountSplitter(int maxPacketsPerFile)
-	{
-		m_PacketCount = 0;
-		m_MaxPacketsPerFile = maxPacketsPerFile;
-	}
+	explicit PacketCountSplitter(int maxPacketsPerFile) : m_PacketCount(0), m_MaxPacketsPerFile(maxPacketsPerFile)
+	{}
 
 	/**
 	 * Return the current file number if its packet count didn't reach the limit, or else return the next
 	 * file number and close the current file
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(pcpp::Packet& /*packet*/, std::vector<int>& filesToClose) override
 	{
 		// check the current file number
-		int curFile = m_PacketCount / m_MaxPacketsPerFile;
+		const int curFile = m_PacketCount / m_MaxPacketsPerFile;
 		// increment packet count
 		m_PacketCount++;
 		// check the new file number
-		int nextFile = m_PacketCount / m_MaxPacketsPerFile;
+		const int nextFile = m_PacketCount / m_MaxPacketsPerFile;
 		// if reached packet count limit, close the previous file and return the next file number
 		if (curFile != nextFile)
+		{
 			filesToClose.push_back(curFile);
+		}
 		return curFile;
 	}
 
 	/**
 	 * Make sure packet count is a positive number
 	 */
-	bool isSplitterParamLegal(std::string& errorString)
+	bool isSplitterParamLegal(std::string& errorString) override
 	{
 		if (m_MaxPacketsPerFile < 1)
 		{
@@ -73,34 +72,36 @@ public:
 	 * A c'tor for this class which gets the file size in bytes for each split file
 	 */
 	explicit FileSizeSplitter(uint64_t maxBytesPerFile)
+	    : m_TotalSize(0), m_MaxBytesPerFile(maxBytesPerFile - PCAP_FILE_HEADER_SIZE)
 	{
-		m_TotalSize = 0;
+
 		// each file size contains a pcap header with size of PCAP_FILE_HEADER_SIZE
-		m_MaxBytesPerFile = maxBytesPerFile - PCAP_FILE_HEADER_SIZE;
 	}
 
 	/**
 	 * Return the current file number if its size didn't reach the file size limit, or else return the next
 	 * file number and close the current file
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) override
 	{
 		// check the current file
-		int prevFile = m_TotalSize / m_MaxBytesPerFile;
+		const int prevFile = m_TotalSize / m_MaxBytesPerFile;
 		// add the current packet size and packet header
 		m_TotalSize += (uint64_t)packet.getRawPacket()->getRawDataLen() + PCAP_PACKET_HEADER_SIZE;
 		// calculate the new file number
-		int nextFile = m_TotalSize / m_MaxBytesPerFile;
+		const int nextFile = m_TotalSize / m_MaxBytesPerFile;
 		// if reached the maximum size per file, close the previous file
 		if (prevFile != nextFile)
+		{
 			filesToClose.push_back(prevFile);
+		}
 		return nextFile;
 	}
 
 	/**
 	 * Each file size must be at least in size of PCAP_FILE_HEADER_SIZE + PCAP_PACKET_HEADER_SIZE
 	 */
-	bool isSplitterParamLegal(std::string& errorString)
+	bool isSplitterParamLegal(std::string& errorString) override
 	{
 		if (m_MaxBytesPerFile < PCAP_PACKET_HEADER_SIZE + 1)
 		{
@@ -129,10 +130,12 @@ public:
 	/**
 	 * Return file #0 if packet matches the BPF filer, and file #1 if it's not
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(pcpp::Packet& packet, std::vector<int>& /*filesToClose*/) override
 	{
 		if (pcpp::IPcapDevice::matchPacketWithFilter(filter, packet.getRawPacket()))
+		{
 			return 0;
+		}
 		return 1;
 	}
 
@@ -140,29 +143,32 @@ public:
 	 * Re-implement Splitter's getFileName() method, clarifying which file was matched by the BPF
 	 * filter and which didn't
 	 */
-	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
+	std::string getFileName(pcpp::Packet& /*packet*/, const std::string& outputPcapBasePath, int fileNumber) override
 	{
 		if (fileNumber == 0)
+		{
 			return outputPcapBasePath + "match-bpf";
-		else
-			return outputPcapBasePath + "not-match-bpf";
+		}
+		return outputPcapBasePath + "not-match-bpf";
 	}
 
 	/**
 	 * Verifies the BPF filter set in the c'tor is a valid BPF filter
 	 */
-	bool isSplitterParamLegal(std::string& errorString)
+	bool isSplitterParamLegal(std::string& errorString) override
 	{
-		if (m_BpfFilter == "")
+		if (m_BpfFilter.empty())
 		{
 			errorString = "No BPF filter was set or set an empty one";
 			return false;
 		}
 
 		pcpp::BPFStringFilter localFilter(m_BpfFilter);
-		bool filterValid = localFilter.verifyFilter();
+		const bool filterValid = localFilter.verifyFilter();
 		if (!filterValid)
+		{
 			errorString = "BPF filter is not valid";
+		}
 
 		return filterValid;
 	}
@@ -180,7 +186,7 @@ public:
 	/**
 	 * Get the next file number, SplitterWithMaxFiles#getNextFileNumber() takes care of the round-robin method
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(pcpp::Packet& /*packet*/, std::vector<int>& filesToClose) override
 	{
 		return getNextFileNumber(filesToClose);
 	}
@@ -188,7 +194,7 @@ public:
 	/**
 	 * Number of files must be a positive integer
 	 */
-	bool isSplitterParamLegal(std::string& errorString)
+	bool isSplitterParamLegal(std::string& errorString) override
 	{
 		if (m_MaxFiles < 1)
 		{

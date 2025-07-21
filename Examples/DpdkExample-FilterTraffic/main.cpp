@@ -38,8 +38,11 @@
 #include <sstream>
 #include <unistd.h>
 
-#define DEFAULT_MBUF_POOL_SIZE 4095
-#define MAX_QUEUES 64
+enum
+{
+	DEFAULT_MBUF_POOL_SIZE = 4095,
+	MAX_QUEUES = 64
+};
 
 // clang-format off
 static struct option FilterTrafficOptions[] = {
@@ -68,53 +71,50 @@ static struct option FilterTrafficOptions[] = {
 void printUsage()
 {
 	std::cout
-	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
+	    << '\n'
+	    << "Usage:" << '\n'
+	    << "------" << '\n'
 	    << pcpp::AppName::get()
-	    << " [-hvl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]"
-	    << std::endl
+	    << " [-hvl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]" << '\n'
 	    << "                  [-c CORE_MASK] [-m POOL_SIZE] [-r NUM_QUEUES] [-t NUM_QUEUES] -d PORT_1,PORT_3,...,PORT_N"
-	    << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    -h|--help                                  : Displays this help message and exits" << std::endl
-	    << "    -v|--version                               : Displays the current version and exits" << std::endl
-	    << "    -l|--list                                  : Print the list of DPDK ports and exists" << std::endl
+	    << '\n'
+	    << '\n'
+	    << "Options:" << '\n'
+	    << '\n'
+	    << "    -h|--help                                  : Displays this help message and exits" << '\n'
+	    << "    -v|--version                               : Displays the current version and exits" << '\n'
+	    << "    -l|--list                                  : Print the list of DPDK ports and exists" << '\n'
 	    << "    -d|--dpdk-ports PORT_1,PORT_3,...,PORT_N   : A comma-separated list of DPDK port numbers to receive"
-	    << std::endl
+	    << '\n'
 	    << "                                                 packets from. To see all available DPDK ports use the -l "
 	       "switch"
-	    << std::endl
-	    << "    -s|--send-matched-packets PORT             : DPDK port to send matched packets to" << std::endl
+	    << '\n'
+	    << "    -s|--send-matched-packets PORT             : DPDK port to send matched packets to" << '\n'
 	    << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH. Packets"
-	    << std::endl
+	    << '\n'
 	    << "                                                 matched by core X will be saved under "
 	       "'FILEPATH/CoreX.pcap'"
-	    << std::endl
-	    << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
-	    << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
-	    << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
-	    << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-	    << "    -o|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
-	    << std::endl
-	    << "    -c|--core-mask            CORE_MASK        : Core mask of cores to use." << std::endl
+	    << '\n'
+	    << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << '\n'
+	    << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << '\n'
+	    << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << '\n'
+	    << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << '\n'
+	    << "    -o|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'" << '\n'
+	    << "    -c|--core-mask            CORE_MASK        : Core mask of cores to use." << '\n'
 	    << "                                                 For example: use 7 (binary 0111) to use cores 0,1,2."
-	    << std::endl
-	    << "                                                 Default is using all cores except management core"
-	    << std::endl
-	    << "    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with." << std::endl
-	    << "                                                 Default value is 4095" << std::endl
+	    << '\n'
+	    << "                                                 Default is using all cores except management core" << '\n'
+	    << "    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with." << '\n'
+	    << "                                                 Default value is 4095" << '\n'
 	    << "    -r|--rx-queues            NUM_QUEUES       : Number of RX queues to open. Cannot exceed the max "
 	       "allowed by the NIC or "
-	    << MAX_QUEUES << std::endl
-	    << "                                                 The default is 1" << std::endl
+	    << MAX_QUEUES << '\n'
+	    << "                                                 The default is 1" << '\n'
 	    << "    -t|--tx-queues            NUM_QUEUES       : Number of TX queues to open. Cannot exceed the max "
 	       "allowed by the NIC or "
-	    << MAX_QUEUES << std::endl
-	    << "                                                 The default is 1" << std::endl
-	    << std::endl;
+	    << MAX_QUEUES << '\n'
+	    << "                                                 The default is 1" << '\n'
+	    << '\n';
 }
 
 /**
@@ -122,9 +122,9 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << '\n'
+	          << "Built: " << pcpp::getBuildDateTime() << '\n'
+	          << "Built from: " << pcpp::getGitInfo() << '\n';
 	exit(0);
 }
 
@@ -133,7 +133,7 @@ void printAppVersion()
  */
 void listDpdkPorts()
 {
-	pcpp::CoreMask coreMaskToUse = pcpp::getCoreMaskForAllMachineCores();
+	const pcpp::CoreMask coreMaskToUse = pcpp::getCoreMaskForAllMachineCores();
 
 	// initialize DPDK
 	if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, DEFAULT_MBUF_POOL_SIZE))
@@ -141,17 +141,17 @@ void listDpdkPorts()
 		EXIT_WITH_ERROR("couldn't initialize DPDK");
 	}
 
-	std::cout << "DPDK port list:" << std::endl;
+	std::cout << "DPDK port list:" << '\n';
 
 	// go over all available DPDK devices and print info for each one
-	std::vector<pcpp::DpdkDevice*> deviceList = pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
+	const std::vector<pcpp::DpdkDevice*> deviceList = pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
 	for (const auto& dev : deviceList)
 	{
 		std::cout << "   "
 		          << " Port #" << dev->getDeviceId() << ":"
 		          << " MAC address='" << dev->getMacAddress() << "';"
 		          << " PCI address='" << dev->getPciAddress() << "';"
-		          << " PMD='" << dev->getPMDName() << "'" << std::endl;
+		          << " PMD='" << dev->getPMDName() << "'" << '\n';
 	}
 }
 
@@ -162,7 +162,8 @@ void listDpdkPorts()
 void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
                               std::vector<pcpp::SystemCore>& coresToUse, bool writePacketsToDisk,
                               const std::string& packetFilePath, pcpp::DpdkDevice* sendPacketsTo,
-                              std::vector<AppWorkerConfig>& workerConfigArr, int workerConfigArrLen, uint16_t rxQueues)
+                              std::vector<AppWorkerConfig>& workerConfigArr, int /*workerConfigArrLen*/,
+                              uint16_t rxQueues)
 {
 	// create a list of pairs of DpdkDevice and RX queues for all RX queues in all requested devices
 	int totalNumOfRxQueues = 0;
@@ -171,7 +172,7 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 	{
 		for (int rxQueueIndex = 0; rxQueueIndex < rxQueues; rxQueueIndex++)
 		{
-			std::pair<pcpp::DpdkDevice*, int> curPair(iter, rxQueueIndex);
+			const std::pair<pcpp::DpdkDevice*, int> curPair(iter, rxQueueIndex);
 			deviceAndRxQVec.push_back(curPair);
 		}
 		totalNumOfRxQueues += rxQueues;
@@ -179,15 +180,15 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 
 	// calculate how many RX queues each core will read packets from. We divide the total number of RX queues with total
 	// number of core
-	int numOfRxQueuesPerCore = totalNumOfRxQueues / coresToUse.size();
+	const int numOfRxQueuesPerCore = totalNumOfRxQueues / coresToUse.size();
 	int rxQueuesRemainder = totalNumOfRxQueues % coresToUse.size();
 
 	// prepare the configuration for every core: divide the devices and RX queue for each device with the various cores
 	int i = 0;
-	std::vector<std::pair<pcpp::DpdkDevice*, int>>::iterator pairVecIter = deviceAndRxQVec.begin();
+	auto pairVecIter = deviceAndRxQVec.begin();
 	for (const auto& core : coresToUse)
 	{
-		std::cout << "Using core " << (int)core.Id << std::endl;
+		std::cout << "Using core " << (int)core.Id << '\n';
 		workerConfigArr[i].coreId = core.Id;
 		workerConfigArr[i].writeMatchedPacketsToFile = writePacketsToDisk;
 
@@ -199,7 +200,9 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 		for (int rxQIndex = 0; rxQIndex < numOfRxQueuesPerCore; rxQIndex++)
 		{
 			if (pairVecIter == deviceAndRxQVec.end())
+			{
 				break;
+			}
 			workerConfigArr[i].inDataCfg[pairVecIter->first].push_back(pairVecIter->second);
 			++pairVecIter;
 		}
@@ -211,7 +214,7 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 		}
 
 		// print configuration for core
-		std::cout << "   Core configuration:" << std::endl;
+		std::cout << "   Core configuration:" << '\n';
 		for (const auto& iter2 : workerConfigArr[i].inDataCfg)
 		{
 			std::cout << "      DPDK device#" << iter2.first->getDeviceId() << ": ";
@@ -219,11 +222,11 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 			{
 				std::cout << "RX-Queue#" << iter3 << ";  ";
 			}
-			std::cout << std::endl;
+			std::cout << '\n';
 		}
-		if (workerConfigArr[i].inDataCfg.size() == 0)
+		if (workerConfigArr[i].inDataCfg.empty())
 		{
-			std::cout << "      None" << std::endl;
+			std::cout << "      None" << '\n';
 		}
 		i++;
 	}
@@ -231,11 +234,10 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 
 struct FilterTrafficArgs
 {
-	bool shouldStop;
-	std::vector<pcpp::DpdkWorkerThread*>* workerThreadsVector;
+	bool shouldStop{ false };
+	std::vector<pcpp::DpdkWorkerThread*>* workerThreadsVector{ nullptr };
 
-	FilterTrafficArgs() : shouldStop(false), workerThreadsVector(nullptr)
-	{}
+	FilterTrafficArgs() = default;
 };
 
 /**
@@ -243,8 +245,8 @@ struct FilterTrafficArgs
  */
 void printStats(const PacketStats& threadStats, const std::string& columnName)
 {
-	std::vector<std::string> columnNames = { columnName, "Count" };
-	std::vector<int> columnsWidths = { 21, 10 };
+	const std::vector<std::string> columnNames = { columnName, "Count" };
+	const std::vector<int> columnsWidths = { 21, 10 };
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	printer.printRow("Eth count|" + std::to_string(threadStats.ethCount), '|');
@@ -269,9 +271,9 @@ void printStats(const PacketStats& threadStats, const std::string& columnName)
  */
 void onApplicationInterrupted(void* cookie)
 {
-	FilterTrafficArgs* args = (FilterTrafficArgs*)cookie;
+	auto* args = (FilterTrafficArgs*)cookie;
 
-	std::cout << std::endl << std::endl << "Application stopped" << std::endl;
+	std::cout << '\n' << '\n' << "Application stopped" << '\n';
 
 	// stop worker threads
 	pcpp::DpdkDeviceList::getInstance().stopDpdkWorkerThreads();
@@ -281,8 +283,8 @@ void onApplicationInterrupted(void* cookie)
 	std::vector<PacketStats> threadStatsVec;
 	for (const auto& iter : *(args->workerThreadsVector))
 	{
-		AppWorkerThread* thread = (AppWorkerThread*)(iter);
-		PacketStats threadStats = thread->getStats();
+		auto* thread = dynamic_cast<AppWorkerThread*>(iter);
+		const PacketStats threadStats = thread->getStats();
 		aggregatedStats.collectStats(threadStats);
 		threadStatsVec.push_back(threadStats);
 		delete thread;
@@ -294,12 +296,12 @@ void onApplicationInterrupted(void* cookie)
 		// no need to print table if no packets were received
 		if (threadStats.packetCount == 0)
 		{
-			std::cout << "Core #" << std::to_string(threadStats.workerId) << " - no packets received" << std::endl;
+			std::cout << "Core #" << std::to_string(threadStats.workerId) << " - no packets received" << '\n';
 			continue;
 		}
 
 		printStats(threadStats, "Core #" + std::to_string(threadStats.workerId) + " Stat");
-		std::cout << std::endl;
+		std::cout << '\n';
 	}
 
 	// print aggregated stats if packets were received
@@ -324,14 +326,14 @@ int main(int argc, char* argv[])
 
 	bool writePacketsToDisk = false;
 
-	std::string packetFilePath = "";
+	std::string packetFilePath;
 
 	pcpp::CoreMask coreMaskToUse = pcpp::getCoreMaskForAllMachineCores();
 
 	int sendPacketsToPort = -1;
 
 	int optionIndex = 0;
-	int opt;
+	int opt = 0;
 
 	uint32_t mBufPoolSize = DEFAULT_MBUF_POOL_SIZE;
 
@@ -354,14 +356,14 @@ int main(int argc, char* argv[])
 		}
 		case 'd':
 		{
-			std::string portListAsString = std::string(optarg);
+			const std::string portListAsString = std::string(optarg);
 			std::stringstream stream(portListAsString);
 			std::string portAsString;
-			int port;
+			int port = 0;
 			// break comma-separated string into string list
 			while (getline(stream, portAsString, ','))
 			{
-				char c;
+				char c = 0;
 				std::stringstream stream2(portAsString);
 				stream2 >> port;
 				if (stream2.fail() || stream2.get(c))
@@ -430,7 +432,7 @@ int main(int argc, char* argv[])
 		}
 		case 'p':
 		{
-			int ret = atoi(optarg);
+			const int ret = atoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
@@ -440,7 +442,7 @@ int main(int argc, char* argv[])
 		}
 		case 'P':
 		{
-			int ret = atoi(optarg);
+			const int ret = atoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
@@ -450,11 +452,15 @@ int main(int argc, char* argv[])
 		}
 		case 'o':
 		{
-			std::string protocol = std::string(optarg);
+			const std::string protocol = std::string(optarg);
 			if (protocol == "TCP")
+			{
 				protocolToMatch = pcpp::TCP;
+			}
 			else if (protocol == "UDP")
+			{
 				protocolToMatch = pcpp::UDP;
+			}
 			else
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");
@@ -571,12 +577,12 @@ int main(int argc, char* argv[])
 		}
 		std::cout << "Opened device #" << dev->getDeviceId() << " with " << rxQueues << " RX queues and " << txQueues
 		          << " TX queues."
-		          << " RSS hash functions:" << std::endl;
-		std::vector<std::string> rssHashFunctions =
+		          << " RSS hash functions:" << '\n';
+		const std::vector<std::string> rssHashFunctions =
 		    dev->rssHashFunctionMaskToString(dev->getConfiguredRssHashFunction());
 		for (const auto& hashFunc : rssHashFunctions)
 		{
-			std::cout << "   " << hashFunc << std::endl;
+			std::cout << "   " << hashFunc << '\n';
 		}
 	}
 
@@ -599,7 +605,7 @@ int main(int argc, char* argv[])
 	int i = 0;
 	for (auto iter = coresToUse.begin(); iter != coresToUse.end(); ++iter)
 	{
-		AppWorkerThread* newWorker = new AppWorkerThread(workerConfigArr[i], matchingEngine);
+		auto* newWorker = new AppWorkerThread(workerConfigArr[i], matchingEngine);
 		workerThreadVec.push_back(newWorker);
 		i++;
 	}

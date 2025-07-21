@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-static std::string pcapFileName = "";
+static std::string pcapFileName;
 
 static void BM_PcapFileRead(benchmark::State& state)
 {
@@ -126,7 +126,7 @@ static void BM_PacketParsing(benchmark::State& state)
 		}
 
 		// Parse packet
-		pcpp::Packet parsedPacket(&rawPacket);
+		const pcpp::Packet parsedPacket(&rawPacket);
 
 		// Use parsedPacket to prevent compiler optimizations
 		assert(parsedPacket.getFirstLayer());
@@ -149,32 +149,34 @@ static void BM_PacketCrafting(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		uint8_t randNum = static_cast<uint8_t>(rand() % 256);
+		const auto randNum = static_cast<uint8_t>(rand() % 256);
 
 		pcpp::Packet packet;
 
 		// Generate random MAC addresses
-		pcpp::MacAddress srcMac(randNum, randNum, randNum, randNum, randNum, randNum);
-		pcpp::MacAddress dstMac(randNum, randNum, randNum, randNum, randNum, randNum);
+		const pcpp::MacAddress srcMac(randNum, randNum, randNum, randNum, randNum, randNum);
+		const pcpp::MacAddress dstMac(randNum, randNum, randNum, randNum, randNum, randNum);
 		packet.addLayer(new pcpp::EthLayer(srcMac, dstMac), true);
 
 		// Randomly choose between IPv4 and IPv6
-		if (randNum % 2)
+		if ((randNum % 2) != 0)
 		{
 			packet.addLayer(new pcpp::IPv4Layer(randNum, randNum), true);
 		}
 		else
 		{
-			std::array<uint8_t, 16> srcIP = { randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum,
-				                              randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum };
-			std::array<uint8_t, 16> dstIP = { randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum,
-				                              randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum };
+			const std::array<uint8_t, 16> srcIP = { randNum, randNum, randNum, randNum, randNum, randNum,
+				                                    randNum, randNum, randNum, randNum, randNum, randNum,
+				                                    randNum, randNum, randNum, randNum };
+			const std::array<uint8_t, 16> dstIP = { randNum, randNum, randNum, randNum, randNum, randNum,
+				                                    randNum, randNum, randNum, randNum, randNum, randNum,
+				                                    randNum, randNum, randNum, randNum };
 
 			packet.addLayer(new pcpp::IPv6Layer(srcIP, dstIP), true);
 		}
 
 		// Randomly choose between TCP and UDP
-		if (randNum % 2)
+		if ((randNum % 2) != 0)
 		{
 			packet.addLayer(new pcpp::TcpLayer(randNum % 65536, randNum % 65536), true);
 		}
@@ -209,7 +211,7 @@ int main(int argc, char** argv)
 		{
 			if (idx == argc - 1)
 			{
-				std::cerr << "Please provide a pcap file name after --pcap-file" << std::endl;
+				std::cerr << "Please provide a pcap file name after --pcap-file" << '\n';
 				return 1;
 			}
 
@@ -220,7 +222,7 @@ int main(int argc, char** argv)
 
 	if (pcapFileName.empty())
 	{
-		std::cerr << "Please provide a pcap file name using --pcap-file" << std::endl;
+		std::cerr << "Please provide a pcap file name using --pcap-file" << '\n';
 		return 1;
 	}
 

@@ -77,29 +77,27 @@ private:
 	/**
 	 * A private c'tor (as this is a singleton)
 	 */
-	GlobalConfig()
-	    : m_RecentConnsWithActivity(nullptr), writeMetadata(false), writeToConsole(false), separateSides(false),
-	      maxOpenFiles(DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
+	GlobalConfig() : maxOpenFiles(DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
 	{}
 
 	// A least-recently-used (LRU) list of all connections seen so far. Each connection is represented by its flow key.
 	// This LRU list is used to decide which connection was seen least recently in case we reached max number of open
 	// file descriptors and we need to decide which files to close
-	pcpp::LRUList<uint32_t>* m_RecentConnsWithActivity;
+	pcpp::LRUList<uint32_t>* m_RecentConnsWithActivity{ nullptr };
 
 public:
 	// a flag indicating whether to write a metadata file for each connection (containing several stats)
-	bool writeMetadata;
+	bool writeMetadata{ false };
 
 	// the directory to write files to (default is current directory)
 	std::string outputDir;
 
 	// a flag indicating whether to write TCP data to actual files or to console
-	bool writeToConsole;
+	bool writeToConsole{ false };
 
 	// a flag indicating whether to write both side of a connection to the same file (which is the default) or write
 	// each side to a separate file
-	bool separateSides;
+	bool separateSides{ false };
 
 	// max number of allowed open files in each point in time
 	size_t maxOpenFiles;
@@ -115,7 +113,9 @@ public:
 		// if user chooses to write to a directory other than the current directory - add the dir path to the return
 		// value
 		if (!outputDir.empty())
+		{
 			stream << outputDir << SEPARATOR;
+		}
 
 		std::string sourceIP = connData.srcIP.toString();
 		std::string destIP = connData.dstIP.toString();
@@ -126,9 +126,13 @@ public:
 
 		// side == 0 means data is sent from client->server
 		if (side <= 0 || !useSeparateSides)
+		{
 			stream << sourceIP << '.' << connData.srcPort << '-' << destIP << '.' << connData.dstPort;
-		else  // side == 1 means data is sent from server->client
+		}
+		else
+		{  // side == 1 means data is sent from server->client
 			stream << destIP << '.' << connData.dstPort << '-' << sourceIP << '.' << connData.srcPort;
+		}
 
 		// return the file path
 		return stream.str();
@@ -142,13 +146,16 @@ public:
 	{
 		// if the user chooses to write only to console, don't open anything and return std::cout
 		if (writeToConsole)
+		{
 			return &std::cout;
+		}
 
 		// open the file on the disk (with append or overwrite mode)
 		if (reopen)
+		{
 			return new std::ofstream(fileName.c_str(), std::ios_base::binary | std::ios_base::app);
-		else
-			return new std::ofstream(fileName.c_str(), std::ios_base::binary);
+		}
+		return new std::ofstream(fileName.c_str(), std::ios_base::binary);
 	}
 
 	/**
@@ -160,7 +167,7 @@ public:
 		if (!writeToConsole)
 		{
 			// close the file stream
-			auto fstream = (std::ofstream*)fileStream;
+			auto* fstream = dynamic_cast<std::ofstream*>(fileStream);
 			fstream->close();
 
 			// free the memory of the file stream
@@ -177,7 +184,9 @@ public:
 		// the side of the LRU list is determined by the max number of allowed open files at any point in time. Default
 		// is DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES but the user can choose another number
 		if (m_RecentConnsWithActivity == nullptr)
+		{
 			m_RecentConnsWithActivity = new pcpp::LRUList<uint32_t>(maxOpenFiles);
+		}
 
 		// return the pointer
 		return m_RecentConnsWithActivity;
@@ -209,19 +218,19 @@ struct TcpReassemblyData
 {
 	// pointer to 2 file stream - one for each side of the connection. If the user chooses to write both sides to the
 	// same file (which is the default), only one file stream is used (index 0)
-	std::ostream* fileStreams[2];
+	std::ostream* fileStreams[2]{};
 
 	// flags indicating whether the file in each side was already opened before. If the answer is yes, next time it'll
 	// be opened in append mode (and not in overwrite mode)
-	bool reopenFileStreams[2];
+	bool reopenFileStreams[2]{};
 
 	// a flag indicating on which side was the latest message on this connection
-	int8_t curSide;
+	int8_t curSide{};
 
 	// stats data: num of data packets on each side, bytes seen on each side and messages seen on each side
-	int numOfDataPackets[2];
-	int numOfMessagesFromSide[2];
-	int bytesFromSide[2];
+	int numOfDataPackets[2]{};
+	int numOfMessagesFromSide[2]{};
+	int bytesFromSide[2]{};
 
 	/**
 	 * the default c'tor
@@ -240,10 +249,14 @@ struct TcpReassemblyData
 	{
 		// close files on both sides if open
 		if (fileStreams[0] != nullptr)
+		{
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[0]);
+		}
 
 		if (fileStreams[1] != nullptr)
+		{
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[1]);
+		}
 	}
 
 	/**
@@ -277,40 +290,40 @@ struct TcpReassemblyData
 };
 
 // typedef representing the connection manager
-typedef std::unordered_map<uint32_t, TcpReassemblyData> TcpReassemblyConnMgr;
+using TcpReassemblyConnMgr = std::unordered_map<uint32_t, TcpReassemblyData>;
 
 /**
  * Print application usage
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
+	std::cout << '\n'
+	          << "Usage:" << '\n'
+	          << "------" << '\n'
 	          << pcpp::AppName::get()
-	          << " [-hvlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
+	          << " [-hvlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]" << '\n'
+	          << '\n'
+	          << "Options:" << '\n'
+	          << '\n'
 	          << "    -r input_file : Input pcap/pcapng file to analyze. Required argument for reading from file"
-	          << std::endl
+	          << '\n'
 	          << "    -i interface  : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
 	             "address. Required argument for capturing from live interface"
-	          << std::endl
-	          << "    -o output_dir : Specify output directory (default is '.')" << std::endl
+	          << '\n'
+	          << "    -o output_dir : Specify output directory (default is '.')" << '\n'
 	          << "    -e bpf_filter : Apply a BPF filter to capture file or live interface, meaning TCP reassembly "
 	             "will only work on filtered packets"
-	          << std::endl
-	          << "    -f max_files  : Maximum number of file descriptors to use" << std::endl
-	          << "    -c            : Write all output to console (nothing will be written to files)" << std::endl
-	          << "    -m            : Write a metadata file for each connection" << std::endl
+	          << '\n'
+	          << "    -f max_files  : Maximum number of file descriptors to use" << '\n'
+	          << "    -c            : Write all output to console (nothing will be written to files)" << '\n'
+	          << "    -m            : Write a metadata file for each connection" << '\n'
 	          << "    -s            : Write each side of each connection to a separate file (default is writing both "
 	             "sides of each connection to the same file)"
-	          << std::endl
-	          << "    -l            : Print the list of interfaces and exit" << std::endl
-	          << "    -v            : Display the current version and exit" << std::endl
-	          << "    -h            : Display this help message and exit" << std::endl
-	          << std::endl;
+	          << '\n'
+	          << "    -l            : Print the list of interfaces and exit" << '\n'
+	          << "    -v            : Display the current version and exit" << '\n'
+	          << "    -h            : Display this help message and exit" << '\n'
+	          << '\n';
 }
 
 /**
@@ -318,9 +331,9 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << '\n'
+	          << "Built: " << pcpp::getBuildDateTime() << '\n'
+	          << "Built from: " << pcpp::getGitInfo() << '\n';
 	exit(0);
 }
 
@@ -331,12 +344,12 @@ void listInterfaces()
 {
 	auto const& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	std::cout << std::endl << "Network interfaces:" << std::endl;
+	std::cout << '\n' << "Network interfaces:" << '\n';
 
-	for (auto dev : devList)
+	for (auto* dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-		          << std::endl;
+		          << '\n';
 	}
 	exit(0);
 }
@@ -347,7 +360,7 @@ void listInterfaces()
 static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::TcpStreamData& tcpData, void* userCookie)
 {
 	// extract the connection manager from the user cookie
-	auto connMgr = (TcpReassemblyConnMgr*)userCookie;
+	auto* connMgr = (TcpReassemblyConnMgr*)userCookie;
 
 	// check if this flow already appears in the connection manager. If not add it
 	auto flow = connMgr->find(tcpData.getConnectionData().flowKey);
@@ -357,14 +370,18 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 		flow = connMgr->find(tcpData.getConnectionData().flowKey);
 	}
 
-	int8_t side;
+	int8_t side = 0;
 
 	// if the user wants to write each side in a different file - set side as the sideIndex, otherwise write everything
 	// to the same file ("side 0")
 	if (GlobalConfig::getInstance().separateSides)
+	{
 		side = sideIndex;
+	}
 	else
+	{
 		side = 0;
+	}
 
 	// if the file stream on the relevant side isn't open yet (meaning it's the first data on this connection)
 	if (flow->second.fileStreams[side] == nullptr)
@@ -372,9 +389,9 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 		// add the flow key of this connection to the list of open connections. If the return value isn't nullptr it
 		// means that there are too many open files and we need to close the connection with least recently used file(s)
 		// in order to open a new one. The connection with the least recently used file is the return value
-		uint32_t flowKeyToCloseFiles;
-		int result = GlobalConfig::getInstance().getRecentConnsWithActivity()->put(tcpData.getConnectionData().flowKey,
-		                                                                           &flowKeyToCloseFiles);
+		uint32_t flowKeyToCloseFiles = 0;
+		const int result = GlobalConfig::getInstance().getRecentConnsWithActivity()->put(
+		    tcpData.getConnectionData().flowKey, &flowKeyToCloseFiles);
 
 		// if result equals to 1 it means we need to close the open files in this connection (the one with the least
 		// recently used files)
@@ -403,7 +420,7 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 
 		// clang-format off
 		// get the file name according to the 5-tuple etc.
-		std::string fileName = GlobalConfig::getInstance().getFileName(tcpData.getConnectionData(), sideIndex, GlobalConfig::getInstance().separateSides)
+		const std::string fileName = GlobalConfig::getInstance().getFileName(tcpData.getConnectionData(), sideIndex, GlobalConfig::getInstance().separateSides)
 		                       + ".txt";
 		// clang-format on
 
@@ -438,7 +455,7 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 static void tcpReassemblyConnectionStartCallback(const pcpp::ConnectionData& connectionData, void* userCookie)
 {
 	// get a pointer to the connection manager
-	auto connMgr = (TcpReassemblyConnMgr*)userCookie;
+	auto* connMgr = (TcpReassemblyConnMgr*)userCookie;
 
 	// look for the connection in the connection manager
 	auto connectionMngr = connMgr->find(connectionData.flowKey);
@@ -456,37 +473,38 @@ static void tcpReassemblyConnectionStartCallback(const pcpp::ConnectionData& con
  * connection from the connection manager and writes the metadata file if requested by the user
  */
 static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& connectionData,
-                                               pcpp::TcpReassembly::ConnectionEndReason reason, void* userCookie)
+                                               pcpp::TcpReassembly::ConnectionEndReason /*reason*/, void* userCookie)
 {
 	// get a pointer to the connection manager
-	auto connMgr = (TcpReassemblyConnMgr*)userCookie;
+	auto* connMgr = (TcpReassemblyConnMgr*)userCookie;
 
 	// find the connection in the connection manager by the flow key
 	auto connection = connMgr->find(connectionData.flowKey);
 
 	// connection wasn't found - shouldn't get here
 	if (connection == connMgr->end())
+	{
 		return;
+	}
 
 	// write a metadata file if required by the user
 	if (GlobalConfig::getInstance().writeMetadata)
 	{
-		std::string fileName = GlobalConfig::getInstance().getFileName(connectionData, 0, false) + "-metadata.txt";
+		const std::string fileName =
+		    GlobalConfig::getInstance().getFileName(connectionData, 0, false) + "-metadata.txt";
 		std::ofstream metadataFile(fileName.c_str());
-		metadataFile << "Number of data packets in side 0:  " << connection->second.numOfDataPackets[0] << std::endl;
-		metadataFile << "Number of data packets in side 1:  " << connection->second.numOfDataPackets[1] << std::endl;
+		metadataFile << "Number of data packets in side 0:  " << connection->second.numOfDataPackets[0] << '\n';
+		metadataFile << "Number of data packets in side 1:  " << connection->second.numOfDataPackets[1] << '\n';
 		metadataFile << "Total number of data packets:      "
-		             << (connection->second.numOfDataPackets[0] + connection->second.numOfDataPackets[1]) << std::endl;
-		metadataFile << std::endl;
-		metadataFile << "Number of bytes in side 0:         " << connection->second.bytesFromSide[0] << std::endl;
-		metadataFile << "Number of bytes in side 1:         " << connection->second.bytesFromSide[1] << std::endl;
+		             << (connection->second.numOfDataPackets[0] + connection->second.numOfDataPackets[1]) << '\n';
+		metadataFile << '\n';
+		metadataFile << "Number of bytes in side 0:         " << connection->second.bytesFromSide[0] << '\n';
+		metadataFile << "Number of bytes in side 1:         " << connection->second.bytesFromSide[1] << '\n';
 		metadataFile << "Total number of bytes:             "
-		             << (connection->second.bytesFromSide[0] + connection->second.bytesFromSide[1]) << std::endl;
-		metadataFile << std::endl;
-		metadataFile << "Number of messages in side 0:      " << connection->second.numOfMessagesFromSide[0]
-		             << std::endl;
-		metadataFile << "Number of messages in side 1:      " << connection->second.numOfMessagesFromSide[1]
-		             << std::endl;
+		             << (connection->second.bytesFromSide[0] + connection->second.bytesFromSide[1]) << '\n';
+		metadataFile << '\n';
+		metadataFile << "Number of messages in side 0:      " << connection->second.numOfMessagesFromSide[0] << '\n';
+		metadataFile << "Number of messages in side 1:      " << connection->second.numOfMessagesFromSide[1] << '\n';
 		metadataFile.close();
 	}
 
@@ -506,10 +524,10 @@ static void onApplicationInterrupted(void* cookie)
 /**
  * packet capture callback - called whenever a packet arrives on the live device (in live device capturing mode)
  */
-static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* tcpReassemblyCookie)
+static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* /*dev*/, void* tcpReassemblyCookie)
 {
 	// get a pointer to the TCP reassembly instance and feed the packet arrived to it
-	auto tcpReassembly = (pcpp::TcpReassembly*)tcpReassemblyCookie;
+	auto* tcpReassembly = (pcpp::TcpReassembly*)tcpReassemblyCookie;
 	tcpReassembly->reassemblePacket(packet);
 }
 
@@ -524,16 +542,20 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName, pcpp::TcpReassembly&
 
 	// try to open the file device
 	if (!reader->open())
+	{
 		EXIT_WITH_ERROR("Cannot open pcap/pcapng file");
+	}
 
 	// set BPF filter if set by the user
 	if (!bpfFilter.empty())
 	{
 		if (!reader->setFilter(bpfFilter))
+		{
 			EXIT_WITH_ERROR("Cannot set BPF filter to pcap file");
+		}
 	}
 
-	std::cout << "Starting reading '" << fileName << "'..." << std::endl;
+	std::cout << "Starting reading '" << fileName << "'..." << '\n';
 
 	// run in a loop that reads one packet from the file in each iteration and feeds it to the TCP reassembly instance
 	pcpp::RawPacket rawPacket;
@@ -543,7 +565,7 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName, pcpp::TcpReassembly&
 	}
 
 	// extract number of connections before closing all of them
-	size_t numOfConnectionsProcessed = tcpReassembly.getConnectionInformation().size();
+	const size_t numOfConnectionsProcessed = tcpReassembly.getConnectionInformation().size();
 
 	// after all packets have been read - close the connections which are still opened
 	tcpReassembly.closeAllConnections();
@@ -552,7 +574,7 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName, pcpp::TcpReassembly&
 	reader->close();
 	delete reader;
 
-	std::cout << "Done! processed " << numOfConnectionsProcessed << " connections" << std::endl;
+	std::cout << "Done! processed " << numOfConnectionsProcessed << " connections" << '\n';
 }
 
 /**
@@ -563,16 +585,20 @@ void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly
 {
 	// try to open device
 	if (!dev->open())
+	{
 		EXIT_WITH_ERROR("Cannot open interface");
+	}
 
 	// set BPF filter if set by the user
 	if (!bpfFilter.empty())
 	{
 		if (!dev->setFilter(bpfFilter))
+		{
 			EXIT_WITH_ERROR("Cannot set BPF filter to interface");
+		}
 	}
 
-	std::cout << "Starting packet capture on '" << dev->getIPv4Address() << "'..." << std::endl;
+	std::cout << "Starting packet capture on '" << dev->getIPv4Address() << "'..." << '\n';
 
 	// start capturing packets. Each packet arrived will be handled by onPacketArrives method
 	dev->startCapture(onPacketArrives, &tcpReassembly);
@@ -583,7 +609,9 @@ void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly
 
 	// run in an endless loop until the user presses ctrl+c
 	while (!shouldStop)
+	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 
 	// stop capturing and close the live device
 	dev->stopCapture();
@@ -592,7 +620,7 @@ void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly
 	// close all connections which are still opened
 	tcpReassembly.closeAllConnections();
 
-	std::cout << "Done! processed " << tcpReassembly.getConnectionInformation().size() << " connections" << std::endl;
+	std::cout << "Done! processed " << tcpReassembly.getConnectionInformation().size() << " connections" << '\n';
 }
 
 /**
@@ -612,7 +640,7 @@ int main(int argc, char* argv[])
 	size_t maxOpenFiles = DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES;
 
 	int optionIndex = 0;
-	int opt;
+	int opt = 0;
 
 	while ((opt = getopt_long(argc, argv, "i:r:o:e:f:mcsvhl", TcpAssemblyOptions, &optionIndex)) != -1)
 	{
@@ -661,11 +689,15 @@ int main(int argc, char* argv[])
 
 	// if no interface nor input pcap file were provided - exit with error
 	if (inputPcapFileName.empty() && interfaceNameOrIP.empty())
+	{
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
+	}
 
 	// verify output dir exists
 	if (!outputDir.empty() && !pcpp::directoryExists(outputDir))
+	{
 		EXIT_WITH_ERROR("Output directory doesn't exist");
+	}
 
 	// set global config singleton with input configuration
 	GlobalConfig::getInstance().outputDir = outputDir;
@@ -691,7 +723,9 @@ int main(int argc, char* argv[])
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
+		}
 
 		// start capturing packets and do TCP reassembly
 		doTcpReassemblyOnLiveTraffic(dev, tcpReassembly, bpfFilter);

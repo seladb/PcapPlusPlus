@@ -41,18 +41,17 @@ public:
 	 * first packet that will be written to this file. The default implementation is the following:
 	 * ' /requested-path/original-file-name-[4-digit-number-starting-at-0000].pcap'
 	 */
-	virtual std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
+	virtual std::string getFileName(pcpp::Packet& /*packet*/, const std::string& outputPcapBasePath, int fileNumber)
 	{
 		std::ostringstream sstream;
 		sstream << std::setw(4) << std::setfill('0') << fileNumber;
-		return outputPcapBasePath.c_str() + sstream.str();
+		return outputPcapBasePath + sstream.str();
 	}
 
 	/**
 	 * A virtual d'tor
 	 */
-	virtual ~Splitter()
-	{}
+	virtual ~Splitter() = default;
 };
 
 /**
@@ -83,9 +82,11 @@ protected:
 	 */
 	void writingToFile(int fileNum, std::vector<int>& filesToClose)
 	{
-		int fileToClose;
+		int fileToClose = 0;
 		if (m_LRUFileList.put(fileNum, &fileToClose) == 1)
+		{
 			filesToClose.push_back(fileToClose);
+		}
 	}
 
 	/**
@@ -101,7 +102,9 @@ protected:
 
 		// zero or negative m_MaxFiles means no limit
 		if (m_MaxFiles <= 0)
+		{
 			nextFile = m_NextFile++;
+		}
 		else  // m_MaxFiles is positive, meaning there is a output file limit
 		{
 			nextFile = (m_NextFile) % m_MaxFiles;
@@ -109,7 +112,7 @@ protected:
 		}
 
 		// put the next file in the LRU list
-		int fileToClose;
+		int fileToClose = 0;
 		if (m_LRUFileList.put(nextFile, &fileToClose) == 1)
 		{
 			// if a file is pulled out of the LRU list - return it
@@ -123,11 +126,8 @@ protected:
 	 * UNLIMITED_FILES_MAGIC_NUMBER, it's considered there's no output files limit
 	 */
 	explicit SplitterWithMaxFiles(int maxFiles, int firstFileNumber = 0)
-	    : m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
-	{
-		m_MaxFiles = maxFiles;
-		m_NextFile = firstFileNumber;
-	}
+	    : m_MaxFiles(maxFiles), m_NextFile(firstFileNumber), m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
+	{}
 
 public:
 	static const int UNLIMITED_FILES_MAGIC_NUMBER = -12345;
@@ -136,11 +136,13 @@ public:
 	 * This method checks the maximum number of file parameter. If it equals UNLIMITED_FILES_MAGIC_NUMBER it means there
 	 * is no limit. Else it verifies the limit is a positive number
 	 */
-	bool isSplitterParamLegal(std::string& errorString)
+	bool isSplitterParamLegal(std::string& errorString) override
 	{
 		// unlimited number of output files
 		if (m_MaxFiles == UNLIMITED_FILES_MAGIC_NUMBER)
+		{
 			return true;
+		}
 
 		if (m_MaxFiles <= 0)
 		{
@@ -199,7 +201,9 @@ protected:
 std::string getSrcIPString(pcpp::Packet& packet)
 {
 	if (packet.isPacketOfType(pcpp::IP))
+	{
 		return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().toString();
+	}
 	return "miscellaneous";
 }
 
@@ -209,7 +213,9 @@ std::string getSrcIPString(pcpp::Packet& packet)
 std::string getDstIPString(pcpp::Packet& packet)
 {
 	if (packet.isPacketOfType(pcpp::IP))
+	{
 		return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().toString();
+	}
 	return "miscellaneous";
 }
 
@@ -219,19 +225,19 @@ std::string getDstIPString(pcpp::Packet& packet)
 std::string hyphenIP(std::string ipVal)
 {
 	// for IPv4 - replace '.' with '-'
-	int loc = ipVal.find(".");
+	int loc = ipVal.find('.');
 	while (loc >= 0)
 	{
 		ipVal.replace(loc, 1, "-");
-		loc = ipVal.find(".");
+		loc = ipVal.find('.');
 	}
 
 	// for IPv6 - replace ':' with '-'
-	loc = ipVal.find(":");
+	loc = ipVal.find(':');
 	while (loc >= 0)
 	{
 		ipVal.replace(loc, 1, "-");
-		loc = ipVal.find(":");
+		loc = ipVal.find(':');
 	}
 
 	return ipVal;

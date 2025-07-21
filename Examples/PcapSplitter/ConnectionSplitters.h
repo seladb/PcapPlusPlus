@@ -22,10 +22,10 @@ public:
 	 * Find the 2-tuple flow for this packet and get the file number it belongs to. If flow is new, return a new file
 	 * number
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) override
 	{
 		// hash the 2-tuple and look for it in the flow table
-		uint32_t hash = pcpp::hash2Tuple(&packet);
+		const uint32_t hash = pcpp::hash2Tuple(&packet);
 
 		// if flow isn't found in the flow table
 		if (m_FlowTable.find(hash) == m_FlowTable.end())
@@ -61,16 +61,16 @@ private:
 	/**
 	 * A utility method that takes a packet and returns true if it's a TCP SYN packet
 	 */
-	bool isTcpSyn(pcpp::Packet& packet)
+	static bool isTcpSyn(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
 			// extract the TCP layer
-			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+			auto* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 
 			// extract SYN and ACK flags
-			bool isSyn = (tcpLayer->getTcpHeader()->synFlag == 1);
-			bool isNotAck = (tcpLayer->getTcpHeader()->ackFlag == 0);
+			const bool isSyn = (tcpLayer->getTcpHeader()->synFlag == 1);
+			const bool isNotAck = (tcpLayer->getTcpHeader()->ackFlag == 0);
 
 			// return true only if it's a pure SYN packet (and not SYN/ACK)
 			return (isSyn && isNotAck);
@@ -90,10 +90,10 @@ public:
 	/**
 	 * Find the flow for this packet and get the file number it belongs to. If flow is new, return a new file number
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) override
 	{
 		// hash the 5-tuple and look for it in the flow table
-		uint32_t hash = pcpp::hash5Tuple(&packet);
+		const uint32_t hash = pcpp::hash5Tuple(&packet);
 
 		// if flow isn't found in the flow table
 		if (m_FlowTable.find(hash) == m_FlowTable.end())
@@ -113,13 +113,13 @@ public:
 			if (packet.isPacketOfType(pcpp::TCP))
 			{
 				// if this is a TCP flow, check if this is a SYN packet
-				bool isSyn = isTcpSyn(packet);
+				const bool isSyn = isTcpSyn(packet);
 
 				// if this is a SYN packet it means this is a beginning of a new flow
 				//(with the same 5-tuple as the previous one), so assign a new file number to it.
 				// unless the last packet was also SYN, which is an indication of SYN retransmission.
 				// In this case don't assign a new file number
-				if (isSyn && m_TcpFlowTable.find(hash) != m_TcpFlowTable.end() && m_TcpFlowTable[hash] == false)
+				if (isSyn && m_TcpFlowTable.find(hash) != m_TcpFlowTable.end() && !m_TcpFlowTable[hash])
 				{
 					m_FlowTable[hash] = getNextFileNumber(filesToClose);
 				}
@@ -144,8 +144,8 @@ public:
 		return m_FlowTable[hash];
 	}
 
-	void updateStringStream(std::ostringstream& sstream, const std::string& srcIp, uint16_t srcPort,
-	                        const std::string& dstIp, uint16_t dstPort)
+	static void updateStringStream(std::ostringstream& sstream, const std::string& srcIp, uint16_t srcPort,
+	                               const std::string& dstIp, uint16_t dstPort)
 	{
 		sstream << hyphenIP(srcIp) << "_" << srcPort << "-" << hyphenIP(dstIp) << "_" << dstPort;
 	}
@@ -153,7 +153,7 @@ public:
 	/**
 	 * Re-implement Splitter's getFileName() method, this time with the IPs/Ports/protocol value
 	 */
-	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
+	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber) override
 	{
 		std::ostringstream sstream;
 
@@ -168,11 +168,11 @@ public:
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
 			// extract TCP layer
-			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+			auto* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 			if (tcpLayer != nullptr)
 			{
-				uint16_t srcPort = tcpLayer->getSrcPort();
-				uint16_t dstPort = tcpLayer->getDstPort();
+				const uint16_t srcPort = tcpLayer->getSrcPort();
+				const uint16_t dstPort = tcpLayer->getDstPort();
 
 				sstream << "tcp_";
 
@@ -195,7 +195,7 @@ public:
 		else if (packet.isPacketOfType(pcpp::UDP))
 		{
 			// for UDP packets, decide the server port by the lower port
-			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
+			auto* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
 			if (udpLayer != nullptr)
 			{
 				sstream << "udp_";
@@ -203,11 +203,11 @@ public:
 				auto srcPort = udpLayer->getSrcPort();
 				auto dstPort = udpLayer->getDstPort();
 
-				uint16_t firstPort = srcPort < dstPort ? dstPort : srcPort;
-				uint16_t secondPort = srcPort < dstPort ? srcPort : dstPort;
+				const uint16_t firstPort = srcPort < dstPort ? dstPort : srcPort;
+				const uint16_t secondPort = srcPort < dstPort ? srcPort : dstPort;
 
-				std::string firstIP = (srcPort < dstPort) ? getDstIPString(packet) : getSrcIPString(packet);
-				std::string secondIP = (srcPort < dstPort) ? getSrcIPString(packet) : getDstIPString(packet);
+				const std::string firstIP = (srcPort < dstPort) ? getDstIPString(packet) : getSrcIPString(packet);
+				const std::string secondIP = (srcPort < dstPort) ? getSrcIPString(packet) : getDstIPString(packet);
 
 				updateStringStream(sstream, firstIP, firstPort, secondIP, secondPort);
 				return outputPcapBasePath + sstream.str();

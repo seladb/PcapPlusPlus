@@ -4,15 +4,21 @@
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
 
-#define ICMP_FT_WAITING_FT_START 0x345a56c8e7f3cd67ULL
-#define ICMP_FT_START 0xd45ae6c2e7a3cd67ULL
-#define ICMP_FT_WAITING_DATA 0x6d5f86c817fb5d7eULL
-#define ICMP_FT_DATA 0x3d5a76c827f35d77ULL
-#define ICMP_FT_ACK 0x395156c857fbcc6aULL
-#define ICMP_FT_END 0x144156cbeffa2687ULL
-#define ICMP_FT_ABORT 0x146158cbafff2b8aULL
+enum
+{
+	ICMP_FT_WAITING_FT_START = 0x345a56c8e7f3cd67ULL,
+	ICMP_FT_START = 0xd45ae6c2e7a3cd67ULL,
+	ICMP_FT_WAITING_DATA = 0x6d5f86c817fb5d7eULL,
+	ICMP_FT_DATA = 0x3d5a76c827f35d77ULL,
+	ICMP_FT_ACK = 0x395156c857fbcc6aULL,
+	ICMP_FT_END = 0x144156cbeffa2687ULL,
+	ICMP_FT_ABORT = 0x146158cbafff2b8aULL
+};
 
-#define ONE_MBYTE 1048576
+enum
+{
+	ONE_MBYTE = 1048576
+};
 
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \

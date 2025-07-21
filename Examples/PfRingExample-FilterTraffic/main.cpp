@@ -67,15 +67,14 @@ static struct option PfFilterTrafficOptions[] = {
  */
 struct CaptureThreadArgs
 {
-	PacketStats* packetStatArr;
-	PacketMatchingEngine* matchingEngine;
-	std::unordered_map<uint32_t, bool>* flowTables;
-	pcpp::PfRingDevice* sendPacketsTo;
-	pcpp::PcapFileWriterDevice** pcapWriters;
+	PacketStats* packetStatArr{ nullptr };
+	PacketMatchingEngine* matchingEngine{ nullptr };
+	std::unordered_map<uint32_t, bool>* flowTables{ nullptr };
+	pcpp::PfRingDevice* sendPacketsTo{ nullptr };
+	pcpp::PcapFileWriterDevice** pcapWriters{ nullptr };
 
 	CaptureThreadArgs()
-	    : packetStatArr(nullptr), matchingEngine(nullptr), flowTables(nullptr), sendPacketsTo(nullptr),
-	      pcapWriters(nullptr)
+
 	{}
 };
 
@@ -85,43 +84,35 @@ struct CaptureThreadArgs
 void printUsage()
 {
 	std::cout
-	    << std::endl
-	    << "Usage:" << std::endl
-	    << "------" << std::endl
+	    << '\n'
+	    << "Usage:" << '\n'
+	    << "------" << '\n'
 	    << pcpp::AppName::get()
 	    << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]"
-	    << std::endl
-	    << "                    [-c NUM_OF_THREADS] -n INTERFACE_NAME" << std::endl
-	    << std::endl
-	    << "Options:" << std::endl
-	    << std::endl
-	    << "    -h|--help                                  : Displays this help message and exits" << std::endl
-	    << "    -v|--version                               : Displays the current version and exits" << std::endl
-	    << "    -l|--list                                  : Print the list of PF_RING devices and exit" << std::endl
-	    << "    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from."
-	    << std::endl
-	    << "                                                 To see all available interfaces use the -l switch"
-	    << std::endl
-	    << "    -s|--send-matched-packets INTERFACE_NAME   : PF_RING interface name to send matched packets to"
-	    << std::endl
-	    << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
-	    << std::endl
-	    << "                                                 Packets matched by thread X will be saved under"
-	    << std::endl
-	    << "                                                 'FILEPATH/ThreadX.pcap'" << std::endl
-	    << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
-	    << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
-	    << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
-	    << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-	    << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
-	    << std::endl
-	    << "    -t|--num-of-threads       NUM_OF_THREADS   : Number of capture threads to open. Should be in"
-	    << std::endl
-	    << "                                                 the range of 1 to NUM_OF_CORES_ON_MACHINE-1." << std::endl
-	    << "                                                 Default is using all machine cores except the core"
-	    << std::endl
-	    << "                                                 the application is running on" << std::endl
-	    << std::endl;
+	    << '\n'
+	    << "                    [-c NUM_OF_THREADS] -n INTERFACE_NAME" << '\n'
+	    << '\n'
+	    << "Options:" << '\n'
+	    << '\n'
+	    << "    -h|--help                                  : Displays this help message and exits" << '\n'
+	    << "    -v|--version                               : Displays the current version and exits" << '\n'
+	    << "    -l|--list                                  : Print the list of PF_RING devices and exit" << '\n'
+	    << "    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from." << '\n'
+	    << "                                                 To see all available interfaces use the -l switch" << '\n'
+	    << "    -s|--send-matched-packets INTERFACE_NAME   : PF_RING interface name to send matched packets to" << '\n'
+	    << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH." << '\n'
+	    << "                                                 Packets matched by thread X will be saved under" << '\n'
+	    << "                                                 'FILEPATH/ThreadX.pcap'" << '\n'
+	    << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << '\n'
+	    << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << '\n'
+	    << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << '\n'
+	    << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << '\n'
+	    << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'" << '\n'
+	    << "    -t|--num-of-threads       NUM_OF_THREADS   : Number of capture threads to open. Should be in" << '\n'
+	    << "                                                 the range of 1 to NUM_OF_CORES_ON_MACHINE-1." << '\n'
+	    << "                                                 Default is using all machine cores except the core" << '\n'
+	    << "                                                 the application is running on" << '\n'
+	    << '\n';
 }
 
 /**
@@ -129,9 +120,9 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << '\n'
+	          << "Built: " << pcpp::getBuildDateTime() << '\n'
+	          << "Built from: " << pcpp::getGitInfo() << '\n';
 	exit(0);
 }
 
@@ -160,7 +151,7 @@ void listPfRingDevices()
 		          << interfaceIndex.str() << " MAC address: " << std::setw(19)
 		          << (dev->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : dev->getMacAddress().toString())
 		          << " Available RX channels: " << std::setw(3) << (int)dev->getTotalNumOfRxChannels()
-		          << " MTU: " << dev->getMtu() << std::endl;
+		          << " MTU: " << dev->getMtu() << '\n';
 	}
 
 	// re-enable errors
@@ -172,10 +163,10 @@ void listPfRingDevices()
  * the packet and matches it with the matching engine. If packet is matched it sends it to the TX interface (if needed)
  * or writes it to the thread's pcap file (if needed)
  */
-void packetArrived(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* device,
+void packetArrived(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* /*device*/,
                    void* userCookie)
 {
-	CaptureThreadArgs* args = (CaptureThreadArgs*)userCookie;
+	auto* args = (CaptureThreadArgs*)userCookie;
 	for (uint32_t i = 0; i < numOfPackets; i++)
 	{
 		// parse packet
@@ -188,8 +179,8 @@ void packetArrived(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t thre
 
 		// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or
 		// new flow
-		uint32_t hash = pcpp::hash5Tuple(&packet);
-		std::unordered_map<uint32_t, bool>::const_iterator iter = args->flowTables[threadId].find(hash);
+		const uint32_t hash = pcpp::hash5Tuple(&packet);
+		const std::unordered_map<uint32_t, bool>::const_iterator iter = args->flowTables[threadId].find(hash);
 
 		// if packet belongs to an already existing flow
 		if (iter != args->flowTables[threadId].end() && iter->second)
@@ -251,12 +242,12 @@ int main(int argc, char* argv[])
 
 	pcpp::PfRingDevice* dev = nullptr;
 
-	int totalNumOfCores = pcpp::getNumOfCores();
+	const int totalNumOfCores = pcpp::getNumOfCores();
 	int numOfCaptureThreads = totalNumOfCores - 1;
 
 	pcpp::PfRingDevice* sendPacketsToIface = nullptr;
 
-	std::string packetFilePath = "";
+	std::string packetFilePath;
 	bool writePacketsToDisk = true;
 
 	pcpp::IPv4Address srcIPToMatch = pcpp::IPv4Address::Zero;
@@ -278,18 +269,22 @@ int main(int argc, char* argv[])
 		}
 		case 'n':
 		{
-			std::string ifaceName = std::string(optarg);
+			const std::string ifaceName = std::string(optarg);
 			dev = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(ifaceName);
 			if (dev == nullptr)
+			{
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << ifaceName << "'");
+			}
 			break;
 		}
 		case 's':
 		{
-			std::string sendPacketsToIfaceName = std::string(optarg);
+			const std::string sendPacketsToIfaceName = std::string(optarg);
 			sendPacketsToIface = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(sendPacketsToIfaceName);
 			if (sendPacketsToIface == nullptr)
+			{
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << sendPacketsToIfaceName << "'");
+			}
 
 			break;
 		}
@@ -297,7 +292,9 @@ int main(int argc, char* argv[])
 		{
 			numOfCaptureThreads = atoi(optarg);
 			if (numOfCaptureThreads < 1 || numOfCaptureThreads > totalNumOfCores - 1)
+			{
 				EXIT_WITH_ERROR("Number of capture threads must be in the range of 1 to " << totalNumOfCores - 1);
+			}
 			break;
 		}
 		case 'f':
@@ -305,7 +302,9 @@ int main(int argc, char* argv[])
 			packetFilePath = std::string(optarg);
 			// make sure the path ends with '/'
 			if (packetFilePath.length() > 1 && (0 != packetFilePath.compare(packetFilePath.length() - 1, 1, "/")))
+			{
 				packetFilePath += "/";
+			}
 
 			writePacketsToDisk = true;
 			break;
@@ -336,7 +335,7 @@ int main(int argc, char* argv[])
 		}
 		case 'p':
 		{
-			int ret = atoi(optarg);
+			const int ret = atoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
@@ -346,7 +345,7 @@ int main(int argc, char* argv[])
 		}
 		case 'P':
 		{
-			int ret = atoi(optarg);
+			const int ret = atoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
@@ -356,11 +355,15 @@ int main(int argc, char* argv[])
 		}
 		case 'r':
 		{
-			std::string protocol = std::string(optarg);
+			std::string const protocol = std::string(optarg);
 			if (protocol == "TCP")
+			{
 				protocolToMatch = pcpp::TCP;
+			}
 			else if (protocol == "UDP")
+			{
 				protocolToMatch = pcpp::UDP;
+			}
 			else
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");
@@ -391,17 +394,23 @@ int main(int argc, char* argv[])
 	}
 
 	if (dev == nullptr)
+	{
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("Interface name was not provided");
+	}
 
 	// open the PF_RING device in multi-thread mode. Distribution of packets between threads will be done per-flow (as
 	// opposed to round-robin)
 	if (!dev->openMultiRxChannels(numOfCaptureThreads, pcpp::PfRingDevice::PerFlow))
+	{
 		EXIT_WITH_ERROR("Couldn't open " << numOfCaptureThreads << " RX channels on interface '" << dev->getDeviceName()
 		                                 << "'");
+	}
 
 	if (sendPacketsToIface != nullptr && !sendPacketsToIface->open())
+	{
 		EXIT_WITH_ERROR("Couldn't open PF_RING device '" << sendPacketsToIface->getDeviceName()
 		                                                 << "' for sending matched packets");
+	}
 
 	pcpp::CoreMask coreMask = 0;
 	int threadId = 0;
@@ -412,7 +421,9 @@ int main(int argc, char* argv[])
 
 	// init each packet stats instance with an illegal core ID
 	for (int coreId = 0; coreId < totalNumOfCores; coreId++)
+	{
 		packetStatsArr[coreId].ThreadId = MAX_NUM_OF_CORES + 1;
+	}
 
 	// mark only relevant cores by adding them to core mask
 	// mark only relevant packet stats instances by setting their core ID
@@ -461,7 +472,7 @@ int main(int argc, char* argv[])
 	}
 
 	std::cout << "Start capturing on " << numOfCaptureThreads << " threads core mask = 0x" << std::hex << coreMask
-	          << std::dec << std::endl;
+	          << std::dec << '\n';
 
 	// prepare packet capture configuration
 	CaptureThreadArgs args;
@@ -499,14 +510,16 @@ int main(int argc, char* argv[])
 		for (int coreId = 0; coreId < totalNumOfCores; coreId++)
 		{
 			if ((coreMask & pcpp::SystemCores::IdToSystemCore[coreId].Mask) == 0)
+			{
 				continue;
+			}
 
 			pcapWriters[coreId]->close();
 			delete pcapWriters[coreId];
 		}
 	}
 
-	std::cout << std::endl << std::endl << "Application stopped" << std::endl;
+	std::cout << '\n' << '\n' << "Application stopped" << '\n';
 
 	// print final stats for every capture thread plus sum of all threads and free worker threads memory
 	PacketStats aggregatedStats;
@@ -520,7 +533,9 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < totalNumOfCores; i++)
 	{
 		if (packetStatsArr[i].ThreadId == MAX_NUM_OF_CORES + 1)
+		{
 			continue;
+		}
 
 		aggregatedStats.collectStats(packetStatsArr[i]);
 		printer.printRow(packetStatsArr[i].getStatValuesAsString("|"), '|');
