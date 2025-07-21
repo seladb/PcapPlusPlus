@@ -105,7 +105,7 @@ namespace pcpp
 		}
 
 		uint8_t const* startOfData = data + tagLen + lengthLen;
-		internal::LazyLoadPolicy policy = lazy ? internal::LazyLoadPolicy::Lazy : internal::LazyLoadPolicy::Eager;
+		internal::Asn1LoadPolicy policy = lazy ? internal::Asn1LoadPolicy::Lazy : internal::Asn1LoadPolicy::Eager;
 		decodedRecord->setEncodedValue(startOfData, policy);
 
 		return decodedRecord;
@@ -414,7 +414,7 @@ namespace pcpp
 	void Asn1Record::decodeValueIfNeeded() const
 	{
 		// TODO: This is not thread-safe and can cause issues if multiple threads access the same record
-		if (m_LazyDecodeState == internal::LazyState::NotEvaluated)
+		if (m_LazyDecodeState == internal::Asn1LoadState::NotEvaluated)
 		{
 			if (m_EncodedValue == nullptr)
 			{
@@ -423,21 +423,21 @@ namespace pcpp
 			try
 			{
 				decodeValue(m_EncodedValue);
-				m_LazyDecodeState = internal::LazyState::Evaluated;
+				m_LazyDecodeState = internal::Asn1LoadState::Evaluated;
 			}
 			catch (...)
 			{
-				m_LazyDecodeState = internal::LazyState::Error;
+				m_LazyDecodeState = internal::Asn1LoadState::Error;
 				throw;
 			}
 		}
 
 		switch (m_LazyDecodeState)
 		{
-		case internal::LazyState::Evaluated:
+		case internal::Asn1LoadState::Evaluated:
 			// Value is already decoded, nothing to do
 			break;
-		case internal::LazyState::Error:
+		case internal::Asn1LoadState::Error:
 			throw std::runtime_error("ASN.1 record value decoding failed");
 		default:
 			throw std::logic_error("ASN.1 record value decoding state is not 'evaluated' or 'error'");
@@ -481,12 +481,12 @@ namespace pcpp
 		return { stream.str() };
 	}
 
-	void Asn1Record::setEncodedValue(uint8_t const* dataSource, internal::LazyLoadPolicy loadPolicy)
+	void Asn1Record::setEncodedValue(uint8_t const* dataSource, internal::Asn1LoadPolicy loadPolicy)
 	{
 		m_EncodedValue = dataSource;
-		m_LazyDecodeState = internal::LazyState::NotEvaluated;
+		m_LazyDecodeState = internal::Asn1LoadState::NotEvaluated;
 
-		if (loadPolicy == internal::LazyLoadPolicy::Eager)
+		if (loadPolicy == internal::Asn1LoadPolicy::Eager)
 		{
 			decodeValueIfNeeded();
 		}
