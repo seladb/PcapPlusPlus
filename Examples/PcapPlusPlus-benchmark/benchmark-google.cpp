@@ -162,26 +162,25 @@ static void BM_PacketPureParsing(benchmark::State& state)
 		state.SkipWithError("No packets to parse");
 		return;
 	}
-	
+
 	size_t totalProcessedItems = 0;
 	size_t totalProcessedBytes = 0;
 	size_t currentPacketIndex = 0;
-	for(auto _ : state)
+	for (auto _ : state)
 	{
 		RawPacket* rawPacket = rawPackets.at(currentPacketIndex);
 
 		Packet parsedPacket(rawPacket);
-
 
 		benchmark::DoNotOptimize(parsedPacket.getFirstLayer());
 
 		++totalProcessedItems;
 		++totalProcessedBytes += rawPacket->getRawDataLen();
 		++currentPacketIndex;
-		
+
 		if (currentPacketIndex >= rawPackets.size())
 		{
-			currentPacketIndex = 0; // Loop back to the start
+			currentPacketIndex = 0;  // Loop back to the start
 		}
 	}
 
