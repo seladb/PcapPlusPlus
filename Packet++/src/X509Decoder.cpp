@@ -909,7 +909,7 @@ namespace pcpp
 		}
 		default:
 		{
-			return { nullptr };
+			return {};
 		}
 		}
 	}
@@ -997,7 +997,7 @@ namespace pcpp
 		                   [extensionType](const auto& ext) { return ext.getType() == extensionType; });
 	}
 
-	const X509Extension* X509Certificate::getExtension(const X509ExtensionType& extensionType) const
+	const X509Extension* X509Certificate::getExtension(X509ExtensionType extensionType) const
 	{
 		const auto& extensions = getExtensions();
 		auto matchExtension =

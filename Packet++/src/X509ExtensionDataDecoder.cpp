@@ -89,6 +89,7 @@ namespace pcpp
 		    { "1.3.6.1.4.1.311.20.2.2",  X509ExtendedKeyUsagePurpose::SmartCardLogon      },
 		    { "1.3.6.1.4.1.311.10.3.4",  X509ExtendedKeyUsagePurpose::EncryptedFileSystem },
 		    { "1.3.6.1.4.1.311.10.3.12", X509ExtendedKeyUsagePurpose::DocumentSigning     },
+		    { "0.0",		             X509ExtendedKeyUsagePurpose::Unknown             },
     };
 
 	X509ExtendedKeyUsagePurpose X509ExtendedKeyUsagePurpose::fromOidValue(const Asn1ObjectIdentifier& value)

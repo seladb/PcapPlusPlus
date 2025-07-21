@@ -129,7 +129,7 @@ namespace pcpp
 			static std::unique_ptr<X509SubjectKeyIdentifierDataDecoder> create(const std::string& rawData);
 
 			/// @return The subject key identifier value
-			std::string getKeyIdentifier() const
+			const std::string& getKeyIdentifier() const
 			{
 				return m_KeyIdentifier;
 			}
@@ -151,7 +151,7 @@ namespace pcpp
 			static std::unique_ptr<X509KeyUsageDataDecoder> create(const std::string& rawData);
 
 			/// @return The key usage value
-			std::string getKeyUsage() const
+			const std::string& getKeyUsage() const
 			{
 				return m_KeyUsage;
 			}
