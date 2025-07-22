@@ -24,10 +24,7 @@ public:
 	    : m_WorkerConfig(workerConfig), m_CoreId(MAX_NUM_OF_CORES + 1)
 	{}
 
-	~AppWorkerThread() override
-	{
-		// do nothing
-	}
+	~AppWorkerThread() override = default;
 
 	// implement abstract methods
 
@@ -64,12 +61,9 @@ public:
 		}
 
 		// free packet array (frees all mbufs as well)
-		for (auto& i : packetArr)
+		for (auto& packet : packetArr)
 		{
-			if (i != nullptr)
-			{
-				delete i;
-			}
+			delete packet;
 		}
 
 		return true;

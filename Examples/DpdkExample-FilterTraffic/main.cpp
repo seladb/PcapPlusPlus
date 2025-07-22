@@ -38,11 +38,8 @@
 #include <sstream>
 #include <unistd.h>
 
-enum
-{
-	DEFAULT_MBUF_POOL_SIZE = 4095,
-	MAX_QUEUES = 64
-};
+constexpr auto DEFAULT_MBUF_POOL_SIZE = 4095;
+constexpr auto MAX_QUEUES = 64;
 
 // clang-format off
 static struct option FilterTrafficOptions[] = {
@@ -180,42 +177,42 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 
 	// calculate how many RX queues each core will read packets from. We divide the total number of RX queues with total
 	// number of core
-	const int numOfRxQueuesPerCore = totalNumOfRxQueues / coresToUse.size();
-	int rxQueuesRemainder = totalNumOfRxQueues % coresToUse.size();
+	const int numOfRxQueuesPerCore = static_cast<int>(totalNumOfRxQueues / coresToUse.size());
+	int rxQueuesRemainder = static_cast<int>(totalNumOfRxQueues % coresToUse.size());
 
 	// prepare the configuration for every core: divide the devices and RX queue for each device with the various cores
-	int i = 0;
+	int idx = 0;
 	auto pairVecIter = deviceAndRxQVec.begin();
 	for (const auto& core : coresToUse)
 	{
 		std::cout << "Using core " << (int)core.Id << '\n';
-		workerConfigArr[i].coreId = core.Id;
-		workerConfigArr[i].writeMatchedPacketsToFile = writePacketsToDisk;
+		workerConfigArr[idx].coreId = core.Id;
+		workerConfigArr[idx].writeMatchedPacketsToFile = writePacketsToDisk;
 
 		std::stringstream packetFileName;
-		packetFileName << packetFilePath << "Core" << workerConfigArr[i].coreId << ".pcap";
-		workerConfigArr[i].pathToWritePackets = packetFileName.str();
+		packetFileName << packetFilePath << "Core" << workerConfigArr[idx].coreId << ".pcap";
+		workerConfigArr[idx].pathToWritePackets = packetFileName.str();
 
-		workerConfigArr[i].sendPacketsTo = sendPacketsTo;
+		workerConfigArr[idx].sendPacketsTo = sendPacketsTo;
 		for (int rxQIndex = 0; rxQIndex < numOfRxQueuesPerCore; rxQIndex++)
 		{
 			if (pairVecIter == deviceAndRxQVec.end())
 			{
 				break;
 			}
-			workerConfigArr[i].inDataCfg[pairVecIter->first].push_back(pairVecIter->second);
+			workerConfigArr[idx].inDataCfg[pairVecIter->first].push_back(pairVecIter->second);
 			++pairVecIter;
 		}
 		if (rxQueuesRemainder > 0 && (pairVecIter != deviceAndRxQVec.end()))
 		{
-			workerConfigArr[i].inDataCfg[pairVecIter->first].push_back(pairVecIter->second);
+			workerConfigArr[idx].inDataCfg[pairVecIter->first].push_back(pairVecIter->second);
 			++pairVecIter;
 			rxQueuesRemainder--;
 		}
 
 		// print configuration for core
 		std::cout << "   Core configuration:" << '\n';
-		for (const auto& iter2 : workerConfigArr[i].inDataCfg)
+		for (const auto& iter2 : workerConfigArr[idx].inDataCfg)
 		{
 			std::cout << "      DPDK device#" << iter2.first->getDeviceId() << ": ";
 			for (const auto& iter3 : iter2.second)
@@ -224,11 +221,11 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 			}
 			std::cout << '\n';
 		}
-		if (workerConfigArr[i].inDataCfg.empty())
+		if (workerConfigArr[idx].inDataCfg.empty())
 		{
 			std::cout << "      None" << '\n';
 		}
-		i++;
+		++idx;
 	}
 }
 
@@ -271,7 +268,7 @@ void printStats(const PacketStats& threadStats, const std::string& columnName)
  */
 void onApplicationInterrupted(void* cookie)
 {
-	auto* args = (FilterTrafficArgs*)cookie;
+	auto* args = reinterpret_cast<FilterTrafficArgs*>(cookie);
 
 	std::cout << '\n' << '\n' << "Application stopped" << '\n';
 
@@ -363,10 +360,10 @@ int main(int argc, char* argv[])
 			// break comma-separated string into string list
 			while (getline(stream, portAsString, ','))
 			{
-				char c = 0;
+				char chr = 0;
 				std::stringstream stream2(portAsString);
 				stream2 >> port;
-				if (stream2.fail() || stream2.get(c))
+				if (stream2.fail() || stream2.get(chr))
 				{
 					// not an integer
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("DPDK ports list is invalid");
@@ -383,12 +380,12 @@ int main(int argc, char* argv[])
 		}
 		case 's':
 		{
-			sendPacketsToPort = atoi(optarg);
+			sendPacketsToPort = std::stoi(optarg);
 			break;
 		}
 		case 'c':
 		{
-			coreMaskToUse = atoi(optarg);
+			coreMaskToUse = std::stoi(optarg);
 			break;
 		}
 		case 'f':
@@ -403,7 +400,7 @@ int main(int argc, char* argv[])
 		}
 		case 'm':
 		{
-			mBufPoolSize = atoi(optarg);
+			mBufPoolSize = std::stoul(optarg);
 			break;
 		}
 		case 'i':
@@ -432,7 +429,7 @@ int main(int argc, char* argv[])
 		}
 		case 'p':
 		{
-			const int ret = atoi(optarg);
+			const int ret = std::stoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
@@ -442,7 +439,7 @@ int main(int argc, char* argv[])
 		}
 		case 'P':
 		{
-			const int ret = atoi(optarg);
+			const int ret = std::stoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
@@ -469,7 +466,7 @@ int main(int argc, char* argv[])
 		}
 		case 'r':
 		{
-			rxQueues = atoi(optarg);
+			rxQueues = std::stoul(optarg);
 			if (rxQueues == 0)
 			{
 				EXIT_WITH_ERROR("Cannot open the device with 0 RX queues");
@@ -482,7 +479,7 @@ int main(int argc, char* argv[])
 		}
 		case 't':
 		{
-			txQueues = atoi(optarg);
+			txQueues = std::stoul(optarg);
 			if (txQueues == 0)
 			{
 				EXIT_WITH_ERROR("Cannot open the device with 0 TX queues");
@@ -596,18 +593,18 @@ int main(int argc, char* argv[])
 	// prepare configuration for every core
 	std::vector<AppWorkerConfig> workerConfigArr(coresToUse.size());
 	prepareCoreConfiguration(dpdkDevicesToUse, coresToUse, writePacketsToDisk, packetFilePath, sendPacketsTo,
-	                         workerConfigArr, coresToUse.size(), rxQueues);
+	                         workerConfigArr, static_cast<int>(coresToUse.size()), rxQueues);
 
 	PacketMatchingEngine matchingEngine(srcIPToMatch, dstIPToMatch, srcPortToMatch, dstPortToMatch, protocolToMatch);
 
 	// create worker thread for every core
 	std::vector<pcpp::DpdkWorkerThread*> workerThreadVec;
-	int i = 0;
+	int idx = 0;
 	for (auto iter = coresToUse.begin(); iter != coresToUse.end(); ++iter)
 	{
-		auto* newWorker = new AppWorkerThread(workerConfigArr[i], matchingEngine);
+		auto* newWorker = new AppWorkerThread(workerConfigArr[idx], matchingEngine);
 		workerThreadVec.push_back(newWorker);
-		i++;
+		++idx;
 	}
 
 	// start all worker threads

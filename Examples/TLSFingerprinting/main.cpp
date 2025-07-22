@@ -44,7 +44,7 @@ static struct option TLSFingerprintingOptions[] = {
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -52,9 +52,9 @@ static struct option TLSFingerprintingOptions[] = {
 #define TLS_FP_SH_ONLY "sh"
 #define TLS_FP_CH_AND_SH "ch_sh"
 
-bool isNotAlphanumeric(char c)
+bool isNotAlphanumeric(char chr)
 {
-	return std::isalnum(c) == 0;
+	return std::isalnum(chr) == 0;
 }
 
 /**
@@ -156,7 +156,7 @@ void listInterfaces()
  */
 static void onApplicationInterrupted(void* cookie)
 {
-	bool* shouldStop = (bool*)cookie;
+	bool* shouldStop = reinterpret_cast<bool*>(cookie);
 	*shouldStop = true;
 }
 
@@ -173,7 +173,7 @@ std::pair<pcpp::IPAddress, pcpp::IPAddress> getIPs(const pcpp::Packet& packet)
 		srcIP = ipLayer->getSrcIPAddress();
 		dstIP = ipLayer->getDstIPAddress();
 	}
-	return std::pair<pcpp::IPAddress, pcpp::IPAddress>(srcIP, dstIP);
+	return { srcIP, dstIP };
 }
 
 /**
@@ -190,7 +190,7 @@ std::pair<uint16_t, uint16_t> getTcpPorts(const pcpp::Packet& packet)
 		dstPort = tcpLayer->getDstPort();
 	}
 
-	return std::pair<uint16_t, uint16_t>(srcPort, dstPort);
+	return { srcPort, dstPort };
 }
 
 /**

@@ -329,7 +329,7 @@ private:
 		auto* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 
 		// count traffic
-		m_GeneralStats.amountOfHttpTraffic += tcpLayer->getLayerPayloadSize();
+		m_GeneralStats.amountOfHttpTraffic += static_cast<int>(tcpLayer->getLayerPayloadSize());
 
 		// count packet num
 		m_GeneralStats.numOfHttpPackets++;
@@ -444,7 +444,7 @@ private:
 	void collectRequestStats(pcpp::HttpRequestLayer* req)
 	{
 		m_RequestStats.numOfMessages++;
-		m_RequestStats.totalMessageHeaderSize += req->getHeaderLen();
+		m_RequestStats.totalMessageHeaderSize += static_cast<int>(req->getHeaderLen());
 		if (m_RequestStats.numOfMessages != 0)
 		{
 			m_RequestStats.averageMessageHeaderSize = static_cast<double>(m_RequestStats.totalMessageHeaderSize) /
@@ -467,7 +467,7 @@ private:
 	void collectResponseStats(pcpp::HttpResponseLayer* res)
 	{
 		m_ResponseStats.numOfMessages++;
-		m_ResponseStats.totalMessageHeaderSize += res->getHeaderLen();
+		m_ResponseStats.totalMessageHeaderSize += static_cast<int>(res->getHeaderLen());
 		if (m_ResponseStats.numOfMessages != 0)
 		{
 			m_ResponseStats.averageMessageHeaderSize = static_cast<double>(m_ResponseStats.totalMessageHeaderSize) /
@@ -479,7 +479,7 @@ private:
 		if (contentLengthField != nullptr)
 		{
 			m_ResponseStats.numOfMessagesWithContentLength++;
-			m_ResponseStats.totalContentLengthSize += atoi(contentLengthField->getFieldValue().c_str());
+			m_ResponseStats.totalContentLengthSize += std::stoi(contentLengthField->getFieldValue());
 			if (m_ResponseStats.numOfMessagesWithContentLength != 0)
 			{
 				m_ResponseStats.averageContentLengthSize =
@@ -515,11 +515,11 @@ private:
 
 	static double getCurTime()
 	{
-		struct timeval tv{};
+		struct timeval tmVal{};
 
-		gettimeofday(&tv, nullptr);
+		gettimeofday(&tmVal, nullptr);
 
-		return ((static_cast<double>(tv.tv_sec)) + static_cast<double>(tv.tv_usec / 1000000.0));
+		return ((static_cast<double>(tmVal.tv_sec)) + (static_cast<double>(tmVal.tv_usec) / 1000000.0));
 	}
 
 	HttpGeneralStats m_GeneralStats{};

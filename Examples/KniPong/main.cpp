@@ -34,19 +34,16 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
 #define DEFAULT_KNI_NAME "pcppkni0"
 
-enum
-{
-	IO_BUFF_SIZE = (1 << 14),
-	WANT_POLLIN = (-2),
-	WANT_POLLOUT = (-3),
-	DEFAULT_PORT = 62604
-};
+constexpr auto IO_BUFF_SIZE = (1 << 14);
+constexpr auto WANT_POLLIN = (-2);
+constexpr auto WANT_POLLOUT = (-3);
+constexpr auto DEFAULT_PORT = 62604;
 
 namespace
 {
@@ -344,10 +341,7 @@ namespace
 	 */
 	inline LinuxSocket setupLinuxSocket(const KniPongArgs& args)
 	{  // Open socket
-		enum
-		{
-			INVALID_FD = -1
-		};
+		constexpr auto INVALID_FD = -1;
 		LinuxSocket sock{};
 		if ((sock.m_Socket = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_FD)
 		{

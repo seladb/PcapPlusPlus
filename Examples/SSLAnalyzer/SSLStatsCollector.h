@@ -273,7 +273,7 @@ private:
 		auto* tcpLayer = sslpPacket->getLayerOfType<pcpp::TcpLayer>();
 
 		// count traffic
-		m_GeneralStats.amountOfSSLTraffic += tcpLayer->getLayerPayloadSize();
+		m_GeneralStats.amountOfSSLTraffic += static_cast<int>(tcpLayer->getLayerPayloadSize());
 
 		// count packet num
 		m_GeneralStats.numOfSSLPackets++;
@@ -409,11 +409,11 @@ private:
 
 	static double getCurTime()
 	{
-		struct timeval tv{};
+		struct timeval tmVal{};
 
-		gettimeofday(&tv, nullptr);
+		gettimeofday(&tmVal, nullptr);
 
-		return ((static_cast<double>(tv.tv_sec)) + static_cast<double>(tv.tv_usec / 1000000.0));
+		return ((static_cast<double>(tmVal.tv_sec)) + (static_cast<double>(tmVal.tv_usec) / 1000000.0));
 	}
 
 	SSLGeneralStats m_GeneralStats;

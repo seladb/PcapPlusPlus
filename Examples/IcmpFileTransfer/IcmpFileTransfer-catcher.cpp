@@ -570,8 +570,8 @@ int main(int argc, char* argv[])
 {
 	pcpp::AppName::init(argc, argv);
 
-	bool sender;
-	bool receiver;
+	bool sender = false;
+	bool receiver = false;
 	pcpp::IPv4Address pitcherIP;
 	pcpp::IPv4Address catcherIP;
 	std::string fileNameToSend;

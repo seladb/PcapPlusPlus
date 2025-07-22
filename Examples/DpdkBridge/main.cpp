@@ -35,12 +35,9 @@
 #include <sstream>
 #include <unistd.h>
 
-enum
-{
-	COLLECT_STATS_EVERY_SEC = 1,
-	DEFAULT_MBUF_POOL_SIZE = 4095,
-	DEFAULT_QUEUE_QUANTITY = 1
-};
+constexpr auto COLLECT_STATS_EVERY_SEC = 1;
+constexpr auto DEFAULT_MBUF_POOL_SIZE = 4095;
+constexpr auto DEFAULT_QUEUE_QUANTITY = 1;
 
 // clang-format off
 static struct option DpdkBridgeOptions[] = {
@@ -141,7 +138,7 @@ struct DpdkBridgeArgs
  */
 void onApplicationInterrupted(void* cookie)
 {
-	auto* args = (DpdkBridgeArgs*)cookie;
+	auto* args = reinterpret_cast<DpdkBridgeArgs*>(cookie);
 
 	std::cout << '\n' << '\n' << "Application stopped" << '\n';
 
@@ -220,7 +217,7 @@ int main(int argc, char* argv[])
 		}
 		case 'c':
 		{
-			coreMaskToUse = atoi(optarg);
+			coreMaskToUse = std::stoi(optarg);
 			break;
 		}
 		case 'd':
@@ -232,10 +229,10 @@ int main(int argc, char* argv[])
 			// break comma-separated string into string list
 			while (getline(stream, portAsString, ','))
 			{
-				char c = 0;
+				char chr = 0;
 				std::stringstream stream2(portAsString);
 				stream2 >> port;
-				if (stream2.fail() || stream2.get(c))
+				if (stream2.fail() || stream2.get(chr))
 				{
 					// not an integer
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("DPDK ports list is invalid");
@@ -251,12 +248,12 @@ int main(int argc, char* argv[])
 		}
 		case 'm':
 		{
-			mBufPoolSize = atoi(optarg);
+			mBufPoolSize = std::stoi(optarg);
 			break;
 		}
 		case 'q':
 		{
-			queueQuantity = atoi(optarg);
+			queueQuantity = std::stoi(optarg);
 			break;
 		}
 		case 'h':

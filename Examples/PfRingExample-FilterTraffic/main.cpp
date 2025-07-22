@@ -73,9 +73,7 @@ struct CaptureThreadArgs
 	pcpp::PfRingDevice* sendPacketsTo{ nullptr };
 	pcpp::PcapFileWriterDevice** pcapWriters{ nullptr };
 
-	CaptureThreadArgs()
-
-	{}
+	CaptureThreadArgs() = default;
 };
 
 /**
@@ -166,7 +164,7 @@ void listPfRingDevices()
 void packetArrived(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* /*device*/,
                    void* userCookie)
 {
-	auto* args = (CaptureThreadArgs*)userCookie;
+	auto* args = reinterpret_cast<CaptureThreadArgs*>(userCookie);
 	for (uint32_t i = 0; i < numOfPackets; i++)
 	{
 		// parse packet
@@ -231,7 +229,7 @@ void packetArrived(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t thre
  */
 void onApplicationInterrupted(void* cookie)
 {
-	bool* shouldStop = (bool*)cookie;
+	bool* shouldStop = reinterpret_cast<bool*>(cookie);
 
 	*shouldStop = true;
 }
@@ -270,7 +268,7 @@ int main(int argc, char* argv[])
 		case 'n':
 		{
 			const std::string ifaceName = std::string(optarg);
-			dev = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(ifaceName);
+			dev = pcpp::PfRingDeviceList::getInstance().getDeviceByName(ifaceName);
 			if (dev == nullptr)
 			{
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << ifaceName << "'");
@@ -280,7 +278,7 @@ int main(int argc, char* argv[])
 		case 's':
 		{
 			const std::string sendPacketsToIfaceName = std::string(optarg);
-			sendPacketsToIface = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(sendPacketsToIfaceName);
+			sendPacketsToIface = pcpp::PfRingDeviceList::getInstance().getDeviceByName(sendPacketsToIfaceName);
 			if (sendPacketsToIface == nullptr)
 			{
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << sendPacketsToIfaceName << "'");
@@ -290,7 +288,7 @@ int main(int argc, char* argv[])
 		}
 		case 't':
 		{
-			numOfCaptureThreads = atoi(optarg);
+			numOfCaptureThreads = std::stoi(optarg);
 			if (numOfCaptureThreads < 1 || numOfCaptureThreads > totalNumOfCores - 1)
 			{
 				EXIT_WITH_ERROR("Number of capture threads must be in the range of 1 to " << totalNumOfCores - 1);
@@ -335,7 +333,7 @@ int main(int argc, char* argv[])
 		}
 		case 'p':
 		{
-			const int ret = atoi(optarg);
+			const int ret = std::stoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
@@ -345,7 +343,7 @@ int main(int argc, char* argv[])
 		}
 		case 'P':
 		{
-			const int ret = atoi(optarg);
+			const int ret = std::stoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");

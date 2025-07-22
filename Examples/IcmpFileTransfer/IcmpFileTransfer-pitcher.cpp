@@ -21,16 +21,9 @@
 #include "Common.h"
 #include "SystemUtils.h"
 
-enum
-{
-	SEND_TIMEOUT_BEFORE_FT_START = 3
-};
-
-enum
-{
-	SLEEP_BETWEEN_ABORT_MESSAGES = 100000,  // 100 msec
-	NUM_OF_ABORT_MESSAGES_TO_SEND = 5
-};
+constexpr auto SEND_TIMEOUT_BEFORE_FT_START = 3;
+constexpr auto SLEEP_BETWEEN_ABORT_MESSAGES = 100000;  // 100 msec
+constexpr auto NUM_OF_ABORT_MESSAGES_TO_SEND = 5;
 
 #ifdef _MSC_VER
 #	include <windows.h>
@@ -112,7 +105,7 @@ static void waitForFileTransferStart(pcpp::RawPacket* rawPacket, pcpp::PcapLiveD
 		return;
 	}
 
-	auto* icmpFTStart = (IcmpFileTransferStartRecv*)icmpVoidData;
+	auto* icmpFTStart = reinterpret_cast<IcmpFileTransferStartRecv*>(icmpVoidData);
 
 	// extract the ICMP layer, verify it's an ICMP reply
 	auto* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
@@ -143,7 +136,7 @@ static void waitForFileTransferStart(pcpp::RawPacket* rawPacket, pcpp::PcapLiveD
 	}
 
 	// extract the file name from the ICMP reply data
-	icmpFTStart->fileName = std::string((char*)icmpLayer->getEchoReplyData()->data);
+	icmpFTStart->fileName = std::string(reinterpret_cast<char*>(icmpLayer->getEchoReplyData()->data));
 
 	// signal the receiveFile() file name was extracted and it can stop capturing packets
 	icmpFTStart->gotFileTransferStartMsg = true;
@@ -169,7 +162,7 @@ static void getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* /*d
 		return;
 	}
 
-	auto* icmpFileContentData = (IcmpFileContentData*)icmpVoidData;
+	auto* icmpFileContentData = reinterpret_cast<IcmpFileContentData*>(icmpVoidData);
 
 	// extract the ICMP layer, verify it's an ICMP reply
 	auto* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
@@ -230,7 +223,7 @@ static void getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* /*d
 	icmpFileContentData->expectedIcmpId++;
 
 	// write the file data chunk in the ICMP reply data to the output file
-	icmpFileContentData->file->write((char*)icmpLayer->getEchoReplyData()->data,
+	icmpFileContentData->file->write(reinterpret_cast<char*>(icmpLayer->getEchoReplyData()->data),
 	                                 icmpLayer->getEchoReplyData()->dataLength);
 
 	// count the bytes received
@@ -648,8 +641,8 @@ int main(int argc, char* argv[])
 {
 	pcpp::AppName::init(argc, argv);
 
-	bool sender;
-	bool receiver;
+	bool sender = false;
+	bool receiver = false;
 	pcpp::IPv4Address pitcherIP;
 	pcpp::IPv4Address catcherIP;
 	std::string fileNameToSend;

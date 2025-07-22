@@ -16,10 +16,7 @@
 #	define SEPARATOR '/'
 #endif
 
-enum
-{
-	DEFAULT_BLOCK_SIZE = 1400
-};
+constexpr auto DEFAULT_BLOCK_SIZE = 1400;
 
 static struct option IcmpFTOptions[] = {
 	{ "interface",       required_argument, nullptr, 'i'         },

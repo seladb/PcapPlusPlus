@@ -34,19 +34,16 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
 #define PRINT_STAT_LINE(description, counter, measurement)                                                             \
 	std::cout << std::left << std::setw(46) << (std::string(description) + ":") << std::right << std::setw(15)         \
 	          << std::fixed << std::showpoint << std::setprecision(3) << counter << " [" << measurement << "]"         \
-	          << std::endl;
+	          << '\n';
 
-enum
-{
-	DEFAULT_CALC_RATES_PERIOD_SEC = 2
-};
+constexpr auto DEFAULT_CALC_RATES_PERIOD_SEC = 2;
 
 // clang-format off
 static struct option SSLAnalyzerOptions[] = {
@@ -508,7 +505,7 @@ int main(int argc, char* argv[])
 			savePacketsToFileName = optarg;
 			break;
 		case 'r':
-			printRatePeriod = atoi(optarg);
+			printRatePeriod = std::stoi(optarg);
 			break;
 		case 'd':
 			printRatesPeriodically = false;

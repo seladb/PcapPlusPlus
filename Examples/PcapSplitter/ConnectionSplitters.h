@@ -183,6 +183,7 @@ public:
 				else if (((tcpLayer->getTcpHeader()->synFlag == 1) && (tcpLayer->getTcpHeader()->ackFlag == 1)) ||
 				         (srcPort < dstPort))
 				{
+					// NOLINTNEXTLINE(readability-suspicious-call-argument)
 					updateStringStream(sstream, getDstIPString(packet), dstPort, getSrcIPString(packet), srcPort);
 				}
 				else
@@ -209,6 +210,7 @@ public:
 				const std::string firstIP = (srcPort < dstPort) ? getDstIPString(packet) : getSrcIPString(packet);
 				const std::string secondIP = (srcPort < dstPort) ? getSrcIPString(packet) : getDstIPString(packet);
 
+				// NOLINTNEXTLINE(readability-suspicious-call-argument)
 				updateStringStream(sstream, firstIP, firstPort, secondIP, secondPort);
 				return outputPcapBasePath + sstream.str();
 			}

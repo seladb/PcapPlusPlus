@@ -73,7 +73,7 @@ static struct option PcapSplitterOptions[] = {
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -187,17 +187,17 @@ std::string getFileNameWithoutExtension(const std::string& path)
 	}
 
 	// find the last "\\" or "/" (depends on the os) - where path ends and filename starts
-	size_t i = path.rfind(SEPARATOR, path.length());
-	if (i != std::string::npos)
+	size_t idx = path.rfind(SEPARATOR, path.length());
+	if (idx != std::string::npos)
 	{
 		// extract filename from path
-		std::string fileNameWithExtension = path.substr(i + 1, path.length() - i);
+		std::string fileNameWithExtension = path.substr(idx + 1, path.length() - idx);
 
 		// from the file name - remove the extension (the part after the ".")
-		i = fileNameWithExtension.rfind('.', fileNameWithExtension.length());
-		if (i != std::string::npos)
+		auto jdx = fileNameWithExtension.rfind('.', fileNameWithExtension.length());
+		if (jdx != std::string::npos)
 		{
-			return fileNameWithExtension.substr(0, i);
+			return fileNameWithExtension.substr(0, jdx);
 		}
 
 		return fileNameWithExtension;
@@ -205,14 +205,14 @@ std::string getFileNameWithoutExtension(const std::string& path)
 	// filename without a path
 
 	// from the file name - remove the extension (the part after the ".")
-	i = path.rfind('.', path.length());
-	if (i != std::string::npos)
-		return path.substr(0, i);
+	idx = path.rfind('.', path.length());
+	if (idx != std::string::npos)
+	{
+		return path.substr(0, idx);
+	}
 
 	// filename doesn't have an extension
 	return path;
-
-	return ("");
 }
 
 /**
@@ -301,37 +301,37 @@ int main(int argc, char* argv[])
 	}
 	else if (method == SPLIT_BY_PACKET_COUNT)
 	{
-		const int paramAsInt = (paramWasSet ? atoi(param) : 0);
+		const int paramAsInt = (paramWasSet ? std::stoi(param) : 0);
 		splitter = std::make_unique<PacketCountSplitter>(paramAsInt);
 	}
 	else if (method == SPLIT_BY_IP_CLIENT)
 	{
-		const int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		const int paramAsInt = (paramWasSet ? std::stoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
 		splitter = std::make_unique<ClientIPSplitter>(paramAsInt);
 	}
 	else if (method == SPLIT_BY_IP_SERVER)
 	{
-		const int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		const int paramAsInt = (paramWasSet ? std::stoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
 		splitter = std::make_unique<ServerIPSplitter>(paramAsInt);
 	}
 	else if (method == SPLIT_BY_SERVER_PORT)
 	{
-		const int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		const int paramAsInt = (paramWasSet ? std::stoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
 		splitter = std::make_unique<ServerPortSplitter>(paramAsInt);
 	}
 	else if (method == SPLIT_BY_CLIENT_PORT)
 	{
-		const int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		const int paramAsInt = (paramWasSet ? std::stoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
 		splitter = std::make_unique<ClientPortSplitter>(paramAsInt);
 	}
 	else if (method == SPLIT_BY_2_TUPLE)
 	{
-		const int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		const int paramAsInt = (paramWasSet ? std::stoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
 		splitter = std::make_unique<TwoTupleSplitter>(paramAsInt);
 	}
 	else if (method == SPLIT_BY_5_TUPLE)
 	{
-		const int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		const int paramAsInt = (paramWasSet ? std::stoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
 		splitter = std::make_unique<FiveTupleSplitter>(paramAsInt);
 	}
 	else if (method == SPLIT_BY_BPF_FILTER)
@@ -340,7 +340,7 @@ int main(int argc, char* argv[])
 	}
 	else if (method == SPLIT_BY_ROUND_ROBIN)
 	{
-		const int paramAsInt = (paramWasSet ? atoi(param) : 0);
+		const int paramAsInt = (paramWasSet ? std::stoi(param) : 0);
 		splitter = std::make_unique<RoundRobinSplitter>(paramAsInt);
 	}
 	else
@@ -483,11 +483,11 @@ int main(int argc, char* argv[])
 	reader->close();
 
 	// close the writer files which are still open
-	for (const auto& it : outputFiles)
+	for (const auto& itr : outputFiles)
 	{
-		if (it.second != nullptr)
+		if (itr.second != nullptr)
 		{
-			it.second->close();
+			itr.second->close();
 		}
 	}
 

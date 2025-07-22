@@ -91,7 +91,7 @@ void listInterfaces()
  */
 void onApplicationInterrupted(void* cookie)
 {
-	auto* device = (pcpp::PcapLiveDevice*)cookie;
+	auto* device = reinterpret_cast<pcpp::PcapLiveDevice*>(cookie);
 	device->close();
 }
 
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 		}
 		case 't':
 		{
-			timeoutSec = atoi(optarg);
+			timeoutSec = std::stoi(optarg);
 			break;
 		}
 		default:

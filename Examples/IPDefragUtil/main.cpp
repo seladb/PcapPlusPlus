@@ -14,7 +14,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -110,7 +110,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 	// create an instance of IPReassembly
 	pcpp::IPReassembly ipReassembly;
 
-	pcpp::IPReassembly::ReassemblyStatus status;
+	pcpp::IPReassembly::ReassemblyStatus status = pcpp::IPReassembly::NON_IP_PACKET;
 
 	// read all packet from input file
 	while (reader->getNextPacket(rawPacket))
@@ -322,7 +322,7 @@ int main(int argc, char* argv[])
 			while (std::getline(stream, ipIDStr, ','))
 			{
 				// convert the IP ID to uint16_t
-				const auto fragID = (uint32_t)atoi(ipIDStr.c_str());
+				const auto fragID = std::stoul(ipIDStr);
 				// add the frag ID into the map if it doesn't already exist
 				fragIDMap.emplace(fragID, true);
 			}

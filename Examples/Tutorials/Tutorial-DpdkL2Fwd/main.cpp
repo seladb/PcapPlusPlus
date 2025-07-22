@@ -7,29 +7,29 @@
 #include "TablePrinter.h"
 #include "WorkerThread.h"
 
-#define MBUF_POOL_SIZE 16 * 1024 - 1
-#define DEVICE_ID_1 0
-#define DEVICE_ID_2 1
-#define COLLECT_STATS_EVERY_SEC 2
+constexpr auto MBUF_POOL_SIZE = 16 * 1024 - 1;
+constexpr auto DEVICE_ID_1 = 0;
+constexpr auto DEVICE_ID_2 = 1;
+constexpr auto COLLECT_STATS_EVERY_SEC = 2;
 
 // Keep running flag
 bool keepRunning = true;
 
-void onApplicationInterrupted(void* cookie)
+void onApplicationInterrupted(void* /*cookie*/)
 {
 	keepRunning = false;
-	std::cout << std::endl << "Shutting down..." << std::endl;
+	std::cout << '\n' << "Shutting down..." << '\n';
 }
 
 void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 {
-	pcpp::DpdkDevice::DpdkDeviceStats rxStats;
-	pcpp::DpdkDevice::DpdkDeviceStats txStats;
+	pcpp::DpdkDevice::DpdkDeviceStats rxStats{};
+	pcpp::DpdkDevice::DpdkDeviceStats txStats{};
 	rxDevice->getStatistics(rxStats);
 	txDevice->getStatistics(txStats);
 
-	std::vector<std::string> columnNames = { " ", "Total Packets", "Packets/sec", "Bytes", "Bits/sec" };
-	std::vector<int> columnLengths = { 10, 15, 15, 15, 15 };
+	const std::vector<std::string> columnNames = { " ", "Total Packets", "Packets/sec", "Bytes", "Bits/sec" };
+	const std::vector<int> columnLengths = { 10, 15, 15, 15, 15 };
 
 	pcpp::TablePrinter printer(columnNames, columnLengths);
 
@@ -46,27 +46,27 @@ void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 	printer.printRow(totalTx.str(), '|');
 }
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 	// Register the on app close event handler
 	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, nullptr);
 
 	// Initialize DPDK
-	pcpp::CoreMask coreMaskToUse = pcpp::getCoreMaskForAllMachineCores();
+	const pcpp::CoreMask coreMaskToUse = pcpp::getCoreMaskForAllMachineCores();
 	pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, MBUF_POOL_SIZE);
 
 	// Find DPDK devices
 	pcpp::DpdkDevice* device1 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_1);
 	if (device1 == nullptr)
 	{
-		std::cerr << "Cannot find device1 with port '" << DEVICE_ID_1 << "'" << std::endl;
+		std::cerr << "Cannot find device1 with port '" << DEVICE_ID_1 << "'" << '\n';
 		return 1;
 	}
 
 	pcpp::DpdkDevice* device2 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_2);
 	if (device2 == nullptr)
 	{
-		std::cerr << "Cannot find device2 with port '" << DEVICE_ID_2 << "'" << std::endl;
+		std::cerr << "Cannot find device2 with port '" << DEVICE_ID_2 << "'" << '\n';
 		return 1;
 	}
 
@@ -74,14 +74,14 @@ int main(int argc, char* argv[])
 	if (!device1->openMultiQueues(1, 1))
 	{
 		std::cerr << "Couldn't open device1 #" << device1->getDeviceId() << ", PMD '" << device1->getPMDName() << "'"
-		          << std::endl;
+		          << '\n';
 		return 1;
 	}
 
 	if (!device2->openMultiQueues(1, 1))
 	{
 		std::cerr << "Couldn't open device2 #" << device2->getDeviceId() << ", PMD '" << device2->getPMDName() << "'"
-		          << std::endl;
+		          << '\n';
 		return 1;
 	}
 
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 	// Start capture in async mode
 	if (!pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(workersCoreMask, workers))
 	{
-		std::cerr << "Couldn't start worker threads" << std::endl;
+		std::cerr << "Couldn't start worker threads" << '\n';
 		return 1;
 	}
 
@@ -120,14 +120,14 @@ int main(int argc, char* argv[])
 			// Clear screen and move to top left
 			std::cout << "\033[2J\033[1;1H";
 
-			std::cout << "Stats #" << statsCounter++ << std::endl << "==========" << std::endl << std::endl;
+			std::cout << "Stats #" << statsCounter++ << '\n' << "==========" << '\n' << '\n';
 
 			// Print stats of traffic going from Device1 to Device2
-			std::cout << std::endl << "Device1->Device2 stats:" << std::endl << std::endl;
+			std::cout << '\n' << "Device1->Device2 stats:" << '\n' << '\n';
 			printStats(device1, device2);
 
 			// Print stats of traffic going from Device2 to Device1
-			std::cout << std::endl << "Device2->Device1 stats:" << std::endl << std::endl;
+			std::cout << '\n' << "Device2->Device1 stats:" << '\n' << '\n';
 			printStats(device2, device1);
 		}
 		counter++;

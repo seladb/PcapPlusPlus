@@ -10,14 +10,14 @@
 class PacketCountSplitter : public Splitter
 {
 private:
-	int m_PacketCount;
+	int m_PacketCount{ 0 };
 	int m_MaxPacketsPerFile;
 
 public:
 	/**
 	 * A c'tor for this class which gets the packet count for each split file
 	 */
-	explicit PacketCountSplitter(int maxPacketsPerFile) : m_PacketCount(0), m_MaxPacketsPerFile(maxPacketsPerFile)
+	explicit PacketCountSplitter(int maxPacketsPerFile) : m_MaxPacketsPerFile(maxPacketsPerFile)
 	{}
 
 	/**
@@ -61,7 +61,7 @@ public:
 class FileSizeSplitter : public Splitter
 {
 private:
-	uint64_t m_TotalSize;
+	uint64_t m_TotalSize{ 0 };
 	uint64_t m_MaxBytesPerFile;
 
 	static const int PCAP_FILE_HEADER_SIZE = 24;    // == sizeof(pcap_file_header)
@@ -71,8 +71,7 @@ public:
 	/**
 	 * A c'tor for this class which gets the file size in bytes for each split file
 	 */
-	explicit FileSizeSplitter(uint64_t maxBytesPerFile)
-	    : m_TotalSize(0), m_MaxBytesPerFile(maxBytesPerFile - PCAP_FILE_HEADER_SIZE)
+	explicit FileSizeSplitter(uint64_t maxBytesPerFile) : m_MaxBytesPerFile(maxBytesPerFile - PCAP_FILE_HEADER_SIZE)
 	{
 
 		// each file size contains a pcap header with size of PCAP_FILE_HEADER_SIZE
@@ -85,11 +84,11 @@ public:
 	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) override
 	{
 		// check the current file
-		const int prevFile = m_TotalSize / m_MaxBytesPerFile;
+		const int prevFile = static_cast<int>(m_TotalSize / m_MaxBytesPerFile);
 		// add the current packet size and packet header
 		m_TotalSize += (uint64_t)packet.getRawPacket()->getRawDataLen() + PCAP_PACKET_HEADER_SIZE;
 		// calculate the new file number
-		const int nextFile = m_TotalSize / m_MaxBytesPerFile;
+		const int nextFile = static_cast<int>(m_TotalSize / m_MaxBytesPerFile);
 		// if reached the maximum size per file, close the previous file
 		if (prevFile != nextFile)
 		{

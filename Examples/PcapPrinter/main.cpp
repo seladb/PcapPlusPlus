@@ -34,7 +34,7 @@ static struct option PcapPrinterOptions[] = {
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 			outputPcapFileName = optarg;
 			break;
 		case 'c':
-			packetCount = atoi(optarg);
+			packetCount = std::stoi(optarg);
 			break;
 		case 'i':
 			filter = optarg;
@@ -275,13 +275,13 @@ int main(int argc, char* argv[])
 
 	// write to output file if provided, otherwise output to cout
 
-	std::ofstream of;
+	std::ofstream ofs;
 	std::ostream* out = &std::cout;
 
 	if (!outputPcapFileName.empty())
 	{
-		of.open(outputPcapFileName.c_str());
-		out = &of;
+		ofs.open(outputPcapFileName.c_str());
+		out = &ofs;
 	}
 
 	// open a pcap/pcapng file for reading

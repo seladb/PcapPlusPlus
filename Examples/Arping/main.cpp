@@ -24,10 +24,7 @@
 		exit(1);                                                                                                       \
 	} while (0)
 
-enum
-{
-	DEFAULT_MAX_TRIES = 1000000
-};
+constexpr auto DEFAULT_MAX_TRIES = 1000000;
 
 // clang-format off
 static struct option ArpingOptions[] = {
@@ -168,7 +165,7 @@ int main(int argc, char* argv[])
 			targetIpProvided = true;
 			break;
 		case 'c':
-			maxTries = atoi(optarg);
+			maxTries = std::stoi(optarg);
 			break;
 		case 'h':
 			printUsage();
@@ -180,7 +177,7 @@ int main(int argc, char* argv[])
 			listInterfaces();
 			break;
 		case 'w':
-			timeoutSec = atoi(optarg);
+			timeoutSec = std::stoi(optarg);
 			break;
 		default:
 			printUsage();
@@ -246,7 +243,7 @@ int main(int argc, char* argv[])
 
 	// let's go
 	double arpResponseTimeMS = 0;
-	int i = 1;
+	int idx = 1;
 
 	// suppressing errors to avoid cluttering stdout
 	pcpp::Logger::getInstance().suppressLogs();
@@ -255,7 +252,7 @@ int main(int argc, char* argv[])
 	bool shouldStop = false;
 	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &shouldStop);
 
-	while (i <= maxTries && !shouldStop)
+	while (idx <= maxTries && !shouldStop)
 	{
 		// use the getMacAddress utility to send an ARP request and resolve the MAC address
 		const pcpp::MacAddress result = pcpp::NetworkUtils::getInstance().getMacAddress(
@@ -265,7 +262,7 @@ int main(int argc, char* argv[])
 		if (result == pcpp::MacAddress::Zero)
 		{
 			// PcapPlusPlus logger saves the last internal error message
-			std::cout << "Arping  index=" << i << " : " << pcpp::Logger::getInstance().getLastError() << '\n';
+			std::cout << "Arping  index=" << idx << " : " << pcpp::Logger::getInstance().getLastError() << '\n';
 		}
 		else  // Succeeded fetching MAC address
 		{
@@ -273,10 +270,10 @@ int main(int argc, char* argv[])
 			std::cout.precision(3);
 			std::cout << "Reply from " << targetIP << " "
 			          << "[" << result << "]  " << std::fixed << arpResponseTimeMS << "ms  "
-			          << "index=" << i << '\n';
+			          << "index=" << idx << '\n';
 		}
 
-		i++;
+		++idx;
 	}
 
 	dev->close();

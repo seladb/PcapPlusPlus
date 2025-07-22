@@ -25,7 +25,7 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -33,7 +33,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                       \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -43,27 +43,23 @@
 struct PacketStats
 {
 public:
-	int packetCount;
-	int ethCount;
-	int arpCount;
-	int ip4Count;
-	int ip6Count;
-	int tcpCount;
-	int udpCount;
-	int httpCount;
-	int dnsCount;
-	int sslCount;
-	int totalTcpFlows;
-	int totalUdpFlows;
-	int matchedTcpFlows;
-	int matchedUdpFlows;
-	int matchedPacketCount;
+	int packetCount{ 0 };
+	int ethCount{ 0 };
+	int arpCount{ 0 };
+	int ip4Count{ 0 };
+	int ip6Count{ 0 };
+	int tcpCount{ 0 };
+	int udpCount{ 0 };
+	int httpCount{ 0 };
+	int dnsCount{ 0 };
+	int sslCount{ 0 };
+	int totalTcpFlows{ 0 };
+	int totalUdpFlows{ 0 };
+	int matchedTcpFlows{ 0 };
+	int matchedUdpFlows{ 0 };
+	int matchedPacketCount{ 0 };
 
-	PacketStats()
-	    : packetCount(0), ethCount(0), arpCount(0), ip4Count(0), ip6Count(0), tcpCount(0), udpCount(0), httpCount(0),
-	      dnsCount(0), sslCount(0), totalTcpFlows(0), totalUdpFlows(0), matchedTcpFlows(0), matchedUdpFlows(0),
-	      matchedPacketCount(0)
-	{}
+	PacketStats() = default;
 
 	/**
 	 * Collect stats per packet
@@ -72,23 +68,41 @@ public:
 	{
 		packetCount++;
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::ARP))
+		{
 			arpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ip4Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			ip6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::HTTP))
+		{
 			httpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::DNS))
+		{
 			dnsCount++;
+		}
 		if (packet.isPacketOfType(pcpp::SSL))
+		{
 			sslCount++;
+		}
 	}
 };
 
@@ -97,16 +111,14 @@ public:
  */
 struct PacketCaptureArgs
 {
-	PacketStats* packetStats;
-	PacketMatchingEngine* matchingEngine;
+	PacketStats* packetStats{ nullptr };
+	PacketMatchingEngine* matchingEngine{ nullptr };
 	std::unordered_map<uint32_t, bool> flowTable;
-	pcpp::XdpDevice* sendPacketsTo;
-	pcpp::PcapFileWriterDevice* pcapWriter;
-	bool stopCapture;
+	pcpp::XdpDevice* sendPacketsTo{ nullptr };
+	pcpp::PcapFileWriterDevice* pcapWriter{ nullptr };
+	bool stopCapture{ false };
 
-	PacketCaptureArgs()
-	    : packetStats(nullptr), matchingEngine(nullptr), sendPacketsTo(nullptr), pcapWriter(nullptr), stopCapture(false)
-	{}
+	PacketCaptureArgs()	= default;
 };
 
 // clang-format off
@@ -130,7 +142,7 @@ static struct option XdpFilterTrafficOptions[] = {
  */
 void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
 {
-	auto args = reinterpret_cast<PacketCaptureArgs*>(userCookie);
+	auto* args = reinterpret_cast<PacketCaptureArgs*>(userCookie);
 
 	// if the user asked to interrupt the app, stop receiving packets
 	if (args->stopCapture)
@@ -152,10 +164,10 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 
 		// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or
 		// new flow
-		uint32_t hash = pcpp::hash5Tuple(&packet);
+		const uint32_t hash = pcpp::hash5Tuple(&packet);
 		auto iter = args->flowTable.find(hash);
 
-		bool packetMatched;
+		bool packetMatched = false;
 
 		// if packet belongs to an already existing flow
 		if (iter != args->flowTable.end())
@@ -224,8 +236,8 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 void printStats(PacketStats* packetStats, pcpp::XdpDevice::XdpDeviceStats* rxDeviceStats,
                 pcpp::XdpDevice::XdpDeviceStats* txDeviceStats)
 {
-	std::vector<std::string> columnNames = { "Stat", "Count" };
-	std::vector<int> columnsWidths = { 21, 10 };
+	const std::vector<std::string> columnNames = { "Stat", "Count" };
+	const std::vector<int> columnsWidths = { 21, 10 };
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	printer.printRow("Eth count|" + std::to_string(packetStats->ethCount), '|');
@@ -250,7 +262,7 @@ void printStats(PacketStats* packetStats, pcpp::XdpDevice::XdpDeviceStats* rxDev
 	printer.printRow("RX packets/sec|" + std::to_string(rxDeviceStats->rxPacketsPerSec), '|');
 	printer.printRow("RX bytes|" + std::to_string(rxDeviceStats->rxBytes), '|');
 	printer.printRow("RX bytes/sec|" + std::to_string(rxDeviceStats->rxBytesPerSec), '|');
-	if (txDeviceStats)
+	if (txDeviceStats != nullptr)
 	{
 		printer.printRow("TX packets|" + std::to_string(txDeviceStats->txCompletedPackets), '|');
 		printer.printRow("TX packets/sec|" + std::to_string(txDeviceStats->txCompletedPacketsPerSec), '|');
@@ -273,7 +285,7 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
 
 		pcpp::XdpDevice::XdpDeviceStats* txStats = nullptr;
 
-		if (sendDev)
+		if (sendDev != nullptr)
 		{
 			// if send socket is different from receive socket, collect stats from the send socket
 			if (sendDev != dev)
@@ -301,42 +313,42 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
  */
 void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "------" << std::endl
+	std::cout << '\n'
+	          << "Usage:" << '\n'
+	          << "------" << '\n'
 	          << pcpp::AppName::get()
 	          << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r "
 	             "PROTOCOL] -n INTERFACE_NAME"
-	          << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "    -h|--help                                  : Displays this help message and exits" << std::endl
-	          << "    -v|--version                               : Displays the current version and exits" << std::endl
+	          << '\n'
+	          << '\n'
+	          << "Options:" << '\n'
+	          << '\n'
+	          << "    -h|--help                                  : Displays this help message and exits" << '\n'
+	          << "    -v|--version                               : Displays the current version and exits" << '\n'
 	          << "    -l|--list                                  : Print the list of network interfaces and exit"
-	          << std::endl
+	          << '\n'
 	          << "    -n|--interface-name       INTERFACE_NAME   : An interface name to open AF_XDP socket and receive "
 	             "packets from."
-	          << std::endl
+	          << '\n'
 	          << "                                                 To see all available interfaces use the -l switch"
-	          << std::endl
+	          << '\n'
 	          << "    -s|--send-matched-packets INTERFACE_NAME   : Network interface name to send matched packets to."
-	          << std::endl
+	          << '\n'
 	          << "                                                 The app will open another AF_XDP socket for sending "
 	             "packets."
-	          << std::endl
+	          << '\n'
 	          << "                                                 Note: this interface can be the same one used to "
 	             "receive packets."
-	          << std::endl
+	          << '\n'
 	          << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
-	          << std::endl
-	          << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
-	          << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
-	          << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
-	          << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
+	          << '\n'
+	          << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << '\n'
+	          << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << '\n'
+	          << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << '\n'
+	          << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << '\n'
 	          << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
-	          << std::endl
-	          << std::endl;
+	          << '\n'
+	          << '\n';
 }
 
 /**
@@ -344,9 +356,9 @@ void printUsage()
  */
 void printAppVersion()
 {
-	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	          << "Built: " << pcpp::getBuildDateTime() << std::endl
-	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << '\n'
+	          << "Built: " << pcpp::getBuildDateTime() << '\n'
+	          << "Built from: " << pcpp::getGitInfo() << '\n';
 	exit(0);
 }
 
@@ -355,13 +367,13 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	std::cout << std::endl << "Network interfaces:" << std::endl;
+	std::cout << '\n' << "Network interfaces:" << '\n';
 	for (const auto& device : pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList())
 	{
 		if (device->getIPv4Address() != pcpp::IPv4Address::Zero)
 		{
 			std::cout << "    -> Name: '" << device->getName()
-			          << "'   IP address: " << device->getIPv4Address().toString() << std::endl;
+			          << "'   IP address: " << device->getIPv4Address().toString() << '\n';
 		}
 	}
 	exit(0);
@@ -372,7 +384,7 @@ int main(int argc, char* argv[])
 	pcpp::AppName::init(argc, argv);
 
 	int optionIndex = 0;
-	int opt;
+	int opt = 0;
 
 	std::string interfaceName;
 
@@ -434,7 +446,7 @@ int main(int argc, char* argv[])
 		}
 		case 'p':
 		{
-			int ret = std::stoi(optarg);
+			const int ret = std::stoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
@@ -444,7 +456,7 @@ int main(int argc, char* argv[])
 		}
 		case 'P':
 		{
-			int ret = std::stoi(optarg);
+			const int ret = std::stoi(optarg);
 			if (ret <= 0 || ret > 65535)
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
@@ -454,7 +466,7 @@ int main(int argc, char* argv[])
 		}
 		case 'r':
 		{
-			std::string protocol = std::string(optarg);
+			const std::string protocol = std::string(optarg);
 			if (protocol == "TCP")
 			{
 				protocolToMatch = pcpp::TCP;
@@ -571,7 +583,7 @@ int main(int argc, char* argv[])
 
 	// close the pcap writer if needed
 	std::vector<std::string> additionalStats;
-	if (pcapWriter)
+	if (pcapWriter != nullptr)
 	{
 		pcpp::IPcapDevice::PcapStats stats;
 		pcapWriter->getStatistics(stats);
@@ -609,7 +621,7 @@ int main(int argc, char* argv[])
 
 	for (const auto& additionalStat : additionalStats)
 	{
-		std::cout << additionalStat << std::endl;
+		std::cout << additionalStat << '\n';
 	}
 
 	// exit with an error if there was an error receiving packets

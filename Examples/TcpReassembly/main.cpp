@@ -39,7 +39,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -360,7 +360,7 @@ void listInterfaces()
 static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::TcpStreamData& tcpData, void* userCookie)
 {
 	// extract the connection manager from the user cookie
-	auto* connMgr = (TcpReassemblyConnMgr*)userCookie;
+	auto* connMgr = reinterpret_cast<TcpReassemblyConnMgr*>(userCookie);
 
 	// check if this flow already appears in the connection manager. If not add it
 	auto flow = connMgr->find(tcpData.getConnectionData().flowKey);
@@ -445,7 +445,8 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 	flow->second.bytesFromSide[sideIndex] += (int)tcpData.getDataLength();
 
 	// write the new data to the file
-	flow->second.fileStreams[side]->write((char*)tcpData.getData(), tcpData.getDataLength());
+	flow->second.fileStreams[side]->write(reinterpret_cast<const char*>(tcpData.getData()),
+	                                      static_cast<std::streamsize>(tcpData.getDataLength()));
 }
 
 /**
@@ -455,7 +456,7 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 static void tcpReassemblyConnectionStartCallback(const pcpp::ConnectionData& connectionData, void* userCookie)
 {
 	// get a pointer to the connection manager
-	auto* connMgr = (TcpReassemblyConnMgr*)userCookie;
+	auto* connMgr = reinterpret_cast<TcpReassemblyConnMgr*>(userCookie);
 
 	// look for the connection in the connection manager
 	auto connectionMngr = connMgr->find(connectionData.flowKey);
@@ -476,7 +477,7 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
                                                pcpp::TcpReassembly::ConnectionEndReason /*reason*/, void* userCookie)
 {
 	// get a pointer to the connection manager
-	auto* connMgr = (TcpReassemblyConnMgr*)userCookie;
+	auto* connMgr = reinterpret_cast<TcpReassemblyConnMgr*>(userCookie);
 
 	// find the connection in the connection manager by the flow key
 	auto connection = connMgr->find(connectionData.flowKey);
@@ -517,7 +518,7 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
  */
 static void onApplicationInterrupted(void* cookie)
 {
-	bool* shouldStop = (bool*)cookie;
+	bool* shouldStop = reinterpret_cast<bool*>(cookie);
 	*shouldStop = true;
 }
 
@@ -527,7 +528,7 @@ static void onApplicationInterrupted(void* cookie)
 static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* /*dev*/, void* tcpReassemblyCookie)
 {
 	// get a pointer to the TCP reassembly instance and feed the packet arrived to it
-	auto* tcpReassembly = (pcpp::TcpReassembly*)tcpReassemblyCookie;
+	auto* tcpReassembly = reinterpret_cast<pcpp::TcpReassembly*>(tcpReassemblyCookie);
 	tcpReassembly->reassemblePacket(packet);
 }
 
@@ -670,7 +671,7 @@ int main(int argc, char* argv[])
 			writeToConsole = true;
 			break;
 		case 'f':
-			maxOpenFiles = (size_t)atoi(optarg);
+			maxOpenFiles = std::stoull(optarg);
 			break;
 		case 'h':
 			printUsage();

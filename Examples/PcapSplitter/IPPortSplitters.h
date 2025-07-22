@@ -70,12 +70,8 @@ public:
 					return m_FlowTable[hash];
 				}
 				// Other TCP packet
-				else
-				{
-					m_FlowTable[hash] =
-					    getFileNumberForValue(getValue(packet, TCP_OTHER, srcPort, dstPort), filesToClose);
-					return m_FlowTable[hash];
-				}
+				m_FlowTable[hash] = getFileNumberForValue(getValue(packet, TCP_OTHER, srcPort, dstPort), filesToClose);
+				return m_FlowTable[hash];
 			}
 		}
 
@@ -132,10 +128,7 @@ public:
 					return result + getValueString(packet, SYN_ACK, srcPort, dstPort);
 				}
 				// Other TCP packet
-				else
-				{
-					return result + getValueString(packet, TCP_OTHER, srcPort, dstPort);
-				}
+				return result + getValueString(packet, TCP_OTHER, srcPort, dstPort);
 			}
 		}
 
@@ -159,7 +152,7 @@ protected:
 	/**
 	 * An enum for TCP/UDP packet type: can be either TCP-SYN, TCP-SYN/ACK, Other TCP packet of UDP packet
 	 */
-	enum PacketType
+	enum PacketType : uint8_t
 	{
 		SYN,
 		SYN_ACK,
@@ -194,9 +187,11 @@ protected:
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIPv4Address().toInt();
 		}
 		if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIPv6Address().toBytes(), 16);
-		else
-			return 0;
+		{
+			return pcpp::fnvHash(
+			    const_cast<uint8_t*>(packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIPv6Address().toBytes()), 16);
+		}
+		return 0;
 	}
 
 	/**
@@ -209,9 +204,11 @@ protected:
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address().toInt();
 		}
 		if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIPv6Address().toBytes(), 16);
-		else
-			return 0;
+		{
+			return pcpp::fnvHash(
+			    const_cast<uint8_t*>(packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIPv6Address().toBytes()), 16);
+		}
+		return 0;
 	}
 
 	/**

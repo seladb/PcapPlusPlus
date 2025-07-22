@@ -1,2 +1,4 @@
-Checks: '-concurrency-mt-unsafe'
+Checks: '-concurrency-mt-unsafe,
+-cppcoreguidelines-avoid-const-or-ref-data-members'
+
 InheritParentConfig: true

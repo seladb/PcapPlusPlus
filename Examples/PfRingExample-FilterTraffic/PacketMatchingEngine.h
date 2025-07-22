@@ -71,8 +71,8 @@ public:
 
 		if (m_MatchSrcPort || m_MatchDstPort)
 		{
-			uint16_t srcPort;
-			uint16_t dstPort;
+			uint16_t srcPort = 0;
+			uint16_t dstPort = 0;
 			if (packet.isPacketOfType(pcpp::TCP))
 			{
 				srcPort = packet.getLayerOfType<pcpp::TcpLayer>()->getSrcPort();

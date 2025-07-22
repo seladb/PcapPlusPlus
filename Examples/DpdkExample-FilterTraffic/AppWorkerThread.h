@@ -29,10 +29,7 @@ public:
 	    : m_WorkerConfig(workerConfig), m_CoreId(MAX_NUM_OF_CORES + 1), m_PacketMatchingEngine(matchingEngine)
 	{}
 
-	~AppWorkerThread() override
-	{
-		// do nothing
-	}
+	~AppWorkerThread() override = default;
 
 	PacketStats& getStats()
 	{
@@ -145,10 +142,10 @@ public:
 		}
 
 		// free packet array (frees all mbufs as well)
-		for (auto& i : packetArr)
+		for (auto& idx : packetArr)
 		{
 
-			delete i;
+			delete idx;
 		}
 
 		// close and delete pcap file writer

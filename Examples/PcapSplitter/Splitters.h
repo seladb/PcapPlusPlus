@@ -198,7 +198,7 @@ protected:
 /**
  * An auxiliary method for extracting packet's IPv4/IPv6 source address as string
  */
-std::string getSrcIPString(pcpp::Packet& packet)
+inline std::string getSrcIPString(pcpp::Packet& packet)
 {
 	if (packet.isPacketOfType(pcpp::IP))
 	{
@@ -210,7 +210,7 @@ std::string getSrcIPString(pcpp::Packet& packet)
 /**
  * An auxiliary method for extracting packet's IPv4/IPv6 dest address string
  */
-std::string getDstIPString(pcpp::Packet& packet)
+inline std::string getDstIPString(pcpp::Packet& packet)
 {
 	if (packet.isPacketOfType(pcpp::IP))
 	{
@@ -222,11 +222,11 @@ std::string getDstIPString(pcpp::Packet& packet)
 /**
  * An auxiliary method for replacing '.' and ':' in IPv4/IPv6 addresses with '-'
  */
-std::string hyphenIP(std::string ipVal)
+inline std::string hyphenIP(std::string ipVal)
 {
 	// for IPv4 - replace '.' with '-'
-	int loc = ipVal.find('.');
-	while (loc >= 0)
+	auto loc = ipVal.find('.');
+	while (loc != std::string::npos)
 	{
 		ipVal.replace(loc, 1, "-");
 		loc = ipVal.find('.');
@@ -234,7 +234,7 @@ std::string hyphenIP(std::string ipVal)
 
 	// for IPv6 - replace ':' with '-'
 	loc = ipVal.find(':');
-	while (loc >= 0)
+	while (loc != std::string::npos)
 	{
 		ipVal.replace(loc, 1, "-");
 		loc = ipVal.find(':');

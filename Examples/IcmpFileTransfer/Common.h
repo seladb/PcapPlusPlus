@@ -15,23 +15,20 @@ enum
 	ICMP_FT_ABORT = 0x146158cbafff2b8aULL
 };
 
-enum
-{
-	ONE_MBYTE = 1048576
-};
+constexpr auto ONE_MBYTE = 1048576;
 
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
 #define EXIT_WITH_ERROR_AND_RUN_COMMAND(reason, command)                                                               \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		command;                                                                                                       \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		static_cast<void>(command);                                                                                    \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 

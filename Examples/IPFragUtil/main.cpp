@@ -16,7 +16,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -136,7 +136,8 @@ uint32_t generateRandomNumber()
 	uint32_t result = 0;
 	for (int i = 4; i > 0; i--)
 	{
-		const uint8_t randomNum = (uint8_t)rand() % 256;
+		// NOLINTNEXTLINE(cert-msc30-c,cert-msc50-cpp)
+		const uint8_t randomNum = (uint8_t)rand() % 256;  // sufficient randomness for example
 		result += (uint32_t)pow(randomNum, i);
 	}
 
@@ -354,7 +355,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			if (resultFrags.size() > 1 || copyAllPacketsToOutputFile)
 			{
 				writer->writePackets(resultFrags);
-				stats.totalPacketsWritten += resultFrags.size();
+				stats.totalPacketsWritten += static_cast<int>(resultFrags.size());
 			}
 		}
 		// even if packet didn't pass the filters but user requested to write all packet to output file, write it
@@ -426,7 +427,7 @@ int main(int argc, char* argv[])
 		}
 		case 's':
 		{
-			fragSize = atoi(optarg);
+			fragSize = std::stoi(optarg);
 			if (fragSize < 1)
 			{
 				EXIT_WITH_ERROR("Fragment size must be a positive integer");
@@ -449,7 +450,7 @@ int main(int argc, char* argv[])
 			while (std::getline(stream, ipIDStr, ','))
 			{
 				// convert the IP ID to uint16_t
-				const auto ipID = (uint16_t)atoi(ipIDStr.c_str());
+				const auto ipID = static_cast<uint16_t>(std::stoul(ipIDStr));
 				// add the IP ID into the map if it doesn't already exist
 				ipIDMap.emplace(ipID, true);
 			}

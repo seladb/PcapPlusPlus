@@ -141,7 +141,7 @@ void listInterfaces()
  */
 void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
-	auto* args = (DnsSpoofingArgs*)cookie;
+	auto* args = reinterpret_cast<DnsSpoofingArgs*>(cookie);
 
 	// create a parsed packet from the raw packet
 	pcpp::Packet dnsRequest(packet);
@@ -273,7 +273,7 @@ bool stringCountComparer(const std::pair<std::string, int>& first, const std::pa
  */
 void onApplicationInterrupted(void* cookie)
 {
-	auto* args = (DnsSpoofingArgs*)cookie;
+	auto* args = reinterpret_cast<DnsSpoofingArgs*>(cookie);
 	if (args->stats.spoofedHosts.empty())
 	{
 		std::cout << '\n' << "Application closing. No hosts were spoofed." << '\n';

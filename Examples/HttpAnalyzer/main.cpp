@@ -44,10 +44,7 @@
 	          << std::fixed << std::showpoint << std::setprecision(3) << counter << " [" << measurement << "]"         \
 	          << '\n';
 
-enum
-{
-	DEFAULT_CALC_RATES_PERIOD_SEC = 2
-};
+constexpr auto DEFAULT_CALC_RATES_PERIOD_SEC = 2;
 
 // clang-format off
 static struct option HttpAnalyzerOptions[] = {
@@ -539,7 +536,7 @@ int main(int argc, char* argv[])
 			savePacketsToFileName = optarg;
 			break;
 		case 'r':
-			printRatePeriod = atoi(optarg);
+			printRatePeriod = std::stoi(optarg);
 			break;
 		case 'd':
 			printRatesPeriodically = false;
@@ -566,7 +563,7 @@ int main(int argc, char* argv[])
 	}
 
 	// get the port
-	const int nPort = atoi(port.c_str());
+	const int nPort = std::stoi(port);
 	if (nPort <= 0 || nPort > 65535)
 	{
 		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
