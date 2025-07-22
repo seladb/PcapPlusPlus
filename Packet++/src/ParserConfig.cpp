@@ -123,11 +123,10 @@ namespace pcpp
 		}
 		insertResult.first->second = protocol;  // Update the protocol if it already exists
 
-		if (symmetrical && port.portSrc != port.portDst)
+		if (symmetrical && (port.hasWildcards() || port.portSrc() != port.portDst()))
 		{
 			// Add the symmetrical mapping
-			PortPair symmetricalPort = { port.portDst, port.portSrc };
-			addPortMapping(symmetricalPort, protocol, false);
+			addPortMapping(port.withSwappedPorts(), protocol, false);
 		}
 	}
 
@@ -143,11 +142,10 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Port " << port << " not found in port mapper, nothing to remove");
 		}
 
-		if (symmetrical && port.portSrc != port.portDst)
+		if (symmetrical && (port.hasWildcards() || port.portSrc() != port.portDst()))
 		{
 			// Remove the symmetrical mapping
-			PortPair symmetricalPort = { port.portDst, port.portSrc };
-			removePortMapping(symmetricalPort, false);
+			removePortMapping(port.withSwappedPorts(), false);
 		}
 	}
 
@@ -174,14 +172,14 @@ namespace pcpp
 		}
 
 		// Check for src port match
-		it = m_PortToProtocolMap.find(PortPair::fromSrc(port.portSrc));
+		it = m_PortToProtocolMap.find(port.withAnyDst());
 		if (it != m_PortToProtocolMap.end())
 		{
 			protocols[1] = it->second;  // Src port match
 		}
 
 		// Check for dst port match
-		it = m_PortToProtocolMap.find(PortPair::fromDst(port.portDst));
+		it = m_PortToProtocolMap.find(port.withAnySrc());
 		if (it != m_PortToProtocolMap.end())
 		{
 			protocols[2] = it->second;  // Dst port match

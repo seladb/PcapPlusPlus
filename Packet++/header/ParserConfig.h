@@ -11,14 +11,28 @@
 
 namespace pcpp
 {
-	/// @brief A structure representing a pair of ports.
-	struct PortPair
+	/// @brief Represents a pair of ports, typically used for network protocol matching.
+	class PortPair
 	{
+	public:
 		/// @brief Represents a value that indicates any port can be matched.
-		static constexpr uint16_t AnyPort = 0;
+		static constexpr struct AnyPortWildcard
+		{
+		} AnyPort = {};
 
-		uint16_t portSrc = AnyPort;  ///< Source port number
-		uint16_t portDst = AnyPort;  ///< Destination port number
+		constexpr PortPair() = default;
+
+		constexpr PortPair(uint16_t portSrc, uint16_t portDst)
+		    : m_PortSrc(portSrc), m_PortDst(portDst), m_PortSrcSet(true), m_PortDstSet(true)
+		{}
+
+		constexpr PortPair(uint16_t portSrc, AnyPortWildcard)
+		    : m_PortSrc(portSrc), m_PortDst(0), m_PortSrcSet(true), m_PortDstSet(false)
+		{}
+
+		constexpr PortPair(AnyPortWildcard, uint16_t portDst)
+		    : m_PortSrc(0), m_PortDst(portDst), m_PortSrcSet(false), m_PortDstSet(true)
+		{}
 
 		/// @brief Constructs a PortPair with the specified source port and destination port set to AnyPort.
 		/// @param portSrc Source port number.
@@ -36,43 +50,118 @@ namespace pcpp
 			return { AnyPort, portDst };
 		}
 
-		constexpr PortPair onlyDest() const
+		/// @brief Returns a PortPair with the source port replaced by AnyPort wildcard.
+		/// @return A new PortPair with the source port set to AnyPort.
+		constexpr PortPair withAnySrc() const
 		{
-			return fromDst(portDst);
+			return fromDst(m_PortDst);
 		}
 
-		constexpr PortPair onlySrc() const
+		/// @brief Returns a PortPair with the destination port replaced by AnyPort wildcard.
+		/// @return A new PortPair with the destination port set to AnyPort.
+		constexpr PortPair withAnyDst() const
 		{
-			return fromSrc(portSrc);
+			return fromSrc(m_PortSrc);
+		}
+
+		/// @brief Returns a PortPair with the source and destination ports reversed.
+		/// @return A new PortPair with the source and destination ports swapped.
+		constexpr PortPair withSwappedPorts() const noexcept
+		{
+			PortPair reversed;
+			reversed.m_PortSrc = m_PortDst;
+			reversed.m_PortSrcSet = m_PortDstSet;
+			reversed.m_PortDst = m_PortSrc;
+			reversed.m_PortDstSet = m_PortSrcSet;
+			return reversed;
+		}
+
+		constexpr bool isSrcPortSet() const noexcept
+		{
+			return m_PortSrcSet;
+		}
+
+		constexpr bool isDstPortSet() const noexcept
+		{
+			return m_PortDstSet;
+		}
+
+		constexpr bool hasWildcards() const noexcept
+		{
+			return !(isSrcPortSet() && isDstPortSet());
+		}
+
+		constexpr uint16_t portSrc() const noexcept
+		{
+			return m_PortSrc;
+		}
+
+		constexpr uint16_t portDst() const noexcept
+		{
+			return m_PortDst;
+		}
+
+		constexpr void setSrcPort(uint16_t portSrc) noexcept
+		{
+			m_PortSrc = portSrc;
+			m_PortSrcSet = true;
+		}
+
+		constexpr void setSrcPort(AnyPortWildcard) noexcept
+		{
+			m_PortSrc = 0;
+			m_PortSrcSet = false;
+		}
+
+		constexpr void setDstPort(uint16_t portDst) noexcept
+		{
+			m_PortDst = portDst;
+			m_PortDstSet = true;
+		}
+
+		constexpr void setDstPort(AnyPortWildcard) noexcept
+		{
+			m_PortDst = 0;
+			m_PortDstSet = false;
 		}
 
 		constexpr bool operator==(const PortPair& other) const noexcept
 		{
-			return portSrc == other.portSrc && portDst == other.portDst;
+			return m_PortSrc == other.m_PortSrc && m_PortDst == other.m_PortDst;
 		}
 
 		friend std::ostream& operator<<(std::ostream& os, PortPair const pair)
 		{
-			os << "PortPair(src: " << pair.portSrc << ", dst: " << pair.portDst << ")";
+			os << "PortPair(src: ";
+			if (pair.m_PortSrcSet)
+			{
+				os << pair.m_PortSrc;
+			}
+			else
+			{
+				os << "AnyPort";
+			}
+
+			os << ", dst: ";
+			if (pair.m_PortDstSet)
+			{
+				os << pair.m_PortDst;
+			}
+			else
+			{
+				os << "AnyPort";
+			}
+			os << ')';
 			return os;
 		}
-	};
-}  // namespace pcpp
 
-namespace std
-{
-	/// @brief Specialization of std::hash for PortPair.
-	template <> struct hash<pcpp::PortPair>
-	{
-		size_t operator()(const pcpp::PortPair& portPair) const noexcept
-		{
-			return std::hash<uint32_t>()(static_cast<uint32_t>(portPair.portDst) << 16 | portPair.portSrc);
-		}
+	private:
+		uint16_t m_PortSrc = 0;     ///< Source port number
+		uint16_t m_PortDst = 0;     ///< Destination port number
+		bool m_PortSrcSet = false;  ///< Indicates if the src port is set, on false consider the port as wildcard
+		bool m_PortDstSet = false;  ///< Indicates if the dst port is set, on false consider the port as wildcard
 	};
-}  // namespace std
 
-namespace pcpp
-{
 	/// @brief A class that maps port pairs to protocol types.
 	class PortMapper
 	{
@@ -141,8 +230,36 @@ namespace pcpp
 		static PortMapper makeDefaultPortMapper();
 
 	private:
+		struct PackedPortPairHasher
+		{
+			std::size_t operator()(const PortPair& portPair) const noexcept
+			{
+				return static_cast<std::size_t>(splitMix64(encodePair(portPair)));
+			}
+
+			constexpr uint64_t encodePair(const PortPair& portPair) const noexcept
+			{
+				// Encodes the port pair as a uint64_t
+				// 30 bits unused, 2 bits wildcard flags, 16 bits for src port, 16 bits for dst port,
+				uint64_t srcPort = portPair.portSrc();
+				uint64_t dstPort = static_cast<uint64_t>(portPair.portDst()) << 16;
+				uint64_t srcPortSet = static_cast<uint64_t>(portPair.isSrcPortSet() ? 1 : 0) << 32;
+				uint64_t dstPortSet = static_cast<uint64_t>(portPair.isDstPortSet() ? 1 : 0) << 33;
+
+				return srcPort | dstPort | srcPortSet | dstPortSet;
+			}
+
+			constexpr uint64_t splitMix64(uint64_t key) const noexcept
+			{
+				uint64_t z = key + 0x9E3779B97F4A7C15ULL;
+				z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ULL;
+				z = (z ^ (z >> 27)) * 0x94D049BB133111EBULL;
+				return z ^ (z >> 31);
+			}
+		};
+
 		// todo: profile lookup performance.
-		std::unordered_map<PortPair, ProtocolTypeFamily> m_PortToProtocolMap;
+		std::unordered_map<PortPair, ProtocolTypeFamily, PackedPortPairHasher> m_PortToProtocolMap;
 	};
 
 	/// @brief A parser configuration that can be used to configure the behavior of the packet parser.
