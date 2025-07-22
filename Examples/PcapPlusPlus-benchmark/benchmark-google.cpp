@@ -27,7 +27,7 @@ static void BM_PcapFileRead(benchmark::State& state)
 	int64_t totalBytes = 0;
 	int64_t totalPackets = 0;
 	pcpp::RawPacket rawPacket;
-	for (auto _ : state)
+	for (auto unused : state)
 	{
 		if (!reader.getNextPacket(rawPacket))
 		{
@@ -77,7 +77,7 @@ static void BM_PcapFileWrite(benchmark::State& state)
 
 	int64_t totalBytes = 0;
 	int64_t totalPackets = 0;
-	for (auto _ : state)
+	for (auto unused : state)
 	{
 		// Write packet to file
 		writer.writePacket(*(packet.getRawPacket()));
@@ -106,7 +106,7 @@ static void BM_PacketParsing(benchmark::State& state)
 	}
 
 	pcpp::RawPacket rawPacket;
-	for (auto _ : state)
+	for (auto unused : state)
 	{
 		if (!reader.getNextPacket(rawPacket))
 		{
@@ -147,7 +147,7 @@ static void BM_PacketCrafting(benchmark::State& state)
 	int64_t totalBytes = 0;
 	int64_t totalPackets = 0;
 
-	for (auto _ : state)
+	for (auto unused : state)
 	{
 		// NOLINTNEXTLINE(cert-msc30-c,cert-msc50-cpp)
 		const auto randNum = static_cast<uint8_t>(rand() % 256);  // sufficient randomness for example

@@ -76,7 +76,7 @@ namespace
 		unsigned long arpPacketsOutFail;
 	};
 
-	bool doContinue = true;
+	volatile sig_atomic_t doContinue = 1;
 
 	/**
 	 * Print application version
@@ -602,7 +602,7 @@ namespace
 		pfd[POLL_STDOUT].fd = STDOUT_FILENO;
 		pfd[POLL_STDOUT].events = 0;
 
-		while (doContinue)
+		while (doContinue != 0)
 		{
 			/* both inputs are gone, buffers are empty, we are done */
 			if (pfd[POLL_STDIN].fd == -1 && pfd[POLL_NETIN].fd == -1 && ttybuffPos == 0 && netbuffPos == 0)
@@ -636,11 +636,11 @@ namespace
 			}
 
 			/* treat socket error conditions */
-			for (int idx = 0; idx < 4; ++idx)
+			for (auto& req : pfd)
 			{
-				if ((pfd[idx].revents & (POLLERR | POLLNVAL)) != 0)
+				if ((req.revents & (POLLERR | POLLNVAL)) != 0)
 				{
-					pfd[idx].fd = -1;
+					req.fd = -1;
 				}
 			}
 			/* reading is possible after HUP */
@@ -796,7 +796,7 @@ namespace
 
 extern "C" void signal_handler(int /*unused*/)
 {
-	doContinue = false;
+	doContinue = 0;
 }
 
 /**
@@ -818,7 +818,7 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Could not start capture thread on KNI device");
 	}
 	connectUDPSocket(sock, args);
-	std::signal(SIGINT, signal_handler);
+	static_cast<void>(std::signal(SIGINT, signal_handler));
 	std::cout << "Ready for input:" << '\n';
 	pingPongProcess(sock);
 	//! Close socket before device

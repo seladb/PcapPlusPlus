@@ -501,7 +501,7 @@ void sendFile(const std::string& filePath, pcpp::IPv4Address pitcherIP, pcpp::IP
 		uint16_t icmpId = 1;
 
 		// copy the file name to the buffer
-		strcpy((char*)memblock, fileName.c_str());
+		fileName.copy(reinterpret_cast<char*>(memblock), std::min(blockSize - 1, fileName.length()));
 
 		IcmpFileTransferStartSend ftStartData = { icmpId, pitcherIP, catcherIP };
 
