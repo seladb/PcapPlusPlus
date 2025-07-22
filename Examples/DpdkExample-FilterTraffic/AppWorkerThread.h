@@ -62,7 +62,7 @@ public:
 			return true;
 		}
 
-#define MAX_RECEIVE_BURST 64
+		constexpr auto MAX_RECEIVE_BURST = 64;
 		pcpp::MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
 
 		// main loop, runs until be told to stop
