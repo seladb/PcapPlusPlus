@@ -173,7 +173,7 @@ static void BM_PacketPureParsing(benchmark::State& state)
 		benchmark::DoNotOptimize(parsedPacket.getFirstLayer());
 
 		++totalProcessedItems;
-		++totalProcessedBytes += rawPacket->getRawDataLen();
+		totalProcessedBytes += rawPacket->getRawDataLen();
 		++currentPacketIndex;
 
 		if (currentPacketIndex >= rawPackets.size())
