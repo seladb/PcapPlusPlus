@@ -368,7 +368,7 @@ int main(int argc, char* argv[])
 		sleep(1);
 
 		// Print stats every COLLECT_STATS_EVERY_SEC seconds
-		// cppcheck-suppress moduloofone, knownConditionTrueFalse
+		// cppcheck-suppress [moduloofone, knownConditionTrueFalse]
 		if (counter % COLLECT_STATS_EVERY_SEC == 0)
 		{
 			// Clear screen and move to top left
