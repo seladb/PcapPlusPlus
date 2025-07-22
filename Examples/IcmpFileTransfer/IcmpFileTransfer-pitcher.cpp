@@ -224,7 +224,7 @@ static void getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* /*d
 
 	// write the file data chunk in the ICMP reply data to the output file
 	icmpFileContentData->file->write(reinterpret_cast<char*>(icmpLayer->getEchoReplyData()->data),
-	                                 icmpLayer->getEchoReplyData()->dataLength);
+	                                 static_cast<std::streamsize>(icmpLayer->getEchoReplyData()->dataLength));
 
 	// count the bytes received
 	icmpFileContentData->fileSize += icmpLayer->getEchoReplyData()->dataLength;
@@ -418,7 +418,7 @@ static bool waitForFileTransferStartAck(pcpp::RawPacket* rawPacket, pcpp::PcapLi
 		return false;
 	}
 
-	auto* icmpData = (IcmpFileTransferStartSend*)icmpVoidData;
+	auto* icmpData = reinterpret_cast<IcmpFileTransferStartSend*>(icmpVoidData);
 
 	// extract the ICMP layer, verify it's an ICMP reply
 	auto* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
@@ -443,13 +443,9 @@ static bool waitForFileTransferStartAck(pcpp::RawPacket* rawPacket, pcpp::PcapLi
 
 	// verify the message type is ICMP_FT_ACK
 	const uint64_t resMsg = icmpLayer->getEchoReplyData()->header->timestamp;
-	if (resMsg != ICMP_FT_ACK)
-	{
-		return false;
-	}
 
-	// if arrived to here it means we got a response from the catcher and it's ready for file transfer to start
-	return true;
+	// if it is true then it means the catcher is ready for file transfer to start
+	return resMsg == ICMP_FT_ACK;
 }
 
 /**
@@ -513,7 +509,7 @@ void sendFile(const std::string& filePath, pcpp::IPv4Address pitcherIP, pcpp::IP
 
 		// establish connection with the catcher by sending it ICMP requests that contains the file name and wait for a
 		// response keep sending these requests until the catcher answers or until the program is stopped
-		while (1)
+		while (true)
 		{
 			// send the catcher an ICMP request that includes an special ICMP_FT_START message in the timestamp field
 			// and the filename in the request data. The catcher should intercept this message and send an ICMP response
@@ -563,7 +559,7 @@ void sendFile(const std::string& filePath, pcpp::IPv4Address pitcherIP, pcpp::IP
 
 		// read one chunk of the file and send it to catcher. This loop breaks when it is reaching the end of the file
 		// and can't read a block of size blockSize from the file
-		while (file.read((char*)memblock, blockSize))
+		while (file.read(reinterpret_cast<char*>(memblock), static_cast<std::streamsize>(blockSize)))
 		{
 			// send an ICMP request to the catcher containing the data chunk.The message type (set in the timestamp
 			// field) is ICMP_FT_DATA so the catcher knows it's a data chunk
@@ -650,7 +646,10 @@ int main(int argc, char* argv[])
 	size_t blockSize = 0;
 
 	// disable stdout buffering so all std::cout command will be printed immediately
-	setbuf(stdout, nullptr);
+	if (setvbuf(stdout, nullptr, _IONBF, 0) != 0)
+	{
+		std::cerr << "Failed to disable stdout buffering" << '\n';
+	}
 
 	// read and parse command line arguments. This method also takes care of arguments correctness. If they're not
 	// correct, it'll exit the program

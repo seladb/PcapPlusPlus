@@ -76,7 +76,7 @@ static bool waitForFileTransferStart(pcpp::RawPacket* rawPacket, pcpp::PcapLiveD
 		return false;
 	}
 
-	auto* icmpFTStart = (IcmpFileTransferStart*)icmpVoidData;
+	auto* icmpFTStart = reinterpret_cast<IcmpFileTransferStart*>(icmpVoidData);
 
 	// extract the ICMP layer, verify it's an ICMP request
 	auto* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
@@ -103,7 +103,7 @@ static bool waitForFileTransferStart(pcpp::RawPacket* rawPacket, pcpp::PcapLiveD
 	}
 
 	// extract the file name from the ICMP request data
-	icmpFTStart->fileName = std::string((char*)icmpLayer->getEchoRequestData()->data);
+	icmpFTStart->fileName = std::string(reinterpret_cast<const char*>(icmpLayer->getEchoRequestData()->data));
 
 	// extract ethernet layer and ICMP ID to be able to respond to the pitcher
 	auto* ethLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
@@ -145,7 +145,7 @@ static bool getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* /*d
 		return false;
 	}
 
-	auto* icmpData = (IcmpFileContentDataRecv*)icmpVoidData;
+	auto* icmpData = reinterpret_cast<IcmpFileContentDataRecv*>(icmpVoidData);
 
 	// extract the ICMP layer, verify it's an ICMP request
 	auto* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
@@ -204,7 +204,8 @@ static bool getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* /*d
 	icmpData->expectedIcmpId++;
 
 	// write the data received from the pitcher to the local file
-	icmpData->file->write((char*)icmpLayer->getEchoRequestData()->data, icmpLayer->getEchoRequestData()->dataLength);
+	icmpData->file->write(reinterpret_cast<const char*>(icmpLayer->getEchoRequestData()->data),
+	                      static_cast<std::streamsize>(icmpLayer->getEchoRequestData()->dataLength));
 
 	// add chunk size to the aggregated file size
 	icmpData->fileSize += icmpLayer->getEchoRequestData()->dataLength;
@@ -313,7 +314,7 @@ static bool startFileTransfer(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* 
 		return false;
 	}
 
-	auto* icmpFTStart = (IcmpFileTransferStart*)icmpVoidData;
+	auto* icmpFTStart = reinterpret_cast<IcmpFileTransferStart*>(icmpVoidData);
 
 	// extract the ICMP layer, verify it's an ICMP request
 	auto* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
@@ -345,7 +346,8 @@ static bool startFileTransfer(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* 
 
 	// send the ICMP response containing the file name back to the pitcher
 	if (!sendIcmpResponse(dev, dev->getMacAddress(), ethLayer->getSourceMac(), icmpFTStart->catcherIPAddr,
-	                      icmpFTStart->pitcherIPAddr, icmpId, ICMP_FT_START, (uint8_t*)icmpFTStart->fileName.c_str(),
+	                      icmpFTStart->pitcherIPAddr, icmpId, ICMP_FT_START,
+	                      const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(icmpFTStart->fileName.c_str())),
 	                      icmpFTStart->fileName.length() + 1))
 	{
 		EXIT_WITH_ERROR("Cannot send file transfer start message to pitcher");
@@ -374,7 +376,7 @@ static bool sendContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, v
 		return false;
 	}
 
-	auto* icmpFileContentData = (IcmpFileContentDataSend*)icmpVoidData;
+	auto* icmpFileContentData = reinterpret_cast<IcmpFileContentDataSend*>(icmpVoidData);
 
 	// extract the ICMP layer, verify it's an ICMP request
 	auto* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
@@ -426,13 +428,15 @@ static bool sendContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, v
 	}
 
 	// try to read another block of data from the file
-	if (icmpFileContentData->file->read(icmpFileContentData->memblock, icmpFileContentData->blockSize))
+	if (icmpFileContentData->file->read(icmpFileContentData->memblock,
+	                                    static_cast<std::streamsize>(icmpFileContentData->blockSize)))
 	{
 		// if managed to read a full block, send it via the ICMP response to the pitcher. The data chunk will be sent in
 		// the response data
 		if (!sendIcmpResponse(dev, dev->getMacAddress(), ethLayer->getSourceMac(), icmpFileContentData->catcherIPAddr,
 		                      icmpFileContentData->pitcherIPAddr, icmpId, ICMP_FT_DATA,
-		                      (uint8_t*)icmpFileContentData->memblock, icmpFileContentData->blockSize))
+		                      reinterpret_cast<uint8_t*>(icmpFileContentData->memblock),
+		                      icmpFileContentData->blockSize))
 		{
 			EXIT_WITH_ERROR("Cannot send file transfer data message to pitcher");
 		}
@@ -452,7 +456,8 @@ static bool sendContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, v
 		// response data
 		if (!sendIcmpResponse(dev, dev->getMacAddress(), ethLayer->getSourceMac(), icmpFileContentData->catcherIPAddr,
 		                      icmpFileContentData->pitcherIPAddr, icmpId, ICMP_FT_DATA,
-		                      (uint8_t*)icmpFileContentData->memblock, icmpFileContentData->file->gcount()))
+		                      reinterpret_cast<uint8_t*>(icmpFileContentData->memblock),
+		                      icmpFileContentData->file->gcount()))
 		{
 			EXIT_WITH_ERROR("Cannot send file transfer last data message to pitcher");
 		}
@@ -579,7 +584,10 @@ int main(int argc, char* argv[])
 	size_t blockSize = 0;
 
 	// disable stdout buffering so all std::cout command will be printed immediately
-	setbuf(stdout, nullptr);
+	if (setvbuf(stdout, nullptr, _IONBF, 0) != 0)
+	{
+		std::cerr << "Failed to disable stdout buffering" << '\n';
+	}
 
 	// read and parse command line arguments. This method also takes care of arguments correctness. If they're not
 	// correct, it'll exit the program

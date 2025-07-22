@@ -34,7 +34,7 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -253,13 +253,13 @@ namespace
 	/**
 	 * Setup IP of net device by calling the ip unix utility
 	 */
-	inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName)
+	inline bool setKniIp(const pcpp::IPv4Address& ipAddr, const std::string& kniName)
 	{
 		std::ostringstream command;
-		command << "ip a add " << ip << "/24 dev " << kniName;
+		command << "ip a add " << ipAddr << "/24 dev " << kniName;
 		pcpp::executeShellCommand(command.str());
 		command.str("");
-		command << "ip a | grep " << ip;
+		command << "ip a | grep " << ipAddr;
 		try
 		{
 			const std::string result = pcpp::executeShellCommand(command.str());
@@ -278,8 +278,8 @@ namespace
 	{
 		{
 			// Setup DPDK
-			const pcpp::CoreMask cm = 0x3;
-			const bool dpdkInitSuccess = pcpp::DpdkDeviceList::initDpdk(cm, 1023);
+			const pcpp::CoreMask cMask = 0x3;
+			const bool dpdkInitSuccess = pcpp::DpdkDeviceList::initDpdk(cMask, 1023);
 			if (!dpdkInitSuccess)
 			{
 				EXIT_WITH_ERROR("Failed to init DPDK");
@@ -354,7 +354,7 @@ namespace
 		egress.sin_family = AF_INET;
 		egress.sin_addr.s_addr = inet_addr(args.kniIp.c_str());
 		egress.sin_port = pcpp::hostToNet16(args.kniPort);
-		if (bind(sock, (struct sockaddr*)&egress, sizeof(egress)) == -1)
+		if (bind(sock, reinterpret_cast<struct sockaddr*>(&egress), sizeof(egress)) == -1)
 		{
 			const int old_errno = errno;
 			close(sock);
@@ -433,7 +433,7 @@ namespace
 		std::memcpy(&ipHdr.ipSrc, &origIpHdr->ipDst, sizeof(ipHdr.ipSrc));
 		std::memcpy(&ipHdr.ipDst, &origIpHdr->ipSrc, sizeof(ipHdr.ipDst));
 		// Randomize IP id
-		ipHdr.ipId = std::rand() & 0xFFFF;
+		ipHdr.ipId = std::rand() & 0xFFFF;  // NOLINT(cert-msc30-c,cert-msc50-cpp)
 		// Set by RFC791
 		ipHdr.timeToLive = 64;
 		std::memcpy(origIpHdr, &ipHdr, sizeof(ipHdr));
@@ -457,7 +457,7 @@ namespace
 	 */
 	bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets, pcpp::KniDevice* kni, void* cookie)
 	{
-		auto* packetStats = (PacketStats*)cookie;
+		auto* packetStats = reinterpret_cast<PacketStats*>(cookie);
 		pcpp::Packet packet;
 		pcpp::ArpLayer* arpLayer = nullptr;
 		pcpp::UdpLayer* udpLayer = nullptr;
@@ -507,7 +507,7 @@ namespace
 		ingress.sin_family = AF_INET;
 		ingress.sin_addr.s_addr = inet_addr(args.outIp.c_str());
 		ingress.sin_port = pcpp::hostToNet16(args.kniPort);
-		if (connect(sock, (struct sockaddr*)&ingress, sizeof(ingress)) == -1)
+		if (connect(sock, reinterpret_cast<struct sockaddr*>(&ingress), sizeof(ingress)) == -1)
 		{
 			const int old_errno = errno;
 			close(sock);
@@ -518,49 +518,49 @@ namespace
 	/**
 	 * Reworked fillbuf from netcat. See description in pingPongProcess
 	 */
-	ssize_t fillbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
+	ssize_t fillbuf(linuxFd fDesc, unsigned char buff[], size_t& buffPos)
 	{
 		const size_t num = IO_BUFF_SIZE - buffPos;
-		ssize_t n = 0;
+		ssize_t nSize = 0;
 
-		n = read(fd, buff + buffPos, num);
-		if (n == -1 && (errno == EAGAIN || errno == EINTR))
+		nSize = read(fDesc, buff + buffPos, num);
+		if (nSize == -1 && (errno == EAGAIN || errno == EINTR))
 		{
-			n = WANT_POLLIN;
+			nSize = WANT_POLLIN;
 		}
-		if (n <= 0)
+		if (nSize <= 0)
 		{
-			return n;
+			return nSize;
 		}
-		buffPos += n;
-		return n;
+		buffPos += nSize;
+		return nSize;
 	}
 
 	/**
 	 * Reworked drainbuf from netcat. See description in pingPongProcess
 	 */
-	ssize_t drainbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
+	ssize_t drainbuf(linuxFd fDesc, unsigned char buff[], size_t& buffPos)
 	{
-		ssize_t n = 0;
+		ssize_t nSize = 0;
 		ssize_t adjust = 0;
 
-		n = write(fd, buff, buffPos);
-		if (n == -1 && (errno == EAGAIN || errno == EINTR))
+		nSize = write(fDesc, buff, buffPos);
+		if (nSize == -1 && (errno == EAGAIN || errno == EINTR))
 		{
-			n = WANT_POLLOUT;
+			nSize = WANT_POLLOUT;
 		}
-		if (n <= 0)
+		if (nSize <= 0)
 		{
-			return n;
+			return nSize;
 		}
 		/* adjust buffer */
-		adjust = buffPos - n;
+		adjust = static_cast<ssize_t>(buffPos) - nSize;
 		if (adjust > 0)
 		{
-			std::memmove(buff, buff + n, adjust);
+			std::memmove(buff, buff + nSize, adjust);
 		}
-		buffPos -= n;
-		return n;
+		buffPos -= nSize;
+		return nSize;
 	}
 
 	/**
@@ -587,7 +587,6 @@ namespace
 		size_t netbuffPos = 0;
 		unsigned char ttybuff[IO_BUFF_SIZE];
 		size_t ttybuffPos = 0;
-		int n = 0;
 		ssize_t ret = 0;
 
 		/* stdin */
@@ -637,11 +636,11 @@ namespace
 			}
 
 			/* treat socket error conditions */
-			for (n = 0; n < 4; ++n)
+			for (int idx = 0; idx < 4; ++idx)
 			{
-				if ((pfd[n].revents & (POLLERR | POLLNVAL)) != 0)
+				if ((pfd[idx].revents & (POLLERR | POLLNVAL)) != 0)
 				{
-					pfd[n].fd = -1;
+					pfd[idx].fd = -1;
 				}
 			}
 			/* reading is possible after HUP */
@@ -808,7 +807,7 @@ int main(int argc, char* argv[])
 	PacketStats packetStats{};
 	std::memset(&packetStats, 0, sizeof(packetStats));
 	KniPongArgs args;
-	std::srand(std::time(nullptr));
+	std::srand(std::time(nullptr));  // NOLINT(cert-msc32-c,cert-msc51-cpp)
 	pcpp::AppName::init(argc, argv);
 	parseArgs(argc, argv, args);
 	pcpp::KniDevice* device = setupKniDevice(args);

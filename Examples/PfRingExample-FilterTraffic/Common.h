@@ -11,7 +11,7 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -19,7 +19,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 

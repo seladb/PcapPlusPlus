@@ -25,7 +25,7 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -33,7 +33,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -118,7 +118,7 @@ struct PacketCaptureArgs
 	pcpp::PcapFileWriterDevice* pcapWriter{ nullptr };
 	bool stopCapture{ false };
 
-	PacketCaptureArgs()	= default;
+	PacketCaptureArgs() = default;
 };
 
 // clang-format off

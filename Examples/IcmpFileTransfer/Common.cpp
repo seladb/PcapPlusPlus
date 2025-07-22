@@ -35,7 +35,7 @@ static struct option IcmpFTOptions[] = {
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage(thisSide, otherSide);                                                                               \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -143,11 +143,11 @@ void readCommandLineArguments(int argc, char* argv[], const std::string& thisSid
 			{
 				EXIT_WITH_ERROR_PRINT_USAGE("Unknown option -p");
 			}
-			packetsPerSec = atoi(optarg);
+			packetsPerSec = std::stoi(optarg);
 			packetsPerSecSet = true;
 			break;
 		case 'b':
-			blockSize = atoi(optarg);
+			blockSize = std::stoi(optarg);
 			blockSizeSet = true;
 			break;
 		case 'h':
@@ -300,11 +300,11 @@ bool sendIcmpResponse(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pc
 std::string getFileNameFromPath(const std::string& filePath)
 {
 	// find the last "\\" or "/" (depends on the os) - where path ends and filename starts
-	const size_t i = filePath.rfind(SEPARATOR, filePath.length());
-	if (i != std::string::npos)
+	const size_t idx = filePath.rfind(SEPARATOR, filePath.length());
+	if (idx != std::string::npos)
 	{
 		// extract filename from path
-		return filePath.substr(i + 1, filePath.length() - i);
+		return filePath.substr(idx + 1, filePath.length() - idx);
 	}
 
 	return filePath;

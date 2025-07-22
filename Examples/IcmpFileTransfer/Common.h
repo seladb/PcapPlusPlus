@@ -43,7 +43,7 @@ void listInterfaces();
  */
 void readCommandLineArguments(int argc, char* argv[], const std::string& thisSide, const std::string& otherSide,
                               bool& sender, bool& receiver, pcpp::IPv4Address& myIP, pcpp::IPv4Address& otherSideIP,
-                              std::string& fileNameToSend, int& packetPerSec, size_t& blockSize);
+                              std::string& fileNameToSend, int& packetsPerSec, size_t& blockSize);
 
 /**
  * Send an ICMP request from source to dest with certain ICMP ID, msgType will be written in the timestamp field of the
