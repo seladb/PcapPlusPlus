@@ -69,6 +69,7 @@ add_library(
   src/WakeOnLanLayer.cpp
   src/WireGuardLayer.cpp
   src/X509Decoder.cpp
+  src/X509ExtensionDataDecoder.cpp
   # Force hash-library pcapng to be link fully static
 )
 
@@ -144,6 +145,7 @@ set(
   header/WakeOnLanLayer.h
   header/WireGuardLayer.h
   header/X509Decoder.h
+  header/X509ExtensionDataDecoder.h
 )
 
 # Don't use set_target_properties CMake limit to 50 elements
