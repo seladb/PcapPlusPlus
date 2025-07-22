@@ -144,9 +144,7 @@ BENCHMARK(BM_PacketParsing);
 
 static void BM_PacketPureParsing(benchmark::State& state)
 {
-	using namespace pcpp;
-
-	PcapFileReaderDevice reader(pcapFileName);
+	pcpp::PcapFileReaderDevice reader(pcapFileName);
 	if (!reader.open())
 	{
 		state.SkipWithError("Cannot open pcap file for reading");
@@ -154,7 +152,7 @@ static void BM_PacketPureParsing(benchmark::State& state)
 	}
 
 	// Preloads all packets into memory
-	RawPacketVector rawPackets;
+	pcpp::RawPacketVector rawPackets;
 	reader.getNextPackets(rawPackets);
 
 	if (rawPackets.size() == 0)
@@ -168,9 +166,9 @@ static void BM_PacketPureParsing(benchmark::State& state)
 	size_t currentPacketIndex = 0;
 	for (auto _ : state)
 	{
-		RawPacket* rawPacket = rawPackets.at(currentPacketIndex);
+		pcpp::RawPacket* rawPacket = rawPackets.at(currentPacketIndex);
 
-		Packet parsedPacket(rawPacket);
+		pcpp::Packet parsedPacket(rawPacket);
 
 		benchmark::DoNotOptimize(parsedPacket.getFirstLayer());
 
