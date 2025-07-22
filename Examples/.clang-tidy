@@ -1,4 +1,6 @@
 Checks: '-concurrency-mt-unsafe,
--cppcoreguidelines-avoid-const-or-ref-data-members'
+-cppcoreguidelines-avoid-const-or-ref-data-members,
+-cppcoreguidelines-non-private-member-variables-in-classes,
+-cppcoreguidelines-pro-type-union-access'
 
 InheritParentConfig: true
