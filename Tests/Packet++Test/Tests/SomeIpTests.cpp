@@ -28,7 +28,7 @@ public:
 	explicit SomeIpScopedPortRegistration(pcpp::PortPair portPair) : m_RegisteredPort(portPair)
 	{
 		auto& portMapper = pcpp::ParserConfiguration::getDefault().portMapper;
-		m_PreviousMapping = portMapper.getProtocolByPortPair(m_RegisteredPort, true);
+		m_PreviousMapping = portMapper.getProtocolByPortPair(m_RegisteredPort);
 		portMapper.addPortMapping(m_RegisteredPort, pcpp::SomeIP, true);
 	}
 	~SomeIpScopedPortRegistration()
