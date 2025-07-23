@@ -4,7 +4,7 @@
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
 
-enum
+enum : uint64_t
 {
 	ICMP_FT_WAITING_FT_START = 0x345a56c8e7f3cd67ULL,
 	ICMP_FT_START = 0xd45ae6c2e7a3cd67ULL,
