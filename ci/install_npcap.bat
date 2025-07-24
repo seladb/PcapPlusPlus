@@ -11,7 +11,7 @@ if "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
 
 if "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
 	echo Using Npcap OEM version %NPCAP_FILE%
-	curl -L --digest --user %NPCAP_USERNAME%:%NPCAP_PASSWORD% https://npcap.com/oem/dist/%NPCAP_FILE%
+	curl -L --digest --user %NPCAP_USERNAME%:%NPCAP_PASSWORD% https://npcap.com/oem/dist/%NPCAP_FILE% --output %NPCAP_FILE%
 ) else (
 	echo Using Npcap free version %NPCAP_FILE%
 	curl -L https://raw.githubusercontent.com/seladb/PcapPlusPlus-Deploy/refs/heads/master/Packages/%NPCAP_FILE% --output %NPCAP_FILE%
