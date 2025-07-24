@@ -569,8 +569,7 @@ int main(int argc, char* argv[])
 	}
 	else  // analyze in live traffic mode
 	{
-		pcpp::PcapLiveDevice* dev =
-		    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 

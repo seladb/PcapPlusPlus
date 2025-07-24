@@ -20,6 +20,8 @@
 #include "rte_cycles.h"
 #include <string>
 #include <unistd.h>
+#include <chrono>
+#include <thread>
 
 #define MAX_BURST_SIZE 64
 
@@ -104,6 +106,18 @@ namespace pcpp
 		0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A,
 		0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A,
 	};
+
+	static bool getDeviceInfo(uint16_t devId, rte_eth_dev_info& devInfo)
+	{
+		auto ret = rte_eth_dev_info_get(devId, &devInfo);
+		if (ret < 0)
+		{
+			PCPP_LOG_ERROR("Couldn't get device info, error was: " << rte_strerror(ret) << " (" << ret << ")");
+			return false;
+		}
+
+		return true;
+	}
 
 	DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mBufDataSize)
 	    : m_Id(port), m_MacAddress(MacAddress::Zero),
@@ -273,6 +287,8 @@ namespace pcpp
 		{
 			PCPP_LOG_DEBUG("PMD '" << m_PMDName << "' doesn't support RSS, setting RSS hash functions to 0");
 			m_Config.rssHashFunction = RSS_NONE;
+			m_Config.rssKey = nullptr;
+			m_Config.rssKeyLength = 0;
 		}
 
 		if (!isDeviceSupportRssHashFunction(getConfiguredRssHashFunction()))
@@ -346,7 +362,11 @@ namespace pcpp
 	bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesToInit)
 	{
 		rte_eth_dev_info devInfo;
-		rte_eth_dev_info_get(m_Id, &devInfo);
+		if (!getDeviceInfo(m_Id, devInfo))
+		{
+			return false;
+		}
+
 		if (numOfRxQueuesToInit > devInfo.max_rx_queues)
 		{
 			PCPP_LOG_ERROR("Num of RX queues requested for open [" << numOfRxQueuesToInit
@@ -500,7 +520,11 @@ namespace pcpp
 	void DpdkDevice::setDeviceInfo()
 	{
 		rte_eth_dev_info portInfo;
-		rte_eth_dev_info_get(m_Id, &portInfo);
+		if (!getDeviceInfo(m_Id, portInfo))
+		{
+			return;
+		}
+
 		m_PMDName = std::string(portInfo.driver_name);
 
 		if (m_PMDName == "eth_bond")
@@ -579,14 +603,22 @@ namespace pcpp
 		}
 	}
 
-	void DpdkDevice::getLinkStatus(LinkStatus& linkStatus) const
+	bool DpdkDevice::getLinkStatus(LinkStatus& linkStatus) const
 	{
 		struct rte_eth_link link;
-		rte_eth_link_get((uint8_t)m_Id, &link);
+		auto ret = rte_eth_link_get((uint8_t)m_Id, &link);
+		if (ret < 0)
+		{
+			PCPP_LOG_ERROR("Couldn't get link info, error was: " << rte_strerror(ret) << " (" << ret << ")");
+			return false;
+		}
+
 		linkStatus.linkUp = link.link_status;
 		linkStatus.linkSpeedMbps = (unsigned)link.link_speed;
 		linkStatus.linkDuplex =
 		    (link.link_duplex == DPDK_CONFIG_ETH_LINK_FULL_DUPLEX) ? LinkStatus::FULL_DUPLEX : LinkStatus::HALF_DUPLEX;
+
+		return true;
 	}
 
 	bool DpdkDevice::initCoreConfigurationByCoreMask(CoreMask coreMask)
@@ -783,7 +815,7 @@ namespace pcpp
 		return 0;
 	}
 
-#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
+#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1'000'000'000.0 + (end.tv_nsec - begin.tv_nsec))
 
 	void DpdkDevice::getStatistics(DpdkDeviceStats& stats) const
 	{
@@ -792,7 +824,7 @@ namespace pcpp
 		struct rte_eth_stats rteStats;
 		rte_eth_stats_get(m_Id, &rteStats);
 
-		double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1000000000.0;
+		double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1'000'000'000.0;
 
 		stats.devId = m_Id;
 		stats.timestamp = timestamp;
@@ -1054,7 +1086,7 @@ namespace pcpp
 			return 0;
 		}
 
-		rte_mbuf* mBufArr[MAX_BURST_SIZE];
+		rte_mbuf* mBufArr[MAX_BURST_SIZE] = {};
 
 		int packetIndex = 0;
 		int mBufArrIndex = 0;
@@ -1085,7 +1117,7 @@ namespace pcpp
 					{
 						PCPP_LOG_DEBUG(
 						    "Since NIC couldn't send all packet in this iteration, waiting for 0.2 second for H/W descriptors to get free");
-						usleep(200000);
+						std::this_thread::sleep_for(std::chrono::microseconds(200000));
 						lastSleep = packetsSent;
 					}
 				}
@@ -1278,7 +1310,11 @@ namespace pcpp
 		if (rssHF == (uint64_t)-1)
 		{
 			rte_eth_dev_info devInfo;
-			rte_eth_dev_info_get(m_Id, &devInfo);
+			if (!getDeviceInfo(m_Id, devInfo))
+			{
+				return 0;
+			}
+
 			return devInfo.flow_type_rss_offloads;
 		}
 
@@ -1424,7 +1460,10 @@ namespace pcpp
 		uint64_t dpdkRssHF = convertRssHfToDpdkRssHf(rssHFMask);
 
 		rte_eth_dev_info devInfo;
-		rte_eth_dev_info_get(m_Id, &devInfo);
+		if (!getDeviceInfo(m_Id, devInfo))
+		{
+			return false;
+		}
 
 		return ((devInfo.flow_type_rss_offloads & dpdkRssHF) == dpdkRssHF);
 	}
@@ -1432,7 +1471,10 @@ namespace pcpp
 	uint64_t DpdkDevice::getSupportedRssHashFunctions() const
 	{
 		rte_eth_dev_info devInfo;
-		rte_eth_dev_info_get(m_Id, &devInfo);
+		if (!getDeviceInfo(m_Id, devInfo))
+		{
+			return 0;
+		}
 
 		return convertDpdkRssHfToRssHf(devInfo.flow_type_rss_offloads);
 	}

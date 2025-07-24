@@ -277,7 +277,7 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an Spanning Tree packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(stp_tcn_bpdu);
+			return canReinterpretAs<stp_tcn_bpdu>(data, dataLen);
 		}
 	};
 
@@ -465,7 +465,7 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an Spanning Tree packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(stp_conf_bpdu);
+			return canReinterpretAs<stp_conf_bpdu>(data, dataLen);
 		}
 	};
 
@@ -535,7 +535,7 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an Spanning Tree packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(rstp_conf_bpdu);
+			return canReinterpretAs<rstp_conf_bpdu>(data, dataLen);
 		}
 	};
 
@@ -703,7 +703,7 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an Spanning Tree packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(mstp_conf_bpdu);
+			return canReinterpretAs<mstp_conf_bpdu>(data, dataLen);
 		}
 	};
 }  // namespace pcpp

@@ -60,7 +60,6 @@ namespace pcpp
 		};
 
 		std::vector<pfring*> m_PfRingDescriptors;
-		uint8_t m_NumOfOpenedRxChannels;
 		std::string m_DeviceName;
 		int m_InterfaceIndex;
 		MacAddress m_MacAddress;
@@ -79,6 +78,8 @@ namespace pcpp
 		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
 
 		int openSingleRxChannelImpl(const char* deviceName, pfring*& ring, bool useReenterant = false);
+		/// Closes all opened RX channels and clears the opened channels list (m_PfRingDescriptors)
+		void closeAllRxChannels();
 
 		bool getIsHwClockEnable()
 		{
@@ -88,7 +89,7 @@ namespace pcpp
 		bool setPfRingDeviceClock(pfring* ring);
 
 		void clearCoreConfiguration();
-		int getCoresInUseCount() const;
+		size_t getCoresInUseCount() const;
 
 		void setPfRingDeviceAttributes();
 
@@ -211,7 +212,7 @@ namespace pcpp
 		/// @return Number of opened RX channels
 		uint8_t getNumOfOpenedRxChannels() const
 		{
-			return m_NumOfOpenedRxChannels;
+			return static_cast<uint8_t>(m_PfRingDescriptors.size());
 		}
 
 		/// Gets the total number of RX channels (RX queues) this interface has

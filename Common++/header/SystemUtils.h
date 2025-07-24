@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <ctime>
 
 /// @file
 
@@ -160,6 +161,12 @@ namespace pcpp
 	/// @param[out] nsec The nanosecond portion of the time
 	/// @return 0 for success, or -1 for failure
 	int clockGetTime(long& sec, long& nsec);
+
+	/// Convert std::tm to time_t in UTC time, ignoring local timezone
+	/// @param[in] tm The time to convert
+	/// @return A time_t object representing the input time
+	/// @throws std::runtime_error if a conversion error occurs
+	time_t mkUtcTime(std::tm& tm);
 
 	/// A multi-platform version of the popular sleep method. This method simply runs the right sleep method, according
 	/// to the platform it is running on.

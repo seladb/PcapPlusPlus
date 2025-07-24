@@ -239,7 +239,7 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	dnsRequest.computeCalculateFields();
 
 	// send DNS response back to the network
-	if (!dev->sendPacket(&dnsRequest))
+	if (!dev->sendPacket(dnsRequest))
 		return;
 
 	args->stats.numOfSpoofedDnsRequests++;
@@ -450,7 +450,7 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Interface name or IP weren't provided. Please use the -i switch or -h for help");
 	}
 
-	dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+	dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 	if (dev == nullptr)
 		EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 

@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
 
 	if (PcapTestGlobalArgs.debugMode)
 	{
-		pcpp::Logger::getInstance().setAllModulesToLogLevel(pcpp::Logger::Debug);
+		pcpp::Logger::getInstance().setAllModulesToLogLevel(pcpp::LogLevel::Debug);
 	}
 
 	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
@@ -301,6 +301,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPFragMapOverflow, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragWithPadding, "no_network;ip_frag");
+	PTF_RUN_TEST(TestIPv4MalformedFragment, "no_network;ip_frag");
 
 	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
 

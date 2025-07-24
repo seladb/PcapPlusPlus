@@ -68,7 +68,7 @@ namespace pcpp
 				return false;
 			}
 
-			std::unique_ptr<bpf_program> newProg = std::unique_ptr<bpf_program>(new bpf_program);
+			auto newProg = std::make_unique<bpf_program>();
 			int ret = pcap_compile(pcap.get(), newProg.get(), filter.c_str(), 1, 0);
 			if (ret < 0)
 			{
@@ -111,7 +111,7 @@ namespace pcpp
 		struct pcap_pkthdr pktHdr;
 		pktHdr.caplen = packetDataLength;
 		pktHdr.len = packetDataLength;
-		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
+		pktHdr.ts = internal::toTimeval(packetTimestamp);
 
 		return (pcap_offline_filter(m_Program.get(), &pktHdr, packetData) != 0);
 	}
