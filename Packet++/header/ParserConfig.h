@@ -131,6 +131,11 @@ namespace pcpp
 			       comparePort(m_PortDst, other.m_PortDst, m_PortDstSet, other.m_PortDstSet);
 		}
 
+		constexpr bool operator!=(const PortPair& other) const noexcept
+		{
+			return !(*this == other);
+		}
+
 		friend std::ostream& operator<<(std::ostream& os, PortPair const pair)
 		{
 			os << "PortPair(src: ";
