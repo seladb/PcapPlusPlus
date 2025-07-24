@@ -414,7 +414,7 @@ namespace pcpp
 	void Asn1Record::decodeValueIfNeeded() const
 	{
 		// TODO: This is not thread-safe and can cause issues in a multiple reader scenario.
-		if (m_EncodedValue == nullptr)
+		if (m_EncodedValue != nullptr)
 		{
 			decodeValue(m_EncodedValue);
 			m_EncodedValue = nullptr;  // Clear the encoded value after decoding
