@@ -162,7 +162,7 @@ namespace pcpp
 		}
 
 	private:
-		constexpr bool comparePort(uint16_t port1, uint16_t port2, bool isSet1, bool isSet2) const noexcept
+		constexpr static bool comparePort(uint16_t port1, uint16_t port2, bool isSet1, bool isSet2) noexcept
 		{
 			// If both ports are set, compare them directly
 			// If one of the ports is not set, return false.
