@@ -14,6 +14,10 @@
 #	define LOG_MODULE UndefinedLogModule
 #endif
 
+#ifndef PCPP_FULLY_QUALIFIED_LOG_MODULE
+#	define PCPP_FULLY_QUALIFIED_LOG_MODULE ::pcpp::LogModule::LOG_MODULE
+#endif
+
 // Use __FILE_NAME__ to avoid leaking complete full path
 #ifdef __FILE_NAME__
 #	define PCAPPP_FILENAME __FILE_NAME__
@@ -417,10 +421,10 @@ namespace pcpp
 	do                                                                                                                 \
 	{                                                                                                                  \
 		auto& logger = pcpp::Logger::getInstance();                                                                    \
-		if (logger.shouldLog(level, LOG_MODULE))                                                                       \
+		if (logger.shouldLog(level, PCPP_FULLY_QUALIFIED_LOG_MODULE))                                                  \
 		{                                                                                                              \
-			auto ctx =                                                                                                 \
-			    logger.createLogContext(level, pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__));  \
+			auto ctx = logger.createLogContext(                                                                        \
+			    level, pcpp::LogSource(PCPP_FULLY_QUALIFIED_LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__));     \
 			(*ctx) << message;                                                                                         \
 			logger.emit(std::move(ctx));                                                                               \
 		}                                                                                                              \
