@@ -341,7 +341,7 @@ namespace pcpp
 
 		void onPacketArrivesCallback(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
 		{
-			CaptureContext* context = reinterpret_cast<CaptureContext*>(user);
+			auto* context = reinterpret_cast<CaptureContext*>(user);
 			if (context == nullptr || context->device == nullptr || context->callback == nullptr)
 			{
 				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or callback");
@@ -365,7 +365,7 @@ namespace pcpp
 
 		void onPacketArrivesAccumulator(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
 		{
-			AccumulatorCaptureContext* context = reinterpret_cast<AccumulatorCaptureContext*>(user);
+			auto* context = reinterpret_cast<AccumulatorCaptureContext*>(user);
 			if (context == nullptr || context->device == nullptr || context->capturedPackets == nullptr)
 			{
 				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or captured packets vector");
@@ -392,7 +392,7 @@ namespace pcpp
 
 		void onPacketArrivesCallbackWithCancellation(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
 		{
-			CaptureContextST* context = reinterpret_cast<CaptureContextST*>(user);
+			auto* context = reinterpret_cast<CaptureContextST*>(user);
 
 			if (context == nullptr || context->device == nullptr || context->callback == nullptr)
 			{
