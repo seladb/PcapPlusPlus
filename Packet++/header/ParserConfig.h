@@ -127,7 +127,8 @@ namespace pcpp
 
 		constexpr bool operator==(const PortPair& other) const noexcept
 		{
-			return m_PortSrc == other.m_PortSrc && m_PortDst == other.m_PortDst;
+			return comparePort(m_PortSrc, other.m_PortSrc, m_PortSrcSet, other.m_PortSrcSet) &&
+			       comparePort(m_PortDst, other.m_PortDst, m_PortDstSet, other.m_PortDstSet);
 		}
 
 		friend std::ostream& operator<<(std::ostream& os, PortPair const pair)
@@ -156,6 +157,19 @@ namespace pcpp
 		}
 
 	private:
+		constexpr bool comparePort(uint16_t port1, uint16_t port2, bool isSet1, bool isSet2) const noexcept
+		{
+			// If both ports are set, compare them directly
+			// If one of the ports is not set, return false.
+			// If both ports are not set, return true.
+
+			if (isSet1 && isSet2)
+			{
+				return port1 == port2;
+			}
+			return !isSet1 && !isSet2;  // Both ports are wildcard
+		}
+
 		uint16_t m_PortSrc = 0;     ///< Source port number
 		uint16_t m_PortDst = 0;     ///< Destination port number
 		bool m_PortSrcSet = false;  ///< Indicates if the src port is set, on false consider the port as wildcard
