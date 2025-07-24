@@ -99,8 +99,7 @@ namespace pcpp
 		// Wake-on-LAN port mappings
 		mapper.addPortMapping(PortPair::fromDst(9), WakeOnLan, false);  // Wake-on-LAN over UDP
 		mapper.addPortMapping(PortPair::fromDst(7), WakeOnLan, false);  // Wake-on-LAN over UDP
-		// Would result in Pair (0, 0) which is invalid for the mapper.
-		// mapper.addPortMapping(PortPair::fromDst(0), WakeOnLan, false);  // Wake-on-LAN over UDP (broadcast)
+		mapper.addPortMapping(PortPair::fromDst(0), WakeOnLan, false);  // Wake-on-LAN over UDP (broadcast)
 
 		// WireGuard port mappings
 		mapper.addPortMapping(PortPair::fromDst(51820), WireGuard, true);  // WireGuard over UDP
