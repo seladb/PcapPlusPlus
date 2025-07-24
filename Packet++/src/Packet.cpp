@@ -15,6 +15,7 @@
 #include "Logger.h"
 #include <numeric>
 #include <sstream>
+#include <memory>
 #ifdef _MSC_VER
 #	include <time.h>
 #	include "SystemUtils.h"
@@ -427,8 +428,8 @@ namespace pcpp
 		// before removing the layer's data, copy it so it can be later assigned as the removed layer's data
 		size_t headerLen = layer->getHeaderLen();
 		size_t layerOldDataSize = headerLen;
-		uint8_t* layerOldData = new uint8_t[layerOldDataSize];
-		memcpy(layerOldData, layer->m_Data, layerOldDataSize);
+		auto layerOldData = std::make_unique<uint8_t[]>(layerOldDataSize);
+		memcpy(layerOldData.get(), layer->m_Data, layerOldDataSize);
 
 		// remove data from raw packet
 		size_t numOfBytesToRemove = headerLen;
@@ -436,7 +437,6 @@ namespace pcpp
 		if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToRemove))
 		{
 			PCPP_LOG_ERROR("Couldn't remove data from packet");
-			delete[] layerOldData;
 			return false;
 		}
 
@@ -494,14 +494,13 @@ namespace pcpp
 		if (tryToDelete && layer->m_IsAllocatedInPacket)
 		{
 			delete layer;
-			delete[] layerOldData;
 		}
 		// if layer was not allocated by this packet or the tryToDelete is not set, detach it from the packet so it can
 		// be reused
 		else
 		{
 			layer->m_Packet = nullptr;
-			layer->m_Data = layerOldData;
+			layer->m_Data = layerOldData.release();
 			layer->m_DataLen = layerOldDataSize;
 		}
 
