@@ -413,34 +413,11 @@ namespace pcpp
 
 	void Asn1Record::decodeValueIfNeeded() const
 	{
-		// TODO: This is not thread-safe and can cause issues if multiple threads access the same record
-		if (m_LazyDecodeState == internal::Asn1LoadState::NotEvaluated)
+		// TODO: This is not thread-safe and can cause issues in a multiple reader scenario.
+		if (m_EncodedValue == nullptr)
 		{
-			if (m_EncodedValue == nullptr)
-			{
-				throw std::runtime_error("Cannot decode ASN.1 record value, no data available");
-			}
-			try
-			{
-				decodeValue(m_EncodedValue);
-				m_LazyDecodeState = internal::Asn1LoadState::Evaluated;
-			}
-			catch (...)
-			{
-				m_LazyDecodeState = internal::Asn1LoadState::Error;
-				throw;
-			}
-		}
-
-		switch (m_LazyDecodeState)
-		{
-		case internal::Asn1LoadState::Evaluated:
-			// Value is already decoded, nothing to do
-			break;
-		case internal::Asn1LoadState::Error:
-			throw std::runtime_error("ASN.1 record value decoding failed");
-		default:
-			throw std::logic_error("ASN.1 record value decoding state is not 'evaluated' or 'error'");
+			decodeValue(m_EncodedValue);
+			m_EncodedValue = nullptr;  // Clear the encoded value after decoding
 		}
 	}
 
@@ -484,7 +461,6 @@ namespace pcpp
 	void Asn1Record::setEncodedValue(uint8_t const* dataSource, internal::Asn1LoadPolicy loadPolicy)
 	{
 		m_EncodedValue = dataSource;
-		m_LazyDecodeState = internal::Asn1LoadState::NotEvaluated;
 
 		if (loadPolicy == internal::Asn1LoadPolicy::Eager)
 		{

@@ -121,22 +121,6 @@ namespace pcpp
 			/// The value is evaluated immediately on construction (eager decoding).
 			Eager
 		};
-
-		/// @enum Asn1LoadState
-		/// @brief Represents the state of lazy evaluation for ASN.1 record decoding.
-		/// Used internally to track whether a record's value has been decoded, is being decoded, or if an error
-		/// occurred.
-		enum class Asn1LoadState : int
-		{
-			/// The value has not been evaluated (decoded) yet.
-			NotEvaluated = 0,
-			/// The value is currently being evaluated (decoded).
-			Evaluating = 1,
-			/// The value has been successfully evaluated (decoded).
-			Evaluated = 2,
-			/// An error occurred during evaluation (decoding).
-			Error = 3
-		};
 	}  // namespace internal
 
 	/// @class Asn1Record
@@ -253,10 +237,7 @@ namespace pcpp
 		void setEncodedValue(uint8_t const* dataSource,
 		                     internal::Asn1LoadPolicy loadPolicy = internal::Asn1LoadPolicy::Lazy);
 
-		uint8_t const* m_EncodedValue = nullptr;
-		// By default, the value is considered evaluated, meaning it has been decoded or is not needed to be decoded
-		// This is useful for records that are constructed directly and not decoded from a byte stream
-		mutable internal::Asn1LoadState m_LazyDecodeState = internal::Asn1LoadState::Evaluated;
+		mutable uint8_t const* m_EncodedValue = nullptr;
 	};
 
 	/// @class Asn1GenericRecord
