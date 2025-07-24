@@ -294,7 +294,7 @@ namespace pcpp
 
 		// first, get ptr and data length of the raw packet
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
-		size_t dataLen = (size_t)m_RawPacket->getRawDataLen();
+		size_t dataLen = static_cast<size_t>(m_RawPacket->getRawDataLen());
 
 		// if a packet trailer exists, get its length
 		size_t packetTrailerLen = 0;
@@ -306,7 +306,7 @@ namespace pcpp
 		while (curLayer != nullptr)
 		{
 			// set data ptr to layer
-			curLayer->m_Data = (uint8_t*)dataPtr;
+			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 
 			// there is an assumption here that the packet trailer, if exists, corresponds to the L2 (data link) layers.
 			// so if there is a packet trailer and this layer is L2 (data link), set its data length to contain the
@@ -463,7 +463,7 @@ namespace pcpp
 
 		// first, get ptr and data length of the raw packet
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
-		size_t dataLen = (size_t)m_RawPacket->getRawDataLen();
+		size_t dataLen = static_cast<size_t>(m_RawPacket->getRawDataLen());
 
 		curLayer = m_FirstLayer;
 
@@ -471,7 +471,7 @@ namespace pcpp
 		while (curLayer != nullptr)
 		{
 			// set data ptr to layer
-			curLayer->m_Data = (uint8_t*)dataPtr;
+			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 
 			// there is an assumption here that the packet trailer, if exists, corresponds to the L2 (data link) layers.
 			// so if there is a packet trailer and this layer is L2 (data link), set its data length to contain the
