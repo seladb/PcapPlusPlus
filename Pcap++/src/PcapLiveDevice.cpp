@@ -278,7 +278,7 @@ namespace pcpp
 		{
 			OnStatsUpdateCallback cbOnStatsUpdate;
 			void* cbOnStatsUpdateUserCookie = nullptr;
-			unsigned int updateIntervalMs = 1000;  // Default update interval is 1 second
+			std::chrono::milliseconds updateInterval = std::chrono::seconds(1);  // Default update interval is 1 second
 		};
 
 		void statsThreadMain(std::atomic_bool& stopFlag, internal::PcapHandle const& pcapDescriptor,
@@ -293,7 +293,6 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Started statistics thread");
 
 			IPcapDevice::PcapStats stats;
-			auto sleepDuration = std::chrono::milliseconds(context.updateIntervalMs);
 			while (!stopFlag.load())
 			{
 				try
@@ -311,7 +310,7 @@ namespace pcpp
 					PCPP_LOG_ERROR("Unknown exception occurred while invoking statistics update callback");
 					break;
 				}
-				std::this_thread::sleep_for(sleepDuration);
+				std::this_thread::sleep_for(context.updateInterval);
 			}
 			PCPP_LOG_DEBUG("Ended statistics thread");
 		}
@@ -743,7 +742,7 @@ namespace pcpp
 			StatisticsUpdateContext statsContext;
 			statsContext.cbOnStatsUpdate = std::move(onStatsUpdate);
 			statsContext.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
-			statsContext.updateIntervalMs = intervalInSecondsToUpdateStats * 1000;  // Convert seconds to milliseconds
+			statsContext.updateInterval = std::chrono::seconds(intervalInSecondsToUpdateStats);
 
 			m_StatsThread = std::thread(statsThreadMain, std::ref(m_StopThread), std::ref(m_PcapDescriptor),
 			                            std::move(statsContext));
