@@ -105,6 +105,6 @@ namespace pcpp
 
 		std::unique_lock<std::mutex> const lock(logMutex);
 		std::cerr << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
-		          << sstream.str() << "] " << logMessage << '\n';
+		          << sstream.str() << "] " << logMessage << std::endl;
 	}
 }  // namespace pcpp
