@@ -101,7 +101,7 @@ Extensive Documentation
 - [🚀 Getting Started](#-getting-started)
 - [📡 Packet Capture Backends](#-packet-capture-backends)
   - [🔧 **libpcap**](#-libpcap)
-  - [🪟 **WinPcap/Npcap**](#-winpcapnpcap)
+  - [🪟 **WinPcap / Npcap**](#-winpcap--npcap)
   - [🌐 **Remote Capture (rpcapd)**](#-remote-capture-rpcapd)
   - [🚀 **DPDK KNI**](#-dpdk-kni)
 - [📖 API Documentation](#-api-documentation)
@@ -374,7 +374,7 @@ The standard packet capture library for **Unix-like systems**. Cross-platform su
 </td>
 <td width="25%" align="center">
 
-### 🪟 **WinPcap/Npcap**
+### 🪟 **WinPcap / Npcap**
 <img src="https://img.shields.io/badge/Backend-WinPcap%2FNpcap-red?style=for-the-badge" alt="WinPcap/Npcap">
 
 **🖥️ Windows Packet Capture**
