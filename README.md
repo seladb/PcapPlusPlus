@@ -418,9 +418,10 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 <div style="min-height: 80px; display: flex; flex-direction: column; justify-content: center;">
 
-*Visual Studio 16+*<br>
+*VS 16+*<br>
 *MinGW 32*<br>
-*MinGW 64*
+*MinGW 64*<br>
+*&nbsp;*
 
 </div>
 
