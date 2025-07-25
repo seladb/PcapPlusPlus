@@ -411,9 +411,9 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 </div>
 
 <div align="center">
-<table>
+<table style="table-layout: fixed;">
 <tr>
-<td align="center" width="20%">
+<td align="center" width="20%" style="vertical-align: top; height: 180px;">
 
 <picture>
   <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows.png" alt="Windows" width="48" height="48"/>
@@ -421,15 +421,17 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 **🪟 Windows**
 
-*Visual Studio 16+*
-<br>
-*MinGW 32*
-<br>
-*MinGW 64*
-<br>
+<div style="min-height: 80px; display: flex; flex-direction: column; justify-content: center;">
+
+*Visual Studio 16+*<br>
+*MinGW 32*<br>
+*MinGW 64*<br>
+*&nbsp;*
+
+</div>
 
 </td>
-<td align="center" width="20%">
+<td align="center" width="20%" style="vertical-align: top; height: 180px;">
 
 <picture>
   <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux.png" alt="Linux" width="48" height="48"/>
@@ -437,16 +439,17 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 **🐧 Linux**
 
-*Ubuntu 20.04+*
-<br>
-*Alpine 3.20*
-<br>
-*Fedora 42*
-<br>
+<div style="min-height: 80px; display: flex; flex-direction: column; justify-content: center;">
+
+*Ubuntu 20.04+*<br>
+*Alpine 3.20*<br>
+*Fedora 42*<br>
 *Red Hat Enterprise Linux 9.4*
 
+</div>
+
 </td>
-<td align="center" width="20%">
+<td align="center" width="20%" style="vertical-align: top; height: 180px;">
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark.png"/>
@@ -455,12 +458,17 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 **🍎 macOS**
 
-*MacOS 13+ x86*
-<br>
-*MacOS 13+ arm64*
+<div style="min-height: 80px; display: flex; flex-direction: column; justify-content: center;">
+
+*MacOS 13+ x86*<br>
+*MacOS 13+ arm64*<br>
+*&nbsp;*<br>
+*&nbsp;*
+
+</div>
 
 </td>
-<td align="center" width="20%">
+<td align="center" width="20%" style="vertical-align: top; height: 180px;">
 
 <picture>
   <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android.png" alt="Android" width="48" height="48"/>
@@ -468,10 +476,17 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 **🤖 Android**
 
-*API version 35+*
+<div style="min-height: 80px; display: flex; flex-direction: column; justify-content: center;">
+
+*API version 35+*<br>
+*&nbsp;*<br>
+*&nbsp;*<br>
+*&nbsp;*
+
+</div>
 
 </td>
-<td align="center" width="20%">
+<td align="center" width="20%" style="vertical-align: top; height: 180px;">
 
 <picture>
   <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd.png" alt="FreeBSD" width="48" height="48"/>
@@ -479,9 +494,14 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 **😈 FreeBSD**
 
-*FreeBSD 13.4*
-<br>
-*FreeBSD 14.1*
+<div style="min-height: 80px; display: flex; flex-direction: column; justify-content: center;">
+
+*FreeBSD 13.4*<br>
+*FreeBSD 14.1*<br>
+*&nbsp;*<br>
+*&nbsp;*
+
+</div>
 
 </td>
 </tr>
