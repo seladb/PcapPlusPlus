@@ -420,8 +420,7 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 *Visual Studio 16+*<br>
 *MinGW 32*<br>
-*MinGW 64*<br>
-*&nbsp;*
+*MinGW 64*
 
 </div>
 
@@ -457,7 +456,6 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 *MacOS 13+ x86*<br>
 *MacOS 13+ arm64*<br>
-*&nbsp;*<br>
 *&nbsp;*
 
 </div>
