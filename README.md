@@ -111,9 +111,10 @@ Extensive Documentation
   - [🤝 Session Layer (L5)](#-session-layer-l5)
   - [🎨 Presentation Layer (L6)](#-presentation-layer-l6)
   - [📱 Application Layer (L7)](#-application-layer-l7)
-- [⚡ DPDK And PF\_RING Support](#-dpdk-and-pf_ring-support)
+- [⚡ High-Performance Packet Processing Support](#-high-performance-packet-processing-support)
   - [⚡ **DPDK**](#-dpdk)
   - [🔥 **PF\_RING™**](#-pf_ring)
+  - [**eBPF XDP**](#ebpf-xdp)
 - [📊 Benchmarks](#-benchmarks)
 - [💬 Provide Feedback](#-provide-feedback)
 - [🤝 Contributing](#-contributing)
@@ -609,7 +610,7 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 </div>
 
-## ⚡ DPDK And PF_RING Support
+## ⚡ High-Performance Packet Processing Support
 
 <div align="center">
 
@@ -619,7 +620,7 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 <table>
 <tr>
-<td width="50%" align="center">
+<td width="33%" align="center">
 
 ### ⚡ **DPDK**
 <img src="https://img.shields.io/badge/Framework-DPDK-blue?style=for-the-badge&logo=intel" alt="DPDK">
@@ -631,7 +632,7 @@ Set of data plane libraries and drivers for **ultra-fast packet processing**. Pe
 [**📖 Learn more**](https://pcapplusplus.github.io/docs/dpdk)
 
 </td>
-<td width="50%" align="center">
+<td width="33%" align="center">
 
 ### 🔥 **PF_RING™**
 <img src="https://img.shields.io/badge/Framework-PF_RING-red?style=for-the-badge" alt="PF_RING">
@@ -643,14 +644,24 @@ Revolutionary network socket that **dramatically improves** packet capture speed
 [**📖 Learn more**](https://pcapplusplus.github.io/docs/features#pf_ring-support)
 
 </td>
-</tr>
-</table>
+<td width="33%" align="center">
 
-> 💡 **Why use DPDK & PF_RING?**
+###  **eBPF XDP**
+<img src="https://img.shields.io/badge/Framework-XDP-green?style=for-the-badge" alt="XDP">
+
+**⚡ eXpress Data Path**
+
+Linux kernel's **ultra-fast** packet processing framework using eBPF for **zero-copy** performance.
+
+[**📖 Learn more**](https://pcapplusplus.github.io/docs/features#af_xdp-support)
+
+</td>
+</tr>
+</table> > 💡 **Why use these high-performance frameworks?**
 >
-> Both frameworks provide **very fast packet processing** (up to **line speed**) and are used in many network applications such as **routers**, **firewalls**, **load balancers**, etc.
+> All these frameworks provide **very fast packet processing** (up to **line speed**) and are used in many network applications such as **routers**, **firewalls**, **load balancers**, etc.
 >
-> **PcapPlusPlus** provides a **C++ abstraction layer** over DPDK & PF_RING that removes the boilerplate and makes these powerful frameworks **easy to use**!
+> **PcapPlusPlus** provides a **C++ abstraction layer** over DPDK, PF_RING & XDP that removes the boilerplate and makes these powerful frameworks **easy to use**!
 
 ## 📊 Benchmarks
 
