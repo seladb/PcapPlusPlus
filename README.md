@@ -99,6 +99,11 @@ Extensive Documentation
   - [🧩 **Packet Reassembly**](#-packet-reassembly)
   - [🔍 **Advanced Features**](#-advanced-features)
 - [🚀 Getting Started](#-getting-started)
+- [📡 Packet Capture Backends](#-packet-capture-backends)
+  - [🔧 **libpcap**](#-libpcap)
+  - [🪟 **WinPcap/Npcap**](#-winpcapnpcap)
+  - [🌐 **Remote Capture (rpcapd)**](#-remote-capture-rpcapd)
+  - [🚀 **DPDK KNI**](#-dpdk-kni)
 - [📖 API Documentation](#-api-documentation)
   - [📦 **Packet++**](#-packet)
   - [🌐 **Pcap++**](#-pcap)
@@ -344,6 +349,67 @@ int main(int argc, char* argv[])
 Visit our comprehensive [**📚 Getting Started**](https://pcapplusplus.github.io/docs/quickstart) guide! This page will walk you through **few easy steps** to have an app up and running.
 
 </div>
+
+## 📡 Packet Capture Backends
+
+<div align="center">
+
+**🔧 Multiple Capture Engines Supported! 🔧**
+
+</div>
+
+PcapPlusPlus provides a **unified C++ interface** for multiple packet capture backends, making it easy to switch between different capture engines based on your platform and requirements.
+
+<table>
+<tr>
+<td width="25%" align="center">
+
+### 🔧 **libpcap**
+<img src="https://img.shields.io/badge/Backend-libpcap-blue?style=for-the-badge" alt="libpcap">
+
+**🐧 Universal Packet Capture**
+
+The standard packet capture library for **Unix-like systems**. Cross-platform support for Linux, macOS, and BSD.
+
+</td>
+<td width="25%" align="center">
+
+### 🪟 **WinPcap/Npcap**
+<img src="https://img.shields.io/badge/Backend-WinPcap%2FNpcap-red?style=for-the-badge" alt="WinPcap/Npcap">
+
+**🖥️ Windows Packet Capture**
+
+**WinPcap** and **Npcap** provide packet capture capabilities on Windows systems with advanced filtering.
+
+</td>
+<td width="25%" align="center">
+
+### 🌐 **Remote Capture (rpcapd)**
+<img src="https://img.shields.io/badge/Backend-rpcapd-green?style=for-the-badge" alt="rpcapd">
+
+**📡 Network-Based Capture**
+
+**Remote packet capture** using rpcapd daemon for capturing packets from remote machines over the network.
+
+</td>
+<td width="25%" align="center">
+
+### 🚀 **DPDK KNI**
+<img src="https://img.shields.io/badge/Backend-KNI-purple?style=for-the-badge" alt="KNI">
+
+**🌉 Kernel Network Interface**
+
+DPDK's **Kernel Network Interface** for seamless integration between kernel space and DPDK userspace applications.
+
+</td>
+</tr>
+</table>
+
+> 💡 **Why multiple backends?**
+>
+> Different capture backends are optimized for different use cases. **libpcap** provides broad compatibility, **WinPcap/Npcap** offers Windows integration, **rpcapd** enables remote monitoring, and **DPDK KNI** bridges high-performance DPDK with kernel networking.
+>
+> **PcapPlusPlus** abstracts these differences, providing a **consistent API** regardless of the underlying capture engine!
 
 ## 📖 API Documentation
 
