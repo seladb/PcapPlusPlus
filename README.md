@@ -117,8 +117,8 @@ Extensive Documentation
   - [🎨 Presentation Layer (L6)](#-presentation-layer-l6)
   - [📱 Application Layer (L7)](#-application-layer-l7)
 - [⚡ High-Performance Packet Processing Support](#-high-performance-packet-processing-support)
-  - [⚡ **DPDK**](#-dpdk)
-  - [🔥 **PF\_RING™**](#-pf_ring)
+  - [**DPDK**](#dpdk)
+  - [**PF\_RING™**](#pf_ring)
   - [**eBPF XDP**](#ebpf-xdp)
 - [📊 Benchmarks](#-benchmarks)
 - [💬 Provide Feedback](#-provide-feedback)
@@ -688,10 +688,10 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 <tr>
 <td width="33%" align="center">
 
-### ⚡ **DPDK**
+### **DPDK**
 <img src="https://img.shields.io/badge/Framework-DPDK-blue?style=for-the-badge&logo=intel" alt="DPDK">
 
-**🔥 Data Plane Development Kit**
+**⚡ Data Plane Development Kit**
 
 Set of data plane libraries and drivers for **ultra-fast packet processing**. Perfect for routers, firewalls, and load balancers.
 
@@ -700,7 +700,7 @@ Set of data plane libraries and drivers for **ultra-fast packet processing**. Pe
 </td>
 <td width="33%" align="center">
 
-### 🔥 **PF_RING™**
+### **PF_RING™**
 <img src="https://img.shields.io/badge/Framework-PF_RING-red?style=for-the-badge" alt="PF_RING">
 
 **⚡ High-Speed Network Socket**
