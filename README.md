@@ -723,7 +723,9 @@ Linux kernel's **ultra-fast** packet processing framework using eBPF for **zero-
 
 </td>
 </tr>
-</table> > 💡 **Why use these high-performance frameworks?**
+</table>
+
+> 💡 **Why use these high-performance frameworks?**
 >
 > All these frameworks provide **very fast packet processing** (up to **line speed**) and are used in many network applications such as **routers**, **firewalls**, **load balancers**, etc.
 >
