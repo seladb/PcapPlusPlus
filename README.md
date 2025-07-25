@@ -69,7 +69,7 @@ Extensive Documentation
 [**PcapPlusPlus**](https://pcapplusplus.github.io/) is a **multiplatform C++ library** for capturing, parsing and crafting of network packets. It is designed to be **efficient**, **powerful** and **easy to use**.
 
 > 💡 **What makes PcapPlusPlus special?**
-> 
+>
 > PcapPlusPlus enables decoding and forging capabilities for a **large variety of network protocols**. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [**libpcap**](https://www.tcpdump.org/), [**WinPcap**](https://www.winpcap.org/), [**Npcap**](https://nmap.org/npcap/), [**DPDK**](https://www.dpdk.org/), [**eBPF AF_XDP**](https://www.kernel.org/doc/html/next/networking/af_xdp.html) and [**PF_RING**](https://www.ntop.org/products/packet-capture/pf_ring/).
 
 <div align="center">
@@ -203,7 +203,7 @@ and you should see the following output in your terminal:
 ### 📡 **Packet Capture**
 Easy-to-use C++ wrapper for popular engines:
 - 🔧 **libpcap** - Universal packet capture
-- 🪟 **WinPcap/Npcap** - Windows packet capture  
+- 🪟 **WinPcap/Npcap** - Windows packet capture
 - ⚡ **Intel DPDK** - High-performance processing
 - 🌐 **eBPF AF_XDP** - Kernel bypass networking
 - 🔥 **PF_RING** - High-speed packet processing
@@ -621,7 +621,7 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 <tr>
 <td width="50%" align="center">
 
-### ⚡ **DPDK** 
+### ⚡ **DPDK**
 <img src="https://img.shields.io/badge/Framework-DPDK-blue?style=for-the-badge&logo=intel" alt="DPDK">
 
 **🔥 Data Plane Development Kit**
@@ -647,7 +647,7 @@ Revolutionary network socket that **dramatically improves** packet capture speed
 </table>
 
 > 💡 **Why use DPDK & PF_RING?**
-> 
+>
 > Both frameworks provide **very fast packet processing** (up to **line speed**) and are used in many network applications such as **routers**, **firewalls**, **load balancers**, etc.
 >
 > **PcapPlusPlus** provides a **C++ abstraction layer** over DPDK & PF_RING that removes the boilerplate and makes these powerful frameworks **easy to use**!
