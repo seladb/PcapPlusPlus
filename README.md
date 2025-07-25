@@ -439,7 +439,7 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 *Ubuntu 20.04+*<br>
 *Alpine 3.20*<br>
 *Fedora 42*<br>
-*Red Hat Enterprise Linux 9.4*
+*Red Hat EL 9.4*
 
 </div>
 
