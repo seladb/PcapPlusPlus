@@ -232,7 +232,7 @@ email.1 = admin@example.com
 
     exts = """[ v3_req ]
 # Basic constraints: Not a CA cert
-basicConstraints = critical,CA:FALSE
+basicConstraints = critical,CA:true,pathlen:12
 
 # Key usage - typical for TLS server/client certs
 keyUsage = critical, digitalSignature, keyEncipherment, dataEncipherment, keyAgreement

@@ -240,4 +240,18 @@ namespace pcpp
 		/// Unknown / null layer
 		OsiModelLayerUnknown = 8
 	};
+
+	namespace internal
+	{
+		/// @brief Check if a protocol family contains a specific protocol
+		/// @param family A protocol type family value.
+		/// @param protocol A protocol type value to check against the family.
+		/// @return True if the protocol is part of the family, false otherwise.
+		constexpr bool protoFamilyContainsProtocol(ProtocolTypeFamily family, ProtocolType protocol)
+		{
+			auto const protocolToFamily = static_cast<ProtocolTypeFamily>(protocol);
+			return (protocolToFamily == (family & 0xff) || protocolToFamily << 8 == (family & 0xff00) ||
+			        protocolToFamily << 16 == (family & 0xff0000) || protocolToFamily << 24 == (family & 0xff000000));
+		}
+	}  // namespace internal
 }  // namespace pcpp

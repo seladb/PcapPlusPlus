@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include "Asn1Codec.h"
+#include "X509ExtensionDataDecoder.h"
 
 /// @namespace pcpp
 /// The main namespace for the PcapPlusPlus lib
@@ -509,7 +510,7 @@ namespace pcpp
 
 			/// Checks if this extension is marked as critical
 			/// @return true if the extension is critical, false otherwise
-			bool getCritical() const;
+			bool isCritical() const;
 
 			/// Gets the value of this extension
 			/// @return The extension value as a string
@@ -698,6 +699,47 @@ namespace pcpp
 		std::vector<RDN> m_RDNs;
 	};
 
+	/// @class X509Extension
+	/// Represents an X.509 extension
+	class X509Extension
+	{
+		friend class X509Certificate;
+
+	public:
+		/// Gets the type of this X.509 extension
+		/// @return The X509ExtensionType representing the extension type
+		X509ExtensionType getType() const
+		{
+			return m_Type;
+		}
+
+		/// Checks if this extension is marked as critical
+		/// @return true if the extension is critical, false otherwise
+		bool isCritical() const
+		{
+			return m_IsCritical;
+		}
+
+		/// Gets the extension parsed data
+		/// @return A unique_ptr to an object containing the parsed extension data if such class exists
+		///         (not all extensions have parsed data classes), or nullptr if it doesn't
+		std::unique_ptr<X509ExtensionData> getData() const;
+
+		/// Gets the extension data as a hex string
+		/// @return A string containing the extension data in hex format
+		std::string getRawDataAsHexString() const
+		{
+			return m_Data;
+		}
+
+	private:
+		X509Extension(const X509Internal::X509Extension& internalExtension);
+
+		bool m_IsCritical;
+		X509ExtensionType m_Type;
+		std::string m_Data;
+	};
+
 	/// @class X509Certificate
 	/// Represents an X.509 certificate
 	class X509Certificate
@@ -764,14 +806,19 @@ namespace pcpp
 		/// @return The certificate's signature
 		X509Key getSignature() const;
 
-		/// Gets the number of extensions in the certificate
-		/// @return The number of extensions
-		size_t getExtensionCount() const;
+		/// Gets the list of extensions in the certificate
+		/// @return A vector containing the certificate's extensions
+		const std::vector<X509Extension>& getExtensions() const;
 
 		/// Checks if the certificate has a specific extension
 		/// @param[in] extensionType The extension type to check for
 		/// @return true if the extension is present, false otherwise
 		bool hasExtension(const X509ExtensionType& extensionType) const;
+
+		/// Gets an extension by its type
+		/// @param[in] extensionType The type of extension to get
+		/// @return Pointer to the extension if found or nullptr otherwise
+		const X509Extension* getExtension(X509ExtensionType extensionType) const;
 
 		/// Converts the certificate to DER-encoded format
 		/// @return A byte vector containing the DER-encoded data
@@ -797,6 +844,8 @@ namespace pcpp
 
 		std::unique_ptr<X509Internal::X509Certificate> m_X509Internal;
 		X509Internal::X509TBSCertificate m_TBSCertificate;
+		mutable std::vector<X509Extension> m_Extensions;
+		mutable bool m_ExtensionsParsed = false;
 		std::unique_ptr<uint8_t[]> m_DerData;
 	};
 }  // namespace pcpp
