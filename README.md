@@ -1,9 +1,6 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/seladb/PcapPlusPlus/master/.github/pcapplusplus-logo-dark.png">
-  <img alt="PcapPlusPlus Logo" src="https://pcapplusplus.github.io/img/logo/logo_color.png" width="300">
-</picture>
+[![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)](https://pcapplusplus.github.io)
 
 <h1>🚀 PcapPlusPlus</h1>
 
