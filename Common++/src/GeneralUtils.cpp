@@ -7,6 +7,7 @@
 #include <cstring>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 namespace pcpp
 {
@@ -470,13 +471,13 @@ namespace pcpp
 	std::string Base64::encodeHexString(const std::string& hexStringInput)
 	{
 		size_t inputLen = hexStringInput.length() / 2;
-		uint8_t input[inputLen];
-		auto inputLenAfterConvertingToByteArray = hexStringToByteArray(hexStringInput, input, inputLen);
+		std::unique_ptr<uint8_t[]> inputBytes(new uint8_t[inputLen]);
+		auto inputLenAfterConvertingToByteArray = hexStringToByteArray(hexStringInput, inputBytes.get(), inputLen);
 		if (inputLen != inputLenAfterConvertingToByteArray)
 		{
 			throw std::invalid_argument("Invalid hex string");
 		}
-		return encode(input, inputLen);
+		return encode(inputBytes.get(), inputLen);
 	}
 
 	std::string Base64::encode(const std::vector<uint8_t>& input)
@@ -495,16 +496,14 @@ namespace pcpp
 
 	std::string Base64::decodeToHexString(const std::string& input)
 	{
-		uint8_t decodedBytes[input.length()];
-		auto decodedSize = decodeToByteArray(input, decodedBytes, input.length());
-		return byteArrayToHexString(decodedBytes, decodedSize);
+		auto decodedBytes = decodeToByteVector(input);
+		return byteArrayToHexString(decodedBytes.data(), decodedBytes.size());
 	}
 
 	std::string Base64::decodeToString(const std::string& input)
 	{
-		uint8_t decodedBytes[input.length()];
-		auto decodedSize = decodeToByteArray(input, decodedBytes, input.length());
-		return { decodedBytes, decodedBytes + decodedSize };
+		auto decodedBytes = decodeToByteVector(input);
+		return { decodedBytes.begin(), decodedBytes.end() };
 	}
 
 	size_t Base64::decodeToByteArray(const std::string& input, uint8_t* resultByteArr, size_t resultByteArrSize)
