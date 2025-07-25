@@ -828,6 +828,6 @@ PcapPlusPlus is released under the [**Unlicense**](https://choosealicense.com/li
 
 **🎉 Thank you for using PcapPlusPlus! 🎉**
 
-<img src="https://img.shields.io/badge/Made%20with-❤️-red?style=for-the-badge" alt="Made with Love">
+<img src="https://img.shields.io/badge/Made%20with-❤️-ff1744?style=for-the-badge&labelColor=ff1744&color=white" alt="Made with Love">
 
 </div>
