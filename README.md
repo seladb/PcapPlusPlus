@@ -2,8 +2,6 @@
 
 [![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)](https://pcapplusplus.github.io)
 
-<h1>🚀 PcapPlusPlus</h1>
-
 <p><strong>⚡ High-Performance Network Packet Processing Library for C++ ⚡</strong></p>
 
 ---
