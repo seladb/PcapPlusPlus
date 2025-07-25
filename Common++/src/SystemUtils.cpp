@@ -31,22 +31,18 @@
 #endif
 
 #ifdef _MSC_VER
+#	include <chrono>
 int gettimeofday(struct timeval* tp, struct timezone* tzp)
 {
-	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
-	static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
 
-	SYSTEMTIME system_time;
-	FILETIME file_time;
-	uint64_t time;
+	auto now = std::chrono::system_clock::now();
+	auto duration = now.time_since_epoch();
 
-	GetSystemTime(&system_time);
-	SystemTimeToFileTime(&system_time, &file_time);
-	time = ((uint64_t)file_time.dwLowDateTime);
-	time += ((uint64_t)file_time.dwHighDateTime) << 32;
+	auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration - seconds);
 
-	tp->tv_sec = (long)((time - EPOCH) / 10000000L);
-	tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+	tp->tv_sec = static_cast<long>(seconds.count());
+	tp->tv_usec = static_cast<long>(microseconds.count());
 	return 0;
 }
 #endif
@@ -211,63 +207,18 @@ namespace pcpp
 
 	int clockGetTime(long& sec, long& nsec)
 	{
-		sec = 0;
-		nsec = 0;
+		using namespace std::chrono;
 
-#if defined(_WIN32)
+		auto now = system_clock::now();
+		auto duration = now.time_since_epoch();
 
-#	define CLOCK_GETTIME_BILLION (1E9)
+		auto secondsDuration = duration_cast<seconds>(duration);
+		auto nanosecondsDuration = duration_cast<nanoseconds>(duration - secondsDuration);
 
-		static BOOL clock_gettime_first_time = 1;
-		static LARGE_INTEGER clock_gettime_counts_per_sec;
-
-		LARGE_INTEGER count;
-
-		if (clock_gettime_first_time)
-		{
-			clock_gettime_first_time = 0;
-
-			if (0 == QueryPerformanceFrequency(&clock_gettime_counts_per_sec))
-			{
-				clock_gettime_counts_per_sec.QuadPart = 0;
-			}
-		}
-
-		if ((clock_gettime_counts_per_sec.QuadPart <= 0) || (0 == QueryPerformanceCounter(&count)))
-		{
-			return -1;
-		}
-
-		sec = count.QuadPart / clock_gettime_counts_per_sec.QuadPart;
-		nsec = ((count.QuadPart % clock_gettime_counts_per_sec.QuadPart) * CLOCK_GETTIME_BILLION) /
-		       clock_gettime_counts_per_sec.QuadPart;
+		sec = static_cast<long>(secondsDuration.count());
+		nsec = static_cast<long>(nanosecondsDuration.count());
 
 		return 0;
-
-#elif defined(__APPLE__)
-
-		clock_serv_t cclock;
-		mach_timespec_t mts;
-		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-		clock_get_time(cclock, &mts);
-		mach_port_deallocate(mach_task_self(), cclock);
-		sec = mts.tv_sec;
-		nsec = mts.tv_nsec;
-
-		return 0;
-
-#else  // Linux
-
-		timespec tspec{};
-		const int res = clock_gettime(CLOCK_REALTIME, &tspec);
-		if (res == 0)
-		{
-			sec = tspec.tv_sec;
-			nsec = tspec.tv_nsec;
-		}
-		return res;
-
-#endif
 	}
 
 	time_t mkUtcTime(std::tm& tm)

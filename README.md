@@ -604,6 +604,7 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 - 🚗 **SOME/IP**
 - 🔐 **SSH** *(parsing only)*
 - 📟 **Telnet** *(parsing only)*
+- 📜 **X509 certificates** *(parsing only)*
 - 📦 **Generic payload**
 
 </div>

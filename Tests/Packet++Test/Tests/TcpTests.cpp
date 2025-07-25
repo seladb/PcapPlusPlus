@@ -46,6 +46,7 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->rstFlag, 0);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->eceFlag, 0);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->reserved, 0);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->accurateEcnFlag, 0);
 
 	// TCP options
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpOptionCount(), 0);
@@ -62,6 +63,23 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 	PTF_ASSERT_NOT_NULL(afterTcpLayer);
 	PTF_ASSERT_EQUAL(afterTcpLayer->getProtocol(), pcpp::HTTPResponse, enum);
 }  // TcpPacketNoOptionsParsing
+
+PTF_TEST_CASE(TcpPacketWithAccurateEcnParsing)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketNoOptionsAccEcn.dat");
+
+	pcpp::Packet TcpPacketWithAccurateEcn(&rawPacket1);
+	PTF_ASSERT_TRUE(TcpPacketWithAccurateEcn.isPacketOfType(pcpp::TCP));
+
+	pcpp::TcpLayer* tcpLayer = TcpPacketWithAccurateEcn.getLayerOfType<pcpp::TcpLayer>();
+	PTF_ASSERT_NOT_NULL(tcpLayer);
+
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->reserved, 0);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->accurateEcnFlag, 1);
+}  // TcpPacketWithAccurateEcnParsing
 
 PTF_TEST_CASE(TcpPacketWithOptionsParsing)
 {
