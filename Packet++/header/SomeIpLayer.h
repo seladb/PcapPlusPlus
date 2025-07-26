@@ -258,7 +258,7 @@ namespace pcpp
 		{}
 
 		/// Identifies the following next layers: SomeIpLayer, SomeIpTpLayer, SomeIpSdLayer. Otherwise sets PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return The string representation of the SOME/IP layer
 		virtual std::string toString() const override;

@@ -115,7 +115,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Next layer for VXLAN is always Ethernet
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Size of vxlan_header
 		size_t getHeaderLen() const override
