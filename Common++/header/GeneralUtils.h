@@ -112,12 +112,11 @@ namespace pcpp
 
 	/// A template class to calculate enum class hash
 	/// @tparam EnumClass
-	template <typename EnumClass, typename std::enable_if<std::is_enum<EnumClass>::value, bool>::type = false>
-	struct EnumClassHash
+	template <typename EnumClass, std::enable_if_t<std::is_enum<EnumClass>::value, bool> = false> struct EnumClassHash
 	{
 		size_t operator()(EnumClass value) const
 		{
-			return static_cast<typename std::underlying_type<EnumClass>::type>(value);
+			return static_cast<std::underlying_type_t<EnumClass>>(value);
 		}
 	};
 }  // namespace pcpp
