@@ -31,7 +31,7 @@ namespace pcpp
 
 		/// @brief A specialization of Copier to facilitate the safe copying of polymorphic objects via clone() method.
 		/// @tparam T The type of object to copy.
-		template <class T> struct Copier<T, typename std::enable_if<std::is_polymorphic<T>::value>::type>
+		template <class T> struct Copier<T, std::enable_if_t<std::is_polymorphic<T>::value>>
 		{
 			std::unique_ptr<T> operator()(const T& obj) const
 			{

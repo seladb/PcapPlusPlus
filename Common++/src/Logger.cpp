@@ -85,7 +85,7 @@ namespace pcpp
 		// If the log level is an error, save the error to the last error message variable.
 		if (logLevel == LogLevel::Error)
 		{
-			std::lock_guard<std::mutex> lock(m_LastErrorMtx);
+			std::lock_guard<std::mutex> const lock(m_LastErrorMtx);
 			m_LastError = message;
 		}
 		if (m_LogsEnabled)
@@ -103,7 +103,7 @@ namespace pcpp
 		std::ostringstream sstream;
 		sstream << file << ": " << method << ":" << line;
 
-		std::unique_lock<std::mutex> lock(logMutex);
+		std::unique_lock<std::mutex> const lock(logMutex);
 		std::cerr << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
 		          << sstream.str() << "] " << logMessage << std::endl;
 	}
