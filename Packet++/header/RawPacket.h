@@ -264,11 +264,11 @@ namespace pcpp
 			/// @brief A constructor that initializes the timestamp and link layer type.
 			/// @param[in] timestamp The timestamp packet was received by the NIC (in nsec precision)
 			/// @param[in] linkLayerType The link layer type of the packet, defaulting to Ethernet.
-			RawPacketBase(timespec timestamp, LinkLayerType linkLayerType = LinkLayerType::LINKTYPE_ETHERNET);
+			explicit RawPacketBase(timespec timestamp, LinkLayerType linkLayerType = LinkLayerType::LINKTYPE_ETHERNET);
 			/// @brief A constructor that initializes the timestamp and link layer type.
 			/// @param[in] timestamp The timestamp packet was received by the NIC (in usec precision)
 			/// @param[in] linkLayerType The link layer type of the packet, defaulting to Ethernet.
-			RawPacketBase(timeval timestamp, LinkLayerType linkLayerType = LinkLayerType::LINKTYPE_ETHERNET);
+			explicit RawPacketBase(timeval timestamp, LinkLayerType linkLayerType = LinkLayerType::LINKTYPE_ETHERNET);
 
 			// Copy and move constructors and assignment operators are protected to prevent slicing
 			RawPacketBase(const RawPacketBase&) = default;
