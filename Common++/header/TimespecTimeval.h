@@ -40,9 +40,9 @@ namespace pcpp
 		/// Converts a timespec structure to a timeval structure
 		inline timeval toTimeval(timespec value)
 		{
-			timeval tv = {};
-			TIMESPEC_TO_TIMEVAL(&tv, &value);
-			return tv;
+			timeval tmVal = {};
+			TIMESPEC_TO_TIMEVAL(&tmVal, &value);
+			return tmVal;
 		}
 	}  // namespace internal
 }  // namespace pcpp
