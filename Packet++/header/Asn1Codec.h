@@ -229,6 +229,7 @@ namespace pcpp
 		uint8_t encodeTag() const;
 		std::vector<uint8_t> encodeLength() const;
 
+		// note: Requires the value to be decoded first if lazy decoding is used
 		virtual std::vector<std::string> toStringList() const;
 
 		friend class Asn1ConstructedRecord;
