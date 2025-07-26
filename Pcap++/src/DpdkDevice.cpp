@@ -1171,7 +1171,6 @@ namespace pcpp
 		for (size_t i = 0; i < arrLength; i++)
 		{
 			MBufRawPacket* mBufRawPacket = nullptr;
-
 			uint8_t rawPacketType = packetsArr[i]->getRawPacketReadOnly()->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{
