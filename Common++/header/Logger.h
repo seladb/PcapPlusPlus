@@ -7,11 +7,16 @@
 #include <mutex>
 #include <ostream>
 #include <sstream>
+#include <functional>
 #include "DeprecationUtils.h"
 #include "ObjectPool.h"
 
 #ifndef LOG_MODULE
 #	define LOG_MODULE UndefinedLogModule
+#endif
+
+#ifndef PCPP_FULLY_QUALIFIED_LOG_MODULE
+#	define PCPP_FULLY_QUALIFIED_LOG_MODULE ::pcpp::LogModule::LOG_MODULE
 #endif
 
 // Use __FILE_NAME__ to avoid leaking complete full path
@@ -245,9 +250,8 @@ namespace pcpp
 		/// @param[in] method The method in PcapPlusPlus code the log message is coming from
 		/// @param[in] line The line in PcapPlusPlus code the log message is coming from
 		/// @remarks The printer callback should support being called from multiple threads simultaneously.
-		using LogPrinter =
-		    std::add_pointer<void(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                          const std::string& method, const int line)>::type;
+		using LogPrinter = std::function<void(LogLevel logLevel, const std::string& logMessage, const std::string& file,
+		                                      const std::string& method, const int line)>;
 
 		/// A static method for converting the log level enum to a string.
 		/// @param[in] logLevel A log level enum
@@ -417,10 +421,10 @@ namespace pcpp
 	do                                                                                                                 \
 	{                                                                                                                  \
 		auto& logger = pcpp::Logger::getInstance();                                                                    \
-		if (logger.shouldLog(level, LOG_MODULE))                                                                       \
+		if (logger.shouldLog(level, PCPP_FULLY_QUALIFIED_LOG_MODULE))                                                  \
 		{                                                                                                              \
-			auto ctx =                                                                                                 \
-			    logger.createLogContext(level, pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__));  \
+			auto ctx = logger.createLogContext(                                                                        \
+			    level, pcpp::LogSource(PCPP_FULLY_QUALIFIED_LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__));     \
 			(*ctx) << message;                                                                                         \
 			logger.emit(std::move(ctx));                                                                               \
 		}                                                                                                              \
