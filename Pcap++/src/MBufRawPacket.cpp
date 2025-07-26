@@ -131,7 +131,7 @@ namespace pcpp
 			return;
 		}
 
-		setMBuf(newMbuf, other.m_TimeStamp);
+		setMBuf(newMbuf, other.getPacketTimeStamp());
 
 		m_RawPacketSet = false;
 
