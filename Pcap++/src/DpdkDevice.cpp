@@ -1209,28 +1209,28 @@ namespace pcpp
 		MBufRawPacketVector mBufVec;
 		int mBufIndex = 0;
 
-		for (RawPacketVector::ConstVectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); iter++)
+		for (auto const* rawPacket : rawPacketsVec)
 		{
-			MBufRawPacket* rawPacket = nullptr;
-			uint8_t rawPacketType = (*iter)->getObjectType();
+			MBufRawPacket* mBufRawPacket = nullptr;
+			uint8_t rawPacketType = rawPacket->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{
-				rawPacket = new MBufRawPacket();
-				if (unlikely(!rawPacket->initFromRawPacket(*iter, this)))
+				mBufRawPacket = new MBufRawPacket();
+				if (unlikely(!mBufRawPacket->initFromRawPacket(rawPacket, this)))
 				{
-					delete rawPacket;
+					delete mBufRawPacket;
 					return 0;
 				}
 
-				mBufVec.pushBack(rawPacket);
+				mBufVec.pushBack(mBufRawPacket);
 			}
 			else
 			{
-				rawPacket = (MBufRawPacket*)(*iter);
+				mBufRawPacket = (MBufRawPacket*)(rawPacket);
 			}
 
-			mBufRawPacketArr[mBufIndex] = rawPacket;
-			mBufArr[mBufIndex++] = rawPacket->getMBuf();
+			mBufRawPacketArr[mBufIndex] = mBufRawPacket;
+			mBufArr[mBufIndex++] = mBufRawPacket->getMBuf();
 		}
 
 		uint16_t packetsSent =
