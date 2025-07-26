@@ -354,5 +354,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(X509InvalidDataTest, "x509");
 	PTF_RUN_TEST(X509ExtensionDataTest, "x509");
 
+	PTF_RUN_TEST(Base64EncodingTest, "base64");
+	PTF_RUN_TEST(Base64DecodingTest, "base64");
+
 	PTF_END_RUNNING_TESTS;
 }
