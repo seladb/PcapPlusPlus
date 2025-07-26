@@ -284,8 +284,8 @@ PTF_TEST_CASE(SomeIpTpCreationTest)
 	pcpp::EthLayer ethLayer2(ethLayer1);
 	pcpp::IPv4Layer ipLayer2(ipLayer1);
 	pcpp::UdpLayer udpLayer2(udpLayer1);
-	pcpp::SomeIpTpLayer someIpTpLayer2(0xd05f, 0x8001, 0, 0, 1, pcpp::SomeIpLayer::MsgType::REQUEST_NO_RETURN, 0,
-	                                   91872, false, data2, dataLen2);
+	pcpp::SomeIpTpLayer someIpTpLayer2(0xd05f, 0x8001, 0, 0, 1, pcpp::SomeIpLayer::MsgType::REQUEST_NO_RETURN, 0, 91872,
+	                                   false, data2, dataLen2);
 
 	pcpp::Packet someIpTpPacket2(500);
 	PTF_ASSERT_TRUE(someIpTpPacket2.addLayer(&ethLayer2));
@@ -318,5 +318,6 @@ PTF_TEST_CASE(SomeIpTpEditTest)
 	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 1968);
 	PTF_ASSERT_FALSE(someIpTpLayer.getMoreSegmentsFlag());
 
-	PTF_ASSERT_RAISES(someIpTpLayer.setOffset(17), std::invalid_argument, "Invalid offset - should be a multiple of 16");
+	PTF_ASSERT_RAISES(someIpTpLayer.setOffset(17), std::invalid_argument,
+	                  "Invalid offset - should be a multiple of 16");
 }
