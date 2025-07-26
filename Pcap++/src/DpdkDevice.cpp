@@ -1215,7 +1215,6 @@ namespace pcpp
 		for (auto const* rawPacket : rawPacketsVec)
 		{
 			MBufRawPacket* mBufRawPacket = nullptr;
-
 			uint8_t rawPacketType = rawPacket->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{
