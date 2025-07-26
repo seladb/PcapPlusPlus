@@ -742,15 +742,14 @@ namespace pcpp
 
 			// Sets the mbuf pointer from the temporary object
 			mbufRawPacket = mbufRawPacketTemp.get();
-			mbuf = mbufRawPacket->getMBuf();
 		}
 		else
 		{
 			// Casts the raw packet to MBufRawPacket
 			mbufRawPacket = static_cast<MBufRawPacket*>(&rawPacket);
-			mbuf = mbufRawPacket->getMBuf();
 		}
 
+		mbuf = mbufRawPacket->getMBuf();
 		sent = rte_kni_tx_burst(m_Device, &mbuf, 1);
 		mbufRawPacket->setFreeMbuf(!sent);
 
