@@ -739,7 +739,7 @@ namespace pcpp
 			{
 				return sent;
 			}
-			
+
 			// Sets the mbuf pointer from the temporary object
 			mbufRawPacket = mbufRawPacketTemp.get();
 			mbuf = mbufRawPacket->getMBuf();

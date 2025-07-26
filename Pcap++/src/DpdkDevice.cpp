@@ -1181,7 +1181,8 @@ namespace pcpp
 					return 0;
 				}
 
-				// Set the packet pointer to the newly created MBufRawPacket and add it register it to lifetime management
+				// Set the packet pointer to the newly created MBufRawPacket and add it register it to lifetime
+				// management
 				mBufRawPacket = mBufRawPacketTemp.get();
 				mBufVec.pushBack(std::move(mBufRawPacketTemp));
 			}
