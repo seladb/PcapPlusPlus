@@ -54,14 +54,24 @@ namespace pcpp
 		/// @return A new PortPair with the source port set to AnyPort.
 		constexpr PortPair withAnySrc() const
 		{
-			return fromDst(m_PortDst);
+			if (m_PortDstSet)
+			{
+				return fromDst(m_PortDst);
+			}
+
+			return PortPair{ AnyPort, AnyPort };
 		}
 
 		/// @brief Returns a PortPair with the destination port replaced by AnyPort wildcard.
 		/// @return A new PortPair with the destination port set to AnyPort.
 		constexpr PortPair withAnyDst() const
 		{
-			return fromSrc(m_PortSrc);
+			if (m_PortSrcSet)
+			{
+				return fromSrc(m_PortSrc);
+			}
+
+			return PortPair{ AnyPort, AnyPort };
 		}
 
 		/// @brief Returns a PortPair with the source and destination ports reversed.
