@@ -22,6 +22,7 @@
 
 #include <cerrno>
 #include <cstdio>
+#include <memory>
 #include <cstring>
 #include <algorithm>
 
@@ -727,31 +728,31 @@ namespace pcpp
 		}
 
 		struct rte_mbuf* mbuf;
+		std::unique_ptr<MBufRawPacket> mbufRawPacketTemp;
 		MBufRawPacket* mbufRawPacket = nullptr;
 		bool sent = false;
-		bool wasAllocated = false;
 
 		if (rawPacket.getObjectType() != MBUFRAWPACKET_OBJECT_TYPE)
 		{
-			mbufRawPacket = new MBufRawPacket();
-			if (unlikely(!mbufRawPacket->initFromRawPacket(&rawPacket, this)))
+			mbufRawPacketTemp = std::make_unique<MBufRawPacket>();
+			if (unlikely(!mbufRawPacketTemp->initFromRawPacket(&rawPacket, this)))
 			{
-				delete mbufRawPacket;
 				return sent;
 			}
+			
+			// Sets the mbuf pointer from the temporary object
+			mbufRawPacket = mbufRawPacketTemp.get();
 			mbuf = mbufRawPacket->getMBuf();
-			wasAllocated = true;
 		}
 		else
 		{
-			mbufRawPacket = (MBufRawPacket*)(&rawPacket);
+			// Casts the raw packet to MBufRawPacket
+			mbufRawPacket = static_cast<MBufRawPacket*>(&rawPacket);
 			mbuf = mbufRawPacket->getMBuf();
 		}
 
 		sent = rte_kni_tx_burst(m_Device, &mbuf, 1);
 		mbufRawPacket->setFreeMbuf(!sent);
-		if (wasAllocated)
-			delete mbufRawPacket;
 
 		return sent;
 	}
