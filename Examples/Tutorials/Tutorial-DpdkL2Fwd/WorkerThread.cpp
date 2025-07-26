@@ -18,7 +18,7 @@ bool L2FwdWorkerThread::run(uint32_t coreId)
 	while (!m_Stop)
 	{
 		// receive packets from RX device
-		uint16_t numOfPackets = m_RxDevice->receivePackets(mbufArr, 64, 0);
+		const uint16_t numOfPackets = m_RxDevice->receivePackets(mbufArr, 64, 0);
 
 		if (numOfPackets > 0)
 		{

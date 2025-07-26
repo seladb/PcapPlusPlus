@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -34,15 +34,16 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
-#define IO_BUFF_SIZE (1 << 14)
-#define WANT_POLLIN (-2)
-#define WANT_POLLOUT (-3)
 #define DEFAULT_KNI_NAME "pcppkni0"
-#define DEFAULT_PORT 62604
+
+constexpr auto IO_BUFF_SIZE = (1 << 14);
+constexpr auto WANT_POLLIN = (-2);
+constexpr auto WANT_POLLOUT = (-3);
+constexpr auto DEFAULT_PORT = 62604;
 
 namespace
 {
@@ -52,14 +53,14 @@ namespace
 		std::string kniIp;
 		std::string outIp;
 		std::string kniName;
-		uint16_t kniPort;
+		uint16_t kniPort{};
 	};
 
-	typedef int linuxFd;
+	using linuxFd = int;
 
 	struct LinuxSocket
 	{
-		inline operator int() const
+		operator int() const
 		{
 			return m_Socket;
 		}
@@ -75,16 +76,16 @@ namespace
 		unsigned long arpPacketsOutFail;
 	};
 
-	static bool doContinue = true;
+	volatile sig_atomic_t doContinue = 1;
 
 	/**
 	 * Print application version
 	 */
 	void printAppVersion()
 	{
-		std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-		          << "Built: " << pcpp::getBuildDateTime() << std::endl
-		          << "Built from: " << pcpp::getGitInfo() << std::endl;
+		std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << '\n'
+		          << "Built: " << pcpp::getBuildDateTime() << '\n'
+		          << "Built from: " << pcpp::getGitInfo() << '\n';
 		exit(0);
 	}
 
@@ -93,23 +94,22 @@ namespace
 	 */
 	inline void printUsage()
 	{
-		std::cout << std::endl
-		          << "Usage:" << std::endl
-		          << "------" << std::endl
-		          << pcpp::AppName::get() << " [-hv] [-n KNI_DEVICE_NAME] [-p PORT] -s SRC_IPV4 -d DST_IPV4"
-		          << std::endl
-		          << std::endl
-		          << "Options:" << std::endl
-		          << "    -s --src SRC_IPV4           : IPv4 address to assign to the created KNI device" << std::endl
+		std::cout << '\n'
+		          << "Usage:" << '\n'
+		          << "------" << '\n'
+		          << pcpp::AppName::get() << " [-hv] [-n KNI_DEVICE_NAME] [-p PORT] -s SRC_IPV4 -d DST_IPV4" << '\n'
+		          << '\n'
+		          << "Options:" << '\n'
+		          << "    -s --src SRC_IPV4           : IPv4 address to assign to the created KNI device" << '\n'
 		          << "    -d --dst DST_IPV4           : Virtual IPv4 address to communicate with. Must be in /24 "
 		             "subnet with SRC_IPV4"
-		          << std::endl
+		          << '\n'
 		          << "    -n --name KNI_DEVICE_NAME   : Name for KNI device. Default: \"" << DEFAULT_KNI_NAME << "\""
-		          << std::endl
-		          << "    -p --port PORT              : Port for communication. Default: " << DEFAULT_PORT << std::endl
-		          << "    -v --version                : Displays the current version and exits" << std::endl
-		          << "    -h --help                   : Displays this help message and exits" << std::endl
-		          << std::endl;
+		          << '\n'
+		          << "    -p --port PORT              : Port for communication. Default: " << DEFAULT_PORT << '\n'
+		          << "    -v --version                : Displays the current version and exits" << '\n'
+		          << "    -h --help                   : Displays this help message and exits" << '\n'
+		          << '\n';
 	}
 
 	inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
@@ -164,7 +164,9 @@ namespace
 		}
 		// Default name for KNI device:
 		if (args.kniName.empty())
+		{
 			args.kniName = DEFAULT_KNI_NAME;
+		}
 		if (args.kniIp.empty())
 		{
 			printUsage();
@@ -207,27 +209,27 @@ namespace
 	 */
 	struct KniDummyCallbacks
 	{
-		static int changeMtuNew(uint16_t, unsigned int)
+		static int changeMtuNew(uint16_t /*unused*/, unsigned int /*unused*/)
 		{
 			return 0;
 		}
-		static int changeMtuOld(uint8_t, unsigned int)
+		static int changeMtuOld(uint8_t /*unused*/, unsigned int /*unused*/)
 		{
 			return 0;
 		}
-		static int configNetworkIfNew(uint16_t, uint8_t)
+		static int configNetworkIfNew(uint16_t /*unused*/, uint8_t /*unused*/)
 		{
 			return 0;
 		}
-		static int configNetworkIfOld(uint8_t, uint8_t)
+		static int configNetworkIfOld(uint8_t /*unused*/, uint8_t /*unused*/)
 		{
 			return 0;
 		}
-		static int configMacAddress(uint16_t, uint8_t[])
+		static int configMacAddress(uint16_t /*unused*/, uint8_t /*unused*/[])
 		{
 			return 0;
 		}
-		static int configPromiscusity(uint16_t, uint8_t)
+		static int configPromiscusity(uint16_t /*unused*/, uint8_t /*unused*/)
 		{
 			return 0;
 		}
@@ -251,17 +253,17 @@ namespace
 	/**
 	 * Setup IP of net device by calling the ip unix utility
 	 */
-	inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName)
+	inline bool setKniIp(const pcpp::IPv4Address& ipAddr, const std::string& kniName)
 	{
 		std::ostringstream command;
-		command << "ip a add " << ip << "/24 dev " << kniName;
+		command << "ip a add " << ipAddr << "/24 dev " << kniName;
 		pcpp::executeShellCommand(command.str());
 		command.str("");
-		command << "ip a | grep " << ip;
+		command << "ip a | grep " << ipAddr;
 		try
 		{
-			std::string result = pcpp::executeShellCommand(command.str());
-			return result != "";
+			const std::string result = pcpp::executeShellCommand(command.str());
+			return !result.empty();
 		}
 		catch (const std::runtime_error&)
 		{
@@ -276,12 +278,14 @@ namespace
 	{
 		{
 			// Setup DPDK
-			pcpp::CoreMask cm = 0x3;
-			bool dpdkInitSuccess = pcpp::DpdkDeviceList::initDpdk(cm, 1023);
+			const pcpp::CoreMask cMask = 0x3;
+			const bool dpdkInitSuccess = pcpp::DpdkDeviceList::initDpdk(cMask, 1023);
 			if (!dpdkInitSuccess)
+			{
 				EXIT_WITH_ERROR("Failed to init DPDK");
+			}
 		}
-		pcpp::IPv4Address kniIp = args.kniIp;
+		const pcpp::IPv4Address kniIp = args.kniIp;
 		// Setup device config
 		pcpp::KniDevice* device = nullptr;
 		pcpp::KniDevice::KniDeviceConfiguration devConfig;
@@ -298,23 +302,37 @@ namespace
 		devConfig.bindKthread = false;
 		pcpp::KniDeviceList& kniDeviceList = pcpp::KniDeviceList::getInstance();
 		if (!kniDeviceList.isInitialized())
+		{
 			EXIT_WITH_ERROR("Can't initialize KNI device list");
+		}
 		device = kniDeviceList.createDevice(devConfig, 1024);
 		if (device == nullptr)
+		{
 			EXIT_WITH_ERROR("Can't create KNI device");
+		}
 		// Check KNI device and start request thread
 		if (!device->isInitialized())
+		{
 			EXIT_WITH_ERROR("KNI device was not initialized correctly");
+		}
 		if (!device->open())
+		{
 			EXIT_WITH_ERROR("Could not open KNI device");
+		}
 		if (!device->startRequestHandlerThread(0, 500000000))
+		{
 			EXIT_WITH_ERROR("Could not start KNI device request handler thread");
+		}
 		// Assign IP
 		if (!setKniIp(kniIp, args.kniName))
+		{
 			EXIT_WITH_ERROR("Can't set KNI device IP");
+		}
 		// Turn device on for Linux Kernel
 		if (!device->setLinkState(pcpp::KniDevice::LINK_UP))
+		{
 			EXIT_WITH_ERROR("Can't set KNI device link state to UP");
+		}
 		return device;
 	}
 
@@ -323,27 +341,24 @@ namespace
 	 */
 	inline LinuxSocket setupLinuxSocket(const KniPongArgs& args)
 	{  // Open socket
-		enum
-		{
-			INVALID_FD = -1
-		};
-		LinuxSocket sock;
+		constexpr auto INVALID_FD = -1;
+		LinuxSocket sock{};
 		if ((sock.m_Socket = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_FD)
 		{
-			int old_errno = errno;
-			EXIT_WITH_ERROR("Could not open socket" << std::endl << "Errno: " << std::strerror(old_errno));
+			const int old_errno = errno;
+			EXIT_WITH_ERROR("Could not open socket" << '\n' << "Errno: " << std::strerror(old_errno));
 		}
 		// Bind socket to KNI device IP
-		struct sockaddr_in egress;
+		struct sockaddr_in egress{};
 		std::memset(&egress, 0, sizeof(egress));
 		egress.sin_family = AF_INET;
 		egress.sin_addr.s_addr = inet_addr(args.kniIp.c_str());
 		egress.sin_port = pcpp::hostToNet16(args.kniPort);
-		if (bind(sock, (struct sockaddr*)&egress, sizeof(egress)) == -1)
+		if (bind(sock, reinterpret_cast<struct sockaddr*>(&egress), sizeof(egress)) == -1)
 		{
-			int old_errno = errno;
+			const int old_errno = errno;
 			close(sock);
-			EXIT_WITH_ERROR("Could not bind socket" << std::endl << "Errno: " << std::strerror(old_errno));
+			EXIT_WITH_ERROR("Could not bind socket" << '\n' << "Errno: " << std::strerror(old_errno));
 		}
 
 		return sock;
@@ -354,9 +369,9 @@ namespace
 	 */
 	inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer)
 	{
-		pcpp::MacAddress rndMac("00:42:43:74:11:54");
+		const pcpp::MacAddress rndMac("00:42:43:74:11:54");
 		pcpp::EthLayer* ethernetLayer = nullptr;
-		pcpp::arphdr arpHdr;
+		pcpp::arphdr arpHdr{};
 		pcpp::arphdr* origArpHdr = arpLayer->getArpHeader();
 		// Copy ARP request
 		std::memcpy(&arpHdr, origArpHdr, sizeof(arpHdr));
@@ -375,7 +390,7 @@ namespace
 
 		// Setup Ethernet addresses in Ethernet layer
 		ethernetLayer = packet.getLayerOfType<pcpp::EthLayer>();
-		pcpp::ether_header ethHdr;
+		pcpp::ether_header ethHdr{};
 		pcpp::ether_header* origEthHdr = ethernetLayer->getEthHeader();
 		std::memcpy(&ethHdr, origEthHdr, sizeof(ethHdr));
 		std::memcpy(ethHdr.dstMac, origEthHdr->srcMac, sizeof(ethHdr.dstMac));
@@ -394,7 +409,7 @@ namespace
 		pcpp::IPv4Layer* ipLayer = nullptr;
 
 		ethernetLayer = packet.getLayerOfType<pcpp::EthLayer>();
-		pcpp::ether_header ethHdr;
+		pcpp::ether_header ethHdr{};
 		pcpp::ether_header* origEthHdr = ethernetLayer->getEthHeader();
 		std::memcpy(&ethHdr, origEthHdr, sizeof(ethHdr));
 		// Swap MACs for Ethernet layer
@@ -403,23 +418,27 @@ namespace
 		std::memcpy(origEthHdr, &ethHdr, sizeof(ethHdr));
 
 		ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		if (ipLayer == nullptr)  // Some invalid packet
+		if (ipLayer == nullptr)
+		{  // Some invalid packet
 			return false;
-		pcpp::iphdr ipHdr;
+		}
+		pcpp::iphdr ipHdr{};
 		pcpp::iphdr* origIpHdr = ipLayer->getIPv4Header();
 		std::memcpy(&ipHdr, origIpHdr, sizeof(ipHdr));
-		if (pcpp::netToHost16(ipHdr.fragmentOffset) & 0x1FFF)  // Fragmented packet
+		if ((pcpp::netToHost16(ipHdr.fragmentOffset) & 0x1FFF) != 0)
+		{  // Fragmented packet
 			return false;
+		}
 		// Swap src and dst IPs
 		std::memcpy(&ipHdr.ipSrc, &origIpHdr->ipDst, sizeof(ipHdr.ipSrc));
 		std::memcpy(&ipHdr.ipDst, &origIpHdr->ipSrc, sizeof(ipHdr.ipDst));
 		// Randomize IP id
-		ipHdr.ipId = std::rand() & 0xFFFF;
+		ipHdr.ipId = std::rand() & 0xFFFF;  // NOLINT(cert-msc30-c,cert-msc50-cpp)
 		// Set by RFC791
 		ipHdr.timeToLive = 64;
 		std::memcpy(origIpHdr, &ipHdr, sizeof(ipHdr));
 
-		pcpp::udphdr udpHdr;
+		pcpp::udphdr udpHdr{};
 		pcpp::udphdr* origUdpHdr = udpLayer->getUdpHeader();
 		std::memcpy(&udpHdr, origUdpHdr, sizeof(udpHdr));
 		// Swap src and dst ports
@@ -438,7 +457,7 @@ namespace
 	 */
 	bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets, pcpp::KniDevice* kni, void* cookie)
 	{
-		PacketStats* packetStats = (PacketStats*)cookie;
+		auto* packetStats = reinterpret_cast<PacketStats*>(cookie);
 		pcpp::Packet packet;
 		pcpp::ArpLayer* arpLayer = nullptr;
 		pcpp::UdpLayer* udpLayer = nullptr;
@@ -453,7 +472,9 @@ namespace
 				processArp(packet, arpLayer);
 				// Packet is ready to be sent -> have no fields to recalculate
 				if (!kni->sendPacket(packet))
+				{
 					++packetStats->arpPacketsOutFail;
+				}
 				arpLayer = nullptr;
 				continue;
 			}
@@ -463,7 +484,9 @@ namespace
 				++packetStats->udpPacketsIn;
 				//! Warning (echo-Mike): DO NOT normalize next logic statement it relays on short circuiting
 				if (!processUdp(packet, udpLayer) || !kni->sendPacket(packet))
+				{
 					++packetStats->udpPacketsOutFail;
+				}
 				udpLayer = nullptr;
 				continue;
 			}
@@ -479,55 +502,65 @@ namespace
 	 */
 	void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args)
 	{
-		struct sockaddr_in ingress;
+		struct sockaddr_in ingress{};
 		std::memset(&ingress, 0, sizeof(ingress));
 		ingress.sin_family = AF_INET;
 		ingress.sin_addr.s_addr = inet_addr(args.outIp.c_str());
 		ingress.sin_port = pcpp::hostToNet16(args.kniPort);
-		if (connect(sock, (struct sockaddr*)&ingress, sizeof(ingress)) == -1)
+		if (connect(sock, reinterpret_cast<struct sockaddr*>(&ingress), sizeof(ingress)) == -1)
 		{
-			int old_errno = errno;
+			const int old_errno = errno;
 			close(sock);
-			EXIT_WITH_ERROR("Could not connect socket" << std::endl << "Errno: " << std::strerror(old_errno));
+			EXIT_WITH_ERROR("Could not connect socket" << '\n' << "Errno: " << std::strerror(old_errno));
 		}
 	}
 
 	/**
 	 * Reworked fillbuf from netcat. See description in pingPongProcess
 	 */
-	ssize_t fillbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
+	ssize_t fillbuf(linuxFd fDesc, unsigned char buff[], size_t& buffPos)
 	{
-		size_t num = IO_BUFF_SIZE - buffPos;
-		ssize_t n;
+		const size_t num = IO_BUFF_SIZE - buffPos;
+		ssize_t nSize = 0;
 
-		n = read(fd, buff + buffPos, num);
-		if (n == -1 && (errno == EAGAIN || errno == EINTR))
-			n = WANT_POLLIN;
-		if (n <= 0)
-			return n;
-		buffPos += n;
-		return n;
+		nSize = read(fDesc, buff + buffPos, num);
+		if (nSize == -1 && (errno == EAGAIN || errno == EINTR))
+		{
+			nSize = WANT_POLLIN;
+		}
+		if (nSize <= 0)
+		{
+			return nSize;
+		}
+		buffPos += nSize;
+		return nSize;
 	}
 
 	/**
 	 * Reworked drainbuf from netcat. See description in pingPongProcess
 	 */
-	ssize_t drainbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
+	ssize_t drainbuf(linuxFd fDesc, unsigned char buff[], size_t& buffPos)
 	{
-		ssize_t n;
-		ssize_t adjust;
+		ssize_t nSize = 0;
+		ssize_t adjust = 0;
 
-		n = write(fd, buff, buffPos);
-		if (n == -1 && (errno == EAGAIN || errno == EINTR))
-			n = WANT_POLLOUT;
-		if (n <= 0)
-			return n;
+		nSize = write(fDesc, buff, buffPos);
+		if (nSize == -1 && (errno == EAGAIN || errno == EINTR))
+		{
+			nSize = WANT_POLLOUT;
+		}
+		if (nSize <= 0)
+		{
+			return nSize;
+		}
 		/* adjust buffer */
-		adjust = buffPos - n;
+		adjust = static_cast<ssize_t>(buffPos) - nSize;
 		if (adjust > 0)
-			std::memmove(buff, buff + n, adjust);
-		buffPos -= n;
-		return n;
+		{
+			std::memmove(buff, buff + nSize, adjust);
+		}
+		buffPos -= nSize;
+		return nSize;
 	}
 
 	/**
@@ -545,14 +578,16 @@ namespace
 	{
 
 		struct pollfd pfd[4];
-		const int POLL_STDIN = 0, POLL_NETOUT = 1, POLL_NETIN = 2, POLL_STDOUT = 3;
+		const int POLL_STDIN = 0;
+		const int POLL_NETOUT = 1;
+		const int POLL_NETIN = 2;
+		const int POLL_STDOUT = 3;
 		const int DEFAULT_POLL_TIMEOUT = 3000;  // milisec
 		unsigned char netbuff[IO_BUFF_SIZE];
 		size_t netbuffPos = 0;
 		unsigned char ttybuff[IO_BUFF_SIZE];
 		size_t ttybuffPos = 0;
-		int n;
-		ssize_t ret;
+		ssize_t ret = 0;
 
 		/* stdin */
 		pfd[POLL_STDIN].fd = STDIN_FILENO;
@@ -567,7 +602,7 @@ namespace
 		pfd[POLL_STDOUT].fd = STDOUT_FILENO;
 		pfd[POLL_STDOUT].events = 0;
 
-		while (doContinue)
+		while (doContinue != 0)
 		{
 			/* both inputs are gone, buffers are empty, we are done */
 			if (pfd[POLL_STDIN].fd == -1 && pfd[POLL_NETIN].fd == -1 && ttybuffPos == 0 && netbuffPos == 0)
@@ -576,19 +611,21 @@ namespace
 			}
 			/* both outputs are gone, we can't continue */
 			if (pfd[POLL_NETOUT].fd == -1 && pfd[POLL_STDOUT].fd == -1)
+			{
 				return;
+			}
 
 			/* poll */
-			int num_fds = poll(pfd, 4, DEFAULT_POLL_TIMEOUT);
+			const int num_fds = poll(pfd, 4, DEFAULT_POLL_TIMEOUT);
 
 			/* treat poll errors */
 			if (num_fds == -1)
 			{
-				int old_errno = errno;
+				const int old_errno = errno;
 				if (old_errno != EINTR)
 				{
 					close(sock);
-					EXIT_WITH_ERROR("poll returned an error" << std::endl << "Errno: " << std::strerror(old_errno));
+					EXIT_WITH_ERROR("poll returned an error" << '\n' << "Errno: " << std::strerror(old_errno));
 				}
 				continue;
 			}
@@ -599,82 +636,108 @@ namespace
 			}
 
 			/* treat socket error conditions */
-			for (n = 0; n < 4; ++n)
+			for (auto& req : pfd)
 			{
-				if (pfd[n].revents & (POLLERR | POLLNVAL))
+				if ((req.revents & (POLLERR | POLLNVAL)) != 0)
 				{
-					pfd[n].fd = -1;
+					req.fd = -1;
 				}
 			}
 			/* reading is possible after HUP */
-			if (pfd[POLL_STDIN].events & POLLIN && pfd[POLL_STDIN].revents & POLLHUP &&
-			    !(pfd[POLL_STDIN].revents & POLLIN))
+			if (((pfd[POLL_STDIN].events & POLLIN) != 0) && ((pfd[POLL_STDIN].revents & POLLHUP) != 0) &&
+			    ((pfd[POLL_STDIN].revents & POLLIN) == 0))
 			{
 				pfd[POLL_STDIN].fd = -1;
 			}
 
-			if (pfd[POLL_NETIN].events & POLLIN && pfd[POLL_NETIN].revents & POLLHUP &&
-			    !(pfd[POLL_NETIN].revents & POLLIN))
+			if (((pfd[POLL_NETIN].events & POLLIN) != 0) && ((pfd[POLL_NETIN].revents & POLLHUP) != 0) &&
+			    ((pfd[POLL_NETIN].revents & POLLIN) == 0))
 			{
 				pfd[POLL_NETIN].fd = -1;
 			}
 
-			if (pfd[POLL_NETOUT].revents & POLLHUP)
+			if ((pfd[POLL_NETOUT].revents & POLLHUP) != 0)
 			{
 				pfd[POLL_NETOUT].fd = -1;
 			}
 			/* if HUP, stop watching stdout */
-			if (pfd[POLL_STDOUT].revents & POLLHUP)
+			if ((pfd[POLL_STDOUT].revents & POLLHUP) != 0)
+			{
 				pfd[POLL_STDOUT].fd = -1;
+			}
 			/* if no net out, stop watching stdin */
 			if (pfd[POLL_NETOUT].fd == -1)
+			{
 				pfd[POLL_STDIN].fd = -1;
+			}
 			/* if no stdout, stop watching net in */
 			if (pfd[POLL_STDOUT].fd == -1)
 			{
 				if (pfd[POLL_NETIN].fd != -1)
+				{
 					shutdown(pfd[POLL_NETIN].fd, SHUT_RD);
+				}
 				pfd[POLL_NETIN].fd = -1;
 			}
 
 			/* try to read from stdin */
-			if (pfd[POLL_STDIN].revents & POLLIN && ttybuffPos < IO_BUFF_SIZE)
+			if (((pfd[POLL_STDIN].revents & POLLIN) != 0) && ttybuffPos < IO_BUFF_SIZE)
 			{
 				ret = fillbuf(pfd[POLL_STDIN].fd, ttybuff, ttybuffPos);
 				if (ret == WANT_POLLIN)
+				{
 					pfd[POLL_STDIN].events = POLLIN;
+				}
 				else if (ret == 0 || ret == -1)
+				{
 					pfd[POLL_STDIN].fd = -1;
+				}
 				/* read something - poll net out */
 				if (ttybuffPos > 0)
+				{
 					pfd[POLL_NETOUT].events = POLLOUT;
+				}
 				/* filled buffer - remove self from polling */
 				if (ttybuffPos == IO_BUFF_SIZE)
+				{
 					pfd[POLL_STDIN].events = 0;
+				}
 			}
 			/* try to write to network */
-			if (pfd[POLL_NETOUT].revents & POLLOUT && ttybuffPos > 0)
+			if (((pfd[POLL_NETOUT].revents & POLLOUT) != 0) && ttybuffPos > 0)
 			{
 				ret = drainbuf(pfd[POLL_NETOUT].fd, ttybuff, ttybuffPos);
 				if (ret == WANT_POLLOUT)
+				{
 					pfd[POLL_NETOUT].events = POLLOUT;
+				}
 				else if (ret == -1)
+				{
 					pfd[POLL_NETOUT].fd = -1;
+				}
 				/* buffer empty - remove self from polling */
 				if (ttybuffPos == 0)
+				{
 					pfd[POLL_NETOUT].events = 0;
+				}
 				/* buffer no longer full - poll stdin again */
 				if (ttybuffPos < IO_BUFF_SIZE)
+				{
 					pfd[POLL_STDIN].events = POLLIN;
+				}
 			}
 			/* try to read from network */
-			if (pfd[POLL_NETIN].revents & POLLIN && netbuffPos < IO_BUFF_SIZE)
+			if (((pfd[POLL_NETIN].revents & POLLIN) != 0) && netbuffPos < IO_BUFF_SIZE)
 			{
 				ret = fillbuf(pfd[POLL_NETIN].fd, netbuff, netbuffPos);
 				if (ret == WANT_POLLIN)
+				{
 					pfd[POLL_NETIN].events = POLLIN;
+				}
 				else if (ret == -1)
+				{
 					pfd[POLL_NETIN].fd = -1;
+				}
 				/* eof on net in - remove from pfd */
 				if (ret == 0)
 				{
@@ -683,25 +746,37 @@ namespace
 				}
 				/* read something - poll stdout */
 				if (netbuffPos > 0)
+				{
 					pfd[POLL_STDOUT].events = POLLOUT;
+				}
 				/* filled buffer - remove self from polling */
 				if (netbuffPos == IO_BUFF_SIZE)
+				{
 					pfd[POLL_NETIN].events = 0;
+				}
 			}
 			/* try to write to stdout */
-			if (pfd[POLL_STDOUT].revents & POLLOUT && netbuffPos > 0)
+			if (((pfd[POLL_STDOUT].revents & POLLOUT) != 0) && netbuffPos > 0)
 			{
 				ret = drainbuf(pfd[POLL_STDOUT].fd, netbuff, netbuffPos);
 				if (ret == WANT_POLLOUT)
+				{
 					pfd[POLL_STDOUT].events = POLLOUT;
+				}
 				else if (ret == -1)
+				{
 					pfd[POLL_STDOUT].fd = -1;
+				}
 				/* buffer empty - remove self from polling */
 				if (netbuffPos == 0)
+				{
 					pfd[POLL_STDOUT].events = 0;
+				}
 				/* buffer no longer full - poll net in again */
 				if (netbuffPos < IO_BUFF_SIZE)
+				{
 					pfd[POLL_NETIN].events = POLLIN;
+				}
 			}
 
 			/* stdin gone and queue empty? */
@@ -719,9 +794,9 @@ namespace
 
 }  // namespace
 
-extern "C" void signal_handler(int)
+extern "C" void signal_handler(int /*unused*/)
 {
-	doContinue = false;
+	doContinue = 0;
 }
 
 /**
@@ -729,36 +804,36 @@ extern "C" void signal_handler(int)
  */
 int main(int argc, char* argv[])
 {
-	PacketStats packetStats;
+	PacketStats packetStats{};
 	std::memset(&packetStats, 0, sizeof(packetStats));
 	KniPongArgs args;
-	std::srand(std::time(nullptr));
+	std::srand(std::time(nullptr));  // NOLINT(cert-msc32-c,cert-msc51-cpp)
 	pcpp::AppName::init(argc, argv);
 	parseArgs(argc, argv, args);
 	pcpp::KniDevice* device = setupKniDevice(args);
-	LinuxSocket sock = setupLinuxSocket(args);
+	const LinuxSocket sock = setupLinuxSocket(args);
 	if (!device->startCapture(processBurst, &packetStats))
 	{
 		close(sock);
 		EXIT_WITH_ERROR("Could not start capture thread on KNI device");
 	}
 	connectUDPSocket(sock, args);
-	std::signal(SIGINT, signal_handler);
-	std::cout << "Ready for input:" << std::endl;
+	static_cast<void>(std::signal(SIGINT, signal_handler));
+	std::cout << "Ready for input:" << '\n';
 	pingPongProcess(sock);
 	//! Close socket before device
 	close(sock);
 	device->stopCapture();
 	device->close();
 	device->stopRequestHandlerThread();
-	std::cout << std::endl
-	          << std::endl
-	          << "Packet statistics from KNI thread:" << std::endl
-	          << "  Total packets met:         " << packetStats.totalPackets << std::endl
-	          << "  UDP packets met:           " << packetStats.udpPacketsIn << std::endl
-	          << "  Failed PONG packets:       " << packetStats.udpPacketsOutFail << std::endl
-	          << "  ARP packets met:           " << packetStats.arpPacketsIn << std::endl
-	          << "  Failed ARP replay packets: " << packetStats.arpPacketsOutFail << std::endl
-	          << std::endl;
+	std::cout << '\n'
+	          << '\n'
+	          << "Packet statistics from KNI thread:" << '\n'
+	          << "  Total packets met:         " << packetStats.totalPackets << '\n'
+	          << "  UDP packets met:           " << packetStats.udpPacketsIn << '\n'
+	          << "  Failed PONG packets:       " << packetStats.udpPacketsOutFail << '\n'
+	          << "  ARP packets met:           " << packetStats.arpPacketsIn << '\n'
+	          << "  Failed ARP replay packets: " << packetStats.arpPacketsOutFail << '\n'
+	          << '\n';
 	return 0;
 }
