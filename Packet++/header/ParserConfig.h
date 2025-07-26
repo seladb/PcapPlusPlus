@@ -21,6 +21,8 @@ namespace pcpp
 		} AnyPort = {};
 
 		constexpr PortPair() = default;
+		constexpr PortPair(AnyPortWildcard, AnyPortWildcard) : PortPair()
+		{}
 
 		constexpr PortPair(uint16_t portSrc, uint16_t portDst)
 		    : m_PortSrc(portSrc), m_PortDst(portDst), m_PortSrcSet(true), m_PortDstSet(true)
