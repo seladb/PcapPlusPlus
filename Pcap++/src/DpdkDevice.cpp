@@ -19,6 +19,7 @@
 #include "rte_malloc.h"
 #include "rte_cycles.h"
 #include <string>
+#include <memory>
 #include <unistd.h>
 #include <chrono>
 #include <thread>
@@ -1169,26 +1170,28 @@ namespace pcpp
 
 		for (size_t i = 0; i < arrLength; i++)
 		{
-			MBufRawPacket* rawPacket = nullptr;
+			MBufRawPacket* mBufRawPacket = nullptr;
+
 			uint8_t rawPacketType = packetsArr[i]->getRawPacketReadOnly()->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{
-				rawPacket = new MBufRawPacket();
-				if (unlikely(!rawPacket->initFromRawPacket(packetsArr[i]->getRawPacketReadOnly(), this)))
+				auto mBufRawPacketTemp = std::make_unique<MBufRawPacket>();
+				if (unlikely(!mBufRawPacketTemp->initFromRawPacket(packetsArr[i]->getRawPacketReadOnly(), this)))
 				{
-					delete rawPacket;
 					return 0;
 				}
 
-				mBufVec.pushBack(rawPacket);
+				// Set the packet pointer to the newly created MBufRawPacket and add it register it to lifetime management
+				mBufRawPacket = mBufRawPacketTemp.get();
+				mBufVec.pushBack(std::move(mBufRawPacketTemp));
 			}
 			else
 			{
-				rawPacket = (MBufRawPacket*)packetsArr[i]->getRawPacketReadOnly();
+				mBufRawPacket = static_cast<MBufRawPacket*>(packetsArr[i]->getRawPacketReadOnly());
 			}
 
-			mBufArr[i] = rawPacket->getMBuf();
-			mBufRawPacketArr[i] = rawPacket;
+			mBufArr[i] = mBufRawPacket->getMBuf();
+			mBufRawPacketArr[i] = mBufRawPacket;
 		}
 
 		uint16_t packetsSent =
@@ -1212,21 +1215,25 @@ namespace pcpp
 		for (auto const* rawPacket : rawPacketsVec)
 		{
 			MBufRawPacket* mBufRawPacket = nullptr;
+
 			uint8_t rawPacketType = rawPacket->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{
-				mBufRawPacket = new MBufRawPacket();
-				if (unlikely(!mBufRawPacket->initFromRawPacket(rawPacket, this)))
+				// Copy the raw packet into a MBufRawPacket
+				auto mbufRawPacketTemp = std::make_unique<MBufRawPacket>();
+				if (unlikely(!mbufRawPacketTemp->initFromRawPacket(rawPacket, this)))
 				{
-					delete mBufRawPacket;
 					return 0;
 				}
 
-				mBufVec.pushBack(mBufRawPacket);
+				// Set the packet pointer to the newly created MBufRawPacket and add it to lifetime management
+				mBufRawPacket = mbufRawPacketTemp.get();
+				mBufVec.pushBack(std::move(mbufRawPacketTemp));
 			}
 			else
 			{
-				mBufRawPacket = (MBufRawPacket*)(rawPacket);
+				// If the raw packet is already a MBufRawPacket, use it directly
+				mBufRawPacket = static_cast<MBufRawPacket*>(rawPacket);
 			}
 
 			mBufRawPacketArr[mBufIndex] = mBufRawPacket;
