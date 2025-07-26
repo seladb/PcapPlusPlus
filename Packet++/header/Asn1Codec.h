@@ -553,7 +553,6 @@ namespace pcpp
 		}
 		std::vector<uint8_t> encodeValue() const override
 		{
-			decodeValueIfNeeded();
 			return { m_Value.begin(), m_Value.end() };
 		}
 
