@@ -1187,7 +1187,7 @@ namespace pcpp
 			}
 			else
 			{
-				mBufRawPacket = static_cast<MBufRawPacket*>(packetsArr[i]->getRawPacketReadOnly());
+				mBufRawPacket = static_cast<MBufRawPacket*>(packetsArr[i]->getRawPacket());
 			}
 
 			mBufArr[i] = mBufRawPacket->getMBuf();
@@ -1212,7 +1212,7 @@ namespace pcpp
 		MBufRawPacketVector mBufVec;
 		int mBufIndex = 0;
 
-		for (auto const* rawPacket : rawPacketsVec)
+		for (auto* rawPacket : rawPacketsVec)
 		{
 			MBufRawPacket* mBufRawPacket = nullptr;
 			uint8_t rawPacketType = rawPacket->getObjectType();
