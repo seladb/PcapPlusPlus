@@ -7,6 +7,28 @@
 
 namespace pcpp
 {
+	namespace internal
+	{
+		RawPacketBase::RawPacketBase(timespec timestamp, LinkLayerType linkLayerType)
+		    : m_TimeStamp(timestamp), m_LinkLayerType(linkLayerType)
+		{}
+
+		RawPacketBase::RawPacketBase(timeval timestamp, LinkLayerType linkLayerType)
+		    : m_TimeStamp(internal::toTimespec(timestamp)), m_LinkLayerType(linkLayerType)
+		{}
+
+		bool RawPacketBase::setPacketTimeStamp(timeval timestamp)
+		{
+			return setPacketTimeStamp(internal::toTimespec(timestamp));
+		}
+
+		bool RawPacketBase::setPacketTimeStamp(timespec timestamp)
+		{
+			m_TimeStamp = timestamp;
+			return true;
+		}
+	}  // namespace internal
+
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
 	    : RawPacket(pRawData, rawDataLen, internal::toTimespec(timestamp), deleteRawDataAtDestructor, layerType)
@@ -14,9 +36,9 @@ namespace pcpp
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
-	    : m_RawData(const_cast<uint8_t*>(pRawData)), m_RawDataLen(rawDataLen), m_FrameLength(rawDataLen),
-	      m_TimeStamp(timestamp), m_DeleteRawDataAtDestructor(deleteRawDataAtDestructor), m_RawPacketSet(true),
-	      m_LinkLayerType(layerType)
+	    : internal::RawPacketBase(timestamp, layerType), m_RawData(const_cast<uint8_t*>(pRawData)),
+	      m_RawDataLen(rawDataLen), m_FrameLength(rawDataLen), m_DeleteRawDataAtDestructor(deleteRawDataAtDestructor),
+	      m_RawPacketSet(true)
 	{}
 
 	RawPacket::~RawPacket()
@@ -52,7 +74,8 @@ namespace pcpp
 		if (!other.m_RawPacketSet)
 			return;
 
-		m_TimeStamp = other.m_TimeStamp;
+		// Call base class copy assignment operator to copy timestamp and link layer type
+		RawPacketBase::operator=(other);
 
 		if (allocateData)
 		{
@@ -62,7 +85,6 @@ namespace pcpp
 		}
 
 		memcpy(m_RawData, other.m_RawData, other.m_RawDataLen);
-		m_LinkLayerType = other.m_LinkLayerType;
 		m_FrameLength = other.m_FrameLength;
 		m_RawPacketSet = true;
 	}
@@ -81,9 +103,9 @@ namespace pcpp
 		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
 		m_RawData = (uint8_t*)pRawData;
 		m_RawDataLen = rawDataLen;
-		m_TimeStamp = timestamp;
+		setPacketTimeStamp(timestamp);  // Always returns true
+		setLinkLayerType(layerType);
 		m_RawPacketSet = true;
-		m_LinkLayerType = layerType;
 		return true;
 	}
 
@@ -172,17 +194,6 @@ namespace pcpp
 
 		m_RawDataLen -= numOfBytesToRemove;
 		m_FrameLength = m_RawDataLen;
-		return true;
-	}
-
-	bool RawPacket::setPacketTimeStamp(timeval timestamp)
-	{
-		return setPacketTimeStamp(internal::toTimespec(timestamp));
-	}
-
-	bool RawPacket::setPacketTimeStamp(timespec timestamp)
-	{
-		m_TimeStamp = timestamp;
 		return true;
 	}
 

@@ -251,20 +251,82 @@ namespace pcpp
 	/// Max packet size supported
 #define PCPP_MAX_PACKET_SIZE 65536
 
+	namespace internal
+	{
+		// TODO: Class is experimental and should not be used in user code yet. Eventually promote it to public API
+		/// @brief A base class for raw packet classes, containing common attributes and methods.
+		class RawPacketBase
+		{
+		protected:
+			/// @brief A default constructor that zero initializes the timestamp and sets the link layer type to
+			/// Ethernet.
+			RawPacketBase() = default;
+			/// @brief A constructor that initializes the timestamp and link layer type.
+			/// @param[in] timestamp The timestamp packet was received by the NIC (in nsec precision)
+			/// @param[in] linkLayerType The link layer type of the packet, defaulting to Ethernet.
+			RawPacketBase(timespec timestamp, LinkLayerType linkLayerType = LinkLayerType::LINKTYPE_ETHERNET);
+			/// @brief A constructor that initializes the timestamp and link layer type.
+			/// @param[in] timestamp The timestamp packet was received by the NIC (in usec precision)
+			/// @param[in] linkLayerType The link layer type of the packet, defaulting to Ethernet.
+			RawPacketBase(timeval timestamp, LinkLayerType linkLayerType = LinkLayerType::LINKTYPE_ETHERNET);
+
+			// Copy and move constructors and assignment operators are protected to prevent slicing
+			RawPacketBase(const RawPacketBase&) = default;
+			RawPacketBase(RawPacketBase&&) = default;
+			RawPacketBase& operator=(const RawPacketBase&) = default;
+			RawPacketBase& operator=(RawPacketBase&&) = default;
+
+		public:
+			virtual ~RawPacketBase() = default;
+
+			/// @brief Get the link layer type of the packet.
+			/// @return A LinkLayerType enum value representing the link layer type of the packet.
+			LinkLayerType getLinkLayerType() const
+			{
+				return m_LinkLayerType;
+			}
+
+			/// @brief Return the timestamp of the packet.
+			/// @return The timestamp of the packet with nanosecond precision.
+			timespec getPacketTimeStamp() const
+			{
+				return m_TimeStamp;
+			}
+
+			/// Set raw packet timestamp with usec precision
+			/// @param[in] timestamp The timestamp to set (with usec precision)
+			/// @return True if timestamp was set successfully, false otherwise
+			bool setPacketTimeStamp(timeval timestamp);
+
+			/// Set raw packet timestamp with nsec precision
+			/// @param[in] timestamp The timestamp to set (with nsec precision)
+			/// @return True if timestamp was set successfully, false otherwise
+			bool setPacketTimeStamp(timespec timestamp);
+
+		protected:
+			void setLinkLayerType(LinkLayerType linkLayerType)
+			{
+				m_LinkLayerType = linkLayerType;
+			}
+
+		private:
+			timespec m_TimeStamp{};  // Zero initialized
+			LinkLayerType m_LinkLayerType = LinkLayerType::LINKTYPE_ETHERNET;
+		};
+	}  // namespace internal
+
 	/// @class RawPacket
 	/// This class holds the packet as raw (not parsed) data. The data is held as byte array. In addition to the data
 	/// itself every instance also holds a timestamp representing the time the packet was received by the NIC. RawPacket
 	/// instance isn't read only. The user can change the packet data, add or remove data, etc.
-	class RawPacket
+	class RawPacket : public internal::RawPacketBase
 	{
 	protected:
 		uint8_t* m_RawData = nullptr;
 		int m_RawDataLen = 0;
 		int m_FrameLength = 0;
-		timespec m_TimeStamp{};  // Zero initialized
 		bool m_DeleteRawDataAtDestructor = true;
 		bool m_RawPacketSet = false;
-		LinkLayerType m_LinkLayerType = LinkLayerType::LINKTYPE_ETHERNET;
 
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 
@@ -372,13 +434,6 @@ namespace pcpp
 			return m_RawData;
 		}
 
-		/// Get the link layer type
-		/// @return the type of the link layer
-		LinkLayerType getLinkLayerType() const
-		{
-			return m_LinkLayerType;
-		}
-
 		/// This static method validates whether a link type integer value is valid
 		/// @param[in] linkTypeValue Link type integer value
 		/// @return True if the link type value is valid and can be casted into LinkLayerType enum, false otherwise
@@ -397,22 +452,6 @@ namespace pcpp
 		{
 			return m_FrameLength;
 		}
-		/// Get raw data timestamp
-		/// @return Raw data timestamp
-		timespec getPacketTimeStamp() const
-		{
-			return m_TimeStamp;
-		}
-
-		/// Set raw packet timestamp with usec precision
-		/// @param[in] timestamp The timestamp to set (with usec precision)
-		/// @return True if timestamp was set successfully, false otherwise
-		virtual bool setPacketTimeStamp(timeval timestamp);
-
-		/// Set raw packet timestamp with nsec precision
-		/// @param[in] timestamp The timestamp to set (with nsec precision)
-		/// @return True if timestamp was set successfully, false otherwise
-		virtual bool setPacketTimeStamp(timespec timestamp);
 
 		/// Get an indication whether raw data was already set for this instance.
 		/// @return True if raw data was set for this instance. Raw data can be set using the non-default constructor,
