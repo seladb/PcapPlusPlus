@@ -217,10 +217,10 @@ namespace pcpp
 		m_RawDataLen = rte_pktmbuf_pkt_len(m_MBuf);
 		memcpy(m_RawData, pRawData, m_RawDataLen);
 		delete[] pRawData;
-		m_TimeStamp = timestamp;
+		setPacketTimeStamp(timestamp);
 		m_RawPacketSet = true;
 		m_FrameLength = frameLength;
-		m_LinkLayerType = layerType;
+		setLinkLayerType(layerType);
 
 		return true;
 	}
