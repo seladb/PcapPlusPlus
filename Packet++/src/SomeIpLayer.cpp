@@ -306,12 +306,18 @@ namespace pcpp
 
 	uint32_t SomeIpTpLayer::getOffset() const
 	{
-		return (be32toh(getSomeIpTpHeader()->offsetAndFlag) & SOMEIP_TP_OFFSET_MASK) >> 4;
+		return (be32toh(getSomeIpTpHeader()->offsetAndFlag) & SOMEIP_TP_OFFSET_MASK);
 	}
 
 	void SomeIpTpLayer::setOffset(uint32_t offset)
 	{
-		uint32_t val = (offset << 4) | (be32toh(getSomeIpTpHeader()->offsetAndFlag) & ~SOMEIP_TP_OFFSET_MASK);
+		if ((offset & SOMEIP_TP_OFFSET_MASK) != offset)
+		{
+			throw std::invalid_argument("Invalid offset - should be a multiple of 16");
+		}
+
+		uint32_t val =
+		    (offset & SOMEIP_TP_OFFSET_MASK) | (be32toh(getSomeIpTpHeader()->offsetAndFlag) & ~SOMEIP_TP_OFFSET_MASK);
 		getSomeIpTpHeader()->offsetAndFlag = htobe32(val);
 	}
 

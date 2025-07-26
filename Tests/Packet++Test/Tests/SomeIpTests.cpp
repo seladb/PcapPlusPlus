@@ -233,7 +233,7 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getMessageType(), pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN, enumclass);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getReturnCode(), 0);
-	PTF_ASSERT_EQUAL(someIpTpLayer2->getOffset() * 16, 91872);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getOffset(), 91872);
 	PTF_ASSERT_FALSE(someIpTpLayer2->getMoreSegmentsFlag());
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getPduPayloadSize(), 225);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getPduPayload()[0], 0xab);
@@ -284,8 +284,8 @@ PTF_TEST_CASE(SomeIpTpCreationTest)
 	pcpp::EthLayer ethLayer2(ethLayer1);
 	pcpp::IPv4Layer ipLayer2(ipLayer1);
 	pcpp::UdpLayer udpLayer2(udpLayer1);
-	pcpp::SomeIpTpLayer someIpTpLayer2(0xd05f, 0x8001, 0, 0, 1, pcpp::SomeIpLayer::MsgType::REQUEST_NO_RETURN, 0,
-	                                   91872 / 16, false, data2, dataLen2);
+	pcpp::SomeIpTpLayer someIpTpLayer2(0xd05f, 0x8001, 0, 0, 1, pcpp::SomeIpLayer::MsgType::REQUEST_NO_RETURN, 0, 91872,
+	                                   false, data2, dataLen2);
 
 	pcpp::Packet someIpTpPacket2(500);
 	PTF_ASSERT_TRUE(someIpTpPacket2.addLayer(&ethLayer2));
@@ -306,15 +306,18 @@ PTF_TEST_CASE(SomeIpTpEditTest)
 	const size_t dataLen2 = 225;
 	uint8_t data2[dataLen2] = { 0 };
 
-	pcpp::SomeIpTpLayer someIpTpLayer(0x6059, 0x410c, 0x3, 0xa, 0x5, pcpp::SomeIpLayer::MsgType::REQUEST, 0, 91872 / 16,
+	pcpp::SomeIpTpLayer someIpTpLayer(0x6059, 0x410c, 0x3, 0xa, 0x5, pcpp::SomeIpLayer::MsgType::REQUEST, 0, 91872,
 	                                  true, data2, dataLen2);
-	someIpTpLayer.setOffset(123);
+	someIpTpLayer.setOffset(1968);
 
-	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 123);
+	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 1968);
 	PTF_ASSERT_TRUE(someIpTpLayer.getMoreSegmentsFlag());
 
 	someIpTpLayer.setMoreSegmentsFlag(false);
 
-	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 123);
+	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 1968);
 	PTF_ASSERT_FALSE(someIpTpLayer.getMoreSegmentsFlag());
+
+	PTF_ASSERT_RAISES(someIpTpLayer.setOffset(17), std::invalid_argument,
+	                  "Invalid offset - should be a multiple of 16");
 }

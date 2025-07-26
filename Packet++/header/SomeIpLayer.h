@@ -344,6 +344,7 @@ namespace pcpp
 		/// Set the Offset. Already has to be in multiples of 16 bytes.
 		/// If 32 bytes have already been transmitted, the offset has to be set to 2.
 		/// @param[in] offset Offset to set. Already has to be in multiples of 16 bytes.
+		/// @throw std::invalid_argument if offset isn't a multiple of 16
 		void setOffset(uint32_t offset);
 
 		/// Get the More Segments Flag
