@@ -304,10 +304,7 @@ namespace pcpp
 		}
 
 		/// Set the log printer back to the default printer
-		void resetLogPrinter()
-		{
-			m_LogPrinter = &defaultLogPrinter;
-		}
+		void resetLogPrinter();
 
 		/// @return Get the last error message
 		std::string getLastError() const
@@ -405,9 +402,6 @@ namespace pcpp
 
 		// private c'tor - this class is a singleton
 		Logger();
-
-		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                              const std::string& method, int line);
 	};
 
 }  // namespace pcpp
