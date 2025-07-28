@@ -21,7 +21,7 @@ PTF_TEST_CASE(Base64EncodingTest)
 			{ "",			                    ""			                             },
 			{ "\tABC\n",			             "CUFCQwo="                                 },
 			{ R"(ab)",			               "YWI="			                         },
-			{ "日한สअAΩЯש你🌍",                  "5pel7ZWc4Liq4KSFQc6p0K/XqeS9oPCfjI0="     },
+			{ "日한สअAΩЯש你🌍",      "5pel7ZWc4Liq4KSFQc6p0K/XqeS9oPCfjI0="     },
 		};
 
 		for (const auto& inputAndExpectedOutput : inputAndExpectedOutputs)
@@ -84,12 +84,14 @@ PTF_TEST_CASE(Base64DecodingTest)
 			{ "",			                             ""			                    },
 			{ "CUFCQwo=",			                     "\tABC\n"                         },
 			{ "YWI=",			                         R"(ab)"                           },
-			{ "5pel7ZWc4Liq4KSFQc6p0K/XqeS9oPCfjI0=",     "日한สअAΩЯש你🌍"                  },
+			{ "5pel7ZWc4Liq4KSFQc6p0K/XqeS9oPCfjI0=",     "日한สअAΩЯש你🌍"      },
 		};
 
 		for (const auto& inputAndExpectedOutput : inputAndExpectedOutputs)
 		{
 			PTF_ASSERT_EQUAL(pcpp::Base64::decodeToString(inputAndExpectedOutput.first), inputAndExpectedOutput.second);
+			PTF_ASSERT_EQUAL(pcpp::Base64::getDecodedSize(inputAndExpectedOutput.first),
+			                 inputAndExpectedOutput.second.size());
 		}
 	}
 
@@ -116,6 +118,8 @@ PTF_TEST_CASE(Base64DecodingTest)
 			PTF_ASSERT_EQUAL(
 			    pcpp::Base64::decodeToHexString(inputAndExpectedOutput.first),
 			    pcpp::byteArrayToHexString(inputAndExpectedOutput.second.data(), inputAndExpectedOutput.second.size()));
+			PTF_ASSERT_EQUAL(pcpp::Base64::getDecodedSize(inputAndExpectedOutput.first),
+			                 inputAndExpectedOutput.second.size());
 		}
 	}
 
@@ -133,6 +137,11 @@ PTF_TEST_CASE(Base64DecodingTest)
 		}
 		uint8_t buffer[50];
 		PTF_ASSERT_RAISES(pcpp::Base64::decodeToByteArray("YWJjZGVmZ2hp", buffer, 5), std::invalid_argument,
-		                  "Not enough space in result buffer for decoded data");
+		                  "Not enough space in result buffer for decoded data, 9 bytes are required");
+
+		PTF_ASSERT_RAISES(pcpp::Base64::getDecodedSize("abc"), std::invalid_argument,
+		                  "Invalid base64 encoded data - Size not divisible by 4");
+		PTF_ASSERT_RAISES(pcpp::Base64::getDecodedSize("a==="), std::invalid_argument,
+		                  "Invalid base64 encoded data - Found more than 2 padding characters");
 	}
 }  // Base64DecodingTest
