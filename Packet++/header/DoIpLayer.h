@@ -1744,8 +1744,9 @@ namespace pcpp
 		/// @brief Constructs a DiagnosticMessage from specified field values.
 		/// @param[in] sourceAddress Address of the sending ECU/tester.
 		/// @param[in] targetAddress Address of the target ECU.
-		/// @param[in] diagData Vector containing UDS diagnostic service data.
-		DoIpDiagnosticMessage(uint16_t sourceAddress, uint16_t targetAddress, const std::vector<uint8_t>& diagData);
+		/// @param[in] diagnosticData Vector containing UDS diagnostic service data.
+		DoIpDiagnosticMessage(uint16_t sourceAddress, uint16_t targetAddress,
+		                      const std::vector<uint8_t>& diagnosticData);
 
 		/// @brief Set the diagnostic data payload.
 		/// @param[in] data A vector containing the diagnostic data bytes to be stored.

@@ -1126,13 +1126,13 @@ namespace pcpp
 	{}
 
 	DoIpDiagnosticMessage::DoIpDiagnosticMessage(uint16_t sourceAddress, uint16_t targetAddress,
-	                                             const std::vector<uint8_t>& diagData)
-	    : DoIpDiagnosticBase(MIN_LEN + diagData.size())
+	                                             const std::vector<uint8_t>& diagnosticData)
+	    : DoIpDiagnosticBase(MIN_LEN + diagnosticData.size())
 	{
-		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), MIN_LEN + diagData.size());
+		setHeaderFields(DoIpProtocolVersion::ISO13400_2012, getPayloadType(), MIN_LEN + diagnosticData.size());
 		setSourceAddress(sourceAddress);
 		setTargetAddress(targetAddress);
-		setDiagnosticData(diagData);
+		setDiagnosticData(diagnosticData);
 	}
 
 	std::vector<uint8_t> DoIpDiagnosticMessage::getDiagnosticData() const
@@ -1165,6 +1165,7 @@ namespace pcpp
 		std::ostringstream oss;
 		oss << "Source Address: " << std::hex << "0x" << getSourceAddress() << "\n";
 		oss << "Target Address: " << std::hex << "0x" << getTargetAddress() << "\n";
+		// Diagnostic data should be parsed by nextLayer (uds layer)
 		return oss.str();
 	}
 
