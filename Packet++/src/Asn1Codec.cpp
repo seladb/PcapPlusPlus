@@ -91,11 +91,27 @@ namespace pcpp
 
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		auto record = decodeInternal(data, dataLen, lazy);
-		return std::unique_ptr<Asn1Record>(record);
+		uint8_t tagLen;
+		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
+
+		uint8_t lengthLen;
+		lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
+
+		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
+		if (decodedRecord->m_TotalLength < decodedRecord->m_ValueLength ||  // check for overflow
+		    decodedRecord->m_TotalLength > dataLen)
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
+		}
+
+		uint8_t const* startOfData = data + tagLen + lengthLen;
+		internal::Asn1LoadPolicy policy = lazy ? internal::Asn1LoadPolicy::Lazy : internal::Asn1LoadPolicy::Eager;
+		decodedRecord->setEncodedValue(startOfData, policy);
+
+		return decodedRecord;
 	}
 
-	uint8_t Asn1Record::encodeTag()
+	uint8_t Asn1Record::encodeTag() const
 	{
 		uint8_t tagByte;
 
@@ -161,7 +177,7 @@ namespace pcpp
 		return result;
 	}
 
-	std::vector<uint8_t> Asn1Record::encode()
+	std::vector<uint8_t> Asn1Record::encode() const
 	{
 		std::vector<uint8_t> result;
 
@@ -170,54 +186,10 @@ namespace pcpp
 		auto lengthBytes = encodeLength();
 		result.insert(result.end(), lengthBytes.begin(), lengthBytes.end());
 
-		auto encodedValue = encodeValue();
+		auto encodedValue = encodeValueSafe();
 		result.insert(result.end(), encodedValue.begin(), encodedValue.end());
 
 		return result;
-	}
-
-	Asn1Record* Asn1Record::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
-	{
-		uint8_t tagLen;
-		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
-
-		uint8_t lengthLen;
-		try
-		{
-			lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
-		}
-		catch (...)
-		{
-			delete decodedRecord;
-			throw;
-		}
-
-		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
-		if (decodedRecord->m_TotalLength < decodedRecord->m_ValueLength ||  // check for overflow
-		    decodedRecord->m_TotalLength > dataLen)
-		{
-			delete decodedRecord;
-			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
-		}
-
-		if (!lazy)
-		{
-			try
-			{
-				decodedRecord->decodeValue(const_cast<uint8_t*>(data) + tagLen + lengthLen, lazy);
-			}
-			catch (...)
-			{
-				delete decodedRecord;
-				throw;
-			}
-		}
-		else
-		{
-			decodedRecord->m_EncodedValue = const_cast<uint8_t*>(data) + tagLen + lengthLen;
-		}
-
-		return decodedRecord;
 	}
 
 	Asn1UniversalTagType Asn1Record::getUniversalTagType() const
@@ -230,7 +202,8 @@ namespace pcpp
 		return Asn1UniversalTagType::NotApplicable;
 	}
 
-	Asn1Record* Asn1Record::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, uint8_t& tagLen)
+	std::unique_ptr<Asn1Record> Asn1Record::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen,
+	                                                                 uint8_t& tagLen)
 	{
 		if (dataLen < 1)
 		{
@@ -282,7 +255,7 @@ namespace pcpp
 			tagLen = 2;
 		}
 
-		Asn1Record* newRecord;
+		std::unique_ptr<Asn1Record> newRecord;
 
 		if (isConstructed)
 		{
@@ -292,23 +265,23 @@ namespace pcpp
 				{
 				case Asn1UniversalTagType::Sequence:
 				{
-					newRecord = new Asn1SequenceRecord();
+					newRecord.reset(new Asn1SequenceRecord());
 					break;
 				}
 				case Asn1UniversalTagType::Set:
 				{
-					newRecord = new Asn1SetRecord();
+					newRecord.reset(new Asn1SetRecord());
 					break;
 				}
 				default:
 				{
-					newRecord = new Asn1ConstructedRecord();
+					newRecord.reset(new Asn1ConstructedRecord());
 				}
 				}
 			}
 			else
 			{
-				newRecord = new Asn1ConstructedRecord();
+				newRecord.reset(new Asn1ConstructedRecord());
 			}
 		}
 		else
@@ -320,73 +293,73 @@ namespace pcpp
 				{
 				case Asn1UniversalTagType::Integer:
 				{
-					newRecord = new Asn1IntegerRecord();
+					newRecord.reset(new Asn1IntegerRecord());
 					break;
 				}
 				case Asn1UniversalTagType::Enumerated:
 				{
-					newRecord = new Asn1EnumeratedRecord();
+					newRecord.reset(new Asn1EnumeratedRecord());
 					break;
 				}
 				case Asn1UniversalTagType::OctetString:
 				{
-					newRecord = new Asn1OctetStringRecord();
+					newRecord.reset(new Asn1OctetStringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::UTF8String:
 				{
-					newRecord = new Asn1UTF8StringRecord();
+					newRecord.reset(new Asn1UTF8StringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::PrintableString:
 				{
-					newRecord = new Asn1PrintableStringRecord();
+					newRecord.reset(new Asn1PrintableStringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::IA5String:
 				{
-					newRecord = new Asn1IA5StringRecord();
+					newRecord.reset(new Asn1IA5StringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::Boolean:
 				{
-					newRecord = new Asn1BooleanRecord();
+					newRecord.reset(new Asn1BooleanRecord());
 					break;
 				}
 				case Asn1UniversalTagType::BitString:
 				{
-					newRecord = new Asn1BitStringRecord();
+					newRecord.reset(new Asn1BitStringRecord());
 					break;
 				}
 				case Asn1UniversalTagType::Null:
 				{
-					newRecord = new Asn1NullRecord();
+					newRecord.reset(new Asn1NullRecord());
 					break;
 				}
 				case Asn1UniversalTagType::ObjectIdentifier:
 				{
-					newRecord = new Asn1ObjectIdentifierRecord();
+					newRecord.reset(new Asn1ObjectIdentifierRecord());
 					break;
 				}
 				case Asn1UniversalTagType::UTCTime:
 				{
-					newRecord = new Asn1UtcTimeRecord();
+					newRecord.reset(new Asn1UtcTimeRecord());
 					break;
 				}
 				case Asn1UniversalTagType::GeneralizedTime:
 				{
-					newRecord = new Asn1GeneralizedTimeRecord();
+					newRecord.reset(new Asn1GeneralizedTimeRecord());
 					break;
 				}
 				default:
 				{
-					newRecord = new Asn1GenericRecord();
+					newRecord.reset(new Asn1GenericRecord());
 				}
 				}
 			}
 			else
 			{
-				newRecord = new Asn1GenericRecord();
+				newRecord.reset(new Asn1GenericRecord());
 			}
 		}
 
@@ -438,17 +411,20 @@ namespace pcpp
 		return 1 + actualLengthBytes;
 	}
 
-	void Asn1Record::decodeValueIfNeeded()
+	void Asn1Record::decodeValueIfNeeded() const
 	{
+		// TODO: This is not thread-safe and can cause issues in a multiple reader scenario.
 		if (m_EncodedValue != nullptr)
 		{
-			decodeValue(m_EncodedValue, true);
-			m_EncodedValue = nullptr;
+			decodeValue(m_EncodedValue);
+			m_EncodedValue = nullptr;  // Clear the encoded value after decoding
 		}
 	}
 
-	std::string Asn1Record::toString()
+	std::string Asn1Record::toString() const
 	{
+		// Decode the value if it hasn't been decoded yet to ensure we have the correct value
+		decodeValueIfNeeded();
 		auto lines = toStringList();
 
 		auto commaSeparated = [](std::string str1, std::string str2) {
@@ -458,7 +434,7 @@ namespace pcpp
 		return std::accumulate(std::next(lines.begin()), lines.end(), lines[0], commaSeparated);
 	}
 
-	std::vector<std::string> Asn1Record::toStringList()
+	std::vector<std::string> Asn1Record::toStringList() const
 	{
 		std::ostringstream stream;
 
@@ -482,6 +458,16 @@ namespace pcpp
 		return { stream.str() };
 	}
 
+	void Asn1Record::setEncodedValue(uint8_t const* dataSource, internal::Asn1LoadPolicy loadPolicy)
+	{
+		m_EncodedValue = dataSource;
+
+		if (loadPolicy == internal::Asn1LoadPolicy::Eager)
+		{
+			decodeValueIfNeeded();
+		}
+	}
+
 	Asn1GenericRecord::Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType,
 	                                     const uint8_t* value, size_t valueLen)
 	{
@@ -494,22 +480,15 @@ namespace pcpp
 		init(tagClass, isConstructed, tagType, reinterpret_cast<const uint8_t*>(value.c_str()), value.size());
 	}
 
-	Asn1GenericRecord::~Asn1GenericRecord()
+	void Asn1GenericRecord::decodeValue(uint8_t const* data) const
 	{
-		delete m_Value;
-	}
-
-	void Asn1GenericRecord::decodeValue(uint8_t* data, bool lazy)
-	{
-		delete m_Value;
-
-		m_Value = new uint8_t[m_ValueLength];
-		memcpy(m_Value, data, m_ValueLength);
+		m_Value = std::make_unique<uint8_t[]>(m_ValueLength);
+		std::memcpy(m_Value.get(), data, m_ValueLength);
 	}
 
 	std::vector<uint8_t> Asn1GenericRecord::encodeValue() const
 	{
-		return { m_Value, m_Value + m_ValueLength };
+		return { m_Value.get(), m_Value.get() + m_ValueLength };
 	}
 
 	void Asn1GenericRecord::init(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value,
@@ -518,8 +497,8 @@ namespace pcpp
 		m_TagType = tagType;
 		m_TagClass = tagClass;
 		m_IsConstructed = isConstructed;
-		m_Value = new uint8_t[valueLen];
-		memcpy(m_Value, value, valueLen);
+		m_Value = std::make_unique<uint8_t[]>(valueLen);
+		std::memcpy(m_Value.get(), value, valueLen);
 		m_ValueLength = valueLen;
 		m_TotalLength = m_ValueLength + 2;
 	}
@@ -536,7 +515,7 @@ namespace pcpp
 		init(tagClass, tagType, subRecords.begin(), subRecords.end());
 	}
 
-	void Asn1ConstructedRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1ConstructedRecord::decodeValue(uint8_t const* data) const
 	{
 		if (!(data || m_ValueLength))
 		{
@@ -548,11 +527,11 @@ namespace pcpp
 
 		while (valueLen > 0)
 		{
-			auto subRecord = Asn1Record::decodeInternal(value, valueLen, lazy);
+			auto subRecord = Asn1Record::decode(value, valueLen, LazySubRecordDecoding);
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
-			m_SubRecords.pushBack(subRecord);
+			m_SubRecords.pushBack(std::move(subRecord));
 		}
 	}
 
@@ -570,9 +549,8 @@ namespace pcpp
 		return result;
 	}
 
-	std::vector<std::string> Asn1ConstructedRecord::toStringList()
+	std::vector<std::string> Asn1ConstructedRecord::toStringList() const
 	{
-		decodeValueIfNeeded();
 		std::vector<std::string> result = { Asn1Record::toStringList().front() };
 		for (auto subRecord : m_SubRecords)
 		{
@@ -702,7 +680,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1IntegerRecord::decodeValue(uint8_t const* data) const
 	{
 		m_Value = pcpp::byteArrayToHexString(data, m_ValueLength);
 	}
@@ -712,7 +690,7 @@ namespace pcpp
 		return m_Value.toBytes();
 	}
 
-	std::vector<std::string> Asn1IntegerRecord::toStringList()
+	std::vector<std::string> Asn1IntegerRecord::toStringList() const
 	{
 		auto valueAsString =
 		    m_Value.canFit<uint64_t>() ? std::to_string(getIntValue<uint64_t>()) : "0x" + getValueAsString();
@@ -731,15 +709,15 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1OctetStringRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1OctetStringRecord::decodeValue(uint8_t const* data) const
 	{
-		auto value = reinterpret_cast<char*>(data);
+		auto value = reinterpret_cast<char const*>(data);
 
 		m_IsPrintable = std::all_of(value, value + m_ValueLength, [](char c) { return isprint(0xff & c); });
 
 		if (m_IsPrintable)
 		{
-			Asn1StringRecord::decodeValue(data, lazy);
+			Asn1StringRecord::decodeValue(data);
 		}
 		else
 		{
@@ -771,7 +749,7 @@ namespace pcpp
 		m_TotalLength = 3;
 	}
 
-	void Asn1BooleanRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1BooleanRecord::decodeValue(uint8_t const* data) const
 	{
 		m_Value = data[0] != 0;
 	}
@@ -782,7 +760,7 @@ namespace pcpp
 		return { byte };
 	}
 
-	std::vector<std::string> Asn1BooleanRecord::toStringList()
+	std::vector<std::string> Asn1BooleanRecord::toStringList() const
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + (getValue() ? "true" : "false") };
 	}
@@ -960,7 +938,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1ObjectIdentifierRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1ObjectIdentifierRecord::decodeValue(uint8_t const* data) const
 	{
 		m_Value = Asn1ObjectIdentifier(data, m_ValueLength);
 	}
@@ -970,7 +948,7 @@ namespace pcpp
 		return m_Value.toBytes();
 	}
 
-	std::vector<std::string> Asn1ObjectIdentifierRecord::toStringList()
+	std::vector<std::string> Asn1ObjectIdentifierRecord::toStringList() const
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + getValue().toString() };
 	}
@@ -984,7 +962,7 @@ namespace pcpp
 	}
 
 	std::string Asn1TimeRecord::getValueAsString(const std::string& format, const std::string& timezone,
-	                                             bool includeMilliseconds)
+	                                             bool includeMilliseconds) const
 	{
 		auto value = getValue(timezone);
 		auto timeValue = std::chrono::system_clock::to_time_t(value);
@@ -1011,7 +989,7 @@ namespace pcpp
 		return osstream.str();
 	}
 
-	std::vector<std::string> Asn1TimeRecord::toStringList()
+	std::vector<std::string> Asn1TimeRecord::toStringList() const
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + getValueAsString("%Y-%m-%d %H:%M:%S", "Z", true) };
 	}
@@ -1070,7 +1048,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1UtcTimeRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1UtcTimeRecord::decodeValue(uint8_t const* data) const
 	{
 		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
 
@@ -1138,7 +1116,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1GeneralizedTimeRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1GeneralizedTimeRecord::decodeValue(uint8_t const* data) const
 	{
 		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
 
@@ -1294,7 +1272,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1BitStringRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1BitStringRecord::decodeValue(uint8_t const* data) const
 	{
 		auto numBits = (m_ValueLength - 1) * 8 - static_cast<size_t>(data[0]);
 		m_Value = BitSet(data + 1, numBits);
@@ -1308,7 +1286,7 @@ namespace pcpp
 		return result;
 	}
 
-	std::vector<std::string> Asn1BitStringRecord::toStringList()
+	std::vector<std::string> Asn1BitStringRecord::toStringList() const
 	{
 		return { Asn1Record::toStringList().front() + ", Value: " + m_Value.toString() };
 	}

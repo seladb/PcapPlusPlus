@@ -18,7 +18,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ !(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev') }}
 
 jobs:
   pre-commit:

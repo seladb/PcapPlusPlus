@@ -136,6 +136,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IPv6ExtensionsTest, "ipv6");
 
 	PTF_RUN_TEST(TcpPacketNoOptionsParsing, "tcp");
+	PTF_RUN_TEST(TcpPacketWithAccurateEcnParsing, "tcp");
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing, "tcp");
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
@@ -347,6 +348,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(CiscoHdlcParsingTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerEditTest, "chdlc");
+
+	PTF_RUN_TEST(X509ParsingTest, "x509");
+	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
+	PTF_RUN_TEST(X509InvalidDataTest, "x509");
+	PTF_RUN_TEST(X509ExtensionDataTest, "x509");
 
 	PTF_END_RUNNING_TESTS;
 }
