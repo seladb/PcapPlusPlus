@@ -39,15 +39,20 @@ namespace pcpp
 
 		void TearDown() override
 		{
-			std::size_t memLeakCount = 0;
-			std::uint64_t memLeakSize = 0;
-			MemPlumber::memLeakCheck(memLeakCount, memLeakSize);
-			MemPlumber::stopAndFreeAllMemory();
-
-			if (memLeakCount > 0 || memLeakSize > 0)
+			if(!skipMemLeakCheck)
 			{
-				FAIL() << "Memory leak found! " << memLeakCount << " objects and " << memLeakSize << " [bytes] leaked";
+				std::size_t memLeakCount = 0;
+				std::uint64_t memLeakSize = 0;
+				MemPlumber::memLeakCheck(memLeakCount, memLeakSize);
+				MemPlumber::stopAndFreeAllMemory();
+
+				if (memLeakCount > 0 || memLeakSize > 0)
+				{
+					FAIL() << "Memory leak found! " << memLeakCount << " objects and " << memLeakSize
+					       << " [bytes] leaked";
+				}
 			}
+			
 			Base::TearDown();
 		}
 
