@@ -21,7 +21,7 @@ PTF_TEST_CASE(Base64EncodingTest)
 			{ "",			                    ""			                             },
 			{ "\tABC\n",			             "CUFCQwo="                                 },
 			{ R"(ab)",			               "YWI="			                         },
-			{ "日한สअAΩЯש你🌍",      "5pel7ZWc4Liq4KSFQc6p0K/XqeS9oPCfjI0="     },
+			{ "日한สअAΩЯש你🌍",                  "5pel7ZWc4Liq4KSFQc6p0K/XqeS9oPCfjI0="     },
 		};
 
 		for (const auto& inputAndExpectedOutput : inputAndExpectedOutputs)
@@ -84,7 +84,7 @@ PTF_TEST_CASE(Base64DecodingTest)
 			{ "",			                             ""			                    },
 			{ "CUFCQwo=",			                     "\tABC\n"                         },
 			{ "YWI=",			                         R"(ab)"                           },
-			{ "5pel7ZWc4Liq4KSFQc6p0K/XqeS9oPCfjI0=",     "日한สअAΩЯש你🌍"      },
+			{ "5pel7ZWc4Liq4KSFQc6p0K/XqeS9oPCfjI0=",     "日한สअAΩЯש你🌍"                  },
 		};
 
 		for (const auto& inputAndExpectedOutput : inputAndExpectedOutputs)
