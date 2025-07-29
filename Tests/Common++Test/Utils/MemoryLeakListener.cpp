@@ -16,8 +16,8 @@ namespace pcpp
 			std::size_t memLeakCount = 0;
 			std::uint64_t memLeakSize = 0;
 			MemPlumber::memLeakCheck(memLeakCount, memLeakSize);
-			MemPlumber::stop();
-			// MemPlumber::stopAndDropTrackedMemory();
+			// TODO: This causes issues because it frees memory that might be used by the test framework
+			MemPlumber::stopAndFreeAllMemory();  
 
 			if (memLeakCount > 0 || memLeakSize > 0)
 			{
