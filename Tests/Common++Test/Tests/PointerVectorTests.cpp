@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include "MemoryLeakDetectorFixture.hpp"
-
 #include "PointerVector.h"
 
 namespace pcpp
@@ -27,17 +25,13 @@ namespace pcpp
 		int m_Value;
 	};
 
-	class PointerVectorTest : public MemoryLeakDetectorTest
-	{
-	};
-
-	TEST_F(PointerVectorTest, DefaultConstructor)
+	TEST(PointerVectorTest, DefaultConstructor)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		EXPECT_EQ(vec.size(), 0);
 	}
 
-	TEST_F(PointerVectorTest, CopyConstructor)
+	TEST(PointerVectorTest, CopyConstructor)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -49,7 +43,7 @@ namespace pcpp
 		EXPECT_EQ(copyVec.at(1)->getValue(), 2);
 	}
 
-	TEST_F(PointerVectorTest, MoveConstructor)
+	TEST(PointerVectorTest, MoveConstructor)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -62,7 +56,7 @@ namespace pcpp
 		EXPECT_EQ(vec.size(), 0);
 	}
 
-	TEST_F(PointerVectorTest, CopyAssignmentOperator)
+	TEST(PointerVectorTest, CopyAssignmentOperator)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -75,7 +69,7 @@ namespace pcpp
 		EXPECT_EQ(copyVec.at(1)->getValue(), 2);
 	}
 
-	TEST_F(PointerVectorTest, MoveAssignmentOperator)
+	TEST(PointerVectorTest, MoveAssignmentOperator)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -89,7 +83,7 @@ namespace pcpp
 		EXPECT_EQ(vec.size(), 0);
 	}
 
-	TEST_F(PointerVectorTest, PushBack)
+	TEST(PointerVectorTest, PushBack)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -100,7 +94,7 @@ namespace pcpp
 		EXPECT_EQ(vec.at(1)->getValue(), 2);
 	}
 
-	TEST_F(PointerVectorTest, PushBackUniquePtr)
+	TEST(PointerVectorTest, PushBackUniquePtr)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(std::unique_ptr<TestObject>(new TestObject(1)));
@@ -111,7 +105,7 @@ namespace pcpp
 		EXPECT_EQ(vec.at(1)->getValue(), 2);
 	}
 
-	TEST_F(PointerVectorTest, Clear)
+	TEST(PointerVectorTest, Clear)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -121,7 +115,7 @@ namespace pcpp
 		EXPECT_EQ(vec.size(), 0);
 	}
 
-	TEST_F(PointerVectorTest, Erase)
+	TEST(PointerVectorTest, Erase)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -137,7 +131,7 @@ namespace pcpp
 		EXPECT_EQ(vec.at(1)->getValue(), 3);
 	}
 
-	TEST_F(PointerVectorTest, GetAndDetach)
+	TEST(PointerVectorTest, GetAndDetach)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -149,7 +143,7 @@ namespace pcpp
 		EXPECT_EQ(vec.at(0)->getValue(), 2);
 	}
 
-	TEST_F(PointerVectorTest, At)
+	TEST(PointerVectorTest, At)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -159,7 +153,7 @@ namespace pcpp
 		EXPECT_EQ(vec.at(1)->getValue(), 2);
 	}
 
-	TEST_F(PointerVectorTest, FrontBack)
+	TEST(PointerVectorTest, FrontBack)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		vec.pushBack(new TestObject(1));
@@ -169,7 +163,7 @@ namespace pcpp
 		EXPECT_EQ(vec.back()->getValue(), 2);
 	}
 
-	TEST_F(PointerVectorTest, PushBackNullptr)
+	TEST(PointerVectorTest, PushBackNullptr)
 	{
 		pcpp::PointerVector<TestObject> vec;
 		TestObject* obj = nullptr;  // Using nullptr directly in pushBack is a compile time error.

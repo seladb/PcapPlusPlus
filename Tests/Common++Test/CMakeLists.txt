@@ -24,12 +24,12 @@ add_executable(
   "Tests/PointerVectorTests.cpp"
   "Tests/SystemUtilsTests.cpp"
   "Tests/TimespecTimevalTests.cpp"
-)
+  "Utils/MemoryLeakDetectorFixture.cpp")
 
 target_link_libraries(Common++Test PRIVATE Common++ memplumber gtest gmock)
 
-target_include_directories(Common++Test PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>)
-target_precompile_headers(Common++Test PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pch.h>)
+target_include_directories(Common++Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_precompile_headers(Common++Test PRIVATE "pch.h")
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio
