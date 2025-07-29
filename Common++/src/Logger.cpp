@@ -9,6 +9,24 @@
 namespace pcpp
 {
 
+	namespace
+	{
+		/// Default log printer function that prints to std::cerr.
+		void printToCerr(LogLevel logLevel, const std::string& logMessage, const std::string& file,
+		                 const std::string& method, const int line)
+		{
+			// This mutex is used to prevent multiple threads from writing to the console at the same time.
+			static std::mutex logMutex;
+
+			std::ostringstream sstream;
+			sstream << file << ": " << method << ":" << line;
+
+			std::unique_lock<std::mutex> const lock(logMutex);
+			std::cerr << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
+			          << sstream.str() << "] " << logMessage << std::endl;
+		}
+	}  // namespace
+
 	// Alpine Linux incorrectly declares strerror_r
 	// https://stackoverflow.com/questions/41953104/strerror-r-is-incorrectly-declared-on-alpine-linux
 	char* checkError(int /*unused*/, char* buffer, int /*unused*/)
@@ -32,7 +50,7 @@ namespace pcpp
 #endif
 	}
 
-	Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&defaultLogPrinter)
+	Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&printToCerr)
 	{
 		m_LastError.reserve(200);
 		m_LogModulesArray.fill(LogLevel::Info);
@@ -53,6 +71,11 @@ namespace pcpp
 		default:
 			return "UNKNOWN";
 		}
+	}
+
+	void Logger::resetLogPrinter()
+	{
+		m_LogPrinter = &printToCerr;  // Reset to the default log printer
 	}
 
 	std::unique_ptr<internal::LogContext> Logger::createLogContext()
@@ -92,19 +115,5 @@ namespace pcpp
 		{
 			m_LogPrinter(logLevel, message, source.file, source.function, source.line);
 		}
-	}
-
-	void Logger::defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-	                               const std::string& method, const int line)
-	{
-		// This mutex is used to prevent multiple threads from writing to the console at the same time.
-		static std::mutex logMutex;
-
-		std::ostringstream sstream;
-		sstream << file << ": " << method << ":" << line;
-
-		std::unique_lock<std::mutex> const lock(logMutex);
-		std::cerr << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
-		          << sstream.str() << "] " << logMessage << std::endl;
 	}
 }  // namespace pcpp
