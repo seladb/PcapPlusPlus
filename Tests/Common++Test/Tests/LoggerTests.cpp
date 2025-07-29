@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <string>
-
+#include <functional>
 #include "Logger.h"
 
 namespace pcpp
@@ -43,20 +43,20 @@ namespace pcpp
 		{
 			Base::SetUp();
 
-			// Setup log callback trampoline
-			m_Logger.setLogPrinter(&LoggerTest::logPrinterTrampoline);
+			// Setup log callback mock
+			m_LogCallbackMock = std::make_unique<LogCallbackMock>();
+
+			// Setup log callback to the mock
+			m_Logger.setLogPrinter(std::cref(*m_LogCallbackMock));
 
 			// Enable all logs and set them to Info level by default
 			m_Logger.enableLogs();
 			m_Logger.setAllModulesToLogLevel(LogLevel::Info);
-
-			// Setup log callback mock
-			m_LogCallbackMock = std::unique_ptr<LogCallbackMock>(new LogCallbackMock());
 		}
 
 		void TearDown() override
 		{
-			// Reset log callback trampoline
+			// Reset log callback
 			m_Logger.enableLogs();
 			m_Logger.setAllModulesToLogLevel(LogLevel::Info);
 			m_Logger.resetLogPrinter();
@@ -87,25 +87,10 @@ namespace pcpp
 
 #pragma pop_macro("LOG_MODULE")
 
-		static void logPrinterTrampoline(LogLevel logLevel, const std::string& logMessage, const std::string& fileName,
-		                                 const std::string& method, const int line)
-		{
-			if (m_LogCallbackMock != nullptr)
-			{
-				// Dereference the pointer and call the mock with the parameters.
-				(*m_LogCallbackMock)(logLevel, logMessage, fileName, method, line);
-			}
-			else
-			{
-				throw std::runtime_error("Log Trampoline Error: Log callback not set");
-			}
-		}
 
-		static std::unique_ptr<LogCallbackMock> m_LogCallbackMock;
 		Logger& m_Logger;
+		std::unique_ptr<LogCallbackMock> m_LogCallbackMock;
 	};
-
-	std::unique_ptr<LogCallbackMock> LoggerTest::m_LogCallbackMock = nullptr;
 
 	TEST_F(LoggerTest, LogLevelAsString)
 	{
