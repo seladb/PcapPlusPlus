@@ -14,10 +14,8 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 	PTF_ASSERT_EQUAL(modbusLayer.getLength(), 2);  // minimum length of the MODBUS payload + unit_id
 	PTF_ASSERT_EQUAL(modbusLayer.getUnitId(), 1);
 	PTF_ASSERT_EQUAL(modbusLayer.getFunctionCode(), 3);
-	PTF_ASSERT_EQUAL(modbusLayer.getHeaderLen(), sizeof(pcpp::modbus_common_header));
+	PTF_ASSERT_EQUAL(modbusLayer.getHeaderLen(), sizeof(pcpp::modbus_header));
 
-	PTF_ASSERT_EQUAL(modbusLayer.toString(),
-	                 "Modbus Layer, Transaction ID: 12345, Protocol ID: 0, Length: 2, Unit ID: 1, Function Code: 3");
 	PTF_ASSERT_EQUAL(modbusLayer.getOsiModelLayer(), pcpp::OsiModelApplicationLayer);
 
 	modbusLayer.setTransactionId(54321);
@@ -49,4 +47,7 @@ PTF_TEST_CASE(ModbusLayerParsingTest)
 	PTF_ASSERT_EQUAL(modbusLayer->getLength(), 2);
 	PTF_ASSERT_EQUAL(modbusLayer->getUnitId(), 10);
 	PTF_ASSERT_EQUAL(modbusLayer->getFunctionCode(), 17);
+
+	PTF_ASSERT_EQUAL(modbusLayer->toString(),
+	                 "Modbus Layer, Transaction ID: 12345, Protocol ID: 0, Length: 2, Unit ID: 1, Function Code: 3");
 }  // ModbusLayerParsingTest

@@ -8,13 +8,13 @@ namespace pcpp
 {
 	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId, uint8_t functionCode)
 	{
-		const size_t headerLen = sizeof(modbus_common_header);
+		const size_t headerLen = sizeof(modbus_header);
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
 
 		// Initialize the header fields to default values
-		modbus_common_header* header = getModbusHeader();
+		modbus_header* header = getModbusHeader();
 		header->transactionId = htobe16(transactionId);
 		header->protocolId = 0;       // 0 for Modbus/TCP
 		header->length = htobe16(2);  // minimum length of the MODBUS payload + unit_id
@@ -22,9 +22,9 @@ namespace pcpp
 		header->functionCode = functionCode;
 	}
 
-	modbus_common_header* ModbusLayer::getModbusHeader() const
+	modbus_header* ModbusLayer::getModbusHeader() const
 	{
-		return (modbus_common_header*)m_Data;
+		return (modbus_header*)m_Data;
 	}
 
 	uint16_t ModbusLayer::getTransactionId() const
@@ -65,6 +65,13 @@ namespace pcpp
 	void ModbusLayer::setFunctionCode(uint8_t functionCode)
 	{
 		getModbusHeader()->functionCode = functionCode;
+	}
+
+	std::string toString()
+	{
+		return "Modbus Layer, Transaction ID: " + std::to_string(getTransactionId()) +
+		       ", Protocol ID: " + std::to_string(getProtocolId()) + ", Length: " + std::to_string(getLength()) +
+		       ", Unit ID: " + std::to_string(getUnitId()) + ", Function Code: " + std::to_string(getFunctionCode());
 	}
 
 }  // namespace pcpp

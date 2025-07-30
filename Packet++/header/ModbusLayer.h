@@ -11,9 +11,9 @@ namespace pcpp
 {
 
 #pragma pack(push, 1)
-	/// @struct modbus_common_header
+	/// @struct modbus_header
 	/// MODBUS Application Protocol header
-	struct modbus_common_header
+	struct modbus_header
 	{
 		/// For synchronization between messages of server and client
 		uint16_t transactionId;
@@ -27,7 +27,7 @@ namespace pcpp
 		uint8_t functionCode;
 	};
 #pragma pack(pop)
-	static_assert(sizeof(modbus_common_header) == 8, "modbus_common_header size is not 8 bytes");
+	static_assert(sizeof(modbus_header) == 8, "modbus_header size is not 8 bytes");
 
 	/// @class ModbusLayer
 	/// Represents the MODBUS Application Protocol layer
@@ -51,14 +51,14 @@ namespace pcpp
 
 		/// @brief  Check if a port is a valid MODBUS port
 		/// @param port
-		/// @return
+		/// @return true if the port is valid, false otherwise
 		static bool isModbusPort(uint16_t port)
 		{
 			return port == 502;
 		}
 
 		/// @return A pointer to the MODBUS header
-		modbus_common_header* getModbusHeader() const;
+		modbus_header* getModbusHeader() const;
 
 		/// @return MODBUS message type
 		uint16_t getTransactionId() const;
@@ -98,7 +98,7 @@ namespace pcpp
 		/// @return Length of the MODBUS header in bytes
 		size_t getHeaderLen() const override
 		{
-			return sizeof(modbus_common_header);
+			return sizeof(modbus_header);
 		}
 
 		/// Each layer can compute field values automatically using this method. This is an abstract method
@@ -107,13 +107,7 @@ namespace pcpp
 
 		/// @return A string representation of the layer most important data (should look like the layer description in
 		/// Wireshark)
-		std::string toString() const override
-		{
-			return "Modbus Layer, Transaction ID: " + std::to_string(getTransactionId()) +
-			       ", Protocol ID: " + std::to_string(getProtocolId()) + ", Length: " + std::to_string(getLength()) +
-			       ", Unit ID: " + std::to_string(getUnitId()) +
-			       ", Function Code: " + std::to_string(getFunctionCode());
-		}
+		std::string toString() const override;
 
 		/// @return The OSI Model layer this protocol belongs to
 		OsiModelLayer getOsiModelLayer() const override
