@@ -14,7 +14,7 @@ if "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
 	curl -L --digest --user %NPCAP_USERNAME%:%NPCAP_PASSWORD% https://npcap.com/oem/dist/%NPCAP_FILE% --output %NPCAP_FILE%
 ) else (
 	echo Using Npcap free version %NPCAP_FILE%
-	curl -L https://npcap.com/dist/%NPCAP_FILE% --output %NPCAP_FILE%
+	curl -L  https://raw.githubusercontent.com/seladb/PcapPlusPlus-Deploy/e455ad26ca1365e2f32889002e309e1ab642e6cb/Packages/%NPCAP_FILE% --output %NPCAP_FILE%
 )
 
 %NPCAP_FILE% /S /winpcap_mode

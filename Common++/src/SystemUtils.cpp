@@ -221,12 +221,12 @@ namespace pcpp
 		return 0;
 	}
 
-	time_t mkUtcTime(std::tm& tm)
+	time_t mkUtcTime(std::tm& time)
 	{
 #if defined(_WIN32)
-		return _mkgmtime(&tm);
+		return _mkgmtime(&time);
 #else
-		return timegm(&tm);
+		return timegm(&time);
 #endif
 	}
 
