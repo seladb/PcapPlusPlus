@@ -7,6 +7,7 @@
 #include <mutex>
 #include <ostream>
 #include <sstream>
+#include <functional>
 #include "DeprecationUtils.h"
 #include "ObjectPool.h"
 
@@ -143,7 +144,7 @@ namespace pcpp
 
 	/// An enum representing the log level. Currently 4 log levels are supported: Off, Error, Info and Debug. Info is
 	/// the default log level
-	enum class LogLevel
+	enum class LogLevel : uint8_t
 	{
 		Off = PCPP_LOG_LEVEL_OFF,      ///< No log messages are emitted.
 		Error = PCPP_LOG_LEVEL_ERROR,  ///< Error level logs are emitted.
@@ -152,9 +153,9 @@ namespace pcpp
 		Debug = PCPP_LOG_LEVEL_DEBUG   ///< Debug level logs and above are emitted.
 	};
 
-	inline std::ostream& operator<<(std::ostream& s, LogLevel v)
+	inline std::ostream& operator<<(std::ostream& ostr, LogLevel lvl)
 	{
-		return s << static_cast<std::underlying_type<LogLevel>::type>(v);
+		return ostr << static_cast<std::underlying_type_t<LogLevel>>(lvl);
 	}
 
 	// Forward declaration
@@ -192,7 +193,7 @@ namespace pcpp
 			/// @brief Appends to the message.
 			/// @param value The value to append.
 			/// @return A reference to this context.
-			template <class T> inline LogContext& operator<<(T const& value)
+			template <class T> LogContext& operator<<(T const& value)
 			{
 				m_Stream << value;
 				return *this;
@@ -245,9 +246,8 @@ namespace pcpp
 		/// @param[in] method The method in PcapPlusPlus code the log message is coming from
 		/// @param[in] line The line in PcapPlusPlus code the log message is coming from
 		/// @remarks The printer callback should support being called from multiple threads simultaneously.
-		using LogPrinter =
-		    std::add_pointer<void(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                          const std::string& method, const int line)>::type;
+		using LogPrinter = std::function<void(LogLevel logLevel, const std::string& logMessage, const std::string& file,
+		                                      const std::string& method, const int line)>;
 
 		/// A static method for converting the log level enum to a string.
 		/// @param[in] logLevel A log level enum
@@ -305,15 +305,12 @@ namespace pcpp
 		}
 
 		/// Set the log printer back to the default printer
-		void resetLogPrinter()
-		{
-			m_LogPrinter = &defaultLogPrinter;
-		}
+		void resetLogPrinter();
 
 		/// @return Get the last error message
 		std::string getLastError() const
 		{
-			std::lock_guard<std::mutex> lock(m_LastErrorMtx);
+			std::lock_guard<std::mutex> const lock(m_LastErrorMtx);
 			return m_LastError;
 		}
 
@@ -394,7 +391,7 @@ namespace pcpp
 
 	private:
 		bool m_LogsEnabled;
-		std::array<LogLevel, NumOfLogModules> m_LogModulesArray;
+		std::array<LogLevel, NumOfLogModules> m_LogModulesArray{};
 		LogPrinter m_LogPrinter;
 
 		mutable std::mutex m_LastErrorMtx;
@@ -406,9 +403,6 @@ namespace pcpp
 
 		// private c'tor - this class is a singleton
 		Logger();
-
-		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                              const std::string& method, int line);
 	};
 
 }  // namespace pcpp
