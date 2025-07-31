@@ -64,7 +64,7 @@ Extensive Documentation
 
 ---
 
-## 🎯 About PcapPlusPlus
+## About PcapPlusPlus
 
 [**PcapPlusPlus**](https://pcapplusplus.github.io/) is a **multiplatform C++ library** for capturing, parsing and crafting of network packets. It is designed to be **efficient**, **powerful** and **easy to use**.
 
@@ -80,68 +80,68 @@ Extensive Documentation
 
 </div>
 
-## 📋 Table Of Contents
+## Table Of Contents
 
-- [🎯 About PcapPlusPlus](#-about-pcapplusplus)
-- [📋 Table Of Contents](#-table-of-contents)
-- [📦 Download](#-download)
-  - [🎯 GitHub Release Page](#-github-release-page)
-  - [🍺 Homebrew](#-homebrew)
-  - [📦 Vcpkg](#-vcpkg)
-  - [🔧 Conan](#-conan)
-  - [🛠️ Build It Yourself](#️-build-it-yourself)
-  - [✅ Verify your packages](#-verify-your-packages)
-- [✨ Feature Overview](#-feature-overview)
-  - [📡 **Packet Capture**](#-packet-capture)
-  - [🔍 **Packet Parsing \& Crafting**](#-packet-parsing--crafting)
-  - [📁 **File I/O Operations**](#-file-io-operations)
-  - [⚡ **Line-Rate Processing**](#-line-rate-processing)
-  - [🧩 **Packet Reassembly**](#-packet-reassembly)
-  - [🔍 **Advanced Features**](#-advanced-features)
-- [🚀 Getting Started](#-getting-started)
-- [📡 Packet Capture Backends](#-packet-capture-backends)
-  - [🔧 **libpcap**](#-libpcap)
-  - [🪟 **WinPcap / Npcap**](#-winpcap--npcap)
-  - [🌐 **Remote Capture (rpcapd)**](#-remote-capture-rpcapd)
-  - [🚀 **DPDK KNI**](#-dpdk-kni)
-- [📖 API Documentation](#-api-documentation)
-  - [📦 **Packet++**](#-packet)
-  - [🌐 **Pcap++**](#-pcap)
-  - [🛠️ **Common++**](#️-common)
-- [🌐 Multi Platform Support](#-multi-platform-support)
-- [🌐 Supported Network Protocols](#-supported-network-protocols)
-  - [🔗 Data Link Layer (L2)](#-data-link-layer-l2)
-  - [🌍 Network Layer (L3)](#-network-layer-l3)
-  - [🚚 Transport Layer (L4)](#-transport-layer-l4)
-  - [🤝 Session Layer (L5)](#-session-layer-l5)
-  - [🎨 Presentation Layer (L6)](#-presentation-layer-l6)
-  - [📱 Application Layer (L7)](#-application-layer-l7)
-- [⚡ High-Performance Packet Processing Support](#-high-performance-packet-processing-support)
+- [About PcapPlusPlus](#about-pcapplusplus)
+- [Table Of Contents](#table-of-contents)
+- [Download](#download)
+  - [GitHub Release Page](#github-release-page)
+  - [Homebrew](#homebrew)
+  - [Vcpkg](#vcpkg)
+  - [Conan](#conan)
+  - [Build It Yourself](#build-it-yourself)
+  - [Verify your packages](#verify-your-packages)
+- [Feature Overview](#feature-overview)
+  - [**Packet Capture**](#packet-capture)
+  - [**Packet Parsing \& Crafting**](#packet-parsing--crafting)
+  - [**File I/O Operations**](#file-io-operations)
+  - [**Line-Rate Processing**](#line-rate-processing)
+  - [**Packet Reassembly**](#packet-reassembly)
+  - [**Advanced Features**](#advanced-features)
+- [Getting Started](#getting-started)
+- [Packet Capture Backends](#packet-capture-backends)
+  - [**libpcap**](#libpcap)
+  - [**WinPcap / Npcap**](#winpcap--npcap)
+  - [**Remote Capture (rpcapd)**](#remote-capture-rpcapd)
+  - [**DPDK KNI**](#dpdk-kni)
+- [API Documentation](#api-documentation)
+  - [**Packet++**](#packet)
+  - [**Pcap++**](#pcap)
+  - [**Common++**](#common)
+- [Multi Platform Support](#multi-platform-support)
+- [Supported Network Protocols](#supported-network-protocols)
+  - [Data Link Layer (L2)](#data-link-layer-l2)
+  - [Network Layer (L3)](#network-layer-l3)
+  - [Transport Layer (L4)](#transport-layer-l4)
+  - [Session Layer (L5)](#session-layer-l5)
+  - [Presentation Layer (L6)](#presentation-layer-l6)
+  - [Application Layer (L7)](#application-layer-l7)
+- [High-Performance Packet Processing Support](#high-performance-packet-processing-support)
   - [**DPDK**](#dpdk)
   - [**PF\_RING™**](#pf_ring)
   - [**eBPF XDP**](#ebpf-xdp)
-- [📊 Benchmarks](#-benchmarks)
-- [💬 Provide Feedback](#-provide-feedback)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+- [Benchmarks](#benchmarks)
+- [Provide Feedback](#provide-feedback)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 📦 Download
+## Download
 
 <div align="center">
 
-**🎉 Choose Your Preferred Installation Method 🎉**
+**Choose Your Preferred Installation Method**
 
 </div>
 
 You can choose between downloading from GitHub release page, use a package manager or build PcapPlusPlus yourself. For more details please visit the [**📖 Download**](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
 
-### 🎯 GitHub Release Page
+### GitHub Release Page
 
 ```
-🔗 https://github.com/seladb/PcapPlusPlus/releases/latest
+https://github.com/seladb/PcapPlusPlus/releases/latest
 ```
 
-### 🍺 Homebrew
+### Homebrew
 
 ```shell
 brew install pcapplusplus
@@ -149,21 +149,21 @@ brew install pcapplusplus
 
 **📎 Homebrew formulae:** <https://formulae.brew.sh/formula/pcapplusplus>
 
-### 📦 Vcpkg
+### Vcpkg
 
-**🪟 Windows:**
+**Windows:**
 ```cmd
 .\vcpkg install pcapplusplus
 ```
 
-**🐧 MacOS/Linux:**
+**MacOS/Linux:**
 ```bash
 vcpkg install pcapplusplus
 ```
 
 **📎 Vcpkg port:** <https://github.com/microsoft/vcpkg/tree/master/ports/pcapplusplus>
 
-### 🔧 Conan
+### Conan
 
 ```bash
 conan install "pcapplusplus/[>0]@" -u
@@ -171,16 +171,16 @@ conan install "pcapplusplus/[>0]@" -u
 
 **📎 The package in ConanCenter:** <https://conan.io/center/pcapplusplus>
 
-### 🛠️ Build It Yourself
+### Build It Yourself
 
-**📥 Clone the repository:**
+**Clone the repository:**
 ```shell
 git clone https://github.com/seladb/PcapPlusPlus.git
 ```
 
-Follow the build instructions according to your platform in the [**🏗️ Build From Source**](https://pcapplusplus.github.io/docs/install#build-from-source) page in PcapPlusPlus web-site.
+Follow the build instructions according to your platform in the [**🛠️ Build From Source**](https://pcapplusplus.github.io/docs/install#build-from-source) page in PcapPlusPlus web-site.
 
-### ✅ Verify your packages
+### Verify your packages
 
 PcapPlusPlus releases which newer than **v23.09** are signed with **GitHub attestation**. All of the attestations can be found [**here**](https://github.com/seladb/PcapPlusPlus/attestations). You can verify the attestation of these packages with GitHub CLI. To verify packages you can follow the most recent instructions from [**gh attestation verify**](https://cli.github.com/manual/gh_attestation_verify). For simple instructions you can use the following command:
 
@@ -194,11 +194,11 @@ and you should see the following output in your terminal:
 ✓ Verification succeeded!
 ```
 
-## ✨ Feature Overview
+## Feature Overview
 
 <div align="center">
 
-**🎯 Everything You Need for Network Packet Processing 🎯**
+**Everything You Need for Network Packet Processing**
 
 </div>
 
@@ -206,27 +206,27 @@ and you should see the following output in your terminal:
 <tr>
 <td width="50%">
 
-### 📡 **Packet Capture**
+### **Packet Capture**
 Easy-to-use C++ wrapper for popular engines:
-- 🔧 **libpcap** - Universal packet capture
-- 🪟 **WinPcap/Npcap** - Windows packet capture
-- ⚡ **Intel DPDK** - High-performance processing
-- 🌐 **eBPF AF_XDP** - Kernel bypass networking
-- 🔥 **PF_RING** - High-speed packet processing
-- 🔌 **Raw sockets** - Low-level network access
+- **libpcap** - Universal packet capture
+- **WinPcap/Npcap** - Windows packet capture
+- **Intel DPDK** - High-performance processing
+- **eBPF AF_XDP** - Kernel bypass networking
+- **PF_RING** - High-speed packet processing
+- **Raw sockets** - Low-level network access
 
 [**📖 Learn more**](https://pcapplusplus.github.io/docs/features#packet-capture)
 
 </td>
 <td width="50%">
 
-### 🔍 **Packet Parsing & Crafting**
+### **Packet Parsing & Crafting**
 Detailed protocol analysis and packet generation:
-- 🕵️ **Deep packet inspection**
-- 🛠️ **Packet creation and modification**
-- 📊 **Layer-by-layer analysis**
-- 🌐 **50+ supported protocols**
-- 🎯 **Protocol-specific handling**
+- **Deep packet inspection**
+- **Packet creation and modification**
+- **Layer-by-layer analysis**
+- **50+ supported protocols**
+- **Protocol-specific handling**
 
 [**📖 Learn more**](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)
 
@@ -235,25 +235,25 @@ Detailed protocol analysis and packet generation:
 <tr>
 <td width="50%">
 
-### 📁 **File I/O Operations**
+### **File I/O Operations**
 Read and write packets from/to files:
-- 📄 **PCAP format support**
-- 📊 **PCAPNG format support**
-- 🔄 **Format conversion**
-- 💾 **Efficient file handling**
+- **PCAP format support**
+- **PCAPNG format support**
+- **Format conversion**
+- **Efficient file handling**
 
 [**📖 Learn more**](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)
 
 </td>
 <td width="50%">
 
-### ⚡ **Line-Rate Processing**
+### **Line-Rate Processing**
 High-performance packet processing:
-- 🚀 **DPDK integration**
-- 🌊 **eBPF AF_XDP support**
-- 🔥 **PF_RING optimization**
-- 📈 **Scalable architecture**
-- ⚡ **Zero-copy processing**
+- **DPDK integration**
+- **eBPF AF_XDP support**
+- **PF_RING optimization**
+- **Scalable architecture**
+- **Zero-copy processing**
 
 [**📖 Learn more**](https://pcapplusplus.github.io/docs/features#dpdk-support)
 
@@ -262,24 +262,24 @@ High-performance packet processing:
 <tr>
 <td width="50%">
 
-### 🧩 **Packet Reassembly**
+### **Packet Reassembly**
 Advanced reconstruction capabilities:
-- 🔗 **TCP Reassembly** - Handle retransmissions & out-of-order
-- 🧩 **IP Fragmentation/Defragmentation** - IPv4 & IPv6
-- 🔄 **Missing data handling**
-- 🎯 **State management**
+- **TCP Reassembly** - Handle retransmissions & out-of-order
+- **IP Fragmentation/Defragmentation** - IPv4 & IPv6
+- **Missing data handling**
+- **State management**
 
 [**📖 Learn more**](https://pcapplusplus.github.io/docs/features#packet-reassembly)
 
 </td>
 <td width="50%">
 
-### 🔍 **Advanced Features**
+### **Advanced Features**
 Specialized networking capabilities:
-- 🎛️ **BPF filters made easy**
-- 🔐 **TLS Fingerprinting (JA3/JA3S)**
-- 🌐 **Multi-platform support**
-- 🎯 **User-friendly packet filtering**
+- **BPF filters made easy**
+- **TLS Fingerprinting (JA3/JA3S)**
+- **Multi-platform support**
+- **User-friendly packet filtering**
 
 [**📖 Learn more**](https://pcapplusplus.github.io/docs/features#packet-filtering)
 
@@ -287,7 +287,7 @@ Specialized networking capabilities:
 </tr>
 </table>
 
-## 🚀 Getting Started
+## Getting Started
 
 <div align="center">
 
@@ -305,37 +305,37 @@ Here's a **simple application** that shows how to read a packet from a PCAP file
 
 int main(int argc, char* argv[])
 {
-    // 📂 open a pcap file for reading
+    // open a pcap file for reading
     pcpp::PcapFileReaderDevice reader("1_packet.pcap");
     if (!reader.open())
     {
-        std::cerr << "❌ Error opening the pcap file" << std::endl;
+        std::cerr << "Error opening the pcap file" << std::endl;
         return 1;
     }
 
-    // 📦 read the first (and only) packet from the file
+    // read the first (and only) packet from the file
     pcpp::RawPacket rawPacket;
     if (!reader.getNextPacket(rawPacket))
     {
-        std::cerr << "❌ Couldn't read the first packet in the file" << std::endl;
+        std::cerr << "Couldn't read the first packet in the file" << std::endl;
         return 1;
     }
 
-    // 🔍 parse the raw packet into a parsed packet
+    // parse the raw packet into a parsed packet
     pcpp::Packet parsedPacket(&rawPacket);
 
-    // ✅ verify the packet is IPv4
+    // verify the packet is IPv4
     if (parsedPacket.isPacketOfType(pcpp::IPv4))
     {
-        // 🎯 extract source and dest IPs
+        // extract source and dest IPs
         pcpp::IPv4Address srcIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getSrcIPv4Address();
         pcpp::IPv4Address destIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address();
 
-        // 📤 print source and dest IPs
-        std::cout << "🌐 Source IP is '" << srcIP << "'; Dest IP is '" << destIP << "'" << std::endl;
+        // print source and dest IPs
+        std::cout << "Source IP is '" << srcIP << "'; Dest IP is '" << destIP << "'" << std::endl;
     }
 
-    // 🔒 close the file
+    // close the file
     reader.close();
 
     return 0;
@@ -344,17 +344,17 @@ int main(int argc, char* argv[])
 
 <div align="center">
 
-**🎓 Want to learn more?**
+**Want to learn more?**
 
 Visit our comprehensive [**📚 Getting Started**](https://pcapplusplus.github.io/docs/quickstart) guide! This page will walk you through **few easy steps** to have an app up and running.
 
 </div>
 
-## 📡 Packet Capture Backends
+## Packet Capture Backends
 
 <div align="center">
 
-**🔧 Multiple Capture Engines Supported! 🔧**
+**Multiple Capture Engines Supported!**
 
 </div>
 
@@ -364,7 +364,7 @@ PcapPlusPlus provides a **unified C++ interface** for multiple packet capture ba
 <tr>
 <td width="25%" align="center">
 
-### 🔧 **libpcap**
+### **libpcap**
 <img src="https://img.shields.io/badge/Backend-libpcap-blue?style=for-the-badge" alt="libpcap">
 
 **🐧 Universal Packet Capture**
@@ -374,7 +374,7 @@ The standard packet capture library for **Unix-like systems**. Cross-platform su
 </td>
 <td width="25%" align="center">
 
-### 🪟 **WinPcap / Npcap**
+### **WinPcap / Npcap**
 <img src="https://img.shields.io/badge/Backend-WinPcap%2FNpcap-red?style=for-the-badge" alt="WinPcap/Npcap">
 
 **🖥️ Windows Packet Capture**
@@ -384,7 +384,7 @@ The standard packet capture library for **Unix-like systems**. Cross-platform su
 </td>
 <td width="25%" align="center">
 
-### 🌐 **Remote Capture (rpcapd)**
+### **Remote Capture (rpcapd)**
 <img src="https://img.shields.io/badge/Backend-rpcapd-green?style=for-the-badge" alt="rpcapd">
 
 **📡 Network-Based Capture**
@@ -394,7 +394,7 @@ The standard packet capture library for **Unix-like systems**. Cross-platform su
 </td>
 <td width="25%" align="center">
 
-### 🚀 **DPDK KNI**
+### **DPDK KNI**
 <img src="https://img.shields.io/badge/Backend-KNI-purple?style=for-the-badge" alt="KNI">
 
 **🌉 Kernel Network Interface**
@@ -411,11 +411,11 @@ DPDK's **Kernel Network Interface** for seamless integration between kernel spac
 >
 > **PcapPlusPlus** abstracts these differences, providing a **consistent API** regardless of the underlying capture engine!
 
-## 📖 API Documentation
+## API Documentation
 
 <div align="center">
 
-**🏗️ PcapPlusPlus Architecture Overview 🏗️**
+**PcapPlusPlus Architecture Overview**
 
 </div>
 
@@ -425,7 +425,7 @@ PcapPlusPlus consists of **3 powerful libraries**:
 <tr>
 <td width="33%" align="center">
 
-### 📦 **Packet++**
+### **Packet++**
 <img src="https://img.shields.io/badge/Library-Packet%2B%2B-blue?style=for-the-badge" alt="Packet++">
 
 **🔍 Packet Processing Engine**
@@ -435,7 +435,7 @@ A library for **parsing**, **creating** and **editing** network packets with sup
 </td>
 <td width="33%" align="center">
 
-### 🌐 **Pcap++**
+### **Pcap++**
 <img src="https://img.shields.io/badge/Library-Pcap%2B%2B-green?style=for-the-badge" alt="Pcap++">
 
 **📡 Capture & Send Engine**
@@ -445,7 +445,7 @@ C++ wrapper for packet engines like **libpcap**, **WinPcap**, **Npcap**, **DPDK*
 </td>
 <td width="33%" align="center">
 
-### 🛠️ **Common++**
+### **Common++**
 <img src="https://img.shields.io/badge/Library-Common%2B%2B-orange?style=for-the-badge" alt="Common++">
 
 **⚙️ Utilities Library**
@@ -464,11 +464,11 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 </div>
 
-## 🌐 Multi Platform Support
+## Multi Platform Support
 
 <div align="center">
 
-**Runs Everywhere You Need It! 🚀**
+**Runs Everywhere You Need It!**
 
 </div>
 
@@ -572,115 +572,115 @@ You can find extensive API documentation in the [**📖 API Documentation**](htt
 
 </div>
 
-## 🌐 Supported Network Protocols
+## Supported Network Protocols
 
 <div align="center">
 
-**🎯 50+ Network Protocols Supported! 🎯**
+**50+ Network Protocols Supported!**
 
 *PcapPlusPlus supports **parsing**, **editing** and **creation** of packets for the following protocols:*
 
 </div>
 
-### 🔗 Data Link Layer (L2)
+### Data Link Layer (L2)
 
 <div style="columns: 2; column-gap: 20px;">
 
-- 🌐 **Cisco HDLC**
-- 🔌 **Ethernet II**
-- 📡 **IEEE 802.3 Ethernet**
-- 🔧 **LLC** (BPDU supported)
-- 🔄 **Null/Loopback**
-- 📦 **Packet trailer** (footer/padding)
-- 🌐 **PPPoE**
-- 🐧 **SLL** (Linux cooked capture)
-- 🐧 **SLL2** (Linux cooked capture v2)
-- 🌳 **STP**
-- 🏷️ **VLAN**
-- 🌊 **VXLAN**
-- 💤 **Wake on LAN (WoL)**
-- 🔥 **NFLOG** *(parsing only)*
+- **Cisco HDLC**
+- **Ethernet II**
+- **IEEE 802.3 Ethernet**
+- **LLC** (BPDU supported)
+- **Null/Loopback**
+- **Packet trailer** (footer/padding)
+- **PPPoE**
+- **SLL** (Linux cooked capture)
+- **SLL2** (Linux cooked capture v2)
+- **STP**
+- **VLAN**
+- **VXLAN**
+- **Wake on LAN (WoL)**
+- **NFLOG** *(parsing only)*
 
 </div>
 
-### 🌍 Network Layer (L3)
+### Network Layer (L3)
 
 <div style="columns: 2; column-gap: 20px;">
 
-- 🗺️ **ARP**
-- 🚇 **GRE**
-- 📡 **ICMP**
-- 📡 **ICMPv6**
-- 📊 **IGMP** (v1, v2, v3)
-- 🌍 **IPv4**
-- 🌐 **IPv6**
-- 🏷️ **MPLS**
-- 🔍 **NDP**
-- 📦 **Raw IP** (IPv4 & IPv6)
-- 🔄 **VRRP** (IPv4 & IPv6)
-- 🔒 **WireGuard**
+- **ARP**
+- **GRE**
+- **ICMP**
+- **ICMPv6**
+- **IGMP** (v1, v2, v3)
+- **IPv4**
+- **IPv6**
+- **MPLS**
+- **NDP**
+- **Raw IP** (IPv4 & IPv6)
+- **VRRP** (IPv4 & IPv6)
+- **WireGuard**
 
 </div>
 
-### 🚚 Transport Layer (L4)
+### Transport Layer (L4)
 
 <div style="columns: 2; column-gap: 20px;">
 
-- 🔗 **COTP**
-- 📱 **GTP** (v1 & v2)
-- 🔒 **IPSec AH & ESP** *(parsing only)*
-- 🚚 **TCP**
-- 📦 **TPKT**
-- 📡 **UDP**
+- **COTP**
+- **GTP** (v1 & v2)
+- **IPSec AH & ESP** *(parsing only)*
+- **TCP**
+- **TPKT**
+- **UDP**
 
 </div>
 
-### 🤝 Session Layer (L5)
+### Session Layer (L5)
 
 <div style="columns: 2; column-gap: 20px;">
 
-- 📞 **SDP**
-- 📞 **SIP**
+- **SDP**
+- **SIP**
 
 </div>
 
-### 🎨 Presentation Layer (L6)
+### Presentation Layer (L6)
 
 <div style="columns: 2; column-gap: 20px;">
 
-- 🔒 **SSL/TLS** *(parsing only)*
+- **SSL/TLS** *(parsing only)*
 
 </div>
 
-### 📱 Application Layer (L7)
+### Application Layer (L7)
 
 <div style="columns: 2; column-gap: 20px;">
 
-- 🔧 **ASN.1** decoder/encoder
-- 🌐 **BGP** (v4)
-- 🔧 **DHCP**
-- 🔧 **DHCPv6**
-- 🌐 **DNS**
-- 📁 **FTP**
-- 🌐 **HTTP** headers
-- 📂 **LDAP**
-- ⏰ **NTP** (v3, v4)
-- 🔍 **Radius**
-- 🏭 **S7 Communication**
-- 📧 **SMTP**
-- 🚗 **SOME/IP**
-- 🔐 **SSH** *(parsing only)*
-- 📟 **Telnet** *(parsing only)*
-- 📜 **X509 certificates** *(parsing only)*
-- 📦 **Generic payload**
+- **ASN.1** decoder/encoder
+- **BGP** (v4)
+- **DHCP**
+- **DHCPv6**
+- **DNS**
+- **FTP**
+- **HTTP** headers
+- **LDAP**
+- **NTP** (v3, v4)
+- **Radius**
+- **S7 Communication**
+- **SMTP**
+- **SOME/IP**
+- **SSH** *(parsing only)*
+- **Telnet** *(parsing only)*
+- **X509 certificates** *(parsing only)*
+- **Generic payload**
 
 </div>
 
-## ⚡ High-Performance Packet Processing Support
+## High-Performance Packet Processing Support
 
 <div align="center">
 
-**🚀 Unleash Line-Rate Performance! 🚀**
+**Unleash Line-Rate Performance!**
 
 </div>
 
@@ -731,11 +731,11 @@ Linux kernel's **ultra-fast** packet processing framework using eBPF for **zero-
 >
 > **PcapPlusPlus** provides a **C++ abstraction layer** over DPDK, PF_RING & XDP that removes the boilerplate and makes these powerful frameworks **easy to use**!
 
-## 📊 Benchmarks
+## Benchmarks
 
 <div align="center">
 
-**🏆 Performance Matters! 🏆**
+**Performance Matters!**
 
 </div>
 
@@ -743,17 +743,17 @@ We used **Matias Fontanini's** [**packet-capture-benchmarks**](https://github.co
 
 <div align="center">
 
-**📈 See The Results**
+**See The Results**
 
 Check out our comprehensive [**📊 Benchmarks**](https://pcapplusplus.github.io/docs/benchmark) page to see how **PcapPlusPlus** performs!
 
 </div>
 
-## 💬 Provide Feedback
+## Provide Feedback
 
 <div align="center">
 
-**🤝 We'd Love to Hear From You! 🤝**
+**We'd Love to Hear From You!**
 
 </div>
 
@@ -827,11 +827,11 @@ Visit the [**PcapPlusPlus Community**](https://pcapplusplus.github.io/community)
 
 </div>
 
-## 🤝 Contributing
+## Contributing
 
 <div align="center">
 
-**🎉 Join Our Community of Contributors! 🎉**
+**Join Our Community of Contributors!**
 
 </div>
 
@@ -878,17 +878,17 @@ Testing enthusiast?<br>
 
 <div align="center">
 
-**🚀 Get Started Contributing**
+**Get Started Contributing**
 
 Visit our [**🤝 Contributing Guide**](https://pcapplusplus.github.io/community#contribute) to learn how you can help make PcapPlusPlus even better!
 
 </div>
 
-## 📄 License
+## License
 
 <div align="center">
 
-**🆓 Free and Open Source 🆓**
+**Free and Open Source**
 
 </div>
 
