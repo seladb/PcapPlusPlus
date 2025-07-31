@@ -67,7 +67,7 @@ namespace pcpp
 		getModbusHeader()->functionCode = functionCode;
 	}
 
-	std::string toString()
+	std::string ModbusLayer::toString() const
 	{
 		return "Modbus Layer, Transaction ID: " + std::to_string(getTransactionId()) +
 		       ", Protocol ID: " + std::to_string(getProtocolId()) + ", Length: " + std::to_string(getLength()) +
