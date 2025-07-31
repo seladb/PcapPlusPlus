@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "KniDevice.h"
-#include "DpdkDeviceList.h"
+#include "DeviceListBase.h"
 
 /// @namespace pcpp
 /// @brief The main namespace for the PcapPlusPlus lib
@@ -15,8 +15,10 @@ namespace pcpp
 	/// A singleton class that encapsulates DPDK KNI module initialization
 	/// and holds the list of KniDevice instances.
 	/// As it's a singleton, it has only one active instance doesn't have a public c'tor.
-	class KniDeviceList
+	class KniDeviceList : public internal::DeviceListBase<KniDevice>
 	{
+		using Base = internal::DeviceListBase<KniDevice>;
+
 		KniDeviceList();
 
 		/// @brief Explicit destruction of KNI device.
@@ -97,7 +99,6 @@ namespace pcpp
 		static bool isCallbackSupported(const KniCallbackType cbType);
 
 	private:
-		std::vector<KniDevice*> m_Devices;
 		bool m_Initialized;
 		int m_KniUniqueId;
 	};

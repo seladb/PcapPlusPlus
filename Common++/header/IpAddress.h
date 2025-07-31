@@ -8,6 +8,8 @@
 #include <array>
 #include <memory>
 
+#include "DeprecationUtils.h"
+
 /// @file
 
 /// @namespace pcpp
@@ -39,10 +41,17 @@ namespace pcpp
 
 		/// A constructor that creates an instance of the class out of 4-byte array.
 		/// @param[in] bytes The address as 4-byte array in network byte order
-		IPv4Address(const uint8_t bytes[4])
-		{
-			memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t));
-		}
+		/// @remarks This constructor assumes that the provided array is exactly 4 bytes long.
+		/// Prefer using the constructor with size parameter if the array length is not guaranteed to be 4 bytes.
+		IPv4Address(const uint8_t bytes[4]) : IPv4Address(bytes, 4)
+		{}
+
+		/// A constructor that creates an instance of the class out of a 4-byte array.
+		/// @param[in] bytes The address as 4-byte array in network byte order
+		/// @param[in] size The size of the array in bytes
+		/// @throws std::invalid_argument If the provided bytes pointer is null.
+		/// @throws std::out_of_range If the provided size is smaller than 4 bytes.
+		IPv4Address(const uint8_t* bytes, size_t size);
 
 		/// A constructor that creates an instance of the class out of a 4-byte standard array.
 		/// @param[in] bytes The address as 4-byte standard array in network byte order
@@ -160,10 +169,17 @@ namespace pcpp
 
 		/// A constructor that creates an instance of the class out of 16-byte array.
 		/// @param[in] bytes The address as 16-byte array in network byte order
-		IPv6Address(const uint8_t bytes[16])
-		{
-			memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t));
-		}
+		/// @remarks This constructor assumes that the provided array is exactly 16 bytes long.
+		/// Prefer using the constructor with size parameter if the array length is not guaranteed to be 16 bytes.
+		IPv6Address(const uint8_t bytes[16]) : IPv6Address(bytes, 16)
+		{}
+
+		/// @brief A constructor that creates an instance of the class out of a 16-byte array.
+		/// @param bytes The address as 16-byte array in network byte order
+		/// @param size The size of the array in bytes
+		/// @throws std::invalid_argument If the provided buffer is null.
+		/// @throws std::out_of_range If the provided size is smaller than 16 bytes.
+		IPv6Address(const uint8_t* bytes, size_t size);
 
 		/// A constructor that creates an instance of the class out of a 16-byte standard array.
 		/// @param[in] bytes The address as 16-byte standard array in network byte order
@@ -224,15 +240,41 @@ namespace pcpp
 		/// Allocates a byte array and copies address value into it. Array deallocation is user responsibility
 		/// @param[in] arr A pointer to where array will be allocated
 		/// @param[out] length Returns the length in bytes of the array that was allocated
+		/// @throws std::invalid_argument If the provided pointer is null.
+		/// @deprecated Use copyToNewBuffer instead.
+		PCPP_DEPRECATED("Use copyToNewBuffer instead.")
 		void copyTo(uint8_t** arr, size_t& length) const;
 
 		/// Gets a pointer to an already allocated byte array and copies the address value to it.
 		/// This method assumes array allocated size is at least 16 (the size of an IPv6 address)
 		/// @param[in] arr A pointer to the array which address will be copied to
+		/// @remarks This method assumes that the provided array is at least 16 bytes long.
+		/// Prefer using the copyTo(uint8_t* buffer, size_t size) method if the array length is not guaranteed to be 16
+		/// bytes.
 		void copyTo(uint8_t* arr) const
 		{
-			memcpy(arr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t));
+			copyTo(arr, 16);
 		}
+
+		/// @brief Copies the address value to a user-provided buffer.
+		///
+		/// This function supports querying. If the buffer is null and size is zero, it returns the required size.
+		///
+		/// @param[in] buffer A pointer to the buffer where the address will be copied
+		/// @param[in] size The size of the buffer in bytes
+		/// @return The number of bytes copied to the buffer or the number of required bytes, which is always 16 for
+		/// IPv6 addresses.
+		/// @throws std::invalid_argument If the provided buffer is null and size is not zero.
+		size_t copyTo(uint8_t* buffer, size_t size) const;
+
+		/// @brief Allocates a new buffer and copies the address value to it.
+		/// The user is responsible for deallocating the buffer.
+		///
+		/// @param buffer A pointer to a pointer where the new buffer will be allocated
+		/// @param size A reference to a size_t variable that will be updated with the size of the allocated buffer
+		/// @return True if the buffer was successfully allocated and the address was copied, false otherwise.
+		/// @throws std::invalid_argument If the buffer pointer is null.
+		bool copyToNewBuffer(uint8_t** buffer, size_t& size) const;
 
 		/// Checks whether the address matches a network.
 		/// @param network An IPv6Network network
@@ -625,11 +667,11 @@ namespace pcpp
 		{
 			if (address.isIPv4())
 			{
-				m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(address.getIPv4(), prefixLen));
+				m_IPv4Network = std::make_unique<IPv4Network>(address.getIPv4(), prefixLen);
 			}
 			else
 			{
-				m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(address.getIPv6(), prefixLen));
+				m_IPv6Network = std::make_unique<IPv6Network>(address.getIPv6(), prefixLen);
 			}
 		}
 
@@ -646,11 +688,11 @@ namespace pcpp
 		{
 			if (address.isIPv4())
 			{
-				m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(address.getIPv4(), netmask));
+				m_IPv4Network = std::make_unique<IPv4Network>(address.getIPv4(), netmask);
 			}
 			else
 			{
-				m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(address.getIPv6(), netmask));
+				m_IPv6Network = std::make_unique<IPv6Network>(address.getIPv6(), netmask);
 			}
 		}
 
@@ -666,11 +708,11 @@ namespace pcpp
 		{
 			try
 			{
-				m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(addressAndNetmask));
+				m_IPv4Network = std::make_unique<IPv4Network>(addressAndNetmask);
 			}
 			catch (const std::invalid_argument&)
 			{
-				m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(addressAndNetmask));
+				m_IPv6Network = std::make_unique<IPv6Network>(addressAndNetmask);
 			}
 		}
 
@@ -680,12 +722,12 @@ namespace pcpp
 		{
 			if (other.m_IPv4Network)
 			{
-				m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(*other.m_IPv4Network));
+				m_IPv4Network = std::make_unique<IPv4Network>(*other.m_IPv4Network);
 			}
 
 			if (other.m_IPv6Network)
 			{
-				m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(*other.m_IPv6Network));
+				m_IPv6Network = std::make_unique<IPv6Network>(*other.m_IPv6Network);
 			}
 		}
 
@@ -710,7 +752,7 @@ namespace pcpp
 		IPNetwork& operator=(const IPv4Network& other)
 		{
 			// Create the new instance first to maintain strong exception guarantee.
-			m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(other));
+			m_IPv4Network = std::make_unique<IPv4Network>(other);
 			m_IPv6Network = nullptr;
 			return *this;
 		}
@@ -721,7 +763,7 @@ namespace pcpp
 		IPNetwork& operator=(const IPv6Network& other)
 		{
 			// Create the new instance first to maintain strong exception guarantee.
-			m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(other));
+			m_IPv6Network = std::make_unique<IPv6Network>(other);
 			m_IPv4Network = nullptr;
 			return *this;
 		}

@@ -25,13 +25,13 @@ namespace pcpp
 		{
 			std::unique_ptr<T> operator()(const T& obj) const
 			{
-				return std::unique_ptr<T>(new T(obj));
+				return std::make_unique<T>(obj);
 			}
 		};
 
 		/// @brief A specialization of Copier to facilitate the safe copying of polymorphic objects via clone() method.
 		/// @tparam T The type of object to copy.
-		template <class T> struct Copier<T, typename std::enable_if<std::is_polymorphic<T>::value>::type>
+		template <class T> struct Copier<T, std::enable_if_t<std::is_polymorphic<T>::value>>
 		{
 			std::unique_ptr<T> operator()(const T& obj) const
 			{
@@ -46,7 +46,7 @@ namespace pcpp
 	/// vector, the element responsibility moves to the vector, meaning the PointerVector will free the object once it's
 	/// removed from the vector This class wraps std::vector and adds the capability of freeing objects once they're
 	/// removed from it
-	template <typename T> class PointerVector
+	template <typename T, typename Deleter = std::default_delete<T>> class PointerVector
 	{
 	public:
 		/// Iterator object that is used for iterating all elements in the vector
@@ -114,6 +114,11 @@ namespace pcpp
 		/// @return A reference to the current object.
 		PointerVector& operator=(PointerVector&& other) noexcept
 		{
+			if (this == &other)
+			{
+				return *this;
+			}
+
 			// Releases all current elements.
 			clear();
 			// Moves the elements of the other vector.
@@ -153,7 +158,7 @@ namespace pcpp
 			{
 				if (freeElementOnError)
 				{
-					delete element;
+					Deleter{}(element);
 				}
 				throw;
 			}
@@ -212,26 +217,30 @@ namespace pcpp
 			return m_Vector.size();
 		}
 
-		/// @return A pointer of the first element in the vector
-		T* front()
+		/// @brief Get the current capacity of the vector.
+		/// @return The number of elements that can be held in the vector without requiring a reallocation.
+		size_t capacity() const
 		{
-			return m_Vector.front();
+			return m_Vector.capacity();
 		}
 
-		/// @return A pointer to the first element in the vector
-		T const* front() const
+		/// @brief Reserve storage for the vector.
+		/// @param[in] size The number of elements to reserve space for.
+		/// @remarks This method ensures that the vector can hold at least the specified number of elements
+		/// without requiring a reallocation.
+		void reserve(size_t size)
+		{
+			m_Vector.reserve(size);
+		}
+
+		/// @return A pointer of the first element in the vector
+		T* front() const
 		{
 			return m_Vector.front();
 		}
 
 		/// @return A pointer to the last element in the vector
-		T* back()
-		{
-			return m_Vector.back();
-		}
-
-		/// @return A pointer to the last element in the vector.
-		T const* back() const
+		T* back() const
 		{
 			return m_Vector.back();
 		}
@@ -242,8 +251,22 @@ namespace pcpp
 		/// function call
 		VectorIterator erase(VectorIterator position)
 		{
-			delete (*position);
+			Deleter{}(*position);
 			return m_Vector.erase(position);
+		}
+
+		/// Removes a range of elements from the vector and frees them.
+		/// @param[in] first An iterator pointing to the first element in the range to erase.
+		/// @param[in] last An iterator pointing to one past the last element in the range to erase.
+		/// @return An iterator pointing to the new location of the element that followed the last element erased by the
+		/// function call.
+		VectorIterator erase(ConstVectorIterator first, ConstVectorIterator last)
+		{
+			for (auto iter = first; iter != last; ++iter)
+			{
+				Deleter{}(*iter);
+			}
+			return m_Vector.erase(first, last);
 		}
 
 		/// Remove an element from the vector without freeing it
@@ -292,15 +315,7 @@ namespace pcpp
 		/// Return a pointer to the element in a certain index
 		/// @param[in] index The index to retrieve the element from
 		/// @return The element at the specified position in the vector
-		T* at(int index)
-		{
-			return m_Vector.at(index);
-		}
-
-		/// Return a const pointer to the element in a certain index
-		/// @param[in] index The index to retrieve the element from
-		/// @return The element at the specified position in the vector
-		const T* at(int index) const
+		T* at(int index) const
 		{
 			return m_Vector.at(index);
 		}
@@ -326,10 +341,7 @@ namespace pcpp
 			}
 			catch (const std::exception&)
 			{
-				for (auto obj : copyVec)
-				{
-					delete obj;
-				}
+				freeVectorUnsafe(copyVec);
 				throw;
 			}
 
@@ -344,7 +356,7 @@ namespace pcpp
 		{
 			for (auto& obj : origin)
 			{
-				delete obj;
+				Deleter{}(obj);
 			}
 		}
 

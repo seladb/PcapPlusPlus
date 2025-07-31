@@ -205,13 +205,13 @@ namespace pcpp
 		std::unique_ptr<Asn1Record> messageRootRecord;
 		if (!messageRecords.empty())
 		{
-			messageRootRecord = std::unique_ptr<Asn1Record>(
-			    new Asn1ConstructedRecord(Asn1TagClass::Application, operationType, messageRecords));
+			messageRootRecord =
+			    std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::Application, operationType, messageRecords);
 		}
 		else
 		{
 			messageRootRecord =
-			    std::unique_ptr<Asn1Record>(new Asn1GenericRecord(Asn1TagClass::Application, false, operationType, ""));
+			    std::make_unique<Asn1GenericRecord>(Asn1TagClass::Application, false, operationType, "");
 		}
 
 		std::vector<Asn1Record*> rootSubRecords = { &messageIdRecord, messageRootRecord.get() };
@@ -230,14 +230,14 @@ namespace pcpp
 				else
 				{
 					auto controlValueSize = static_cast<size_t>(control.controlValue.size() / 2);
-					std::unique_ptr<uint8_t[]> controlValue(new uint8_t[controlValueSize]);
+					std::unique_ptr<uint8_t[]> controlValue = std::make_unique<uint8_t[]>(controlValueSize);
 					controlValueSize = hexStringToByteArray(control.controlValue, controlValue.get(), controlValueSize);
 					Asn1OctetStringRecord controlValueRecord(controlValue.get(), controlValueSize);
 					controlsSubRecords.pushBack(new Asn1SequenceRecord({ &controlTypeRecord, &controlValueRecord }));
 				}
 			}
-			controlsRecord = std::unique_ptr<Asn1ConstructedRecord>(
-			    new Asn1ConstructedRecord(Asn1TagClass::ContextSpecific, 0, controlsSubRecords));
+			controlsRecord =
+			    std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::ContextSpecific, 0, controlsSubRecords);
 			rootSubRecords.push_back(controlsRecord.get());
 		}
 
@@ -312,7 +312,11 @@ namespace pcpp
 
 	uint16_t LdapLayer::getMessageID() const
 	{
-		return getRootAsn1Record()->getSubRecords().at(messageIdIndex)->castAs<Asn1IntegerRecord>()->getValue();
+		return getRootAsn1Record()
+		    ->getSubRecords()
+		    .at(messageIdIndex)
+		    ->castAs<Asn1IntegerRecord>()
+		    ->getIntValue<uint16_t>();
 	}
 
 	std::vector<LdapControl> LdapLayer::getControls() const
@@ -400,8 +404,8 @@ namespace pcpp
 			{
 				referralSubRecords.pushBack(new Asn1OctetStringRecord(uri));
 			}
-			referralRecord = std::unique_ptr<Asn1ConstructedRecord>(
-			    new Asn1ConstructedRecord(Asn1TagClass::ContextSpecific, referralTagType, referralSubRecords));
+			referralRecord = std::make_unique<Asn1ConstructedRecord>(Asn1TagClass::ContextSpecific, referralTagType,
+			                                                         referralSubRecords);
 			messageRecords.push_back(referralRecord.get());
 		}
 
@@ -422,7 +426,7 @@ namespace pcpp
 		                                         ->getSubRecords()
 		                                         .at(resultCodeIndex)
 		                                         ->castAs<Asn1EnumeratedRecord>()
-		                                         ->getValue());
+		                                         ->getIntValue<uint8_t>());
 	}
 
 	std::string LdapResponseLayer::getMatchedDN() const
@@ -485,10 +489,10 @@ namespace pcpp
 		if (!simpleAuthentication.empty())
 		{
 			auto data = reinterpret_cast<const uint8_t*>(simpleAuthentication.data());
-			simpleAuthenticationRecord = std::unique_ptr<Asn1GenericRecord>(
-			    new Asn1GenericRecord(Asn1TagClass::ContextSpecific, false,
-			                          static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Simple), data,
-			                          simpleAuthentication.size()));
+			simpleAuthenticationRecord = std::make_unique<Asn1GenericRecord>(
+			    Asn1TagClass::ContextSpecific, false,
+			    static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Simple), data,
+			    simpleAuthentication.size());
 			messageRecords.push_back(simpleAuthenticationRecord.get());
 		}
 
@@ -514,9 +518,9 @@ namespace pcpp
 				saslAuthenticationRecords.pushBack(credentialsRecord);
 			}
 
-			saslAuthenticationRecord = std::unique_ptr<Asn1ConstructedRecord>(new Asn1ConstructedRecord(
+			saslAuthenticationRecord = std::make_unique<Asn1ConstructedRecord>(
 			    Asn1TagClass::ContextSpecific, static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Sasl),
-			    saslAuthenticationRecords));
+			    saslAuthenticationRecords);
 			messageRecords.push_back(saslAuthenticationRecord.get());
 		}
 
@@ -525,7 +529,11 @@ namespace pcpp
 
 	uint32_t LdapBindRequestLayer::getVersion() const
 	{
-		return getLdapOperationAsn1Record()->getSubRecords().at(versionIndex)->castAs<Asn1IntegerRecord>()->getValue();
+		return getLdapOperationAsn1Record()
+		    ->getSubRecords()
+		    .at(versionIndex)
+		    ->castAs<Asn1IntegerRecord>()
+		    ->getIntValue<uint32_t>();
 	}
 
 	std::string LdapBindRequestLayer::getName() const
@@ -617,9 +625,9 @@ namespace pcpp
 		std::unique_ptr<Asn1Record> serverSaslCredentialsRecord;
 		if (!serverSaslCredentials.empty())
 		{
-			serverSaslCredentialsRecord = std::unique_ptr<Asn1Record>(
-			    new Asn1GenericRecord(Asn1TagClass::ContextSpecific, false, serverSaslCredentialsTagType,
-			                          serverSaslCredentials.data(), serverSaslCredentials.size()));
+			serverSaslCredentialsRecord =
+			    std::make_unique<Asn1GenericRecord>(Asn1TagClass::ContextSpecific, false, serverSaslCredentialsTagType,
+			                                        serverSaslCredentials.data(), serverSaslCredentials.size());
 			additionalRecords.push_back(serverSaslCredentialsRecord.get());
 		}
 
@@ -741,8 +749,11 @@ namespace pcpp
 
 	LdapSearchRequestLayer::SearchRequestScope LdapSearchRequestLayer::getScope() const
 	{
-		return LdapSearchRequestLayer::SearchRequestScope::fromUintValue(
-		    getLdapOperationAsn1Record()->getSubRecords().at(scopeIndex)->castAs<Asn1EnumeratedRecord>()->getValue());
+		return LdapSearchRequestLayer::SearchRequestScope::fromUintValue(getLdapOperationAsn1Record()
+		                                                                     ->getSubRecords()
+		                                                                     .at(scopeIndex)
+		                                                                     ->castAs<Asn1EnumeratedRecord>()
+		                                                                     ->getIntValue<uint8_t>());
 	}
 
 	LdapSearchRequestLayer::DerefAliases LdapSearchRequestLayer::getDerefAlias() const
@@ -751,19 +762,25 @@ namespace pcpp
 		                                                               ->getSubRecords()
 		                                                               .at(derefAliasIndex)
 		                                                               ->castAs<Asn1EnumeratedRecord>()
-		                                                               ->getValue());
+		                                                               ->getIntValue<uint8_t>());
 	}
 
 	uint8_t LdapSearchRequestLayer::getSizeLimit() const
 	{
-		return static_cast<uint8_t>(
-		    getLdapOperationAsn1Record()->getSubRecords().at(sizeLimitIndex)->castAs<Asn1IntegerRecord>()->getValue());
+		return getLdapOperationAsn1Record()
+		    ->getSubRecords()
+		    .at(sizeLimitIndex)
+		    ->castAs<Asn1IntegerRecord>()
+		    ->getIntValue<uint8_t>();
 	}
 
 	uint8_t LdapSearchRequestLayer::getTimeLimit() const
 	{
-		return static_cast<uint8_t>(
-		    getLdapOperationAsn1Record()->getSubRecords().at(timeLimitIndex)->castAs<Asn1IntegerRecord>()->getValue());
+		return getLdapOperationAsn1Record()
+		    ->getSubRecords()
+		    .at(timeLimitIndex)
+		    ->castAs<Asn1IntegerRecord>()
+		    ->getIntValue<uint8_t>();
 	}
 
 	bool LdapSearchRequestLayer::getTypesOnly() const

@@ -33,6 +33,7 @@ PTF_TEST_CASE(IPv6ExtensionsTest);
 // Implemented in TcpTests.cpp
 PTF_TEST_CASE(TcpPacketNoOptionsParsing);
 PTF_TEST_CASE(TcpPacketWithOptionsParsing);
+PTF_TEST_CASE(TcpPacketWithAccurateEcnParsing);
 PTF_TEST_CASE(TcpPacketWithOptionsParsing2);
 PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
@@ -298,6 +299,7 @@ PTF_TEST_CASE(SmtpEditTests);
 // Implemented in Asn1Tests.cpp
 PTF_TEST_CASE(Asn1DecodingTest);
 PTF_TEST_CASE(Asn1EncodingTest);
+PTF_TEST_CASE(Asn1ObjectIdentifierTest);
 
 // Implemented in LdapTests.cpp
 PTF_TEST_CASE(LdapParsingTest);
@@ -315,3 +317,13 @@ PTF_TEST_CASE(WireGuardEditTest);
 PTF_TEST_CASE(CiscoHdlcParsingTest);
 PTF_TEST_CASE(CiscoHdlcLayerCreationTest);
 PTF_TEST_CASE(CiscoHdlcLayerEditTest);
+
+// Implemented in X509Tests.cpp
+PTF_TEST_CASE(X509ParsingTest);
+PTF_TEST_CASE(X509VariantsParsingTest);
+PTF_TEST_CASE(X509InvalidDataTest);
+PTF_TEST_CASE(X509ExtensionDataTest);
+
+// Implemented in Base64Tests.cpp
+PTF_TEST_CASE(Base64EncodingTest);
+PTF_TEST_CASE(Base64DecodingTest);

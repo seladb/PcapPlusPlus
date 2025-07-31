@@ -9,6 +9,7 @@ unusedStructMember:*
 
 noExplicitConstructor:Common++/header/IpAddress.h
 noExplicitConstructor:Common++/header/MacAddress.h
+useStlAlgorithm:Packet++/src/Asn1Codec.cpp
 noExplicitConstructor:Pcap++/header/PcapFileDevice.h
 
 missingOverride:Pcap++/*

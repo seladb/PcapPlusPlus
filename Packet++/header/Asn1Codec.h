@@ -4,6 +4,9 @@
 #include <memory>
 #include <typeinfo>
 #include <stdexcept>
+#include <sstream>
+#include <chrono>
+#include <bitset>
 #include "PointerVector.h"
 
 /// @file
@@ -106,6 +109,20 @@ namespace pcpp
 		NotApplicable = 255
 	};
 
+	namespace internal
+	{
+		/// @enum Asn1LoadPolicy
+		/// @brief Policy for when to evaluate (decode) ASN.1 record values.
+		/// Determines whether the value is decoded immediately (eager) or on first access (lazy).
+		enum class Asn1LoadPolicy
+		{
+			/// The value is evaluated on first access (lazy decoding).
+			Lazy,
+			/// The value is evaluated immediately on construction (eager decoding).
+			Eager
+		};
+	}  // namespace internal
+
 	/// @class Asn1Record
 	/// Represents an ASN.1 record, as described in ITU-T Recommendation X.680:
 	/// <https://www.itu.int/rec/T-REC-X.680/en>
@@ -124,7 +141,7 @@ namespace pcpp
 
 		/// Encode this record and convert it to a byte stream
 		/// @return A vector of bytes representing the record
-		std::vector<uint8_t> encode();
+		std::vector<uint8_t> encode() const;
 
 		/// @return The ASN.1 tag class
 		Asn1TagClass getTagClass() const
@@ -161,7 +178,7 @@ namespace pcpp
 		}
 
 		/// @return A string representation of the record
-		std::string toString();
+		std::string toString() const;
 
 		/// A templated method that accepts a class derived from Asn1Record as its template argument and attempts
 		/// to cast the current instance to that type
@@ -187,25 +204,41 @@ namespace pcpp
 		size_t m_ValueLength = 0;
 		size_t m_TotalLength = 0;
 
-		uint8_t* m_EncodedValue = nullptr;
-
 		Asn1Record() = default;
 
-		static Asn1Record* decodeInternal(const uint8_t* data, size_t dataLen, bool lazy);
+		/// @brief Decodes the record value from a byte array into the mutable cache variables.
+		/// This method is marked as const as it can be called on a const instance of the record for lazy decoding.
+		virtual void decodeValue(uint8_t const* data) const = 0;
 
-		virtual void decodeValue(uint8_t* data, bool lazy) = 0;
+		/// @brief Encodes the record value into a byte array
+		/// Prefer using encodeValueSafe() to ensure the value is decoded first if needed
 		virtual std::vector<uint8_t> encodeValue() const = 0;
 
-		static Asn1Record* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, uint8_t& tagLen);
-		uint8_t decodeLength(const uint8_t* data, size_t dataLen);
-		void decodeValueIfNeeded();
+		/// @brief Encodes the record value into a byte array, ensuring that the value is decoded first if needed
+		std::vector<uint8_t> encodeValueSafe() const
+		{
+			decodeValueIfNeeded();
+			return encodeValue();
+		}
 
-		uint8_t encodeTag();
+		static std::unique_ptr<Asn1Record> decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen,
+		                                                            uint8_t& tagLen);
+		uint8_t decodeLength(const uint8_t* data, size_t dataLen);
+		void decodeValueIfNeeded() const;
+
+		uint8_t encodeTag() const;
 		std::vector<uint8_t> encodeLength() const;
 
-		virtual std::vector<std::string> toStringList();
+		// note: Requires the value to be decoded first if lazy decoding is used
+		virtual std::vector<std::string> toStringList() const;
 
 		friend class Asn1ConstructedRecord;
+
+	private:
+		void setEncodedValue(uint8_t const* dataSource,
+		                     internal::Asn1LoadPolicy loadPolicy = internal::Asn1LoadPolicy::Lazy);
+
+		mutable uint8_t const* m_EncodedValue = nullptr;
 	};
 
 	/// @class Asn1GenericRecord
@@ -232,23 +265,23 @@ namespace pcpp
 		/// @param value A string representing the tag value
 		Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const std::string& value);
 
-		~Asn1GenericRecord() override;
+		~Asn1GenericRecord() override = default;
 
 		/// @return A pointer to the tag value
 		const uint8_t* getValue()
 		{
 			decodeValueIfNeeded();
-			return m_Value;
+			return m_Value.get();
 		}
 
 	protected:
 		Asn1GenericRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data) const override;
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
-		uint8_t* m_Value = nullptr;
+		mutable std::unique_ptr<uint8_t[]> m_Value = nullptr;
 
 		void init(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen);
 	};
@@ -285,10 +318,10 @@ namespace pcpp
 	protected:
 		Asn1ConstructedRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data) const override;
 		std::vector<uint8_t> encodeValue() const override;
 
-		std::vector<std::string> toStringList() override;
+		std::vector<std::string> toStringList() const override;
 
 		template <typename Iterator> void init(Asn1TagClass tagClass, uint8_t tagType, Iterator begin, Iterator end)
 		{
@@ -300,7 +333,7 @@ namespace pcpp
 			for (Iterator recordIter = begin; recordIter != end; ++recordIter)
 			{
 				auto encodedRecord = (*recordIter)->encode();
-				auto copyRecord = Asn1Record::decode(encodedRecord.data(), encodedRecord.size(), false);
+				auto copyRecord = Asn1Record::decode(encodedRecord.data(), encodedRecord.size(), LazySubRecordDecoding);
 				m_SubRecords.pushBack(std::move(copyRecord));
 				recordValueLength += encodedRecord.size();
 			}
@@ -310,7 +343,10 @@ namespace pcpp
 		}
 
 	private:
-		PointerVector<Asn1Record> m_SubRecords;
+		// Set to false as there are issues with lazy decoding of sub-records in some cases.
+		static constexpr bool LazySubRecordDecoding = false;
+
+		mutable PointerVector<Asn1Record> m_SubRecords;
 	};
 
 	/// @class Asn1SequenceRecord
@@ -370,27 +406,108 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		template <typename T>
+		using EnableIfUnsignedIntegral =
+		    std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int>;
+
 		/// A constructor to create a record of type Integer
 		/// @param value An integer to set as the record value
-		explicit Asn1IntegerRecord(uint32_t value);
+		explicit Asn1IntegerRecord(uint64_t value);
+
+		/// A constructor to create a record of type Integer
+		/// @param value An integer represented as a hex stream to set as the record value
+		/// @throw std::invalid_argument if the value isn't a valid hex stream
+		explicit Asn1IntegerRecord(const std::string& value);
 
 		/// @return The integer value of this record
-		uint32_t getValue()
+		/// @throw std::invalid_argument if the value doesn't fit the requested integer size
+		template <typename T, EnableIfUnsignedIntegral<T> = 0> T getIntValue() const
 		{
 			decodeValueIfNeeded();
-			return m_Value;
+			return m_Value.getInt<T>();
+		}
+
+		/// @deprecated This method is deprecated, please use getIntValue()
+		PCPP_DEPRECATED("Use getIntValue instead")
+		uint32_t getValue()
+		{
+			return getIntValue<uint32_t>();
+		}
+
+		/// @return A hex string representation of the record value
+		std::string getValueAsString() const
+		{
+			decodeValueIfNeeded();
+			return m_Value.toString();
 		}
 
 	protected:
 		Asn1IntegerRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data) const override;
 		std::vector<uint8_t> encodeValue() const override;
 
-		std::vector<std::string> toStringList() override;
+		std::vector<std::string> toStringList() const override;
 
 	private:
-		uint32_t m_Value = 0;
+		class BigInt
+		{
+		public:
+			BigInt() = default;
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> explicit BigInt(T value)
+			{
+				m_Value = initFromInt(value);
+			}
+
+			explicit BigInt(const std::string& value);
+			BigInt(const BigInt& other);
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> BigInt& operator=(T value)
+			{
+				m_Value = initFromInt(value);
+				return *this;
+			}
+			BigInt& operator=(const std::string& value);
+			size_t size() const;
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> T getInt() const
+			{
+				if (!canFit<T>())
+				{
+					throw std::overflow_error("Value cannot fit into requested int type");
+				}
+
+				std::stringstream sstream;
+				sstream << std::hex << m_Value;
+
+				uint64_t result;
+				sstream >> result;
+				return static_cast<T>(result);
+			}
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> bool canFit() const
+			{
+				return sizeof(T) >= (m_Value.size() + 1) / 2;
+			}
+
+			std::string toString() const;
+			std::vector<uint8_t> toBytes() const;
+
+		private:
+			std::string m_Value;
+
+			static std::string initFromString(const std::string& value);
+
+			template <typename T, EnableIfUnsignedIntegral<T> = 0> static std::string initFromInt(T value)
+			{
+				std::stringstream ss;
+				ss << std::hex << static_cast<uint64_t>(value);
+				return ss.str();
+			}
+		};
+
+		mutable BigInt m_Value;
 	};
 
 	/// @class Asn1EnumeratedRecord
@@ -408,40 +525,121 @@ namespace pcpp
 		Asn1EnumeratedRecord() = default;
 	};
 
-	/// @class Asn1OctetStringRecord
-	/// Represents an ASN.1 record with a value of type Octet String
-	class Asn1OctetStringRecord : public Asn1PrimitiveRecord
+	/// @class Asn1StringRecord
+	/// An abstract class for representing ASN.1 string records.
+	/// This class is not instantiable, users should use the derived classes
+	template <Asn1UniversalTagType TagType> class Asn1StringRecord : public Asn1PrimitiveRecord
 	{
-		friend class Asn1Record;
-
 	public:
-		/// A constructor to create a record of type Octet String from a printable value
-		/// @param value A string to set as the record value
-		explicit Asn1OctetStringRecord(const std::string& value);
-
-		/// A constructor to create a record of type Octet String from a non-printable value
-		/// @param value A byte array to set as the record value
-		/// @param valueLength The length of the byte array
-		explicit Asn1OctetStringRecord(const uint8_t* value, size_t valueLength);
-
 		/// @return The string value of this record
-		std::string getValue()
+		std::string getValue() const
 		{
 			decodeValueIfNeeded();
 			return m_Value;
 		};
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		Asn1StringRecord() : Asn1PrimitiveRecord(TagType)
+		{}
+
+		explicit Asn1StringRecord(const std::string& value) : Asn1PrimitiveRecord(TagType), m_Value(value)
+		{
+			m_ValueLength = value.size();
+			m_TotalLength = m_ValueLength + 2;
+		}
+
+		void decodeValue(uint8_t const* data) const override
+		{
+			m_Value = std::string(reinterpret_cast<char const*>(data), m_ValueLength);
+		}
+		std::vector<uint8_t> encodeValue() const override
+		{
+			return { m_Value.begin(), m_Value.end() };
+		}
+
+		std::vector<std::string> toStringList() const override
+		{
+			return { Asn1Record::toStringList().front() + ", Value: " + getValue() };
+		}
+
+		mutable std::string m_Value;
+	};
+
+	/// @class Asn1OctetStringRecord
+	/// Represents an ASN.1 record with a value of type Octet String
+	class Asn1OctetStringRecord : public Asn1StringRecord<Asn1UniversalTagType::OctetString>
+	{
+		friend class Asn1Record;
+
+	public:
+		using Asn1StringRecord::Asn1StringRecord;
+
+		/// A constructor to create a record of type Octet String from a non-printable value
+		/// @param value A byte array to set as the record value
+		/// @param valueLength The length of the byte array
+		explicit Asn1OctetStringRecord(const uint8_t* value, size_t valueLength);
+
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1OctetStringRecord(const std::string& value) : Asn1StringRecord(value)
+		{}
+
+	protected:
+		void decodeValue(uint8_t const* data) const override;
 		std::vector<uint8_t> encodeValue() const override;
 
-		std::vector<std::string> toStringList() override;
+	private:
+		Asn1OctetStringRecord() = default;
+
+		mutable bool m_IsPrintable = true;
+	};
+
+	/// @class Asn1UTF8StringRecord
+	/// Represents an ASN.1 record with a value of type UTF8 String
+	class Asn1UTF8StringRecord : public Asn1StringRecord<Asn1UniversalTagType::UTF8String>
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1UTF8StringRecord(const std::string& value) : Asn1StringRecord(value)
+		{}
 
 	private:
-		std::string m_Value;
-		bool m_IsPrintable = true;
+		Asn1UTF8StringRecord() = default;
+	};
 
-		Asn1OctetStringRecord() = default;
+	/// @class Asn1PrintableStringRecord
+	/// Represents an ASN.1 record with a value of type Printable String
+	class Asn1PrintableStringRecord : public Asn1StringRecord<Asn1UniversalTagType::PrintableString>
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1PrintableStringRecord(const std::string& value) : Asn1StringRecord(value)
+		{}
+
+	private:
+		Asn1PrintableStringRecord() = default;
+	};
+
+	/// @class Asn1IA5StringRecord
+	/// Represents an ASN.1 record with a value of type IA5 String
+	class Asn1IA5StringRecord : public Asn1StringRecord<Asn1UniversalTagType::IA5String>
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record from a printable string value
+		/// @param value A string to set as the record value
+		explicit Asn1IA5StringRecord(const std::string& value) : Asn1StringRecord(value)
+		{}
+
+	private:
+		Asn1IA5StringRecord() = default;
 	};
 
 	/// @class Asn1BooleanRecord
@@ -456,22 +654,22 @@ namespace pcpp
 		explicit Asn1BooleanRecord(bool value);
 
 		/// @return The boolean value of this record
-		bool getValue()
+		bool getValue() const
 		{
 			decodeValueIfNeeded();
 			return m_Value;
 		};
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t const* data) const override;
 		std::vector<uint8_t> encodeValue() const override;
 
-		std::vector<std::string> toStringList() override;
+		std::vector<std::string> toStringList() const override;
 
 	private:
 		Asn1BooleanRecord() = default;
 
-		bool m_Value = false;
+		mutable bool m_Value = false;
 	};
 
 	/// @class Asn1NullRecord
@@ -485,11 +683,245 @@ namespace pcpp
 		Asn1NullRecord();
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override
+		void decodeValue(uint8_t const* data) const override
 		{}
 		std::vector<uint8_t> encodeValue() const override
 		{
 			return {};
 		}
+	};
+
+	/// @class Asn1ObjectIdentifier
+	/// Represents an ASN.1 Object Identifier (OID).
+	class Asn1ObjectIdentifier
+	{
+		friend class Asn1ObjectIdentifierRecord;
+
+	public:
+		/// Construct an OID from an encoded byte buffer
+		/// @param[in] data The byte buffer of the encoded OID data
+		/// @param[in] dataLen The byte buffer size
+		explicit Asn1ObjectIdentifier(const uint8_t* data, size_t dataLen);
+
+		/// Construct an OID from its string representation (e.g., "1.2.840.113549").
+		/// @param[in] oidString The string representation of the OID
+		/// @throws std::invalid_argument if the string is malformed or contains invalid components
+		explicit Asn1ObjectIdentifier(const std::string& oidString);
+
+		/// @return A const reference to the internal vector of components
+		const std::vector<uint32_t>& getComponents() const
+		{
+			return m_Components;
+		}
+
+		/// Equality operator to compare two OIDs
+		/// @param[in] other Another Asn1ObjectIdentifier instance
+		bool operator==(const Asn1ObjectIdentifier& other) const
+		{
+			return m_Components == other.m_Components;
+		}
+
+		/// Inequality operator to compare two OIDs
+		/// @param[in] other Another Asn1ObjectIdentifier instance
+		bool operator!=(const Asn1ObjectIdentifier& other) const
+		{
+			return m_Components != other.m_Components;
+		}
+
+		/// Convert the OID to its string representation (e.g., "1.2.840.113549")
+		/// @return A string representing the OID
+		std::string toString() const;
+
+		/// Encode the OID to a byte buffer
+		/// @return A byte buffer containing the encoded OID value
+		std::vector<uint8_t> toBytes() const;
+
+		friend std::ostream& operator<<(std::ostream& os, const Asn1ObjectIdentifier& oid)
+		{
+			return os << oid.toString();
+		}
+
+	protected:
+		Asn1ObjectIdentifier() = default;
+
+	private:
+		std::vector<uint32_t> m_Components;
+	};
+
+	/// @class Asn1ObjectIdentifierRecord
+	/// Represents an ASN.1 record with a value of type ObjectIdentifier
+	class Asn1ObjectIdentifierRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a ObjectIdentifier record
+		/// @param[in] value The ObjectIdentifier (OID) to set as the record value
+		explicit Asn1ObjectIdentifierRecord(const Asn1ObjectIdentifier& value);
+
+		/// @return The OID value of this record
+		const Asn1ObjectIdentifier& getValue() const
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		}
+
+	protected:
+		void decodeValue(uint8_t const* data) const override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() const override;
+
+	private:
+		mutable Asn1ObjectIdentifier m_Value;
+
+		Asn1ObjectIdentifierRecord() = default;
+	};
+
+	/// @class Asn1TimeRecord
+	/// An abstract class for representing ASN.1 time records (UTCTime and GeneralizedTime).
+	/// This class is not instantiable, users should use either Asn1UtcTimeRecord or Asn1GeneralizedTimeRecord
+	class Asn1TimeRecord : public Asn1PrimitiveRecord
+	{
+	public:
+		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. The default value is UTC
+		/// @return The time-point value of this record
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		std::chrono::system_clock::time_point getValue(const std::string& timezone = "Z") const
+		{
+			decodeValueIfNeeded();
+			return adjustTimezones(m_Value, "Z", timezone);
+		};
+
+		/// @param[in] format Requested value format
+		/// @param[in] timezone A timezone string - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. The default value is UTC
+		/// @param[in] includeMilliseconds Should Include milliseconds in the returned string
+		/// @return The value as string
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		std::string getValueAsString(const std::string& format = "%Y-%m-%d %H:%M:%S", const std::string& timezone = "Z",
+		                             bool includeMilliseconds = false) const;
+
+	protected:
+		Asn1TimeRecord() = default;
+		explicit Asn1TimeRecord(Asn1UniversalTagType tagType, const std::chrono::system_clock::time_point& value,
+		                        const std::string& timezone);
+
+		mutable std::chrono::system_clock::time_point m_Value;
+
+		std::vector<std::string> toStringList() const override;
+
+		static void validateTimezone(const std::string& timezone);
+		static std::chrono::system_clock::time_point adjustTimezones(const std::chrono::system_clock::time_point& value,
+		                                                             const std::string& fromTimezone,
+		                                                             const std::string& toTimezone);
+	};
+
+	/// @class Asn1UtcTimeRecord
+	/// Represents an ASN.1 record with a value of type UTCTime
+	class Asn1UtcTimeRecord : public Asn1TimeRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type UTC time
+		/// @param[in] value A time-point to set as the record value
+		/// @param[in] withSeconds Should write the ASN.1 record with second precision. The default is true
+		explicit Asn1UtcTimeRecord(const std::chrono::system_clock::time_point& value, bool withSeconds = true);
+
+	protected:
+		void decodeValue(uint8_t const* data) const override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		Asn1UtcTimeRecord() = default;
+		mutable bool m_WithSeconds = true;
+	};
+
+	/// @class Asn1GeneralizedTimeRecord
+	/// Represents an ASN.1 record with a value of type GeneralizedTime
+	class Asn1GeneralizedTimeRecord : public Asn1TimeRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type generalized time
+		/// @param[in] value A time-point to set as the record value
+		/// @param[in] timezone The time-point's timezone - should be in the format of "Z" for UTC or +=HHMM for other
+		/// timezones. If not provided it's assumed the timezone is UTC
+		/// @throws std::invalid_argument if timezone is not in the correct format
+		explicit Asn1GeneralizedTimeRecord(const std::chrono::system_clock::time_point& value,
+		                                   const std::string& timezone = "Z");
+
+	protected:
+		void decodeValue(uint8_t const* data) const override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		Asn1GeneralizedTimeRecord() = default;
+		mutable std::string m_Timezone;
+	};
+
+	/// @class Asn1BitStringRecord
+	/// Represents an ASN.1 record with a value of type BitString
+	class Asn1BitStringRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1Record;
+
+	public:
+		/// A constructor to create a record of type BitString
+		/// @param value A bit string to set as the record value
+		/// @throw std::invalid_argument if the string is not a valid bit string
+		explicit Asn1BitStringRecord(const std::string& value);
+
+		/// @return The bit string value of this record
+		std::string getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value.toString();
+		};
+
+		/// @return The byte vector value of this record
+		std::vector<uint8_t> getVecValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value.toBytes();
+		}
+
+	protected:
+		void decodeValue(uint8_t const* data) const override;
+		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() const override;
+
+	private:
+		class BitSet
+		{
+		public:
+			BitSet() = default;
+			explicit BitSet(const std::string& value);
+			BitSet(const uint8_t* data, size_t numBits);
+
+			BitSet& operator=(const std::string& value);
+
+			size_t sizeInBytes() const;
+			std::string toString() const;
+			std::vector<uint8_t> toBytes() const;
+			size_t getNumBits() const
+			{
+				return m_NumBits;
+			}
+
+		private:
+			void initFromString(const std::string& value);
+
+			std::vector<std::bitset<8>> m_Data;
+			size_t m_NumBits = 0;
+		};
+
+		Asn1BitStringRecord() = default;
+
+		mutable BitSet m_Value;
 	};
 }  // namespace pcpp

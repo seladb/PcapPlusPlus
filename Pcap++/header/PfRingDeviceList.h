@@ -3,6 +3,7 @@
 // GCOVR_EXCL_START
 
 #include "PfRingDevice.h"
+#include "DeviceListBase.h"
 
 /// @file
 
@@ -13,10 +14,11 @@ namespace pcpp
 	/// @class PfRingDeviceList
 	/// A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING
 	/// devices or find a specific device by name
-	class PfRingDeviceList
+	class PfRingDeviceList : public internal::DeviceListBase<PfRingDevice>
 	{
 	private:
-		std::vector<std::unique_ptr<PfRingDevice>> m_PfRingDeviceList;
+		using Base = internal::DeviceListBase<PfRingDevice>;
+
 		std::vector<PfRingDevice*> m_PfRingDeviceListView;
 		std::string m_PfRingVersion;
 
@@ -46,7 +48,13 @@ namespace pcpp
 		/// Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
 		/// (e.g eth0, eth1, etc.)
 		/// @return A pointer to the PF_RING device
+		PCPP_DEPRECATED("Use `getDeviceByName`")
 		PfRingDevice* getPfRingDeviceByName(const std::string& devName) const;
+
+		/// Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
+		/// (e.g eth0, eth1, etc.)
+		/// @return A pointer to the PF_RING device
+		PfRingDevice* getDeviceByName(const std::string& devName) const;
 
 		/// Get installed PF_RING version
 		/// @return A string representing PF_RING version

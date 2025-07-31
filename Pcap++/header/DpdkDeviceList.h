@@ -4,6 +4,7 @@
 
 #include "SystemUtils.h"
 #include "DpdkDevice.h"
+#include "DeviceListBase.h"
 #include "Logger.h"
 #include <vector>
 
@@ -54,17 +55,19 @@ namespace pcpp
 	///      once in every application at its startup process
 	///    - it contains the list of DpdkDevice instances and enables access to them
 	///    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
-	class DpdkDeviceList
+	class DpdkDeviceList : internal::DeviceListBase<DpdkDevice>
 	{
 		friend class KniDeviceList;
 
 	private:
+		using Base = internal::DeviceListBase<DpdkDevice>;
+
 		bool m_IsInitialized;
 		static bool m_IsDpdkInitialized;
 		static uint32_t m_MBufPoolSizePerDevice;
 		static uint16_t m_MBufDataSize;
 		static CoreMask m_CoreMask;
-		std::vector<DpdkDevice*> m_DpdkDeviceList;
+		std::vector<DpdkDevice*> m_DpdkDeviceListView;
 		std::vector<DpdkWorkerThread*> m_WorkerThreads;
 
 		DpdkDeviceList();
@@ -139,7 +142,7 @@ namespace pcpp
 		/// @return A vector of all DpdkDevice instances
 		const std::vector<DpdkDevice*>& getDpdkDeviceList() const
 		{
-			return m_DpdkDeviceList;
+			return m_DpdkDeviceListView;
 		}
 
 		/// @return DPDK master core which is the core that initializes the application
