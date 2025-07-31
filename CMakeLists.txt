@@ -298,6 +298,7 @@ endif()
 if(MINGW)
   add_link_options(-static-libgcc -static-libstdc++)
   add_link_options(-static)
+  add_compile_options(-Wno-unused-function)
 endif()
 
 if(PCAPPP_TARGET_COMPILER_MSVC)
