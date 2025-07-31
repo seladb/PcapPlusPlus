@@ -105,6 +105,11 @@ namespace pcpp
 		/// @return The size of the decoded data
 		static size_t decodeToByteArray(const std::string& input, uint8_t* resultByteArr, size_t resultByteArrSize);
 
+		/// Get the expected decoded size of a Base64 string without actually decoding it
+		/// @param[in] input The Base64 string to be decoded
+		/// @return The expected size of the decoded data
+		static size_t getDecodedSize(const std::string& input);
+
 	private:
 		static constexpr uint32_t badChar = 0x01ffffff;
 		static constexpr char paddingChar = '=';

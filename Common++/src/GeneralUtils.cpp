@@ -527,7 +527,8 @@ namespace pcpp
 		size_t decodedSize = (input.size() * 3 / 4) - numPadding;
 		if (decodedSize > resultByteArrSize)
 		{
-			throw std::invalid_argument("Not enough space in result buffer for decoded data");
+			throw std::invalid_argument("Not enough space in result buffer for decoded data, " +
+			                            std::to_string(decodedSize) + " bytes are required");
 		}
 
 		auto bytes = reinterpret_cast<const uint8_t*>(input.data());
@@ -617,5 +618,26 @@ namespace pcpp
 		}
 
 		return decodedSize;
+	}
+
+	size_t Base64::getDecodedSize(const std::string& input)
+	{
+		if (input.empty())
+		{
+			return 0;
+		}
+
+		if (input.size() % 4 != 0)
+		{
+			throw std::invalid_argument("Invalid base64 encoded data - Size not divisible by 4");
+		}
+
+		const size_t numPadding = std::count(input.rbegin(), input.rbegin() + 4, paddingChar);
+		if (numPadding > 2)
+		{
+			throw std::invalid_argument("Invalid base64 encoded data - Found more than 2 padding characters");
+		}
+
+		return input.size() * 3 / 4 - numPadding;
 	}
 }  // namespace pcpp
