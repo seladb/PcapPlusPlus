@@ -169,14 +169,14 @@ namespace pcpp
 			return false;
 		}
 
-		uint8_t* newBuffer = new uint8_t[newBufferLength];
-		memset(newBuffer, 0, newBufferLength);
-		memcpy(newBuffer, m_RawData, m_RawDataLen);
-		if (m_DeleteRawDataAtDestructor)
-			delete[] m_RawData;
+		auto newBuffer = std::make_unique<uint8_t[]>(newBufferLength);
+		
+		// Copy the existing data into the new buffer and fill the rest with zeros
+		auto endIt = std::copy(newBuffer.get(), newBuffer.get() + m_RawDataLen, m_RawData);
+		std::fill(endIt, newBuffer.get() + newBufferLength, 0);
 
-		m_DeleteRawDataAtDestructor = true;
-		m_RawData = newBuffer;
+		// Assign the new buffer to the RawPacket instance
+		assignBuffer(newBuffer.release(), newBufferLength, m_RawDataLen, true);
 
 		return true;
 	}
