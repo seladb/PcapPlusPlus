@@ -744,9 +744,21 @@ namespace pcpp
 
 		if (newNlriDataLen > curNlriDataLen)
 		{
+			
+			// offsetInLayer, numOfBytesToExtend
+			//		int indexToInsertData = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
+			auto bytesToExtend = newNlriDataLen - curNlriDataLen;
+			if(m_Data != nullptr 
+				&& m_Packet != nullptr 
+				&& static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen()) + bytesToExtend < static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen()) )
+			{
+				PCPP_LOG_ERROR("Failed to extend BGP update layer, the new data length exceeds the raw packet's data length");
+				return false;
+			}
+			
 			bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
-			                           curPathAttributesDataLen,
-			                       newNlriDataLen - curNlriDataLen);
+										curPathAttributesDataLen,
+									bytesToExtend);
 			if (!res)
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
