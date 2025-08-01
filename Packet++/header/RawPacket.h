@@ -309,8 +309,12 @@ namespace pcpp
 			// segment or not.
 
 			// uint8_t* getRawData() = 0; <- maybe protected, so direct modification is not allowed? Expose maybe a span
-			// proxy instead for public? uint8_t const* getRawData() const = 0; int getRawDataLen() const = 0; <- should
-			// probably return size_t for consistency with modern C++ practices, but the current API uses int
+			// proxy instead for public?
+
+			// uint8_t const* getRawData() const = 0;
+
+			// int getRawDataLen() const = 0; <- should probably return size_t for consistency with modern C++
+			// practices, but the current API uses int
 
 			// Mutators:
 			// void setRawData(...) = 0;
