@@ -1,5 +1,7 @@
 #define LOG_MODULE PacketLogModuleRawPacket
 
+#define NOMINMAX
+
 #include "RawPacket.h"
 #include "Logger.h"
 #include "TimespecTimeval.h"
