@@ -76,7 +76,7 @@ namespace pcpp
 		{}
 
 		/// Currently parses the rest of the packet as a S7COMM or generic payload (PayloadLayer)
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// A static method that takes a byte array and detects whether it is a COTP
 		/// @param[in] data A byte array
