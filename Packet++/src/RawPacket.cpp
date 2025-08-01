@@ -55,6 +55,7 @@ namespace pcpp
 			return;
 
 		m_TimeStamp = other.m_TimeStamp;
+		m_LinkLayerType = other.m_LinkLayerType;
 
 		if (allocateData)
 		{
@@ -70,7 +71,6 @@ namespace pcpp
 		}
 
 		memcpy(m_RawData, other.m_RawData, other.m_RawDataLen);
-		m_LinkLayerType = other.m_LinkLayerType;
 		m_FrameLength = other.m_FrameLength;
 		m_RawPacketSet = true;
 	}
