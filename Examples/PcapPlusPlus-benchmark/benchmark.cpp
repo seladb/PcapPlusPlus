@@ -30,9 +30,11 @@ size_t count = 0;
 bool handle_dns(Packet& packet)
 {
 	if (!packet.isPacketOfType(DNS))
+	{
 		return true;
+	}
 
-	DnsLayer* dnsLayer = packet.getLayerOfType<DnsLayer>();
+	auto* dnsLayer = packet.getLayerOfType<DnsLayer>();
 
 	DnsQuery* query = dnsLayer->getFirstQuery();
 	while (query != nullptr)
@@ -51,7 +53,7 @@ bool handle_dns(Packet& packet)
 	return true;
 }
 
-bool handle_packet(Packet& packet)
+bool handle_packet(Packet& /*packet*/)
 {
 	count++;
 	return true;
@@ -64,8 +66,8 @@ int main(int argc, char* argv[])
 		std::cout << "Usage: " << *argv << " <input-file> <dns|packet> <repetitions>\n";
 		return 1;
 	}
-	std::string input_type(argv[2]);
-	int total_runs = std::stoi(argv[3]);
+	const std::string input_type(argv[2]);
+	const int total_runs = std::stoi(argv[3]);
 	size_t total_packets = 0;
 	std::vector<std::chrono::high_resolution_clock::duration> durations;
 	for (int i = 0; i < total_runs; ++i)
@@ -105,5 +107,5 @@ int main(int argc, char* argv[])
 	using std::chrono::duration_cast;
 	using std::chrono::milliseconds;
 	auto total_time_in_ms = duration_cast<milliseconds>(total_time).count();
-	std::cout << (total_packets / total_runs) << " " << (total_time_in_ms / durations.size()) << std::endl;
+	std::cout << (total_packets / total_runs) << " " << (total_time_in_ms / durations.size()) << '\n';
 }
