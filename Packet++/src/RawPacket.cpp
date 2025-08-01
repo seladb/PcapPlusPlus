@@ -143,6 +143,19 @@ namespace pcpp
 
 	bool RawPacket::reallocateData(size_t newBufferLength)
 	{
+		if (!m_CanReallocate)
+		{
+			PCPP_LOG_ERROR("Reallocation is not allowed for the RawPacket instance.");
+			return false;
+		}
+
+		if (newBufferLength > static_cast<size_t>(std::numeric_limits<int>::max()))
+		{
+			PCPP_LOG_ERROR("Cannot reallocate raw packet to a size larger than " << std::numeric_limits<int>::max()
+			                                                                     << " bytes");
+			return false;
+		}
+
 		if ((int)newBufferLength == m_RawDataLen)
 			return true;
 
