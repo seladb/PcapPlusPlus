@@ -77,11 +77,11 @@ namespace pcpp
 	                           int frameLength)
 	{
 		clear();
-		
+
 		m_TimeStamp = timestamp;
 		m_LinkLayerType = layerType;
 		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
-		
+
 		// Legacy behavior: If the raw data was owned before, assime ownership of the new data
 		bool ownsBuffer = m_DeleteRawDataAtDestructor;
 		assignBuffer(const_cast<uint8_t*>(pRawData), rawDataLen, rawDataLen, ownsBuffer);
@@ -170,7 +170,7 @@ namespace pcpp
 		}
 
 		auto newBuffer = std::make_unique<uint8_t[]>(newBufferLength);
-		
+
 		// Copy the existing data into the new buffer and fill the rest with zeros
 		auto endIt = std::copy(newBuffer.get(), newBuffer.get() + m_RawDataLen, m_RawData);
 		std::fill(endIt, newBuffer.get() + newBufferLength, 0);
