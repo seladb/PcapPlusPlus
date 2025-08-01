@@ -8,6 +8,7 @@ namespace pcpp
 	{
 		class MemoryLeakListener : public ::testing::EmptyTestEventListener
 		{
+		public:
 			void OnTestStart(const ::testing::TestInfo& testInfo) override;
 			void OnTestEnd(const ::testing::TestInfo& testInfo) override;
 		};
