@@ -10,7 +10,7 @@ namespace pcpp
 	{
 	public:
 		static std::string encode(const std::vector<uint8_t>& data, const std::string& label);
-		static std::vector<uint8_t> decode(const std::string& pemData);
+		static std::vector<uint8_t> decode(const std::string& pemData, const std::string& expectedLabel = "");
 
 	private:
 		static constexpr const char* pemDelimiter = "-----";

@@ -48,7 +48,7 @@ PTF_TEST_CASE(PemDecodingTest)
 			0x69, 0x8f, 0xf1, 0xff, 0xa5, 0xac, 0x93, 0xc4, 0xf5, 0x22, 0x40, 0xa5, 0x9e, 0x9f, 0x38, 0x58, 0x53, 0x10,
 			0x19, 0x02, 0x03, 0x01, 0x00, 0x01
 		};
-		auto decodedData = pcpp::PemCodec::decode(pem);
+		auto decodedData = pcpp::PemCodec::decode(pem, "PUBLIC KEY");
 		PTF_ASSERT_TRUE(decodedData == expectedData);
 	}
 
@@ -64,6 +64,8 @@ PTF_TEST_CASE(PemDecodingTest)
 	{
 		PTF_ASSERT_RAISES(pcpp::PemCodec::decode(""), std::invalid_argument, "Missing BEGIN or END in PEM data");
 		PTF_ASSERT_RAISES(pcpp::PemCodec::decode("foo"), std::invalid_argument, "Missing BEGIN or END in PEM data");
+		PTF_ASSERT_RAISES(pcpp::PemCodec::decode("-----BEGIN FOO-----\nERIT\n-----END FOO-----\n", "LABEL"),
+		                  std::invalid_argument, "Unexpected BEGIN label in PEM - expected 'LABEL' but got 'FOO'");
 		PTF_ASSERT_RAISES(pcpp::PemCodec::decode("-----BEGIN LABEL-----\nabc\n-----BEGIN LABEL-----\n"),
 		                  std::invalid_argument, "Unexpected BEGIN while already inside a PEM block");
 		PTF_ASSERT_RAISES(pcpp::PemCodec::decode("-----BEGIN -----"), std::invalid_argument,

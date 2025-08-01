@@ -25,7 +25,7 @@ namespace pcpp
 		return oss.str();
 	}
 
-	std::vector<uint8_t> PemCodec::decode(const std::string& pemData)
+	std::vector<uint8_t> PemCodec::decode(const std::string& pemData, const std::string& expectedLabel)
 	{
 		std::istringstream iss(pemData);
 		std::string line;
@@ -48,6 +48,12 @@ namespace pcpp
 				if (beginLabel.empty())
 				{
 					throw std::invalid_argument("Invalid BEGIN label in PEM");
+				}
+
+				if (!expectedLabel.empty() && beginLabel != expectedLabel)
+				{
+					throw std::invalid_argument("Unexpected BEGIN label in PEM - expected '" + expectedLabel +
+					                            "' but got '" + beginLabel + "'");
 				}
 
 				if (line.compare(line.size() - pemDelimiterLen, pemDelimiterLen, pemDelimiter) != 0)
