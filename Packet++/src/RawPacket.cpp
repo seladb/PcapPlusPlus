@@ -56,8 +56,14 @@ namespace pcpp
 
 		if (allocateData)
 		{
-			m_DeleteRawDataAtDestructor = true;
-			m_RawData = new uint8_t[other.m_RawDataLen];
+			// Allows reallocation as an internally managed buffer is assigned.
+			m_CanReallocate = true;
+
+			// Allocate and assign a new buffer to hold the raw data
+			auto newBuffer = std::make_unique<uint8_t[]>(other.m_RawDataLen);
+			assignBuffer(newBuffer.release(), other.m_RawDataLen, 0, true);
+
+			// TODO: Why is this here?
 			m_RawDataLen = other.m_RawDataLen;
 		}
 
