@@ -303,6 +303,22 @@ namespace pcpp
 			/// @return True if timestamp was set successfully, false otherwise
 			bool setPacketTimeStamp(timespec timestamp);
 
+			// To be implemented in derived classes:
+
+			// bool isContiguous() const = 0; <- eventually needed for MBufRawPacket to indicate if the mbuf is a single
+			// segment or not.
+
+			// uint8_t* getRawData() = 0; <- maybe protected, so direct modification is not allowed? Expose maybe a span
+			// proxy instead for public? uint8_t const* getRawData() const = 0; int getRawDataLen() const = 0; <- should
+			// probably return size_t for consistency with modern C++ practices, but the current API uses int
+
+			// Mutators:
+			// void setRawData(...) = 0;
+			// bool appendData(...) = 0;
+			// bool insertData(...) = 0;
+			// void removeData(...) = 0;
+			// void clear(...) = 0;
+
 		protected:
 			void setLinkLayerType(LinkLayerType linkLayerType)
 			{
