@@ -24,7 +24,8 @@ add_executable(
   "Tests/PointerVectorTests.cpp"
   "Tests/SystemUtilsTests.cpp"
   "Tests/TimespecTimevalTests.cpp"
-  "Utils/MemoryLeakListener.cpp")
+  "Utils/MemoryLeakListener.cpp"
+)
 
 target_link_libraries(Common++Test PRIVATE Common++ memplumber gtest gmock)
 

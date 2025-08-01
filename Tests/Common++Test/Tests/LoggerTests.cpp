@@ -87,7 +87,6 @@ namespace pcpp
 
 #pragma pop_macro("LOG_MODULE")
 
-
 		Logger& m_Logger;
 		std::unique_ptr<LogCallbackMock> m_LogCallbackMock;
 	};
