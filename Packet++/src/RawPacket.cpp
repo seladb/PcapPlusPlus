@@ -153,6 +153,25 @@ namespace pcpp
 		return true;
 	}
 
+	bool RawPacket::canInsertData(size_t dataLength) const
+	{
+		return m_Capacity <= dataLength + m_RawDataLen;
+	}
+
+	void RawPacket::assignBuffer(uint8_t* buffer, size_t capacity, size_t usedLength, bool ownsBuffer)
+	{
+		// TODO: Free old buffer if it was allocated
+		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
+		{
+			delete[] m_RawData;
+		}
+
+		m_RawData = buffer;
+		m_Capacity = capacity;
+		m_RawDataLen = usedLength;
+		m_DeleteRawDataAtDestructor = ownsBuffer;
+	}
+
 	bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 	{
 		if ((atIndex + (int)numOfBytesToRemove) > m_RawDataLen)

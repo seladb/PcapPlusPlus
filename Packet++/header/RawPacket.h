@@ -258,8 +258,6 @@ namespace pcpp
 	class RawPacket
 	{
 	protected:
-		uint8_t* m_RawData = nullptr;
-		int m_RawDataLen = 0;
 		int m_FrameLength = 0;
 		timespec m_TimeStamp{};  // Zero initialized
 		bool m_DeleteRawDataAtDestructor = true;
@@ -461,6 +459,28 @@ namespace pcpp
 		/// allocate the memory
 		/// @return True if data was reallocated successfully, false otherwise
 		virtual bool reallocateData(size_t newBufferLength);
+
+	protected:
+		/// @brief Checks if a data block will fit in the current buffer by comparing the current capacity with the
+		/// current length + new data length.
+		/// @param dataLength The length of the data to be inserted or appended.
+		/// @return True if the data can be inserted or appended without exceeding the current capacity, false
+		/// otherwise.
+		bool canInsertData(size_t dataLength) const;
+
+		/// @brief Assigns a new buffer to the RawPacket instance.
+		/// The previous buffer is freed if owned by this instance.
+		/// @param buffer A pointer to the new buffer to assign.
+		/// @param capacity The capacity of the new buffer in bytes.
+		/// @param usedLength The length of the data currently in the buffer. Default is 0, meaning the buffer is empty.
+		/// @param ownsBuffer Indicates whether this instance owns the buffer and is responsible for freeing it.
+		void assignBuffer(uint8_t* buffer, size_t capacity, size_t usedLength = 0, bool ownsBuffer = true);
+
+	private:
+		uint8_t* m_RawData = nullptr;  // Pointer to the raw data buffer
+		int m_RawDataLen = 0;          // The length of the raw data in bytes
+		size_t m_Capacity = 0;         // The current capacity of the raw data buffer
+		bool m_CanReallocate = true;   // Indicates whether reallocation of the raw data is allowed
 	};
 
 }  // namespace pcpp
