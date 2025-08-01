@@ -78,12 +78,15 @@ namespace pcpp
 	{
 		clear();
 
-		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
-		m_RawData = (uint8_t*)pRawData;
-		m_RawDataLen = rawDataLen;
 		m_TimeStamp = timestamp;
-		m_RawPacketSet = true;
 		m_LinkLayerType = layerType;
+		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
+		
+		// Legacy behavior: If the raw data was owned before, assime ownership of the new data
+		bool ownsBuffer = m_DeleteRawDataAtDestructor;
+		assignBuffer(const_cast<uint8_t*>(pRawData), rawDataLen, rawDataLen, ownsBuffer);
+
+		m_RawPacketSet = true;
 		return true;
 	}
 
