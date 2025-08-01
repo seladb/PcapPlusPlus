@@ -77,7 +77,7 @@ namespace pcpp
 	                           int frameLength)
 	{
 		clear();
-
+		
 		m_TimeStamp = timestamp;
 		m_LinkLayerType = layerType;
 		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
