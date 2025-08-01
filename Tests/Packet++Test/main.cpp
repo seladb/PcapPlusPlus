@@ -155,6 +155,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(RemoveLayerTest, "packet;remove_layer");
 	PTF_RUN_TEST(CopyLayerAndPacketTest, "packet;copy_layer");
 	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
+	PTF_RUN_TEST(RawPacketTestCopy, "packet");
 	PTF_RUN_TEST(RawPacketTimeStampSetterTest, "packet");
 	PTF_RUN_TEST(ParsePartialPacketTest, "packet;partial_packet");
 	PTF_RUN_TEST(PacketTrailerTest, "packet;packet_trailer");

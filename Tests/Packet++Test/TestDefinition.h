@@ -53,6 +53,7 @@ PTF_TEST_CASE(InsertVlanToPacket);
 PTF_TEST_CASE(RemoveLayerTest);
 PTF_TEST_CASE(CopyLayerAndPacketTest);
 PTF_TEST_CASE(PacketLayerLookupTest);
+PTF_TEST_CASE(RawPacketTestCopy);
 PTF_TEST_CASE(RawPacketTimeStampSetterTest);
 PTF_TEST_CASE(ParsePartialPacketTest);
 PTF_TEST_CASE(PacketTrailerTest);

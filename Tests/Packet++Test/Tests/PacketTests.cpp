@@ -612,6 +612,29 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 	}
 }  // PacketLayerLookupTest
 
+PTF_TEST_CASE(RawPacketTestCopy)
+{
+	pcpp::RawPacket packet1;
+	packet1.reallocateData(10);
+	packet1.appendData((const uint8_t*)"1234567890", 10);
+
+	PTF_ASSERT_EQUAL(packet1.getRawDataLen(), 10);
+
+	pcpp::RawPacket packet2(packet1);  // copy constructor
+
+	PTF_ASSERT_EQUAL(packet2.getRawDataLen(), 10);
+	PTF_ASSERT_TRUE(packet2.getRawData() != packet1.getRawData());
+	PTF_ASSERT_BUF_COMPARE(packet2.getRawData(), packet1.getRawData(), 10);
+
+	pcpp::RawPacket packet3;
+
+	packet3 = packet1;  // assignment operator
+
+	PTF_ASSERT_EQUAL(packet3.getRawDataLen(), 10);
+	PTF_ASSERT_TRUE(packet3.getRawData() != packet1.getRawData());
+	PTF_ASSERT_BUF_COMPARE(packet3.getRawData(), packet1.getRawData(), 10);
+}
+
 PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 {
 	timeval time;
