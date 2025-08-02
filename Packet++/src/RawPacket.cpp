@@ -1,5 +1,7 @@
 #define LOG_MODULE PacketLogModuleRawPacket
 
+#define NOMINMAX
+
 #include "RawPacket.h"
 #include "Logger.h"
 #include "TimespecTimeval.h"
@@ -53,16 +55,22 @@ namespace pcpp
 			return;
 
 		m_TimeStamp = other.m_TimeStamp;
+		m_LinkLayerType = other.m_LinkLayerType;
 
 		if (allocateData)
 		{
-			m_DeleteRawDataAtDestructor = true;
-			m_RawData = new uint8_t[other.m_RawDataLen];
+			// Allows reallocation as an internally managed buffer is assigned.
+			m_CanReallocate = true;
+
+			// Allocate and assign a new buffer to hold the raw data
+			auto newBuffer = std::make_unique<uint8_t[]>(other.m_RawDataLen);
+			assignBuffer(newBuffer.release(), other.m_RawDataLen, 0, true);
+
+			// TODO: Why is this here?
 			m_RawDataLen = other.m_RawDataLen;
 		}
 
 		memcpy(m_RawData, other.m_RawData, other.m_RawDataLen);
-		m_LinkLayerType = other.m_LinkLayerType;
 		m_FrameLength = other.m_FrameLength;
 		m_RawPacketSet = true;
 	}
@@ -78,12 +86,15 @@ namespace pcpp
 	{
 		clear();
 
-		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
-		m_RawData = (uint8_t*)pRawData;
-		m_RawDataLen = rawDataLen;
 		m_TimeStamp = timestamp;
-		m_RawPacketSet = true;
 		m_LinkLayerType = layerType;
+		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
+
+		// Legacy behavior: If the raw data was owned before, assime ownership of the new data
+		bool ownsBuffer = m_DeleteRawDataAtDestructor;
+		assignBuffer(const_cast<uint8_t*>(pRawData), rawDataLen, rawDataLen, ownsBuffer);
+
+		m_RawPacketSet = true;
 		return true;
 	}
 
@@ -107,6 +118,12 @@ namespace pcpp
 
 	void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 	{
+		if (canInsertData(dataToAppendLen) == false)
+		{
+			// TODO: Reallocate data if possible
+			throw std::runtime_error("Cannot insert data into raw packet: insufficient capacity");
+		}
+
 		memcpy((uint8_t*)m_RawData + m_RawDataLen, dataToAppend, dataToAppendLen);
 		m_RawDataLen += dataToAppendLen;
 		m_FrameLength = m_RawDataLen;
@@ -114,6 +131,12 @@ namespace pcpp
 
 	void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 	{
+		if (canInsertData(dataToInsertLen) == false)
+		{
+			// TODO: Reallocate data if possible
+			throw std::runtime_error("Cannot insert data into raw packet: insufficient capacity");
+		}
+
 		// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on
 		// overlapping src/dest ptrs if insertData is called with atIndex == m_RawDataLen, then no data is being moved.
 		// The data of the raw packet is still extended by dataToInsertLen
@@ -131,6 +154,19 @@ namespace pcpp
 
 	bool RawPacket::reallocateData(size_t newBufferLength)
 	{
+		if (!m_CanReallocate)
+		{
+			PCPP_LOG_ERROR("Reallocation is not allowed for the RawPacket instance.");
+			return false;
+		}
+
+		if (newBufferLength > static_cast<size_t>(std::numeric_limits<int>::max()))
+		{
+			PCPP_LOG_ERROR("Cannot reallocate raw packet to a size larger than " << std::numeric_limits<int>::max()
+			                                                                     << " bytes");
+			return false;
+		}
+
 		if ((int)newBufferLength == m_RawDataLen)
 			return true;
 
@@ -141,16 +177,35 @@ namespace pcpp
 			return false;
 		}
 
-		uint8_t* newBuffer = new uint8_t[newBufferLength];
-		memset(newBuffer, 0, newBufferLength);
-		memcpy(newBuffer, m_RawData, m_RawDataLen);
-		if (m_DeleteRawDataAtDestructor)
-			delete[] m_RawData;
+		auto newBuffer = std::make_unique<uint8_t[]>(newBufferLength);
 
-		m_DeleteRawDataAtDestructor = true;
-		m_RawData = newBuffer;
+		// Copy the existing data into the new buffer and fill the rest with zeros
+		auto endIt = std::copy(newBuffer.get(), newBuffer.get() + m_RawDataLen, m_RawData);
+		std::fill(endIt, newBuffer.get() + newBufferLength, 0);
+
+		// Assign the new buffer to the RawPacket instance
+		assignBuffer(newBuffer.release(), newBufferLength, m_RawDataLen, true);
 
 		return true;
+	}
+
+	bool RawPacket::canInsertData(size_t dataLength) const
+	{
+		return m_Capacity <= dataLength + m_RawDataLen;
+	}
+
+	void RawPacket::assignBuffer(uint8_t* buffer, size_t capacity, size_t usedLength, bool ownsBuffer)
+	{
+		// TODO: Free old buffer if it was allocated
+		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
+		{
+			delete[] m_RawData;
+		}
+
+		m_RawData = buffer;
+		m_Capacity = capacity;
+		m_RawDataLen = usedLength;
+		m_DeleteRawDataAtDestructor = ownsBuffer;
 	}
 
 	bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
