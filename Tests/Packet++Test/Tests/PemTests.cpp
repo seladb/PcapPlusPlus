@@ -21,6 +21,13 @@ PTF_TEST_CASE(PemEncodingTest)
 		    "-----BEGIN LABEL-----\nAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8w\nMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUo=\n-----END LABEL-----\n";
 		PTF_ASSERT_EQUAL(pcpp::PemCodec::encode(data, "LABEL"), expectedPem);
 	}
+
+	// Invalid arguments
+	{
+		PTF_ASSERT_RAISES(pcpp::PemCodec::encode({ 0x10, 0x11, 0x12 }, ""), std::invalid_argument,
+		                  "PEM label cannot be empty");
+		PTF_ASSERT_RAISES(pcpp::PemCodec::encode({}, "LABEL"), std::invalid_argument, "PEM data cannot be empty");
+	}
 }
 
 PTF_TEST_CASE(PemDecodingTest)

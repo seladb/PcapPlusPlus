@@ -8,6 +8,16 @@ namespace pcpp
 {
 	std::string PemCodec::encode(const std::vector<uint8_t>& data, const std::string& label)
 	{
+		if (label.empty())
+		{
+			throw std::invalid_argument("PEM label cannot be empty");
+		}
+
+		if (data.empty())
+		{
+			throw std::invalid_argument("PEM data cannot be empty");
+		}
+
 		auto base64Str = Base64::encode(data);
 		std::ostringstream oss;
 
