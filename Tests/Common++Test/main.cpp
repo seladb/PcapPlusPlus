@@ -21,8 +21,6 @@ int main(int argc, char* argv[])
 	// Disables context pooling to avoid false positives in the memory leak check, as the contexts persist in the pool.
 	pcpp::Logger::getInstance().useContextPooling(false);
 
-	auto& eventListeners = ::testing::UnitTest::GetInstance()->listeners();
-
 #ifdef NDEBUG
 	// TODO: Do we still need this? The issue seems to be closed?
 	std::cout
@@ -33,6 +31,7 @@ int main(int argc, char* argv[])
 	// GTest sometimes allocates memory? which isn't freed before TearDown is called causing false positives and
 	// crashes.
 
+	// auto& eventListeners = ::testing::UnitTest::GetInstance()->listeners();
 	// eventListeners.Append(new pcpp::test::MemoryLeakListener());
 #endif
 
