@@ -89,6 +89,42 @@ PTF_TEST_CASE(DnsOverTcpParsingTest);
 PTF_TEST_CASE(DnsOverTcpCreationTest);
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest);
 
+// Implemented in DoIpTests.cpp
+PTF_TEST_CASE(DoIpRoutActReqParsing);
+PTF_TEST_CASE(DoIpRoutActReqCreation);
+PTF_TEST_CASE(DoIpRoutActResParsing);
+PTF_TEST_CASE(DoIpRoutActResCreation);
+PTF_TEST_CASE(DoIpGenHdrNackParsing);
+PTF_TEST_CASE(DoIpGenHdrNackCreation);
+PTF_TEST_CASE(DoIpVehIdenReqWithEIDParsing);
+PTF_TEST_CASE(DoIpVehIdenReqWithEIDCreation);
+PTF_TEST_CASE(DoIpVehIdenReqWithVINParsing);
+PTF_TEST_CASE(DoIpVehIdenReqWithVINCreation);
+PTF_TEST_CASE(DoIpVehAnnMessParsing);
+PTF_TEST_CASE(DoIpVehAnnMessCreation);
+PTF_TEST_CASE(DoIpAliveCheckRespParsing);
+PTF_TEST_CASE(DoIpAliveCheckRespCreation);
+PTF_TEST_CASE(DoIpDiagPowerModeRespParsing);
+PTF_TEST_CASE(DoIpDiagPowerModeRespCreation);
+PTF_TEST_CASE(DoIpEntityStatusRespParsing);
+PTF_TEST_CASE(DoIpEntityStatusRespCreation);
+PTF_TEST_CASE(DoIpDiagMessParsing);
+PTF_TEST_CASE(DoIpDiagMessCreation);
+PTF_TEST_CASE(DoIpDiagMessAckParsing);
+PTF_TEST_CASE(DoIpDiagMessAckCreation);
+PTF_TEST_CASE(DoIpDiagMessNackParsing);
+PTF_TEST_CASE(DoIpDiagMessNackCreation);
+PTF_TEST_CASE(DoIpVehIdenReqParsing);
+PTF_TEST_CASE(DoIpVehIdenReqCreation);
+PTF_TEST_CASE(DoIpDiagPowerModeReqParsing);
+PTF_TEST_CASE(DoIpDiagPowerModeReqCreation);
+PTF_TEST_CASE(DoIpEntityStatusReqParsing);
+PTF_TEST_CASE(DoIpEntityStatusReqCreation);
+PTF_TEST_CASE(DoIpAliveCheckReqParsing);
+PTF_TEST_CASE(DoIpAliveCheckReqCreation);
+PTF_TEST_CASE(DoIpVehIdenReqWithDefVersParsing);
+PTF_TEST_CASE(DoIpInvalidPackets);
+
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);
 PTF_TEST_CASE(IcmpCreationTest);
