@@ -636,7 +636,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
-			return OsiModelTransportLayer;
+			return OsiModelApplicationLayer;
 		}
 
 	private:
