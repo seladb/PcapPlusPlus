@@ -47,9 +47,9 @@ namespace pcpp
 		return getModbusHeader()->unitId;
 	}
 
-	uint8_t ModbusLayer::getFunctionCode() const
+	modbus_function_code ModbusLayer::getFunctionCode() const
 	{
-		return getModbusHeader()->functionCode;
+		return static_cast<modbus_function_code>(getModbusHeader()->functionCode);
 	}
 
 	void ModbusLayer::setTransactionId(uint16_t transactionId)

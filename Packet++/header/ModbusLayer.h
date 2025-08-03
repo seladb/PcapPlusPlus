@@ -29,6 +29,19 @@ namespace pcpp
 #pragma pack(pop)
 	static_assert(sizeof(modbus_header) == 8, "modbus_header size is not 8 bytes");
 
+	/// @enum modbus_function_code
+	enum modbus_function_code
+	{
+		MODBUS_READ_COILS = 1,
+		MODBUS_READ_DISCRETE_INPUTS = 2,
+		MODBUS_READ_HOLDING_REGISTERS = 3,
+		MODBUS_READ_INPUT_REGISTERS = 4,
+		MODBUS_WRITE_SINGLE_COIL = 5,
+		MODBUS_WRITE_SINGLE_REGISTER = 6,
+		MODBUS_WRITE_MULTIPLE_COILS = 15,
+		MODBUS_WRITE_MULTIPLE_REGISTERS = 16
+	};
+
 	/// @class ModbusLayer
 	/// Represents the MODBUS Application Protocol layer
 	class ModbusLayer : public Layer
@@ -74,7 +87,7 @@ namespace pcpp
 		uint8_t getUnitId() const;
 
 		/// @return MODBUS function code
-		uint8_t getFunctionCode() const;
+		modbus_function_code getFunctionCode() const;
 
 		/// @brief set the MODBUS transaction id
 		/// @param transactionId transaction id
