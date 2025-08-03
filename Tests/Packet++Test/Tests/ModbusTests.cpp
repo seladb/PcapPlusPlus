@@ -7,6 +7,17 @@
 
 PTF_TEST_CASE(ModbusLayerCreationTest)
 {
+
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ModbusRequest.dat");
+
+	pcpp::Packet realPacket(&rawPacket1);
+	PTF_ASSERT_TRUE(realPacket.isPacketOfType(pcpp::Modbus));
+
+	pcpp::ModbusLayer* modbusLayerFromRealPacket = realPacket.getLayerOfType<pcpp::ModbusLayer>();
+
 	pcpp::ModbusLayer modbusLayer(12345, 1, 3);
 
 	PTF_ASSERT_EQUAL(modbusLayer.getTransactionId(), 12345);
@@ -42,12 +53,12 @@ PTF_TEST_CASE(ModbusLayerParsingTest)
 
 	pcpp::ModbusLayer* modbusLayer = packet.getLayerOfType<pcpp::ModbusLayer>();
 	PTF_ASSERT_NOT_NULL(modbusLayer);
-	PTF_ASSERT_EQUAL(modbusLayer->getTransactionId(), 0);
+	PTF_ASSERT_EQUAL(modbusLayer->getTransactionId(), 1);
 	PTF_ASSERT_EQUAL(modbusLayer->getProtocolId(), 0);
-	PTF_ASSERT_EQUAL(modbusLayer->getLength(), 2);
+	PTF_ASSERT_EQUAL(modbusLayer->getLength(), 6);
 	PTF_ASSERT_EQUAL(modbusLayer->getUnitId(), 10);
-	PTF_ASSERT_EQUAL(modbusLayer->getFunctionCode(), 17);
+	PTF_ASSERT_EQUAL(modbusLayer->getFunctionCode(), 1);
 
 	PTF_ASSERT_EQUAL(modbusLayer->toString(),
-	                 "Modbus Layer, Transaction ID: 12345, Protocol ID: 0, Length: 2, Unit ID: 1, Function Code: 3");
+	                 "Modbus Layer, Transaction ID: 1, Protocol ID: 0, Length: 6, Unit ID: 10, Function Code: 1");
 }  // ModbusLayerParsingTest
