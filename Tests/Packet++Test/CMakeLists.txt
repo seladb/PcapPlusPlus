@@ -9,6 +9,7 @@ add_executable(
   Tests/DhcpTests.cpp
   Tests/DhcpV6Tests.cpp
   Tests/DnsTests.cpp
+  Tests/DoIpTests.cpp
   Tests/EthAndArpTests.cpp
   Tests/FtpTests.cpp
   Tests/GreTests.cpp
