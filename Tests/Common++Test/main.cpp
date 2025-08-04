@@ -23,12 +23,14 @@ int main(int argc, char* argv[])
 
 #ifdef NDEBUG
 	// TODO: Do we still need this? The issue seems to be closed?
+	// clang-format off
 	/*
 	std::cout
 	    << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:\n"
 	       "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958"
 	    << std::endl;
 	*/
+	// clang-format on
 #else
 	// GTest sometimes allocates memory? which isn't freed before TearDown is called causing false positives and
 	// crashes.
