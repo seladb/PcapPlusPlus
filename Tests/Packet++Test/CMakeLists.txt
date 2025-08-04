@@ -27,6 +27,7 @@ add_executable(
   Tests/NtpTests.cpp
   Tests/PacketTests.cpp
   Tests/PacketUtilsTests.cpp
+  Tests/PemTests.cpp
   Tests/PPPoETests.cpp
   Tests/RadiusTests.cpp
   Tests/S7CommTests.cpp

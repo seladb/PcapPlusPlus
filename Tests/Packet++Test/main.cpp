@@ -392,5 +392,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(Base64EncodingTest, "base64");
 	PTF_RUN_TEST(Base64DecodingTest, "base64");
 
+	PTF_RUN_TEST(PemEncodingTest, "pem");
+	PTF_RUN_TEST(PemDecodingTest, "pem");
+
 	PTF_END_RUNNING_TESTS;
 }

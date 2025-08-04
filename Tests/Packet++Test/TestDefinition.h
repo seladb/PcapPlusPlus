@@ -327,3 +327,7 @@ PTF_TEST_CASE(X509ExtensionDataTest);
 // Implemented in Base64Tests.cpp
 PTF_TEST_CASE(Base64EncodingTest);
 PTF_TEST_CASE(Base64DecodingTest);
+
+// Implemented in PemTests.cpp
+PTF_TEST_CASE(PemEncodingTest);
+PTF_TEST_CASE(PemDecodingTest);
