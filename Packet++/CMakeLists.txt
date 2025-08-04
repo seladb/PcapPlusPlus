@@ -39,6 +39,7 @@ add_library(
   src/PacketTrailerLayer.cpp
   src/PacketUtils.cpp
   src/PayloadLayer.cpp
+  src/PemCodec.cpp
   src/PPPoELayer.cpp
   src/RadiusLayer.cpp
   src/RawPacket.cpp
@@ -114,6 +115,7 @@ set(
   header/PacketTrailerLayer.h
   header/PacketUtils.h
   header/PayloadLayer.h
+  header/PemCodec.h
   header/PPPoELayer.h
   header/ProtocolType.h
   header/RadiusLayer.h
