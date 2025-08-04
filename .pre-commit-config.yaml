@@ -1,4 +1,4 @@
-exclude: '.*\.(pcap|pcapng|dat)|(PacketExamples|PcapExamples|expected_output|pcap_examples).*\.txt'
+exclude: '.*\.(pcap|pcapng|dat)|(PacketExamples|PcapExamples|expected_output|pcap_examples).*\.txt|3rdParty/googletest-1.16.0/googletest/*'
 fail_fast: false
 repos:
   - repo: local
