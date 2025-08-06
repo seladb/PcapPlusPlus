@@ -11,6 +11,7 @@
 #include "BgpLayer.h"
 #include "SSHLayer.h"
 #include "DnsLayer.h"
+#include "DoIpLayer.h"
 #include "TelnetLayer.h"
 #include "TpktLayer.h"
 #include "FtpLayer.h"
@@ -428,6 +429,13 @@ namespace pcpp
 		else if (FtpLayer::isFtpDataPort(portSrc) || FtpLayer::isFtpDataPort(portDst))
 		{
 			constructNextLayer<FtpDataLayer>(payload, payloadLen, m_Packet);
+		}
+		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
+		         (DoIpLayer::isDataValid(payload, payloadLen)))
+		{
+			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet);
+			if (!m_NextLayer)
+				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
 		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{
