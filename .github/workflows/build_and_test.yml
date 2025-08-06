@@ -499,8 +499,10 @@ jobs:
         include:
           - env: i686
             sys: mingw32
+            pcap_lib: "winpcap"
           - env: x86_64
             sys: mingw64
+            pcap_lib: "winpcap"
 
     steps:
       - name: Checkout code
@@ -528,11 +530,18 @@ jobs:
         run: |
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
+        if: matrix.pcap_lib == 'npcap'
+
+      - name: Install WinPcap
+        run: |
+          ci\install_winpcap.bat
+          echo "PCAP_SDK_DIR=/C/WpdPack" >> $env:GITHUB_ENV
+        if: matrix.pcap_lib == 'winpcap'
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
-          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+          cmake -G "MinGW Makefiles" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
@@ -581,7 +590,7 @@ jobs:
           - os: windows-2025
             platform: "Visual Studio 17 2022"
             arch: Win32
-            pcap_lib: "npcap"
+            pcap_lib: "winpcap"
           - os: windows-2025
             platform: "Visual Studio 17 2022"
             arch: "x64"
@@ -589,7 +598,7 @@ jobs:
           - os: windows-2022
             platform: "Visual Studio 17 2022"
             arch: "x64"
-            pcap_lib: "npcap"
+            pcap_lib: "winpcap"
 
     runs-on: ${{ matrix.os }}
     steps:

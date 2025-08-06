@@ -11,6 +11,7 @@ add_library(
   src/DnsLayer.cpp
   src/DnsResource.cpp
   src/DnsResourceData.cpp
+  src/DoIpLayer.cpp
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
@@ -38,6 +39,7 @@ add_library(
   src/PacketTrailerLayer.cpp
   src/PacketUtils.cpp
   src/PayloadLayer.cpp
+  src/PemCodec.cpp
   src/PPPoELayer.cpp
   src/RadiusLayer.cpp
   src/RawPacket.cpp
@@ -85,6 +87,7 @@ set(
   header/DnsLayer.h
   header/DnsResourceData.h
   header/DnsResource.h
+  header/DoIpLayer.h
   header/EthDot3Layer.h
   header/EthLayer.h
   header/FtpLayer.h
@@ -112,6 +115,7 @@ set(
   header/PacketTrailerLayer.h
   header/PacketUtils.h
   header/PayloadLayer.h
+  header/PemCodec.h
   header/PPPoELayer.h
   header/ProtocolType.h
   header/RadiusLayer.h
