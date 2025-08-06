@@ -766,8 +766,17 @@ namespace pcpp
 		/// @throws An exception if the file doesn't exist, cannot be read or contains invalid data
 		static std::unique_ptr<X509Certificate> fromDERFile(const std::string& derFileName);
 
+		/// Creates an X509Certificate from PEM-encoded data
+		/// @param[in] pemData PEM-encoded certificate data
+		/// @return A unique pointer to the created X509Certificate
+		/// @throws std::invalid_argument exception if the data is not a valid PEM-encoded certificate
 		static std::unique_ptr<X509Certificate> fromPEM(const std::string& pemData);
 
+		/// Creates an X509Certificate from a file containing PEM-encoded data
+		/// @param[in] pemFileName Path to the file containing PEM-encoded certificate
+		/// @return A unique pointer to the created X509Certificate
+		/// @throws std::runtime_error exception if the file doesn't exist or cannot be read
+		/// @throws std::invalid_argument exception if the data is not a valid PEM-encoded certificate
 		static std::unique_ptr<X509Certificate> fromPEMFile(const std::string& pemFileName);
 
 		/// Gets the version of the certificate
@@ -828,6 +837,8 @@ namespace pcpp
 		/// @return A byte vector containing the DER-encoded data
 		std::vector<uint8_t> toDER() const;
 
+		/// Converts the certificate to PEM-encoded format
+		/// @return A string containing the PEM-encoded data
 		std::string toPEM() const;
 
 		/// Converts the certificate to a JSON string representation
