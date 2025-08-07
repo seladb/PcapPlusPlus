@@ -223,7 +223,7 @@ namespace pcpp
 	/// Diagnostic over IP protocol (DOIP)
 	const ProtocolType DOIP = 59;
 
-  /// Modbus protocol
+	/// Modbus protocol
 	const ProtocolType Modbus = 60;
 
 	/// An enum representing OSI model layers
