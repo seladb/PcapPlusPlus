@@ -287,6 +287,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 52. Telnet - parsing only (no editing capabilities)
 53. X509 certificates - parsing only (no editing capabilities)
 54. Generic payload
+55. Modbus
 
 ## DPDK And PF_RING Support
 
