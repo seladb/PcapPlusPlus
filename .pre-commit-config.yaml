@@ -22,7 +22,7 @@ repos:
         args: ['--fix=lf']
       - id: trailing-whitespace
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.1
+    rev: v0.12.7
     hooks:
       - id: ruff # Run the linter.
         types_or: [ python ]
@@ -36,9 +36,9 @@ repos:
         args: ["--style=file", "-i"]  # Use the .clang-format file for configuration and apply all fixes
         files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
-        args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force", "--library=googletest"]
+        args: ["--std=c++14", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force", "--library=googletest"]
   - repo: https://github.com/BlankSpruce/gersemi
-    rev: 0.19.3
+    rev: 0.21.0
     hooks:
     - id: gersemi
       args: ["-c"]
@@ -48,7 +48,7 @@ repos:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.34.0
+    rev: v1.35.1
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
