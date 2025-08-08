@@ -1222,12 +1222,29 @@ namespace pcpp
 
 	Asn1SequenceRecord* SSLx509Certificate::getRootAsn1Record()
 	{
+		if (!m_AllDataExists)
+		{
+			PCPP_LOG_WARN("Certificate data is not complete, cannot parse ASN.1 record");
+			return nullptr;
+		}
+
 		if (m_Asn1Record == nullptr)
 		{
 			m_Asn1Record = Asn1Record::decode(m_Data, m_DataLen);
 		}
 
 		return m_Asn1Record->castAs<Asn1SequenceRecord>();
+	}
+
+	std::unique_ptr<X509Certificate> SSLx509Certificate::getX509Certificate()
+	{
+		if (!m_AllDataExists)
+		{
+			PCPP_LOG_WARN("Certificate data is not complete, cannot parse X509 certificate");
+			return nullptr;
+		}
+
+		return X509Certificate::fromDER(m_Data, m_DataLen);
 	}
 
 	// ---------------------------
