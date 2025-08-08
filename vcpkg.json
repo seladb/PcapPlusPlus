@@ -9,10 +9,6 @@
     "license": null,
     "dependencies": [
         {
-            "name": "libpcap",
-            "platform": "!windows"
-        },
-        {
             "name": "vcpkg-cmake",
             "host": true
         },
@@ -25,9 +21,18 @@
         {
             "name": "winpcap",
             "platform": "windows"
+        },
+        {
+            "name": "libpcap",
+            "platform": "!windows"
         }
     ],
     "features": {
+        "libpcap": {
+            "description": "PcapPlusPlus with libpcap backend",
+            "dependencies": [ "libpcap" ],
+            "supports": "!windows"
+        },
         "winpcap": {
             "description": "PcapPlusPlus with WinPcap backend",
             "dependencies": [ "winpcap" ],
