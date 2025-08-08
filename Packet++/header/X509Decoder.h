@@ -766,6 +766,19 @@ namespace pcpp
 		/// @throws An exception if the file doesn't exist, cannot be read or contains invalid data
 		static std::unique_ptr<X509Certificate> fromDERFile(const std::string& derFileName);
 
+		/// Creates an X509Certificate from PEM-encoded data
+		/// @param[in] pemData PEM-encoded certificate data
+		/// @return A unique pointer to the created X509Certificate
+		/// @throws std::invalid_argument exception if the data is not a valid PEM-encoded certificate
+		static std::unique_ptr<X509Certificate> fromPEM(const std::string& pemData);
+
+		/// Creates an X509Certificate from a file containing PEM-encoded data
+		/// @param[in] pemFileName Path to the file containing PEM-encoded certificate
+		/// @return A unique pointer to the created X509Certificate
+		/// @throws std::runtime_error exception if the file doesn't exist or cannot be read
+		/// @throws std::invalid_argument exception if the data is not a valid PEM-encoded certificate
+		static std::unique_ptr<X509Certificate> fromPEMFile(const std::string& pemFileName);
+
 		/// Gets the version of the certificate
 		/// @return The X509Version of the certificate
 		X509Version getVersion() const;
@@ -824,6 +837,10 @@ namespace pcpp
 		/// @return A byte vector containing the DER-encoded data
 		std::vector<uint8_t> toDER() const;
 
+		/// Converts the certificate to PEM-encoded format
+		/// @return A string containing the PEM-encoded data
+		std::string toPEM() const;
+
 		/// Converts the certificate to a JSON string representation
 		/// @param[in] indent Number of spaces to use for indentation (-1 for no pretty printing)
 		/// @return A JSON string representation of the certificate
@@ -847,5 +864,7 @@ namespace pcpp
 		mutable std::vector<X509Extension> m_Extensions;
 		mutable bool m_ExtensionsParsed = false;
 		std::unique_ptr<uint8_t[]> m_DerData;
+
+		static constexpr const char* certificatePemLabel = "CERTIFICATE";
 	};
 }  // namespace pcpp
