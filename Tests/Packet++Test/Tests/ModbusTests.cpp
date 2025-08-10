@@ -18,18 +18,18 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 	PTF_ASSERT_TRUE(realPacket.isPacketOfType(pcpp::Modbus));
 	pcpp::ModbusLayer* modbusLayerFromRealPacket = realPacket.getLayerOfType<pcpp::ModbusLayer>();
 
-	pcpp::ModbusLayer modbusLayer(0, 10, 17);
+	pcpp::ModbusLayer modbusLayer(0, 10, pcpp::ModbusLayer::ModbusFunctionCode::MODBUS_REPORT_SLAVE_ID);
 
 	PTF_ASSERT_BUF_COMPARE(modbusLayer.getData(), modbusLayerFromRealPacket->getData(), modbusLayer.getHeaderLen());
-
+	PTF_ASSERT_EQUAL(modbusLayer.getDataLen(), modbusLayerFromRealPacket->getDataLen());
 	PTF_ASSERT_EQUAL(modbusLayer.getOsiModelLayer(), pcpp::OsiModelApplicationLayer);
 
 	modbusLayer.setTransactionId(54321);
 	PTF_ASSERT_EQUAL(modbusLayer.getTransactionId(), 54321);
 	modbusLayer.setUnitId(2);
 	PTF_ASSERT_EQUAL(modbusLayer.getUnitId(), 2);
-	modbusLayer.setFunctionCode(6);
-	PTF_ASSERT_EQUAL(modbusLayer.getFunctionCode(), 6);
+	modbusLayer.setFunctionCode(pcpp::ModbusLayer::ModbusFunctionCode::MODBUS_WRITE_SINGLE_REGISTER);
+	PTF_ASSERT_EQUAL(static_cast<uint8_t>(modbusLayer.getFunctionCode()), static_cast<uint8_t>(pcpp::ModbusLayer::ModbusFunctionCode::MODBUS_WRITE_SINGLE_REGISTER));
 
 	// just to pass the codecov
 	modbusLayer.computeCalculateFields();
@@ -52,7 +52,7 @@ PTF_TEST_CASE(ModbusLayerParsingTest)
 	PTF_ASSERT_EQUAL(modbusLayer->getProtocolId(), 0);
 	PTF_ASSERT_EQUAL(modbusLayer->getLength(), 2);
 	PTF_ASSERT_EQUAL(modbusLayer->getUnitId(), 10);
-	PTF_ASSERT_EQUAL(modbusLayer->getFunctionCode(), 17);
+	PTF_ASSERT_EQUAL(static_cast<uint8_t>(modbusLayer->getFunctionCode()), static_cast<uint8_t>(pcpp::ModbusLayer::ModbusFunctionCode::MODBUS_REPORT_SLAVE_ID));
 
 	PTF_ASSERT_EQUAL(modbusLayer->toString(),
 	                 "Modbus Layer, Transaction ID: 0, Protocol ID: 0, Length: 2, Unit ID: 10, Function Code: 17");

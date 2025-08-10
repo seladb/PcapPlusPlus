@@ -6,7 +6,7 @@
 
 namespace pcpp
 {
-	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId, uint8_t functionCode)
+	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId, ModbusLayer::ModbusFunctionCode functionCode)
 	{
 		const size_t headerLen = sizeof(modbus_header);
 		m_DataLen = headerLen;
@@ -19,7 +19,7 @@ namespace pcpp
 		header->protocolId = 0;       // 0 for Modbus/TCP
 		header->length = htobe16(2);  // minimum length of the MODBUS payload + unit_id
 		header->unitId = unitId;
-		header->functionCode = functionCode;
+		header->functionCode = static_cast<uint8_t>(functionCode);
 	}
 
 	modbus_header* ModbusLayer::getModbusHeader() const
@@ -47,9 +47,9 @@ namespace pcpp
 		return getModbusHeader()->unitId;
 	}
 
-	modbus_function_code ModbusLayer::getFunctionCode() const
+	ModbusLayer::ModbusFunctionCode ModbusLayer::getFunctionCode() const
 	{
-		return static_cast<modbus_function_code>(getModbusHeader()->functionCode);
+		return static_cast<ModbusLayer::ModbusFunctionCode>(getModbusHeader()->functionCode);
 	}
 
 	void ModbusLayer::setTransactionId(uint16_t transactionId)
@@ -62,16 +62,21 @@ namespace pcpp
 		getModbusHeader()->unitId = unitId;
 	}
 
-	void ModbusLayer::setFunctionCode(uint8_t functionCode)
+	void ModbusLayer::setFunctionCode(ModbusLayer::ModbusFunctionCode functionCode)
 	{
-		getModbusHeader()->functionCode = functionCode;
+		if (functionCode >= ModbusLayer::ModbusFunctionCode::MODBUS_FUNCTION_CODE_LIMIT)
+		{
+			return;
+		}
+		getModbusHeader()->functionCode = static_cast<uint8_t>(functionCode);
 	}
 
 	std::string ModbusLayer::toString() const
 	{
 		return "Modbus Layer, Transaction ID: " + std::to_string(getTransactionId()) +
 		       ", Protocol ID: " + std::to_string(getProtocolId()) + ", Length: " + std::to_string(getLength()) +
-		       ", Unit ID: " + std::to_string(getUnitId()) + ", Function Code: " + std::to_string(getFunctionCode());
+		       ", Unit ID: " + std::to_string(getUnitId()) +
+		       ", Function Code: " + std::to_string(static_cast<uint8_t>(getFunctionCode()));
 	}
 
 }  // namespace pcpp

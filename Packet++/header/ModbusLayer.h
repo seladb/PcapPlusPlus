@@ -29,24 +29,54 @@ namespace pcpp
 #pragma pack(pop)
 	static_assert(sizeof(modbus_header) == 8, "modbus_header size is not 8 bytes");
 
-	/// @enum modbus_function_code
-	enum modbus_function_code
-	{
-		MODBUS_READ_COILS = 1,
-		MODBUS_READ_DISCRETE_INPUTS = 2,
-		MODBUS_READ_HOLDING_REGISTERS = 3,
-		MODBUS_READ_INPUT_REGISTERS = 4,
-		MODBUS_WRITE_SINGLE_COIL = 5,
-		MODBUS_WRITE_SINGLE_REGISTER = 6,
-		MODBUS_WRITE_MULTIPLE_COILS = 15,
-		MODBUS_WRITE_MULTIPLE_REGISTERS = 16
-	};
-
 	/// @class ModbusLayer
 	/// Represents the MODBUS Application Protocol layer
 	class ModbusLayer : public Layer
 	{
 	public:
+		/**
+		 * @brief Enum class representing Modbus function codes.
+		 *
+		 * This enumeration defines the standard Modbus function codes used in request and response PDUs.
+		 * Each value corresponds to a specific operation defined by the Modbus protocol.
+		 *
+		 */
+		enum class ModbusFunctionCode : uint8_t
+		{
+			/** Read coil status (0x01) */
+			MODBUS_READ_COILS = 1,
+
+			/** Read discrete input status (0x02) */
+			MODBUS_READ_DISCRETE_INPUTS = 2,
+
+			/** Read holding registers (0x03) */
+			MODBUS_READ_HOLDING_REGISTERS = 3,
+
+			/** Read input registers (0x04) */
+			MODBUS_READ_INPUT_REGISTERS = 4,
+
+			/** Write a single coil (0x05) */
+			MODBUS_WRITE_SINGLE_COIL = 5,
+
+			/** Write a single holding register (0x06) */
+			MODBUS_WRITE_SINGLE_REGISTER = 6,
+
+			/** Write multiple coils (0x0F) */
+			MODBUS_WRITE_MULTIPLE_COILS = 15,
+
+			/** Write multiple holding registers (0x10) */
+			MODBUS_WRITE_MULTIPLE_REGISTERS = 16,
+
+			/** Report slave ID (0x11) */
+			MODBUS_REPORT_SLAVE_ID = 17,
+
+			/** Limit to check if the function code is valid */
+			MODBUS_FUNCTION_CODE_LIMIT,
+
+			/** Unknown or unsupported function code (0xFF) */
+			MODBUS_UNKNOWN_FUNCTION = 0xFF
+		};
+
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
@@ -60,18 +90,16 @@ namespace pcpp
 		/// @param[in] transactionId Transaction ID
 		/// @param[in] unitId Unit ID
 		/// @param[in] functionCode Function code
-		ModbusLayer(uint16_t transactionId, uint8_t unitId, uint8_t functionCode);
+		ModbusLayer(uint16_t transactionId, uint8_t unitId, ModbusFunctionCode functionCode);
 
 		/// @brief  Check if a port is a valid MODBUS port
-		/// @param port
+		/// @param port Port number to check
+		/// @note MODBUS uses port 502, so this function checks if the port is equal to 502
 		/// @return true if the port is valid, false otherwise
 		static bool isModbusPort(uint16_t port)
 		{
 			return port == 502;
 		}
-
-		/// @return A pointer to the MODBUS header
-		modbus_header* getModbusHeader() const;
 
 		/// @return MODBUS message type
 		uint16_t getTransactionId() const;
@@ -87,7 +115,7 @@ namespace pcpp
 		uint8_t getUnitId() const;
 
 		/// @return MODBUS function code
-		modbus_function_code getFunctionCode() const;
+		ModbusFunctionCode getFunctionCode() const;
 
 		/// @brief set the MODBUS transaction id
 		/// @param transactionId transaction id
@@ -99,7 +127,7 @@ namespace pcpp
 
 		/// @brief set the MODBUS header function code
 		/// @param functionCode function code
-		void setFunctionCode(uint8_t functionCode);
+		void setFunctionCode(ModbusFunctionCode functionCode);
 
 		// Overridden methods
 
@@ -114,7 +142,7 @@ namespace pcpp
 			return sizeof(modbus_header);
 		}
 
-		/// Each layer can compute field values automatically using this method. This is an abstract method
+		/// Does nothing for this layer
 		void computeCalculateFields() override
 		{}
 
@@ -127,6 +155,10 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	private:
+		/// @return A pointer to the MODBUS header
+		modbus_header* getModbusHeader() const;
 	};
 
 }  // namespace pcpp
