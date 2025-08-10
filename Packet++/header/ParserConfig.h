@@ -265,7 +265,8 @@ namespace pcpp
 		{
 			std::size_t operator()(const PortPair& portPair) const noexcept
 			{
-				return static_cast<std::size_t>(splitMix64(encodePair(portPair)));
+				return static_cast<std::size_t>(encodePair(portPair));
+				// return static_cast<std::size_t>(splitMix64(encodePair(portPair)));
 			}
 
 			constexpr uint64_t encodePair(const PortPair& portPair) const noexcept
