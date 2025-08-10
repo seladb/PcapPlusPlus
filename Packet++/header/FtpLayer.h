@@ -14,9 +14,9 @@ namespace pcpp
 	{
 	protected:
 		FtpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : SingleCommandTextProtocol(data, dataLen, prevLayer, packet, FTP) {};
+		    : SingleCommandTextProtocol(data, dataLen, prevLayer, packet, FTPControl) {};
 		FtpLayer(const std::string& command, const std::string& option)
-		    : SingleCommandTextProtocol(command, option, FTP) {};
+		    : SingleCommandTextProtocol(command, option, FTPControl) {};
 
 	public:
 		/// A static method that checks whether the port is considered as FTP control
@@ -447,7 +447,7 @@ namespace pcpp
 		FtpDataLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : PayloadLayer(data, dataLen, prevLayer, packet)
 		{
-			m_Protocol = FTP;
+			m_Protocol = FtpData;
 		};
 
 		/// @return Returns the protocol info as readable string
