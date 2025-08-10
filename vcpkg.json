@@ -1,42 +1,46 @@
 {
-    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-    "builtin-baseline": "533a5fda5c0646d1771345fb572e759283444d5f",
-    "name": "pcapplusplus",
-    "version": "25.5-dev",
-    "description": "PcapPlusPlus is a multi-platform C++ library for capturing, parsing and crafting of network packets",
-    "homepage": "https://github.com/seladb/PcapPlusPlus",
-    "documentation": "https://pcapplusplus.github.io",
-    "license": null,
-    "dependencies": [
-        {
-            "name": "vcpkg-cmake",
-            "host": true
-        },
-        {
-            "name": "vcpkg-cmake-config",
-            "host": true
-        }
-    ],
-    "default-features": [
-        {
-            "name": "winpcap",
-            "platform": "windows"
-        },
-        {
-            "name": "libpcap",
-            "platform": "!windows"
-        }
-    ],
-    "features": {
-        "libpcap": {
-            "description": "PcapPlusPlus with libpcap backend",
-            "dependencies": [ "libpcap" ],
-            "supports": "!windows"
-        },
-        "winpcap": {
-            "description": "PcapPlusPlus with WinPcap backend",
-            "dependencies": [ "winpcap" ],
-            "supports": "windows"
-        }
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "builtin-baseline": "d30fdf55cfca16e12bc3ad99cbc615997014b61b",
+  "name": "pcapplusplus",
+  "version": "25.5-dev",
+  "description": "PcapPlusPlus is a multi-platform C++ library for capturing, parsing and crafting of network packets",
+  "homepage": "https://github.com/seladb/PcapPlusPlus",
+  "documentation": "https://pcapplusplus.github.io",
+  "license": null,
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
     }
+  ],
+  "default-features": [
+    {
+      "name": "winpcap",
+      "platform": "windows"
+    },
+    {
+      "name": "libpcap",
+      "platform": "!windows"
+    }
+  ],
+  "features": {
+    "libpcap": {
+      "description": "PcapPlusPlus with libpcap backend",
+      "dependencies": [
+        "libpcap"
+      ],
+      "supports": "!windows"
+    },
+    "winpcap": {
+      "description": "PcapPlusPlus with WinPcap backend",
+      "dependencies": [
+        "winpcap"
+      ],
+      "supports": "windows"
+    }
+  }
 }
