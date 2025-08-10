@@ -447,7 +447,7 @@ namespace pcpp
 		FtpDataLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : PayloadLayer(data, dataLen, prevLayer, packet)
 		{
-			m_Protocol = FtpData;
+			m_Protocol = FTPData;
 		};
 
 		/// @return Returns the protocol info as readable string
