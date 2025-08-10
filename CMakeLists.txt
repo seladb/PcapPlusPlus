@@ -127,6 +127,7 @@ cmake_dependent_option(
   OFF
 )
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
+option(PCAPPP_BUILD_BENCHMARK "Build Benchmark Targets" OFF)
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
 option(PCAPPP_BUILD_REPRODUCIBLE "Build a reproducible version" OFF)
@@ -334,6 +335,10 @@ endif()
 if(PCAPPP_BUILD_TESTS OR PCAPPP_BUILD_FUZZERS OR PCAPPP_BUILD_EXAMPLES)
   include(CTest)
   add_subdirectory(Tests)
+endif()
+
+if(PCAPPP_BUILD_BENCHMARK)
+    add_subdirectory(Benchmarks)
 endif()
 
 if(PCAPPP_INSTALL)
