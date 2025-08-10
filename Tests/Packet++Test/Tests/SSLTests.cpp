@@ -4,6 +4,7 @@
 #include "Packet.h"
 #include "SSLLayer.h"
 #include "SystemUtils.h"
+#include "Logger.h"
 #include <fstream>
 #include <sstream>
 
@@ -344,34 +345,41 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
 	PTF_ASSERT_EQUAL(certMsg->getNumOfCertificates(), 3);
 	PTF_ASSERT_NULL(certMsg->getCertificate(1000));
 
-	pcpp::SSLx509Certificate* cert = certMsg->getCertificate(0);
-	PTF_ASSERT_NOT_NULL(cert);
-	PTF_ASSERT_TRUE(cert->allDataExists());
-	PTF_ASSERT_EQUAL(cert->getDataLength(), 1509);
-	std::string certBuffer(cert->getData(), cert->getData() + cert->getDataLength());
-	std::size_t pos = certBuffer.find("LDAP Intermediate CA");
-	PTF_ASSERT_TRUE(pos != std::string::npos);
-	pos = certBuffer.find("Internal Development CA");
-	PTF_ASSERT_EQUAL(pos, std::string::npos, ptr);
-	auto asn1Record = cert->getRootAsn1Record();
-	PTF_ASSERT_NOT_NULL(asn1Record);
-	PTF_ASSERT_EQUAL(asn1Record->getSubRecords().size(), 3);
+	{
+		auto cert = certMsg->getCertificate(0);
+		PTF_ASSERT_NOT_NULL(cert);
+		PTF_ASSERT_TRUE(cert->allDataExists());
+		PTF_ASSERT_EQUAL(cert->getDataLength(), 1509);
+		auto asn1Record = cert->getRootAsn1Record();
+		PTF_ASSERT_NOT_NULL(asn1Record);
+		PTF_ASSERT_EQUAL(asn1Record->getSubRecords().size(), 3);
+		auto x509Cert = cert->getX509Certificate();
+		PTF_ASSERT_EQUAL(
+		    x509Cert->getIssuer().toString(),
+		    "C=US, ST=Washington, L=Seattle, O=Hubspan, Inc., OU=Development, CN=LDAP Intermediate CA, E=dev.ca@hubspan.com");
+	}
 
-	cert = certMsg->getCertificate(1);
-	PTF_ASSERT_NOT_NULL(cert);
-	PTF_ASSERT_TRUE(cert->allDataExists());
-	PTF_ASSERT_EQUAL(cert->getDataLength(), 1728);
-	certBuffer = std::string(cert->getData(), cert->getData() + cert->getDataLength());
-	pos = certBuffer.find("Internal Development CA");
-	PTF_ASSERT_TRUE(pos != std::string::npos);
+	{
+		auto cert = certMsg->getCertificate(1);
+		PTF_ASSERT_NOT_NULL(cert);
+		PTF_ASSERT_TRUE(cert->allDataExists());
+		PTF_ASSERT_EQUAL(cert->getDataLength(), 1728);
+		auto x509Cert = cert->getX509Certificate();
+		PTF_ASSERT_EQUAL(
+		    x509Cert->getSubject().toString(),
+		    "C=US, ST=Washington, L=Seattle, O=Hubspan, Inc., OU=Development, CN=LDAP Intermediate CA, E=dev.ca@hubspan.com");
+	}
 
-	cert = certMsg->getCertificate(2);
-	PTF_ASSERT_NOT_NULL(cert);
-	PTF_ASSERT_TRUE(cert->allDataExists());
-	PTF_ASSERT_EQUAL(cert->getDataLength(), 1713);
-	certBuffer = std::string(cert->getData(), cert->getData() + cert->getDataLength());
-	pos = certBuffer.find("Internal Development CA");
-	PTF_ASSERT_TRUE(pos != std::string::npos);
+	{
+		auto cert = certMsg->getCertificate(2);
+		PTF_ASSERT_NOT_NULL(cert);
+		PTF_ASSERT_TRUE(cert->allDataExists());
+		PTF_ASSERT_EQUAL(cert->getDataLength(), 1713);
+		auto x509Cert = cert->getX509Certificate();
+		PTF_ASSERT_EQUAL(
+		    x509Cert->getSubject().toString(),
+		    "C=US, ST=Washington, O=Hubspan, Inc., OU=Development, CN=Internal Development CA, E=dev.ca@hubspan.com");
+	}
 
 	pcpp::SSLCertificateRequestMessage* certReqMsg =
 	    handshakeLayer->getHandshakeMessageOfType<pcpp::SSLCertificateRequestMessage>();
@@ -482,6 +490,10 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 	pcpp::SSLx509Certificate* cert = certMsg->getCertificate(0);
 	PTF_ASSERT_FALSE(cert->allDataExists());
 	PTF_ASSERT_EQUAL(cert->getDataLength(), 1266);
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_NULL(cert->getX509Certificate());
+	PTF_ASSERT_NULL(cert->getRootAsn1Record());
+	pcpp::Logger::getInstance().enableLogs();
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SSL-PartialCertificate2.dat");
 
@@ -499,6 +511,10 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 	cert = certMsg->getCertificate(0);
 	PTF_ASSERT_FALSE(cert->allDataExists());
 	PTF_ASSERT_EQUAL(cert->getDataLength(), 1268);
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_NULL(cert->getX509Certificate());
+	PTF_ASSERT_NULL(cert->getRootAsn1Record());
+	pcpp::Logger::getInstance().enableLogs();
 }  // SSLPartialCertificateParseTest
 
 PTF_TEST_CASE(SSLNewSessionTicketParseTest)
