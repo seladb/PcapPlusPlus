@@ -224,10 +224,10 @@ namespace pcpp
 	const ProtocolType DOIP = 59;
 
 	/// File Transfer Protocol (FTP) Data channel
-	const ProtocolType FtpData = 60;
+	const ProtocolType FTPData = 60;
 
 	/// FTP protocol family (FTPControl and FtpData protocols)
-	const ProtocolTypeFamily Ftp = 0x3c29;
+	const ProtocolTypeFamily FTP = 0x3c29;
 
 	/// An enum representing OSI model layers
 	enum OsiModelLayer
