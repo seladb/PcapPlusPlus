@@ -8,6 +8,7 @@
 #include "DnsLayer.h"
 #include "DhcpLayer.h"
 #include "DhcpV6Layer.h"
+#include "DoIpLayer.h"
 #include "VxlanLayer.h"
 #include "SipLayer.h"
 #include "RadiusLayer.h"
@@ -190,6 +191,16 @@ namespace pcpp
 				{
 					constructNextLayer<NtpLayer>(udpData, udpDataLen, m_Packet);
 				}
+				break;
+			}
+			case DOIP:
+			{
+				if (DoIpLayer::isDataValid(udpData, udpDataLen))
+				{
+					m_NextLayer = DoIpLayer::parseDoIpLayer(udpData, udpDataLen, this, m_Packet);
+					if (!m_NextLayer)
+						constructNextLayer<PayloadLayer>(udpData, udpDataLen, m_Packet);
+                }
 				break;
 			}
 			case SomeIP:
