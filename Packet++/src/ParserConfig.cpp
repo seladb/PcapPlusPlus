@@ -96,6 +96,10 @@ namespace pcpp
 		// NTP port mappings
 		mapper.addPortMapping(PortPair::fromDst(123), NTP, true);  // NTP over UDP
 
+		// DoIP port mappings
+		mapper.addPortMapping(PortPair::fromDst(13400), DOIP, true);  // DoIP over TCP/UDP
+		mapper.addPortMapping(PortPair::fromDst(3496), DOIP, true);   // DoIP over TLS
+
 		// Wake-on-LAN port mappings
 		mapper.addPortMapping(PortPair::fromDst(9), WakeOnLan, false);  // Wake-on-LAN over UDP
 		mapper.addPortMapping(PortPair::fromDst(7), WakeOnLan, false);  // Wake-on-LAN over UDP
