@@ -54,7 +54,8 @@ namespace pcpp_bench
 
 				// Generate random port pairs for dynamic lookups
 				std::vector<PortPair> inputPorts{
-					PortPair{ 80, 65440 }
+					PortPair{ 80, 65440 },
+					PortPair{ 64000, 64002 },
 				};
 
 				for (auto _ : state)
@@ -79,7 +80,8 @@ namespace pcpp_bench
 
 				// Generate random port pairs for dynamic lookups
 				std::vector<PortPair> inputPorts{
-					PortPair{ 80, 65440 }
+					PortPair{ 80, 65440 },
+					PortPair{ 64000, 64002 },
 				};
 
 				for (auto _ : state)
