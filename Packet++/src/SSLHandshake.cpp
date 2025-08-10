@@ -1224,7 +1224,7 @@ namespace pcpp
 	{
 		if (!m_AllDataExists)
 		{
-			PCPP_LOG_WARN("Certificate data is not complete, cannot parse ASN.1 record");
+			PCPP_LOG_ERROR("Certificate data is not complete, cannot parse ASN.1 record");
 			return nullptr;
 		}
 
@@ -1240,7 +1240,7 @@ namespace pcpp
 	{
 		if (!m_AllDataExists)
 		{
-			PCPP_LOG_WARN("Certificate data is not complete, cannot parse X509 certificate");
+			PCPP_LOG_ERROR("Certificate data is not complete, cannot parse X509 certificate");
 			return nullptr;
 		}
 
