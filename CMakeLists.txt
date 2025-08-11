@@ -127,7 +127,7 @@ if(PCAPPP_LOG_LEVEL)
 
   message(
     STATUS
-    "Compile time logging verbocity has been set to level \"${PCAPPP_LOG_LEVEL_VALUE}\". All messagess below this level will be pruned."
+    "Compile time logging verbocity has been set to level \"${PCAPPP_LOG_LEVEL_VALUE}\". All messages below this level will be pruned."
   )
   add_compile_definitions("PCPP_ACTIVE_LOG_LEVEL=${PCAPPP_LOG_LEVEL_VALUE}")
 endif()
