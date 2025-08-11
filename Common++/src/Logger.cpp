@@ -64,6 +64,8 @@ namespace pcpp
 			return "OFF";
 		case LogLevel::Error:
 			return "ERROR";
+		case LogLevel::Warn:
+			return "WARN";
 		case LogLevel::Info:
 			return "INFO";
 		case LogLevel::Debug:
