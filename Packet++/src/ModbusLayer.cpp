@@ -8,16 +8,24 @@ namespace pcpp
 {
 	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId, ModbusLayer::ModbusFunctionCode functionCode)
 	{
+		const size_t pduSize = getFunctionDataSize(functionCode);
+		if (pduSize < 0)
+		{
+			std::cerr << "Unsupported function code: " << static_cast<int>(functionCode) << std::endl;
+			return;
+		}
+
 		const size_t headerLen = sizeof(modbus_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+
+		m_DataLen = headerLen + pduSize;
+		m_Data = new uint8_t[m_DataLen]{};
+		memset(m_Data, 0, m_DataLen);
 
 		// Initialize the header fields to default values
 		modbus_header* header = getModbusHeader();
 		header->transactionId = htobe16(transactionId);
-		header->protocolId = 0;       // 0 for Modbus/TCP
-		header->length = htobe16(2);  // minimum length of the MODBUS payload + unit_id
+		header->protocolId = 0;                         // 0 for Modbus/TCP
+		header->length = htobe16(sizeof(pduSize) + 2);  // Length includes unitId and functionCode
 		header->unitId = unitId;
 		header->functionCode = static_cast<uint8_t>(functionCode);
 	}
@@ -64,7 +72,7 @@ namespace pcpp
 
 	void ModbusLayer::setFunctionCode(ModbusLayer::ModbusFunctionCode functionCode)
 	{
-		if (functionCode >= ModbusLayer::ModbusFunctionCode::MODBUS_FUNCTION_CODE_LIMIT)
+		if (functionCode >= ModbusLayer::ModbusFunctionCode::FUNCTION_CODE_LIMIT)
 		{
 			return;
 		}
@@ -79,4 +87,15 @@ namespace pcpp
 		       ", Function Code: " + std::to_string(static_cast<uint8_t>(getFunctionCode()));
 	}
 
+	int16_t ModbusLayer::getFunctionDataSize(ModbusFunctionCode functionCode) const
+	{
+		switch (functionCode)
+		{
+			// currently supported function codes
+		case ModbusFunctionCode::READ_INPUT_REGISTERS:
+			return sizeof(ModbusReadInputRegisters);
+		default:
+			return -1;  // For unsupported or unknown function codes
+		}
+	}
 }  // namespace pcpp
