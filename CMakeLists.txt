@@ -93,12 +93,13 @@ set(
   "1"
   "2"
   "3"
+  "4"
 )
 set(
   PCAPPP_LOG_LEVEL
   ""
   CACHE STRING
-  "Compile time log level (0 - Off, 1 - Error, 2 - Info, 3 - Debug) Default(empty): Debug"
+  "Compile time log level (0 - Off, 1 - Error, 2 - Warn, 3 - Info, 4 - Debug) Default(empty): Debug"
 )
 set_property(CACHE PCAPPP_LOG_LEVEL PROPERTY STRINGS ${PCAPP_ALLOWED_LOG_LEVELS})
 
