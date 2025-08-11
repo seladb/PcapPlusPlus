@@ -94,6 +94,11 @@ set(
   "2"
   "3"
   "4"
+  "Off"
+  "Error"
+  "Warn"
+  "Info"
+  "Debug"
 )
 set(
   PCAPPP_LOG_LEVEL
@@ -108,7 +113,23 @@ if(NOT PCAPPP_LOG_LEVEL IN_LIST PCAPP_ALLOWED_LOG_LEVELS)
 endif()
 
 if(PCAPPP_LOG_LEVEL)
-  add_compile_definitions("PCPP_ACTIVE_LOG_LEVEL=${PCAPPP_LOG_LEVEL}")
+  if(PCAPPP_LOG_LEVEL STREQUAL "0" OR PCAPPP_LOG_LEVEL STREQUAL "Off")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_OFF")
+  elseif(PCAPPP_LOG_LEVEL STREQUAL "1" OR PCAPPP_LOG_LEVEL STREQUAL "Error")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_ERROR")
+  elseif(PCAPPP_LOG_LEVEL STREQUAL "2" OR PCAPPP_LOG_LEVEL STREQUAL "Warn")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_WARN")
+  elseif(PCAPPP_LOG_LEVEL STREQUAL "3" OR PCAPPP_LOG_LEVEL STREQUAL "Info")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_INFO")
+  elseif(PCAPPP_LOG_LEVEL STREQUAL "4" OR PCAPPP_LOG_LEVEL STREQUAL "Debug")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_DEBUG")
+  endif()
+
+  message(
+    STATUS
+    "Compile time logging verbocity has been set to level \"${PCAPPP_LOG_LEVEL_VALUE}\". All messagess below this level will be pruned."
+  )
+  add_compile_definitions("PCPP_ACTIVE_LOG_LEVEL=${PCAPPP_LOG_LEVEL_VALUE}")
 endif()
 
 # Build options (Turn on Examples and Tests if it's the main project)
