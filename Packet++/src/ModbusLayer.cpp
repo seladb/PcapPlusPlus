@@ -24,8 +24,8 @@ namespace pcpp
 		// Initialize the header fields to default values
 		modbus_header* header = getModbusHeader();
 		header->transactionId = htobe16(transactionId);
-		header->protocolId = 0;                         // 0 for Modbus/TCP
-		header->length = htobe16(sizeof(pduSize) + 2);  // Length includes unitId and functionCode
+		header->protocolId = 0;                 // 0 for Modbus/TCP
+		header->length = htobe16(pduSize + 2);  // Length includes unitId and functionCode
 		header->unitId = unitId;
 		header->functionCode = static_cast<uint8_t>(functionCode);
 	}
