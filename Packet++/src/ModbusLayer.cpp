@@ -8,7 +8,7 @@ namespace pcpp
 {
 	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId, ModbusLayer::ModbusFunctionCode functionCode)
 	{
-		const size_t pduSize = getFunctionDataSize(functionCode);
+		const int16_t pduSize = getFunctionDataSize(functionCode);
 		if (pduSize < 0)
 		{
 			std::cerr << "Unsupported function code: " << static_cast<int>(functionCode) << std::endl;
