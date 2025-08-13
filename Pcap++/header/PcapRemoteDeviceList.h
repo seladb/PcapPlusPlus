@@ -140,6 +140,7 @@ namespace pcpp
 		/// Search a PcapRemoteDevice in the list by its IPv4 address
 		/// @param[in] ip4Addr The IPv4 address
 		/// @return The PcapRemoteDevice if found, nullptr otherwise
+		/// @deprecated Use `getDeviceByIp` instead.
 		PCPP_DEPRECATED("Use `getDeviceByIp`")
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPv4Address& ip4Addr) const;
 
@@ -151,6 +152,7 @@ namespace pcpp
 		/// Search a PcapRemoteDevice in the list by its IPv6 address
 		/// @param[in] ip6Addr The IPv6 address
 		/// @return The PcapRemoteDevice if found, nullptr otherwise
+		/// @deprecated Use `getDeviceByIp` instead.
 		PCPP_DEPRECATED("Use `getDeviceByIp`")
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPv6Address& ip6Addr) const;
 
@@ -162,6 +164,7 @@ namespace pcpp
 		/// Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		/// @param[in] ipAddr The IP address
 		/// @return The PcapRemoteDevice if found, nullptr otherwise
+		/// @deprecated Use `getDeviceByIp` instead.
 		PCPP_DEPRECATED("Use `getDeviceByIp`")
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPAddress& ipAddr) const;
 
@@ -173,6 +176,7 @@ namespace pcpp
 		/// Search a PcapRemoteDevice in the list by its IP address
 		/// @param[in] ipAddrAsString The IP address in string format
 		/// @return The PcapRemoteDevice if found, nullptr otherwise
+		/// @deprecated Use `getDeviceByIP` instead.
 		PCPP_DEPRECATED("Use `getDeviceByIp`")
 		PcapRemoteDevice* getRemoteDeviceByIP(const std::string& ipAddrAsString) const;
 
