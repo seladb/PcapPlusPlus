@@ -18,13 +18,13 @@ namespace pcpp
 	/// treat it as a family containing only that single protocol.
 	///
 	/// @internal
-	/// 
+	///
 	/// A ProtocolTypeFamily pack is represented as a 32-bit unsigned integer. Each octet in the 32-bit value is a
 	/// ProtocolType, allowing for up to 4 protocols to be packed into a single ProtocolTypeFamily value. For example,
 	/// the ProtocolTypeFamily for IP is represented as 0x203, which contains both IPv4 (0x02) and IPv6 (0x03)
 	/// protocols. A single ProtocolType casted to ProtocolTypeFamily will result the value '0x000000xx' where 'xx' is
 	/// the value of the ProtocolType.
-	/// 
+	///
 	/// @endinternal
 
 	/// @addtogroup ProtocolTypes
