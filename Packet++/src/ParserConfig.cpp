@@ -163,7 +163,7 @@ namespace pcpp
 		return UnknownProtocol;  // Return UnknownProtocol if exact match not found
 	}
 
-	std::array<ProtocolTypeFamily, 3> PortMapper::getProtocolMappingsMatrixForPortPair(PortPair port) const
+	std::array<ProtocolTypeFamily, 3> PortMapper::getMatchMatrix(PortPair port) const
 	{
 		std::array<ProtocolTypeFamily, 3> protocols = { UnknownProtocol, UnknownProtocol, UnknownProtocol };
 		// Check for exact match

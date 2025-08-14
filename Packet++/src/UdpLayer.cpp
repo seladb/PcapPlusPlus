@@ -104,7 +104,7 @@ namespace pcpp
 		// Queries the port mapper for protocol mappings based on the source and destination ports
 		// The returned array protocol family for exact match, source only match, destination only match.
 		// The first protocol family that passes secondary validation (if any) will be used to construct the next layer.
-		auto const portMatrix = config.portMapper.getProtocolMappingsMatrixForPortPair(portSrc, portDst);
+		auto const portMatrix = config.portMapper.getMatchMatrix(portSrc, portDst);
 
 		for (auto protoFamily : portMatrix)
 		{
