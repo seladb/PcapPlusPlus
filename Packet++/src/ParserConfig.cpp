@@ -49,10 +49,8 @@ namespace pcpp
 		// The specific parsing determined based on if the port is src or dst.
 		// A port pairing (21, 21) for example is UB.
 		mapper.addPortMapping(PortPair{ 21, 21 }, UnknownProtocol, false);  // Symmetrical connection is UB
-		mapper.addPortMapping(PortPair::fromSrc(21), FTP, false);           // FTP control
-		mapper.addPortMapping(PortPair::fromDst(21), FTP, false);           // FTP control
-		// TODO: FTP data needs a separate ProtocolType
-		// mapper.addPortMapping(PortPair::fromDst(20), FTP, false);  // FTP data
+		mapper.addPortMapping(PortPair::fromSrc(21), FTPControl, true);    // FTP control
+		mapper.addPortMapping(PortPair::fromDst(20), FTPData, true);        // FTP data
 
 		// SomeIP port mappings
 		mapper.addPortMapping(PortPair::fromDst(30490), SomeIP, true);  // SomeIP over UDP or TCP
