@@ -9,94 +9,91 @@ namespace pcpp_bench
 
 	namespace
 	{
-		namespace portmapper
+		void PortMapperStaticLookupSingle(benchmark::State& state)
 		{
-			void StaticLookupSingle(benchmark::State& state)
+			ParserConfiguration& config = ParserConfiguration::getDefault();
+			PortMapper& portMapper = config.portMapper;
+
+			size_t totalLookups = 0;
+			for (auto _ : state)
 			{
-				ParserConfiguration& config = ParserConfiguration::getDefault();
-				PortMapper& portMapper = config.portMapper;
-
-				size_t totalLookups = 0;
-				for (auto _ : state)
-				{
-					PortPair portPair(80, 443);
-					auto protocol = portMapper.getProtocolByPortPair(portPair);
-					benchmark::DoNotOptimize(protocol);
-					totalLookups++;
-				}
-
-				state.SetItemsProcessed(totalLookups);
+				PortPair portPair(80, 443);
+				auto protocol = portMapper.getProtocolByPortPair(portPair);
+				benchmark::DoNotOptimize(protocol);
+				totalLookups++;
 			}
-			BENCHMARK(StaticLookupSingle);
 
-			void StaticLookupMatrix(benchmark::State& state)
+			state.SetItemsProcessed(totalLookups);
+		}
+		BENCHMARK(PortMapperStaticLookupSingle);
+
+		void PortMapperStaticLookupMatrix(benchmark::State& state)
+		{
+			ParserConfiguration& config = ParserConfiguration::getDefault();
+			PortMapper& portMapper = config.portMapper;
+
+			size_t totalLookups = 0;
+			for (auto _ : state)
 			{
-				ParserConfiguration& config = ParserConfiguration::getDefault();
-				PortMapper& portMapper = config.portMapper;
-
-				size_t totalLookups = 0;
-				for (auto _ : state)
-				{
-					PortPair portPair(80, 443);
-					auto matrix = portMapper.getProtocolMappingsMatrixForPortPair(portPair);
-					benchmark::DoNotOptimize(matrix);
-					totalLookups++;
-				}
-				state.SetItemsProcessed(totalLookups);
+				PortPair portPair(80, 443);
+				auto matrix = portMapper.getMatchMatrix(portPair);
+				benchmark::DoNotOptimize(matrix);
+				totalLookups++;
 			}
-			BENCHMARK(StaticLookupMatrix);
+			state.SetItemsProcessed(totalLookups);
+		}
+		BENCHMARK(PortMapperStaticLookupMatrix);
 
-			void DynamicLookupSingle(benchmark::State& state)
+		void PortMapperDynamicLookupSingle(benchmark::State& state)
+		{
+			ParserConfiguration& config = ParserConfiguration::getDefault();
+			PortMapper& portMapper = config.portMapper;
+			size_t totalLookups = 0;
+
+			// Generate random port pairs for dynamic lookups
+			std::vector<PortPair> inputPorts{
+				PortPair{ 80, 65440 },
+				PortPair{ 64000, 64002 },
+			};
+
+			for (auto _ : state)
 			{
-				ParserConfiguration& config = ParserConfiguration::getDefault();
-				PortMapper& portMapper = config.portMapper;
-				size_t totalLookups = 0;
+				// Simulate dynamic port pairs by cycling through a predefined set
+				PortPair const& portPair = inputPorts[totalLookups % inputPorts.size()];
 
-				// Generate random port pairs for dynamic lookups
-				std::vector<PortPair> inputPorts{
-					PortPair{ 80, 65440 },
-					PortPair{ 64000, 64002 },
-				};
-
-				for (auto _ : state)
-				{
-					// Simulate dynamic port pairs by cycling through a predefined set
-					PortPair const& portPair = inputPorts[totalLookups % inputPorts.size()];
-
-					auto protocol = portMapper.getProtocolByPortPair(portPair);
-					benchmark::DoNotOptimize(protocol);
-					totalLookups++;
-				}
-
-				state.SetItemsProcessed(totalLookups);
+				auto protocol = portMapper.getProtocolByPortPair(portPair);
+				benchmark::DoNotOptimize(protocol);
+				totalLookups++;
 			}
-			BENCHMARK(DynamicLookupSingle);
 
-			void DynamicLookupMatrix(benchmark::State& state)
+			state.SetItemsProcessed(totalLookups);
+		}
+		BENCHMARK(PortMapperDynamicLookupSingle);
+
+		void PortMapperDynamicLookupMatrix(benchmark::State& state)
+		{
+			ParserConfiguration& config = ParserConfiguration::getDefault();
+			PortMapper& portMapper = config.portMapper;
+			size_t totalLookups = 0;
+
+			// Generate random port pairs for dynamic lookups
+			std::vector<PortPair> inputPorts{
+				PortPair{ 80, 65440 },
+				PortPair{ 64000, 64002 },
+			};
+
+			for (auto _ : state)
 			{
-				ParserConfiguration& config = ParserConfiguration::getDefault();
-				PortMapper& portMapper = config.portMapper;
-				size_t totalLookups = 0;
+				// Simulate dynamic port pairs by cycling through a predefined set
+				PortPair const& portPair = inputPorts[totalLookups % inputPorts.size()];
 
-				// Generate random port pairs for dynamic lookups
-				std::vector<PortPair> inputPorts{
-					PortPair{ 80, 65440 },
-					PortPair{ 64000, 64002 },
-				};
-
-				for (auto _ : state)
-				{
-					// Simulate dynamic port pairs by cycling through a predefined set
-					PortPair const& portPair = inputPorts[totalLookups % inputPorts.size()];
-
-					auto matrix = portMapper.getProtocolMappingsMatrixForPortPair(portPair);
-					benchmark::DoNotOptimize(matrix);
-					totalLookups++;
-				}
-
-				state.SetItemsProcessed(totalLookups);
+				auto matrix = portMapper.getMatchMatrix(portPair);
+				benchmark::DoNotOptimize(matrix);
+				totalLookups++;
 			}
-			BENCHMARK(DynamicLookupMatrix);
-		}  // namespace portmapper
+
+			state.SetItemsProcessed(totalLookups);
+		}
+		BENCHMARK(PortMapperDynamicLookupMatrix);
 	}  // namespace
 }  // namespace pcpp_bench
