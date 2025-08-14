@@ -5,8 +5,8 @@ repos:
     hooks:
       - id: check-clang-format-version
         name: Check clang-format version
-        entry: python3 ./ci/check-clang-format-version.py
-        language: system
+        entry: python ./ci/check-clang-format-version.py
+        language: python
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
