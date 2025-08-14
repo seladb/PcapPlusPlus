@@ -8,7 +8,7 @@ if(MSVC)
 endif()
 
 set_target_properties(
-        X509Toolkit
+  X509Toolkit
   PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}" RUNTIME_OUTPUT_NAME "X509Toolkit"
 )
 
