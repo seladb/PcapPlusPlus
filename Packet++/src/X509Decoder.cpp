@@ -975,7 +975,7 @@ namespace pcpp
 	std::unique_ptr<X509Certificate> X509Certificate::fromPEM(const std::string& pemData)
 	{
 		auto derData = PemCodec::decode(pemData, certificatePemLabel);
-		std::unique_ptr<uint8_t[]> derDataBuffer(new uint8_t[derData.size()]);
+		auto derDataBuffer = std::make_unique<uint8_t[]>(derData.size());
 		std::copy(derData.begin(), derData.end(), derDataBuffer.get());
 		return std::unique_ptr<X509Certificate>(new X509Certificate(std::move(derDataBuffer), derData.size()));
 	}
