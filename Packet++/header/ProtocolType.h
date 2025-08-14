@@ -163,8 +163,8 @@ namespace pcpp
 	/// Telnet Protocol
 	const ProtocolType Telnet = 40;
 
-	/// File Transfer (FTP) Protocol
-	const ProtocolType FTP = 41;
+	/// File Transfer (FTP) Protocol - Control channel
+	const ProtocolType FTPControl = 41;
 
 	/// ICMPv6 protocol
 	const ProtocolType ICMPv6 = 42;
@@ -222,6 +222,12 @@ namespace pcpp
 
 	/// Diagnostic over IP protocol (DOIP)
 	const ProtocolType DOIP = 59;
+
+	/// File Transfer Protocol (FTP) Data channel
+	const ProtocolType FTPData = 60;
+
+	/// FTP protocol family (FTPControl and FtpData protocols)
+	const ProtocolTypeFamily FTP = 0x3c29;
 
 	/// An enum representing OSI model layers
 	enum OsiModelLayer
