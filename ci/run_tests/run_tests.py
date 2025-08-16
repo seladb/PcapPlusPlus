@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 import subprocess
 import argparse
+from pathlib import Path
+from dataclasses import dataclass
 from contextlib import contextmanager
 from scapy.all import get_if_addr
 
@@ -21,29 +23,42 @@ def tcp_replay_worker(interface: str, tcpreplay_dir: str):
         tcpreplay_proc.kill()
 
 
-def run_packet_tests(args: list[str], use_sudo: bool):
-    cmd_line = ["sudo"] if use_sudo else []
-    cmd_line += [os.path.join("Bin", "Packet++Test"), *args]
+@dataclass
+class Runner:
+    build_dir: Path
+    use_sudo: bool = False
+    packet_test_path = Path("Tests", "Packet++Test", "Packet++Test")
+    pcap_test_path = Path("Tests", "Pcap++Test", "Pcap++Test")
 
-    completed_process = subprocess.run(cmd_line, cwd="Tests/Packet++Test")
+    def run_packet_tests(self, args: list[str]):
+        exe_path = self.build_dir / self.packet_test_path
+        work_dir = exe_path.parent
 
-    if completed_process.returncode != 0:
-        raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
+        cmd_line = ["sudo"] if self.use_sudo else []
+        cmd_line += [str(exe_path), *args]
 
+        completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
 
-def run_pcap_tests(interface: str, tcpreplay_dir: str, args: list[str], use_sudo: bool):
-    ip_address = get_if_addr(interface)
-    print(f"IP address is: {ip_address}")
-
-    with tcp_replay_worker(interface, tcpreplay_dir):
-        cmd_line = ["sudo"] if use_sudo else []
-        cmd_line += [os.path.join("Bin", "Pcap++Test"), "-i", ip_address, *args]
-
-        completed_process = subprocess.run(cmd_line, cwd="Tests/Pcap++Test")
         if completed_process.returncode != 0:
-            raise RuntimeError(
-                f"Error while executing Pcap++ tests: {completed_process}"
-            )
+            raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
+
+
+    def run_pcap_tests(self, interface: str, tcpreplay_dir: str, args: list[str]):
+        ip_address = get_if_addr(interface)
+        print(f"IP address is: {ip_address}")
+
+        exe_path = self.build_dir / self.pcap_test_path
+        work_dir = exe_path.parent
+
+        cmd_line = ["sudo"] if self.use_sudo else []
+        cmd_line += [str(exe_path), "-i", ip_address, *args]
+
+        with tcp_replay_worker(interface, tcpreplay_dir):
+            completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
+            if completed_process.returncode != 0:
+                raise RuntimeError(
+                    f"Error while executing Pcap++ tests: {completed_process}"
+                )
 
 
 def main():
@@ -78,17 +93,24 @@ def main():
         default=None,
         help="tcpreplay directory",
     )
+    parser.add_argument(
+        "build-dir",
+        type=str,
+        default=os.getcwd(),
+        help="path to the build directory"
+    )
     args = parser.parse_args()
 
+    runner = Runner(build_dir=args.build_dir, use_sudo=args.use_sudo)
+
     if "packet" in args.test_suites:
-        run_packet_tests(args.packet_test_args.split(), args.use_sudo)
+        runner.run_packet_tests(args.packet_test_args.split())
 
     if "pcap" in args.test_suites:
-        run_pcap_tests(
+        runner.run_pcap_tests(
             args.interface,
             args.tcpreplay_dir,
-            args.pcap_test_args.split(),
-            args.use_sudo,
+            args.pcap_test_args.split()
         )
 
 
