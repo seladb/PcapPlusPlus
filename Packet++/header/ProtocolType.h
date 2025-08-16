@@ -8,6 +8,28 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	/// @defgroup ProtocolTypes ProtocolType and ProtocolTypeFamily
+	/// In the PcapPlusPlus library, specific protocols are identified by a `ProtocolType` value, which is an 8-bit
+	/// unsigned integer. Each Layer class has a ProtocolType that can be used to identify the protocol of that layer.
+	///
+	/// As there are some situations where multiple protocols can be grouped together (e.g. IPv4 and IPv6 into IP),
+	/// PcapPlusPlus also defines ProtocolTypeFamily, which is a group of multiple protocol types. In functions where a
+	/// ProtocolTypeFamily parameter is expected, a single ProtocolType value can be passed instead. The library will
+	/// treat it as a family containing only that single protocol.
+	///
+	/// @internal
+	///
+	/// A ProtocolTypeFamily pack is represented as a 32-bit unsigned integer. Each octet in the 32-bit value is a
+	/// ProtocolType, allowing for up to 4 protocols to be packed into a single ProtocolTypeFamily value. For example,
+	/// the ProtocolTypeFamily for IP is represented as 0x203, which contains both IPv4 (0x02) and IPv6 (0x03)
+	/// protocols. A single ProtocolType casted to ProtocolTypeFamily will result the value '0x000000xx' where 'xx' is
+	/// the value of the ProtocolType.
+	///
+	/// @endinternal
+
+	/// @addtogroup ProtocolTypes
+	/// @{
+
 	/// @typedef ProtocolType
 	/// Representing all protocols supported by PcapPlusPlus
 	typedef uint8_t ProtocolType;
@@ -163,8 +185,8 @@ namespace pcpp
 	/// Telnet Protocol
 	const ProtocolType Telnet = 40;
 
-	/// File Transfer (FTP) Protocol
-	const ProtocolType FTP = 41;
+	/// File Transfer (FTP) Protocol - Control channel
+	const ProtocolType FTPControl = 41;
 
 	/// ICMPv6 protocol
 	const ProtocolType ICMPv6 = 42;
@@ -223,8 +245,16 @@ namespace pcpp
 	/// Diagnostic over IP protocol (DOIP)
 	const ProtocolType DOIP = 59;
 
-	/// Modbus protocol
-	const ProtocolType Modbus = 60;
+	/// File Transfer Protocol (FTP) Data channel
+	const ProtocolType FTPData = 60;
+
+  /// Modbus protocol
+	const ProtocolType Modbus = 61;
+  
+	/// FTP protocol family (FTPControl and FtpData protocols)
+	const ProtocolTypeFamily FTP = 0x3c29;
+
+	/// @}
 
 	/// An enum representing OSI model layers
 	enum OsiModelLayer
@@ -253,6 +283,7 @@ namespace pcpp
 		/// @param family A protocol type family value.
 		/// @param protocol A protocol type value to check against the family.
 		/// @return True if the protocol is part of the family, false otherwise.
+		/// @ingroup ProtocolTypes
 		constexpr bool protoFamilyContainsProtocol(ProtocolTypeFamily family, ProtocolType protocol)
 		{
 			auto const protocolToFamily = static_cast<ProtocolTypeFamily>(protocol);
