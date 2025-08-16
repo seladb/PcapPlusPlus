@@ -97,7 +97,7 @@ def main():
         "build-dir",
         type=str,
         default=os.getcwd(),
-        dst="build_dir",
+        dest="build_dir",
         help="path to the build directory"
     )
     args = parser.parse_args()
