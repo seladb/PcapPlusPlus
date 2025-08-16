@@ -39,37 +39,37 @@ namespace pcpp
 		// Each value corresponds to a specific operation defined by the Modbus protocol.
 		enum class ModbusFunctionCode : uint8_t
 		{
-			/** Read coil status (0x01) */
+			// Read coil status (0x01)
 			READ_COILS = 1,
 
-			/** Read discrete input status (0x02) */
+			// Read discrete input status (0x02)
 			READ_DISCRETE_INPUTS = 2,
 
-			/** Read holding registers (0x03) */
+			// Read holding registers (0x03)
 			READ_HOLDING_REGISTERS = 3,
 
-			/** Read input registers (0x04) */
+			// Read input registers (0x04)
 			READ_INPUT_REGISTERS = 4,
 
-			/** Write a single coil (0x05) */
+			// Write a single coil (0x05)
 			WRITE_SINGLE_COIL = 5,
 
-			/** Write a single holding register (0x06) */
+			// Write a single holding register (0x06)
 			WRITE_SINGLE_REGISTER = 6,
 
-			/** Write multiple coils (0x0F) */
+			// Write multiple coils (0x0F)
 			WRITE_MULTIPLE_COILS = 15,
 
-			/** Write multiple holding registers (0x10) */
+			// Write multiple holding registers (0x10)
 			WRITE_MULTIPLE_REGISTERS = 16,
 
-			/** Report slave ID (0x11) */
+			// Report slave ID (0x11)
 			REPORT_SLAVE_ID = 17,
 
-			/** Limit to check if the function code is valid */
+			// Limit to check if the function code is valid
 			FUNCTION_CODE_LIMIT,
 
-			/** Unknown or unsupported function code (0xFF) */
+			// Unknown or unsupported function code (0xFF)
 			UNKNOWN_FUNCTION = 0xFF
 		};
 
