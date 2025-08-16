@@ -97,11 +97,12 @@ def main():
         "build-dir",
         type=str,
         default=os.getcwd(),
+        dst="build_dir",
         help="path to the build directory"
     )
     args = parser.parse_args()
 
-    runner = Runner(build_dir=args.build_dir, use_sudo=args.use_sudo)
+    runner = Runner(build_dir=Path(args.build_dir), use_sudo=args.use_sudo)
 
     if "packet" in args.test_suites:
         runner.run_packet_tests(args.packet_test_args.split())
