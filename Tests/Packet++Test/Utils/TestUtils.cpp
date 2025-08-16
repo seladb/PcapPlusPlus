@@ -5,7 +5,6 @@
 #include <string.h>
 #include <string>
 #include <fstream>
-
 namespace pcpp_tests
 {
 
@@ -116,18 +115,6 @@ namespace pcpp_tests
 	{
 		pcpp::SomeIpLayer::addSomeIpPort(1);
 		pcpp::SomeIpLayer::removeSomeIpPort(1);
-	}
-
-	pcpp::RawPacket RawPacketFactory::createRawPacketFromFile(const char* fileName) const
-	{
-		return createRawPacketFromFile(fileName, defaultLinkType);
-	}
-
-	pcpp::RawPacket RawPacketFactory::createRawPacketFromFile(const char* fileName, pcpp::LinkLayerType linkType) const
-	{
-		int bufferLength = 0;
-		auto bufferPtr = readFileIntoBuffer(fileName, bufferLength);  // Ensure file exists and can be read
-		return pcpp::RawPacket(bufferPtr, bufferLength, defaultTime, true, linkType);
 	}
 
 #ifdef PCPP_TESTS_DEBUG

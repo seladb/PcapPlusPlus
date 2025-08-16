@@ -12,16 +12,15 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	pcpp_tests::RawPacketFactory factory;
-	factory.defaultTime = time;
 
-	auto rawPacket1 = factory.createRawPacketFromFile("PacketExamples/Bgp_keepalive.dat");
-	auto rawPacket2 = factory.createRawPacketFromFile("PacketExamples/Bgp_open.dat");
-	auto rawPacket3 = factory.createRawPacketFromFile("PacketExamples/Bgp_notification.dat");
-	auto rawPacket4 = factory.createRawPacketFromFile("PacketExamples/Bgp_notification2.dat");
-	auto rawPacket5 = factory.createRawPacketFromFile("PacketExamples/Bgp_route-refresh.dat");
-	auto rawPacket6 = factory.createRawPacketFromFile("PacketExamples/Bgp_update1.dat");
-	auto rawPacket7 = factory.createRawPacketFromFile("PacketExamples/Bgp_update2.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Bgp_keepalive.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Bgp_open.dat");
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/Bgp_notification.dat");
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/Bgp_notification2.dat");
+	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/Bgp_route-refresh.dat");
+	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/Bgp_update1.dat");
+	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/Bgp_update2.dat");
+
 	// parse BGP KEEPALIVE message
 
 	pcpp::Packet bgpKAPacket(&rawPacket1);

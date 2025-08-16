@@ -9,8 +9,6 @@
 #include <cstdlib>
 #include <vector>
 
-#include "RawPacket.h"
-
 namespace pcpp_tests
 {
 
@@ -22,15 +20,6 @@ namespace pcpp_tests
 	void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uint8_t* buffer2, size_t buffer2Len);
 
 	void testSetUp();
-	
-	struct RawPacketFactory
-	{
-		timeval defaultTime;                 ///< Default time to use when creating RawPackets
-		pcpp::LinkLayerType defaultLinkType;  ///< Default link layer type to use when creating RawPackets
-
-		pcpp::RawPacket createRawPacketFromFile(const char* filename) const;
-		pcpp::RawPacket createRawPacketFromFile(const char* filename, pcpp::LinkLayerType linkType) const;
-	};
 
 #define READ_FILE_INTO_BUFFER(num, filename)                                                                           \
 	int bufferLength##num = 0;                                                                                         \
