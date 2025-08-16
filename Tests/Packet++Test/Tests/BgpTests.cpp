@@ -13,17 +13,17 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Bgp_keepalive.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Bgp_open.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/Bgp_notification.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/Bgp_notification2.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/Bgp_route-refresh.dat");
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/Bgp_update1.dat");
-	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/Bgp_update2.dat");
+	auto rawPacket1 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_keepalive.dat");
+	auto rawPacket2 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_open.dat");
+	auto rawPacket3 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_notification.dat");
+	auto rawPacket4 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_notification2.dat");
+	auto rawPacket5 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_route-refresh.dat");
+	auto rawPacket6 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_update1.dat");
+	auto rawPacket7 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_update2.dat");
 
 	// parse BGP KEEPALIVE message
 
-	pcpp::Packet bgpKAPacket(&rawPacket1);
+	pcpp::Packet bgpKAPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(bgpKAPacket.isPacketOfType(pcpp::BGP));
 	pcpp::BgpLayer* bgpLayer = bgpKAPacket.getLayerOfType<pcpp::BgpLayer>();
@@ -42,7 +42,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 
 	// parse BGP OPEN message
 
-	pcpp::Packet bgpOpenPacket(&rawPacket2);
+	pcpp::Packet bgpOpenPacket(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(bgpOpenPacket.isPacketOfType(pcpp::BGP));
 	bgpLayer = bgpOpenPacket.getLayerOfType<pcpp::BgpLayer>();
@@ -78,7 +78,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 
 	// parse BGP NOTIFICATION message
 
-	pcpp::Packet bgpNotificationPacket(&rawPacket3);
+	pcpp::Packet bgpNotificationPacket(rawPacket3.get());
 
 	PTF_ASSERT_TRUE(bgpNotificationPacket.isPacketOfType(pcpp::BGP));
 	pcpp::BgpNotificationMessageLayer* bgpNotificationLayer =
@@ -100,7 +100,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	    "726520696e666f726d6174696f6e2e";
 	PTF_ASSERT_EQUAL(bgpNotificationLayer->getNotificationDataAsHexString(), notificationDataAsHexString);
 
-	pcpp::Packet bgpNotificationNoDataPacket(&rawPacket4);
+	pcpp::Packet bgpNotificationNoDataPacket(rawPacket4.get());
 
 	PTF_ASSERT_TRUE(bgpNotificationNoDataPacket.isPacketOfType(pcpp::BGP));
 	bgpNotificationLayer = bgpNotificationNoDataPacket.getLayerOfType<pcpp::BgpNotificationMessageLayer>();
@@ -111,7 +111,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 
 	// parse BGP ROUTE-REFRESH message
 
-	pcpp::Packet bgpRRPacket(&rawPacket5);
+	pcpp::Packet bgpRRPacket(rawPacket5.get());
 
 	PTF_ASSERT_TRUE(bgpRRPacket.isPacketOfType(pcpp::BGP));
 	pcpp::BgpRouteRefreshMessageLayer* bgpRRLayer = bgpRRPacket.getLayerOfType<pcpp::BgpRouteRefreshMessageLayer>();
@@ -124,7 +124,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 
 	// parse BGP UPDATE message with Withdrawn Routes
 
-	pcpp::Packet bgpUpdatePacket1(&rawPacket6);
+	pcpp::Packet bgpUpdatePacket1(rawPacket6.get());
 
 	PTF_ASSERT_TRUE(bgpUpdatePacket1.isPacketOfType(pcpp::BGP));
 	pcpp::BgpUpdateMessageLayer* bgpUpdateLayer = bgpUpdatePacket1.getLayerOfType<pcpp::BgpUpdateMessageLayer>();
@@ -156,7 +156,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 
 	// parse BGP UPDATE message with Path Attributes
 
-	pcpp::Packet bgpUpdatePacket2(&rawPacket7);
+	pcpp::Packet bgpUpdatePacket2(rawPacket7.get());
 
 	PTF_ASSERT_TRUE(bgpUpdatePacket2.isPacketOfType(pcpp::BGP));
 	bgpUpdateLayer = bgpUpdatePacket2.getLayerOfType<pcpp::BgpUpdateMessageLayer>();

@@ -4,6 +4,7 @@
 #include "TestDefinition.h"
 #include "Logger.h"
 #include "../../Tests/Packet++Test/Utils/TestUtils.h"
+#include "Resources.hpp"
 
 static struct option PacketTestOptions[] = {
 	{ "include-tags",        required_argument, nullptr, 't' },
@@ -75,6 +76,12 @@ int main(int argc, char* argv[])
 	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
 	          << "Built: " << pcpp::getBuildDateTime() << std::endl
 	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+
+	std::cout << "Using data root: current directory" << std::endl;
+
+	// Set the resource provider for the tests
+	auto resourceProvider = std::make_unique<pcpp_tests::utils::ResourceProvider>("");
+	pcpp_tests::setResourceProvider(resourceProvider.get());
 
 #ifdef NDEBUG
 	skipMemLeakCheck = true;

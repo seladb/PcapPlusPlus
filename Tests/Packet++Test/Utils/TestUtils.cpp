@@ -8,6 +8,20 @@
 namespace pcpp_tests
 {
 
+	static utils::ResourceProvider* provider = nullptr;
+
+	void setResourceProvider(utils::ResourceProvider* resourceProvider)
+	{
+		provider = resourceProvider;
+	}
+
+	utils::ResourceProvider* getResourceProvider()
+	{
+		if (provider == nullptr)
+			throw std::runtime_error("Resource provider is not set");
+		return provider;
+	}
+
 	int getFileLength(const char* filename)
 	{
 		std::ifstream infile(filename, std::ifstream::binary);
@@ -109,6 +123,22 @@ namespace pcpp_tests
 			}
 		}
 		std::cout << "\n\n" << std::dec << differenceCount << " bytes differ\n\n";
+	}
+
+	std::unique_ptr<pcpp::RawPacket> createPacketFromHexResource(const std::string& resourceName,
+	                                                       const utils::PacketFactory& factory,
+	                                                       utils::ResourceProvider const* resourceProvider)
+	{
+		using pcpp_tests::utils::ResourceType;
+		
+		if (resourceProvider == nullptr)
+		{
+			// If no data loader is provided, use the current test environment's data loader
+			resourceProvider = getResourceProvider();
+		}
+
+		auto resource = resourceProvider->loadResource(resourceName, ResourceType::HexData);
+		return factory.createFromBuffer(std::move(resource.data), resource.length);
 	}
 
 	void testSetUp()
