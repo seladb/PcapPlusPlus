@@ -612,12 +612,9 @@ namespace pcpp
 			throw std::invalid_argument("Value is not a valid hex stream");
 		}
 
-		for (const char i : valueStr)
+		if (std::any_of(valueStr.begin(), valueStr.end(), [](char c) { return !std::isxdigit(c); }))
 		{
-			if (!std::isxdigit(i))
-			{
-				throw std::invalid_argument("Value is not a valid hex stream");
-			}
+			throw std::invalid_argument("Value is not a valid hex stream");
 		}
 
 		return valueStr;

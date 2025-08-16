@@ -1,6 +1,7 @@
 #include "X509Decoder.h"
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
+#include "PemCodec.h"
 #include "json.hpp"
 #include <fstream>
 #include <unordered_map>
@@ -971,6 +972,40 @@ namespace pcpp
 		return std::unique_ptr<X509Certificate>(new X509Certificate(std::move(derData), derDataLen));
 	}
 
+	std::unique_ptr<X509Certificate> X509Certificate::fromPEM(const std::string& pemData)
+	{
+		auto derData = PemCodec::decode(pemData, certificatePemLabel);
+		auto derDataBuffer = std::make_unique<uint8_t[]>(derData.size());
+		std::copy(derData.begin(), derData.end(), derDataBuffer.get());
+		return std::unique_ptr<X509Certificate>(new X509Certificate(std::move(derDataBuffer), derData.size()));
+	}
+
+	std::unique_ptr<X509Certificate> X509Certificate::fromPEMFile(const std::string& pemFileName)
+	{
+		std::ifstream pemFile(pemFileName, std::ios::in | std::ios::binary);
+		if (!pemFile.good())
+		{
+			throw std::runtime_error("PEM file doesn't exist or cannot be opened");
+		}
+
+		pemFile.seekg(0, std::ios::end);
+		std::streamsize pemContentLen = pemFile.tellg();
+		if (pemContentLen < 0)
+		{
+			throw std::runtime_error("Failed to determine PEM file size");
+		}
+		pemFile.seekg(0, std::ios::beg);
+
+		std::string pemContent;
+		pemContent.resize(static_cast<std::size_t>(pemContentLen));
+		if (!pemFile.read(&pemContent[0], pemContentLen))
+		{
+			throw std::runtime_error("Failed to read PEM file");
+		}
+
+		return fromPEM(pemContent);
+	}
+
 	X509Version X509Certificate::getVersion() const
 	{
 		return m_TBSCertificate.getVersion();
@@ -1066,6 +1101,11 @@ namespace pcpp
 	std::vector<uint8_t> X509Certificate::toDER() const
 	{
 		return m_X509Internal->encode();
+	}
+
+	std::string X509Certificate::toPEM() const
+	{
+		return PemCodec::encode(m_X509Internal->encode(), certificatePemLabel);
 	}
 
 	std::string X509Certificate::toJson(int indent) const

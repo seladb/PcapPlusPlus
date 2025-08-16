@@ -44,13 +44,8 @@ namespace pcpp
 		}
 
 		std::string optionWithEscapeChars;
-		for (char ch : option)
-		{
-			if (ch < 127 && ch > 31)
-			{
-				optionWithEscapeChars.push_back(ch);
-			}
-		}
+		std::copy_if(option.begin(), option.end(), std::back_inserter(optionWithEscapeChars),
+		             [](char ch) { return ch < 127 && ch > 31; });
 
 		return optionWithEscapeChars;
 	}
