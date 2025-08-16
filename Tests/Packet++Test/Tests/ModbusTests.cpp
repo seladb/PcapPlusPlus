@@ -32,9 +32,6 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 	PTF_ASSERT_EQUAL(static_cast<uint8_t>(modbusLayer.getFunctionCode()),
 	                 static_cast<uint8_t>(pcpp::ModbusLayer::ModbusFunctionCode::WRITE_SINGLE_REGISTER));
 
-	// just to pass the codecov
-	modbusLayer.computeCalculateFields();
-
 }  // ModbusLayerCreationTest
 
 PTF_TEST_CASE(ModbusLayerParsingTest)
