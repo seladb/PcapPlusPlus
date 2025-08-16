@@ -248,9 +248,9 @@ namespace pcpp
 	/// File Transfer Protocol (FTP) Data channel
 	const ProtocolType FTPData = 60;
 
-  /// Modbus protocol
+	/// Modbus protocol
 	const ProtocolType Modbus = 61;
-  
+
 	/// FTP protocol family (FTPControl and FtpData protocols)
 	const ProtocolTypeFamily FTP = 0x3c29;
 
