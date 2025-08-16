@@ -34,13 +34,9 @@ namespace pcpp
 	class ModbusLayer : public Layer
 	{
 	public:
-		/**
-		 * @brief Enum class representing Modbus function codes.
-		 *
-		 * This enumeration defines the standard Modbus function codes used in request and response PDUs.
-		 * Each value corresponds to a specific operation defined by the Modbus protocol.
-		 *
-		 */
+		// @brief Enum class representing Modbus function codes.
+		// This enumeration defines the standard Modbus function codes used in request and response PDUs.
+		// Each value corresponds to a specific operation defined by the Modbus protocol.
 		enum class ModbusFunctionCode : uint8_t
 		{
 			/** Read coil status (0x01) */

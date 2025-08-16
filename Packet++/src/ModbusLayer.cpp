@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstring>
+#include "Logger.h"
 
 namespace pcpp
 {
@@ -11,7 +12,7 @@ namespace pcpp
 		const int16_t pduSize = getFunctionDataSize(functionCode);
 		if (pduSize < 0)
 		{
-			std::cerr << "Unsupported function code: " << static_cast<int>(functionCode) << std::endl;
+			PCPP_LOG_ERROR("Unsupported function code: " << static_cast<int>(functionCode));
 			return;
 		}
 
@@ -57,7 +58,13 @@ namespace pcpp
 
 	ModbusLayer::ModbusFunctionCode ModbusLayer::getFunctionCode() const
 	{
-		return static_cast<ModbusLayer::ModbusFunctionCode>(getModbusHeader()->functionCode);
+		ModbusLayer::ModbusFunctionCode functionCode =
+		    static_cast<ModbusLayer::ModbusFunctionCode>(getModbusHeader()->functionCode);
+		if (functionCode >= ModbusLayer::ModbusFunctionCode::FUNCTION_CODE_LIMIT)
+		{
+			return ModbusLayer::ModbusFunctionCode::UNKNOWN_FUNCTION;
+		}
+		return functionCode;
 	}
 
 	void ModbusLayer::setTransactionId(uint16_t transactionId)
@@ -74,6 +81,7 @@ namespace pcpp
 	{
 		if (functionCode >= ModbusLayer::ModbusFunctionCode::FUNCTION_CODE_LIMIT)
 		{
+			PCPP_LOG_ERROR("Invalid Modbus function code: " << static_cast<int>(functionCode));
 			return;
 		}
 		getModbusHeader()->functionCode = static_cast<uint8_t>(functionCode);

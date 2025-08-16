@@ -16,13 +16,13 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 
 	pcpp::Packet realPacket(&rawPacket1);
 	PTF_ASSERT_TRUE(realPacket.isPacketOfType(pcpp::Modbus));
-	pcpp::ModbusLayer* modbusLayerFromRealPacket = realPacket.getLayerOfType<pcpp::ModbusLayer>();
+	auto* modbusLayerFromRealPacket = realPacket.getLayerOfType<pcpp::ModbusLayer>();
 
 	pcpp::ModbusLayer modbusLayer(17, 255, pcpp::ModbusLayer::ModbusFunctionCode::READ_INPUT_REGISTERS);
 
-	PTF_ASSERT_BUF_COMPARE(modbusLayer.getData(), modbusLayerFromRealPacket->getData(), modbusLayer.getHeaderLen());
 	PTF_ASSERT_EQUAL(modbusLayer.getDataLen(), modbusLayerFromRealPacket->getDataLen());
 	PTF_ASSERT_EQUAL(modbusLayer.getOsiModelLayer(), pcpp::OsiModelApplicationLayer);
+	PTF_ASSERT_BUF_COMPARE(modbusLayer.getData(), modbusLayerFromRealPacket->getData(), modbusLayer.getHeaderLen());
 
 	modbusLayer.setTransactionId(54321);
 	PTF_ASSERT_EQUAL(modbusLayer.getTransactionId(), 54321);
