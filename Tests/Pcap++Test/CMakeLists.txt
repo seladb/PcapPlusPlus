@@ -26,15 +26,16 @@ if(MSVC)
   target_link_libraries(Pcap++Test PRIVATE Getopt-for-Visual-Studio)
 endif()
 
-add_custom_command(TARGET Pcap++Test
- POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  "${CMAKE_CURRENT_SOURCE_DIR}/PcapExamples"
-  "$<TARGET_FILE_DIR:Pcap++Test>/PcapExamples"
+add_custom_command(
+  TARGET Pcap++Test
+  POST_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/PcapExamples"
+    "$<TARGET_FILE_DIR:Pcap++Test>/PcapExamples"
 )
 
 # set_property(TARGET Pcap++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 # set_property(TARGET Pcap++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 # set_property(TARGET Pcap++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 # add_test(NAME Pcap++Test COMMAND $<TARGET_FILE:Pcap++Test> -n WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
-add_test(NAME Pcap++Test COMMAND $<TARGET_FILE:Pcap++Test> -n  WORKING_DIRECTORY $<TARGET_FILE_DIR:Pcap++Test>)
+add_test(NAME Pcap++Test COMMAND $<TARGET_FILE:Pcap++Test> -n WORKING_DIRECTORY $<TARGET_FILE_DIR:Pcap++Test>)
