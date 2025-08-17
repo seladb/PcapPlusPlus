@@ -94,10 +94,9 @@ def main():
         help="tcpreplay directory",
     )
     parser.add_argument(
-        "build-dir",
+        "build_dir",
         type=str,
         default=os.getcwd(),
-        dest="build_dir",
         help="path to the build directory"
     )
     args = parser.parse_args()
