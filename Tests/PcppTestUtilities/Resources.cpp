@@ -17,7 +17,7 @@ namespace pcpp_tests
 				return length;
 			}
 
-			std::uint8_t hexCharToDigit(char c)
+			uint8_t hexCharToDigit(char c)
 			{
 				if (c >= '0' && c <= '9')
 					return c - '0';
@@ -28,14 +28,14 @@ namespace pcpp_tests
 				throw std::invalid_argument("Invalid hex character");
 			}
 
-			std::uint8_t hexPairToByte(const char* pair)
+			uint8_t hexPairToByte(const char* pair)
 			{
 				return (hexCharToDigit(pair[0]) << 4) | hexCharToDigit(pair[1]);
 			}
 
 			std::vector<uint8_t> readHexResource(std::ifstream& stream)
 			{
-				std::vector<std::uint8_t> buffer;
+				std::vector<uint8_t> buffer;
 
 				char hexPair[2];  // 0 - high, 1 - low
 				while (stream.read(hexPair, 2))
