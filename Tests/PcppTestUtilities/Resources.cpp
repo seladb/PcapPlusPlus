@@ -75,7 +75,7 @@ namespace pcpp_tests
 				fullPath = filename;
 			}
 
-			auto const requireOpen = [filename](std::ifstream& fileStream) {
+			auto const requireOpen = [filename](std::ifstream const& fileStream) {
 				if (!fileStream)
 				{
 					throw std::runtime_error(std::string("Failed to open file: ") + filename);
