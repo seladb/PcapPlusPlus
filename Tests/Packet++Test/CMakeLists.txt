@@ -58,7 +58,7 @@ target_link_libraries(
 
 if(WIN32)
   # Otherwise winsock2.h will get conflict definitions with windows.h
-  target_compile_definitions(Packet++Test PUBLIC "WIN32_LEAN_AND_MEAN")
+  target_compile_definitions(Packet++Test PUBLIC WIN32_LEAN_AND_MEAN)
 endif()
 
 if(MSVC)
