@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 
 	// Set the resource provider for the tests
 	auto resourceProvider = std::make_unique<pcpp_tests::utils::ResourceProvider>("");
-	pcpp_tests::setResourceProvider(resourceProvider.get());
+	pcpp_tests::setDefaultResourceProvider(resourceProvider.get());
 
 #ifdef NDEBUG
 	skipMemLeakCheck = true;

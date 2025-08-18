@@ -9,13 +9,10 @@
 #include <cstdlib>
 #include <vector>
 
-#include "Resources.hpp"
 #include "PacketFactory.hpp"
 
 namespace pcpp_tests
 {
-	void setResourceProvider(utils::ResourceProvider* resourceProvider);
-	utils::ResourceProvider* getResourceProvider();
 
 	int getFileLength(const char* filename);
 
@@ -23,16 +20,6 @@ namespace pcpp_tests
 	uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength);
 
 	void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uint8_t* buffer2, size_t buffer2Len);
-
-	/// @brief Creates a RawPacket from a resource file.
-	/// @param resourceName The name of the resource file to read the packet data from.
-	/// @param factory The PacketFactory to use for creating the RawPacket.
-	/// @param resourceProvider An optional ResourceProvider to use for loading the resource file.
-	///   Uses the default resource provider if not provided.
-	/// @return A RawPacket object created from the resource file.
-	std::unique_ptr<pcpp::RawPacket> createPacketFromHexResource(
-	    const std::string& resourceName, const utils::PacketFactory& factory = utils::PacketFactory(),
-	    utils::ResourceProvider const* resourceProvider = nullptr);
 
 	void testSetUp();
 

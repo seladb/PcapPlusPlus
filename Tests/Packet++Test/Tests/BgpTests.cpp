@@ -10,16 +10,15 @@
 
 PTF_TEST_CASE(BgpLayerParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	using pcpp_tests::utils::createPacketFromHexResource;
 
-	auto rawPacket1 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_keepalive.dat");
-	auto rawPacket2 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_open.dat");
-	auto rawPacket3 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_notification.dat");
-	auto rawPacket4 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_notification2.dat");
-	auto rawPacket5 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_route-refresh.dat");
-	auto rawPacket6 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_update1.dat");
-	auto rawPacket7 = pcpp_tests::createPacketFromHexResource("PacketExamples/Bgp_update2.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Bgp_keepalive.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/Bgp_open.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/Bgp_notification.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/Bgp_notification2.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/Bgp_route-refresh.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/Bgp_update1.dat");
+	auto rawPacket7 = createPacketFromHexResource("PacketExamples/Bgp_update2.dat");
 
 	// parse BGP KEEPALIVE message
 

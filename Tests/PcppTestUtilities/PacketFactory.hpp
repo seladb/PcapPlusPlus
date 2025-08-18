@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "RawPacket.h"
+#include "Resources.hpp"
 
 namespace pcpp_tests
 {
@@ -46,5 +47,15 @@ namespace pcpp_tests
 			/// @return A RawPacket object created from the buffer.
 			std::unique_ptr<pcpp::RawPacket> createFromBufferNonOwning(const uint8_t* buffer, size_t bufferLen) const;
 		};
+
+		/// @brief Creates a RawPacket from a resource file.
+		/// @param resourceName The name of the resource file to read the packet data from.
+		/// @param factory The PacketFactory to use for creating the RawPacket.
+		/// @param resourceProvider An optional ResourceProvider to use for loading the resource file.
+		///   Uses the default resource provider if not provided.
+		/// @return A RawPacket object created from the resource file.
+		std::unique_ptr<pcpp::RawPacket> createPacketFromHexResource(
+		    const std::string& resourceName, const PacketFactory& factory = PacketFactory(),
+		    ResourceProvider const* resourceProvider = nullptr);
 	}  // namespace utils
-}  // namespace pcpp_test
+}  // namespace pcpp_tests

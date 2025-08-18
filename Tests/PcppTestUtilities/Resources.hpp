@@ -46,4 +46,7 @@ namespace pcpp_tests
 		};
 
 	}  // namespace utils
+
+	void setDefaultResourceProvider(utils::ResourceProvider* resourceProvider);
+	utils::ResourceProvider* getDefaultResourceProvider0();
 }  // namespace pcpp_test

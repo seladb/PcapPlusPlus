@@ -79,8 +79,20 @@ namespace pcpp_tests
 			                                   defaultLinkType);
 		}
 
-		/*
-		
-		*/
+		std::unique_ptr<pcpp::RawPacket> createPacketFromHexResource(const std::string& resourceName,
+		                                                             const utils::PacketFactory& factory,
+		                                                             utils::ResourceProvider const* resourceProvider)
+		{
+			using pcpp_tests::utils::ResourceType;
+
+			if (resourceProvider == nullptr)
+			{
+				// If no data loader is provided, use the current test environment's data loader
+				resourceProvider = getDefaultResourceProvider0();
+			}
+
+			auto resource = resourceProvider->loadResource(resourceName, ResourceType::HexData);
+			return factory.createFromBuffer(std::move(resource.data), resource.length);
+		}
 	}  // namespace utils
-}  // namespace pcpp_test
+}  // namespace pcpp_tests

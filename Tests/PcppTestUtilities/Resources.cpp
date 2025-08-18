@@ -62,7 +62,8 @@ namespace pcpp_tests
 			return resource;
 		}
 
-		std::vector<uint8_t> ResourceProvider::loadResourceToVector(const char* filename, ResourceType resourceType) const
+		std::vector<uint8_t> ResourceProvider::loadResourceToVector(const char* filename,
+		                                                            ResourceType resourceType) const
 		{
 			std::string fullPath;
 			if (!m_DataRoot.empty())
@@ -106,4 +107,21 @@ namespace pcpp_tests
 			}
 		}
 	}  // namespace utils
-}  // namespace pcpp_test
+
+	namespace
+	{
+		utils::ResourceProvider* provider = nullptr;
+	}
+
+	void setDefaultResourceProvider(utils::ResourceProvider* resourceProvider)
+	{
+		provider = resourceProvider;
+	}
+
+	utils::ResourceProvider* getDefaultResourceProvider0()
+	{
+		if (provider == nullptr)
+			throw std::runtime_error("Resource provider is not set");
+		return provider;
+	}
+}  // namespace pcpp_tests
