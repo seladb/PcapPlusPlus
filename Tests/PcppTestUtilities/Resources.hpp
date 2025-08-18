@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include <cstdint>
+
 namespace pcpp_tests
 {
 	namespace utils
