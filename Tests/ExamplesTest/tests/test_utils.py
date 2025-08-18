@@ -54,8 +54,11 @@ def compare_files_ignore_newline(
     return True
 
 
-def compare_stdout_with_file(stdout, file_path, skip_line_predicate):
+def compare_stdout_with_file(stdout, file_path, skip_line_predicate=None):
     assert os.path.exists(file_path)
+
+    if skip_line_predicate is None:
+        skip_line_predicate = lambda _: False
 
     with open(file_path, "r") as f:
         for line_f, line_stdout in zip(

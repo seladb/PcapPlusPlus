@@ -89,6 +89,11 @@ void printAppVersion()
 /// Open input file and return X509Certificate object
 std::unique_ptr<pcpp::X509Certificate> openCertFile(const std::string& certFileName)
 {
+	if (certFileName.empty())
+	{
+		EXIT_WITH_ERROR("Input file name is not specified");
+	}
+
 	std::ifstream certFile(certFileName, std::ios::in | std::ios::binary);
 	if (!certFile.good())
 	{
@@ -115,11 +120,6 @@ std::unique_ptr<pcpp::X509Certificate> openCertFile(const std::string& certFileN
 /// Show certificate info
 static void showCertInfo(const std::string& inputFileName)
 {
-	if (inputFileName.empty())
-	{
-		EXIT_WITH_ERROR("Input file name is not specified");
-	}
-
 	auto cert = openCertFile(inputFileName);
 
 	std::cout << "Subject:        " << cert->getSubject().toString() << std::endl
@@ -139,11 +139,6 @@ static void showCertInfo(const std::string& inputFileName)
 static void convertCertFile(const std::string& inputFileName, const std::string& outputFileName,
                             const std::string& format)
 {
-	if (inputFileName.empty())
-	{
-		EXIT_WITH_ERROR("Input file name is not specified");
-	}
-
 	if (format.empty())
 	{
 		EXIT_WITH_ERROR("Output format is not specified");
@@ -182,7 +177,7 @@ static void convertCertFile(const std::string& inputFileName, const std::string&
 			std::cout << pcpp::Base64::encode(der) << std::endl;
 			return;
 		}
-		std::ofstream derFile(outputFileName);
+		std::ofstream derFile(outputFileName, std::ios::binary);
 		if (!derFile.is_open())
 		{
 			EXIT_WITH_ERROR("Failed to open output file");
@@ -190,18 +185,13 @@ static void convertCertFile(const std::string& inputFileName, const std::string&
 		derFile.write(reinterpret_cast<const char*>(der.data()), der.size());
 		derFile.close();
 
-		std::cout << GREEN_COLOR << "Converted successfully to: " << outputFileName << RESET_COLOR << std::endl;
+		std::cout << GREEN_COLOR << "[V] Converted successfully to: " << outputFileName << RESET_COLOR << std::endl;
 	}
 }
 
 /// Convert certificate to JSON format
 static void parseCertAsJson(const std::string& inputFileName, const std::string& outputFileName)
 {
-	if (inputFileName.empty())
-	{
-		EXIT_WITH_ERROR("Input file name is not specified");
-	}
-
 	auto cert = openCertFile(inputFileName);
 
 	auto json = cert->toJson(4);
@@ -211,6 +201,10 @@ static void parseCertAsJson(const std::string& inputFileName, const std::string&
 		return;
 	}
 	std::ofstream jsonFile(outputFileName);
+	if (!jsonFile.is_open())
+	{
+		EXIT_WITH_ERROR("Failed to open output file");
+	}
 	jsonFile << json;
 	jsonFile.close();
 }
@@ -218,11 +212,6 @@ static void parseCertAsJson(const std::string& inputFileName, const std::string&
 /// Check and print certificate expiration info
 static void checkCertExpiration(const std::string& inputFileName)
 {
-	if (inputFileName.empty())
-	{
-		EXIT_WITH_ERROR("Input file name is not specified");
-	}
-
 	auto cert = openCertFile(inputFileName);
 
 	auto validityInfo = "Valid from:     " + cert->getNotBefore().toString() +

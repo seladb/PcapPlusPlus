@@ -277,7 +277,7 @@ private:
 		{
 			std::string const outputFileName =
 			    m_OutputDirectory + DIR_SEPARATOR + std::to_string(m_Stats.parsedCertificates + 1) + ".der";
-			std::ofstream derFile(outputFileName);
+			std::ofstream derFile(outputFileName, std::ios::binary);
 			if (!derFile.is_open())
 			{
 				throw std::runtime_error("Unable to open file " + outputFileName);
