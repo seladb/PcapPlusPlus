@@ -330,7 +330,7 @@ PTF_TEST_CASE(X509VariantsParsingTest)
 		PTF_ASSERT_EQUAL(x509Cert->getSerialNumber().toString(), "80");
 	}
 
-	// No version field
+	// No version and extensions fields
 	{
 		auto x509Cert = pcpp::X509Certificate::fromPEMFile("PacketExamples/x509_cert_no_version_extension_fields.pem");
 		PTF_ASSERT_EQUAL(x509Cert->getVersion(), pcpp::X509Version::V1, enumclass);
