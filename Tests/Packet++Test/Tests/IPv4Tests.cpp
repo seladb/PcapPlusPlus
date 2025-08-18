@@ -12,6 +12,8 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(IPv4PacketCreation)
 {
 	pcpp::MacAddress srcMac("aa:aa:aa:aa:aa:aa");
@@ -57,13 +59,10 @@ PTF_TEST_CASE(IPv4PacketCreation)
 
 PTF_TEST_CASE(IPv4PacketParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpPacket.dat");
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/IcmpPacket.dat");
 
-		pcpp::Packet ip4Packet(&rawPacket1);
+		pcpp::Packet ip4Packet(rawPacket1.get());
 		PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::Ethernet));
 		PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::EthLayer>());
 		PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::IP));
@@ -86,9 +85,9 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4-TSO.dat");
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/IPv4-TSO.dat");
 
-		pcpp::Packet ip4TSO(&rawPacket1);
+		pcpp::Packet ip4TSO(rawPacket1.get());
 
 		auto ipv4Layer = ip4TSO.getLayerOfType<pcpp::IPv4Layer>();
 		PTF_ASSERT_NOT_NULL(ipv4Layer);
@@ -100,7 +99,7 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ipv4-malformed1.dat");
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ipv4-malformed1.dat");
 
 		pcpp::Packet bogusPkt(&rawPacket1, pcpp::IPv4);
 
@@ -109,7 +108,7 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ipv4-malformed2.dat");
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ipv4-malformed2.dat");
 
 		pcpp::Packet bogusPkt(&rawPacket1, pcpp::IPv4);
 
@@ -119,7 +118,7 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4-encapsulated-IPv6.dat");
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/IPv4-encapsulated-IPv6.dat");
 		pcpp::Packet encapsulatedPkt(&rawPacket1, pcpp::IPv6);
 
 		pcpp::IPv6Layer* ipv6Layer = encapsulatedPkt.getLayerOfType<pcpp::IPv6Layer>();
@@ -132,13 +131,13 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4Frag1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4Frag2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IPv4Frag3.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IPv4Frag1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IPv4Frag2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/IPv4Frag3.dat");
 
-	pcpp::Packet frag1(&rawPacket1);
-	pcpp::Packet frag2(&rawPacket2);
-	pcpp::Packet frag3(&rawPacket3);
+	pcpp::Packet frag1(rawPacket1.get());
+	pcpp::Packet frag2(rawPacket2.get());
+	pcpp::Packet frag3(rawPacket3.get());
 
 	pcpp::IPv4Layer* ipLayer = frag1.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
@@ -173,24 +172,21 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 
 PTF_TEST_CASE(IPv4OptionsParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IPv4Option1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IPv4Option2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/IPv4Option3.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/IPv4Option4.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/IPv4Option5.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/IPv4Option6.dat");
+	auto rawPacket7 = createPacketFromHexResource("PacketExamples/IPv4Option7.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4Option1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4Option2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IPv4Option3.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IPv4Option4.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/IPv4Option5.dat");
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IPv4Option6.dat");
-	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/IPv4Option7.dat");
-
-	pcpp::Packet ipOpt1(&rawPacket1);
-	pcpp::Packet ipOpt2(&rawPacket2);
-	pcpp::Packet ipOpt3(&rawPacket3);
-	pcpp::Packet ipOpt4(&rawPacket4);
-	pcpp::Packet ipOpt5(&rawPacket5);
-	pcpp::Packet ipOpt6(&rawPacket6);
-	pcpp::Packet ipOpt7(&rawPacket7);
+	pcpp::Packet ipOpt1(rawPacket1.get());
+	pcpp::Packet ipOpt2(rawPacket2.get());
+	pcpp::Packet ipOpt3(rawPacket3.get());
+	pcpp::Packet ipOpt4(rawPacket4.get());
+	pcpp::Packet ipOpt5(rawPacket5.get());
+	pcpp::Packet ipOpt6(rawPacket6.get());
+	pcpp::Packet ipOpt7(rawPacket7.get());
 
 	pcpp::IPv4Layer* ipLayer = ipOpt1.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
@@ -328,31 +324,28 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 
 PTF_TEST_CASE(IPv4OptionsEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4-NoOptions1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IPv4-NoOptions1.dat");
 	READ_FILE_INTO_BUFFER(11, "PacketExamples/IPv4Option1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4-NoOptions2.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IPv4-NoOptions2.dat");
 	READ_FILE_INTO_BUFFER(22, "PacketExamples/IPv4Option2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IPv4-NoOptions3.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/IPv4-NoOptions3.dat");
 	READ_FILE_INTO_BUFFER(33, "PacketExamples/IPv4Option3.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IPv4-NoOptions4.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/IPv4-NoOptions4.dat");
 	READ_FILE_INTO_BUFFER(44, "PacketExamples/IPv4Option4.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/IPv4-NoOptions5.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/IPv4-NoOptions5.dat");
 	READ_FILE_INTO_BUFFER(55, "PacketExamples/IPv4Option5.dat");
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IPv4-NoOptions6.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/IPv4-NoOptions6.dat");
 	READ_FILE_INTO_BUFFER(66, "PacketExamples/IPv4Option6.dat");
-	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/IPv4-NoOptions7.dat");
+	auto rawPacket7 = createPacketFromHexResource("PacketExamples/IPv4-NoOptions7.dat");
 	READ_FILE_INTO_BUFFER(77, "PacketExamples/IPv4Option7.dat");
 
-	pcpp::Packet ipOpt1(&rawPacket1);
-	pcpp::Packet ipOpt2(&rawPacket2);
-	pcpp::Packet ipOpt3(&rawPacket3);
-	pcpp::Packet ipOpt4(&rawPacket4);
-	pcpp::Packet ipOpt5(&rawPacket5);
-	pcpp::Packet ipOpt6(&rawPacket6);
-	pcpp::Packet ipOpt7(&rawPacket7);
+	pcpp::Packet ipOpt1(rawPacket1.get());
+	pcpp::Packet ipOpt2(rawPacket2.get());
+	pcpp::Packet ipOpt3(rawPacket3.get());
+	pcpp::Packet ipOpt4(rawPacket4.get());
+	pcpp::Packet ipOpt5(rawPacket5.get());
+	pcpp::Packet ipOpt6(rawPacket6.get());
+	pcpp::Packet ipOpt7(rawPacket7.get());
 
 	pcpp::IPv4Layer* ipLayer = ipOpt1.getLayerOfType<pcpp::IPv4Layer>();
 	uint8_t commSecOptionData[] = { 0x00, 0x00, 0x00, 0x02, 0x02, 0x10, 0x00, 0x02, 0x00, 0x00,
@@ -521,9 +514,9 @@ PTF_TEST_CASE(IPv4UdpChecksum)
 		timeval time;
 		gettimeofday(&time, nullptr);
 
-		READ_FILE_AND_CREATE_PACKET(1, fileName.c_str());
+		auto rawPacket1 = createPacketFromHexResource(fileName.c_str());
 
-		pcpp::Packet udpPacket(&rawPacket1);
+		pcpp::Packet udpPacket(rawPacket1.get());
 		pcpp::UdpLayer* udpLayer = udpPacket.getLayerOfType<pcpp::UdpLayer>();
 		PTF_ASSERT_NOT_NULL(udpLayer);
 		uint16_t packetChecksum = udpLayer->getUdpHeader()->headerChecksum;

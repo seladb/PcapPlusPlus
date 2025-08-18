@@ -10,12 +10,9 @@
 
 PTF_TEST_CASE(NflogPacketParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, NULL);
+	auto rawPacket1 = pcpp_tests::utils::createPacketFromHexResource("PacketExamples/nflogPacket.dat", pcpp_tests::utils::PacketFactory(pcpp::LINKTYPE_NFLOG));
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/nflogPacket.dat", pcpp::LINKTYPE_NFLOG);
-
-	pcpp::Packet nflogPacket(&rawPacket1);
+	pcpp::Packet nflogPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(nflogPacket.isPacketOfType(pcpp::NFLOG));
 	PTF_ASSERT_EQUAL(nflogPacket.getFirstLayer()->getProtocol(), pcpp::NFLOG, enum);
