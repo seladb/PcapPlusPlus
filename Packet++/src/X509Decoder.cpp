@@ -1025,7 +1025,6 @@ namespace pcpp
 				{
 					m_Extensions.emplace_back(X509Extension(extension));
 				}
-
 			}
 			m_ExtensionsParsed = true;
 		}
