@@ -749,7 +749,7 @@ namespace pcpp
 				m_SubjectOffset = currIndex++;
 				m_SubjectPublicKeyInfoOffset = currIndex++;
 
-				if (root->getSubRecords().size() > currIndex)
+				if (root->getSubRecords().size() > static_cast<size_t>(currIndex))
 				{
 					record = root->getSubRecords().at(currIndex);
 
