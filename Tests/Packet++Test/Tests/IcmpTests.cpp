@@ -9,42 +9,41 @@
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(IcmpParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IcmpEchoRequest.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IcmpEchoReply.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/IcmpTimestampRequest.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/IcmpTimestampReply.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/IcmpRedirect.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/IcmpRouterAdv1.dat");
+	auto rawPacket7 = createPacketFromHexResource("PacketExamples/IcmpRouterAdv2.dat");
+	auto rawPacket8 = createPacketFromHexResource("PacketExamples/IcmpRouterSol.dat");
+	auto rawPacket9 = createPacketFromHexResource("PacketExamples/IcmpTimeExceededUdp.dat");
+	auto rawPacket10 = createPacketFromHexResource("PacketExamples/IcmpDestUnreachableUdp.dat");
+	auto rawPacket11 = createPacketFromHexResource("PacketExamples/IcmpTimeExceededEcho.dat");
+	auto rawPacket12 = createPacketFromHexResource("PacketExamples/IcmpDestUnreachableEcho.dat");
+	auto rawPacket13 = createPacketFromHexResource("PacketExamples/IcmpSourceQuench.dat");
+	auto rawPacket14 = createPacketFromHexResource("PacketExamples/IcmpAddrMaskReq.dat");
+	auto rawPacket15 = createPacketFromHexResource("PacketExamples/IcmpAddrMaskRep.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpEchoRequest.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IcmpEchoReply.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IcmpTimestampRequest.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IcmpTimestampReply.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/IcmpRedirect.dat");
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IcmpRouterAdv1.dat");
-	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/IcmpRouterAdv2.dat");
-	READ_FILE_AND_CREATE_PACKET(8, "PacketExamples/IcmpRouterSol.dat");
-	READ_FILE_AND_CREATE_PACKET(9, "PacketExamples/IcmpTimeExceededUdp.dat");
-	READ_FILE_AND_CREATE_PACKET(10, "PacketExamples/IcmpDestUnreachableUdp.dat");
-	READ_FILE_AND_CREATE_PACKET(11, "PacketExamples/IcmpTimeExceededEcho.dat");
-	READ_FILE_AND_CREATE_PACKET(12, "PacketExamples/IcmpDestUnreachableEcho.dat");
-	READ_FILE_AND_CREATE_PACKET(13, "PacketExamples/IcmpSourceQuench.dat");
-	READ_FILE_AND_CREATE_PACKET(14, "PacketExamples/IcmpAddrMaskReq.dat");
-	READ_FILE_AND_CREATE_PACKET(15, "PacketExamples/IcmpAddrMaskRep.dat");
-
-	pcpp::Packet icmpEchoRequest(&rawPacket1);
-	pcpp::Packet icmpEchoReply(&rawPacket2);
-	pcpp::Packet icmpTimestampReq(&rawPacket3);
-	pcpp::Packet icmpTimestampReply(&rawPacket4);
-	pcpp::Packet icmpRedirect(&rawPacket5);
-	pcpp::Packet icmpRouterAdv1(&rawPacket6);
-	pcpp::Packet icmpRouterAdv2(&rawPacket7);
-	pcpp::Packet icmpRouterSol(&rawPacket8);
-	pcpp::Packet icmpTimeExceededUdp(&rawPacket9);
-	pcpp::Packet icmpDestUnreachableUdp(&rawPacket10);
-	pcpp::Packet icmpTimeExceededEcho(&rawPacket11);
-	pcpp::Packet icmpDestUnreachableEcho(&rawPacket12);
-	pcpp::Packet icmpSourceQuench(&rawPacket13);
-	pcpp::Packet icmpAddrMaskReq(&rawPacket14);
-	pcpp::Packet icmpAddrMaskRep(&rawPacket15);
+	pcpp::Packet icmpEchoRequest(rawPacket1.get());
+	pcpp::Packet icmpEchoReply(rawPacket2.get());
+	pcpp::Packet icmpTimestampReq(rawPacket3.get());
+	pcpp::Packet icmpTimestampReply(rawPacket4.get());
+	pcpp::Packet icmpRedirect(rawPacket5.get());
+	pcpp::Packet icmpRouterAdv1(rawPacket6.get());
+	pcpp::Packet icmpRouterAdv2(rawPacket7.get());
+	pcpp::Packet icmpRouterSol(rawPacket8.get());
+	pcpp::Packet icmpTimeExceededUdp(rawPacket9.get());
+	pcpp::Packet icmpDestUnreachableUdp(rawPacket10.get());
+	pcpp::Packet icmpTimeExceededEcho(rawPacket11.get());
+	pcpp::Packet icmpDestUnreachableEcho(rawPacket12.get());
+	pcpp::Packet icmpSourceQuench(rawPacket13.get());
+	pcpp::Packet icmpAddrMaskReq(rawPacket14.get());
+	pcpp::Packet icmpAddrMaskRep(rawPacket15.get());
 
 	pcpp::IcmpLayer* icmpLayer = nullptr;
 
@@ -258,9 +257,6 @@ PTF_TEST_CASE(IcmpParsingTest)
 
 PTF_TEST_CASE(IcmpCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/IcmpEchoRequest.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpEchoReply.dat");
 	READ_FILE_INTO_BUFFER(3, "PacketExamples/IcmpTimestampRequest.dat");
@@ -446,18 +442,15 @@ PTF_TEST_CASE(IcmpCreationTest)
 
 PTF_TEST_CASE(IcmpEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpRouterAdv1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IcmpRouterAdv1.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpEchoRequest.dat");
 	READ_FILE_INTO_BUFFER(3, "PacketExamples/IcmpEchoReply.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IcmpTimeExceededUdp.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/IcmpTimeExceededUdp.dat");
 	READ_FILE_INTO_BUFFER(5, "PacketExamples/IcmpDestUnreachableEcho.dat");
 
 	// convert router adv to echo request
 
-	pcpp::Packet icmpRouterAdv1(&rawPacket1);
+	pcpp::Packet icmpRouterAdv1(rawPacket1.get());
 
 	pcpp::IcmpLayer* icmpLayer = icmpRouterAdv1.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -497,7 +490,7 @@ PTF_TEST_CASE(IcmpEditTest)
 	pcpp::IcmpLayer icmpLayerForDestUnreachable;
 	icmpLayerForDestUnreachable.setEchoRequestData(3189, 4, 0x000809f2569f3e41ULL, data, 48);
 
-	pcpp::Packet icmpTimeExceededUdp(&rawPacket4);
+	pcpp::Packet icmpTimeExceededUdp(rawPacket4.get());
 
 	icmpLayer = icmpTimeExceededUdp.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);

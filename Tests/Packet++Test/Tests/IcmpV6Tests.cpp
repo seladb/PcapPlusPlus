@@ -13,24 +13,23 @@
 #include "VlanLayer.h"
 #include <sstream>
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(IcmpV6ParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IcmpV6_EchoRequest.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IcmpV6_EchoReply.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/IcmpV6_NeighSoli.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/IcmpV6_NeighAdv.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/IcmpV6_NeighAdvNoOption.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/IcmpV6_Generic.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpV6_EchoRequest.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IcmpV6_EchoReply.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IcmpV6_NeighSoli.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IcmpV6_NeighAdv.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/IcmpV6_NeighAdvNoOption.dat");
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IcmpV6_Generic.dat");
-
-	pcpp::Packet echoRequestPacket(&rawPacket1);
-	pcpp::Packet echoReplyPacket(&rawPacket2);
-	pcpp::Packet neighSoliPacket(&rawPacket3);
-	pcpp::Packet neighAdvPacket(&rawPacket4);
-	pcpp::Packet neighAdvPacketNoOpt(&rawPacket5);
-	pcpp::Packet icmpV6GenericPacket(&rawPacket6);
+	pcpp::Packet echoRequestPacket(rawPacket1.get());
+	pcpp::Packet echoReplyPacket(rawPacket2.get());
+	pcpp::Packet neighSoliPacket(rawPacket3.get());
+	pcpp::Packet neighAdvPacket(rawPacket4.get());
+	pcpp::Packet neighAdvPacketNoOpt(rawPacket5.get());
+	pcpp::Packet icmpV6GenericPacket(rawPacket6.get());
 
 	// Echo request
 	PTF_ASSERT_TRUE(echoRequestPacket.isPacketOfType(pcpp::ICMPv6));
