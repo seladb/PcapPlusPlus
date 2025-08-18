@@ -118,7 +118,7 @@ namespace pcpp_tests
 		provider = resourceProvider;
 	}
 
-	utils::ResourceProvider* getDefaultResourceProvider0()
+	utils::ResourceProvider* getDefaultResourceProvider()
 	{
 		if (provider == nullptr)
 			throw std::runtime_error("Resource provider is not set");

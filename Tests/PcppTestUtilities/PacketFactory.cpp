@@ -88,7 +88,7 @@ namespace pcpp_tests
 			if (resourceProvider == nullptr)
 			{
 				// If no data loader is provided, use the current test environment's data loader
-				resourceProvider = getDefaultResourceProvider0();
+				resourceProvider = getDefaultResourceProvider();
 			}
 
 			auto resource = resourceProvider->loadResource(resourceName, ResourceType::HexData);
