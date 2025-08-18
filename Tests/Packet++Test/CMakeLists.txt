@@ -51,7 +51,10 @@ add_executable(
   Utils/TestUtils.cpp
 )
 
-target_link_libraries(Packet++Test PUBLIC memplumber Packet++ PcppTestUtilities PcppTestFramework EndianPortable)
+target_link_libraries(
+  Packet++Test
+  PUBLIC memplumber Packet++ PcppTestUtilities PcppTestFramework EndianPortable
+)
 
 if(WIN32)
   # Otherwise winsock2.h will get conflict definitions with windows.h

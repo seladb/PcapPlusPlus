@@ -49,4 +49,4 @@ namespace pcpp_tests
 
 	void setDefaultResourceProvider(utils::ResourceProvider* resourceProvider);
 	utils::ResourceProvider* getDefaultResourceProvider0();
-}  // namespace pcpp_test
+}  // namespace pcpp_tests
