@@ -25,7 +25,7 @@ namespace pcpp_tests
 		class ResourceProvider
 		{
 		public:
-			ResourceProvider(std::string dataRoot);
+			explicit ResourceProvider(std::string dataRoot);
 
 			Resource loadResource(std::string const& filename, ResourceType resourceType) const
 			{

@@ -20,9 +20,9 @@ namespace pcpp_tests
 
 			/// @brief Creates a new PacketFactory instance with the current time as factoryTime.
 			PacketFactory();
-			PacketFactory(timespec time);
-			PacketFactory(timeval time);
-			PacketFactory(pcpp::LinkLayerType linkType);
+			explicit PacketFactory(timespec time);
+			explicit PacketFactory(timeval time);
+			explicit PacketFactory(pcpp::LinkLayerType linkType);
 
 			PacketFactory withTime(timespec time);
 			PacketFactory withTime(timeval time);
