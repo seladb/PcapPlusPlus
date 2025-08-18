@@ -8,12 +8,11 @@ using namespace std;
 
 PTF_TEST_CASE(CotpLayerTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	using pcpp_tests::utils::createPacketFromHexResource;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tpkt_cotp.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/tpkt_cotp.dat");
 
-	pcpp::Packet cotpPacket(&rawPacket1);
+	pcpp::Packet cotpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(cotpPacket.isPacketOfType(pcpp::COTP));
 	auto cotpLayer = cotpPacket.getLayerOfType<pcpp::CotpLayer>();
 	PTF_ASSERT_NOT_NULL(cotpLayer);

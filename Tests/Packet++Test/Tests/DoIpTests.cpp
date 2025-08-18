@@ -15,15 +15,14 @@
 #include "DoIpLayer.h"
 #include "GeneralUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 // DoIpRoutActReqParsing
 PTF_TEST_CASE(DoIpRoutActReqParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpRoutingActivationRequestPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpRoutingActivationRequestPacket.dat");
-
-	pcpp::Packet routingActivationRequestPacket(&rawPacket1);
+	pcpp::Packet routingActivationRequestPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(routingActivationRequestPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = routingActivationRequestPacket.getLayerOfType<pcpp::DoIpRoutingActivationRequest>();
@@ -111,12 +110,9 @@ PTF_TEST_CASE(DoIpRoutActReqCreation)
 // DoIpRoutActResParsing
 PTF_TEST_CASE(DoIpRoutActResParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpRoutingActivationResponsePacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpRoutingActivationResponsePacket.dat");
-
-	pcpp::Packet routingActivationResponsePacket(&rawPacket1);
+	pcpp::Packet routingActivationResponsePacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(routingActivationResponsePacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = routingActivationResponsePacket.getLayerOfType<pcpp::DoIpRoutingActivationResponse>();
@@ -201,12 +197,9 @@ PTF_TEST_CASE(DoIpRoutActResCreation)
 // DoIpGenHdrNackParsing
 PTF_TEST_CASE(DoIpGenHdrNackParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpGenericHeaderNackPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpGenericHeaderNackPacket.dat");
-
-	pcpp::Packet genericHeaderNackPacket(&rawPacket1);
+	pcpp::Packet genericHeaderNackPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(genericHeaderNackPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = genericHeaderNackPacket.getLayerOfType<pcpp::DoIpGenericHeaderNack>();
@@ -262,12 +255,9 @@ PTF_TEST_CASE(DoIpGenHdrNackCreation)
 // DoIpVehIdenReqWithEIDParsing
 PTF_TEST_CASE(DoIpVehIdenReqWithEIDParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpVehicleIdentificationRequestWithEIDPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWithEIDPacket.dat");
-
-	pcpp::Packet vehicleIdentificationRequestWEIDPacket(&rawPacket1);
+	pcpp::Packet vehicleIdentificationRequestWEIDPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(vehicleIdentificationRequestWEIDPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer =
@@ -324,12 +314,9 @@ PTF_TEST_CASE(DoIpVehIdenReqWithEIDCreation)
 // DoIpVehIdenReqWithVINParsing
 PTF_TEST_CASE(DoIpVehIdenReqWithVINParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpVehicleIdentificationRequestWithVINPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWithVINPacket.dat");
-
-	pcpp::Packet vehicleIdentificationRequestWVINPacket(&rawPacket1);
+	pcpp::Packet vehicleIdentificationRequestWVINPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(vehicleIdentificationRequestWVINPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer =
@@ -391,17 +378,14 @@ PTF_TEST_CASE(DoIpVehIdenReqWithVINCreation)
 PTF_TEST_CASE(DoIpVehAnnMessParsing)
 {
 	// Dissect Vehicle Announcement message
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleAnnouncementMessagePacket.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpVehicleAnnouncementMessagePacket.dat");
 
 	std::array<uint8_t, 6> eid{ 0x0, 0x1a, 0x37, 0xbf, 0xee, 0x74 };
 	std::array<uint8_t, 6> gid{ 0x0, 0x1a, 0x37, 0xbf, 0xee, 0x74 };
 	std::array<uint8_t, 17> vin{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45, 0x34, 0x4d, 0x5a,
 		                         0x31, 0x37, 0x30, 0x34, 0x32, 0x34, 0x30, 0x33 };
 
-	pcpp::Packet vehicleAnnouncementPacket(&rawPacket1);
+	pcpp::Packet vehicleAnnouncementPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(vehicleAnnouncementPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = vehicleAnnouncementPacket.getLayerOfType<pcpp::DoIpVehicleAnnouncementMessage>();
@@ -480,12 +464,9 @@ PTF_TEST_CASE(DoIpVehAnnMessCreation)
 // DoIpVehIdenReqParsing
 PTF_TEST_CASE(DoIpVehIdenReqParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpVehicleIdentificationRequestPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestPacket.dat");
-
-	pcpp::Packet vehicleIdentificationRequestPacket(&rawPacket1);
+	pcpp::Packet vehicleIdentificationRequestPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(vehicleIdentificationRequestPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = vehicleIdentificationRequestPacket.getLayerOfType<pcpp::DoIpVehicleIdentificationRequest>();
@@ -529,12 +510,9 @@ PTF_TEST_CASE(DoIpVehIdenReqCreation)
 // DoIpAliveCheckRespParsing
 PTF_TEST_CASE(DoIpAliveCheckRespParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpAliveCheckResponsePacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpAliveCheckResponsePacket.dat");
-
-	pcpp::Packet aliveCheckResponsePacket(&rawPacket1);
+	pcpp::Packet aliveCheckResponsePacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(aliveCheckResponsePacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = aliveCheckResponsePacket.getLayerOfType<pcpp::DoIpAliveCheckResponse>();
@@ -579,12 +557,9 @@ PTF_TEST_CASE(DoIpAliveCheckRespCreation)
 // DoIpDiagPowerModeRespParsing
 PTF_TEST_CASE(DoIpDiagPowerModeRespParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpPowerModeResponsePacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpPowerModeResponsePacket.dat");
-
-	pcpp::Packet diagnosticPowerModeResponsePacket(&rawPacket1);
+	pcpp::Packet diagnosticPowerModeResponsePacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(diagnosticPowerModeResponsePacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = diagnosticPowerModeResponsePacket.getLayerOfType<pcpp::DoIpDiagnosticPowerModeResponse>();
@@ -630,12 +605,9 @@ PTF_TEST_CASE(DoIpDiagPowerModeRespCreation)
 // DoIpEntityStatusRespParsing
 PTF_TEST_CASE(DoIpEntityStatusRespParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpEntityStatusResponsePacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpEntityStatusResponsePacket.dat");
-
-	pcpp::Packet entityStatusResponsePacket(&rawPacket1);
+	pcpp::Packet entityStatusResponsePacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(entityStatusResponsePacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = entityStatusResponsePacket.getLayerOfType<pcpp::DoIpEntityStatusResponse>();
@@ -712,12 +684,9 @@ PTF_TEST_CASE(DoIpEntityStatusRespCreation)
 // DoIpDiagMessParsing
 PTF_TEST_CASE(DoIpDiagMessParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpDiagnosticMessagePacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpDiagnosticMessagePacket.dat");
-
-	pcpp::Packet diagnosticMessagePacket(&rawPacket1);
+	pcpp::Packet diagnosticMessagePacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(diagnosticMessagePacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = diagnosticMessagePacket.getLayerOfType<pcpp::DoIpDiagnosticMessage>();
@@ -782,12 +751,9 @@ PTF_TEST_CASE(DoIpDiagMessCreation)
 // DoIpDiagMessAckParsing
 PTF_TEST_CASE(DoIpDiagMessAckParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpDiagnosticMessageAckPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpDiagnosticMessageAckPacket.dat");
-
-	pcpp::Packet diagnosticAckMessagePacket(&rawPacket1);
+	pcpp::Packet diagnosticAckMessagePacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(diagnosticAckMessagePacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = diagnosticAckMessagePacket.getLayerOfType<pcpp::DoIpDiagnosticMessageAck>();
@@ -872,12 +838,9 @@ PTF_TEST_CASE(DoIpDiagMessAckCreation)
 // DoIpDiagMessNackParsing
 PTF_TEST_CASE(DoIpDiagMessNackParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpDiagnosticMessageNackPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpDiagnosticMessageNackPacket.dat");
-
-	pcpp::Packet diagnosticNackPacket(&rawPacket1);
+	pcpp::Packet diagnosticNackPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(diagnosticNackPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* nackLayer = diagnosticNackPacket.getLayerOfType<pcpp::DoIpDiagnosticMessageNack>();
@@ -960,12 +923,9 @@ PTF_TEST_CASE(DoIpDiagMessNackCreation)
 // DoIpDiagPowerModeReqParsing
 PTF_TEST_CASE(DoIpDiagPowerModeReqParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpPowerModeRequestPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpPowerModeRequestPacket.dat");
-
-	pcpp::Packet diagnosticPowerModeRequestPacket(&rawPacket1);
+	pcpp::Packet diagnosticPowerModeRequestPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(diagnosticPowerModeRequestPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = diagnosticPowerModeRequestPacket.getLayerOfType<pcpp::DoIpDiagnosticPowerModeRequest>();
@@ -1008,12 +968,9 @@ PTF_TEST_CASE(DoIpDiagPowerModeReqCreation)
 // DoIpEntityStatusReqParsing
 PTF_TEST_CASE(DoIpEntityStatusReqParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpEntityStatusRequestPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpEntityStatusRequestPacket.dat");
-
-	pcpp::Packet entityStatusRequestPacket(&rawPacket1);
+	pcpp::Packet entityStatusRequestPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(entityStatusRequestPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = entityStatusRequestPacket.getLayerOfType<pcpp::DoIpEntityStatusRequest>();
@@ -1056,12 +1013,9 @@ PTF_TEST_CASE(DoIpEntityStatusReqCreation)
 // DoIpAliveCheckReqParsing
 PTF_TEST_CASE(DoIpAliveCheckReqParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpAliveCheckRequestPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpAliveCheckRequestPacket.dat");
-
-	pcpp::Packet aliveCheckRequestPacket(&rawPacket1);
+	pcpp::Packet aliveCheckRequestPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(aliveCheckRequestPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = aliveCheckRequestPacket.getLayerOfType<pcpp::DoIpAliveCheckRequest>();
@@ -1104,12 +1058,9 @@ PTF_TEST_CASE(DoIpAliveCheckReqCreation)
 // DoIpVehIdenReqWithDefVersParsing
 PTF_TEST_CASE(DoIpVehIdenReqWithDefVersParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpVehicleIdentificationRequestWithDefaultVersPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpVehicleIdentificationRequestWithDefaultVersPacket.dat");
-
-	pcpp::Packet vehicleIdentificationRequestPacket(&rawPacket1);
+	pcpp::Packet vehicleIdentificationRequestPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(vehicleIdentificationRequestPacket.isPacketOfType(pcpp::DOIP));
 
 	auto* doipLayer = vehicleIdentificationRequestPacket.getLayerOfType<pcpp::DoIpVehicleIdentificationRequest>();
@@ -1127,20 +1078,17 @@ PTF_TEST_CASE(DoIpVehIdenReqWithDefVersParsing)
 // DoIpInvalidPackets
 PTF_TEST_CASE(DoIpInvalidPackets)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpInvalidPayloadTypePacket.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/DoIpWrongLengthRoutingActivationRequestPacket.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/DoIpInvalidProtocolVersionPacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DoIpInvalidPayloadTypePacket.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/DoIpWrongLengthRoutingActivationRequestPacket.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/DoIpInvalidProtocolVersionPacket.dat");
-
-	pcpp::Packet invalidPayloadTypePacket(&rawPacket1);
+	pcpp::Packet invalidPayloadTypePacket(rawPacket1.get());
 	PTF_ASSERT_FALSE(invalidPayloadTypePacket.isPacketOfType(pcpp::DOIP));
 
-	pcpp::Packet wrongLengthRoutingActivationRequestPacket(&rawPacket2);
+	pcpp::Packet wrongLengthRoutingActivationRequestPacket(rawPacket2.get());
 	PTF_ASSERT_FALSE(wrongLengthRoutingActivationRequestPacket.isPacketOfType(pcpp::DOIP));
 
-	pcpp::Packet invalidProtocolVersionPacket(&rawPacket3);
+	pcpp::Packet invalidProtocolVersionPacket(rawPacket3.get());
 	PTF_ASSERT_FALSE(invalidProtocolVersionPacket.isPacketOfType(pcpp::DOIP));
 
 }  // DoIpInvalidPackets

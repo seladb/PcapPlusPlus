@@ -10,12 +10,11 @@
 
 PTF_TEST_CASE(DhcpParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	using pcpp_tests::utils::createPacketFromHexResource;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Dhcp1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Dhcp1.dat");
 
-	pcpp::Packet dhcpPacket(&rawPacket1);
+	pcpp::Packet dhcpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(dhcpPacket.isPacketOfType(pcpp::DHCP));
 	pcpp::DhcpLayer* dhcpLayer = dhcpPacket.getLayerOfType<pcpp::DhcpLayer>();
 	PTF_ASSERT_NOT_NULL(dhcpLayer);
@@ -73,9 +72,9 @@ PTF_TEST_CASE(DhcpParsingTest)
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_OFFER, enum);
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Dhcp2.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/Dhcp2.dat");
 
-	pcpp::Packet dhcpPacket2(&rawPacket2);
+	pcpp::Packet dhcpPacket2(rawPacket2.get());
 
 	dhcpLayer = dhcpPacket2.getLayerOfType<pcpp::DhcpLayer>();
 	PTF_ASSERT_NOT_NULL(dhcpLayer);
@@ -220,12 +219,11 @@ PTF_TEST_CASE(DhcpCreationTest)
 
 PTF_TEST_CASE(DhcpEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	using pcpp_tests::utils::createPacketFromHexResource;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Dhcp4.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Dhcp4.dat");
 
-	pcpp::Packet dhcpPacket(&rawPacket1);
+	pcpp::Packet dhcpPacket(rawPacket1.get());
 
 	pcpp::DhcpLayer* dhcpLayer = dhcpPacket.getLayerOfType<pcpp::DhcpLayer>();
 
