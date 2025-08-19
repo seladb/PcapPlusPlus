@@ -1,4 +1,4 @@
-#include "Resources.hpp"
+#include "Resources.h"
 
 #include <fstream>
 #include <iterator>
@@ -9,6 +9,15 @@ namespace pcpp_tests
 	{
 		namespace
 		{
+			constexpr char getOsPathSeparator()
+			{
+#ifdef _WIN32
+				return '\\';
+#else
+				return '/';
+#endif
+			}
+
 			size_t getFileLength(std::ifstream& stream)
 			{
 				auto originalPos = stream.tellg();
@@ -64,7 +73,7 @@ namespace pcpp_tests
 			std::string fullPath;
 			if (!m_DataRoot.empty())
 			{
-				fullPath = m_DataRoot + '/' + filename;
+				fullPath = m_DataRoot + getOsPathSeparator() + filename;
 			}
 			else
 			{

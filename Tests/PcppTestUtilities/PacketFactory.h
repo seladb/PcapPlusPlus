@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "RawPacket.h"
-#include "Resources.hpp"
+#include "Resources.h"
 
 namespace pcpp_tests
 {
