@@ -1018,9 +1018,13 @@ namespace pcpp
 	{
 		if (!m_ExtensionsParsed)
 		{
-			for (const auto& extension : m_TBSCertificate.getExtensions()->getExtensions())
+			auto extensions = m_TBSCertificate.getExtensions();
+			if (extensions != nullptr)
 			{
-				m_Extensions.emplace_back(X509Extension(extension));
+				for (const auto& extension : extensions->getExtensions())
+				{
+					m_Extensions.emplace_back(X509Extension(extension));
+				}
 			}
 			m_ExtensionsParsed = true;
 		}
