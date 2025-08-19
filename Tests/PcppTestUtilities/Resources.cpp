@@ -121,7 +121,9 @@ namespace pcpp_tests
 	utils::ResourceProvider* getDefaultResourceProvider()
 	{
 		if (provider == nullptr)
+		{
 			throw std::runtime_error("Resource provider is not set");
+		}
 		return provider;
 	}
 }  // namespace pcpp_tests
