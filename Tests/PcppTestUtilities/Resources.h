@@ -12,7 +12,7 @@ namespace pcpp_tests
 	{
 		enum class ResourceType
 		{
-			HexData,     ///< Resource is a file containing hex data
+			HexData,  ///< Resource is a file containing hex data
 		};
 
 		/// @brief Represents a resource loaded by the ResourceProvider.
