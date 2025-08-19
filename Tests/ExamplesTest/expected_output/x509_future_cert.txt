@@ -1,5 +1,5 @@
 [31m[X] Certificate is not yet valid.[0m
-Valid from:     2125-08-18 08:03:26 UTC
-Valid until:    2126-08-18 08:03:26 UTC
+Valid from:     2037-11-01 00:00:00 UTC
+Valid until:    2037-12-31 23:59:59 UTC
 Starts in {days} days.
 

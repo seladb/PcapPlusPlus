@@ -1,4 +1,4 @@
 [32m[V] Certificate is valid.[0m
-Valid from:     2025-08-17 08:27:07 UTC
-Valid until:    2125-07-24 08:27:07 UTC
+Valid from:     2025-08-19 07:52:40 UTC
+Valid until:    2037-12-05 07:52:40 UTC
 {days} days remaining.

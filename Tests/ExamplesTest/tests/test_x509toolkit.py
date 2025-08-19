@@ -126,7 +126,7 @@ class TestX509Toolkit(ExampleTest):
     def test_expire_with_valid_cert(self, tmpdir):
         def calc_days_remaining() -> int:
             target_date = datetime.strptime(
-                "2125-07-24 08:27:07 UTC", "%Y-%m-%d %H:%M:%S %Z"
+                "2037-12-05 07:52:40 UTC", "%Y-%m-%d %H:%M:%S %Z"
             ).replace(tzinfo=timezone.utc)
             now = datetime.now(timezone.utc)
             return (target_date - now).days
@@ -174,14 +174,14 @@ class TestX509Toolkit(ExampleTest):
     def test_expire_with_future_cert(self, tmpdir):
         def calc_days_start() -> int:
             start_data = datetime.strptime(
-                "2125-08-18 08:03:26 UTC", "%Y-%m-%d %H:%M:%S %Z"
+                "2037-11-01 00:00:00 UTC", "%Y-%m-%d %H:%M:%S %Z"
             ).replace(tzinfo=timezone.utc)
             now = datetime.now(timezone.utc)
             return (start_data - now).days
 
         args = {
             "": "expire",
-            "-i": os.path.join("pcap_examples", "future-cert.crt"),
+            "-i": os.path.join("pcap_examples", "future-cert.pem"),
         }
         completed_process = self.run_example(args=args, expected_return_code=2)
 
