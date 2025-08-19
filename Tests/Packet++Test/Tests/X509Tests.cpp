@@ -334,7 +334,7 @@ PTF_TEST_CASE(X509VariantsParsingTest)
 	{
 		auto x509Cert = pcpp::X509Certificate::fromPEMFile("PacketExamples/x509_cert_no_version_extension_fields.pem");
 		PTF_ASSERT_EQUAL(x509Cert->getVersion(), pcpp::X509Version::V1, enumclass);
-		PTF_ASSERT_EQUAL(x509Cert->getNotAfter().toString(), "2125-07-24 08:27:07");
+		PTF_ASSERT_EQUAL(x509Cert->getNotBefore().toString(), "2025-08-17 08:27:07");
 		PTF_ASSERT_EQUAL(x509Cert->getExtensions().size(), 0);
 	}
 }
