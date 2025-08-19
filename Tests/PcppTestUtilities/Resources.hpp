@@ -12,7 +12,6 @@ namespace pcpp_tests
 	{
 		enum class ResourceType
 		{
-			BinaryData,  ///< Resource is a file containing binary data
 			HexData,     ///< Resource is a file containing hex data
 		};
 

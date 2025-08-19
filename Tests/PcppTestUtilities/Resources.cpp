@@ -80,16 +80,6 @@ namespace pcpp_tests
 
 			switch (resourceType)
 			{
-			case ResourceType::BinaryData:
-			{
-				std::ifstream fileStream(fullPath, std::ios::binary);
-				requireOpen(fileStream);
-
-				size_t fileLength = getFileLength(fileStream);
-				std::vector<uint8_t> buffer(fileLength);
-				fileStream.read(reinterpret_cast<char*>(buffer.data()), fileLength);
-				return buffer;
-			}
 			case ResourceType::HexData:
 			{
 				// The file is expected to contain text data in hexadecimal format
