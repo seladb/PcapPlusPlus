@@ -29,18 +29,7 @@ namespace pcpp_tests
 		public:
 			explicit ResourceProvider(std::string dataRoot);
 
-			Resource loadResource(std::string const& filename, ResourceType resourceType) const
-			{
-				return loadResource(filename.c_str(), resourceType);
-			}
-
 			Resource loadResource(const char* filename, ResourceType resourceType) const;
-
-			std::vector<uint8_t> loadResourceToVector(std::string const& filename, ResourceType resourceType) const
-			{
-				return loadResourceToVector(filename.c_str(), resourceType);
-			}
-
 			std::vector<uint8_t> loadResourceToVector(const char* filename, ResourceType resourceType) const;
 
 		private:

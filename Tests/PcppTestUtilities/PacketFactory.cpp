@@ -91,7 +91,7 @@ namespace pcpp_tests
 				resourceProvider = getDefaultResourceProvider();
 			}
 
-			auto resource = resourceProvider->loadResource(resourceName, ResourceType::HexData);
+			auto resource = resourceProvider->loadResource(resourceName.c_str(), ResourceType::HexData);
 			return factory.createFromBuffer(std::move(resource.data), resource.length);
 		}
 	}  // namespace utils
