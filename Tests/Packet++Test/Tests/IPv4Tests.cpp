@@ -101,7 +101,7 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	{
 		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ipv4-malformed1.dat");
 
-		pcpp::Packet bogusPkt(&rawPacket1, pcpp::IPv4);
+		pcpp::Packet bogusPkt(rawPacket1.get(), pcpp::IPv4);
 
 		auto ipv4Layer = bogusPkt.getLayerOfType<pcpp::IPv4Layer>();
 		PTF_ASSERT_NULL(ipv4Layer);
@@ -110,7 +110,7 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	{
 		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ipv4-malformed2.dat");
 
-		pcpp::Packet bogusPkt(&rawPacket1, pcpp::IPv4);
+		pcpp::Packet bogusPkt(rawPacket1.get(), pcpp::IPv4);
 
 		auto ipv4Layer = bogusPkt.getLayerOfType<pcpp::IPv4Layer>();
 		PTF_ASSERT_EQUAL(htobe16(ipv4Layer->getIPv4Header()->totalLength), 11);
@@ -119,7 +119,7 @@ PTF_TEST_CASE(IPv4PacketParsing)
 
 	{
 		auto rawPacket1 = createPacketFromHexResource("PacketExamples/IPv4-encapsulated-IPv6.dat");
-		pcpp::Packet encapsulatedPkt(&rawPacket1, pcpp::IPv6);
+		pcpp::Packet encapsulatedPkt(rawPacket1.get(), pcpp::IPv6);
 
 		pcpp::IPv6Layer* ipv6Layer = encapsulatedPkt.getLayerOfType<pcpp::IPv6Layer>();
 		PTF_ASSERT_NOT_NULL(ipv6Layer);
