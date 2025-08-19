@@ -1,6 +1,7 @@
 #include "Resources.hpp"
 
 #include <fstream>
+#include <iterator>
 
 namespace pcpp_tests
 {
@@ -17,31 +18,26 @@ namespace pcpp_tests
 				return length;
 			}
 
-			uint8_t hexCharToDigit(char c)
-			{
-				if (c >= '0' && c <= '9')
-					return c - '0';
-				if (c >= 'a' && c <= 'f')
-					return c - 'a' + 10;
-				if (c >= 'A' && c <= 'F')
-					return c - 'A' + 10;
-				throw std::invalid_argument("Invalid hex character");
-			}
-
-			uint8_t hexPairToByte(const char* pair)
-			{
-				return (hexCharToDigit(pair[0]) << 4) | hexCharToDigit(pair[1]);
-			}
-
 			std::vector<uint8_t> readHexResource(std::ifstream& stream)
 			{
-				std::vector<uint8_t> buffer;
-
-				char hexPair[2];  // 0 - high, 1 - low
-				while (stream.read(hexPair, 2))
+				size_t const fileLength = getFileLength(stream);
+				if (fileLength % 2 != 0)
 				{
-					buffer.push_back(hexPairToByte(hexPair));
+					throw std::runtime_error("Hex file length is not even");
 				}
+
+				std::string hexString(std::istreambuf_iterator<char>(stream), {} /* end */);
+
+				std::vector<uint8_t> buffer;
+				buffer.reserve(fileLength / 2);
+
+				// Length is even, so we can safely iterate in pairs
+				for (size_t i = 0; i < hexString.size(); i += 2)
+				{
+					// todo: C++17 has std::from_chars, which is more efficient
+					buffer.emplace_back(std::stoul(hexString.substr(i, 2), nullptr, 16));
+				}
+
 				return buffer;
 			}
 		}  // namespace
@@ -84,16 +80,6 @@ namespace pcpp_tests
 
 			switch (resourceType)
 			{
-			case ResourceType::BinaryData:
-			{
-				std::ifstream fileStream(fullPath, std::ios::binary);
-				requireOpen(fileStream);
-
-				size_t fileLength = getFileLength(fileStream);
-				std::vector<uint8_t> buffer(fileLength);
-				fileStream.read(reinterpret_cast<char*>(buffer.data()), fileLength);
-				return buffer;
-			}
 			case ResourceType::HexData:
 			{
 				// The file is expected to contain text data in hexadecimal format
@@ -121,7 +107,9 @@ namespace pcpp_tests
 	utils::ResourceProvider* getDefaultResourceProvider()
 	{
 		if (provider == nullptr)
+		{
 			throw std::runtime_error("Resource provider is not set");
+		}
 		return provider;
 	}
 }  // namespace pcpp_tests
