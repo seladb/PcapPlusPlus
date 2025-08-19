@@ -102,7 +102,8 @@ namespace pcpp_tests
 			}
 
 			PacketAndBuffer packetAndBuffer;
-			packetAndBuffer.resourceBuffer = resourceProvider->loadResource(resourceName, ResourceType::HexData);
+			packetAndBuffer.resourceBuffer =
+			    resourceProvider->loadResource(resourceName.c_str(), ResourceType::HexData);
 			// Resource keeps ownership of the buffer
 			packetAndBuffer.packet = factory.createFromBufferNonOwning(packetAndBuffer.resourceBuffer.data.get(),
 			                                                           packetAndBuffer.resourceBuffer.length);
