@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include "PacketFactory.hpp"
+#include "PacketFactory.h"
 
 namespace pcpp_tests
 {

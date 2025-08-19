@@ -34,7 +34,7 @@ repos:
     hooks:
       - id: clang-format
         args: ["--style=file", "-i"]  # Use the .clang-format file for configuration and apply all fixes
-        files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h|hpp)$
+        files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++14", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
   - repo: https://github.com/BlankSpruce/gersemi

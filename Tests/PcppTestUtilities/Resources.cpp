@@ -1,4 +1,4 @@
-#include "Resources.hpp"
+#include "Resources.h"
 
 #include <fstream>
 #include <iterator>
