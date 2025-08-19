@@ -26,9 +26,7 @@ namespace pcpp_tests
 					throw std::runtime_error("Hex file length is not even");
 				}
 
-				std::string hexString;
-				hexString.reserve(fileLength);
-				hexString.assign(std::istreambuf_iterator<char>(stream), {} /* end */);
+				std::string hexString(std::istreambuf_iterator<char>(stream), {} /* end */);
 
 				std::vector<uint8_t> buffer;
 				buffer.reserve(fileLength / 2);
