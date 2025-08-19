@@ -749,23 +749,26 @@ namespace pcpp
 				m_SubjectOffset = currIndex++;
 				m_SubjectPublicKeyInfoOffset = currIndex++;
 
-				record = root->getSubRecords().at(currIndex);
-
-				if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 1)
+				if (root->getSubRecords().size() > static_cast<size_t>(currIndex))
 				{
-					m_IssuerUniqueID = currIndex++;
 					record = root->getSubRecords().at(currIndex);
-				}
 
-				if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 2)
-				{
-					m_SubjectUniqueID = currIndex++;
-					record = root->getSubRecords().at(currIndex);
-				}
+					if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 1)
+					{
+						m_IssuerUniqueID = currIndex++;
+						record = root->getSubRecords().at(currIndex);
+					}
 
-				if (X509Extensions::isValidExtensionsRecord(record))
-				{
-					m_ExtensionsOffset = currIndex++;
+					if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 2)
+					{
+						m_SubjectUniqueID = currIndex++;
+						record = root->getSubRecords().at(currIndex);
+					}
+
+					if (X509Extensions::isValidExtensionsRecord(record))
+					{
+						m_ExtensionsOffset = currIndex++;
+					}
 				}
 			}
 			catch (const std::out_of_range&)
@@ -788,25 +791,25 @@ namespace pcpp
 
 		X509Name X509TBSCertificate::getIssuer() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_IssuerOffset), "Issuer");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_IssuerOffset, "Issuer");
 			return X509Name(root);
 		}
 
 		X509Validity X509TBSCertificate::getValidity() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_ValidityOffset), "Validity");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_ValidityOffset, "Validity");
 			return X509Validity(root);
 		}
 
 		X509Name X509TBSCertificate::getSubject() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_SubjectOffset), "Subject");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_SubjectOffset, "Subject");
 			return X509Name(root);
 		}
 
 		X509SubjectPublicKeyInfo X509TBSCertificate::getSubjectPublicKeyInfo() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_SubjectPublicKeyInfoOffset),
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_SubjectPublicKeyInfoOffset,
 			                                                    "Subject Public Key Info");
 			return X509SubjectPublicKeyInfo(root);
 		}
@@ -818,7 +821,7 @@ namespace pcpp
 				return nullptr;
 			}
 
-			auto root = getSubRecordAndCast<Asn1ConstructedRecord>(m_Root, getIndex(m_ExtensionsOffset), "Extensions");
+			auto root = getSubRecordAndCast<Asn1ConstructedRecord>(m_Root, m_ExtensionsOffset, "Extensions");
 			return std::unique_ptr<X509Extensions>(new X509Extensions(root));
 		}
 
@@ -1015,9 +1018,13 @@ namespace pcpp
 	{
 		if (!m_ExtensionsParsed)
 		{
-			for (const auto& extension : m_TBSCertificate.getExtensions()->getExtensions())
+			auto extensions = m_TBSCertificate.getExtensions();
+			if (extensions != nullptr)
 			{
-				m_Extensions.emplace_back(X509Extension(extension));
+				for (const auto& extension : extensions->getExtensions())
+				{
+					m_Extensions.emplace_back(X509Extension(extension));
+				}
 			}
 			m_ExtensionsParsed = true;
 		}

@@ -596,10 +596,6 @@ namespace pcpp
 			int m_ExtensionsOffset = -1;
 
 			X509TBSCertificate(Asn1SequenceRecord* root);
-			int getIndex(int offset) const
-			{
-				return m_VersionOffset + offset;
-			}
 		};
 
 		/// @class X509Certificate
