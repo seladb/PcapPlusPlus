@@ -1058,7 +1058,8 @@ PTF_TEST_CASE(DoIpAliveCheckReqCreation)
 // DoIpVehIdenReqWithDefVersParsing
 PTF_TEST_CASE(DoIpVehIdenReqWithDefVersParsing)
 {
-	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DoIpVehicleIdentificationRequestWithDefaultVersPacket.dat");
+	auto rawPacket1 =
+	    createPacketFromHexResource("PacketExamples/DoIpVehicleIdentificationRequestWithDefaultVersPacket.dat");
 
 	pcpp::Packet vehicleIdentificationRequestPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(vehicleIdentificationRequestPacket.isPacketOfType(pcpp::DOIP));
