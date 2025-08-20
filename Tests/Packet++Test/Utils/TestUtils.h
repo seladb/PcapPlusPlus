@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <vector>
 
+#include "PacketFactory.h"
+
 namespace pcpp_tests
 {
 
