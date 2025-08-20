@@ -313,28 +313,35 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("Command was not specified");
 	}
 
-	if (command == "info")
+	try
 	{
-		showCertInfo(inputFileName);
+		if (command == "info")
+		{
+			showCertInfo(inputFileName);
+		}
+		else if (command == "convert")
+		{
+			convertCertFile(inputFileName, outputFileNameOrDirectory, format);
+		}
+		else if (command == "json")
+		{
+			parseCertAsJson(inputFileName, outputFileNameOrDirectory);
+		}
+		else if (command == "expire")
+		{
+			checkCertExpiration(inputFileName);
+		}
+		else if (command == "pcap-extract")
+		{
+			extractFromPcapFile(inputFileName, outputFileNameOrDirectory, format, showStats);
+		}
+		else
+		{
+			EXIT_WITH_ERROR_AND_PRINT_USAGE("Unsupported command: " + command);
+		}
 	}
-	else if (command == "convert")
+	catch (const std::exception& ex)
 	{
-		convertCertFile(inputFileName, outputFileNameOrDirectory, format);
-	}
-	else if (command == "json")
-	{
-		parseCertAsJson(inputFileName, outputFileNameOrDirectory);
-	}
-	else if (command == "expire")
-	{
-		checkCertExpiration(inputFileName);
-	}
-	else if (command == "pcap-extract")
-	{
-		extractFromPcapFile(inputFileName, outputFileNameOrDirectory, format, showStats);
-	}
-	else
-	{
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Unsupported command: " + command);
+		EXIT_WITH_ERROR(std::string("Failed to run command '" + command + "': ") + ex.what());
 	}
 }
