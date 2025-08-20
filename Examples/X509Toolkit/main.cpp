@@ -205,7 +205,7 @@ static void parseCertAsJson(const std::string& inputFileName, const std::string&
 	{
 		EXIT_WITH_ERROR("Failed to open output file");
 	}
-	jsonFile << json;
+	jsonFile << json << std::endl;
 	jsonFile.close();
 }
 
