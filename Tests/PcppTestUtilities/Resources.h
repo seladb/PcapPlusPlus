@@ -55,7 +55,7 @@ namespace pcpp_tests
 	///
 	/// @param resourceProvider Pointer to the ResourceProvider to set as default.
 	void setDefaultResourceProvider(utils::ResourceProvider* resourceProvider);
-	
+
 	/// @brief Retrieves the default resource provider.
 	/// @return A pointer to the default ResourceProvider.
 	utils::ResourceProvider* getDefaultResourceProvider();
