@@ -53,6 +53,7 @@ public:
 		pcpp::RawPacketVector rawPackets;
 		while (reader->getNextPackets(rawPackets, 20) > 0)
 		{
+			m_Stats.packets += rawPackets.size();
 			for (auto& rawPacket : rawPackets)
 			{
 				tcpReassembly.reassemblePacket(rawPacket);
@@ -63,7 +64,7 @@ public:
 		if (m_ShowStats)
 		{
 			std::cout << "Packet count:                " << m_Stats.packets << std::endl
-			          << "TLS packets:                 " << m_Stats.sslPackets << std::endl
+			          << "TLS messages:                " << m_Stats.sslMessages << std::endl
 			          << "TLS Flows:                   " << m_Stats.sslFlows << std::endl
 			          << "TLS handshake messages:      " << m_Stats.sslHandshakeMessages << std::endl
 			          << "Certificates parsed:         " << m_Stats.parsedCertificates << std::endl
@@ -88,7 +89,7 @@ private:
 	struct SSLPcapStats
 	{
 		uint64_t packets = 0;
-		uint64_t sslPackets = 0;
+		uint64_t sslMessages = 0;
 		uint64_t sslHandshakeMessages = 0;
 		uint64_t sslFlows = 0;
 		uint64_t parsedCertificates = 0;
@@ -107,7 +108,6 @@ private:
 	static void onMessageReady(int8_t side, const pcpp::TcpStreamData& tcpData, void* userCookie)
 	{
 		auto* thisInstance = static_cast<PcapExtract*>(userCookie);
-		thisInstance->m_Stats.packets++;
 
 		if (!(pcpp::SSLLayer::isSSLPort(tcpData.getConnectionData().srcPort) ||
 		      pcpp::SSLLayer::isSSLPort(tcpData.getConnectionData().dstPort)))
@@ -115,7 +115,7 @@ private:
 			return;
 		}
 
-		thisInstance->m_Stats.sslPackets++;
+		thisInstance->m_Stats.sslMessages++;
 		auto flow = thisInstance->m_ConnectionManager.find(tcpData.getConnectionData().flowKey);
 		if (flow == thisInstance->m_ConnectionManager.end())
 		{
