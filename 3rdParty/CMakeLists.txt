@@ -4,6 +4,7 @@ add_subdirectory(hash-library)
 add_subdirectory(json)
 add_subdirectory(LightPcapNg)
 add_subdirectory(MemPlumber/MemPlumber)
+add_subdirectory(googletest-1.16.0)
 
 if(PCAPPP_INSTALL)
   install(
