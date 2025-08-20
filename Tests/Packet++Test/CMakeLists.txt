@@ -53,12 +53,31 @@ add_executable(
 
 target_link_libraries(Packet++Test PUBLIC memplumber Packet++ PcppTestFramework EndianPortable)
 
+target_include_directories(Packet++Test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+
 if(MSVC)
   # This executable requires getopt.h not available on VStudio
   target_link_libraries(Packet++Test PRIVATE Getopt-for-Visual-Studio)
 endif()
 
-set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
-set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
-set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
-add_test(NAME Packet++Test COMMAND $<TARGET_FILE:Packet++Test> WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
+add_custom_command(
+  TARGET Packet++Test
+  POST_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/PacketExamples
+    $<TARGET_FILE_DIR:Packet++Test>/PacketExamples
+)
+
+add_custom_command(
+  TARGET Packet++Test
+  POST_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../3rdParty/OUIDataset/PCPP_OUIDataset.json"
+    "$<TARGET_FILE_DIR:Packet++Test>/PCPP_OUIDataset.json"
+)
+
+# set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+# set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+# set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+# add_test(NAME Packet++Test COMMAND $<TARGET_FILE:Packet++Test> WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
+add_test(NAME Packet++Test COMMAND $<TARGET_FILE:Packet++Test> WORKING_DIRECTORY $<TARGET_FILE_DIR:Packet++Test>)
