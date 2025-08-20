@@ -31,10 +31,6 @@ namespace pcpp_tests
 			/// @param linkType The link layer type to use for packets created by this factory.
 			explicit PacketFactory(pcpp::LinkLayerType linkType);
 
-			PacketFactory withTime(timespec time);
-			PacketFactory withTime(timeval time);
-			PacketFactory withLinkType(pcpp::LinkLayerType linkType);
-
 			// TODO: RawPacket requires a move constructor to return by value efficiently.
 			/// @brief Creates a RawPacket from a vector of bytes.
 			/// @param buffer A unique pointer to a buffer containing the raw packet data.
