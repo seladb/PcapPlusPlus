@@ -21,8 +21,14 @@ namespace pcpp_tests
 
 			/// @brief Creates a new PacketFactory instance with the current time as factoryTime.
 			PacketFactory();
+			/// @brief Creates a new PacketFactory instance with a specified time.
+			/// @param time The time to use for creating packets in the factory.
 			explicit PacketFactory(timespec time);
+			/// @brief Creates a new PacketFactory instance with a specified time.
+			/// @param time The time to use for creating packets in the factory.
 			explicit PacketFactory(timeval time);
+			/// @brief Creates a new PacketFactory instance with a specified link layer type.
+			/// @param linkType The link layer type to use for packets created by this factory.
 			explicit PacketFactory(pcpp::LinkLayerType linkType);
 
 			PacketFactory withTime(timespec time);
