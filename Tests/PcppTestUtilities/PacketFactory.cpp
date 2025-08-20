@@ -31,25 +31,6 @@ namespace pcpp_tests
 			defaultLinkType = linkType;
 		}
 
-		PacketFactory PacketFactory::withTime(timespec time)
-		{
-			auto factoryCopy = *this;
-			factoryCopy.factoryTime = time;
-			return factoryCopy;
-		}
-
-		PacketFactory PacketFactory::withTime(timeval time)
-		{
-			return withTime(internal::toTimespec(time));
-		}
-
-		PacketFactory PacketFactory::withLinkType(LinkLayerType linkType)
-		{
-			auto factoryCopy = *this;
-			factoryCopy.defaultLinkType = linkType;
-			return factoryCopy;
-		}
-
 		std::unique_ptr<RawPacket> PacketFactory::createFromBuffer(std::unique_ptr<uint8_t[]> buffer,
 		                                                           size_t bufferLen) const
 		{
