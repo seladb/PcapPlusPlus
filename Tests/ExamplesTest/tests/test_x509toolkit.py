@@ -1,7 +1,11 @@
+import base64
 from datetime import datetime, timezone
 import filecmp
 import os
+import re
 import pytest
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 from .test_utils import ExampleTest, compare_stdout_with_file
 
 
@@ -193,6 +197,74 @@ class TestX509Toolkit(ExampleTest):
         expected_output_file.write(expected_output)
 
         compare_stdout_with_file(completed_process.stdout, expected_output_file)
+
+    @pytest.mark.parametrize("cert_format", ["PEM", "DER"])
+    def test_pcap_extract_to_file(self, tmpdir, cert_format):
+        args = {
+            "": "pcap-extract",
+            "-i": os.path.join("pcap_examples", "tls2.pcap"),
+            "-f": cert_format,
+            "-o": tmpdir,
+            "-s": "",
+        }
+        completed_process = self.run_example(args=args)
+        compare_stdout_with_file(
+            completed_process.stdout,
+            os.path.join("expected_output", "x509_pcap_extract.txt"),
+        )
+
+        cert_file_count = 0
+        for cert_file_path in os.listdir(tmpdir):
+            with open(os.path.join(tmpdir, cert_file_path), "rb") as cert_file:
+                cert_data = cert_file.read()
+
+            if cert_format == "PEM":
+                x509.load_pem_x509_certificate(cert_data, default_backend())
+            else:
+                x509.load_der_x509_certificate(cert_data, default_backend())
+
+            cert_file_count += 1
+
+        assert cert_file_count == 31
+
+    def test_pcap_extract_to_stdout_pem(self):
+        args = {
+            "": "pcap-extract",
+            "-i": os.path.join("pcap_examples", "tls2.pcap"),
+            "-f": "PEM",
+        }
+        completed_process = self.run_example(args=args)
+
+        pem_list = re.findall(
+            r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----",
+            completed_process.stdout,
+            re.DOTALL,
+        )
+
+        assert len(pem_list) == 31
+
+        for pem in pem_list:
+            x509.load_pem_x509_certificate(pem.encode(), default_backend())
+
+    def test_pcap_extract_to_stdout_der(self):
+        args = {
+            "": "pcap-extract",
+            "-i": os.path.join("pcap_examples", "tls2.pcap"),
+            "-f": "DER",
+        }
+        completed_process = self.run_example(args=args)
+
+        der_base64_blocks = [
+            block.strip()
+            for block in completed_process.stdout.split("==============")
+            if block.strip()
+        ]
+
+        assert len(der_base64_blocks) == 31
+
+        for der_base64 in der_base64_blocks:
+            der_bytes = base64.b64decode(der_base64)
+            x509.load_der_x509_certificate(der_bytes, backend=default_backend())
 
     def test_input_file_not_provided(self):
         args = {

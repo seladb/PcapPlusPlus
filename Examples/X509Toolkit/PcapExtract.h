@@ -5,6 +5,7 @@
 #include "TcpReassembly.h"
 #include "GeneralUtils.h"
 #include "SystemUtils.h"
+#include "Logger.h"
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -51,6 +52,7 @@ public:
 
 		m_RanOnce = true;
 		pcpp::RawPacketVector rawPackets;
+		pcpp::Logger::getInstance().suppressLogs();
 		while (reader->getNextPackets(rawPackets, 20) > 0)
 		{
 			m_Stats.packets += rawPackets.size();
@@ -60,6 +62,7 @@ public:
 			}
 			rawPackets.clear();
 		}
+		pcpp::Logger::getInstance().enableLogs();
 
 		if (m_ShowStats)
 		{
@@ -130,7 +133,7 @@ private:
 			return;
 		}
 
-		if (flow->second.curSide == side)
+		if (flow->second.curSide == side && !tcpData.isBytesMissing())
 		{
 			flow->second.data.insert(flow->second.data.end(), tcpData.getData(),
 			                         tcpData.getData() + tcpData.getDataLength());
@@ -271,7 +274,7 @@ private:
 		auto der = x509Cert->toDER();
 		if (m_OutputDirectory.empty())
 		{
-			std::cout << pcpp::Base64::encode(der) << std::endl;
+			std::cout << pcpp::Base64::encode(der) << std::endl << "==============" << std::endl;
 		}
 		else
 		{
