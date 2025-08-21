@@ -684,7 +684,7 @@ jobs:
         release: ${{ matrix.version }}
         usesh: true
         prepare: |
-          pkg install -y python3 bash cmake git gmake gsed libpcap tcpreplay
+          pkg install -y python3 bash cmake git gmake gsed libpcap tcpreplay libffi openssl pkgconf
 
         run: |
           echo "Building PcapPlusPlus"
@@ -705,6 +705,8 @@ jobs:
           echo "Testing PcapPlusPlus examples"
           cd Tests/ExamplesTest
           curl https://sh.rustup.rs -sSf | sh -s -- -y
+          source $HOME/.cargo/env
+          which rustc
           python3 -m pip install -r requirements.txt
           python3 -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
 
