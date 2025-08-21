@@ -704,7 +704,7 @@ jobs:
 
           echo "Testing PcapPlusPlus examples"
           cd Tests/ExamplesTest
-          curl https://sh.rustup.rs -sSf | sh
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
           python3 -m pip install -r requirements.txt
           python3 -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
 
