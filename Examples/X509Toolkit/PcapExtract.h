@@ -16,9 +16,11 @@
 #	define DIR_SEPARATOR '/'
 #endif
 
+/// Extracts X.509 certificates from PCAP/PCAPNG files by analyzing SSL/TLS traffic.
 class PcapExtract
 {
 public:
+	/// Creates a new extractor for the given PCAP file and output configuration.
 	PcapExtract(const std::string& pcapFileName, const std::string& outputDirectory, const std::string& format,
 	            bool showStats)
 	    : m_PcapFileName(pcapFileName), m_OutputDirectory(outputDirectory), m_Format(format), m_ShowStats(showStats)
@@ -34,6 +36,7 @@ public:
 		}
 	}
 
+	/// Processes the PCAP file, extracts certificates, and writes them to the output.
 	void run()
 	{
 		if (m_RanOnce)
@@ -77,6 +80,7 @@ public:
 	}
 
 private:
+	/// Data associated with a single SSL/TLS connection
 	struct SSLConnectionData
 	{
 		int8_t curSide = -1;
@@ -89,6 +93,7 @@ private:
 
 	using SSLConnectionManager = std::unordered_map<uint32_t, SSLConnectionData>;
 
+	/// Tracks statistics about the PCAP processing
 	struct SSLPcapStats
 	{
 		uint64_t packets = 0;
@@ -108,10 +113,12 @@ private:
 	SSLPcapStats m_Stats;
 	bool m_RanOnce = false;
 
+	/// Callback for when a complete TCP message is ready for processing
 	static void onMessageReady(int8_t side, const pcpp::TcpStreamData& tcpData, void* userCookie)
 	{
 		auto* thisInstance = static_cast<PcapExtract*>(userCookie);
 
+		// Skip non-SSL traffic
 		if (!(pcpp::SSLLayer::isSSLPort(tcpData.getConnectionData().srcPort) ||
 		      pcpp::SSLLayer::isSSLPort(tcpData.getConnectionData().dstPort)))
 		{
@@ -119,6 +126,8 @@ private:
 		}
 
 		thisInstance->m_Stats.sslMessages++;
+
+		// Find or create connection state for this flow
 		auto flow = thisInstance->m_ConnectionManager.find(tcpData.getConnectionData().flowKey);
 		if (flow == thisInstance->m_ConnectionManager.end())
 		{
@@ -128,11 +137,13 @@ private:
 			flow = thisInstance->m_ConnectionManager.find(tcpData.getConnectionData().flowKey);
 		}
 
+		// Skip if we're already ignoring this flow
 		if (flow->second.canIgnoreFlow)
 		{
 			return;
 		}
 
+		// If this is a continuation from the same side, accumulate the data
 		if (flow->second.curSide == side && !tcpData.isBytesMissing())
 		{
 			flow->second.data.insert(flow->second.data.end(), tcpData.getData(),
@@ -140,20 +151,24 @@ private:
 			return;
 		}
 
+		// If we have no accumulated data, return
 		if (flow->second.data.empty())
 		{
 			return;
 		}
 
+		// Process the accumulated data as a complete SSL message
 		size_t const dataSize = flow->second.data.size();
 		auto* data = new uint8_t[dataSize];
 		std::memcpy(data, flow->second.data.data(), dataSize);
 
+		// Update connection state with new data
 		flow->second.curSide = side;
 		flow->second.data.clear();
 		flow->second.data.insert(flow->second.data.end(), tcpData.getData(),
 		                         tcpData.getData() + tcpData.getDataLength());
 
+		// We have all the data for this SSL message. Parse and handle the message
 		auto sslMessage =
 		    std::unique_ptr<pcpp::SSLLayer>(pcpp::SSLLayer::createSSLMessage(data, dataSize, nullptr, nullptr));
 		if (sslMessage != nullptr)
@@ -162,6 +177,7 @@ private:
 		}
 	};
 
+	/// Callback for when a TCP connection ends
 	static void onConnectionEnd(const pcpp::ConnectionData& connectionData,
 	                            pcpp::TcpReassembly::ConnectionEndReason reason, void* userCookie)
 	{
@@ -173,8 +189,10 @@ private:
 		}
 	}
 
+	/// Handles an SSL/TLS message and extracts certificates if present
 	void handleSSLMessage(pcpp::SSLLayer* sslMessage, SSLConnectionData* sslConnectionData)
 	{
+		// Iterate over all the SSL/TLS layers in the message
 		while (sslMessage != nullptr)
 		{
 			auto* applicationDataLayer = dynamic_cast<pcpp::SSLApplicationDataLayer*>(sslMessage);
@@ -185,6 +203,7 @@ private:
 				return;
 			}
 
+			// Ignore non-handshake messages
 			auto* handshakeLayer = dynamic_cast<pcpp::SSLHandshakeLayer*>(sslMessage);
 			if (handshakeLayer == nullptr)
 			{
@@ -195,6 +214,7 @@ private:
 
 			m_Stats.sslHandshakeMessages++;
 
+			// Iterate over all certificate messages
 			auto* certMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLCertificateMessage>();
 			while (certMessage != nullptr)
 			{
@@ -207,12 +227,15 @@ private:
 		}
 	}
 
+	/// Handles an SSL/TLS certificate message
 	void handleSSLCertificateMessage(const pcpp::SSLCertificateMessage* sslCertificateMessage)
 	{
+		// Iterate over all certificates in this message
 		for (int i = 0; i < sslCertificateMessage->getNumOfCertificates(); i++)
 		{
 			try
 			{
+				// Parse the certificate
 				auto x509Cert = sslCertificateMessage->getCertificate(i)->getX509Certificate();
 				if (x509Cert != nullptr)
 				{
@@ -230,6 +253,7 @@ private:
 		}
 	}
 
+	/// Handles an X.509 certificate
 	void handleX509Certificate(const std::unique_ptr<pcpp::X509Certificate>& x509Cert)
 	{
 		if (m_Format == "PEM")
@@ -248,6 +272,7 @@ private:
 		m_Stats.parsedCertificates++;
 	}
 
+	/// Stores the certificate in PEM format, either to stdout or to a file
 	void handlePEM(const std::unique_ptr<pcpp::X509Certificate>& x509Cert)
 	{
 		auto pem = x509Cert->toPEM();
@@ -269,6 +294,7 @@ private:
 		}
 	}
 
+	/// Stores the certificate in DER format, either to stdout or to a file
 	void handleDER(const std::unique_ptr<pcpp::X509Certificate>& x509Cert)
 	{
 		auto der = x509Cert->toDER();
