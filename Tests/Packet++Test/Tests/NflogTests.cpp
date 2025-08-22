@@ -10,7 +10,8 @@
 
 PTF_TEST_CASE(NflogPacketParsingTest)
 {
-	auto rawPacket1 = pcpp_tests::utils::createPacketFromHexResource("PacketExamples/nflogPacket.dat", pcpp_tests::utils::PacketFactory(pcpp::LINKTYPE_NFLOG));
+	auto rawPacket1 = pcpp_tests::utils::createPacketFromHexResource(
+	    "PacketExamples/nflogPacket.dat", pcpp_tests::utils::PacketFactory(pcpp::LINKTYPE_NFLOG));
 
 	pcpp::Packet nflogPacket(rawPacket1.get());
 

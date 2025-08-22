@@ -6,14 +6,16 @@
 #include <cstring>
 #include "EndianPortable.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeInitiation.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardHandshakeInitiation.dat");
 
-	pcpp::Packet wgHandShakeInitPacket(&rawPacket1);
+	pcpp::Packet wgHandShakeInitPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(wgHandShakeInitPacket.isPacketOfType(pcpp::WireGuard));
 
@@ -67,9 +69,9 @@ PTF_TEST_CASE(WireGuardHandshakeRespParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeResponse.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardHandshakeResponse.dat");
 
-	pcpp::Packet wgHandShakeResponsePacket(&rawPacket1);
+	pcpp::Packet wgHandShakeResponsePacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(wgHandShakeResponsePacket.isPacketOfType(pcpp::WireGuard));
 	auto wgLayer = wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardLayer>();
@@ -118,9 +120,9 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardCookieReply.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardCookieReply.dat");
 
-	pcpp::Packet wgCookieReplyPacket(&rawPacket1);
+	pcpp::Packet wgCookieReplyPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(wgCookieReplyPacket.isPacketOfType(pcpp::WireGuard));
 	auto wgLayer = wgCookieReplyPacket.getLayerOfType<pcpp::WireGuardLayer>();
@@ -158,9 +160,9 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardTransportData.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardTransportData.dat");
 
-	pcpp::Packet wgTransportDataPacket(&rawPacket1);
+	pcpp::Packet wgTransportDataPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(wgTransportDataPacket.isPacketOfType(pcpp::WireGuard));
 	auto wgLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
@@ -370,9 +372,9 @@ PTF_TEST_CASE(WireGuardEditTest)
 	gettimeofday(&time, nullptr);
 
 	// edit WireGuard Handshake Initiation message
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeInitiation.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardHandshakeInitiation.dat");
 
-	pcpp::Packet wgHandShakeInitPacket(&rawPacket1);
+	pcpp::Packet wgHandShakeInitPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(wgHandShakeInitPacket.isPacketOfType(pcpp::WireGuard));
 
@@ -420,9 +422,9 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_TRUE(wgHandShakeInitLayer->getMac2() == expectedMac2Init);
 
 	// edit WireGuard Handshake Response message
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/WireGuardHandshakeResponse.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/WireGuardHandshakeResponse.dat");
 
-	pcpp::Packet wgHandShakeResponsePacket(&rawPacket2);
+	pcpp::Packet wgHandShakeResponsePacket(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(wgHandShakeResponsePacket.isPacketOfType(pcpp::WireGuard));
 
@@ -465,9 +467,9 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_TRUE(wgHandShakeResponseLayer->getMac2() == expectedMac2Resp);
 
 	// edit WireGuard Cookie Reply message
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/WireGuardCookieReply.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/WireGuardCookieReply.dat");
 
-	pcpp::Packet wgCookieReplyPacket(&rawPacket3);
+	pcpp::Packet wgCookieReplyPacket(rawPacket3.get());
 
 	PTF_ASSERT_TRUE(wgCookieReplyPacket.isPacketOfType(pcpp::WireGuard));
 
@@ -495,9 +497,9 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_BUF_COMPARE(wgCookieReplyaLayer->getEncryptedCookie().data(), encryptedCookie.data(), 32);
 
 	// edit WireGuard Transport Data message
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/WireGuardTransportData.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/WireGuardTransportData.dat");
 
-	pcpp::Packet wgTransportDataPacket(&rawPacket4);
+	pcpp::Packet wgTransportDataPacket(rawPacket4.get());
 
 	PTF_ASSERT_TRUE(wgTransportDataPacket.isPacketOfType(pcpp::WireGuard));
 

@@ -6,10 +6,10 @@
 
 using namespace std;
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(CotpLayerTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/tpkt_cotp.dat");
 
 	pcpp::Packet cotpPacket(rawPacket1.get());

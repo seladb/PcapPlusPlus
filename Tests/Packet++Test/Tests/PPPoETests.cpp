@@ -10,14 +10,16 @@
 #include "DhcpV6Layer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoESession1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/PPPoESession1.dat");
 
-	pcpp::Packet pppoesPacket(&rawPacket1);
+	pcpp::Packet pppoesPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(pppoesPacket.isPacketOfType(pcpp::PPPoE));
 	PTF_ASSERT_TRUE(pppoesPacket.isPacketOfType(pcpp::PPPoESession));
@@ -73,9 +75,9 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoEDiscovery2.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/PPPoEDiscovery2.dat");
 
-	pcpp::Packet pppoedPacket(&rawPacket1);
+	pcpp::Packet pppoedPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(pppoedPacket.isPacketOfType(pcpp::PPPoE));
 	PTF_ASSERT_TRUE(pppoedPacket.isPacketOfType(pcpp::PPPoEDiscovery));

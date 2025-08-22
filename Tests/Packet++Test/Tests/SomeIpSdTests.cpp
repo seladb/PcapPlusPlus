@@ -7,18 +7,20 @@
 #include "SomeIpSdLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(SomeIpSdParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SomeIpSdOffer.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SomeIpSdOffer2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/SomeIpSdSubscribe.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SomeIpSdOffer.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SomeIpSdOffer2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/SomeIpSdSubscribe.dat");
 
-	pcpp::Packet someIpSdPacket(&rawPacket1);
-	pcpp::Packet someIpSdPacket2(&rawPacket2);
-	pcpp::Packet someIpSdPacket3(&rawPacket3);
+	pcpp::Packet someIpSdPacket(rawPacket1.get());
+	pcpp::Packet someIpSdPacket2(rawPacket2.get());
+	pcpp::Packet someIpSdPacket3(rawPacket3.get());
 
 	// OfferService (Entry: OfferService, Option: IPv4Endpoint)
 	PTF_ASSERT_TRUE(someIpSdPacket.isPacketOfType(pcpp::SomeIP));
