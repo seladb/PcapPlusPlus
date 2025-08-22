@@ -1,5 +1,6 @@
 if(PCAPPP_BUILD_TESTS)
   add_subdirectory(PcppTestFramework)
+  add_subdirectory(PcppTestUtilities)
   add_subdirectory(Packet++Test)
 
   if(PCAPPP_BUILD_PCAPPP)
