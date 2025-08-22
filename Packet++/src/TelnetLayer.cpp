@@ -4,6 +4,8 @@
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include <cstring>
+#include <iterator>
+#include <algorithm>
 
 namespace pcpp
 {
@@ -132,13 +134,15 @@ namespace pcpp
 		// Convert to string
 		if (removeEscapeCharacters)
 		{
-			std::stringstream ss;
-			for (size_t idx = 0; idx < m_DataLen - (dataPos - m_Data) + 1; ++idx)
-			{
-				if (int(dataPos[idx]) < 127 && int(dataPos[idx]) > 31)  // From SPACE to ~
-					ss << dataPos[idx];
-			}
-			return ss.str();
+			// End of range is corrected by the advance offset.
+			auto const* beginIt = dataPos;
+			auto const* endIt = dataPos + m_DataLen - std::distance(m_Data, dataPos);
+
+			std::string result;
+			std::copy_if(beginIt, endIt, std::back_inserter(result), [](char ch) -> bool {
+				return ch > 31 && ch < 127;  // From SPACE to ~
+			});
+			return result;
 		}
 		return std::string((char*)m_Data, m_DataLen);
 	}
