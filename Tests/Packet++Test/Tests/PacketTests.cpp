@@ -457,7 +457,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 
 	pcpp_tests::utils::PacketFactory nullFactory(pcpp::LINKTYPE_NULL);
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/NullLoopback1.dat", nullFactory);
-	
+
 	pcpp::Packet nullLoopbackPacket(rawPacket3.get());
 
 	pcpp::Packet nullLoopbackPacketCopy(nullLoopbackPacket);
