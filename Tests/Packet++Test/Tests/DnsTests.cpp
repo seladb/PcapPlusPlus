@@ -11,10 +11,10 @@
 #include "DnsLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(DnsLayerParsingTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Dns3.dat");
 
 	pcpp::Packet dnsPacket(rawPacket1.get());
@@ -490,8 +490,6 @@ DK6nWeL3c6H5Apxz7LjVc1uTIdsIXxuOLYA4/ilBmSVIzuDWfdRUfhHdY6+cn8HFRm+2hM8AnXGXws95
 
 PTF_TEST_CASE(DnsLayerEditTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/DnsEdit3.dat");
 	auto rawPacket5 = createPacketFromHexResource("PacketExamples/DnsEdit5.dat");
 	pcpp::RawPacket raw3PacketCopy(*rawPacket3);
@@ -522,8 +520,6 @@ PTF_TEST_CASE(DnsLayerEditTest)
 
 PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket6 = createPacketFromHexResource("PacketExamples/DnsEdit6.dat");
 
 	pcpp::Packet dnsEdit6Packet(rawPacket6.get());
@@ -731,8 +727,6 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 
 PTF_TEST_CASE(DnsNXDomainTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DNS_NXDomain.dat");
 	pcpp::Packet dnsPacket(rawPacket1.get());
 

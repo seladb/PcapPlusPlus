@@ -8,10 +8,10 @@
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(DhcpParsingTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Dhcp1.dat");
 
 	pcpp::Packet dhcpPacket(rawPacket1.get());

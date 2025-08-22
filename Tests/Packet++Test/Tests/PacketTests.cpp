@@ -455,9 +455,10 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	// Packet copy c'tor test - Null/Loopback
 	//--------------------------------------
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(3, "PacketExamples/NullLoopback1.dat", pcpp::LINKTYPE_NULL);
-
-	pcpp::Packet nullLoopbackPacket(&rawPacket3);
+	pcpp_tests::utils::PacketFactory nullFactory(pcpp::LINKTYPE_NULL);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/NullLoopback1.dat", nullFactory);
+	
+	pcpp::Packet nullLoopbackPacket(rawPacket3.get());
 
 	pcpp::Packet nullLoopbackPacketCopy(nullLoopbackPacket);
 
@@ -487,9 +488,10 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	// Packet copy c'tor test - SLL
 	//----------------------------
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(4, "PacketExamples/SllPacket2.dat", pcpp::LINKTYPE_LINUX_SLL);
+	pcpp_tests::utils::PacketFactory sllFactory(pcpp::LINKTYPE_LINUX_SLL);
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/SllPacket2.dat", sllFactory);
 
-	pcpp::Packet sllPacket(&rawPacket4);
+	pcpp::Packet sllPacket(rawPacket4.get());
 
 	pcpp::Packet sllPacketCopy(sllPacket);
 

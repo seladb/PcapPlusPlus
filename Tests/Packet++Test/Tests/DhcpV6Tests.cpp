@@ -5,10 +5,10 @@
 #include "DhcpV6Layer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(DhcpV6ParsingTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dhcpv6_1.dat");
 
 	pcpp::Packet dhcpv6Packet(rawPacket1.get());
@@ -131,8 +131,6 @@ PTF_TEST_CASE(DhcpV6CreationTest)
 
 PTF_TEST_CASE(DhcpV6EditTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dhcpv6_1.dat");
 
 	pcpp::Packet dhcpv6Packet(rawPacket1.get());
