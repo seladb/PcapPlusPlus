@@ -4,9 +4,66 @@
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include <cstring>
+#include <cassert>
+#include <iterator>
+#include <algorithm>
 
 namespace pcpp
 {
+	namespace
+	{
+		/// @brief Calculates the distance to the next IAC symbol in a given buffer, taking into account IAC escape
+		/// sequences.
+		/// @param buf Start of the buffer to check 
+		/// @param bufLen Length of the buffer to check
+		/// @param skipFirst If true, the first byte of the buffer is skipped in the search.
+		///   This is useful to avoid matching the first IAC if it is at the start of the buffer.
+		///   This may interfere with the search if the buffer starts with an IAC escape sequence (FF FF).
+		/// @return The distance to the next IAC symbol
+		size_t distanceToNextIAC(uint8_t const* buf, size_t bufLen, bool skipFirst = false)
+		{
+			using TelnetCommand = TelnetLayer::TelnetCommand;
+			constexpr auto IAC = TelnetCommand::InterpretAsCommand;
+
+			assert(buf != nullptr);
+			assert(bufLen > 0);
+			
+			// If skipFirst is true, begin search from the second byte
+			uint8_t const* it = buf + skipFirst;
+			uint8_t const* endIt = buf + bufLen;
+
+			while (it != endIt)
+			{
+				// Find the next IAC symbol
+				it = std::find(it, endIt, static_cast<uint8_t>(IAC));
+
+				// No such symbol is found
+				if (it == endIt)
+					break;
+
+				// Current symbol is IAC
+				// Check next symbol for IAC escape sequence
+				auto nextIt = std::next(it);
+
+				// No next symbol to check.
+				// This is an error condition as (IAC must always be followed by a symbol)
+				if (nextIt == endIt)
+				{
+					throw std::runtime_error("Telnet Parse Error: IAC must always be followed by a symbol");
+				}
+
+				// No escape sequence. Next IAC is found.
+				if (*nextIt != static_cast<int>(IAC))
+					break;
+
+				// Current match is escape sequence [IAC IAC].
+				// Advance by 2 positions and continue search.
+				std::advance(it, 2);
+			}
+
+			return std::distance(buf, it);
+		}
+	}  // namespace
 
 	bool TelnetLayer::isDataField(uint8_t* pos) const
 	{
@@ -20,46 +77,26 @@ namespace pcpp
 		return !isDataField(pos);
 	}
 
-	size_t TelnetLayer::distanceToNextIAC(uint8_t* startPos, size_t maxLength)
-	{
-		uint8_t* pos = nullptr;
-		size_t addition = 0;
-		size_t currentOffset = 0;
-		do
-		{
-			// If it is second turn position should be adjusted to after second FF
-			if (addition)
-				addition += 2;
-
-			pos = (uint8_t*)memchr(startPos + currentOffset + 1, static_cast<int>(TelnetCommand::InterpretAsCommand),
-			                       maxLength - currentOffset);
-			if (pos)
-				addition += pos - (startPos + currentOffset);
-			else
-				addition += maxLength - currentOffset;
-			currentOffset = currentOffset + addition;
-			// "FF FF" means data continue
-		} while (pos && ((pos + 1) < (startPos + maxLength)) &&
-		         (pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (currentOffset < maxLength));
-
-		return addition;
-	}
-
 	size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength)
 	{
 		// Check first byte is IAC
 		if (startPos && (startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (maxLength >= 2))
 		{
 			// If subnegotiation parse until next IAC
-			if (startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
-				return distanceToNextIAC(startPos, maxLength);
+			if(startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
+			{
+				// Skipping first byte as it is IAC.
+				return distanceToNextIAC(startPos, maxLength, true);
+			}
 			// Only WILL, WONT, DO, DONT have option. Ref http://pcmicro.com/netfoss/telnet.html
 			else if (startPos[1] >= static_cast<int>(TelnetCommand::WillPerform) &&
 			         startPos[1] <= static_cast<int>(TelnetCommand::DontPerform))
 				return 3;
 			return 2;
 		}
-		return distanceToNextIAC(startPos, maxLength);
+
+		// Skipping first byte as it is not IAC
+		return distanceToNextIAC(startPos, maxLength, true);
 	}
 
 	uint8_t* TelnetLayer::getNextDataField(uint8_t* pos, size_t len)

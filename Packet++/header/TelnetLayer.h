@@ -19,8 +19,6 @@ namespace pcpp
 		bool isDataField(uint8_t* pos) const;
 		// Checks if position is a command field
 		bool isCommandField(uint8_t* pos) const;
-		// Returns distance to next IAC
-		size_t distanceToNextIAC(uint8_t* startPos, size_t maxLength);
 		// Returns length of provided field
 		size_t getFieldLen(uint8_t* startPos, size_t maxLength);
 		// Get position of next data field
