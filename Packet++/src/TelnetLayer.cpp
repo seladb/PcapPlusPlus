@@ -16,23 +16,27 @@ namespace pcpp
 		/// sequences.
 		/// @param buf Start of the buffer to check
 		/// @param bufLen Length of the buffer to check
+		/// @brief Calculates the distance to the next IAC symbol in a given sequence, taking into account IAC escape
+		/// sequences.
+		/// @param first Start of the sequence to search.
+		/// @param maxCount Number of elements in the sequence to search.
 		/// @param skipFirst If true, the first byte of the buffer is skipped in the search.
 		///   This is useful to avoid matching the first IAC if it is at the start of the buffer.
 		///   This may interfere with the search if the buffer starts with an IAC escape sequence (FF FF).
 		/// @return The distance to the next IAC symbol, or bufLen if no such symbol is found
-		size_t distanceToNextIAC(uint8_t const* buf, size_t bufLen, bool skipFirst = false)
+		size_t distanceToNextIAC(uint8_t const* first, size_t maxCount, bool skipFirst = false)
 		{
 			using TelnetCommand = TelnetLayer::TelnetCommand;
 			constexpr auto IAC = TelnetCommand::InterpretAsCommand;
 
-			assert(buf != nullptr);
+			assert(first != nullptr);
 			// Empty buffer, nothing to search
-			if (bufLen == 0)
+			if (maxCount == 0)
 				return 0;
 
 			// If skipFirst is true, begin search from the second byte
-			uint8_t const* it = buf + skipFirst;
-			uint8_t const* endIt = buf + bufLen;
+			uint8_t const* it = first + skipFirst;
+			uint8_t const* endIt = first + maxCount;
 
 			while (it != endIt)
 			{
@@ -63,7 +67,7 @@ namespace pcpp
 				std::advance(it, 2);
 			}
 
-			return std::distance(buf, it);
+			return std::distance(first, it);
 		}
 	}  // namespace
 
