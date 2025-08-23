@@ -58,13 +58,29 @@ namespace pcpp
 
 	ModbusLayer::ModbusFunctionCode ModbusLayer::getFunctionCode() const
 	{
-		ModbusLayer::ModbusFunctionCode functionCode =
-		    static_cast<ModbusLayer::ModbusFunctionCode>(getModbusHeader()->functionCode);
-		if (functionCode >= ModbusLayer::ModbusFunctionCode::FUNCTION_CODE_LIMIT)
+		switch (getModbusHeader()->functionCode)
 		{
-			return ModbusLayer::ModbusFunctionCode::UNKNOWN_FUNCTION;
+		case 1:
+			return ModbusFunctionCode::ReadCoils;
+		case 2:
+			return ModbusFunctionCode::ReadDiscreteInputs;
+		case 3:
+			return ModbusFunctionCode::ReadHoldingRegisters;
+		case 4:
+			return ModbusFunctionCode::ReadInputRegisters;
+		case 5:
+			return ModbusFunctionCode::WriteSingleCoil;
+		case 6:
+			return ModbusFunctionCode::WriteSingleHoldingRegister;
+		case 15:
+			return ModbusFunctionCode::WriteMultipleCoils;
+		case 16:
+			return ModbusFunctionCode::WriteMultipleHoldingRegisters;
+		case 17:
+			return ModbusFunctionCode::ReadSlaveId;
+		default:
+			return ModbusFunctionCode::UnknownFunction;
 		}
-		return functionCode;
 	}
 
 	void ModbusLayer::setTransactionId(uint16_t transactionId)
@@ -79,11 +95,6 @@ namespace pcpp
 
 	void ModbusLayer::setFunctionCode(ModbusLayer::ModbusFunctionCode functionCode)
 	{
-		if (functionCode >= ModbusLayer::ModbusFunctionCode::FUNCTION_CODE_LIMIT)
-		{
-			PCPP_LOG_ERROR("Invalid Modbus function code: " << static_cast<int>(functionCode));
-			return;
-		}
 		getModbusHeader()->functionCode = static_cast<uint8_t>(functionCode);
 	}
 
@@ -100,7 +111,7 @@ namespace pcpp
 		switch (functionCode)
 		{
 			// currently supported function codes
-		case ModbusFunctionCode::READ_INPUT_REGISTERS:
+		case ModbusFunctionCode::ReadInputRegisters:
 			return sizeof(ModbusReadInputRegisters);
 		default:
 			return -1;  // For unsupported or unknown function codes

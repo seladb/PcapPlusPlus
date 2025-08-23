@@ -18,7 +18,7 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 	PTF_ASSERT_TRUE(realPacket.isPacketOfType(pcpp::Modbus));
 	auto* modbusLayerFromRealPacket = realPacket.getLayerOfType<pcpp::ModbusLayer>();
 
-	pcpp::ModbusLayer modbusLayer(17, 255, pcpp::ModbusLayer::ModbusFunctionCode::READ_INPUT_REGISTERS);
+	pcpp::ModbusLayer modbusLayer(17, 255, pcpp::ModbusLayer::ModbusFunctionCode::ReadInputRegisters);
 
 	PTF_ASSERT_EQUAL(modbusLayer.getDataLen(), modbusLayerFromRealPacket->getDataLen());
 	PTF_ASSERT_EQUAL(modbusLayer.getOsiModelLayer(), pcpp::OsiModelApplicationLayer);
@@ -28,9 +28,9 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 	PTF_ASSERT_EQUAL(modbusLayer.getTransactionId(), 54321);
 	modbusLayer.setUnitId(2);
 	PTF_ASSERT_EQUAL(modbusLayer.getUnitId(), 2);
-	modbusLayer.setFunctionCode(pcpp::ModbusLayer::ModbusFunctionCode::WRITE_SINGLE_REGISTER);
+	modbusLayer.setFunctionCode(pcpp::ModbusLayer::ModbusFunctionCode::WriteSingleHoldingRegister);
 	PTF_ASSERT_EQUAL(static_cast<uint8_t>(modbusLayer.getFunctionCode()),
-	                 static_cast<uint8_t>(pcpp::ModbusLayer::ModbusFunctionCode::WRITE_SINGLE_REGISTER));
+	                 static_cast<uint8_t>(pcpp::ModbusLayer::ModbusFunctionCode::WriteSingleHoldingRegister));
 
 }  // ModbusLayerCreationTest
 
@@ -51,7 +51,7 @@ PTF_TEST_CASE(ModbusLayerParsingTest)
 	PTF_ASSERT_EQUAL(modbusLayer->getLength(), 6);
 	PTF_ASSERT_EQUAL(modbusLayer->getUnitId(), 255);
 	PTF_ASSERT_EQUAL(static_cast<uint8_t>(modbusLayer->getFunctionCode()),
-	                 static_cast<uint8_t>(pcpp::ModbusLayer::ModbusFunctionCode::READ_INPUT_REGISTERS));
+	                 static_cast<uint8_t>(pcpp::ModbusLayer::ModbusFunctionCode::ReadInputRegisters));
 
 	PTF_ASSERT_EQUAL(modbusLayer->toString(),
 	                 "Modbus Layer, Transaction ID: 17, Protocol ID: 0, Length: 6, Unit ID: 255, Function Code: 4");

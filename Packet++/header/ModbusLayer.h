@@ -34,43 +34,40 @@ namespace pcpp
 	class ModbusLayer : public Layer
 	{
 	public:
-		// @brief Enum class representing Modbus function codes.
-		// This enumeration defines the standard Modbus function codes used in request and response PDUs.
-		// Each value corresponds to a specific operation defined by the Modbus protocol.
+		/// @brief Enum class representing Modbus function codes.
+		/// This enumeration defines the standard Modbus function codes used in request and response PDUs.
+		/// Each value corresponds to a specific operation defined by the Modbus protocol.
 		enum class ModbusFunctionCode : uint8_t
 		{
-			// Read coil status (0x01)
-			READ_COILS = 1,
+			/// Read coil status (0x01)
+			ReadCoils = 1,
 
-			// Read discrete input status (0x02)
-			READ_DISCRETE_INPUTS = 2,
+			/// Read discrete input status (0x02)
+			ReadDiscreteInputs = 2,
 
-			// Read holding registers (0x03)
-			READ_HOLDING_REGISTERS = 3,
+			/// Read holding registers (0x03)
+			ReadHoldingRegisters = 3,
 
-			// Read input registers (0x04)
-			READ_INPUT_REGISTERS = 4,
+			/// Read input registers (0x04)
+			ReadInputRegisters = 4,
 
-			// Write a single coil (0x05)
-			WRITE_SINGLE_COIL = 5,
+			/// Write a single coil (0x05)
+			WriteSingleCoil = 5,
 
-			// Write a single holding register (0x06)
-			WRITE_SINGLE_REGISTER = 6,
+			/// Write a single holding register (0x06)
+			WriteSingleHoldingRegister = 6,
 
-			// Write multiple coils (0x0F)
-			WRITE_MULTIPLE_COILS = 15,
+			/// Write multiple coils (0x0F)
+			WriteMultipleCoils = 15,
 
-			// Write multiple holding registers (0x10)
-			WRITE_MULTIPLE_REGISTERS = 16,
+			/// Write multiple holding registers (0x10)
+			WriteMultipleHoldingRegisters = 16,
 
-			// Report slave ID (0x11)
-			REPORT_SLAVE_ID = 17,
+			/// Report slave ID (0x11)
+			ReadSlaveId = 17,
 
-			// Limit to check if the function code is valid
-			FUNCTION_CODE_LIMIT,
-
-			// Unknown or unsupported function code (0xFF)
-			UNKNOWN_FUNCTION = 0xFF
+			/// Unknown or unsupported function code (0xFF)
+			UnknownFunction = 0xFF
 		};
 
 		/// @struct ModbusReadInputRegisters
