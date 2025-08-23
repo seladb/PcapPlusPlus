@@ -19,14 +19,16 @@ namespace pcpp
 		/// @param skipFirst If true, the first byte of the buffer is skipped in the search.
 		///   This is useful to avoid matching the first IAC if it is at the start of the buffer.
 		///   This may interfere with the search if the buffer starts with an IAC escape sequence (FF FF).
-		/// @return The distance to the next IAC symbol
+		/// @return The distance to the next IAC symbol, or bufLen if no such symbol is found
 		size_t distanceToNextIAC(uint8_t const* buf, size_t bufLen, bool skipFirst = false)
 		{
 			using TelnetCommand = TelnetLayer::TelnetCommand;
 			constexpr auto IAC = TelnetCommand::InterpretAsCommand;
 
 			assert(buf != nullptr);
-			assert(bufLen > 0);
+			// Empty buffer, nothing to search
+			if (bufLen == 0)
+				return 0;
 
 			// If skipFirst is true, begin search from the second byte
 			uint8_t const* it = buf + skipFirst;
