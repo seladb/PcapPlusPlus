@@ -14,7 +14,7 @@ namespace pcpp
 	{
 		/// @brief Calculates the distance to the next IAC symbol in a given buffer, taking into account IAC escape
 		/// sequences.
-		/// @param buf Start of the buffer to check 
+		/// @param buf Start of the buffer to check
 		/// @param bufLen Length of the buffer to check
 		/// @param skipFirst If true, the first byte of the buffer is skipped in the search.
 		///   This is useful to avoid matching the first IAC if it is at the start of the buffer.
@@ -27,7 +27,7 @@ namespace pcpp
 
 			assert(buf != nullptr);
 			assert(bufLen > 0);
-			
+
 			// If skipFirst is true, begin search from the second byte
 			uint8_t const* it = buf + skipFirst;
 			uint8_t const* endIt = buf + bufLen;
@@ -83,7 +83,7 @@ namespace pcpp
 		if (startPos && (startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (maxLength >= 2))
 		{
 			// If subnegotiation parse until next IAC
-			if(startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
+			if (startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
 			{
 				// Skipping first byte as it is IAC.
 				return distanceToNextIAC(startPos, maxLength, true);
