@@ -119,7 +119,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(bgpRRLayer->getHeaderLen(), 23);
 	PTF_ASSERT_EQUAL(be16toh(bgpRRLayer->getRouteRefreshHeader()->afi), 1);
 	PTF_ASSERT_EQUAL(bgpRRLayer->getRouteRefreshHeader()->safi, 1);
-	PTF_ASSERT_EQUAL(bgpRRLayer->getRouteRefreshHeader()->reserved, 2); // TESTING!!!!!
+	PTF_ASSERT_EQUAL(bgpRRLayer->getRouteRefreshHeader()->reserved, 1);
 
 	// parse BGP UPDATE message with Withdrawn Routes
 
