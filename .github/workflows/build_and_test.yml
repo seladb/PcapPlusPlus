@@ -687,6 +687,7 @@ jobs:
           pkg install -y python3 bash cmake git gmake gsed libpcap tcpreplay
 
         run: |
+          set -e
           echo "Building PcapPlusPlus"
           chmod a+rw /dev/bpf*
           cmake -S . -B Dist
