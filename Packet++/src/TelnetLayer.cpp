@@ -7,6 +7,8 @@
 #include <iterator>
 #include <algorithm>
 
+#include "DeprecationUtils.h"
+
 namespace pcpp
 {
 	namespace
@@ -75,6 +77,7 @@ namespace pcpp
 		/// @param first Start of the sequence to check
 		/// @param maxCount Maximum number of bytes to check
 		/// @return True if the buffer matches Telnet data pattern, false otherwise
+		PCPP_MAYBE_UNUSED
 		bool isTelnetData(uint8_t const* first, size_t maxCount)
 		{
 			return isSequenceType(first, maxCount, TelnetSequenceType::UserData);
