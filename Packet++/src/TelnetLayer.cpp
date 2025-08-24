@@ -229,8 +229,16 @@ namespace pcpp
 	size_t TelnetLayer::getTotalNumberOfCommands()
 	{
 		size_t ctr = 0;
-		if (isTelnetCommand(m_Data, m_DataLen))
-			++ctr;
+		try
+		{
+			if (isTelnetCommand(m_Data, m_DataLen))
+				++ctr;
+		}
+		catch (std::runtime_error const& e)
+		{
+			PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+			return 0;
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
@@ -250,8 +258,16 @@ namespace pcpp
 			return 0;
 
 		size_t ctr = 0;
-		if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
-			++ctr;
+		try
+		{
+			if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
+				++ctr;
+		}
+		catch (std::runtime_error const& e)
+		{
+			PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+			return 0;
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
@@ -267,9 +283,17 @@ namespace pcpp
 
 	TelnetLayer::TelnetCommand TelnetLayer::getFirstCommand()
 	{
-		// If starts with command
-		if (isTelnetCommand(m_Data, m_DataLen))
-			return static_cast<TelnetCommand>(m_Data[1]);
+		try
+		{
+			// If starts with command
+			if (isTelnetCommand(m_Data, m_DataLen))
+				return static_cast<TelnetCommand>(m_Data[1]);
+		}
+		catch (std::runtime_error const& e)
+		{
+			PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+			return TelnetCommand::TelnetCommandEndOfPacket;
+		}
 
 		// Check is there any command
 		uint8_t* pos = getNextCommandField(m_Data, m_DataLen);
@@ -283,8 +307,17 @@ namespace pcpp
 		if (lastPositionOffset == SIZE_MAX)
 		{
 			lastPositionOffset = 0;
-			if (isTelnetCommand(m_Data, m_DataLen))
-				return static_cast<TelnetLayer::TelnetCommand>(m_Data[1]);
+			try
+			{
+				if (isTelnetCommand(m_Data, m_DataLen))
+					return static_cast<TelnetLayer::TelnetCommand>(m_Data[1]);
+			}
+			catch (std::runtime_error const& e)
+			{
+				PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+				lastPositionOffset = SIZE_MAX;
+				return TelnetCommand::TelnetCommandEndOfPacket;
+			}
 		}
 
 		uint8_t* pos = getNextCommandField(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset);
@@ -314,8 +347,16 @@ namespace pcpp
 			return TelnetOption::TelnetOptionNoOption;
 		}
 
-		if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
-			return static_cast<TelnetOption>(getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
+		try
+		{
+			if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
+				return static_cast<TelnetOption>(getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
+		}
+		catch (std::runtime_error const& e)
+		{
+			PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+			return TelnetOption::TelnetOptionNoOption;
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
@@ -354,13 +395,22 @@ namespace pcpp
 			return nullptr;
 		}
 
-		if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
+		try
 		{
-			size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
-			uint8_t* posBuffer = getCommandData(m_Data, lenBuffer);
+			if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
+			{
+				size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
+				uint8_t* posBuffer = getCommandData(m_Data, lenBuffer);
 
-			length = lenBuffer;
-			return posBuffer;
+				length = lenBuffer;
+				return posBuffer;
+			}
+		}
+		catch (std::runtime_error const& e)
+		{
+			PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+			length = 0;
+			return nullptr;
 		}
 
 		uint8_t* pos = m_Data;
