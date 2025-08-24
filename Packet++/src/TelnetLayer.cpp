@@ -188,31 +188,31 @@ namespace pcpp
 			return {};
 		}
 
-		uint8_t* dataPos = nullptr;
-		if (isTelnetData(m_Data, m_DataLen))
-			dataPos = m_Data;
-		else
-			dataPos = getNextDataField(m_Data, m_DataLen);
-
-		if (!dataPos)
-		{
-			PCPP_LOG_DEBUG("Packet does not have a data field");
-			return std::string();
-		}
-
-		// Possibly make this a DEBUG assertion so it is skipped in release builds
-		if (dataPos < m_Data || dataPos >= (m_Data + m_DataLen))
-		{
-			PCPP_LOG_ERROR("Data position is out of bounds, this should never happen! \n"
-			               " - DataPos: "
-			               << static_cast<void*>(dataPos) << ", Data Ptr: " << static_cast<void*>(m_Data)
-			               << ", DataLen: " << m_DataLen);
-			throw std::logic_error("Data position is out of bounds, this should never happen");
-		}
-
 		// Convert to string
 		if (removeEscapeCharacters)
 		{
+			uint8_t* dataPos = nullptr;
+			if (isTelnetData(m_Data, m_DataLen))
+				dataPos = m_Data;
+			else
+				dataPos = getNextDataField(m_Data, m_DataLen);
+
+			if (!dataPos)
+			{
+				PCPP_LOG_DEBUG("Packet does not have a data field");
+				return std::string();
+			}
+
+			// Possibly make this a DEBUG assertion so it is skipped in release builds
+			if (dataPos < m_Data || dataPos >= (m_Data + m_DataLen))
+			{
+				PCPP_LOG_ERROR("Data position is out of bounds, this should never happen! \n"
+				               " - DataPos: "
+				               << static_cast<void*>(dataPos) << ", Data Ptr: " << static_cast<void*>(m_Data)
+				               << ", DataLen: " << m_DataLen);
+				throw std::logic_error("Data position is out of bounds, this should never happen");
+			}
+
 			// End of range is corrected by the advance offset.
 			auto const* beginIt = dataPos;
 			auto const* endIt = dataPos + m_DataLen - std::distance(m_Data, dataPos);
