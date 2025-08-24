@@ -152,6 +152,8 @@ namespace pcpp
 			}
 			case TelnetSequenceType::UserData:
 				return pos;
+			default:
+				break;  // continue searching
 			}
 
 			// If not data, move to next field
@@ -182,6 +184,8 @@ namespace pcpp
 			}
 			case TelnetSequenceType::Command:
 				return pos;
+			default:
+				break;  // continue searching
 			}
 
 			// If not command, move to next field
