@@ -110,7 +110,7 @@ namespace pcpp
 		while (pos < endIt)
 		{
 			// Check if the current field is data
-			if(isTelnetData(pos,std::distance(pos,endIt)))
+			if (isTelnetData(pos, std::distance(pos, endIt)))
 			{
 				return pos;
 			}
@@ -131,10 +131,10 @@ namespace pcpp
 		// Advance to the next field, as we are skipping the current one from the search.
 		pos += getFieldLen(pos, len);
 
-		while(pos < endIt)
+		while (pos < endIt)
 		{
 			// Check if the current field is command
-			if(isTelnetCommand(pos,std::distance(pos,endIt)))
+			if (isTelnetCommand(pos, std::distance(pos, endIt)))
 			{
 				return pos;
 			}
