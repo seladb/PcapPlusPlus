@@ -44,9 +44,9 @@ namespace pcpp
 		/// a following byte
 		bool isTelnetCommand(uint8_t const* first, size_t maxCount)
 		{
-			if (maxCount == 0)
+			if (first == nullptr || maxCount == 0)
 			{
-				PCPP_LOG_DEBUG("Checking empty buffer for telnet command");
+				PCPP_LOG_DEBUG("Checking empty or null buffer for telnet command");
 				return false;
 			}
 
