@@ -4,7 +4,6 @@
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include <cstring>
-#include <cassert>
 #include <iterator>
 #include <algorithm>
 
@@ -20,11 +19,9 @@ namespace pcpp
 		/// following byte
 		bool isTelnetData(uint8_t const* first, size_t maxCount)
 		{
-			assert(first != nullptr);
-
-			if (maxCount == 0)
+			if (first == nullptr || maxCount == 0)
 			{
-				PCPP_LOG_DEBUG("Checking empty buffer for telnet data");
+				PCPP_LOG_DEBUG("Checking empty or null buffer for telnet data");
 				return false;
 			}
 
@@ -167,6 +164,12 @@ namespace pcpp
 
 	std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters)
 	{
+		if (m_Data == nullptr)
+		{
+			PCPP_LOG_DEBUG("Layer does not have data");
+			return {};
+		}
+
 		uint8_t* dataPos = nullptr;
 		if (isTelnetData(m_Data, m_DataLen))
 			dataPos = m_Data;
