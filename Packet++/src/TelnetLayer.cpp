@@ -556,9 +556,17 @@ namespace pcpp
 
 	std::string TelnetLayer::toString() const
 	{
-		if (isTelnetData(m_Data, m_DataLen))
-			return "Telnet Data";
-		return "Telnet Control";
+		try
+		{
+			if (isTelnetData(m_Data, m_DataLen))
+				return "Telnet Data";
+			return "Telnet Control";
+		}
+		catch (std::runtime_error const& e)
+		{
+			PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+			return "Telnet Unknown";
+		}
 	}
 
 }  // namespace pcpp
