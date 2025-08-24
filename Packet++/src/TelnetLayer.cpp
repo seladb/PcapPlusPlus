@@ -104,16 +104,25 @@ namespace pcpp
 		// Advance to the next field, as we are skipping the current one from the search.
 		pos += getFieldLen(pos, len);
 
-		while (pos < endIt)
+		try
 		{
-			// Check if the current field is data
-			if (isTelnetData(pos, std::distance(pos, endIt)))
+			while (pos < endIt)
 			{
-				return pos;
-			}
+				// Check if the current field is data
+				if (isTelnetData(pos, std::distance(pos, endIt)))
+				{
+					return pos;
+				}
 
-			// If not data, move to next field
-			pos += getFieldLen(pos, std::distance(pos, endIt));
+				// If not data, move to next field
+				pos += getFieldLen(pos, std::distance(pos, endIt));
+			}
+		}
+		catch (std::runtime_error const& e)
+		{
+			// Most likely an IAC at the end of the buffer
+			PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+			return nullptr;
 		}
 
 		// If we got here, no data field has been found before the end of the buffer
@@ -128,16 +137,25 @@ namespace pcpp
 		// Advance to the next field, as we are skipping the current one from the search.
 		pos += getFieldLen(pos, len);
 
-		while (pos < endIt)
+		try
 		{
-			// Check if the current field is command
-			if (isTelnetCommand(pos, std::distance(pos, endIt)))
+			while (pos < endIt)
 			{
-				return pos;
-			}
+				// Check if the current field is command
+				if (isTelnetCommand(pos, std::distance(pos, endIt)))
+				{
+					return pos;
+				}
 
-			// If not command, move to next field
-			pos += getFieldLen(pos, std::distance(pos, endIt));
+				// If not command, move to next field
+				pos += getFieldLen(pos, std::distance(pos, endIt));
+			}
+		}
+		catch (std::runtime_error const& e)
+		{
+			// Most likely an IAC at the end of the buffer
+			PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+			return nullptr;
 		}
 
 		// If we got here, no command field has been found before the end of the buffer
