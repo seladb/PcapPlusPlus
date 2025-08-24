@@ -131,6 +131,16 @@ namespace pcpp
 			return std::string();
 		}
 
+		// Possibly make this a DEBUG assertion so it is skipped in release builds
+		if (dataPos < m_Data || dataPos >= (m_Data + m_DataLen))
+		{
+			PCPP_LOG_ERROR("Data position is out of bounds, this should never happen! \n"
+			               " - DataPos: "
+			               << static_cast<void*>(dataPos) << ", Data Ptr: " << static_cast<void*>(m_Data)
+			               << ", DataLen: " << m_DataLen);
+			throw std::logic_error("Data position is out of bounds, this should never happen");
+		}
+
 		// Convert to string
 		if (removeEscapeCharacters)
 		{
