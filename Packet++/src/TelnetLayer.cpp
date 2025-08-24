@@ -192,10 +192,18 @@ namespace pcpp
 		if (removeEscapeCharacters)
 		{
 			uint8_t* dataPos = nullptr;
-			if (isTelnetData(m_Data, m_DataLen))
-				dataPos = m_Data;
-			else
-				dataPos = getNextDataField(m_Data, m_DataLen);
+			try
+			{
+				if (isTelnetData(m_Data, m_DataLen))
+					dataPos = m_Data;
+				else
+					dataPos = getNextDataField(m_Data, m_DataLen);
+			}
+			catch (std::runtime_error const& e)
+			{
+				PCPP_LOG_ERROR("Telnet Parse Error: " << e.what());
+				return std::string();
+			}
 
 			if (!dataPos)
 			{
