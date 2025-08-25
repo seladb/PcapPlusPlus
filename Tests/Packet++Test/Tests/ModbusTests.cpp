@@ -11,7 +11,7 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	// Transaction ID: 0, Unit ID: 10, Function Code: 17
+	// Transaction ID: 17, Unit ID: 255, Function Code: 4
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ModbusRequest.dat");
 
 	pcpp::Packet realPacket(&rawPacket1);
