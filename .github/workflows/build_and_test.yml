@@ -258,6 +258,7 @@ jobs:
     steps:
       - name: Check AVX-512 support
         run: |
+          echo "::debug::$(grep flags /proc/cpuinfo)"
           if grep -q avx512 /proc/cpuinfo; then
             echo "avx512=true" >> $GITHUB_ENV
           else
@@ -281,9 +282,6 @@ jobs:
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
-
-      - name: Check AVX
-        run: grep avx /proc/cpuinfo
 
       - name: Test Packet++
         if: env.avx512 == 'true'
