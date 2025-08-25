@@ -331,3 +331,6 @@ PTF_TEST_CASE(Base64DecodingTest);
 // Implemented in PemTests.cpp
 PTF_TEST_CASE(PemEncodingTest);
 PTF_TEST_CASE(PemDecodingTest);
+
+// Implemented in CryptoKeyTests.cpp
+PTF_TEST_CASE(CryptoKeyDecodingTest);

@@ -501,28 +501,20 @@ namespace pcpp
 
 	std::string X509SerialNumber::toString(const std::string& delimiter) const
 	{
-		// Remove leading zeros
-		auto firstNonZero = m_SerialNumber.find_first_not_of('0');
-		if (firstNonZero == std::string::npos)
-		{
-			return "0";
-		}
-
-		auto tempResult = m_SerialNumber.substr(firstNonZero);
 		if (delimiter.empty())
 		{
-			return tempResult;
+			return m_SerialNumber;
 		}
 
 		// Add delimiter
 		std::string result;
-		result.reserve(tempResult.length() + delimiter.size() * (tempResult.length() / 2 - 1));
+		result.reserve(m_SerialNumber.length() + delimiter.size() * (m_SerialNumber.length() / 2 - 1));
 
-		for (size_t i = 0; i < tempResult.length(); ++i)
+		for (size_t i = 0; i < m_SerialNumber.length(); ++i)
 		{
-			result += tempResult[i];
+			result += m_SerialNumber[i];
 			// Add a delimiter after every two characters, except for the very last pair
-			if ((i + 1) % 2 == 0 && i + 1 < tempResult.length())
+			if ((i + 1) % 2 == 0 && i + 1 < m_SerialNumber.length())
 			{
 				result += delimiter;
 			}
@@ -721,7 +713,7 @@ namespace pcpp
 		X509SerialNumber X509TBSCertificate::getSerialNumber() const
 		{
 			auto serialNumber = getSubRecordAndCast<Asn1IntegerRecord>(m_Root, m_SerialNumberOffset, "Serial Number")
-			                        ->getValueAsString();
+			                        ->getValueAsString(true);
 			return X509SerialNumber(serialNumber);
 		}
 
