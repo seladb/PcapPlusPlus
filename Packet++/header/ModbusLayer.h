@@ -90,8 +90,7 @@ namespace pcpp
 		/// A constructor that creates the layer from user inputs
 		/// @param[in] transactionId Transaction ID
 		/// @param[in] unitId Unit ID
-		/// @param[in] functionCode Function code
-		ModbusLayer(uint16_t transactionId, uint8_t unitId, ModbusFunctionCode functionCode);
+		ModbusLayer(uint16_t transactionId, uint8_t unitId);
 
 		/// @brief  Check if a port is a valid MODBUS port
 		/// @param port Port number to check
@@ -160,11 +159,6 @@ namespace pcpp
 	private:
 		/// @return A pointer to the MODBUS header
 		modbus_header* getModbusHeader() const;
-
-		/// @brief Get the size of the function data based on the function code
-		/// @param functionCode The MODBUS function code
-		/// @return The size of the function data in bytes, or -1 if unsupported
-		int16_t getFunctionDataSize(ModbusFunctionCode functionCode) const;
 	};
 
 }  // namespace pcpp

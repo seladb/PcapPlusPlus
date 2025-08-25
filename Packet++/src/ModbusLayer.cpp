@@ -7,15 +7,9 @@
 
 namespace pcpp
 {
-	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId, ModbusLayer::ModbusFunctionCode functionCode)
+	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId)
 	{
-		const int16_t pduSize = getFunctionDataSize(functionCode);
-		if (pduSize < 0)
-		{
-			PCPP_LOG_ERROR("Unsupported function code: " << static_cast<int>(functionCode));
-			return;
-		}
-
+		const int16_t pduSize = sizeof(ModbusReadInputRegisters);  // Currently only supporting Read Input Registers
 		const size_t headerLen = sizeof(modbus_header);
 
 		m_DataLen = headerLen + pduSize;
@@ -28,7 +22,7 @@ namespace pcpp
 		header->protocolId = 0;                 // 0 for Modbus/TCP
 		header->length = htobe16(pduSize + 2);  // Length includes unitId and functionCode
 		header->unitId = unitId;
-		header->functionCode = static_cast<uint8_t>(functionCode);
+		header->functionCode = static_cast<uint8_t>(ModbusFunctionCode::ReadInputRegisters);
 	}
 
 	modbus_header* ModbusLayer::getModbusHeader() const
@@ -104,17 +98,5 @@ namespace pcpp
 		       ", Protocol ID: " + std::to_string(getProtocolId()) + ", Length: " + std::to_string(getLength()) +
 		       ", Unit ID: " + std::to_string(getUnitId()) +
 		       ", Function Code: " + std::to_string(static_cast<uint8_t>(getFunctionCode()));
-	}
-
-	int16_t ModbusLayer::getFunctionDataSize(ModbusFunctionCode functionCode) const
-	{
-		switch (functionCode)
-		{
-			// currently supported function codes
-		case ModbusFunctionCode::ReadInputRegisters:
-			return sizeof(ModbusReadInputRegisters);
-		default:
-			return -1;  // For unsupported or unknown function codes
-		}
 	}
 }  // namespace pcpp

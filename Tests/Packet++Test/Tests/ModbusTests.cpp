@@ -18,7 +18,7 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 	PTF_ASSERT_TRUE(realPacket.isPacketOfType(pcpp::Modbus));
 	auto* modbusLayerFromRealPacket = realPacket.getLayerOfType<pcpp::ModbusLayer>();
 
-	pcpp::ModbusLayer modbusLayer(17, 255, pcpp::ModbusLayer::ModbusFunctionCode::ReadInputRegisters);
+	pcpp::ModbusLayer modbusLayer(17, 255);
 
 	PTF_ASSERT_EQUAL(modbusLayer.getDataLen(), modbusLayerFromRealPacket->getDataLen());
 	PTF_ASSERT_EQUAL(modbusLayer.getOsiModelLayer(), pcpp::OsiModelApplicationLayer);
