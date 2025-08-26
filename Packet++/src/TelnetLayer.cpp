@@ -56,11 +56,9 @@ namespace pcpp
 				// "FF FF" means data continue
 				return TelnetSequenceType::UserData;
 			}
-			else
-			{
-				// "FF X" where X != "FF" means command
-				return TelnetSequenceType::Command;
-			}
+
+			// "FF X" where X != "FF" means command
+			return TelnetSequenceType::Command;
 		}
 
 		/// @brief Checks if a given sequence matches a specific Telnet sequence pattern.
