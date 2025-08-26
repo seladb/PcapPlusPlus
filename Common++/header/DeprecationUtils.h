@@ -6,14 +6,6 @@
 #	define PCPP_DEPRECATED(msg) [[deprecated(msg)]]
 #endif
 
-#ifndef PCPP_MAYBE_UNUSED
-#	if defined(__GNUC__) || defined(__clang__)
-#		define PCPP_MAYBE_UNUSED __attribute__((unused))
-#	else
-#		define PCPP_MAYBE_UNUSED
-#	endif
-#endif
-
 #if !defined(DISABLE_WARNING_PUSH) || !defined(DISABLE_WARNING_POP)
 #	if defined(_MSC_VER)
 #		define DISABLE_WARNING_PUSH __pragma(warning(push))
