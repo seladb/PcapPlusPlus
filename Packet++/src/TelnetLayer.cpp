@@ -239,7 +239,7 @@ namespace pcpp
 				return std::string();
 			}
 
-			PCPP_ASSERT(dataPos > m_Data && dataPos < (m_Data + m_DataLen),
+			PCPP_ASSERT(dataPos >= m_Data && dataPos < (m_Data + m_DataLen),
 			            "Data position is out of bounds, this should never happen!");
 
 			// End of range is corrected by the advance offset.
