@@ -256,6 +256,15 @@ jobs:
           - image: ubuntu2204-dpdk2211
 
     steps:
+      - name: Check AVX-512 support
+        run: |
+          echo "::debug::$(grep flags /proc/cpuinfo)"
+          if grep -q avx512 /proc/cpuinfo; then
+            echo "avx512=true" >> $GITHUB_ENV
+          else
+            echo "avx512=false" >> $GITHUB_ENV
+          fi
+
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -274,18 +283,21 @@ jobs:
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
 
-      - name: Check AVX
-        run: grep avx /proc/cpuinfo
-
       - name: Test Packet++
+        if: env.avx512 == 'true'
         run: |
           cd Tests/Packet++Test
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
+          Bin/Packet++Test
 
       - name: Test Pcap++
+        if: env.avx512 == 'true'
         run: |
           cd Tests/Pcap++Test
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
+          Bin/Pcap++Test
+
+      - name: Tests skipped (no AVX-512 hardware support)
+        if: env.avx512 == 'false'
+        run: echo "Skipping tests since AVX-512 is not supported on the current runner"
 
       - name: Check installation
         run: |

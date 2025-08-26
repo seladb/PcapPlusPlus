@@ -8,6 +8,7 @@
 #include <map>
 #include <list>
 #include <time.h>
+#include <functional>
 
 /// @file
 /// This is an implementation of TCP reassembly logic, which means reassembly of TCP messages spanning multiple TCP
@@ -316,14 +317,14 @@ namespace pcpp
 		/// @param[in] tcpData The TCP data itself + connection information
 		/// @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		/// cookie provided)
-		typedef void (*OnTcpMessageReady)(int8_t side, const TcpStreamData& tcpData, void* userCookie);
+		using OnTcpMessageReady = std::function<void(int8_t side, const TcpStreamData& tcpData, void* userCookie)>;
 
 		/// @typedef OnTcpConnectionStart
 		/// A callback invoked when a new TCP connection is identified (whether it begins with a SYN packet or not)
 		/// @param[in] connectionData Connection information
 		/// @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		/// cookie provided)
-		typedef void (*OnTcpConnectionStart)(const ConnectionData& connectionData, void* userCookie);
+		using OnTcpConnectionStart = std::function<void(const ConnectionData& connectionData, void* userCookie)>;
 
 		/// @typedef OnTcpConnectionEnd
 		/// A callback invoked when a TCP connection is terminated, either by a FIN or RST packet or manually by the
@@ -332,8 +333,8 @@ namespace pcpp
 		/// @param[in] reason The reason for connection termination: FIN/RST packet or manually by the user
 		/// @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		/// cookie provided)
-		typedef void (*OnTcpConnectionEnd)(const ConnectionData& connectionData, ConnectionEndReason reason,
-		                                   void* userCookie);
+		using OnTcpConnectionEnd =
+		    std::function<void(const ConnectionData& connectionData, ConnectionEndReason reason, void* userCookie)>;
 
 		/// A c'tor for this class
 		/// @param[in] onMessageReadyCallback The callback to be invoked when new data arrives
