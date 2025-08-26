@@ -69,15 +69,6 @@ namespace pcpp
 			return getTelnetSequenceType(first, maxCount) == seqType;
 		}
 
-		/// @brief Checks if a given sequence matches Telnet data pattern.
-		/// @param first Start of the sequence to check
-		/// @param maxCount Maximum number of bytes to check
-		/// @return True if the buffer matches Telnet data pattern, false otherwise
-		bool isTelnetData(uint8_t const* first, size_t maxCount)
-		{
-			return isSequenceType(first, maxCount, TelnetSequenceType::UserData);
-		}
-
 		/// @brief Checks if a given sequence matches Telnet command pattern.
 		/// @param first Start of the sequence to check
 		/// @param maxCount Maximum number of bytes to check
