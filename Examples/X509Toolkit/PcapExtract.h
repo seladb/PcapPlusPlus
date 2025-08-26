@@ -10,11 +10,14 @@
 #include <vector>
 #include <unordered_map>
 
-#if defined(_WIN32)
-#	define DIR_SEPARATOR '\\'
+constexpr char getOsPathSeparator()
+{
+#ifdef _WIN32
+	return '\\';
 #else
-#	define DIR_SEPARATOR '/'
+	return '/';
 #endif
+}
 
 /// Extracts X.509 certificates from PCAP/PCAPNG files by analyzing SSL/TLS traffic.
 class PcapExtract
@@ -283,7 +286,7 @@ private:
 		else
 		{
 			std::string const outputFileName =
-			    m_OutputDirectory + DIR_SEPARATOR + std::to_string(m_Stats.parsedCertificates + 1) + ".pem";
+			    m_OutputDirectory + getOsPathSeparator() + std::to_string(m_Stats.parsedCertificates + 1) + ".pem";
 			std::ofstream pemFile(outputFileName);
 			if (!pemFile.is_open())
 			{
@@ -305,7 +308,7 @@ private:
 		else
 		{
 			std::string const outputFileName =
-			    m_OutputDirectory + DIR_SEPARATOR + std::to_string(m_Stats.parsedCertificates + 1) + ".der";
+			    m_OutputDirectory + getOsPathSeparator() + std::to_string(m_Stats.parsedCertificates + 1) + ".der";
 			std::ofstream derFile(outputFileName, std::ios::binary);
 			if (!derFile.is_open())
 			{

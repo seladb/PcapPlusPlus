@@ -40,46 +40,44 @@ static struct option X509ToolkitOptions[] = {
 /// Print application usage
 static void printUsage()
 {
-	std::cout << std::endl
-	          << "Usage:" << std::endl
-	          << "  " << pcpp::AppName::get() << " <command> [options]" << std::endl
-	          << std::endl
-	          << "Commands:" << std::endl
-	          << "  convert      -i <input> -f <PEM|DER> [-o <output>]" << std::endl
-	          << "               Convert an X.509 certificate between PEM and DER formats." << std::endl
-	          << "               If -o is not specified, the result is written to stdout." << std::endl
-	          << std::endl
-	          << "  info         -i <input>" << std::endl
-	          << "               Display detailed information about the certificate, including subject," << std::endl
-	          << "               issuer, serial number, validity period, and more." << std::endl
-	          << std::endl
-	          << "  json         -i <input> [-o <output>]" << std::endl
-	          << "               Parse the certificate and output its structure as a formatted JSON object."
-	          << std::endl
-	          << "               If -o is not specified, the result is written to stdout." << std::endl
-	          << std::endl
-	          << "  expire       -i <input>" << std::endl
-	          << "               Show the certificate's expiration date and the number of days until it expires."
-	          << std::endl
-	          << std::endl
-	          << "  pcap-extract -i <pcap> -f <PEM|DER> [-o <directory>] [-s]" << std::endl
-	          << "               Extract X.509 certificates from a packet capture (pcap/pcapng) file." << std::endl
-	          << "               Certificates are written to the output directory or to stdout in the specified format."
-	          << std::endl
-	          << "               Use -s to display extraction statistics after processing." << std::endl
-	          << "               If -o is not specified, the certificates are written to stdout." << std::endl
-	          << std::endl
-	          << "Examples:" << std::endl
-	          << "  " << pcpp::AppName::get() << " convert -i cert.der -o cert.pem -f PEM" << std::endl
-	          << "  " << pcpp::AppName::get() << " info -i cert.pem" << std::endl
-	          << "  " << pcpp::AppName::get() << " json -i cert.pem -o cert.json" << std::endl
-	          << "  " << pcpp::AppName::get() << " expire -i cert.pem" << std::endl
-	          << "  " << pcpp::AppName::get() << " pcap-extract -i tls.pcap -o MyCertDir -f PEM -s" << std::endl
-	          << std::endl;
+	std::cout
+	    << "\n"
+	    << "Usage:\n"
+	    << "  " << pcpp::AppName::get() << " <command> [options]\n"
+	    << "\n"
+	    << "Commands:\n"
+	    << "  convert      -i <input> -f <PEM|DER> [-o <output>]\n"
+	    << "               Convert an X.509 certificate between PEM and DER formats.\n"
+	    << "               If -o is not specified, the result is written to stdout.\n"
+	    << "\n"
+	    << "  info         -i <input>\n"
+	    << "               Display detailed information about the certificate, including subject,\n"
+	    << "               issuer, serial number, validity period, and more.\n"
+	    << "\n"
+	    << "  json         -i <input> [-o <output>]\n"
+	    << "               Parse the certificate and output its structure as a formatted JSON object.\n"
+	    << "               If -o is not specified, the result is written to stdout.\n"
+	    << "\n"
+	    << "  expire       -i <input>\n"
+	    << "               Show the certificate's expiration date and the number of days until it expires.\n"
+	    << "\n"
+	    << "  pcap-extract -i <pcap> -f <PEM|DER> [-o <directory>] [-s]\n"
+	    << "               Extract X.509 certificates from a packet capture (pcap/pcapng) file.\n"
+	    << "               Certificates are written to the output directory or to stdout in the specified format.\n"
+	    << "               Use -s to display extraction statistics after processing.\n"
+	    << "               If -o is not specified, the certificates are written to stdout.\n"
+	    << "\n"
+	    << "Examples:\n"
+	    << "  " << pcpp::AppName::get() << " convert -i cert.der -o cert.pem -f PEM\n"
+	    << "  " << pcpp::AppName::get() << " info -i cert.pem\n"
+	    << "  " << pcpp::AppName::get() << " json -i cert.pem -o cert.json\n"
+	    << "  " << pcpp::AppName::get() << " expire -i cert.pem\n"
+	    << "  " << pcpp::AppName::get() << " pcap-extract -i tls.pcap -o MyCertDir -f PEM -s\n"
+	    << std::endl;
 }
 
 /// Print application version
-void printAppVersion()
+static void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
 	          << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -87,7 +85,7 @@ void printAppVersion()
 }
 
 /// Open input file and return X509Certificate object
-std::unique_ptr<pcpp::X509Certificate> openCertFile(const std::string& certFileName)
+static std::unique_ptr<pcpp::X509Certificate> openCertFile(const std::string& certFileName)
 {
 	if (certFileName.empty())
 	{
