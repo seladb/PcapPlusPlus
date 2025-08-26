@@ -56,4 +56,4 @@ namespace pcpp
 	{
 		return castSubRecordAs<Asn1IntegerRecord>(publicExponentIndex, "public exponent")->getIntValue<uint64_t>();
 	}
-}
+}  // namespace pcpp

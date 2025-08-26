@@ -8,8 +8,23 @@ namespace pcpp
 {
 	namespace internal
 	{
-		class CryptoKeyDecoder
+		template <typename CryptoDecoder> class CryptoKeyDecoder
 		{
+		public:
+			/// Converts the crypto key to DER-encoded format
+			/// @return A byte vector containing the DER-encoded data
+			std::vector<uint8_t> toDER() const
+			{
+				return m_Root->encode();
+			}
+
+			/// Converts the crypto key to PEM-encoded format
+			/// @return A string containing the PEM-encoded data
+			std::string toPEM() const
+			{
+				return PemCodec::encode(m_Root->encode(), CryptoDecoder::pemLabel);
+			}
+
 		protected:
 			CryptoKeyDecoder(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
 			{
@@ -24,8 +39,6 @@ namespace pcpp
 				return m_Root->castAs<Asn1SequenceRecord>();
 			}
 
-			virtual std::string getType() const = 0;
-
 			template <class Asn1RecordType>
 			Asn1RecordType* castSubRecordAs(int index, const std::string& fieldName) const
 			{
@@ -35,7 +48,7 @@ namespace pcpp
 				}
 				catch (const std::exception&)
 				{
-					throw std::runtime_error("Invalid " + getType() + " data: " + fieldName);
+					throw std::runtime_error("Invalid " + std::string(CryptoDecoder::keyType) + " data: " + fieldName);
 				}
 			}
 
@@ -43,9 +56,10 @@ namespace pcpp
 			std::unique_ptr<uint8_t[]> m_DerData;
 			std::unique_ptr<Asn1Record> m_Root;
 		};
-	}
+	}  // namespace internal
 
-	class RSAPrivateKey : public internal::CryptoDataReader<RSAPrivateKey>, internal::CryptoKeyDecoder
+	class RSAPrivateKey : public internal::CryptoKeyDecoder<RSAPrivateKey>,
+	                      public internal::CryptoDataReader<RSAPrivateKey>
 	{
 	public:
 		uint8_t getVersion() const;
@@ -60,6 +74,7 @@ namespace pcpp
 
 	private:
 		static constexpr const char* pemLabel = "RSA PRIVATE KEY";
+		static constexpr const char* keyType = "RSA private key";
 		static constexpr int versionIndex = 0;
 		static constexpr int modulusIndex = 1;
 		static constexpr int publicExponentIndex = 2;
@@ -70,27 +85,26 @@ namespace pcpp
 		static constexpr int exponent2Index = 7;
 		static constexpr int coefficientIndex = 8;
 
-		friend class internal::CryptoDataReader<RSAPrivateKey>;
-
 		using CryptoKeyDecoder::CryptoKeyDecoder;
-
-		std::string getType() const override { return "RSA private key"; }
+		friend class internal::CryptoKeyDecoder<RSAPrivateKey>;
+		friend class internal::CryptoDataReader<RSAPrivateKey>;
 	};
 
-	class RSAPublicKey : public internal::CryptoDataReader<RSAPublicKey>, internal::CryptoKeyDecoder
+	class RSAPublicKey : public internal::CryptoKeyDecoder<RSAPublicKey>,
+	                     public internal::CryptoDataReader<RSAPublicKey>
 	{
 	public:
 		std::string getModulus() const;
 		uint64_t getPublicExponent() const;
+
 	private:
 		static constexpr const char* pemLabel = "RSA PUBLIC KEY";
+		static constexpr const char* keyType = "RSA public key";
 		static constexpr int modulusIndex = 0;
 		static constexpr int publicExponentIndex = 1;
 
-		friend class internal::CryptoDataReader<RSAPublicKey>;
-
 		using CryptoKeyDecoder::CryptoKeyDecoder;
-
-		std::string getType() const override { return "RSA public key"; }
+		friend class internal::CryptoKeyDecoder<RSAPublicKey>;
+		friend class internal::CryptoDataReader<RSAPublicKey>;
 	};
-}
+}  // namespace pcpp

@@ -10,8 +10,7 @@ namespace pcpp
 {
 	namespace internal
 	{
-		template<typename CryptoDecoder>
-		class CryptoDataReader
+		template <typename CryptoDecoder> class CryptoDataReader
 		{
 		public:
 			/// Creates a decoder from DER-encoded data
@@ -112,5 +111,5 @@ namespace pcpp
 				return fromPEM(pemContent);
 			}
 		};
-	}
-}
+	}  // namespace internal
+}  // namespace pcpp

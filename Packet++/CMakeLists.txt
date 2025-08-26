@@ -6,7 +6,6 @@ add_library(
   src/BgpLayer.cpp
   src/CiscoHdlcLayer.cpp
   src/CotpLayer.cpp
-  src/CryptoDataReader.cpp
   src/CryptoKeyDecoder.cpp
   src/DhcpLayer.cpp
   src/DhcpV6Layer.cpp
