@@ -2,31 +2,34 @@
 #include "CryptoKeyDecoder.h"
 #include <array>
 
-bool compareStringToFile(const std::string& text, const std::string& filePath)
+namespace
 {
-	std::ifstream file(filePath);
-	if (!file)
+	bool compareStringToFile(const std::string& text, const std::string& filePath)
 	{
-		return false;
+		std::ifstream file(filePath);
+		if (!file)
+		{
+			return false;
+		}
+
+		std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+		return text == fileContent;
 	}
 
-	std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-	return text == fileContent;
-}
-
-bool compareVectorToBinaryFile(const std::vector<uint8_t>& data, const std::string& filePath)
-{
-	std::ifstream file(filePath, std::ios::binary);
-	if (!file)
+	bool compareVectorToBinaryFile(const std::vector<uint8_t>& data, const std::string& filePath)
 	{
-		return false;
+		std::ifstream file(filePath, std::ios::binary);
+		if (!file)
+		{
+			return false;
+		}
+
+		// Read file into vector
+		std::vector<uint8_t> fileData((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+		return data == fileData;
 	}
-
-	// Read file into vector
-	std::vector<uint8_t> fileData((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-	return data == fileData;
 }
 
 PTF_TEST_CASE(CryptoKeyDecodingTest)
