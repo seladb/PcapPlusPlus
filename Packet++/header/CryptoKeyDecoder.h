@@ -34,7 +34,7 @@ namespace pcpp
 
 			virtual ~CryptoKeyDecoder() = default;
 
-			Asn1SequenceRecord* CryptoKeyDecoder::getRoot() const
+			Asn1SequenceRecord* getRoot() const
 			{
 				return m_Root->castAs<Asn1SequenceRecord>();
 			}
