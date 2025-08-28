@@ -44,7 +44,7 @@ namespace pcpp
 			{
 				try
 				{
-					return getRoot()->getSubRecords().at(index)->castAs<Asn1RecordType>();
+					return getRoot()->getSubRecords().at(index)->template castAs<Asn1RecordType>();
 				}
 				catch (const std::exception&)
 				{
