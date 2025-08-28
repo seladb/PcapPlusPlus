@@ -60,23 +60,13 @@ namespace pcpp
 			return TelnetSequenceType::Command;
 		}
 
-		/// @brief Checks if a given sequence matches a specific Telnet sequence pattern.
-		/// @param first Start of the sequence to check
-		/// @param maxCount Maximum number of bytes to check
-		/// @param seqType The desired Telnet sequence type to check for
-		/// @return True if the buffer matches the desired Telnet sequence pattern, false otherwise
-		bool isSequenceType(uint8_t const* first, size_t maxCount, TelnetSequenceType seqType)
-		{
-			return getTelnetSequenceType(first, maxCount) == seqType;
-		}
-
 		/// @brief Checks if a given sequence matches Telnet command pattern.
 		/// @param first Start of the sequence to check
 		/// @param maxCount Maximum number of bytes to check
 		/// @return True if the buffer matches Telnet command pattern, false otherwise
 		bool isTelnetCommand(uint8_t const* first, size_t maxCount)
 		{
-			return isSequenceType(first, maxCount, TelnetSequenceType::Command);
+			return getTelnetSequenceType(first, maxCount) == TelnetSequenceType::Command;
 		}
 	}  // namespace
 
