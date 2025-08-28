@@ -696,7 +696,7 @@ jobs:
         release: ${{ matrix.version }}
         usesh: true
         prepare: |
-          pkg install -y python3 bash cmake git gmake gsed libpcap tcpreplay
+          pkg install -y python bash cmake git gmake gsed libpcap tcpreplay libffi openssl py311-cryptography
 
         run: |
           echo "Building PcapPlusPlus"
@@ -710,14 +710,14 @@ jobs:
           ifconfig "$interface_name" promisc
 
           echo "Testing PcapPlusPlus"
-          python3 -m ensurepip
-          python3 -m pip install -r ci/run_tests/requirements.txt
-          python3 ci/run_tests/run_tests.py --interface "$interface_name"
+          python -m ensurepip
+          python -m pip install -r ci/run_tests/requirements.txt
+          python ci/run_tests/run_tests.py --interface "$interface_name"
 
           echo "Testing PcapPlusPlus examples"
           cd Tests/ExamplesTest
-          python3 -m pip install -r requirements.txt
-          python3 -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
+          python -m pip install -r requirements.txt
+          python -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
 
   android:
     strategy:

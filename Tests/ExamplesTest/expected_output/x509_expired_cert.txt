@@ -1,0 +1,4 @@
+[31m[X] Certificate has expired.[0m
+Valid from:     2023-08-18 08:06:28 UTC
+Valid until:    2024-08-17 08:06:28 UTC
+Expired {days} days ago.
