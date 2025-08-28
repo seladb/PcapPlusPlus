@@ -82,7 +82,7 @@ set(
   header/BgpLayer.h
   header/CiscoHdlcLayer.h
   header/CotpLayer.h
-  src/CryptoDataReader.h
+  header/CryptoDataReader.h
   header/CryptoKeyDecoder.h
   header/DhcpLayer.h
   header/DhcpV6Layer.h
