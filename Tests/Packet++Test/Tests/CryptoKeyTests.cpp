@@ -138,8 +138,8 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::PKCS8PrivateKeyAlgorithm::RSA);
 
 			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
+			PTF_ASSERT_NOT_NULL(privateKeyData);
 			auto rsaPrivateKeyData = privateKeyData->castAs<pcpp::PKCS8PrivateKey::RSAPrivateKeyData>();
-			PTF_ASSERT_NOT_NULL(rsaPrivateKeyData);
 			PTF_ASSERT_EQUAL(rsaPrivateKeyData->getVersion(), 0);
 			PTF_ASSERT_EQUAL(
 			    rsaPrivateKeyData->getModulus(),
@@ -163,6 +163,61 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 			PTF_ASSERT_EQUAL(
 			    rsaPrivateKeyData->getCoefficient(),
 			    "85007f83f620922732265d61c551d192157c8bf7085ee0143faf35b08c71a432eb9133bbc8971e02b1636bb10a5abff4b5956c28f01c1a188215980daa34e52c564eb64ddbb841cfd4723cb4c79189b226eee37d42d83eed34c3ca33043e971440bba0a936e4dea56b28625500b2f17d0b938b447c48d29d0e82109aea8918b");
+		}
+	}
+
+	// PKCS#8 EC private key
+	{
+		auto pkcs8PrivateKeyPem = pcpp::PKCS8PrivateKey::fromPEMFile("PacketExamples/ECPrivateKeyPKCS8.pem");
+		auto pkcs8PrivateKeyDer = pcpp::PKCS8PrivateKey::fromDERFile("PacketExamples/ECPrivateKeyPKCS8.der");
+
+		compareStringToFile(pkcs8PrivateKeyPem->toPEM(), "PacketExamples/ECPrivateKeyPKCS8.pem");
+		compareVectorToBinaryFile(pkcs8PrivateKeyDer->toDER(), "PacketExamples/ECPrivateKeyPKCS8.der");
+
+		std::array<std::unique_ptr<pcpp::PKCS8PrivateKey>, 2> pkcs8PrivateKeys;
+		pkcs8PrivateKeys[0] = std::move(pkcs8PrivateKeyPem);
+		pkcs8PrivateKeys[1] = std::move(pkcs8PrivateKeyDer);
+
+		for (const auto& pkcs8PrivateKey : pkcs8PrivateKeys)
+		{
+			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getVersion(), 0);
+			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::PKCS8PrivateKeyAlgorithm::ECDSA);
+
+			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
+			PTF_ASSERT_NOT_NULL(privateKeyData);
+			auto ecPrivateKeyData = privateKeyData->castAs<pcpp::PKCS8PrivateKey::ECPrivateKeyData>();
+			PTF_ASSERT_EQUAL(ecPrivateKeyData->getVersion(), 1);
+			PTF_ASSERT_EQUAL(ecPrivateKeyData->getPrivateKey(),
+			                 "a00a20ed4c8e1453172ce494b400646e10b7a28a027af33ac5378918085aa0c2");
+			PTF_ASSERT_NULL(ecPrivateKeyData->getParameters());
+			PTF_ASSERT_EQUAL(
+			    ecPrivateKeyData->getPublicKey(),
+			    "04f43a5190b322cfc716de98df40106121ab6b4523aa20ba43efd15a3d90edfa83dd98afdaf774542b6592d8f3d6cd9d5b0be361cf9164f2a88ce7b0710e74f2fb");
+		}
+	}
+
+	// PKCS#8 Ed25519 private key
+	{
+		auto pkcs8PrivateKeyPem = pcpp::PKCS8PrivateKey::fromPEMFile("PacketExamples/Ed25519PrivateKeyPKCS8.pem");
+		auto pkcs8PrivateKeyDer = pcpp::PKCS8PrivateKey::fromDERFile("PacketExamples/Ed25519PrivateKeyPKCS8.der");
+
+		compareStringToFile(pkcs8PrivateKeyPem->toPEM(), "PacketExamples/Ed25519PrivateKeyPKCS8.pem");
+		compareVectorToBinaryFile(pkcs8PrivateKeyDer->toDER(), "PacketExamples/Ed25519PrivateKeyPKCS8.der");
+
+		std::array<std::unique_ptr<pcpp::PKCS8PrivateKey>, 2> pkcs8PrivateKeys;
+		pkcs8PrivateKeys[0] = std::move(pkcs8PrivateKeyPem);
+		pkcs8PrivateKeys[1] = std::move(pkcs8PrivateKeyDer);
+
+		for (const auto& pkcs8PrivateKey : pkcs8PrivateKeys)
+		{
+			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getVersion(), 0);
+			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::PKCS8PrivateKeyAlgorithm::ED25519);
+
+			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
+			PTF_ASSERT_NOT_NULL(privateKeyData);
+			auto ed25519PrivateKeyData = privateKeyData->castAs<pcpp::PKCS8PrivateKey::Ed25519PrivateKeyData>();
+			PTF_ASSERT_EQUAL(ed25519PrivateKeyData->getPrivateKey(),
+			                 "ca0f1d19e149dbc05941d19fd5369d054e7a3660793bc372eec68c0acca595bd");
 		}
 	}
 }

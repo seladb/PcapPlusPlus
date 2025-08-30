@@ -291,6 +291,21 @@ namespace pcpp
 			RSAPrivateKeyData(const std::string& rawData);
 		};
 
+		class ECPrivateKeyData : public PrivateKeyData, public internal::ECPrivateKeyData
+		{
+			friend class PKCS8PrivateKey;
+			ECPrivateKeyData(const std::string& rawData);
+		};
+
+		class Ed25519PrivateKeyData : public PrivateKeyData
+		{
+			friend class PKCS8PrivateKey;
+			Ed25519PrivateKeyData(const std::string& rawData);
+
+		public:
+			std::string getPrivateKey() const;
+		};
+
 		uint8_t getVersion() const;
 		PKCS8PrivateKeyAlgorithm getPrivateKeyAlgorithm() const;
 		std::unique_ptr<PrivateKeyData> getPrivateKey() const;

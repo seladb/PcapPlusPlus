@@ -224,6 +224,14 @@ namespace pcpp
 		{
 			return std::unique_ptr<PrivateKeyData>(new RSAPrivateKeyData(rawData));
 		}
+		case PKCS8PrivateKeyAlgorithm::ECDSA:
+		{
+			return std::unique_ptr<PrivateKeyData>(new ECPrivateKeyData(rawData));
+		}
+		case PKCS8PrivateKeyAlgorithm::ED25519:
+		{
+			return std::unique_ptr<PrivateKeyData>(new Ed25519PrivateKeyData(rawData));
+		}
 		default:
 		{
 			return {};
@@ -241,4 +249,17 @@ namespace pcpp
 	PKCS8PrivateKey::RSAPrivateKeyData::RSAPrivateKeyData(const std::string& rawData)
 	    : PKCS8PrivateKey::PrivateKeyData(rawData), internal::RSAPrivateKeyData(getRoot(), "PKCS#8 RSA private key")
 	{}
+
+	PKCS8PrivateKey::ECPrivateKeyData::ECPrivateKeyData(const std::string& rawData)
+	    : PKCS8PrivateKey::PrivateKeyData(rawData), internal::ECPrivateKeyData(getRoot(), "PKCS#8 EC private key")
+	{}
+
+	PKCS8PrivateKey::Ed25519PrivateKeyData::Ed25519PrivateKeyData(const std::string& rawData)
+	    : PKCS8PrivateKey::PrivateKeyData(rawData)
+	{}
+
+	std::string PKCS8PrivateKey::Ed25519PrivateKeyData::getPrivateKey() const
+	{
+		return m_Root->castAs<Asn1OctetStringRecord>()->getValue();
+	}
 }  // namespace pcpp
