@@ -74,27 +74,6 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		}
 	}
 
-	// RSA public key
-	{
-		auto rsaPublicKeyPem = pcpp::RSAPublicKey::fromPEMFile("PacketExamples/RSAPublicKey.pem");
-		auto rsaPublicKeyDer = pcpp::RSAPublicKey::fromDERFile("PacketExamples/RSAPublicKey.der");
-
-		compareStringToFile(rsaPublicKeyPem->toPEM(), "PacketExamples/RSAPublicKey.pem");
-		compareVectorToBinaryFile(rsaPublicKeyDer->toDER(), "PacketExamples/RSAPublicKey.der");
-
-		std::array<std::unique_ptr<pcpp::RSAPublicKey>, 2> rsaPublicKeys;
-		rsaPublicKeys[0] = std::move(rsaPublicKeyDer);
-		rsaPublicKeys[1] = std::move(rsaPublicKeyPem);
-
-		for (const auto& rsaPublicKey : rsaPublicKeys)
-		{
-			PTF_ASSERT_EQUAL(
-			    rsaPublicKey->getModulus(),
-			    "a2775755304e015b7eba1cac8717652b2f3684b5010ab4e9181f1fc93ae8674b629607a91a519b4668dbd34fadf521a81b8a36484cf4efe62ef5b2101d3309726744f6fd88d9dce4d65c7136e77c8d3042f70bd87d54b1ebb9f42309419b6e9a77139eb4b53da34210eeec5bd4817df4a6fbd9ff353fa90b155d35724d86af7b69c127acf37c3a9affeb8988e614233f17a75ed3eb63d2cae1578420cc39677ba6ed53b513073459e82094e12a5907137d99796908f669457a64f2ab55c6211f6bf782033118acaa5052f01758ad9786fff17b97da6b7f1bd9fcc386efa60036fe96d40af09e4fe1eee84126890fae459241abbcb91dad93689a339da8f713d7");
-			PTF_ASSERT_EQUAL(rsaPublicKey->getPublicExponent(), 65537);
-		}
-	}
-
 	// EC private key
 	{
 		auto ecPrivateKeyPem = pcpp::ECPrivateKey::fromPEMFile("PacketExamples/ECPrivateKey.pem");
@@ -135,7 +114,7 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		for (const auto& pkcs8PrivateKey : pkcs8PrivateKeys)
 		{
 			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getVersion(), 0);
-			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::PKCS8PrivateKeyAlgorithm::RSA);
+			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::RSA);
 
 			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
 			PTF_ASSERT_NOT_NULL(privateKeyData);
@@ -181,7 +160,7 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		for (const auto& pkcs8PrivateKey : pkcs8PrivateKeys)
 		{
 			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getVersion(), 0);
-			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::PKCS8PrivateKeyAlgorithm::ECDSA);
+			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::ECDSA);
 
 			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
 			PTF_ASSERT_NOT_NULL(privateKeyData);
@@ -211,7 +190,7 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		for (const auto& pkcs8PrivateKey : pkcs8PrivateKeys)
 		{
 			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getVersion(), 0);
-			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::PKCS8PrivateKeyAlgorithm::ED25519);
+			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::ED25519);
 
 			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
 			PTF_ASSERT_NOT_NULL(privateKeyData);
@@ -219,5 +198,44 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 			PTF_ASSERT_EQUAL(ed25519PrivateKeyData->getPrivateKey(),
 			                 "ca0f1d19e149dbc05941d19fd5369d054e7a3660793bc372eec68c0acca595bd");
 		}
+	}
+
+	// RSA public key
+	{
+		auto rsaPublicKeyPem = pcpp::RSAPublicKey::fromPEMFile("PacketExamples/RSAPublicKey.pem");
+		auto rsaPublicKeyDer = pcpp::RSAPublicKey::fromDERFile("PacketExamples/RSAPublicKey.der");
+
+		compareStringToFile(rsaPublicKeyPem->toPEM(), "PacketExamples/RSAPublicKey.pem");
+		compareVectorToBinaryFile(rsaPublicKeyDer->toDER(), "PacketExamples/RSAPublicKey.der");
+
+		std::array<std::unique_ptr<pcpp::RSAPublicKey>, 2> rsaPublicKeys;
+		rsaPublicKeys[0] = std::move(rsaPublicKeyDer);
+		rsaPublicKeys[1] = std::move(rsaPublicKeyPem);
+
+		for (const auto& rsaPublicKey : rsaPublicKeys)
+		{
+			PTF_ASSERT_EQUAL(
+			    rsaPublicKey->getModulus(),
+			    "a2775755304e015b7eba1cac8717652b2f3684b5010ab4e9181f1fc93ae8674b629607a91a519b4668dbd34fadf521a81b8a36484cf4efe62ef5b2101d3309726744f6fd88d9dce4d65c7136e77c8d3042f70bd87d54b1ebb9f42309419b6e9a77139eb4b53da34210eeec5bd4817df4a6fbd9ff353fa90b155d35724d86af7b69c127acf37c3a9affeb8988e614233f17a75ed3eb63d2cae1578420cc39677ba6ed53b513073459e82094e12a5907137d99796908f669457a64f2ab55c6211f6bf782033118acaa5052f01758ad9786fff17b97da6b7f1bd9fcc386efa60036fe96d40af09e4fe1eee84126890fae459241abbcb91dad93689a339da8f713d7");
+			PTF_ASSERT_EQUAL(rsaPublicKey->getPublicExponent(), 65537);
+		}
+	}
+
+	// Subject Public Key Info 1
+	{
+		auto publicKey = pcpp::SubjectPublicKeyInfo::fromPEMFile("PacketExamples/PublicKey.pem");
+		PTF_ASSERT_EQUAL(publicKey->getAlgorithm(), pcpp::CryptographicKeyAlgorithm::ECDSA);
+		PTF_ASSERT_EQUAL(
+		    publicKey->getSubjectPublicKey(),
+		    "04d107f8d8c53033d3cb7f852c00e40b086229b0b8ce480b9bb337e1fe8a0992ae0306710da0d6360519e9e67a01cbbf3df3020b570ca0225b76d076b7db38a320");
+	}
+
+	// Subject Public Key Info 2
+	{
+		auto publicKey = pcpp::SubjectPublicKeyInfo::fromPEMFile("PacketExamples/PublicKey2.pem");
+		PTF_ASSERT_EQUAL(publicKey->getAlgorithm(), pcpp::CryptographicKeyAlgorithm::RSA);
+		PTF_ASSERT_EQUAL(
+		    publicKey->getSubjectPublicKey(),
+		    "3082010a0282010100b84f1d24c5c139ea5a0111cd2474e8186099ff2618546be98110c56afe0b1d3b5b2a747267204fdb3ec136a631423f11e536ea6eb9b3286953fd7fcdabaa4f1e39c95b5d6b8d088fb2c2dcec2e0366ac1bb72a4764bc1ef4abc706cd369a5d00a78e4859c2446884b55f6711fc473272963d8798f9071ee019fe1f6ae4870e0eef9954bab0258904ec98b50f5d108fffa16e47c8ae946fb96f280ecfd69a9e7702d56abba492e847fa10180c1f7e4ed537f47c73960c8ff18d2e32b998639fcff79cfbe392663e1f40056b22c31c7bf0bcd6b72ed4b3cfe7285eec839ae0daa56e45b0ebd843e8bd64609791fd2ac090de1890b99af9d29442f09ecffcfd26470203010001");
 	}
 }

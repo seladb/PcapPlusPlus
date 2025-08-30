@@ -53,15 +53,15 @@ namespace pcpp
 			{}
 
 		private:
-			static constexpr int versionIndex = 0;
-			static constexpr int modulusIndex = 1;
-			static constexpr int publicExponentIndex = 2;
-			static constexpr int privateExponentIndex = 3;
-			static constexpr int prime1Index = 4;
-			static constexpr int prime2Index = 5;
-			static constexpr int exponent1Index = 6;
-			static constexpr int exponent2Index = 7;
-			static constexpr int coefficientIndex = 8;
+			static constexpr int versionOffset = 0;
+			static constexpr int modulusOffset = 1;
+			static constexpr int publicExponentOffset = 2;
+			static constexpr int privateExponentOffset = 3;
+			static constexpr int prime1Offset = 4;
+			static constexpr int prime2Offset = 5;
+			static constexpr int exponent1Offset = 6;
+			static constexpr int exponent2Offset = 7;
+			static constexpr int coefficientOffset = 8;
 		};
 
 		class ECPrivateKeyData : public PrivateKeyData
@@ -76,11 +76,11 @@ namespace pcpp
 			explicit ECPrivateKeyData(Asn1SequenceRecord* root, std::string decoderType);
 
 		private:
-			static constexpr int versionIndex = 0;
-			static constexpr int privateKeyIndex = 1;
+			static constexpr int versionOffset = 0;
+			static constexpr int privateKeyOffset = 1;
 
-			int m_ParametersIndex = -1;
-			int m_PublicKeyIndex = -1;
+			int m_ParametersOffset = -1;
+			int m_PublicKeyOffset = -1;
 		};
 
 		template <typename CryptoDecoder> class CryptoKeyDecoder
@@ -133,6 +133,67 @@ namespace pcpp
 		};
 	}  // namespace internal
 
+	/// @class CryptographicKeyAlgorithm
+	/// Represents cryptographic algorithms used in PKCS#8 private keys
+	/// This class encapsulates various hashing and signature algorithms that can be used
+	/// in PKCS#8 private keys.
+	class CryptographicKeyAlgorithm
+	{
+	public:
+		/// Define enum types and the corresponding int values
+		enum Value : uint8_t
+		{
+			/// RSA encryption/signature algorithm
+			RSA,
+			/// Digital Signature Algorithm
+			DSA,
+			/// Elliptic Curve Digital Signature Algorithm
+			ECDSA,
+			/// EdDSA using Curve25519 (Ed25519)
+			ED25519,
+			/// EdDSA using Curve448 (Ed448)
+			ED448,
+			/// Diffie-Hellman key exchange algorithm
+			DiffieHellman,
+			/// Diffie-Hellman using Curve448 (Goldilocks curve)
+			X448,
+			/// Unknown or unsupported algorithm
+			Unknown,
+		};
+
+		CryptographicKeyAlgorithm() = default;
+
+		// cppcheck-suppress noExplicitConstructor
+		/// Construct LdapOperationType from Value enum
+		/// @param[in] value the operation type enum value
+		constexpr CryptographicKeyAlgorithm(Value value) : m_Value(value)
+		{}
+
+		/// @return A string representation of the operation type
+		std::string toString() const;
+
+		/// @return The OID value of the operation type
+		std::string getOidValue() const;
+
+		/// A static method that creates LdapOperationType from an integer value
+		/// @param[in] value The operation type integer value
+		/// @return The operation type that corresponds to the integer value. If the integer value
+		/// doesn't correspond to any operation type, LdapOperationType::Unknown is returned
+		static CryptographicKeyAlgorithm fromOidValue(const Asn1ObjectIdentifier& value);
+
+		// Allow switch and comparisons.
+		constexpr operator Value() const
+		{
+			return m_Value;
+		}
+
+		// Prevent usage: if(LdapOperationType)
+		explicit operator bool() const = delete;
+
+	private:
+		Value m_Value = Unknown;
+	};
+
 	class RSAPrivateKey : public internal::CryptoKeyDecoder<RSAPrivateKey>,
 	                      public internal::CryptoDataReader<RSAPrivateKey>,
 	                      public internal::RSAPrivateKeyData
@@ -167,85 +228,6 @@ namespace pcpp
 		using CryptoKeyDecoder::CryptoKeyDecoder;
 		friend class internal::CryptoKeyDecoder<ECPrivateKey>;
 		friend class internal::CryptoDataReader<ECPrivateKey>;
-	};
-
-	class RSAPublicKey : public internal::CryptoKeyDecoder<RSAPublicKey>,
-	                     public internal::CryptoDataReader<RSAPublicKey>
-	{
-	public:
-		std::string getModulus() const;
-		uint64_t getPublicExponent() const;
-
-	private:
-		static constexpr const char* pemLabel = "RSA PUBLIC KEY";
-		static constexpr const char* keyType = "RSA public key";
-		static constexpr int modulusIndex = 0;
-		static constexpr int publicExponentIndex = 1;
-
-		using CryptoKeyDecoder::CryptoKeyDecoder;
-		friend class internal::CryptoKeyDecoder<RSAPublicKey>;
-		friend class internal::CryptoDataReader<RSAPublicKey>;
-	};
-
-	/// @class PKCS8PrivateKeyAlgorithm
-	/// Represents cryptographic algorithms used in PKCS#8 private keys
-	/// This class encapsulates various hashing and signature algorithms that can be used
-	/// in PKCS#8 private keys.
-	class PKCS8PrivateKeyAlgorithm
-	{
-	public:
-		/// Define enum types and the corresponding int values
-		enum Value : uint8_t
-		{
-			/// RSA encryption/signature algorithm
-			RSA,
-			/// Digital Signature Algorithm
-			DSA,
-			/// Elliptic Curve Digital Signature Algorithm
-			ECDSA,
-			/// EdDSA using Curve25519 (Ed25519)
-			ED25519,
-			/// EdDSA using Curve448 (Ed448)
-			ED448,
-			/// Diffie-Hellman key exchange algorithm
-			DiffieHellman,
-			/// Diffie-Hellman using Curve448 (Goldilocks curve)
-			X448,
-			/// Unknown or unsupported algorithm
-			Unknown,
-		};
-
-		PKCS8PrivateKeyAlgorithm() = default;
-
-		// cppcheck-suppress noExplicitConstructor
-		/// Construct LdapOperationType from Value enum
-		/// @param[in] value the operation type enum value
-		constexpr PKCS8PrivateKeyAlgorithm(Value value) : m_Value(value)
-		{}
-
-		/// @return A string representation of the operation type
-		std::string toString() const;
-
-		/// @return The OID value of the operation type
-		std::string getOidValue() const;
-
-		/// A static method that creates LdapOperationType from an integer value
-		/// @param[in] value The operation type integer value
-		/// @return The operation type that corresponds to the integer value. If the integer value
-		/// doesn't correspond to any operation type, LdapOperationType::Unknown is returned
-		static PKCS8PrivateKeyAlgorithm fromOidValue(const Asn1ObjectIdentifier& value);
-
-		// Allow switch and comparisons.
-		constexpr operator Value() const
-		{
-			return m_Value;
-		}
-
-		// Prevent usage: if(LdapOperationType)
-		explicit operator bool() const = delete;
-
-	private:
-		Value m_Value = Unknown;
 	};
 
 	class PKCS8PrivateKey : public internal::CryptoKeyDecoder<PKCS8PrivateKey>,
@@ -307,18 +289,61 @@ namespace pcpp
 		};
 
 		uint8_t getVersion() const;
-		PKCS8PrivateKeyAlgorithm getPrivateKeyAlgorithm() const;
+		CryptographicKeyAlgorithm getPrivateKeyAlgorithm() const;
 		std::unique_ptr<PrivateKeyData> getPrivateKey() const;
 
 	private:
 		static constexpr const char* pemLabel = "PRIVATE KEY";
 		static constexpr const char* keyType = "PKCS#8 private key";
-		static constexpr int versionIndex = 0;
-		static constexpr int privateKeyAlgorithmIndex = 1;
-		static constexpr int privateKeyIndex = 2;
+		static constexpr int versionOffset = 0;
+		static constexpr int privateKeyAlgorithmOffset = 1;
+		static constexpr int privateKeyOffset = 2;
 
 		using CryptoKeyDecoder::CryptoKeyDecoder;
 		friend class internal::CryptoKeyDecoder<PKCS8PrivateKey>;
 		friend class internal::CryptoDataReader<PKCS8PrivateKey>;
+	};
+
+	class RSAPublicKey : public internal::CryptoKeyDecoder<RSAPublicKey>,
+	                     public internal::CryptoDataReader<RSAPublicKey>
+	{
+	public:
+		std::string getModulus() const;
+		uint64_t getPublicExponent() const;
+
+	private:
+		static constexpr const char* pemLabel = "RSA PUBLIC KEY";
+		static constexpr const char* keyType = "RSA public key";
+		static constexpr int modulusOffset = 0;
+		static constexpr int publicExponentOffset = 1;
+
+		using CryptoKeyDecoder::CryptoKeyDecoder;
+		friend class internal::CryptoKeyDecoder<RSAPublicKey>;
+		friend class internal::CryptoDataReader<RSAPublicKey>;
+	};
+
+	/// @class SubjectPublicKeyInfo
+	/// TODO
+	class SubjectPublicKeyInfo : public internal::CryptoKeyDecoder<SubjectPublicKeyInfo>,
+	                             public internal::CryptoDataReader<SubjectPublicKeyInfo>
+	{
+	public:
+		/// Gets the algorithm identifier for the public key
+		/// @return The CryptographicKeyAlgorithm for the public key
+		CryptographicKeyAlgorithm getAlgorithm() const;
+
+		/// Gets the subject's public key
+		/// @return The X509Key containing the public key
+		std::string getSubjectPublicKey() const;
+
+	private:
+		static constexpr const char* pemLabel = "PUBLIC KEY";
+		static constexpr const char* keyType = "public key";
+		static constexpr int algorithmOffset = 0;
+		static constexpr int subjectPublicKeyOffset = 1;
+
+		using CryptoKeyDecoder::CryptoKeyDecoder;
+		friend class internal::CryptoKeyDecoder<SubjectPublicKeyInfo>;
+		friend class internal::CryptoDataReader<SubjectPublicKeyInfo>;
 	};
 }  // namespace pcpp

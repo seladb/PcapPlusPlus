@@ -9,87 +9,88 @@ namespace pcpp
 	{
 		uint8_t RSAPrivateKeyData::getVersion() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(versionIndex, "version")->getIntValue<uint8_t>();
+			return castSubRecordAs<Asn1IntegerRecord>(versionOffset, "version")->getIntValue<uint8_t>();
 		}
 
 		std::string RSAPrivateKeyData::getModulus() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(modulusIndex, "modulus")->getValueAsString(true);
+			return castSubRecordAs<Asn1IntegerRecord>(modulusOffset, "modulus")->getValueAsString(true);
 		}
 
 		uint64_t RSAPrivateKeyData::getPublicExponent() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(publicExponentIndex, "public exponent")->getIntValue<uint64_t>();
+			return castSubRecordAs<Asn1IntegerRecord>(publicExponentOffset, "public exponent")->getIntValue<uint64_t>();
 		}
 
 		std::string RSAPrivateKeyData::getPrivateExponent() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(privateExponentIndex, "private exponent")->getValueAsString(true);
+			return castSubRecordAs<Asn1IntegerRecord>(privateExponentOffset, "private exponent")
+			    ->getValueAsString(true);
 		}
 
 		std::string RSAPrivateKeyData::getPrime1() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(prime1Index, "prime1")->getValueAsString(true);
+			return castSubRecordAs<Asn1IntegerRecord>(prime1Offset, "prime1")->getValueAsString(true);
 		}
 
 		std::string RSAPrivateKeyData::getPrime2() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(prime2Index, "prime2")->getValueAsString(true);
+			return castSubRecordAs<Asn1IntegerRecord>(prime2Offset, "prime2")->getValueAsString(true);
 		}
 
 		std::string RSAPrivateKeyData::getExponent1() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(exponent1Index, "exponent1")->getValueAsString(true);
+			return castSubRecordAs<Asn1IntegerRecord>(exponent1Offset, "exponent1")->getValueAsString(true);
 		}
 
 		std::string RSAPrivateKeyData::getExponent2() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(exponent2Index, "exponent2")->getValueAsString(true);
+			return castSubRecordAs<Asn1IntegerRecord>(exponent2Offset, "exponent2")->getValueAsString(true);
 		}
 
 		std::string RSAPrivateKeyData::getCoefficient() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(coefficientIndex, "coefficient")->getValueAsString(true);
+			return castSubRecordAs<Asn1IntegerRecord>(coefficientOffset, "coefficient")->getValueAsString(true);
 		}
 
 		ECPrivateKeyData::ECPrivateKeyData(Asn1SequenceRecord* root, std::string decoderType)
 		    : PrivateKeyData(root, decoderType)
 		{
-			size_t currIndex = 2;
-			while (root->getSubRecords().size() > currIndex)
+			size_t currOffset = 2;
+			while (root->getSubRecords().size() > currOffset)
 			{
-				auto record = root->getSubRecords().at(currIndex);
+				auto record = root->getSubRecords().at(currOffset);
 
 				if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 0)
 				{
-					m_ParametersIndex = currIndex;
+					m_ParametersOffset = currOffset;
 				}
 				else if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 1)
 				{
-					m_PublicKeyIndex = currIndex;
+					m_PublicKeyOffset = currOffset;
 				}
-				currIndex++;
+				currOffset++;
 			}
 		}
 
 		uint8_t ECPrivateKeyData::getVersion() const
 		{
-			return castSubRecordAs<Asn1IntegerRecord>(versionIndex, "version")->getIntValue<uint8_t>();
+			return castSubRecordAs<Asn1IntegerRecord>(versionOffset, "version")->getIntValue<uint8_t>();
 		}
 
 		std::string ECPrivateKeyData::getPrivateKey() const
 		{
-			return castSubRecordAs<Asn1OctetStringRecord>(privateKeyIndex, "private key")->getValue();
+			return castSubRecordAs<Asn1OctetStringRecord>(privateKeyOffset, "private key")->getValue();
 		}
 
 		std::unique_ptr<Asn1ObjectIdentifier> ECPrivateKeyData::getParameters() const
 		{
-			if (m_ParametersIndex == -1)
+			if (m_ParametersOffset == -1)
 			{
 				return nullptr;
 			}
 
-			auto parametersRecord = castSubRecordAs<Asn1ConstructedRecord>(m_ParametersIndex, "parameters");
+			auto parametersRecord = castSubRecordAs<Asn1ConstructedRecord>(m_ParametersOffset, "parameters");
 			auto firstParamRecord = parametersRecord->getSubRecords().at(0);
 			if (firstParamRecord->getUniversalTagType() != Asn1UniversalTagType::ObjectIdentifier)
 			{
@@ -102,12 +103,12 @@ namespace pcpp
 
 		std::string ECPrivateKeyData::getPublicKey() const
 		{
-			if (m_PublicKeyIndex == -1)
+			if (m_PublicKeyOffset == -1)
 			{
 				return {};
 			}
 
-			auto publicKeyRecord = castSubRecordAs<Asn1ConstructedRecord>(m_PublicKeyIndex, "public key");
+			auto publicKeyRecord = castSubRecordAs<Asn1ConstructedRecord>(m_PublicKeyOffset, "public key");
 			auto firstPublicKeyRecord = publicKeyRecord->getSubRecords().at(0);
 			if (firstPublicKeyRecord->getUniversalTagType() != Asn1UniversalTagType::BitString)
 			{
@@ -121,15 +122,15 @@ namespace pcpp
 
 	std::string RSAPublicKey::getModulus() const
 	{
-		return castSubRecordAs<Asn1IntegerRecord>(modulusIndex, "modulus")->getValueAsString(true);
+		return castSubRecordAs<Asn1IntegerRecord>(modulusOffset, "modulus")->getValueAsString(true);
 	}
 
 	uint64_t RSAPublicKey::getPublicExponent() const
 	{
-		return castSubRecordAs<Asn1IntegerRecord>(publicExponentIndex, "public exponent")->getIntValue<uint64_t>();
+		return castSubRecordAs<Asn1IntegerRecord>(publicExponentOffset, "public exponent")->getIntValue<uint64_t>();
 	}
 
-	std::string PKCS8PrivateKeyAlgorithm::toString() const
+	std::string CryptographicKeyAlgorithm::toString() const
 	{
 		switch (m_Value)
 		{
@@ -153,7 +154,7 @@ namespace pcpp
 		}
 	}
 
-	std::string PKCS8PrivateKeyAlgorithm::getOidValue() const
+	std::string CryptographicKeyAlgorithm::getOidValue() const
 	{
 		switch (m_Value)
 		{
@@ -177,17 +178,17 @@ namespace pcpp
 		}
 	}
 
-	static const std::unordered_map<std::string, PKCS8PrivateKeyAlgorithm::Value> X509AlgorithmOidMap = {
-		{ "1.2.840.113549.1.1.1", PKCS8PrivateKeyAlgorithm::RSA           },
-		{ "1.2.840.10040.4.1",    PKCS8PrivateKeyAlgorithm::DSA           },
-		{ "1.2.840.10045.2.1",    PKCS8PrivateKeyAlgorithm::ECDSA         },
-		{ "1.3.101.112",          PKCS8PrivateKeyAlgorithm::ED25519       },
-		{ "1.3.101.113",          PKCS8PrivateKeyAlgorithm::ED448         },
-		{ "1.2.840.113549.1.3.1", PKCS8PrivateKeyAlgorithm::DiffieHellman },
-		{ "1.3.101.111",          PKCS8PrivateKeyAlgorithm::X448          },
+	static const std::unordered_map<std::string, CryptographicKeyAlgorithm::Value> X509AlgorithmOidMap = {
+		{ "1.2.840.113549.1.1.1", CryptographicKeyAlgorithm::RSA           },
+		{ "1.2.840.10040.4.1",    CryptographicKeyAlgorithm::DSA           },
+		{ "1.2.840.10045.2.1",    CryptographicKeyAlgorithm::ECDSA         },
+		{ "1.3.101.112",          CryptographicKeyAlgorithm::ED25519       },
+		{ "1.3.101.113",          CryptographicKeyAlgorithm::ED448         },
+		{ "1.2.840.113549.1.3.1", CryptographicKeyAlgorithm::DiffieHellman },
+		{ "1.3.101.111",          CryptographicKeyAlgorithm::X448          },
 	};
 
-	PKCS8PrivateKeyAlgorithm PKCS8PrivateKeyAlgorithm::fromOidValue(const Asn1ObjectIdentifier& value)
+	CryptographicKeyAlgorithm CryptographicKeyAlgorithm::fromOidValue(const Asn1ObjectIdentifier& value)
 	{
 		std::string oidStringValue = value.toString();
 
@@ -202,33 +203,33 @@ namespace pcpp
 
 	uint8_t PKCS8PrivateKey::getVersion() const
 	{
-		return castSubRecordAs<Asn1IntegerRecord>(versionIndex, "version")->getIntValue<uint8_t>();
+		return castSubRecordAs<Asn1IntegerRecord>(versionOffset, "version")->getIntValue<uint8_t>();
 	}
 
-	PKCS8PrivateKeyAlgorithm PKCS8PrivateKey::getPrivateKeyAlgorithm() const
+	CryptographicKeyAlgorithm PKCS8PrivateKey::getPrivateKeyAlgorithm() const
 	{
-		auto oidValue = castSubRecordAs<Asn1SequenceRecord>(privateKeyAlgorithmIndex, "private key algorithm")
+		auto oidValue = castSubRecordAs<Asn1SequenceRecord>(privateKeyAlgorithmOffset, "private key algorithm")
 		                    ->getSubRecords()
 		                    .at(0)
 		                    ->castAs<Asn1ObjectIdentifierRecord>()
 		                    ->getValue();
-		return PKCS8PrivateKeyAlgorithm::fromOidValue(oidValue);
+		return CryptographicKeyAlgorithm::fromOidValue(oidValue);
 	}
 
 	std::unique_ptr<PKCS8PrivateKey::PrivateKeyData> PKCS8PrivateKey::getPrivateKey() const
 	{
-		auto rawData = castSubRecordAs<Asn1OctetStringRecord>(privateKeyIndex, "private key")->getValue();
+		auto rawData = castSubRecordAs<Asn1OctetStringRecord>(privateKeyOffset, "private key")->getValue();
 		switch (getPrivateKeyAlgorithm())
 		{
-		case PKCS8PrivateKeyAlgorithm::RSA:
+		case CryptographicKeyAlgorithm::RSA:
 		{
 			return std::unique_ptr<PrivateKeyData>(new RSAPrivateKeyData(rawData));
 		}
-		case PKCS8PrivateKeyAlgorithm::ECDSA:
+		case CryptographicKeyAlgorithm::ECDSA:
 		{
 			return std::unique_ptr<PrivateKeyData>(new ECPrivateKeyData(rawData));
 		}
-		case PKCS8PrivateKeyAlgorithm::ED25519:
+		case CryptographicKeyAlgorithm::ED25519:
 		{
 			return std::unique_ptr<PrivateKeyData>(new Ed25519PrivateKeyData(rawData));
 		}
@@ -261,5 +262,31 @@ namespace pcpp
 	std::string PKCS8PrivateKey::Ed25519PrivateKeyData::getPrivateKey() const
 	{
 		return m_Root->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	CryptographicKeyAlgorithm SubjectPublicKeyInfo::getAlgorithm() const
+	{
+		auto algorithmRecord = castSubRecordAs<Asn1SequenceRecord>(algorithmOffset, "algorithm record");
+		if (algorithmRecord->getSubRecords().size() < 1)
+		{
+			return CryptographicKeyAlgorithm::Unknown;
+		}
+
+		try
+		{
+			return CryptographicKeyAlgorithm::fromOidValue(
+			    algorithmRecord->getSubRecords().at(0)->castAs<Asn1ObjectIdentifierRecord>()->getValue());
+		}
+		catch (const std::exception&)
+		{
+			throw std::runtime_error("Invalid public key data: algorithm identifier");
+		}
+	}
+
+	std::string SubjectPublicKeyInfo::getSubjectPublicKey() const
+	{
+		auto vecValue =
+		    castSubRecordAs<Asn1BitStringRecord>(subjectPublicKeyOffset, "subject public key")->getVecValue();
+		return byteArrayToHexString(vecValue.data(), vecValue.size());
 	}
 }  // namespace pcpp
