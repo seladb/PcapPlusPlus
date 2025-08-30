@@ -239,6 +239,6 @@ namespace pcpp
 	}
 
 	PKCS8PrivateKey::RSAPrivateKeyData::RSAPrivateKeyData(const std::string& rawData)
-	    : PrivateKeyData(rawData), internal::RSAPrivateKeyData(getRoot(), "PKCS#8 RSA private key")
+	    : PKCS8PrivateKey::PrivateKeyData(rawData), internal::RSAPrivateKeyData(getRoot(), "PKCS#8 RSA private key")
 	{}
 }  // namespace pcpp
