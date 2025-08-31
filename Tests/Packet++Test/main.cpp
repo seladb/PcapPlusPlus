@@ -391,6 +391,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerEditTest, "chdlc");
 
+	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
+	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
+
 	PTF_RUN_TEST(X509ParsingTest, "x509");
 	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
 	PTF_RUN_TEST(X509InvalidDataTest, "x509");
