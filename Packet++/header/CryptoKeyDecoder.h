@@ -107,11 +107,27 @@ namespace pcpp
 				m_DerData = std::move(derData);
 			}
 
+			CryptoKeyDecoder(uint8_t* derData, size_t derDataLen, bool ownDerData)
+			{
+				m_Root = Asn1Record::decode(derData, derDataLen);
+				if (ownDerData)
+				{
+					m_DerData.reset(derData);
+				}
+			}
+
 			virtual ~CryptoKeyDecoder() = default;
 
 			Asn1SequenceRecord* getRoot() const
 			{
-				return m_Root->castAs<Asn1SequenceRecord>();
+				try
+				{
+					return m_Root->castAs<Asn1SequenceRecord>();
+				}
+				catch (const std::bad_cast&)
+				{
+					throw std::invalid_argument("Invalid " + std::string(CryptoDecoder::keyType) + " data");
+				}
 			}
 
 			template <class Asn1RecordType>
@@ -203,6 +219,10 @@ namespace pcpp
 		    : CryptoKeyDecoder(std::move(derData), derDataLen), RSAPrivateKeyData(getRoot(), keyType)
 		{}
 
+		RSAPrivateKey(uint8_t* derData, size_t derDataLen, bool ownDerData)
+		    : CryptoKeyDecoder(derData, derDataLen, ownDerData), RSAPrivateKeyData(getRoot(), keyType)
+		{}
+
 	private:
 		static constexpr const char* pemLabel = "RSA PRIVATE KEY";
 		static constexpr const char* keyType = "RSA private key";
@@ -219,6 +239,10 @@ namespace pcpp
 	protected:
 		ECPrivateKey(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
 		    : CryptoKeyDecoder(std::move(derData), derDataLen), ECPrivateKeyData(getRoot(), keyType)
+		{}
+
+		ECPrivateKey(uint8_t* derData, size_t derDataLen, bool ownDerData)
+		    : CryptoKeyDecoder(derData, derDataLen, ownDerData), ECPrivateKeyData(getRoot(), keyType)
 		{}
 
 	private:
@@ -257,7 +281,7 @@ namespace pcpp
 			}
 
 		protected:
-			PrivateKeyData(const std::string& rawData);
+			explicit PrivateKeyData(const std::string& rawData);
 			Asn1SequenceRecord* getRoot() const
 			{
 				return m_Root->castAs<Asn1SequenceRecord>();
@@ -270,19 +294,19 @@ namespace pcpp
 		class RSAPrivateKeyData : public PrivateKeyData, public internal::RSAPrivateKeyData
 		{
 			friend class PKCS8PrivateKey;
-			RSAPrivateKeyData(const std::string& rawData);
+			explicit RSAPrivateKeyData(const std::string& rawData);
 		};
 
 		class ECPrivateKeyData : public PrivateKeyData, public internal::ECPrivateKeyData
 		{
 			friend class PKCS8PrivateKey;
-			ECPrivateKeyData(const std::string& rawData);
+			explicit ECPrivateKeyData(const std::string& rawData);
 		};
 
 		class Ed25519PrivateKeyData : public PrivateKeyData
 		{
 			friend class PKCS8PrivateKey;
-			Ed25519PrivateKeyData(const std::string& rawData);
+			explicit Ed25519PrivateKeyData(const std::string& rawData);
 
 		public:
 			std::string getPrivateKey() const;

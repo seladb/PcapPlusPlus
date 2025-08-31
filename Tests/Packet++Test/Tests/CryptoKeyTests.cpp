@@ -99,6 +99,18 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		}
 	}
 
+	// EC private key without parameters and data
+	{
+		std::string pemData =
+		    "-----BEGIN EC PRIVATE KEY-----\nMCUCAQEEIAzqjXRl3z+3MinjwcLi0LAUZHGtDhuDWce9QNNO9u7y\n-----END EC PRIVATE KEY-----";
+		auto ecPrivateKeyPem = pcpp::ECPrivateKey::fromPEM(pemData);
+		PTF_ASSERT_EQUAL(ecPrivateKeyPem->getVersion(), 1);
+		PTF_ASSERT_EQUAL(ecPrivateKeyPem->getPrivateKey(),
+		                 "0cea8d7465df3fb73229e3c1c2e2d0b0146471ad0e1b8359c7bd40d34ef6eef2");
+		PTF_ASSERT_NULL(ecPrivateKeyPem->getParameters());
+		PTF_ASSERT_EQUAL(ecPrivateKeyPem->getPublicKey(), "");
+	}
+
 	// PKCS#8 RSA private key
 	{
 		auto pkcs8PrivateKeyPem = pcpp::PKCS8PrivateKey::fromPEMFile("PacketExamples/RSAPrivateKeyPKCS8.pem");
@@ -200,6 +212,18 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		}
 	}
 
+	// PKCS#8 unsupported private key
+	{
+		std::vector<uint8_t> privateKeyBytes = {
+			0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x6f, 0x04, 0x22, 0x04, 0x20,
+			0xca, 0x0f, 0x1d, 0x19, 0xe1, 0x49, 0xdb, 0xc0, 0x59, 0x41, 0xd1, 0x9f, 0xd5, 0x36, 0x9d, 0x05,
+			0x4e, 0x7a, 0x36, 0x60, 0x79, 0x3b, 0xc3, 0x72, 0xee, 0xc6, 0x8c, 0x0a, 0xcc, 0xa5, 0x95, 0xbd
+		};
+		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(privateKeyBytes.data(), privateKeyBytes.size());
+		PTF_ASSERT_EQUAL(privateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::X448);
+		PTF_ASSERT_NULL(privateKey->getPrivateKey());
+	}
+
 	// RSA public key
 	{
 		auto rsaPublicKeyPem = pcpp::RSAPublicKey::fromPEMFile("PacketExamples/RSAPublicKey.pem");
@@ -237,5 +261,112 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		PTF_ASSERT_EQUAL(
 		    publicKey->getSubjectPublicKey(),
 		    "3082010a0282010100b84f1d24c5c139ea5a0111cd2474e8186099ff2618546be98110c56afe0b1d3b5b2a747267204fdb3ec136a631423f11e536ea6eb9b3286953fd7fcdabaa4f1e39c95b5d6b8d088fb2c2dcec2e0366ac1bb72a4764bc1ef4abc706cd369a5d00a78e4859c2446884b55f6711fc473272963d8798f9071ee019fe1f6ae4870e0eef9954bab0258904ec98b50f5d108fffa16e47c8ae946fb96f280ecfd69a9e7702d56abba492e847fa10180c1f7e4ed537f47c73960c8ff18d2e32b998639fcff79cfbe392663e1f40056b22c31c7bf0bcd6b72ed4b3cfe7285eec839ae0daa56e45b0ebd843e8bd64609791fd2ac090de1890b99af9d29442f09ecffcfd26470203010001");
+	}
+}
+
+PTF_TEST_CASE(CryptoKeyInvalidDataTest)
+{
+	// Trying to read the wrong type of PEM file
+	{
+		PTF_ASSERT_RAISES(pcpp::RSAPrivateKey::fromPEMFile("PacketExamples/RSAPublicKey.pem"), std::invalid_argument,
+		                  "Unexpected BEGIN label in PEM - expected 'RSA PRIVATE KEY' but got 'RSA PUBLIC KEY'");
+	}
+
+	// Invalid ASN.1 root
+	{
+		std::vector<uint8_t> malformedData = { 0x02, 0x01, 0x00 };
+		PTF_ASSERT_RAISES(pcpp::RSAPrivateKey::fromDER(malformedData.data(), malformedData.size()),
+		                  std::invalid_argument, "Invalid RSA private key data");
+	}
+
+	// Unexpected type of ASN.1 field
+	{
+		std::vector<uint8_t> malformedData = { 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86,
+			                                   0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00 };
+		auto ecPrivateKey = pcpp::ECPrivateKey::fromDER(malformedData.data(), malformedData.size());
+		PTF_ASSERT_RAISES(ecPrivateKey->getVersion(), std::runtime_error, "Invalid EC private key data: version");
+	}
+
+	// Malformed PKCS#8 algorithm field
+	{
+		std::vector<uint8_t> malformedData = { 0x30, 0x2e, 0x02, 0x01, 0x00, 0x24, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70,
+			                                   0x04, 0x22, 0x04, 0x20, 0xca, 0x0f, 0x1d, 0x19, 0xe1, 0x49, 0xdb, 0xc0,
+			                                   0x59, 0x41, 0xd1, 0x9f, 0xd5, 0x36, 0x9d, 0x05, 0x4e, 0x7a, 0x36, 0x60,
+			                                   0x79, 0x3b, 0xc3, 0x72, 0xee, 0xc6, 0x8c, 0x0a, 0xcc, 0xa5, 0x95, 0xbd };
+		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(malformedData.data(), malformedData.size());
+		PTF_ASSERT_RAISES(privateKey->getPrivateKeyAlgorithm(), std::runtime_error,
+		                  "Invalid PKCS#8 private key data: private key algorithm");
+		PTF_ASSERT_NULL(privateKey->getPrivateKey());
+	}
+
+	// Unknown PKCS#8 algorithm
+	{
+		std::vector<uint8_t> malformedData = { 0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x75,
+			                                   0x04, 0x22, 0x04, 0x20, 0xca, 0x0f, 0x1d, 0x19, 0xe1, 0x49, 0xdb, 0xc0,
+			                                   0x59, 0x41, 0xd1, 0x9f, 0xd5, 0x36, 0x9d, 0x05, 0x4e, 0x7a, 0x36, 0x60,
+			                                   0x79, 0x3b, 0xc3, 0x72, 0xee, 0xc6, 0x8c, 0x0a, 0xcc, 0xa5, 0x95, 0xbd };
+		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(malformedData.data(), malformedData.size());
+		PTF_ASSERT_EQUAL(privateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::Unknown);
+		PTF_ASSERT_NULL(privateKey->getPrivateKey());
+	}
+
+	// Malformed PKCS#8 private key
+	{
+		std::vector<uint8_t> malformedData = { 0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70,
+			                                   0x03, 0x22, 0x04, 0x20, 0xca, 0x0f, 0x1d, 0x19, 0xe1, 0x49, 0xdb, 0xc0,
+			                                   0x59, 0x41, 0xd1, 0x9f, 0xd5, 0x36, 0x9d, 0x05, 0x4e, 0x7a, 0x36, 0x60,
+			                                   0x79, 0x3b, 0xc3, 0x72, 0xee, 0xc6, 0x8c, 0x0a, 0xcc, 0xa5, 0x95, 0xbd };
+		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(malformedData.data(), malformedData.size());
+		PTF_ASSERT_RAISES(privateKey->getPrivateKey(), std::runtime_error,
+		                  "Invalid PKCS#8 private key data: private key");
+	}
+
+	// Malformed PKCS#8 EC private key data
+	{
+		std::vector<uint8_t> malformedData = {
+			0x30, 0x81, 0x87, 0x02, 0x01, 0x00, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06,
+			0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x04, 0x6d, 0x30, 0x6b, 0x03, 0x01, 0x01, 0x04, 0x20,
+			0xa0, 0x0a, 0x20, 0xed, 0x4c, 0x8e, 0x14, 0x53, 0x17, 0x2c, 0xe4, 0x94, 0xb4, 0x00, 0x64, 0x6e, 0x10, 0xb7,
+			0xa2, 0x8a, 0x02, 0x7a, 0xf3, 0x3a, 0xc5, 0x37, 0x89, 0x18, 0x08, 0x5a, 0xa0, 0xc2, 0xa1, 0x44, 0x03, 0x42,
+			0x00, 0x04, 0xf4, 0x3a, 0x51, 0x90, 0xb3, 0x22, 0xcf, 0xc7, 0x16, 0xde, 0x98, 0xdf, 0x40, 0x10, 0x61, 0x21,
+			0xab, 0x6b, 0x45, 0x23, 0xaa, 0x20, 0xba, 0x43, 0xef, 0xd1, 0x5a, 0x3d, 0x90, 0xed, 0xfa, 0x83, 0xdd, 0x98,
+			0xaf, 0xda, 0xf7, 0x74, 0x54, 0x2b, 0x65, 0x92, 0xd8, 0xf3, 0xd6, 0xcd, 0x9d, 0x5b, 0x0b, 0xe3, 0x61, 0xcf,
+			0x91, 0x64, 0xf2, 0xa8, 0x8c, 0xe7, 0xb0, 0x71, 0x0e, 0x74, 0xf2, 0xfb
+		};
+		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(malformedData.data(), malformedData.size());
+		auto privateKeyData = privateKey->getPrivateKey();
+		PTF_ASSERT_NOT_NULL(privateKeyData);
+		auto ecPrivateKeyData = privateKeyData->castAs<pcpp::PKCS8PrivateKey::ECPrivateKeyData>();
+		PTF_ASSERT_RAISES(ecPrivateKeyData->getVersion(), std::runtime_error,
+		                  "Invalid PKCS#8 EC private key data: version");
+	}
+
+	// Malformed PKCS#8 Ed25519 private key data
+	{
+		std::vector<uint8_t> malformedData = { 0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70,
+			                                   0x04, 0x22, 0x02, 0x20, 0xca, 0x0f, 0x1d, 0x19, 0xe1, 0x49, 0xdb, 0xc0,
+			                                   0x59, 0x41, 0xd1, 0x9f, 0xd5, 0x36, 0x9d, 0x05, 0x4e, 0x7a, 0x36, 0x60,
+			                                   0x79, 0x3b, 0xc3, 0x72, 0xee, 0xc6, 0x8c, 0x0a, 0xcc, 0xa5, 0x95, 0xbd };
+		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(malformedData.data(), malformedData.size());
+		auto privateKeyData = privateKey->getPrivateKey();
+		PTF_ASSERT_NOT_NULL(privateKeyData);
+		auto ed25519PrivateKeyData = privateKeyData->castAs<pcpp::PKCS8PrivateKey::Ed25519PrivateKeyData>();
+		PTF_ASSERT_RAISES(ed25519PrivateKeyData->getPrivateKey(), std::runtime_error, "Invalid PKCS#8 Ed25519 data");
+	}
+
+	// Public key unknown algorithm
+	{
+	}
+
+	// Malformed public key algorithm field - sequence not found
+	{
+	}
+
+	// Malformed public key algorithm field - no elements in sequence
+	{
+	}
+
+	// Malformed public key algorithm field - cannot read OID value
+	{
 	}
 }

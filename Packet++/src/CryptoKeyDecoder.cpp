@@ -1,6 +1,4 @@
 #include "CryptoKeyDecoder.h"
-
-#include <iostream>
 #include <unordered_map>
 
 namespace pcpp
@@ -219,24 +217,31 @@ namespace pcpp
 	std::unique_ptr<PKCS8PrivateKey::PrivateKeyData> PKCS8PrivateKey::getPrivateKey() const
 	{
 		auto rawData = castSubRecordAs<Asn1OctetStringRecord>(privateKeyOffset, "private key")->getValue();
-		switch (getPrivateKeyAlgorithm())
+		try
 		{
-		case CryptographicKeyAlgorithm::RSA:
-		{
-			return std::unique_ptr<PrivateKeyData>(new RSAPrivateKeyData(rawData));
+			switch (getPrivateKeyAlgorithm())
+			{
+			case CryptographicKeyAlgorithm::RSA:
+			{
+				return std::unique_ptr<PrivateKeyData>(new RSAPrivateKeyData(rawData));
+			}
+			case CryptographicKeyAlgorithm::ECDSA:
+			{
+				return std::unique_ptr<PrivateKeyData>(new ECPrivateKeyData(rawData));
+			}
+			case CryptographicKeyAlgorithm::ED25519:
+			{
+				return std::unique_ptr<PrivateKeyData>(new Ed25519PrivateKeyData(rawData));
+			}
+			default:
+			{
+				return {};
+			}
+			}
 		}
-		case CryptographicKeyAlgorithm::ECDSA:
-		{
-			return std::unique_ptr<PrivateKeyData>(new ECPrivateKeyData(rawData));
-		}
-		case CryptographicKeyAlgorithm::ED25519:
-		{
-			return std::unique_ptr<PrivateKeyData>(new Ed25519PrivateKeyData(rawData));
-		}
-		default:
+		catch (...)
 		{
 			return {};
-		}
 		}
 	}
 
@@ -261,7 +266,14 @@ namespace pcpp
 
 	std::string PKCS8PrivateKey::Ed25519PrivateKeyData::getPrivateKey() const
 	{
-		return m_Root->castAs<Asn1OctetStringRecord>()->getValue();
+		try
+		{
+			return m_Root->castAs<Asn1OctetStringRecord>()->getValue();
+		}
+		catch (...)
+		{
+			throw std::runtime_error("Invalid PKCS#8 Ed25519 data");
+		}
 	}
 
 	CryptographicKeyAlgorithm SubjectPublicKeyInfo::getAlgorithm() const

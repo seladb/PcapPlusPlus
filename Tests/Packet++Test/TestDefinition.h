@@ -338,3 +338,4 @@ PTF_TEST_CASE(PemDecodingTest);
 
 // Implemented in CryptoKeyTests.cpp
 PTF_TEST_CASE(CryptoKeyDecodingTest);
+PTF_TEST_CASE(CryptoKeyInvalidDataTest);
