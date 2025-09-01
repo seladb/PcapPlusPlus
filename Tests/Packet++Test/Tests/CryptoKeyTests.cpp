@@ -126,7 +126,10 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		for (const auto& pkcs8PrivateKey : pkcs8PrivateKeys)
 		{
 			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getVersion(), 0);
-			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::RSA);
+			auto privateKeyAlgorithm = pkcs8PrivateKey->getPrivateKeyAlgorithm();
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm, pcpp::CryptographicKeyAlgorithm::RSA);
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm.toString(), "RSA");
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm.getOidValue(), "1.2.840.113549.1.1.1");
 
 			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
 			PTF_ASSERT_NOT_NULL(privateKeyData);
@@ -172,7 +175,10 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		for (const auto& pkcs8PrivateKey : pkcs8PrivateKeys)
 		{
 			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getVersion(), 0);
-			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::ECDSA);
+			auto privateKeyAlgorithm = pkcs8PrivateKey->getPrivateKeyAlgorithm();
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm, pcpp::CryptographicKeyAlgorithm::ECDSA);
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm.toString(), "ECDSA");
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm.getOidValue(), "1.2.840.10045.2.1");
 
 			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
 			PTF_ASSERT_NOT_NULL(privateKeyData);
@@ -202,13 +208,18 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		for (const auto& pkcs8PrivateKey : pkcs8PrivateKeys)
 		{
 			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getVersion(), 0);
-			PTF_ASSERT_EQUAL(pkcs8PrivateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::ED25519);
+			auto privateKeyAlgorithm = pkcs8PrivateKey->getPrivateKeyAlgorithm();
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm, pcpp::CryptographicKeyAlgorithm::ED25519);
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm.toString(), "Ed25519");
+			PTF_ASSERT_EQUAL(privateKeyAlgorithm.getOidValue(), "1.3.101.112");
 
 			auto privateKeyData = pkcs8PrivateKey->getPrivateKey();
 			PTF_ASSERT_NOT_NULL(privateKeyData);
 			auto ed25519PrivateKeyData = privateKeyData->castAs<pcpp::PKCS8PrivateKey::Ed25519PrivateKeyData>();
 			PTF_ASSERT_EQUAL(ed25519PrivateKeyData->getPrivateKey(),
 			                 "ca0f1d19e149dbc05941d19fd5369d054e7a3660793bc372eec68c0acca595bd");
+			PTF_ASSERT_RAISES(privateKeyData->castAs<pcpp::PKCS8PrivateKey::RSAPrivateKeyData>(), std::runtime_error,
+			                  "Trying to PKCS#8 private key data to the wrong type");
 		}
 	}
 
@@ -220,7 +231,10 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 			0x4e, 0x7a, 0x36, 0x60, 0x79, 0x3b, 0xc3, 0x72, 0xee, 0xc6, 0x8c, 0x0a, 0xcc, 0xa5, 0x95, 0xbd
 		};
 		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(privateKeyBytes.data(), privateKeyBytes.size());
-		PTF_ASSERT_EQUAL(privateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::X448);
+		auto privateKeyAlgorithm = privateKey->getPrivateKeyAlgorithm();
+		PTF_ASSERT_EQUAL(privateKeyAlgorithm, pcpp::CryptographicKeyAlgorithm::X448);
+		PTF_ASSERT_EQUAL(privateKeyAlgorithm.toString(), "X448");
+		PTF_ASSERT_EQUAL(privateKeyAlgorithm.getOidValue(), "1.3.101.111");
 		PTF_ASSERT_NULL(privateKey->getPrivateKey());
 	}
 
@@ -287,6 +301,36 @@ PTF_TEST_CASE(CryptoKeyInvalidDataTest)
 		PTF_ASSERT_RAISES(ecPrivateKey->getVersion(), std::runtime_error, "Invalid EC private key data: version");
 	}
 
+	// EC private key - Invalid parameters value
+	{
+		std::vector<uint8_t> malformedData = {
+			0x30, 0x77, 0x02, 0x01, 0x01, 0x04, 0x20, 0x1c, 0x2a, 0x46, 0xc7, 0xf7, 0x0c, 0x5f, 0x4a, 0x2e, 0x8d, 0xa0,
+			0xd5, 0xc3, 0xbe, 0x38, 0x8a, 0x2f, 0x85, 0xef, 0x69, 0x32, 0x3a, 0x7f, 0x1c, 0x6b, 0x09, 0xc5, 0x68, 0x74,
+			0xb6, 0x54, 0xc9, 0xa0, 0x0a, 0x04, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0xa1, 0x44, 0x03,
+			0x42, 0x00, 0x04, 0xd1, 0x07, 0xf8, 0xd8, 0xc5, 0x30, 0x33, 0xd3, 0xcb, 0x7f, 0x85, 0x2c, 0x00, 0xe4, 0x0b,
+			0x08, 0x62, 0x29, 0xb0, 0xb8, 0xce, 0x48, 0x0b, 0x9b, 0xb3, 0x37, 0xe1, 0xfe, 0x8a, 0x09, 0x92, 0xae, 0x03,
+			0x06, 0x71, 0x0d, 0xa0, 0xd6, 0x36, 0x05, 0x19, 0xe9, 0xe6, 0x7a, 0x01, 0xcb, 0xbf, 0x3d, 0xf3, 0x02, 0x0b,
+			0x57, 0x0c, 0xa0, 0x22, 0x5b, 0x76, 0xd0, 0x76, 0xb7, 0xdb, 0x38, 0xa3, 0x20
+		};
+		auto ecPrivateKey = pcpp::ECPrivateKey::fromDER(malformedData.data(), malformedData.size());
+		PTF_ASSERT_NULL(ecPrivateKey->getParameters());
+	}
+
+	// EC private key - Invalid public key value
+	{
+		std::vector<uint8_t> malformedData = {
+			0x30, 0x77, 0x02, 0x01, 0x01, 0x04, 0x20, 0x1c, 0x2a, 0x46, 0xc7, 0xf7, 0x0c, 0x5f, 0x4a, 0x2e, 0x8d, 0xa0,
+			0xd5, 0xc3, 0xbe, 0x38, 0x8a, 0x2f, 0x85, 0xef, 0x69, 0x32, 0x3a, 0x7f, 0x1c, 0x6b, 0x09, 0xc5, 0x68, 0x74,
+			0xb6, 0x54, 0xc9, 0xa0, 0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0xa1, 0x44, 0x04,
+			0x42, 0x00, 0x04, 0xd1, 0x07, 0xf8, 0xd8, 0xc5, 0x30, 0x33, 0xd3, 0xcb, 0x7f, 0x85, 0x2c, 0x00, 0xe4, 0x0b,
+			0x08, 0x62, 0x29, 0xb0, 0xb8, 0xce, 0x48, 0x0b, 0x9b, 0xb3, 0x37, 0xe1, 0xfe, 0x8a, 0x09, 0x92, 0xae, 0x03,
+			0x06, 0x71, 0x0d, 0xa0, 0xd6, 0x36, 0x05, 0x19, 0xe9, 0xe6, 0x7a, 0x01, 0xcb, 0xbf, 0x3d, 0xf3, 0x02, 0x0b,
+			0x57, 0x0c, 0xa0, 0x22, 0x5b, 0x76, 0xd0, 0x76, 0xb7, 0xdb, 0x38, 0xa3, 0x20
+		};
+		auto ecPrivateKey = pcpp::ECPrivateKey::fromDER(malformedData.data(), malformedData.size());
+		PTF_ASSERT_EQUAL(ecPrivateKey->getPublicKey(), "");
+	}
+
 	// Malformed PKCS#8 algorithm field
 	{
 		std::vector<uint8_t> malformedData = { 0x30, 0x2e, 0x02, 0x01, 0x00, 0x24, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70,
@@ -306,7 +350,10 @@ PTF_TEST_CASE(CryptoKeyInvalidDataTest)
 			                                   0x59, 0x41, 0xd1, 0x9f, 0xd5, 0x36, 0x9d, 0x05, 0x4e, 0x7a, 0x36, 0x60,
 			                                   0x79, 0x3b, 0xc3, 0x72, 0xee, 0xc6, 0x8c, 0x0a, 0xcc, 0xa5, 0x95, 0xbd };
 		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(malformedData.data(), malformedData.size());
-		PTF_ASSERT_EQUAL(privateKey->getPrivateKeyAlgorithm(), pcpp::CryptographicKeyAlgorithm::Unknown);
+		auto privateKeyAlgorithm = privateKey->getPrivateKeyAlgorithm();
+		PTF_ASSERT_EQUAL(privateKeyAlgorithm, pcpp::CryptographicKeyAlgorithm::Unknown);
+		PTF_ASSERT_EQUAL(privateKeyAlgorithm.toString(), "Unknown");
+		PTF_ASSERT_EQUAL(privateKeyAlgorithm.getOidValue(), "0.0");
 		PTF_ASSERT_NULL(privateKey->getPrivateKey());
 	}
 

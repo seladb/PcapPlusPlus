@@ -139,7 +139,7 @@ namespace pcpp
 		case ECDSA:
 			return "ECDSA";
 		case ED25519:
-			return "ED25519";
+			return "Ed25519";
 		case ED448:
 			return "ED448";
 		case DiffieHellman:
