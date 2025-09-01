@@ -3,8 +3,8 @@
 #include "TelnetLayer.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
+#include "AssertionUtils.h"
 #include <cstring>
-#include <cassert>
 #include <iterator>
 #include <algorithm>
 
@@ -12,6 +12,63 @@ namespace pcpp
 {
 	namespace
 	{
+		/// @brief An enum representing the type of a Telnet sequence
+		enum class TelnetSequenceType
+		{
+			/// @brief An unknown sequence type. Usually means parsing error.
+			/// Commonly happens when an IAC symbol is found at the end of the buffer without a following byte.
+			Unknown,
+			/// @brief A telnet command sequence. Starts with IAC followed by a command code.
+			Command,
+			/// @brief A telnet data sequence. Either does not start with IAC or starts with IAC IAC.
+			UserData,
+		};
+
+		/// @brief Checks if a given sequence matches Telnet command or data pattern.
+		/// @param first Start of the sequence to check
+		/// @param maxCount Maximum number of bytes to check
+		/// @return The type of the Telnet sequence. Unknown if the sequence does not match either command or data
+		/// pattern or if parsing error occurs.
+		TelnetSequenceType getTelnetSequenceType(uint8_t const* first, size_t maxCount)
+		{
+			if (first == nullptr || maxCount == 0)
+			{
+				PCPP_LOG_DEBUG("Checking empty or null buffer for telnet sequence type");
+				return TelnetSequenceType::Unknown;
+			}
+
+			// If first byte is not "FF" it's data
+			if (*first != static_cast<int>(TelnetLayer::TelnetCommand::InterpretAsCommand))
+			{
+				return TelnetSequenceType::UserData;
+			}
+
+			// IAC must be followed by another octet
+			if (maxCount <= 1)
+			{
+				PCPP_LOG_DEBUG("Telnet Parse Error: IAC (FF) must always be followed by another octet");
+				return TelnetSequenceType::Unknown;
+			}
+
+			if (first[1] == static_cast<int>(TelnetLayer::TelnetCommand::InterpretAsCommand))
+			{
+				// "FF FF" means data continue
+				return TelnetSequenceType::UserData;
+			}
+
+			// "FF X" where X != "FF" means command
+			return TelnetSequenceType::Command;
+		}
+
+		/// @brief Checks if a given sequence matches Telnet command pattern.
+		/// @param first Start of the sequence to check
+		/// @param maxCount Maximum number of bytes to check
+		/// @return True if the buffer matches Telnet command pattern, false otherwise
+		bool isTelnetCommand(uint8_t const* first, size_t maxCount)
+		{
+			return getTelnetSequenceType(first, maxCount) == TelnetSequenceType::Command;
+		}
+
 		/// @brief Calculates the distance to the next IAC symbol in a given buffer, taking into account IAC escape
 		/// sequences.
 		/// @param buf Start of the buffer to check
@@ -29,7 +86,9 @@ namespace pcpp
 			using TelnetCommand = TelnetLayer::TelnetCommand;
 			constexpr auto IAC = TelnetCommand::InterpretAsCommand;
 
-			assert(first != nullptr);
+			if (first == nullptr)
+				throw std::invalid_argument("first is null");
+
 			// Empty buffer, nothing to search
 			if (maxCount == 0)
 				return 0;
@@ -71,18 +130,6 @@ namespace pcpp
 		}
 	}  // namespace
 
-	bool TelnetLayer::isDataField(uint8_t* pos) const
-	{
-		// "FF FF" means data
-		return pos[0] != static_cast<int>(TelnetCommand::InterpretAsCommand) ||
-		       pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand);
-	}
-
-	bool TelnetLayer::isCommandField(uint8_t* pos) const
-	{
-		return !isDataField(pos);
-	}
-
 	size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength)
 	{
 		// Check first byte is IAC
@@ -107,36 +154,65 @@ namespace pcpp
 
 	uint8_t* TelnetLayer::getNextDataField(uint8_t* pos, size_t len)
 	{
-		size_t offset = 0;
-		while (offset < len)
-		{
-			// Move to next field
-			size_t length = getFieldLen(pos, len - offset);
-			pos += length;
-			offset += length;
+		// This assumes `pos` points to the start of a valid field.
+		auto const endIt = pos + len;
 
-			if (isDataField(pos))
+		// Advance to the next field, as we are skipping the current one from the search.
+		pos += getFieldLen(pos, len);
+
+		while (pos < endIt)
+		{
+			// Check if the current field is data
+			switch (getTelnetSequenceType(pos, std::distance(pos, endIt)))
+			{
+			case TelnetSequenceType::Unknown:
+			{
+				PCPP_LOG_DEBUG("Telnet Parse Error: Unknown sequence found during data field search.");
+				return nullptr;
+			}
+			case TelnetSequenceType::UserData:
 				return pos;
+			default:
+				break;  // continue searching
+			}
+
+			// If not data, move to next field
+			pos += getFieldLen(pos, std::distance(pos, endIt));
 		}
 
+		// If we got here, no data field has been found before the end of the buffer
 		return nullptr;
 	}
 
 	uint8_t* TelnetLayer::getNextCommandField(uint8_t* pos, size_t len)
 	{
-		size_t offset = 0;
-		while (offset < len)
-		{
-			// Move to next field
-			size_t length = getFieldLen(pos, len - offset);
-			pos += length;
-			offset += length;
+		// This assumes `pos` points to the start of a valid field.
+		auto const endIt = pos + len;
 
-			if ((static_cast<size_t>(pos - m_Data) <= (m_DataLen - 2)) &&
-			    isCommandField(pos))  // Need at least 2 bytes for command
+		// Advance to the next field, as we are skipping the current one from the search.
+		pos += getFieldLen(pos, len);
+
+		while (pos < endIt)
+		{
+			// Check if the current field is command
+			switch (getTelnetSequenceType(pos, std::distance(pos, endIt)))
+			{
+			case TelnetSequenceType::Unknown:
+			{
+				PCPP_LOG_DEBUG("Telnet Parse Error: Unknown sequence found during command field search.");
+				return nullptr;
+			}
+			case TelnetSequenceType::Command:
 				return pos;
+			default:
+				break;  // continue searching
+			}
+
+			// If not command, move to next field
+			pos += getFieldLen(pos, std::distance(pos, endIt));
 		}
 
+		// If we got here, no command field has been found before the end of the buffer
 		return nullptr;
 	}
 
@@ -160,28 +236,51 @@ namespace pcpp
 
 	std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters)
 	{
-		uint8_t* dataPos = nullptr;
-		if (isDataField(m_Data))
-			dataPos = m_Data;
-		else
-			dataPos = getNextDataField(m_Data, m_DataLen);
-
-		if (!dataPos)
+		if (m_Data == nullptr)
 		{
-			PCPP_LOG_DEBUG("Packet does not have a data field");
-			return std::string();
+			PCPP_LOG_DEBUG("Layer does not have data");
+			return {};
 		}
 
 		// Convert to string
 		if (removeEscapeCharacters)
 		{
-			std::stringstream ss;
-			for (size_t idx = 0; idx < m_DataLen - (dataPos - m_Data) + 1; ++idx)
+			uint8_t* dataPos = nullptr;
+			switch (getTelnetSequenceType(m_Data, m_DataLen))
 			{
-				if (int(dataPos[idx]) < 127 && int(dataPos[idx]) > 31)  // From SPACE to ~
-					ss << dataPos[idx];
+			case TelnetSequenceType::Unknown:
+			{
+				PCPP_LOG_DEBUG("Telnet Parse Error: Unknown sequence found during data string extraction.");
+				return {};
 			}
-			return ss.str();
+			case TelnetSequenceType::UserData:
+				dataPos = m_Data;
+				break;
+			case TelnetSequenceType::Command:
+				dataPos = getNextDataField(m_Data, m_DataLen);
+				break;
+			default:
+				throw std::logic_error("Unsupported sequence type");
+			}
+
+			if (!dataPos)
+			{
+				PCPP_LOG_DEBUG("Packet does not have a data field");
+				return std::string();
+			}
+
+			PCPP_ASSERT(dataPos >= m_Data && dataPos < (m_Data + m_DataLen),
+			            "Data position is out of bounds, this should never happen!");
+
+			// End of range is corrected by the advance offset.
+			auto const* beginIt = dataPos;
+			auto const* endIt = dataPos + m_DataLen - std::distance(m_Data, dataPos);
+
+			std::string result;
+			std::copy_if(beginIt, endIt, std::back_inserter(result), [](char ch) -> bool {
+				return ch > 31 && ch < 127;  // From SPACE to ~
+			});
+			return result;
 		}
 		return std::string((char*)m_Data, m_DataLen);
 	}
@@ -189,7 +288,7 @@ namespace pcpp
 	size_t TelnetLayer::getTotalNumberOfCommands()
 	{
 		size_t ctr = 0;
-		if (isCommandField(m_Data))
+		if (isTelnetCommand(m_Data, m_DataLen))
 			++ctr;
 
 		uint8_t* pos = m_Data;
@@ -210,7 +309,7 @@ namespace pcpp
 			return 0;
 
 		size_t ctr = 0;
-		if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
+		if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
 			++ctr;
 
 		uint8_t* pos = m_Data;
@@ -228,7 +327,7 @@ namespace pcpp
 	TelnetLayer::TelnetCommand TelnetLayer::getFirstCommand()
 	{
 		// If starts with command
-		if (isCommandField(m_Data))
+		if (isTelnetCommand(m_Data, m_DataLen))
 			return static_cast<TelnetCommand>(m_Data[1]);
 
 		// Check is there any command
@@ -243,7 +342,7 @@ namespace pcpp
 		if (lastPositionOffset == SIZE_MAX)
 		{
 			lastPositionOffset = 0;
-			if (isCommandField(m_Data))
+			if (isTelnetCommand(m_Data, m_DataLen))
 				return static_cast<TelnetLayer::TelnetCommand>(m_Data[1]);
 		}
 
@@ -274,7 +373,7 @@ namespace pcpp
 			return TelnetOption::TelnetOptionNoOption;
 		}
 
-		if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
+		if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
 			return static_cast<TelnetOption>(getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
 
 		uint8_t* pos = m_Data;
@@ -314,7 +413,7 @@ namespace pcpp
 			return nullptr;
 		}
 
-		if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
+		if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
 		{
 			size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
 			uint8_t* posBuffer = getCommandData(m_Data, lenBuffer);
@@ -516,9 +615,18 @@ namespace pcpp
 
 	std::string TelnetLayer::toString() const
 	{
-		if (isDataField(m_Data))
+		// TODO: Perhaps print the entire sequence of commands and data?
+		switch (getTelnetSequenceType(m_Data, m_DataLen))
+		{
+		case TelnetSequenceType::Unknown:
+			return "Telnet Unknown";
+		case TelnetSequenceType::Command:
+			return "Telnet Control";
+		case TelnetSequenceType::UserData:
 			return "Telnet Data";
-		return "Telnet Control";
+		default:
+			throw std::logic_error("Unsupported sequence type");
+		}
 	}
 
 }  // namespace pcpp
