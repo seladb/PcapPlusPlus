@@ -332,6 +332,9 @@ namespace pcpp
 		std::string printPacketInfo(bool timeAsLocalTime) const;
 
 		Layer* createFirstLayer(LinkLayerType linkType);
+
+		template <typename TLayer, typename NextLayerFn>
+		static TLayer* searchLayerStackForType(Layer* startLayer, NextLayerFn nextLayerFn, bool skipFirst);
 	};  // class Packet
 
 	// implementation of inline methods
@@ -340,45 +343,45 @@ namespace pcpp
 	{
 		if (!reverse)
 		{
-			if (dynamic_cast<TLayer*>(getFirstLayer()) != nullptr)
-				return dynamic_cast<TLayer*>(getFirstLayer());
-
-			return getNextLayerOfType<TLayer>(getFirstLayer());
+			return searchLayerStackForType<TLayer>(
+			    m_FirstLayer, [](Layer* layer) { return layer->getNextLayer(); }, false);
 		}
 
 		// lookup in reverse order
-		if (dynamic_cast<TLayer*>(getLastLayer()) != nullptr)
-			return dynamic_cast<TLayer*>(getLastLayer());
-
-		return getPrevLayerOfType<TLayer>(getLastLayer());
+		return searchLayerStackForType<TLayer>(m_LastLayer, [](Layer* layer) { return layer->getPrevLayer(); }, false);
 	}
 
 	template <class TLayer> TLayer* Packet::getNextLayerOfType(Layer* curLayer) const
 	{
-		if (curLayer == nullptr)
-			return nullptr;
-
-		curLayer = curLayer->getNextLayer();
-		while ((curLayer != nullptr) && (dynamic_cast<TLayer*>(curLayer) == nullptr))
-		{
-			curLayer = curLayer->getNextLayer();
-		}
-
-		return dynamic_cast<TLayer*>(curLayer);
+		return searchLayerStackForType<TLayer>(curLayer, [](Layer* layer) { return layer->getNextLayer(); }, true);
 	}
 
 	template <class TLayer> TLayer* Packet::getPrevLayerOfType(Layer* curLayer) const
 	{
+		return searchLayerStackForType<TLayer>(curLayer, [](Layer* layer) { return layer->getPrevLayer(); }, true);
+	}
+
+	template <typename TLayer, typename NextLayerFn>
+	TLayer* Packet::searchLayerStackForType(Layer* curLayer, NextLayerFn getNextLayer, bool skipFirst)
+	{
 		if (curLayer == nullptr)
 			return nullptr;
 
-		curLayer = curLayer->getPrevLayer();
-		while (curLayer != nullptr && dynamic_cast<TLayer*>(curLayer) == nullptr)
+		if (skipFirst)
 		{
-			curLayer = curLayer->getPrevLayer();
+			curLayer = getNextLayer(curLayer);
 		}
 
-		return dynamic_cast<TLayer*>(curLayer);
+		while (curLayer != nullptr)
+		{
+			auto* curLayerCasted = dynamic_cast<TLayer*>(curLayer);
+			if (curLayerCasted != nullptr)
+				return curLayerCasted;
+
+			curLayer = getNextLayer(curLayer);
+		}
+
+		return nullptr;
 	}
 
 	inline std::ostream& operator<<(std::ostream& os, const pcpp::Packet& packet)
