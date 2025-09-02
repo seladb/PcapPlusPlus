@@ -87,8 +87,7 @@ namespace pcpp
 			using TelnetCommand = TelnetLayer::TelnetCommand;
 			constexpr auto IAC = TelnetCommand::InterpretAsCommand;
 
-			if (first == nullptr)
-				throw std::invalid_argument("first is null");
+			PCPP_ASSERT(first != nullptr, "First must be a non-null pointer");
 
 			// Empty buffer, nothing to search
 			if (maxCount == 0)
