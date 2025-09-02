@@ -25,10 +25,15 @@ namespace pcpp
 		};
 
 		/// @brief Checks if a given sequence matches Telnet command or data pattern.
+		///
+		/// The function checks the following patterns:
+		/// - Command data: Starting sequence {IAC, [non-IAC byte], ...}
+		/// - User data: Starting sequence {[non-IAC byte], ...} or { IAC, IAC, ... }.
+		/// - Unknown: first == nullptr or maxCount == 0 or sequence of a single IAC byte.
+		///
 		/// @param first Start of the sequence to check
 		/// @param maxCount Maximum number of bytes to check
-		/// @return The type of the Telnet sequence. Unknown if the sequence does not match either command or data
-		/// pattern or if parsing error occurs.
+		/// @return The type of the Telnet sequence.
 		TelnetSequenceType getTelnetSequenceType(uint8_t const* first, size_t maxCount)
 		{
 			if (first == nullptr || maxCount == 0)
@@ -69,10 +74,6 @@ namespace pcpp
 			return getTelnetSequenceType(first, maxCount) == TelnetSequenceType::Command;
 		}
 
-		/// @brief Calculates the distance to the next IAC symbol in a given buffer, taking into account IAC escape
-		/// sequences.
-		/// @param buf Start of the buffer to check
-		/// @param bufLen Length of the buffer to check
 		/// @brief Calculates the distance to the next IAC symbol in a given sequence, taking into account IAC escape
 		/// sequences.
 		/// @param first Start of the sequence to search.
@@ -126,6 +127,8 @@ namespace pcpp
 				std::advance(it, 2);
 			}
 
+			// Return the distance to the IAC symbol.
+			// If no symbol is found `it` is equal to `endIt`, the distance is equal to maxCount.
 			return std::distance(first, it);
 		}
 	}  // namespace
