@@ -1,0 +1,7 @@
+Packet count:                7451
+TLS messages:                7229
+TLS Flows:                   334
+TLS handshake messages:      1086
+Certificates parsed:         31
+Certificates failed parsing: 0
+Incomplete Certificates:     104

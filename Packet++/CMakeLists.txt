@@ -30,6 +30,7 @@ add_library(
   src/Layer.cpp
   src/LdapLayer.cpp
   src/LLCLayer.cpp
+  src/ModbusLayer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
   src/NflogLayer.cpp
