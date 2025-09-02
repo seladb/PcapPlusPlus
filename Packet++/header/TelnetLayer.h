@@ -15,8 +15,6 @@ namespace pcpp
 		// Position iterator for next command
 		size_t lastPositionOffset;
 
-		// Returns length of provided field
-		size_t getFieldLen(uint8_t* startPos, size_t maxLength);
 		// Get position of next data field
 		uint8_t* getNextDataField(uint8_t* pos, size_t len);
 		// Get position of next command field
