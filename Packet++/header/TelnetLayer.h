@@ -15,10 +15,6 @@ namespace pcpp
 		// Position iterator for next command
 		size_t lastPositionOffset;
 
-		// Checks if position is a data field
-		bool isDataField(uint8_t* pos) const;
-		// Checks if position is a command field
-		bool isCommandField(uint8_t* pos) const;
 		// Returns distance to next IAC
 		size_t distanceToNextIAC(uint8_t* startPos, size_t maxLength);
 		// Returns length of provided field
