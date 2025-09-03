@@ -1,15 +1,24 @@
 #pragma once
 
+/// @file
+
 #include "GeneralUtils.h"
 #include "PemCodec.h"
 #include <string>
 #include <memory>
 #include <fstream>
 
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
 	namespace internal
 	{
+		/// @class CryptoDataReader
+		/// @brief A template helper class for reading and decoding cryptographic data in different formats (DER/PEM)
+		/// @tparam CryptoDecoder The decoder type that will be used to process the cryptographic data.
+		/// Must be a class that can be constructed with a byte array and a length, or a unique pointer to a byte array
+		/// and a length
 		template <typename CryptoDecoder> class CryptoDataReader
 		{
 		public:
