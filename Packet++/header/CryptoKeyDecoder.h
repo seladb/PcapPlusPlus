@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+
 #include "CryptoDataReader.h"
 #include "Asn1Codec.h"
 #include <string>
@@ -102,10 +104,8 @@ namespace pcpp
 
 		protected:
 			CryptoKeyDecoder(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
-			{
-				m_Root = Asn1Record::decode(derData.get(), derDataLen);
-				m_DerData = std::move(derData);
-			}
+			    : m_DerData(std::move(derData)), m_Root(Asn1Record::decode(m_DerData.get(), derDataLen))
+			{}
 
 			CryptoKeyDecoder(uint8_t* derData, size_t derDataLen, bool ownDerData)
 			{

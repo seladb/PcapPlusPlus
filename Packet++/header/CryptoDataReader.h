@@ -32,7 +32,7 @@ namespace pcpp
 			static std::unique_ptr<CryptoDecoder> fromDER(const std::string& derData)
 			{
 				size_t derDataBufferLen = derData.length() / 2;
-				std::unique_ptr<uint8_t[]> derDataBuffer(new uint8_t[derDataBufferLen]);
+				auto derDataBuffer = std::make_unique<uint8_t[]>(derDataBufferLen);
 				hexStringToByteArray(derData, derDataBuffer.get(), derDataBufferLen);
 				return std::unique_ptr<CryptoDecoder>(new CryptoDecoder(std::move(derDataBuffer), derDataBufferLen));
 			}
@@ -57,7 +57,7 @@ namespace pcpp
 				}
 				derFile.seekg(0, std::ios::beg);
 
-				std::unique_ptr<char[]> derDataFromFile(new char[derDataLen]);
+				auto derDataFromFile = std::make_unique<char[]>(derDataLen);
 
 				if (!derFile.read(derDataFromFile.get(), derDataLen))
 				{
