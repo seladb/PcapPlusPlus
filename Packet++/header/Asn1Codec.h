@@ -434,6 +434,8 @@ namespace pcpp
 			return getIntValue<uint32_t>();
 		}
 
+		/// Get the integer value of this record as a hex string
+		/// @param removeLeadingZeros If true, leading zeros will be removed
 		/// @return A hex string representation of the record value
 		std::string getValueAsString(bool removeLeadingZeros = false) const
 		{
