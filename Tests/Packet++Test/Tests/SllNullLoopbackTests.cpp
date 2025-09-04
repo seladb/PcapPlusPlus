@@ -75,12 +75,10 @@ PTF_TEST_CASE(SllPacketCreationTest)
 
 	sllPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/SllPacket2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/SllPacket2.dat");
 
-	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
-
-	delete[] buffer1;
+	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 }  // SllPacketCreationTest
 
 PTF_TEST_CASE(NullLoopbackTest)

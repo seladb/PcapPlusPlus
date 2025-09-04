@@ -121,4 +121,14 @@ namespace pcpp_tests
 		}
 		return provider;
 	}
+
+	std::vector<uint8_t> loadHexResourceToVector(const char* filename, utils::ResourceProvider* resourceProvider)
+	{
+		if (resourceProvider == nullptr)
+		{
+			resourceProvider = getDefaultResourceProvider();
+		}
+
+		return resourceProvider->loadResourceToVector(filename, utils::ResourceType::HexData);
+	}
 }  // namespace pcpp_tests

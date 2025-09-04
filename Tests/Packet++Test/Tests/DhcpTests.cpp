@@ -209,12 +209,10 @@ PTF_TEST_CASE(DhcpCreationTest)
 
 	newPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/Dhcp1.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/Dhcp1.dat");
 
-	PTF_ASSERT_EQUAL(newPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(newPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
-
-	delete[] buffer1;
+	PTF_ASSERT_EQUAL(newPacket.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(newPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 }  // DhcpCreationTest
 
 PTF_TEST_CASE(DhcpEditTest)
@@ -253,12 +251,10 @@ PTF_TEST_CASE(DhcpEditTest)
 
 	dhcpPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/Dhcp3.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/Dhcp3.dat");
 
-	PTF_ASSERT_EQUAL(dhcpPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(dhcpPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
-
-	delete[] buffer2;
+	PTF_ASSERT_EQUAL(dhcpPacket.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(dhcpPacket.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 
 	PTF_ASSERT_TRUE(dhcpLayer->removeAllOptions());
 

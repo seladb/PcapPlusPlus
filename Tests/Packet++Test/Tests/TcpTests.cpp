@@ -285,11 +285,9 @@ PTF_TEST_CASE(TcpPacketCreation)
 
 	tcpPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/TcpPacketWithOptions2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/TcpPacketWithOptions2.dat");
 
-	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
-
-	delete[] buffer1;
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 }  // TcpPacketCreation
 
 PTF_TEST_CASE(TcpPacketCreation2)
@@ -343,9 +341,9 @@ PTF_TEST_CASE(TcpPacketCreation2)
 
 	tcpLayer.getTcpHeader()->headerChecksum = 0xe013;
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/TcpPacketWithOptions3.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/TcpPacketWithOptions3.dat");
 
-	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 
 	pcpp::TcpOption qsOption =
 	    tcpLayer.addTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TCPOPT_QS, nullptr, PCPP_TCPOLEN_QS), pcpp::TCPOPT_MSS);
@@ -368,9 +366,7 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	PTF_ASSERT_TRUE(tcpLayer.removeTcpOption(pcpp::TcpOptionEnumType::Nop));
 	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 5);
 
-	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
-
-	delete[] buffer1;
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 
 	PTF_ASSERT_TRUE(tcpLayer.removeAllTcpOptions());
 	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 0);

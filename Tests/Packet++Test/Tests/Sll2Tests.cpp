@@ -65,15 +65,13 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 	PTF_ASSERT_TRUE(sllPacket.addLayer(&tcpLayer));
 	sllPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/Sll2Packet.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/Sll2Packet.dat");
 	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), 60);
-	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, 52);
+	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), resource1.data(), 52);
 
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(nullptr, 0));
 	uint8_t tempBuf[] = { 0x0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
 	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(tempBuf, 9));
 	pcpp::Logger::getInstance().enableLogs();
-
-	delete[] buffer1;
 }  // Sll2PacketCreationTest

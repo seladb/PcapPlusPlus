@@ -331,13 +331,10 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_TRUE(packetWithoutTunnel.addLayer(vxlanIcmpLayer));
 	packetWithoutTunnel.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(4, "PacketExamples/IcmpWithoutTunnel.dat");
+	auto resource4 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpWithoutTunnel.dat");
 
-	PTF_ASSERT_EQUAL(packetWithoutTunnel.getRawPacket()->getRawDataLen(), bufferLength4);
-	PTF_ASSERT_BUF_COMPARE(packetWithoutTunnel.getRawPacket()->getRawData(), buffer4, bufferLength4);
-
-	delete[] buffer4;
-
+	PTF_ASSERT_EQUAL(packetWithoutTunnel.getRawPacket()->getRawDataLen(), resource4.size());
+	PTF_ASSERT_BUF_COMPARE(packetWithoutTunnel.getRawPacket()->getRawData(), resource4.data(), resource4.size());
 }  // RemoveLayerTest
 
 PTF_TEST_CASE(CopyLayerAndPacketTest)

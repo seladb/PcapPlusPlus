@@ -243,7 +243,7 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 PTF_TEST_CASE(GtpV1LayerEditTest)
 {
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtp-u-ipv6.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/gtp-u-ipv6-edited.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/gtp-u-ipv6-edited.dat");
 
 	pcpp::Packet gtpPacket1(rawPacket1.get());
 
@@ -283,11 +283,10 @@ PTF_TEST_CASE(GtpV1LayerEditTest)
 
 	gtpPacket1.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength2, gtpPacket1.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(gtpPacket1.getRawPacket()->getRawData(), buffer2,
+	PTF_ASSERT_EQUAL(resource2.size(), gtpPacket1.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(gtpPacket1.getRawPacket()->getRawData(), resource2.data(),
 	                       gtpPacket1.getRawPacket()->getRawDataLen());
 
-	delete[] buffer2;
 }  // GtpLayerEditTest
 
 PTF_TEST_CASE(GtpV2LayerParsingTest)

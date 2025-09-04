@@ -160,15 +160,12 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 
 PTF_TEST_CASE(IcmpV6CreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/IcmpV6_EchoRequest.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpV6_EchoReply.dat");
-	READ_FILE_INTO_BUFFER(3, "PacketExamples/IcmpV6_NeighSoli.dat");
-	READ_FILE_INTO_BUFFER(4, "PacketExamples/IcmpV6_NeighAdv.dat");
-	READ_FILE_INTO_BUFFER(5, "PacketExamples/IcmpV6_NeighAdvNoOption.dat");
-	READ_FILE_INTO_BUFFER(6, "PacketExamples/IcmpV6_Generic.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpV6_EchoRequest.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpV6_EchoReply.dat");
+	auto resource3 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpV6_NeighSoli.dat");
+	auto resource4 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpV6_NeighAdv.dat");
+	auto resource5 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpV6_NeighAdvNoOption.dat");
+	auto resource6 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpV6_Generic.dat");
 
 	uint8_t data[56] = { 0xbd, 0xce, 0xcb, 0x62, 0x00, 0x00, 0x00, 0x00, 0xf3, 0xa1, 0x09, 0x00, 0x00, 0x00,
 		                 0x00, 0x00, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
@@ -188,9 +185,10 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	icmpv6LayerPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(
 	    icmpv6LayerPacket.getRawPacket()->getRawDataLen(),
-	    bufferLength1 -
+	    resource1.size() -
 	        4);  // comparing with IcmpV6_EchoRequest frame which has the same data but an additional echo header
-	PTF_ASSERT_BUF_COMPARE(icmpv6LayerPacket.getRawPacket()->getRawData() + 58, buffer1 + 62, bufferLength1 - 62);
+	PTF_ASSERT_BUF_COMPARE(icmpv6LayerPacket.getRawPacket()->getRawData() + 58, resource1.data() + 62,
+	                       resource1.size() - 62);
 
 	// Echo request creation
 	pcpp::EthLayer ethLayer1(ethLayer);
@@ -201,8 +199,9 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ipv6Layer1));
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&echoReqLayer));
 	echoRequestPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(echoRequestPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(echoRequestPacket.getRawPacket()->getRawData() + 54, buffer1 + 54, bufferLength1 - 54);
+	PTF_ASSERT_EQUAL(echoRequestPacket.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(echoRequestPacket.getRawPacket()->getRawData() + 54, resource1.data() + 54,
+	                       resource1.size() - 54);
 
 	// Echo reply creation
 	pcpp::EthLayer ethLayer2(ethLayer);
@@ -213,8 +212,9 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_TRUE(echoReplyPacket.addLayer(&ipLayer2));
 	PTF_ASSERT_TRUE(echoReplyPacket.addLayer(&echoRepLayer));
 	echoReplyPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(echoReplyPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData() + 54, buffer2 + 54, bufferLength2 - 54);
+	PTF_ASSERT_EQUAL(echoReplyPacket.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData() + 54, resource2.data() + 54,
+	                       resource2.size() - 54);
 
 	// Neighbor solicitation with source link-layer option
 	pcpp::IPv6Layer* ipv6SoliLayer =
@@ -227,8 +227,8 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_TRUE(neighSoliPacket.addLayer(ndpSoliLayer, true));
 	neighSoliPacket.computeCalculateFields();
 	PTF_ASSERT_BUF_COMPARE(
-	    neighSoliPacket.getRawPacket()->getRawData() + 6, buffer3 + 24,
-	    bufferLength3 -
+	    neighSoliPacket.getRawPacket()->getRawData() + 6, resource3.data() + 24,
+	    resource3.size() -
 	        28);  // dat file contains frame with eth + vlan layer (14 + 4 bytes) and  trailing bytes (4 bytes)
 
 	pcpp::NDPNeighborSolicitationLayer* neighSoliLayer =
@@ -255,7 +255,8 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(ipv6AdvLayer, true));
 	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(ndpAdvLayer, true));
 	neighAdvPacket.computeCalculateFields();
-	PTF_ASSERT_BUF_COMPARE(neighAdvPacket.getRawPacket()->getRawData() + 40, buffer4 + 54, bufferLength4 - 54);
+	PTF_ASSERT_BUF_COMPARE(neighAdvPacket.getRawPacket()->getRawData() + 40, resource4.data() + 54,
+	                       resource4.size() - 54);
 
 	pcpp::NDPNeighborAdvertisementLayer* neighAdvLayer =
 	    neighAdvPacket.getLayerOfType<pcpp::NDPNeighborAdvertisementLayer>();
@@ -284,8 +285,9 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_TRUE(neighAdvPacket2.addLayer(ipv6AdvLayer2, true));
 	PTF_ASSERT_TRUE(neighAdvPacket2.addLayer(ndpAdvLayer2, true));
 	neighAdvPacket2.computeCalculateFields();
-	PTF_ASSERT_BUF_COMPARE(neighAdvPacket2.getRawPacket()->getRawData() + 40, buffer5 + 54,
-	                       bufferLength5 - 58);  // dat file contains eth layer (14 bytes) and trailing bytes (4 bytes)
+	PTF_ASSERT_BUF_COMPARE(neighAdvPacket2.getRawPacket()->getRawData() + 40, resource5.data() + 54,
+	                       resource5.size() -
+	                           58);  // dat file contains eth layer (14 bytes) and trailing bytes (4 bytes)
 
 	pcpp::NDPNeighborAdvertisementLayer* neighAdvLayer2 =
 	    neighAdvPacket2.getLayerOfType<pcpp::NDPNeighborAdvertisementLayer>();
@@ -324,14 +326,8 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	genericIcmpV6Packet.addLayer(icmpV6GenericLayer, true);
 	genericIcmpV6Packet.computeCalculateFields();
 
-	PTF_ASSERT_BUF_COMPARE(genericIcmpV6Packet.getRawPacket()->getRawData(), buffer6 + 14, bufferLength6 - 14);
-
-	delete[] buffer1;
-	delete[] buffer2;
-	delete[] buffer3;
-	delete[] buffer4;
-	delete[] buffer5;
-	delete[] buffer6;
+	PTF_ASSERT_BUF_COMPARE(genericIcmpV6Packet.getRawPacket()->getRawData(), resource6.data() + 14,
+	                       resource6.size() - 14);
 }
 
 PTF_TEST_CASE(IcmpV6EditTest)

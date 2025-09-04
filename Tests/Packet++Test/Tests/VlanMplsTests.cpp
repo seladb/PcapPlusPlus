@@ -179,7 +179,7 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Vxlan1.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/Vxlan2.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/Vxlan2.dat");
 
 	pcpp::Packet vxlanPacket(&rawPacket1);
 
@@ -204,8 +204,8 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	vxlanPacket.computeCalculateFields();
 
 	// verify edited fields
-	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer2,
+	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), resource2.data(),
 	                       vxlanPacket.getRawPacket()->getRawDataLen());
 
 	// remove vxlan layer
@@ -220,6 +220,4 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer1,
 	                       vxlanPacket.getRawPacket()->getRawDataLen());
-
-	delete[] buffer2;
 }  // VxlanParsingAndCreationTest
