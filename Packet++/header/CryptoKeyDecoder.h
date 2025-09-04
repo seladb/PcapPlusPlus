@@ -14,12 +14,12 @@ namespace pcpp
 {
 	namespace internal
 	{
-		/// @class PrivateKeyData
+		/// @class PrivateKeyDataView
 		/// A base class for different types of private key data
-		class PrivateKeyData
+		class PrivateKeyDataView
 		{
 		protected:
-			explicit PrivateKeyData(Asn1SequenceRecord* root, std::string decoderType)
+			explicit PrivateKeyDataView(Asn1SequenceRecord* root, std::string decoderType)
 			    : m_Root(root), m_DecoderType(std::move(decoderType))
 			{}
 
@@ -41,9 +41,9 @@ namespace pcpp
 			std::string m_DecoderType;
 		};
 
-		/// @class RSAPrivateKeyData
+		/// @class RSAPrivateKeyDataView
 		/// A class that contains RSA private key data
-		class RSAPrivateKeyData : public PrivateKeyData
+		class RSAPrivateKeyDataView : public PrivateKeyDataView
 		{
 		public:
 			/// @return The version of the RSA private key
@@ -74,8 +74,8 @@ namespace pcpp
 			std::string getCoefficient() const;
 
 		protected:
-			explicit RSAPrivateKeyData(Asn1SequenceRecord* root, std::string decoderType)
-			    : PrivateKeyData(root, decoderType)
+			explicit RSAPrivateKeyDataView(Asn1SequenceRecord* root, std::string decoderType)
+			    : PrivateKeyDataView(root, decoderType)
 			{}
 
 		private:
@@ -90,9 +90,9 @@ namespace pcpp
 			static constexpr int coefficientOffset = 8;
 		};
 
-		/// @class ECPrivateKeyData
+		/// @class ECPrivateKeyDataView
 		/// A class that contains EC private key data
-		class ECPrivateKeyData : public PrivateKeyData
+		class ECPrivateKeyDataView : public PrivateKeyDataView
 		{
 		public:
 			/// @return The version of the EC private key
@@ -108,7 +108,7 @@ namespace pcpp
 			std::string getPublicKey() const;
 
 		protected:
-			explicit ECPrivateKeyData(Asn1SequenceRecord* root, std::string decoderType);
+			explicit ECPrivateKeyDataView(Asn1SequenceRecord* root, std::string decoderType);
 
 		private:
 			static constexpr int versionOffset = 0;
@@ -250,15 +250,15 @@ namespace pcpp
 	/// This class provides methods to decode and access the components of an RSA private key.
 	class RSAPrivateKey : public internal::CryptographicKey<RSAPrivateKey>,
 	                      public internal::CryptoDataReader<RSAPrivateKey>,
-	                      public internal::RSAPrivateKeyData
+	                      public internal::RSAPrivateKeyDataView
 	{
 	protected:
 		RSAPrivateKey(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
-		    : CryptographicKey(std::move(derData), derDataLen), RSAPrivateKeyData(getRoot(), keyType)
+		    : CryptographicKey(std::move(derData), derDataLen), RSAPrivateKeyDataView(getRoot(), keyType)
 		{}
 
 		RSAPrivateKey(uint8_t* derData, size_t derDataLen, bool ownDerData)
-		    : CryptographicKey(derData, derDataLen, ownDerData), RSAPrivateKeyData(getRoot(), keyType)
+		    : CryptographicKey(derData, derDataLen, ownDerData), RSAPrivateKeyDataView(getRoot(), keyType)
 		{}
 
 	private:
@@ -275,15 +275,15 @@ namespace pcpp
 	/// This class provides methods to decode and access the components of an EC private key.
 	class ECPrivateKey : public internal::CryptographicKey<ECPrivateKey>,
 	                     public internal::CryptoDataReader<ECPrivateKey>,
-	                     public internal::ECPrivateKeyData
+	                     public internal::ECPrivateKeyDataView
 	{
 	protected:
 		ECPrivateKey(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
-		    : CryptographicKey(std::move(derData), derDataLen), ECPrivateKeyData(getRoot(), keyType)
+		    : CryptographicKey(std::move(derData), derDataLen), ECPrivateKeyDataView(getRoot(), keyType)
 		{}
 
 		ECPrivateKey(uint8_t* derData, size_t derDataLen, bool ownDerData)
-		    : CryptographicKey(derData, derDataLen, ownDerData), ECPrivateKeyData(getRoot(), keyType)
+		    : CryptographicKey(derData, derDataLen, ownDerData), ECPrivateKeyDataView(getRoot(), keyType)
 		{}
 
 	private:
@@ -342,7 +342,7 @@ namespace pcpp
 		/// @brief Contains RSA private key data extracted from PKCS#8 format
 		/// This class provides access to the components of an RSA private key
 		/// that was extracted from a PKCS#8 structure.
-		class RSAPrivateKeyData : public PrivateKeyData, public internal::RSAPrivateKeyData
+		class RSAPrivateKeyData : public PrivateKeyData, public internal::RSAPrivateKeyDataView
 		{
 			friend class PKCS8PrivateKey;
 			explicit RSAPrivateKeyData(const std::string& rawData);
@@ -352,7 +352,7 @@ namespace pcpp
 		/// @brief Contains EC private key data extracted from PKCS#8 format
 		/// This class provides access to the components of an EC private key
 		/// that was extracted from a PKCS#8 structure.
-		class ECPrivateKeyData : public PrivateKeyData, public internal::ECPrivateKeyData
+		class ECPrivateKeyData : public PrivateKeyData, public internal::ECPrivateKeyDataView
 		{
 			friend class PKCS8PrivateKey;
 			explicit ECPrivateKeyData(const std::string& rawData);

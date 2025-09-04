@@ -5,54 +5,54 @@ namespace pcpp
 {
 	namespace internal
 	{
-		uint8_t RSAPrivateKeyData::getVersion() const
+		uint8_t RSAPrivateKeyDataView::getVersion() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(versionOffset, "version")->getIntValue<uint8_t>();
 		}
 
-		std::string RSAPrivateKeyData::getModulus() const
+		std::string RSAPrivateKeyDataView::getModulus() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(modulusOffset, "modulus")->getValueAsString(true);
 		}
 
-		uint64_t RSAPrivateKeyData::getPublicExponent() const
+		uint64_t RSAPrivateKeyDataView::getPublicExponent() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(publicExponentOffset, "public exponent")->getIntValue<uint64_t>();
 		}
 
-		std::string RSAPrivateKeyData::getPrivateExponent() const
+		std::string RSAPrivateKeyDataView::getPrivateExponent() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(privateExponentOffset, "private exponent")
 			    ->getValueAsString(true);
 		}
 
-		std::string RSAPrivateKeyData::getPrime1() const
+		std::string RSAPrivateKeyDataView::getPrime1() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(prime1Offset, "prime1")->getValueAsString(true);
 		}
 
-		std::string RSAPrivateKeyData::getPrime2() const
+		std::string RSAPrivateKeyDataView::getPrime2() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(prime2Offset, "prime2")->getValueAsString(true);
 		}
 
-		std::string RSAPrivateKeyData::getExponent1() const
+		std::string RSAPrivateKeyDataView::getExponent1() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(exponent1Offset, "exponent1")->getValueAsString(true);
 		}
 
-		std::string RSAPrivateKeyData::getExponent2() const
+		std::string RSAPrivateKeyDataView::getExponent2() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(exponent2Offset, "exponent2")->getValueAsString(true);
 		}
 
-		std::string RSAPrivateKeyData::getCoefficient() const
+		std::string RSAPrivateKeyDataView::getCoefficient() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(coefficientOffset, "coefficient")->getValueAsString(true);
 		}
 
-		ECPrivateKeyData::ECPrivateKeyData(Asn1SequenceRecord* root, std::string decoderType)
-		    : PrivateKeyData(root, decoderType)
+		ECPrivateKeyDataView::ECPrivateKeyDataView(Asn1SequenceRecord* root, std::string decoderType)
+		    : PrivateKeyDataView(root, decoderType)
 		{
 			size_t currOffset = 2;
 			while (root->getSubRecords().size() > currOffset)
@@ -71,17 +71,17 @@ namespace pcpp
 			}
 		}
 
-		uint8_t ECPrivateKeyData::getVersion() const
+		uint8_t ECPrivateKeyDataView::getVersion() const
 		{
 			return castSubRecordAs<Asn1IntegerRecord>(versionOffset, "version")->getIntValue<uint8_t>();
 		}
 
-		std::string ECPrivateKeyData::getPrivateKey() const
+		std::string ECPrivateKeyDataView::getPrivateKey() const
 		{
 			return castSubRecordAs<Asn1OctetStringRecord>(privateKeyOffset, "private key")->getValue();
 		}
 
-		std::unique_ptr<Asn1ObjectIdentifier> ECPrivateKeyData::getParameters() const
+		std::unique_ptr<Asn1ObjectIdentifier> ECPrivateKeyDataView::getParameters() const
 		{
 			if (m_ParametersOffset == -1)
 			{
@@ -99,7 +99,7 @@ namespace pcpp
 			    firstParamRecord->castAs<Asn1ObjectIdentifierRecord>()->getValue());
 		}
 
-		std::string ECPrivateKeyData::getPublicKey() const
+		std::string ECPrivateKeyDataView::getPublicKey() const
 		{
 			if (m_PublicKeyOffset == -1)
 			{
@@ -253,11 +253,11 @@ namespace pcpp
 	}
 
 	PKCS8PrivateKey::RSAPrivateKeyData::RSAPrivateKeyData(const std::string& rawData)
-	    : PKCS8PrivateKey::PrivateKeyData(rawData), internal::RSAPrivateKeyData(getRoot(), "PKCS#8 RSA private key")
+	    : PKCS8PrivateKey::PrivateKeyData(rawData), internal::RSAPrivateKeyDataView(getRoot(), "PKCS#8 RSA private key")
 	{}
 
 	PKCS8PrivateKey::ECPrivateKeyData::ECPrivateKeyData(const std::string& rawData)
-	    : PKCS8PrivateKey::PrivateKeyData(rawData), internal::ECPrivateKeyData(getRoot(), "PKCS#8 EC private key")
+	    : PKCS8PrivateKey::PrivateKeyData(rawData), internal::ECPrivateKeyDataView(getRoot(), "PKCS#8 EC private key")
 	{}
 
 	PKCS8PrivateKey::Ed25519PrivateKeyData::Ed25519PrivateKeyData(const std::string& rawData)
