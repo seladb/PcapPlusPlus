@@ -66,14 +66,12 @@ namespace pcpp
 				}
 				derFile.seekg(0, std::ios::beg);
 
-				auto derDataFromFile = std::make_unique<char[]>(derDataLen);
+				auto derData = std::make_unique<uint8_t[]>(derDataLen);
 
-				if (!derFile.read(derDataFromFile.get(), derDataLen))
+				if (!derFile.read(reinterpret_cast<char*>(derData.get()), derDataLen))
 				{
 					throw std::runtime_error("Failed to read DER file");
 				}
-
-				std::unique_ptr<uint8_t[]> derData(reinterpret_cast<uint8_t*>(derDataFromFile.release()));
 				return std::unique_ptr<CryptoDecoder>(new CryptoDecoder(std::move(derData), derDataLen));
 			}
 

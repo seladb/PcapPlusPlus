@@ -118,9 +118,9 @@ namespace pcpp
 			int m_PublicKeyOffset = -1;
 		};
 
-		/// @class CryptoKeyDecoder
+		/// @class CryptographicKey
 		/// A base class for different types of private and public cryptographic keys
-		template <typename CryptoDecoder> class CryptoKeyDecoder
+		template <typename CryptoKey> class CryptographicKey
 		{
 		public:
 			/// Converts the cryptographic key to DER-encoded format
@@ -134,15 +134,15 @@ namespace pcpp
 			/// @return A string containing the PEM-encoded data
 			std::string toPEM() const
 			{
-				return PemCodec::encode(m_Root->encode(), CryptoDecoder::pemLabel);
+				return PemCodec::encode(m_Root->encode(), CryptoKey::pemLabel);
 			}
 
 		protected:
-			CryptoKeyDecoder(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
+			CryptographicKey(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
 			    : m_DerData(std::move(derData)), m_Root(Asn1Record::decode(m_DerData.get(), derDataLen))
 			{}
 
-			CryptoKeyDecoder(uint8_t* derData, size_t derDataLen, bool ownDerData)
+			CryptographicKey(uint8_t* derData, size_t derDataLen, bool ownDerData)
 			{
 				m_Root = Asn1Record::decode(derData, derDataLen);
 				if (ownDerData)
@@ -151,7 +151,7 @@ namespace pcpp
 				}
 			}
 
-			virtual ~CryptoKeyDecoder() = default;
+			virtual ~CryptographicKey() = default;
 
 			Asn1SequenceRecord* getRoot() const
 			{
@@ -161,7 +161,7 @@ namespace pcpp
 				}
 				catch (const std::bad_cast&)
 				{
-					throw std::invalid_argument("Invalid " + std::string(CryptoDecoder::keyType) + " data");
+					throw std::invalid_argument("Invalid " + std::string(CryptoKey::keyType) + " data");
 				}
 			}
 
@@ -174,7 +174,7 @@ namespace pcpp
 				}
 				catch (const std::exception&)
 				{
-					throw std::runtime_error("Invalid " + std::string(CryptoDecoder::keyType) + " data: " + fieldName);
+					throw std::runtime_error("Invalid " + std::string(CryptoKey::keyType) + " data: " + fieldName);
 				}
 			}
 
@@ -248,57 +248,57 @@ namespace pcpp
 	/// @class RSAPrivateKey
 	/// @brief Represents an RSA private key in PKCS#1 format
 	/// This class provides methods to decode and access the components of an RSA private key.
-	class RSAPrivateKey : public internal::CryptoKeyDecoder<RSAPrivateKey>,
+	class RSAPrivateKey : public internal::CryptographicKey<RSAPrivateKey>,
 	                      public internal::CryptoDataReader<RSAPrivateKey>,
 	                      public internal::RSAPrivateKeyData
 	{
 	protected:
 		RSAPrivateKey(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
-		    : CryptoKeyDecoder(std::move(derData), derDataLen), RSAPrivateKeyData(getRoot(), keyType)
+		    : CryptographicKey(std::move(derData), derDataLen), RSAPrivateKeyData(getRoot(), keyType)
 		{}
 
 		RSAPrivateKey(uint8_t* derData, size_t derDataLen, bool ownDerData)
-		    : CryptoKeyDecoder(derData, derDataLen, ownDerData), RSAPrivateKeyData(getRoot(), keyType)
+		    : CryptographicKey(derData, derDataLen, ownDerData), RSAPrivateKeyData(getRoot(), keyType)
 		{}
 
 	private:
 		static constexpr const char* pemLabel = "RSA PRIVATE KEY";
 		static constexpr const char* keyType = "RSA private key";
 
-		using CryptoKeyDecoder::CryptoKeyDecoder;
-		friend class internal::CryptoKeyDecoder<RSAPrivateKey>;
+		using CryptographicKey::CryptographicKey;
+		friend class internal::CryptographicKey<RSAPrivateKey>;
 		friend class internal::CryptoDataReader<RSAPrivateKey>;
 	};
 
 	/// @class ECPrivateKey
 	/// @brief Represents an EC private key in SEC1 format
 	/// This class provides methods to decode and access the components of an EC private key.
-	class ECPrivateKey : public internal::CryptoKeyDecoder<ECPrivateKey>,
+	class ECPrivateKey : public internal::CryptographicKey<ECPrivateKey>,
 	                     public internal::CryptoDataReader<ECPrivateKey>,
 	                     public internal::ECPrivateKeyData
 	{
 	protected:
 		ECPrivateKey(std::unique_ptr<uint8_t[]> derData, size_t derDataLen)
-		    : CryptoKeyDecoder(std::move(derData), derDataLen), ECPrivateKeyData(getRoot(), keyType)
+		    : CryptographicKey(std::move(derData), derDataLen), ECPrivateKeyData(getRoot(), keyType)
 		{}
 
 		ECPrivateKey(uint8_t* derData, size_t derDataLen, bool ownDerData)
-		    : CryptoKeyDecoder(derData, derDataLen, ownDerData), ECPrivateKeyData(getRoot(), keyType)
+		    : CryptographicKey(derData, derDataLen, ownDerData), ECPrivateKeyData(getRoot(), keyType)
 		{}
 
 	private:
 		static constexpr const char* pemLabel = "EC PRIVATE KEY";
 		static constexpr const char* keyType = "EC private key";
 
-		using CryptoKeyDecoder::CryptoKeyDecoder;
-		friend class internal::CryptoKeyDecoder<ECPrivateKey>;
+		using CryptographicKey::CryptographicKey;
+		friend class internal::CryptographicKey<ECPrivateKey>;
 		friend class internal::CryptoDataReader<ECPrivateKey>;
 	};
 
 	/// @class PKCS8PrivateKey
 	/// @brief Represents a private key in PKCS#8 format
 	/// This class provides methods to decode and access the components of the private key and its data.
-	class PKCS8PrivateKey : public internal::CryptoKeyDecoder<PKCS8PrivateKey>,
+	class PKCS8PrivateKey : public internal::CryptographicKey<PKCS8PrivateKey>,
 	                        public internal::CryptoDataReader<PKCS8PrivateKey>
 	{
 	public:
@@ -390,15 +390,15 @@ namespace pcpp
 		static constexpr int privateKeyAlgorithmOffset = 1;
 		static constexpr int privateKeyOffset = 2;
 
-		using CryptoKeyDecoder::CryptoKeyDecoder;
-		friend class internal::CryptoKeyDecoder<PKCS8PrivateKey>;
+		using CryptographicKey::CryptographicKey;
+		friend class internal::CryptographicKey<PKCS8PrivateKey>;
 		friend class internal::CryptoDataReader<PKCS8PrivateKey>;
 	};
 
 	/// @class RSAPublicKey
 	/// @brief Represents an RSA public key in PKCS#1 format
 	/// This class provides methods to decode and access the components of an RSA public key.
-	class RSAPublicKey : public internal::CryptoKeyDecoder<RSAPublicKey>,
+	class RSAPublicKey : public internal::CryptographicKey<RSAPublicKey>,
 	                     public internal::CryptoDataReader<RSAPublicKey>
 	{
 	public:
@@ -414,8 +414,8 @@ namespace pcpp
 		static constexpr int modulusOffset = 0;
 		static constexpr int publicExponentOffset = 1;
 
-		using CryptoKeyDecoder::CryptoKeyDecoder;
-		friend class internal::CryptoKeyDecoder<RSAPublicKey>;
+		using CryptographicKey::CryptographicKey;
+		friend class internal::CryptographicKey<RSAPublicKey>;
 		friend class internal::CryptoDataReader<RSAPublicKey>;
 	};
 
@@ -423,7 +423,7 @@ namespace pcpp
 	/// @brief Represents a Subject Public Key Info (SPKI) structure
 	/// This class provides methods to decode and access the components of a public key
 	/// stored in the SubjectPublicKeyInfo format (RFC 5280).
-	class SubjectPublicKeyInfo : public internal::CryptoKeyDecoder<SubjectPublicKeyInfo>,
+	class SubjectPublicKeyInfo : public internal::CryptographicKey<SubjectPublicKeyInfo>,
 	                             public internal::CryptoDataReader<SubjectPublicKeyInfo>
 	{
 	public:
@@ -439,8 +439,8 @@ namespace pcpp
 		static constexpr int algorithmOffset = 0;
 		static constexpr int subjectPublicKeyOffset = 1;
 
-		using CryptoKeyDecoder::CryptoKeyDecoder;
-		friend class internal::CryptoKeyDecoder<SubjectPublicKeyInfo>;
+		using CryptographicKey::CryptographicKey;
+		friend class internal::CryptographicKey<SubjectPublicKeyInfo>;
 		friend class internal::CryptoDataReader<SubjectPublicKeyInfo>;
 	};
 }  // namespace pcpp
