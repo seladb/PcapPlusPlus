@@ -11,20 +11,19 @@
 #include "SystemUtils.h"
 #include <tuple>
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(GtpV1LayerParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtp-u1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/gtp-u2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/gtp-c1.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/gtp-u-ipv6.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtp-u2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/gtp-c1.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/gtp-u-ipv6.dat");
-
-	pcpp::Packet gtpPacket1(&rawPacket1);
-	pcpp::Packet gtpPacket2(&rawPacket2);
-	pcpp::Packet gtpPacket3(&rawPacket3);
-	pcpp::Packet gtpPacket4(&rawPacket4);
+	pcpp::Packet gtpPacket1(rawPacket1.get());
+	pcpp::Packet gtpPacket2(rawPacket2.get());
+	pcpp::Packet gtpPacket3(rawPacket3.get());
+	pcpp::Packet gtpPacket4(rawPacket4.get());
 
 	// GTP-U packet 1
 	PTF_ASSERT_TRUE(gtpPacket1.isPacketOfType(pcpp::GTPv1));
@@ -243,13 +242,10 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 
 PTF_TEST_CASE(GtpV1LayerEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u-ipv6.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtp-u-ipv6.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/gtp-u-ipv6-edited.dat");
 
-	pcpp::Packet gtpPacket1(&rawPacket1);
+	pcpp::Packet gtpPacket1(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(gtpPacket1.isPacketOfType(pcpp::GTP));
 	PTF_ASSERT_TRUE(gtpPacket1.isPacketOfType(pcpp::GTPv1));
@@ -296,12 +292,9 @@ PTF_TEST_CASE(GtpV1LayerEditTest)
 
 PTF_TEST_CASE(GtpV2LayerParsingTest)
 {
-	timeval time{};
-	gettimeofday(&time, nullptr);
-
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-teid.dat");
-		pcpp::Packet gtpPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-with-teid.dat");
+		pcpp::Packet gtpPacket(rawPacket1.get());
 
 		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTPv2));
 		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTP));
@@ -358,8 +351,8 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-piggyback.dat");
-		pcpp::Packet gtpPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-with-piggyback.dat");
+		pcpp::Packet gtpPacket(rawPacket1.get());
 
 		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTPv2));
 		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTP));
@@ -390,8 +383,8 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-piggyback-malformed.dat");
-		pcpp::Packet gtpPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-with-piggyback-malformed.dat");
+		pcpp::Packet gtpPacket(rawPacket1.get());
 		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTPv2));
 		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTP));
 		auto gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
@@ -402,8 +395,8 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-over-tcp.dat");
-		pcpp::Packet gtpPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-over-tcp.dat");
+		pcpp::Packet gtpPacket(rawPacket1.get());
 
 		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTPv2));
 		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTP));
@@ -414,8 +407,8 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
-		pcpp::Packet gtpPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
+		pcpp::Packet gtpPacket(rawPacket1.get());
 
 		auto gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
 		PTF_ASSERT_NOT_NULL(gtpLayer);
@@ -457,8 +450,8 @@ PTF_TEST_CASE(GtpV2LayerCreationTest)
 		gtpLayer.addInformationElementAfter({ pcpp::GtpV2InformationElement::Type::Recovery, 0, 0, { 0x12 } },
 		                                    pcpp::GtpV2InformationElement::Type::BearerContext);
 
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-teid.dat");
-		pcpp::Packet gtpPacket1(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-with-teid.dat");
+		pcpp::Packet gtpPacket1(rawPacket1.get());
 
 		auto expectedGtpLayer = gtpPacket1.getLayerOfType<pcpp::GtpV2Layer>();
 		PTF_ASSERT_NOT_NULL(expectedGtpLayer);
@@ -491,8 +484,8 @@ PTF_TEST_CASE(GtpV2LayerCreationTest)
 		newPacket.addLayer(&piggybackGtpLayer);
 		newPacket.computeCalculateFields();
 
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-piggyback.dat");
-		pcpp::Packet expectedPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-with-piggyback.dat");
+		pcpp::Packet expectedPacket(rawPacket1.get());
 
 		PTF_ASSERT_EQUAL(newPacket.getRawPacket()->getRawDataLen(), expectedPacket.getRawPacket()->getRawDataLen());
 		PTF_ASSERT_BUF_COMPARE(newPacket.getRawPacket()->getRawData(), expectedPacket.getRawPacket()->getRawData(),
@@ -508,8 +501,8 @@ PTF_TEST_CASE(GtpV2LayerCreationTest)
 		    { 0x18, 0x64, 0xf6, 0x29, 0x2e, 0x18, 0x64, 0xf6, 0x29, 0x01, 0xce, 0x66, 0x21 }
         });
 
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
-		pcpp::Packet gtpPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
+		pcpp::Packet gtpPacket(rawPacket1.get());
 
 		auto expectedGtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
 		PTF_ASSERT_NOT_NULL(expectedGtpLayer);
@@ -524,8 +517,8 @@ PTF_TEST_CASE(GtpV2LayerEditTest)
 	timeval time{};
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
-	pcpp::Packet gtpPacket1(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
+	pcpp::Packet gtpPacket1(rawPacket1.get());
 
 	auto expectedGtpLayer1 = gtpPacket1.getLayerOfType<pcpp::GtpV2Layer>();
 	PTF_ASSERT_NOT_NULL(expectedGtpLayer1);
@@ -568,8 +561,8 @@ PTF_TEST_CASE(GtpV2LayerEditTest)
 		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::EchoRequest, 12345, true, 1, true, 2);
 		gtpLayer.addInformationElement({ pcpp::GtpV2InformationElement::Type::Recovery, 0, 0, { 0x11 } });
 
-		READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtpv2-with-piggyback.dat");
-		pcpp::Packet gtpPacket2(&rawPacket2);
+		auto rawPacket2 = createPacketFromHexResource("PacketExamples/gtpv2-with-piggyback.dat");
+		pcpp::Packet gtpPacket2(rawPacket2.get());
 
 		auto expectedGtpLayer2 = gtpPacket2.getLayerOfType<pcpp::GtpV2Layer>();
 		PTF_ASSERT_NOT_NULL(expectedGtpLayer2);
@@ -635,8 +628,8 @@ PTF_TEST_CASE(GtpV2LayerEditTest)
 
 		PTF_ASSERT_EQUAL(gtpLayer.getInformationElementCount(), 0);
 
-		READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtpv2-no-info-elements.dat");
-		pcpp::Packet gtpPacket2(&rawPacket2);
+		auto rawPacket2 = createPacketFromHexResource("PacketExamples/gtpv2-no-info-elements.dat");
+		pcpp::Packet gtpPacket2(rawPacket2.get());
 
 		auto expectedGtpLayer2 = gtpPacket2.getLayerOfType<pcpp::GtpV2Layer>();
 		PTF_ASSERT_NOT_NULL(expectedGtpLayer2);

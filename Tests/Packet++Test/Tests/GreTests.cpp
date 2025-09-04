@@ -12,26 +12,25 @@
 #include "Packet.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(GreParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/GREv0_1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/GREv0_2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/GREv1_1.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/GREv1_2.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/GREv0_4.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/GREv0_1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/GREv0_2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/GREv1_1.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/GREv1_2.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/GREv0_4.dat");
 
 	pcpp::GREv0Layer* grev0Layer = nullptr;
 	pcpp::GREv1Layer* grev1Layer = nullptr;
 	pcpp::TcpLayer* tcpLayer = nullptr;
 
-	pcpp::Packet grev0Packet1(&rawPacket1);
-	pcpp::Packet grev0Packet2(&rawPacket2);
-	pcpp::Packet grev1Packet1(&rawPacket3);
-	pcpp::Packet grev1Packet2(&rawPacket4);
-	pcpp::Packet grev0Packet4(&rawPacket5);
+	pcpp::Packet grev0Packet1(rawPacket1.get());
+	pcpp::Packet grev0Packet2(rawPacket2.get());
+	pcpp::Packet grev1Packet1(rawPacket3.get());
+	pcpp::Packet grev1Packet2(rawPacket4.get());
+	pcpp::Packet grev0Packet4(rawPacket5.get());
 
 	uint16_t value16 = 0;
 	uint32_t value32 = 0;
@@ -225,12 +224,9 @@ PTF_TEST_CASE(GreEditTest)
 {
 	// GREv0 packet edit
 
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/GREv0_3.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/GREv0_3.dat");
-
-	pcpp::Packet grev0Packet(&rawPacket1);
+	pcpp::Packet grev0Packet(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(grev0Packet.isPacketOfType(pcpp::GRE) && grev0Packet.isPacketOfType(pcpp::GREv0));
 	pcpp::GREv0Layer* grev0Layer = grev0Packet.getLayerOfType<pcpp::GREv0Layer>();
@@ -322,9 +318,9 @@ PTF_TEST_CASE(GreEditTest)
 
 	// GREv1 packet edit
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/GREv1_2.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/GREv1_2.dat");
 
-	pcpp::Packet grev1Packet(&rawPacket2);
+	pcpp::Packet grev1Packet(rawPacket2.get());
 
 	value16 = 0;
 	value32 = 0;

@@ -10,6 +10,8 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(SipRequestParseMethodTest)
 {
 	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(nullptr, 0),
@@ -54,15 +56,15 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_req1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/sip_req2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/sip_req3.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/sip_req4.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sip_req1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/sip_req2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/sip_req3.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/sip_req4.dat");
 
-	pcpp::Packet sipReqPacket1(&rawPacket1);
-	pcpp::Packet sipReqPacket2(&rawPacket2);
-	pcpp::Packet sipReqPacket3(&rawPacket3);
-	pcpp::Packet sipReqPacket4(&rawPacket4);
+	pcpp::Packet sipReqPacket1(rawPacket1.get());
+	pcpp::Packet sipReqPacket2(rawPacket2.get());
+	pcpp::Packet sipReqPacket3(rawPacket3.get());
+	pcpp::Packet sipReqPacket4(rawPacket4.get());
 
 	PTF_ASSERT_TRUE(sipReqPacket1.isPacketOfType(pcpp::SIP));
 	PTF_ASSERT_TRUE(sipReqPacket1.isPacketOfType(pcpp::SIPRequest));
@@ -227,11 +229,11 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/sip_req2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/sip_req3.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/sip_req2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/sip_req3.dat");
 
-	pcpp::Packet secondSipPacket(&rawPacket2);
-	pcpp::Packet editedPacket(&rawPacket3);
+	pcpp::Packet secondSipPacket(rawPacket2.get());
+	pcpp::Packet editedPacket(rawPacket3.get());
 
 	pcpp::SipRequestLayer* sipReqLayer = editedPacket.getLayerOfType<pcpp::SipRequestLayer>();
 
@@ -401,17 +403,17 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_resp1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/sip_resp2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/sip_resp3.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/sip_resp4.dat");
-	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/sip_resp7.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sip_resp1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/sip_resp2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/sip_resp3.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/sip_resp4.dat");
+	auto rawPacket7 = createPacketFromHexResource("PacketExamples/sip_resp7.dat");
 
-	pcpp::Packet sipRespPacket1(&rawPacket1);
-	pcpp::Packet sipRespPacket2(&rawPacket2);
-	pcpp::Packet sipRespPacket3(&rawPacket3);
-	pcpp::Packet sipRespPacket4(&rawPacket4);
-	pcpp::Packet sipRespPacket7(&rawPacket7);
+	pcpp::Packet sipRespPacket1(rawPacket1.get());
+	pcpp::Packet sipRespPacket2(rawPacket2.get());
+	pcpp::Packet sipRespPacket3(rawPacket3.get());
+	pcpp::Packet sipRespPacket4(rawPacket4.get());
+	pcpp::Packet sipRespPacket7(rawPacket7.get());
 
 	PTF_ASSERT_TRUE(sipRespPacket1.isPacketOfType(pcpp::SIP));
 	PTF_ASSERT_TRUE(sipRespPacket1.isPacketOfType(pcpp::SIPResponse));
@@ -554,11 +556,11 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/sip_resp3.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/sip_resp4.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/sip_resp3.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/sip_resp4.dat");
 
-	pcpp::Packet editedPacket(&rawPacket3);
-	pcpp::Packet secondSipPacket(&rawPacket4);
+	pcpp::Packet editedPacket(rawPacket3.get());
+	pcpp::Packet secondSipPacket(rawPacket4.get());
 
 	pcpp::SipResponseLayer* sipRespLayer = editedPacket.getLayerOfType<pcpp::SipResponseLayer>();
 
@@ -621,11 +623,11 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_req1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/sdp.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sip_req1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/sdp.dat");
 
-	pcpp::Packet sdpPacket(&rawPacket1);
-	pcpp::Packet sdpPacket2(&rawPacket2);
+	pcpp::Packet sdpPacket(rawPacket1.get());
+	pcpp::Packet sdpPacket2(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(sdpPacket.isPacketOfType(pcpp::SDP));
 	pcpp::SdpLayer* sdpLayer = sdpPacket.getLayerOfType<pcpp::SdpLayer>();
@@ -676,9 +678,9 @@ PTF_TEST_CASE(SipNotSdpLayerParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_not_sdp.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sip_not_sdp.dat");
 
-	pcpp::Packet notSdpPacket(&rawPacket1);
+	pcpp::Packet notSdpPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(notSdpPacket.isPacketOfType(pcpp::SIP));
 	pcpp::SipRequestLayer* sipLayer = notSdpPacket.getLayerOfType<pcpp::SipRequestLayer>();
@@ -695,9 +697,9 @@ PTF_TEST_CASE(SdpLayerCreationTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sdp.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sdp.dat");
 
-	pcpp::Packet sdpPacket(&rawPacket1);
+	pcpp::Packet sdpPacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer(*sdpPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ip4Layer;
@@ -755,11 +757,11 @@ PTF_TEST_CASE(SdpLayerEditTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sdp.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/sip_resp3.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sdp.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/sip_resp3.dat");
 
-	pcpp::Packet sourceSdpPacket(&rawPacket3);
-	pcpp::Packet targetSdpPacket(&rawPacket1);
+	pcpp::Packet sourceSdpPacket(rawPacket3.get());
+	pcpp::Packet targetSdpPacket(rawPacket1.get());
 
 	pcpp::SdpLayer* sdpLayer = sourceSdpPacket.getLayerOfType<pcpp::SdpLayer>();
 	PTF_ASSERT_NOT_NULL(sdpLayer);

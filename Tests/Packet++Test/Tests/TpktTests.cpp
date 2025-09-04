@@ -6,14 +6,16 @@
 #include "TpktLayer.h"
 #include <iostream>
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(TpktLayerTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tpkt_cotp.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/tpkt_cotp.dat");
 
-	pcpp::Packet TpktPacketNoOptions(&rawPacket1);
+	pcpp::Packet TpktPacketNoOptions(rawPacket1.get());
 	PTF_ASSERT_TRUE(TpktPacketNoOptions.isPacketOfType(pcpp::TPKT));
 	auto tpktLayer = TpktPacketNoOptions.getLayerOfType<pcpp::TpktLayer>();
 	PTF_ASSERT_NOT_NULL(tpktLayer);

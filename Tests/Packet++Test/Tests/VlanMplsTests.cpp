@@ -11,6 +11,8 @@
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(VlanParseAndCreation)
 {
 	for (int vid = 0; vid < 4096 * 2; vid++)
@@ -71,8 +73,8 @@ PTF_TEST_CASE(QinQ802_1adParse)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/QinQ_802.1_AD.dat");
-	pcpp::Packet qinq8021adPacket(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/QinQ_802.1_AD.dat");
+	pcpp::Packet qinq8021adPacket(rawPacket1.get());
 
 	pcpp::VlanLayer* firstVlanLayerPtr = qinq8021adPacket.getLayerOfType<pcpp::VlanLayer>();
 	PTF_ASSERT_NOT_NULL(firstVlanLayerPtr);
@@ -93,11 +95,11 @@ PTF_TEST_CASE(MplsLayerTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/MplsPackets1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/MplsPackets2.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/MplsPackets1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/MplsPackets2.dat");
 
-	pcpp::Packet mplsPacket1(&rawPacket1);
-	pcpp::Packet mplsPacket2(&rawPacket2);
+	pcpp::Packet mplsPacket1(rawPacket1.get());
+	pcpp::Packet mplsPacket2(rawPacket2.get());
 
 	pcpp::MplsLayer* mplsLayer = mplsPacket1.getLayerOfType<pcpp::MplsLayer>();
 	PTF_ASSERT_NOT_NULL(mplsLayer);

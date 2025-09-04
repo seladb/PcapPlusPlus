@@ -11,14 +11,13 @@
 #include "DnsLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(DnsLayerParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Dns3.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Dns3.dat");
-
-	pcpp::Packet dnsPacket(&rawPacket1);
+	pcpp::Packet dnsPacket(rawPacket1.get());
 
 	pcpp::DnsLayer* dnsLayer = dnsPacket.getLayerOfType<pcpp::DnsLayer>();
 
@@ -93,9 +92,9 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(dnsLayer->toString(),
 	                 "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1");
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Dns1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/Dns1.dat");
 
-	pcpp::Packet dnsPacket2(&rawPacket2);
+	pcpp::Packet dnsPacket2(rawPacket2.get());
 
 	dnsLayer = dnsPacket2.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
@@ -146,9 +145,9 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(dnsLayer->toString(),
 	                 "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0");
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/Dns2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/Dns2.dat");
 
-	pcpp::Packet dnsPacket3(&rawPacket3);
+	pcpp::Packet dnsPacket3(rawPacket3.get());
 
 	dnsLayer = dnsPacket3.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
@@ -159,9 +158,9 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(dnsLayer->toString(),
 	                 "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1");
 
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/Dns4.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/Dns4.dat");
 
-	pcpp::Packet dnsPacket4(&rawPacket4);
+	pcpp::Packet dnsPacket4(rawPacket4.get());
 	dnsLayer = dnsPacket4.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
 
@@ -192,9 +191,9 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().mailExchange,
 	                 "mta6.am0.yahoodns.net");
 
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/dns_stack_overflow.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/dns_stack_overflow.dat");
 
-	pcpp::Packet dnsPacket5(&rawPacket5);
+	pcpp::Packet dnsPacket5(rawPacket5.get());
 
 	dnsLayer = dnsPacket5.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
@@ -210,9 +209,9 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 	// a corner case of malformed packet where the total number of resources overflow uint16
 	// by less than 300. This fixes the bug: https://github.com/seladb/PcapPlusPlus/issues/441
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/DnsTooManyResources.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/DnsTooManyResources.dat");
 	pcpp::Logger::getInstance().suppressLogs();
-	pcpp::Packet dnsPacket6(&rawPacket6);
+	pcpp::Packet dnsPacket6(rawPacket6.get());
 	pcpp::Logger::getInstance().enableLogs();
 	dnsLayer = dnsPacket6.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NULL(dnsLayer->getFirstQuery());
@@ -491,15 +490,12 @@ DK6nWeL3c6H5Apxz7LjVc1uTIdsIXxuOLYA4/ilBmSVIzuDWfdRUfhHdY6+cn8HFRm+2hM8AnXGXws95
 
 PTF_TEST_CASE(DnsLayerEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/DnsEdit3.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/DnsEdit5.dat");
+	pcpp::RawPacket raw3PacketCopy(*rawPacket3);
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/DnsEdit3.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/DnsEdit5.dat");
-	pcpp::RawPacket raw3PacketCopy(rawPacket3);
-
-	pcpp::Packet dnsEdit3(&rawPacket3);
-	pcpp::Packet dnsEdit5(&rawPacket5);
+	pcpp::Packet dnsEdit3(rawPacket3.get());
+	pcpp::Packet dnsEdit5(rawPacket5.get());
 
 	pcpp::DnsLayer* dnsLayer3 = dnsEdit3.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer3);
@@ -524,12 +520,9 @@ PTF_TEST_CASE(DnsLayerEditTest)
 
 PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/DnsEdit6.dat");
 
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/DnsEdit6.dat");
-
-	pcpp::Packet dnsEdit6Packet(&rawPacket6);
+	pcpp::Packet dnsEdit6Packet(rawPacket6.get());
 
 	pcpp::DnsLayer* dnsLayer6 = dnsEdit6Packet.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer6);
@@ -581,9 +574,9 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(),
 	                 origDnsLayer6.getHeaderLen() - firstQuerySize - secondAuthoritySize - additionalRecordSize);
 
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/DnsEdit4.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/DnsEdit4.dat");
 
-	pcpp::Packet dnsEdit4Packet(&rawPacket4);
+	pcpp::Packet dnsEdit4Packet(rawPacket4.get());
 
 	pcpp::DnsLayer* dnsLayer4 = dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer4);
@@ -627,11 +620,10 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 
 PTF_TEST_CASE(DnsOverTcpParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	using pcpp_tests::utils::createPacketFromHexResource;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dns_over_tcp_query.dat");
-	pcpp::Packet dnsPacket(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dns_over_tcp_query.dat");
+	pcpp::Packet dnsPacket(rawPacket1.get());
 
 	pcpp::DnsLayer* dnsLayer = dnsPacket.getLayerOfType<pcpp::DnsLayer>();
 	pcpp::DnsOverTcpLayer* dnsOverTcpLayer = dnsPacket.getLayerOfType<pcpp::DnsOverTcpLayer>();
@@ -653,8 +645,8 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 	PTF_ASSERT_EQUAL(additionalRecord->getDnsType(), pcpp::DNS_TYPE_OPT, enum);
 	PTF_ASSERT_EQUAL(additionalRecord->getName(), "");
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/dns_over_tcp_response.dat");
-	pcpp::Packet dnsPacket2(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/dns_over_tcp_response.dat");
+	pcpp::Packet dnsPacket2(rawPacket2.get());
 
 	dnsLayer = dnsPacket2.getLayerOfType<pcpp::DnsLayer>();
 	dnsOverTcpLayer = dnsPacket2.getLayerOfType<pcpp::DnsOverTcpLayer>();
@@ -688,8 +680,8 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 		i++;
 	}
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/dns_over_tcp_answer.dat");
-	pcpp::Packet dnsPacket3(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/dns_over_tcp_answer.dat");
+	pcpp::Packet dnsPacket3(rawPacket3.get());
 
 	dnsLayer = dnsPacket3.getLayerOfType<pcpp::DnsLayer>();
 	dnsOverTcpLayer = dnsPacket3.getLayerOfType<pcpp::DnsOverTcpLayer>();
@@ -735,11 +727,8 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 
 PTF_TEST_CASE(DnsNXDomainTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DNS_NXDomain.dat");
-	pcpp::Packet dnsPacket(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/DNS_NXDomain.dat");
+	pcpp::Packet dnsPacket(rawPacket1.get());
 
 	pcpp::DnsLayer* dnsLayer = dnsPacket.getLayerOfType<pcpp::DnsLayer>();
 

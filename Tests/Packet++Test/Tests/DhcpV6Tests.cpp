@@ -5,14 +5,13 @@
 #include "DhcpV6Layer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(DhcpV6ParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dhcpv6_1.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_1.dat");
-
-	pcpp::Packet dhcpv6Packet(&rawPacket1);
+	pcpp::Packet dhcpv6Packet(rawPacket1.get());
 	pcpp::DhcpV6Layer* dhcpv6Layer = dhcpv6Packet.getLayerOfType<pcpp::DhcpV6Layer>();
 	PTF_ASSERT_NOT_NULL(dhcpv6Layer);
 	PTF_ASSERT_EQUAL(dhcpv6Layer->getMessageType(), pcpp::DHCPV6_SOLICIT);
@@ -132,12 +131,9 @@ PTF_TEST_CASE(DhcpV6CreationTest)
 
 PTF_TEST_CASE(DhcpV6EditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dhcpv6_1.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_1.dat");
-
-	pcpp::Packet dhcpv6Packet(&rawPacket1);
+	pcpp::Packet dhcpv6Packet(rawPacket1.get());
 	pcpp::DhcpV6Layer* dhcpv6Layer = dhcpv6Packet.getLayerOfType<pcpp::DhcpV6Layer>();
 	PTF_ASSERT_NOT_NULL(dhcpv6Layer);
 	dhcpv6Layer->setMessageType(pcpp::DHCPV6_RELEASE);

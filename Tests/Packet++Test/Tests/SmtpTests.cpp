@@ -9,14 +9,16 @@
 #include "SystemUtils.h"
 #include "TcpLayer.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(SmtpParsingTests)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
 	// Command
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/smtpCommand.dat");
-	pcpp::Packet smtpPacket1(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/smtpCommand.dat");
+	pcpp::Packet smtpPacket1(rawPacket1.get());
 	auto* smtpLayer1 = smtpPacket1.getLayerOfType<pcpp::SmtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer1);
@@ -29,8 +31,8 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_FALSE(smtpLayer1->isMultiLine());
 
 	// Response packet
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/smtpResponse.dat");
-	pcpp::Packet smtpPacket2(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/smtpResponse.dat");
+	pcpp::Packet smtpPacket2(rawPacket2.get());
 	auto* smtpLayer2 = smtpPacket2.getLayerOfType<pcpp::SmtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer2);
@@ -43,8 +45,8 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_FALSE(smtpLayer2->isMultiLine());
 
 	// Multiline
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/smtpMultiLine.dat");
-	pcpp::Packet smtpPacket3(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/smtpMultiLine.dat");
+	pcpp::Packet smtpPacket3(rawPacket3.get());
 	auto* smtpLayer3 = smtpPacket3.getLayerOfType<pcpp::SmtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer3);
@@ -61,8 +63,8 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_TRUE(smtpLayer3->isMultiLine());
 
 	// IPv6
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/smtpIpv6.dat");
-	pcpp::Packet smtpPacket4(&rawPacket4);
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/smtpIpv6.dat");
+	pcpp::Packet smtpPacket4(rawPacket4.get());
 	auto* smtpLayer4 = smtpPacket4.getLayerOfType<pcpp::SmtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer4);
@@ -75,8 +77,8 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_FALSE(smtpLayer4->isMultiLine());
 
 	// Username and Password packets. They should return Unknown since there is no command in packets
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/smtpUser.dat");
-	pcpp::Packet smtpPacket5(&rawPacket5);
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/smtpUser.dat");
+	pcpp::Packet smtpPacket5(rawPacket5.get());
 	auto* smtpLayer5 = smtpPacket5.getLayerOfType<pcpp::SmtpRequestLayer>();
 
 	PTF_ASSERT_EQUAL(smtpLayer5->getHeaderLen(), 30);
@@ -87,8 +89,8 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer5->toString(), "SMTP request layer, command: Unknown command");
 	PTF_ASSERT_FALSE(smtpLayer5->isMultiLine());
 
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/smtpPassword.dat");
-	pcpp::Packet smtpPacket6(&rawPacket6);
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/smtpPassword.dat");
+	pcpp::Packet smtpPacket6(rawPacket6.get());
 	auto* smtpLayer6 = smtpPacket6.getLayerOfType<pcpp::SmtpRequestLayer>();
 
 	PTF_ASSERT_EQUAL(smtpLayer6->getHeaderLen(), 18);
@@ -241,10 +243,10 @@ PTF_TEST_CASE(SmtpEditTests)
 	gettimeofday(&time, nullptr);
 
 	// Request
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/smtpCommand.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/smtpCommandEdited.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/smtpCommand.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/smtpCommandEdited.dat");
 
-	pcpp::Packet smtpPacket1(&rawPacket1);
+	pcpp::Packet smtpPacket1(rawPacket1.get());
 	auto* smtpLayer1 = smtpPacket1.getLayerOfType<pcpp::SmtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer1);
@@ -252,14 +254,14 @@ PTF_TEST_CASE(SmtpEditTests)
 	smtpLayer1->setCommandOption("Test Option");
 	smtpPacket1.computeCalculateFields();
 
-	pcpp::Packet smtpEditedPacket1(&rawPacket2);
+	pcpp::Packet smtpEditedPacket1(rawPacket2.get());
 	PTF_ASSERT_EQUAL(smtpPacket1.getRawPacket()->getRawDataLen(), smtpEditedPacket1.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(smtpPacket1.getRawPacket()->getRawData(), smtpEditedPacket1.getRawPacket()->getRawData(),
 	                       smtpPacket1.getRawPacket()->getRawDataLen());
 
 	// Response multiline
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/smtpMultiLine.dat");
-	pcpp::Packet smtpPacket2(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/smtpMultiLine.dat");
+	pcpp::Packet smtpPacket2(rawPacket3.get());
 
 	auto* smtpLayer2 = smtpPacket2.getLayerOfType<pcpp::SmtpResponseLayer>();
 	PTF_ASSERT_NOT_NULL(smtpLayer2);
@@ -267,8 +269,8 @@ PTF_TEST_CASE(SmtpEditTests)
 	smtpLayer2->setStatusOption("Test Option Line 1\r\n451 Test Option Line 2");
 	smtpPacket2.computeCalculateFields();
 
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/smtpMultiLineEdited.dat");
-	pcpp::Packet smtpEditedPacket2(&rawPacket4);
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/smtpMultiLineEdited.dat");
+	pcpp::Packet smtpEditedPacket2(rawPacket4.get());
 
 	PTF_ASSERT_EQUAL(smtpPacket2.getRawPacket()->getRawDataLen(), smtpEditedPacket2.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(smtpPacket2.getRawPacket()->getRawData(), smtpEditedPacket2.getRawPacket()->getRawData(),

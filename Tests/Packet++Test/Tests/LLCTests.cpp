@@ -7,14 +7,13 @@
 
 #include <cstring>
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(LLCParsingTests)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpConf.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
-
-	pcpp::Packet llcPacket1(&rawPacket1);
+	pcpp::Packet llcPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(llcPacket1.isPacketOfType(pcpp::LLC));
 
 	pcpp::LLCLayer* llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
@@ -30,8 +29,8 @@ PTF_TEST_CASE(LLCParsingTests)
 
 	PTF_ASSERT_EQUAL(llcLayer1->toString(), "Logical Link Control");
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/llc_vlan.dat");
-	pcpp::Packet llcPacket2(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/llc_vlan.dat");
+	pcpp::Packet llcPacket2(rawPacket2.get());
 	pcpp::LLCLayer* llcLayer2 = llcPacket2.getLayerOfType<pcpp::LLCLayer>();
 
 	PTF_ASSERT_NOT_NULL(llcLayer2);
@@ -47,9 +46,9 @@ PTF_TEST_CASE(LLCCreationTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpConf.dat");
 
-	pcpp::Packet llcPacket1(&rawPacket1);
+	pcpp::Packet llcPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(llcPacket1.isPacketOfType(pcpp::LLC));
 
 	pcpp::LLCLayer* llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
