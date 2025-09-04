@@ -6,13 +6,11 @@
 #include <sstream>
 #include <cstring>
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(LdapParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	// LDAP packet
 	{
 		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_add_response.dat");
@@ -76,9 +74,13 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LdapLayer tryGet
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request1.dat");
-		buffer1[68] = 0x04;
-		pcpp::Packet malformedLdapPacket(&rawPacket1);
+		auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/ldap_bind_request1.dat");
+		auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+		auto& rawPacket1 = rawPacketAndBuf1.packet;
+
+		// Make the underlying data buffer malformed.
+		resource1.data[68] = 0x04;
+		pcpp::Packet malformedLdapPacket(rawPacket1.get());
 
 		auto malformedLdapLayer = malformedLdapPacket.getLayerOfType<pcpp::LdapLayer>();
 		PTF_ASSERT_NOT_NULL(malformedLdapLayer);

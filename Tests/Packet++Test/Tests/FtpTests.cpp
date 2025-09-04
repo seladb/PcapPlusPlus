@@ -9,6 +9,7 @@
 #include "SystemUtils.h"
 #include "TcpLayer.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(FtpParsingTests)
@@ -254,13 +255,12 @@ PTF_TEST_CASE(FtpParsingTests)
 
 PTF_TEST_CASE(FtpCreationTests)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	// Craft packets
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/ftpIpv4Req.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	pcpp::Packet ftpPacket1(&rawPacket1);
+	pcpp::Packet ftpPacket1(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer1(*ftpPacket1.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipv4Layer1(*ftpPacket1.getLayerOfType<pcpp::IPv4Layer>());
@@ -274,12 +274,14 @@ PTF_TEST_CASE(FtpCreationTests)
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&tcpLayer1));
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ftpReqLayer1));
 
-	PTF_ASSERT_EQUAL(bufferLength1, craftedPacket1.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer1, craftedPacket1.getRawPacket()->getRawData(), bufferLength1);
+	PTF_ASSERT_EQUAL(resource1.length, craftedPacket1.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(resource1.data.get(), craftedPacket1.getRawPacket()->getRawData(), resource1.length);
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ftpIpv4RespHyphen.dat");
+	auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/ftpIpv4RespHyphen.dat");
+	auto& resource2 = rawPacketAndBuf2.resourceBuffer;
+	auto& rawPacket2 = rawPacketAndBuf2.packet;
 
-	pcpp::Packet ftpPacket2(&rawPacket2);
+	pcpp::Packet ftpPacket2(rawPacket2.get());
 
 	pcpp::EthLayer ethLayer2(*ftpPacket2.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipv4Layer2(*ftpPacket2.getLayerOfType<pcpp::IPv4Layer>());
@@ -295,8 +297,8 @@ PTF_TEST_CASE(FtpCreationTests)
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&tcpLayer2));
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ftpRespLayer1));
 
-	PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer2, craftedPacket2.getRawPacket()->getRawData(), bufferLength2);
+	PTF_ASSERT_EQUAL(resource2.length, craftedPacket2.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(resource2.data.get(), craftedPacket2.getRawPacket()->getRawData(), resource2.length);
 }
 
 PTF_TEST_CASE(FtpEditTests)

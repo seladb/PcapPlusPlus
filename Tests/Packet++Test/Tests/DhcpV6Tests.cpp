@@ -5,6 +5,7 @@
 #include "DhcpV6Layer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(DhcpV6ParsingTest)
@@ -47,18 +48,17 @@ PTF_TEST_CASE(DhcpV6ParsingTest)
 
 PTF_TEST_CASE(DhcpV6CreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_2.dat");
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/dhcpv6_2.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
 	uint8_t origBuffer[1500];
 
 	pcpp::DhcpV6Layer newDhcpV6Layer(pcpp::DHCPV6_ADVERTISE, 0x9a0006);
 	PTF_ASSERT_EQUAL(newDhcpV6Layer.getTransactionID(), 0x9a0006);
 
-	memcpy(origBuffer, buffer1, bufferLength1);
-	pcpp::Packet dhcpv6Packet(&rawPacket1);
+	memcpy(origBuffer, resource1.data.get(), resource1.length);
+	pcpp::Packet dhcpv6Packet(rawPacket1.get());
 	pcpp::DhcpV6Layer* origDhcpV6Layer = dynamic_cast<pcpp::DhcpV6Layer*>(dhcpv6Packet.detachLayer(pcpp::DHCPv6));
 	PTF_ASSERT_NOT_NULL(origDhcpV6Layer);
 
@@ -124,8 +124,8 @@ PTF_TEST_CASE(DhcpV6CreationTest)
 
 	PTF_ASSERT_TRUE(dhcpv6Packet.addLayer(&newDhcpV6Layer));
 	dhcpv6Packet.computeCalculateFields();
-	PTF_ASSERT_EQUAL(dhcpv6Packet.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(dhcpv6Packet.getRawPacket()->getRawData(), origBuffer, bufferLength1);
+	PTF_ASSERT_EQUAL(dhcpv6Packet.getRawPacket()->getRawDataLen(), resource1.length);
+	PTF_ASSERT_BUF_COMPARE(dhcpv6Packet.getRawPacket()->getRawData(), origBuffer, resource1.length);
 	delete origDhcpV6Layer;
 }  // DhcpV6CreationTest
 
