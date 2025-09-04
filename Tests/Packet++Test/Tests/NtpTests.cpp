@@ -14,6 +14,8 @@
 #define EPSILON 1e-6
 #define EPOCH_OFFSET 2208988800ULL
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(NtpMethodsTests)
 {
 	double val = 12345.125;
@@ -37,12 +39,9 @@ PTF_TEST_CASE(NtpMethodsTests)
 
 PTF_TEST_CASE(NtpParsingV3Tests)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ntpv3.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv3.dat");
-
-	pcpp::Packet ntpPacket(&rawPacket1);
+	pcpp::Packet ntpPacket(rawPacket1.get());
 	pcpp::NtpLayer* ntpLayer = ntpPacket.getLayerOfType<pcpp::NtpLayer>();
 
 	PTF_ASSERT_NOT_NULL(ntpLayer);
@@ -88,13 +87,10 @@ PTF_TEST_CASE(NtpParsingV3Tests)
 
 PTF_TEST_CASE(NtpParsingV4Tests)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ntpv4.dat");
 
 	// Test Ipv4
-	pcpp::Packet ntpPacket(&rawPacket1);
+	pcpp::Packet ntpPacket(rawPacket1.get());
 	pcpp::NtpLayer* ntpLayer = ntpPacket.getLayerOfType<pcpp::NtpLayer>();
 
 	PTF_ASSERT_NOT_NULL(ntpLayer);
@@ -131,9 +127,9 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 	PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2015-07-14T09:16:36.1764Z");
 
 	// Test Ipv6
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv4Ipv6_withAuth.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/ntpv4Ipv6_withAuth.dat");
 
-	ntpPacket = pcpp::Packet(&rawPacket2);
+	ntpPacket = pcpp::Packet(rawPacket2.get());
 	ntpLayer = ntpPacket.getLayerOfType<pcpp::NtpLayer>();
 
 	PTF_ASSERT_NOT_NULL(ntpLayer);
@@ -176,9 +172,9 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 #endif
 	PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2017-05-26T13:22:09.4829Z");
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ntpv4Ipv6_withAuth2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/ntpv4Ipv6_withAuth2.dat");
 
-	ntpPacket = pcpp::Packet(&rawPacket3);
+	ntpPacket = pcpp::Packet(rawPacket3.get());
 	ntpLayer = ntpPacket.getLayerOfType<pcpp::NtpLayer>();
 
 	PTF_ASSERT_NOT_NULL(ntpLayer);

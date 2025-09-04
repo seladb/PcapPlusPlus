@@ -6,14 +6,16 @@
 #include "Packet.h"
 #include "StpLayer.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(StpConfigurationParsingTests)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpConf.dat");
 
-	pcpp::Packet stpPacket(&rawPacket1);
+	pcpp::Packet stpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
 	pcpp::StpConfigurationBPDULayer* stpConfLayer = stpPacket.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
@@ -48,9 +50,9 @@ PTF_TEST_CASE(StpConfigurationCreationTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpConf.dat");
 
-	pcpp::Packet stpPacket(&rawPacket1);
+	pcpp::Packet stpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
 	pcpp::StpConfigurationBPDULayer* stpConfLayerTgt = stpPacket.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
@@ -80,16 +82,16 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	gettimeofday(&time, nullptr);
 
 	// Read base packet
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
-	pcpp::Packet stpPacket1(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpConf.dat");
+	pcpp::Packet stpPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket1.isPacketOfType(pcpp::STP));
 
 	pcpp::StpConfigurationBPDULayer* stpConfLayerOrig = stpPacket1.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
 	PTF_ASSERT_NOT_NULL(stpConfLayerOrig);
 
 	// Read target packet
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpConfEdit1.dat");
-	pcpp::Packet stpPacket2(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/StpConfEdit1.dat");
+	pcpp::Packet stpPacket2(rawPacket2.get());
 	PTF_ASSERT_TRUE(stpPacket2.isPacketOfType(pcpp::STP));
 
 	pcpp::StpConfigurationBPDULayer* stpConfLayerTgt1 = stpPacket2.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
@@ -108,8 +110,8 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 
 	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrig->getData(), stpConfLayerTgt1->getData(), stpConfLayerOrig->getHeaderLen());
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/StpConfEdit2.dat");
-	pcpp::Packet stpPacket3(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/StpConfEdit2.dat");
+	pcpp::Packet stpPacket3(rawPacket3.get());
 	PTF_ASSERT_TRUE(stpPacket3.isPacketOfType(pcpp::STP));
 
 	pcpp::StpConfigurationBPDULayer* stpConfLayerTgt2 = stpPacket3.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
@@ -132,9 +134,9 @@ PTF_TEST_CASE(StpTopologyChangeParsingTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpTcn.dat");
 
-	pcpp::Packet stpPacket(&rawPacket1);
+	pcpp::Packet stpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
 	pcpp::StpTopologyChangeBPDULayer* stpTopologyLayer = stpPacket.getLayerOfType<pcpp::StpTopologyChangeBPDULayer>();
@@ -154,9 +156,9 @@ PTF_TEST_CASE(StpTopologyChangeCreationTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpTcn.dat");
 
-	pcpp::Packet stpPacket(&rawPacket1);
+	pcpp::Packet stpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
 	pcpp::StpTopologyChangeBPDULayer* stpTopologyLayerTgt =
@@ -174,8 +176,8 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 	gettimeofday(&time, nullptr);
 
 	// Read base packet
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
-	pcpp::Packet stpPacket1(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpTcn.dat");
+	pcpp::Packet stpPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket1.isPacketOfType(pcpp::STP));
 
 	pcpp::StpTopologyChangeBPDULayer* stpTopologyLayerOrig =
@@ -183,8 +185,8 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 	PTF_ASSERT_NOT_NULL(stpTopologyLayerOrig);
 
 	// Read target packet
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpTopologyEdit.dat");
-	pcpp::Packet stpPacket2(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/StpTopologyEdit.dat");
+	pcpp::Packet stpPacket2(rawPacket2.get());
 	PTF_ASSERT_TRUE(stpPacket2.isPacketOfType(pcpp::STP));
 
 	pcpp::StpTopologyChangeBPDULayer* stpTopologyLayerTgt =
@@ -204,9 +206,9 @@ PTF_TEST_CASE(RapidStpParsingTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpRapid.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpRapid.dat");
 
-	pcpp::Packet stpPacket(&rawPacket1);
+	pcpp::Packet stpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
 	pcpp::RapidStpLayer* stpRapidLayer = stpPacket.getLayerOfType<pcpp::RapidStpLayer>();
@@ -242,9 +244,9 @@ PTF_TEST_CASE(RapidStpCreationTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpRapid.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpRapid.dat");
 
-	pcpp::Packet stpPacket(&rawPacket1);
+	pcpp::Packet stpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
 	pcpp::RapidStpLayer* stpRapidLayerTgt = stpPacket.getLayerOfType<pcpp::RapidStpLayer>();
@@ -274,16 +276,16 @@ PTF_TEST_CASE(RapidStpEditTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpRapid.dat");
-	pcpp::Packet stpPacket1(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpRapid.dat");
+	pcpp::Packet stpPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket1.isPacketOfType(pcpp::STP));
 
 	pcpp::RapidStpLayer* stpRapidLayerOrig = stpPacket1.getLayerOfType<pcpp::RapidStpLayer>();
 	PTF_ASSERT_NOT_NULL(stpRapidLayerOrig);
 
 	// Read target packet
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpRapidEdit.dat");
-	pcpp::Packet stpPacket2(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/StpRapidEdit.dat");
+	pcpp::Packet stpPacket2(rawPacket2.get());
 	PTF_ASSERT_TRUE(stpPacket2.isPacketOfType(pcpp::STP));
 
 	pcpp::RapidStpLayer* stpRapidLayerTgt = stpPacket2.getLayerOfType<pcpp::RapidStpLayer>();
@@ -305,9 +307,9 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpMultiple.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpMultiple.dat");
 
-	pcpp::Packet stpPacket(&rawPacket1);
+	pcpp::Packet stpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
 	pcpp::MultipleStpLayer* stpMultipleLayer = stpPacket.getLayerOfType<pcpp::MultipleStpLayer>();
@@ -366,9 +368,9 @@ PTF_TEST_CASE(MultipleStpCreationTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpMultipleWithoutConfig.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpMultipleWithoutConfig.dat");
 
-	pcpp::Packet stpPacket(&rawPacket1);
+	pcpp::Packet stpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
 	pcpp::MultipleStpLayer* stpMultipleLayerTgt = stpPacket.getLayerOfType<pcpp::MultipleStpLayer>();
@@ -407,13 +409,13 @@ PTF_TEST_CASE(MultipleStpEditTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpMultiple.dat");
-	pcpp::Packet stpPacket1(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/StpMultiple.dat");
+	pcpp::Packet stpPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(stpPacket1.isPacketOfType(pcpp::STP));
 
 	// Read target packet
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpMultipleEdit1.dat");
-	pcpp::Packet stpPacket2(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/StpMultipleEdit1.dat");
+	pcpp::Packet stpPacket2(rawPacket2.get());
 	PTF_ASSERT_TRUE(stpPacket2.isPacketOfType(pcpp::STP));
 
 	pcpp::RapidStpLayer* stpMultipleLayerTgt = stpPacket2.getLayerOfType<pcpp::RapidStpLayer>();
@@ -436,8 +438,8 @@ PTF_TEST_CASE(MultipleStpEditTests)
 	PTF_ASSERT_BUF_COMPARE(stpMultipleLayerOrig->getData(), stpMultipleLayerTgt->getData(),
 	                       stpMultipleLayerTgt->getDataLen());
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/StpMultipleEdit2.dat");
-	pcpp::Packet stpPacket3(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/StpMultipleEdit2.dat");
+	pcpp::Packet stpPacket3(rawPacket3.get());
 	PTF_ASSERT_TRUE(stpPacket3.isPacketOfType(pcpp::STP));
 
 	pcpp::StpConfigurationBPDULayer* stpMultipleLayerTgt2 =

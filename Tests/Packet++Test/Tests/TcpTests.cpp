@@ -10,6 +10,8 @@
 #include "PacketUtils.h"
 #include "DeprecationUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 // TODO: remove these macros, when deprecated code is gone
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_DEPRECATED
@@ -19,9 +21,9 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketNoOptions.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketNoOptions.dat");
 
-	pcpp::Packet tcpPacketNoOptions(&rawPacket1);
+	pcpp::Packet tcpPacketNoOptions(rawPacket1.get());
 	PTF_ASSERT_TRUE(tcpPacketNoOptions.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(tcpPacketNoOptions.isPacketOfType(pcpp::TCP));
 
@@ -69,9 +71,9 @@ PTF_TEST_CASE(TcpPacketWithAccurateEcnParsing)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketNoOptionsAccEcn.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketNoOptionsAccEcn.dat");
 
-	pcpp::Packet TcpPacketWithAccurateEcn(&rawPacket1);
+	pcpp::Packet TcpPacketWithAccurateEcn(rawPacket1.get());
 	PTF_ASSERT_TRUE(TcpPacketWithAccurateEcn.isPacketOfType(pcpp::TCP));
 
 	pcpp::TcpLayer* tcpLayer = TcpPacketWithAccurateEcn.getLayerOfType<pcpp::TcpLayer>();
@@ -86,9 +88,9 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions.dat");
 
-	pcpp::Packet tcpPacketWithOptions(&rawPacket1);
+	pcpp::Packet tcpPacketWithOptions(rawPacket1.get());
 	PTF_ASSERT_TRUE(tcpPacketWithOptions.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(tcpPacketWithOptions.isPacketOfType(pcpp::TCP));
 
@@ -131,9 +133,9 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions3.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions3.dat");
 
-	pcpp::Packet tcpPacketWithOptions(&rawPacket1);
+	pcpp::Packet tcpPacketWithOptions(rawPacket1.get());
 
 	pcpp::TcpLayer* tcpLayer = tcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
@@ -216,9 +218,9 @@ PTF_TEST_CASE(TcpMalformedPacketParsing)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tcp-malformed1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/tcp-malformed1.dat");
 
-	pcpp::Packet badTcpPacket(&rawPacket1);
+	pcpp::Packet badTcpPacket(rawPacket1.get());
 
 	PTF_ASSERT_NOT_NULL(badTcpPacket.getLayerOfType<pcpp::IPv4Layer>());
 	PTF_ASSERT_NULL(badTcpPacket.getLayerOfType<pcpp::TcpLayer>());
