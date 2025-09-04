@@ -92,7 +92,7 @@ PTF_TEST_CASE(NullLoopbackTest)
 	pcpp_tests::utils::PacketFactory nullFactory(pcpp::LINKTYPE_NULL);
 
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/NullLoopback1.dat", nullFactory);
-	
+
 	auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/NullLoopback2.dat", nullFactory);
 	auto& resource2 = rawPacketAndBuf2.resourceBuffer;
 	auto& rawPacket2 = rawPacketAndBuf2.packet;
