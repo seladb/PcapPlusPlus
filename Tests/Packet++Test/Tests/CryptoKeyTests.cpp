@@ -289,8 +289,8 @@ PTF_TEST_CASE(CryptoKeyInvalidDataTest)
 	// Invalid ASN.1 root
 	{
 		std::vector<uint8_t> malformedData = { 0x02, 0x01, 0x00 };
-		PTF_ASSERT_RAISES(pcpp::RSAPrivateKey::fromDER(malformedData.data(), malformedData.size()),
-		                  std::runtime_error, "Invalid RSA private key data");
+		PTF_ASSERT_RAISES(pcpp::RSAPrivateKey::fromDER(malformedData.data(), malformedData.size()), std::runtime_error,
+		                  "Invalid RSA private key data");
 	}
 
 	// Unexpected type of ASN.1 field
