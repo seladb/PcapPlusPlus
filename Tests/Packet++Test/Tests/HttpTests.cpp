@@ -182,16 +182,13 @@ PTF_TEST_CASE(HttpRequestLayerEditTest)
 	PTF_ASSERT_NOT_NULL(userAgentField);
 	httpReqLayer->insertField(userAgentField, PCPP_HTTP_REFERER_FIELD, "http://www.ynet.co.il/home/0,7340,L-8,00.html");
 
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/TwoHttpRequests2.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/TwoHttpRequests2.dat");
 
-	PTF_ASSERT_EQUAL(bufferLength2, httpRequest.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(resource2.size(), httpRequest.getRawPacket()->getRawDataLen());
 
 	httpRequest.computeCalculateFields();
 
-	PTF_ASSERT_BUF_COMPARE(buffer2, httpRequest.getRawPacket()->getRawData(), bufferLength2);
-
-	delete[] buffer2;
-
+	PTF_ASSERT_BUF_COMPARE(resource2.data(), httpRequest.getRawPacket()->getRawData(), resource2.size());
 }  // HttpRequestLayerEditTest
 
 PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
