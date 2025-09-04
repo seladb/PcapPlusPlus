@@ -8,8 +8,8 @@
 #include "BgpLayer.h"
 #include "SystemUtils.h"
 
-using pcpp_tests::utils::createPacketFromHexResource;
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(BgpLayerParsingTest)
 {
@@ -476,7 +476,7 @@ PTF_TEST_CASE(BgpLayerEditTest)
 
 	pcpp_tests::utils::PacketFactory factory;
 	auto rawPacket1Tag = factory.createFromBufferNonOwning(origBuffer, resource1.length);
-	
+
 	bgpNotificationPacket1.setRawPacket(rawPacket1Tag.get(), false);
 	bgpNotificationMessage1 = bgpNotificationPacket1.getLayerOfType<pcpp::BgpNotificationMessageLayer>();
 	std::string notificationData =

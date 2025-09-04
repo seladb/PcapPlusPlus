@@ -14,8 +14,8 @@
 #define EPSILON 1e-6
 #define EPOCH_OFFSET 2208988800ULL
 
-using pcpp_tests::utils::createPacketFromHexResource;
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(NtpMethodsTests)
 {

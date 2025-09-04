@@ -6,8 +6,8 @@
 #include <cstring>
 #include "EndianPortable.h"
 
-using pcpp_tests::utils::createPacketFromHexResource;
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 {

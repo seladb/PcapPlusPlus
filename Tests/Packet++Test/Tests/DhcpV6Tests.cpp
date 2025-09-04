@@ -5,8 +5,8 @@
 #include "DhcpV6Layer.h"
 #include "SystemUtils.h"
 
-using pcpp_tests::utils::createPacketFromHexResource;
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(DhcpV6ParsingTest)
 {
