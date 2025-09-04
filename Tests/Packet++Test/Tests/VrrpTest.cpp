@@ -95,12 +95,9 @@ PTF_TEST_CASE(VrrpParsingTest)
 
 PTF_TEST_CASE(VrrpCreateAndEditTest)
 {
-	auto resProvider = pcpp_tests::getDefaultResourceProvider();
-	constexpr auto hexResource = pcpp_tests::utils::ResourceType::HexData;
-
-	auto resource1 = resProvider->loadResourceToVector("PacketExamples/VRRP-V2.dat", hexResource);
-	auto resource2 = resProvider->loadResourceToVector("PacketExamples/VRRP-V3-IPv4.dat", hexResource);
-	auto resource3 = resProvider->loadResourceToVector("PacketExamples/VRRP-V3-IPv6.dat", hexResource);
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/VRRP-V2.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/VRRP-V3-IPv4.dat");
+	auto resource3 = pcpp_tests::loadHexResourceToVector("PacketExamples/VRRP-V3-IPv6.dat");
 
 	// VRRP virtual IP addresses
 	pcpp::IPAddress ipv4Address1("192.168.0.1");

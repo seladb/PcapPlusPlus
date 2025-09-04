@@ -162,7 +162,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
 
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/PPPoEDiscovery2.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/PPPoEDiscovery2.dat");
 
 	pcpp::EthLayer* ethLayerPtr = pppoedPacket.getLayerOfType<pcpp::EthLayer>();
 	PTF_ASSERT_NOT_NULL(ethLayerPtr);
@@ -206,10 +206,8 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 
 	pppoedPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
-
-	delete[] buffer2;
+	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 
 	PTF_ASSERT_TRUE(pppoedLayer.removeAllTags());
 	pppoedPacket.computeCalculateFields();
