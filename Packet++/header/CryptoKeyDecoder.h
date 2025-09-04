@@ -161,7 +161,7 @@ namespace pcpp
 				}
 				catch (const std::bad_cast&)
 				{
-					throw std::invalid_argument("Invalid " + std::string(CryptoKey::keyType) + " data");
+					throw std::runtime_error("Invalid " + std::string(CryptoKey::keyType) + " data");
 				}
 			}
 
