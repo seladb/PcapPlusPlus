@@ -3,7 +3,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <utility>
 
 #include "RawPacket.h"
 #include "Resources.h"
