@@ -15,6 +15,7 @@
 #define EPOCH_OFFSET 2208988800ULL
 
 using pcpp_tests::utils::createPacketFromHexResource;
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 
 PTF_TEST_CASE(NtpMethodsTests)
 {
@@ -215,12 +216,11 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 
 PTF_TEST_CASE(NtpCreationTests)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/ntpv4.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
-
-	pcpp::Packet ntpPacket(&rawPacket1);
+	pcpp::Packet ntpPacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer(*ntpPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipv4Layer(*ntpPacket.getLayerOfType<pcpp::IPv4Layer>());
@@ -249,12 +249,14 @@ PTF_TEST_CASE(NtpCreationTests)
 	PTF_ASSERT_TRUE(craftedPacket.addLayer(&udpLayer));
 	craftedPacket.addLayer(&ntpLayer);
 
-	PTF_ASSERT_EQUAL(bufferLength1, craftedPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer1, craftedPacket.getRawPacket()->getRawData(), bufferLength1);
+	PTF_ASSERT_EQUAL(resource1.length, craftedPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(resource1.data.get(), craftedPacket.getRawPacket()->getRawData(), resource1.length);
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv3crafting.dat");
+	auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/ntpv3crafting.dat");
+	auto& resource2 = rawPacketAndBuf2.resourceBuffer;
+	auto& rawPacket2 = rawPacketAndBuf2.packet;
 
-	pcpp::Packet ntpPacket2(&rawPacket2);
+	pcpp::Packet ntpPacket2(rawPacket2.get());
 
 	pcpp::EthLayer ethLayer2(*ntpPacket2.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipv4Layer2(*ntpPacket2.getLayerOfType<pcpp::IPv4Layer>());
@@ -283,6 +285,6 @@ PTF_TEST_CASE(NtpCreationTests)
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&udpLayer2));
 	craftedPacket2.addLayer(&ntpLayer2);
 
-	PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer2, craftedPacket2.getRawPacket()->getRawData(), bufferLength2);
+	PTF_ASSERT_EQUAL(resource2.length, craftedPacket2.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(resource2.data.get(), craftedPacket2.getRawPacket()->getRawData(), resource2.length);
 }  // NtpCraftingTests

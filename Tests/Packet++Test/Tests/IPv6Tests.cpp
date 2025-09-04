@@ -12,15 +12,15 @@
 #include "SystemUtils.h"
 
 using pcpp_tests::utils::createPacketFromHexResource;
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 
 PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/IPv6UdpPacket.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6UdpPacket.dat");
-
-	pcpp::Packet ip6UdpPacket(&rawPacket1);
+	pcpp::Packet ip6UdpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(ip6UdpPacket.isPacketOfType(pcpp::IPv6));
 	PTF_ASSERT_TRUE(ip6UdpPacket.isPacketOfType(pcpp::IP));
 	PTF_ASSERT_FALSE(ip6UdpPacket.isPacketOfType(pcpp::IPv4));
@@ -63,8 +63,8 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&payloadLayer));
 	ip6UdpPacketNew.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(ip6UdpPacketNew.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(ip6UdpPacketNew.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(ip6UdpPacketNew.getRawPacket()->getRawDataLen(), resource1.length);
+	PTF_ASSERT_BUF_COMPARE(ip6UdpPacketNew.getRawPacket()->getRawData(), resource1.data.get(), resource1.length);
 
 	pcpp::IPv6Layer ipv6LayerEmpty;
 	ipv6LayerEmpty.setSrcIPv6Address(srcIP);

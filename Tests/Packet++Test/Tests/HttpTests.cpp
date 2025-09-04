@@ -12,6 +12,7 @@
 #include <iostream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 
 PTF_TEST_CASE(HttpRequestParseMethodTest)
 {
@@ -97,12 +98,11 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 PTF_TEST_CASE(HttpRequestLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/TwoHttpRequests1.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
-
-	pcpp::Packet sampleHttpPacket(&rawPacket1);
+	pcpp::Packet sampleHttpPacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer(*sampleHttpPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ip4Layer;
@@ -152,8 +152,8 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 
 	httpPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength1, httpPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(), bufferLength1);
+	PTF_ASSERT_EQUAL(resource1.length, httpPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(resource1.data.get(), httpPacket.getRawPacket()->getRawData(), resource1.length);
 
 }  // HttpRequestLayerCreationTest
 
@@ -408,12 +408,11 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 
 PTF_TEST_CASE(HttpResponseLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/TwoHttpResponses1.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses1.dat");
-
-	pcpp::Packet sampleHttpPacket(&rawPacket1);
+	pcpp::Packet sampleHttpPacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer = *sampleHttpPacket.getLayerOfType<pcpp::EthLayer>();
 	pcpp::IPv4Layer ip4Layer(*sampleHttpPacket.getLayerOfType<pcpp::IPv4Layer>());
@@ -467,7 +466,7 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 
 	PTF_ASSERT_EQUAL(httpResponse.getHeaderLen(), 382);
 
-	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(),
+	PTF_ASSERT_BUF_COMPARE(resource1.data.get(), httpPacket.getRawPacket()->getRawData(),
 	                       ethLayer.getHeaderLen() + ip4Layer.getHeaderLen() + tcpLayer.getHeaderLen() +
 	                           httpResponse.getHeaderLen());
 

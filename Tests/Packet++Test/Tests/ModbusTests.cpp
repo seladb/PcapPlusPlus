@@ -5,6 +5,8 @@
 #include "EndianPortable.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+
 PTF_TEST_CASE(ModbusLayerCreationTest)
 {
 
