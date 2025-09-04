@@ -383,6 +383,26 @@ namespace pcpp
 		/// @note The actual type of the returned pointer depends on the key algorithm
 		std::unique_ptr<PrivateKeyData> getPrivateKey() const;
 
+		/// @brief Gets the private key data cast to a requested type
+		/// @return A unique pointer of the requested type containing the key material. If the key algorithm doesn't
+		/// match the requested type, nullptr is returned
+		template <typename PrivateKeyDataType> std::unique_ptr<PrivateKeyDataType> getPrivateKeyAs() const
+		{
+			auto privateKey = getPrivateKey();
+			if (privateKey == nullptr)
+			{
+				return nullptr;
+			}
+
+			if (auto* specificPrivateKey = dynamic_cast<PrivateKeyDataType*>(privateKey.get()))
+			{
+				privateKey.release();
+				return std::unique_ptr<PrivateKeyDataType>(specificPrivateKey);
+			}
+
+			return nullptr;
+		}
+
 	private:
 		static constexpr const char* pemLabel = "PRIVATE KEY";
 		static constexpr const char* keyType = "PKCS#8 private key";

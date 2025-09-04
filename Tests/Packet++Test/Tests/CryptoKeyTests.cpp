@@ -238,6 +238,26 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		PTF_ASSERT_NULL(privateKey->getPrivateKey());
 	}
 
+	// PKCS#8 get private key as
+	{
+		auto pkcs8PrivateKeyPem = pcpp::PKCS8PrivateKey::fromPEMFile("PacketExamples/RSAPrivateKeyPKCS8.pem");
+		auto rsaPrivateKeyData = pkcs8PrivateKeyPem->getPrivateKeyAs<pcpp::PKCS8PrivateKey::RSAPrivateKeyData>();
+		PTF_ASSERT_NOT_NULL(rsaPrivateKeyData);
+		PTF_ASSERT_EQUAL(
+		    rsaPrivateKeyData->getCoefficient(),
+		    "85007f83f620922732265d61c551d192157c8bf7085ee0143faf35b08c71a432eb9133bbc8971e02b1636bb10a5abff4b5956c28f01c1a188215980daa34e52c564eb64ddbb841cfd4723cb4c79189b226eee37d42d83eed34c3ca33043e971440bba0a936e4dea56b28625500b2f17d0b938b447c48d29d0e82109aea8918b");
+
+		PTF_ASSERT_NULL(pkcs8PrivateKeyPem->getPrivateKeyAs<pcpp::PKCS8PrivateKey::ECPrivateKeyData>());
+
+		std::vector<uint8_t> x448PrivateKeyBytes = { 0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b,
+			                                         0x65, 0x6f, 0x04, 0x22, 0x04, 0x20, 0xca, 0x0f, 0x1d, 0x19,
+			                                         0xe1, 0x49, 0xdb, 0xc0, 0x59, 0x41, 0xd1, 0x9f, 0xd5, 0x36,
+			                                         0x9d, 0x05, 0x4e, 0x7a, 0x36, 0x60, 0x79, 0x3b, 0xc3, 0x72,
+			                                         0xee, 0xc6, 0x8c, 0x0a, 0xcc, 0xa5, 0x95, 0xbd };
+		pkcs8PrivateKeyPem = pcpp::PKCS8PrivateKey::fromDER(x448PrivateKeyBytes.data(), x448PrivateKeyBytes.size());
+		PTF_ASSERT_NULL(pkcs8PrivateKeyPem->getPrivateKeyAs<pcpp::PKCS8PrivateKey::RSAPrivateKeyData>());
+	}
+
 	// RSA public key
 	{
 		auto rsaPublicKeyPem = pcpp::RSAPublicKey::fromPEMFile("PacketExamples/RSAPublicKey.pem");
