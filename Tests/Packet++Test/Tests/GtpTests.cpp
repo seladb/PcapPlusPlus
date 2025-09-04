@@ -12,6 +12,7 @@
 #include <tuple>
 
 using pcpp_tests::utils::createPacketFromHexResource;
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 
 PTF_TEST_CASE(GtpV1LayerParsingTest)
 {
@@ -163,15 +164,20 @@ PTF_TEST_CASE(GtpV1LayerParsingTest)
 
 PTF_TEST_CASE(GtpV1LayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u1.dat");
-		READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtp-u-1ext.dat");
-		READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/gtp-u-2ext.dat");
+		auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u1.dat");
+		auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+		auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-		pcpp::Packet gtpPacket1(&rawPacket1);
+		auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u-1ext.dat");
+		auto& resource2 = rawPacketAndBuf2.resourceBuffer;
+		auto& rawPacket2 = rawPacketAndBuf2.packet;
+
+		auto rawPacketAndBuf3 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u-2ext.dat");
+		auto& resource3 = rawPacketAndBuf3.resourceBuffer;
+		auto& rawPacket3 = rawPacketAndBuf3.packet;
+
+		pcpp::Packet gtpPacket1(rawPacket1.get());
 
 		pcpp::EthLayer ethLayer(*gtpPacket1.getLayerOfType<pcpp::EthLayer>());
 		pcpp::IPv4Layer ip4Layer(*gtpPacket1.getLayerOfType<pcpp::IPv4Layer>());
@@ -190,8 +196,8 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 		PTF_ASSERT_TRUE(newGtpPacket.addLayer(&icmpLayer));
 		newGtpPacket.computeCalculateFields();
 
-		PTF_ASSERT_EQUAL(bufferLength1, newGtpPacket.getRawPacket()->getRawDataLen());
-		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer1,
+		PTF_ASSERT_EQUAL(resource1.length, newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), resource1.data.get(),
 		                       newGtpPacket.getRawPacket()->getRawDataLen());
 
 		pcpp::GtpV1Layer* newGtpLayer = newGtpPacket.getLayerOfType<pcpp::GtpV1Layer>();
@@ -207,8 +213,8 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 
 		newGtpPacket.computeCalculateFields();
 
-		PTF_ASSERT_EQUAL(bufferLength2, newGtpPacket.getRawPacket()->getRawDataLen());
-		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer2,
+		PTF_ASSERT_EQUAL(resource2.length, newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), resource2.data.get(),
 		                       newGtpPacket.getRawPacket()->getRawDataLen());
 
 		pcpp::GtpV1Layer::GtpExtension newExt2 = newGtpLayer->addExtension(0x40, 1308);
@@ -226,8 +232,8 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 		PTF_ASSERT_FALSE(newGtpLayer->getNextExtension().getNextExtension().isNull());
 		PTF_ASSERT_EQUAL(newGtpLayer->getNextExtension().getNextExtensionHeaderType(), 0x40);
 
-		PTF_ASSERT_EQUAL(bufferLength3, newGtpPacket.getRawPacket()->getRawDataLen());
-		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer3,
+		PTF_ASSERT_EQUAL(resource3.length, newGtpPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), resource3.data.get(),
 		                       newGtpPacket.getRawPacket()->getRawDataLen());
 	}
 
