@@ -5,18 +5,14 @@
 #include "EndianPortable.h"
 #include "SystemUtils.h"
 
-using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(ModbusLayerCreationTest)
 {
-
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	// Transaction ID: 17, Unit ID: 255, Function Code: 4
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ModbusRequest.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ModbusRequest.dat");
 
-	pcpp::Packet realPacket(&rawPacket1);
+	pcpp::Packet realPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(realPacket.isPacketOfType(pcpp::Modbus));
 	auto* modbusLayerFromRealPacket = realPacket.getLayerOfType<pcpp::ModbusLayer>();
 
@@ -38,12 +34,9 @@ PTF_TEST_CASE(ModbusLayerCreationTest)
 
 PTF_TEST_CASE(ModbusLayerParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ModbusRequest.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ModbusRequest.dat");
-
-	pcpp::Packet packet(&rawPacket1);
+	pcpp::Packet packet(rawPacket1.get());
 	PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::Modbus));
 
 	pcpp::ModbusLayer* modbusLayer = packet.getLayerOfType<pcpp::ModbusLayer>();
