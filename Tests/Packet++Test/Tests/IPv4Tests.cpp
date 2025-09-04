@@ -359,7 +359,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	ipOpt1.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(ipOpt1.getRawPacket()->getRawDataLen(), resource11.size());
-	PTF_ASSERT_BUF_COMPARE(ipOpt1.getRawPacket()->getRawData(), resource11.data(), ipOpt1.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(ipOpt1.getRawPacket()->getRawData(), resource11.data(),
+	                       ipOpt1.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt2.getLayerOfType<pcpp::IPv4Layer>();
 	pcpp::IPv4TimestampOptionValue tsOption;
@@ -372,7 +373,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	ipOpt2.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt2.getRawPacket()->getRawDataLen(), resource22.size());
-	PTF_ASSERT_BUF_COMPARE(ipOpt2.getRawPacket()->getRawData(), resource22.data(), ipOpt2.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(ipOpt2.getRawPacket()->getRawData(), resource22.data(),
+	                       ipOpt2.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt3.getLayerOfType<pcpp::IPv4Layer>();
 	uint16_t routerAlerVal = 0;
@@ -380,7 +382,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	    ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
 	ipOpt3.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt3.getRawPacket()->getRawDataLen(), resource33.size());
-	PTF_ASSERT_BUF_COMPARE(ipOpt3.getRawPacket()->getRawData(), resource33.data(), ipOpt3.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(ipOpt3.getRawPacket()->getRawData(), resource33.data(),
+	                       ipOpt3.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt4.getLayerOfType<pcpp::IPv4Layer>();
 	std::vector<pcpp::IPv4Address> ipListValue;
@@ -393,7 +396,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, nullptr, 0)).isNull());
 	ipOpt4.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt4.getRawPacket()->getRawDataLen(), resource44.size());
-	PTF_ASSERT_BUF_COMPARE(ipOpt4.getRawPacket()->getRawData(), resource44.data(), ipOpt4.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(ipOpt4.getRawPacket()->getRawData(), resource44.data(),
+	                       ipOpt4.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt5.getLayerOfType<pcpp::IPv4Layer>();
 	tsOption.clear();
@@ -425,7 +429,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_EQUAL(tsOption.ipAddresses.at(2), pcpp::IPv4Address("10.0.0.138"));
 	ipOpt5.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt5.getRawPacket()->getRawDataLen(), resource55.size());
-	PTF_ASSERT_BUF_COMPARE(ipOpt5.getRawPacket()->getRawData(), resource55.data(), ipOpt5.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(ipOpt5.getRawPacket()->getRawData(), resource55.data(),
+	                       ipOpt5.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt6.getLayerOfType<pcpp::IPv4Layer>();
 	ipListValue.clear();
@@ -442,7 +447,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_EQUAL(optData.getTotalSize(), 1);
 	ipOpt6.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt6.getRawPacket()->getRawDataLen(), resource66.size());
-	PTF_ASSERT_BUF_COMPARE(ipOpt6.getRawPacket()->getRawData(), resource66.data(), ipOpt6.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(ipOpt6.getRawPacket()->getRawData(), resource66.data(),
+	                       ipOpt6.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt7.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, nullptr, 0)).isNull());
@@ -451,7 +457,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_LooseSourceRoute, ipListValue)).isNull());
 	ipOpt7.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt7.getRawPacket()->getRawDataLen(), resource77.size());
-	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), resource77.data(), ipOpt7.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), resource77.data(),
+	                       ipOpt7.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2);
 
 	tsOption.clear();
@@ -486,7 +493,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2);
 	ipOpt7.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt7.getRawPacket()->getRawDataLen(), resource77.size());
-	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), resource77.data(), ipOpt7.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), resource77.data(),
+	                       ipOpt7.getRawPacket()->getRawDataLen());
 
 	PTF_ASSERT_TRUE(ipLayer->removeAllOptions());
 	ipOpt7.computeCalculateFields();

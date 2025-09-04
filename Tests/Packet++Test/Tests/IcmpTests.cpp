@@ -306,7 +306,8 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_NOT_NULL(echoRepLayer.setEchoReplyData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48));
 	echoReplyPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(echoReplyPacket.getRawPacket()->getRawDataLen(), resource2.size());
-	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData() + 34, resource2.data() + 34, resource2.size() - 34);
+	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData() + 34, resource2.data() + 34,
+	                       resource2.size() - 34);
 
 	// Time exceeded creation
 	pcpp::EthLayer ethLayer3(ethLayer);
@@ -328,7 +329,8 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_NOT_NULL(timeExceededLayer.setTimeExceededData(0, &ipLayerForTimeExceeded, &icmpLayerForTimeExceeded));
 	timeExceededPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(timeExceededPacket.getRawPacket()->getRawDataLen(), resource11.size());
-	PTF_ASSERT_BUF_COMPARE(timeExceededPacket.getRawPacket()->getRawData() + 34, resource11.data() + 34, resource11.size() - 34);
+	PTF_ASSERT_BUF_COMPARE(timeExceededPacket.getRawPacket()->getRawData() + 34, resource11.data() + 34,
+	                       resource11.size() - 34);
 
 	// Dest unreachable creation
 	pcpp::EthLayer ethLayer4(ethLayer);
@@ -349,7 +351,8 @@ PTF_TEST_CASE(IcmpCreationTest)
 	    pcpp::IcmpPortUnreachable, 0, &ipLayerForDestUnreachable, &udpLayerForDestUnreachable));
 	destUnreachablePacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(destUnreachablePacket.getRawPacket()->getRawDataLen(), resource10.size());
-	PTF_ASSERT_BUF_COMPARE(destUnreachablePacket.getRawPacket()->getRawData() + 34, resource10.data() + 34, resource10.size() - 34);
+	PTF_ASSERT_BUF_COMPARE(destUnreachablePacket.getRawPacket()->getRawData() + 34, resource10.data() + 34,
+	                       resource10.size() - 34);
 
 	// Timestamp reply
 	pcpp::EthLayer ethLayer5(ethLayer);
@@ -456,7 +459,8 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_EQUAL(echoReq->dataLength, 48);
 	icmpRouterAdv1.computeCalculateFields();
 	PTF_ASSERT_NULL(icmpLayer->getRouterAdvertisementData());
-	PTF_ASSERT_BUF_COMPARE(icmpRouterAdv1.getRawPacket()->getRawData() + 34, resource2.data() + 34, resource2.size() - 34);
+	PTF_ASSERT_BUF_COMPARE(icmpRouterAdv1.getRawPacket()->getRawData() + 34, resource2.data() + 34,
+	                       resource2.size() - 34);
 
 	// convert echo request to echo reply
 
@@ -464,7 +468,8 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_NULL(icmpLayer->getEchoRequestData());
 	icmpRouterAdv1.computeCalculateFields();
 	PTF_ASSERT_EQUAL(echoReply->header->checksum, htobe16(0xc3b3));
-	PTF_ASSERT_BUF_COMPARE(icmpRouterAdv1.getRawPacket()->getRawData() + 34, resource3.data() + 34, resource3.size() - 34);
+	PTF_ASSERT_BUF_COMPARE(icmpRouterAdv1.getRawPacket()->getRawData() + 34, resource3.data() + 34,
+	                       resource3.size() - 34);
 
 	// convert time exceeded to echo request
 
@@ -490,7 +495,8 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_EQUAL(echoReq->header->id, htobe16(55099));
 	PTF_ASSERT_EQUAL(echoReq->dataLength, 48);
 	icmpTimeExceededUdp.computeCalculateFields();
-	PTF_ASSERT_BUF_COMPARE(icmpTimeExceededUdp.getRawPacket()->getRawData() + 34, resource2.data() + 34, resource2.size() - 34);
+	PTF_ASSERT_BUF_COMPARE(icmpTimeExceededUdp.getRawPacket()->getRawData() + 34, resource2.data() + 34,
+	                       resource2.size() - 34);
 
 	// convert echo request to dest unreachable
 
@@ -511,6 +517,7 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_NOT_NULL(echoReq);
 	PTF_ASSERT_EQUAL(echoReq->header->sequence, htobe16(4));
 	icmpTimeExceededUdp.computeCalculateFields();
-	PTF_ASSERT_BUF_COMPARE(icmpTimeExceededUdp.getRawPacket()->getRawData() + 34, resource5.data() + 34, resource5.size() - 34);
+	PTF_ASSERT_BUF_COMPARE(icmpTimeExceededUdp.getRawPacket()->getRawData() + 34, resource5.data() + 34,
+	                       resource5.size() - 34);
 
 }  // IcmpEditTest
