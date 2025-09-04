@@ -362,14 +362,14 @@ namespace pcpp
 	}
 
 	template <typename TLayer, typename NextLayerFn>
-	TLayer* Packet::searchLayerStackForType(Layer* curLayer, NextLayerFn getNextLayer, bool skipFirst)
+	TLayer* Packet::searchLayerStackForType(Layer* curLayer, NextLayerFn nextLayerFn, bool skipFirst)
 	{
 		if (curLayer == nullptr)
 			return nullptr;
 
 		if (skipFirst)
 		{
-			curLayer = getNextLayer(curLayer);
+			curLayer = nextLayerFn(curLayer);
 		}
 
 		while (curLayer != nullptr)
@@ -378,7 +378,7 @@ namespace pcpp
 			if (curLayerCasted != nullptr)
 				return curLayerCasted;
 
-			curLayer = getNextLayer(curLayer);
+			curLayer = nextLayerFn(curLayer);
 		}
 
 		return nullptr;
