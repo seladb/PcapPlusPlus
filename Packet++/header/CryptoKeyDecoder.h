@@ -151,7 +151,7 @@ namespace pcpp
 				}
 			}
 
-			virtual ~CryptographicKey() = default;
+			~CryptographicKey() = default;
 
 			Asn1SequenceRecord* getRoot() const
 			{
