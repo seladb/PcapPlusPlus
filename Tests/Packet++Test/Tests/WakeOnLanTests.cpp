@@ -6,14 +6,16 @@
 #include "Packet.h"
 #include "WakeOnLanLayer.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(WakeOnLanParsingTests)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WoL_ether.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WoL_ether.dat");
 
-	pcpp::Packet wolPacket1(&rawPacket1);
+	pcpp::Packet wolPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(wolPacket1.isPacketOfType(pcpp::WakeOnLan));
 	pcpp::WakeOnLanLayer* wolLayer1 = wolPacket1.getLayerOfType<pcpp::WakeOnLanLayer>();
 	PTF_ASSERT_NOT_NULL(wolLayer1);
@@ -23,9 +25,9 @@ PTF_TEST_CASE(WakeOnLanParsingTests)
 	PTF_ASSERT_EQUAL(wolLayer1->getPassword(), "192.168.1.1");
 	PTF_ASSERT_EQUAL(wolLayer1->toString(), "Wake On LAN Layer, target address: 00:0d:56:dc:9e:35");
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/WoL_udp.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/WoL_udp.dat");
 
-	pcpp::Packet wolPacket2(&rawPacket2);
+	pcpp::Packet wolPacket2(rawPacket2.get());
 	PTF_ASSERT_TRUE(wolPacket2.isPacketOfType(pcpp::WakeOnLan));
 	pcpp::WakeOnLanLayer* wolLayer2 = wolPacket2.getLayerOfType<pcpp::WakeOnLanLayer>();
 	PTF_ASSERT_NOT_NULL(wolLayer2);
@@ -41,9 +43,9 @@ PTF_TEST_CASE(WakeOnLanCreationTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WoL_ether.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WoL_ether.dat");
 
-	pcpp::Packet wolPacket1(&rawPacket1);
+	pcpp::Packet wolPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(wolPacket1.isPacketOfType(pcpp::WakeOnLan));
 	pcpp::WakeOnLanLayer* wolLayer1 = wolPacket1.getLayerOfType<pcpp::WakeOnLanLayer>();
 	PTF_ASSERT_NOT_NULL(wolLayer1);
@@ -58,9 +60,9 @@ PTF_TEST_CASE(WakeOnLanCreationTests)
 	PTF_ASSERT_EQUAL(createdLayer.getDataLen(), wolLayer1->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(createdLayer.getDataPtr(), wolLayer1->getDataPtr(), wolLayer1->getDataLen());
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/WoL_udp.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/WoL_udp.dat");
 
-	pcpp::Packet wolPacket2(&rawPacket2);
+	pcpp::Packet wolPacket2(rawPacket2.get());
 	PTF_ASSERT_TRUE(wolPacket2.isPacketOfType(pcpp::WakeOnLan));
 	pcpp::WakeOnLanLayer* wolLayer2 = wolPacket2.getLayerOfType<pcpp::WakeOnLanLayer>();
 	PTF_ASSERT_NOT_NULL(wolLayer2);
@@ -75,16 +77,16 @@ PTF_TEST_CASE(WakeOnLanEditTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WoL_ether.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WoL_ether.dat");
 
-	pcpp::Packet wolPacket1(&rawPacket1);
+	pcpp::Packet wolPacket1(rawPacket1.get());
 	PTF_ASSERT_TRUE(wolPacket1.isPacketOfType(pcpp::WakeOnLan));
 	pcpp::WakeOnLanLayer* wolLayer1 = wolPacket1.getLayerOfType<pcpp::WakeOnLanLayer>();
 	PTF_ASSERT_NOT_NULL(wolLayer1);
 
 	// Edit password
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/WoL_ether_edited1.dat");
-	pcpp::Packet wolPacketEdited1(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/WoL_ether_edited1.dat");
+	pcpp::Packet wolPacketEdited1(rawPacket2.get());
 	PTF_ASSERT_TRUE(wolPacketEdited1.isPacketOfType(pcpp::WakeOnLan));
 	pcpp::WakeOnLanLayer* wolLayer2 = wolPacketEdited1.getLayerOfType<pcpp::WakeOnLanLayer>();
 	PTF_ASSERT_NOT_NULL(wolLayer2);
@@ -94,8 +96,8 @@ PTF_TEST_CASE(WakeOnLanEditTests)
 	PTF_ASSERT_BUF_COMPARE(wolLayer1->getDataPtr(), wolLayer2->getDataPtr(), wolLayer2->getDataLen());
 
 	// Edit target
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/WoL_ether_edited2.dat");
-	pcpp::Packet wolPacketEdited2(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/WoL_ether_edited2.dat");
+	pcpp::Packet wolPacketEdited2(rawPacket3.get());
 	PTF_ASSERT_TRUE(wolPacketEdited2.isPacketOfType(pcpp::WakeOnLan));
 	pcpp::WakeOnLanLayer* wolLayer3 = wolPacketEdited2.getLayerOfType<pcpp::WakeOnLanLayer>();
 	PTF_ASSERT_NOT_NULL(wolLayer3);

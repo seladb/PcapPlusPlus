@@ -12,14 +12,17 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(SllPacketParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/SllPacket.dat", pcpp::LINKTYPE_LINUX_SLL);
+	pcpp_tests::utils::PacketFactory sslFactory(pcpp::LINKTYPE_LINUX_SLL);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SllPacket.dat", sslFactory);
 
-	pcpp::Packet sllPacket(&rawPacket1);
+	pcpp::Packet sllPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(sllPacket.isPacketOfType(pcpp::SLL));
 	PTF_ASSERT_EQUAL(sllPacket.getFirstLayer()->getProtocol(), pcpp::SLL, enum);

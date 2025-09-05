@@ -8,15 +8,17 @@
 
 #include <string.h>
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(TelnetCommandParsingTests)
 {
 
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/telnetCommand.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/telnetCommand.dat");
 
-	pcpp::Packet telnetPacket(&rawPacket1);
+	pcpp::Packet telnetPacket(rawPacket1.get());
 	pcpp::TelnetLayer* telnetLayer = telnetPacket.getLayerOfType<pcpp::TelnetLayer>();
 
 	PTF_ASSERT_NOT_NULL(telnetLayer);
@@ -94,9 +96,9 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Control");
 
 	// Telnet TN3270 sample (not supported but should not raise an error)
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/telnetTN3270.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/telnetTN3270.dat");
 
-	pcpp::Packet telnetPacket2(&rawPacket2);
+	pcpp::Packet telnetPacket2(rawPacket2.get());
 	pcpp::TelnetLayer* telnetLayer2 = telnetPacket2.getLayerOfType<pcpp::TelnetLayer>();
 
 	PTF_ASSERT_NOT_NULL(telnetLayer2);
@@ -132,9 +134,9 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer2->toString(), "Telnet Control");
 
 	// Test Command with data Case
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/telnetCommandWithData.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/telnetCommandWithData.dat");
 
-	pcpp::Packet telnetPacket3(&rawPacket3);
+	pcpp::Packet telnetPacket3(rawPacket3.get());
 	pcpp::TelnetLayer* telnetLayer3 = telnetPacket3.getLayerOfType<pcpp::TelnetLayer>();
 
 	PTF_ASSERT_NOT_NULL(telnetLayer3);
@@ -259,9 +261,9 @@ PTF_TEST_CASE(TelnetDataParsingTests)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/telnetData.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/telnetData.dat");
 
-	pcpp::Packet telnetPacket(&rawPacket1);
+	pcpp::Packet telnetPacket(rawPacket1.get());
 	pcpp::TelnetLayer* telnetLayer = telnetPacket.getLayerOfType<pcpp::TelnetLayer>();
 
 	PTF_ASSERT_NOT_NULL(telnetLayer);

@@ -21,6 +21,8 @@
 #include "GeneralUtils.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(InsertDataToPacket)
 {
 	// Creating a packet
@@ -145,14 +147,11 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 
 PTF_TEST_CASE(InsertVlanToPacket)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions3.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions3.dat");
 
 	pcpp::VlanLayer vlanLayer(4001, 0, 0, PCPP_ETHERTYPE_IP);
 
-	pcpp::Packet tcpPacket(&rawPacket1);
+	pcpp::Packet tcpPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(tcpPacket.insertLayer(tcpPacket.getFirstLayer(), &vlanLayer));
 
@@ -167,12 +166,9 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// parse packet and remove layers
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketNoOptions.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketNoOptions.dat");
-
-	pcpp::Packet tcpPacket(&rawPacket1);
+	pcpp::Packet tcpPacket(rawPacket1.get());
 
 	// a. Remove layer from the middle
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,9 +202,9 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// d. Remove a second layer of the same type
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Vxlan1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/Vxlan1.dat");
 
-	pcpp::Packet vxlanPacket(&rawPacket2);
+	pcpp::Packet vxlanPacket(rawPacket2.get());
 	PTF_ASSERT_TRUE(vxlanPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_TRUE(vxlanPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(vxlanPacket.removeLayer(pcpp::Ethernet, 1));
@@ -310,9 +306,9 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// c. detach a second instance of the the same protocol
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/Vxlan1.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/Vxlan1.dat");
 
-	pcpp::Packet vxlanPacketOrig(&rawPacket3);
+	pcpp::Packet vxlanPacketOrig(rawPacket3.get());
 	pcpp::EthLayer* vxlanEthLayer = (pcpp::EthLayer*)vxlanPacketOrig.detachLayer(pcpp::Ethernet, 1);
 	pcpp::IcmpLayer* vxlanIcmpLayer = (pcpp::IcmpLayer*)vxlanPacketOrig.detachLayer(pcpp::ICMP);
 	pcpp::IPv4Layer* vxlanIP4Layer = (pcpp::IPv4Layer*)vxlanPacketOrig.detachLayer(pcpp::IPv4, 1);
@@ -349,17 +345,17 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TwoHttpResponses1.dat");
 
-	pcpp::Packet sampleHttpPacket(&rawPacket1);
+	pcpp::Packet sampleHttpPacket(rawPacket1.get());
 
 	// RawPacket copy c'tor / assignment operator test
 	//-----------------------------------------------
 	pcpp::RawPacket copyRawPacket;
-	copyRawPacket = rawPacket1;
-	PTF_ASSERT_EQUAL(copyRawPacket.getRawDataLen(), rawPacket1.getRawDataLen());
-	PTF_ASSERT_TRUE(copyRawPacket.getRawData() != rawPacket1.getRawData());
-	PTF_ASSERT_BUF_COMPARE(copyRawPacket.getRawData(), rawPacket1.getRawData(), rawPacket1.getRawDataLen());
+	copyRawPacket = *rawPacket1;
+	PTF_ASSERT_EQUAL(copyRawPacket.getRawDataLen(), rawPacket1->getRawDataLen());
+	PTF_ASSERT_TRUE(copyRawPacket.getRawData() != rawPacket1->getRawData());
+	PTF_ASSERT_BUF_COMPARE(copyRawPacket.getRawData(), rawPacket1->getRawData(), rawPacket1->getRawDataLen());
 
 	// EthLayer copy c'tor test
 	//------------------------
@@ -371,9 +367,9 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 
 	// TcpLayer copy c'tor test
 	//------------------------
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/TcpPacketWithOptions2.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions2.dat");
 
-	pcpp::Packet sampleTcpPacketWithOptions(&rawPacket2);
+	pcpp::Packet sampleTcpPacketWithOptions(rawPacket2.get());
 	pcpp::TcpLayer tcpLayer = *sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_TRUE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getData() != tcpLayer.getData());
 	PTF_ASSERT_BUF_COMPARE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getData(), tcpLayer.getData(),
@@ -459,9 +455,10 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	// Packet copy c'tor test - Null/Loopback
 	//--------------------------------------
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(3, "PacketExamples/NullLoopback1.dat", pcpp::LINKTYPE_NULL);
+	pcpp_tests::utils::PacketFactory nullFactory(pcpp::LINKTYPE_NULL);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/NullLoopback1.dat", nullFactory);
 
-	pcpp::Packet nullLoopbackPacket(&rawPacket3);
+	pcpp::Packet nullLoopbackPacket(rawPacket3.get());
 
 	pcpp::Packet nullLoopbackPacketCopy(nullLoopbackPacket);
 
@@ -491,9 +488,10 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	// Packet copy c'tor test - SLL
 	//----------------------------
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(4, "PacketExamples/SllPacket2.dat", pcpp::LINKTYPE_LINUX_SLL);
+	pcpp_tests::utils::PacketFactory sllFactory(pcpp::LINKTYPE_LINUX_SLL);
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/SllPacket2.dat", sllFactory);
 
-	pcpp::Packet sllPacket(&rawPacket4);
+	pcpp::Packet sllPacket(rawPacket4.get());
 
 	pcpp::Packet sllPacketCopy(sllPacket);
 
@@ -521,9 +519,9 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	// DnsLayer copy c'tor and operator= test
 	//--------------------------------------
 
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/Dns2.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/Dns2.dat");
 
-	pcpp::Packet sampleDnsPacket(&rawPacket5);
+	pcpp::Packet sampleDnsPacket(rawPacket5.get());
 
 	pcpp::DnsLayer* origDnsLayer = sampleDnsPacket.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(origDnsLayer);
@@ -562,12 +560,9 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 
 PTF_TEST_CASE(PacketLayerLookupTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_1.dat");
-		pcpp::Packet radiusPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/radius_1.dat");
+		pcpp::Packet radiusPacket(rawPacket1.get());
 
 		pcpp::RadiusLayer* radiusLayer = radiusPacket.getLayerOfType<pcpp::RadiusLayer>(true);
 		PTF_ASSERT_NOT_NULL(radiusLayer);
@@ -583,8 +578,8 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Vxlan1.dat");
-		pcpp::Packet vxlanPacket(&rawPacket2);
+		auto rawPacket2 = createPacketFromHexResource("PacketExamples/Vxlan1.dat");
+		pcpp::Packet vxlanPacket(rawPacket2.get());
 
 		// get the last IPv4 layer
 		pcpp::IPv4Layer* ipLayer = vxlanPacket.getLayerOfType<pcpp::IPv4Layer>(true);
@@ -614,10 +609,7 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 
 PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6UdpPacket.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IPv6UdpPacket.dat");
 
 	timeval usec_test_time;
 	timespec nsec_test_time;
@@ -629,40 +621,37 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 	expected_ts.tv_sec = usec_test_time.tv_sec;
 	expected_ts.tv_nsec = usec_test_time.tv_usec * 1000;
 
-	PTF_ASSERT_TRUE(rawPacket1.setPacketTimeStamp(usec_test_time));
-	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_sec, expected_ts.tv_sec);
-	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec);
+	PTF_ASSERT_TRUE(rawPacket1->setPacketTimeStamp(usec_test_time));
+	PTF_ASSERT_EQUAL(rawPacket1->getPacketTimeStamp().tv_sec, expected_ts.tv_sec);
+	PTF_ASSERT_EQUAL(rawPacket1->getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec);
 
 	// test nsec-precision setter
 	nsec_test_time.tv_sec = 1583842105;  // 10.03.2020 16:08
 	nsec_test_time.tv_nsec = 111222987;
 	expected_ts = nsec_test_time;
 
-	PTF_ASSERT_TRUE(rawPacket1.setPacketTimeStamp(nsec_test_time));
-	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_sec, expected_ts.tv_sec);
-	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec);
+	PTF_ASSERT_TRUE(rawPacket1->setPacketTimeStamp(nsec_test_time));
+	PTF_ASSERT_EQUAL(rawPacket1->getPacketTimeStamp().tv_sec, expected_ts.tv_sec);
+	PTF_ASSERT_EQUAL(rawPacket1->getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec);
 }  // RawPacketTimeStampSetterTest
 
 PTF_TEST_CASE(ParsePartialPacketTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-ClientHello1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/TwoHttpRequests1.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/PPPoESession2.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/TwoHttpRequests2.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/IcmpTimestampRequest.dat");
+	auto rawPacket7 = createPacketFromHexResource("PacketExamples/GREv0_2.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-ClientHello1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IGMPv1_1.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/TwoHttpRequests1.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/PPPoESession2.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/TwoHttpRequests2.dat");
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IcmpTimestampRequest.dat");
-	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/GREv0_2.dat");
-
-	pcpp::Packet sslPacket(&rawPacket1, pcpp::TCP);
-	pcpp::Packet igmpPacket(&rawPacket2, pcpp::IP);
-	pcpp::Packet httpPacket(&rawPacket3, pcpp::OsiModelTransportLayer);
-	pcpp::Packet pppoePacket(&rawPacket4, pcpp::OsiModelDataLinkLayer);
-	pcpp::Packet httpPacket2(&rawPacket5, pcpp::OsiModelPresentationLayer);
-	pcpp::Packet icmpPacket(&rawPacket6, pcpp::OsiModelNetworkLayer);
-	pcpp::Packet grePacket(&rawPacket7, pcpp::GRE);
+	pcpp::Packet sslPacket(rawPacket1.get(), pcpp::TCP);
+	pcpp::Packet igmpPacket(rawPacket2.get(), pcpp::IP);
+	pcpp::Packet httpPacket(rawPacket3.get(), pcpp::OsiModelTransportLayer);
+	pcpp::Packet pppoePacket(rawPacket4.get(), pcpp::OsiModelDataLinkLayer);
+	pcpp::Packet httpPacket2(rawPacket5.get(), pcpp::OsiModelPresentationLayer);
+	pcpp::Packet icmpPacket(rawPacket6.get(), pcpp::OsiModelNetworkLayer);
+	pcpp::Packet grePacket(rawPacket7.get(), pcpp::GRE);
 
 	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(pcpp::TCP));
@@ -741,17 +730,17 @@ PTF_TEST_CASE(PacketTrailerTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/packet_trailer_arp.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/packet_trailer_ipv4.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/packet_trailer_ipv6.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/packet_trailer_pppoed.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/packet_trailer_ipv6.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/packet_trailer_arp.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/packet_trailer_ipv4.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/packet_trailer_ipv6.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/packet_trailer_pppoed.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/packet_trailer_ipv6.dat");
 
-	pcpp::Packet trailerArpPacket(&rawPacket1);
-	pcpp::Packet trailerIPv4Packet(&rawPacket2);
-	pcpp::Packet trailerIPv6Packet(&rawPacket3);
-	pcpp::Packet trailerPPPoEDPacket(&rawPacket4);
-	pcpp::Packet trailerIPv6Packet2(&rawPacket5);
+	pcpp::Packet trailerArpPacket(rawPacket1.get());
+	pcpp::Packet trailerIPv4Packet(rawPacket2.get());
+	pcpp::Packet trailerIPv6Packet(rawPacket3.get());
+	pcpp::Packet trailerPPPoEDPacket(rawPacket4.get());
+	pcpp::Packet trailerIPv6Packet2(rawPacket5.get());
 
 	PTF_ASSERT_TRUE(trailerArpPacket.isPacketOfType(pcpp::PacketTrailer));
 	PTF_ASSERT_TRUE(trailerIPv4Packet.isPacketOfType(pcpp::PacketTrailer));
@@ -1002,8 +991,10 @@ PTF_TEST_CASE(PrintPacketAndLayersTest)
 	char tmbuf[64];
 	strftime(tmbuf, sizeof(tmbuf), "%Y-%m-%d %H:%M:%S", nowtm);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/MplsPackets1.dat");
-	pcpp::Packet packet(&rawPacket1);
+	pcpp_tests::utils::PacketFactory factory(time);
+
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/MplsPackets1.dat", factory);
+	pcpp::Packet packet(rawPacket1.get());
 
 	std::string expectedPacketHeaderString =
 	    "Packet length: 361 [Bytes], Arrival time: " + std::string(tmbuf) + ".000000000";
@@ -1049,12 +1040,9 @@ PTF_TEST_CASE(PrintPacketAndLayersTest)
 
 PTF_TEST_CASE(ProtocolFamilyMembershipTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TwoHttpRequests1.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
-
-	pcpp::Packet packet(&rawPacket1);
+	pcpp::Packet packet(rawPacket1.get());
 
 	auto ipV4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_TRUE(ipV4Layer->isMemberOfProtocolFamily(pcpp::IP));
@@ -1071,14 +1059,11 @@ PTF_TEST_CASE(ProtocolFamilyMembershipTest)
 
 PTF_TEST_CASE(PacketParseLayerLimitTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(0, "PacketExamples/TcpPacketWithOptions3.dat");
-	pcpp::Packet packet0(&rawPacket0, pcpp::OsiModelPhysicalLayer);
+	auto rawPacket0 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions3.dat");
+	pcpp::Packet packet0(rawPacket0.get(), pcpp::OsiModelPhysicalLayer);
 	PTF_ASSERT_EQUAL(packet0.getLastLayer(), packet0.getFirstLayer());
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions3.dat");
-	pcpp::Packet packet1(&rawPacket1, pcpp::OsiModelTransportLayer);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions3.dat");
+	pcpp::Packet packet1(rawPacket1.get(), pcpp::OsiModelTransportLayer);
 	PTF_ASSERT_EQUAL(packet1.getLastLayer()->getOsiModelLayer(), pcpp::OsiModelTransportLayer);
 }

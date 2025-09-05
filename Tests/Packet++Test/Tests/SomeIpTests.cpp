@@ -11,6 +11,8 @@
 #include <array>
 #include <cstring>
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 class SomeIpTeardown
 {
 public:
@@ -52,10 +54,10 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(29180);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/someip.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/someip2.dat");
-	pcpp::Packet someIpPacket(&rawPacket1);
-	pcpp::Packet someIpPacket2(&rawPacket2);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/someip.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/someip2.dat");
+	pcpp::Packet someIpPacket(rawPacket1.get());
+	pcpp::Packet someIpPacket2(rawPacket2.get());
 
 	// Test with one SOME/IP layer
 	PTF_ASSERT_TRUE(someIpPacket.isPacketOfType(pcpp::SomeIP));
@@ -185,11 +187,11 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(16832);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SomeIpTp1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SomeIpTp2.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SomeIpTp1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SomeIpTp2.dat");
 
-	pcpp::Packet someIpTpPacket1(&rawPacket1);
-	pcpp::Packet someIpTpPacket2(&rawPacket2);
+	pcpp::Packet someIpTpPacket1(rawPacket1.get());
+	pcpp::Packet someIpTpPacket2(rawPacket2.get());
 
 	// Test SOME/IP-TP start packet
 	PTF_ASSERT_TRUE(someIpTpPacket1.isPacketOfType(pcpp::SomeIP));

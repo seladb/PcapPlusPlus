@@ -8,16 +8,15 @@
 #include "IgmpLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(IgmpParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IGMPv2_1.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IGMPv1_1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IGMPv2_1.dat");
-
-	pcpp::Packet igmpv1Packet(&rawPacket1);
-	pcpp::Packet igmpv2Packet(&rawPacket2);
+	pcpp::Packet igmpv1Packet(rawPacket1.get());
+	pcpp::Packet igmpv2Packet(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(igmpv1Packet.isPacketOfType(pcpp::IGMPv1));
 	PTF_ASSERT_TRUE(igmpv1Packet.isPacketOfType(pcpp::IGMP));
@@ -102,14 +101,11 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 
 PTF_TEST_CASE(Igmpv3ParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/igmpv3_query.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/igmpv3_report.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/igmpv3_query.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/igmpv3_report.dat");
-
-	pcpp::Packet igmpv3QueryPacket(&rawPacket1);
-	pcpp::Packet igmpv3ReportPacket(&rawPacket2);
+	pcpp::Packet igmpv3QueryPacket(rawPacket1.get());
+	pcpp::Packet igmpv3ReportPacket(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(igmpv3QueryPacket.isPacketOfType(pcpp::IGMPv3));
 	PTF_ASSERT_TRUE(igmpv3QueryPacket.isPacketOfType(pcpp::IGMP));
