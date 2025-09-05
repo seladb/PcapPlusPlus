@@ -16,17 +16,16 @@ public:
 	L2FwdWorkerThread(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice);
 
 	// d'tor (does nothing)
-	~L2FwdWorkerThread()
-	{}
+	~L2FwdWorkerThread() override = default;
 
 	// implement abstract method
 
 	// start running the worker thread
-	bool run(uint32_t coreId);
+	bool run(uint32_t coreId) override;
 
 	// ask the worker thread to stop
-	void stop();
+	void stop() override;
 
 	// get worker thread core ID
-	uint32_t getCoreId() const;
+	uint32_t getCoreId() const override;
 };

@@ -19,7 +19,7 @@
 #define EXIT_WITH_ERROR(reason)                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -27,7 +27,7 @@
 	do                                                                                                                 \
 	{                                                                                                                  \
 		printUsage();                                                                                                  \
-		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		std::cout << '\n' << "ERROR: " << reason << '\n' << '\n';                                                      \
 		exit(1);                                                                                                       \
 	} while (0)
 
@@ -39,10 +39,10 @@
 struct AppWorkerConfig
 {
 	uint32_t CoreId;
-	pcpp::DpdkDevice* RxDevice;
-	uint16_t RxQueues;
-	pcpp::DpdkDevice* TxDevice;
+	pcpp::DpdkDevice* RxDevice{ nullptr };
+	uint16_t RxQueues{ 1 };
+	pcpp::DpdkDevice* TxDevice{ nullptr };
 
-	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES + 1), RxDevice(nullptr), RxQueues(1), TxDevice(nullptr)
+	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES + 1)
 	{}
 };
