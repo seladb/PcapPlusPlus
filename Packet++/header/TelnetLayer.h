@@ -290,7 +290,7 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses the next layer. Telnet is the always last so does nothing for this layer
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return Get the size of the layer

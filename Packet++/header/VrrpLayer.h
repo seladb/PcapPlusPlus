@@ -244,7 +244,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Does nothing for this layer (VRRP layer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// Calculate the VRRP checksum

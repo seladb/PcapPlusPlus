@@ -63,7 +63,7 @@ namespace pcpp
 		return data[1] == 0xf0 && data[0] == 2;
 	}
 
-	void CotpLayer::parseNextLayer()
+	void CotpLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

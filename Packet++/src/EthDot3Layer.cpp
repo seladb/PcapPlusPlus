@@ -21,7 +21,7 @@ namespace pcpp
 		m_Protocol = Ethernet;
 	}
 
-	void EthDot3Layer::parseNextLayer()
+	void EthDot3Layer::parseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen <= sizeof(ether_dot3_header))
 			return;

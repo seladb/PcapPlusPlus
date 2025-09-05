@@ -621,7 +621,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// parse UDS layer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return The size of @ref doiphdr + attached fields length
 		size_t getHeaderLen() const override

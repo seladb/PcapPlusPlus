@@ -193,7 +193,7 @@ namespace pcpp
 		return getExtensionOfType<IPv6FragmentationHeader>() != nullptr;
 	}
 
-	void IPv6Layer::parseNextLayer()
+	void IPv6Layer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 
