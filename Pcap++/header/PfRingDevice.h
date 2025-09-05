@@ -77,7 +77,7 @@ namespace pcpp
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
 		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
 
-		int openSingleRxChannel(const char* deviceName, pfring*& ring);
+		int openSingleRxChannelImpl(const char* deviceName, pfring*& ring, bool useReenterant = false);
 		/// Closes all opened RX channels and clears the opened channels list (m_PfRingDescriptors)
 		void closeAllRxChannels();
 
