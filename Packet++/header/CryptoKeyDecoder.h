@@ -23,6 +23,8 @@ namespace pcpp
 			    : m_Root(root), m_DecoderType(std::move(decoderType))
 			{}
 
+			~PrivateKeyDataView() = default;
+
 			template <class Asn1RecordType>
 			Asn1RecordType* castSubRecordAs(int index, const std::string& fieldName) const
 			{
@@ -78,6 +80,8 @@ namespace pcpp
 			    : PrivateKeyDataView(root, decoderType)
 			{}
 
+			~RSAPrivateKeyDataView() = default;
+
 		private:
 			static constexpr int versionOffset = 0;
 			static constexpr int modulusOffset = 1;
@@ -109,6 +113,8 @@ namespace pcpp
 
 		protected:
 			explicit ECPrivateKeyDataView(Asn1SequenceRecord* root, std::string decoderType);
+
+			~ECPrivateKeyDataView() = default;
 
 		private:
 			static constexpr int versionOffset = 0;

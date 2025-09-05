@@ -117,6 +117,9 @@ namespace pcpp
 
 				return fromPEM(pemContent);
 			}
+
+		protected:
+			~CryptoDataReader() = default;
 		};
 	}  // namespace internal
 }  // namespace pcpp
