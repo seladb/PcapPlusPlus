@@ -514,7 +514,7 @@ jobs:
             pcap_lib: "winpcap"
           - env: x86_64
             sys: mingw64
-            pcap_lib: "winpcap"
+            pcap_lib: "npcap"
 
     steps:
       - name: Checkout code
@@ -535,6 +535,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Check if running in main repo
+        id: repo_check
+        shell: bash
+        run: |
+          if [ "${{ github.repository }}" == "your-org/your-main-repo" ]; then
+            echo "is_main_repo=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_main_repo=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install NPcap
         env:
           NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
@@ -542,13 +552,15 @@ jobs:
         run: |
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'npcap'
+        if: steps.repo_check.outputs.is_main_repo == 'true' && matrix.pcap_lib == 'npcap'
 
       - name: Install WinPcap
         run: |
           ci\install_winpcap.bat
           echo "PCAP_SDK_DIR=/C/WpdPack" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'winpcap'
+        if: |
+          (steps.repo_check.outputs.is_main_repo == 'true' && matrix.pcap_lib == 'winpcap') ||
+          (steps.repo_check.outputs.is_main_repo == 'false')
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
@@ -606,11 +618,11 @@ jobs:
           - os: windows-2025
             platform: "Visual Studio 17 2022"
             arch: "x64"
-            pcap_lib: "winpcap"
+            pcap_lib: "npcap"
           - os: windows-2022
             platform: "Visual Studio 17 2022"
             arch: "x64"
-            pcap_lib: "winpcap"
+            pcap_lib: "npcap"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -630,11 +642,23 @@ jobs:
           choco install OpenCppCoverage -y
           echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH
 
+      - name: Check if running in main repo
+        id: repo_check
+        shell: bash
+        run: |
+          if [ "${{ github.repository }}" == "your-org/your-main-repo" ]; then
+            echo "is_main_repo=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_main_repo=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install WinPcap
         run: |
           ci\install_winpcap.bat
           echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'winpcap'
+        if: |
+          (steps.repo_check.outputs.is_main_repo == 'true' && matrix.pcap_lib == 'winpcap') ||
+          (steps.repo_check.outputs.is_main_repo == 'false')
 
       - name: Install NPcap
         env:
@@ -643,7 +667,7 @@ jobs:
         run: |
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'npcap'
+        if: steps.repo_check.outputs.is_main_repo == 'true' && matrix.pcap_lib == 'npcap'
 
       - name: Set Zstd
         run: |
