@@ -4,7 +4,7 @@
 /// @brief This file contains internal assertion utilities used in PcapPlusPlus for debugging.
 
 #ifndef PCPP_ASSERT_USE_C_ASSERT
-#	define PCPP_ASSERT_USE_C_ASSERT 0
+#	define PCPP_ASSERT_USE_C_ASSERT 1
 #endif  // !PCPP_ASSERT_USE_C_ASSERT
 
 #include <stdexcept>
