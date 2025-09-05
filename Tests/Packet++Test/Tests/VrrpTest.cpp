@@ -11,6 +11,8 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(VrrpParsingTest)
 {
 	timeval time = {};
@@ -20,13 +22,13 @@ PTF_TEST_CASE(VrrpParsingTest)
 	uint8_t fakeBuffer[10] = { 0xb4, 0xaf, 0x98, 0x1a, 0xb4, 0xaf, 0x98, 0x1a, 0x98, 0x1a };
 	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(fakeBuffer, 10), pcpp::UnknownProtocol);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/VRRP-V2.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/VRRP-V3-IPv4.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/VRRP-V3-IPv6.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/VRRP-V2.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/VRRP-V3-IPv4.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/VRRP-V3-IPv6.dat");
 
-	pcpp::Packet vrrpv2Packet(&rawPacket1);
-	pcpp::Packet vrrpv3IPv4Packet(&rawPacket2);
-	pcpp::Packet vrrpv3IPv6Packet(&rawPacket3);
+	pcpp::Packet vrrpv2Packet(rawPacket1.get());
+	pcpp::Packet vrrpv3IPv4Packet(rawPacket2.get());
+	pcpp::Packet vrrpv3IPv6Packet(rawPacket3.get());
 
 	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(pcpp::VRRPv2))

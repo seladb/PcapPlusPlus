@@ -11,14 +11,17 @@
 #include "UdpLayer.h"
 #include "Logger.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(Sll2PacketParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/Sll2Packet.dat", pcpp::LINKTYPE_LINUX_SLL2);
+	pcpp_tests::utils::PacketFactory ssl2Factory(pcpp::LINKTYPE_LINUX_SLL2);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Sll2Packet.dat", ssl2Factory);
 
-	pcpp::Packet sll2Packet(&rawPacket1);
+	pcpp::Packet sll2Packet(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::SLL2));
 	pcpp::Sll2Layer* sll2Layer = sll2Packet.getLayerOfType<pcpp::Sll2Layer>();

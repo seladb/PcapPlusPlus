@@ -9,15 +9,14 @@
 #include "SystemUtils.h"
 #include "TcpLayer.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(FtpParsingTests)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	// Test IPv4 packets
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ftpIpv4Req.dat");
 
-	pcpp::Packet ftpPacket1(&rawPacket1);
+	pcpp::Packet ftpPacket1(rawPacket1.get());
 	pcpp::FtpRequestLayer* ftpLayer1 = ftpPacket1.getLayerOfType<pcpp::FtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer1);
@@ -27,9 +26,9 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpLayer1->toString(), "FTP Request: USER");
 	PTF_ASSERT_FALSE(ftpLayer1->isMultiLine());
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ftpIpv4Resp.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/ftpIpv4Resp.dat");
 
-	pcpp::Packet ftpPacket2(&rawPacket2);
+	pcpp::Packet ftpPacket2(rawPacket2.get());
 	pcpp::FtpResponseLayer* ftpLayer2 = ftpPacket2.getLayerOfType<pcpp::FtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer2);
@@ -39,9 +38,9 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpLayer2->toString(), "FTP Response: 250");
 	PTF_ASSERT_FALSE(ftpLayer2->isMultiLine());
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ftpIpv4RespHyphen.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/ftpIpv4RespHyphen.dat");
 
-	pcpp::Packet ftpPacket3(&rawPacket3);
+	pcpp::Packet ftpPacket3(rawPacket3.get());
 	pcpp::FtpResponseLayer* ftpLayer3 = ftpPacket3.getLayerOfType<pcpp::FtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer3);
@@ -52,9 +51,9 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_TRUE(ftpLayer3->isMultiLine());
 
 	// Test IPv6 packets
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/ftpIpv6Req.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/ftpIpv6Req.dat");
 
-	pcpp::Packet ftpPacket4(&rawPacket4);
+	pcpp::Packet ftpPacket4(rawPacket4.get());
 	pcpp::FtpRequestLayer* ftpLayer4 = ftpPacket4.getLayerOfType<pcpp::FtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer4);
@@ -64,9 +63,9 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpLayer4->toString(), "FTP Request: PASS");
 	PTF_ASSERT_FALSE(ftpLayer4->isMultiLine());
 
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/ftpIpv6Resp.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/ftpIpv6Resp.dat");
 
-	pcpp::Packet ftpPacket5(&rawPacket5);
+	pcpp::Packet ftpPacket5(rawPacket5.get());
 	pcpp::FtpResponseLayer* ftpLayer5 = ftpPacket5.getLayerOfType<pcpp::FtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer5);
@@ -78,9 +77,9 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_FALSE(ftpLayer5->isMultiLine());
 
 	// Test FTP Data
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/ftp-data.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/ftp-data.dat");
 
-	pcpp::Packet ftpDataPacket(&rawPacket6);
+	pcpp::Packet ftpDataPacket(rawPacket6.get());
 	pcpp::FtpDataLayer* ftpDataLayer = ftpDataPacket.getLayerOfType<pcpp::FtpDataLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpDataLayer);
@@ -89,9 +88,9 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpDataLayer->toString(), "FTP Data");
 
 	// Test IPv4 Command Only Request Packet
-	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/ftpIpv4CmdOnlyReq.dat");
+	auto rawPacket7 = createPacketFromHexResource("PacketExamples/ftpIpv4CmdOnlyReq.dat");
 
-	pcpp::Packet ftpPacket7(&rawPacket7);
+	pcpp::Packet ftpPacket7(rawPacket7.get());
 	pcpp::FtpRequestLayer* ftpLayer7 = ftpPacket7.getLayerOfType<pcpp::FtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer7);
@@ -302,17 +301,14 @@ PTF_TEST_CASE(FtpCreationTests)
 
 PTF_TEST_CASE(FtpEditTests)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	// Modify existing request packets
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
-	pcpp::Packet ftpPacket1(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ftpIpv4Req.dat");
+	pcpp::Packet ftpPacket1(rawPacket1.get());
 	pcpp::FtpRequestLayer* ftpLayer1 = ftpPacket1.getLayerOfType<pcpp::FtpRequestLayer>();
 	PTF_ASSERT_NOT_NULL(ftpLayer1);
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ftpReqEdited1.dat");
-	pcpp::Packet ftpReqEdited1(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/ftpReqEdited1.dat");
+	pcpp::Packet ftpReqEdited1(rawPacket2.get());
 	pcpp::FtpRequestLayer* ftpReqEditedLayer1 = ftpReqEdited1.getLayerOfType<pcpp::FtpRequestLayer>();
 	PTF_ASSERT_NOT_NULL(ftpReqEditedLayer1);
 
@@ -320,8 +316,8 @@ PTF_TEST_CASE(FtpEditTests)
 	PTF_ASSERT_EQUAL(ftpLayer1->getDataLen(), ftpReqEditedLayer1->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(ftpLayer1->getData(), ftpReqEditedLayer1->getData(), ftpLayer1->getDataLen());
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ftpReqEdited2.dat");
-	pcpp::Packet ftpReqEdited2(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/ftpReqEdited2.dat");
+	pcpp::Packet ftpReqEdited2(rawPacket3.get());
 	pcpp::FtpRequestLayer* ftpReqEditedLayer2 = ftpReqEdited2.getLayerOfType<pcpp::FtpRequestLayer>();
 	PTF_ASSERT_NOT_NULL(ftpReqEditedLayer2);
 
@@ -330,13 +326,13 @@ PTF_TEST_CASE(FtpEditTests)
 	PTF_ASSERT_BUF_COMPARE(ftpLayer1->getData(), ftpReqEditedLayer2->getData(), ftpLayer1->getDataLen());
 
 	// Modify existing response packets
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/ftpIpv4Resp.dat");
-	pcpp::Packet ftpPacket2(&rawPacket4);
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/ftpIpv4Resp.dat");
+	pcpp::Packet ftpPacket2(rawPacket4.get());
 	pcpp::FtpResponseLayer* ftpLayer2 = ftpPacket2.getLayerOfType<pcpp::FtpResponseLayer>();
 	PTF_ASSERT_NOT_NULL(ftpLayer2);
 
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/ftpRespEdited1.dat");
-	pcpp::Packet ftpRespEdited1(&rawPacket5);
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/ftpRespEdited1.dat");
+	pcpp::Packet ftpRespEdited1(rawPacket5.get());
 	pcpp::FtpResponseLayer* ftpRespEditedLayer1 = ftpRespEdited1.getLayerOfType<pcpp::FtpResponseLayer>();
 	PTF_ASSERT_NOT_NULL(ftpRespEditedLayer1);
 
@@ -344,8 +340,8 @@ PTF_TEST_CASE(FtpEditTests)
 	PTF_ASSERT_EQUAL(ftpLayer2->getDataLen(), ftpRespEditedLayer1->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(ftpLayer2->getData(), ftpRespEditedLayer1->getData(), ftpLayer2->getDataLen());
 
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/ftpRespEdited2.dat");
-	pcpp::Packet ftpRespEdited2(&rawPacket6);
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/ftpRespEdited2.dat");
+	pcpp::Packet ftpRespEdited2(rawPacket6.get());
 	pcpp::FtpResponseLayer* ftpRespEditedLayer2 = ftpRespEdited2.getLayerOfType<pcpp::FtpResponseLayer>();
 	PTF_ASSERT_NOT_NULL(ftpRespEditedLayer2);
 
