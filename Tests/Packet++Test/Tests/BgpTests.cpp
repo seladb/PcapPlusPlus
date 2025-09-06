@@ -8,10 +8,10 @@
 #include "BgpLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(BgpLayerParsingTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Bgp_keepalive.dat");
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/Bgp_open.dat");
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/Bgp_notification.dat");
