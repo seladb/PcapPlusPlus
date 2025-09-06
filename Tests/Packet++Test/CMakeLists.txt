@@ -6,6 +6,7 @@ add_executable(
   Tests/BgpTests.cpp
   Tests/CiscoHdlcTests.cpp
   Tests/CotpTests.cpp
+  Tests/CryptoKeyTests.cpp
   Tests/DhcpTests.cpp
   Tests/DhcpV6Tests.cpp
   Tests/DnsTests.cpp
