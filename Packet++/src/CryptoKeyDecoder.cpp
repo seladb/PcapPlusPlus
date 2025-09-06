@@ -54,20 +54,32 @@ namespace pcpp
 		ECPrivateKeyDataView::ECPrivateKeyDataView(Asn1SequenceRecord* root, std::string decoderType)
 		    : PrivateKeyDataView(root, decoderType)
 		{
-			size_t currOffset = 2;
-			while (root->getSubRecords().size() > currOffset)
+			for (size_t currOffset = 2; currOffset < root->getSubRecords().size(); currOffset++)
 			{
 				auto record = root->getSubRecords().at(currOffset);
 
-				if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 0)
+				if (record->getTagClass() != Asn1TagClass::ContextSpecific)
+				{
+					continue;
+				}
+
+				switch (record->getTagType())
+				{
+				case 0:
 				{
 					m_ParametersOffset = currOffset;
+					break;
 				}
-				else if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 1)
+				case 1:
 				{
 					m_PublicKeyOffset = currOffset;
+					break;
 				}
-				currOffset++;
+				default:
+				{
+					break;
+				}
+				}
 			}
 		}
 
@@ -253,8 +265,8 @@ namespace pcpp
 	PKCS8PrivateKey::PrivateKeyData::PrivateKeyData(const std::string& rawData)
 	{
 		m_DerData.resize(rawData.length() / 2);
-		hexStringToByteArray(rawData, m_DerData.data(), rawData.length() / 2);
-		m_Root = Asn1Record::decode(m_DerData.data(), rawData.size());
+		hexStringToByteArray(rawData, m_DerData.data(), m_DerData.size());
+		m_Root = Asn1Record::decode(m_DerData.data(), m_DerData.size());
 	}
 
 	PKCS8PrivateKey::RSAPrivateKeyData::RSAPrivateKeyData(const std::string& rawData)
