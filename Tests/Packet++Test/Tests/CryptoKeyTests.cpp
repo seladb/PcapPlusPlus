@@ -39,8 +39,8 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		auto rsaPrivateKeyPem = pcpp::RSAPrivateKey::fromPEMFile("PacketExamples/RSAPrivateKey.pem");
 		auto rsaPrivateKeyDer = pcpp::RSAPrivateKey::fromDERFile("PacketExamples/RSAPrivateKey.der");
 
-		compareStringToFile(rsaPrivateKeyPem->toPEM(), "PacketExamples/RSAPrivateKey.pem");
-		compareVectorToBinaryFile(rsaPrivateKeyDer->toDER(), "PacketExamples/RSAPrivateKey.der");
+		PTF_ASSERT_TRUE(compareStringToFile(rsaPrivateKeyPem->toPEM(), "PacketExamples/RSAPrivateKey.pem"));
+		PTF_ASSERT_TRUE(compareVectorToBinaryFile(rsaPrivateKeyDer->toDER(), "PacketExamples/RSAPrivateKey.der"));
 
 		std::array<std::unique_ptr<pcpp::RSAPrivateKey>, 2> rsaPrivateKeys;
 		rsaPrivateKeys[0] = std::move(rsaPrivateKeyPem);
@@ -79,8 +79,8 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		auto ecPrivateKeyPem = pcpp::ECPrivateKey::fromPEMFile("PacketExamples/ECPrivateKey.pem");
 		auto ecPrivateKeyDer = pcpp::ECPrivateKey::fromDERFile("PacketExamples/ECPrivateKey.der");
 
-		compareStringToFile(ecPrivateKeyPem->toPEM(), "PacketExamples/ECPrivateKey.pem");
-		compareVectorToBinaryFile(ecPrivateKeyDer->toDER(), "PacketExamples/ECPrivateKey.der");
+		PTF_ASSERT_TRUE(compareStringToFile(ecPrivateKeyPem->toPEM(), "PacketExamples/ECPrivateKey.pem"));
+		PTF_ASSERT_TRUE(compareVectorToBinaryFile(ecPrivateKeyDer->toDER(), "PacketExamples/ECPrivateKey.der"));
 
 		std::array<std::unique_ptr<pcpp::ECPrivateKey>, 2> ecPrivateKeys;
 		ecPrivateKeys[0] = std::move(ecPrivateKeyPem);
@@ -116,8 +116,9 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		auto pkcs8PrivateKeyPem = pcpp::PKCS8PrivateKey::fromPEMFile("PacketExamples/RSAPrivateKeyPKCS8.pem");
 		auto pkcs8PrivateKeyDer = pcpp::PKCS8PrivateKey::fromDERFile("PacketExamples/RSAPrivateKeyPKCS8.der");
 
-		compareStringToFile(pkcs8PrivateKeyPem->toPEM(), "PacketExamples/RSAPrivateKeyPKCS8.pem");
-		compareVectorToBinaryFile(pkcs8PrivateKeyDer->toDER(), "PacketExamples/RSAPrivateKeyPKCS8.der");
+		PTF_ASSERT_TRUE(compareStringToFile(pkcs8PrivateKeyPem->toPEM(), "PacketExamples/RSAPrivateKeyPKCS8.pem"));
+		PTF_ASSERT_TRUE(
+		    compareVectorToBinaryFile(pkcs8PrivateKeyDer->toDER(), "PacketExamples/RSAPrivateKeyPKCS8.der"));
 
 		std::array<std::unique_ptr<pcpp::PKCS8PrivateKey>, 2> pkcs8PrivateKeys;
 		pkcs8PrivateKeys[0] = std::move(pkcs8PrivateKeyPem);
@@ -165,8 +166,8 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		auto pkcs8PrivateKeyPem = pcpp::PKCS8PrivateKey::fromPEMFile("PacketExamples/ECPrivateKeyPKCS8.pem");
 		auto pkcs8PrivateKeyDer = pcpp::PKCS8PrivateKey::fromDERFile("PacketExamples/ECPrivateKeyPKCS8.der");
 
-		compareStringToFile(pkcs8PrivateKeyPem->toPEM(), "PacketExamples/ECPrivateKeyPKCS8.pem");
-		compareVectorToBinaryFile(pkcs8PrivateKeyDer->toDER(), "PacketExamples/ECPrivateKeyPKCS8.der");
+		PTF_ASSERT_TRUE(compareStringToFile(pkcs8PrivateKeyPem->toPEM(), "PacketExamples/ECPrivateKeyPKCS8.pem"));
+		PTF_ASSERT_TRUE(compareVectorToBinaryFile(pkcs8PrivateKeyDer->toDER(), "PacketExamples/ECPrivateKeyPKCS8.der"));
 
 		std::array<std::unique_ptr<pcpp::PKCS8PrivateKey>, 2> pkcs8PrivateKeys;
 		pkcs8PrivateKeys[0] = std::move(pkcs8PrivateKeyPem);
@@ -198,8 +199,9 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		auto pkcs8PrivateKeyPem = pcpp::PKCS8PrivateKey::fromPEMFile("PacketExamples/Ed25519PrivateKeyPKCS8.pem");
 		auto pkcs8PrivateKeyDer = pcpp::PKCS8PrivateKey::fromDERFile("PacketExamples/Ed25519PrivateKeyPKCS8.der");
 
-		compareStringToFile(pkcs8PrivateKeyPem->toPEM(), "PacketExamples/Ed25519PrivateKeyPKCS8.pem");
-		compareVectorToBinaryFile(pkcs8PrivateKeyDer->toDER(), "PacketExamples/Ed25519PrivateKeyPKCS8.der");
+		PTF_ASSERT_TRUE(compareStringToFile(pkcs8PrivateKeyPem->toPEM(), "PacketExamples/Ed25519PrivateKeyPKCS8.pem"));
+		PTF_ASSERT_TRUE(
+		    compareVectorToBinaryFile(pkcs8PrivateKeyDer->toDER(), "PacketExamples/Ed25519PrivateKeyPKCS8.der"));
 
 		std::array<std::unique_ptr<pcpp::PKCS8PrivateKey>, 2> pkcs8PrivateKeys;
 		pkcs8PrivateKeys[0] = std::move(pkcs8PrivateKeyPem);
@@ -263,8 +265,8 @@ PTF_TEST_CASE(CryptoKeyDecodingTest)
 		auto rsaPublicKeyPem = pcpp::RSAPublicKey::fromPEMFile("PacketExamples/RSAPublicKey.pem");
 		auto rsaPublicKeyDer = pcpp::RSAPublicKey::fromDERFile("PacketExamples/RSAPublicKey.der");
 
-		compareStringToFile(rsaPublicKeyPem->toPEM(), "PacketExamples/RSAPublicKey.pem");
-		compareVectorToBinaryFile(rsaPublicKeyDer->toDER(), "PacketExamples/RSAPublicKey.der");
+		PTF_ASSERT_TRUE(compareStringToFile(rsaPublicKeyPem->toPEM(), "PacketExamples/RSAPublicKey.pem"));
+		PTF_ASSERT_TRUE(compareVectorToBinaryFile(rsaPublicKeyDer->toDER(), "PacketExamples/RSAPublicKey.der"));
 
 		std::array<std::unique_ptr<pcpp::RSAPublicKey>, 2> rsaPublicKeys;
 		rsaPublicKeys[0] = std::move(rsaPublicKeyDer);
