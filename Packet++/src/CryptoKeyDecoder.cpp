@@ -217,31 +217,36 @@ namespace pcpp
 	std::unique_ptr<PKCS8PrivateKey::PrivateKeyData> PKCS8PrivateKey::getPrivateKey() const
 	{
 		auto rawData = castSubRecordAs<Asn1OctetStringRecord>(privateKeyOffset, "private key")->getValue();
+
+		auto privateKeyAlgorithm = CryptographicKeyAlgorithm::Unknown;
 		try
 		{
-			switch (getPrivateKeyAlgorithm())
-			{
-			case CryptographicKeyAlgorithm::RSA:
-			{
-				return std::unique_ptr<PrivateKeyData>(new RSAPrivateKeyData(rawData));
-			}
-			case CryptographicKeyAlgorithm::ECDSA:
-			{
-				return std::unique_ptr<PrivateKeyData>(new ECPrivateKeyData(rawData));
-			}
-			case CryptographicKeyAlgorithm::ED25519:
-			{
-				return std::unique_ptr<PrivateKeyData>(new Ed25519PrivateKeyData(rawData));
-			}
-			default:
-			{
-				return {};
-			}
-			}
+			privateKeyAlgorithm = getPrivateKeyAlgorithm();
 		}
 		catch (...)
 		{
-			return {};
+			throw std::runtime_error("Invalid " + std::string(keyType) +
+			                         " data: cannot get private key because fetching the private key algorithm failed");
+		}
+
+		switch (privateKeyAlgorithm)
+		{
+		case CryptographicKeyAlgorithm::RSA:
+		{
+			return std::unique_ptr<PrivateKeyData>(new RSAPrivateKeyData(rawData));
+		}
+		case CryptographicKeyAlgorithm::ECDSA:
+		{
+			return std::unique_ptr<PrivateKeyData>(new ECPrivateKeyData(rawData));
+		}
+		case CryptographicKeyAlgorithm::ED25519:
+		{
+			return std::unique_ptr<PrivateKeyData>(new Ed25519PrivateKeyData(rawData));
+		}
+		default:
+		{
+			return nullptr;
+		}
 		}
 	}
 

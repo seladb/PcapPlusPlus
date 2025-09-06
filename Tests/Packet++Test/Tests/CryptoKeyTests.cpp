@@ -362,7 +362,9 @@ PTF_TEST_CASE(CryptoKeyInvalidDataTest)
 		auto privateKey = pcpp::PKCS8PrivateKey::fromDER(malformedData.data(), malformedData.size());
 		PTF_ASSERT_RAISES(privateKey->getPrivateKeyAlgorithm(), std::runtime_error,
 		                  "Invalid PKCS#8 private key data: private key algorithm");
-		PTF_ASSERT_NULL(privateKey->getPrivateKey());
+		PTF_ASSERT_RAISES(
+		    privateKey->getPrivateKey(), std::runtime_error,
+		    "Invalid PKCS#8 private key data: cannot get private key because fetching the private key algorithm failed");
 	}
 
 	// Unknown PKCS#8 algorithm
