@@ -508,12 +508,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check NPcap credentials exist
-        run: |
-          if [[ -z "${{ secrets.NPCAP_USERNAME }}" || -z "${{ secrets.NPCAP_PASSWORD }}" ]]; then
-            echo "npcap_available=false" >> $GITHUB_ENV
-          else
-            echo "npcap_available=true" >> $GITHUB_ENV
-          fi
+        if: secrets.NPCAP_USERNAME && secrets.NPCAP_PASSWORD
+        run: echo "npcap_available=true" >> $GITHUB_ENV
+        
       - name: Generate pcap backends matrix
         run: |
           if [[ "${{ env.npcap_available }}" == "true" ]]; then
@@ -537,6 +534,7 @@ jobs:
         run: echo "Matrix pcap_lib is ${{ matrix.pcap_lib }}"
 
   mingw-w64:
+    needs: select-windows-pcap-backend
     runs-on: windows-latest
     strategy:
       matrix:
@@ -628,6 +626,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   visual-studio:
+    needs: select-windows-pcap-backend  
     strategy:
       matrix:
         include:
