@@ -513,7 +513,7 @@ jobs:
       - name: Initialize NPcap backend variable
         run: echo "npcap_available=false" >> $GITHUB_ENV
 
-      - name: Check NPcap availability
+      - name: Enable NPcap backend if OEM credentials are available
         env: # Secrets can't be accessed directly in 'if' conditionals.
           npcap_username: ${{ secrets.NPCAP_USERNAME }}
           npcap_password: ${{ secrets.NPCAP_PASSWORD }}
