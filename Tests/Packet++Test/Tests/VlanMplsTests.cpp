@@ -11,6 +11,7 @@
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(VlanParseAndCreation)
@@ -29,12 +30,11 @@ PTF_TEST_CASE(VlanParseAndCreation)
 		}
 	}
 
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/ArpRequestWithVlan.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ArpRequestWithVlan.dat");
-
-	pcpp::Packet arpWithVlan(&rawPacket1);
+	pcpp::Packet arpWithVlan(rawPacket1.get());
 
 	pcpp::VlanLayer* firstVlanLayerPtr = arpWithVlan.getLayerOfType<pcpp::VlanLayer>();
 	PTF_ASSERT_NOT_NULL(firstVlanLayerPtr);
@@ -64,8 +64,8 @@ PTF_TEST_CASE(VlanParseAndCreation)
 
 	arpWithVlanNew.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(arpWithVlanNew.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(arpWithVlanNew.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(arpWithVlanNew.getRawPacket()->getRawDataLen(), resource1.length);
+	PTF_ASSERT_BUF_COMPARE(arpWithVlanNew.getRawPacket()->getRawData(), resource1.data.get(), resource1.length);
 }  // VlanParseAndCreation
 
 PTF_TEST_CASE(QinQ802_1adParse)
@@ -175,13 +175,13 @@ PTF_TEST_CASE(MplsLayerTest)
 
 PTF_TEST_CASE(VxlanParsingAndCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/Vxlan1.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Vxlan1.dat");
 	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/Vxlan2.dat");
 
-	pcpp::Packet vxlanPacket(&rawPacket1);
+	pcpp::Packet vxlanPacket(rawPacket1.get());
 
 	// test vxlan parsing
 	pcpp::VxlanLayer* vxlanLayer = vxlanPacket.getLayerOfType<pcpp::VxlanLayer>();
@@ -217,7 +217,7 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	PTF_ASSERT_TRUE(vxlanPacket.insertLayer(vxlanPacket.getLayerOfType<pcpp::UdpLayer>(), newVxlanLayer, true));
 
 	// verify new vxlan layer
-	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer1,
+	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), resource1.length);
+	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), resource1.data.get(),
 	                       vxlanPacket.getRawPacket()->getRawDataLen());
 }  // VxlanParsingAndCreationTest

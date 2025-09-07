@@ -405,5 +405,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PemEncodingTest, "pem");
 	PTF_RUN_TEST(PemDecodingTest, "pem");
 
+	PTF_RUN_TEST(CryptoKeyDecodingTest, "crypto");
+	PTF_RUN_TEST(CryptoKeyInvalidDataTest, "crypto");
+
 	PTF_END_RUNNING_TESTS;
 }
