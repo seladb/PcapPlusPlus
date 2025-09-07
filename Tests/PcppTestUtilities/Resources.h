@@ -59,4 +59,11 @@ namespace pcpp_tests
 	/// @brief Retrieves the default resource provider.
 	/// @return A pointer to the default ResourceProvider.
 	utils::ResourceProvider* getDefaultResourceProvider();
+
+	/// @brief Loads a hex resource file into a vector of bytes.
+	/// @param filename The name of the hex resource file to load.
+	/// @param resourceProvider Optional pointer to a ResourceProvider. If nullptr, the default provider is used.
+	/// @return A vector containing the loaded hex data.
+	std::vector<uint8_t> loadHexResourceToVector(const char* filename,
+	                                             utils::ResourceProvider* resourceProvider = nullptr);
 }  // namespace pcpp_tests
