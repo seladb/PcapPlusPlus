@@ -627,7 +627,7 @@ jobs:
         os: [windows-2025, windows-2022]
         arch: [Win32, x64]
         pcap_lib: ${{ fromJSON(needs.define-windows-pcap-backend-matrix.outputs.pcap-backends) }}
-        include: # Adds the specific platform for each OS
+        include: # Adds the specific platform for matching each OS
           - os: windows-2025
             platform: "Visual Studio 17 2022"
           - os: windows-2022
