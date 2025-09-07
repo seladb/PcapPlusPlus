@@ -517,7 +517,7 @@ jobs:
         env: # Secrets can't be accessed directly in 'if' conditionals.
           npcap_username: ${{ secrets.NPCAP_USERNAME }}
           npcap_password: ${{ secrets.NPCAP_PASSWORD }}
-        if: ${{ env.NPCAP_USERNAME != '' && env.NPCAP_PASSWORD != '' }}
+        if: ${{ env.npcap_username != '' && env.npcap_password != '' }}
         run: echo "npcap_available=true" >> $GITHUB_ENV
 
       - name: Generate pcap backends matrix
