@@ -510,10 +510,6 @@ jobs:
       - name: Initialize npcap backend variable
         run: echo "npcap_available=false" >> $GITHUB_ENV
 
-      - name: Check NPcap credentials exist
-        if: ${{ secrets.NPCAP_USERNAME != '' && secrets.NPCAP_PASSWORD != '' }}
-        run: echo "npcap_available=true" >> $GITHUB_ENV
-        
       - name: Generate pcap backends matrix
         run: |
           if [[ "${{ env.npcap_available }}" == "true" ]]; then
