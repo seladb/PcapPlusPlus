@@ -10,6 +10,7 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(SipRequestParseMethodTest)
@@ -167,12 +168,11 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 
 PTF_TEST_CASE(SipRequestLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/sip_req1.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_req1.dat");
-
-	pcpp::Packet sipReqSamplePacket(&rawPacket1);
+	pcpp::Packet sipReqSamplePacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer(*sipReqSamplePacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ip4Layer;
@@ -219,8 +219,8 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 
 	newSipPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(newSipPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(newSipPacket.getRawPacket()->getRawData(), buffer1,
+	PTF_ASSERT_EQUAL(newSipPacket.getRawPacket()->getRawDataLen(), resource1.length);
+	PTF_ASSERT_BUF_COMPARE(newSipPacket.getRawPacket()->getRawData(), resource1.data.get(),
 	                       newSipPacket.getRawPacket()->getRawDataLen());
 }  // SipRequestLayerCreationTest
 
@@ -507,12 +507,11 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 
 PTF_TEST_CASE(SipResponseLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf6 = createPacketAndBufferFromHexResource("PacketExamples/sip_resp6.dat");
+	auto& resource6 = rawPacketAndBuf6.resourceBuffer;
+	auto& rawPacket6 = rawPacketAndBuf6.packet;
 
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/sip_resp6.dat");
-
-	pcpp::Packet sipRespSamplePacket(&rawPacket6);
+	pcpp::Packet sipRespSamplePacket(rawPacket6.get());
 
 	pcpp::EthLayer ethLayer(*sipRespSamplePacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ip4Layer;
@@ -546,8 +545,8 @@ PTF_TEST_CASE(SipResponseLayerCreationTest)
 
 	newSipPacket.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->headerChecksum = 0xced8;
 
-	PTF_ASSERT_EQUAL(newSipPacket.getRawPacket()->getRawDataLen(), bufferLength6);
-	PTF_ASSERT_BUF_COMPARE(newSipPacket.getRawPacket()->getRawData(), buffer6,
+	PTF_ASSERT_EQUAL(newSipPacket.getRawPacket()->getRawDataLen(), resource6.length);
+	PTF_ASSERT_BUF_COMPARE(newSipPacket.getRawPacket()->getRawData(), resource6.data.get(),
 	                       newSipPacket.getRawPacket()->getRawDataLen());
 }  // SipResponseLayerCreationTest
 
