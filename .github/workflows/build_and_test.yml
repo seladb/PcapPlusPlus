@@ -521,7 +521,7 @@ jobs:
         run: echo "npcap_available=true" >> $GITHUB_ENV
 
       - name: NPcap backend is unavailable
-        if: ${{ env.npcap_available != "true" }}
+        if: ${{ env.npcap_available != 'true' }}
         run: echo "NPcap backend will be skipped since OEM credentials are missing. NPCAP_USERNAME and NPCAP_PASSWORD are required."
 
       - name: Generate pcap backends matrix
