@@ -510,8 +510,15 @@ jobs:
     outputs:
         pcap-backends: ${{ steps.generate-backends.outputs.pcap_lib }}
     steps:
-      - name: Initialize npcap backend variable
+      - name: Initialize NPcap backend variable
         run: echo "npcap_available=false" >> $GITHUB_ENV
+
+      - name: Check NPcap availability
+        env: # Secrets can't be accessed directly in 'if' conditionals.
+          npcap_username: ${{ secrets.NPCAP_USERNAME }}
+          npcap_password: ${{ secrets.NPCAP_PASSWORD }}
+        if: ${{ secrets.NPCAP_USERNAME != '' && secrets.NPCAP_PASSWORD != '' }}
+        run: echo "npcap_available=true" >> $GITHUB_ENV
 
       - name: Generate pcap backends matrix
         id: generate-backends
