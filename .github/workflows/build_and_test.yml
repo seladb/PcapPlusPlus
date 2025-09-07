@@ -503,6 +503,38 @@ jobs:
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
+  
+  select-windows-pcap-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check NPcap credentials exist
+        run: |
+          if [[ -z "${{ secrets.NPCAP_USERNAME }}" || -z "${{ secrets.NPCAP_PASSWORD }}" ]]; then
+            echo "npcap_available=false" >> $GITHUB_ENV
+          else
+            echo "npcap_available=true" >> $GITHUB_ENV
+          fi
+      - name: Generate pcap backends matrix
+        run: |
+          if [[ "${{ env.npcap_available }}" == "true" ]]; then
+            echo 'pcap_lib=["winpcap", "npcap"]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'pcap_lib=["winpcap"]' >> $GITHUB_OUTPUT
+          fi
+
+  demo-win-pcap-backend:
+    needs: select-windows-pcap-backend
+    strategy:
+      matrix:
+        os: [windows-2025, windows-2022]
+        pcap_lib: ${{ fromJson(needs.select-windows-pcap-backend.outputs.pcap_lib) }}
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Debug os
+        run: echo "Matrix os is ${{ matrix.os }}"
+      - name: Debug pcap_lib
+        run: echo "Matrix pcap_lib is ${{ matrix.pcap_lib }}"
 
   mingw-w64:
     runs-on: windows-latest
