@@ -9,6 +9,7 @@
 #include "SystemUtils.h"
 #include "TcpLayer.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(SmtpParsingTests)
@@ -192,12 +193,12 @@ PTF_TEST_CASE(SmtpParsingTests)
 
 PTF_TEST_CASE(SmtpCreationTests)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	// Request
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/smtpCommand.dat");
-	pcpp::Packet smtpPacket1(&rawPacket1);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/smtpCommand.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
+
+	pcpp::Packet smtpPacket1(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer1(*smtpPacket1.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipv4Layer1(*smtpPacket1.getLayerOfType<pcpp::IPv4Layer>());
@@ -211,12 +212,15 @@ PTF_TEST_CASE(SmtpCreationTests)
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&tcpLayer1));
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&smtpReqLayer1));
 
-	PTF_ASSERT_EQUAL(bufferLength1, craftedPacket1.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer1, craftedPacket1.getRawPacket()->getRawData(), bufferLength1);
+	PTF_ASSERT_EQUAL(resource1.length, craftedPacket1.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(resource1.data.get(), craftedPacket1.getRawPacket()->getRawData(), resource1.length);
 
 	// Response multiline
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/smtpMultiLine.dat");
-	pcpp::Packet smtpPacket2(&rawPacket2);
+	auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/smtpMultiLine.dat");
+	auto& resource2 = rawPacketAndBuf2.resourceBuffer;
+	auto& rawPacket2 = rawPacketAndBuf2.packet;
+
+	pcpp::Packet smtpPacket2(rawPacket2.get());
 
 	pcpp::EthLayer ethLayer2(*smtpPacket2.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipv4Layer2(*smtpPacket2.getLayerOfType<pcpp::IPv4Layer>());
@@ -233,8 +237,8 @@ PTF_TEST_CASE(SmtpCreationTests)
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&tcpLayer2));
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&smtpRespLayer1));
 
-	PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer2, craftedPacket2.getRawPacket()->getRawData(), bufferLength2);
+	PTF_ASSERT_EQUAL(resource2.length, craftedPacket2.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(resource2.data.get(), craftedPacket2.getRawPacket()->getRawData(), resource2.length);
 }
 
 PTF_TEST_CASE(SmtpEditTests)

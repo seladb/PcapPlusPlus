@@ -61,19 +61,34 @@ namespace pcpp_tests
 		}
 
 		std::unique_ptr<pcpp::RawPacket> createPacketFromHexResource(const std::string& resourceName,
-		                                                             const utils::PacketFactory& factory,
-		                                                             utils::ResourceProvider const* resourceProvider)
+		                                                             const PacketFactory& factory,
+		                                                             ResourceProvider const* resourceProvider)
 		{
-			using pcpp_tests::utils::ResourceType;
-
 			if (resourceProvider == nullptr)
 			{
-				// If no data loader is provided, use the current test environment's data loader
 				resourceProvider = getDefaultResourceProvider();
 			}
 
 			auto resource = resourceProvider->loadResource(resourceName.c_str(), ResourceType::HexData);
 			return factory.createFromBuffer(std::move(resource.data), resource.length);
+		}
+
+		PacketAndBuffer createPacketAndBufferFromHexResource(const std::string& resourceName,
+		                                                     const PacketFactory& factory,
+		                                                     ResourceProvider const* resourceProvider)
+		{
+			if (resourceProvider == nullptr)
+			{
+				resourceProvider = getDefaultResourceProvider();
+			}
+
+			PacketAndBuffer packetAndBuffer;
+			packetAndBuffer.resourceBuffer =
+			    resourceProvider->loadResource(resourceName.c_str(), ResourceType::HexData);
+			// Resource keeps ownership of the buffer
+			packetAndBuffer.packet = factory.createFromBufferNonOwning(packetAndBuffer.resourceBuffer.data.get(),
+			                                                           packetAndBuffer.resourceBuffer.length);
+			return packetAndBuffer;
 		}
 	}  // namespace utils
 }  // namespace pcpp_tests
