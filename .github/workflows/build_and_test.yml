@@ -521,7 +521,7 @@ jobs:
             echo 'pcap_lib=["winpcap"]' >> $GITHUB_OUTPUT
           fi
 
-  demo-win-pcap-backend:
+  demo-win-pcap-backend:  
     needs: select-windows-pcap-backend
     strategy:
       matrix:
@@ -537,17 +537,15 @@ jobs:
 
   mingw-w64:
     needs: select-windows-pcap-backend
-    runs-on: windows-latest
     strategy:
       matrix:
+        pcap_lib: ${{ fromJSON(needs.select-windows-pcap-backend.outputs.pcap-backends) }}
         include:
           - env: i686
             sys: mingw32
-            pcap_lib: "winpcap"
           - env: x86_64
             sys: mingw64
-            pcap_lib: "winpcap"
-
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
