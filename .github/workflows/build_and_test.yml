@@ -512,22 +512,12 @@ jobs:
           - env: i686
             sys: mingw32
             pcap_lib: "winpcap"
-            run_on: all-repos
           - env: x86_64
             sys: mingw64
             pcap_lib: "npcap"
-            run_on: main-repo
           - env: x86_64
             sys: mingw64
             pcap_lib: "winpcap"
-            run_on: forked-repo
-
-    if: |
-      (
-        matrix.run_on == 'all-repos'
-        || (matrix.run_on == 'main-repo' && github.repository == 'seladb/PcapPlusPlus')
-        || (matrix.run_on == 'forked-repo' && github.repository != 'seladb/PcapPlusPlus')
-      )
 
     steps:
       - name: Checkout code
@@ -555,7 +545,7 @@ jobs:
         run: |
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'npcap'
+        if: matrix.pcap_lib == 'npcap' && github.repository == github.event.repository.full_name
 
       - name: Install WinPcap
         run: |
