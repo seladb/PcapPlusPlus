@@ -523,7 +523,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2025, windows-2022]
-        pcap_lib: ${{ fromJson(needs.select-windows-pcap-backend.outputs.pcap_lib) }}
+        pcap_lib: ${{ fromJSON(needs.select-windows-pcap-backend.outputs.pcap_lib) }}
 
     runs-on: ${{ matrix.os }}
     steps:
