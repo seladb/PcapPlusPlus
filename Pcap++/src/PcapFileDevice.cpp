@@ -147,6 +147,16 @@ namespace pcpp
 		return numOfPacketsRead;
 	}
 
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~
+	// IFileWriterDevice members
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	IFileWriterDevice::IFileWriterDevice(const std::string& fileName) : IFileDevice(fileName)
+	{
+		m_NumOfPacketsNotWritten = 0;
+		m_NumOfPacketsWritten = 0;
+	}
+
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -545,16 +555,6 @@ namespace pcpp
 			return {};
 
 		return std::string(fileInfo->file_comment, fileInfo->file_comment_size);
-	}
-
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~
-	// IFileWriterDevice members
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-	IFileWriterDevice::IFileWriterDevice(const std::string& fileName) : IFileDevice(fileName)
-	{
-		m_NumOfPacketsNotWritten = 0;
-		m_NumOfPacketsWritten = 0;
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
