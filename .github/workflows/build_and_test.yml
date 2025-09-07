@@ -508,7 +508,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check NPcap credentials exist
-        if: secrets.NPCAP_USERNAME && secrets.NPCAP_PASSWORD
+        if: ${{ secrets.NPCAP_USERNAME && secrets.NPCAP_PASSWORD }}
         run: echo "npcap_available=true" >> $GITHUB_ENV
         
       - name: Generate pcap backends matrix
