@@ -503,9 +503,9 @@ jobs:
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
-  
+
   define-windows-pcap-backend-matrix:
-    name: Determine Windows Pcap Backend Matrix  
+    name: Determine Windows Pcap Backend Matrix
     runs-on: ubuntu-latest
     outputs:
         pcap-backends: ${{ steps.generate-backends.outputs.pcap_lib }}
