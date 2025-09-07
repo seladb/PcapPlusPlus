@@ -111,6 +111,23 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		                  "Value cannot fit into requested int type");
 	}
 
+	// Integer - remove leading zeros
+	{
+		uint8_t data[22];
+		std::string bigIntValue = "8a1bff4aa8400226fc73409b54bbc1f06c5f";
+		auto dataLen = pcpp::hexStringToByteArray("02140000" + bigIntValue, data, 22);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValueAsString(true), bigIntValue);
+	}
+
+	// Integer - remove leading zeros with zero value
+	{
+		uint8_t data[16];
+		auto dataLen = pcpp::hexStringToByteArray("02020000", data, 16);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValueAsString(true), "0");
+	}
+
 	// Enumerated
 	{
 		uint8_t data[20];
