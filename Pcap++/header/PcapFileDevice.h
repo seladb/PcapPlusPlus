@@ -92,6 +92,30 @@ namespace pcpp
 		static IFileReaderDevice* getReader(const std::string& fileName);
 	};
 
+	/// @class IFileWriterDevice
+	/// An abstract class (cannot be instantiated, has a private c'tor) which is the parent class for file writer
+	/// devices
+	class IFileWriterDevice : public IFileDevice
+	{
+	protected:
+		uint32_t m_NumOfPacketsWritten;
+		uint32_t m_NumOfPacketsNotWritten;
+
+		IFileWriterDevice(const std::string& fileName);
+
+	public:
+		/// A destructor for this class
+		virtual ~IFileWriterDevice()
+		{}
+
+		virtual bool writePacket(RawPacket const& packet) = 0;
+
+		virtual bool writePackets(const RawPacketVector& packets) = 0;
+
+		using IFileDevice::open;
+		virtual bool open(bool appendMode) = 0;
+	};
+
 	/// @class PcapFileReaderDevice
 	/// A class for opening a pcap file in read-only mode. This class enable to open the file and read all packets,
 	/// packet-by-packet
@@ -310,30 +334,6 @@ namespace pcpp
 
 		/// Close the pacp-ng file
 		void close();
-	};
-
-	/// @class IFileWriterDevice
-	/// An abstract class (cannot be instantiated, has a private c'tor) which is the parent class for file writer
-	/// devices
-	class IFileWriterDevice : public IFileDevice
-	{
-	protected:
-		uint32_t m_NumOfPacketsWritten;
-		uint32_t m_NumOfPacketsNotWritten;
-
-		IFileWriterDevice(const std::string& fileName);
-
-	public:
-		/// A destructor for this class
-		virtual ~IFileWriterDevice()
-		{}
-
-		virtual bool writePacket(RawPacket const& packet) = 0;
-
-		virtual bool writePackets(const RawPacketVector& packets) = 0;
-
-		using IFileDevice::open;
-		virtual bool open(bool appendMode) = 0;
 	};
 
 	/// @class PcapFileWriterDevice
