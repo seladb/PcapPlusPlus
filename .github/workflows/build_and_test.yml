@@ -530,10 +530,10 @@ jobs:
         run: |
           if [[ "${{ env.npcap_available }}" == "true" ]]; then
             echo 'pcap_lib=["winpcap", "npcap"]' >> "$GITHUB_OUTPUT"
-            echo 'npcap_or_default="npcap"' >> "$GITHUB_OUTPUT"
+            echo 'npcap_or_default=npcap' >> "$GITHUB_OUTPUT"
           else
             echo 'pcap_lib=["winpcap"]' >> $GITHUB_OUTPUT
-            echo 'npcap_or_default="winpcap"' >> "$GITHUB_OUTPUT"
+            echo 'npcap_or_default=winpcap' >> "$GITHUB_OUTPUT"
           fi
 
   mingw-w64:
