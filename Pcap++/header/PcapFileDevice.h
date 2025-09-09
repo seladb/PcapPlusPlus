@@ -178,6 +178,103 @@ namespace pcpp
 		void getStatistics(PcapStats& stats) const;
 	};
 
+	/// @class PcapFileWriterDevice
+	/// A class for opening a pcap file for writing or create a new pcap file and write packets to it. This class adds
+	/// a unique capability that isn't supported in WinPcap and in older libpcap versions which is to open a pcap file
+	/// in append mode where packets are written at the end of the pcap file instead of running it over
+	class PcapFileWriterDevice : public IFileWriterDevice
+	{
+	private:
+		pcap_dumper_t* m_PcapDumpHandler;
+		LinkLayerType m_PcapLinkLayerType;
+		bool m_AppendMode;
+		FileTimestampPrecision m_Precision;
+		FILE* m_File;
+
+		// private copy c'tor
+		PcapFileWriterDevice(const PcapFileWriterDevice& other);
+		PcapFileWriterDevice& operator=(const PcapFileWriterDevice& other);
+
+		void closeFile();
+
+	public:
+		/// A constructor for this class that gets the pcap full path file name to open for writing or create. Notice
+		/// that after calling this constructor the file isn't opened yet, so writing packets will fail. For opening the
+		/// file call open()
+		/// @param[in] fileName The full path of the file
+		/// @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is
+		/// Ethernet
+		/// @param[in] nanosecondsPrecision A boolean indicating whether to write timestamps in nano-precision. If set
+		/// to false, timestamps will be written in micro-precision
+		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET,
+		                     bool nanosecondsPrecision = false);
+
+		/// A destructor for this class
+		~PcapFileWriterDevice()
+		{
+			PcapFileWriterDevice::close();
+		}
+
+		/// Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This
+		/// method won't change the written packet
+		/// @param[in] packet A reference for an existing RawPcket to write to the file
+		/// @return True if a packet was written successfully. False will be returned if the file isn't opened
+		/// or if the packet link layer type is different than the one defined for the file
+		/// (in all cases, an error will be printed to log)
+		bool writePacket(RawPacket const& packet) override;
+
+		/// Write multiple RawPacket to the file. Before using this method please verify the file is opened using
+		/// open(). This method won't change the written packets or the RawPacketVector instance
+		/// @param[in] packets A reference for an existing RawPcketVector, all of its packets will be written to the
+		/// file
+		/// @return True if all packets were written successfully to the file. False will be returned if the file isn't
+		/// opened (also, an error log will be printed) or if at least one of the packets wasn't written successfully to
+		/// the file
+		bool writePackets(const RawPacketVector& packets) override;
+
+		/// @return The precision of the timestamps in the file.
+		FileTimestampPrecision getTimestampPrecision() const
+		{
+			return m_Precision;
+		}
+
+		/// A static method that checks if nano-second precision is supported in the current platform and environment
+		/// @return True if nano-second precision is supported, false otherwise
+		static bool isNanoSecondPrecisionSupported();
+
+		// override methods
+
+		/// Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
+		/// overwritten, meaning all its current content will be deleted
+		/// @return True if file was opened/created successfully or if file is already opened. False if opening the file
+		/// failed for some reason (an error will be printed to log)
+		bool open() override;
+
+		/// Same as open(), but enables to open the file in append mode in which packets will be appended to the file
+		/// instead of overwrite its current content. In append mode file must exist, otherwise opening will fail
+		/// @param[in] appendMode A boolean indicating whether to open the file in append mode or not. If set to false
+		/// this method will act exactly like open(). If set to true, file will be opened in append mode
+		/// @return True of managed to open the file successfully. In case appendMode is set to true, false will be
+		/// returned if file wasn't found or couldn't be read, if file type is not pcap, or if link type specified in
+		/// c'tor is different from current file link type. In case appendMode is set to false, please refer to open()
+		/// for return values
+		bool open(bool appendMode) override;
+
+		/// Flush and close the pacp file
+		void close() override;
+
+		/// Flush packets to disk.
+		void flush();
+
+		/// Get statistics of packets written so far.
+		/// @param[out] stats The stats struct where stats are returned
+		void getStatistics(PcapStats& stats) const override;
+
+	private:
+		bool openWrite();
+		bool openAppend();
+	};
+
 	/// @class SnoopFileReaderDevice
 	/// A class for opening a snoop file in read-only mode. This class enable to open the file and read all packets,
 	/// packet-by-packet
@@ -334,103 +431,6 @@ namespace pcpp
 
 		/// Close the pacp-ng file
 		void close();
-	};
-
-	/// @class PcapFileWriterDevice
-	/// A class for opening a pcap file for writing or create a new pcap file and write packets to it. This class adds
-	/// a unique capability that isn't supported in WinPcap and in older libpcap versions which is to open a pcap file
-	/// in append mode where packets are written at the end of the pcap file instead of running it over
-	class PcapFileWriterDevice : public IFileWriterDevice
-	{
-	private:
-		pcap_dumper_t* m_PcapDumpHandler;
-		LinkLayerType m_PcapLinkLayerType;
-		bool m_AppendMode;
-		FileTimestampPrecision m_Precision;
-		FILE* m_File;
-
-		// private copy c'tor
-		PcapFileWriterDevice(const PcapFileWriterDevice& other);
-		PcapFileWriterDevice& operator=(const PcapFileWriterDevice& other);
-
-		void closeFile();
-
-	public:
-		/// A constructor for this class that gets the pcap full path file name to open for writing or create. Notice
-		/// that after calling this constructor the file isn't opened yet, so writing packets will fail. For opening the
-		/// file call open()
-		/// @param[in] fileName The full path of the file
-		/// @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is
-		/// Ethernet
-		/// @param[in] nanosecondsPrecision A boolean indicating whether to write timestamps in nano-precision. If set
-		/// to false, timestamps will be written in micro-precision
-		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET,
-		                     bool nanosecondsPrecision = false);
-
-		/// A destructor for this class
-		~PcapFileWriterDevice()
-		{
-			PcapFileWriterDevice::close();
-		}
-
-		/// Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This
-		/// method won't change the written packet
-		/// @param[in] packet A reference for an existing RawPcket to write to the file
-		/// @return True if a packet was written successfully. False will be returned if the file isn't opened
-		/// or if the packet link layer type is different than the one defined for the file
-		/// (in all cases, an error will be printed to log)
-		bool writePacket(RawPacket const& packet) override;
-
-		/// Write multiple RawPacket to the file. Before using this method please verify the file is opened using
-		/// open(). This method won't change the written packets or the RawPacketVector instance
-		/// @param[in] packets A reference for an existing RawPcketVector, all of its packets will be written to the
-		/// file
-		/// @return True if all packets were written successfully to the file. False will be returned if the file isn't
-		/// opened (also, an error log will be printed) or if at least one of the packets wasn't written successfully to
-		/// the file
-		bool writePackets(const RawPacketVector& packets) override;
-
-		/// @return The precision of the timestamps in the file.
-		FileTimestampPrecision getTimestampPrecision() const
-		{
-			return m_Precision;
-		}
-
-		/// A static method that checks if nano-second precision is supported in the current platform and environment
-		/// @return True if nano-second precision is supported, false otherwise
-		static bool isNanoSecondPrecisionSupported();
-
-		// override methods
-
-		/// Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
-		/// overwritten, meaning all its current content will be deleted
-		/// @return True if file was opened/created successfully or if file is already opened. False if opening the file
-		/// failed for some reason (an error will be printed to log)
-		bool open() override;
-
-		/// Same as open(), but enables to open the file in append mode in which packets will be appended to the file
-		/// instead of overwrite its current content. In append mode file must exist, otherwise opening will fail
-		/// @param[in] appendMode A boolean indicating whether to open the file in append mode or not. If set to false
-		/// this method will act exactly like open(). If set to true, file will be opened in append mode
-		/// @return True of managed to open the file successfully. In case appendMode is set to true, false will be
-		/// returned if file wasn't found or couldn't be read, if file type is not pcap, or if link type specified in
-		/// c'tor is different from current file link type. In case appendMode is set to false, please refer to open()
-		/// for return values
-		bool open(bool appendMode) override;
-
-		/// Flush and close the pacp file
-		void close() override;
-
-		/// Flush packets to disk.
-		void flush();
-
-		/// Get statistics of packets written so far.
-		/// @param[out] stats The stats struct where stats are returned
-		void getStatistics(PcapStats& stats) const override;
-
-	private:
-		bool openWrite();
-		bool openAppend();
 	};
 
 	/// @class PcapNgFileWriterDevice
