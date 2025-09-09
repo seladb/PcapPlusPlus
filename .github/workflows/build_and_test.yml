@@ -524,7 +524,7 @@ jobs:
       - name: NPcap backend is unavailable
         if: ${{ env.npcap_available != 'true' }}
         run: echo "NPcap backend will be skipped since OEM credentials are missing. NPCAP_USERNAME and NPCAP_PASSWORD are required."
-            
+
       - name: Generate pcap backends matrix
         id: generate-backends
         run: |
@@ -631,14 +631,19 @@ jobs:
     needs: define-windows-pcap-backend-matrix
     strategy:
       matrix:
-        os: [windows-2025, windows-2022]
-        arch: [Win32, x64]
-        pcap_lib: ${{ fromJSON(needs.define-windows-pcap-backend-matrix.outputs.pcap-backends) }}
-        include: # Adds the specific platform for matching each OS
+        include:
           - os: windows-2025
             platform: "Visual Studio 17 2022"
+            arch: Win32
+            pcap_lib: "winpcap"
+          - os: windows-2025
+            platform: "Visual Studio 17 2022"
+            arch: "x64"
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
           - os: windows-2022
             platform: "Visual Studio 17 2022"
+            arch: "x64"
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
 
     runs-on: ${{ matrix.os }}
     steps:
