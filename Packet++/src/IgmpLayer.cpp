@@ -349,7 +349,8 @@ namespace pcpp
 			return nullptr;
 
 		// prev group was the last group
-		if (reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen() - m_Data >= static_cast<int>(getHeaderLen()))
+		if (reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen() - m_Data >=
+		    static_cast<int>(getHeaderLen()))
 			return nullptr;
 
 		igmpv3_group_record* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
