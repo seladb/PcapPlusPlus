@@ -509,6 +509,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
         pcap-backends: ${{ steps.generate-backends.outputs.pcap_lib }}
+        npcap-or-default: ${{ steps.generate-backends.outputs.npcap_or_default}}
     steps:
       - name: Initialize NPcap backend variable
         run: echo "npcap_available=false" >> $GITHUB_ENV
@@ -523,14 +524,16 @@ jobs:
       - name: NPcap backend is unavailable
         if: ${{ env.npcap_available != 'true' }}
         run: echo "NPcap backend will be skipped since OEM credentials are missing. NPCAP_USERNAME and NPCAP_PASSWORD are required."
-
+            
       - name: Generate pcap backends matrix
         id: generate-backends
         run: |
           if [[ "${{ env.npcap_available }}" == "true" ]]; then
             echo 'pcap_lib=["winpcap", "npcap"]' >> "$GITHUB_OUTPUT"
+            echo 'npcap_or_default="npcap"' >> "$GITHUB_OUTPUT"
           else
             echo 'pcap_lib=["winpcap"]' >> $GITHUB_OUTPUT
+            echo 'npcap_or_default="winpcap"' >> "$GITHUB_OUTPUT"
           fi
 
   mingw-w64:
