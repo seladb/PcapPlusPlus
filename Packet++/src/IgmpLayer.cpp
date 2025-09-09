@@ -88,7 +88,7 @@ namespace pcpp
 	uint16_t IgmpLayer::calculateChecksum()
 	{
 		ScalarBuffer<uint16_t> buffer;
-		buffer.buffer = (uint16_t*)getIgmpHeader();
+		buffer.buffer = reinterpret_cast<uint16_t*>(getIgmpHeader());
 		buffer.len = getHeaderLen();
 		return computeChecksum(&buffer, 1);
 	}
@@ -224,7 +224,7 @@ namespace pcpp
 			return IPv4Address();
 
 		uint8_t* ptr = m_Data + ptrOffset;
-		return IPv4Address(*(uint32_t*)ptr);
+		return IPv4Address(*reinterpret_cast<uint32_t*>(ptr));
 	}
 
 	size_t IgmpV3QueryLayer::getHeaderLen() const
@@ -353,7 +353,8 @@ namespace pcpp
 		    static_cast<int>(getHeaderLen()))
 			return nullptr;
 
-		igmpv3_group_record* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
+		igmpv3_group_record* nextGroup = reinterpret_cast<igmpv3_group_record*>(
+		    reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen());
 
 		return nextGroup;
 	}
@@ -404,7 +405,7 @@ namespace pcpp
 
 		getReportHeader()->numOfGroupRecords = htobe16(getGroupRecordCount() + 1);
 
-		return (igmpv3_group_record*)(m_Data + offset);
+		return reinterpret_cast<igmpv3_group_record*>(m_Data + offset);
 	}
 
 	igmpv3_group_record* IgmpV3ReportLayer::addGroupRecord(uint8_t recordType, const IPv4Address& multicastAddress,
@@ -510,7 +511,7 @@ namespace pcpp
 
 		int offset = index * sizeof(uint32_t);
 		const uint8_t* ptr = sourceAddresses + offset;
-		return IPv4Address(*(uint32_t*)ptr);
+		return IPv4Address(*reinterpret_cast<const uint32_t*>(ptr));
 	}
 
 	size_t igmpv3_group_record::getRecordLen() const
