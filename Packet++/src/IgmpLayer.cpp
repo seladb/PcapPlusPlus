@@ -256,7 +256,7 @@ namespace pcpp
 	{
 		uint16_t sourceAddrCount = getSourceAddressCount();
 
-		if (index < 0 || index > (int)sourceAddrCount)
+		if (index < 0 || index > static_cast<int>(sourceAddrCount))
 		{
 			PCPP_LOG_ERROR("Cannot add source address at index " << index << ", index is out of bounds");
 			return false;
@@ -286,7 +286,7 @@ namespace pcpp
 	{
 		uint16_t sourceAddrCount = getSourceAddressCount();
 
-		if (index < 0 || index > (int)sourceAddrCount - 1)
+		if (index < 0 || index > static_cast<int>(sourceAddrCount) - 1)
 		{
 			PCPP_LOG_ERROR("Cannot remove source address at index " << index << ", index is out of bounds");
 			return false;
@@ -349,7 +349,7 @@ namespace pcpp
 			return nullptr;
 
 		// prev group was the last group
-		if ((uint8_t*)groupRecord + groupRecord->getRecordLen() - m_Data >= (int)getHeaderLen())
+		if (reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen() - m_Data >= static_cast<int>(getHeaderLen()))
 			return nullptr;
 
 		igmpv3_group_record* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
@@ -368,7 +368,7 @@ namespace pcpp
 	                                                         const std::vector<IPv4Address>& sourceAddresses,
 	                                                         int offset)
 	{
-		if (offset > (int)getHeaderLen())
+		if (offset > static_cast<int>(getHeaderLen()))
 		{
 			PCPP_LOG_ERROR("Cannot add group record, offset is out of layer bounds");
 			return nullptr;
@@ -409,7 +409,7 @@ namespace pcpp
 	igmpv3_group_record* IgmpV3ReportLayer::addGroupRecord(uint8_t recordType, const IPv4Address& multicastAddress,
 	                                                       const std::vector<IPv4Address>& sourceAddresses)
 	{
-		return addGroupRecordAt(recordType, multicastAddress, sourceAddresses, (int)getHeaderLen());
+		return addGroupRecordAt(recordType, multicastAddress, sourceAddresses, static_cast<int>(getHeaderLen()));
 	}
 
 	igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAtIndex(uint8_t recordType,

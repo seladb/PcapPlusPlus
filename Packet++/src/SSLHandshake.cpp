@@ -693,7 +693,7 @@ namespace pcpp
 	static uint32_t hashString(std::string str)
 	{
 		unsigned h = FIRST_HASH;
-		for (std::string::size_type i = 0; i < str.size(); ++i)
+		for (auto i = 0u; i < str.size(); ++i)
 		{
 			h = (h * A) ^ (str[i] * B);
 		}
