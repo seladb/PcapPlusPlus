@@ -260,6 +260,289 @@ namespace pcpp
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// PcapFileWriterDevice members
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType,
+	                                           bool nanosecondsPrecision)
+	    : IFileWriterDevice(fileName)
+	{
+		m_PcapDumpHandler = nullptr;
+		m_PcapLinkLayerType = linkLayerType;
+		m_AppendMode = false;
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+		m_Precision = nanosecondsPrecision ? FileTimestampPrecision::Nanoseconds : FileTimestampPrecision::Microseconds;
+#else
+		if (nanosecondsPrecision)
+		{
+			PCPP_LOG_ERROR(
+			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+			    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
+		}
+		m_Precision = FileTimestampPrecision::Microseconds;
+#endif
+		m_File = nullptr;
+	}
+
+	void PcapFileWriterDevice::closeFile()
+	{
+		if (m_AppendMode && m_File != nullptr)
+		{
+			fclose(m_File);
+			m_File = nullptr;
+		}
+	}
+
+	bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
+	{
+		if ((!m_AppendMode && m_PcapDescriptor == nullptr) || (m_PcapDumpHandler == nullptr))
+		{
+			PCPP_LOG_ERROR("Device not opened");
+			m_NumOfPacketsNotWritten++;
+			return false;
+		}
+
+		if (packet.getLinkLayerType() != m_PcapLinkLayerType)
+		{
+			PCPP_LOG_ERROR("Cannot write a packet with a different link layer type");
+			m_NumOfPacketsNotWritten++;
+			return false;
+		}
+
+		pcap_pkthdr pktHdr;
+		pktHdr.caplen = packet.getRawDataLen();
+		pktHdr.len = packet.getFrameLength();
+		timespec packet_timestamp = packet.getPacketTimeStamp();
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+		if (m_Precision != FileTimestampPrecision::Nanoseconds)
+		{
+			pktHdr.ts = internal::toTimeval(packet_timestamp);
+		}
+		else
+		{
+			pktHdr.ts.tv_sec = packet_timestamp.tv_sec;
+			pktHdr.ts.tv_usec = packet_timestamp.tv_nsec;
+		}
+#else
+		pktHdr.ts = internal::toTimeval(packet_timestamp);
+#endif
+		if (!m_AppendMode)
+			pcap_dump(reinterpret_cast<uint8_t*>(m_PcapDumpHandler), &pktHdr, packet.getRawData());
+		else
+		{
+			// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on
+			// Windows using WinPcap/Npcap you can't pass pointers between libraries compiled with different compilers.
+			// In this case - PcapPlusPlus and WinPcap/Npcap weren't compiled with the same compiler so it's impossible
+			// to fopen a file in PcapPlusPlus, pass the pointer to WinPcap/Npcap and use the FILE* pointer there. Doing
+			// this throws an exception. So the only option when implementing append to pcap is to write all relevant
+			// WinPcap/Npcap code that handles opening/closing/writing to pcap files inside PcapPlusPlus code
+
+			// the reason to create this packet_header struct is timeval has different sizes in 32-bit and 64-bit
+			// systems, but pcap format uses the 32-bit timeval version, so we need to align timeval to that
+			packet_header pktHdrTemp;
+			pktHdrTemp.tv_sec = pktHdr.ts.tv_sec;
+			pktHdrTemp.tv_usec = pktHdr.ts.tv_usec;
+			pktHdrTemp.caplen = pktHdr.caplen;
+			pktHdrTemp.len = pktHdr.len;
+			fwrite(&pktHdrTemp, sizeof(pktHdrTemp), 1, m_File);
+			fwrite(packet.getRawData(), pktHdrTemp.caplen, 1, m_File);
+		}
+		PCPP_LOG_DEBUG("Packet written successfully to '" << m_FileName << "'");
+		m_NumOfPacketsWritten++;
+		return true;
+	}
+
+	bool PcapFileWriterDevice::writePackets(const RawPacketVector& packets)
+	{
+		for (auto packet : packets)
+		{
+			if (!writePacket(*packet))
+				return false;
+		}
+
+		return true;
+	}
+
+	bool PcapFileWriterDevice::isNanoSecondPrecisionSupported()
+	{
+		return checkNanoSupport();
+	}
+
+	bool PcapFileWriterDevice::open()
+	{
+		return open(false);
+	}
+
+	bool PcapFileWriterDevice::open(bool appendMode)
+	{
+		if (isOpened())
+		{
+			// TODO: Ambiguity in API
+			//   If appendMode is required but the file is already opened in write mode.
+			PCPP_LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
+			return true;
+		}
+
+		if (appendMode)
+		{
+			return openAppend();
+		}
+		else
+		{
+			return openWrite();
+		}
+	}
+
+	bool PcapFileWriterDevice::openWrite()
+	{
+		m_AppendMode = false;
+
+		switch (m_PcapLinkLayerType)
+		{
+		case LINKTYPE_RAW:
+		case LINKTYPE_DLT_RAW2:
+			PCPP_LOG_ERROR(
+			    "The only Raw IP link type supported in libpcap/WinPcap/Npcap is LINKTYPE_DLT_RAW1, please use that instead");
+			return false;
+		default:
+			break;
+		}
+
+		m_NumOfPacketsNotWritten = 0;
+		m_NumOfPacketsWritten = 0;
+
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+		auto pcapDescriptor = internal::PcapHandle(pcap_open_dead_with_tstamp_precision(
+		    m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE, static_cast<int>(m_Precision)));
+#else
+		auto pcapDescriptor = internal::PcapHandle(pcap_open_dead(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE));
+#endif
+		if (pcapDescriptor == nullptr)
+		{
+			PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName
+			                                                             << "': pcap_open_dead returned nullptr");
+			m_DeviceOpened = false;
+			return false;
+		}
+
+		m_PcapDumpHandler = pcap_dump_open(pcapDescriptor.get(), m_FileName.c_str());
+		if (m_PcapDumpHandler == nullptr)
+		{
+			PCPP_LOG_ERROR("Error opening file writer device for file '"
+			               << m_FileName << "': pcap_dump_open returned nullptr with error: '"
+			               << pcapDescriptor.getLastError() << "'");
+			m_DeviceOpened = false;
+			return false;
+		}
+
+		m_PcapDescriptor = std::move(pcapDescriptor);
+		m_DeviceOpened = true;
+		PCPP_LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully");
+		return true;
+	}
+
+	bool PcapFileWriterDevice::openAppend()
+	{
+		m_AppendMode = true;
+
+#if !defined(_WIN32)
+		m_File = fopen(m_FileName.c_str(), "r+");
+#else
+		m_File = fopen(m_FileName.c_str(), "rb+");
+#endif
+
+		if (m_File == nullptr)
+		{
+			PCPP_LOG_ERROR("Cannot open '" << m_FileName << "' for reading and writing");
+			return false;
+		}
+
+		pcap_file_header pcapFileHeader;
+		int amountRead = fread(&pcapFileHeader, 1, sizeof(pcapFileHeader), m_File);
+		if (amountRead != sizeof(pcap_file_header))
+		{
+			if (ferror(m_File))
+				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', error was: " << errno);
+			else
+				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', unknown error");
+
+			closeFile();
+			return false;
+		}
+
+		LinkLayerType linkLayerType = static_cast<LinkLayerType>(pcapFileHeader.linktype);
+		if (linkLayerType != m_PcapLinkLayerType)
+		{
+			PCPP_LOG_ERROR(
+			    "Pcap file has a different link layer type than the one chosen in PcapFileWriterDevice c'tor, "
+			    << linkLayerType << ", " << m_PcapLinkLayerType);
+			closeFile();
+			return false;
+		}
+
+		if (fseek(m_File, 0, SEEK_END) == -1)
+		{
+			PCPP_LOG_ERROR("Cannot read pcap file '" << m_FileName << "' to it's end, error was: " << errno);
+			closeFile();
+			return false;
+		}
+
+		m_PcapDumpHandler = reinterpret_cast<pcap_dumper_t*>(m_File);
+
+		m_DeviceOpened = true;
+		PCPP_LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully in append mode");
+		return true;
+	}
+
+	void PcapFileWriterDevice::flush()
+	{
+		if (!m_DeviceOpened)
+			return;
+
+		if (!m_AppendMode && pcap_dump_flush(m_PcapDumpHandler) == -1)
+		{
+			PCPP_LOG_ERROR("Error while flushing the packets to file");
+		}
+		// in append mode it's impossible to use pcap_dump_flush, see comment above pcap_dump
+		else if (m_AppendMode && fflush(m_File) == EOF)
+		{
+			PCPP_LOG_ERROR("Error while flushing the packets to file");
+		}
+	}
+
+	void PcapFileWriterDevice::close()
+	{
+		if (!m_DeviceOpened)
+			return;
+
+		flush();
+
+		IFileDevice::close();
+
+		if (!m_AppendMode && m_PcapDumpHandler != nullptr)
+		{
+			pcap_dump_close(m_PcapDumpHandler);
+		}
+		else if (m_AppendMode && m_File != nullptr)
+		{
+			// in append mode it's impossible to use pcap_dump_close, see comment above pcap_dump
+			fclose(m_File);
+		}
+
+		m_PcapDumpHandler = nullptr;
+		m_File = nullptr;
+		PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
+	}
+
+	void PcapFileWriterDevice::getStatistics(PcapStats& stats) const
+	{
+		stats.packetsRecv = m_NumOfPacketsWritten;
+		stats.packetsDrop = m_NumOfPacketsNotWritten;
+		stats.packetsDropByInterface = 0;
+		PCPP_LOG_DEBUG("Statistics received for writer device for filename '" << m_FileName << "'");
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// SnoopFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -555,289 +838,6 @@ namespace pcpp
 			return {};
 
 		return std::string(fileInfo->file_comment, fileInfo->file_comment_size);
-	}
-
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// PcapFileWriterDevice members
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-	PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType,
-	                                           bool nanosecondsPrecision)
-	    : IFileWriterDevice(fileName)
-	{
-		m_PcapDumpHandler = nullptr;
-		m_PcapLinkLayerType = linkLayerType;
-		m_AppendMode = false;
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		m_Precision = nanosecondsPrecision ? FileTimestampPrecision::Nanoseconds : FileTimestampPrecision::Microseconds;
-#else
-		if (nanosecondsPrecision)
-		{
-			PCPP_LOG_ERROR(
-			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-			    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
-		}
-		m_Precision = FileTimestampPrecision::Microseconds;
-#endif
-		m_File = nullptr;
-	}
-
-	void PcapFileWriterDevice::closeFile()
-	{
-		if (m_AppendMode && m_File != nullptr)
-		{
-			fclose(m_File);
-			m_File = nullptr;
-		}
-	}
-
-	bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
-	{
-		if ((!m_AppendMode && m_PcapDescriptor == nullptr) || (m_PcapDumpHandler == nullptr))
-		{
-			PCPP_LOG_ERROR("Device not opened");
-			m_NumOfPacketsNotWritten++;
-			return false;
-		}
-
-		if (packet.getLinkLayerType() != m_PcapLinkLayerType)
-		{
-			PCPP_LOG_ERROR("Cannot write a packet with a different link layer type");
-			m_NumOfPacketsNotWritten++;
-			return false;
-		}
-
-		pcap_pkthdr pktHdr;
-		pktHdr.caplen = packet.getRawDataLen();
-		pktHdr.len = packet.getFrameLength();
-		timespec packet_timestamp = packet.getPacketTimeStamp();
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		if (m_Precision != FileTimestampPrecision::Nanoseconds)
-		{
-			pktHdr.ts = internal::toTimeval(packet_timestamp);
-		}
-		else
-		{
-			pktHdr.ts.tv_sec = packet_timestamp.tv_sec;
-			pktHdr.ts.tv_usec = packet_timestamp.tv_nsec;
-		}
-#else
-		pktHdr.ts = internal::toTimeval(packet_timestamp);
-#endif
-		if (!m_AppendMode)
-			pcap_dump(reinterpret_cast<uint8_t*>(m_PcapDumpHandler), &pktHdr, packet.getRawData());
-		else
-		{
-			// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on
-			// Windows using WinPcap/Npcap you can't pass pointers between libraries compiled with different compilers.
-			// In this case - PcapPlusPlus and WinPcap/Npcap weren't compiled with the same compiler so it's impossible
-			// to fopen a file in PcapPlusPlus, pass the pointer to WinPcap/Npcap and use the FILE* pointer there. Doing
-			// this throws an exception. So the only option when implementing append to pcap is to write all relevant
-			// WinPcap/Npcap code that handles opening/closing/writing to pcap files inside PcapPlusPlus code
-
-			// the reason to create this packet_header struct is timeval has different sizes in 32-bit and 64-bit
-			// systems, but pcap format uses the 32-bit timeval version, so we need to align timeval to that
-			packet_header pktHdrTemp;
-			pktHdrTemp.tv_sec = pktHdr.ts.tv_sec;
-			pktHdrTemp.tv_usec = pktHdr.ts.tv_usec;
-			pktHdrTemp.caplen = pktHdr.caplen;
-			pktHdrTemp.len = pktHdr.len;
-			fwrite(&pktHdrTemp, sizeof(pktHdrTemp), 1, m_File);
-			fwrite(packet.getRawData(), pktHdrTemp.caplen, 1, m_File);
-		}
-		PCPP_LOG_DEBUG("Packet written successfully to '" << m_FileName << "'");
-		m_NumOfPacketsWritten++;
-		return true;
-	}
-
-	bool PcapFileWriterDevice::writePackets(const RawPacketVector& packets)
-	{
-		for (auto packet : packets)
-		{
-			if (!writePacket(*packet))
-				return false;
-		}
-
-		return true;
-	}
-
-	bool PcapFileWriterDevice::isNanoSecondPrecisionSupported()
-	{
-		return checkNanoSupport();
-	}
-
-	bool PcapFileWriterDevice::open()
-	{
-		return open(false);
-	}
-
-	bool PcapFileWriterDevice::open(bool appendMode)
-	{
-		if (isOpened())
-		{
-			// TODO: Ambiguity in API
-			//   If appendMode is required but the file is already opened in write mode.
-			PCPP_LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
-			return true;
-		}
-
-		if (appendMode)
-		{
-			return openAppend();
-		}
-		else
-		{
-			return openWrite();
-		}
-	}
-
-	bool PcapFileWriterDevice::openWrite()
-	{
-		m_AppendMode = false;
-
-		switch (m_PcapLinkLayerType)
-		{
-		case LINKTYPE_RAW:
-		case LINKTYPE_DLT_RAW2:
-			PCPP_LOG_ERROR(
-			    "The only Raw IP link type supported in libpcap/WinPcap/Npcap is LINKTYPE_DLT_RAW1, please use that instead");
-			return false;
-		default:
-			break;
-		}
-
-		m_NumOfPacketsNotWritten = 0;
-		m_NumOfPacketsWritten = 0;
-
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		auto pcapDescriptor = internal::PcapHandle(pcap_open_dead_with_tstamp_precision(
-		    m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE, static_cast<int>(m_Precision)));
-#else
-		auto pcapDescriptor = internal::PcapHandle(pcap_open_dead(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE));
-#endif
-		if (pcapDescriptor == nullptr)
-		{
-			PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName
-			                                                             << "': pcap_open_dead returned nullptr");
-			m_DeviceOpened = false;
-			return false;
-		}
-
-		m_PcapDumpHandler = pcap_dump_open(pcapDescriptor.get(), m_FileName.c_str());
-		if (m_PcapDumpHandler == nullptr)
-		{
-			PCPP_LOG_ERROR("Error opening file writer device for file '"
-			               << m_FileName << "': pcap_dump_open returned nullptr with error: '"
-			               << pcapDescriptor.getLastError() << "'");
-			m_DeviceOpened = false;
-			return false;
-		}
-
-		m_PcapDescriptor = std::move(pcapDescriptor);
-		m_DeviceOpened = true;
-		PCPP_LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully");
-		return true;
-	}
-
-	bool PcapFileWriterDevice::openAppend()
-	{
-		m_AppendMode = true;
-
-#if !defined(_WIN32)
-		m_File = fopen(m_FileName.c_str(), "r+");
-#else
-		m_File = fopen(m_FileName.c_str(), "rb+");
-#endif
-
-		if (m_File == nullptr)
-		{
-			PCPP_LOG_ERROR("Cannot open '" << m_FileName << "' for reading and writing");
-			return false;
-		}
-
-		pcap_file_header pcapFileHeader;
-		int amountRead = fread(&pcapFileHeader, 1, sizeof(pcapFileHeader), m_File);
-		if (amountRead != sizeof(pcap_file_header))
-		{
-			if (ferror(m_File))
-				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', error was: " << errno);
-			else
-				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', unknown error");
-
-			closeFile();
-			return false;
-		}
-
-		LinkLayerType linkLayerType = static_cast<LinkLayerType>(pcapFileHeader.linktype);
-		if (linkLayerType != m_PcapLinkLayerType)
-		{
-			PCPP_LOG_ERROR(
-			    "Pcap file has a different link layer type than the one chosen in PcapFileWriterDevice c'tor, "
-			    << linkLayerType << ", " << m_PcapLinkLayerType);
-			closeFile();
-			return false;
-		}
-
-		if (fseek(m_File, 0, SEEK_END) == -1)
-		{
-			PCPP_LOG_ERROR("Cannot read pcap file '" << m_FileName << "' to it's end, error was: " << errno);
-			closeFile();
-			return false;
-		}
-
-		m_PcapDumpHandler = reinterpret_cast<pcap_dumper_t*>(m_File);
-
-		m_DeviceOpened = true;
-		PCPP_LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully in append mode");
-		return true;
-	}
-
-	void PcapFileWriterDevice::flush()
-	{
-		if (!m_DeviceOpened)
-			return;
-
-		if (!m_AppendMode && pcap_dump_flush(m_PcapDumpHandler) == -1)
-		{
-			PCPP_LOG_ERROR("Error while flushing the packets to file");
-		}
-		// in append mode it's impossible to use pcap_dump_flush, see comment above pcap_dump
-		else if (m_AppendMode && fflush(m_File) == EOF)
-		{
-			PCPP_LOG_ERROR("Error while flushing the packets to file");
-		}
-	}
-
-	void PcapFileWriterDevice::close()
-	{
-		if (!m_DeviceOpened)
-			return;
-
-		flush();
-
-		IFileDevice::close();
-
-		if (!m_AppendMode && m_PcapDumpHandler != nullptr)
-		{
-			pcap_dump_close(m_PcapDumpHandler);
-		}
-		else if (m_AppendMode && m_File != nullptr)
-		{
-			// in append mode it's impossible to use pcap_dump_close, see comment above pcap_dump
-			fclose(m_File);
-		}
-
-		m_PcapDumpHandler = nullptr;
-		m_File = nullptr;
-		PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
-	}
-
-	void PcapFileWriterDevice::getStatistics(PcapStats& stats) const
-	{
-		stats.packetsRecv = m_NumOfPacketsWritten;
-		stats.packetsDrop = m_NumOfPacketsNotWritten;
-		stats.packetsDropByInterface = 0;
-		PCPP_LOG_DEBUG("Statistics received for writer device for filename '" << m_FileName << "'");
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
