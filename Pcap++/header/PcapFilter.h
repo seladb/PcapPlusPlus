@@ -78,31 +78,35 @@ namespace pcpp
 	/// A wrapper class for BPF filtering. Enables setting a BPF filter and matching it against a packet
 	class BpfFilterWrapper
 	{
-	private:
-		std::string m_FilterStr;
-		LinkLayerType m_LinkType;
-		std::unique_ptr<bpf_program, internal::BpfProgramDeleter> m_Program;
-
-		void freeProgram();
-
 	public:
-		/// A c'tor for this class
-		BpfFilterWrapper();
+		/// @brief An enum with possible behaviours in case of link type missmatch
+		enum class LinkMissmatchBehaviour
+		{
+			/// @brief Attempt to recompile the filter with the new link type
+			RecompileFilter,
+			/// @brief Do not attempt to recompile the filter, just return false.
+			NoMatch
+		};
 
-		/// A copy constructor for this class.
-		/// @param[in] other The instance to copy from
+		/// @brief Creates a new instance with no filter.
+		BpfFilterWrapper() = default;
+
+		/// @brief Creates a new instance with the given filter string.
+		/// @param filter A filter in BPF syntax
+		/// @param linkType An optional parameter to set the filter's link type. The default is LINKTYPE_ETHERNET
+		/// @throws std::runtime_error if the filter could not be compiled
+		BpfFilterWrapper(std::string filter, LinkLayerType linkType = LINKTYPE_ETHERNET);
+
 		BpfFilterWrapper(const BpfFilterWrapper& other);
-
-		/// A copy assignment operator for this class.
-		/// @param[in] other An instance of IPNetwork to assign
-		/// @return A reference to the assignee
+		BpfFilterWrapper(BpfFilterWrapper&&) noexcept = default;
 		BpfFilterWrapper& operator=(const BpfFilterWrapper& other);
+		BpfFilterWrapper& operator=(BpfFilterWrapper&&) noexcept = default;
 
 		/// Set a filter. This method receives a filter in BPF syntax (https://biot.com/capstats/bpf.html) and an
 		/// optional link type, compiles them, and if compilation is successful it stores the filter.
 		/// @param[in] filter A filter in BPF syntax
 		/// @param[in] linkType An optional parameter to set the filter's link type. The default is LINKTYPE_ETHERNET
-		/// @return True if compilation is successful and filter is stored in side this object, false otherwise
+		/// @return True if compilation is successful and filter is stored inside this object, false otherwise
 		bool setFilter(const std::string& filter, LinkLayerType linkType = LINKTYPE_ETHERNET);
 
 		/// Match a packet with the filter stored in this object. If the filter is empty the method returns "true".
@@ -124,6 +128,44 @@ namespace pcpp
 		/// could not be compiled
 		bool matchPacketWithFilter(const uint8_t* packetData, uint32_t packetDataLength, timespec packetTimestamp,
 		                           uint16_t linkType);
+
+		/// @brief Match a packet with the filter stored in this object.
+		///
+		/// If the filter is empty the method returns "true".
+		/// If the link type of the raw packet is different than the one set in setFilter():
+		/// - If onLinkMissmatch is set to RecompileFilter, the filter will be re-compiled and stored in the object.
+		/// - If onLinkMissmatch is set to NoMatch, the method will return "false"
+		///
+		/// @param[in] rawPacket The raw packet to match the filter against
+		/// @param[in] onLinkMissmatch The behaviour in case of link type missmatch
+		/// @return True if the filter matches (or if it's empty). False otherwise
+		bool matches(const RawPacket& rawPacket,
+		             LinkMissmatchBehaviour onLinkMissmatch = LinkMissmatchBehaviour::RecompileFilter) const;
+
+		/// @brief Match a raw buffer of packet data against the filter stored in this object.
+		///
+		/// If the filter is empty the method returns "true".
+		/// If the link type provided is different than the one set in setFilter():
+		/// - If onLinkMissmatch is set to RecompileFilter, the filter will be re-compiled and stored in the object.
+		/// - If onLinkMissmatch is set to NoMatch, the method will return "false"
+		///
+		/// @param[in] packetData A pointer to the raw packet data
+		/// @param[in] packetDataLength The length of the raw packet data in bytes
+		/// @param[in] timestamp Timestamp to be associated with the packet
+		/// @param[in] linkType The link type of the packet
+		/// @param[in] onLinkMissmatch The behaviour in case of link type missmatch
+		/// @return True if the filter matches (or if it's empty). False otherwise
+		bool matches(const uint8_t* packetData, uint32_t packetDataLength, timespec timestamp, uint16_t linkType,
+		             LinkMissmatchBehaviour onLinkMissmatch = LinkMissmatchBehaviour::RecompileFilter) const;
+
+	private:
+		using BpfProgramUPtr = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>;
+
+		std::string m_FilterStr;
+		mutable LinkLayerType m_CachedProgramLinkType = LinkLayerType::LINKTYPE_ETHERNET;
+		mutable BpfProgramUPtr m_CachedProgram;
+
+		static BpfProgramUPtr compileFilter(std::string const& filter, LinkLayerType linkType);
 	};
 
 	/// @class GeneralFilter
