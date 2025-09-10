@@ -101,14 +101,14 @@ namespace pcpp
 		return matches(packetData, packetDataLength, packetTimestamp, linkType);
 	}
 
-	bool BpfFilterWrapper::matches(const RawPacket& rawPacket, LinkMissmatchBehaviour onLinkMissmatch) const
+	bool BpfFilterWrapper::matches(const RawPacket& rawPacket, LinkMismatchBehaviour onLinkmismatch) const
 	{
 		return matches(rawPacket.getRawData(), rawPacket.getRawDataLen(), rawPacket.getPacketTimeStamp(),
-		               rawPacket.getLinkLayerType(), onLinkMissmatch);
+		               rawPacket.getLinkLayerType(), onLinkmismatch);
 	}
 
 	bool BpfFilterWrapper::matches(const uint8_t* packetData, uint32_t packetDataLength, timespec timestamp,
-	                               uint16_t linkType, LinkMissmatchBehaviour onLinkMissmatch) const
+	                               uint16_t linkType, LinkMismatchBehaviour onLinkmismatch) const
 	{
 		if (m_FilterStr.empty())
 			return true;
@@ -122,13 +122,13 @@ namespace pcpp
 		// Handle link type mismatch
 		if (linkType != static_cast<uint16_t>(m_CachedProgramLinkType))
 		{
-			switch (onLinkMissmatch)
+			switch (onLinkmismatch)
 			{
-			case LinkMissmatchBehaviour::NoMatch:
+			case LinkMismatchBehaviour::NoMatch:
 			{
 				return false;  // Do not attempt to recompile, just return false
 			}
-			case LinkMissmatchBehaviour::RecompileFilter:
+			case LinkMismatchBehaviour::RecompileFilter:
 			{
 				auto newProgram = compileFilter(m_FilterStr, static_cast<LinkLayerType>(linkType));
 				if (newProgram == nullptr)
@@ -141,7 +141,7 @@ namespace pcpp
 				break;
 			}
 			default:
-				throw std::logic_error("Unknown LinkMissmatchBehaviour");
+				throw std::logic_error("Unknown LinkmismatchBehaviour");
 			}
 		}
 
