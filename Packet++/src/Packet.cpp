@@ -209,13 +209,11 @@ namespace pcpp
 		// set all data pointers in layers to the new array address
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
 
-		Layer* curLayer = m_FirstLayer;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			PCPP_LOG_DEBUG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
-			curLayer->m_Data = (uint8_t*)dataPtr;
+			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 			dataPtr += curLayer->getHeaderLen();
-			curLayer = curLayer->getNextLayer();
 		}
 	}
 
@@ -303,8 +301,7 @@ namespace pcpp
 			packetTrailerLen = m_LastLayer->getDataLen();
 
 		// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
-		Layer* curLayer = m_FirstLayer;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			// set data ptr to layer
 			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
@@ -321,9 +318,6 @@ namespace pcpp
 			// advance data ptr and data length
 			dataPtr += curLayer->getHeaderLen();
 			dataLen -= curLayer->getHeaderLen();
-
-			// move to next layer
-			curLayer = curLayer->getNextLayer();
 		}
 
 		return true;
@@ -509,33 +503,29 @@ namespace pcpp
 
 	Layer* Packet::getLayerOfType(ProtocolType layerType, int index) const
 	{
-		Layer* curLayer = getFirstLayer();
 		int curIndex = 0;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
-			if (curLayer->getProtocol() == layerType)
-			{
-				if (curIndex < index)
-					curIndex++;
-				else
-					break;
-			}
-			curLayer = curLayer->getNextLayer();
+			if (curLayer->getProtocol() != layerType)
+				continue;
+
+			if (curIndex == index)
+				return curLayer;
+
+			curIndex++;
 		}
 
-		return curLayer;
+		return nullptr;
 	}
 
 	bool Packet::isPacketOfType(ProtocolType protocolType) const
 	{
-		Layer* curLayer = getFirstLayer();
-		while (curLayer != nullptr)
+		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			if (curLayer->getProtocol() == protocolType)
 			{
 				return true;
 			}
-			curLayer = curLayer->getNextLayer();
 		}
 
 		return false;
@@ -600,9 +590,8 @@ namespace pcpp
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
 
 		// go over all layers from the first layer to the last layer and set the data ptr and data length for each layer
-		Layer* curLayer = m_FirstLayer;
 		bool passedExtendedLayer = false;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			// set the data ptr
 			curLayer->m_Data = (uint8_t*)dataPtr;
@@ -619,7 +608,6 @@ namespace pcpp
 			// assuming header length of the layer that requested to be extended hasn't been enlarged yet
 			size_t headerLen = curLayer->getHeaderLen() + (curLayer == layer ? numOfBytesToExtend : 0);
 			dataPtr += headerLen;
-			curLayer = curLayer->getNextLayer();
 		}
 
 		return true;
@@ -680,12 +668,9 @@ namespace pcpp
 	void Packet::computeCalculateFields()
 	{
 		// calculated fields should be calculated from top layer to bottom layer
-
-		Layer* curLayer = m_LastLayer;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_LastLayer; curLayer != nullptr; curLayer = curLayer->getPrevLayer())
 		{
 			curLayer->computeCalculateFields();
-			curLayer = curLayer->getPrevLayer();
 		}
 	}
 
@@ -834,11 +819,10 @@ namespace pcpp
 	{
 		result.clear();
 		result.push_back(printPacketInfo(timeAsLocalTime));
-		Layer* curLayer = m_FirstLayer;
-		while (curLayer != nullptr)
+
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			result.push_back(curLayer->toString());
-			curLayer = curLayer->getNextLayer();
 		}
 	}
 
