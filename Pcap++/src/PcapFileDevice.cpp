@@ -115,8 +115,7 @@ namespace pcpp
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	IFileReaderDevice::IFileReaderDevice(const std::string& fileName) : IFileDevice(fileName)
-	{
-	}
+	{}
 
 	IFileReaderDevice* IFileReaderDevice::getReader(const std::string& fileName)
 	{
@@ -164,8 +163,7 @@ namespace pcpp
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	IFileWriterDevice::IFileWriterDevice(const std::string& fileName) : IFileDevice(fileName)
-	{
-	}
+	{}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapFileReaderDevice members
