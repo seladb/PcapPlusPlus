@@ -35,7 +35,7 @@ namespace pcpp
 	{
 		if (dataLen >= sizeof(stp_tcn_bpdu))
 		{
-			stp_tcn_bpdu* ptr = (stp_tcn_bpdu*)data;
+			stp_tcn_bpdu* ptr = reinterpret_cast<stp_tcn_bpdu*>(data);
 			switch (ptr->type)
 			{
 			case 0x00:
