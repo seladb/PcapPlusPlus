@@ -105,8 +105,7 @@ namespace pcpp
 
 	public:
 		/// A destructor for this class
-		virtual ~IFileWriterDevice()
-		{}
+		virtual ~IFileWriterDevice() = default;
 
 		virtual bool writePacket(RawPacket const& packet) = 0;
 
