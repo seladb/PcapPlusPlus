@@ -61,14 +61,14 @@ namespace pcpp
 			return false;
 		}
 
+		if ((size_t)offsetInLayer > m_DataLen)
+		{
+			PCPP_LOG_ERROR("Requested offset is larger than data length");
+			return false;
+		}
+
 		if (m_Packet == nullptr)
 		{
-			if ((size_t)offsetInLayer > m_DataLen)
-			{
-				PCPP_LOG_ERROR("Requested offset is larger than data length");
-				return false;
-			}
-
 			uint8_t* newData = new uint8_t[m_DataLen + numOfBytesToExtend];
 			memcpy(newData, m_Data, offsetInLayer);
 			memcpy(newData + offsetInLayer + numOfBytesToExtend, m_Data + offsetInLayer, m_DataLen - offsetInLayer);
@@ -76,12 +76,6 @@ namespace pcpp
 			m_Data = newData;
 			m_DataLen += numOfBytesToExtend;
 			return true;
-		}
-
-		if ((size_t)offsetInLayer > m_DataLen)
-		{
-			PCPP_LOG_ERROR("Requested offset is larger than data length");
-			return false;
 		}
 
 		if (m_Data - m_Packet->m_RawPacket->getRawData() + (ptrdiff_t)offsetInLayer 
@@ -108,14 +102,14 @@ namespace pcpp
 			return false;
 		}
 
+		if ((size_t)offsetInLayer >= m_DataLen)
+		{
+			PCPP_LOG_ERROR("Requested offset is larger than data length");
+			return false;
+		}
+
 		if (m_Packet == nullptr)
 		{
-			if ((size_t)offsetInLayer >= m_DataLen)
-			{
-				PCPP_LOG_ERROR("Requested offset is larger than data length");
-				return false;
-			}
-
 			uint8_t* newData = new uint8_t[m_DataLen - numOfBytesToShorten];
 			memcpy(newData, m_Data, offsetInLayer);
 			memcpy(newData + offsetInLayer, m_Data + offsetInLayer + numOfBytesToShorten,
@@ -124,12 +118,6 @@ namespace pcpp
 			m_Data = newData;
 			m_DataLen -= numOfBytesToShorten;
 			return true;
-		}
-
-		if ((size_t)offsetInLayer >= m_DataLen)
-		{
-			PCPP_LOG_ERROR("Requested offset is larger than data length");
-			return false;
 		}
 
 		if ((size_t)offsetInLayer + numOfBytesToShorten > m_DataLen)
