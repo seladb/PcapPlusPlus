@@ -348,13 +348,13 @@ namespace pcpp
 		if (groupRecord == nullptr)
 			return nullptr;
 
-		// prev group was the last group
-		if (reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen() - m_Data >=
-		    static_cast<int>(getHeaderLen()))
+		uint8_t* nextGroupRecordBegin = reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen();
+		if (std::distance(m_Data, nextGroupRecordBegin) >= static_cast<std::ptrdiff_t>(getHeaderLen()))
+		{
 			return nullptr;
+		}
 
-		igmpv3_group_record* nextGroup = reinterpret_cast<igmpv3_group_record*>(
-		    reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen());
+		igmpv3_group_record* nextGroup = reinterpret_cast<igmpv3_group_record*>(nextGroupRecordBegin);
 
 		return nextGroup;
 	}
