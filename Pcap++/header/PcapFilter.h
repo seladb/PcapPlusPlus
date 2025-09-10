@@ -95,7 +95,7 @@ namespace pcpp
 		/// @param filter A filter in BPF syntax
 		/// @param linkType An optional parameter to set the filter's link type. The default is LINKTYPE_ETHERNET
 		/// @throws std::runtime_error if the filter could not be compiled
-		BpfFilterWrapper(std::string filter, LinkLayerType linkType = LINKTYPE_ETHERNET);
+		explicit BpfFilterWrapper(std::string filter, LinkLayerType linkType = LINKTYPE_ETHERNET);
 
 		BpfFilterWrapper(const BpfFilterWrapper& other);
 		BpfFilterWrapper(BpfFilterWrapper&&) noexcept = default;
