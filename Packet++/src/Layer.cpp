@@ -61,7 +61,7 @@ namespace pcpp
 			return false;
 		}
 
-		if ((size_t)offsetInLayer > m_DataLen)
+		if (static_cast<size_t>(offsetInLayer) > m_DataLen)
 		{
 			PCPP_LOG_ERROR("Requested offset is larger than data length");
 			return false;
@@ -78,14 +78,14 @@ namespace pcpp
 			return true;
 		}
 
-		if (m_Data - m_Packet->m_RawPacket->getRawData() + (ptrdiff_t)offsetInLayer 
-			> (ptrdiff_t)m_Packet->m_RawPacket->getRawDataLen())
+		if (m_Data - m_Packet->m_RawPacket->getRawData() + static_cast<ptrdiff_t>(offsetInLayer) 
+			> static_cast<ptrdiff_t>(m_Packet->m_RawPacket->getRawDataLen()))
 		{
 			PCPP_LOG_ERROR("Requested offset is larger than total packet length");
 			return false;
 		}
 
-		if (m_NextLayer != nullptr && (ptrdiff_t)offsetInLayer > m_NextLayer->m_Data - m_Data)
+		if (m_NextLayer != nullptr && static_cast<ptrdiff_t>(offsetInLayer) > m_NextLayer->m_Data - m_Data)
 		{
 			PCPP_LOG_ERROR("Requested offset exceeds current layer's boundary");
 			return false;
@@ -102,7 +102,7 @@ namespace pcpp
 			return false;
 		}
 
-		if ((size_t)offsetInLayer >= m_DataLen)
+		if (static_cast<size_t>(offsetInLayer) >= m_DataLen)
 		{
 			PCPP_LOG_ERROR("Requested offset is larger than data length");
 			return false;
@@ -120,21 +120,21 @@ namespace pcpp
 			return true;
 		}
 
-		if ((size_t)offsetInLayer + numOfBytesToShorten > m_DataLen)
+		if (static_cast<size_t>(offsetInLayer) + numOfBytesToShorten > m_DataLen)
 		{
 			PCPP_LOG_ERROR("Requested number of bytes to shorten is larger than data length");
 			return false;
 		}
 
-		if (m_Data - m_Packet->m_RawPacket->getRawData() + (ptrdiff_t)offsetInLayer + (ptrdiff_t)numOfBytesToShorten
-			> (ptrdiff_t)(m_Packet->m_RawPacket->getRawDataLen()))
+		if (m_Data - m_Packet->m_RawPacket->getRawData() + static_cast<ptrdiff_t>(offsetInLayer) 
+			+ static_cast<ptrdiff_t>(numOfBytesToShorten) > static_cast<ptrdiff_t>(m_Packet->m_RawPacket->getRawDataLen()))
 		{
 			PCPP_LOG_ERROR("Requested number of bytes to shorten is larger than total packet length");
 			return false;
 		}
 
-		if (m_NextLayer != nullptr && (ptrdiff_t)offsetInLayer + (ptrdiff_t)numOfBytesToShorten 
-			> m_NextLayer->m_Data - m_Data)
+		if (m_NextLayer != nullptr && static_cast<ptrdiff_t>(offsetInLayer) 
+			+ static_cast<ptrdiff_t>(numOfBytesToShorten) > m_NextLayer->m_Data - m_Data)
 		{
 			PCPP_LOG_ERROR("Requested number of bytes to shorten exceeds current layer's boundary");
 			return false;
