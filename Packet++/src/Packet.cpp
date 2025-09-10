@@ -619,6 +619,8 @@ namespace pcpp
 			// assuming header length of the layer that requested to be extended hasn't been enlarged yet
 			size_t headerLen = curLayer->getHeaderLen() + (curLayer == layer ? numOfBytesToExtend : 0);
 			dataPtr += headerLen;
+			if (dataPtr > m_RawPacket->getRawData() + m_RawPacket->getRawDataLen())
+				break;
 			curLayer = curLayer->getNextLayer();
 		}
 
@@ -671,6 +673,8 @@ namespace pcpp
 			// assuming header length of the layer that requested to be extended hasn't been enlarged yet
 			size_t headerLen = curLayer->getHeaderLen() - (curLayer == layer ? numOfBytesToShorten : 0);
 			dataPtr += headerLen;
+			if (dataPtr > m_RawPacket->getRawData() + m_RawPacket->getRawDataLen())
+				break;
 			curLayer = curLayer->getNextLayer();
 		}
 
