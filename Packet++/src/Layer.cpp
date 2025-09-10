@@ -61,6 +61,12 @@ namespace pcpp
 			return false;
 		}
 
+		if (offsetInLayer < 0)
+		{
+			PCPP_LOG_ERROR("Requested offset is negative");
+			return false;
+		}
+
 		if (static_cast<size_t>(offsetInLayer) > m_DataLen)
 		{
 			PCPP_LOG_ERROR("Requested offset is larger than data length");
@@ -99,6 +105,12 @@ namespace pcpp
 		if (m_Data == nullptr)
 		{
 			PCPP_LOG_ERROR("Layer's data is nullptr");
+			return false;
+		}
+
+		if (offsetInLayer < 0)
+		{
+			PCPP_LOG_ERROR("Requested offset is negative");
 			return false;
 		}
 
