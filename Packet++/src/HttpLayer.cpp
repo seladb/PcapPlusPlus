@@ -118,7 +118,7 @@ namespace pcpp
 		if (size <= maxLengthToPrint)
 		{
 			char* firstLine = new char[size + 1];
-			strncpy(firstLine, (char*)m_Data, size);
+			strncpy(firstLine, reinterpret_cast<char*>(m_Data), size);
 			firstLine[size] = 0;
 			result += std::string(firstLine);
 			delete[] firstLine;
@@ -126,7 +126,7 @@ namespace pcpp
 		else
 		{
 			char firstLine[maxLengthToPrint + 1];
-			strncpy(firstLine, (char*)m_Data, maxLengthToPrint - 3);
+			strncpy(firstLine, reinterpret_cast<char*>(m_Data), maxLengthToPrint - 3);
 			firstLine[maxLengthToPrint - 3] = '.';
 			firstLine[maxLengthToPrint - 2] = '.';
 			firstLine[maxLengthToPrint - 1] = '.';
@@ -743,7 +743,7 @@ namespace pcpp
 		if (size <= maxLengthToPrint)
 		{
 			char* firstLine = new char[size + 1];
-			strncpy(firstLine, (char*)m_Data, size);
+			strncpy(firstLine, reinterpret_cast<char*>(m_Data), size);
 			firstLine[size] = 0;
 			result += std::string(firstLine);
 			delete[] firstLine;
@@ -751,7 +751,7 @@ namespace pcpp
 		else
 		{
 			char firstLine[maxLengthToPrint + 1];
-			strncpy(firstLine, (char*)m_Data, maxLengthToPrint - 3);
+			strncpy(firstLine, reinterpret_cast<char*>(m_Data), maxLengthToPrint - 3);
 			firstLine[maxLengthToPrint - 3] = '.';
 			firstLine[maxLengthToPrint - 2] = '.';
 			firstLine[maxLengthToPrint - 1] = '.';

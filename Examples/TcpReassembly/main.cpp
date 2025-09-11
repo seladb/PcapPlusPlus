@@ -276,8 +276,8 @@ struct TcpReassemblyData
 	}
 };
 
-// typedef representing the connection manager
-typedef std::unordered_map<uint32_t, TcpReassemblyData> TcpReassemblyConnMgr;
+// using declaration representing the connection manager
+using TcpReassemblyConnMgr = std::unordered_map<uint32_t, TcpReassemblyData>;
 
 /**
  * Print application usage

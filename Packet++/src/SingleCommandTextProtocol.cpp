@@ -126,8 +126,8 @@ namespace pcpp
 
 		// If there is no option remove trailing newline characters
 		if (offset == (m_DataLen - 1) && offset > 1)
-			return std::string((char*)m_Data, offset - 1);
-		return std::string((char*)m_Data, offset);
+			return std::string(reinterpret_cast<char*>(m_Data), offset - 1);
+		return std::string(reinterpret_cast<char*>(m_Data), offset);
 	}
 
 	std::string SingleCommandTextProtocol::getCommandOptionInternal() const
@@ -141,7 +141,8 @@ namespace pcpp
 		if (offset != (m_DataLen - 2))
 		{
 			// We don't want to trailing newline characters so remove 2 and remove addition from start point
-			auto option = std::string((char*)&m_Data[offset + addition], m_DataLen - (offset + 2 + addition));
+			auto option =
+			    std::string(reinterpret_cast<char*>(&m_Data[offset + addition]), m_DataLen - (offset + 2 + addition));
 
 			// Remove XXX- and XXX<SP> since they are delimiters of the protocol where XXX is the usually status code
 			// Check RFC821 (SMTP) Section 3.3 and RFC959 (FTP) Section 4.2
@@ -171,7 +172,7 @@ namespace pcpp
 		if (data == nullptr || dataSize < MIN_PACKET_LENGTH)
 			return false;
 
-		std::string payload = std::string((char*)data, dataSize);
+		std::string payload = std::string(reinterpret_cast<const char*>(data), dataSize);
 		return payload.rfind("\r\n") == dataSize - 2;
 	}
 
