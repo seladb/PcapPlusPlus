@@ -508,7 +508,6 @@ jobs:
     name: Determine Windows Pcap Backend Matrix
     runs-on: ubuntu-latest
     outputs:
-        pcap-backends: ${{ steps.generate-backends.outputs.pcap_lib }}
         npcap-or-default: ${{ steps.generate-backends.outputs.npcap_or_default}}
     steps:
       - name: Initialize NPcap backend variable
@@ -529,10 +528,8 @@ jobs:
         id: generate-backends
         run: |
           if [[ "${{ env.npcap_available }}" == "true" ]]; then
-            echo 'pcap_lib=["winpcap", "npcap"]' >> "$GITHUB_OUTPUT"
             echo 'npcap_or_default=npcap' >> "$GITHUB_OUTPUT"
           else
-            echo 'pcap_lib=["winpcap"]' >> $GITHUB_OUTPUT
             echo 'npcap_or_default=winpcap' >> "$GITHUB_OUTPUT"
           fi
 
