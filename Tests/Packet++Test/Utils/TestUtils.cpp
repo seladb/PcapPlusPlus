@@ -128,7 +128,7 @@ namespace pcpp_tests
 		pcap_dumper_t* d;
 		/* open output file */
 		d = pcap_dump_open(pcap, fileName.c_str());
-		if (d == NULL)
+		if (d == nullptr)
 		{
 			pcap_perror(pcap, "pcap_dump_fopen");
 			return;

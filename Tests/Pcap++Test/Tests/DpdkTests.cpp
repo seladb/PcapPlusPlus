@@ -178,9 +178,9 @@ private:
 public:
 	DpdkTestWorkerThread()
 	{
-		m_DpdkDevice = NULL;
+		m_DpdkDevice = nullptr;
 		m_QueueId = -1;
-		m_QueueLock = NULL;
+		m_QueueLock = nullptr;
 		m_CoreId = -1;
 		m_Stop = false;
 		m_PacketCount = 0;
@@ -205,7 +205,7 @@ public:
 
 		m_CoreId = coreId;
 
-		if (m_DpdkDevice == NULL)
+		if (m_DpdkDevice == nullptr)
 		{
 			return false;
 		}
@@ -229,7 +229,7 @@ public:
 
 		for (int i = 0; i < 32; i++)
 		{
-			if (mBufArr[i] != NULL)
+			if (mBufArr[i] != nullptr)
 				delete mBufArr[i];
 		}
 
@@ -710,7 +710,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 	for (int i = 0; i < 32; i++)
 	{
-		if (mBufRawPacketArr[i] != NULL)
+		if (mBufRawPacketArr[i] != nullptr)
 			delete mBufRawPacketArr[i];
 	}
 
@@ -742,7 +742,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 	for (int i = 0; i < 32; i++)
 	{
-		if (packetArr[i] != NULL)
+		if (packetArr[i] != nullptr)
 			delete packetArr[i];
 	}
 
@@ -944,21 +944,21 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 	// Test packet manipulation
 	// ------------------------
 
-	pcpp::MBufRawPacket* rawPacketToManipulate = NULL;
+	pcpp::MBufRawPacket* rawPacketToManipulate = nullptr;
 	for (pcpp::MBufRawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		if ((packet.isPacketOfType(pcpp::TCP) || packet.isPacketOfType(pcpp::UDP)) && packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-			if (tcpLayer != NULL && tcpLayer->getNextLayer() != NULL)
+			if (tcpLayer != nullptr && tcpLayer->getNextLayer() != nullptr)
 			{
 				rawPacketToManipulate = (pcpp::MBufRawPacket*)*iter;
 				break;
 			}
 
 			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
-			if (udpLayer != NULL && udpLayer->getNextLayer() != NULL)
+			if (udpLayer != nullptr && udpLayer->getNextLayer() != nullptr)
 			{
 				rawPacketToManipulate = (pcpp::MBufRawPacket*)*iter;
 				break;
