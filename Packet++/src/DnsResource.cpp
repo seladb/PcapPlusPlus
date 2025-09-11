@@ -196,8 +196,8 @@ namespace pcpp
 
 	DnsType IDnsResource::getDnsType() const
 	{
-		uint16_t dnsType = *(uint16_t*)(getRawData() + m_NameLength);
-		return (DnsType)be16toh(dnsType);
+		uint16_t dnsType = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength);
+		return static_cast<DnsType>(be16toh(dnsType));
 	}
 
 	void IDnsResource::setDnsType(DnsType newType)
@@ -208,8 +208,8 @@ namespace pcpp
 
 	DnsClass IDnsResource::getDnsClass() const
 	{
-		uint16_t dnsClass = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
-		return (DnsClass)be16toh(dnsClass);
+		uint16_t dnsClass = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength + sizeof(uint16_t));
+		return static_cast<DnsClass>(be16toh(dnsClass));
 	}
 
 	void IDnsResource::setDnsClass(DnsClass newClass)
@@ -268,7 +268,7 @@ namespace pcpp
 
 	uint32_t DnsResource::getTTL() const
 	{
-		uint32_t ttl = *(uint32_t*)(getRawData() + m_NameLength + 2 * sizeof(uint16_t));
+		uint32_t ttl = *reinterpret_cast<uint32_t*>(getRawData() + m_NameLength + 2 * sizeof(uint16_t));
 		return be32toh(ttl);
 	}
 
@@ -290,7 +290,7 @@ namespace pcpp
 			return 0;
 		}
 
-		uint16_t dataLength = *(uint16_t*)(getRawData() + sizeToRead);
+		uint16_t dataLength = *reinterpret_cast<uint16_t*>(getRawData() + sizeToRead);
 		return be16toh(dataLength);
 	}
 
@@ -444,7 +444,7 @@ namespace pcpp
 
 	uint16_t DnsResource::getCustomDnsClass() const
 	{
-		uint16_t value = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
+		uint16_t value = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength + sizeof(uint16_t));
 		return be16toh(value);
 	}
 

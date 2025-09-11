@@ -532,119 +532,6 @@ namespace pcpp
 		PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
 	}
 
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// SnoopFileReaderDevice members
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-	SnoopFileReaderDevice::~SnoopFileReaderDevice()
-	{
-		m_snoopFile.close();
-	}
-
-	bool SnoopFileReaderDevice::open()
-	{
-		resetStatisticCounters();
-
-		m_snoopFile.open(m_FileName.c_str(), std::ifstream::binary);
-		if (!m_snoopFile.is_open())
-		{
-			PCPP_LOG_ERROR("Cannot open snoop reader device for filename '" << m_FileName << "'");
-			m_snoopFile.close();
-			return false;
-		}
-
-		snoop_file_header_t snoop_file_header;
-		m_snoopFile.read((char*)&snoop_file_header, sizeof(snoop_file_header_t));
-		if (!m_snoopFile)
-		{
-			PCPP_LOG_ERROR("Cannot read snoop file header for '" << m_FileName << "'");
-			m_snoopFile.close();
-			return false;
-		}
-
-		if (be64toh(snoop_file_header.identification_pattern) != 0x736e6f6f70000000 &&
-		    be32toh(snoop_file_header.version_number) == 2)
-			return false;
-
-		// From https://datatracker.ietf.org/doc/html/rfc1761
-		static const pcpp::LinkLayerType snoop_encap[] = {
-			LINKTYPE_ETHERNET,   /// IEEE 802.3
-			LINKTYPE_NULL,       /// IEEE 802.4 Token Bus
-			LINKTYPE_IEEE802_5,  /// IEEE 802.5
-			LINKTYPE_NULL,       /// IEEE 802.6 Metro Net
-			LINKTYPE_ETHERNET,   /// Ethernet
-			LINKTYPE_C_HDLC,     /// HDLC
-			LINKTYPE_NULL,       /// Character Synchronous, e.g. bisync
-			LINKTYPE_NULL,       /// IBM Channel-to-Channel
-			LINKTYPE_FDDI        /// FDDI
-		};
-		uint32_t datalink_type = be32toh(snoop_file_header.datalink_type);
-		if (datalink_type > ARRAY_SIZE(snoop_encap) - 1)
-		{
-			PCPP_LOG_ERROR("Cannot read data link type for '" << m_FileName << "'");
-			m_snoopFile.close();
-			return false;
-		}
-
-		m_PcapLinkLayerType = snoop_encap[datalink_type];
-
-		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
-		m_DeviceOpened = true;
-		return true;
-	}
-
-	bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
-	{
-		rawPacket.clear();
-		if (m_DeviceOpened != true)
-		{
-			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
-			return false;
-		}
-		snoop_packet_header_t snoop_packet_header;
-		m_snoopFile.read((char*)&snoop_packet_header, sizeof(snoop_packet_header_t));
-		if (!m_snoopFile)
-		{
-			return false;
-		}
-		size_t packetSize = be32toh(snoop_packet_header.included_length);
-		if (packetSize > 15000)
-		{
-			return false;
-		}
-		std::unique_ptr<char[]> packetData = std::make_unique<char[]>(packetSize);
-		m_snoopFile.read(packetData.get(), packetSize);
-		if (!m_snoopFile)
-		{
-			return false;
-		}
-		timespec ts = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)),
-			            static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
-		if (!rawPacket.setRawData((const uint8_t*)packetData.release(), packetSize, ts,
-		                          static_cast<LinkLayerType>(m_PcapLinkLayerType)))
-		{
-			PCPP_LOG_ERROR("Couldn't set data to raw packet");
-			return false;
-		}
-		size_t pad = be32toh(snoop_packet_header.packet_record_length) -
-		             (sizeof(snoop_packet_header_t) + be32toh(snoop_packet_header.included_length));
-		m_snoopFile.ignore(pad);
-		if (!m_snoopFile)
-		{
-			return false;
-		}
-
-		reportPacketProcessed();
-		return true;
-	}
-
-	void SnoopFileReaderDevice::close()
-	{
-		m_snoopFile.close();
-		m_DeviceOpened = false;
-		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
-	}
-
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapNgFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -992,4 +879,117 @@ namespace pcpp
 		return m_BpfWrapper.setFilter(filterAsString);
 	}
 
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// SnoopFileReaderDevice members
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	SnoopFileReaderDevice::~SnoopFileReaderDevice()
+	{
+		m_snoopFile.close();
+	}
+
+	bool SnoopFileReaderDevice::open()
+	{
+		m_NumOfPacketsRead = 0;
+		m_NumOfPacketsNotParsed = 0;
+
+		m_snoopFile.open(m_FileName.c_str(), std::ifstream::binary);
+		if (!m_snoopFile.is_open())
+		{
+			PCPP_LOG_ERROR("Cannot open snoop reader device for filename '" << m_FileName << "'");
+			m_snoopFile.close();
+			return false;
+		}
+
+		snoop_file_header_t snoop_file_header;
+		m_snoopFile.read((char*)&snoop_file_header, sizeof(snoop_file_header_t));
+		if (!m_snoopFile)
+		{
+			PCPP_LOG_ERROR("Cannot read snoop file header for '" << m_FileName << "'");
+			m_snoopFile.close();
+			return false;
+		}
+
+		if (be64toh(snoop_file_header.identification_pattern) != 0x736e6f6f70000000 &&
+		    be32toh(snoop_file_header.version_number) == 2)
+			return false;
+
+		// From https://datatracker.ietf.org/doc/html/rfc1761
+		static const pcpp::LinkLayerType snoop_encap[] = {
+			LINKTYPE_ETHERNET,   /// IEEE 802.3
+			LINKTYPE_NULL,       /// IEEE 802.4 Token Bus
+			LINKTYPE_IEEE802_5,  /// IEEE 802.5
+			LINKTYPE_NULL,       /// IEEE 802.6 Metro Net
+			LINKTYPE_ETHERNET,   /// Ethernet
+			LINKTYPE_C_HDLC,     /// HDLC
+			LINKTYPE_NULL,       /// Character Synchronous, e.g. bisync
+			LINKTYPE_NULL,       /// IBM Channel-to-Channel
+			LINKTYPE_FDDI        /// FDDI
+		};
+		uint32_t datalink_type = be32toh(snoop_file_header.datalink_type);
+		if (datalink_type > ARRAY_SIZE(snoop_encap) - 1)
+		{
+			PCPP_LOG_ERROR("Cannot read data link type for '" << m_FileName << "'");
+			m_snoopFile.close();
+			return false;
+		}
+
+		m_PcapLinkLayerType = snoop_encap[datalink_type];
+
+		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
+		m_DeviceOpened = true;
+		return true;
+	}
+
+	bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
+	{
+		rawPacket.clear();
+		if (m_DeviceOpened != true)
+		{
+			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
+			return false;
+		}
+		snoop_packet_header_t snoop_packet_header;
+		m_snoopFile.read((char*)&snoop_packet_header, sizeof(snoop_packet_header_t));
+		if (!m_snoopFile)
+		{
+			return false;
+		}
+		size_t packetSize = be32toh(snoop_packet_header.included_length);
+		if (packetSize > 15000)
+		{
+			return false;
+		}
+		std::unique_ptr<char[]> packetData = std::make_unique<char[]>(packetSize);
+		m_snoopFile.read(packetData.get(), packetSize);
+		if (!m_snoopFile)
+		{
+			return false;
+		}
+		timespec ts = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)),
+			            static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
+		if (!rawPacket.setRawData((const uint8_t*)packetData.release(), packetSize, ts,
+		                          static_cast<LinkLayerType>(m_PcapLinkLayerType)))
+		{
+			PCPP_LOG_ERROR("Couldn't set data to raw packet");
+			return false;
+		}
+		size_t pad = be32toh(snoop_packet_header.packet_record_length) -
+		             (sizeof(snoop_packet_header_t) + be32toh(snoop_packet_header.included_length));
+		m_snoopFile.ignore(pad);
+		if (!m_snoopFile)
+		{
+			return false;
+		}
+
+		m_NumOfPacketsRead++;
+		return true;
+	}
+
+	void SnoopFileReaderDevice::close()
+	{
+		m_snoopFile.close();
+		m_DeviceOpened = false;
+		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
+	}
 }  // namespace pcpp
