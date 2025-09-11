@@ -86,8 +86,8 @@ namespace pcpp
 	class KniDeviceList;
 
 	/// Defines the signature callback used by capturing API on KNI device
-	typedef bool (*OnKniPacketArriveCallback)(MBufRawPacket* packets, uint32_t numOfPackets, KniDevice* device,
-	                                          void* userCookie);
+	using OnKniPacketArriveCallback = bool (*)(MBufRawPacket* packets, uint32_t numOfPackets, KniDevice* device,
+	                                           void* userCookie);
 
 	/// @class KniDevice
 	/// This class represents special kind of DPDK devices called KNI - Kernel Network Interface

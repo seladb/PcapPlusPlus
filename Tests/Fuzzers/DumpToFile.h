@@ -10,7 +10,7 @@ static int dumpDataToPcapFile(const uint8_t* data, size_t size, const char* path
 	int written = 0;
 
 	fd = fopen(path, "wb");
-	if (fd == NULL)
+	if (fd == nullptr)
 	{
 		std::cerr << "Error opening pcap file for writing\n";
 		return -1;
