@@ -540,13 +540,13 @@ jobs:
     needs: define-windows-pcap-backend-matrix
     strategy:
       matrix:
-        pcap_lib: ${{ fromJSON(needs.define-windows-pcap-backend-matrix.outputs.pcap-backends) }}
-        sys: [mingw32, mingw64]
-        include: # Extends the matrix to add the env variable for each matching sys
+        include:
           - sys: mingw32
             env: i686
+            pcap_lib: "winpcap"
           - sys: mingw64
             env: x86_64
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
     runs-on: windows-latest
     steps:
       - name: Checkout code
