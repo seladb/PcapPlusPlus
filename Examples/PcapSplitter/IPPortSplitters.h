@@ -24,7 +24,7 @@ public:
 	 * be an existing flow or a new flow). When opening new flows it uses a virtual abstract method that should be
 	 * Implemented by inherited classes to determine to which file number the flow will be written to
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) override
 	{
 		// if it's not a TCP or UDP packet, put it in file #0
 		if (!packet.isPacketOfType(pcpp::TCP) && !packet.isPacketOfType(pcpp::UDP))
@@ -33,7 +33,7 @@ public:
 		}
 
 		// hash the 5-tuple and look for it in the flow table
-		uint32_t hash = pcpp::hash5Tuple(&packet);
+		const uint32_t hash = pcpp::hash5Tuple(&packet);
 
 		if (m_FlowTable.find(hash) != m_FlowTable.end())
 		{
@@ -48,11 +48,11 @@ public:
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
 			// extract TCP layer
-			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+			auto* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 			if (tcpLayer != nullptr)
 			{
-				uint16_t srcPort = tcpLayer->getSrcPort();
-				uint16_t dstPort = tcpLayer->getDstPort();
+				const uint16_t srcPort = tcpLayer->getSrcPort();
+				const uint16_t dstPort = tcpLayer->getDstPort();
 
 				if (tcpLayer->getTcpHeader()->synFlag)
 				{
@@ -64,31 +64,25 @@ public:
 						return m_FlowTable[hash];
 					}
 					// SYN/ACK packet
-					else
-					{
-						m_FlowTable[hash] =
-						    getFileNumberForValue(getValue(packet, SYN_ACK, srcPort, dstPort), filesToClose);
-						return m_FlowTable[hash];
-					}
-				}
-				// Other TCP packet
-				else
-				{
+
 					m_FlowTable[hash] =
-					    getFileNumberForValue(getValue(packet, TCP_OTHER, srcPort, dstPort), filesToClose);
+					    getFileNumberForValue(getValue(packet, SYN_ACK, srcPort, dstPort), filesToClose);
 					return m_FlowTable[hash];
 				}
+				// Other TCP packet
+				m_FlowTable[hash] = getFileNumberForValue(getValue(packet, TCP_OTHER, srcPort, dstPort), filesToClose);
+				return m_FlowTable[hash];
 			}
 		}
 
 		else if (packet.isPacketOfType(pcpp::UDP))
 		{
 			// for UDP packets, decide the server port by the lower port
-			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
+			auto* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
 			if (udpLayer != nullptr)
 			{
-				uint16_t srcPort = udpLayer->getSrcPort();
-				uint16_t dstPort = udpLayer->getDstPort();
+				const uint16_t srcPort = udpLayer->getSrcPort();
+				const uint16_t dstPort = udpLayer->getDstPort();
 				m_FlowTable[hash] = getFileNumberForValue(getValue(packet, UDP, srcPort, dstPort), filesToClose);
 				return m_FlowTable[hash];
 			}
@@ -102,10 +96,10 @@ public:
 	/**
 	 * Re-implement Splitter's getFileName() method, this time with the IP/port value
 	 */
-	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
+	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int /*fileNumber*/) override
 	{
 		// first set the base string as the outputPcapBasePath
-		std::string result = outputPcapBasePath;
+		const std::string& result = outputPcapBasePath;
 
 		// if it's not a TCP or UDP packet, put it in file #0
 		if (!packet.isPacketOfType(pcpp::TCP) && !packet.isPacketOfType(pcpp::UDP))
@@ -116,11 +110,11 @@ public:
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
 			// extract TCP layer
-			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+			auto* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 			if (tcpLayer != nullptr)
 			{
-				uint16_t srcPort = tcpLayer->getSrcPort();
-				uint16_t dstPort = tcpLayer->getDstPort();
+				const uint16_t srcPort = tcpLayer->getSrcPort();
+				const uint16_t dstPort = tcpLayer->getDstPort();
 
 				if (tcpLayer->getTcpHeader()->synFlag)
 				{
@@ -130,27 +124,22 @@ public:
 						return result + getValueString(packet, SYN, srcPort, dstPort);
 					}
 					// SYN/ACK packet
-					else
-					{
-						return result + getValueString(packet, SYN_ACK, srcPort, dstPort);
-					}
+
+					return result + getValueString(packet, SYN_ACK, srcPort, dstPort);
 				}
 				// Other TCP packet
-				else
-				{
-					return result + getValueString(packet, TCP_OTHER, srcPort, dstPort);
-				}
+				return result + getValueString(packet, TCP_OTHER, srcPort, dstPort);
 			}
 		}
 
 		else if (packet.isPacketOfType(pcpp::UDP))
 		{
 			// for UDP packets, decide the server port by the lower port
-			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
+			auto* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
 			if (udpLayer != nullptr)
 			{
-				uint16_t srcPort = udpLayer->getSrcPort();
-				uint16_t dstPort = udpLayer->getDstPort();
+				const uint16_t srcPort = udpLayer->getSrcPort();
+				const uint16_t dstPort = udpLayer->getDstPort();
 				return result + getValueString(packet, UDP, srcPort, dstPort);
 			}
 		}
@@ -163,7 +152,7 @@ protected:
 	/**
 	 * An enum for TCP/UDP packet type: can be either TCP-SYN, TCP-SYN/ACK, Other TCP packet of UDP packet
 	 */
-	enum PacketType
+	enum PacketType : uint8_t
 	{
 		SYN,
 		SYN_ACK,
@@ -191,46 +180,58 @@ protected:
 	/**
 	 * An auxiliary method for extracting packet's IPv4/IPv6 source address hashed as 4 bytes uint32_t value
 	 */
-	uint32_t getSrcIPValue(pcpp::Packet& packet)
+	static uint32_t getSrcIPValue(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIPv4Address().toInt();
-		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIPv6Address().toBytes(), 16);
-		else
-			return 0;
+		}
+		if (packet.isPacketOfType(pcpp::IPv6))
+		{
+			return pcpp::fnvHash(
+			    const_cast<uint8_t*>(packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIPv6Address().toBytes()), 16);
+		}
+		return 0;
 	}
 
 	/**
 	 * An auxiliary method for extracting packet's IPv4/IPv6 dest address hashed as 4 bytes uint32_t value
 	 */
-	uint32_t getDstIPValue(pcpp::Packet& packet)
+	static uint32_t getDstIPValue(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address().toInt();
-		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIPv6Address().toBytes(), 16);
-		else
-			return 0;
+		}
+		if (packet.isPacketOfType(pcpp::IPv6))
+		{
+			return pcpp::fnvHash(
+			    const_cast<uint8_t*>(packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIPv6Address().toBytes()), 16);
+		}
+		return 0;
 	}
 
 	/**
 	 * An auxiliary method to indicate whether an IPv4/IPv6 source address is multicast or not
 	 */
-	bool isSrcIPMulticast(pcpp::Packet& packet)
+	static bool isSrcIPMulticast(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IP))
+		{
 			return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().isMulticast();
+		}
 		return false;
 	}
 
 	/**
 	 * An auxiliary method to indicate whether an IPv4/IPv6 dest address is multicast or not
 	 */
-	bool isDstIPMulticast(pcpp::Packet& packet)
+	static bool isDstIPMulticast(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IP))
+		{
 			return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().isMulticast();
+		}
 		return false;
 	}
 };
@@ -259,7 +260,7 @@ protected:
 	 * Implementation of the abstract method of IPPortSplitter. This method returns the client IP for a certain flow
 	 * by the logic written at the description of this class
 	 */
-	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) override
 	{
 		switch (packetType)
 		{
@@ -269,23 +270,33 @@ protected:
 			return getDstIPValue(packet);
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return getSrcIPValue(packet);
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return getDstIPValue(packet);
+			}
 			else
+			{
 				return srcPort >= dstPort ? getSrcIPValue(packet) : getDstIPValue(packet);
+			}
 		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
+			{
 				return getSrcIPValue(packet);
+			}
 			else
+			{
 				return getDstIPValue(packet);
+			}
 		}
 	}
 
-	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) override
 	{
-		std::string prefix = "client-ip-";
+		const std::string prefix = "client-ip-";
 
 		switch (packetType)
 		{
@@ -295,18 +306,28 @@ protected:
 			return prefix + hyphenIP(getDstIPString(packet));
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return prefix + hyphenIP(getSrcIPString(packet));
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return prefix + hyphenIP(getDstIPString(packet));
+			}
 			else
+			{
 				return srcPort >= dstPort ? prefix + hyphenIP(getSrcIPString(packet))
 				                          : prefix + hyphenIP(getDstIPString(packet));
+			}
 		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
+			{
 				return prefix + hyphenIP(getSrcIPString(packet));
+			}
 			else
+			{
 				return prefix + hyphenIP(getDstIPString(packet));
+			}
 		}
 	}
 };
@@ -335,7 +356,7 @@ protected:
 	 * Implementation of the abstract method of IPPortSplitter. This method returns the server IP for a certain flow
 	 * by the logic written at the description of this class
 	 */
-	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) override
 	{
 		switch (packetType)
 		{
@@ -345,23 +366,33 @@ protected:
 			return getSrcIPValue(packet);
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return getDstIPValue(packet);
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return getSrcIPValue(packet);
+			}
 			else
+			{
 				return srcPort >= dstPort ? getDstIPValue(packet) : getSrcIPValue(packet);
+			}
 		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
+			{
 				return getDstIPValue(packet);
+			}
 			else
+			{
 				return getSrcIPValue(packet);
+			}
 		}
 	}
 
-	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) override
 	{
-		std::string prefix = "server-ip-";
+		const std::string prefix = "server-ip-";
 
 		switch (packetType)
 		{
@@ -371,18 +402,28 @@ protected:
 			return prefix + hyphenIP(getSrcIPString(packet));
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return prefix + hyphenIP(getDstIPString(packet));
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return prefix + hyphenIP(getSrcIPString(packet));
+			}
 			else
+			{
 				return srcPort >= dstPort ? prefix + hyphenIP(getDstIPString(packet))
 				                          : prefix + hyphenIP(getSrcIPString(packet));
+			}
 		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
+			{
 				return prefix + hyphenIP(getDstIPString(packet));
+			}
 			else
+			{
 				return prefix + hyphenIP(getSrcIPString(packet));
+			}
 		}
 	}
 };
@@ -412,7 +453,7 @@ protected:
 	 * Implementation of the abstract method of IPPortSplitter. This method returns the server port for a certain flow
 	 * by the logic written at the description of this class
 	 */
-	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) override
 	{
 		switch (packetType)
 		{
@@ -422,20 +463,26 @@ protected:
 			return srcPort;
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return dstPort;
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return srcPort;
+			}
 			else
+			{
 				return std::min<uint16_t>(srcPort, dstPort);
+			}
 		// other TCP packet
 		default:
 			return std::min<uint16_t>(srcPort, dstPort);
 		}
 	}
 
-	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) override
 	{
-		std::string prefix = "server-port-";
+		std::string const prefix = "server-port-";
 
 		uint16_t res = 0;
 		switch (packetType)
@@ -448,11 +495,17 @@ protected:
 			break;
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				res = dstPort;
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				res = srcPort;
+			}
 			else
+			{
 				res = std::min<uint16_t>(srcPort, dstPort);
+			}
 			break;
 		// other TCP packet
 		default:
@@ -491,7 +544,7 @@ protected:
 	 * Implementation of the abstract method of IPPortSplitter. This method returns the client port for a certain flow
 	 * by the logic written at the description of this class
 	 */
-	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) override
 	{
 		switch (packetType)
 		{
@@ -501,20 +554,26 @@ protected:
 			return dstPort;
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return srcPort;
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return dstPort;
+			}
 			else
+			{
 				return std::max<uint16_t>(srcPort, dstPort);
+			}
 		// other TCP packet
 		default:
 			return std::max<uint16_t>(srcPort, dstPort);
 		}
 	}
 
-	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) override
 	{
-		std::string prefix = "client-port-";
+		const std::string prefix = "client-port-";
 
 		uint16_t res = 0;
 		switch (packetType)
@@ -527,11 +586,17 @@ protected:
 			break;
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				res = srcPort;
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				res = dstPort;
+			}
 			else
+			{
 				res = std::max<uint16_t>(srcPort, dstPort);
+			}
 			break;
 		// other TCP packet
 		default:
