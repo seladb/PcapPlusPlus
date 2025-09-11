@@ -19,11 +19,8 @@ namespace pcpp
 	class IDevice
 	{
 	protected:
-		bool m_DeviceOpened;
-
 		// c'tor should not be public
-		IDevice() : m_DeviceOpened(false)
-		{}
+		IDevice() = default;
 
 	public:
 		virtual ~IDevice()
@@ -37,10 +34,7 @@ namespace pcpp
 		virtual void close() = 0;
 
 		/// @return True if the file is opened, false otherwise
-		inline bool isOpened()
-		{
-			return m_DeviceOpened;
-		}
+		virtual bool isOpened() const = 0;
 	};
 
 	/// @class IFilterableDevice

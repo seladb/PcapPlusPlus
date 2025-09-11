@@ -285,6 +285,8 @@ namespace pcpp
 			uint64_t txCompletedPackets;
 		};
 
+		bool m_DeviceOpened = false;
+
 		std::string m_InterfaceName;
 		XdpDeviceConfiguration* m_Config;
 		bool m_ReceivingPackets;

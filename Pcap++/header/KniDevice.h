@@ -524,7 +524,14 @@ namespace pcpp
 		/// Stops asynchronous packet capture if it is running.
 		void close();
 
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
+
 	private:
+		bool m_DeviceOpened = false;
+
 		struct rte_kni* m_Device;
 		struct rte_mempool* m_MBufMempool;
 		struct KniDeviceInfo

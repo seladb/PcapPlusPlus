@@ -39,6 +39,7 @@ namespace pcpp
 	class IFileDevice : public IPcapDevice
 	{
 	protected:
+		bool m_DeviceOpened = false;
 		std::string m_FileName;
 
 		explicit IFileDevice(const std::string& fileName);
@@ -52,6 +53,11 @@ namespace pcpp
 
 		/// Close the file
 		void close() override;
+
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
 	};
 
 	/// @class IFileReaderDevice

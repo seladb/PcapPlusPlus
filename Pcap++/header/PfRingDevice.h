@@ -59,6 +59,8 @@ namespace pcpp
 			bool m_Ready = false;
 		};
 
+		bool m_DeviceOpened = false;
+
 		std::vector<pfring*> m_PfRingDescriptors;
 		std::string m_DeviceName;
 		int m_InterfaceIndex;
@@ -307,6 +309,11 @@ namespace pcpp
 
 		/// Closes all RX channels currently opened in device
 		void close();
+
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
 
 		using IFilterableDevice::setFilter;
 
