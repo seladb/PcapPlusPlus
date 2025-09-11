@@ -318,6 +318,10 @@ PTF_TEST_CASE(CiscoHdlcParsingTest);
 PTF_TEST_CASE(CiscoHdlcLayerCreationTest);
 PTF_TEST_CASE(CiscoHdlcLayerEditTest);
 
+// Implemented in ModbusTests.cpp
+PTF_TEST_CASE(ModbusLayerCreationTest);
+PTF_TEST_CASE(ModbusLayerParsingTest);
+
 // Implemented in X509Tests.cpp
 PTF_TEST_CASE(X509ParsingTest);
 PTF_TEST_CASE(X509VariantsParsingTest);
@@ -331,3 +335,7 @@ PTF_TEST_CASE(Base64DecodingTest);
 // Implemented in PemTests.cpp
 PTF_TEST_CASE(PemEncodingTest);
 PTF_TEST_CASE(PemDecodingTest);
+
+// Implemented in CryptoKeyTests.cpp
+PTF_TEST_CASE(CryptoKeyDecodingTest);
+PTF_TEST_CASE(CryptoKeyInvalidDataTest);

@@ -12,14 +12,18 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(SllPacketParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/SllPacket.dat", pcpp::LINKTYPE_LINUX_SLL);
+	pcpp_tests::utils::PacketFactory sslFactory(pcpp::LINKTYPE_LINUX_SLL);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SllPacket.dat", sslFactory);
 
-	pcpp::Packet sllPacket(&rawPacket1);
+	pcpp::Packet sllPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(sllPacket.isPacketOfType(pcpp::SLL));
 	PTF_ASSERT_EQUAL(sllPacket.getFirstLayer()->getProtocol(), pcpp::SLL, enum);
@@ -72,12 +76,10 @@ PTF_TEST_CASE(SllPacketCreationTest)
 
 	sllPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/SllPacket2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/SllPacket2.dat");
 
-	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
-
-	delete[] buffer1;
+	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 }  // SllPacketCreationTest
 
 PTF_TEST_CASE(NullLoopbackTest)
@@ -85,13 +87,19 @@ PTF_TEST_CASE(NullLoopbackTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/NullLoopback1.dat", pcpp::LINKTYPE_NULL);
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(2, "PacketExamples/NullLoopback2.dat", pcpp::LINKTYPE_NULL);
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(3, "PacketExamples/NullLoopback3.dat", pcpp::LINKTYPE_NULL);
+	pcpp_tests::utils::PacketFactory nullFactory(pcpp::LINKTYPE_NULL);
 
-	pcpp::Packet nullPacket1(&rawPacket1);
-	pcpp::Packet nullPacket2(&rawPacket2);
-	pcpp::Packet nullPacket3(&rawPacket3);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/NullLoopback1.dat", nullFactory);
+
+	auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/NullLoopback2.dat", nullFactory);
+	auto& resource2 = rawPacketAndBuf2.resourceBuffer;
+	auto& rawPacket2 = rawPacketAndBuf2.packet;
+
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/NullLoopback3.dat", nullFactory);
+
+	pcpp::Packet nullPacket1(rawPacket1.get());
+	pcpp::Packet nullPacket2(rawPacket2.get());
+	pcpp::Packet nullPacket3(rawPacket3.get());
 
 	pcpp::NullLoopbackLayer* nullLoopbackLayer;
 	pcpp::Layer* nextLayer;
@@ -141,6 +149,6 @@ PTF_TEST_CASE(NullLoopbackTest)
 
 	newNullPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(newNullPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(newNullPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
+	PTF_ASSERT_EQUAL(newNullPacket.getRawPacket()->getRawDataLen(), resource2.length);
+	PTF_ASSERT_BUF_COMPARE(newNullPacket.getRawPacket()->getRawData(), resource2.data.get(), resource2.length);
 }  // NullLoopbackTest

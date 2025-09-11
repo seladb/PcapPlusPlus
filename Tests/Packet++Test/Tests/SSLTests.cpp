@@ -4,16 +4,19 @@
 #include "Packet.h"
 #include "SSLLayer.h"
 #include "SystemUtils.h"
+#include "Logger.h"
 #include <fstream>
 #include <sstream>
+
+using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(SSLClientHelloParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-ClientHello1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-ClientHello1.dat");
 
-	pcpp::Packet clientHelloPacket(&rawPacket1);
+	pcpp::Packet clientHelloPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(clientHelloPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLHandshakeLayer* handshakeLayer = clientHelloPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
@@ -142,9 +145,9 @@ PTF_TEST_CASE(SSLExtensionWithZeroSizeTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls_zero_size_ext.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/tls_zero_size_ext.dat");
 
-	pcpp::Packet clientHelloPacket(&rawPacket1);
+	pcpp::Packet clientHelloPacket(rawPacket1.get());
 
 	pcpp::SSLHandshakeLayer* handshakeLayer = clientHelloPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
@@ -166,9 +169,9 @@ PTF_TEST_CASE(SSLAppDataParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleAppData.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-MultipleAppData.dat");
 
-	pcpp::Packet appDataPacket(&rawPacket1);
+	pcpp::Packet appDataPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(appDataPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLApplicationDataLayer* appDataLayer = appDataPacket.getLayerOfType<pcpp::SSLApplicationDataLayer>();
@@ -201,11 +204,11 @@ PTF_TEST_CASE(SSLAlertParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-AlertClear.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SSL-AlertEnc.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-AlertClear.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SSL-AlertEnc.dat");
 
-	pcpp::Packet clearAlertPacket(&rawPacket1);
-	pcpp::Packet encAlertPacket(&rawPacket2);
+	pcpp::Packet clearAlertPacket(rawPacket1.get());
+	pcpp::Packet encAlertPacket(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(clearAlertPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLAlertLayer* clearAlertLayer = clearAlertPacket.getLayerOfType<pcpp::SSLAlertLayer>();
@@ -235,9 +238,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-MultipleRecords1.dat");
 
-	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+	pcpp::Packet multipleRecordsPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(multipleRecordsPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
@@ -299,9 +302,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsing2Test)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords2.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-MultipleRecords2.dat");
 
-	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+	pcpp::Packet multipleRecordsPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(multipleRecordsPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
@@ -327,9 +330,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords3.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-MultipleRecords3.dat");
 
-	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+	pcpp::Packet multipleRecordsPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(multipleRecordsPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
@@ -344,34 +347,41 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
 	PTF_ASSERT_EQUAL(certMsg->getNumOfCertificates(), 3);
 	PTF_ASSERT_NULL(certMsg->getCertificate(1000));
 
-	pcpp::SSLx509Certificate* cert = certMsg->getCertificate(0);
-	PTF_ASSERT_NOT_NULL(cert);
-	PTF_ASSERT_TRUE(cert->allDataExists());
-	PTF_ASSERT_EQUAL(cert->getDataLength(), 1509);
-	std::string certBuffer(cert->getData(), cert->getData() + cert->getDataLength());
-	std::size_t pos = certBuffer.find("LDAP Intermediate CA");
-	PTF_ASSERT_TRUE(pos != std::string::npos);
-	pos = certBuffer.find("Internal Development CA");
-	PTF_ASSERT_EQUAL(pos, std::string::npos, ptr);
-	auto asn1Record = cert->getRootAsn1Record();
-	PTF_ASSERT_NOT_NULL(asn1Record);
-	PTF_ASSERT_EQUAL(asn1Record->getSubRecords().size(), 3);
+	{
+		auto cert = certMsg->getCertificate(0);
+		PTF_ASSERT_NOT_NULL(cert);
+		PTF_ASSERT_TRUE(cert->allDataExists());
+		PTF_ASSERT_EQUAL(cert->getDataLength(), 1509);
+		auto asn1Record = cert->getRootAsn1Record();
+		PTF_ASSERT_NOT_NULL(asn1Record);
+		PTF_ASSERT_EQUAL(asn1Record->getSubRecords().size(), 3);
+		auto x509Cert = cert->getX509Certificate();
+		PTF_ASSERT_EQUAL(
+		    x509Cert->getIssuer().toString(),
+		    "C=US, ST=Washington, L=Seattle, O=Hubspan, Inc., OU=Development, CN=LDAP Intermediate CA, E=dev.ca@hubspan.com");
+	}
 
-	cert = certMsg->getCertificate(1);
-	PTF_ASSERT_NOT_NULL(cert);
-	PTF_ASSERT_TRUE(cert->allDataExists());
-	PTF_ASSERT_EQUAL(cert->getDataLength(), 1728);
-	certBuffer = std::string(cert->getData(), cert->getData() + cert->getDataLength());
-	pos = certBuffer.find("Internal Development CA");
-	PTF_ASSERT_TRUE(pos != std::string::npos);
+	{
+		auto cert = certMsg->getCertificate(1);
+		PTF_ASSERT_NOT_NULL(cert);
+		PTF_ASSERT_TRUE(cert->allDataExists());
+		PTF_ASSERT_EQUAL(cert->getDataLength(), 1728);
+		auto x509Cert = cert->getX509Certificate();
+		PTF_ASSERT_EQUAL(
+		    x509Cert->getSubject().toString(),
+		    "C=US, ST=Washington, L=Seattle, O=Hubspan, Inc., OU=Development, CN=LDAP Intermediate CA, E=dev.ca@hubspan.com");
+	}
 
-	cert = certMsg->getCertificate(2);
-	PTF_ASSERT_NOT_NULL(cert);
-	PTF_ASSERT_TRUE(cert->allDataExists());
-	PTF_ASSERT_EQUAL(cert->getDataLength(), 1713);
-	certBuffer = std::string(cert->getData(), cert->getData() + cert->getDataLength());
-	pos = certBuffer.find("Internal Development CA");
-	PTF_ASSERT_TRUE(pos != std::string::npos);
+	{
+		auto cert = certMsg->getCertificate(2);
+		PTF_ASSERT_NOT_NULL(cert);
+		PTF_ASSERT_TRUE(cert->allDataExists());
+		PTF_ASSERT_EQUAL(cert->getDataLength(), 1713);
+		auto x509Cert = cert->getX509Certificate();
+		PTF_ASSERT_EQUAL(
+		    x509Cert->getSubject().toString(),
+		    "C=US, ST=Washington, O=Hubspan, Inc., OU=Development, CN=Internal Development CA, E=dev.ca@hubspan.com");
+	}
 
 	pcpp::SSLCertificateRequestMessage* certReqMsg =
 	    handshakeLayer->getHandshakeMessageOfType<pcpp::SSLCertificateRequestMessage>();
@@ -395,9 +405,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsing4Test)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords4.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-MultipleRecords4.dat");
 
-	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+	pcpp::Packet multipleRecordsPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(multipleRecordsPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
@@ -432,9 +442,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsing5Test)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords5.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-MultipleRecords5.dat");
 
-	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+	pcpp::Packet multipleRecordsPacket(rawPacket1.get());
 
 	pcpp::SSLChangeCipherSpecLayer* ccsLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLChangeCipherSpecLayer>();
 	PTF_ASSERT_NOT_NULL(ccsLayer);
@@ -466,9 +476,9 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-PartialCertificate1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-PartialCertificate1.dat");
 
-	pcpp::Packet partialCertPacket(&rawPacket1);
+	pcpp::Packet partialCertPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(partialCertPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLHandshakeLayer* handshakeLayer = partialCertPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
@@ -482,10 +492,14 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 	pcpp::SSLx509Certificate* cert = certMsg->getCertificate(0);
 	PTF_ASSERT_FALSE(cert->allDataExists());
 	PTF_ASSERT_EQUAL(cert->getDataLength(), 1266);
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_NULL(cert->getX509Certificate());
+	PTF_ASSERT_NULL(cert->getRootAsn1Record());
+	pcpp::Logger::getInstance().enableLogs();
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SSL-PartialCertificate2.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SSL-PartialCertificate2.dat");
 
-	pcpp::Packet partialCertPacket2(&rawPacket2);
+	pcpp::Packet partialCertPacket2(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(partialCertPacket2.isPacketOfType(pcpp::SSL));
 	handshakeLayer = partialCertPacket2.getLayerOfType<pcpp::SSLHandshakeLayer>();
@@ -499,6 +513,10 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 	cert = certMsg->getCertificate(0);
 	PTF_ASSERT_FALSE(cert->allDataExists());
 	PTF_ASSERT_EQUAL(cert->getDataLength(), 1268);
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_NULL(cert->getX509Certificate());
+	PTF_ASSERT_NULL(cert->getRootAsn1Record());
+	pcpp::Logger::getInstance().enableLogs();
 }  // SSLPartialCertificateParseTest
 
 PTF_TEST_CASE(SSLNewSessionTicketParseTest)
@@ -506,9 +524,9 @@ PTF_TEST_CASE(SSLNewSessionTicketParseTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-NewSessionTicket.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-NewSessionTicket.dat");
 
-	pcpp::Packet sslPacket(&rawPacket1);
+	pcpp::Packet sslPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLHandshakeLayer* handshakeLayer = sslPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
@@ -531,9 +549,9 @@ PTF_TEST_CASE(SSLMalformedPacketParsing)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ssl-malformed1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ssl-malformed1.dat");
 
-	pcpp::Packet badSSLPacket(&rawPacket1);
+	pcpp::Packet badSSLPacket(rawPacket1.get());
 
 	pcpp::SSLHandshakeLayer* handshakeLayer = badSSLPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
@@ -548,11 +566,11 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls1_3_client_hello1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls1_3_client_hello2.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/tls1_3_client_hello1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/tls1_3_client_hello2.dat");
 
-	pcpp::Packet tls13ClientHello1(&rawPacket1);
-	pcpp::Packet tls13ClientHello2(&rawPacket2);
+	pcpp::Packet tls13ClientHello1(rawPacket1.get());
+	pcpp::Packet tls13ClientHello2(rawPacket2.get());
 
 	uint16_t cipherSuiteIDs[3] = { 0x1302, 0x1303, 0x1301 };
 	std::string cipherSuiteNames[3] = { "TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256",
@@ -627,11 +645,11 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	PTF_ASSERT_EQUAL(versionVec[0].asEnum(), pcpp::SSLVersion::TLS1_3, enum);
 	PTF_ASSERT_EQUAL(versionVec[1].asEnum(), pcpp::SSLVersion::TLS1_2, enum);
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/tls1_3_server_hello1.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/tls1_3_server_hello2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/tls1_3_server_hello1.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/tls1_3_server_hello2.dat");
 
-	pcpp::Packet tls13ServerHello1(&rawPacket3);
-	pcpp::Packet tls13ServerHello2(&rawPacket4);
+	pcpp::Packet tls13ServerHello1(rawPacket3.get());
+	pcpp::Packet tls13ServerHello2(rawPacket4.get());
 
 	handshakeLayer = tls13ServerHello1.getLayerOfType<pcpp::SSLHandshakeLayer>();
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
@@ -691,8 +709,8 @@ PTF_TEST_CASE(ClientHelloTLSFingerprintTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls1_3_client_hello1.dat");
-	pcpp::Packet tls13ClientHello1(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/tls1_3_client_hello1.dat");
+	pcpp::Packet tls13ClientHello1(rawPacket1.get());
 
 	pcpp::SSLHandshakeLayer* handshakeLayer = tls13ClientHello1.getLayerOfType<pcpp::SSLHandshakeLayer>();
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
@@ -705,8 +723,8 @@ PTF_TEST_CASE(ClientHelloTLSFingerprintTest)
 	                 "771,4866-4867-4865-255,0-11-10-35-22-23-13-43-45-51,29-23-30-25-24,0-1-2");
 	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "a66e498c488aa0523759691248cdfb01");
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls_grease.dat");
-	pcpp::Packet tlsGreaseClientHello(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/tls_grease.dat");
+	pcpp::Packet tlsGreaseClientHello(rawPacket2.get());
 
 	handshakeLayer = tlsGreaseClientHello.getLayerOfType<pcpp::SSLHandshakeLayer>();
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
@@ -725,9 +743,9 @@ PTF_TEST_CASE(ServerHelloTLSFingerprintTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSL-MultipleRecords1.dat");
 
-	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+	pcpp::Packet multipleRecordsPacket(rawPacket1.get());
 
 	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
@@ -740,9 +758,9 @@ PTF_TEST_CASE(ServerHelloTLSFingerprintTest)
 	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,49195,65281-16-11");
 	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "554786d4c84f8a7953b7e453c6371067");
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls_server_hello.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/tls_server_hello.dat");
 
-	pcpp::Packet serverHelloPacket(&rawPacket2);
+	pcpp::Packet serverHelloPacket(rawPacket2.get());
 
 	handshakeLayer = serverHelloPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
 	PTF_ASSERT_NOT_NULL(handshakeLayer);

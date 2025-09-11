@@ -35,6 +35,7 @@ add_subdirectory(PcapSplitter)
 add_subdirectory(SSLAnalyzer)
 add_subdirectory(TcpReassembly)
 add_subdirectory(TLSFingerprinting)
+add_subdirectory(X509Toolkit)
 
 if(PCAPPP_BUILD_TUTORIALS)
   set(PCAPPP_BINARY_TUTORIAL_DIR ${CMAKE_BINARY_DIR}/tutorials_bin)

@@ -6,14 +6,17 @@
 #include <cstring>
 #include "EndianPortable.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeInitiation.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardHandshakeInitiation.dat");
 
-	pcpp::Packet wgHandShakeInitPacket(&rawPacket1);
+	pcpp::Packet wgHandShakeInitPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(wgHandShakeInitPacket.isPacketOfType(pcpp::WireGuard));
 
@@ -67,9 +70,9 @@ PTF_TEST_CASE(WireGuardHandshakeRespParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeResponse.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardHandshakeResponse.dat");
 
-	pcpp::Packet wgHandShakeResponsePacket(&rawPacket1);
+	pcpp::Packet wgHandShakeResponsePacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(wgHandShakeResponsePacket.isPacketOfType(pcpp::WireGuard));
 	auto wgLayer = wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardLayer>();
@@ -118,9 +121,9 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardCookieReply.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardCookieReply.dat");
 
-	pcpp::Packet wgCookieReplyPacket(&rawPacket1);
+	pcpp::Packet wgCookieReplyPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(wgCookieReplyPacket.isPacketOfType(pcpp::WireGuard));
 	auto wgLayer = wgCookieReplyPacket.getLayerOfType<pcpp::WireGuardLayer>();
@@ -158,9 +161,9 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardTransportData.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardTransportData.dat");
 
-	pcpp::Packet wgTransportDataPacket(&rawPacket1);
+	pcpp::Packet wgTransportDataPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(wgTransportDataPacket.isPacketOfType(pcpp::WireGuard));
 	auto wgLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
@@ -199,18 +202,26 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 
 PTF_TEST_CASE(WireGuardCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/WireGuardHandshakeInitiation.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeInitiation.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/WireGuardHandshakeResponse.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/WireGuardCookieReply.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/WireGuardTransportData.dat");
+	auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/WireGuardHandshakeResponse.dat");
+	auto& resource2 = rawPacketAndBuf2.resourceBuffer;
+	auto& rawPacket2 = rawPacketAndBuf2.packet;
+
+	auto rawPacketAndBuf3 = createPacketAndBufferFromHexResource("PacketExamples/WireGuardCookieReply.dat");
+	auto& resource3 = rawPacketAndBuf3.resourceBuffer;
+	auto& rawPacket3 = rawPacketAndBuf3.packet;
+
+	auto rawPacketAndBuf4 = createPacketAndBufferFromHexResource("PacketExamples/WireGuardTransportData.dat");
+	auto& resource4 = rawPacketAndBuf4.resourceBuffer;
+	auto& rawPacket4 = rawPacketAndBuf4.packet;
 
 	uint8_t origBuffer[1500];
 
 	// create WireGuard Handshake Initiation message
-	memcpy(origBuffer, buffer1, bufferLength1);
+	memcpy(origBuffer, resource1.data.get(), resource1.length);
 
 	uint8_t expectedPublicKeyInit[32] = { 0x5f, 0xce, 0xc7, 0xc8, 0xe5, 0xc8, 0xe2, 0xe3, 0xf7, 0x98, 0x9e,
 		                                  0xef, 0x60, 0xc2, 0x28, 0xd8, 0x23, 0x29, 0xd6, 0x02, 0xb6, 0xb1,
@@ -233,7 +244,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 	pcpp::WireGuardHandshakeInitiationLayer newHandshakeInitMessage(0xd837d030, expectedPublicKeyInit,
 	                                                                expectedStaticKeyInit, expectedTimestampInit,
 	                                                                expectedMac1Init, expectedMac2Init);
-	pcpp::Packet wgHandshakeInitPacket(&rawPacket1);
+	pcpp::Packet wgHandshakeInitPacket(rawPacket1.get());
 	auto origHandshakeInitMessage =
 	    dynamic_cast<pcpp::WireGuardHandshakeInitiationLayer*>(wgHandshakeInitPacket.detachLayer(pcpp::WireGuard));
 	PTF_ASSERT_NOT_NULL(origHandshakeInitMessage);
@@ -247,7 +258,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 
 	PTF_ASSERT_TRUE(wgHandshakeInitPacket.addLayer(&newHandshakeInitMessage));
 
-	PTF_ASSERT_EQUAL(wgHandshakeInitPacket.getRawPacket()->getRawDataLen(), bufferLength1);
+	PTF_ASSERT_EQUAL(wgHandshakeInitPacket.getRawPacket()->getRawDataLen(), resource1.length);
 	PTF_ASSERT_EQUAL(newHandshakeInitMessage.getDataLen(), origHandshakeInitMessage->getDataLen());
 
 	PTF_ASSERT_BUF_COMPARE(newHandshakeInitMessage.getData(), origHandshakeInitMessage->getData(),
@@ -256,7 +267,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 	delete origHandshakeInitMessage;
 
 	// create WireGuard Handshake Response message
-	memcpy(origBuffer, buffer2, bufferLength2);
+	memcpy(origBuffer, resource2.data.get(), resource2.length);
 	uint8_t expectedResponderEphemeralResp[32] = { 0xb1, 0x8d, 0x55, 0x50, 0xbd, 0x40, 0x42, 0xa3, 0x7a, 0x46, 0x82,
 		                                           0x3a, 0xc0, 0x8d, 0xb1, 0xec, 0x66, 0x83, 0x9b, 0xc0, 0xca, 0x2d,
 		                                           0x64, 0xbc, 0x15, 0xcd, 0x80, 0x23, 0x2b, 0x66, 0x23, 0x2f };
@@ -273,7 +284,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 	pcpp::WireGuardHandshakeResponseLayer newHandshakeRespMessage(
 	    0x06f47dab, 0xd837d030, expectedResponderEphemeralResp, encryptedEmptyDataResp, expectedMac1Resp,
 	    expectedMac2Resp);
-	pcpp::Packet wgHandshakeRespPacket(&rawPacket2);
+	pcpp::Packet wgHandshakeRespPacket(rawPacket2.get());
 	pcpp::WireGuardHandshakeResponseLayer* origHandshakeRespMessage =
 	    dynamic_cast<pcpp::WireGuardHandshakeResponseLayer*>(wgHandshakeRespPacket.detachLayer(pcpp::WireGuard));
 	PTF_ASSERT_NOT_NULL(origHandshakeRespMessage);
@@ -287,7 +298,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 
 	PTF_ASSERT_TRUE(wgHandshakeRespPacket.addLayer(&newHandshakeRespMessage));
 
-	PTF_ASSERT_EQUAL(wgHandshakeRespPacket.getRawPacket()->getRawDataLen(), bufferLength2);
+	PTF_ASSERT_EQUAL(wgHandshakeRespPacket.getRawPacket()->getRawDataLen(), resource2.length);
 	PTF_ASSERT_EQUAL(newHandshakeRespMessage.getDataLen(), origHandshakeRespMessage->getDataLen());
 
 	PTF_ASSERT_BUF_COMPARE(newHandshakeRespMessage.getData(), origHandshakeRespMessage->getData(),
@@ -297,7 +308,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 
 	// create WireGuard Cookie Reply message
 
-	memcpy(origBuffer, buffer3, bufferLength3);
+	memcpy(origBuffer, resource3.data.get(), resource3.length);
 
 	uint8_t nonce[24] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
 		                  0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -306,7 +317,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 		                            0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	pcpp::WireGuardCookieReplyLayer newCookieReplyMessage(0xab7df406, nonce, encryptedCookie);
-	pcpp::Packet wgCookieReplyPacket(&rawPacket3);
+	pcpp::Packet wgCookieReplyPacket(rawPacket3.get());
 
 	auto origCookieReplyMessage =
 	    dynamic_cast<pcpp::WireGuardCookieReplyLayer*>(wgCookieReplyPacket.detachLayer(pcpp::WireGuard));
@@ -319,7 +330,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 	    std::memcmp(newCookieReplyMessage.getEncryptedCookie().data(), encryptedCookie, sizeof(encryptedCookie)) == 0);
 	PTF_ASSERT_TRUE(wgCookieReplyPacket.addLayer(&newCookieReplyMessage));
 
-	PTF_ASSERT_EQUAL(wgCookieReplyPacket.getRawPacket()->getRawDataLen(), bufferLength3);
+	PTF_ASSERT_EQUAL(wgCookieReplyPacket.getRawPacket()->getRawDataLen(), resource3.length);
 	PTF_ASSERT_EQUAL(newCookieReplyMessage.getDataLen(), origCookieReplyMessage->getDataLen());
 
 	PTF_ASSERT_BUF_COMPARE(newCookieReplyMessage.getData(), origCookieReplyMessage->getData(),
@@ -329,7 +340,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 
 	// create WireGuard Transport Data message
 
-	memcpy(origBuffer, buffer4, bufferLength4);
+	memcpy(origBuffer, resource4.data.get(), resource4.length);
 
 	uint64_t expectedCounterTransport = 0x0000000000000000;
 	uint8_t expectedEncryptedDataTransport[112] = {
@@ -344,7 +355,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 
 	pcpp::WireGuardTransportDataLayer newTransportDataMessage(0x06f47dab, expectedCounterTransport,
 	                                                          expectedEncryptedDataTransport, 112);
-	pcpp::Packet wgTransportDataPacket(&rawPacket4);
+	pcpp::Packet wgTransportDataPacket(rawPacket4.get());
 
 	auto origTransportDataMessage =
 	    dynamic_cast<pcpp::WireGuardTransportDataLayer*>(wgTransportDataPacket.detachLayer(pcpp::WireGuard));
@@ -355,7 +366,7 @@ PTF_TEST_CASE(WireGuardCreationTest)
 	PTF_ASSERT_BUF_COMPARE(newTransportDataMessage.getEncryptedData(), expectedEncryptedDataTransport, 112);
 	PTF_ASSERT_TRUE(wgTransportDataPacket.addLayer(&newTransportDataMessage));
 
-	PTF_ASSERT_EQUAL(wgTransportDataPacket.getRawPacket()->getRawDataLen(), bufferLength4);
+	PTF_ASSERT_EQUAL(wgTransportDataPacket.getRawPacket()->getRawDataLen(), resource4.length);
 	PTF_ASSERT_EQUAL(newTransportDataMessage.getDataLen(), origTransportDataMessage->getDataLen());
 
 	PTF_ASSERT_BUF_COMPARE(newTransportDataMessage.getData(), origTransportDataMessage->getData(),
@@ -370,9 +381,9 @@ PTF_TEST_CASE(WireGuardEditTest)
 	gettimeofday(&time, nullptr);
 
 	// edit WireGuard Handshake Initiation message
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeInitiation.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/WireGuardHandshakeInitiation.dat");
 
-	pcpp::Packet wgHandShakeInitPacket(&rawPacket1);
+	pcpp::Packet wgHandShakeInitPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(wgHandShakeInitPacket.isPacketOfType(pcpp::WireGuard));
 
@@ -420,9 +431,9 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_TRUE(wgHandShakeInitLayer->getMac2() == expectedMac2Init);
 
 	// edit WireGuard Handshake Response message
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/WireGuardHandshakeResponse.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/WireGuardHandshakeResponse.dat");
 
-	pcpp::Packet wgHandShakeResponsePacket(&rawPacket2);
+	pcpp::Packet wgHandShakeResponsePacket(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(wgHandShakeResponsePacket.isPacketOfType(pcpp::WireGuard));
 
@@ -465,9 +476,9 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_TRUE(wgHandShakeResponseLayer->getMac2() == expectedMac2Resp);
 
 	// edit WireGuard Cookie Reply message
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/WireGuardCookieReply.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/WireGuardCookieReply.dat");
 
-	pcpp::Packet wgCookieReplyPacket(&rawPacket3);
+	pcpp::Packet wgCookieReplyPacket(rawPacket3.get());
 
 	PTF_ASSERT_TRUE(wgCookieReplyPacket.isPacketOfType(pcpp::WireGuard));
 
@@ -495,9 +506,9 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_BUF_COMPARE(wgCookieReplyaLayer->getEncryptedCookie().data(), encryptedCookie.data(), 32);
 
 	// edit WireGuard Transport Data message
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/WireGuardTransportData.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/WireGuardTransportData.dat");
 
-	pcpp::Packet wgTransportDataPacket(&rawPacket4);
+	pcpp::Packet wgTransportDataPacket(rawPacket4.get());
 
 	PTF_ASSERT_TRUE(wgTransportDataPacket.isPacketOfType(pcpp::WireGuard));
 

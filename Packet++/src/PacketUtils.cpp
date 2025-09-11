@@ -28,7 +28,7 @@ namespace pcpp
 			if (vec[i].len % 2)
 			{
 				// access to the last byte using an uint8_t pointer
-				uint8_t* vecBytes = (uint8_t*)vec[i].buffer;
+				uint8_t* vecBytes = reinterpret_cast<uint8_t*>(vec[i].buffer);
 				uint8_t lastByte = vecBytes[vec[i].len - 1];
 				PCPP_LOG_DEBUG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
 				// We have read the latest byte manually but this byte should be properly interpreted
@@ -72,7 +72,7 @@ namespace pcpp
 
 		uint16_t checksumRes = 0;
 		ScalarBuffer<uint16_t> vec[2];
-		vec[0].buffer = (uint16_t*)dataPtr;
+		vec[0].buffer = reinterpret_cast<uint16_t*>(dataPtr);
 		vec[0].len = dataLen;
 
 		if (ipAddrType == IPAddress::IPv4AddressType)
@@ -93,8 +93,8 @@ namespace pcpp
 		else if (ipAddrType == IPAddress::IPv6AddressType)
 		{
 			uint16_t pseudoHeader[18];
-			srcIPAddress.getIPv6().copyTo((uint8_t*)pseudoHeader);
-			dstIPAddress.getIPv6().copyTo((uint8_t*)(pseudoHeader + 8));
+			srcIPAddress.getIPv6().copyTo(reinterpret_cast<uint8_t*>(pseudoHeader));
+			dstIPAddress.getIPv6().copyTo(reinterpret_cast<uint8_t*>(pseudoHeader + 8));
 			pseudoHeader[16] = 0xffff & htobe16(dataLen);
 			pseudoHeader[17] = htobe16(0x00ff & protocolType);
 			vec[1].buffer = pseudoHeader;

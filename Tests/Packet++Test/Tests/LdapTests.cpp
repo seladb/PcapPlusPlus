@@ -6,15 +6,15 @@
 #include <sstream>
 #include <cstring>
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(LdapParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	// LDAP packet
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_add_response.dat");
-		pcpp::Packet ldapPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_add_response.dat");
+		pcpp::Packet ldapPacket(rawPacket1.get());
 
 		auto ldapLayer = ldapPacket.getLayerOfType<pcpp::LdapLayer>();
 		PTF_ASSERT_NOT_NULL(ldapLayer);
@@ -42,8 +42,9 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LDAP with multiple controls
 	{
-		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/ldap_search_request1.dat", pcpp::LINKTYPE_LINUX_SLL);
-		pcpp::Packet ldapWithControlsPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_search_request1.dat",
+		                                              pcpp_tests::utils::PacketFactory(pcpp::LINKTYPE_LINUX_SLL));
+		pcpp::Packet ldapWithControlsPacket(rawPacket1.get());
 
 		auto ldapLayer = ldapWithControlsPacket.getLayerOfType<pcpp::LdapLayer>();
 		PTF_ASSERT_NOT_NULL(ldapLayer);
@@ -60,8 +61,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LDAP with partial controls
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request1.dat");
-		pcpp::Packet ldapWithControlsPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_request1.dat");
+		pcpp::Packet ldapWithControlsPacket(rawPacket1.get());
 
 		auto ldapLayer = ldapWithControlsPacket.getLayerOfType<pcpp::LdapLayer>();
 		PTF_ASSERT_NOT_NULL(ldapLayer);
@@ -73,9 +74,13 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LdapLayer tryGet
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request1.dat");
-		buffer1[68] = 0x04;
-		pcpp::Packet malformedLdapPacket(&rawPacket1);
+		auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/ldap_bind_request1.dat");
+		auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+		auto& rawPacket1 = rawPacketAndBuf1.packet;
+
+		// Make the underlying data buffer malformed.
+		resource1.data[68] = 0x04;
+		pcpp::Packet malformedLdapPacket(rawPacket1.get());
 
 		auto malformedLdapLayer = malformedLdapPacket.getLayerOfType<pcpp::LdapLayer>();
 		PTF_ASSERT_NOT_NULL(malformedLdapLayer);
@@ -91,8 +96,9 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// Multiple LDAP messages in the same packet
 	{
-		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/ldap_multiple_messages.dat", pcpp::LINKTYPE_LINUX_SLL);
-		pcpp::Packet multipleLdapPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_multiple_messages.dat",
+		                                              pcpp_tests::utils::PacketFactory(pcpp::LINKTYPE_LINUX_SLL));
+		pcpp::Packet multipleLdapPacket(rawPacket1.get());
 
 		auto ldapLayer = multipleLdapPacket.getLayerOfType<pcpp::LdapLayer>();
 		PTF_ASSERT_NOT_NULL(ldapLayer);
@@ -110,8 +116,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// BindRequest with simple authentication
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request1.dat");
-		pcpp::Packet bindRequestPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_request1.dat");
+		pcpp::Packet bindRequestPacket(rawPacket1.get());
 
 		auto bindRequestLayer = bindRequestPacket.getLayerOfType<pcpp::LdapBindRequestLayer>();
 		PTF_ASSERT_NOT_NULL(bindRequestLayer);
@@ -132,8 +138,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// BindRequest with sasl authentication
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request2.dat");
-		pcpp::Packet bindRequestPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_request2.dat");
+		pcpp::Packet bindRequestPacket(rawPacket1.get());
 
 		auto bindRequestLayer = bindRequestPacket.getLayerOfType<pcpp::LdapBindRequestLayer>();
 		PTF_ASSERT_NOT_NULL(bindRequestLayer);
@@ -235,8 +241,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// BindResponse with server sals credentials
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_response1.dat");
-		pcpp::Packet bindResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_response1.dat");
+		pcpp::Packet bindResponsePacket(rawPacket1.get());
 
 		auto bindResponseLayer = bindResponsePacket.getLayerOfType<pcpp::LdapBindResponseLayer>();
 		PTF_ASSERT_NOT_NULL(bindResponseLayer);
@@ -263,8 +269,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// BindResponse without server sals credentials
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_response2.dat");
-		pcpp::Packet bindResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_response2.dat");
+		pcpp::Packet bindResponsePacket(rawPacket1.get());
 
 		auto bindResponseLayer = bindResponsePacket.getLayerOfType<pcpp::LdapBindResponseLayer>();
 		PTF_ASSERT_NOT_NULL(bindResponseLayer);
@@ -279,8 +285,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// UnbindRequest
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_unbind_request.dat");
-		pcpp::Packet unbindRequestPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_unbind_request.dat");
+		pcpp::Packet unbindRequestPacket(rawPacket1.get());
 
 		auto unbindRequestLayer = unbindRequestPacket.getLayerOfType<pcpp::LdapUnbindRequestLayer>();
 		PTF_ASSERT_NOT_NULL(unbindRequestLayer);
@@ -291,8 +297,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// SearchRequest
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_request2.dat");
-		pcpp::Packet searchRequestPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_search_request2.dat");
+		pcpp::Packet searchRequestPacket(rawPacket1.get());
 
 		auto searchRequestLayer = searchRequestPacket.getLayerOfType<pcpp::LdapSearchRequestLayer>();
 		PTF_ASSERT_NOT_NULL(searchRequestLayer);
@@ -330,8 +336,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// SearchResultEntry
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_entry.dat");
-		pcpp::Packet searchResEntryPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_search_result_entry.dat");
+		pcpp::Packet searchResEntryPacket(rawPacket1.get());
 
 		auto searchResultEntryLayer = searchResEntryPacket.getLayerOfType<pcpp::LdapSearchResultEntryLayer>();
 		PTF_ASSERT_NOT_NULL(searchResultEntryLayer);
@@ -353,8 +359,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LdapSearchResultDoneLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_done.dat");
-		pcpp::Packet searchResultDonePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_search_result_done.dat");
+		pcpp::Packet searchResultDonePacket(rawPacket1.get());
 
 		auto searchResultDoneLayer = searchResultDonePacket.getLayerOfType<pcpp::LdapSearchResultDoneLayer>();
 		PTF_ASSERT_NOT_NULL(searchResultDoneLayer);
@@ -370,8 +376,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LdapModifyResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_modify_response.dat");
-		pcpp::Packet modifyResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_modify_response.dat");
+		pcpp::Packet modifyResponsePacket(rawPacket1.get());
 
 		auto modifyResponseLayer = modifyResponsePacket.getLayerOfType<pcpp::LdapModifyResponseLayer>();
 		PTF_ASSERT_NOT_NULL(modifyResponseLayer);
@@ -386,8 +392,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LdapAddResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_add_response.dat");
-		pcpp::Packet addResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_add_response.dat");
+		pcpp::Packet addResponsePacket(rawPacket1.get());
 
 		auto addResponseLayer = addResponsePacket.getLayerOfType<pcpp::LdapAddResponseLayer>();
 		PTF_ASSERT_NOT_NULL(addResponseLayer);
@@ -402,8 +408,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LdapDeleteResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_delete_response.dat");
-		pcpp::Packet deleteResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_delete_response.dat");
+		pcpp::Packet deleteResponsePacket(rawPacket1.get());
 
 		auto deleteResponseLayer = deleteResponsePacket.getLayerOfType<pcpp::LdapDeleteResponseLayer>();
 		PTF_ASSERT_NOT_NULL(deleteResponseLayer);
@@ -421,8 +427,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LdapModifyDNResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_modify_dn_response.dat");
-		pcpp::Packet modifyDNResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_modify_dn_response.dat");
+		pcpp::Packet modifyDNResponsePacket(rawPacket1.get());
 
 		auto modifyDNResponseLayer = modifyDNResponsePacket.getLayerOfType<pcpp::LdapModifyDNResponseLayer>();
 		PTF_ASSERT_NOT_NULL(modifyDNResponseLayer);
@@ -438,8 +444,8 @@ PTF_TEST_CASE(LdapParsingTest)
 
 	// LdapCompareResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_compare_response.dat");
-		pcpp::Packet compareResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_compare_response.dat");
+		pcpp::Packet compareResponsePacket(rawPacket1.get());
 
 		auto compareResponseLayer = compareResponsePacket.getLayerOfType<pcpp::LdapCompareResponseLayer>();
 		PTF_ASSERT_NOT_NULL(compareResponseLayer);
@@ -455,13 +461,11 @@ PTF_TEST_CASE(LdapParsingTest)
 
 PTF_TEST_CASE(LdapCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
 	// LDAP packet with multiple controls
 	{
-		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/ldap_search_request1.dat", pcpp::LINKTYPE_LINUX_SLL);
-		pcpp::Packet ldapPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_search_request1.dat",
+		                                              pcpp_tests::utils::PacketFactory(pcpp::LINKTYPE_LINUX_SLL));
+		pcpp::Packet ldapPacket(rawPacket1.get());
 
 		pcpp::Asn1OctetStringRecord stringRecord("DC=matrix,DC=local");
 		pcpp::Asn1EnumeratedRecord enumeratedRecord1(2);
@@ -501,8 +505,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// LDAP packet with partial controls
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request1.dat");
-		pcpp::Packet ldapPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_request1.dat");
+		pcpp::Packet ldapPacket(rawPacket1.get());
 
 		pcpp::Asn1IntegerRecord integerRecord(3);
 		pcpp::Asn1OctetStringRecord stringRecord("cn=Administrator,cn=Users,dc=cloudshark-a,dc=example,dc=com");
@@ -523,8 +527,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// BindRequest with simple authentication
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request1.dat");
-		pcpp::Packet bindRequestPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_request1.dat");
+		pcpp::Packet bindRequestPacket(rawPacket1.get());
 
 		pcpp::LdapBindRequestLayer bindRequestLayer(2, 3, "cn=Administrator,cn=Users,dc=cloudshark-a,dc=example,dc=com",
 		                                            "cloudshark123!", { { "1.3.6.1.4.1.42.2.27.8.5.1" } });
@@ -538,8 +542,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// BindRequest with sasl authentication
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request2.dat");
-		pcpp::Packet bindRequestPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_request2.dat");
+		pcpp::Packet bindRequestPacket(rawPacket1.get());
 
 		pcpp::LdapBindRequestLayer::SaslAuthentication saslAuthentication{
 			"GSS-SPNEGO",
@@ -638,8 +642,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// BindResponse with server sasl credentials
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_response1.dat");
-		pcpp::Packet bindResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_response1.dat");
+		pcpp::Packet bindResponsePacket(rawPacket1.get());
 
 		std::vector<uint8_t> serverSaslCredentials = {
 			0xa1, 0x81, 0xa1, 0x30, 0x81, 0x9e, 0xa0, 0x03, 0x0a, 0x01, 0x00, 0xa1, 0x0b, 0x06, 0x09, 0x2a, 0x86,
@@ -682,8 +686,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// BindResponse without server sasl credentials
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_response2.dat");
-		pcpp::Packet bindResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_bind_response2.dat");
+		pcpp::Packet bindResponsePacket(rawPacket1.get());
 
 		pcpp::LdapBindResponseLayer bindResponseLayer(2, pcpp::LdapResultCode::Success, "", "");
 
@@ -701,8 +705,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// UnbindRequest
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_unbind_request.dat");
-		pcpp::Packet unbindRequestPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_unbind_request.dat");
+		pcpp::Packet unbindRequestPacket(rawPacket1.get());
 
 		pcpp::LdapUnbindRequestLayer unbindRequestLayer(3);
 
@@ -715,8 +719,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// SearchRequest
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_request2.dat");
-		pcpp::Packet searchRequestPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_search_request2.dat");
+		pcpp::Packet searchRequestPacket(rawPacket1.get());
 
 		pcpp::Asn1OctetStringRecord filterSubRecord1("objectClass");
 		pcpp::Asn1OctetStringRecord filterSubRecord2("subschema");
@@ -749,8 +753,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// SearchResultEntry
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_entry.dat");
-		pcpp::Packet searchResultEntryPacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_search_result_entry.dat");
+		pcpp::Packet searchResultEntryPacket(rawPacket1.get());
 
 		// clang-format off
 		std::vector<pcpp::LdapAttribute> attributes = {
@@ -774,8 +778,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// LdapSearchResultDoneLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_done.dat");
-		pcpp::Packet searchResultDonePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_search_result_done.dat");
+		pcpp::Packet searchResultDonePacket(rawPacket1.get());
 
 		pcpp::LdapSearchResultDoneLayer searchResultDoneLayer(8, pcpp::LdapResultCode::Success, "", "");
 
@@ -788,8 +792,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// LdapModifyResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_modify_response.dat");
-		pcpp::Packet modifyResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_modify_response.dat");
+		pcpp::Packet modifyResponsePacket(rawPacket1.get());
 
 		pcpp::LdapModifyResponseLayer modifyResponseLayer(14, pcpp::LdapResultCode::NoSuchObject, "", "");
 
@@ -802,8 +806,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// LdapAddResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_add_response.dat");
-		pcpp::Packet addResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_add_response.dat");
+		pcpp::Packet addResponsePacket(rawPacket1.get());
 
 		pcpp::LdapAddResponseLayer addResponseLayer(27, pcpp::LdapResultCode::Success, "", "");
 
@@ -816,8 +820,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// LdapDeleteResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_delete_response.dat");
-		pcpp::Packet deleteResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_delete_response.dat");
+		pcpp::Packet deleteResponsePacket(rawPacket1.get());
 
 		std::vector<std::string> referral = { "ldap://ldap.example.com/dc=example,dc=com",
 			                                  "ldap://ldap.example.com/dc=example,dc=com?objectClass?one" };
@@ -835,8 +839,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// LdapModifyDNResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_modify_dn_response.dat");
-		pcpp::Packet modifyDNResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_modify_dn_response.dat");
+		pcpp::Packet modifyDNResponsePacket(rawPacket1.get());
 
 		pcpp::LdapModifyDNResponseLayer modifyDNResponseLayer(15, pcpp::LdapResultCode::NoSuchObject,
 		                                                      "ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org", "");
@@ -850,8 +854,8 @@ PTF_TEST_CASE(LdapCreationTest)
 
 	// LdapCompareResponseLayer
 	{
-		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_compare_response.dat");
-		pcpp::Packet compareResponsePacket(&rawPacket1);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/ldap_compare_response.dat");
+		pcpp::Packet compareResponsePacket(rawPacket1.get());
 
 		pcpp::LdapCompareResponseLayer compareResponseLayer(28, pcpp::LdapResultCode::CompareFalse, "", "");
 

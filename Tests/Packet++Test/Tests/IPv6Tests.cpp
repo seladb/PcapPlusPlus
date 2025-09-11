@@ -11,14 +11,16 @@
 #include "Packet.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/IPv6UdpPacket.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6UdpPacket.dat");
-
-	pcpp::Packet ip6UdpPacket(&rawPacket1);
+	pcpp::Packet ip6UdpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(ip6UdpPacket.isPacketOfType(pcpp::IPv6));
 	PTF_ASSERT_TRUE(ip6UdpPacket.isPacketOfType(pcpp::IP));
 	PTF_ASSERT_FALSE(ip6UdpPacket.isPacketOfType(pcpp::IPv4));
@@ -61,8 +63,8 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&payloadLayer));
 	ip6UdpPacketNew.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(ip6UdpPacketNew.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(ip6UdpPacketNew.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(ip6UdpPacketNew.getRawPacket()->getRawDataLen(), resource1.length);
+	PTF_ASSERT_BUF_COMPARE(ip6UdpPacketNew.getRawPacket()->getRawData(), resource1.data.get(), resource1.length);
 
 	pcpp::IPv6Layer ipv6LayerEmpty;
 	ipv6LayerEmpty.setSrcIPv6Address(srcIP);
@@ -76,18 +78,15 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 
 PTF_TEST_CASE(IPv6FragmentationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IPv6Frag1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IPv6Frag2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/IPv6Frag3.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/IPv6Frag4.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6Frag1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv6Frag2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IPv6Frag3.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IPv6Frag4.dat");
-
-	pcpp::Packet frag1(&rawPacket1);
-	pcpp::Packet frag2(&rawPacket2);
-	pcpp::Packet frag3(&rawPacket3);
-	pcpp::Packet frag4(&rawPacket4);
+	pcpp::Packet frag1(rawPacket1.get());
+	pcpp::Packet frag2(rawPacket2.get());
+	pcpp::Packet frag3(rawPacket3.get());
+	pcpp::Packet frag4(rawPacket4.get());
 
 	pcpp::IPv6Layer* ipv6Layer = frag1.getLayerOfType<pcpp::IPv6Layer>();
 	pcpp::IPv6FragmentationHeader* fragHeader = ipv6Layer->getExtensionOfType<pcpp::IPv6FragmentationHeader>();
@@ -157,22 +156,19 @@ PTF_TEST_CASE(IPv6FragmentationTest)
 
 PTF_TEST_CASE(IPv6ExtensionsTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ipv6_options_destination.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/ipv6_options_hop_by_hop.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/ipv6_options_routing1.dat");
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/ipv6_options_routing2.dat");
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/ipv6_options_ah.dat");
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/ipv6_options_multi.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ipv6_options_destination.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ipv6_options_hop_by_hop.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ipv6_options_routing1.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/ipv6_options_routing2.dat");
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/ipv6_options_ah.dat");
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/ipv6_options_multi.dat");
-
-	pcpp::Packet ipv6Dest(&rawPacket1);
-	pcpp::Packet ipv6HopByHop(&rawPacket2);
-	pcpp::Packet ipv6Routing1(&rawPacket3);
-	pcpp::Packet ipv6Routing2(&rawPacket4);
-	pcpp::Packet ipv6AuthHdr(&rawPacket5);
-	pcpp::Packet ipv6MultipleOptions(&rawPacket6);
+	pcpp::Packet ipv6Dest(rawPacket1.get());
+	pcpp::Packet ipv6HopByHop(rawPacket2.get());
+	pcpp::Packet ipv6Routing1(rawPacket3.get());
+	pcpp::Packet ipv6Routing2(rawPacket4.get());
+	pcpp::Packet ipv6AuthHdr(rawPacket5.get());
+	pcpp::Packet ipv6MultipleOptions(rawPacket6.get());
 
 	// parsing of Destination extension
 	pcpp::IPv6Layer* ipv6Layer = ipv6Dest.getLayerOfType<pcpp::IPv6Layer>();

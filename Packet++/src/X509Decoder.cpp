@@ -501,28 +501,20 @@ namespace pcpp
 
 	std::string X509SerialNumber::toString(const std::string& delimiter) const
 	{
-		// Remove leading zeros
-		auto firstNonZero = m_SerialNumber.find_first_not_of('0');
-		if (firstNonZero == std::string::npos)
-		{
-			return "0";
-		}
-
-		auto tempResult = m_SerialNumber.substr(firstNonZero);
 		if (delimiter.empty())
 		{
-			return tempResult;
+			return m_SerialNumber;
 		}
 
 		// Add delimiter
 		std::string result;
-		result.reserve(tempResult.length() + delimiter.size() * (tempResult.length() / 2 - 1));
+		result.reserve(m_SerialNumber.length() + delimiter.size() * (m_SerialNumber.length() / 2 - 1));
 
-		for (size_t i = 0; i < tempResult.length(); ++i)
+		for (size_t i = 0; i < m_SerialNumber.length(); ++i)
 		{
-			result += tempResult[i];
+			result += m_SerialNumber[i];
 			// Add a delimiter after every two characters, except for the very last pair
-			if ((i + 1) % 2 == 0 && i + 1 < tempResult.length())
+			if ((i + 1) % 2 == 0 && i + 1 < m_SerialNumber.length())
 			{
 				result += delimiter;
 			}
@@ -721,7 +713,7 @@ namespace pcpp
 		X509SerialNumber X509TBSCertificate::getSerialNumber() const
 		{
 			auto serialNumber = getSubRecordAndCast<Asn1IntegerRecord>(m_Root, m_SerialNumberOffset, "Serial Number")
-			                        ->getValueAsString();
+			                        ->getValueAsString(true);
 			return X509SerialNumber(serialNumber);
 		}
 
@@ -749,23 +741,26 @@ namespace pcpp
 				m_SubjectOffset = currIndex++;
 				m_SubjectPublicKeyInfoOffset = currIndex++;
 
-				record = root->getSubRecords().at(currIndex);
-
-				if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 1)
+				if (root->getSubRecords().size() > static_cast<size_t>(currIndex))
 				{
-					m_IssuerUniqueID = currIndex++;
 					record = root->getSubRecords().at(currIndex);
-				}
 
-				if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 2)
-				{
-					m_SubjectUniqueID = currIndex++;
-					record = root->getSubRecords().at(currIndex);
-				}
+					if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 1)
+					{
+						m_IssuerUniqueID = currIndex++;
+						record = root->getSubRecords().at(currIndex);
+					}
 
-				if (X509Extensions::isValidExtensionsRecord(record))
-				{
-					m_ExtensionsOffset = currIndex++;
+					if (record->getTagClass() == Asn1TagClass::ContextSpecific && record->getTagType() == 2)
+					{
+						m_SubjectUniqueID = currIndex++;
+						record = root->getSubRecords().at(currIndex);
+					}
+
+					if (X509Extensions::isValidExtensionsRecord(record))
+					{
+						m_ExtensionsOffset = currIndex++;
+					}
 				}
 			}
 			catch (const std::out_of_range&)
@@ -788,25 +783,25 @@ namespace pcpp
 
 		X509Name X509TBSCertificate::getIssuer() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_IssuerOffset), "Issuer");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_IssuerOffset, "Issuer");
 			return X509Name(root);
 		}
 
 		X509Validity X509TBSCertificate::getValidity() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_ValidityOffset), "Validity");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_ValidityOffset, "Validity");
 			return X509Validity(root);
 		}
 
 		X509Name X509TBSCertificate::getSubject() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_SubjectOffset), "Subject");
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_SubjectOffset, "Subject");
 			return X509Name(root);
 		}
 
 		X509SubjectPublicKeyInfo X509TBSCertificate::getSubjectPublicKeyInfo() const
 		{
-			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, getIndex(m_SubjectPublicKeyInfoOffset),
+			auto root = getSubRecordAndCast<Asn1SequenceRecord>(m_Root, m_SubjectPublicKeyInfoOffset,
 			                                                    "Subject Public Key Info");
 			return X509SubjectPublicKeyInfo(root);
 		}
@@ -818,7 +813,7 @@ namespace pcpp
 				return nullptr;
 			}
 
-			auto root = getSubRecordAndCast<Asn1ConstructedRecord>(m_Root, getIndex(m_ExtensionsOffset), "Extensions");
+			auto root = getSubRecordAndCast<Asn1ConstructedRecord>(m_Root, m_ExtensionsOffset, "Extensions");
 			return std::unique_ptr<X509Extensions>(new X509Extensions(root));
 		}
 
@@ -932,80 +927,6 @@ namespace pcpp
 		m_DerData = std::move(derData);
 	}
 
-	std::unique_ptr<X509Certificate> X509Certificate::fromDER(uint8_t* derData, size_t derDataLen, bool ownDerData)
-	{
-		return std::unique_ptr<X509Certificate>(new X509Certificate(derData, derDataLen, ownDerData));
-	}
-
-	std::unique_ptr<X509Certificate> X509Certificate::fromDER(const std::string& derData)
-	{
-		size_t derDataBufferLen = derData.length() / 2;
-		std::unique_ptr<uint8_t[]> derDataBuffer(new uint8_t[derDataBufferLen]);
-		hexStringToByteArray(derData, derDataBuffer.get(), derDataBufferLen);
-		return std::unique_ptr<X509Certificate>(new X509Certificate(std::move(derDataBuffer), derDataBufferLen));
-	}
-
-	std::unique_ptr<X509Certificate> X509Certificate::fromDERFile(const std::string& derFileName)
-	{
-		std::ifstream derFile(derFileName, std::ios::binary);
-		if (!derFile.good())
-		{
-			throw std::runtime_error("DER file doesn't exist or cannot be opened");
-		}
-
-		derFile.seekg(0, std::ios::end);
-		std::streamsize derDataLen = derFile.tellg();
-		if (derDataLen < 0)
-		{
-			throw std::runtime_error("Failed to determine DER file size");
-		}
-		derFile.seekg(0, std::ios::beg);
-
-		std::unique_ptr<char[]> derDataFromFile(new char[derDataLen]);
-
-		if (!derFile.read(derDataFromFile.get(), derDataLen))
-		{
-			throw std::runtime_error("Failed to read DER file");
-		}
-
-		std::unique_ptr<uint8_t[]> derData(reinterpret_cast<uint8_t*>(derDataFromFile.release()));
-		return std::unique_ptr<X509Certificate>(new X509Certificate(std::move(derData), derDataLen));
-	}
-
-	std::unique_ptr<X509Certificate> X509Certificate::fromPEM(const std::string& pemData)
-	{
-		auto derData = PemCodec::decode(pemData, certificatePemLabel);
-		std::unique_ptr<uint8_t[]> derDataBuffer(new uint8_t[derData.size()]);
-		std::copy(derData.begin(), derData.end(), derDataBuffer.get());
-		return std::unique_ptr<X509Certificate>(new X509Certificate(std::move(derDataBuffer), derData.size()));
-	}
-
-	std::unique_ptr<X509Certificate> X509Certificate::fromPEMFile(const std::string& pemFileName)
-	{
-		std::ifstream pemFile(pemFileName, std::ios::in | std::ios::binary);
-		if (!pemFile.good())
-		{
-			throw std::runtime_error("PEM file doesn't exist or cannot be opened");
-		}
-
-		pemFile.seekg(0, std::ios::end);
-		std::streamsize pemContentLen = pemFile.tellg();
-		if (pemContentLen < 0)
-		{
-			throw std::runtime_error("Failed to determine PEM file size");
-		}
-		pemFile.seekg(0, std::ios::beg);
-
-		std::string pemContent;
-		pemContent.resize(static_cast<std::size_t>(pemContentLen));
-		if (!pemFile.read(&pemContent[0], pemContentLen))
-		{
-			throw std::runtime_error("Failed to read PEM file");
-		}
-
-		return fromPEM(pemContent);
-	}
-
 	X509Version X509Certificate::getVersion() const
 	{
 		return m_TBSCertificate.getVersion();
@@ -1015,9 +936,13 @@ namespace pcpp
 	{
 		if (!m_ExtensionsParsed)
 		{
-			for (const auto& extension : m_TBSCertificate.getExtensions()->getExtensions())
+			auto extensions = m_TBSCertificate.getExtensions();
+			if (extensions != nullptr)
 			{
-				m_Extensions.emplace_back(X509Extension(extension));
+				for (const auto& extension : extensions->getExtensions())
+				{
+					m_Extensions.emplace_back(X509Extension(extension));
+				}
 			}
 			m_ExtensionsParsed = true;
 		}
@@ -1105,7 +1030,7 @@ namespace pcpp
 
 	std::string X509Certificate::toPEM() const
 	{
-		return PemCodec::encode(m_X509Internal->encode(), certificatePemLabel);
+		return PemCodec::encode(m_X509Internal->encode(), pemLabel);
 	}
 
 	std::string X509Certificate::toJson(int indent) const
