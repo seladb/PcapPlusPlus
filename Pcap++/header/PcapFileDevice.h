@@ -291,16 +291,6 @@ namespace pcpp
 		bool openAppend();
 	};
 
-
-		/// Close the snoop file
-		void close();
-	};
-
-
-		/// Close the snoop file
-		void close();
-	};
-
 	/// @class PcapNgFileReaderDevice
 	/// A class for opening a pcap-ng file in read-only mode. This class enable to open the file and read all packets,
 	/// packet-by-packet

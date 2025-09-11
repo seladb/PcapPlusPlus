@@ -890,8 +890,7 @@ namespace pcpp
 
 	bool SnoopFileReaderDevice::open()
 	{
-		m_NumOfPacketsRead = 0;
-		m_NumOfPacketsNotParsed = 0;
+		resetStatisticCounters();
 
 		m_snoopFile.open(m_FileName.c_str(), std::ifstream::binary);
 		if (!m_snoopFile.is_open())
@@ -982,7 +981,7 @@ namespace pcpp
 			return false;
 		}
 
-		m_NumOfPacketsRead++;
+		reportPacketProcessed();
 		return true;
 	}
 
