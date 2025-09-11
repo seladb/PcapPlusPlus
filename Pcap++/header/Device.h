@@ -23,8 +23,7 @@ namespace pcpp
 		IDevice() = default;
 
 	public:
-		virtual ~IDevice()
-		{}
+		virtual ~IDevice() = default;
 
 		/// Open the device
 		/// @return True if device was opened successfully, false otherwise
