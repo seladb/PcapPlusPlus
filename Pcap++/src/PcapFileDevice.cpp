@@ -82,7 +82,7 @@ namespace pcpp
 		class StreamPositionCheckpoint
 		{
 		public:
-			StreamPositionCheckpoint(std::istream& stream) : m_Stream(stream), m_Pos(stream.tellg())
+			explicit StreamPositionCheckpoint(std::istream& stream) : m_Stream(stream), m_Pos(stream.tellg())
 			{}
 
 			~StreamPositionCheckpoint()
@@ -127,10 +127,10 @@ namespace pcpp
 			bool isPcapFile(std::istream& content)
 			{
 				constexpr std::array<uint32_t, 4> pcapMagicNumbers = {
-					0xa1b2c3d4,  // regular pcap, microsecond-precision
-					0xd4c3b2a1,  // regular pcap, microsecond-precision (byte-swapped)
-					0xa1b23c4d,  // regular pcap, nanosecond-precision
-					0x4d3cb2a1   // regular pcap, nanosecond-precision (byte-swapped)
+					0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
+					0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
+					0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
+					0x4d'3c'b2'a1   // regular pcap, nanosecond-precision (byte-swapped)
 				};
 
 				StreamPositionCheckpoint checkpoint(content);
@@ -149,7 +149,7 @@ namespace pcpp
 			bool isPcapNgFile(std::istream& content)
 			{
 				constexpr std::array<uint32_t, 1> pcapMagicNumbers = {
-					0x0A0D0D0A,  // pcapng magic number (palindrome)
+					0x0A'0D'0D'0A,  // pcapng magic number (palindrome)
 				};
 
 				StreamPositionCheckpoint checkpoint(content);
