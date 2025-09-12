@@ -226,7 +226,6 @@ namespace pcpp
 
 	bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	{
-		rawPacket.clear();
 		if (m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
@@ -566,9 +565,6 @@ namespace pcpp
 
 	bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& packetComment)
 	{
-		rawPacket.clear();
-		packetComment = "";
-
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
@@ -610,7 +606,13 @@ namespace pcpp
 		}
 
 		if (pktHeader.comment != nullptr && pktHeader.comment_length > 0)
+		{
 			packetComment = std::string(pktHeader.comment, pktHeader.comment_length);
+		}
+		else
+		{
+			packetComment.clear();
+		}
 
 		reportPacketProcessed();
 		return true;
@@ -942,7 +944,6 @@ namespace pcpp
 
 	bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	{
-		rawPacket.clear();
 		if (m_DeviceOpened != true)
 		{
 			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
