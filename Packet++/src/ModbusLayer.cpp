@@ -27,7 +27,7 @@ namespace pcpp
 
 	modbus_header* ModbusLayer::getModbusHeader() const
 	{
-		return (modbus_header*)m_Data;
+		return reinterpret_cast<modbus_header*>(m_Data);
 	}
 
 	uint16_t ModbusLayer::getTransactionId() const

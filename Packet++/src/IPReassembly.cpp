@@ -14,11 +14,11 @@ namespace pcpp
 	{
 		ScalarBuffer<uint8_t> vec[3];
 
-		vec[0].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipSrc;
+		vec[0].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipSrc);
 		vec[0].len = 4;
-		vec[1].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipDst;
+		vec[1].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipDst);
 		vec[1].len = 4;
-		vec[2].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipId;
+		vec[2].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipId);
 		vec[2].len = 2;
 
 		return pcpp::fnvHash(vec, 3);
@@ -32,11 +32,11 @@ namespace pcpp
 		uint32_t ipSrcAsInt = ipSrc.toInt();
 		uint32_t ipDstAsInt = ipDst.toInt();
 
-		vec[0].buffer = (uint8_t*)&ipSrcAsInt;
+		vec[0].buffer = reinterpret_cast<uint8_t*>(&ipSrcAsInt);
 		vec[0].len = 4;
-		vec[1].buffer = (uint8_t*)&ipDstAsInt;
+		vec[1].buffer = reinterpret_cast<uint8_t*>(&ipDstAsInt);
 		vec[1].len = 4;
-		vec[2].buffer = (uint8_t*)&ipIdNetworkOrder;
+		vec[2].buffer = reinterpret_cast<uint8_t*>(&ipIdNetworkOrder);
 		vec[2].len = 2;
 
 		return pcpp::fnvHash(vec, 3);
@@ -104,11 +104,11 @@ namespace pcpp
 		{
 			ScalarBuffer<uint8_t> vec[3];
 
-			vec[0].buffer = (uint8_t*)&m_IPLayer->getIPv4Header()->ipSrc;
+			vec[0].buffer = reinterpret_cast<uint8_t*>(&m_IPLayer->getIPv4Header()->ipSrc);
 			vec[0].len = 4;
-			vec[1].buffer = (uint8_t*)&m_IPLayer->getIPv4Header()->ipDst;
+			vec[1].buffer = reinterpret_cast<uint8_t*>(&m_IPLayer->getIPv4Header()->ipDst);
 			vec[1].len = 4;
-			vec[2].buffer = (uint8_t*)&m_IPLayer->getIPv4Header()->ipId;
+			vec[2].buffer = reinterpret_cast<uint8_t*>(&m_IPLayer->getIPv4Header()->ipId);
 			vec[2].len = 2;
 
 			return pcpp::fnvHash(vec, 3);
@@ -198,7 +198,7 @@ namespace pcpp
 			vec[0].len = 16;
 			vec[1].buffer = m_IPLayer->getIPv6Header()->ipDst;
 			vec[1].len = 16;
-			vec[2].buffer = (uint8_t*)&m_FragHeader->getFragHeader()->id;
+			vec[2].buffer = reinterpret_cast<uint8_t*>(&m_FragHeader->getFragHeader()->id);
 			vec[2].len = 4;
 
 			return pcpp::fnvHash(vec, 3);
@@ -238,11 +238,11 @@ namespace pcpp
 		uint32_t ipSrcAsInt = m_SrcIP.toInt();
 		uint32_t ipDstAsInt = m_DstIP.toInt();
 
-		vec[0].buffer = (uint8_t*)&ipSrcAsInt;
+		vec[0].buffer = reinterpret_cast<uint8_t*>(&ipSrcAsInt);
 		vec[0].len = 4;
-		vec[1].buffer = (uint8_t*)&ipDstAsInt;
+		vec[1].buffer = reinterpret_cast<uint8_t*>(&ipDstAsInt);
 		vec[1].len = 4;
-		vec[2].buffer = (uint8_t*)&ipIdNetworkOrder;
+		vec[2].buffer = reinterpret_cast<uint8_t*>(&ipIdNetworkOrder);
 		vec[2].len = 2;
 
 		return pcpp::fnvHash(vec, 3);
@@ -262,7 +262,7 @@ namespace pcpp
 		vec[0].len = 16;
 		vec[1].buffer = ipDstAsByteArr;
 		vec[1].len = 16;
-		vec[2].buffer = (uint8_t*)&fragIdNetworkOrder;
+		vec[2].buffer = reinterpret_cast<uint8_t*>(&fragIdNetworkOrder);
 		vec[2].len = 4;
 
 		return pcpp::fnvHash(vec, 3);

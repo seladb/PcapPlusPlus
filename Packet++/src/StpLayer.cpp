@@ -35,7 +35,7 @@ namespace pcpp
 	{
 		if (dataLen >= sizeof(stp_tcn_bpdu))
 		{
-			stp_tcn_bpdu* ptr = (stp_tcn_bpdu*)data;
+			stp_tcn_bpdu* ptr = reinterpret_cast<stp_tcn_bpdu*>(data);
 			switch (ptr->type)
 			{
 			case 0x00:
@@ -311,7 +311,7 @@ namespace pcpp
 
 	std::string MultipleStpLayer::getMstConfigurationName() const
 	{
-		std::string str = std::string((char*)(getMstpHeader()->mstConfigName), 32);
+		std::string str = std::string(reinterpret_cast<char*>(getMstpHeader()->mstConfigName), 32);
 		str.erase(std::find(str.begin(), str.end(), '\0'), str.end());
 		return str;
 	}
@@ -341,7 +341,7 @@ namespace pcpp
 	msti_conf_msg* MultipleStpLayer::getMstiConfMessages() const
 	{
 		if (getNumberOfMSTIConfMessages())
-			return (msti_conf_msg*)(m_Data + sizeof(mstp_conf_bpdu));
+			return reinterpret_cast<msti_conf_msg*>(m_Data + sizeof(mstp_conf_bpdu));
 		return nullptr;
 	}
 

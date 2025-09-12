@@ -308,7 +308,7 @@ namespace pcpp
 		};
 
 		/// The type for storing the connection information
-		typedef std::unordered_map<uint32_t, ConnectionData> ConnectionInfoList;
+		using ConnectionInfoList = std::unordered_map<uint32_t, ConnectionData>;
 
 		/// @typedef OnTcpMessageReady
 		/// A callback invoked when new data arrives on a connection
@@ -459,8 +459,8 @@ namespace pcpp
 			OutOfOrderProcessingGuard& operator=(const OutOfOrderProcessingGuard&) = delete;
 		};
 
-		typedef std::unordered_map<uint32_t, TcpReassemblyData> ConnectionList;
-		typedef std::map<time_t, std::list<uint32_t>> CleanupList;
+		using ConnectionList = std::unordered_map<uint32_t, TcpReassemblyData>;
+		using CleanupList = std::map<time_t, std::list<uint32_t>>;
 
 		OnTcpMessageReady m_OnMessageReadyCallback;
 		OnTcpConnectionStart m_OnConnStart;

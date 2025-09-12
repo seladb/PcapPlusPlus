@@ -11,7 +11,7 @@
 namespace pcpp
 {
 	/// A vector of pointers to RawPacket
-	typedef PointerVector<RawPacket> RawPacketVector;
+	using RawPacketVector = PointerVector<RawPacket>;
 
 	/// @class IDevice
 	/// An abstract interface representing all packet processing devices. It stands as the root class for all devices.

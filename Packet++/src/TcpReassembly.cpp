@@ -145,7 +145,7 @@ namespace pcpp
 		auto currTime = timespecToTimePoint(tcpData.getRawPacket()->getPacketTimeStamp());
 
 		// find the connection in the connection map
-		ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
+		auto iter = m_ConnectionList.find(flowKey);
 
 		if (iter == m_ConnectionList.end())
 		{
@@ -726,7 +726,7 @@ namespace pcpp
 
 	void TcpReassembly::closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason)
 	{
-		ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
+		auto iter = m_ConnectionList.find(flowKey);
 		if (iter == m_ConnectionList.end())
 		{
 			PCPP_LOG_ERROR("Cannot close flow with key 0x" << std::uppercase << std::hex << flowKey
@@ -760,7 +760,7 @@ namespace pcpp
 	{
 		PCPP_LOG_DEBUG("Closing all flows");
 
-		ConnectionList::iterator iter = m_ConnectionList.begin(), iterEnd = m_ConnectionList.end();
+		auto iter = m_ConnectionList.begin(), iterEnd = m_ConnectionList.end();
 		for (; iter != iterEnd; ++iter)
 		{
 			TcpReassemblyData& tcpReassemblyData = iter->second;
@@ -789,7 +789,7 @@ namespace pcpp
 
 	int TcpReassembly::isConnectionOpen(const ConnectionData& connection) const
 	{
-		ConnectionList::const_iterator iter = m_ConnectionList.find(connection.flowKey);
+		auto iter = m_ConnectionList.find(connection.flowKey);
 		if (iter != m_ConnectionList.end())
 			return iter->second.closed == false;
 

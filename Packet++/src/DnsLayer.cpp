@@ -101,7 +101,7 @@ namespace pcpp
 	dnshdr* DnsLayer::getDnsHeader() const
 	{
 		uint8_t* ptr = m_Data + m_OffsetAdjustment;
-		return (dnshdr*)ptr;
+		return reinterpret_cast<dnshdr*>(ptr);
 	}
 
 	bool DnsLayer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend, IDnsResource* resource)

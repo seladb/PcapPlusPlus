@@ -20,7 +20,7 @@ public:
 
 	~DeviceTeardown()
 	{
-		if (!m_CancelTeardown && m_Device != NULL && m_Device->isOpened())
+		if (!m_CancelTeardown && m_Device != nullptr && m_Device->isOpened())
 		{
 			m_Device->close();
 		}

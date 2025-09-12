@@ -264,7 +264,7 @@ bool stringCountComparer(const std::pair<std::string, int>& first, const std::pa
 void onApplicationInterrupted(void* cookie)
 {
 	DnsSpoofingArgs* args = (DnsSpoofingArgs*)cookie;
-	if (args->stats.spoofedHosts.size() == 0)
+	if (args->stats.spoofedHosts.empty())
 	{
 		std::cout << std::endl << "Application closing. No hosts were spoofed." << std::endl;
 	}

@@ -242,7 +242,7 @@ namespace pcpp
 			});
 			return result;
 		}
-		return std::string((char*)m_Data, m_DataLen);
+		return std::string(reinterpret_cast<char*>(m_Data), m_DataLen);
 	}
 
 	size_t TelnetLayer::getTotalNumberOfCommands()

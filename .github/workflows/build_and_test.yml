@@ -504,18 +504,47 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
+  define-windows-pcap-backend-matrix:
+    name: Determine Windows Pcap Backend Matrix
+    runs-on: ubuntu-latest
+    outputs:
+        npcap-or-default: ${{ steps.generate-backends.outputs.npcap_or_default}}
+    steps:
+      - name: Initialize NPcap backend variable
+        run: echo "npcap_available=false" >> $GITHUB_ENV
+
+      - name: Enable NPcap backend if OEM credentials are available
+        env: # Secrets can't be accessed directly in 'if' conditionals.
+          npcap_username: ${{ secrets.NPCAP_USERNAME }}
+          npcap_password: ${{ secrets.NPCAP_PASSWORD }}
+        if: ${{ env.npcap_username != '' && env.npcap_password != '' }}
+        run: echo "npcap_available=true" >> $GITHUB_ENV
+
+      - name: NPcap backend is unavailable
+        if: ${{ env.npcap_available != 'true' }}
+        run: echo "NPcap backend will be skipped since OEM credentials are missing. NPCAP_USERNAME and NPCAP_PASSWORD are required."
+
+      - name: Generate pcap backends matrix
+        id: generate-backends
+        run: |
+          if [[ "${{ env.npcap_available }}" == "true" ]]; then
+            echo 'npcap_or_default=npcap' >> "$GITHUB_OUTPUT"
+          else
+            echo 'npcap_or_default=winpcap' >> "$GITHUB_OUTPUT"
+          fi
+
   mingw-w64:
-    runs-on: windows-latest
+    needs: define-windows-pcap-backend-matrix
     strategy:
       matrix:
         include:
-          - env: i686
-            sys: mingw32
+          - sys: mingw32
+            env: i686
             pcap_lib: "winpcap"
-          - env: x86_64
-            sys: mingw64
-            pcap_lib: "winpcap"
-
+          - sys: mingw64
+            env: x86_64
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -596,6 +625,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   visual-studio:
+    needs: define-windows-pcap-backend-matrix
     strategy:
       matrix:
         include:
@@ -606,11 +636,11 @@ jobs:
           - os: windows-2025
             platform: "Visual Studio 17 2022"
             arch: "x64"
-            pcap_lib: "winpcap"
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
           - os: windows-2022
             platform: "Visual Studio 17 2022"
             arch: "x64"
-            pcap_lib: "winpcap"
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
 
     runs-on: ${{ matrix.os }}
     steps:

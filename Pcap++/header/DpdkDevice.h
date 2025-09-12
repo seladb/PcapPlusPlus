@@ -125,8 +125,8 @@ namespace pcpp
 	/// @param[in] device A pointer to the DpdkDevice who captured the packets
 	/// @param[in] userCookie The user cookie assigned by the user in DpdkDevice#startCaptureSingleThread() or
 	/// DpdkDevice#startCaptureMultiThreads
-	typedef void (*OnDpdkPacketsArriveCallback)(MBufRawPacket* packets, uint32_t numOfPackets, uint8_t threadId,
-	                                            DpdkDevice* device, void* userCookie);
+	using OnDpdkPacketsArriveCallback = void (*)(MBufRawPacket* packets, uint32_t numOfPackets, uint8_t threadId,
+	                                             DpdkDevice* device, void* userCookie);
 
 	/// @class DpdkDevice
 	/// Encapsulates a DPDK port and enables receiving and sending packets using DPDK as well as getting interface info

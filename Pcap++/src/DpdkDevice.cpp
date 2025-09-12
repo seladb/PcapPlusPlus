@@ -694,7 +694,7 @@ namespace pcpp
 			m_CoreConfiguration[coreId].RxQueueId = 0;
 
 			PCPP_LOG_DEBUG("Trying to start capturing on core " << coreId);
-			int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
+			int err = rte_eal_remote_launch(dpdkCaptureThreadMain, static_cast<void*>(this), coreId);
 			if (err != 0)
 			{
 				PCPP_LOG_ERROR("Cannot create capture thread for device '" << m_DeviceName << "'");
@@ -740,7 +740,7 @@ namespace pcpp
 
 			// create a new thread
 			m_CoreConfiguration[coreId].RxQueueId = rxQueue++;
-			int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
+			int err = rte_eal_remote_launch(dpdkCaptureThreadMain, static_cast<void*>(this), coreId);
 			if (err != 0)
 			{
 				PCPP_LOG_ERROR("Cannot create capture thread #" << coreId << " for device '" << m_DeviceName << "': ["
