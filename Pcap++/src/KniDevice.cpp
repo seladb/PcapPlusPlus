@@ -428,7 +428,7 @@ namespace pcpp
 		}
 		m_Requests.sleepS = sleepSeconds;
 		m_Requests.sleepNs = sleepNanoSeconds;
-		m_Requests.thread = new KniThread(KniThread::DETACHED, KniRequests::runRequests, (void*)this);
+		m_Requests.thread = new KniThread(KniThread::DETACHED, KniRequests::runRequests, static_cast<void*>(this));
 		if (m_Requests.thread->m_CleanupState == KniThread::INVALID)
 		{
 			m_Requests.cleanup();
@@ -847,7 +847,7 @@ namespace pcpp
 		m_Capturing.callback = onPacketArrives;
 		m_Capturing.userCookie = onPacketArrivesUserCookie;
 
-		m_Capturing.thread = new KniThread(KniThread::JOINABLE, KniCapturing::runCapture, (void*)this);
+		m_Capturing.thread = new KniThread(KniThread::JOINABLE, KniCapturing::runCapture, static_cast<void*>(this));
 		if (m_Capturing.thread->m_CleanupState == KniThread::INVALID)
 		{
 			PCPP_LOG_DEBUG("KNI failed to start capturing thread on device '" << m_DeviceInfo.name << "'");
