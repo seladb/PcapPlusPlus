@@ -50,14 +50,6 @@ namespace pcpp
 			uint32_t len;
 		};
 
-		enum class CaptureFileFormat
-		{
-			Unknown,
-			Pcap,
-			PcapNG,
-			Snoop,
-		};
-
 		/// @brief Check if a stream is seekable.
 		/// @param stream The stream to check.
 		/// @return True if the stream supports seek operations, false otherwise.
@@ -93,6 +85,14 @@ namespace pcpp
 		private:
 			std::istream& m_Stream;
 			std::streampos m_Pos;
+		};
+
+		enum class CaptureFileFormat
+		{
+			Unknown,
+			Pcap,
+			PcapNG,
+			Snoop,
 		};
 
 		/// @brief Heuristic file format detector that scans the magic number of the file format header.
