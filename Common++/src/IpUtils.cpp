@@ -443,11 +443,11 @@ int inet_pton(int af, const char* src, void* dst)
 	{
 #	ifdef AF_INET
 	case AF_INET:
-		return (inet_pton4(src, (uint8_t*)dst));
+		return (inet_pton4(src, static_cast<uint8_t*>(dst)));
 #	endif
 #	ifdef AF_INET6
 	case AF_INET6:
-		return (inet_pton6(src, (uint8_t*)dst));
+		return (inet_pton6(src, static_cast<uint8_t*>(dst)));
 #	endif
 	default:
 		return (-1);

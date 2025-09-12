@@ -52,6 +52,38 @@ namespace pcpp
 
 		/// Close the file
 		void close() override;
+
+		/// @brief Get the statistics for this device.
+		///
+		/// The PcapStats structure will hold the following:
+		/// - packetsRecv: Number of packets processed (read or written, depending on the device type)
+		/// - packetsDrop: Number of packets dropped (not read or not written, depending on the device type)
+		/// - packetsDropByInterface: Not supported for file devices, will always be 0
+		///
+		/// @param[out] stats The stats object to fill in.
+		void getStatistics(PcapStats& stats) const override;
+
+	protected:
+		/// @brief Report that packets were processed (read or written, depending on the device type).
+		/// @param numPackets The number of packets processed. Default is 1.
+		void reportPacketProcessed(uint64_t numPackets = 1)
+		{
+			m_NumOfPacketsProcessed += numPackets;
+		}
+
+		/// @brief Report that packets were dropped (not read or not written, depending on the device type).
+		/// @param numPackets The number of packets dropped. Default is 1.
+		void reportPacketDropped(uint64_t numPackets = 1)
+		{
+			m_NumOfPacketsDropped += numPackets;
+		}
+
+		/// @brief Reset the internal statistic counters to zero.
+		void resetStatisticCounters();
+
+	private:
+		uint64_t m_NumOfPacketsProcessed = 0;
+		uint64_t m_NumOfPacketsDropped = 0;
 	};
 
 	/// @class IFileReaderDevice
@@ -60,9 +92,6 @@ namespace pcpp
 	class IFileReaderDevice : public IFileDevice
 	{
 	protected:
-		uint32_t m_NumOfPacketsRead;
-		uint32_t m_NumOfPacketsNotParsed;
-
 		/// A constructor for this class that gets the pcap full path file name to open. Notice that after calling this
 		/// constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
 		/// @param[in] fileName The full path of the file to read
@@ -98,15 +127,11 @@ namespace pcpp
 	class IFileWriterDevice : public IFileDevice
 	{
 	protected:
-		uint32_t m_NumOfPacketsWritten;
-		uint32_t m_NumOfPacketsNotWritten;
-
 		IFileWriterDevice(const std::string& fileName);
 
 	public:
 		/// A destructor for this class
-		virtual ~IFileWriterDevice()
-		{}
+		virtual ~IFileWriterDevice() = default;
 
 		virtual bool writePacket(RawPacket const& packet) = 0;
 
@@ -171,11 +196,6 @@ namespace pcpp
 		/// @return True if file was opened successfully or if file is already opened. False if opening the file failed
 		/// for some reason (for example: file path does not exist)
 		bool open();
-
-		/// Get statistics of packets read so far. In the PcapStats struct, only the packetsRecv member is relevant. The
-		/// rest of the members will contain 0
-		/// @param[out] stats The stats struct where stats are returned
-		void getStatistics(PcapStats& stats) const;
 	};
 
 	/// @class PcapFileWriterDevice
@@ -266,10 +286,6 @@ namespace pcpp
 		/// Flush packets to disk.
 		void flush();
 
-		/// Get statistics of packets written so far.
-		/// @param[out] stats The stats struct where stats are returned
-		void getStatistics(PcapStats& stats) const override;
-
 	private:
 		bool openWrite();
 		bool openAppend();
@@ -345,10 +361,6 @@ namespace pcpp
 		/// @return True if file was opened successfully or if file is already opened. False if opening the file failed
 		/// for some reason (for example: file path does not exist)
 		bool open();
-
-		/// Get statistics of packets read so far.
-		/// @param[out] stats The stats struct where stats are returned
-		void getStatistics(PcapStats& stats) const;
 
 		/// Set a filter for PcapNG reader device. Only packets that match the filter will be received
 		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
@@ -456,10 +468,6 @@ namespace pcpp
 		/// Flush and close the pcap-ng file
 		void close() override;
 
-		/// Get statistics of packets written so far.
-		/// @param[out] stats The stats struct where stats are returned
-		void getStatistics(PcapStats& stats) const override;
-
 		/// Set a filter for PcapNG writer device. Only packets that match the filter will be persisted
 		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
 		/// (http://biot.com/capstats/bpf.html)
@@ -549,11 +557,6 @@ namespace pcpp
 		/// @return True if file was opened successfully or if file is already opened. False if opening the file failed
 		/// for some reason (for example: file path does not exist)
 		bool open();
-
-		/// Get statistics of packets read so far. In the PcapStats struct, only the packetsRecv member is relevant. The
-		/// rest of the members will contain 0
-		/// @param[out] stats The stats struct where stats are returned
-		void getStatistics(PcapStats& stats) const;
 
 		/// Close the snoop file
 		void close();
