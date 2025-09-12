@@ -2,6 +2,7 @@
 
 #include <cerrno>
 #include <array>
+#include <algorithm>
 #include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
