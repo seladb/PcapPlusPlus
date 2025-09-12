@@ -118,6 +118,8 @@ namespace pcpp
 		/// it returns an instance of PcapFileReaderDevice
 		/// @param[in] fileName The file name to open
 		/// @return An instance of the reader to read the file. Notice you should free this instance when done using it
+		/// @deprecated Prefer `createReader` due to selection of reader based on file content instead of extension.
+		PCPP_DEPRECATED("Prefer `createReader` due to selection of reader based on file content instead of extension.")
 		static IFileReaderDevice* getReader(const std::string& fileName);
 
 		/// @brief Creates an instance of the reader best fit to read the file.
