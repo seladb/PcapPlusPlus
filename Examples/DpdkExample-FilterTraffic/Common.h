@@ -31,7 +31,7 @@
 		exit(1);                                                                                                       \
 	} while (0)
 
-typedef std::unordered_map<pcpp::DpdkDevice*, std::vector<int>> InputDataConfig;
+using InputDataConfig = std::unordered_map<pcpp::DpdkDevice*, std::vector<int>>;
 
 /**
  * Contains all the configuration needed for the worker thread including:

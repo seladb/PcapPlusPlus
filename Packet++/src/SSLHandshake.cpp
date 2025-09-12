@@ -1264,7 +1264,7 @@ namespace pcpp
 		if (dataLen < sizeof(ssl_tls_handshake_layer))
 			return nullptr;
 
-		ssl_tls_handshake_layer* hsMsgHeader = (ssl_tls_handshake_layer*)data;
+		ssl_tls_handshake_layer* hsMsgHeader = reinterpret_cast<ssl_tls_handshake_layer*>(data);
 
 		if (dataLen >= 16 && (be64toh(*(uint64_t*)data) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
 		{
@@ -1308,13 +1308,13 @@ namespace pcpp
 
 	SSLHandshakeType SSLHandshakeMessage::getHandshakeType() const
 	{
-		ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
+		ssl_tls_handshake_layer* handshakeLayer = reinterpret_cast<ssl_tls_handshake_layer*>(m_Data);
 		return (SSLHandshakeType)handshakeLayer->handshakeType;
 	}
 
 	size_t SSLHandshakeMessage::getMessageLength() const
 	{
-		ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
+		ssl_tls_handshake_layer* handshakeLayer = reinterpret_cast<ssl_tls_handshake_layer*>(m_Data);
 		// TODO: add handshakeLayer->length1 to the calculation
 		size_t len = sizeof(ssl_tls_handshake_layer) + be16toh(handshakeLayer->length2);
 		if (len > m_DataLen)
@@ -1328,7 +1328,7 @@ namespace pcpp
 		if (m_DataLen < sizeof(ssl_tls_handshake_layer))
 			return false;
 
-		ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
+		ssl_tls_handshake_layer* handshakeLayer = reinterpret_cast<ssl_tls_handshake_layer*>(m_Data);
 		size_t len = sizeof(ssl_tls_handshake_layer) + be16toh(handshakeLayer->length2);
 		return len <= m_DataLen;
 	}

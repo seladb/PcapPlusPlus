@@ -30,7 +30,7 @@ namespace pcpp
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
-		udphdr* udpHdr = (udphdr*)m_Data;
+		udphdr* udpHdr = reinterpret_cast<udphdr*>(m_Data);
 		udpHdr->portDst = htobe16(portDst);
 		udpHdr->portSrc = htobe16(portSrc);
 		m_Protocol = UDP;
@@ -48,7 +48,7 @@ namespace pcpp
 
 	uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 	{
-		udphdr* udpHdr = (udphdr*)m_Data;
+		udphdr* udpHdr = reinterpret_cast<udphdr*>(m_Data);
 		uint16_t checksumRes = 0;
 		uint16_t currChecksumValue = udpHdr->headerChecksum;
 
@@ -158,7 +158,7 @@ namespace pcpp
 
 	void UdpLayer::computeCalculateFields()
 	{
-		udphdr* udpHdr = (udphdr*)m_Data;
+		udphdr* udpHdr = reinterpret_cast<udphdr*>(m_Data);
 		udpHdr->length = htobe16(m_DataLen);
 		calculateChecksum(true);
 	}
