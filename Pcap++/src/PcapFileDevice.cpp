@@ -185,8 +185,9 @@ namespace pcpp
 
 			bool isZstdArchive(std::istream& content)
 			{
-				constexpr std::array<uint32_t, 1> zstdMagicNumbers = {
+				constexpr std::array<uint32_t, 2> zstdMagicNumbers = {
 					0x28'B5'2F'FD,  // zstd archive magic number
+					0xFD'2F'B5'28,  // zstd archive magic number (byte-swapped)
 				};
 
 				StreamPositionCheckpoint checkpoint(content);
