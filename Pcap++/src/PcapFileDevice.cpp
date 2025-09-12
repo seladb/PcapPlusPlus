@@ -187,7 +187,7 @@ namespace pcpp
 				constexpr std::array<uint32_t, 1> zstdMagicNumbers = {
 					0x28'B5'2F'FD,  // zstd archive magic number
 				};
-				
+
 				StreamPositionCheckpoint checkpoint(content);
 
 				uint32_t magic = 0;
@@ -282,6 +282,27 @@ namespace pcpp
 			return new SnoopFileReaderDevice(fileName);
 
 		return new PcapFileReaderDevice(fileName);
+	}
+
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName)
+	{
+		std::ifstream fileContent(fileName, std::ios_base::binary);
+		if (fileContent.fail())
+		{
+			throw std::runtime_error("Could not open: " + fileName);
+		}
+
+		switch (CaptureFileFormatDetector().detectFormat(fileContent))
+		{
+		case CaptureFileFormat::Pcap:
+			return std::make_unique<PcapFileReaderDevice>(fileName);
+		case CaptureFileFormat::PcapNG:
+			return std::make_unique<PcapNgFileReaderDevice>(fileName);
+		case CaptureFileFormat::Snoop:
+			return std::make_unique<SnoopFileReaderDevice>(fileName);
+		default:
+			return nullptr;
+		}
 	}
 
 	uint64_t IFileReaderDevice::getFileSize() const
