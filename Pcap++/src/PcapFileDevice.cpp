@@ -1,6 +1,7 @@
 #define LOG_MODULE PcapLogModuleFileDevice
 
 #include <cerrno>
+#include <array>
 #include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
@@ -28,31 +29,184 @@ namespace pcpp
 		{
 			return reinterpret_cast<light_pcapng_t*>(pcapngHandle);
 		}
+
+		struct pcap_file_header
+		{
+			uint32_t magic;
+			uint16_t version_major;
+			uint16_t version_minor;
+			int32_t thiszone;
+			uint32_t sigfigs;
+			uint32_t snaplen;
+			uint32_t linktype;
+		};
+
+		struct packet_header
+		{
+			uint32_t tv_sec;
+			uint32_t tv_usec;
+			uint32_t caplen;
+			uint32_t len;
+		};
+
+		enum class CaptureFileFormat
+		{
+			Unknown,
+			Pcap,
+			PcapNG,
+			Snoop,
+		};
+
+		/// @brief Check if a stream is seekable.
+		/// @param stream The stream to check.
+		/// @return True if the stream supports seek operations, false otherwise.
+		bool isStreamSeekable(std::istream& stream)
+		{
+			auto pos = stream.tellg();
+			if (stream.fail())
+			{
+				stream.clear();
+				return false;
+			}
+
+			if (stream.seekg(pos).fail())
+			{
+				stream.clear();
+				return false;
+			}
+
+			return true;
+		}
+
+		/// @brief Heuristic file format detector that scans the magic number of the file format header.
+		class CaptureFileFormatDetector
+		{
+		public:
+			/// @brief Checks a content stream for the magic number and determines the type.
+			/// @param content A content stream that contains the file content.
+			/// @return A CaptureFileFormat value with the detected content type.
+			CaptureFileFormat detectFormat(std::istream& content)
+			{
+				// Check if the stream supports seeking.
+				if (!isStreamSeekable(content))
+				{
+					throw std::runtime_error("Heuristic file format detection requires seekable stream");
+				}
+
+				if (isPcapFile(content))
+					return CaptureFileFormat::Pcap;
+
+				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
+				if (isPcapNgFile(content) || isZstdArchive(content))
+					return CaptureFileFormat::PcapNG;
+
+				if (isSnoopFile(content))
+					return CaptureFileFormat::Snoop;
+
+				return CaptureFileFormat::Unknown;
+			}
+
+		private:
+			class StreamPositionCheckpoint
+			{
+			public:
+				StreamPositionCheckpoint(std::istream& stream) : m_Stream(stream), m_Pos(stream.tellg())
+				{}
+
+				~StreamPositionCheckpoint()
+				{
+					m_Stream.seekg(m_Pos);
+				}
+
+			private:
+				std::istream& m_Stream;
+				std::streampos m_Pos;
+			};
+
+			bool isPcapFile(std::istream& content)
+			{
+				constexpr std::array<uint32_t, 4> pcapMagicNumbers = {
+					0xa1b2c3d4,  // regular pcap, microsecond-precision
+					0xd4c3b2a1,  // regular pcap, microsecond-precision (byte-swapped)
+					0xa1b23c4d,  // regular pcap, nanosecond-precision
+					0x4d3cb2a1   // regular pcap, nanosecond-precision (byte-swapped)
+				};
+
+				StreamPositionCheckpoint checkpoint(content);
+
+				pcap_file_header header;
+				content.read(reinterpret_cast<char*>(&header), sizeof(header));
+				if (content.gcount() != sizeof(header))
+				{
+					return false;
+				}
+
+				return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), header.magic) !=
+				       pcapMagicNumbers.end();
+			}
+
+			bool isPcapNgFile(std::istream& content)
+			{
+				constexpr std::array<uint32_t, 1> pcapMagicNumbers = {
+					0x0A0D0D0A,  // pcapng magic number (palindrome)
+				};
+
+				StreamPositionCheckpoint checkpoint(content);
+
+				uint32_t magic = 0;
+				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+				if (content.gcount() != sizeof(magic))
+				{
+					return false;
+				}
+
+				return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic) != pcapMagicNumbers.end();
+			}
+
+			bool isSnoopFile(std::istream& content)
+			{
+				constexpr std::array<uint64_t, 2> snoopMagicNumbers = {
+					0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
+					0x00'00'00'70'6F'6F'6E'73   // snoop magic number, "snoop" in ASCII (byte-swapped)
+				};
+
+				StreamPositionCheckpoint checkpoint(content);
+
+				uint64_t magic = 0;
+				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+				if (content.gcount() != sizeof(magic))
+				{
+					return false;
+				}
+
+				return std::find(snoopMagicNumbers.begin(), snoopMagicNumbers.end(), magic) != snoopMagicNumbers.end();
+			}
+
+			bool isZstdArchive(std::istream& content)
+			{
+				constexpr std::array<uint32_t, 1> zstdMagicNumbers = {
+					0x28'B5'2F'FD,  // zstd archive magic number
+				};
+				
+				StreamPositionCheckpoint checkpoint(content);
+
+				uint32_t magic = 0;
+				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+				if (content.gcount() != sizeof(magic))
+				{
+					return false;
+				}
+
+				return std::find(zstdMagicNumbers.begin(), zstdMagicNumbers.end(), magic) != zstdMagicNumbers.end();
+			}
+		};
+
 	}  // namespace
 
 	template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
 	{
 		return N;
 	}
-
-	struct pcap_file_header
-	{
-		uint32_t magic;
-		uint16_t version_major;
-		uint16_t version_minor;
-		int32_t thiszone;
-		uint32_t sigfigs;
-		uint32_t snaplen;
-		uint32_t linktype;
-	};
-
-	struct packet_header
-	{
-		uint32_t tv_sec;
-		uint32_t tv_usec;
-		uint32_t caplen;
-		uint32_t len;
-	};
 
 	static bool checkNanoSupport()
 	{
