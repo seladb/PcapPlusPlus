@@ -59,8 +59,8 @@ namespace pcpp
 
 			if (m_PrevLayer->getProtocol() == IPv4)
 			{
-				IPv4Address srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address();
-				IPv4Address dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address();
+				IPv4Address srcIP = static_cast<IPv4Layer*>(m_PrevLayer)->getSrcIPv4Address();
+				IPv4Address dstIP = static_cast<IPv4Layer*>(m_PrevLayer)->getDstIPv4Address();
 
 				checksumRes = pcpp::computePseudoHdrChecksum((uint8_t*)udpHdr, getDataLen(), IPAddress::IPv4AddressType,
 				                                             PACKETPP_IPPROTO_UDP, srcIP, dstIP);
@@ -69,8 +69,8 @@ namespace pcpp
 			}
 			else if (m_PrevLayer->getProtocol() == IPv6)
 			{
-				IPv6Address srcIP = ((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address();
-				IPv6Address dstIP = ((IPv6Layer*)m_PrevLayer)->getDstIPv6Address();
+				IPv6Address srcIP = static_cast<IPv6Layer*>(m_PrevLayer)->getSrcIPv6Address();
+				IPv6Address dstIP = static_cast<IPv6Layer*>(m_PrevLayer)->getDstIPv6Address();
 
 				checksumRes = computePseudoHdrChecksum((uint8_t*)udpHdr, getDataLen(), IPAddress::IPv6AddressType,
 				                                       PACKETPP_IPPROTO_UDP, srcIP, dstIP);
