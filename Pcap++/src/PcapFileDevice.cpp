@@ -78,6 +78,22 @@ namespace pcpp
 			return true;
 		}
 
+		class StreamPositionCheckpoint
+		{
+		public:
+			StreamPositionCheckpoint(std::istream& stream) : m_Stream(stream), m_Pos(stream.tellg())
+			{}
+
+			~StreamPositionCheckpoint()
+			{
+				m_Stream.seekg(m_Pos);
+			}
+
+		private:
+			std::istream& m_Stream;
+			std::streampos m_Pos;
+		};
+
 		/// @brief Heuristic file format detector that scans the magic number of the file format header.
 		class CaptureFileFormatDetector
 		{
@@ -107,22 +123,6 @@ namespace pcpp
 			}
 
 		private:
-			class StreamPositionCheckpoint
-			{
-			public:
-				StreamPositionCheckpoint(std::istream& stream) : m_Stream(stream), m_Pos(stream.tellg())
-				{}
-
-				~StreamPositionCheckpoint()
-				{
-					m_Stream.seekg(m_Pos);
-				}
-
-			private:
-				std::istream& m_Stream;
-				std::streampos m_Pos;
-			};
-
 			bool isPcapFile(std::istream& content)
 			{
 				constexpr std::array<uint32_t, 4> pcapMagicNumbers = {
