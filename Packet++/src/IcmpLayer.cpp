@@ -5,8 +5,8 @@
 #include "Packet.h"
 #include "PacketUtils.h"
 #include "Logger.h"
-#include "EndianPortable.h"
 #include <sstream>
+#include "EndianPortable.h"
 
 namespace pcpp
 {
