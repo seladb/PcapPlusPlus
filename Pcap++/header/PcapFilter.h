@@ -123,7 +123,8 @@ namespace pcpp
 		/// @brief Match a packet with the filter stored in this object.
 		///
 		/// If the filter is empty the method returns "true".
-		/// If the link type of the raw packet is different than the one set in setFilter() the filter will be recompiled.
+		/// If the link type of the raw packet is different than the one set in setFilter() the filter will be
+		/// recompiled.
 		///
 		/// @param[in] rawPacket The raw packet to match the filter against
 		/// @return True if the filter matches (or if it's empty). False otherwise
@@ -157,25 +158,47 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class GeneralFilter
 	{
-	protected:
-		BpfFilterWrapper m_BpfWrapper;
-
 	public:
+		GeneralFilter() = default;
+
+		/// Virtual destructor, frees the bpf program
+		virtual ~GeneralFilter() = default;
+
 		/// A method that parses the class instance into BPF string format
 		/// @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its
 		/// content will be overridden
-		virtual void parseToString(std::string& result) = 0;
+		virtual void parseToString(std::string& result) const = 0;
 
 		/// Match a raw packet with a given BPF filter.
 		/// @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
 		/// @return True if a raw packet matches the BPF filter or false otherwise
 		bool matchPacketWithFilter(RawPacket* rawPacket);
 
-		GeneralFilter()
-		{}
+		/// @brief Match a raw packet against the filter.
+		/// @param rawPacket The raw packet to match against.
+		/// @return True if the filter matches (or if it's empty). False otherwise.
+		bool matches(RawPacket const& rawPacket) const;
 
-		/// Virtual destructor, frees the bpf program
-		virtual ~GeneralFilter() = default;
+	protected:
+		/// @brief Parse the filter and cache the compiled BPF program.
+		/// @return True if the filter was successfully parsed and cached, false otherwise.
+		bool cacheFilter()
+		{
+			return cacheFilterInternal();
+		}
+
+		/// @brief Invalidate the cached BPF program. This method should be called whenever the filter changes.
+		void invalidateCache()
+		{
+			m_CachedFilter = false;
+		};
+
+	private:
+		// This method does the actual caching. It is const so it can be called from const methods.
+		bool cacheFilterInternal() const;
+
+		mutable BpfFilterWrapper m_BpfWrapper;
+		mutable bool m_CachedFilter = false;
 	};
 
 	/// @class BPFStringFilter
@@ -195,7 +218,7 @@ namespace pcpp
 		/// A method that parses the class instance into BPF string format
 		/// @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its
 		/// content will be overridden If the filter is not valid the result will be an empty string
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Verify the filter is valid
 		/// @return True if the filter is valid or false otherwise
@@ -213,7 +236,7 @@ namespace pcpp
 		Direction m_Dir;
 
 	protected:
-		void parseDirection(std::string& directionAsString);
+		void parseDirection(std::string& directionAsString) const;
 		Direction getDir() const
 		{
 			return m_Dir;
@@ -243,7 +266,7 @@ namespace pcpp
 		FilterOperator m_Operator;
 
 	protected:
-		std::string parseOperator();
+		std::string parseOperator() const;
 		FilterOperator getOperator() const
 		{
 			return m_Operator;
@@ -259,6 +282,7 @@ namespace pcpp
 		void setOperator(FilterOperator op)
 		{
 			m_Operator = op;
+			invalidateCache();
 		}
 	};
 
@@ -349,7 +373,7 @@ namespace pcpp
 		    : IFilterWithDirection(dir), m_Address(network.getNetworkPrefix()), m_Network(network)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the network to build the filter with.
 		/// @param[in] network The IP Network object to be used when building the filter.
@@ -357,6 +381,7 @@ namespace pcpp
 		{
 			m_Network = network;
 			m_Address = m_Network.getNetworkPrefix();
+			invalidateCache();
 		}
 
 		/// Set the IP address
@@ -365,6 +390,7 @@ namespace pcpp
 		void setAddr(const std::string& ipAddress)
 		{
 			this->setAddr(IPAddress(ipAddress));
+			invalidateCache();
 		}
 
 		/// Set the IP address
@@ -382,6 +408,7 @@ namespace pcpp
 			}
 
 			m_Network = IPNetwork(m_Address, newPrefixLen);
+			invalidateCache();
 		}
 
 		/// Set the subnet mask
@@ -395,12 +422,14 @@ namespace pcpp
 		void setMask(const std::string& netmask)
 		{
 			m_Network = IPNetwork(m_Address, netmask);
+			invalidateCache();
 		}
 
 		/// Clears the subnet mask.
 		void clearMask()
 		{
 			this->clearLen();
+			invalidateCache();
 		}
 
 		/// Set the subnet (IPv4) or prefix length (IPv6).
@@ -410,12 +439,14 @@ namespace pcpp
 		void setLen(const int len)
 		{
 			m_Network = IPNetwork(m_Address, len);
+			invalidateCache();
 		}
 
 		/// Clears the subnet mask length.
 		void clearLen()
 		{
 			m_Network = IPNetwork(m_Address);
+			invalidateCache();
 		}
 	};
 
@@ -436,13 +467,14 @@ namespace pcpp
 		IPv4IDFilter(uint16_t ipID, FilterOperator op) : IFilterWithOperator(op), m_IpID(ipID)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the IP ID to filter
 		/// @param[in] ipID The IP ID to filter
 		void setIpID(uint16_t ipID)
 		{
 			m_IpID = ipID;
+			invalidateCache();
 		}
 	};
 
@@ -464,13 +496,14 @@ namespace pcpp
 		    : IFilterWithOperator(op), m_TotalLength(totalLength)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the total length value
 		/// @param[in] totalLength The total length value to filter
 		void setTotalLength(uint16_t totalLength)
 		{
 			m_TotalLength = totalLength;
+			invalidateCache();
 		}
 	};
 
@@ -490,13 +523,14 @@ namespace pcpp
 		/// @param[in] dir The port direction to filter (source or destination)
 		PortFilter(uint16_t port, Direction dir);
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the port
 		/// @param[in] port The port to create the filter with
 		void setPort(uint16_t port)
 		{
 			portToString(port);
+			invalidateCache();
 		}
 	};
 
@@ -521,13 +555,14 @@ namespace pcpp
 		    : IFilterWithDirection(dir), m_FromPort(fromPort), m_ToPort(toPort)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the lower end of the port range
 		/// @param[in] fromPort The lower end of the port range
 		void setFromPort(uint16_t fromPort)
 		{
 			m_FromPort = fromPort;
+			invalidateCache();
 		}
 
 		/// Set the higher end of the port range
@@ -535,6 +570,7 @@ namespace pcpp
 		void setToPort(uint16_t toPort)
 		{
 			m_ToPort = toPort;
+			invalidateCache();
 		}
 	};
 
@@ -555,13 +591,14 @@ namespace pcpp
 		MacAddressFilter(MacAddress address, Direction dir) : IFilterWithDirection(dir), m_MacAddress(address)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the MAC address
 		/// @param[in] address The MAC address to use for filtering
 		void setMacAddress(MacAddress address)
 		{
 			m_MacAddress = address;
+			invalidateCache();
 		}
 	};
 
@@ -581,13 +618,14 @@ namespace pcpp
 		explicit EtherTypeFilter(uint16_t etherType) : m_EtherType(etherType)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the EtherType value
 		/// @param[in] etherType The EtherType value to create the filter with
 		void setEtherType(uint16_t etherType)
 		{
 			m_EtherType = etherType;
+			invalidateCache();
 		}
 	};
 
@@ -614,6 +652,7 @@ namespace pcpp
 		void addFilter(GeneralFilter* filter)
 		{
 			m_FilterList.push_back(filter);
+			invalidateCache();
 		}
 
 		/// Removes the first matching filter from the composite filter
@@ -628,6 +667,7 @@ namespace pcpp
 		void clearAllFilters()
 		{
 			m_FilterList.clear();
+			invalidateCache();
 		}
 	};
 
@@ -667,7 +707,7 @@ namespace pcpp
 	public:
 		using CompositeFilter::CompositeFilter;
 
-		void parseToString(std::string& result) override
+		void parseToString(std::string& result) const override
 		{
 			result.clear();
 			for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
@@ -718,13 +758,14 @@ namespace pcpp
 			m_FilterToInverse = filterToInverse;
 		}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set a filter to create an inverse filter from
 		/// @param[in] filterToInverse A pointer to filter which the created filter be the inverse of
 		void setFilter(GeneralFilter* filterToInverse)
 		{
 			m_FilterToInverse = filterToInverse;
+			invalidateCache();
 		}
 	};
 
@@ -755,7 +796,7 @@ namespace pcpp
 		explicit ProtoFilter(ProtocolTypeFamily protoFamily) : m_ProtoFamily(protoFamily)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the protocol to filter with
 		/// @param[in] proto The protocol to filter, only packets matching this protocol will be received. Please note
@@ -763,6 +804,7 @@ namespace pcpp
 		void setProto(ProtocolType proto)
 		{
 			m_ProtoFamily = proto;
+			invalidateCache();
 		}
 
 		/// Set the protocol family to filter with
@@ -772,6 +814,7 @@ namespace pcpp
 		void setProto(ProtocolTypeFamily protoFamily)
 		{
 			m_ProtoFamily = protoFamily;
+			invalidateCache();
 		}
 	};
 
@@ -791,13 +834,14 @@ namespace pcpp
 		explicit ArpFilter(ArpOpcode opCode) : m_OpCode(opCode)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the ARP opcode
 		/// @param[in] opCode The ARP opcode: ::ARP_REQUEST or ::ARP_REPLY
 		void setOpCode(ArpOpcode opCode)
 		{
 			m_OpCode = opCode;
+			invalidateCache();
 		}
 	};
 
@@ -817,13 +861,14 @@ namespace pcpp
 		explicit VlanFilter(uint16_t vlanId) : m_VlanID(vlanId)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set the VLAN ID of the filter
 		/// @param[in] vlanId The VLAN ID to use for the filter
 		void setVlanID(uint16_t vlanId)
 		{
 			m_VlanID = vlanId;
+			invalidateCache();
 		}
 	};
 
@@ -885,9 +930,10 @@ namespace pcpp
 		{
 			m_TcpFlagsBitMask = tcpFlagBitMask;
 			m_MatchOption = matchOption;
+			invalidateCache();
 		}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 	};
 
 	/// @class TcpWindowSizeFilter
@@ -907,13 +953,14 @@ namespace pcpp
 		TcpWindowSizeFilter(uint16_t windowSize, FilterOperator op) : IFilterWithOperator(op), m_WindowSize(windowSize)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set window-size value
 		/// @param[in] windowSize The window-size value that will be used in the filter
 		void setWindowSize(uint16_t windowSize)
 		{
 			m_WindowSize = windowSize;
+			invalidateCache();
 		}
 	};
 
@@ -934,13 +981,14 @@ namespace pcpp
 		UdpLengthFilter(uint16_t length, FilterOperator op) : IFilterWithOperator(op), m_Length(length)
 		{}
 
-		void parseToString(std::string& result) override;
+		void parseToString(std::string& result) const override;
 
 		/// Set length value
 		/// @param[in] length The length value that will be used in the filter
 		void setLength(uint16_t length)
 		{
 			m_Length = length;
+			invalidateCache();
 		}
 	};
 }  // namespace pcpp

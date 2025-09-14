@@ -18,17 +18,6 @@ namespace pcpp
 
 	static const int DEFAULT_SNAPLEN = 9000;
 
-	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
-	{
-		std::string filterStr;
-		parseToString(filterStr);
-
-		if (!m_BpfWrapper.setFilter(filterStr))
-			return false;
-
-		return m_BpfWrapper.matchPacketWithFilter(rawPacket);
-	}
-
 	namespace internal
 	{
 		void BpfProgramDeleter::operator()(bpf_program* ptr) const noexcept
@@ -162,17 +151,52 @@ namespace pcpp
 		return BpfProgramUPtr(newProg.release());
 	}
 
-	void BPFStringFilter::parseToString(std::string& result)
+	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
+	{
+		if (rawPacket == nullptr)
+		{
+			PCPP_LOG_ERROR("Raw packet pointer is null");
+			return false;
+		}
+
+		return matches(*rawPacket);
+	}
+
+	bool GeneralFilter::matches(RawPacket const& rawPacket) const
+	{
+		if (!m_CachedFilter)
+		{
+			if (!cacheFilterInternal())
+			{
+				return false;
+			}
+		}
+
+		return m_BpfWrapper.matches(rawPacket);
+	}
+
+	bool GeneralFilter::cacheFilterInternal() const
+	{
+		std::string filterStr;
+		parseToString(filterStr);
+		if (!m_BpfWrapper.setFilter(filterStr))
+			return false;
+
+		m_CachedFilter = true;
+		return true;
+	}
+
+	void BPFStringFilter::parseToString(std::string& result) const
 	{
 		result = m_FilterStr;
 	}
 
 	bool BPFStringFilter::verifyFilter()
 	{
-		return m_BpfWrapper.setFilter(m_FilterStr);
+		return cacheFilter();
 	}
 
-	void IFilterWithDirection::parseDirection(std::string& directionAsString)
+	void IFilterWithDirection::parseDirection(std::string& directionAsString) const
 	{
 		switch (m_Dir)
 		{
@@ -188,7 +212,7 @@ namespace pcpp
 		}
 	}
 
-	std::string IFilterWithOperator::parseOperator()
+	std::string IFilterWithOperator::parseOperator() const
 	{
 		switch (m_Operator)
 		{
@@ -209,7 +233,7 @@ namespace pcpp
 		}
 	}
 
-	void IPFilter::parseToString(std::string& result)
+	void IPFilter::parseToString(std::string& result) const
 	{
 		std::string dir;
 		std::string ipAddr = m_Network.toString();
@@ -225,7 +249,7 @@ namespace pcpp
 		result += ipAddr;
 	}
 
-	void IPv4IDFilter::parseToString(std::string& result)
+	void IPv4IDFilter::parseToString(std::string& result) const
 	{
 		std::string op = parseOperator();
 		std::ostringstream stream;
@@ -233,7 +257,7 @@ namespace pcpp
 		result = "ip[4:2] " + op + ' ' + stream.str();
 	}
 
-	void IPv4TotalLengthFilter::parseToString(std::string& result)
+	void IPv4TotalLengthFilter::parseToString(std::string& result) const
 	{
 		std::string op = parseOperator();
 		std::ostringstream stream;
@@ -253,14 +277,14 @@ namespace pcpp
 		portToString(port);
 	}
 
-	void PortFilter::parseToString(std::string& result)
+	void PortFilter::parseToString(std::string& result) const
 	{
 		std::string dir;
 		parseDirection(dir);
 		result = dir + " port " + m_Port;
 	}
 
-	void PortRangeFilter::parseToString(std::string& result)
+	void PortRangeFilter::parseToString(std::string& result) const
 	{
 		std::string dir;
 		parseDirection(dir);
@@ -273,7 +297,7 @@ namespace pcpp
 		result = dir + " portrange " + fromPortStream.str() + '-' + toPortStream.str();
 	}
 
-	void MacAddressFilter::parseToString(std::string& result)
+	void MacAddressFilter::parseToString(std::string& result) const
 	{
 		if (getDir() != SRC_OR_DST)
 		{
@@ -285,7 +309,7 @@ namespace pcpp
 			result = "ether host " + m_MacAddress.toString();
 	}
 
-	void EtherTypeFilter::parseToString(std::string& result)
+	void EtherTypeFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 		stream << "0x" << std::hex << m_EtherType;
@@ -302,6 +326,7 @@ namespace pcpp
 			if (*it == filter)
 			{
 				m_FilterList.erase(it);
+				invalidateCache();
 				break;
 			}
 		}
@@ -310,16 +335,17 @@ namespace pcpp
 	void CompositeFilter::setFilters(const std::vector<GeneralFilter*>& filters)
 	{
 		m_FilterList = filters;
+		invalidateCache();
 	}
 
-	void NotFilter::parseToString(std::string& result)
+	void NotFilter::parseToString(std::string& result) const
 	{
 		std::string innerFilterAsString;
 		m_FilterToInverse->parseToString(innerFilterAsString);
 		result = "not (" + innerFilterAsString + ')';
 	}
 
-	void ProtoFilter::parseToString(std::string& result)
+	void ProtoFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 
@@ -362,21 +388,21 @@ namespace pcpp
 		}
 	}
 
-	void ArpFilter::parseToString(std::string& result)
+	void ArpFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream sstream;
 		sstream << "arp[7] = " << m_OpCode;
 		result += sstream.str();
 	}
 
-	void VlanFilter::parseToString(std::string& result)
+	void VlanFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 		stream << m_VlanID;
 		result = "vlan " + stream.str();
 	}
 
-	void TcpFlagsFilter::parseToString(std::string& result)
+	void TcpFlagsFilter::parseToString(std::string& result) const
 	{
 		if (m_TcpFlagsBitMask == 0)
 		{
@@ -411,14 +437,14 @@ namespace pcpp
 		}
 	}
 
-	void TcpWindowSizeFilter::parseToString(std::string& result)
+	void TcpWindowSizeFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 		stream << m_WindowSize;
 		result = "tcp[14:2] " + parseOperator() + ' ' + stream.str();
 	}
 
-	void UdpLengthFilter::parseToString(std::string& result)
+	void UdpLengthFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 		stream << m_Length;
