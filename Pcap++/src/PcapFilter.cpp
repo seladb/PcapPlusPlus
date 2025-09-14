@@ -101,14 +101,14 @@ namespace pcpp
 		return matches(packetData, packetDataLength, packetTimestamp, linkType);
 	}
 
-	bool BpfFilterWrapper::matches(const RawPacket& rawPacket, LinkMismatchBehaviour onLinkmismatch) const
+	bool BpfFilterWrapper::matches(const RawPacket& rawPacket) const
 	{
 		return matches(rawPacket.getRawData(), rawPacket.getRawDataLen(), rawPacket.getPacketTimeStamp(),
-		               rawPacket.getLinkLayerType(), onLinkmismatch);
+		               rawPacket.getLinkLayerType());
 	}
 
 	bool BpfFilterWrapper::matches(const uint8_t* packetData, uint32_t packetDataLength, timespec timestamp,
-	                               uint16_t linkType, LinkMismatchBehaviour onLinkmismatch) const
+	                               uint16_t linkType) const
 	{
 		if (m_FilterStr.empty())
 			return true;
@@ -122,27 +122,14 @@ namespace pcpp
 		// Handle link type mismatch
 		if (linkType != static_cast<uint16_t>(m_CachedProgramLinkType))
 		{
-			switch (onLinkmismatch)
+			auto newProgram = compileFilter(m_FilterStr, static_cast<LinkLayerType>(linkType));
+			if (newProgram == nullptr)
 			{
-			case LinkMismatchBehaviour::NoMatch:
-			{
-				return false;  // Do not attempt to recompile, just return false
+				PCPP_LOG_ERROR("Couldn't compile BPF filter: '" << m_FilterStr << "' for link type: " << linkType);
+				return false;
 			}
-			case LinkMismatchBehaviour::RecompileFilter:
-			{
-				auto newProgram = compileFilter(m_FilterStr, static_cast<LinkLayerType>(linkType));
-				if (newProgram == nullptr)
-				{
-					PCPP_LOG_ERROR("Couldn't compile BPF filter: '" << m_FilterStr << "' for link type: " << linkType);
-					return false;
-				}
-				m_CachedProgram = std::move(newProgram);
-				m_CachedProgramLinkType = static_cast<LinkLayerType>(linkType);
-				break;
-			}
-			default:
-				throw std::logic_error("Unknown LinkmismatchBehaviour");
-			}
+			m_CachedProgram = std::move(newProgram);
+			m_CachedProgramLinkType = static_cast<LinkLayerType>(linkType);
 		}
 
 		// Test the packet against the filter

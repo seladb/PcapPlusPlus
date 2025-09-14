@@ -79,15 +79,6 @@ namespace pcpp
 	class BpfFilterWrapper
 	{
 	public:
-		/// @brief An enum with possible behaviours in case of link type mismatch
-		enum class LinkMismatchBehaviour
-		{
-			/// @brief Attempt to recompile the filter with the new link type
-			RecompileFilter,
-			/// @brief Do not attempt to recompile the filter, just return false.
-			NoMatch
-		};
-
 		/// @brief Creates a new instance with no filter.
 		BpfFilterWrapper() = default;
 
@@ -132,31 +123,23 @@ namespace pcpp
 		/// @brief Match a packet with the filter stored in this object.
 		///
 		/// If the filter is empty the method returns "true".
-		/// If the link type of the raw packet is different than the one set in setFilter():
-		/// - If onLinkmismatch is set to RecompileFilter, the filter will be re-compiled and stored in the object.
-		/// - If onLinkmismatch is set to NoMatch, the method will return "false"
+		/// If the link type of the raw packet is different than the one set in setFilter() the filter will be recompiled.
 		///
 		/// @param[in] rawPacket The raw packet to match the filter against
-		/// @param[in] onLinkmismatch The behaviour in case of link type mismatch
 		/// @return True if the filter matches (or if it's empty). False otherwise
-		bool matches(const RawPacket& rawPacket,
-		             LinkMismatchBehaviour onLinkmismatch = LinkMismatchBehaviour::RecompileFilter) const;
+		bool matches(const RawPacket& rawPacket) const;
 
 		/// @brief Match a raw buffer of packet data against the filter stored in this object.
 		///
 		/// If the filter is empty the method returns "true".
-		/// If the link type provided is different than the one set in setFilter():
-		/// - If onLinkmismatch is set to RecompileFilter, the filter will be re-compiled and stored in the object.
-		/// - If onLinkmismatch is set to NoMatch, the method will return "false"
+		/// If the link type provided is different than the one set in setFilter() the filter will be recompiled.
 		///
 		/// @param[in] packetData A pointer to the raw packet data
 		/// @param[in] packetDataLength The length of the raw packet data in bytes
 		/// @param[in] timestamp Timestamp to be associated with the packet
 		/// @param[in] linkType The link type of the packet
-		/// @param[in] onLinkmismatch The behaviour in case of link type mismatch
 		/// @return True if the filter matches (or if it's empty). False otherwise
-		bool matches(const uint8_t* packetData, uint32_t packetDataLength, timespec timestamp, uint16_t linkType,
-		             LinkMismatchBehaviour onLinkmismatch = LinkMismatchBehaviour::RecompileFilter) const;
+		bool matches(const uint8_t* packetData, uint32_t packetDataLength, timespec timestamp, uint16_t linkType) const;
 
 	private:
 		using BpfProgramUPtr = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>;
