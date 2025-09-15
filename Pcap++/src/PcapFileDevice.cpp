@@ -74,16 +74,19 @@ namespace pcpp
 		class StreamPositionCheckpoint
 		{
 		public:
-			explicit StreamPositionCheckpoint(std::istream& stream) : m_Stream(stream), m_Pos(stream.tellg())
+			explicit StreamPositionCheckpoint(std::istream& stream)
+			    : m_Stream(stream), m_State(stream.rdstate()), m_Pos(stream.tellg())
 			{}
 
 			~StreamPositionCheckpoint()
 			{
 				m_Stream.seekg(m_Pos);
+				m_Stream.clear(m_State);
 			}
 
 		private:
 			std::istream& m_Stream;
+			std::ios_base::iostate m_State;
 			std::streampos m_Pos;
 		};
 
