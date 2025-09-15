@@ -195,7 +195,7 @@ namespace pcpp
 		}
 
 		/// @brief Get the direction of the filter (source or destination)
-		Direction getDir() const
+		Direction getDirection() const
 		{
 			return m_Dir;
 		}

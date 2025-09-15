@@ -229,7 +229,7 @@ namespace pcpp
 
 	void MacAddressFilter::parseToString(std::string& result)
 	{
-		if (getDir() != SRC_OR_DST)
+		if (getDirection() != SRC_OR_DST)
 		{
 			std::string dir;
 			parseDirection(dir);
