@@ -194,6 +194,7 @@ namespace pcpp
 			m_Dir = dir;
 		}
 
+		/// @brief Get the direction of the filter (source or destination)
 		Direction getDir() const
 		{
 			return m_Dir;
