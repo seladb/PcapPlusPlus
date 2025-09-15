@@ -18,17 +18,6 @@ namespace pcpp
 
 	static const int DEFAULT_SNAPLEN = 9000;
 
-	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
-	{
-		std::string filterStr;
-		parseToString(filterStr);
-
-		if (!m_BpfWrapper.setFilter(filterStr))
-			return false;
-
-		return m_BpfWrapper.matchPacketWithFilter(rawPacket);
-	}
-
 	namespace internal
 	{
 		void BpfProgramDeleter::operator()(bpf_program* ptr) const noexcept
@@ -85,12 +74,6 @@ namespace pcpp
 		return true;
 	}
 
-	void BpfFilterWrapper::freeProgram()
-	{
-		m_Program = nullptr;
-		m_FilterStr.clear();
-	}
-
 	bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket)
 	{
 		return matchPacketWithFilter(rawPacket->getRawData(), rawPacket->getRawDataLen(),
@@ -114,6 +97,23 @@ namespace pcpp
 		pktHdr.ts = internal::toTimeval(packetTimestamp);
 
 		return (pcap_offline_filter(m_Program.get(), &pktHdr, packetData) != 0);
+	}
+
+	void BpfFilterWrapper::freeProgram()
+	{
+		m_Program = nullptr;
+		m_FilterStr.clear();
+	}
+
+	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
+	{
+		std::string filterStr;
+		parseToString(filterStr);
+
+		if (!m_BpfWrapper.setFilter(filterStr))
+			return false;
+
+		return m_BpfWrapper.matchPacketWithFilter(rawPacket);
 	}
 
 	void BPFStringFilter::parseToString(std::string& result)
