@@ -158,6 +158,10 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class GeneralFilter
 	{
+	private:
+		mutable BpfFilterWrapper m_BpfWrapper;
+		mutable bool m_CachedFilter = false;
+
 	public:
 		GeneralFilter() = default;
 
@@ -196,9 +200,6 @@ namespace pcpp
 	private:
 		// This method does the actual caching. It is const so it can be called from const methods.
 		bool cacheFilterInternal() const;
-
-		mutable BpfFilterWrapper m_BpfWrapper;
-		mutable bool m_CachedFilter = false;
 	};
 
 	/// @class BPFStringFilter
