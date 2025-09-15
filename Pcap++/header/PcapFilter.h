@@ -226,6 +226,7 @@ namespace pcpp
 			m_Operator = op;
 		}
 
+		/// @brief Get the operator of the filter
 		FilterOperator getOperator() const
 		{
 			return m_Operator;
