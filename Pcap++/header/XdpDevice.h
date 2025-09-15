@@ -219,7 +219,7 @@ namespace pcpp
 		/// this timeout. The default value is 5000 ms
 		/// @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
 		/// Returns false if an error occurred or if poll timed out.
-		bool sendPackets(RawPacket* packets, size_t packetCount, bool waitForTxCompletion = false,
+		bool sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false,
 		                 int waitForTxCompletionTimeoutMS = 5000);
 
 		/// @return A pointer to the current device configuration. If the device is not open this method returns nullptr

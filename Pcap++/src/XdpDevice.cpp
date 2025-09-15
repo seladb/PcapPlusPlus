@@ -317,7 +317,7 @@ namespace pcpp
 		                   [&]() { return packets.size(); }, waitForTxCompletion, waitForTxCompletionTimeoutMS);
 	}
 
-	bool XdpDevice::sendPackets(RawPacket* packets, size_t packetCount, bool waitForTxCompletion,
+	bool XdpDevice::sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion,
 	                            int waitForTxCompletionTimeoutMS)
 	{
 		return sendPackets([&](uint32_t i) { return packets[i]; }, [&]() { return static_cast<uint32_t>(packetCount); },
