@@ -230,67 +230,49 @@ namespace pcpp
 		}
 	}
 
-	PcapLiveDevice::StatisticsUpdateWorker::StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice,
-	                                                               OnStatsUpdateCallback onStatsUpdateCallback,
-	                                                               void* onStatsUpdateUserCookie,
-	                                                               unsigned int updateIntervalMs)
+	namespace
 	{
-		// Setup thread data
-		m_SharedThreadData = std::make_shared<SharedThreadData>();
-
-		ThreadData threadData;
-		threadData.pcapDevice = &pcapDevice;
-		threadData.cbOnStatsUpdate = onStatsUpdateCallback;
-		threadData.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
-		threadData.updateIntervalMs = updateIntervalMs;
-
-		// Start the thread
-		m_WorkerThread = std::thread(&StatisticsUpdateWorker::workerMain, m_SharedThreadData, std::move(threadData));
-	}
-
-	void PcapLiveDevice::StatisticsUpdateWorker::stopWorker()
-	{
-		m_SharedThreadData->stopRequested = true;
-		if (m_WorkerThread.joinable())
+		struct StatisticsUpdateContext
 		{
-			m_WorkerThread.join();
-		}
-	}
+			OnStatsUpdateCallback cbOnStatsUpdate;
+			void* cbOnStatsUpdateUserCookie = nullptr;
+			std::chrono::milliseconds updateInterval = std::chrono::seconds(1);
+		};
 
-	void PcapLiveDevice::StatisticsUpdateWorker::workerMain(std::shared_ptr<SharedThreadData> sharedThreadData,
-	                                                        ThreadData threadData)
-	{
-		if (sharedThreadData == nullptr)
+		void statsThreadMain(std::atomic<bool>& stopFlag, internal::PcapHandle const& pcapDescriptor,
+		                     StatisticsUpdateContext context)
 		{
-			PCPP_LOG_ERROR("Shared thread data is null");
-			return;
+			if (context.cbOnStatsUpdate == nullptr)
+			{
+				PCPP_LOG_ERROR("No callback provided for statistics updates");
+				return;
+			}
+
+			PCPP_LOG_DEBUG("Started statistics thread");
+
+			IPcapDevice::PcapStats stats;
+			while (!stopFlag.load())
+			{
+				try
+				{
+					pcapDescriptor.getStatistics(stats);
+					context.cbOnStatsUpdate(stats, context.cbOnStatsUpdateUserCookie);
+				}
+				catch (const std::exception& ex)
+				{
+					PCPP_LOG_ERROR("Exception occurred while invoking statistics update callback: " << ex.what());
+					break;
+				}
+				catch (...)
+				{
+					PCPP_LOG_ERROR("Unknown exception occurred while invoking statistics update callback");
+					break;
+				}
+				std::this_thread::sleep_for(context.updateInterval);
+			}
+			PCPP_LOG_DEBUG("Ended statistics thread");
 		}
-
-		if (threadData.pcapDevice == nullptr)
-		{
-			PCPP_LOG_ERROR("Pcap device is null");
-			return;
-		}
-
-		if (threadData.cbOnStatsUpdate == nullptr)
-		{
-			PCPP_LOG_ERROR("Statistics Callback is null");
-			return;
-		}
-
-		PCPP_LOG_DEBUG("Started statistics thread");
-
-		PcapStats stats;
-		auto sleepDuration = std::chrono::milliseconds(threadData.updateIntervalMs);
-		while (!sharedThreadData->stopRequested)
-		{
-			threadData.pcapDevice->getStatistics(stats);
-			threadData.cbOnStatsUpdate(stats, threadData.cbOnStatsUpdateUserCookie);
-			std::this_thread::sleep_for(sleepDuration);
-		}
-
-		PCPP_LOG_DEBUG("Stopped statistics thread");
-	}
+	}  // namespace
 
 	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
 	                               bool calculateDefaultGateway)
@@ -686,10 +668,14 @@ namespace pcpp
 
 		if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 		{
-			// Due to passing a 'this' pointer, the current device object shouldn't be relocated, while the worker is
-			// active.
-			m_StatisticsUpdateWorker = std::make_unique<StatisticsUpdateWorker>(
-			    *this, std::move(onStatsUpdate), onStatsUpdateUserCookie, intervalInSecondsToUpdateStats * 1000);
+			StatisticsUpdateContext statsContext;
+
+			statsContext.cbOnStatsUpdate = std::move(onStatsUpdate);
+			statsContext.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
+			statsContext.updateInterval = std::chrono::seconds(intervalInSecondsToUpdateStats);
+
+			m_StatsThread = std::thread(statsThreadMain, std::ref(m_StopThread), std::ref(m_PcapDescriptor),
+			                            std::move(statsContext));
 
 			PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_InterfaceDetails.name << "'.");
 		}
@@ -890,11 +876,10 @@ namespace pcpp
 		}
 		PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
 
-		if (m_StatisticsUpdateWorker != nullptr)
+		if (m_StatsThread.joinable())
 		{
 			PCPP_LOG_DEBUG("Stopping stats thread, waiting for it to join...");
-			m_StatisticsUpdateWorker->stopWorker();
-			m_StatisticsUpdateWorker.reset();
+			m_StatsThread.join();
 			PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_InterfaceDetails.name << "'");
 		}
 
