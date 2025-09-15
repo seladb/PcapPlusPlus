@@ -82,6 +82,8 @@ namespace pcpp
 			bool isLoopback;
 		};
 
+		bool m_DeviceOpened = false;
+
 		// This is a second descriptor for the same device. It is needed because of a bug
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
@@ -600,6 +602,11 @@ namespace pcpp
 		bool open(const DeviceConfiguration& config);
 
 		void close() override;
+
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
 
 		/// Clones the current device class
 		/// @return Pointer to the copied class

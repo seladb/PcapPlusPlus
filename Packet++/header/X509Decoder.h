@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include "Asn1Codec.h"
+#include "CryptoDataReader.h"
 #include "X509ExtensionDataDecoder.h"
 
 /// @namespace pcpp
@@ -738,43 +739,9 @@ namespace pcpp
 
 	/// @class X509Certificate
 	/// Represents an X.509 certificate
-	class X509Certificate
+	class X509Certificate : public internal::CryptoDataReader<X509Certificate>
 	{
 	public:
-		/// Creates an X509Certificate from DER-encoded data
-		/// @param[in] derData Pointer to the DER-encoded certificate data
-		/// @param[in] derDataLen Length of the DER-encoded data
-		/// @param[in] ownDerData If true, the certificate will take ownership of the data and free it when the
-		/// certificate class is destructed
-		/// @return A unique pointer to the created X509Certificate
-		/// @throws An exception if the data is not a valid ASN.1 record
-		static std::unique_ptr<X509Certificate> fromDER(uint8_t* derData, size_t derDataLen, bool ownDerData = false);
-
-		/// Creates an X509Certificate from a hex string containing DER-encoded data
-		/// @param[in] derData Hex string containing DER-encoded certificate data
-		/// @return A unique pointer to the created X509Certificate
-		/// @throws An exception if the data is not a valid ASN.1 record
-		static std::unique_ptr<X509Certificate> fromDER(const std::string& derData);
-
-		/// Creates an X509Certificate from a file containing DER-encoded data
-		/// @param[in] derFileName Path to the file containing DER-encoded certificate
-		/// @return A unique pointer to the created X509Certificate
-		/// @throws An exception if the file doesn't exist, cannot be read or contains invalid data
-		static std::unique_ptr<X509Certificate> fromDERFile(const std::string& derFileName);
-
-		/// Creates an X509Certificate from PEM-encoded data
-		/// @param[in] pemData PEM-encoded certificate data
-		/// @return A unique pointer to the created X509Certificate
-		/// @throws std::invalid_argument exception if the data is not a valid PEM-encoded certificate
-		static std::unique_ptr<X509Certificate> fromPEM(const std::string& pemData);
-
-		/// Creates an X509Certificate from a file containing PEM-encoded data
-		/// @param[in] pemFileName Path to the file containing PEM-encoded certificate
-		/// @return A unique pointer to the created X509Certificate
-		/// @throws std::runtime_error exception if the file doesn't exist or cannot be read
-		/// @throws std::invalid_argument exception if the data is not a valid PEM-encoded certificate
-		static std::unique_ptr<X509Certificate> fromPEMFile(const std::string& pemFileName);
-
 		/// Gets the version of the certificate
 		/// @return The X509Version of the certificate
 		X509Version getVersion() const;
@@ -855,12 +822,14 @@ namespace pcpp
 		X509Certificate(uint8_t* derData, size_t derDataLen, bool ownDerData);
 		X509Certificate(std::unique_ptr<uint8_t[]> derData, size_t derDataLen);
 
+		friend class internal::CryptoDataReader<X509Certificate>;
+
 		std::unique_ptr<X509Internal::X509Certificate> m_X509Internal;
 		X509Internal::X509TBSCertificate m_TBSCertificate;
 		mutable std::vector<X509Extension> m_Extensions;
 		mutable bool m_ExtensionsParsed = false;
 		std::unique_ptr<uint8_t[]> m_DerData;
 
-		static constexpr const char* certificatePemLabel = "CERTIFICATE";
+		static constexpr const char* pemLabel = "CERTIFICATE";
 	};
 }  // namespace pcpp

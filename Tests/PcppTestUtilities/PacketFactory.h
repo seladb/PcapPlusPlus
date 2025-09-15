@@ -60,5 +60,26 @@ namespace pcpp_tests
 		std::unique_ptr<pcpp::RawPacket> createPacketFromHexResource(
 		    const std::string& resourceName, const PacketFactory& factory = PacketFactory(),
 		    ResourceProvider const* resourceProvider = nullptr);
+
+		/// @brief A structure to hold a packet and its associated resource buffer.
+		struct PacketAndBuffer
+		{
+			Resource resourceBuffer;                  ///< The resource file buffer containing the packet data.
+			std::unique_ptr<pcpp::RawPacket> packet;  ///< The RawPacket created from the resource file.
+		};
+
+		/// @brief Creates a packet from a resource file and returns it along with the resource file buffer.
+		///
+		/// The resource object keeps ownership of the resource buffer, and the RawPacket over this buffer.
+		/// Modifying the RawPacket will affect the resource buffer and vice versa.
+		///
+		/// @param resourceName The name of the resource file to read the packet data from.
+		/// @param factory The PacketFactory to use for creating the RawPacket.
+		/// @param resourceProvider An optional ResourceProvider to use for loading the resource file.
+		///   Uses the default resource provider if not provided.
+		/// @return A PacketAndBuffer object containing the resource buffer and the RawPacket.
+		PacketAndBuffer createPacketAndBufferFromHexResource(const std::string& resourceName,
+		                                                     const PacketFactory& factory = PacketFactory(),
+		                                                     ResourceProvider const* resourceProvider = nullptr);
 	}  // namespace utils
 }  // namespace pcpp_tests

@@ -11,6 +11,7 @@
 #include "DnsLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(DnsLayerParsingTest)
@@ -222,12 +223,11 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 PTF_TEST_CASE(DnsLayerQueryCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/DnsEdit2.dat");
+	auto& resource2 = rawPacketAndBuf2.resourceBuffer;
+	auto& rawPacket2 = rawPacketAndBuf2.packet;
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/DnsEdit2.dat");
-
-	pcpp::Packet dnsEdit2RefPacket(&rawPacket2);
+	pcpp::Packet dnsEdit2RefPacket(rawPacket2.get());
 
 	pcpp::EthLayer ethLayer2(*dnsEdit2RefPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipLayer2(*dnsEdit2RefPacket.getLayerOfType<pcpp::IPv4Layer>());
@@ -250,13 +250,14 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 
 	dnsEdit2Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength2, dnsEdit2Packet.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(dnsEdit2Packet.getRawPacket()->getRawDataLen(), resource2.length);
+	PTF_ASSERT_BUF_COMPARE(dnsEdit2Packet.getRawPacket()->getRawData(), resource2.data.get(), resource2.length);
 
-	PTF_ASSERT_BUF_COMPARE(dnsEdit2Packet.getRawPacket()->getRawData(), buffer2, bufferLength2);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/DnsEdit1.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DnsEdit1.dat");
-
-	pcpp::Packet dnsEdit1RefPacket(&rawPacket1);
+	pcpp::Packet dnsEdit1RefPacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer1(*dnsEdit1RefPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipLayer1(*dnsEdit1RefPacket.getLayerOfType<pcpp::IPv4Layer>());
@@ -285,19 +286,17 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 
 	dnsEdit1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(dnsEdit1Packet.getRawPacket()->getRawDataLen(), bufferLength1);
-
-	PTF_ASSERT_BUF_COMPARE(dnsEdit1Packet.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(dnsEdit1Packet.getRawPacket()->getRawDataLen(), resource1.length);
+	PTF_ASSERT_BUF_COMPARE(dnsEdit1Packet.getRawPacket()->getRawData(), resource1.data.get(), resource1.length);
 }  // DnsLayerQueryCreationTest
 
 PTF_TEST_CASE(DnsLayerResourceCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf4 = createPacketAndBufferFromHexResource("PacketExamples/DnsEdit4.dat");
+	auto& resource4 = rawPacketAndBuf4.resourceBuffer;
+	auto& rawPacket4 = rawPacketAndBuf4.packet;
 
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/DnsEdit4.dat");
-
-	pcpp::Packet dnsEdit4RefPacket(&rawPacket4);
+	pcpp::Packet dnsEdit4RefPacket(rawPacket4.get());
 
 	pcpp::EthLayer ethLayer4(*dnsEdit4RefPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipLayer4(*dnsEdit4RefPacket.getLayerOfType<pcpp::IPv4Layer>());
@@ -356,13 +355,14 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	dnsEdit4Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(dnsEdit4Packet.getRawPacket()->getRawDataLen(), bufferLength4);
+	PTF_ASSERT_EQUAL(dnsEdit4Packet.getRawPacket()->getRawDataLen(), resource4.length);
+	PTF_ASSERT_BUF_COMPARE(dnsEdit4Packet.getRawPacket()->getRawData(), resource4.data.get(), resource4.length);
 
-	PTF_ASSERT_BUF_COMPARE(dnsEdit4Packet.getRawPacket()->getRawData(), buffer4, bufferLength4);
+	auto rawPacketAndBuf6 = createPacketAndBufferFromHexResource("PacketExamples/DnsEdit6.dat");
+	auto& resource6 = rawPacketAndBuf6.resourceBuffer;
+	auto& rawPacket6 = rawPacketAndBuf6.packet;
 
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/DnsEdit6.dat");
-
-	pcpp::Packet dnsEdit6RefPacket(&rawPacket6);
+	pcpp::Packet dnsEdit6RefPacket(rawPacket6.get());
 
 	pcpp::EthLayer ethLayer6(*dnsEdit6RefPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv6Layer ipLayer6(*dnsEdit6RefPacket.getLayerOfType<pcpp::IPv6Layer>());
@@ -419,13 +419,14 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	dnsEdit6Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(dnsEdit6Packet.getRawPacket()->getRawDataLen(), bufferLength6);
+	PTF_ASSERT_EQUAL(dnsEdit6Packet.getRawPacket()->getRawDataLen(), resource6.length);
+	PTF_ASSERT_BUF_COMPARE(dnsEdit6Packet.getRawPacket()->getRawData(), resource6.data.get(), resource6.length);
 
-	PTF_ASSERT_BUF_COMPARE(dnsEdit6Packet.getRawPacket()->getRawData(), buffer6, bufferLength6);
+	auto rawPacketAndBuf7 = createPacketAndBufferFromHexResource("PacketExamples/DnsEdit7.dat");
+	auto& resource7 = rawPacketAndBuf7.resourceBuffer;
+	auto& rawPacket7 = rawPacketAndBuf7.packet;
 
-	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/DnsEdit7.dat");
-
-	pcpp::Packet dnsEdit7RefPacket(&rawPacket7);
+	pcpp::Packet dnsEdit7RefPacket(rawPacket7.get());
 
 	pcpp::EthLayer ethLayer7(*dnsEdit7RefPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ipLayer7(*dnsEdit7RefPacket.getLayerOfType<pcpp::IPv4Layer>());
@@ -467,9 +468,8 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	dnsEdit7Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(dnsEdit7Packet.getRawPacket()->getRawDataLen(), bufferLength7);
-
-	PTF_ASSERT_BUF_COMPARE(dnsEdit7Packet.getRawPacket()->getRawData(), buffer7, bufferLength7);
+	PTF_ASSERT_EQUAL(dnsEdit7Packet.getRawPacket()->getRawDataLen(), resource7.length);
+	PTF_ASSERT_BUF_COMPARE(dnsEdit7Packet.getRawPacket()->getRawData(), resource7.data.get(), resource7.length);
 }  // DnsLayerResourceCreationTest
 
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest)
@@ -620,8 +620,6 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 
 PTF_TEST_CASE(DnsOverTcpParsingTest)
 {
-	using pcpp_tests::utils::createPacketFromHexResource;
-
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dns_over_tcp_query.dat");
 	pcpp::Packet dnsPacket(rawPacket1.get());
 
@@ -701,10 +699,9 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 
 PTF_TEST_CASE(DnsOverTcpCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dns_over_tcp_answer2.dat");
+	auto rawPacketAndBuf = createPacketAndBufferFromHexResource("PacketExamples/dns_over_tcp_answer2.dat");
+	auto& resource1 = rawPacketAndBuf.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf.packet;
 
 	pcpp::DnsOverTcpLayer newDnsLayer;
 	newDnsLayer.getDnsHeader()->transactionID = htobe16(0x38);
@@ -715,14 +712,14 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 	pcpp::IPv4DnsResourceData ipv4Answer("192.30.255.113");
 	newDnsLayer.addAnswer("github.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 32, &ipv4Answer);
 
-	pcpp::Packet dnsPacket(&rawPacket1);
+	pcpp::Packet dnsPacket(rawPacket1.get());
 	dnsPacket.removeLayer(pcpp::DNS);
 
 	dnsPacket.addLayer(&newDnsLayer);
 	dnsPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength1, dnsPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(dnsPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(resource1.length, dnsPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(dnsPacket.getRawPacket()->getRawData(), resource1.data.get(), resource1.length);
 }  // DnsOverTcpCreationTest
 
 PTF_TEST_CASE(DnsNXDomainTest)

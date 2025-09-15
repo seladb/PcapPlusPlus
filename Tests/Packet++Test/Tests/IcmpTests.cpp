@@ -257,21 +257,21 @@ PTF_TEST_CASE(IcmpParsingTest)
 
 PTF_TEST_CASE(IcmpCreationTest)
 {
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/IcmpEchoRequest.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpEchoReply.dat");
-	READ_FILE_INTO_BUFFER(3, "PacketExamples/IcmpTimestampRequest.dat");
-	READ_FILE_INTO_BUFFER(4, "PacketExamples/IcmpTimestampReply.dat");
-	READ_FILE_INTO_BUFFER(5, "PacketExamples/IcmpRedirect.dat");
-	READ_FILE_INTO_BUFFER(6, "PacketExamples/IcmpRouterAdv1.dat");
-	READ_FILE_INTO_BUFFER(7, "PacketExamples/IcmpRouterAdv2.dat");
-	READ_FILE_INTO_BUFFER(8, "PacketExamples/IcmpRouterSol.dat");
-	READ_FILE_INTO_BUFFER(9, "PacketExamples/IcmpTimeExceededUdp.dat");
-	READ_FILE_INTO_BUFFER(10, "PacketExamples/IcmpDestUnreachableUdp.dat");
-	READ_FILE_INTO_BUFFER(11, "PacketExamples/IcmpTimeExceededEcho.dat");
-	READ_FILE_INTO_BUFFER(12, "PacketExamples/IcmpDestUnreachableEcho.dat");
-	READ_FILE_INTO_BUFFER(13, "PacketExamples/IcmpSourceQuench.dat");
-	READ_FILE_INTO_BUFFER(14, "PacketExamples/IcmpAddrMaskReq.dat");
-	READ_FILE_INTO_BUFFER(15, "PacketExamples/IcmpAddrMaskRep.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpEchoRequest.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpEchoReply.dat");
+	auto resource3 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpTimestampRequest.dat");
+	auto resource4 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpTimestampReply.dat");
+	auto resource5 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpRedirect.dat");
+	auto resource6 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpRouterAdv1.dat");
+	auto resource7 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpRouterAdv2.dat");
+	auto resource8 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpRouterSol.dat");
+	auto resource9 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpTimeExceededUdp.dat");
+	auto resource10 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpDestUnreachableUdp.dat");
+	auto resource11 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpTimeExceededEcho.dat");
+	auto resource12 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpDestUnreachableEcho.dat");
+	auto resource13 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpSourceQuench.dat");
+	auto resource14 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpAddrMaskReq.dat");
+	auto resource15 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpAddrMaskRep.dat");
 
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("11:22:33:44:55:66"), pcpp::MacAddress("66:55:44:33:22:11"));
 
@@ -291,8 +291,9 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&echoReqLayer));
 	echoRequestPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(echoRequestPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(echoRequestPacket.getRawPacket()->getRawData() + 34, buffer1 + 34, bufferLength1 - 34);
+	PTF_ASSERT_EQUAL(echoRequestPacket.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(echoRequestPacket.getRawPacket()->getRawData() + 34, resource1.data() + 34,
+	                       resource1.size() - 34);
 
 	// Echo reply creation
 	pcpp::EthLayer ethLayer2(ethLayer);
@@ -304,8 +305,9 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(echoReplyPacket.addLayer(&echoRepLayer));
 	PTF_ASSERT_NOT_NULL(echoRepLayer.setEchoReplyData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48));
 	echoReplyPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(echoReplyPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData() + 34, buffer2 + 34, bufferLength2 - 34);
+	PTF_ASSERT_EQUAL(echoReplyPacket.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData() + 34, resource2.data() + 34,
+	                       resource2.size() - 34);
 
 	// Time exceeded creation
 	pcpp::EthLayer ethLayer3(ethLayer);
@@ -326,8 +328,9 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&timeExceededLayer));
 	PTF_ASSERT_NOT_NULL(timeExceededLayer.setTimeExceededData(0, &ipLayerForTimeExceeded, &icmpLayerForTimeExceeded));
 	timeExceededPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(timeExceededPacket.getRawPacket()->getRawDataLen(), bufferLength11);
-	PTF_ASSERT_BUF_COMPARE(timeExceededPacket.getRawPacket()->getRawData() + 34, buffer11 + 34, bufferLength11 - 34);
+	PTF_ASSERT_EQUAL(timeExceededPacket.getRawPacket()->getRawDataLen(), resource11.size());
+	PTF_ASSERT_BUF_COMPARE(timeExceededPacket.getRawPacket()->getRawData() + 34, resource11.data() + 34,
+	                       resource11.size() - 34);
 
 	// Dest unreachable creation
 	pcpp::EthLayer ethLayer4(ethLayer);
@@ -347,8 +350,9 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_NOT_NULL(destUnreachableLayer.setDestUnreachableData(
 	    pcpp::IcmpPortUnreachable, 0, &ipLayerForDestUnreachable, &udpLayerForDestUnreachable));
 	destUnreachablePacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(destUnreachablePacket.getRawPacket()->getRawDataLen(), bufferLength10);
-	PTF_ASSERT_BUF_COMPARE(destUnreachablePacket.getRawPacket()->getRawData() + 34, buffer10 + 34, bufferLength10 - 34);
+	PTF_ASSERT_EQUAL(destUnreachablePacket.getRawPacket()->getRawDataLen(), resource10.size());
+	PTF_ASSERT_BUF_COMPARE(destUnreachablePacket.getRawPacket()->getRawData() + 34, resource10.data() + 34,
+	                       resource10.size() - 34);
 
 	// Timestamp reply
 	pcpp::EthLayer ethLayer5(ethLayer);
@@ -363,7 +367,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(timestampReplyPacket.addLayer(&ipLayer5));
 	PTF_ASSERT_TRUE(timestampReplyPacket.addLayer(&timestampReplyLayer));
 	timestampReplyPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(timestampReplyPacket.getRawPacket()->getRawDataLen(), bufferLength4 - 6);
+	PTF_ASSERT_EQUAL(timestampReplyPacket.getRawPacket()->getRawDataLen(), resource4.size() - 6);
 
 	// Address mask request
 	pcpp::EthLayer ethLayer6(ethLayer);
@@ -375,9 +379,9 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(addressMaskRequestPacket.addLayer(&ipLayer6));
 	PTF_ASSERT_TRUE(addressMaskRequestPacket.addLayer(&addressMaskRequestLayer));
 	addressMaskRequestPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(addressMaskRequestPacket.getRawPacket()->getRawDataLen(), bufferLength14 - 14);
-	PTF_ASSERT_BUF_COMPARE(addressMaskRequestPacket.getRawPacket()->getRawData() + 34, buffer14 + 34,
-	                       bufferLength14 - 34 - 14);
+	PTF_ASSERT_EQUAL(addressMaskRequestPacket.getRawPacket()->getRawDataLen(), resource14.size() - 14);
+	PTF_ASSERT_BUF_COMPARE(addressMaskRequestPacket.getRawPacket()->getRawData() + 34, resource14.data() + 34,
+	                       resource14.size() - 34 - 14);
 
 	// Redirect creation
 	pcpp::EthLayer ethLayer7(ethLayer);
@@ -398,7 +402,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_NOT_NULL(
 	    redirectLayer.setRedirectData(1, pcpp::IPv4Address("10.2.99.98"), &ipLayerForRedirect, &icmpLayerForRedirect));
 	redirectPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(redirectPacket.getRawPacket()->getRawDataLen(), bufferLength5 + 8);
+	PTF_ASSERT_EQUAL(redirectPacket.getRawPacket()->getRawDataLen(), resource5.size() + 8);
 
 	// Router advertisement creation
 	pcpp::EthLayer ethLayer8(ethLayer);
@@ -421,32 +425,17 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_NOT_NULL(routerAdvLayer.setRouterAdvertisementData(16, 200, routerAddresses));
 	routerAdvPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(routerAdvLayer.getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL(routerAdvPacket.getRawPacket()->getRawDataLen(), bufferLength6 - 18);
+	PTF_ASSERT_EQUAL(routerAdvPacket.getRawPacket()->getRawDataLen(), resource6.size() - 18);
 
-	delete[] buffer1;
-	delete[] buffer2;
-	delete[] buffer3;
-	delete[] buffer4;
-	delete[] buffer5;
-	delete[] buffer6;
-	delete[] buffer7;
-	delete[] buffer8;
-	delete[] buffer9;
-	delete[] buffer10;
-	delete[] buffer11;
-	delete[] buffer12;
-	delete[] buffer13;
-	delete[] buffer14;
-	delete[] buffer15;
 }  // IcmpCreationTest
 
 PTF_TEST_CASE(IcmpEditTest)
 {
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IcmpRouterAdv1.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpEchoRequest.dat");
-	READ_FILE_INTO_BUFFER(3, "PacketExamples/IcmpEchoReply.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpEchoRequest.dat");
+	auto resource3 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpEchoReply.dat");
 	auto rawPacket4 = createPacketFromHexResource("PacketExamples/IcmpTimeExceededUdp.dat");
-	READ_FILE_INTO_BUFFER(5, "PacketExamples/IcmpDestUnreachableEcho.dat");
+	auto resource5 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpDestUnreachableEcho.dat");
 
 	// convert router adv to echo request
 
@@ -470,7 +459,8 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_EQUAL(echoReq->dataLength, 48);
 	icmpRouterAdv1.computeCalculateFields();
 	PTF_ASSERT_NULL(icmpLayer->getRouterAdvertisementData());
-	PTF_ASSERT_BUF_COMPARE(icmpRouterAdv1.getRawPacket()->getRawData() + 34, buffer2 + 34, bufferLength2 - 34);
+	PTF_ASSERT_BUF_COMPARE(icmpRouterAdv1.getRawPacket()->getRawData() + 34, resource2.data() + 34,
+	                       resource2.size() - 34);
 
 	// convert echo request to echo reply
 
@@ -478,7 +468,8 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_NULL(icmpLayer->getEchoRequestData());
 	icmpRouterAdv1.computeCalculateFields();
 	PTF_ASSERT_EQUAL(echoReply->header->checksum, htobe16(0xc3b3));
-	PTF_ASSERT_BUF_COMPARE(icmpRouterAdv1.getRawPacket()->getRawData() + 34, buffer3 + 34, bufferLength3 - 34);
+	PTF_ASSERT_BUF_COMPARE(icmpRouterAdv1.getRawPacket()->getRawData() + 34, resource3.data() + 34,
+	                       resource3.size() - 34);
 
 	// convert time exceeded to echo request
 
@@ -504,7 +495,8 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_EQUAL(echoReq->header->id, htobe16(55099));
 	PTF_ASSERT_EQUAL(echoReq->dataLength, 48);
 	icmpTimeExceededUdp.computeCalculateFields();
-	PTF_ASSERT_BUF_COMPARE(icmpTimeExceededUdp.getRawPacket()->getRawData() + 34, buffer2 + 34, bufferLength2 - 34);
+	PTF_ASSERT_BUF_COMPARE(icmpTimeExceededUdp.getRawPacket()->getRawData() + 34, resource2.data() + 34,
+	                       resource2.size() - 34);
 
 	// convert echo request to dest unreachable
 
@@ -525,9 +517,7 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_NOT_NULL(echoReq);
 	PTF_ASSERT_EQUAL(echoReq->header->sequence, htobe16(4));
 	icmpTimeExceededUdp.computeCalculateFields();
-	PTF_ASSERT_BUF_COMPARE(icmpTimeExceededUdp.getRawPacket()->getRawData() + 34, buffer5 + 34, bufferLength5 - 34);
+	PTF_ASSERT_BUF_COMPARE(icmpTimeExceededUdp.getRawPacket()->getRawData() + 34, resource5.data() + 34,
+	                       resource5.size() - 34);
 
-	delete[] buffer2;
-	delete[] buffer3;
-	delete[] buffer5;
 }  // IcmpEditTest

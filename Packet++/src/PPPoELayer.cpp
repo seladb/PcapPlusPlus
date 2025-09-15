@@ -256,7 +256,7 @@ namespace pcpp
 		if (m_Data == nullptr)
 			return PPPoEDiscoveryLayer::PPPoETagTypes::PPPOE_TAG_EOL;
 
-		return (PPPoEDiscoveryLayer::PPPoETagTypes)be16toh(m_Data->recordType);
+		return static_cast<PPPoEDiscoveryLayer::PPPoETagTypes>(be16toh(m_Data->recordType));
 	}
 
 	size_t PPPoEDiscoveryLayer::PPPoETag::getTotalSize() const

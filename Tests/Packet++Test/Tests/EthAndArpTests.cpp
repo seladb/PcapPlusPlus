@@ -279,8 +279,8 @@ PTF_TEST_CASE(EthDot3LayerParsingTest)
 
 PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 {
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/EthDot3.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/EthDot3_2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/EthDot3.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/EthDot3_2.dat");
 
 	// create a new EthDot3 packet
 
@@ -297,7 +297,7 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer));
 	newEthDot3Packet.computeCalculateFields();
 
-	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 
 	// edit an EthDot3 packet
 
@@ -311,9 +311,6 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(newPayloadLayer2, true));
 	newEthDot3Packet.computeCalculateFields();
 
-	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer2, bufferLength2);
-
-	delete[] buffer1;
-	delete[] buffer2;
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 
 }  // EthDot3LayerCreateEditTest

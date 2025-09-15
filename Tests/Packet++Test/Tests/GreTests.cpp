@@ -157,8 +157,8 @@ PTF_TEST_CASE(GreParsingTest)
 
 PTF_TEST_CASE(GreCreationTest)
 {
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/GREv1_3.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/GREv0_3.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/GREv1_3.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/GREv0_3.dat");
 
 	// GREv1 packet creation
 
@@ -187,8 +187,8 @@ PTF_TEST_CASE(GreCreationTest)
 
 	grev1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev1Packet.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(grev1Packet.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(grev1Packet.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(grev1Packet.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 
 	// GREv0 packet creation
 
@@ -213,11 +213,9 @@ PTF_TEST_CASE(GreCreationTest)
 	PTF_ASSERT_TRUE(grev0Packet.addLayer(&grev0Layer2));
 	grev0Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev0Packet.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(grev0Packet.getRawPacket()->getRawData(), buffer2, bufferLength2);
+	PTF_ASSERT_EQUAL(grev0Packet.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(grev0Packet.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 
-	delete[] buffer1;
-	delete[] buffer2;
 }  // GreCreationTest
 
 PTF_TEST_CASE(GreEditTest)
