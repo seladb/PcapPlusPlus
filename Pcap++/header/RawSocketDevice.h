@@ -124,6 +124,11 @@ namespace pcpp
 		/// Close the raw socket
 		void close() override;
 
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
+
 	private:
 		enum SocketFamily
 		{
@@ -131,6 +136,8 @@ namespace pcpp
 			IPv4 = 1,
 			IPv6 = 2
 		};
+
+		bool m_DeviceOpened = false;
 
 		SocketFamily m_SockFamily;
 		void* m_Socket;

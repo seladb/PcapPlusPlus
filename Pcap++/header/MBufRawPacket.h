@@ -211,7 +211,7 @@ namespace pcpp
 
 	/// @typedef MBufRawPacketVector
 	/// A vector of pointers to MBufRawPacket
-	typedef PointerVector<MBufRawPacket> MBufRawPacketVector;
+	using MBufRawPacketVector = PointerVector<MBufRawPacket>;
 
 }  // namespace pcpp
 

@@ -136,7 +136,7 @@ namespace pcpp
 	bool IPcapDevice::setFilter(std::string filterAsString)
 	{
 		PCPP_LOG_DEBUG("Filter to be set: '" << filterAsString << "'");
-		if (!m_DeviceOpened)
+		if (!isOpened())
 		{
 			PCPP_LOG_ERROR("Device not Opened!! cannot set filter");
 			return false;

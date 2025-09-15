@@ -96,15 +96,26 @@ namespace pcpp
 		m_DeviceOpened = false;
 	}
 
+	void IFileDevice::getStatistics(PcapStats& stats) const
+	{
+		PCPP_LOG_DEBUG("Statistics requested for file device for filename '" << m_FileName << "'");
+		stats.packetsRecv = m_NumOfPacketsProcessed;
+		stats.packetsDrop = m_NumOfPacketsDropped;
+		stats.packetsDropByInterface = 0;
+	}
+
+	void IFileDevice::resetStatisticCounters()
+	{
+		m_NumOfPacketsProcessed = 0;
+		m_NumOfPacketsDropped = 0;
+	}
+
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
 	// IFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	IFileReaderDevice::IFileReaderDevice(const std::string& fileName) : IFileDevice(fileName)
-	{
-		m_NumOfPacketsNotParsed = 0;
-		m_NumOfPacketsRead = 0;
-	}
+	{}
 
 	IFileReaderDevice* IFileReaderDevice::getReader(const std::string& fileName)
 	{
@@ -152,10 +163,7 @@ namespace pcpp
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	IFileWriterDevice::IFileWriterDevice(const std::string& fileName) : IFileDevice(fileName)
-	{
-		m_NumOfPacketsNotWritten = 0;
-		m_NumOfPacketsWritten = 0;
-	}
+	{}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapFileReaderDevice members
@@ -163,8 +171,7 @@ namespace pcpp
 
 	bool PcapFileReaderDevice::open()
 	{
-		m_NumOfPacketsRead = 0;
-		m_NumOfPacketsNotParsed = 0;
+		resetStatisticCounters();
 
 		if (m_PcapDescriptor != nullptr)
 		{
@@ -217,17 +224,8 @@ namespace pcpp
 		return checkNanoSupport();
 	}
 
-	void PcapFileReaderDevice::getStatistics(PcapStats& stats) const
-	{
-		stats.packetsRecv = m_NumOfPacketsRead;
-		stats.packetsDrop = m_NumOfPacketsNotParsed;
-		stats.packetsDropByInterface = 0;
-		PCPP_LOG_DEBUG("Statistics received for reader device for filename '" << m_FileName << "'");
-	}
-
 	bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	{
-		rawPacket.clear();
 		if (m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
@@ -255,7 +253,7 @@ namespace pcpp
 			PCPP_LOG_ERROR("Couldn't set data to raw packet");
 			return false;
 		}
-		m_NumOfPacketsRead++;
+		reportPacketProcessed();
 		return true;
 	}
 
@@ -298,14 +296,14 @@ namespace pcpp
 		if ((!m_AppendMode && m_PcapDescriptor == nullptr) || (m_PcapDumpHandler == nullptr))
 		{
 			PCPP_LOG_ERROR("Device not opened");
-			m_NumOfPacketsNotWritten++;
+			reportPacketDropped();
 			return false;
 		}
 
 		if (packet.getLinkLayerType() != m_PcapLinkLayerType)
 		{
 			PCPP_LOG_ERROR("Cannot write a packet with a different link layer type");
-			m_NumOfPacketsNotWritten++;
+			reportPacketDropped();
 			return false;
 		}
 
@@ -348,7 +346,7 @@ namespace pcpp
 			fwrite(packet.getRawData(), pktHdrTemp.caplen, 1, m_File);
 		}
 		PCPP_LOG_DEBUG("Packet written successfully to '" << m_FileName << "'");
-		m_NumOfPacketsWritten++;
+		reportPacketProcessed();
 		return true;
 	}
 
@@ -408,8 +406,7 @@ namespace pcpp
 			break;
 		}
 
-		m_NumOfPacketsNotWritten = 0;
-		m_NumOfPacketsWritten = 0;
+		resetStatisticCounters();
 
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 		auto pcapDescriptor = internal::PcapHandle(pcap_open_dead_with_tstamp_precision(
@@ -534,136 +531,6 @@ namespace pcpp
 		PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
 	}
 
-	void PcapFileWriterDevice::getStatistics(PcapStats& stats) const
-	{
-		stats.packetsRecv = m_NumOfPacketsWritten;
-		stats.packetsDrop = m_NumOfPacketsNotWritten;
-		stats.packetsDropByInterface = 0;
-		PCPP_LOG_DEBUG("Statistics received for writer device for filename '" << m_FileName << "'");
-	}
-
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// SnoopFileReaderDevice members
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-	SnoopFileReaderDevice::~SnoopFileReaderDevice()
-	{
-		m_snoopFile.close();
-	}
-
-	bool SnoopFileReaderDevice::open()
-	{
-		m_NumOfPacketsRead = 0;
-		m_NumOfPacketsNotParsed = 0;
-
-		m_snoopFile.open(m_FileName.c_str(), std::ifstream::binary);
-		if (!m_snoopFile.is_open())
-		{
-			PCPP_LOG_ERROR("Cannot open snoop reader device for filename '" << m_FileName << "'");
-			m_snoopFile.close();
-			return false;
-		}
-
-		snoop_file_header_t snoop_file_header;
-		m_snoopFile.read((char*)&snoop_file_header, sizeof(snoop_file_header_t));
-		if (!m_snoopFile)
-		{
-			PCPP_LOG_ERROR("Cannot read snoop file header for '" << m_FileName << "'");
-			m_snoopFile.close();
-			return false;
-		}
-
-		if (be64toh(snoop_file_header.identification_pattern) != 0x736e6f6f70000000 &&
-		    be32toh(snoop_file_header.version_number) == 2)
-			return false;
-
-		// From https://datatracker.ietf.org/doc/html/rfc1761
-		static const pcpp::LinkLayerType snoop_encap[] = {
-			LINKTYPE_ETHERNET,   /// IEEE 802.3
-			LINKTYPE_NULL,       /// IEEE 802.4 Token Bus
-			LINKTYPE_IEEE802_5,  /// IEEE 802.5
-			LINKTYPE_NULL,       /// IEEE 802.6 Metro Net
-			LINKTYPE_ETHERNET,   /// Ethernet
-			LINKTYPE_C_HDLC,     /// HDLC
-			LINKTYPE_NULL,       /// Character Synchronous, e.g. bisync
-			LINKTYPE_NULL,       /// IBM Channel-to-Channel
-			LINKTYPE_FDDI        /// FDDI
-		};
-		uint32_t datalink_type = be32toh(snoop_file_header.datalink_type);
-		if (datalink_type > ARRAY_SIZE(snoop_encap) - 1)
-		{
-			PCPP_LOG_ERROR("Cannot read data link type for '" << m_FileName << "'");
-			m_snoopFile.close();
-			return false;
-		}
-
-		m_PcapLinkLayerType = snoop_encap[datalink_type];
-
-		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
-		m_DeviceOpened = true;
-		return true;
-	}
-
-	void SnoopFileReaderDevice::getStatistics(PcapStats& stats) const
-	{
-		stats.packetsRecv = m_NumOfPacketsRead;
-		stats.packetsDrop = m_NumOfPacketsNotParsed;
-		stats.packetsDropByInterface = 0;
-		PCPP_LOG_DEBUG("Statistics received for reader device for filename '" << m_FileName << "'");
-	}
-
-	bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
-	{
-		rawPacket.clear();
-		if (m_DeviceOpened != true)
-		{
-			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
-			return false;
-		}
-		snoop_packet_header_t snoop_packet_header;
-		m_snoopFile.read((char*)&snoop_packet_header, sizeof(snoop_packet_header_t));
-		if (!m_snoopFile)
-		{
-			return false;
-		}
-		size_t packetSize = be32toh(snoop_packet_header.included_length);
-		if (packetSize > 15000)
-		{
-			return false;
-		}
-		std::unique_ptr<char[]> packetData = std::make_unique<char[]>(packetSize);
-		m_snoopFile.read(packetData.get(), packetSize);
-		if (!m_snoopFile)
-		{
-			return false;
-		}
-		timespec ts = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)),
-			            static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
-		if (!rawPacket.setRawData((const uint8_t*)packetData.release(), packetSize, ts,
-		                          static_cast<LinkLayerType>(m_PcapLinkLayerType)))
-		{
-			PCPP_LOG_ERROR("Couldn't set data to raw packet");
-			return false;
-		}
-		size_t pad = be32toh(snoop_packet_header.packet_record_length) -
-		             (sizeof(snoop_packet_header_t) + be32toh(snoop_packet_header.included_length));
-		m_snoopFile.ignore(pad);
-		if (!m_snoopFile)
-		{
-			return false;
-		}
-
-		m_NumOfPacketsRead++;
-		return true;
-	}
-
-	void SnoopFileReaderDevice::close()
-	{
-		m_snoopFile.close();
-		m_DeviceOpened = false;
-		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
-	}
-
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapNgFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -675,8 +542,7 @@ namespace pcpp
 
 	bool PcapNgFileReaderDevice::open()
 	{
-		m_NumOfPacketsRead = 0;
-		m_NumOfPacketsNotParsed = 0;
+		resetStatisticCounters();
 
 		if (m_LightPcapNg != nullptr)
 		{
@@ -699,9 +565,6 @@ namespace pcpp
 
 	bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& packetComment)
 	{
-		rawPacket.clear();
-		packetComment = "";
-
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
@@ -743,9 +606,15 @@ namespace pcpp
 		}
 
 		if (pktHeader.comment != nullptr && pktHeader.comment_length > 0)
+		{
 			packetComment = std::string(pktHeader.comment, pktHeader.comment_length);
+		}
+		else
+		{
+			packetComment.clear();
+		}
 
-		m_NumOfPacketsRead++;
+		reportPacketProcessed();
 		return true;
 	}
 
@@ -753,14 +622,6 @@ namespace pcpp
 	{
 		std::string temp;
 		return getNextPacket(rawPacket, temp);
-	}
-
-	void PcapNgFileReaderDevice::getStatistics(PcapStats& stats) const
-	{
-		stats.packetsRecv = m_NumOfPacketsRead;
-		stats.packetsDrop = m_NumOfPacketsNotParsed;
-		stats.packetsDropByInterface = 0;
-		PCPP_LOG_DEBUG("Statistics received for pcapng reader device for filename '" << m_FileName << "'");
 	}
 
 	bool PcapNgFileReaderDevice::setFilter(std::string filterAsString)
@@ -856,7 +717,7 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Device not opened");
-			m_NumOfPacketsNotWritten++;
+			reportPacketDropped();
 			return false;
 		}
 
@@ -885,7 +746,7 @@ namespace pcpp
 		const uint8_t* pktData = packet.getRawData();
 
 		light_write_packet(toLightPcapNgT(m_LightPcapNg), &pktHeader, pktData);
-		m_NumOfPacketsWritten++;
+		reportPacketProcessed();
 		return true;
 	}
 
@@ -937,8 +798,7 @@ namespace pcpp
 			return true;
 		}
 
-		m_NumOfPacketsNotWritten = 0;
-		m_NumOfPacketsWritten = 0;
+		resetStatisticCounters();
 
 		light_pcapng_file_info* info;
 		if (metadata == nullptr)
@@ -979,8 +839,7 @@ namespace pcpp
 			return true;
 		}
 
-		m_NumOfPacketsNotWritten = 0;
-		m_NumOfPacketsWritten = 0;
+		resetStatisticCounters();
 
 		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_append(m_FileName.c_str()));
 		if (m_LightPcapNg == nullptr)
@@ -1017,17 +876,120 @@ namespace pcpp
 		PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
 	}
 
-	void PcapNgFileWriterDevice::getStatistics(PcapStats& stats) const
-	{
-		stats.packetsRecv = m_NumOfPacketsWritten;
-		stats.packetsDrop = m_NumOfPacketsNotWritten;
-		stats.packetsDropByInterface = 0;
-		PCPP_LOG_DEBUG("Statistics received for pcap-ng writer device for filename '" << m_FileName << "'");
-	}
-
 	bool PcapNgFileWriterDevice::setFilter(std::string filterAsString)
 	{
 		return m_BpfWrapper.setFilter(filterAsString);
 	}
 
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// SnoopFileReaderDevice members
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	SnoopFileReaderDevice::~SnoopFileReaderDevice()
+	{
+		m_snoopFile.close();
+	}
+
+	bool SnoopFileReaderDevice::open()
+	{
+		resetStatisticCounters();
+
+		m_snoopFile.open(m_FileName.c_str(), std::ifstream::binary);
+		if (!m_snoopFile.is_open())
+		{
+			PCPP_LOG_ERROR("Cannot open snoop reader device for filename '" << m_FileName << "'");
+			m_snoopFile.close();
+			return false;
+		}
+
+		snoop_file_header_t snoop_file_header;
+		m_snoopFile.read((char*)&snoop_file_header, sizeof(snoop_file_header_t));
+		if (!m_snoopFile)
+		{
+			PCPP_LOG_ERROR("Cannot read snoop file header for '" << m_FileName << "'");
+			m_snoopFile.close();
+			return false;
+		}
+
+		if (be64toh(snoop_file_header.identification_pattern) != 0x736e6f6f70000000 &&
+		    be32toh(snoop_file_header.version_number) == 2)
+			return false;
+
+		// From https://datatracker.ietf.org/doc/html/rfc1761
+		static const pcpp::LinkLayerType snoop_encap[] = {
+			LINKTYPE_ETHERNET,   /// IEEE 802.3
+			LINKTYPE_NULL,       /// IEEE 802.4 Token Bus
+			LINKTYPE_IEEE802_5,  /// IEEE 802.5
+			LINKTYPE_NULL,       /// IEEE 802.6 Metro Net
+			LINKTYPE_ETHERNET,   /// Ethernet
+			LINKTYPE_C_HDLC,     /// HDLC
+			LINKTYPE_NULL,       /// Character Synchronous, e.g. bisync
+			LINKTYPE_NULL,       /// IBM Channel-to-Channel
+			LINKTYPE_FDDI        /// FDDI
+		};
+		uint32_t datalink_type = be32toh(snoop_file_header.datalink_type);
+		if (datalink_type > ARRAY_SIZE(snoop_encap) - 1)
+		{
+			PCPP_LOG_ERROR("Cannot read data link type for '" << m_FileName << "'");
+			m_snoopFile.close();
+			return false;
+		}
+
+		m_PcapLinkLayerType = snoop_encap[datalink_type];
+
+		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
+		m_DeviceOpened = true;
+		return true;
+	}
+
+	bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
+	{
+		if (m_DeviceOpened != true)
+		{
+			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
+			return false;
+		}
+		snoop_packet_header_t snoop_packet_header;
+		m_snoopFile.read((char*)&snoop_packet_header, sizeof(snoop_packet_header_t));
+		if (!m_snoopFile)
+		{
+			return false;
+		}
+		size_t packetSize = be32toh(snoop_packet_header.included_length);
+		if (packetSize > 15000)
+		{
+			return false;
+		}
+		std::unique_ptr<char[]> packetData = std::make_unique<char[]>(packetSize);
+		m_snoopFile.read(packetData.get(), packetSize);
+		if (!m_snoopFile)
+		{
+			return false;
+		}
+		timespec ts = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)),
+			            static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
+		if (!rawPacket.setRawData((const uint8_t*)packetData.release(), packetSize, ts,
+		                          static_cast<LinkLayerType>(m_PcapLinkLayerType)))
+		{
+			PCPP_LOG_ERROR("Couldn't set data to raw packet");
+			return false;
+		}
+		size_t pad = be32toh(snoop_packet_header.packet_record_length) -
+		             (sizeof(snoop_packet_header_t) + be32toh(snoop_packet_header.included_length));
+		m_snoopFile.ignore(pad);
+		if (!m_snoopFile)
+		{
+			return false;
+		}
+
+		reportPacketProcessed();
+		return true;
+	}
+
+	void SnoopFileReaderDevice::close()
+	{
+		m_snoopFile.close();
+		m_DeviceOpened = false;
+		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
+	}
 }  // namespace pcpp

@@ -221,7 +221,7 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 			}
 			std::cout << std::endl;
 		}
-		if (workerConfigArr[i].inDataCfg.size() == 0)
+		if (workerConfigArr[i].inDataCfg.empty())
 		{
 			std::cout << "      None" << std::endl;
 		}

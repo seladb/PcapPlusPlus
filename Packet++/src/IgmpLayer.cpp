@@ -88,7 +88,7 @@ namespace pcpp
 	uint16_t IgmpLayer::calculateChecksum()
 	{
 		ScalarBuffer<uint16_t> buffer;
-		buffer.buffer = (uint16_t*)getIgmpHeader();
+		buffer.buffer = reinterpret_cast<uint16_t*>(getIgmpHeader());
 		buffer.len = getHeaderLen();
 		return computeChecksum(&buffer, 1);
 	}
@@ -224,7 +224,7 @@ namespace pcpp
 			return IPv4Address();
 
 		uint8_t* ptr = m_Data + ptrOffset;
-		return IPv4Address(*(uint32_t*)ptr);
+		return IPv4Address(*reinterpret_cast<uint32_t*>(ptr));
 	}
 
 	size_t IgmpV3QueryLayer::getHeaderLen() const
@@ -256,7 +256,7 @@ namespace pcpp
 	{
 		uint16_t sourceAddrCount = getSourceAddressCount();
 
-		if (index < 0 || index > (int)sourceAddrCount)
+		if (index < 0 || index > static_cast<int>(sourceAddrCount))
 		{
 			PCPP_LOG_ERROR("Cannot add source address at index " << index << ", index is out of bounds");
 			return false;
@@ -286,7 +286,7 @@ namespace pcpp
 	{
 		uint16_t sourceAddrCount = getSourceAddressCount();
 
-		if (index < 0 || index > (int)sourceAddrCount - 1)
+		if (index < 0 || index > static_cast<int>(sourceAddrCount) - 1)
 		{
 			PCPP_LOG_ERROR("Cannot remove source address at index " << index << ", index is out of bounds");
 			return false;
@@ -348,11 +348,13 @@ namespace pcpp
 		if (groupRecord == nullptr)
 			return nullptr;
 
-		// prev group was the last group
-		if ((uint8_t*)groupRecord + groupRecord->getRecordLen() - m_Data >= (int)getHeaderLen())
+		uint8_t* nextGroupRecordBegin = reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen();
+		if (std::distance(m_Data, nextGroupRecordBegin) >= static_cast<std::ptrdiff_t>(getHeaderLen()))
+		{
 			return nullptr;
+		}
 
-		igmpv3_group_record* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
+		igmpv3_group_record* nextGroup = reinterpret_cast<igmpv3_group_record*>(nextGroupRecordBegin);
 
 		return nextGroup;
 	}
@@ -368,7 +370,7 @@ namespace pcpp
 	                                                         const std::vector<IPv4Address>& sourceAddresses,
 	                                                         int offset)
 	{
-		if (offset > (int)getHeaderLen())
+		if (offset > static_cast<int>(getHeaderLen()))
 		{
 			PCPP_LOG_ERROR("Cannot add group record, offset is out of layer bounds");
 			return nullptr;
@@ -403,13 +405,13 @@ namespace pcpp
 
 		getReportHeader()->numOfGroupRecords = htobe16(getGroupRecordCount() + 1);
 
-		return (igmpv3_group_record*)(m_Data + offset);
+		return reinterpret_cast<igmpv3_group_record*>(m_Data + offset);
 	}
 
 	igmpv3_group_record* IgmpV3ReportLayer::addGroupRecord(uint8_t recordType, const IPv4Address& multicastAddress,
 	                                                       const std::vector<IPv4Address>& sourceAddresses)
 	{
-		return addGroupRecordAt(recordType, multicastAddress, sourceAddresses, (int)getHeaderLen());
+		return addGroupRecordAt(recordType, multicastAddress, sourceAddresses, static_cast<int>(getHeaderLen()));
 	}
 
 	igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAtIndex(uint8_t recordType,
@@ -509,7 +511,7 @@ namespace pcpp
 
 		int offset = index * sizeof(uint32_t);
 		const uint8_t* ptr = sourceAddresses + offset;
-		return IPv4Address(*(uint32_t*)ptr);
+		return IPv4Address(*reinterpret_cast<const uint32_t*>(ptr));
 	}
 
 	size_t igmpv3_group_record::getRecordLen() const
