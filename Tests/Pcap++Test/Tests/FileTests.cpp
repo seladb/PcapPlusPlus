@@ -831,28 +831,26 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	zstdFile.close();
 	zstFile.close();
 
-	{
-		pcpp::IFileReaderDevice* genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAP_PATH);
-		FileReaderTeardown genericReaderTeardown1(genericReader);
-		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(genericReader));
-		PTF_ASSERT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
+	pcpp::IFileReaderDevice* genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAP_PATH);
+	FileReaderTeardown genericReaderTeardown1(genericReader);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(genericReader));
+	PTF_ASSERT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
 
-		genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_PATH);
-		FileReaderTeardown genericReaderTeardown2(genericReader);
-		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
+	genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_PATH);
+	FileReaderTeardown genericReaderTeardown2(genericReader);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
 
-		genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE_PCAPNG_ZSTD_WRITE_PATH);
-		FileReaderTeardown genericReaderTeardown3(genericReader);
-		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
-		PTF_ASSERT_TRUE(genericReader->open());
+	genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE_PCAPNG_ZSTD_WRITE_PATH);
+	FileReaderTeardown genericReaderTeardown3(genericReader);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
+	PTF_ASSERT_TRUE(genericReader->open());
 
-		genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_ZST_WRITE_PATH);
-		FileReaderTeardown genericReaderTeardown4(genericReader);
-		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
-		PTF_ASSERT_TRUE(genericReader->open());
+	genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_ZST_WRITE_PATH);
+	FileReaderTeardown genericReaderTeardown4(genericReader);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
+	PTF_ASSERT_TRUE(genericReader->open());
 
-		genericReader->close();
-	}
+	genericReader->close();
 
 	// -------
 
