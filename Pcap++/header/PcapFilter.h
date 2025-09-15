@@ -78,6 +78,15 @@ namespace pcpp
 	/// A wrapper class for BPF filtering. Enables setting a BPF filter and matching it against a packet
 	class BpfFilterWrapper
 	{
+	private:
+		using BpfProgramUPtr = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>;
+
+		std::string m_FilterStr;
+		mutable LinkLayerType m_CachedProgramLinkType = LinkLayerType::LINKTYPE_ETHERNET;
+		mutable BpfProgramUPtr m_CachedProgram;
+
+		static BpfProgramUPtr compileFilter(std::string const& filter, LinkLayerType linkType);
+
 	public:
 		/// @brief Creates a new instance with no filter.
 		BpfFilterWrapper() = default;
@@ -141,15 +150,6 @@ namespace pcpp
 		/// @param[in] linkType The link type of the packet
 		/// @return True if the filter matches (or if it's empty). False otherwise
 		bool matches(const uint8_t* packetData, uint32_t packetDataLength, timespec timestamp, uint16_t linkType) const;
-
-	private:
-		using BpfProgramUPtr = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>;
-
-		std::string m_FilterStr;
-		mutable LinkLayerType m_CachedProgramLinkType = LinkLayerType::LINKTYPE_ETHERNET;
-		mutable BpfProgramUPtr m_CachedProgram;
-
-		static BpfProgramUPtr compileFilter(std::string const& filter, LinkLayerType linkType);
 	};
 
 	/// @class GeneralFilter
