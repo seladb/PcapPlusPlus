@@ -78,13 +78,6 @@ namespace pcpp
 	/// A wrapper class for BPF filtering. Enables setting a BPF filter and matching it against a packet
 	class BpfFilterWrapper
 	{
-	private:
-		std::string m_FilterStr;
-		LinkLayerType m_LinkType;
-		std::unique_ptr<bpf_program, internal::BpfProgramDeleter> m_Program;
-
-		void freeProgram();
-
 	public:
 		/// A c'tor for this class
 		BpfFilterWrapper();
@@ -124,6 +117,13 @@ namespace pcpp
 		/// could not be compiled
 		bool matchPacketWithFilter(const uint8_t* packetData, uint32_t packetDataLength, timespec packetTimestamp,
 		                           uint16_t linkType);
+
+	private:
+		std::string m_FilterStr;
+		LinkLayerType m_LinkType;
+		std::unique_ptr<bpf_program, internal::BpfProgramDeleter> m_Program;
+
+		void freeProgram();
 	};
 
 	/// @class GeneralFilter
@@ -132,10 +132,12 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class GeneralFilter
 	{
-	protected:
-		BpfFilterWrapper m_BpfWrapper;
-
 	public:
+		GeneralFilter() = default;
+
+		/// Virtual destructor, frees the bpf program
+		virtual ~GeneralFilter() = default;
+
 		/// A method that parses the class instance into BPF string format
 		/// @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its
 		/// content will be overridden
@@ -146,26 +148,19 @@ namespace pcpp
 		/// @return True if a raw packet matches the BPF filter or false otherwise
 		bool matchPacketWithFilter(RawPacket* rawPacket);
 
-		GeneralFilter()
-		{}
-
-		/// Virtual destructor, frees the bpf program
-		virtual ~GeneralFilter() = default;
+	protected:
+		BpfFilterWrapper m_BpfWrapper;
 	};
 
 	/// @class BPFStringFilter
 	/// This class can be loaded with a BPF filter string and then can be used to verify the string is valid.
 	class BPFStringFilter : public GeneralFilter
 	{
-	private:
-		const std::string m_FilterStr;
-
 	public:
 		explicit BPFStringFilter(const std::string& filterStr) : m_FilterStr(filterStr)
 		{}
 
-		virtual ~BPFStringFilter()
-		{}
+		virtual ~BPFStringFilter() = default;
 
 		/// A method that parses the class instance into BPF string format
 		/// @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its
@@ -175,6 +170,9 @@ namespace pcpp
 		/// Verify the filter is valid
 		/// @return True if the filter is valid or false otherwise
 		bool verifyFilter();
+
+	private:
+		const std::string m_FilterStr;
 	};
 
 	/// @class IFilterWithDirection
@@ -184,19 +182,9 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class IFilterWithDirection : public GeneralFilter
 	{
-	private:
-		Direction m_Dir;
-
 	protected:
-		void parseDirection(std::string& directionAsString);
-		Direction getDir() const
-		{
-			return m_Dir;
-		}
-		explicit IFilterWithDirection(Direction dir)
-		{
-			m_Dir = dir;
-		}
+		explicit IFilterWithDirection(Direction dir) : m_Dir(dir)
+		{}
 
 	public:
 		/// Set the direction for the filter (source or destination)
@@ -205,6 +193,17 @@ namespace pcpp
 		{
 			m_Dir = dir;
 		}
+
+		Direction getDir() const
+		{
+			return m_Dir;
+		}
+
+	protected:
+		void parseDirection(std::string& directionAsString);
+
+	private:
+		Direction m_Dir;
 	};
 
 	/// @class IFilterWithOperator
@@ -214,19 +213,9 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class IFilterWithOperator : public GeneralFilter
 	{
-	private:
-		FilterOperator m_Operator;
-
 	protected:
-		std::string parseOperator();
-		FilterOperator getOperator() const
-		{
-			return m_Operator;
-		}
-		explicit IFilterWithOperator(FilterOperator op)
-		{
-			m_Operator = op;
-		}
+		explicit IFilterWithOperator(FilterOperator op) : m_Operator(op)
+		{}
 
 	public:
 		/// Set the operator for the filter
@@ -235,6 +224,17 @@ namespace pcpp
 		{
 			m_Operator = op;
 		}
+
+		FilterOperator getOperator() const
+		{
+			return m_Operator;
+		}
+
+	protected:
+		std::string parseOperator();
+
+	private:
+		FilterOperator m_Operator;
 	};
 
 	/// @class IPFilter
@@ -243,10 +243,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class IPFilter : public IFilterWithDirection
 	{
-	private:
-		IPAddress m_Address;
-		IPNetwork m_Network;
-
 	public:
 		/// The basic constructor that creates the filter from an IP address string and direction (source or
 		/// destination)
@@ -392,6 +388,10 @@ namespace pcpp
 		{
 			m_Network = IPNetwork(m_Address);
 		}
+
+	private:
+		IPAddress m_Address;
+		IPNetwork m_Network;
 	};
 
 	/// @class IPv4IDFilter
@@ -401,9 +401,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class IPv4IDFilter : public IFilterWithOperator
 	{
-	private:
-		uint16_t m_IpID;
-
 	public:
 		/// A constructor that gets the IP ID to filter and the operator and creates the filter out of them
 		/// @param[in] ipID The IP ID to filter
@@ -419,6 +416,9 @@ namespace pcpp
 		{
 			m_IpID = ipID;
 		}
+
+	private:
+		uint16_t m_IpID;
 	};
 
 	/// @class IPv4TotalLengthFilter
@@ -428,9 +428,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class IPv4TotalLengthFilter : public IFilterWithOperator
 	{
-	private:
-		uint16_t m_TotalLength;
-
 	public:
 		/// A constructor that gets the total length to filter and the operator and creates the filter out of them
 		/// @param[in] totalLength The total length value to filter
@@ -447,6 +444,9 @@ namespace pcpp
 		{
 			m_TotalLength = totalLength;
 		}
+
+	private:
+		uint16_t m_TotalLength;
 	};
 
 	/// @class PortFilter
@@ -455,10 +455,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class PortFilter : public IFilterWithDirection
 	{
-	private:
-		std::string m_Port;
-		void portToString(uint16_t portAsInt);
-
 	public:
 		/// A constructor that gets the port and the direction and creates the filter
 		/// @param[in] port The port to create the filter with
@@ -473,6 +469,11 @@ namespace pcpp
 		{
 			portToString(port);
 		}
+
+	private:
+		void portToString(uint16_t portAsInt);
+
+		std::string m_Port;
 	};
 
 	/// @class PortRangeFilter
@@ -483,10 +484,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class PortRangeFilter : public IFilterWithDirection
 	{
-	private:
-		uint16_t m_FromPort;
-		uint16_t m_ToPort;
-
 	public:
 		/// A constructor that gets the port range the the direction and creates the filter with them
 		/// @param[in] fromPort The lower end of the port range
@@ -511,6 +508,10 @@ namespace pcpp
 		{
 			m_ToPort = toPort;
 		}
+
+	private:
+		uint16_t m_FromPort;
+		uint16_t m_ToPort;
 	};
 
 	/// @class MacAddressFilter
@@ -520,9 +521,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class MacAddressFilter : public IFilterWithDirection
 	{
-	private:
-		MacAddress m_MacAddress;
-
 	public:
 		/// A constructor that gets the MAC address and the direction and creates the filter with them
 		/// @param[in] address The MAC address to use for filtering
@@ -538,6 +536,9 @@ namespace pcpp
 		{
 			m_MacAddress = address;
 		}
+
+	private:
+		MacAddress m_MacAddress;
 	};
 
 	/// @class EtherTypeFilter
@@ -547,9 +548,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class EtherTypeFilter : public GeneralFilter
 	{
-	private:
-		uint16_t m_EtherType;
-
 	public:
 		/// A constructor that gets the EtherType and creates the filter with it
 		/// @param[in] etherType The EtherType value to create the filter with
@@ -564,6 +562,9 @@ namespace pcpp
 		{
 			m_EtherType = etherType;
 		}
+
+	private:
+		uint16_t m_EtherType;
 	};
 
 	/// @class CompositeFilter
@@ -573,9 +574,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class CompositeFilter : public GeneralFilter
 	{
-	protected:
-		std::vector<GeneralFilter*> m_FilterList;
-
 	public:
 		/// An empty constructor for this class. Use addFilter() to add filters to the composite filter.
 		CompositeFilter() = default;
@@ -604,6 +602,9 @@ namespace pcpp
 		{
 			m_FilterList.clear();
 		}
+
+	protected:
+		std::vector<GeneralFilter*> m_FilterList;
 	};
 
 	/// Supported composite logic filter operators enum
@@ -682,9 +683,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class NotFilter : public GeneralFilter
 	{
-	private:
-		GeneralFilter* m_FilterToInverse;
-
 	public:
 		/// A constructor that gets a pointer to a filter and create the inverse version of it
 		/// @param[in] filterToInverse A pointer to filter which the created filter be the inverse of
@@ -701,6 +699,9 @@ namespace pcpp
 		{
 			m_FilterToInverse = filterToInverse;
 		}
+
+	private:
+		GeneralFilter* m_FilterToInverse;
 	};
 
 	/// @class ProtoFilter
@@ -714,9 +715,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class ProtoFilter : public GeneralFilter
 	{
-	private:
-		ProtocolTypeFamily m_ProtoFamily;
-
 	public:
 		/// A constructor that gets a protocol and creates the filter
 		/// @param[in] proto The protocol to filter, only packets matching this protocol will be received. Please note
@@ -748,6 +746,9 @@ namespace pcpp
 		{
 			m_ProtoFamily = protoFamily;
 		}
+
+	private:
+		ProtocolTypeFamily m_ProtoFamily;
 	};
 
 	/// @class ArpFilter
@@ -757,9 +758,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class ArpFilter : public GeneralFilter
 	{
-	private:
-		ArpOpcode m_OpCode;
-
 	public:
 		/// A constructor that get the ARP opcode and creates the filter
 		/// @param[in] opCode The ARP opcode: ::ARP_REQUEST or ::ARP_REPLY
@@ -774,6 +772,9 @@ namespace pcpp
 		{
 			m_OpCode = opCode;
 		}
+
+	private:
+		ArpOpcode m_OpCode;
 	};
 
 	/// @class VlanFilter
@@ -783,9 +784,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class VlanFilter : public GeneralFilter
 	{
-	private:
-		uint16_t m_VlanID;
-
 	public:
 		/// A constructor the gets the VLAN ID and creates the filter
 		/// @param[in] vlanId The VLAN ID to use for the filter
@@ -800,6 +798,9 @@ namespace pcpp
 		{
 			m_VlanID = vlanId;
 		}
+
+	private:
+		uint16_t m_VlanID;
 	};
 
 	/// @class TcpFlagsFilter
@@ -836,11 +837,6 @@ namespace pcpp
 			MatchOneAtLeast
 		};
 
-	private:
-		uint8_t m_TcpFlagsBitMask;
-		MatchOptions m_MatchOption;
-
-	public:
 		/// A constructor that gets a 1-byte bitmask containing all TCP flags participating in the filter and the match
 		/// option, and creates the filter
 		/// @param[in] tcpFlagBitMask A 1-byte bitmask containing all TCP flags participating in the filter. This
@@ -863,6 +859,10 @@ namespace pcpp
 		}
 
 		void parseToString(std::string& result) override;
+
+	private:
+		uint8_t m_TcpFlagsBitMask;
+		MatchOptions m_MatchOption;
 	};
 
 	/// @class TcpWindowSizeFilter
@@ -871,9 +871,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class TcpWindowSizeFilter : public IFilterWithOperator
 	{
-	private:
-		uint16_t m_WindowSize;
-
 	public:
 		/// A constructor that get the window-size and operator and creates the filter. For example: "filter all TCP
 		/// packets with window-size less than 1000"
@@ -890,6 +887,9 @@ namespace pcpp
 		{
 			m_WindowSize = windowSize;
 		}
+
+	private:
+		uint16_t m_WindowSize;
 	};
 
 	/// @class UdpLengthFilter
@@ -898,9 +898,6 @@ namespace pcpp
 	/// For deeper understanding of the filter concept please refer to PcapFilter.h
 	class UdpLengthFilter : public IFilterWithOperator
 	{
-	private:
-		uint16_t m_Length;
-
 	public:
 		/// A constructor that get the UDP length and operator and creates the filter. For example: "filter all UDP
 		/// packets with length greater or equal to 500"
@@ -917,5 +914,8 @@ namespace pcpp
 		{
 			m_Length = length;
 		}
+
+	private:
+		uint16_t m_Length;
 	};
 }  // namespace pcpp
