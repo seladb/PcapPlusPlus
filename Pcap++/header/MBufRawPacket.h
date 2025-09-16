@@ -166,14 +166,14 @@ namespace pcpp
 		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1) override;
 
 		/// Clears the object and frees the mbuf
-		void clear();
+		void clear() override;
 
 		/// Append packet data at the end of current data. This method uses the same mbuf already allocated and tries to
 		/// append more space and copy the data to it. If MBufRawPacket is not initialize (mbuf is nullptr) or mbuf
 		/// append failed an error is printed to log
 		/// @param[in] dataToAppend A pointer to the data to append
 		/// @param[in] dataToAppendLen Length in bytes of dataToAppend
-		void appendData(const uint8_t* dataToAppend, size_t dataToAppendLen);
+		void appendData(const uint8_t* dataToAppend, size_t dataToAppendLen) override;
 
 		/// Insert raw data at some index of the current data and shift the remaining data to the end. This method uses
 		/// the same mbuf already allocated and tries to append more space to it. Then it just copies dataToAppend at
@@ -182,7 +182,7 @@ namespace pcpp
 		/// @param[in] atIndex The index to insert the new data to
 		/// @param[in] dataToInsert A pointer to the new data to insert
 		/// @param[in] dataToInsertLen Length in bytes of dataToInsert
-		void insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen);
+		void insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen) override;
 
 		/// Remove certain number of bytes from current raw data buffer. All data after the removed bytes will be
 		/// shifted back. This method uses the mbuf already allocated and tries to trim space from it
@@ -191,14 +191,14 @@ namespace pcpp
 		/// @return True if all bytes were removed successfully, or false if MBufRawPacket is not initialize (mbuf is
 		/// nullptr), mbuf trim failed or logatIndex+numOfBytesToRemove is out-of-bounds of the raw data buffer. In all
 		/// of these cases an error is printed to log
-		bool removeData(int atIndex, size_t numOfBytesToRemove);
+		bool removeData(int atIndex, size_t numOfBytesToRemove) override;
 
 		/// This overridden method,in contrast to its ancestor RawPacket#reallocateData() doesn't need to do anything
 		/// because mbuf is already allocated to its maximum extent. So it only performs a check to verify the size
 		/// after re-allocation doesn't exceed mbuf max size
 		/// @param[in] newBufferLength The new buffer length as required by the user
 		/// @return True if new size is larger than current size but smaller than mbuf max size, false otherwise
-		bool reallocateData(size_t newBufferLength);
+		bool reallocateData(size_t newBufferLength) override;
 
 		/// Set an indication whether to free the mbuf when done using it or not ("done using it" means setting another
 		/// mbuf or class d'tor). Default value is true.
