@@ -63,39 +63,95 @@ namespace pcpp
 
 		m_FirstLayer = createFirstLayer(linkType);
 
-		m_LastLayer = m_FirstLayer;
-		Layer* curLayer = m_FirstLayer;
+		// As the stop conditions are inclusive, the parse must go one layer further and then roll back if needed
+		bool rollbackLastLayer = false;
+		bool foundTargetProtocol = false;
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
+		{
+			// Mark the current layer as allocated in the packet
+			curLayer->m_IsAllocatedInPacket = true;
+			m_LastLayer = curLayer;  // Update last layer to current layer
+
+			// If the current layer is of a higher OSI layer than the target, stop parsing
+			if (curLayer->getOsiModelLayer() > parseUntilLayer)
+			{
+				rollbackLastLayer = true;
+				break;
+			}
+
+			// If we are searching for a specific layer protocol, record when we find at least one target.
+			const bool matchesTarget = curLayer->isMemberOfProtocolFamily(parseUntil);
+			if (parseUntil != UnknownProtocol && matchesTarget)
+			{
+				foundTargetProtocol = true;
+			}
+
+			// If we have found the target protocol already, we are parsing until we find a different protocol
+			if (foundTargetProtocol && !matchesTarget)
+			{
+				rollbackLastLayer = true;
+				break;
+			}
+
+			// Parse the next layer. This will update the next layer pointer of the current layer.
+			curLayer->parseNextLayer();
+		}
+
+		// Roll back one layer, if parsing with search condition as the conditions are inclusive.
+		// Don't delete the first layer. If already past the target layer, treat the same as if the layer was found.
+		if (rollbackLastLayer && m_LastLayer != m_FirstLayer)
+		{
+			m_LastLayer = m_LastLayer->getPrevLayer();
+			delete m_LastLayer->m_NextLayer;
+			m_LastLayer->m_NextLayer = nullptr;
+		}
+
+		/*
 		while (curLayer != nullptr &&
+		       // Check the parse until condition
 		       (parseUntil == UnknownProtocol || !curLayer->isMemberOfProtocolFamily(parseUntil)) &&
+		       // Check the parse until OSI condition
 		       curLayer->getOsiModelLayer() <= parseUntilLayer)
 		{
-			curLayer->parseNextLayer();
-			curLayer->m_IsAllocatedInPacket = true;
-			curLayer = curLayer->getNextLayer();
-			if (curLayer != nullptr)
-				m_LastLayer = curLayer;
-		}
+		    // Parse layer, allocate it
+		    curLayer->parseNextLayer();
+		    curLayer->m_IsAllocatedInPacket = true;
 
+		    // Move to next layer.
+		    curLayer = curLayer->getNextLayer();
+
+		    // If a next layer exists, update last layer.
+		    if (curLayer != nullptr)
+		        m_LastLayer = curLayer;
+		}
+		*/
+
+		/*
+		// The loop ends with curLayer being either nullptr or one past the last parsed layer
 		if (curLayer != nullptr && curLayer->isMemberOfProtocolFamily(parseUntil))
 		{
-			curLayer->m_IsAllocatedInPacket = true;
+		    curLayer->m_IsAllocatedInPacket = true;
 		}
 
+		// If the target OSI layer is exceeded, roll back the last layer (why?)
 		if (curLayer != nullptr && curLayer->getOsiModelLayer() > parseUntilLayer)
 		{
-			// don't delete the first layer. If already past the target layer, treat the same as if the layer was found.
-			if (curLayer == m_FirstLayer)
-			{
-				curLayer->m_IsAllocatedInPacket = true;
-			}
-			else
-			{
-				m_LastLayer = curLayer->getPrevLayer();
-				delete curLayer;
-				m_LastLayer->m_NextLayer = nullptr;
-			}
+		    // don't delete the first layer. If already past the target layer, treat the same as if the layer was found.
+		    if (curLayer == m_FirstLayer)
+		    {
+		        curLayer->m_IsAllocatedInPacket = true;
+		    }
+		    else
+		    {
+		        // Rolls back last layer if it exceeded the target OSI layer
+		        m_LastLayer = curLayer->getPrevLayer();
+		        delete curLayer;
+		        m_LastLayer->m_NextLayer = nullptr;
+		    }
 		}
+		*/
 
+		// If there is data left in the raw packet that doesn't belong to any layer, create a PacketTrailerLayer
 		if (m_LastLayer != nullptr && parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
 		{
 			// find if there is data left in the raw packet that doesn't belong to any layer. In that case it's probably
