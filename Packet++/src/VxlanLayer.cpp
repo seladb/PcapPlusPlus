@@ -49,7 +49,7 @@ namespace pcpp
 		return "VXLAN Layer";
 	}
 
-	void VxlanLayer::parseNextLayer()
+	void VxlanLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen <= sizeof(vxlan_header))
 			return;

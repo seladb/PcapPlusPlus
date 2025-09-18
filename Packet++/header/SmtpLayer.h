@@ -32,7 +32,7 @@ namespace pcpp
 		// overridden methods
 
 		/// SMTP is the always last so does nothing for this layer
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return Get the size of the layer

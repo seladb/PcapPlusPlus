@@ -356,7 +356,7 @@ namespace pcpp
 		return *this;
 	}
 
-	void TcpLayer::parseNextLayer()
+	void TcpLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		const size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
@@ -368,12 +368,14 @@ namespace pcpp
 		const uint16_t portSrc = getSrcPort();
 		const char* payloadChar = reinterpret_cast<const char*>(payload);
 
-		if (HttpMessage::isHttpPort(portDst) &&
+		auto const& portMapper = config.portMapper;
+
+		if (portMapper.matchesPortAndProtocol(PortPair::fromDst(portDst), HTTPRequest) &&
 		    HttpRequestFirstLine::parseMethod(payloadChar, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
 		{
 			constructNextLayer<HttpRequestLayer>(payload, payloadLen, m_Packet);
 		}
-		else if (HttpMessage::isHttpPort(portSrc) &&
+		else if (portMapper.matchesPortAndProtocol(PortPair::fromSrc(portSrc), HTTPResponse) &&
 		         HttpResponseFirstLine::parseVersion(payloadChar, payloadLen) != HttpVersion::HttpVersionUnknown &&
 		         !HttpResponseFirstLine::parseStatusCode(payloadChar, payloadLen).isUnsupportedCode())
 		{

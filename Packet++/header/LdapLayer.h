@@ -359,7 +359,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Tries to identify more LDAP messages in this packet if exist
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return The size of the LDAP message
 		size_t getHeaderLen() const override

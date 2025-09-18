@@ -73,7 +73,7 @@ namespace pcpp
 		{}
 
 		/// Currently parses the rest of the packet as a COTP protocol or generic payload (PayloadLayer)
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// A static method that checks whether a source or dest port match those associated with the TPKT protocol
 		/// @param[in] portSrc Source port number to check

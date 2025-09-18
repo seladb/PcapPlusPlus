@@ -77,7 +77,7 @@ namespace pcpp
 		}
 	}
 
-	void BgpLayer::parseNextLayer()
+	void BgpLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen || headerLen == 0)

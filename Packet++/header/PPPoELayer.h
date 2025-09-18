@@ -149,7 +149,7 @@ namespace pcpp
 		// abstract methods implementation
 
 		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Size of @ref pppoe_header
 		size_t getHeaderLen() const override
@@ -350,7 +350,7 @@ namespace pcpp
 		// abstract methods implementation
 
 		/// Does nothing for this layer (PPPoE discovery is always the last layer)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return The header length which is size of strcut pppoe_header plus the total size of tags

@@ -166,7 +166,7 @@ namespace pcpp
 		uint16_t getChecksum() const;
 
 		/// Does nothing for this layer. ICMPv6 is the last layer.
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return The size of the ICMPv6 message

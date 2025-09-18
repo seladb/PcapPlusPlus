@@ -262,7 +262,7 @@ namespace pcpp
 		}
 
 		/// Parses next layer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override
@@ -451,7 +451,7 @@ namespace pcpp
 		}
 
 		/// Parses next layer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override
@@ -521,7 +521,7 @@ namespace pcpp
 		}
 
 		/// Parses next layer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override
@@ -688,7 +688,7 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses next layer
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return Returns the protocol info as readable string

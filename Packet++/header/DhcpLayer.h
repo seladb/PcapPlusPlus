@@ -733,7 +733,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Does nothing for this layer (DhcpLayer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return The size of @ref dhcp_header + size of options

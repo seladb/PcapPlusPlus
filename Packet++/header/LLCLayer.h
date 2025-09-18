@@ -53,7 +53,7 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses the next layer. Currently only STP supported as next layer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// Does nothing for this layer
 		void computeCalculateFields() override

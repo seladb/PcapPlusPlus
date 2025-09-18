@@ -79,7 +79,7 @@ namespace pcpp
 		setType(0x80);
 	}
 
-	void StpTopologyChangeBPDULayer::parseNextLayer()
+	void StpTopologyChangeBPDULayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen > sizeof(stp_tcn_bpdu))
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_tcn_bpdu), this, m_Packet);
@@ -224,7 +224,7 @@ namespace pcpp
 		getStpConfHeader()->forwardDelay = value;
 	}
 
-	void StpConfigurationBPDULayer::parseNextLayer()
+	void StpConfigurationBPDULayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen > sizeof(stp_conf_bpdu))
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_conf_bpdu), this, m_Packet);
@@ -239,7 +239,7 @@ namespace pcpp
 		setType(0x2);
 	}
 
-	void RapidStpLayer::parseNextLayer()
+	void RapidStpLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen > sizeof(rstp_conf_bpdu))
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(rstp_conf_bpdu), this, m_Packet);

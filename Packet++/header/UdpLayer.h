@@ -74,7 +74,7 @@ namespace pcpp
 
 		/// Currently identifies the following next layers: DnsLayer, DhcpLayer, VxlanLayer, SipRequestLayer,
 		/// SipResponseLayer, RadiusLayer. Otherwise sets PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Size of @ref udphdr
 		size_t getHeaderLen() const override

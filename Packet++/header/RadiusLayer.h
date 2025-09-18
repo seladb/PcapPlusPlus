@@ -254,7 +254,7 @@ namespace pcpp
 		size_t getHeaderLen() const override;
 
 		/// Does nothing for this layer, RADIUS is always last
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// Calculate and store the value of radius_header#length according to the layer size

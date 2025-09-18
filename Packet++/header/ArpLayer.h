@@ -239,7 +239,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Does nothing for this layer (ArpLayer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return The size of @ref arphdr

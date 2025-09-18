@@ -59,7 +59,7 @@ namespace pcpp
 		getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(7 << 13))) | ((priority & 7) << 13));
 	}
 
-	void VlanLayer::parseNextLayer()
+	void VlanLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen <= sizeof(vlan_header))
 			return;

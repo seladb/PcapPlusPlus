@@ -575,7 +575,7 @@ namespace pcpp
 		/// - ESPLayer (IPSec)
 		///
 		/// Otherwise sets PayloadLayer
-		void parseNextLayer() override;
+		void parseNextLayer(ParserConfiguration const& config) override;
 
 		/// @return Size of IPv4 header (including IPv4 options if exist)
 		size_t getHeaderLen() const override

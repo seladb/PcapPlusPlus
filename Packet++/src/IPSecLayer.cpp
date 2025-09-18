@@ -51,7 +51,7 @@ namespace pcpp
 		return byteArrayToHexString(bytes, getICVLength());
 	}
 
-	void AuthenticationHeaderLayer::parseNextLayer()
+	void AuthenticationHeaderLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
@@ -112,7 +112,7 @@ namespace pcpp
 		return be32toh(getESPHeader()->sequenceNumber);
 	}
 
-	void ESPLayer::parseNextLayer()
+	void ESPLayer::parseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

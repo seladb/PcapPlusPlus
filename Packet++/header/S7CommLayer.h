@@ -152,7 +152,7 @@ namespace pcpp
 		{}
 
 		/// Does nothing for this layer (S7CommLayer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// A static method that takes a byte array and detects whether it is a S7COMM

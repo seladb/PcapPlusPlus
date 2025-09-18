@@ -349,7 +349,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Does nothing for this layer (DhcpV6Layer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return The size of @ref dhcpv6_header + size of options

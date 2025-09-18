@@ -188,7 +188,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/// Does nothing for this layer (IGMP layer is always last)
-		void parseNextLayer() override
+		void parseNextLayer(ParserConfiguration const& config) override
 		{}
 
 		/// @return Size of IGMP header = 8B
