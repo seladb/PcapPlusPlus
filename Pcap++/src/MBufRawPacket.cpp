@@ -324,9 +324,6 @@ namespace pcpp
 
 	void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp)
 	{
-		if (m_MBuf != nullptr && m_FreeMbuf)
-			rte_pktmbuf_free(m_MBuf);
-
 		if (mBuf == nullptr)
 		{
 			PCPP_LOG_ERROR("mbuf to set is nullptr");
