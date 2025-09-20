@@ -24,7 +24,11 @@ class TcpReplay:
 
         :param tcpreplay_dir: Directory where tcpreplay is located.
         """
-        self.tcpreplay_dir = tcpreplay_dir
+        self.executable = Path(tcpreplay_dir) / "tcpreplay"
+        if sys.platform == "win32":
+            self.executable = self.executable.with_suffix(".exe")
+        if not self.executable.exists():
+            raise FileNotFoundError(f"tcpreplay executable not found at {self.executable}")
 
     @contextmanager
     def replay(self, interface: str, pcap_file: Path) -> Generator[TcpReplayTask, None, None]:
@@ -34,8 +38,8 @@ class TcpReplay:
         :param interface: Network interface to use for replaying packets.
         :param pcap_file: Path to the pcap file to replay.
         """
-        cmd = ["tcpreplay", "-i", interface, "--mbps=10", "-l", "0", str(pcap_file)]
-        proc = subprocess.Popen(cmd, cwd=self.tcpreplay_dir)
+        cmd = [self.executable, "-i", interface, "--mbps=10", "-l", "0", str(pcap_file)]
+        proc = subprocess.Popen(cmd)
         try:
             yield TcpReplayTask(replay=self, procedure=proc)
         finally:
@@ -52,10 +56,9 @@ class TcpReplay:
             raise RuntimeError("This method is only supported on Windows!")
 
         completed_process = subprocess.run(
-            ["tcpreplay", "--listnics"],
+            [self.executable, "--listnics"],
             shell=True,
             capture_output=True,
-            cwd=self.tcpreplay_dir,
         )
         if completed_process.returncode != 0:
             raise RuntimeError('Error executing "tcpreplay --listnics"!')
