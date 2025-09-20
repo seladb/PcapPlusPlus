@@ -5,7 +5,7 @@ import subprocess
 import argparse
 from scapy.all import get_if_addr
 
-from tcp_replay_utils import TcpReplay
+from tcp_replay_utils import TcpReplay, PCAP_FILE_PATH
 
 
 def run_packet_tests(args: list[str], use_sudo: bool):
@@ -22,7 +22,7 @@ def run_pcap_tests(interface: str, tcpreplay: TcpReplay, args: list[str], use_su
     ip_address = get_if_addr(interface)
     print(f"IP address is: {ip_address}")
 
-    with tcpreplay.replay(interface):
+    with tcpreplay.replay(interface, PCAP_FILE_PATH):
         cmd_line = ["sudo"] if use_sudo else []
         cmd_line += [os.path.join("Bin", "Pcap++Test"), "-i", ip_address, *args]
 

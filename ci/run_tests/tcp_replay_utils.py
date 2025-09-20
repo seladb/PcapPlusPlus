@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
 from collections.abc import Generator
@@ -8,7 +7,7 @@ from dataclasses import dataclass
 from contextlib import contextmanager
 from pathlib import Path
 
-PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
+PCAP_FILE_PATH = Path("Tests", "Pcap++Test", "PcapExamples", "example.pcap").absolute()
 
 @contextmanager
 def tcp_replay_worker(interface: str, tcpreplay_dir: str):
