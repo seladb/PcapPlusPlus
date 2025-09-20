@@ -5,7 +5,7 @@ import subprocess
 import argparse
 from scapy.all import get_if_addr
 
-from tcp_replay import TcpReplay
+from tcp_replay_utils import TcpReplay
 
 
 def run_packet_tests(args: list[str], use_sudo: bool):

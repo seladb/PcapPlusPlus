@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from contextlib import contextmanager
 from pathlib import Path
 
-WIN32_TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
 PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 
 @contextmanager
@@ -53,6 +52,33 @@ class TcpReplay:
             yield TcpReplayTask(replay=self, procedure=proc)
         finally:
             self._kill_process(proc)
+
+    def get_nic_list(self):
+        """
+        Get the list of network interfaces using tcpreplay. Only works on Windows.
+
+        :return: List of network interface names.
+        """
+        if sys.platform != "win32":
+            # We don't use it on non-Windows platforms yet.
+            raise RuntimeError("This method is only supported on Windows!")
+
+        completed_process = subprocess.run(
+            ["tcpreplay", "--listnics"],
+            shell=True,
+            capture_output=True,
+            cwd=self.tcpreplay_dir,
+        )
+        if completed_process.returncode != 0:
+            raise RuntimeError('Error executing "tcpreplay --listnics"!')
+
+        raw_nics_output = completed_process.stdout.decode("utf-8")
+        nics = []
+        for row in raw_nics_output.split("\n")[2:]:
+            columns = row.split("\t")
+            if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
+                nics.append(columns[1])
+        return nics
 
 
     @staticmethod
