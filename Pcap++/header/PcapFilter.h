@@ -186,20 +186,13 @@ namespace pcpp
 	protected:
 		/// @brief Parse the filter and cache the compiled BPF program.
 		/// @return True if the filter was successfully parsed and cached, false otherwise.
-		bool cacheFilter()
-		{
-			return cacheFilterInternal();
-		}
+		bool cacheFilter() const;
 
 		/// @brief Invalidate the cached BPF program. This method should be called whenever the filter changes.
-		void invalidateCache()
+		void invalidateCache() const
 		{
 			m_CachedFilter = false;
 		};
-
-	private:
-		// This method does the actual caching. It is const so it can be called from const methods.
-		bool cacheFilterInternal() const;
 	};
 
 	/// @class BPFStringFilter

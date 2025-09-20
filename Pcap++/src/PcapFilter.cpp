@@ -175,7 +175,7 @@ namespace pcpp
 		return m_BpfWrapper.matches(rawPacket);
 	}
 
-	bool GeneralFilter::cacheFilterInternal() const
+	bool GeneralFilter::cacheFilter() const
 	{
 		std::string filterStr;
 		parseToString(filterStr);
