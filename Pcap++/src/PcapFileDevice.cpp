@@ -50,27 +50,6 @@ namespace pcpp
 			uint32_t len;
 		};
 
-		/// @brief Check if a stream is seekable.
-		/// @param stream The stream to check.
-		/// @return True if the stream supports seek operations, false otherwise.
-		bool isStreamSeekable(std::istream& stream)
-		{
-			auto pos = stream.tellg();
-			if (stream.fail())
-			{
-				stream.clear();
-				return false;
-			}
-
-			if (stream.seekg(pos).fail())
-			{
-				stream.clear();
-				return false;
-			}
-
-			return true;
-		}
-
 		class StreamPositionCheckpoint
 		{
 		public:
@@ -127,6 +106,27 @@ namespace pcpp
 			}
 
 		private:
+			/// @brief Check if a stream is seekable.
+			/// @param stream The stream to check.
+			/// @return True if the stream supports seek operations, false otherwise.
+			bool isStreamSeekable(std::istream& stream)
+			{
+				auto pos = stream.tellg();
+				if (stream.fail())
+				{
+					stream.clear();
+					return false;
+				}
+
+				if (stream.seekg(pos).fail())
+				{
+					stream.clear();
+					return false;
+				}
+
+				return true;
+			}
+
 			bool isPcapFile(std::istream& content)
 			{
 				constexpr std::array<uint32_t, 4> pcapMagicNumbers = {
