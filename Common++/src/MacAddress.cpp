@@ -3,9 +3,9 @@
 namespace pcpp
 {
 
-	MacAddress MacAddress::Zero(0, 0, 0, 0, 0, 0);
+	const MacAddress MacAddress::Zero(0, 0, 0, 0, 0, 0);
 
-	MacAddress MacAddress::Broadcast(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+	const MacAddress MacAddress::Broadcast(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
 
 	std::string MacAddress::toString() const
 	{
