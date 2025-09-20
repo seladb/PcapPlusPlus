@@ -253,6 +253,7 @@ namespace pcpp
 		void setDirection(Direction dir)
 		{
 			m_Dir = dir;
+			invalidateCache();
 		}
 	};
 
