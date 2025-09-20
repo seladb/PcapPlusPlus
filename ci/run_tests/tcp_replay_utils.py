@@ -9,17 +9,6 @@ from pathlib import Path
 
 PCAP_FILE_PATH = Path("Tests", "Pcap++Test", "PcapExamples", "example.pcap").absolute()
 
-@contextmanager
-def tcp_replay_worker(interface: str, tcpreplay_dir: str):
-    tcpreplay_proc = subprocess.Popen(
-        ["tcpreplay", "-i", interface, "--mbps=10", "-l", "0", PCAP_FILE_PATH],
-        cwd=tcpreplay_dir,
-    )
-    try:
-        yield tcpreplay_proc
-    finally:
-        tcpreplay_proc.kill()
-
 
 @dataclass
 class TcpReplayTask:
