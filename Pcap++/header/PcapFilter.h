@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include "ArpLayer.h"
 #include "RawPacket.h"
-#include "DeprecationUtils.h"
 
 // Forward Declaration - used in GeneralFilter
 struct bpf_program;
