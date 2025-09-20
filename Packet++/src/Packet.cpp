@@ -66,7 +66,7 @@ namespace pcpp
 		// As the stop conditions are inclusive, the parse must go one layer further and then roll back if needed
 		bool rollbackLastLayer = false;
 		bool foundTargetProtocol = false;
-		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
+		for (auto* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			// Mark the current layer as allocated in the packet
 			curLayer->m_IsAllocatedInPacket = true;
