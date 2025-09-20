@@ -4,10 +4,9 @@ import subprocess
 import scapy.arch.windows
 from ipaddress import IPv4Address
 
+from tcp_replay_utils import TcpReplay, PCAP_FILE_PATH
+
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
-PCAP_FILE_PATH = os.path.abspath(
-    os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
-)
 
 
 def validate_ipv4_address(address):
@@ -28,37 +27,22 @@ def get_ip_by_guid(guid):
     return None
 
 
-def find_interface():
-    completed_process = subprocess.run(
-        ["tcpreplay.exe", "--listnics"],
-        shell=True,
-        capture_output=True,
-        cwd=TCPREPLAY_PATH,
-    )
-    if completed_process.returncode != 0:
-        print('Error executing "tcpreplay.exe --listnics"!')
-        exit(1)
+def find_interface(tcp_replay: TcpReplay):
+    nic_devices = tcp_replay.get_nic_list()
 
-    raw_nics_output = completed_process.stdout.decode("utf-8")
-    for row in raw_nics_output.split("\n")[2:]:
-        columns = row.split("\t")
-        if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
-            interface = columns[1]
-            try:
-                nic_guid = interface.lstrip("\\Device\\NPF_")
-                ip_address = get_ip_by_guid(nic_guid)
-                if ip_address.startswith("169.254"):
-                    continue
-                completed_process = subprocess.run(
-                    ["curl", "--interface", ip_address, "www.google.com"],
-                    capture_output=True,
-                    shell=True,
-                )
-                if completed_process.returncode != 0:
-                    continue
-                return interface, ip_address
-            except Exception:
-                pass
+    for device in nic_devices:
+        nic_guid = device.lstrip("\\Device\\NPF_")
+        ip_address = get_ip_by_guid(nic_guid)
+
+        if ip_address and not ip_address.startswith("169.254"):
+            completed_process = subprocess.run(
+                ["curl", "--interface", ip_address, "www.google.com"],
+                capture_output=True,
+                shell=True,
+            )
+            if completed_process.returncode == 0:
+                return device, ip_address
+
     return None, None
 
 
@@ -157,31 +141,26 @@ def main():
     )
     args = parser.parse_args()
 
-    tcpreplay_interface, ip_address = find_interface()
-    if not tcpreplay_interface or not ip_address:
-        print("Cannot find an interface to run tests on!")
-        exit(1)
-    print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
-
     if args.coverage:
         run_packet_coverage()
     else:
         run_packet_tests()
 
-    try:
-        tcpreplay_cmd = (
-            f'tcpreplay.exe -i "{tcpreplay_interface}" --mbps=10 -l 0 {PCAP_FILE_PATH}'
-        )
-        tcpreplay_proc = subprocess.Popen(tcpreplay_cmd, shell=True, cwd=TCPREPLAY_PATH)
+    tcp_replay = TcpReplay(TCPREPLAY_PATH)
 
-        skip_tests = ["TestRemoteCapture"] + args.skip_tests
+    tcpreplay_interface, ip_address = find_interface(tcp_replay)
+    if not tcpreplay_interface or not ip_address:
+        print("Cannot find an interface to run tests on!")
+        exit(1)
+
+    print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
+
+    skip_tests = ["TestRemoteCapture"] + args.skip_tests
+    with tcp_replay.replay(tcpreplay_interface, PCAP_FILE_PATH):
         if args.coverage:
             run_pcap_coverage(ip_address, skip_tests)
         else:
             run_pcap_tests(ip_address, skip_tests)
-
-    finally:
-        subprocess.call(["taskkill", "/F", "/T", "/PID", str(tcpreplay_proc.pid)])
 
 
 if __name__ == "__main__":
