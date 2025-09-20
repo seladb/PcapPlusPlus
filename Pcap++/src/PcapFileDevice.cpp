@@ -129,11 +129,18 @@ namespace pcpp
 
 			bool isPcapFile(std::istream& content)
 			{
-				constexpr std::array<uint32_t, 4> pcapMagicNumbers = {
+				// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
+				// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
+				constexpr std::array<uint32_t, 6> pcapMagicNumbers = {
 					0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
 					0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
+					// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
 					0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
-					0x4d'3c'b2'a1   // regular pcap, nanosecond-precision (byte-swapped)
+					0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
+					// Libpcap 0.9.1 and later support reading a modified pcap format that contains an extended header.
+					// Format reference: https://wiki.wireshark.org/Development/LibpcapFileFormat#modified-pcap
+					0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
+					0x34'cd'b2'a1   // Alexey Kuznetzov's modified libpcap format (byte-swapped)
 				};
 
 				StreamPositionCheckpoint checkpoint(content);
