@@ -73,7 +73,7 @@ namespace pcpp
 		return true;
 	}
 
-	bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket)
+	bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket) const
 	{
 		if (rawPacket == nullptr)
 		{
@@ -85,7 +85,7 @@ namespace pcpp
 	}
 
 	bool BpfFilterWrapper::matchPacketWithFilter(const uint8_t* packetData, uint32_t packetDataLength,
-	                                             timespec packetTimestamp, uint16_t linkType)
+	                                             timespec packetTimestamp, uint16_t linkType) const
 	{
 		return matches(packetData, packetDataLength, packetTimestamp, linkType);
 	}
@@ -151,7 +151,7 @@ namespace pcpp
 		return BpfProgramUPtr(newProg.release());
 	}
 
-	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
+	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket) const
 	{
 		if (rawPacket == nullptr)
 		{

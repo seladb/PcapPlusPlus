@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "ArpLayer.h"
 #include "RawPacket.h"
+#include "DeprecationUtils.h"
 
 // Forward Declaration - used in GeneralFilter
 struct bpf_program;
@@ -115,7 +116,7 @@ namespace pcpp
 		/// @param[in] rawPacket A pointer to a raw packet which the filter will be matched against
 		/// @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
 		/// could not be compiled
-		bool matchPacketWithFilter(const RawPacket* rawPacket);
+		bool matchPacketWithFilter(const RawPacket* rawPacket) const;
 
 		/// Match a packet data with the filter stored in this object. If the filter is empty the method returns "true".
 		/// If the link type provided is different than the one set in setFilter(), the filter will be re-compiled
@@ -127,7 +128,7 @@ namespace pcpp
 		/// @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
 		/// could not be compiled
 		bool matchPacketWithFilter(const uint8_t* packetData, uint32_t packetDataLength, timespec packetTimestamp,
-		                           uint16_t linkType);
+		                           uint16_t linkType) const;
 
 		/// @brief Match a packet with the filter stored in this object.
 		///
@@ -176,7 +177,7 @@ namespace pcpp
 		/// Match a raw packet with a given BPF filter.
 		/// @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
 		/// @return True if a raw packet matches the BPF filter or false otherwise
-		bool matchPacketWithFilter(RawPacket* rawPacket);
+		bool matchPacketWithFilter(RawPacket* rawPacket) const;
 
 		/// @brief Match a raw packet against the filter.
 		/// @param rawPacket The raw packet to match against.
