@@ -124,7 +124,19 @@ namespace pcpp
 		/// it returns an instance of PcapFileReaderDevice
 		/// @param[in] fileName The file name to open
 		/// @return An instance of the reader to read the file. Notice you should free this instance when done using it
+		/// @deprecated Prefer `createReader` due to selection of reader based on file content instead of extension.
+		PCPP_DEPRECATED("Prefer `createReader` due to selection of reader based on file content instead of extension.")
 		static IFileReaderDevice* getReader(const std::string& fileName);
+
+		/// @brief Creates an instance of the reader best fit to read the file.
+		///
+		/// The factory function uses heuristics based on the file content to decide the reader.
+		/// If the file type is known at compile time, it is better to construct a concrete reader instance directly.
+		///
+		/// @param[in] fileName The path to the file to open.
+		/// @return A unique pointer to a reader instance or nullptr if the file is not supported.
+		/// @throws std::runtime_error If the file could not be opened.
+		static std::unique_ptr<IFileReaderDevice> createReader(const std::string& fileName);
 	};
 
 	/// @class IFileWriterDevice
