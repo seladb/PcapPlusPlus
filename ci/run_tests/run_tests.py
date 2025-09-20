@@ -3,22 +3,9 @@ from __future__ import annotations
 import os
 import subprocess
 import argparse
-from contextlib import contextmanager
 from scapy.all import get_if_addr
 
-PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
-
-
-@contextmanager
-def tcp_replay_worker(interface: str, tcpreplay_dir: str):
-    tcpreplay_proc = subprocess.Popen(
-        ["tcpreplay", "-i", interface, "--mbps=10", "-l", "0", PCAP_FILE_PATH],
-        cwd=tcpreplay_dir,
-    )
-    try:
-        yield tcpreplay_proc
-    finally:
-        tcpreplay_proc.kill()
+from tcp_replay import TcpReplay
 
 
 def run_packet_tests(args: list[str], use_sudo: bool):
@@ -31,11 +18,11 @@ def run_packet_tests(args: list[str], use_sudo: bool):
         raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
 
 
-def run_pcap_tests(interface: str, tcpreplay_dir: str, args: list[str], use_sudo: bool):
+def run_pcap_tests(interface: str, tcpreplay: TcpReplay, args: list[str], use_sudo: bool):
     ip_address = get_if_addr(interface)
     print(f"IP address is: {ip_address}")
 
-    with tcp_replay_worker(interface, tcpreplay_dir):
+    with tcpreplay.replay(interface):
         cmd_line = ["sudo"] if use_sudo else []
         cmd_line += [os.path.join("Bin", "Pcap++Test"), "-i", ip_address, *args]
 
@@ -84,9 +71,11 @@ def main():
         run_packet_tests(args.packet_test_args.split(), args.use_sudo)
 
     if "pcap" in args.test_suites:
+        tcp_replay = TcpReplay(args.tcpreplay_dir)
+
         run_pcap_tests(
             args.interface,
-            args.tcpreplay_dir,
+            tcp_replay,
             args.pcap_test_args.split(),
             args.use_sudo,
         )
