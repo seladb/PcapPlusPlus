@@ -18,7 +18,9 @@ def run_packet_tests(args: list[str], use_sudo: bool):
         raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
 
 
-def run_pcap_tests(interface: str, tcp_replay: TcpReplay, args: list[str], use_sudo: bool):
+def run_pcap_tests(
+    interface: str, tcp_replay: TcpReplay, args: list[str], use_sudo: bool
+):
     ip_address = get_if_addr(interface)
     print(f"IP address is: {ip_address}")
 

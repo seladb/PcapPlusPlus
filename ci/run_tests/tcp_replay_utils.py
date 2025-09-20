@@ -13,6 +13,7 @@ PCAP_FILE_PATH = Path("Tests", "Pcap++Test", "PcapExamples", "example.pcap").abs
 @dataclass
 class TcpReplayTask:
     """A replay task that holds the tcpreplay instance and the subprocess procedure."""
+
     replay: TcpReplay
     procedure: subprocess.Popen
 
@@ -32,10 +33,14 @@ class TcpReplay:
         if sys.platform == "win32":
             self.executable = self.executable.with_suffix(".exe")
         if not self.executable.exists():
-            raise FileNotFoundError(f"tcpreplay executable not found at {self.executable}")
+            raise FileNotFoundError(
+                f"tcpreplay executable not found at {self.executable}"
+            )
 
     @contextmanager
-    def replay(self, interface: str, pcap_file: Path) -> Generator[TcpReplayTask, None, None]:
+    def replay(
+        self, interface: str, pcap_file: Path
+    ) -> Generator[TcpReplayTask, None, None]:
         """
         Context manager that starts tcpreplay and yields a TcpReplayTask.
 
@@ -74,7 +79,6 @@ class TcpReplay:
             if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
                 nics.append(columns[1])
         return nics
-
 
     @staticmethod
     def _kill_process(proc: subprocess.Popen) -> None:
