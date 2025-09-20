@@ -166,7 +166,7 @@ namespace pcpp
 	{
 		if (!m_CachedFilter)
 		{
-			if (!cacheFilterInternal())
+			if (!cacheFilter())
 			{
 				return false;
 			}
