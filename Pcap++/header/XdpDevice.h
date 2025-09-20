@@ -179,6 +179,11 @@ namespace pcpp
 		/// Close the device. This method closes the AF_XDP socket and frees the UMEM that was allocated for it.
 		void close() override;
 
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
+
 		/// Start receiving packets. In order to use this method the device should be open. Note that this method is
 		/// blocking and will return if:
 		/// - stopReceivePackets() was called from within the user callback
@@ -284,6 +289,8 @@ namespace pcpp
 			uint64_t txSentBytes;
 			uint64_t txCompletedPackets;
 		};
+
+		bool m_DeviceOpened = false;
 
 		std::string m_InterfaceName;
 		XdpDeviceConfiguration* m_Config;

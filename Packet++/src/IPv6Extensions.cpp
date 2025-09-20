@@ -61,7 +61,7 @@ namespace pcpp
 		fragHdr->id = htobe32(fragId);
 
 		fragOffset /= 8;
-		fragOffset = htobe16(fragOffset << 3) & (uint16_t)0xf8ff;
+		fragOffset = htobe16(fragOffset << 3) & static_cast<uint16_t>(0xf8ff);
 		if (!lastFragment)
 			fragOffset = fragOffset | 0x0100;
 
