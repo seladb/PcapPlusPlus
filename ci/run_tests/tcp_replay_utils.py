@@ -18,13 +18,17 @@ class TcpReplayTask:
 
 
 class TcpReplay:
-    def __init__(self, tcpreplay_dir: str):
+    def __init__(self, tcpreplay_dir: str | None = None):
         """
         A wrapper class for managing tcpreplay operations.
 
-        :param tcpreplay_dir: Directory where tcpreplay is located.
+        :param tcpreplay_dir: Directory where tcpreplay is located. If None, assumes tcpreplay is in the system PATH.
         """
-        self.executable = Path(tcpreplay_dir) / "tcpreplay"
+        if tcpreplay_dir is None:
+            self.executable = Path("tcpreplay")
+        else:
+            self.executable = Path(tcpreplay_dir) / "tcpreplay"
+
         if sys.platform == "win32":
             self.executable = self.executable.with_suffix(".exe")
         if not self.executable.exists():
