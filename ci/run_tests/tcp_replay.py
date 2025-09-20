@@ -41,7 +41,12 @@ class TcpReplay:
 
     @contextmanager
     def replay(self, interface: str, pcap_file: Path) -> Generator[TcpReplayTask, None, None]:
-        """Context manager that starts tcpreplay and yields a TcpReplayTask."""
+        """
+        Context manager that starts tcpreplay and yields a TcpReplayTask.
+
+        :param interface: Network interface to use for replaying packets.
+        :param pcap_file: Path to the pcap file to replay.
+        """
         cmd = ["tcpreplay", "-i", interface, "--mbps=10", "-l", "0", str(pcap_file)]
         proc = subprocess.Popen(cmd, cwd=self.tcpreplay_dir)
         try:
