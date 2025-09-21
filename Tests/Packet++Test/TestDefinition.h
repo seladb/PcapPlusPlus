@@ -60,6 +60,7 @@ PTF_TEST_CASE(ResizeLayerTest);
 PTF_TEST_CASE(PrintPacketAndLayersTest);
 PTF_TEST_CASE(ProtocolFamilyMembershipTest);
 PTF_TEST_CASE(PacketParseLayerLimitTest);
+PTF_TEST_CASE(PacketParseMultiLayerTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);

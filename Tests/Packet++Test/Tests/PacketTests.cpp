@@ -20,6 +20,7 @@
 #include "PayloadLayer.h"
 #include "GeneralUtils.h"
 #include "SystemUtils.h"
+#include "BgpLayer.h"
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -1063,4 +1064,34 @@ PTF_TEST_CASE(PacketParseLayerLimitTest)
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions3.dat");
 	pcpp::Packet packet1(rawPacket1.get(), pcpp::OsiModelTransportLayer);
 	PTF_ASSERT_EQUAL(packet1.getLastLayer()->getOsiModelLayer(), pcpp::OsiModelTransportLayer);
+}
+
+PTF_TEST_CASE(PacketParseMultiLayerTest)
+{
+	// The BGP packet has 4 BGP messages inside.
+	auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_update2.dat");
+
+	// Limit to BGP layer
+	pcpp::Packet packet(rawPacket.get(), pcpp::BGP);
+
+	const size_t expectedNumOfBgpMessages = 4;
+	size_t actualNumOfBgpMessages = 0;
+
+	pcpp::BgpLayer* bgpLayer = packet.getLayerOfType<pcpp::BgpLayer>();
+	if (bgpLayer != nullptr)
+	{
+		++actualNumOfBgpMessages;
+	}
+
+	// The fallback iteration uses expected * 2, just to be sure we won't get into an infinite loop
+	for (; bgpLayer != nullptr && actualNumOfBgpMessages < expectedNumOfBgpMessages * 2;)
+	{
+		bgpLayer = packet.getNextLayerOfType<pcpp::BgpLayer>(bgpLayer);
+		if (bgpLayer != nullptr)
+		{
+			++actualNumOfBgpMessages;
+		}
+	}
+
+	PTF_ASSERT_EQUAL(actualNumOfBgpMessages, expectedNumOfBgpMessages);
 }
