@@ -32,7 +32,10 @@ class TcpReplay:
 
         if sys.platform == "win32":
             self.executable = self.executable.with_suffix(".exe")
-        if not self.executable.exists():
+
+        # Checking for executable existence does not work if it's in PATH
+        version_proc = subprocess.run([self.executable, "--version"], shell=True)
+        if version_proc.returncode != 0:
             raise FileNotFoundError(
                 f"tcpreplay executable not found at {self.executable}"
             )
