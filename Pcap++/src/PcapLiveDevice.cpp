@@ -230,58 +230,16 @@ namespace pcpp
 		}
 	}
 
-	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
-	                               bool calculateDefaultGateway)
-	    : IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1),
-	      m_InterfaceDetails(std::move(interfaceDetails)), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
-	{
-		m_DeviceMtu = 0;
-		m_LinkType = LINKTYPE_ETHERNET;
-
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice))
-		{
-			PCPP_LOG_DEBUG("Added live device: name=" << m_InterfaceDetails.name
-			                                          << "; desc=" << m_InterfaceDetails.description);
-			PCPP_LOG_DEBUG("   Addresses:");
-			for (auto const& address : m_InterfaceDetails.addresses)
-			{
-				PCPP_LOG_DEBUG("      " << address.toString());
-			}
-		}
-
-		if (calculateMTU)
-		{
-			setDeviceMtu();
-			PCPP_LOG_DEBUG("   MTU: " << m_DeviceMtu);
-		}
-
-		if (calculateDefaultGateway)
-		{
-			setDefaultGateway();
-			PCPP_LOG_DEBUG("   Default Gateway: " << m_DefaultGateway);
-		}
-
-		// init all other members
-		m_CaptureThreadStarted = false;
-		m_StopThread = false;
-		m_CaptureThread = {};
-		if (calculateMacAddress)
-		{
-			setDeviceMacAddress();
-			PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
-		}
-	}
-
 	namespace
 	{
 		struct StatisticsUpdateContext
 		{
 			OnStatsUpdateCallback cbOnStatsUpdate;
 			void* cbOnStatsUpdateUserCookie = nullptr;
-			std::chrono::milliseconds updateInterval = std::chrono::seconds(1);  // Default update interval is 1 second
+			std::chrono::milliseconds updateInterval = std::chrono::seconds(1);
 		};
 
-		void statsThreadMain(std::atomic_bool& stopFlag, internal::PcapHandle const& pcapDescriptor,
+		void statsThreadMain(std::atomic<bool>& stopFlag, internal::PcapHandle const& pcapDescriptor,
 		                     StatisticsUpdateContext context)
 		{
 			if (context.cbOnStatsUpdate == nullptr)
@@ -290,7 +248,7 @@ namespace pcpp
 				return;
 			}
 
-			PCPP_LOG_DEBUG("Started statistics thread");
+			PCPP_LOG_DEBUG("Begin periodic statistics update procedure");
 
 			IPcapDevice::PcapStats stats;
 			while (!stopFlag.load())
@@ -312,7 +270,7 @@ namespace pcpp
 				}
 				std::this_thread::sleep_for(context.updateInterval);
 			}
-			PCPP_LOG_DEBUG("Ended statistics thread");
+			PCPP_LOG_DEBUG("Ended periodic statistics update procedure");
 		}
 
 		struct CaptureContext
@@ -436,7 +394,8 @@ namespace pcpp
 			hasStarted.store(true);
 
 			// If the callback is null, we use a no-op handler to avoid unnecessary overhead
-			// Statistics only capture still requires pcap_dispatch to be called, but we don't need to process packets.
+			// Statistics only capture still requires pcap_dispatch to be called, but we don't need to process
+			// packets.
 			pcap_handler callbackHandler = context.callback ? onPacketArrivesCallback : onPacketArrivesNoop;
 
 			while (!stopFlag.load())
@@ -470,6 +429,48 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
 		}
 	}  // namespace
+
+	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
+	                               bool calculateDefaultGateway)
+	    : IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1),
+	      m_InterfaceDetails(std::move(interfaceDetails)), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
+	{
+		m_DeviceMtu = 0;
+		m_LinkType = LINKTYPE_ETHERNET;
+
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice))
+		{
+			PCPP_LOG_DEBUG("Added live device: name=" << m_InterfaceDetails.name
+			                                          << "; desc=" << m_InterfaceDetails.description);
+			PCPP_LOG_DEBUG("   Addresses:");
+			for (auto const& address : m_InterfaceDetails.addresses)
+			{
+				PCPP_LOG_DEBUG("      " << address.toString());
+			}
+		}
+
+		if (calculateMTU)
+		{
+			setDeviceMtu();
+			PCPP_LOG_DEBUG("   MTU: " << m_DeviceMtu);
+		}
+
+		if (calculateDefaultGateway)
+		{
+			setDefaultGateway();
+			PCPP_LOG_DEBUG("   Default Gateway: " << m_DefaultGateway);
+		}
+
+		// init all other members
+		m_CaptureThreadStarted = false;
+		m_StopThread = false;
+		m_CaptureThread = {};
+		if (calculateMacAddress)
+		{
+			setDeviceMacAddress();
+			PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
+		}
+	}
 
 	internal::PcapHandle PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	{
@@ -740,6 +741,7 @@ namespace pcpp
 		if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 		{
 			StatisticsUpdateContext statsContext;
+
 			statsContext.cbOnStatsUpdate = std::move(onStatsUpdate);
 			statsContext.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
 			statsContext.updateInterval = std::chrono::seconds(intervalInSecondsToUpdateStats);
