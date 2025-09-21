@@ -248,7 +248,7 @@ namespace pcpp
 				return;
 			}
 
-			PCPP_LOG_DEBUG("Started statistics thread");
+			PCPP_LOG_DEBUG("Begin periodic statistics update procedure");
 
 			IPcapDevice::PcapStats stats;
 			while (!stopFlag.load())
@@ -270,7 +270,7 @@ namespace pcpp
 				}
 				std::this_thread::sleep_for(context.updateInterval);
 			}
-			PCPP_LOG_DEBUG("Ended statistics thread");
+			PCPP_LOG_DEBUG("Ended periodic statistics update procedure");
 		}
 	}  // namespace
 
