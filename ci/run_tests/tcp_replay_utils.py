@@ -34,11 +34,7 @@ class TcpReplay:
             self.executable = self.executable.with_suffix(".exe")
 
         # Checking for executable existence does not work if it's in PATH
-        version_proc = subprocess.run([self.executable, "--version"], shell=True)
-        if version_proc.returncode != 0:
-            raise FileNotFoundError(
-                f"tcpreplay executable not found at {self.executable}"
-            )
+        subprocess.run([self.executable, "--version"], capture_output=True, check=True)
 
     @contextmanager
     def replay(
@@ -69,7 +65,6 @@ class TcpReplay:
 
         completed_process = subprocess.run(
             [self.executable, "--listnics"],
-            shell=True,
             capture_output=True,
         )
         if completed_process.returncode != 0:
