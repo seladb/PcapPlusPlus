@@ -108,7 +108,7 @@ public:
 
 	~KniDeviceTeardown()
 	{
-		if (m_KniDevice != NULL && m_KniDevice->isInitialized() && m_KniDevice->isOpened())
+		if (m_KniDevice != nullptr && m_KniDevice->isInitialized() && m_KniDevice->isOpened())
 		{
 			m_KniDevice->stopRequestHandlerThread();
 			m_KniDevice->close();
@@ -130,7 +130,7 @@ PTF_TEST_CASE(TestKniDevice)
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	uint16_t KNI_TEST_MTU = 1540;
 	bool isLinkUp = true;
-	pcpp::KniDevice* device = NULL;
+	pcpp::KniDevice* device = nullptr;
 	pcpp::KniDevice::KniDeviceConfiguration devConfig;
 	std::ostringstream deviceNameStream;
 	deviceNameStream << KNI_TEST_NAME << KNI_DEVICE0;
@@ -307,7 +307,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		KNI_MTU = 1500,
 		BLOCK_TIMEOUT = 3
 	};
-	pcpp::KniDevice* device = NULL;
+	pcpp::KniDevice* device = nullptr;
 	unsigned int counter = 0;
 	pcpp::KniDevice::KniDeviceConfiguration devConfig;
 	pcpp::IPv4Address kniIp = PcapTestGlobalArgs.kniIp;
@@ -362,7 +362,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter));
 		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL));
+		PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, nullptr));
 		pcpp::Logger::getInstance().enableLogs();
 		std::this_thread::sleep_for(std::chrono::seconds(1));  // Give some time to start capture thread
 		for (int i = 0; i < 10; ++i)

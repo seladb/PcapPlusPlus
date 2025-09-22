@@ -68,7 +68,7 @@ namespace pcpp
 				return false;
 			}
 
-			std::unique_ptr<bpf_program> newProg = std::unique_ptr<bpf_program>(new bpf_program);
+			auto newProg = std::make_unique<bpf_program>();
 			int ret = pcap_compile(pcap.get(), newProg.get(), filter.c_str(), 1, 0);
 			if (ret < 0)
 			{

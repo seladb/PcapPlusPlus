@@ -142,6 +142,51 @@ static void BM_PacketParsing(benchmark::State& state)
 }
 BENCHMARK(BM_PacketParsing);
 
+static void BM_PacketPureParsing(benchmark::State& state)
+{
+	pcpp::PcapFileReaderDevice reader(pcapFileName);
+	if (!reader.open())
+	{
+		state.SkipWithError("Cannot open pcap file for reading");
+		return;
+	}
+
+	// Preloads all packets into memory
+	pcpp::RawPacketVector rawPackets;
+	reader.getNextPackets(rawPackets);
+
+	if (rawPackets.size() == 0)
+	{
+		state.SkipWithError("No packets to parse");
+		return;
+	}
+
+	size_t totalProcessedItems = 0;
+	size_t totalProcessedBytes = 0;
+	size_t currentPacketIndex = 0;
+	for (auto _ : state)
+	{
+		pcpp::RawPacket* rawPacket = rawPackets.at(currentPacketIndex);
+
+		pcpp::Packet parsedPacket(rawPacket);
+
+		benchmark::DoNotOptimize(parsedPacket.getFirstLayer());
+
+		++totalProcessedItems;
+		totalProcessedBytes += rawPacket->getRawDataLen();
+		++currentPacketIndex;
+
+		if (currentPacketIndex >= rawPackets.size())
+		{
+			currentPacketIndex = 0;  // Loop back to the start
+		}
+	}
+
+	state.SetBytesProcessed(totalProcessedBytes);
+	state.SetItemsProcessed(totalProcessedItems);
+}
+BENCHMARK(BM_PacketPureParsing);
+
 static void BM_PacketCrafting(benchmark::State& state)
 {
 	size_t totalBytes = 0;

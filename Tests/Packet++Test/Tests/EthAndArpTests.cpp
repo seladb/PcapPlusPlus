@@ -10,6 +10,8 @@
 #include "OUILookup.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(OUILookup)
 {
 	pcpp::OUILookup lookupEngineJson;
@@ -89,12 +91,9 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 
 PTF_TEST_CASE(EthAndArpPacketParsing)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ArpResponsePacket.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ArpResponsePacket.dat");
-
-	pcpp::Packet ethPacket(&rawPacket1);
+	pcpp::Packet ethPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(ethPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_NOT_NULL(ethPacket.getLayerOfType<pcpp::EthLayer>());
 
@@ -263,11 +262,8 @@ PTF_TEST_CASE(ArpPacketCreation)
 
 PTF_TEST_CASE(EthDot3LayerParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/EthDot3.dat");
-	pcpp::Packet ethDot3Packet(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/EthDot3.dat");
+	pcpp::Packet ethDot3Packet(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(ethDot3Packet.isPacketOfType(pcpp::EthernetDot3));
 	pcpp::EthDot3Layer* ethDot3Layer = ethDot3Packet.getLayerOfType<pcpp::EthDot3Layer>();
@@ -283,11 +279,8 @@ PTF_TEST_CASE(EthDot3LayerParsingTest)
 
 PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/EthDot3.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/EthDot3_2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/EthDot3.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/EthDot3_2.dat");
 
 	// create a new EthDot3 packet
 
@@ -304,7 +297,7 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer));
 	newEthDot3Packet.computeCalculateFields();
 
-	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 
 	// edit an EthDot3 packet
 
@@ -318,9 +311,6 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(newPayloadLayer2, true));
 	newEthDot3Packet.computeCalculateFields();
 
-	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer2, bufferLength2);
-
-	delete[] buffer1;
-	delete[] buffer2;
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 
 }  // EthDot3LayerCreateEditTest

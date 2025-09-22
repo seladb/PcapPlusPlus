@@ -7,6 +7,9 @@
 #include <cstdint>
 #include <string>
 #include <array>
+#include <memory>
+
+#include "DeprecationUtils.h"
 
 /// @file
 
@@ -28,10 +31,17 @@ namespace pcpp
 		/// The byte array length should be 6 (as MAC address is 6-byte long), and the remaining bytes are ignored.
 		/// If the byte array is invalid, the constructor throws an exception.
 		/// @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
-		explicit MacAddress(const uint8_t addr[6])
-		{
-			std::copy(addr, addr + 6, m_Address.begin());
-		}
+		/// @remarks This constructor assumes that the provided array is exactly 6 bytes long.
+		/// Prefer using the constructor with size parameter if the array length is not guaranteed to be 6 bytes.
+		explicit MacAddress(const uint8_t addr[6]) : MacAddress(addr, 6)
+		{}
+
+		/// @brief A constructor that creates an instance of the class out of a byte array of 6 bytes.
+		/// @param[in] addr The address as a byte array in network byte order
+		/// @param[in] size The size of the array in bytes
+		/// @throws std::invalid_argument If the address pointer is null.
+		/// @throws std::out_of_range If the provided size is smaller than 6 bytes.
+		explicit MacAddress(const uint8_t* addr, size_t size);
 
 		/// A constructor that creates an instance of the class out of a std::array.
 		/// The array length should be 6 (as MAC address is 6-byte long).
@@ -47,7 +57,7 @@ namespace pcpp
 		/// A template constructor that creates an instance of the class out of a string convertible to std::string.
 		/// If the string doesn't represent a valid MAC address, the constructor throws an exception.
 		/// @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
-		template <typename T, typename = typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
+		template <typename T, typename = std::enable_if_t<std::is_convertible<T, std::string>::value>>
 		MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr))
 		{}
 
@@ -127,19 +137,44 @@ namespace pcpp
 		/// Allocates a byte array of length 6 and copies address value into it. Array deallocation is user
 		/// responsibility
 		/// @param[in] arr A pointer to where array will be allocated
+		/// @throws std::invalid_argument If the buffer pointer is null.
+		/// @deprecated Use copyToNewBuffer instead.
+		PCPP_DEPRECATED("Use copyToNewBuffer instead.")
 		void copyTo(uint8_t** arr) const
 		{
-			*arr = new uint8_t[m_Address.size()];
-			std::copy(m_Address.begin(), m_Address.end(), *arr);
+			size_t unused = 0;
+			copyToNewBuffer(arr, unused);
 		}
 
 		/// Gets a pointer to an already allocated byte array and copies the address value to it.
 		/// This method assumes array allocated size is at least 6 (the size of a MAC address)
 		/// @param[in] arr A pointer to the array which address will be copied to
+		/// @remarks This method assumes that the provided array is at least 6 bytes long.
+		/// Prefer using the copyTo(uint8_t* buffer, size_t size) method if the array length is not guaranteed to be 6
+		/// bytes.
 		void copyTo(uint8_t arr[6]) const
 		{
-			std::copy(m_Address.begin(), m_Address.end(), arr);
+			copyTo(arr, 6);
 		}
+
+		/// @brief Copies the address value to a user-provided buffer.
+		///
+		/// This function supports querying. If the buffer is null and size is zero, it returns the required size.
+		///
+		/// @param[in] buffer A pointer to the buffer where the address will be copied
+		/// @param[in] size The size of the buffer in bytes
+		/// @return The number of bytes copied to the buffer or the required size if the buffer is too small.
+		/// @throws std::invalid_argument If the provided buffer is null and size is not zero.
+		size_t copyTo(uint8_t* buffer, size_t size) const;
+
+		/// @brief Allocates a new buffer and copies the address value to it.
+		/// The user is responsible for deallocating the buffer.
+		///
+		/// @param buffer A pointer to a pointer where the new buffer will be allocated
+		/// @param size A reference to a size_t variable that will be updated with the size of the allocated buffer
+		/// @return True if the buffer was successfully allocated and the address was copied, false otherwise.
+		/// @throws std::invalid_argument If the buffer pointer is null.
+		bool copyToNewBuffer(uint8_t** buffer, size_t& size) const;
 
 		/// A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		static MacAddress Zero;

@@ -4,13 +4,15 @@
 #include "SSHLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(SSHParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSHIdentification.dat");
-	pcpp::Packet sshIdentificationPacket(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSHIdentification.dat");
+	pcpp::Packet sshIdentificationPacket(rawPacket1.get());
 
 	// SSH Identification
 	PTF_ASSERT_TRUE(sshIdentificationPacket.isPacketOfType(pcpp::SSH));
@@ -20,8 +22,8 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_EQUAL(sshIdentLayer->getIdentificationMessage(), "SSH-2.0-OpenSSH_5.3");
 
 	// SSH Key Exchange Init
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SSHKexInit.dat");
-	pcpp::Packet sshKexInitPacket(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SSHKexInit.dat");
+	pcpp::Packet sshKexInitPacket(rawPacket2.get());
 	PTF_ASSERT_TRUE(sshKexInitPacket.isPacketOfType(pcpp::SSH));
 	pcpp::SSHKeyExchangeInitMessage* sshKexInitLayer =
 	    sshKexInitPacket.getLayerOfType<pcpp::SSHKeyExchangeInitMessage>();
@@ -57,8 +59,8 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getLanguagesServerToClient(), "");
 	PTF_ASSERT_FALSE(sshKexInitLayer->isFirstKexPacketFollows());
 
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/SSHNewKeysAndKexDH.dat");
-	pcpp::Packet sshNewKeysKexDHPacket(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/SSHNewKeysAndKexDH.dat");
+	pcpp::Packet sshNewKeysKexDHPacket(rawPacket3.get());
 	PTF_ASSERT_TRUE(sshNewKeysKexDHPacket.isPacketOfType(pcpp::SSH));
 	// SSH DH Group Exchange Reply
 	pcpp::SSHHandshakeMessage* sshHandshakeMessage = sshNewKeysKexDHPacket.getLayerOfType<pcpp::SSHHandshakeMessage>();
@@ -82,8 +84,8 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->toString(), "SSH Layer, Handshake Message: New Keys");
 
 	// SSH DH Group Exchange Init
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/SSHDHGexInit.dat");
-	pcpp::Packet sshDHGexInit(&rawPacket4);
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/SSHDHGexInit.dat");
+	pcpp::Packet sshDHGexInit(rawPacket4.get());
 	PTF_ASSERT_TRUE(sshDHGexInit.isPacketOfType(pcpp::SSH));
 	sshHandshakeMessage = sshDHGexInit.getLayerOfType<pcpp::SSHHandshakeMessage>();
 	PTF_ASSERT_NOT_NULL(sshHandshakeMessage);
@@ -96,8 +98,8 @@ PTF_TEST_CASE(SSHParsingTest)
 	                 "SSH Layer, Handshake Message: Diffie-Hellman Group Exchange Init");
 
 	// SSH Encrypted Message
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/SSHEncryptedMessage.dat");
-	pcpp::Packet sshEncryptedPacket(&rawPacket5);
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/SSHEncryptedMessage.dat");
+	pcpp::Packet sshEncryptedPacket(rawPacket5.get());
 	PTF_ASSERT_TRUE(sshEncryptedPacket.isPacketOfType(pcpp::SSH));
 	pcpp::SSHEncryptedMessage* sshEncryptedMsgLayer = sshEncryptedPacket.getLayerOfType<pcpp::SSHEncryptedMessage>();
 	PTF_ASSERT_NOT_NULL(sshEncryptedMsgLayer);
@@ -111,37 +113,37 @@ PTF_TEST_CASE(SSHMalformedParsingTest)
 	gettimeofday(&time, nullptr);
 
 	// SSH identification message that ends with "\r" instead of "\n" or "\r\n"
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSHIdentification_Malformed.dat");
-	pcpp::Packet sshIdentificationMalformedPacket(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SSHIdentification_Malformed.dat");
+	pcpp::Packet sshIdentificationMalformedPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(sshIdentificationMalformedPacket.isPacketOfType(pcpp::SSH));
 	PTF_ASSERT_NULL(sshIdentificationMalformedPacket.getLayerOfType<pcpp::SSHKeyExchangeInitMessage>());
 	PTF_ASSERT_NOT_NULL(sshIdentificationMalformedPacket.getLayerOfType<pcpp::SSHEncryptedMessage>());
 
 	// SSH message which its packet len is larger than the whole layer len
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SSHMessage_MalformedLen.dat");
-	pcpp::Packet sshMessageMalformedLenPacket(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SSHMessage_MalformedLen.dat");
+	pcpp::Packet sshMessageMalformedLenPacket(rawPacket2.get());
 	PTF_ASSERT_TRUE(sshMessageMalformedLenPacket.isPacketOfType(pcpp::SSH));
 	PTF_ASSERT_NULL(sshMessageMalformedLenPacket.getLayerOfType<pcpp::SSHHandshakeMessage>());
 	PTF_ASSERT_NOT_NULL(sshMessageMalformedLenPacket.getLayerOfType<pcpp::SSHEncryptedMessage>());
 
 	// SSH message which its padding len is larger than message len
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/SSHMessage_MalformedPaddingLen.dat");
-	pcpp::Packet sshMessageMalformedPadLenPacket(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/SSHMessage_MalformedPaddingLen.dat");
+	pcpp::Packet sshMessageMalformedPadLenPacket(rawPacket3.get());
 	PTF_ASSERT_TRUE(sshMessageMalformedPadLenPacket.isPacketOfType(pcpp::SSH));
 	PTF_ASSERT_NULL(sshMessageMalformedPadLenPacket.getLayerOfType<pcpp::SSHHandshakeMessage>());
 	PTF_ASSERT_NOT_NULL(sshMessageMalformedPadLenPacket.getLayerOfType<pcpp::SSHEncryptedMessage>());
 
 	// SSH message with unknown message type
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/SSHMessage_MalformedType.dat");
-	pcpp::Packet sshMessageMalformedTypePacket(&rawPacket3);
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/SSHMessage_MalformedType.dat");
+	pcpp::Packet sshMessageMalformedTypePacket(rawPacket3.get());
 	PTF_ASSERT_TRUE(sshMessageMalformedTypePacket.isPacketOfType(pcpp::SSH));
 	PTF_ASSERT_NULL(sshMessageMalformedTypePacket.getLayerOfType<pcpp::SSHHandshakeMessage>());
 	PTF_ASSERT_NOT_NULL(sshMessageMalformedTypePacket.getLayerOfType<pcpp::SSHEncryptedMessage>());
 
 	// KexInit with malformed size of MacAlgorithmsClientToServer (size is greater than the size of the rest of the
 	// layer)
-	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/SSHKexInit_Malformed.dat");
-	pcpp::Packet sshKexInitMalformedPacket(&rawPacket5);
+	auto rawPacket5 = createPacketFromHexResource("PacketExamples/SSHKexInit_Malformed.dat");
+	pcpp::Packet sshKexInitMalformedPacket(rawPacket5.get());
 	PTF_ASSERT_TRUE(sshKexInitMalformedPacket.isPacketOfType(pcpp::SSH));
 	pcpp::SSHKeyExchangeInitMessage* sshKexInitLayer =
 	    sshKexInitMalformedPacket.getLayerOfType<pcpp::SSHKeyExchangeInitMessage>();

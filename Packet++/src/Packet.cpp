@@ -15,6 +15,7 @@
 #include "Logger.h"
 #include <numeric>
 #include <sstream>
+#include <memory>
 #ifdef _MSC_VER
 #	include <time.h>
 #	include "SystemUtils.h"
@@ -103,8 +104,9 @@ namespace pcpp
 			                       (m_LastLayer->getData() + m_LastLayer->getDataLen()));
 			if (trailerLen > 0)
 			{
-				PacketTrailerLayer* trailerLayer = new PacketTrailerLayer(
-				    (uint8_t*)(m_LastLayer->getData() + m_LastLayer->getDataLen()), trailerLen, m_LastLayer, this);
+				PacketTrailerLayer* trailerLayer =
+				    new PacketTrailerLayer(static_cast<uint8_t*>(m_LastLayer->getData() + m_LastLayer->getDataLen()),
+				                           trailerLen, m_LastLayer, this);
 
 				trailerLayer->m_IsAllocatedInPacket = true;
 				m_LastLayer->setNextLayer(trailerLayer);
@@ -208,13 +210,11 @@ namespace pcpp
 		// set all data pointers in layers to the new array address
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
 
-		Layer* curLayer = m_FirstLayer;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			PCPP_LOG_DEBUG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
-			curLayer->m_Data = (uint8_t*)dataPtr;
+			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 			dataPtr += curLayer->getHeaderLen();
-			curLayer = curLayer->getNextLayer();
 		}
 	}
 
@@ -294,7 +294,7 @@ namespace pcpp
 
 		// first, get ptr and data length of the raw packet
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
-		size_t dataLen = (size_t)m_RawPacket->getRawDataLen();
+		size_t dataLen = static_cast<size_t>(m_RawPacket->getRawDataLen());
 
 		// if a packet trailer exists, get its length
 		size_t packetTrailerLen = 0;
@@ -302,11 +302,10 @@ namespace pcpp
 			packetTrailerLen = m_LastLayer->getDataLen();
 
 		// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
-		Layer* curLayer = m_FirstLayer;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			// set data ptr to layer
-			curLayer->m_Data = (uint8_t*)dataPtr;
+			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 
 			// there is an assumption here that the packet trailer, if exists, corresponds to the L2 (data link) layers.
 			// so if there is a packet trailer and this layer is L2 (data link), set its data length to contain the
@@ -320,9 +319,6 @@ namespace pcpp
 			// advance data ptr and data length
 			dataPtr += curLayer->getHeaderLen();
 			dataLen -= curLayer->getHeaderLen();
-
-			// move to next layer
-			curLayer = curLayer->getNextLayer();
 		}
 
 		return true;
@@ -427,8 +423,8 @@ namespace pcpp
 		// before removing the layer's data, copy it so it can be later assigned as the removed layer's data
 		size_t headerLen = layer->getHeaderLen();
 		size_t layerOldDataSize = headerLen;
-		uint8_t* layerOldData = new uint8_t[layerOldDataSize];
-		memcpy(layerOldData, layer->m_Data, layerOldDataSize);
+		auto layerOldData = std::make_unique<uint8_t[]>(layerOldDataSize);
+		memcpy(layerOldData.get(), layer->m_Data, layerOldDataSize);
 
 		// remove data from raw packet
 		size_t numOfBytesToRemove = headerLen;
@@ -436,7 +432,6 @@ namespace pcpp
 		if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToRemove))
 		{
 			PCPP_LOG_ERROR("Couldn't remove data from packet");
-			delete[] layerOldData;
 			return false;
 		}
 
@@ -463,7 +458,7 @@ namespace pcpp
 
 		// first, get ptr and data length of the raw packet
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
-		size_t dataLen = (size_t)m_RawPacket->getRawDataLen();
+		size_t dataLen = static_cast<size_t>(m_RawPacket->getRawDataLen());
 
 		curLayer = m_FirstLayer;
 
@@ -471,7 +466,7 @@ namespace pcpp
 		while (curLayer != nullptr)
 		{
 			// set data ptr to layer
-			curLayer->m_Data = (uint8_t*)dataPtr;
+			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 
 			// there is an assumption here that the packet trailer, if exists, corresponds to the L2 (data link) layers.
 			// so if there is a packet trailer and this layer is L2 (data link), set its data length to contain the
@@ -494,14 +489,13 @@ namespace pcpp
 		if (tryToDelete && layer->m_IsAllocatedInPacket)
 		{
 			delete layer;
-			delete[] layerOldData;
 		}
 		// if layer was not allocated by this packet or the tryToDelete is not set, detach it from the packet so it can
 		// be reused
 		else
 		{
 			layer->m_Packet = nullptr;
-			layer->m_Data = layerOldData;
+			layer->m_Data = layerOldData.release();
 			layer->m_DataLen = layerOldDataSize;
 		}
 
@@ -510,33 +504,29 @@ namespace pcpp
 
 	Layer* Packet::getLayerOfType(ProtocolType layerType, int index) const
 	{
-		Layer* curLayer = getFirstLayer();
 		int curIndex = 0;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
-			if (curLayer->getProtocol() == layerType)
-			{
-				if (curIndex < index)
-					curIndex++;
-				else
-					break;
-			}
-			curLayer = curLayer->getNextLayer();
+			if (curLayer->getProtocol() != layerType)
+				continue;
+
+			if (curIndex == index)
+				return curLayer;
+
+			curIndex++;
 		}
 
-		return curLayer;
+		return nullptr;
 	}
 
 	bool Packet::isPacketOfType(ProtocolType protocolType) const
 	{
-		Layer* curLayer = getFirstLayer();
-		while (curLayer != nullptr)
+		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			if (curLayer->getProtocol() == protocolType)
 			{
 				return true;
 			}
-			curLayer = curLayer->getNextLayer();
 		}
 
 		return false;
@@ -601,12 +591,11 @@ namespace pcpp
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
 
 		// go over all layers from the first layer to the last layer and set the data ptr and data length for each layer
-		Layer* curLayer = m_FirstLayer;
 		bool passedExtendedLayer = false;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			// set the data ptr
-			curLayer->m_Data = (uint8_t*)dataPtr;
+			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 
 			// set a flag if arrived to the layer being extended
 			if (curLayer->getPrevLayer() == layer)
@@ -620,7 +609,6 @@ namespace pcpp
 			// assuming header length of the layer that requested to be extended hasn't been enlarged yet
 			size_t headerLen = curLayer->getHeaderLen() + (curLayer == layer ? numOfBytesToExtend : 0);
 			dataPtr += headerLen;
-			curLayer = curLayer->getNextLayer();
 		}
 
 		return true;
@@ -658,7 +646,7 @@ namespace pcpp
 		while (curLayer != nullptr)
 		{
 			// set the data ptr
-			curLayer->m_Data = (uint8_t*)dataPtr;
+			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 
 			// set a flag if arrived to the layer being shortened
 			if (curLayer->getPrevLayer() == layer)
@@ -681,12 +669,9 @@ namespace pcpp
 	void Packet::computeCalculateFields()
 	{
 		// calculated fields should be calculated from top layer to bottom layer
-
-		Layer* curLayer = m_LastLayer;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_LastLayer; curLayer != nullptr; curLayer = curLayer->getPrevLayer())
 		{
 			curLayer->computeCalculateFields();
-			curLayer = curLayer->getPrevLayer();
 		}
 	}
 
@@ -747,31 +732,31 @@ namespace pcpp
 		{
 			if (EthLayer::isDataValid(rawData, rawDataLen))
 			{
-				return new EthLayer((uint8_t*)rawData, rawDataLen, this);
+				return new EthLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 			}
 			else if (EthDot3Layer::isDataValid(rawData, rawDataLen))
 			{
-				return new EthDot3Layer((uint8_t*)rawData, rawDataLen, this);
+				return new EthDot3Layer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 			}
 			else
 			{
-				return new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this);
+				return new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
 			}
 		}
 		else if (linkType == LINKTYPE_LINUX_SLL)
 		{
-			return new SllLayer((uint8_t*)rawData, rawDataLen, this);
+			return new SllLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 		}
 		else if (linkType == LINKTYPE_LINUX_SLL2 && Sll2Layer::isDataValid(rawData, rawDataLen))
 		{
-			return new Sll2Layer((uint8_t*)rawData, rawDataLen, this);
+			return new Sll2Layer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 		}
 		else if (linkType == LINKTYPE_NULL)
 		{
 			if (rawDataLen >= sizeof(uint32_t))
-				return new NullLoopbackLayer((uint8_t*)rawData, rawDataLen, this);
+				return new NullLoopbackLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 			else  // rawDataLen is too small fir Null/Loopback
-				return new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this);
+				return new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
 		}
 		else if (linkType == LINKTYPE_RAW || linkType == LINKTYPE_DLT_RAW1 || linkType == LINKTYPE_DLT_RAW2)
 		{
@@ -779,37 +764,44 @@ namespace pcpp
 			if (ipVer == 0x40)
 			{
 				return IPv4Layer::isDataValid(rawData, rawDataLen)
-				           ? static_cast<Layer*>(new IPv4Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
-				           : static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
+				           ? static_cast<Layer*>(
+				                 new IPv4Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this))
+				           : static_cast<Layer*>(
+				                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
 			}
 			else if (ipVer == 0x60)
 			{
 				return IPv6Layer::isDataValid(rawData, rawDataLen)
-				           ? static_cast<Layer*>(new IPv6Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
-				           : static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
+				           ? static_cast<Layer*>(
+				                 new IPv6Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this))
+				           : static_cast<Layer*>(
+				                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
 			}
 			else
 			{
-				return new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this);
+				return new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
 			}
 		}
 		else if (linkType == LINKTYPE_IPV4)
 		{
 			return IPv4Layer::isDataValid(rawData, rawDataLen)
-			           ? static_cast<Layer*>(new IPv4Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
-			           : static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
+			           ? static_cast<Layer*>(new IPv4Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this))
+			           : static_cast<Layer*>(
+			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
 		}
 		else if (linkType == LINKTYPE_IPV6)
 		{
 			return IPv6Layer::isDataValid(rawData, rawDataLen)
-			           ? static_cast<Layer*>(new IPv6Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
-			           : static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
+			           ? static_cast<Layer*>(new IPv6Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this))
+			           : static_cast<Layer*>(
+			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
 		}
 		else if (linkType == LINKTYPE_NFLOG)
 		{
 			return NflogLayer::isDataValid(rawData, rawDataLen)
-			           ? static_cast<Layer*>(new NflogLayer((uint8_t*)rawData, rawDataLen, this))
-			           : static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
+			           ? static_cast<Layer*>(new NflogLayer(const_cast<uint8_t*>(rawData), rawDataLen, this))
+			           : static_cast<Layer*>(
+			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
 		}
 		else if (linkType == LINKTYPE_C_HDLC)
 		{
@@ -820,7 +812,7 @@ namespace pcpp
 		}
 
 		// unknown link type
-		return new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this);
+		return new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
 	}
 
 	std::string Packet::toString(bool timeAsLocalTime) const
@@ -835,11 +827,10 @@ namespace pcpp
 	{
 		result.clear();
 		result.push_back(printPacketInfo(timeAsLocalTime));
-		Layer* curLayer = m_FirstLayer;
-		while (curLayer != nullptr)
+
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			result.push_back(curLayer->toString());
-			curLayer = curLayer->getNextLayer();
 		}
 	}
 

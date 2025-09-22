@@ -384,7 +384,7 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 	light_read_record(pcapng->file, &pcapng->pcapng);
 
 	//End of file or something is broken!
-	if (pcapng == NULL)
+	if (pcapng == NULL || pcapng->file_info == NULL)
 		return 0;
 
 	light_get_block_info(pcapng->pcapng, LIGHT_INFO_TYPE, &type, NULL);

@@ -5,8 +5,8 @@
 #include "TLVData.h"
 #include <string.h>
 
-#define PCPP_DEPRECATED_TCP_OPTION_TYPE                                                                                \
-	PCPP_DEPRECATED("enum TcpOptionType is deprecated; Use enum class TcpOptionEnumType instead")
+#define PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG                                                                    \
+	"enum TcpOptionType is deprecated; Use enum class TcpOptionEnumType instead"
 
 /// @file
 
@@ -28,7 +28,10 @@ namespace pcpp
 		/// Acknowledgment number
 		uint32_t ackNumber;
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		uint16_t reserved : 4;
+		/// Accurate ECN flag
+		uint16_t accurateEcnFlag : 1;
+		/// Reserved bits
+		uint16_t reserved : 3;
 		/// Specifies the size of the TCP header in 32-bit words
 		uint16_t dataOffset : 4;
 		/// FIN flag
@@ -51,7 +54,9 @@ namespace pcpp
 		/// Specifies the size of the TCP header in 32-bit words
 		uint16_t dataOffset : 4;
 		/// Reserved
-		uint16_t reserved : 4;
+		uint16_t reserved : 3;
+		/// Accurate ECN flag
+		uint16_t accurateEcnFlag : 1;
 		/// CWR flag
 		uint16_t cwrFlag : 1;
 		/// ECE flag
@@ -359,7 +364,7 @@ namespace pcpp
 		};
 
 		/// @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
-		PCPP_DEPRECATED_TCP_OPTION_TYPE
+		PCPP_DEPRECATED(PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG)
 		TcpOptionBuilder(TcpOptionType optionType, const uint8_t* optionValue, uint8_t optionValueLen)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue, optionValueLen)
 		{}
@@ -375,7 +380,7 @@ namespace pcpp
 		{}
 
 		/// @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
-		PCPP_DEPRECATED_TCP_OPTION_TYPE
+		PCPP_DEPRECATED(PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG)
 		TcpOptionBuilder(TcpOptionType optionType, uint8_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
@@ -389,7 +394,7 @@ namespace pcpp
 		{}
 
 		/// @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
-		PCPP_DEPRECATED_TCP_OPTION_TYPE
+		PCPP_DEPRECATED(PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG)
 		TcpOptionBuilder(TcpOptionType optionType, uint16_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
@@ -403,7 +408,7 @@ namespace pcpp
 		{}
 
 		/// @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
-		PCPP_DEPRECATED_TCP_OPTION_TYPE
+		PCPP_DEPRECATED(PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG)
 		TcpOptionBuilder(TcpOptionType optionType, uint32_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
@@ -475,7 +480,7 @@ namespace pcpp
 		uint16_t getDstPort() const;
 
 		/// @deprecated This method is deprecated, please use getTcpOption(TcpOptionEnumType option)
-		PCPP_DEPRECATED_TCP_OPTION_TYPE
+		PCPP_DEPRECATED(PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG)
 		TcpOption getTcpOption(TcpOptionType option) const;
 
 		/// Get a TCP option by type
@@ -524,7 +529,7 @@ namespace pcpp
 		                               TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown);
 
 		/// @deprecated This method is deprecated, please use removeTcpOption(TcpOptionEnumType)
-		PCPP_DEPRECATED_TCP_OPTION_TYPE
+		PCPP_DEPRECATED(PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG)
 		bool removeTcpOption(TcpOptionType optionType);
 
 		/// Remove an existing TCP option from the layer. TCP option is found by type
@@ -596,4 +601,4 @@ namespace pcpp
 	}
 }  // namespace pcpp
 
-#undef PCPP_DEPRECATED_TCP_OPTION_TYPE
+#undef PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG

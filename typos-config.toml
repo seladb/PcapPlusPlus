@@ -38,6 +38,7 @@ pinter = "pinter"
 helo = "helo"
 hom = "hom"
 pn = "pn"
+ND = "ND"
 
 [type.make]
 extend-glob = []

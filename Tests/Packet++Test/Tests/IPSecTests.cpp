@@ -4,18 +4,17 @@
 #include "IPSecLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(IPSecParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ipsec_ah_esp.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/ipsec_ah_icmp.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/ipsec_esp_ipv6.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ipsec_ah_esp.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ipsec_ah_icmp.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ipsec_esp_ipv6.dat");
-
-	pcpp::Packet ipsec1Packet(&rawPacket1);
-	pcpp::Packet ipsec2Packet(&rawPacket2);
-	pcpp::Packet ipsec3Packet(&rawPacket3);
+	pcpp::Packet ipsec1Packet(rawPacket1.get());
+	pcpp::Packet ipsec2Packet(rawPacket2.get());
+	pcpp::Packet ipsec3Packet(rawPacket3.get());
 
 	PTF_ASSERT_TRUE(ipsec1Packet.isPacketOfType(pcpp::IPSec));
 	PTF_ASSERT_TRUE(ipsec2Packet.isPacketOfType(pcpp::IPSec));

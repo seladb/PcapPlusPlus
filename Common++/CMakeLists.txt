@@ -14,6 +14,7 @@ add_library(
 
 set(
   public_headers
+  header/AssertionUtils.h
   header/DeprecationUtils.h
   header/GeneralUtils.h
   header/IpAddress.h

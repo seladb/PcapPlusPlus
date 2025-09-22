@@ -20,6 +20,8 @@
 #include "rte_cycles.h"
 #include <string>
 #include <unistd.h>
+#include <chrono>
+#include <thread>
 
 #define MAX_BURST_SIZE 64
 
@@ -692,7 +694,7 @@ namespace pcpp
 			m_CoreConfiguration[coreId].RxQueueId = 0;
 
 			PCPP_LOG_DEBUG("Trying to start capturing on core " << coreId);
-			int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
+			int err = rte_eal_remote_launch(dpdkCaptureThreadMain, static_cast<void*>(this), coreId);
 			if (err != 0)
 			{
 				PCPP_LOG_ERROR("Cannot create capture thread for device '" << m_DeviceName << "'");
@@ -738,7 +740,7 @@ namespace pcpp
 
 			// create a new thread
 			m_CoreConfiguration[coreId].RxQueueId = rxQueue++;
-			int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
+			int err = rte_eal_remote_launch(dpdkCaptureThreadMain, static_cast<void*>(this), coreId);
 			if (err != 0)
 			{
 				PCPP_LOG_ERROR("Cannot create capture thread #" << coreId << " for device '" << m_DeviceName << "': ["
@@ -813,7 +815,7 @@ namespace pcpp
 		return 0;
 	}
 
-#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
+#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1'000'000'000.0 + (end.tv_nsec - begin.tv_nsec))
 
 	void DpdkDevice::getStatistics(DpdkDeviceStats& stats) const
 	{
@@ -822,7 +824,7 @@ namespace pcpp
 		struct rte_eth_stats rteStats;
 		rte_eth_stats_get(m_Id, &rteStats);
 
-		double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1000000000.0;
+		double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1'000'000'000.0;
 
 		stats.devId = m_Id;
 		stats.timestamp = timestamp;
@@ -1115,7 +1117,7 @@ namespace pcpp
 					{
 						PCPP_LOG_DEBUG(
 						    "Since NIC couldn't send all packet in this iteration, waiting for 0.2 second for H/W descriptors to get free");
-						usleep(200000);
+						std::this_thread::sleep_for(std::chrono::microseconds(200000));
 						lastSleep = packetsSent;
 					}
 				}

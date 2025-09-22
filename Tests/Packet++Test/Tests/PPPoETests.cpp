@@ -10,14 +10,14 @@
 #include "DhcpV6Layer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/PPPoESession1.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoESession1.dat");
-
-	pcpp::Packet pppoesPacket(&rawPacket1);
+	pcpp::Packet pppoesPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(pppoesPacket.isPacketOfType(pcpp::PPPoE));
 	PTF_ASSERT_TRUE(pppoesPacket.isPacketOfType(pcpp::PPPoESession));
@@ -42,12 +42,11 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 
 PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/PPPoESession2.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoESession2.dat");
-
-	pcpp::Packet samplePacket(&rawPacket1);
+	pcpp::Packet samplePacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer(*samplePacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::PPPoESessionLayer pppoesLayer(1, 1, 0x0011, PCPP_PPP_IPV6);
@@ -64,8 +63,8 @@ PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 
 	pppoesPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength1, pppoesPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(pppoesPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(resource1.length, pppoesPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(pppoesPacket.getRawPacket()->getRawData(), resource1.data.get(), resource1.length);
 }  // PPPoESessionLayerCreationTest
 
 PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
@@ -73,9 +72,9 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoEDiscovery2.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/PPPoEDiscovery2.dat");
 
-	pcpp::Packet pppoedPacket(&rawPacket1);
+	pcpp::Packet pppoedPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(pppoedPacket.isPacketOfType(pcpp::PPPoE));
 	PTF_ASSERT_TRUE(pppoedPacket.isPacketOfType(pcpp::PPPoEDiscovery));
@@ -129,12 +128,11 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 
 PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/PPPoEDiscovery1.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoEDiscovery1.dat");
-
-	pcpp::Packet samplePacket(&rawPacket1);
+	pcpp::Packet samplePacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer(*samplePacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::PPPoEDiscoveryLayer pppoedLayer(1, 1, pcpp::PPPoELayer::PPPOE_CODE_PADI, 0);
@@ -157,10 +155,10 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 
 	pppoedPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), resource1.length);
+	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), resource1.data.get(), resource1.length);
 
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/PPPoEDiscovery2.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/PPPoEDiscovery2.dat");
 
 	pcpp::EthLayer* ethLayerPtr = pppoedPacket.getLayerOfType<pcpp::EthLayer>();
 	PTF_ASSERT_NOT_NULL(ethLayerPtr);
@@ -204,10 +202,8 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 
 	pppoedPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
-
-	delete[] buffer2;
+	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 
 	PTF_ASSERT_TRUE(pppoedLayer.removeAllTags());
 	pppoedPacket.computeCalculateFields();

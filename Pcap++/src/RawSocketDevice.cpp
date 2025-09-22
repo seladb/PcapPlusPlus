@@ -179,7 +179,7 @@ namespace pcpp
 		// set timeout on socket
 		struct timeval timeoutVal;
 		timeoutVal.tv_sec = static_cast<int>(timeout);
-		timeoutVal.tv_usec = static_cast<long int>((timeout - timeoutVal.tv_sec) * 1000000);
+		timeoutVal.tv_usec = static_cast<long int>((timeout - timeoutVal.tv_sec) * 1'000'000);
 		setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
 
 		int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);

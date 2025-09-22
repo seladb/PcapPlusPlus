@@ -46,6 +46,20 @@ namespace pcpp
 		       (operator<(MulticastRangeUpperBound) || operator==(MulticastRangeUpperBound));
 	}
 
+	IPv4Address::IPv4Address(const uint8_t* bytes, size_t size)
+	{
+		if (bytes == nullptr)
+		{
+			throw std::invalid_argument("Buffer pointer is null");
+		}
+
+		if (size < 4)
+		{
+			throw std::out_of_range("Buffer size is smaller than IPv4 address size");
+		}
+		memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t));
+	}
+
 	IPv4Address::IPv4Address(const std::string& addrAsString)
 	{
 		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes.data()) <= 0)
@@ -101,6 +115,20 @@ namespace pcpp
 		return !operator<(MulticastRangeLowerBound);
 	}
 
+	IPv6Address::IPv6Address(const uint8_t* bytes, size_t size)
+	{
+		if (bytes == nullptr)
+		{
+			throw std::invalid_argument("Buffer pointer is null");
+		}
+
+		if (size < 16)
+		{
+			throw std::out_of_range("Buffer size is smaller than IPv6 address size");
+		}
+		std::memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t));
+	}
+
 	IPv6Address::IPv6Address(const std::string& addrAsString)
 	{
 		if (inet_pton(AF_INET6, addrAsString.data(), m_Bytes.data()) <= 0)
@@ -115,6 +143,49 @@ namespace pcpp
 		length = addrLen;
 		*arr = new uint8_t[addrLen];
 		memcpy(*arr, m_Bytes.data(), addrLen);
+	}
+
+	size_t IPv6Address::copyTo(uint8_t* buffer, size_t size) const
+	{
+		const size_t requiredSize = m_Bytes.size();
+
+		if (buffer == nullptr)
+		{
+			if (size != 0)
+			{
+				throw std::invalid_argument("Buffer is null but size is not zero");
+			}
+
+			return requiredSize;
+		}
+
+		if (size < requiredSize)
+		{
+			return requiredSize;
+		}
+
+		std::memcpy(buffer, m_Bytes.data(), requiredSize);
+		return requiredSize;
+	}
+
+	bool IPv6Address::copyToNewBuffer(uint8_t** buffer, size_t& size) const
+	{
+		if (buffer == nullptr)
+		{
+			throw std::invalid_argument("Buffer pointer is null");
+		}
+
+		size = copyTo(nullptr, 0);
+		*buffer = new uint8_t[size];
+		if (copyTo(*buffer, size) != size)
+		{
+			delete[] *buffer;
+			*buffer = nullptr;
+			size = 0;
+			return false;
+		}
+
+		return true;
 	}
 
 	bool IPv6Address::matchNetwork(const IPv6Network& network) const
@@ -190,7 +261,7 @@ namespace pcpp
 
 	void IPv4Network::initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen)
 	{
-		m_Mask = be32toh(0xffffffff ^ (prefixLen < 32 ? 0xffffffff >> prefixLen : 0));
+		m_Mask = be32toh(0xffff'ffff ^ (prefixLen < 32 ? 0xffff'ffff >> prefixLen : 0));
 		m_NetworkPrefix = address.toInt() & m_Mask;
 	}
 
