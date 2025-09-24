@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "BgpLayer.h"
+#include "Packet.h"
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
 
@@ -748,12 +749,17 @@ namespace pcpp
 			// offsetInLayer, numOfBytesToExtend
 			//		int indexToInsertData = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
 			auto bytesToExtend = newNlriDataLen - curNlriDataLen;
+			
 			if(m_Data != nullptr 
-				&& m_Packet != nullptr 
-				&& static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen()) + bytesToExtend < static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen()) )
+				&& m_Packet != nullptr)
 			{
-				PCPP_LOG_ERROR("Failed to extend BGP update layer, the new data length exceeds the raw packet's data length");
-				return false;
+				auto raw_len = static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen());
+				if(
+					raw_len + bytesToExtend < raw_len
+				){
+					PCPP_LOG_ERROR("Failed to extend BGP update layer, the new data length exceeds the raw packet's data length");
+					return false;
+				}
 			}
 			
 			bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
