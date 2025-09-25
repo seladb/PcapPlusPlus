@@ -106,51 +106,6 @@ namespace pcpp
 			m_LastLayer->m_NextLayer = nullptr;
 		}
 
-		/*
-		while (curLayer != nullptr &&
-		       // Check the parse until condition
-		       (parseUntil == UnknownProtocol || !curLayer->isMemberOfProtocolFamily(parseUntil)) &&
-		       // Check the parse until OSI condition
-		       curLayer->getOsiModelLayer() <= parseUntilLayer)
-		{
-		    // Parse layer, allocate it
-		    curLayer->parseNextLayer();
-		    curLayer->m_IsAllocatedInPacket = true;
-
-		    // Move to next layer.
-		    curLayer = curLayer->getNextLayer();
-
-		    // If a next layer exists, update last layer.
-		    if (curLayer != nullptr)
-		        m_LastLayer = curLayer;
-		}
-		*/
-
-		/*
-		// The loop ends with curLayer being either nullptr or one past the last parsed layer
-		if (curLayer != nullptr && curLayer->isMemberOfProtocolFamily(parseUntil))
-		{
-		    curLayer->m_IsAllocatedInPacket = true;
-		}
-
-		// If the target OSI layer is exceeded, roll back the last layer (why?)
-		if (curLayer != nullptr && curLayer->getOsiModelLayer() > parseUntilLayer)
-		{
-		    // don't delete the first layer. If already past the target layer, treat the same as if the layer was found.
-		    if (curLayer == m_FirstLayer)
-		    {
-		        curLayer->m_IsAllocatedInPacket = true;
-		    }
-		    else
-		    {
-		        // Rolls back last layer if it exceeded the target OSI layer
-		        m_LastLayer = curLayer->getPrevLayer();
-		        delete curLayer;
-		        m_LastLayer->m_NextLayer = nullptr;
-		    }
-		}
-		*/
-
 		// If there is data left in the raw packet that doesn't belong to any layer, create a PacketTrailerLayer
 		if (m_LastLayer != nullptr && parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
 		{
