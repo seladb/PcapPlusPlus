@@ -102,14 +102,8 @@ namespace pcpp
 		if (m_FilterStr.empty())
 			return true;
 
-		// This should never happen, but just in case
-		if (m_CachedProgram == nullptr)
-		{
-			throw std::runtime_error("No compiled BPF program available");
-		}
-
-		// Handle link type mismatch
-		if (linkType != static_cast<uint16_t>(m_CachedProgramLinkType))
+		// Handle uncompiled program or link type mismatch
+		if (m_CachedProgram == nullptr || linkType != static_cast<uint16_t>(m_CachedProgramLinkType))
 		{
 			auto newProgram = compileFilter(m_FilterStr, static_cast<LinkLayerType>(linkType));
 			if (newProgram == nullptr)
