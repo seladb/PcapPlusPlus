@@ -158,12 +158,9 @@ namespace pcpp
 
 	bool GeneralFilter::matches(RawPacket const& rawPacket) const
 	{
-		if (!m_CachedFilter)
+		if (!m_CachedFilter && !cacheFilter())
 		{
-			if (!cacheFilter())
-			{
-				return false;
-			}
+			return false;
 		}
 
 		return m_BpfWrapper.matches(rawPacket);
