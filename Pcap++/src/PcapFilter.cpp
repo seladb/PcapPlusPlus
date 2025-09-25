@@ -171,7 +171,9 @@ namespace pcpp
 		std::string filterStr;
 		parseToString(filterStr);
 		if (!m_BpfWrapper.setFilter(filterStr))
+		{
 			return false;
+		}
 
 		m_CachedFilter = true;
 		return true;
