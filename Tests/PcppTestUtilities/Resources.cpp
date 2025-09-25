@@ -51,7 +51,8 @@ namespace pcpp_tests
 			}
 		}  // namespace
 
-		ResourceProvider::ResourceProvider(std::string dataRoot) : m_DataRoot(std::move(dataRoot))
+		ResourceProvider::ResourceProvider(std::string dataRoot, bool frozen)
+		    : m_DataRoot(std::move(dataRoot)), m_Frozen(frozen)
 		{}
 
 		Resource ResourceProvider::loadResource(const char* filename, ResourceType resourceType) const
@@ -96,6 +97,56 @@ namespace pcpp_tests
 				requireOpen(fileStream);
 
 				return readHexResource(fileStream);
+			}
+			default:
+				throw std::invalid_argument("Unsupported resource type");
+			}
+		}
+
+		void ResourceProvider::saveResource(ResourceType resourceType, const char* filename, const uint8_t* data,
+		                                    size_t length) const
+		{
+			if (m_Frozen)
+			{
+				throw std::runtime_error("Resource provider is frozen and does not allow saving");
+			}
+
+			if (data == nullptr || length == 0)
+			{
+				throw std::invalid_argument("Data is null or length is zero");
+			}
+
+			std::string fullPath;
+			if (!m_DataRoot.empty())
+			{
+				fullPath = m_DataRoot + getOsPathSeparator() + filename;
+			}
+			else
+			{
+				fullPath = filename;
+			}
+
+			auto const requireOpen = [filename](std::ofstream const& fileStream) {
+				if (!fileStream)
+				{
+					throw std::runtime_error(std::string("Failed to open file: ") + filename);
+				}
+			};
+
+			switch (resourceType)
+			{
+			case ResourceType::HexData:
+			{
+				std::ofstream fileStream(fullPath);
+				requireOpen(fileStream);
+				for (size_t i = 0; i < length; ++i)
+				{
+					fileStream << std::hex;
+					fileStream.width(2);
+					fileStream.fill('0');
+					fileStream << static_cast<int>(data[i]);
+				}
+				break;
 			}
 			default:
 				throw std::invalid_argument("Unsupported resource type");
