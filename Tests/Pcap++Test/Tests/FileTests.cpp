@@ -183,11 +183,7 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 	pcpp::PcapFileReaderDevice readerDevNano(EXAMPLE_PCAP_NANO_PATH);
 	PTF_ASSERT_EQUAL(readerDevNano.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
 	PTF_ASSERT_TRUE(readerDevNano.open());
-	PTF_ASSERT_EQUAL(readerDevNano.getTimestampPrecision(),
-	                 pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported()
-	                     ? pcpp::FileTimestampPrecision::Nanoseconds
-	                     : pcpp::FileTimestampPrecision::Microseconds,
-	                 enumclass);
+	PTF_ASSERT_EQUAL(readerDevNano.getTimestampPrecision(), pcpp::FileTimestampPrecision::Nanoseconds, enumclass);
 
 	pcpp::RawPacket readPacketNano, readPacketMicro;
 	PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketMicro));
