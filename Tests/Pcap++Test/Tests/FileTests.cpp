@@ -27,22 +27,6 @@ public:
 	}
 };
 
-namespace
-{
-	bool compareFiles(const std::string& file1, const std::string& file2)
-	{
-		std::ifstream f1(file1, std::ifstream::binary);
-		std::ifstream f2(file2, std::ifstream::binary);
-		if (!f1.is_open() || !f2.is_open())
-			return false;
-
-		std::istreambuf_iterator<char> begin1(f1);
-		std::istreambuf_iterator<char> begin2(f2);
-		std::istreambuf_iterator<char> end;
-		return std::equal(begin1, end, begin2);
-	}
-}  // namespace
-
 PTF_TEST_CASE(TestPcapFileReadWrite)
 {
 	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
@@ -118,26 +102,6 @@ PTF_TEST_CASE(TestPcapFileReadWrite)
 
 PTF_TEST_CASE(TestPcapFileMicroPrecision)
 {
-	// Read micro precision file
-	pcpp::PcapFileReaderDevice readerDevMicro(EXAMPLE_PCAP_MICRO_PATH);
-	PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
-	PTF_ASSERT_TRUE(readerDevMicro.open());
-	PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(),
-	                 pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported()
-	                     ? pcpp::FileTimestampPrecision::Nanoseconds
-	                     : pcpp::FileTimestampPrecision::Microseconds,
-	                 enumclass);
-
-	pcpp::RawPacket readPacketNano2, readPacketMicro2;
-	PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketMicro2));
-	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_nsec, 2000);
-
-	PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketNano2));
-	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_nsec, 1000);
-	readerDevMicro.close();
-
 	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
@@ -155,8 +119,29 @@ PTF_TEST_CASE(TestPcapFileMicroPrecision)
 	PTF_ASSERT_TRUE(writerDevMicro.writePacket(rawPacketNano));
 	writerDevMicro.close();
 
-	// Compare written file with original micro precision file
-	PTF_ASSERT_TRUE(compareFiles(EXAMPLE_PCAP_MICRO_PATH, EXAMPLE_PCAP_MICRO_WRITE_PATH));
+	// Read micro precision file, both original and written
+	for (auto const path : { EXAMPLE_PCAP_MICRO_PATH, EXAMPLE_PCAP_MICRO_WRITE_PATH })
+	{
+		// Read micro precision file
+		pcpp::PcapFileReaderDevice readerDevMicro(path);
+		PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
+		PTF_ASSERT_TRUE(readerDevMicro.open());
+		PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(),
+		                 pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported()
+		                     ? pcpp::FileTimestampPrecision::Nanoseconds
+		                     : pcpp::FileTimestampPrecision::Microseconds,
+		                 enumclass);
+
+		pcpp::RawPacket readPacketNano2, readPacketMicro2;
+		PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketMicro2));
+		PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_sec, 1);
+		PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_nsec, 2000);
+
+		PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketNano2));
+		PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_sec, 1);
+		PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_nsec, 1000);
+		readerDevMicro.close();
+	}
 }  // TestPcapFileMicroPrecision
 
 PTF_TEST_CASE(TestPcapFileNanoPrecision)
@@ -178,22 +163,6 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 		PTF_ASSERT_FALSE(readerDevNano.open());
 		return;
 	}
-
-	// Read nano precision file
-	pcpp::PcapFileReaderDevice readerDevNano(EXAMPLE_PCAP_NANO_PATH);
-	PTF_ASSERT_EQUAL(readerDevNano.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
-	PTF_ASSERT_TRUE(readerDevNano.open());
-	PTF_ASSERT_EQUAL(readerDevNano.getTimestampPrecision(), pcpp::FileTimestampPrecision::Nanoseconds, enumclass);
-
-	pcpp::RawPacket readPacketNano, readPacketMicro;
-	PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketMicro));
-	PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_nsec, 2000);
-
-	PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketNano));
-	PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_nsec, 1234);
-	readerDevNano.close();
 
 	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
@@ -220,8 +189,24 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 	PTF_ASSERT_TRUE(writerDevNano.writePacket(rawPacketNano));
 	writerDevNano.close();
 
-	// Compare written file with original nano precision file
-	PTF_ASSERT_TRUE(compareFiles(EXAMPLE_PCAP_NANO_PATH, EXAMPLE_PCAP_NANO_WRITE_PATH));
+	// Read nano precision file, both original and written
+	for (auto const path : { EXAMPLE_PCAP_NANO_PATH, EXAMPLE_PCAP_NANO_WRITE_PATH })
+	{
+		pcpp::PcapFileReaderDevice readerDevNano(path);
+		PTF_ASSERT_EQUAL(readerDevNano.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
+		PTF_ASSERT_TRUE(readerDevNano.open());
+		PTF_ASSERT_EQUAL(readerDevNano.getTimestampPrecision(), pcpp::FileTimestampPrecision::Nanoseconds, enumclass);
+
+		pcpp::RawPacket readPacketNano, readPacketMicro;
+		PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketMicro));
+		PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_sec, 1);
+		PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_nsec, 2000);
+
+		PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketNano));
+		PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_sec, 1);
+		PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_nsec, 1234);
+		readerDevNano.close();
+	}
 }  // TestPcapFileNanoPrecision
 
 PTF_TEST_CASE(TestPcapNgFilePrecision)
