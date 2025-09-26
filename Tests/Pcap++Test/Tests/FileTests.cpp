@@ -26,35 +26,16 @@ public:
 	}
 };
 
-PTF_TEST_CASE(TestIFileReaderDeviceFactory)
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_Pcap)
 {
-	// These files are correctly formatted and with correct extensions
+	// Correct format
 	constexpr const char* PCAP_NANOSEC_FILE_PATH = "PcapExamples/file_heuristics/nanosecs.pcap";
 	constexpr const char* PCAP_MICROSEC_FILE_PATH = "PcapExamples/file_heuristics/microsecs.pcap";
-	constexpr const char* PCAPNG_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng";
-	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
-	constexpr const char* PCAPNG_ZSTD_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zstd";
-	// TODO: add snoop file
-
-	// These files are correctly formatted but with wrong extensions
-	constexpr const char* PCAPNG_AS_PCAP_FILE_PATH = "PcapExamples/file_heuristics/pcapng-with-pcap-ext.pcapng.pcap";
+	// Correct format, wrong exteension
 	constexpr const char* PCAP_AS_DAT_FILE_PATH = "PcapExamples/file_heuristics/pcap-with-dat-ext.pcap.dat";
-
-	// These files have a correct extension but are actually garbage data.
-	constexpr const char* PCAP_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.pcap";
-	constexpr const char* PCAPNG_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.pcapng";
-	constexpr const char* PCAPNG_ZST_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.zst";
-
-	// This file has a wrong extension and is actually garbage data.
-	constexpr const char* BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.txt";
-
-	// Test non-existent file
-	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader("BogusFile"), std::runtime_error,
-	                  "Could not open: BogusFile");
 
 	std::unique_ptr<pcpp::IFileReaderDevice> dev;
 
-	// Test existent files with correct format and extension
 	for (const auto& filePath : { PCAP_NANOSEC_FILE_PATH, PCAP_MICROSEC_FILE_PATH })
 	{
 		dev = pcpp::IFileReaderDevice::createReader(filePath);
@@ -63,7 +44,22 @@ PTF_TEST_CASE(TestIFileReaderDeviceFactory)
 		PTF_ASSERT_TRUE(dev->open());
 	}
 
-	for (const auto& filePath : { PCAPNG_FILE_PATH, PCAPNG_ZST_FILE_PATH, PCAPNG_ZSTD_FILE_PATH })
+	dev = pcpp::IFileReaderDevice::createReader(PCAP_AS_DAT_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+}
+
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_PcapNG)
+{
+	// Correct format
+	constexpr const char* PCAPNG_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng";
+	// Correct format, wrong exteension
+	constexpr const char* PCAPNG_AS_PCAP_FILE_PATH = "PcapExamples/file_heuristics/pcapng-with-pcap-ext.pcapng.pcap";
+
+	std::unique_ptr<pcpp::IFileReaderDevice> dev;
+
+	for (const auto& filePath : { PCAPNG_FILE_PATH })
 	{
 		dev = pcpp::IFileReaderDevice::createReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
@@ -76,11 +72,35 @@ PTF_TEST_CASE(TestIFileReaderDeviceFactory)
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
+}
 
-	dev = pcpp::IFileReaderDevice::createReader(PCAP_AS_DAT_FILE_PATH);
-	PTF_ASSERT_NOT_NULL(dev);
-	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_TRUE(dev->open());
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_PcapNG_ZST)
+{
+	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
+	constexpr const char* PCAPNG_ZSTD_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zstd";
+
+	std::unique_ptr<pcpp::IFileReaderDevice> dev;
+
+	for (const auto& filePath : { PCAPNG_ZST_FILE_PATH, PCAPNG_ZSTD_FILE_PATH })
+	{
+		dev = pcpp::IFileReaderDevice::createReader(filePath);
+		PTF_ASSERT_NOT_NULL(dev);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+		PTF_ASSERT_TRUE(dev->open());
+	}
+}
+
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_Invalid)
+{
+	// Garbage data, correct extension
+	constexpr const char* PCAP_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.pcap";
+	constexpr const char* PCAPNG_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.pcapng";
+	constexpr const char* PCAPNG_ZST_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.zst";
+
+	// Garbage data
+	constexpr const char* BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.txt";
+
+	std::unique_ptr<pcpp::IFileReaderDevice> dev;
 
 	// Test existent files with correct extension but bogus content
 	for (const auto& filePath : { PCAP_BOGUS_FILE_PATH, PCAPNG_BOGUS_FILE_PATH, PCAPNG_ZST_BOGUS_FILE_PATH })

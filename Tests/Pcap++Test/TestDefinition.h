@@ -20,7 +20,10 @@ PTF_TEST_CASE(TestLogger);
 PTF_TEST_CASE(TestLoggerMultiThread);
 
 // Implemented in FileTests.cpp
-PTF_TEST_CASE(TestIFileReaderDeviceFactory);
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_Pcap);
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_PcapNG);
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_PcapNG_ZST);
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_Invalid);
 PTF_TEST_CASE(TestPcapFileReadWrite);
 PTF_TEST_CASE(TestPcapFilePrecision);
 PTF_TEST_CASE(TestPcapSllFileReadWrite);
