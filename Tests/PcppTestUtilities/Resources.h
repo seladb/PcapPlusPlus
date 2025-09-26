@@ -29,7 +29,8 @@ namespace pcpp_tests
 		public:
 			/// @brief Constructs a ResourceProvider with a specified data root directory.
 			/// @param dataRoot The root directory from which resources will be loaded.
-			explicit ResourceProvider(std::string dataRoot);
+			/// @param frozen If true, the provider is read-only and does not allow saving resources.
+			explicit ResourceProvider(std::string dataRoot, bool frozen = true);
 
 			/// @brief Loads a resource from resource provider.
 			/// @param filename The name of the resource file to load.
@@ -43,8 +44,18 @@ namespace pcpp_tests
 			/// @return A vector containing the loaded data.
 			std::vector<uint8_t> loadResourceToVector(const char* filename, ResourceType resourceType) const;
 
+			/// @brief Saves a resource to the resource provider.
+			/// @param resourceType The type of the resource being saved.
+			/// @param filename The name of the file to save the resource to.
+			/// @param data Pointer to the data to be saved.
+			/// @param length The length of the data in bytes.
+			/// @throw std::runtime_error if the provider is frozen and does not allow saving.
+			void saveResource(ResourceType resourceType, const char* filename, const uint8_t* data,
+			                  size_t length) const;
+
 		private:
 			std::string m_DataRoot;  ///< The root directory for test data files
+			bool m_Frozen = true;    ///< Indicates if the provider is frozen (no modifications allowed)
 		};
 
 	}  // namespace utils
