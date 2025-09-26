@@ -33,4 +33,5 @@
 #define EXAMPLE_PCAP_DESTRUCTOR1_PATH "PcapExamples/destructor1.pcap"
 #define EXAMPLE_PCAP_DESTRUCTOR2_PATH "PcapExamples/destructor2.pcap"
 #define EXAMPLE_PCAP_NANO_PATH "PcapExamples/nanosecs.pcap"
+#define EXAMPLE_PCAP_NANO_WRITE_PATH "PcapExamples/nanosecs_copy.pcap"
 #define EXAMPLE_PCAPNG_NANO_PATH "PcapExamples/nanosecs.pcapng"
