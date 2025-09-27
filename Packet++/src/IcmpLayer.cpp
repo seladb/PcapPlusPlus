@@ -16,9 +16,9 @@ namespace pcpp
 		if (index < 0 || index >= header->advertisementCount)
 			return nullptr;
 
-		uint8_t* headerAsByteArr = (uint8_t*)header;
-		return (icmp_router_address_structure*)(headerAsByteArr + sizeof(icmp_router_advertisement_hdr) +
-		                                        index * sizeof(icmp_router_address_structure));
+		uint8_t* headerAsByteArr = reinterpret_cast<uint8_t*>(header);
+		return reinterpret_cast<icmp_router_address_structure*>(
+		    headerAsByteArr + sizeof(icmp_router_advertisement_hdr) + index * sizeof(icmp_router_address_structure));
 	}
 
 	void icmp_router_address_structure::setRouterAddress(IPv4Address addr, uint32_t preference)
@@ -41,7 +41,7 @@ namespace pcpp
 		if (type > 18)
 			return ICMP_UNSUPPORTED;
 
-		return (IcmpMessageType)type;
+		return static_cast<IcmpMessageType>(type);
 	}
 
 	bool IcmpLayer::cleanIcmpLayer()
@@ -76,13 +76,13 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_echo_hdr) - sizeof(icmphdr) + dataLen))
 			return false;
 
-		getIcmpHeader()->type = (uint8_t)echoType;
+		getIcmpHeader()->type = static_cast<uint8_t>(echoType);
 
 		icmp_echo_request* header = nullptr;
 		if (echoType == ICMP_ECHO_REQUEST)
 			header = getEchoRequestData();
 		else if (echoType == ICMP_ECHO_REPLY)
-			header = (icmp_echo_request*)getEchoReplyData();
+			header = reinterpret_cast<icmp_echo_request*>(getEchoReplyData());
 		else
 			return false;
 
@@ -126,8 +126,8 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_ECHO_REQUEST))
 			return nullptr;
 
-		m_EchoData.header = (icmp_echo_hdr*)m_Data;
-		m_EchoData.data = (uint8_t*)(m_Data + sizeof(icmp_echo_hdr));
+		m_EchoData.header = reinterpret_cast<icmp_echo_hdr*>(m_Data);
+		m_EchoData.data = reinterpret_cast<uint8_t*>(m_Data + sizeof(icmp_echo_hdr));
 		m_EchoData.dataLength = m_DataLen - sizeof(icmp_echo_hdr);
 
 		return &m_EchoData;
@@ -147,8 +147,8 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_ECHO_REPLY))
 			return nullptr;
 
-		m_EchoData.header = (icmp_echo_hdr*)m_Data;
-		m_EchoData.data = (uint8_t*)(m_Data + sizeof(icmp_echo_hdr));
+		m_EchoData.header = reinterpret_cast<icmp_echo_hdr*>(m_Data);
+		m_EchoData.data = reinterpret_cast<uint8_t*>(m_Data + sizeof(icmp_echo_hdr));
 		m_EchoData.dataLength = m_DataLen - sizeof(icmp_echo_hdr);
 
 		return &m_EchoData;
@@ -168,7 +168,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_TIMESTAMP_REQUEST))
 			return nullptr;
 
-		return (icmp_timestamp_request*)m_Data;
+		return reinterpret_cast<icmp_timestamp_request*>(m_Data);
 	}
 
 	icmp_timestamp_request* IcmpLayer::setTimestampRequestData(uint16_t id, uint16_t sequence,
@@ -180,7 +180,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_timestamp_request) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_TIMESTAMP_REQUEST;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_TIMESTAMP_REQUEST);
 
 		icmp_timestamp_request* header = getTimestampRequestData();
 		header->code = 0;
@@ -198,7 +198,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_TIMESTAMP_REPLY))
 			return nullptr;
 
-		return (icmp_timestamp_reply*)m_Data;
+		return reinterpret_cast<icmp_timestamp_reply*>(m_Data);
 	}
 
 	icmp_timestamp_reply* IcmpLayer::setTimestampReplyData(uint16_t id, uint16_t sequence, timeval originateTimestamp,
@@ -210,7 +210,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_timestamp_reply) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_TIMESTAMP_REPLY;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_TIMESTAMP_REPLY);
 
 		icmp_timestamp_reply* header = getTimestampReplyData();
 		header->code = 0;
@@ -228,7 +228,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_DEST_UNREACHABLE))
 			return nullptr;
 
-		return (icmp_destination_unreachable*)m_Data;
+		return reinterpret_cast<icmp_destination_unreachable*>(m_Data);
 	}
 
 	icmp_destination_unreachable* IcmpLayer::setDestUnreachableData(IcmpDestUnreachableCodes code, uint16_t nextHopMTU,
@@ -240,7 +240,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_destination_unreachable) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_DEST_UNREACHABLE;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_DEST_UNREACHABLE);
 
 		icmp_destination_unreachable* header = getDestUnreachableData();
 		header->code = code;
@@ -258,7 +258,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_SOURCE_QUENCH))
 			return nullptr;
 
-		return (icmp_source_quench*)m_Data;
+		return reinterpret_cast<icmp_source_quench*>(m_Data);
 	}
 
 	icmp_source_quench* IcmpLayer::setSourceQuenchdata(IPv4Layer* ipHeader, Layer* l4Header)
@@ -269,7 +269,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_source_quench) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_SOURCE_QUENCH;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_SOURCE_QUENCH);
 
 		icmp_source_quench* header = getSourceQuenchdata();
 		header->unused = 0;
@@ -285,7 +285,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_REDIRECT))
 			return nullptr;
 
-		return (icmp_redirect*)m_Data;
+		return reinterpret_cast<icmp_redirect*>(m_Data);
 	}
 
 	icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddress, IPv4Layer* ipHeader,
@@ -303,7 +303,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_redirect) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_REDIRECT;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_REDIRECT);
 
 		icmp_redirect* header = getRedirectData();
 		header->code = code;
@@ -320,7 +320,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_ROUTER_ADV))
 			return nullptr;
 
-		m_RouterAdvData.header = (icmp_router_advertisement_hdr*)m_Data;
+		m_RouterAdvData.header = reinterpret_cast<icmp_router_advertisement_hdr*>(m_Data);
 
 		return &m_RouterAdvData;
 	}
@@ -343,16 +343,16 @@ namespace pcpp
 		                                      sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_ROUTER_ADV;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_ROUTER_ADV);
 
 		icmp_router_advertisement* header = getRouterAdvertisementData();
 		header->header->code = code;
 		header->header->lifetime = htobe16(lifetimeInSeconds);
-		header->header->advertisementCount = (uint8_t)routerAddresses.size();
+		header->header->advertisementCount = static_cast<uint8_t>(routerAddresses.size());
 		header->header->addressEntrySize = 2;
 
-		icmp_router_address_structure* curPos =
-		    (icmp_router_address_structure*)((uint8_t*)header->header + sizeof(icmp_router_advertisement_hdr));
+		icmp_router_address_structure* curPos = reinterpret_cast<icmp_router_address_structure*>(
+		    reinterpret_cast<uint8_t*>(header->header) + sizeof(icmp_router_advertisement_hdr));
 		for (const auto& iter : routerAddresses)
 		{
 			curPos->routerAddress = iter.routerAddress;
@@ -368,7 +368,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_ROUTER_SOL))
 			return nullptr;
 
-		return (icmp_router_solicitation*)m_Data;
+		return reinterpret_cast<icmp_router_solicitation*>(m_Data);
 	}
 
 	icmp_router_solicitation* IcmpLayer::setRouterSolicitationData()
@@ -376,7 +376,7 @@ namespace pcpp
 		if (!cleanIcmpLayer())
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_ROUTER_SOL;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_ROUTER_SOL);
 
 		icmp_router_solicitation* header = getRouterSolicitationData();
 		header->code = 0;
@@ -389,7 +389,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_TIME_EXCEEDED))
 			return nullptr;
 
-		return (icmp_time_exceeded*)m_Data;
+		return reinterpret_cast<icmp_time_exceeded*>(m_Data);
 	}
 
 	icmp_time_exceeded* IcmpLayer::setTimeExceededData(uint8_t code, IPv4Layer* ipHeader, Layer* l4Header)
@@ -406,7 +406,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_time_exceeded) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_TIME_EXCEEDED;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_TIME_EXCEEDED);
 
 		icmp_time_exceeded* header = getTimeExceededData();
 		header->code = code;
@@ -423,7 +423,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_PARAM_PROBLEM))
 			return nullptr;
 
-		return (icmp_param_problem*)m_Data;
+		return reinterpret_cast<icmp_param_problem*>(m_Data);
 	}
 
 	icmp_param_problem* IcmpLayer::setParamProblemData(uint8_t code, uint8_t errorOctetPointer, IPv4Layer* ipHeader,
@@ -441,7 +441,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_param_problem) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_PARAM_PROBLEM;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_PARAM_PROBLEM);
 
 		icmp_param_problem* header = getParamProblemData();
 		header->code = code;
@@ -460,7 +460,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_ADDRESS_MASK_REQUEST))
 			return nullptr;
 
-		return (icmp_address_mask_request*)m_Data;
+		return reinterpret_cast<icmp_address_mask_request*>(m_Data);
 	}
 
 	icmp_address_mask_request* IcmpLayer::setAddressMaskRequestData(uint16_t id, uint16_t sequence, IPv4Address mask)
@@ -471,7 +471,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_address_mask_request) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_ADDRESS_MASK_REQUEST;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_ADDRESS_MASK_REQUEST);
 
 		icmp_address_mask_request* header = getAddressMaskRequestData();
 		header->code = 0;
@@ -487,7 +487,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_ADDRESS_MASK_REPLY))
 			return nullptr;
 
-		return (icmp_address_mask_reply*)m_Data;
+		return reinterpret_cast<icmp_address_mask_reply*>(m_Data);
 	}
 
 	icmp_address_mask_reply* IcmpLayer::setAddressMaskReplyData(uint16_t id, uint16_t sequence, IPv4Address mask)
@@ -498,7 +498,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_address_mask_reply) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_ADDRESS_MASK_REPLY;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_ADDRESS_MASK_REPLY);
 
 		icmp_address_mask_reply* header = getAddressMaskReplyData();
 		header->code = 0;
@@ -514,7 +514,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_INFO_REQUEST))
 			return nullptr;
 
-		return (icmp_info_request*)m_Data;
+		return reinterpret_cast<icmp_info_request*>(m_Data);
 	}
 
 	icmp_info_request* IcmpLayer::setInfoRequestData(uint16_t id, uint16_t sequence)
@@ -525,7 +525,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_info_request) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_INFO_REQUEST;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_INFO_REQUEST);
 
 		icmp_info_request* header = getInfoRequestData();
 		header->code = 0;
@@ -540,7 +540,7 @@ namespace pcpp
 		if (!isMessageOfType(ICMP_INFO_REPLY))
 			return nullptr;
 
-		return (icmp_info_reply*)m_Data;
+		return reinterpret_cast<icmp_info_reply*>(m_Data);
 	}
 
 	icmp_info_reply* IcmpLayer::setInfoReplyData(uint16_t id, uint16_t sequence)
@@ -551,7 +551,7 @@ namespace pcpp
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_info_reply) - sizeof(icmphdr)))
 			return nullptr;
 
-		getIcmpHeader()->type = (uint8_t)ICMP_INFO_REPLY;
+		getIcmpHeader()->type = static_cast<uint8_t>(ICMP_INFO_REPLY);
 
 		icmp_info_reply* header = getInfoReplyData();
 		header->code = 0;
@@ -640,7 +640,7 @@ namespace pcpp
 		}
 
 		ScalarBuffer<uint16_t> buffer;
-		buffer.buffer = (uint16_t*)getIcmpHeader();
+		buffer.buffer = reinterpret_cast<uint16_t*>(getIcmpHeader());
 		buffer.len = icmpLen;
 		size_t checksum = computeChecksum(&buffer, 1);
 

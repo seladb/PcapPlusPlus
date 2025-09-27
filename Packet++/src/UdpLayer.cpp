@@ -30,7 +30,7 @@ namespace pcpp
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
-		udphdr* udpHdr = (udphdr*)m_Data;
+		udphdr* udpHdr = reinterpret_cast<udphdr*>(m_Data);
 		udpHdr->portDst = htobe16(portDst);
 		udpHdr->portSrc = htobe16(portSrc);
 		m_Protocol = UDP;
@@ -48,7 +48,7 @@ namespace pcpp
 
 	uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 	{
-		udphdr* udpHdr = (udphdr*)m_Data;
+		udphdr* udpHdr = reinterpret_cast<udphdr*>(m_Data);
 		uint16_t checksumRes = 0;
 		uint16_t currChecksumValue = udpHdr->headerChecksum;
 
@@ -59,8 +59,8 @@ namespace pcpp
 
 			if (m_PrevLayer->getProtocol() == IPv4)
 			{
-				IPv4Address srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address();
-				IPv4Address dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address();
+				IPv4Address srcIP = static_cast<IPv4Layer*>(m_PrevLayer)->getSrcIPv4Address();
+				IPv4Address dstIP = static_cast<IPv4Layer*>(m_PrevLayer)->getDstIPv4Address();
 
 				checksumRes = pcpp::computePseudoHdrChecksum((uint8_t*)udpHdr, getDataLen(), IPAddress::IPv4AddressType,
 				                                             PACKETPP_IPPROTO_UDP, srcIP, dstIP);
@@ -69,8 +69,8 @@ namespace pcpp
 			}
 			else if (m_PrevLayer->getProtocol() == IPv6)
 			{
-				IPv6Address srcIP = ((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address();
-				IPv6Address dstIP = ((IPv6Layer*)m_PrevLayer)->getDstIPv6Address();
+				IPv6Address srcIP = static_cast<IPv6Layer*>(m_PrevLayer)->getSrcIPv6Address();
+				IPv6Address dstIP = static_cast<IPv6Layer*>(m_PrevLayer)->getDstIPv6Address();
 
 				checksumRes = computePseudoHdrChecksum((uint8_t*)udpHdr, getDataLen(), IPAddress::IPv6AddressType,
 				                                       PACKETPP_IPPROTO_UDP, srcIP, dstIP);
@@ -246,7 +246,7 @@ namespace pcpp
 
 	void UdpLayer::computeCalculateFields()
 	{
-		udphdr* udpHdr = (udphdr*)m_Data;
+		udphdr* udpHdr = reinterpret_cast<udphdr*>(m_Data);
 		udpHdr->length = htobe16(m_DataLen);
 		calculateChecksum(true);
 	}

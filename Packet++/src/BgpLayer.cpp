@@ -32,7 +32,7 @@ namespace pcpp
 		if (data == nullptr || dataLen < sizeof(bgp_common_header))
 			return nullptr;
 
-		bgp_common_header* bgpHeader = (bgp_common_header*)data;
+		auto* bgpHeader = reinterpret_cast<bgp_common_header*>(data);
 
 		// illegal header data - length is too small
 		uint16_t messageLen = be16toh(bgpHeader->length);

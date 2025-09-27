@@ -508,10 +508,10 @@ namespace pcpp
 	public:
 		friend class SomeIpSdEntry;
 
-		typedef SomeIpSdEntry* EntryPtr;
-		typedef std::vector<EntryPtr> EntriesVec;
-		typedef SomeIpSdOption* OptionPtr;
-		typedef std::vector<OptionPtr> OptionsVec;
+		using EntryPtr = SomeIpSdEntry*;
+		using EntriesVec = std::vector<EntryPtr>;
+		using OptionPtr = SomeIpSdOption*;
+		using OptionsVec = std::vector<OptionPtr>;
 
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data

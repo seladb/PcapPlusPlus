@@ -5,13 +5,15 @@
 #include "S7CommLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(S7CommLayerParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/S7comm.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/S7comm.dat");
 
-	pcpp::Packet s7CommLayerTest(&rawPacket1);
+	pcpp::Packet s7CommLayerTest(rawPacket1.get());
 	PTF_ASSERT_TRUE(s7CommLayerTest.isPacketOfType(pcpp::S7COMM));
 	auto* S7CommLayer = s7CommLayerTest.getLayerOfType<pcpp::S7CommLayer>();
 	PTF_ASSERT_NOT_NULL(S7CommLayer);
@@ -28,9 +30,9 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	uint8_t expectedParameterData[] = { 0, 1, 18, 8, 18, 132, 1, 1, 0, 0, 0, 0 };
 	PTF_ASSERT_BUF_COMPARE(S7CommLayer->getParameter()->getData(), expectedParameterData, 12);
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/s7comm_ack_data.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/s7comm_ack_data.dat");
 
-	pcpp::Packet s7CommLayerTest2(&rawPacket2);
+	pcpp::Packet s7CommLayerTest2(rawPacket2.get());
 	PTF_ASSERT_TRUE(s7CommLayerTest2.isPacketOfType(pcpp::S7COMM));
 	auto* s7commLayer = s7CommLayerTest2.getLayerOfType<pcpp::S7CommLayer>();
 	PTF_ASSERT_NOT_NULL(s7commLayer);

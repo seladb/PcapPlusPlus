@@ -6,6 +6,7 @@ add_executable(
   Tests/BgpTests.cpp
   Tests/CiscoHdlcTests.cpp
   Tests/CotpTests.cpp
+  Tests/CryptoKeyTests.cpp
   Tests/DhcpTests.cpp
   Tests/DhcpV6Tests.cpp
   Tests/DnsTests.cpp
@@ -23,6 +24,7 @@ add_executable(
   Tests/IPv6Tests.cpp
   Tests/LdapTests.cpp
   Tests/LLCTests.cpp
+  Tests/ModbusTests.cpp
   Tests/NflogTests.cpp
   Tests/NtpTests.cpp
   Tests/PacketTests.cpp
@@ -51,7 +53,15 @@ add_executable(
   Utils/TestUtils.cpp
 )
 
-target_link_libraries(Packet++Test PUBLIC memplumber Packet++ PcppTestFramework EndianPortable)
+target_link_libraries(
+  Packet++Test
+  PUBLIC memplumber Packet++ PcppTestUtilities PcppTestFramework EndianPortable
+)
+
+if(WIN32)
+  # Otherwise winsock2.h will get conflict definitions with windows.h
+  target_compile_definitions(Packet++Test PUBLIC WIN32_LEAN_AND_MEAN)
+endif()
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio

@@ -39,7 +39,7 @@ namespace pcpp
 	{
 		uint8_t* ptr = m_Data + sizeof(gre_basic_header);
 
-		gre_basic_header* header = (gre_basic_header*)m_Data;
+		auto* header = reinterpret_cast<gre_basic_header*>(m_Data);
 
 		constexpr int numGreField = 4;
 		for (int curFieldAsInt = static_cast<int>(GreChecksumOrRouting); curFieldAsInt < numGreField; ++curFieldAsInt)

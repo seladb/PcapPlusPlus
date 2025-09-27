@@ -8,14 +8,13 @@
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(DhcpParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Dhcp1.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Dhcp1.dat");
-
-	pcpp::Packet dhcpPacket(&rawPacket1);
+	pcpp::Packet dhcpPacket(rawPacket1.get());
 	PTF_ASSERT_TRUE(dhcpPacket.isPacketOfType(pcpp::DHCP));
 	pcpp::DhcpLayer* dhcpLayer = dhcpPacket.getLayerOfType<pcpp::DhcpLayer>();
 	PTF_ASSERT_NOT_NULL(dhcpLayer);
@@ -73,9 +72,9 @@ PTF_TEST_CASE(DhcpParsingTest)
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_OFFER, enum);
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Dhcp2.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/Dhcp2.dat");
 
-	pcpp::Packet dhcpPacket2(&rawPacket2);
+	pcpp::Packet dhcpPacket2(rawPacket2.get());
 
 	dhcpLayer = dhcpPacket2.getLayerOfType<pcpp::DhcpLayer>();
 	PTF_ASSERT_NOT_NULL(dhcpLayer);
@@ -210,22 +209,19 @@ PTF_TEST_CASE(DhcpCreationTest)
 
 	newPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/Dhcp1.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/Dhcp1.dat");
 
-	PTF_ASSERT_EQUAL(newPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(newPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
-
-	delete[] buffer1;
+	PTF_ASSERT_EQUAL(newPacket.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(newPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 }  // DhcpCreationTest
 
 PTF_TEST_CASE(DhcpEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	using pcpp_tests::utils::createPacketFromHexResource;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Dhcp4.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Dhcp4.dat");
 
-	pcpp::Packet dhcpPacket(&rawPacket1);
+	pcpp::Packet dhcpPacket(rawPacket1.get());
 
 	pcpp::DhcpLayer* dhcpLayer = dhcpPacket.getLayerOfType<pcpp::DhcpLayer>();
 
@@ -255,12 +251,10 @@ PTF_TEST_CASE(DhcpEditTest)
 
 	dhcpPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/Dhcp3.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/Dhcp3.dat");
 
-	PTF_ASSERT_EQUAL(dhcpPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(dhcpPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
-
-	delete[] buffer2;
+	PTF_ASSERT_EQUAL(dhcpPacket.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(dhcpPacket.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 
 	PTF_ASSERT_TRUE(dhcpLayer->removeAllOptions());
 
