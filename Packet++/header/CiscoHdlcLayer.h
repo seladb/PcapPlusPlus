@@ -72,15 +72,16 @@ namespace pcpp
 		/// Calculate the Next Protocol when possible
 		void computeCalculateFields() override;
 
-		/// Parses the next layer. Currently, supports IPv4 and IPv6
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+	protected:
+		/// Parses the next layer. Currently, supports IPv4 and IPv6
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 #pragma pack(push, 1)

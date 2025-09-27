@@ -244,7 +244,7 @@ namespace pcpp
 		return *this;
 	}
 
-	void IPv4Layer::parseNextLayer(ParserConfiguration const& config)
+	void IPv4Layer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		size_t hdrLen = getHeaderLen();
 		if (m_DataLen <= hdrLen || hdrLen == 0)

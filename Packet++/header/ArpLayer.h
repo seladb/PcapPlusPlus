@@ -238,10 +238,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Does nothing for this layer (ArpLayer is always last)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return The size of @ref arphdr
 		size_t getHeaderLen() const override
 		{
@@ -280,6 +276,11 @@ namespace pcpp
 		{
 			return canReinterpretAs<arphdr>(data, dataLen);
 		}
+
+	protected:
+		/// Does nothing for this layer (ArpLayer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 
 }  // namespace pcpp

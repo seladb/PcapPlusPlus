@@ -349,10 +349,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Does nothing for this layer (DnsLayer is always last)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return The size of the DNS data in the packet including he DNS header and size of all queries, answers,
 		/// authorities and additional records
 		size_t getHeaderLen() const override
@@ -387,6 +383,10 @@ namespace pcpp
 	protected:
 		DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, size_t offsetAdjustment);
 		explicit DnsLayer(size_t offsetAdjustment);
+
+		/// Does nothing for this layer (DnsLayer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 
 	private:
 		IDnsResource* m_ResourceList;

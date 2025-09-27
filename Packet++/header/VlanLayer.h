@@ -92,10 +92,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, MplsLayer.
-		/// Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of vlan_header
 		size_t getHeaderLen() const override
 		{
@@ -120,5 +116,10 @@ namespace pcpp
 		{
 			return canReinterpretAs<vlan_header>(data, dataLen);
 		}
+
+	protected:
+		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, MplsLayer.
+		/// Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 }  // namespace pcpp

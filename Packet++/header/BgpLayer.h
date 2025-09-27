@@ -82,10 +82,6 @@ namespace pcpp
 		/// @return The size of the BGP message
 		size_t getHeaderLen() const override;
 
-		/// Multiple BGP messages can reside in a single packet, and the only layer that can come after a BGP message
-		/// is another BGP message. This method checks for remaining data and parses it as another BGP layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
@@ -106,6 +102,10 @@ namespace pcpp
 		BgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, BGP)
 		{}
+
+		/// Multiple BGP messages can reside in a single packet, and the only layer that can come after a BGP message
+		/// is another BGP message. This method checks for remaining data and parses it as another BGP layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 		bgp_common_header* getBasicHeader() const
 		{

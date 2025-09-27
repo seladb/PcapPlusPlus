@@ -255,7 +255,7 @@ namespace pcpp
 		                      payloadLength);
 	}
 
-	void SomeIpLayer::parseNextLayer(ParserConfiguration const& config)
+	void SomeIpLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

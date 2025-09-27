@@ -131,10 +131,6 @@ namespace pcpp
 
 		// Overridden methods
 
-		/// Does nothing for this layer (ModbusLayer is always last)
-		void parseNextLayer() override
-		{}
-
 		/// @brief Get the length of the MODBUS header
 		/// @return Length of the MODBUS header in bytes
 		size_t getHeaderLen() const override
@@ -155,6 +151,11 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	protected:
+		/// Does nothing for this layer (ModbusLayer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 
 	private:
 		/// @return A pointer to the MODBUS header

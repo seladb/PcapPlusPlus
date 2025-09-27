@@ -148,7 +148,10 @@ namespace pcpp
 			parseNextLayer(ParserConfiguration::getDefault());
 		}
 
-		virtual void parseNextLayer(ParserConfiguration const& config) = 0;
+		void parseNextLayer(ParserConfiguration const& config)
+		{
+			doParseNextLayer(config);
+		}
 
 		/// @return The header length in bytes
 		virtual size_t getHeaderLen() const = 0;
@@ -202,6 +205,8 @@ namespace pcpp
 		{
 			return m_NextLayer != nullptr;
 		}
+
+		virtual void doParseNextLayer(ParserConfiguration const& config) = 0;
 
 		/// Construct the next layer in the protocol stack. No validation is performed on the data.
 		/// @tparam T The type of the layer to construct

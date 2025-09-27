@@ -535,10 +535,6 @@ namespace pcpp
 
 		// overridden methods
 
-		/// Parses the next layer. NTP is the always last so does nothing for this layer
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return Get the size of the layer (Including the extension and authentication fields if exists)
 		size_t getHeaderLen() const override
 		{
@@ -557,5 +553,10 @@ namespace pcpp
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
+
+	protected:
+		/// Parses the next layer. NTP is the always last so does nothing for this layer
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 }  // namespace pcpp

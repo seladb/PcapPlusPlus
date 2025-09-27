@@ -87,9 +87,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, MplsLayer. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of MPLS header (4 bytes)
 		size_t getHeaderLen() const override
 		{
@@ -115,6 +112,10 @@ namespace pcpp
 		{
 			return canReinterpretAs<mpls_header>(data, dataLen);
 		}
+
+	protected:
+		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, MplsLayer. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 }  // namespace pcpp

@@ -69,10 +69,6 @@ namespace pcpp
 		/// @return True if address was set successfully, false if MAC address isn't valid or if set failed
 		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
 
-		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer,
-		/// PPPoESessionLayer, PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of sll_header
 		size_t getHeaderLen() const override
 		{
@@ -88,6 +84,11 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+	protected:
+		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer,
+		/// PPPoESessionLayer, PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 }  // namespace pcpp

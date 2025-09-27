@@ -90,7 +90,7 @@ namespace pcpp
 		return checksumRes;
 	}
 
-	void UdpLayer::parseNextLayer(ParserConfiguration const& config)
+	void UdpLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen <= sizeof(udphdr))
 			return;
@@ -200,7 +200,7 @@ namespace pcpp
 					m_NextLayer = DoIpLayer::parseDoIpLayer(udpData, udpDataLen, this, m_Packet);
 					if (!m_NextLayer)
 						constructNextLayer<PayloadLayer>(udpData, udpDataLen, m_Packet);
-                }
+				}
 				break;
 			}
 			case SomeIP:

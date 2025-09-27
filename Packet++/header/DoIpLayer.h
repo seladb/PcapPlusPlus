@@ -620,9 +620,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// parse UDS layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return The size of @ref doiphdr + attached fields length
 		size_t getHeaderLen() const override
 		{
@@ -638,6 +635,10 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	protected:
+		/// parse UDS layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		void setPayloadType(DoIpPayloadTypes payloadType);

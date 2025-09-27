@@ -239,10 +239,6 @@ namespace pcpp
 		/// @return The record size as extracted from the record data (in ssl_tls_record_layer#length)
 		size_t getHeaderLen() const override;
 
-		/// Several SSL/TLS records can reside in a single packets. So this method checks the remaining data and if it's
-		/// identified as SSL/TLS it creates another SSL/TLS record layer as the next layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelPresentationLayer;
@@ -253,6 +249,9 @@ namespace pcpp
 		    : Layer(data, dataLen, prevLayer, packet, SSL)
 		{}
 
+		/// Several SSL/TLS records can reside in a single packets. So this method checks the remaining data and if it's
+		/// identified as SSL/TLS it creates another SSL/TLS record layer as the next layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};  // class SSLLayer
 
 	// The graph below will break the code formatting, so it's disabled.

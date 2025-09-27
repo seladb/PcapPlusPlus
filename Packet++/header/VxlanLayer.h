@@ -114,9 +114,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Next layer for VXLAN is always Ethernet
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of vxlan_header
 		size_t getHeaderLen() const override
 		{
@@ -133,5 +130,9 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+	protected:
+		/// Next layer for VXLAN is always Ethernet
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 }  // namespace pcpp

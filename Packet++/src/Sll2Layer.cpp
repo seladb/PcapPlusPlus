@@ -56,7 +56,7 @@ namespace pcpp
 		return setLinkLayerAddr(macAddrAsArr, 6);
 	}
 
-	void Sll2Layer::parseNextLayer(ParserConfiguration const& config)
+	void Sll2Layer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen <= sizeof(sll2_header))
 			return;

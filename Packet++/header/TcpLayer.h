@@ -557,10 +557,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers: HttpRequestLayer, HttpResponseLayer. Otherwise sets
-		/// PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of @ref tcphdr + all TCP options
 		size_t getHeaderLen() const override
 		{
@@ -576,6 +572,11 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+	protected:
+		/// Currently identifies the following next layers: HttpRequestLayer, HttpResponseLayer. Otherwise sets
+		/// PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		TLVRecordReader<TcpOption> m_OptionReader;

@@ -348,10 +348,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Does nothing for this layer (DhcpV6Layer is always last)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return The size of @ref dhcpv6_header + size of options
 		size_t getHeaderLen() const override
 		{
@@ -368,6 +364,11 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	protected:
+		/// Does nothing for this layer (DhcpV6Layer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 
 	private:
 		uint8_t* getOptionsBasePtr() const

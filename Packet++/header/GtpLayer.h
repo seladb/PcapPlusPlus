@@ -390,9 +390,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Identifies the following next layers for GTP-U packets: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return The size of the GTP header. For GTP-C packets the size is determined by the value of
 		/// gtpv1_header#messageLength and for GTP-U the size only includes the GTP header itself (meaning
 		/// the size of gtpv1_header plus the size of the optional fields such as sequence number, N-PDU
@@ -409,6 +406,10 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+	protected:
+		/// Identifies the following next layers for GTP-U packets: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 	/// @class GtpV2MessageType
@@ -1098,9 +1099,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Identifies if the next layer is GTPv2 piggyback. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return The size of the GTPv2 header including its Information Elements (IE)
 		size_t getHeaderLen() const override;
 
@@ -1113,6 +1111,10 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+	protected:
+		/// Identifies if the next layer is GTPv2 piggyback. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 #pragma pack(push, 1)

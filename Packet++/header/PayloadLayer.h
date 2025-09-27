@@ -53,10 +53,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Does nothing for this layer (PayloadLayer is always last)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return Payload data length in bytes
 		size_t getHeaderLen() const override
 		{
@@ -89,5 +85,10 @@ namespace pcpp
 			// PayloadLayer is special as it can be empty. So, it's valid if data is nullptr and dataLen is 0.
 			return (data == nullptr) != (dataLen != 0);  // XOR
 		};
+
+	protected:
+		/// Does nothing for this layer (PayloadLayer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 }  // namespace pcpp

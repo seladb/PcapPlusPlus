@@ -72,9 +72,6 @@ namespace pcpp
 		void computeCalculateFields() override
 		{}
 
-		/// Currently parses the rest of the packet as a COTP protocol or generic payload (PayloadLayer)
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// A static method that checks whether a source or dest port match those associated with the TPKT protocol
 		/// @param[in] portSrc Source port number to check
 		/// @param[in] portDst Dest port number to check
@@ -99,6 +96,10 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+	protected:
+		/// Currently parses the rest of the packet as a COTP protocol or generic payload (PayloadLayer)
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		/// Get a pointer to the TPKT header. Data can be retrieved through the

@@ -35,10 +35,6 @@ namespace pcpp
 
 		// overridden methods
 
-		/// FTP is the always last so does nothing for this layer
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return Get the size of the layer
 		size_t getHeaderLen() const override
 		{
@@ -54,6 +50,11 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	protected:
+		/// FTP is the always last so does nothing for this layer
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 
 	/// Class for representing the request messages of FTP Layer

@@ -148,9 +148,6 @@ namespace pcpp
 
 		// abstract methods implementation
 
-		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of @ref pppoe_header
 		size_t getHeaderLen() const override
 		{
@@ -158,6 +155,10 @@ namespace pcpp
 		}
 
 		std::string toString() const override;
+
+	protected:
+		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 	/// @class PPPoEDiscoveryLayer
@@ -349,10 +350,6 @@ namespace pcpp
 
 		// abstract methods implementation
 
-		/// Does nothing for this layer (PPPoE discovery is always the last layer)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return The header length which is size of strcut pppoe_header plus the total size of tags
 		size_t getHeaderLen() const override;
 
@@ -360,6 +357,11 @@ namespace pcpp
 		{
 			return "PPP-over-Ethernet Discovery (" + codeToString((PPPoELayer::PPPoECode)getPPPoEHeader()->code) + ")";
 		}
+
+	protected:
+		/// Does nothing for this layer (PPPoE discovery is always the last layer)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 
 	private:
 		TLVRecordReader<PPPoETag> m_TagReader;

@@ -593,11 +593,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// ICMP messages of types: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH, ICMP_TIME_EXCEEDED, ICMP_REDIRECT,
-		/// ICMP_PARAM_PROBLEM have data that contains IPv4 header and some L4 header (TCP/UDP/ICMP). This method parses
-		/// these headers as separate layers on top of the ICMP layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return The ICMP header length. This length varies according to the ICMP message type. This length doesn't
 		/// include IPv4 and L4 headers in case ICMP message type are: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH,
 		/// ICMP_TIME_EXCEEDED, ICMP_REDIRECT, ICMP_PARAM_PROBLEM
@@ -612,6 +607,12 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+	protected:
+		/// ICMP messages of types: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH, ICMP_TIME_EXCEEDED, ICMP_REDIRECT,
+		/// ICMP_PARAM_PROBLEM have data that contains IPv4 header and some L4 header (TCP/UDP/ICMP). This method parses
+		/// these headers as separate layers on top of the ICMP layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 	// implementation of inline methods

@@ -52,9 +52,6 @@ namespace pcpp
 
 		// overridden methods
 
-		/// Parses the next layer. Currently only STP supported as next layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// Does nothing for this layer
 		void computeCalculateFields() override
 		{}
@@ -79,6 +76,10 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an LLC packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+	protected:
+		/// Parses the next layer. Currently only STP supported as next layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 }  // namespace pcpp

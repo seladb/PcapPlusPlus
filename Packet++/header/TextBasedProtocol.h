@@ -200,9 +200,6 @@ namespace pcpp
 
 		// implement Layer's abstract methods
 
-		/// Currently set only PayloadLayer for the rest of the data
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return The message length
 		size_t getHeaderLen() const override;
 
@@ -220,6 +217,9 @@ namespace pcpp
 		TextBasedProtocolMessage& operator=(const TextBasedProtocolMessage& other);
 
 		void copyDataFrom(const TextBasedProtocolMessage& other);
+
+		/// Currently set only PayloadLayer for the rest of the data
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 		void parseFields();
 		void shiftFieldsOffset(HeaderField* fromField, int numOfBytesToShift);

@@ -72,10 +72,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers: DnsLayer, DhcpLayer, VxlanLayer, SipRequestLayer,
-		/// SipResponseLayer, RadiusLayer. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of @ref udphdr
 		size_t getHeaderLen() const override
 		{
@@ -91,6 +87,11 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+	protected:
+		/// Currently identifies the following next layers: DnsLayer, DhcpLayer, VxlanLayer, SipRequestLayer,
+		/// SipResponseLayer, RadiusLayer. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 	bool UdpLayer::isDataValid(const uint8_t* data, size_t dataLen)

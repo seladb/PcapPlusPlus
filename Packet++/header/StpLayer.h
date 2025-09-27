@@ -261,9 +261,6 @@ namespace pcpp
 			return sizeof(stp_tcn_bpdu);
 		}
 
-		/// Parses next layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override
 		{
@@ -279,6 +276,10 @@ namespace pcpp
 		{
 			return canReinterpretAs<stp_tcn_bpdu>(data, dataLen);
 		}
+
+	protected:
+		/// Parses next layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 	/// @class StpConfigurationBPDULayer
@@ -450,9 +451,6 @@ namespace pcpp
 			return sizeof(stp_conf_bpdu);
 		}
 
-		/// Parses next layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override
 		{
@@ -467,6 +465,10 @@ namespace pcpp
 		{
 			return canReinterpretAs<stp_conf_bpdu>(data, dataLen);
 		}
+
+	protected:
+		/// Parses next layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 	/// @class RapidStpLayer
@@ -520,9 +522,6 @@ namespace pcpp
 			return sizeof(rstp_conf_bpdu);
 		}
 
-		/// Parses next layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override
 		{
@@ -537,6 +536,10 @@ namespace pcpp
 		{
 			return canReinterpretAs<rstp_conf_bpdu>(data, dataLen);
 		}
+
+	protected:
+		/// Parses next layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 	/// @class MultipleStpLayer
@@ -687,10 +690,6 @@ namespace pcpp
 
 		// overridden methods
 
-		/// Parses next layer
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override
 		{
@@ -705,5 +704,10 @@ namespace pcpp
 		{
 			return canReinterpretAs<mstp_conf_bpdu>(data, dataLen);
 		}
+
+	protected:
+		/// Parses next layer
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 }  // namespace pcpp

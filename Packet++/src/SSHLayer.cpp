@@ -28,7 +28,7 @@ namespace pcpp
 		return new SSHEncryptedMessage(data, dataLen, prevLayer, packet);
 	}
 
-	void SSHLayer::parseNextLayer(ParserConfiguration const& config)
+	void SSHLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

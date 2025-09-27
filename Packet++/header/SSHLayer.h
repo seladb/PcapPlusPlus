@@ -96,10 +96,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Several SSH records can reside in a single packets. This method examins the remaining data and creates
-		/// additional SSH records if applicable
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// Does nothing for this layer
 		void computeCalculateFields() override
 		{}
@@ -114,6 +110,10 @@ namespace pcpp
 		SSHLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, SSH)
 		{}
+
+		/// Several SSH records can reside in a single packets. This method examins the remaining data and creates
+		/// additional SSH records if applicable
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		// this layer supports only parsing

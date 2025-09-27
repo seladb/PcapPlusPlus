@@ -88,7 +88,7 @@ namespace pcpp
 		return len;
 	}
 
-	void SSLLayer::parseNextLayer(ParserConfiguration const& config)
+	void SSLLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

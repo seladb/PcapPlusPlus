@@ -563,20 +563,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers:
-		/// - UdpLayer
-		/// - TcpLayer
-		/// - IcmpLayer
-		/// - IPv4Layer (IP-in-IP)
-		/// - IPv6Layer (IP-in-IP)
-		/// - GreLayer
-		/// - IgmpLayer
-		/// - AuthenticationHeaderLayer (IPSec)
-		/// - ESPLayer (IPSec)
-		///
-		/// Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of IPv4 header (including IPv4 options if exist)
 		size_t getHeaderLen() const override
 		{
@@ -604,6 +590,21 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an IPv4 packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
+	protected:
+		/// Currently identifies the following next layers:
+		/// - UdpLayer
+		/// - TcpLayer
+		/// - IcmpLayer
+		/// - IPv4Layer (IP-in-IP)
+		/// - IPv6Layer (IP-in-IP)
+		/// - GreLayer
+		/// - IgmpLayer
+		/// - AuthenticationHeaderLayer (IPSec)
+		/// - ESPLayer (IPSec)
+		///
+		/// Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		int m_NumOfTrailingBytes;

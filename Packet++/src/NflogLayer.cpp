@@ -37,7 +37,7 @@ namespace pcpp
 		return tlv;
 	}
 
-	void NflogLayer::parseNextLayer(ParserConfiguration const& config)
+	void NflogLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		if (m_DataLen <= sizeof(nflog_header))
 		{

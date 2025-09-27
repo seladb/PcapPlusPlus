@@ -151,10 +151,6 @@ namespace pcpp
 		void computeCalculateFields() override
 		{}
 
-		/// Does nothing for this layer (S7CommLayer is always last)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// A static method that takes a byte array and detects whether it is a S7COMM
 		/// @param[in] data A byte array
 		/// @param[in] dataSize The byte array size (in bytes)
@@ -167,6 +163,11 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	protected:
+		/// Does nothing for this layer (S7CommLayer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 
 	private:
 		s7commhdr* getS7commHeader() const

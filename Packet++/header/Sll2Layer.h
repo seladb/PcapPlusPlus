@@ -128,10 +128,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer,
-		/// PPPoESessionLayer, PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
 		void computeCalculateFields() override;
 
@@ -147,6 +143,11 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+	protected:
+		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer,
+		/// PPPoESessionLayer, PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 }  // namespace pcpp

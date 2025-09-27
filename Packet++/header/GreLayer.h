@@ -125,11 +125,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers:
-		///   IPv4Layer, IPv6Layer, VlanLayer, MplsLayer, PPP_PPTPLayer, EthLayer, EthDot3Layer
-		/// Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of GRE header (may change if optional fields are added or removed)
 		size_t getHeaderLen() const override;
 
@@ -155,6 +150,11 @@ namespace pcpp
 		};
 
 		uint8_t* getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing) const;
+
+		/// Currently identifies the following next layers:
+		///   IPv4Layer, IPv6Layer, VlanLayer, MplsLayer, PPP_PPTPLayer, EthLayer, EthDot3Layer
+		/// Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 		void computeCalculateFieldsInner();
 	};
@@ -367,9 +367,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return The size of @ref ppp_pptp_header
 		size_t getHeaderLen() const override
 		{
@@ -389,6 +386,10 @@ namespace pcpp
 		{
 			return OsiModelSesionLayer;
 		}
+
+	protected:
+		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 	bool PPP_PPTPLayer::isDataValid(const uint8_t* data, size_t dataLen)

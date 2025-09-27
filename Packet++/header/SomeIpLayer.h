@@ -257,9 +257,6 @@ namespace pcpp
 		virtual void computeCalculateFields() override
 		{}
 
-		/// Identifies the following next layers: SomeIpLayer, SomeIpTpLayer, SomeIpSdLayer. Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return The string representation of the SOME/IP layer
 		virtual std::string toString() const override;
 
@@ -272,6 +269,9 @@ namespace pcpp
 	protected:
 		SomeIpLayer()
 		{}
+
+		/// Identifies the following next layers: SomeIpLayer, SomeIpTpLayer, SomeIpSdLayer. Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		static const uint8_t SOMEIP_PROTOCOL_VERSION = 1;

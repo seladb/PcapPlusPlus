@@ -91,10 +91,6 @@ namespace pcpp
 			return static_cast<size_t>(4) * (getAHHeader()->payloadLen + 2);
 		}
 
-		/// Currently identifies the following next layers: UdpLayer, TcpLayer, IPv4Layer, IPv6Layer and ESPLayer.
-		/// Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// Does nothing for this layer
 		void computeCalculateFields() override
 		{}
@@ -105,6 +101,11 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+	protected:
+		/// Currently identifies the following next layers: UdpLayer, TcpLayer, IPv4Layer, IPv6Layer and ESPLayer.
+		/// Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		// this layer supports parsing only
@@ -151,9 +152,6 @@ namespace pcpp
 			return sizeof(ipsec_esp);
 		}
 
-		/// The payload of an ESP layer is encrypted, hence the next layer is always a generic payload (PayloadLayer)
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// Does nothing for this layer
 		void computeCalculateFields() override
 		{}
@@ -164,6 +162,10 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+	protected:
+		/// The payload of an ESP layer is encrypted, hence the next layer is always a generic payload (PayloadLayer)
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		// this layer supports parsing only

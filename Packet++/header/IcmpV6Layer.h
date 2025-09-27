@@ -165,10 +165,6 @@ namespace pcpp
 		/// @return Get the checksum header field in host representation
 		uint16_t getChecksum() const;
 
-		/// Does nothing for this layer. ICMPv6 is the last layer.
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return The size of the ICMPv6 message
 		size_t getHeaderLen() const override
 		{
@@ -187,6 +183,10 @@ namespace pcpp
 
 	protected:
 		IcmpV6Layer() = default;
+
+		/// Does nothing for this layer. ICMPv6 is the last layer.
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 
 	private:
 		void calculateChecksum();

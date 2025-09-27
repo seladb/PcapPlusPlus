@@ -356,7 +356,7 @@ namespace pcpp
 		return *this;
 	}
 
-	void TcpLayer::parseNextLayer(ParserConfiguration const& config)
+	void TcpLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		const size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

@@ -358,9 +358,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Tries to identify more LDAP messages in this packet if exist
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return The size of the LDAP message
 		size_t getHeaderLen() const override
 		{
@@ -385,6 +382,10 @@ namespace pcpp
 		LdapLayer() = default;
 		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords,
 		          const std::vector<LdapControl>& controls);
+
+		/// Tries to identify more LDAP messages in this packet if exist
+		void doParseNextLayer(ParserConfiguration const& config) override;
+
 		virtual std::string getExtendedInfoString() const
 		{
 			return "";

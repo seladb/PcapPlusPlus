@@ -64,7 +64,7 @@ namespace pcpp
 		return contentLengthField;
 	}
 
-	void SipLayer::parseNextLayer(ParserConfiguration const& config)
+	void SipLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		if (getLayerPayloadSize() == 0)
 			return;

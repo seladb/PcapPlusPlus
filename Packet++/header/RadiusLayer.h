@@ -253,10 +253,6 @@ namespace pcpp
 		/// @return The size written in radius_header#length
 		size_t getHeaderLen() const override;
 
-		/// Does nothing for this layer, RADIUS is always last
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// Calculate and store the value of radius_header#length according to the layer size
 		void computeCalculateFields() override;
 
@@ -266,6 +262,11 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	protected:
+		/// Does nothing for this layer, RADIUS is always last
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 
 	// implementation of inline methods

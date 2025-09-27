@@ -158,18 +158,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Currently identifies the following next layers:
-		/// - UdpLayer
-		/// - TcpLayer
-		/// - IPv4Layer (IP-in-IP)
-		/// - IPv6Layer (IP-in-IP)
-		/// - GreLayer
-		/// - AuthenticationHeaderLayer (IPSec)
-		/// - ESPLayer (IPSec)
-		///
-		/// Otherwise sets PayloadLayer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of @ref ip6_hdr
 		size_t getHeaderLen() const override
 		{
@@ -189,6 +177,19 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+	protected:
+		/// Currently identifies the following next layers:
+		/// - UdpLayer
+		/// - TcpLayer
+		/// - IPv4Layer (IP-in-IP)
+		/// - IPv6Layer (IP-in-IP)
+		/// - GreLayer
+		/// - AuthenticationHeaderLayer (IPSec)
+		/// - ESPLayer (IPSec)
+		///
+		/// Otherwise sets PayloadLayer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		void initLayer();

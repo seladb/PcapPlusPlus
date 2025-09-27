@@ -95,10 +95,6 @@ namespace pcpp
 		/// @param reserved The reserved field to set as a An array containing the 3-byte.
 		void setReserved(const std::array<uint8_t, 3>& reserved);
 
-		/// Does nothing for this layer (WireGuard layer is always last)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return Size of the header in bytes.
 		size_t getHeaderLen() const override;
 
@@ -121,6 +117,11 @@ namespace pcpp
 		{
 			return WireGuardMessageType::Unknown;
 		}
+
+	protected:
+		/// Does nothing for this layer (WireGuard layer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 
 	/// @class WireGuardHandshakeInitiationLayer

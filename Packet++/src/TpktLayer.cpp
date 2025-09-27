@@ -54,7 +54,7 @@ namespace pcpp
 		return "TPKT Layer, version: " + versionStream.str() + ", length: " + lengthStream.str();
 	}
 
-	void TpktLayer::parseNextLayer(ParserConfiguration const& config)
+	void TpktLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

@@ -243,10 +243,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Does nothing for this layer (VRRP layer is always last)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// Calculate the VRRP checksum
 		void computeCalculateFields() override;
 
@@ -263,6 +259,11 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+	protected:
+		/// Does nothing for this layer (VRRP layer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 
 	/// @class VrrpV2Layer

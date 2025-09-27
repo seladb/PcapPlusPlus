@@ -561,7 +561,7 @@ namespace pcpp
 		return header;
 	}
 
-	void IcmpLayer::parseNextLayer(ParserConfiguration const& config)
+	void IcmpLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 

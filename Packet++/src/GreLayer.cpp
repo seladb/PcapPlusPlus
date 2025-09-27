@@ -192,7 +192,7 @@ namespace pcpp
 		return true;
 	}
 
-	void GreLayer::parseNextLayer(ParserConfiguration const& config)
+	void GreLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
@@ -563,7 +563,7 @@ namespace pcpp
 		header->control = control;
 	}
 
-	void PPP_PPTPLayer::parseNextLayer(ParserConfiguration const& config)
+	void PPP_PPTPLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)

@@ -61,10 +61,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Does nothing for this layer (PacketTrailerLayer is always last)
-		void parseNextLayer(ParserConfiguration const& config) override
-		{}
-
 		/// @return trailer data length in bytes
 		size_t getHeaderLen() const override
 		{
@@ -81,6 +77,11 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+	protected:
+		/// Does nothing for this layer (PacketTrailerLayer is always last)
+		void doParseNextLayer(ParserConfiguration const& config) override
+		{}
 	};
 
 }  // namespace pcpp

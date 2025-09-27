@@ -93,9 +93,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Parses next layer
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of ether_dot3_header
 		size_t getHeaderLen() const override
 		{
@@ -118,6 +115,10 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an IEEE 802.3 Eth packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+	protected:
+		/// Parses next layer
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 
 }  // namespace pcpp

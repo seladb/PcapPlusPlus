@@ -75,9 +75,6 @@ namespace pcpp
 		void computeCalculateFields() override
 		{}
 
-		/// Currently parses the rest of the packet as a S7COMM or generic payload (PayloadLayer)
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// A static method that takes a byte array and detects whether it is a COTP
 		/// @param[in] data A byte array
 		/// @param[in] dataSize The byte array size (in bytes)
@@ -90,6 +87,10 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+	protected:
+		/// Currently parses the rest of the packet as a S7COMM or generic payload (PayloadLayer)
+		void doParseNextLayer(ParserConfiguration const& config) override;
 
 	private:
 		cotphdr* getCotpHeader() const

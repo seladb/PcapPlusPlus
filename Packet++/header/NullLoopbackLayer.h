@@ -55,13 +55,6 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/// Identifies the next layers by family:
-		/// - for ::PCPP_BSD_AF_INET the next layer is IPv4Layer
-		/// - for ::PCPP_BSD_AF_INET6_BSD, ::PCPP_BSD_AF_INET6_FREEBSD, ::PCPP_BSD_AF_INET6_DARWIN the next layer is
-		/// IPv6Layer
-		/// - for other values the next layer in PayloadLayer (unknown protocol)
-		void parseNextLayer(ParserConfiguration const& config) override;
-
 		/// @return Size of Null/Loopback header = 4B
 		size_t getHeaderLen() const override
 		{
@@ -78,5 +71,13 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+	protected:
+		/// Identifies the next layers by family:
+		/// - for ::PCPP_BSD_AF_INET the next layer is IPv4Layer
+		/// - for ::PCPP_BSD_AF_INET6_BSD, ::PCPP_BSD_AF_INET6_FREEBSD, ::PCPP_BSD_AF_INET6_DARWIN the next layer is
+		/// IPv6Layer
+		/// - for other values the next layer in PayloadLayer (unknown protocol)
+		void doParseNextLayer(ParserConfiguration const& config) override;
 	};
 }  // namespace pcpp
