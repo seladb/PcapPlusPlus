@@ -759,7 +759,7 @@ namespace pcpp
 		}
 		case LinkLayerType::LINKTYPE_LINUX_SLL2:
 		{
-			if(Sll2Layer::isDataValid(rawData,rawDataLen))
+			if (Sll2Layer::isDataValid(rawData, rawDataLen))
 			{
 				return new Sll2Layer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 			}
@@ -767,10 +767,11 @@ namespace pcpp
 		}
 		case LinkLayerType::LINKTYPE_NULL:
 		{
+			// Check if rawDataLen is too small fit Null/Loopback
 			if (rawDataLen >= sizeof(uint32_t))
+			{
 				return new NullLoopbackLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
-			else  // rawDataLen is too small fir Null/Loopback
-				return new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
+			}
 			break;
 		}
 		case LinkLayerType::LINKTYPE_RAW:
@@ -778,58 +779,46 @@ namespace pcpp
 		case LinkLayerType::LINKTYPE_DLT_RAW2:
 		{
 			uint8_t ipVer = rawData[0] & 0xf0;
-			if (ipVer == 0x40)
+			if (ipVer == 0x40 && IPv4Layer::isDataValid(rawData, rawDataLen))
 			{
-				return IPv4Layer::isDataValid(rawData, rawDataLen)
-				           ? static_cast<Layer*>(
-				                 new IPv4Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this))
-				           : static_cast<Layer*>(
-				                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
+				return new IPv4Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
 			}
-			else if (ipVer == 0x60)
+			else if (ipVer == 0x60 && IPv6Layer::isDataValid(rawData, rawDataLen))
 			{
-				return IPv6Layer::isDataValid(rawData, rawDataLen)
-				           ? static_cast<Layer*>(
-				                 new IPv6Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this))
-				           : static_cast<Layer*>(
-				                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
-			}
-			else
-			{
-				return new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
+				return new IPv6Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
 			}
 			break;
 		}
 		case LinkLayerType::LINKTYPE_IPV4:
 		{
-			return IPv4Layer::isDataValid(rawData, rawDataLen)
-			           ? static_cast<Layer*>(new IPv4Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this))
-			           : static_cast<Layer*>(
-			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
+			if (IPv4Layer::isDataValid(rawData, rawDataLen))
+			{
+				return new IPv4Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
+			}
 			break;
 		}
 		case LinkLayerType::LINKTYPE_IPV6:
 		{
-			return IPv6Layer::isDataValid(rawData, rawDataLen)
-			           ? static_cast<Layer*>(new IPv6Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this))
-			           : static_cast<Layer*>(
-			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
+			if (IPv6Layer::isDataValid(rawData, rawDataLen))
+			{
+				return new IPv6Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
+			}
 			break;
 		}
 		case LinkLayerType::LINKTYPE_NFLOG:
 		{
-			return NflogLayer::isDataValid(rawData, rawDataLen)
-			           ? static_cast<Layer*>(new NflogLayer(const_cast<uint8_t*>(rawData), rawDataLen, this))
-			           : static_cast<Layer*>(
-			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
+			if (NflogLayer::isDataValid(rawData, rawDataLen))
+			{
+				return new NflogLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
+			}
 			break;
 		}
 		case LinkLayerType::LINKTYPE_C_HDLC:
 		{
-			return CiscoHdlcLayer::isDataValid(rawData, rawDataLen)
-			           ? static_cast<Layer*>(new CiscoHdlcLayer(const_cast<uint8_t*>(rawData), rawDataLen, this))
-			           : static_cast<Layer*>(
-			                 new PayloadLayer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this));
+			if (CiscoHdlcLayer::isDataValid(rawData, rawDataLen))
+			{
+				return new CiscoHdlcLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
+			}
 			break;
 		}
 		}
