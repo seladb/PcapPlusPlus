@@ -821,6 +821,9 @@ namespace pcpp
 			}
 			break;
 		}
+		default:
+			// For all other link types, we don't have a specific layer. Just break and create a PayloadLayer
+			break;
 		}
 
 		// unknown link type
