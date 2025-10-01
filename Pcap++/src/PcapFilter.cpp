@@ -27,23 +27,20 @@ namespace pcpp
 		}
 	}  // namespace internal
 
-	BpfFilterWrapper::BpfFilterWrapper(std::string filter, LinkLayerType linkType)
-	    : m_FilterStr(std::move(filter)), m_CachedProgramLinkType(linkType),
-	      m_CachedProgram(compileFilter(m_FilterStr, linkType))
+	BpfFilterWrapper::BpfFilterWrapper(const BpfFilterWrapper& other)
 	{
-		if (!m_FilterStr.empty() && m_CachedProgram == nullptr)
+		if (!setFilter(other.m_FilterStr, other.m_CachedProgramLinkType))
 		{
-			throw std::runtime_error("Couldn't compile BPF filter: '" + m_FilterStr + "'");
+			throw std::runtime_error("Couldn't compile BPF filter: '" + other.m_FilterStr + "'");
 		}
 	}
 
-	BpfFilterWrapper::BpfFilterWrapper(const BpfFilterWrapper& other)
-	    : BpfFilterWrapper(other.m_FilterStr, other.m_CachedProgramLinkType)
-	{}
-
 	BpfFilterWrapper& BpfFilterWrapper::operator=(const BpfFilterWrapper& other)
 	{
-		setFilter(other.m_FilterStr, other.m_CachedProgramLinkType);
+		if (!setFilter(other.m_FilterStr, other.m_CachedProgramLinkType))
+		{
+			throw std::runtime_error("Couldn't compile BPF filter: '" + other.m_FilterStr + "'");
+		}
 		return *this;
 	}
 

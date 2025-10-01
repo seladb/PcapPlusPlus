@@ -91,12 +91,6 @@ namespace pcpp
 		/// @brief Creates a new instance with no filter.
 		BpfFilterWrapper() = default;
 
-		/// @brief Creates a new instance with the given filter string.
-		/// @param filter A filter in BPF syntax
-		/// @param linkType An optional parameter to set the filter's link type. The default is LINKTYPE_ETHERNET
-		/// @throws std::runtime_error if the filter could not be compiled
-		explicit BpfFilterWrapper(std::string filter, LinkLayerType linkType = LINKTYPE_ETHERNET);
-
 		BpfFilterWrapper(const BpfFilterWrapper& other);
 		BpfFilterWrapper(BpfFilterWrapper&&) noexcept = default;
 		BpfFilterWrapper& operator=(const BpfFilterWrapper& other);
