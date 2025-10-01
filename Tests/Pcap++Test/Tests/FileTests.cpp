@@ -152,8 +152,8 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 
 	if (!pcpp::PcapFileWriterDevice::isNanoSecondPrecisionSupported())
 	{
-		std::cout << "Pcap nano precision is not supported on the current platform! "
-		             "The test will check for proper failure messages.\n";
+		PTF_PRINT_VERBOSE("Pcap nano precision is not supported on the current platform! "
+		                  "The test will check for proper failure messages.\n");
 		PTF_ASSERT_RAISES(pcpp::PcapFileWriterDevice(EXAMPLE_PCAP_NANO_WRITE_PATH, pcpp::LINKTYPE_ETHERNET, true),
 		                  std::runtime_error,
 		                  "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. "
