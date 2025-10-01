@@ -10,6 +10,7 @@
 #include "Packet.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
+#include "Logger.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/PcapFileNamesDef.h"
 #include "../Common/TestUtils.h"
@@ -208,7 +209,9 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	// Try to make an invalid filter
 	pcpp::BPFStringFilter badFilter("This is not a valid filter");
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(badFilter.verifyFilter());
+	pcpp::Logger::getInstance().enableLogs();
 
 	// Test stolen from MacAddress test below
 	pcpp::MacAddress macAddr("00:13:c3:df:ae:18");
@@ -252,7 +255,9 @@ PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 		pcpp::BPFStringFilter emptyFilter("");
 		PTF_ASSERT_TRUE(emptyFilter.matchPacketWithFilter(*iter));
 		pcpp::BPFStringFilter wrongFilter("-");
+		pcpp::Logger::getInstance().suppressLogs();
 		PTF_ASSERT_FALSE(wrongFilter.matchPacketWithFilter(*iter));
+		pcpp::Logger::getInstance().enableLogs();
 	}
 
 	rawPacketVec.clear();
