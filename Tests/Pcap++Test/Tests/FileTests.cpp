@@ -119,6 +119,10 @@ PTF_TEST_CASE(TestPcapFileMicroPrecision)
 	PTF_ASSERT_TRUE(writerDevMicro.writePacket(rawPacketNano));
 	writerDevMicro.close();
 
+	pcpp::FileTimestampPrecision expectedPrecision = pcpp::PcapFileWriterDevice::isNanoSecondPrecisionSupported()
+	                                                     ? pcpp::FileTimestampPrecision::Nanoseconds
+	                                                     : pcpp::FileTimestampPrecision::Microseconds;
+
 	// Read micro precision file, both original and written
 	for (auto const path : { EXAMPLE_PCAP_MICRO_PATH, EXAMPLE_PCAP_MICRO_WRITE_PATH })
 	{
@@ -126,11 +130,7 @@ PTF_TEST_CASE(TestPcapFileMicroPrecision)
 		pcpp::PcapFileReaderDevice readerDevMicro(path);
 		PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
 		PTF_ASSERT_TRUE(readerDevMicro.open());
-		PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(),
-		                 pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported()
-		                     ? pcpp::FileTimestampPrecision::Nanoseconds
-		                     : pcpp::FileTimestampPrecision::Microseconds,
-		                 enumclass);
+		PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(), expectedPrecision, enumclass);
 
 		pcpp::RawPacket readPacketNano2, readPacketMicro2;
 		PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketMicro2));
@@ -172,17 +172,9 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 
 	// Write nano precision file
 	pcpp::PcapFileWriterDevice writerDevNano(EXAMPLE_PCAP_NANO_WRITE_PATH, pcpp::LINKTYPE_ETHERNET, true);
-	PTF_ASSERT_EQUAL(writerDevNano.getTimestampPrecision(),
-	                 pcpp::PcapFileWriterDevice::isNanoSecondPrecisionSupported()
-	                     ? pcpp::FileTimestampPrecision::Nanoseconds
-	                     : pcpp::FileTimestampPrecision::Microseconds,
-	                 enumclass);
+	PTF_ASSERT_EQUAL(writerDevNano.getTimestampPrecision(), pcpp::FileTimestampPrecision::Nanoseconds, enumclass);
 	PTF_ASSERT_TRUE(writerDevNano.open());
-	PTF_ASSERT_EQUAL(writerDevNano.getTimestampPrecision(),
-	                 pcpp::PcapFileWriterDevice::isNanoSecondPrecisionSupported()
-	                     ? pcpp::FileTimestampPrecision::Nanoseconds
-	                     : pcpp::FileTimestampPrecision::Microseconds,
-	                 enumclass);
+	PTF_ASSERT_EQUAL(writerDevNano.getTimestampPrecision(), pcpp::FileTimestampPrecision::Nanoseconds, enumclass);
 
 	// File precision should remain Nano. Micro precision packet will be scaled to Nano precision.
 	PTF_ASSERT_TRUE(writerDevNano.writePacket(rawPacketMicro));
