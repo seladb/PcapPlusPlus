@@ -215,7 +215,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestLogger, "no_network;logger");
 	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");
 
-	PTF_RUN_TEST(TestIFileReaderDeviceFactory_Pcap, "no_network;pcap");
+	PTF_RUN_TEST(TestIFileReaderDeviceFactory_Pcap_MicroPrecision, "no_network;pcap");
+	PTF_RUN_TEST(TestIFileReaderDeviceFactory_Pcap_NanoPrecision, "no_network;pcap");
 	PTF_RUN_TEST(TestIFileReaderDeviceFactory_PcapNG, "no_network;pcapng");
 	PTF_RUN_TEST(TestIFileReaderDeviceFactory_PcapNG_ZST, "no_network;pcapng");
 	PTF_RUN_TEST(TestIFileReaderDeviceFactory_Invalid, "no_network;");

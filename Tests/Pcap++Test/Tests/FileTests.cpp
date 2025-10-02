@@ -26,25 +26,34 @@ public:
 	}
 };
 
-PTF_TEST_CASE(TestIFileReaderDeviceFactory_Pcap)
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_Pcap_MicroPrecision)
 {
 	// Correct format
-	constexpr const char* PCAP_NANOSEC_FILE_PATH = "PcapExamples/file_heuristics/nanosecs.pcap";
 	constexpr const char* PCAP_MICROSEC_FILE_PATH = "PcapExamples/file_heuristics/microsecs.pcap";
-	// Correct format, wrong exteension
+	// Correct format, wrong exteension, microsecond precision
 	constexpr const char* PCAP_AS_DAT_FILE_PATH = "PcapExamples/file_heuristics/pcap-with-dat-ext.pcap.dat";
 
 	std::unique_ptr<pcpp::IFileReaderDevice> dev;
 
-	for (const auto& filePath : { PCAP_NANOSEC_FILE_PATH, PCAP_MICROSEC_FILE_PATH })
+	for (const auto& filePath : { PCAP_MICROSEC_FILE_PATH, PCAP_AS_DAT_FILE_PATH })
 	{
 		dev = pcpp::IFileReaderDevice::createReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 		PTF_ASSERT_TRUE(dev->open());
 	}
+}
 
-	dev = pcpp::IFileReaderDevice::createReader(PCAP_AS_DAT_FILE_PATH);
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_Pcap_NanoPrecision)
+{
+	if (!pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
+	{
+		PTF_SKIP_TEST("Nano-second precision is not supported in this platform/environment");
+	}
+
+	constexpr const char* PCAP_NANOSEC_FILE_PATH = "PcapExamples/file_heuristics/nanosecs.pcap";
+
+	auto dev = pcpp::IFileReaderDevice::createReader(PCAP_NANOSEC_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
