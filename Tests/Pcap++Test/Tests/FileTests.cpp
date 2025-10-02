@@ -5,7 +5,6 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <array>
 #include <fstream>
-#include <iostream>
 
 class FileReaderTeardown
 {
