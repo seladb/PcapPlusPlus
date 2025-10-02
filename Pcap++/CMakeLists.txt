@@ -64,6 +64,8 @@ endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+target_sources(Pcap++ PRIVATE ${public_headers})
+
 target_compile_features(Pcap++ PUBLIC cxx_std_14)
 
 if(APPLE)

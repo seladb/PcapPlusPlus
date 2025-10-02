@@ -35,6 +35,8 @@ set(
 # Set the public header that will be installed
 set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+target_sources(Common++ PRIVATE ${public_headers})
+
 target_compile_features(Common++ PUBLIC cxx_std_14)
 
 target_include_directories(
