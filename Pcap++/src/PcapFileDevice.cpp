@@ -1,3 +1,4 @@
+#include "PcapFileDevice.h"
 #define LOG_MODULE PcapLogModuleFileDevice
 
 #include <cerrno>
@@ -214,24 +215,32 @@ namespace pcpp
 			}
 		};
 
-	}  // namespace
+		template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
+		{
+			return N;
+		}
 
-	template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
-	{
-		return N;
-	}
-
-	static bool checkNanoSupport()
-	{
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		return true;
+		bool checkNanoSupport()
+		{
+#ifdef PCAP_TSTAMP_PRECISION_NANO
+			return true;
 #else
-		PCPP_LOG_DEBUG(
-		    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-		    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
-		return false;
+			PCPP_LOG_DEBUG(
+			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+			    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
+			return false;
 #endif
-	}
+		}
+
+		bool checkZstdSupport()
+		{
+#ifdef PCPP_PCAPNG_ZSTD_SUPPORT
+			return true;
+#else
+			return false;
+#endif
+		}
+	}  // namespace
 
 	// ~~~~~~~~~~~~~~~~~~~
 	// IFileDevice members
@@ -723,6 +732,11 @@ namespace pcpp
 	// PcapNgFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+	bool PcapNgFileReaderDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
+
 	PcapNgFileReaderDevice::PcapNgFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName)
 	{
 		m_LightPcapNg = nullptr;
@@ -892,6 +906,11 @@ namespace pcpp
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapNgFileWriterDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	bool PcapNgFileWriterDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
 
 	PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel)
 	    : IFileWriterDevice(fileName)
