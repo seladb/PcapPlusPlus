@@ -326,7 +326,7 @@ namespace pcpp
 
 	public:
 		/// @brief A static method that checks if the device was built with zstd compression support
-		/// @return True if zstd compression is supported, false otherwise. 
+		/// @return True if zstd compression is supported, false otherwise.
 		static bool isZstdSupported();
 
 		/// A constructor for this class that gets the pcap-ng full path file name to open. Notice that after calling

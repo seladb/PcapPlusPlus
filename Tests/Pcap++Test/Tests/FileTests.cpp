@@ -110,7 +110,7 @@ PTF_TEST_CASE(TestIFileReaderDeviceFactory_PcapNG_ZST_Unsupported)
 	{
 		PTF_SKIP_TEST("Zstandard compression is supported in this platform/environment");
 	}
-	
+
 	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
 	constexpr const char* PCAPNG_ZSTD_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zstd";
 	std::unique_ptr<pcpp::IFileReaderDevice> dev;
