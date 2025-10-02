@@ -1,6 +1,7 @@
 #define LOG_MODULE PcapLogModuleFileDevice
 
 #include <cerrno>
+#include <stdexcept>
 #include <array>
 #include <algorithm>
 #include "PcapFileDevice.h"
@@ -460,9 +461,9 @@ namespace pcpp
 #else
 		if (nanosecondsPrecision)
 		{
-			PCPP_LOG_ERROR(
-			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-			    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
+			throw std::runtime_error(
+			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. "
+			    "Please recompile PcapPlusPlus with nano precision support to use this feature.");
 		}
 		m_Precision = FileTimestampPrecision::Microseconds;
 #endif
