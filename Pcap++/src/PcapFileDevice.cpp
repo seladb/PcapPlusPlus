@@ -17,6 +17,27 @@ namespace pcpp
 {
 	namespace
 	{
+		bool checkNanoSupport()
+		{
+#ifdef PCAP_TSTAMP_PRECISION_NANO
+			return true;
+#else
+			PCPP_LOG_DEBUG(
+			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+			    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
+			return false;
+#endif
+		}
+
+		bool checkZstdSupport()
+		{
+#ifdef PCPP_PCAPNG_ZSTD_SUPPORT
+			return true;
+#else
+			return false;
+#endif
+		}
+
 		/// @brief Converts a light_pcapng_t* to an opaque LightPcapNgHandle*.
 		/// @param pcapngHandle The light_pcapng_t* to convert.
 		/// @return An pointer to the opaque handle.
@@ -98,7 +119,8 @@ namespace pcpp
 					return CaptureFileFormat::Pcap;
 
 				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
-				if (isPcapNgFile(content) || isZstdArchive(content))
+				// If Zstd is not supported, we cannot read the file anyway, so we return Unknown.
+				if (isPcapNgFile(content) || (checkZstdSupport() && isZstdArchive(content)))
 					return CaptureFileFormat::PcapNG;
 
 				if (isSnoopFile(content))
@@ -218,27 +240,6 @@ namespace pcpp
 		template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
 		{
 			return N;
-		}
-
-		bool checkNanoSupport()
-		{
-#ifdef PCAP_TSTAMP_PRECISION_NANO
-			return true;
-#else
-			PCPP_LOG_DEBUG(
-			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-			    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
-			return false;
-#endif
-		}
-
-		bool checkZstdSupport()
-		{
-#ifdef PCPP_PCAPNG_ZSTD_SUPPORT
-			return true;
-#else
-			return false;
-#endif
 		}
 	}  // namespace
 

@@ -104,6 +104,23 @@ PTF_TEST_CASE(TestIFileReaderDeviceFactory_PcapNG_ZST)
 	}
 }
 
+PTF_TEST_CASE(TestIFileReaderDeviceFactory_PcapNG_ZST_Unsupported)
+{
+	if (pcpp::PcapNgFileReaderDevice::isZstdSupported())
+	{
+		PTF_SKIP_TEST("Zstandard compression is supported in this platform/environment");
+	}
+	
+	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
+	constexpr const char* PCAPNG_ZSTD_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zstd";
+	std::unique_ptr<pcpp::IFileReaderDevice> dev;
+	for (const auto& filePath : { PCAPNG_ZST_FILE_PATH, PCAPNG_ZSTD_FILE_PATH })
+	{
+		dev = pcpp::IFileReaderDevice::createReader(filePath);
+		PTF_ASSERT_NULL(dev);
+	}
+}
+
 PTF_TEST_CASE(TestIFileReaderDeviceFactory_Invalid)
 {
 	// Garbage data, correct extension
