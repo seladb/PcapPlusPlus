@@ -382,7 +382,7 @@ namespace pcpp
 		setPayloadLength(length);
 	}
 
-	void DoIpLayer::parseNextLayer()
+	void DoIpLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		if (getPayloadType() == DoIpPayloadTypes::DIAGNOSTIC_MESSAGE)
 		{

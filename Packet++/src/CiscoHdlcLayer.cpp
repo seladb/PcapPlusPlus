@@ -43,7 +43,7 @@ namespace pcpp
 		}
 	}
 
-	void CiscoHdlcLayer::parseNextLayer()
+	void CiscoHdlcLayer::doParseNextLayer(ParserConfiguration const& config)
 	{
 		auto payload = m_Data + sizeof(cisco_hdlc_header);
 		auto payloadLen = m_DataLen - sizeof(cisco_hdlc_header);
