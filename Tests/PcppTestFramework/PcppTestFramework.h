@@ -34,7 +34,7 @@
 	std::cout << std::endl
 
 #define PTF_PRINT_ASSERTION(severity, op)                                                                              \
-	std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": " << severity << " (" << __FILE__  \
+	std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": " << severity << " (" << __FILE__    \
 	          << ":" << __LINE__ << "). "                                                                              \
 	          << "Assert " << op << " failed:" << std::endl
 
@@ -274,7 +274,7 @@
 #define PTF_PRINT_VERBOSE(data)                                                                                        \
 	if (printVerbose)                                                                                                  \
 	{                                                                                                                  \
-		std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": "                                                \
+		std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": "                                \
 		          << "[VERBOSE] " << data << std::endl;                                                                \
 	}
 
@@ -282,7 +282,7 @@
 	{                                                                                                                  \
 		if (showSkipped)                                                                                               \
 		{                                                                                                              \
-			std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": "                                            \
+			std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": "                            \
 			          << "SKIPPED (" << why << ")" << std::endl;                                                       \
 		}                                                                                                              \
 		ptfResult = PTF_RESULT_SKIPPED;                                                                                \
