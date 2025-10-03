@@ -272,6 +272,162 @@ namespace pcpp
 			}
 			PCPP_LOG_DEBUG("Ended periodic statistics update procedure");
 		}
+
+		struct CaptureContext
+		{
+			PcapLiveDevice* device = nullptr;
+			OnPacketArrivesCallback callback;
+			void* userCookie = nullptr;
+		};
+
+		struct AccumulatorCaptureContext
+		{
+			PcapLiveDevice* device = nullptr;
+			RawPacketVector* capturedPackets = nullptr;
+		};
+
+		struct CaptureContextST
+		{
+			PcapLiveDevice* device = nullptr;
+			OnPacketArrivesStopBlocking callback;
+			void* userCookie = nullptr;
+			bool requestStop = false;
+		};
+
+		void onPacketArrivesNoop(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{}
+
+		void onPacketArrivesCallback(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{
+			auto* context = reinterpret_cast<CaptureContext*>(user);
+			if (context == nullptr || context->device == nullptr || context->callback == nullptr)
+			{
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or callback");
+				return;
+			}
+
+			try
+			{
+				RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
+				context->callback(&rawPacket, context->device, context->userCookie);
+			}
+			catch (const std::exception& ex)
+			{
+				PCPP_LOG_ERROR("Exception occurred while invoking packet arrival callback: " << ex.what());
+			}
+			catch (...)
+			{
+				PCPP_LOG_ERROR("Unknown exception occurred while invoking packet arrival callback");
+			}
+		}
+
+		void onPacketArrivesAccumulator(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{
+			auto* context = reinterpret_cast<AccumulatorCaptureContext*>(user);
+			if (context == nullptr || context->device == nullptr || context->capturedPackets == nullptr)
+			{
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or captured packets vector");
+				return;
+			}
+
+			try
+			{
+				uint8_t* packetData = new uint8_t[pkthdr->caplen];
+				std::memcpy(packetData, packet, pkthdr->caplen);
+				auto rawPacket = std::make_unique<RawPacket>(packetData, pkthdr->caplen, pkthdr->ts, true,
+				                                             context->device->getLinkType());
+				context->capturedPackets->pushBack(std::move(rawPacket));
+			}
+			catch (const std::exception& ex)
+			{
+				PCPP_LOG_ERROR("Exception occurred while invoking packet arrival callback: " << ex.what());
+			}
+			catch (...)
+			{
+				PCPP_LOG_ERROR("Unknown exception occurred while invoking packet arrival callback");
+			}
+		}
+
+		void onPacketArrivesCallbackWithCancellation(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{
+			auto* context = reinterpret_cast<CaptureContextST*>(user);
+
+			if (context == nullptr || context->device == nullptr || context->callback == nullptr)
+			{
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or callback");
+				return;
+			}
+
+			if (context->requestStop)
+			{
+				// If requestStop is true, there is no need to process the packet
+				PCPP_LOG_DEBUG("Capture request stop is set, skipping packet processing");
+				return;
+			}
+
+			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
+
+			try
+			{
+				if (context->callback(&rawPacket, context->device, context->userCookie))
+				{
+					// If the callback returns true, it means that the user wants to stop the capture
+					context->requestStop = true;
+				}
+			}
+			catch (const std::exception& ex)
+			{
+				PCPP_LOG_ERROR("Exception occurred while invoking packet arrival callback: " << ex.what());
+				context->requestStop = true;  // Stop capture on exception
+			}
+			catch (...)
+			{
+				PCPP_LOG_ERROR("Unknown exception occurred while invoking packet arrival callback");
+				context->requestStop = true;  // Stop capture on unknown exception
+			}
+		}
+
+		void captureThreadMain(std::atomic_bool& stopFlag, std::atomic_bool& hasStarted,
+		                       internal::PcapHandle const& pcapDescriptor, CaptureContext context)
+		{
+			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
+			hasStarted.store(true);
+
+			// If the callback is null, we use a no-op handler to avoid unnecessary overhead
+			// Statistics only capture still requires pcap_dispatch to be called, but we don't need to process
+			// packets.
+			pcap_handler callbackHandler = context.callback ? onPacketArrivesCallback : onPacketArrivesNoop;
+
+			while (!stopFlag.load())
+			{
+				if (pcap_dispatch(pcapDescriptor.get(), -1, callbackHandler, reinterpret_cast<uint8_t*>(&context)) ==
+				    -1)
+				{
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcapDescriptor.getLastError());
+					stopFlag.store(true);
+				}
+			}
+
+			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
+		}
+
+		void captureThreadMainAccumulator(std::atomic_bool& stopFlag, std::atomic_bool& hasStarted,
+		                                  internal::PcapHandle const& pcapDescriptor, AccumulatorCaptureContext context)
+		{
+			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
+			hasStarted.store(true);
+			while (!stopFlag.load())
+			{
+				if (pcap_dispatch(pcapDescriptor.get(), 100, onPacketArrivesAccumulator,
+				                  reinterpret_cast<uint8_t*>(&context)) == -1)
+				{
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcapDescriptor.getLastError());
+					stopFlag.store(true);
+				}
+			}
+
+			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
+		}
 	}  // namespace
 
 	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
@@ -309,97 +465,11 @@ namespace pcpp
 		m_CaptureThreadStarted = false;
 		m_StopThread = false;
 		m_CaptureThread = {};
-		m_cbOnPacketArrives = nullptr;
-		m_cbOnPacketArrivesBlockingMode = nullptr;
-		m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
-		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_CaptureCallbackMode = true;
-		m_CapturedPackets = nullptr;
 		if (calculateMacAddress)
 		{
 			setDeviceMacAddress();
 			PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
 		}
-	}
-
-	void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
-	{
-		PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
-		if (pThis == nullptr)
-		{
-			PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-			return;
-		}
-
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
-
-		if (pThis->m_cbOnPacketArrives != nullptr)
-			pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
-	}
-
-	void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr,
-	                                               const uint8_t* packet)
-	{
-		PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
-		if (pThis == nullptr)
-		{
-			PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-			return;
-		}
-
-		uint8_t* packetData = new uint8_t[pkthdr->caplen];
-		memcpy(packetData, packet, pkthdr->caplen);
-		RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
-		pThis->m_CapturedPackets->pushBack(rawPacketPtr);
-	}
-
-	void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr,
-	                                                 const uint8_t* packet)
-	{
-		PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
-		if (pThis == nullptr)
-		{
-			PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-			return;
-		}
-
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
-
-		if (pThis->m_cbOnPacketArrivesBlockingMode != nullptr)
-			if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis,
-			                                           pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
-				pThis->m_StopThread = true;
-	}
-
-	void PcapLiveDevice::captureThreadMain()
-	{
-		PCPP_LOG_DEBUG("Started capture thread for device '" << m_InterfaceDetails.name << "'");
-		m_CaptureThreadStarted = true;
-
-		if (m_CaptureCallbackMode)
-		{
-			while (!m_StopThread)
-			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
-				{
-					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
-					m_StopThread = true;
-				}
-			}
-		}
-		else
-		{
-			while (!m_StopThread)
-			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), 100, onPacketArrivesNoCallback,
-				                  reinterpret_cast<uint8_t*>(this)) == -1)
-				{
-					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
-					m_StopThread = true;
-				}
-			}
-		}
-		PCPP_LOG_DEBUG("Ended capture thread for device '" << m_InterfaceDetails.name << "'");
 	}
 
 	internal::PcapHandle PcapLiveDevice::doOpen(const DeviceConfiguration& config)
@@ -651,11 +721,13 @@ namespace pcpp
 			return false;
 		}
 
-		m_CaptureCallbackMode = true;
-		m_cbOnPacketArrives = std::move(onPacketArrives);
-		m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
+		CaptureContext context;
+		context.device = this;
+		context.callback = std::move(onPacketArrives);
+		context.userCookie = onPacketArrivesUserCookie;
 
-		m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
+		m_CaptureThread = std::thread(&captureThreadMain, std::ref(m_StopThread), std::ref(m_CaptureThreadStarted),
+		                              std::ref(m_PcapDescriptor), std::move(context));
 
 		// Wait thread to be start
 		// C++20 = m_CaptureThreadStarted.wait(true);
@@ -707,11 +779,13 @@ namespace pcpp
 			return false;
 		}
 
-		m_CapturedPackets = &capturedPacketsVector;
-		m_CapturedPackets->clear();
+		capturedPacketsVector.clear();
 
-		m_CaptureCallbackMode = false;
-		m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
+		AccumulatorCaptureContext context;
+		context.device = this;
+		context.capturedPackets = &capturedPacketsVector;
+		m_CaptureThread = std::thread(&captureThreadMainAccumulator, std::ref(m_StopThread),
+		                              std::ref(m_CaptureThreadStarted), std::ref(m_PcapDescriptor), std::move(context));
 		// Wait thread to be start
 		// C++20 = m_CaptureThreadStarted.wait(true);
 		while (m_CaptureThreadStarted != true)
@@ -749,11 +823,6 @@ namespace pcpp
 			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
 			return 0;
 		}
-		m_cbOnPacketArrives = nullptr;
-		m_cbOnPacketArrivesUserCookie = nullptr;
-
-		m_cbOnPacketArrivesBlockingMode = std::move(onPacketArrives);
-		m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
 
 		m_CaptureThreadStarted = true;
 		m_StopThread = false;
@@ -771,15 +840,26 @@ namespace pcpp
 
 		bool shouldReturnError = false;
 
+		CaptureContextST context;
+		context.device = this;
+		context.callback = std::move(onPacketArrives);
+		context.userCookie = userCookie;
+		context.requestStop = false;
+
 		if (timeoutMs <= 0)
 		{
 			while (!m_StopThread)
 			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
-				                  reinterpret_cast<uint8_t*>(this)) == -1)
+				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesCallbackWithCancellation,
+				                  reinterpret_cast<uint8_t*>(&context)) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
 					shouldReturnError = true;
+					m_StopThread = true;
+				}
+				else if (context.requestStop)
+				{
+					// If the callback requested to stop the capture, we break the loop
 					m_StopThread = true;
 				}
 			}
@@ -803,11 +883,16 @@ namespace pcpp
 
 					if (ready > 0)
 					{
-						if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
-						                  reinterpret_cast<uint8_t*>(this)) == -1)
+						if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesCallbackWithCancellation,
+						                  reinterpret_cast<uint8_t*>(&context)) == -1)
 						{
 							PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
 							shouldReturnError = true;
+							m_StopThread = true;
+						}
+						else if (context.requestStop)
+						{
+							// If the callback requested to stop the capture, we break the loop
 							m_StopThread = true;
 						}
 					}
@@ -825,11 +910,16 @@ namespace pcpp
 				}
 				else
 				{
-					if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
-					                  reinterpret_cast<uint8_t*>(this)) == -1)
+					if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesCallbackWithCancellation,
+					                  reinterpret_cast<uint8_t*>(&context)) == -1)
 					{
 						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
 						shouldReturnError = true;
+						m_StopThread = true;
+					}
+					else if (context.requestStop)
+					{
+						// If the callback requested to stop the capture, we break the loop
 						m_StopThread = true;
 					}
 				}
@@ -839,8 +929,6 @@ namespace pcpp
 
 		m_CaptureThreadStarted = false;
 		m_StopThread = false;
-		m_cbOnPacketArrivesBlockingMode = nullptr;
-		m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
 		if (shouldReturnError)
 		{
@@ -856,8 +944,8 @@ namespace pcpp
 
 	void PcapLiveDevice::stopCapture()
 	{
-		// in blocking mode stop capture isn't relevant
-		if (m_cbOnPacketArrivesBlockingMode != nullptr)
+		// In blocking mode, there is no capture thread, so we don't need to stop it
+		if (!m_CaptureThread.joinable())
 			return;
 
 		if (m_CaptureThread.get_id() != std::thread::id{} && m_CaptureThread.get_id() == std::this_thread::get_id())
