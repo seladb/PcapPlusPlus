@@ -30,7 +30,7 @@ PTF_TEST_CASE(TestFileDeviceFactory_Pcap_MicroPrecision)
 {
 	// Correct format
 	constexpr const char* PCAP_MICROSEC_FILE_PATH = "PcapExamples/file_heuristics/microsecs.pcap";
-	// Correct format, wrong exteension, microsecond precision
+	// Correct format, wrong extension, microsecond precision
 	constexpr const char* PCAP_AS_DAT_FILE_PATH = "PcapExamples/file_heuristics/pcap-with-dat-ext.pcap.dat";
 
 	std::unique_ptr<pcpp::IFileReaderDevice> dev;
@@ -63,7 +63,7 @@ PTF_TEST_CASE(TestFileDeviceFactory_PcapNG)
 {
 	// Correct format
 	constexpr const char* PCAPNG_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng";
-	// Correct format, wrong exteension
+	// Correct format, wrong extension
 	constexpr const char* PCAPNG_AS_PCAP_FILE_PATH = "PcapExamples/file_heuristics/pcapng-with-pcap-ext.pcapng.pcap";
 
 	std::unique_ptr<pcpp::IFileReaderDevice> dev;
