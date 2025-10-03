@@ -1,7 +1,10 @@
+#include "PcapFileDevice.h"
 #define LOG_MODULE PcapLogModuleFileDevice
 
 #include <cerrno>
 #include <stdexcept>
+#include <array>
+#include <algorithm>
 #include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
@@ -14,6 +17,27 @@ namespace pcpp
 {
 	namespace
 	{
+		bool checkNanoSupport()
+		{
+#ifdef PCAP_TSTAMP_PRECISION_NANO
+			return true;
+#else
+			PCPP_LOG_DEBUG(
+			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+			    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
+			return false;
+#endif
+		}
+
+		bool checkZstdSupport()
+		{
+#ifdef PCPP_PCAPNG_ZSTD_SUPPORT
+			return true;
+#else
+			return false;
+#endif
+		}
+
 		/// @brief Converts a light_pcapng_t* to an opaque LightPcapNgHandle*.
 		/// @param pcapngHandle The light_pcapng_t* to convert.
 		/// @return An pointer to the opaque handle.
@@ -29,43 +53,195 @@ namespace pcpp
 		{
 			return reinterpret_cast<light_pcapng_t*>(pcapngHandle);
 		}
+
+		struct pcap_file_header
+		{
+			uint32_t magic;
+			uint16_t version_major;
+			uint16_t version_minor;
+			int32_t thiszone;
+			uint32_t sigfigs;
+			uint32_t snaplen;
+			uint32_t linktype;
+		};
+
+		struct packet_header
+		{
+			uint32_t tv_sec;
+			uint32_t tv_usec;
+			uint32_t caplen;
+			uint32_t len;
+		};
+
+		class StreamPositionCheckpoint
+		{
+		public:
+			explicit StreamPositionCheckpoint(std::istream& stream)
+			    : m_Stream(stream), m_State(stream.rdstate()), m_Pos(stream.tellg())
+			{}
+
+			~StreamPositionCheckpoint()
+			{
+				m_Stream.seekg(m_Pos);
+				m_Stream.clear(m_State);
+			}
+
+		private:
+			std::istream& m_Stream;
+			std::ios_base::iostate m_State;
+			std::streampos m_Pos;
+		};
+
+		enum class CaptureFileFormat
+		{
+			Unknown,
+			Pcap,
+			PcapNG,
+			Snoop,
+		};
+
+		/// @brief Heuristic file format detector that scans the magic number of the file format header.
+		class CaptureFileFormatDetector
+		{
+		public:
+			/// @brief Checks a content stream for the magic number and determines the type.
+			/// @param content A content stream that contains the file content.
+			/// @return A CaptureFileFormat value with the detected content type.
+			CaptureFileFormat detectFormat(std::istream& content)
+			{
+				// Check if the stream supports seeking.
+				if (!isStreamSeekable(content))
+				{
+					throw std::runtime_error("Heuristic file format detection requires seekable stream");
+				}
+
+				if (isPcapFile(content))
+					return CaptureFileFormat::Pcap;
+
+				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
+				// If Zstd is not supported, we cannot read the file anyway, so we return Unknown.
+				if (isPcapNgFile(content) || (checkZstdSupport() && isZstdArchive(content)))
+					return CaptureFileFormat::PcapNG;
+
+				if (isSnoopFile(content))
+					return CaptureFileFormat::Snoop;
+
+				return CaptureFileFormat::Unknown;
+			}
+
+		private:
+			/// @brief Check if a stream is seekable.
+			/// @param stream The stream to check.
+			/// @return True if the stream supports seek operations, false otherwise.
+			bool isStreamSeekable(std::istream& stream)
+			{
+				auto pos = stream.tellg();
+				if (stream.fail())
+				{
+					stream.clear();
+					return false;
+				}
+
+				if (stream.seekg(pos).fail())
+				{
+					stream.clear();
+					return false;
+				}
+
+				return true;
+			}
+
+			bool isPcapFile(std::istream& content)
+			{
+				// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
+				// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
+				constexpr std::array<uint32_t, 6> pcapMagicNumbers = {
+					0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
+					0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
+					// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
+					0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
+					0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
+					// Libpcap 0.9.1 and later support reading a modified pcap format that contains an extended header.
+					// Format reference: https://wiki.wireshark.org/Development/LibpcapFileFormat#modified-pcap
+					0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
+					0x34'cd'b2'a1   // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+				};
+
+				StreamPositionCheckpoint checkpoint(content);
+
+				pcap_file_header header;
+				content.read(reinterpret_cast<char*>(&header), sizeof(header));
+				if (content.gcount() != sizeof(header))
+				{
+					return false;
+				}
+
+				return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), header.magic) !=
+				       pcapMagicNumbers.end();
+			}
+
+			bool isPcapNgFile(std::istream& content)
+			{
+				constexpr std::array<uint32_t, 1> pcapMagicNumbers = {
+					0x0A'0D'0D'0A,  // pcapng magic number (palindrome)
+				};
+
+				StreamPositionCheckpoint checkpoint(content);
+
+				uint32_t magic = 0;
+				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+				if (content.gcount() != sizeof(magic))
+				{
+					return false;
+				}
+
+				return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic) != pcapMagicNumbers.end();
+			}
+
+			bool isSnoopFile(std::istream& content)
+			{
+				constexpr std::array<uint64_t, 2> snoopMagicNumbers = {
+					0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
+					0x00'00'00'70'6F'6F'6E'73   // snoop magic number, "snoop" in ASCII (byte-swapped)
+				};
+
+				StreamPositionCheckpoint checkpoint(content);
+
+				uint64_t magic = 0;
+				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+				if (content.gcount() != sizeof(magic))
+				{
+					return false;
+				}
+
+				return std::find(snoopMagicNumbers.begin(), snoopMagicNumbers.end(), magic) != snoopMagicNumbers.end();
+			}
+
+			bool isZstdArchive(std::istream& content)
+			{
+				constexpr std::array<uint32_t, 2> zstdMagicNumbers = {
+					0x28'B5'2F'FD,  // zstd archive magic number
+					0xFD'2F'B5'28,  // zstd archive magic number (byte-swapped)
+				};
+
+				StreamPositionCheckpoint checkpoint(content);
+
+				uint32_t magic = 0;
+				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+				if (content.gcount() != sizeof(magic))
+				{
+					return false;
+				}
+
+				return std::find(zstdMagicNumbers.begin(), zstdMagicNumbers.end(), magic) != zstdMagicNumbers.end();
+			}
+		};
+
+		template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
+		{
+			return N;
+		}
 	}  // namespace
-
-	template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
-	{
-		return N;
-	}
-
-	struct pcap_file_header
-	{
-		uint32_t magic;
-		uint16_t version_major;
-		uint16_t version_minor;
-		int32_t thiszone;
-		uint32_t sigfigs;
-		uint32_t snaplen;
-		uint32_t linktype;
-	};
-
-	struct packet_header
-	{
-		uint32_t tv_sec;
-		uint32_t tv_usec;
-		uint32_t caplen;
-		uint32_t len;
-	};
-
-	static bool checkNanoSupport()
-	{
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		return true;
-#else
-		PCPP_LOG_DEBUG(
-		    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-		    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
-		return false;
-#endif
-	}
 
 	// ~~~~~~~~~~~~~~~~~~~
 	// IFileDevice members
@@ -129,6 +305,27 @@ namespace pcpp
 			return new SnoopFileReaderDevice(fileName);
 
 		return new PcapFileReaderDevice(fileName);
+	}
+
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName)
+	{
+		std::ifstream fileContent(fileName, std::ios_base::binary);
+		if (fileContent.fail())
+		{
+			throw std::runtime_error("Could not open: " + fileName);
+		}
+
+		switch (CaptureFileFormatDetector().detectFormat(fileContent))
+		{
+		case CaptureFileFormat::Pcap:
+			return std::make_unique<PcapFileReaderDevice>(fileName);
+		case CaptureFileFormat::PcapNG:
+			return std::make_unique<PcapNgFileReaderDevice>(fileName);
+		case CaptureFileFormat::Snoop:
+			return std::make_unique<SnoopFileReaderDevice>(fileName);
+		default:
+			return nullptr;
+		}
 	}
 
 	uint64_t IFileReaderDevice::getFileSize() const
@@ -536,6 +733,11 @@ namespace pcpp
 	// PcapNgFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+	bool PcapNgFileReaderDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
+
 	PcapNgFileReaderDevice::PcapNgFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName)
 	{
 		m_LightPcapNg = nullptr;
@@ -705,6 +907,11 @@ namespace pcpp
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapNgFileWriterDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	bool PcapNgFileWriterDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
 
 	PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel)
 	    : IFileWriterDevice(fileName)
