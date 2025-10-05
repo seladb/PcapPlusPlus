@@ -815,7 +815,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 {
-	// check if matchPacketWithFilter work properly for packets with different LinkLayerType
+	// check if GeneralFilter::matches(...) work properly for packets with different LinkLayerType
 
 	// pcpp::LINKTYPE_DLT_RAW1 layer
 	pcpp::PcapFileReaderDevice fileReaderDev1(RAW_IP_PCAP_PATH);
