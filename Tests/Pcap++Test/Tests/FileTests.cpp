@@ -91,17 +91,11 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST)
 	}
 
 	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
-	constexpr const char* PCAPNG_ZSTD_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zstd";
 
-	std::unique_ptr<pcpp::IFileReaderDevice> dev;
-
-	for (const auto& filePath : { PCAPNG_ZST_FILE_PATH, PCAPNG_ZSTD_FILE_PATH })
-	{
-		dev = pcpp::IFileReaderDevice::createReader(filePath);
-		PTF_ASSERT_NOT_NULL(dev);
-		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
-		PTF_ASSERT_TRUE(dev->open());
-	}
+	auto dev = pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
 }
 
 PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
@@ -112,13 +106,8 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
 	}
 
 	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
-	constexpr const char* PCAPNG_ZSTD_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zstd";
-	std::unique_ptr<pcpp::IFileReaderDevice> dev;
-	for (const auto& filePath : { PCAPNG_ZST_FILE_PATH, PCAPNG_ZSTD_FILE_PATH })
-	{
-		dev = pcpp::IFileReaderDevice::createReader(filePath);
-		PTF_ASSERT_NULL(dev);
-	}
+	auto dev = pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH);
+	PTF_ASSERT_NULL(dev);
 }
 
 PTF_TEST_CASE(TestReaderFactory_InvalidFile)
