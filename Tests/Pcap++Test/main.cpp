@@ -215,12 +215,12 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestLogger, "no_network;logger");
 	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");
 
-	PTF_RUN_TEST(TestFileDeviceFactory_Pcap_MicroPrecision, "no_network;pcap");
-	PTF_RUN_TEST(TestFileDeviceFactory_Pcap_NanoPrecision, "no_network;pcap");
-	PTF_RUN_TEST(TestFileDeviceFactory_PcapNG, "no_network;pcapng");
-	PTF_RUN_TEST(TestFileDeviceFactory_PcapNG_ZST, "no_network;pcapng");
-	PTF_RUN_TEST(TestFileDeviceFactory_PcapNG_ZST_Unsupported, "no_network;pcapng");
-	PTF_RUN_TEST(TestFileDeviceFactory_Invalid, "no_network;pcap");
+	PTF_RUN_TEST(TestReaderFactory_Pcap_Micro, "no_network;pcap");
+	PTF_RUN_TEST(TestReaderFactory_Pcap_Nano, "no_network;pcap");
+	PTF_RUN_TEST(TestReaderFactory_PcapNG, "no_network;pcapng");
+	PTF_RUN_TEST(TestReaderFactory_PcapNG_ZST, "no_network;pcapng");
+	PTF_RUN_TEST(TestReaderFactory_PcapNG_ZST_Unsupported, "no_network;pcapng");
+	PTF_RUN_TEST(TestReaderFactory_InvalidFile, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileMicroPrecision, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileNanoPrecision, "no_network;pcap");

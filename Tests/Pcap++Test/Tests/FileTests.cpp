@@ -26,7 +26,7 @@ public:
 	}
 };
 
-PTF_TEST_CASE(TestFileDeviceFactory_Pcap_MicroPrecision)
+PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
 {
 	// Correct format
 	constexpr const char* PCAP_MICROSEC_FILE_PATH = "PcapExamples/file_heuristics/microsecs.pcap";
@@ -44,7 +44,7 @@ PTF_TEST_CASE(TestFileDeviceFactory_Pcap_MicroPrecision)
 	}
 }
 
-PTF_TEST_CASE(TestFileDeviceFactory_Pcap_NanoPrecision)
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano)
 {
 	if (!pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
 	{
@@ -59,7 +59,7 @@ PTF_TEST_CASE(TestFileDeviceFactory_Pcap_NanoPrecision)
 	PTF_ASSERT_TRUE(dev->open());
 }
 
-PTF_TEST_CASE(TestFileDeviceFactory_PcapNG)
+PTF_TEST_CASE(TestReaderFactory_PcapNG)
 {
 	// Correct format
 	constexpr const char* PCAPNG_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng";
@@ -83,7 +83,7 @@ PTF_TEST_CASE(TestFileDeviceFactory_PcapNG)
 	PTF_ASSERT_TRUE(dev->open());
 }
 
-PTF_TEST_CASE(TestFileDeviceFactory_PcapNG_ZST)
+PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST)
 {
 	if (!pcpp::PcapNgFileReaderDevice::isZstdSupported())
 	{
@@ -104,7 +104,7 @@ PTF_TEST_CASE(TestFileDeviceFactory_PcapNG_ZST)
 	}
 }
 
-PTF_TEST_CASE(TestFileDeviceFactory_PcapNG_ZST_Unsupported)
+PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
 {
 	if (pcpp::PcapNgFileReaderDevice::isZstdSupported())
 	{
@@ -121,7 +121,7 @@ PTF_TEST_CASE(TestFileDeviceFactory_PcapNG_ZST_Unsupported)
 	}
 }
 
-PTF_TEST_CASE(TestFileDeviceFactory_Invalid)
+PTF_TEST_CASE(TestReaderFactory_InvalidFile)
 {
 	// Garbage data, correct extension
 	constexpr const char* PCAP_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.pcap";
