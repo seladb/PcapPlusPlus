@@ -783,8 +783,7 @@ namespace pcpp
 			return false;
 		}
 
-		while (!m_BpfWrapper.matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp,
-		                                           pktHeader.data_link))
+		while (!m_BpfWrapper.matches(pktData, pktHeader.captured_length, pktHeader.timestamp, pktHeader.data_link))
 		{
 			if (!light_get_next_packet(toLightPcapNgT(m_LightPcapNg), &pktHeader, &pktData))
 			{
@@ -929,7 +928,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (!m_BpfWrapper.matchPacketWithFilter(&packet))
+		if (!m_BpfWrapper.matches(packet))
 		{
 			return false;
 		}
