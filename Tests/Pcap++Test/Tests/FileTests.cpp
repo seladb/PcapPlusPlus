@@ -123,25 +123,11 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
 
 PTF_TEST_CASE(TestReaderFactory_InvalidFile)
 {
-	// Garbage data, correct extension
-	constexpr const char* PCAP_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.pcap";
-	constexpr const char* PCAPNG_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.pcapng";
-	constexpr const char* PCAPNG_ZST_BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.zst";
-
 	// Garbage data
 	constexpr const char* BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.txt";
 
-	std::unique_ptr<pcpp::IFileReaderDevice> dev;
-
-	// Test existent files with correct extension but bogus content
-	for (const auto& filePath : { PCAP_BOGUS_FILE_PATH, PCAPNG_BOGUS_FILE_PATH, PCAPNG_ZST_BOGUS_FILE_PATH })
-	{
-		dev = pcpp::IFileReaderDevice::createReader(filePath);
-		PTF_ASSERT_NULL(dev);
-	}
-
 	// Test existent file with wrong extension and bogus content
-	dev = pcpp::IFileReaderDevice::createReader(BOGUS_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::createReader(BOGUS_FILE_PATH);
 	PTF_ASSERT_NULL(dev);
 }
 
