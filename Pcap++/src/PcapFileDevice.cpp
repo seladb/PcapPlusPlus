@@ -17,7 +17,7 @@ namespace pcpp
 {
 	namespace
 	{
-		bool checkNanoSupport()
+		constexpr bool checkNanoSupport()
 		{
 #ifdef PCAP_TSTAMP_PRECISION_NANO
 			return true;
@@ -29,7 +29,7 @@ namespace pcpp
 #endif
 		}
 
-		bool checkZstdSupport()
+		constexpr bool checkZstdSupport()
 		{
 #ifdef PCPP_PCAPNG_ZSTD_SUPPORT
 			return true;
