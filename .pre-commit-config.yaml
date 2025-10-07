@@ -37,6 +37,7 @@ repos:
         files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++14", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
+        exclude: ^3rdParty/json
   - repo: https://github.com/BlankSpruce/gersemi
     rev: 0.22.3
     hooks:
