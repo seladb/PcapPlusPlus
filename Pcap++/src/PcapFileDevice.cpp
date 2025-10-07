@@ -95,9 +95,11 @@ namespace pcpp
 		enum class CaptureFileFormat
 		{
 			Unknown,
-			Pcap,
-			PcapNG,
-			Snoop,
+			Pcap,        // regular pcap with microsecond precision
+			PcapNano,    // regular pcap with nanosecond precision
+			PcapNG,      // uncompressed pcapng
+			PcapNGZstd,  // zstd compressed pcapng
+			Snoop,       // solaris snoop
 		};
 
 		/// @brief Heuristic file format detector that scans the magic number of the file format header.
@@ -115,13 +117,16 @@ namespace pcpp
 					throw std::runtime_error("Heuristic file format detection requires seekable stream");
 				}
 
-				if (isPcapFile(content))
-					return CaptureFileFormat::Pcap;
+				CaptureFileFormat format = detectPcapFile(content);
+				if (format != CaptureFileFormat::Unknown)
+					return format;
+
+				if (isPcapNgFile(content))
+					return CaptureFileFormat::PcapNG;
 
 				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
-				// If Zstd is not supported, we cannot read the file anyway, so we return Unknown.
-				if (isPcapNgFile(content) || (checkZstdSupport() && isZstdArchive(content)))
-					return CaptureFileFormat::PcapNG;
+				if (isZstdArchive(content))
+					return CaptureFileFormat::PcapNGZstd;
 
 				if (isSnoopFile(content))
 					return CaptureFileFormat::Snoop;
@@ -151,20 +156,30 @@ namespace pcpp
 				return true;
 			}
 
-			bool isPcapFile(std::istream& content)
+			CaptureFileFormat detectPcapFile(std::istream& content)
 			{
 				// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
 				// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
+				// The order of the magic numbers in the array is important for format detection. See switch statement
+				// below.
 				constexpr std::array<uint32_t, 6> pcapMagicNumbers = {
 					0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
 					0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
-					// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
-					0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
-					0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
 					// Libpcap 0.9.1 and later support reading a modified pcap format that contains an extended header.
 					// Format reference: https://wiki.wireshark.org/Development/LibpcapFileFormat#modified-pcap
 					0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
-					0x34'cd'b2'a1   // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+					0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+					// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
+					0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
+					0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
+				};
+
+				// Mapping of magic numbers to CaptureFileFormat values. Each format applies to two magic numbers.
+				// The functon to select is Format Index = MagicNumber Index / 2.
+				constexpr std::array<CaptureFileFormat, 3> formatMapping = {
+					CaptureFileFormat::Pcap,     // regular pcap
+					CaptureFileFormat::Pcap,     // modified pcap, folded into regular pcap
+					CaptureFileFormat::PcapNano  // nanosecond-precision pcap
 				};
 
 				StreamPositionCheckpoint checkpoint(content);
@@ -173,11 +188,16 @@ namespace pcpp
 				content.read(reinterpret_cast<char*>(&header), sizeof(header));
 				if (content.gcount() != sizeof(header))
 				{
-					return false;
+					return CaptureFileFormat::Unknown;
 				}
 
-				return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), header.magic) !=
-				       pcapMagicNumbers.end();
+				auto it = std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), header.magic);
+				if (it == pcapMagicNumbers.end())
+				{
+					return CaptureFileFormat::Unknown;
+				}
+
+				return formatMapping[std::distance(pcapMagicNumbers.begin(), it) / 2];
 			}
 
 			bool isPcapNgFile(std::istream& content)
@@ -317,8 +337,26 @@ namespace pcpp
 
 		switch (CaptureFileFormatDetector().detectFormat(fileContent))
 		{
+		case CaptureFileFormat::PcapNano:
+		{
+			if (!checkNanoSupport())
+			{
+				PCPP_LOG_ERROR("Pcap nano second precision files are not supported in this build of PcapPlusPlus");
+				return nullptr;
+			}
+			// fallthrough
+		}
 		case CaptureFileFormat::Pcap:
 			return std::make_unique<PcapFileReaderDevice>(fileName);
+		case CaptureFileFormat::PcapNGZstd:
+		{
+			if (!checkZstdSupport())
+			{
+				PCPP_LOG_ERROR("PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+				return nullptr;
+			}
+			// fallthrough
+		}
 		case CaptureFileFormat::PcapNG:
 			return std::make_unique<PcapNgFileReaderDevice>(fileName);
 		case CaptureFileFormat::Snoop:
