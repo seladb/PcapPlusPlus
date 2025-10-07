@@ -940,7 +940,8 @@ namespace pcpp
 			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
 			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
-				PCPP_LOG_ERROR("Couldn't shorten BGP notification layer to set the right size of the notification data");
+				PCPP_LOG_ERROR(
+				    "Couldn't shorten BGP notification layer to set the right size of the notification data");
 				return false;
 			}
 		}
