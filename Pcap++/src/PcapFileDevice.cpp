@@ -175,7 +175,7 @@ namespace pcpp
 				};
 
 				// Mapping of magic numbers to CaptureFileFormat values. Each format applies to two magic numbers.
-				// The functon to select is Format Index = MagicNumber Index / 2.
+				// The function to select is Format Index = MagicNumber Index / 2.
 				constexpr std::array<CaptureFileFormat, 3> formatMapping = {
 					CaptureFileFormat::Pcap,     // regular pcap
 					CaptureFileFormat::Pcap,     // modified pcap, folded into regular pcap

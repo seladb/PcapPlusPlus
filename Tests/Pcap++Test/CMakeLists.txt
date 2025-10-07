@@ -20,12 +20,7 @@ add_executable(
 )
 
 # Added as source files for IDEs
-target_sources(Pcap++Test PRIVATE
-    Common/GlobalTestArgs.h
-    Common/PcapFileNamesDef.h
-    Common/TestUtils.h
-    TestDefinition.h
-)
+target_sources(Pcap++Test PRIVATE Common/GlobalTestArgs.h Common/PcapFileNamesDef.h Common/TestUtils.h TestDefinition.h)
 
 target_link_libraries(Pcap++Test PUBLIC memplumber Pcap++ PcppTestFramework EndianPortable)
 
