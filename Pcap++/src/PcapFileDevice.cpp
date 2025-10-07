@@ -382,7 +382,7 @@ namespace pcpp
 		{
 			return createReader(fileName);
 		}
-		catch (const std::runtime_error& e)
+		catch (const std::exception& e)
 		{
 			PCPP_LOG_ERROR(e.what());
 			return nullptr;
