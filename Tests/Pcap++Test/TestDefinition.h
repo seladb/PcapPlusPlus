@@ -25,6 +25,7 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Nano);
 PTF_TEST_CASE(TestReaderFactory_PcapNG);
 PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST);
 PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported);
+PTF_TEST_CASE(TestReaderFactory_Snoop);
 PTF_TEST_CASE(TestReaderFactory_InvalidFile);
 PTF_TEST_CASE(TestPcapFileReadWrite);
 PTF_TEST_CASE(TestPcapFileMicroPrecision);

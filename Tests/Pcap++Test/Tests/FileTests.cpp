@@ -110,6 +110,16 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
 	PTF_ASSERT_NULL(dev);
 }
 
+PTF_TEST_CASE(TestReaderFactory_Snoop)
+{
+	constexpr const char* SNOOP_FILE_PATH = EXAMPLE_SOLARIS_SNOOP;
+
+	auto dev = pcpp::IFileReaderDevice::createReader(SNOOP_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+}
+
 PTF_TEST_CASE(TestReaderFactory_InvalidFile)
 {
 	// Garbage data
