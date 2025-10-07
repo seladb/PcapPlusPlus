@@ -624,7 +624,7 @@ namespace pcpp
 			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
 			    !extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
-				PCPP_LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
+				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional withdrawn routes");
 				return false;
 			}
 		}
@@ -635,7 +635,7 @@ namespace pcpp
 			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
 			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
-				PCPP_LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
+				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the withdrawn routes data");
 				return false;
 			}
 		}
@@ -703,7 +703,7 @@ namespace pcpp
 			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
 			    !extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
-				PCPP_LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
+				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional path attributes");
 				return false;
 			}
 		}
@@ -714,7 +714,7 @@ namespace pcpp
 			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
 			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
-				PCPP_LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
+				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the path attributes data");
 				return false;
 			}
 		}
@@ -805,7 +805,7 @@ namespace pcpp
 			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
 			    !extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
-				PCPP_LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
+				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
 				return false;
 			}
 		}
@@ -816,7 +816,7 @@ namespace pcpp
 			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
 			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
-				PCPP_LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
+				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the NLRI data");
 				return false;
 			}
 		}
@@ -929,7 +929,7 @@ namespace pcpp
 			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
 			    !extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
-				PCPP_LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
+				PCPP_LOG_ERROR("Couldn't extend BGP notification layer to include the additional notification data");
 				return false;
 			}
 		}
@@ -940,7 +940,7 @@ namespace pcpp
 			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
 			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
-				PCPP_LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
+				PCPP_LOG_ERROR("Couldn't shorten BGP notification layer to set the right size of the notification data");
 				return false;
 			}
 		}
