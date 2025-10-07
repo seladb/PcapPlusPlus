@@ -169,6 +169,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PrintPacketAndLayersTest, "packet;print");
 	PTF_RUN_TEST(ProtocolFamilyMembershipTest, "packet");
 	PTF_RUN_TEST(PacketParseLayerLimitTest, "packet");
+	PTF_RUN_TEST(PacketParseMultiLayerTest, "packet");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");

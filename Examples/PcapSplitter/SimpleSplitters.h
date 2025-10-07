@@ -131,7 +131,7 @@ public:
 	 */
 	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
-		if (pcpp::IPcapDevice::matchPacketWithFilter(filter, packet.getRawPacket()))
+		if (packet.getRawPacket() != nullptr && filter.matches(*packet.getRawPacket()))
 			return 0;
 		return 1;
 	}
