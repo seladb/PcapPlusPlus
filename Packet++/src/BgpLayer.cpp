@@ -745,15 +745,14 @@ namespace pcpp
 
 		if (newNlriDataLen > curNlriDataLen)
 		{
-
-			// offsetInLayer, numOfBytesToExtend
-			//		int indexToInsertData = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
 			auto bytesToExtend = newNlriDataLen - curNlriDataLen;
 
 			if (m_Data != nullptr && m_Packet != nullptr)
 			{
-				auto raw_len = static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen());
-				if (raw_len + bytesToExtend < raw_len)
+				auto rawLen = static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen());
+				// rawLen is a size_t, bytesToExtend is also a size_t
+				// their sum is unsigned but there is no guarantee it will not overflow
+				if (rawLen + bytesToExtend < rawLen)
 				{
 					PCPP_LOG_ERROR(
 					    "Failed to extend BGP update layer, the new data length exceeds the raw packet's data length");
