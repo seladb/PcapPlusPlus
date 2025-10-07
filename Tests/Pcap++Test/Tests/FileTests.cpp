@@ -37,7 +37,7 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
 
 	for (const auto& filePath : { PCAP_MICROSEC_FILE_PATH, PCAP_AS_DAT_FILE_PATH })
 	{
-		dev = pcpp::IFileReaderDevice::createReader(filePath);
+		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 		PTF_ASSERT_TRUE(dev->open());
@@ -53,7 +53,7 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Nano)
 
 	constexpr const char* PCAP_NANOSEC_FILE_PATH = "PcapExamples/file_heuristics/nanosecs.pcap";
 
-	auto dev = pcpp::IFileReaderDevice::createReader(PCAP_NANOSEC_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAP_NANOSEC_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
@@ -70,14 +70,14 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG)
 
 	for (const auto& filePath : { PCAPNG_FILE_PATH })
 	{
-		dev = pcpp::IFileReaderDevice::createReader(filePath);
+		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 		PTF_ASSERT_TRUE(dev->open());
 	}
 
 	// Test existent files with correct format but wrong extension
-	dev = pcpp::IFileReaderDevice::createReader(PCAPNG_AS_PCAP_FILE_PATH);
+	dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_AS_PCAP_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
@@ -92,7 +92,7 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST)
 
 	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
 
-	auto dev = pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_ZST_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
@@ -106,7 +106,7 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
 	}
 
 	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
-	auto dev = pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_ZST_FILE_PATH);
 	PTF_ASSERT_NULL(dev);
 }
 
@@ -114,7 +114,7 @@ PTF_TEST_CASE(TestReaderFactory_Snoop)
 {
 	constexpr const char* SNOOP_FILE_PATH = EXAMPLE_SOLARIS_SNOOP;
 
-	auto dev = pcpp::IFileReaderDevice::createReader(SNOOP_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader(SNOOP_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
@@ -126,7 +126,7 @@ PTF_TEST_CASE(TestReaderFactory_InvalidFile)
 	constexpr const char* BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.txt";
 
 	// Test existent file with wrong extension and bogus content
-	auto dev = pcpp::IFileReaderDevice::createReader(BOGUS_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader(BOGUS_FILE_PATH);
 	PTF_ASSERT_NULL(dev);
 }
 
