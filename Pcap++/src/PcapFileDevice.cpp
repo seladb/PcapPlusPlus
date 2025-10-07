@@ -22,11 +22,20 @@ namespace pcpp
 #ifdef PCAP_TSTAMP_PRECISION_NANO
 			return true;
 #else
-			PCPP_LOG_DEBUG(
-			    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-			    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
 			return false;
 #endif
+		}
+
+		bool checkNanoSupportWithInfo()
+		{
+			constexpr auto ret = checkNanoSupport();
+			if (!ret)
+			{
+				PCPP_LOG_DEBUG(
+				    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+				    "recompile PcapPlusPlus with nano precision support to use this feature.");
+			}
+			return ret;
 		}
 
 		constexpr bool checkZstdSupport()
@@ -457,7 +466,7 @@ namespace pcpp
 
 	bool PcapFileReaderDevice::isNanoSecondPrecisionSupported()
 	{
-		return checkNanoSupport();
+		return checkNanoSupportWithInfo();
 	}
 
 	bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
@@ -599,7 +608,7 @@ namespace pcpp
 
 	bool PcapFileWriterDevice::isNanoSecondPrecisionSupported()
 	{
-		return checkNanoSupport();
+		return checkNanoSupportWithInfo();
 	}
 
 	bool PcapFileWriterDevice::open()
