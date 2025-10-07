@@ -350,8 +350,8 @@ namespace pcpp
 		{
 			if (!checkNanoSupport())
 			{
-				PCPP_LOG_ERROR("Pcap nano second precision files are not supported in this build of PcapPlusPlus");
-				return nullptr;
+				throw std::runtime_error(
+				    "Pcap nano second precision files are not supported in this build of PcapPlusPlus");
 			}
 			// fallthrough
 		}
@@ -361,8 +361,8 @@ namespace pcpp
 		{
 			if (!checkZstdSupport())
 			{
-				PCPP_LOG_ERROR("PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
-				return nullptr;
+				throw std::runtime_error(
+				    "PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
 			}
 			// fallthrough
 		}
@@ -371,6 +371,20 @@ namespace pcpp
 		case CaptureFileFormat::Snoop:
 			return std::make_unique<SnoopFileReaderDevice>(fileName);
 		default:
+			throw std::runtime_error("File format of " + fileName + " is not supported");
+		}
+	}
+
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::tryCreateReader(const std::string& fileName)
+	{
+		// Not the best implementation, but it is not expected to be called in hot loops
+		try
+		{
+			return createReader(fileName);
+		}
+		catch (const std::runtime_error& e)
+		{
+			PCPP_LOG_ERROR(e.what());
 			return nullptr;
 		}
 	}
