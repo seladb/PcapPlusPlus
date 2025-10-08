@@ -109,6 +109,8 @@ namespace pcpp
 		/// @param[in] rawPacket A pointer to a raw packet which the filter will be matched against
 		/// @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
 		/// could not be compiled
+		/// @deprecated This method is deprecated, use matches(...) overload instead.
+		PCPP_DEPRECATED("Prefer matches(...) overload.")
 		bool matchPacketWithFilter(const RawPacket* rawPacket) const;
 
 		/// Match a packet data with the filter stored in this object. If the filter is empty the method returns "true".
@@ -120,6 +122,8 @@ namespace pcpp
 		/// @param[in] linkType The packet link type
 		/// @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
 		/// could not be compiled
+		/// @deprecated This method is deprecated, use matches(...) overload instead.
+		PCPP_DEPRECATED("Prefer matches(...) overload.")
 		bool matchPacketWithFilter(const uint8_t* packetData, uint32_t packetDataLength, timespec packetTimestamp,
 		                           uint16_t linkType) const;
 
@@ -170,6 +174,8 @@ namespace pcpp
 		/// Match a raw packet with a given BPF filter.
 		/// @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
 		/// @return True if a raw packet matches the BPF filter or false otherwise
+		/// @deprecated This method is deprecated, use matches(...) overload instead.
+		PCPP_DEPRECATED("Prefer matches(...) overload.")
 		bool matchPacketWithFilter(RawPacket* rawPacket) const;
 
 		/// @brief Match a raw packet against the filter.
