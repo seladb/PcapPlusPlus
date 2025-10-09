@@ -118,48 +118,54 @@ namespace pcpp
 		}
 	}
 
-	bool BgpLayer::isValidExtendRange(int offsetInLayer, size_t numOfBytesToExtend) const
+	bool BgpLayer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
 	{
-		int rawPacketLen = m_Packet->getRawPacket()->getRawDataLen();
-		const uint8_t* rawPacketPtr = m_Packet->getRawPacket()->getRawData();
-
-		if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) > static_cast<ptrdiff_t>(rawPacketLen))
+		if (m_Packet != nullptr)
 		{
-			PCPP_LOG_ERROR("Requested offset is larger than total packet length");
-			return false;
+			int rawPacketLen = m_Packet->getRawPacket()->getRawDataLen();
+			const uint8_t* rawPacketPtr = m_Packet->getRawPacket()->getRawData();
+
+			if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) > static_cast<ptrdiff_t>(rawPacketLen))
+			{
+				PCPP_LOG_ERROR("Requested offset is larger than total packet length");
+				return false;
+			}
+
+			if (m_NextLayer != nullptr && static_cast<ptrdiff_t>(offsetInLayer) > m_NextLayer->getData() - m_Data)
+			{
+				PCPP_LOG_ERROR("Requested offset exceeds current layer's boundary");
+				return false;
+			}
 		}
 
-		if (m_NextLayer != nullptr && static_cast<ptrdiff_t>(offsetInLayer) > m_NextLayer->getData() - m_Data)
-		{
-			PCPP_LOG_ERROR("Requested offset exceeds current layer's boundary");
-			return false;
-		}
-
-		return true;
+		return Layer::extendLayer(offsetInLayer, numOfBytesToExtend);
 	}
 
-	bool BgpLayer::isValidShortenRange(int offsetInLayer, size_t numOfBytesToShorten) const
+	bool BgpLayer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
 	{
-		int rawPacketLen = m_Packet->getRawPacket()->getRawDataLen();
-		const uint8_t* rawPacketPtr = m_Packet->getRawPacket()->getRawData();
-
-		if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) +
-		        static_cast<ptrdiff_t>(numOfBytesToShorten) >
-		    static_cast<ptrdiff_t>(rawPacketLen))
+		if (m_Packet != nullptr)
 		{
-			PCPP_LOG_ERROR("Requested number of bytes to shorten is larger than total packet length");
-			return false;
+			int rawPacketLen = m_Packet->getRawPacket()->getRawDataLen();
+			const uint8_t* rawPacketPtr = m_Packet->getRawPacket()->getRawData();
+
+			if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) +
+			        static_cast<ptrdiff_t>(numOfBytesToShorten) >
+			    static_cast<ptrdiff_t>(rawPacketLen))
+			{
+				PCPP_LOG_ERROR("Requested number of bytes to shorten is larger than total packet length");
+				return false;
+			}
+
+			if (m_NextLayer != nullptr &&
+			    static_cast<ptrdiff_t>(offsetInLayer) + static_cast<ptrdiff_t>(numOfBytesToShorten) >
+			        m_NextLayer->getData() - m_Data)
+			{
+				PCPP_LOG_ERROR("Requested number of bytes to shorten exceeds current layer's boundary");
+				return false;
+			}
 		}
 
-		if (m_NextLayer != nullptr &&
-		    static_cast<ptrdiff_t>(offsetInLayer) + static_cast<ptrdiff_t>(numOfBytesToShorten) >
-		        m_NextLayer->getData() - m_Data)
-		{
-			PCPP_LOG_ERROR("Requested number of bytes to shorten exceeds current layer's boundary");
-			return false;
-		}
-
-		return true;
+		return Layer::shortenLayer(offsetInLayer, numOfBytesToShorten);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -312,8 +318,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToExtend = newOptionalParamsDataLen - curOptionalParamsDataLen;
 
-			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
-			    !extendLayer(offsetInLayer, numOfBytesToExtend))
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
 				return false;
@@ -323,8 +328,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToShorten = curOptionalParamsDataLen - newOptionalParamsDataLen;
 
-			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
-			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
 				return false;
@@ -621,8 +625,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToExtend = newWithdrawnRoutesDataLen - curWithdrawnRoutesDataLen;
 
-			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
-			    !extendLayer(offsetInLayer, numOfBytesToExtend))
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional withdrawn routes");
 				return false;
@@ -632,8 +635,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToShorten = curWithdrawnRoutesDataLen - newWithdrawnRoutesDataLen;
 
-			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
-			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the withdrawn routes data");
 				return false;
@@ -700,8 +702,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToExtend = newPathAttributesDataLen - curPathAttributesDataLen;
 
-			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
-			    !extendLayer(offsetInLayer, numOfBytesToExtend))
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional path attributes");
 				return false;
@@ -711,8 +712,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToShorten = curPathAttributesDataLen - newPathAttributesDataLen;
 
-			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
-			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the path attributes data");
 				return false;
@@ -802,8 +802,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToExtend = newNlriDataLen - curNlriDataLen;
 
-			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
-			    !extendLayer(offsetInLayer, numOfBytesToExtend))
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
 				return false;
@@ -813,8 +812,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToShorten = curNlriDataLen - newNlriDataLen;
 
-			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
-			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the NLRI data");
 				return false;
@@ -926,8 +924,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToExtend = newNotificationDataLen - curNotificationDataLen;
 
-			if (!isValidExtendRange(offsetInLayer, numOfBytesToExtend) ||
-			    !extendLayer(offsetInLayer, numOfBytesToExtend))
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP notification layer to include the additional notification data");
 				return false;
@@ -937,8 +934,7 @@ namespace pcpp
 		{
 			size_t numOfBytesToShorten = curNotificationDataLen - newNotificationDataLen;
 
-			if (!isValidShortenRange(offsetInLayer, numOfBytesToShorten) ||
-			    !shortenLayer(offsetInLayer, numOfBytesToShorten))
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR(
 				    "Couldn't shorten BGP notification layer to set the right size of the notification data");
