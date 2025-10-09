@@ -128,17 +128,25 @@ namespace pcpp
 
 				CaptureFileFormat format = detectPcapFile(content);
 				if (format != CaptureFileFormat::Unknown)
+				{
 					return format;
+				}
 
 				if (isPcapNgFile(content))
+				{
 					return CaptureFileFormat::PcapNG;
+				}
 
 				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
 				if (isZstdArchive(content))
+				{
 					return CaptureFileFormat::PcapNGZstd;
+				}
 
 				if (isSnoopFile(content))
+				{
 					return CaptureFileFormat::Snoop;
+				}
 
 				return CaptureFileFormat::Unknown;
 			}
