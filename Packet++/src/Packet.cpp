@@ -683,7 +683,6 @@ namespace pcpp
 				curLayer->m_DataLen -= numOfBytesToShorten;
 
 			// assuming header length of the layer that requested to be extended hasn't been enlarged yet
-			// size_t headerLen = curLayer->getHeaderLen() - (curLayer == layer ? numOfBytesToShorten : 0);
 			headerLen -= (curLayer == layer ? numOfBytesToShorten : 0);
 			dataPtr += headerLen;
 			curLayer = curLayer->getNextLayer();
