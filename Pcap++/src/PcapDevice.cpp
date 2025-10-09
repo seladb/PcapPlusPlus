@@ -152,7 +152,13 @@ namespace pcpp
 
 	bool IPcapDevice::matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket)
 	{
-		return filter.matchPacketWithFilter(rawPacket);
+		if (rawPacket == nullptr)
+		{
+			PCPP_LOG_ERROR("Raw packet pointer is null");
+			return false;
+		}
+
+		return filter.matches(*rawPacket);
 	}
 
 	std::string IPcapDevice::getPcapLibVersionInfo()

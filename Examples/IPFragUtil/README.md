@@ -76,7 +76,7 @@ Fragment only IPv6 packets with dest address of 2001:4f8:3:d::61 to 16B fragment
 		input_file      : Input pcap/pcapng file
 		-s frag_size    : Size of each fragment
 		-o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type
-		-d ip_ids       : Fragment only packets that match this comma-separated list of IP IDs in decmial format
+		-d ip_ids       : Fragment only packets that match this comma-separated list of IP IDs in decimal format
 		-f bpf_filter   : Fragment only packets that match bpf_filter. Filter should be provided in Berkeley Packet Filter (BPF)
 		                  syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'
 		-a              : Copy all packets (those who were fragmented and those who weren't) to output file
