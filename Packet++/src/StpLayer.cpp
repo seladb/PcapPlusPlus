@@ -44,13 +44,17 @@ namespace pcpp
 				           : nullptr;
 			case 0x02:
 				if (ptr->version == 0x2)
+				{
 					return RapidStpLayer::isDataValid(data, dataLen)
 					           ? new RapidStpLayer(data, dataLen, prevLayer, packet)
 					           : nullptr;
+				}
 				if (ptr->version == 0x3)
+				{
 					return MultipleStpLayer::isDataValid(data, dataLen)
 					           ? new MultipleStpLayer(data, dataLen, prevLayer, packet)
 					           : nullptr;
+				}
 				PCPP_LOG_DEBUG("Unknown Spanning Tree Version");
 				return nullptr;
 			case 0x80:
@@ -82,7 +86,9 @@ namespace pcpp
 	void StpTopologyChangeBPDULayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(stp_tcn_bpdu))
+		{
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_tcn_bpdu), this, m_Packet);
+		}
 	}
 
 	// ---------------------- Class StpConfigurationBPDULayer ----------------------
@@ -227,7 +233,9 @@ namespace pcpp
 	void StpConfigurationBPDULayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(stp_conf_bpdu))
+		{
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_conf_bpdu), this, m_Packet);
+		}
 	}
 
 	// ---------------------- Class RapidStpLayer ----------------------
@@ -242,7 +250,9 @@ namespace pcpp
 	void RapidStpLayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(rstp_conf_bpdu))
+		{
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(rstp_conf_bpdu), this, m_Packet);
+		}
 	}
 
 	// ---------------------- Class MultipleStpLayer ----------------------
@@ -341,7 +351,9 @@ namespace pcpp
 	msti_conf_msg* MultipleStpLayer::getMstiConfMessages() const
 	{
 		if (getNumberOfMSTIConfMessages())
+		{
 			return reinterpret_cast<msti_conf_msg*>(m_Data + sizeof(mstp_conf_bpdu));
+		}
 		return nullptr;
 	}
 

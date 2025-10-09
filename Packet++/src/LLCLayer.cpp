@@ -27,7 +27,9 @@ namespace pcpp
 	void LLCLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(llc_header))
+		{
 			return;
+		}
 
 		llc_header* hdr = getLlcHeader();
 		uint8_t* payload = m_Data + sizeof(llc_header);
@@ -37,7 +39,9 @@ namespace pcpp
 		{
 			m_NextLayer = StpLayer::parseStpLayer(payload, payloadLen, this, m_Packet);
 			if (!m_NextLayer)
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 			return;
 		}
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);

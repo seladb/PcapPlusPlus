@@ -73,7 +73,9 @@ namespace pcpp
 	bool S7CommLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		if (!data || dataSize < sizeof(s7commhdr))
+		{
 			return false;
+		}
 
 		return data[0] == 0x32;
 	}

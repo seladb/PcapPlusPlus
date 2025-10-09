@@ -447,7 +447,9 @@ namespace pcpp
 		{
 			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
 			if (dynamic_cast<THandshakeMessage*>(curElem) != nullptr)
+			{
 				return (THandshakeMessage*)curElem;
+			}
 		}
 
 		// element not found
@@ -465,18 +467,24 @@ namespace pcpp
 		{
 			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(afterIndex));
 			if (curElem == after)
+			{
 				break;
+			}
 		}
 
 		// "after" not found
 		if (afterIndex == vecSize)
+		{
 			return nullptr;
+		}
 
 		for (size_t i = afterIndex + 1; i < vecSize; i++)
 		{
 			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
 			if (dynamic_cast<THandshakeMessage*>(curElem) != nullptr)
+			{
 				return (THandshakeMessage*)curElem;
+			}
 		}
 
 		// element not found
@@ -488,7 +496,9 @@ namespace pcpp
 	bool SSLLayer::isSSLPort(uint16_t port)
 	{
 		if (port == 443)  // HTTPS, this is likely case
+		{
 			return true;
+		}
 
 		switch (port)
 		{

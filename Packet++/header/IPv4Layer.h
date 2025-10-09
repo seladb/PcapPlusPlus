@@ -219,11 +219,15 @@ namespace pcpp
 			std::vector<IPv4Address> res;
 
 			if (m_Data == nullptr)
+			{
 				return res;
+			}
 
 			size_t dataSize = getDataSize();
 			if (dataSize < 2)
+			{
 				return res;
+			}
 
 			uint8_t valueOffset = static_cast<uint8_t>(1);
 
@@ -232,7 +236,9 @@ namespace pcpp
 				uint32_t curValue;
 				memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
 				if (curValue == 0)
+				{
 					break;
+				}
 
 				res.push_back(IPv4Address(curValue));
 
@@ -255,14 +261,20 @@ namespace pcpp
 			res.clear();
 
 			if (m_Data == nullptr)
+			{
 				return res;
+			}
 
 			if (getIPv4OptionType() != IPV4OPT_Timestamp)
+			{
 				return res;
+			}
 
 			size_t dataSize = getDataSize();
 			if (dataSize < 2)
+			{
 				return res;
+			}
 
 			res.type = static_cast<IPv4TimestampOptionValue::TimestampType>(m_Data->recordValue[1]);
 
@@ -274,15 +286,23 @@ namespace pcpp
 				uint32_t curValue;
 				memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
 				if (curValue == 0)
+				{
 					break;
+				}
 
 				if (readIPAddr)
+				{
 					res.ipAddresses.push_back(IPv4Address(curValue));
+				}
 				else
+				{
 					res.timestamps.push_back(curValue);
+				}
 
 				if (res.type == IPv4TimestampOptionValue::TimestampAndIP)
+				{
 					readIPAddr = !readIPAddr;
+				}
 
 				valueOffset += static_cast<uint8_t>(4);
 			}
@@ -304,14 +324,20 @@ namespace pcpp
 		{
 			auto data = reinterpret_cast<TLVRawData const*>(recordRawData);
 			if (data == nullptr)
+			{
 				return false;
+			}
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
+			{
 				return false;
+			}
 
 			if (getIPv4OptionType(data) == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) ||
 			    data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
+			{
 				return true;
+			}
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 		}
@@ -321,11 +347,15 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			if (getIPv4OptionType() == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) ||
 			    m_Data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
+			{
 				return sizeof(uint8_t);
+			}
 
 			return static_cast<size_t>(m_Data->recordLen);
 		}
@@ -333,11 +363,15 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			if (getIPv4OptionType() == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) ||
 			    m_Data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) - (2 * sizeof(uint8_t));
 		}
@@ -347,7 +381,9 @@ namespace pcpp
 		static IPv4OptionTypes getIPv4OptionType(const TLVRawData* data)
 		{
 			if (data == nullptr)
+			{
 				return IPV4OPT_Unknown;
+			}
 
 			return static_cast<IPv4OptionTypes>(data->recordType);
 		}

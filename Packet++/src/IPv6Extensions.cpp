@@ -29,7 +29,9 @@ namespace pcpp
 	uint8_t* IPv6Extension::getDataPtr() const
 	{
 		if (m_DataContainer != nullptr)
+		{
 			return m_DataContainer->getDataPtr(m_Offset);
+		}
 
 		return m_ShadowData;
 	}
@@ -42,7 +44,9 @@ namespace pcpp
 	IPv6Extension::~IPv6Extension()
 	{
 		if (m_ShadowData != nullptr)
+		{
 			delete[] m_ShadowData;
+		}
 	}
 
 	// =======================
@@ -63,7 +67,9 @@ namespace pcpp
 		fragOffset /= 8;
 		fragOffset = htobe16(fragOffset << 3) & static_cast<uint16_t>(0xf8ff);
 		if (!lastFragment)
+		{
 			fragOffset = fragOffset | 0x0100;
+		}
 
 		fragHdr->fragOffsetAndFlags = fragOffset;
 	}
@@ -99,7 +105,9 @@ namespace pcpp
 		size_t optionTotalSize = sizeof(uint8_t);
 		uint8_t recType = static_cast<uint8_t>(m_RecType);
 		if (recType != IPv6TLVOptionHeader::IPv6Option::Pad0OptionType)
+		{
 			optionTotalSize += sizeof(uint8_t) + m_RecValueLen;
+		}
 
 		uint8_t* recordBuffer = new uint8_t[optionTotalSize];
 		memset(recordBuffer, 0, optionTotalSize);
@@ -109,7 +117,9 @@ namespace pcpp
 			recordBuffer[0] = recType;
 			recordBuffer[1] = static_cast<uint8_t>(m_RecValueLen);
 			if (m_RecValueLen > 0)
+			{
 				memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
+			}
 		}
 
 		return IPv6Option(recordBuffer);
@@ -158,7 +168,9 @@ namespace pcpp
 		}
 
 		while (totalSize % 8 != 0)
+		{
 			totalSize++;
+		}
 
 		initShadowPtr(totalSize);
 		memset(getDataPtr(), 0, totalSize);
@@ -189,7 +201,9 @@ namespace pcpp
 	{
 		size_t totalSize = sizeof(ipv6_routing_header) + additionalRoutingDataLen;
 		while (totalSize % 8 != 0)
+		{
 			totalSize++;
+		}
 
 		initShadowPtr(totalSize);
 		memset(getDataPtr(), 0, totalSize);
@@ -212,7 +226,9 @@ namespace pcpp
 	uint8_t* IPv6RoutingHeader::getRoutingAdditionalData() const
 	{
 		if (getExtensionLen() > sizeof(ipv6_routing_header))
+		{
 			return getDataPtr() + sizeof(ipv6_routing_header);
+		}
 
 		return nullptr;
 	}
@@ -221,7 +237,9 @@ namespace pcpp
 	{
 		int result = getExtensionLen() - sizeof(ipv6_routing_header);
 		if (result < 0)
+		{
 			return (size_t)0;
+		}
 
 		return (size_t)result;
 	}
@@ -231,7 +249,9 @@ namespace pcpp
 
 		size_t routingAddDataLen = getRoutingAdditionalDataLength();
 		if (routingAddDataLen - offset >= 16)
+		{
 			return IPv6Address(getRoutingAdditionalData() + offset);
+		}
 
 		return IPv6Address();
 	}
@@ -246,7 +266,9 @@ namespace pcpp
 	{
 		size_t totalSize = sizeof(ipv6_authentication_header) + integrityCheckValueLen;
 		while (totalSize % 8 != 0)
+		{
 			totalSize++;
+		}
 
 		initShadowPtr(totalSize);
 		memset(getDataPtr(), 0, totalSize);
@@ -269,7 +291,9 @@ namespace pcpp
 	uint8_t* IPv6AuthenticationHeader::getIntegrityCheckValue() const
 	{
 		if (getExtensionLen() > sizeof(ipv6_authentication_header))
+		{
 			return getDataPtr() + sizeof(ipv6_authentication_header);
+		}
 
 		return nullptr;
 	}
@@ -278,7 +302,9 @@ namespace pcpp
 	{
 		int result = getExtensionLen() - sizeof(ipv6_authentication_header);
 		if (result < 0)
+		{
 			return (size_t)0;
+		}
 
 		return (size_t)result;
 	}

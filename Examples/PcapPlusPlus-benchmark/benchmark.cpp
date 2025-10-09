@@ -30,7 +30,9 @@ size_t count = 0;
 bool handle_dns(Packet& packet)
 {
 	if (!packet.isPacketOfType(DNS))
+	{
 		return true;
+	}
 
 	DnsLayer* dnsLayer = packet.getLayerOfType<DnsLayer>();
 

@@ -193,13 +193,19 @@ namespace pcpp
 			{
 				auto data = (TLVRawData*)recordRawData;
 				if (data == nullptr)
+				{
 					return false;
+				}
 
 				if (tlvDataLen < sizeof(TLVRawData::recordType))
+				{
 					return false;
+				}
 
 				if (data->recordType == Pad0OptionType)
+				{
 					return true;
+				}
 
 				return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 			}
@@ -209,10 +215,14 @@ namespace pcpp
 			size_t getTotalSize() const
 			{
 				if (m_Data == nullptr)
+				{
 					return 0;
+				}
 
 				if (m_Data->recordType == Pad0OptionType)
+				{
 					return sizeof(uint8_t);
+				}
 
 				return (size_t)(m_Data->recordLen + sizeof(uint16_t));
 			}
@@ -220,7 +230,9 @@ namespace pcpp
 			size_t getDataSize() const
 			{
 				if (m_Data == nullptr || m_Data->recordType == Pad0OptionType)
+				{
 					return 0;
+				}
 
 				return (size_t)m_Data->recordLen;
 			}

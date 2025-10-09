@@ -60,13 +60,21 @@ static void pfRingPacketsArrive(pcpp::RawPacket* packets, uint32_t numOfPackets,
 	{
 		pcpp::Packet packet(&packets[i]);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			data->EthCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			data->IpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			data->TcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			data->UdpCount++;
+		}
 	}
 }
 
@@ -82,9 +90,13 @@ static void pfRingPacketsArriveMultiThread(pcpp::RawPacket* packets, uint32_t nu
 	{
 		pcpp::Packet packet(&packets[i]);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			data[threadId].EthCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			data[threadId].IpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
 			data[threadId].TcpCount++;
@@ -95,7 +107,9 @@ static void pfRingPacketsArriveMultiThread(pcpp::RawPacket* packets, uint32_t nu
 			}
 		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			data[threadId].UdpCount++;
+		}
 	}
 }
 
@@ -145,7 +159,9 @@ int incSleep(int maxSleepTime, const PfRingPacketData& packetData)
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 		if (packetData.PacketCount > 0)
+		{
 			break;
+		}
 	}
 
 	return totalSleepTime;
@@ -164,14 +180,20 @@ int incSleepMultiThread(int maxSleepTime, PfRingPacketData packetData[], int tot
 		for (int i = 0; i < totalNumOfCores; i++)
 		{
 			if ((pcpp::SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
+			{
 				continue;
+			}
 
 			if (packetData[i].PacketCount > 0)
+			{
 				coresWithPacketCountNotZero++;
+			}
 		}
 
 		if (coresWithPacketCountNotZero >= numOfCoresInUse)
+		{
 			break;
+		}
 	}
 
 	return totalSleepTime;
@@ -185,7 +207,9 @@ int incSleepSetFilter(int maxSleepTime, const SetFilterInstruction& packetData)
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 		if (packetData.PacketCount > 0)
+		{
 			break;
+		}
 	}
 
 	return totalSleepTime;
@@ -310,10 +334,14 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	for (int i = 0; i < totalnumOfCores; ++i)
 	{
 		if (!tempCoreMask)
+		{
 			break;
+		}
 
 		if (tempCoreMask & 1)
+		{
 			++numOfCoresInUse;
+		}
 		tempCoreMask = tempCoreMask >> 1;
 	}
 
@@ -333,7 +361,9 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	for (int i = 0; i < totalnumOfCores; i++)
 	{
 		if ((pcpp::SystemCores::IdToSystemCore[i].Mask & TestPfRingMultiThreadCoreMask) == 0)
+		{
 			continue;
+		}
 
 		dev->getThreadStatistics(pcpp::SystemCores::IdToSystemCore[i], stats);
 		aggrStats.recv += stats.recv;
@@ -414,7 +444,9 @@ PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 	for (int i = 0; i < numOfCores; i++)
 	{
 		if (i % 2 != 0)
+		{
 			continue;
+		}
 
 		cores << i << ",";
 		coreMask |= pcpp::SystemCores::IdToSystemCore[i].Mask;

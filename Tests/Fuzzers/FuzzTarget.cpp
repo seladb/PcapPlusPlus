@@ -10,10 +10,14 @@ static std::string tmpFile;
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
 	if (tmpName.empty())
+	{
 		tmpName = tmpnam(nullptr);
+	}
 
 	if (tmpFile.empty())
+	{
 		tmpFile = tmpName + FILE_EXT;
+	}
 
 	if (dumpDataToPcapFile(data, size, tmpFile.c_str()) != 0)
 	{

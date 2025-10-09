@@ -281,7 +281,9 @@ int main(int argc, char* argv[])
 			std::string ifaceName = std::string(optarg);
 			dev = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(ifaceName);
 			if (dev == nullptr)
+			{
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << ifaceName << "'");
+			}
 			break;
 		}
 		case 's':
@@ -289,7 +291,9 @@ int main(int argc, char* argv[])
 			std::string sendPacketsToIfaceName = std::string(optarg);
 			sendPacketsToIface = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(sendPacketsToIfaceName);
 			if (sendPacketsToIface == nullptr)
+			{
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << sendPacketsToIfaceName << "'");
+			}
 
 			break;
 		}
@@ -297,7 +301,9 @@ int main(int argc, char* argv[])
 		{
 			numOfCaptureThreads = atoi(optarg);
 			if (numOfCaptureThreads < 1 || numOfCaptureThreads > totalNumOfCores - 1)
+			{
 				EXIT_WITH_ERROR("Number of capture threads must be in the range of 1 to " << totalNumOfCores - 1);
+			}
 			break;
 		}
 		case 'f':
@@ -305,7 +311,9 @@ int main(int argc, char* argv[])
 			packetFilePath = std::string(optarg);
 			// make sure the path ends with '/'
 			if (packetFilePath.length() > 1 && (0 != packetFilePath.compare(packetFilePath.length() - 1, 1, "/")))
+			{
 				packetFilePath += "/";
+			}
 
 			writePacketsToDisk = true;
 			break;
@@ -358,9 +366,13 @@ int main(int argc, char* argv[])
 		{
 			std::string protocol = std::string(optarg);
 			if (protocol == "TCP")
+			{
 				protocolToMatch = pcpp::TCP;
+			}
 			else if (protocol == "UDP")
+			{
 				protocolToMatch = pcpp::UDP;
+			}
 			else
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");
@@ -391,17 +403,23 @@ int main(int argc, char* argv[])
 	}
 
 	if (dev == nullptr)
+	{
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("Interface name was not provided");
+	}
 
 	// open the PF_RING device in multi-thread mode. Distribution of packets between threads will be done per-flow (as
 	// opposed to round-robin)
 	if (!dev->openMultiRxChannels(numOfCaptureThreads, pcpp::PfRingDevice::PerFlow))
+	{
 		EXIT_WITH_ERROR("Couldn't open " << numOfCaptureThreads << " RX channels on interface '" << dev->getDeviceName()
 		                                 << "'");
+	}
 
 	if (sendPacketsToIface != nullptr && !sendPacketsToIface->open())
+	{
 		EXIT_WITH_ERROR("Couldn't open PF_RING device '" << sendPacketsToIface->getDeviceName()
 		                                                 << "' for sending matched packets");
+	}
 
 	pcpp::CoreMask coreMask = 0;
 	int threadId = 0;
@@ -412,7 +430,9 @@ int main(int argc, char* argv[])
 
 	// init each packet stats instance with an illegal core ID
 	for (int coreId = 0; coreId < totalNumOfCores; coreId++)
+	{
 		packetStatsArr[coreId].ThreadId = MAX_NUM_OF_CORES + 1;
+	}
 
 	// mark only relevant cores by adding them to core mask
 	// mark only relevant packet stats instances by setting their core ID
@@ -499,7 +519,9 @@ int main(int argc, char* argv[])
 		for (int coreId = 0; coreId < totalNumOfCores; coreId++)
 		{
 			if ((coreMask & pcpp::SystemCores::IdToSystemCore[coreId].Mask) == 0)
+			{
 				continue;
+			}
 
 			pcapWriters[coreId]->close();
 			delete pcapWriters[coreId];
@@ -520,7 +542,9 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < totalNumOfCores; i++)
 	{
 		if (packetStatsArr[i].ThreadId == MAX_NUM_OF_CORES + 1)
+		{
 			continue;
+		}
 
 		aggregatedStats.collectStats(packetStatsArr[i]);
 		printer.printRow(packetStatsArr[i].getStatValuesAsString("|"), '|');

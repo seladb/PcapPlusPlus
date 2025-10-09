@@ -43,7 +43,9 @@ namespace pcpp
 		               ::tolower);
 		HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
 		if (contentLengthField != nullptr)
+		{
 			return atoi(contentLengthField->getFieldValue().c_str());
+		}
 		return 0;
 	}
 
@@ -59,7 +61,9 @@ namespace pcpp
 			contentLengthField = insertField(prevField, PCPP_SIP_CONTENT_LENGTH_FIELD, contentLengthAsString.str());
 		}
 		else
+		{
 			contentLengthField->setFieldValue(contentLengthAsString.str());
+		}
 
 		return contentLengthField;
 	}
@@ -67,7 +71,9 @@ namespace pcpp
 	void SipLayer::parseNextLayer()
 	{
 		if (getLayerPayloadSize() == 0)
+		{
 			return;
+		}
 
 		size_t headerLen = getHeaderLen();
 		std::string contentType;
@@ -75,7 +81,9 @@ namespace pcpp
 		{
 			HeaderField* contentTypeField = getFieldByName(PCPP_SIP_CONTENT_TYPE_FIELD);
 			if (contentTypeField != nullptr)
+			{
 				contentType = contentTypeField->getFieldValue();
+			}
 		}
 
 		if (contentType.find("application/sdp") != std::string::npos)
@@ -92,14 +100,18 @@ namespace pcpp
 	{
 		HeaderField* contentLengthField = getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD);
 		if (contentLengthField == nullptr)
+		{
 			return;
+		}
 
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen > headerLen)
 		{
 			int currentContentLength = getContentLength();
 			if (currentContentLength != static_cast<int>(m_DataLen - headerLen))
+			{
 				setContentLength(m_DataLen - headerLen);
+			}
 		}
 	}
 
@@ -114,7 +126,9 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Couldn't resolve SIP request method");
 		}
 		else
+		{
 			m_UriOffset = SipMethodEnumToString[m_Method].length() + 1;
+		}
 
 		parseVersion();
 
@@ -241,7 +255,9 @@ namespace pcpp
 		int endOfVerPos = 0;
 		while (((verPos + endOfVerPos) < reinterpret_cast<char*>(m_SipRequest->m_Data + m_SipRequest->m_DataLen)) &&
 		       ((verPos + endOfVerPos)[0] != '\r') && ((verPos + endOfVerPos)[0] != '\n'))
+		{
 			endOfVerPos++;
+		}
 
 		m_Version = std::string(verPos, endOfVerPos);
 
@@ -297,8 +313,10 @@ namespace pcpp
 	{
 		std::string result;
 		if (m_UriOffset != -1 && m_VersionOffset != -1)
+		{
 			result.assign(reinterpret_cast<char*>(m_SipRequest->m_Data + m_UriOffset),
 			              m_VersionOffset - 1 - m_UriOffset);
+		}
 
 		// else first line is illegal, return empty string
 
@@ -374,7 +392,9 @@ namespace pcpp
 		SipLayer::operator=(other);
 
 		if (m_FirstLine != nullptr)
+		{
 			delete m_FirstLine;
+		}
 
 		m_FirstLine = new SipRequestFirstLine(this);
 
@@ -616,7 +636,9 @@ namespace pcpp
 		SipLayer::operator=(other);
 
 		if (m_FirstLine != nullptr)
+		{
 			delete m_FirstLine;
+		}
 
 		m_FirstLine = new SipResponseFirstLine(this);
 
@@ -670,7 +692,9 @@ namespace pcpp
 		{
 			int statusStringEndOffset = m_FirstLineEndOffset - 2;
 			if ((*(m_SipResponse->m_Data + statusStringEndOffset)) != '\r')
+			{
 				statusStringEndOffset++;
+			}
 			result.assign(reinterpret_cast<char*>(m_SipResponse->m_Data + statusStringOffset),
 			              statusStringEndOffset - statusStringOffset);
 		}
@@ -693,7 +717,9 @@ namespace pcpp
 
 		size_t statusStringOffset = 12;
 		if (statusCodeString == "")
+		{
 			statusCodeString = StatusCodeEnumToString[newStatusCode];
+		}
 		int lengthDifference = statusCodeString.length() - getStatusCodeString().length();
 
 		if (lengthDifference > 0)
@@ -736,7 +762,9 @@ namespace pcpp
 	void SipResponseFirstLine::setVersion(const std::string& newVersion)
 	{
 		if (newVersion == "")
+		{
 			return;
+		}
 
 		if (newVersion.length() != m_Version.length())
 		{
@@ -830,7 +858,9 @@ namespace pcpp
 		std::ostringstream statusCodeAsString;
 		statusCodeAsString << StatusCodeEnumToInt[m_StatusCode];
 		if (statusCodeString == "")
+		{
 			statusCodeString = StatusCodeEnumToString[m_StatusCode];
+		}
 		std::string firstLine = m_Version + " " + statusCodeAsString.str() + " " + statusCodeString + "\r\n";
 
 		m_FirstLineEndOffset = firstLine.length();
@@ -858,7 +888,9 @@ namespace pcpp
 
 		const char* nextSpace = static_cast<const char*>(memchr(data, ' ', dataLen));
 		if (nextSpace == nullptr)
+		{
 			return "";
+		}
 
 		return std::string(data, nextSpace - data);
 	}

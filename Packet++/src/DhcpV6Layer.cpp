@@ -11,7 +11,9 @@ namespace pcpp
 	DhcpV6OptionType DhcpV6Option::getType() const
 	{
 		if (m_Data == nullptr)
+		{
 			return DhcpV6OptionType::DHCPV6_OPT_UNKNOWN;
+		}
 
 		uint16_t optionType = be16toh(m_Data->recordType);
 		if (optionType <= 62 && optionType != 10 && optionType != 35 && optionType != 57 && optionType != 58)
@@ -29,7 +31,9 @@ namespace pcpp
 	std::string DhcpV6Option::getValueAsHexString() const
 	{
 		if (m_Data == nullptr)
+		{
 			return "";
+		}
 
 		return byteArrayToHexString(m_Data->recordValue, getDataSize());
 	}
@@ -37,7 +41,9 @@ namespace pcpp
 	size_t DhcpV6Option::getTotalSize() const
 	{
 		if (m_Data == nullptr)
+		{
 			return 0;
+		}
 
 		return 2 * sizeof(uint16_t) + be16toh(m_Data->recordLen);
 	}
@@ -45,7 +51,9 @@ namespace pcpp
 	size_t DhcpV6Option::getDataSize() const
 	{
 		if (m_Data == nullptr)
+		{
 			return 0;
+		}
 
 		return static_cast<size_t>(be16toh(m_Data->recordLen));
 	}
@@ -53,7 +61,9 @@ namespace pcpp
 	DhcpV6Option DhcpV6OptionBuilder::build() const
 	{
 		if (m_RecType == 0)
+		{
 			return DhcpV6Option(nullptr);
+		}
 
 		size_t optionSize = 2 * sizeof(uint16_t) + m_RecValueLen;
 		uint8_t* recordBuffer = new uint8_t[optionSize];
@@ -62,7 +72,9 @@ namespace pcpp
 		memcpy(recordBuffer, &optionTypeVal, sizeof(uint16_t));
 		memcpy(recordBuffer + sizeof(uint16_t), &optionLength, sizeof(uint16_t));
 		if (optionSize > 0 && m_RecValue != nullptr)
+		{
 			memcpy(recordBuffer + 2 * sizeof(uint16_t), m_RecValue, m_RecValueLen);
+		}
 
 		return DhcpV6Option(recordBuffer);
 	}
@@ -260,7 +272,9 @@ namespace pcpp
 		int offset = sizeof(dhcpv6_header);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		m_OptionReader.changeTLVRecordCount(0 - getOptionCount());
 		return true;

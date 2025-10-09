@@ -419,7 +419,9 @@ namespace pcpp
 		std::string getValueAsString(int valueOffset = 0) const
 		{
 			if (m_Data == nullptr || m_Data->recordLen - valueOffset < 1)
+			{
 				return "";
+			}
 
 			return std::string(reinterpret_cast<const char*>(m_Data->recordValue) + valueOffset,
 			                   static_cast<int>(m_Data->recordLen) - valueOffset);
@@ -438,7 +440,9 @@ namespace pcpp
 
 			// use the length of input string if a buffer is large enough for whole string
 			if (stringValue.length() < len)
+			{
 				len = stringValue.length();
+			}
 
 			memcpy(m_Data->recordValue + valueOffset, stringValue.data(), len);
 		}
@@ -451,14 +455,20 @@ namespace pcpp
 		{
 			auto data = reinterpret_cast<TLVRawData const*>(recordRawData);
 			if (data == nullptr)
+			{
 				return false;
+			}
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
+			{
 				return false;
+			}
 
 			if (data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
 			    data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
+			{
 				return true;
+			}
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 		}
@@ -468,11 +478,15 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			if (m_Data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
 			    m_Data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
+			{
 				return sizeof(uint8_t);
+			}
 
 			return sizeof(uint8_t) * 2 + static_cast<size_t>(m_Data->recordLen);
 		}
@@ -480,11 +494,15 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			if (m_Data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
 			    m_Data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
+			{
 				return 0;
+			}
 
 			return m_Data->recordLen;
 		}

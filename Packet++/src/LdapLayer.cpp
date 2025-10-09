@@ -364,7 +364,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen || headerLen == 0)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;

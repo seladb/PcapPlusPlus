@@ -95,7 +95,9 @@ namespace pcpp
 		}
 
 		if (dwRetVal != 0)
+		{
 			PCPP_LOG_ERROR("Call to GetNetworkParams failed. Return Value: " << std::hex << dwRetVal);
+		}
 		else
 		{
 			int dnsServerCounter = 0;
@@ -145,9 +147,13 @@ namespace pcpp
 
 		// build nmcli command according to its major version
 		if (nmcliMajorVer == "0")
+		{
 			command = "nmcli dev list | grep IP4.DNS";
+		}
 		else
+		{
 			command = "nmcli dev show | grep IP4.DNS";
+		}
 
 		std::string dnsServersInfo = executeShellCommand(command);
 		if (dnsServersInfo == "")
@@ -217,7 +223,9 @@ namespace pcpp
 			CFStringRef serverAddress = (CFStringRef)CFArrayGetValueAtIndex(serverAddresses, i);
 
 			if (serverAddress == nullptr)
+			{
 				continue;
+			}
 
 			uint8_t buf[20];
 			char* serverAddressCString = (char*)buf;
@@ -244,10 +252,14 @@ namespace pcpp
 		{
 			sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
 			if (saddr == nullptr)
+			{
 				continue;
+			}
 			in_addr* inaddr = internal::try_sockaddr2in_addr(saddr);
 			if (inaddr == nullptr)
+			{
 				continue;
+			}
 
 			try
 			{

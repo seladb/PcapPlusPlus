@@ -50,7 +50,9 @@ namespace pcpp
 	void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 	{
 		if (!other.m_RawPacketSet)
+		{
 			return;
+		}
 
 		m_TimeStamp = other.m_TimeStamp;
 
@@ -97,7 +99,9 @@ namespace pcpp
 	void RawPacket::clear()
 	{
 		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
+		{
 			delete[] m_RawData;
+		}
 
 		m_RawData = nullptr;
 		m_RawDataLen = 0;
@@ -132,7 +136,9 @@ namespace pcpp
 	bool RawPacket::reallocateData(size_t newBufferLength)
 	{
 		if ((int)newBufferLength == m_RawDataLen)
+		{
 			return true;
+		}
 
 		if ((int)newBufferLength < m_RawDataLen)
 		{
@@ -145,7 +151,9 @@ namespace pcpp
 		memset(newBuffer, 0, newBufferLength);
 		memcpy(newBuffer, m_RawData, m_RawDataLen);
 		if (m_DeleteRawDataAtDestructor)
+		{
 			delete[] m_RawData;
+		}
 
 		m_DeleteRawDataAtDestructor = true;
 		m_RawData = newBuffer;
@@ -165,10 +173,12 @@ namespace pcpp
 		// this is so that resizing of the last layer can occur fast by just reducing the fictional length of the packet
 		// (m_RawDataLen) by the given amount
 		if ((atIndex + (int)numOfBytesToRemove) != m_RawDataLen)
+		{
 			// memmove copies data as if there was an intermediate buffer in between - so it allows for copying
 			// processes on overlapping src/dest ptrs
 			memmove((uint8_t*)m_RawData + atIndex, (uint8_t*)m_RawData + atIndex + numOfBytesToRemove,
 			        m_RawDataLen - (atIndex + numOfBytesToRemove));
+		}
 
 		m_RawDataLen -= numOfBytesToRemove;
 		m_FrameLength = m_RawDataLen;
@@ -189,7 +199,9 @@ namespace pcpp
 	bool RawPacket::isLinkTypeValid(int linkTypeValue)
 	{
 		if ((linkTypeValue < 0 || linkTypeValue > 264) && linkTypeValue != 276)
+		{
 			return false;
+		}
 
 		switch (static_cast<LinkLayerType>(linkTypeValue))
 		{

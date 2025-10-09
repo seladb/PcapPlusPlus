@@ -44,7 +44,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
@@ -237,7 +239,9 @@ namespace pcpp
 		auto findResult = PPPNextProtoToString.find(getPPPNextProtocol());
 		std::string nextProtocol;
 		if (findResult != PPPNextProtoToString.end())
+		{
 			nextProtocol = findResult->second;
+		}
 		else
 		{
 			std::ostringstream stream;
@@ -254,7 +258,9 @@ namespace pcpp
 	PPPoEDiscoveryLayer::PPPoETagTypes PPPoEDiscoveryLayer::PPPoETag::getType() const
 	{
 		if (m_Data == nullptr)
+		{
 			return PPPoEDiscoveryLayer::PPPoETagTypes::PPPOE_TAG_EOL;
+		}
 
 		return static_cast<PPPoEDiscoveryLayer::PPPoETagTypes>(be16toh(m_Data->recordType));
 	}
@@ -262,7 +268,9 @@ namespace pcpp
 	size_t PPPoEDiscoveryLayer::PPPoETag::getTotalSize() const
 	{
 		if (m_Data == nullptr)
+		{
 			return 0;
+		}
 
 		return 2 * sizeof(uint16_t) + be16toh(m_Data->recordLen);
 	}
@@ -270,7 +278,9 @@ namespace pcpp
 	size_t PPPoEDiscoveryLayer::PPPoETag::getDataSize() const
 	{
 		if (m_Data == nullptr)
+		{
 			return 0;
+		}
 
 		return be16toh(m_Data->recordLen);
 	}
@@ -284,7 +294,9 @@ namespace pcpp
 		memcpy(recordBuffer, &tagTypeVal, sizeof(uint16_t));
 		memcpy(recordBuffer + sizeof(uint16_t), &tagLength, sizeof(uint16_t));
 		if (tagLength > 0 && m_RecValue != nullptr)
+		{
 			memcpy(recordBuffer + 2 * sizeof(uint16_t), m_RecValue, m_RecValueLen);
+		}
 
 		return PPPoEDiscoveryLayer::PPPoETag(recordBuffer);
 	}
@@ -370,7 +382,9 @@ namespace pcpp
 	{
 		size_t payloadLen = sizeof(pppoe_header) + be16toh(getPPPoEHeader()->payloadLength);
 		if (payloadLen > m_DataLen)
+		{
 			return m_DataLen;
+		}
 
 		return payloadLen;
 	}

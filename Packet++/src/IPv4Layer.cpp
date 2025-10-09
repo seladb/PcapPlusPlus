@@ -40,10 +40,14 @@ namespace pcpp
 			uint32_t ipAddrAsInt = ipAddr.toInt();
 
 			if (!firstZero)
+			{
 				m_RecValue[0] += (uint8_t)4;
+			}
 
 			if (!firstZero && ipAddrAsInt == 0)
+			{
 				firstZero = true;
+			}
 
 			memcpy(m_RecValue + curOffset, &ipAddrAsInt, sizeof(uint32_t));
 			curOffset += sizeof(uint32_t);
@@ -102,7 +106,9 @@ namespace pcpp
 
 			// for pointer calculation - find the first timestamp equals to 0
 			if (timestamp == 0 && firstZero == -1)
+			{
 				firstZero = i;
+			}
 
 			if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
 			{
@@ -120,7 +126,9 @@ namespace pcpp
 		{
 			uint8_t pointerVal = (uint8_t)(4 * sizeof(uint8_t) + firstZero * sizeof(uint32_t) + 1);
 			if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
+			{
 				pointerVal += (uint8_t)(firstZero * sizeof(uint32_t));
+			}
 
 			m_RecValue[0] = pointerVal;
 		}
@@ -131,7 +139,9 @@ namespace pcpp
 	IPv4Option IPv4OptionBuilder::build() const
 	{
 		if (!m_BuilderParamsValid)
+		{
 			return IPv4Option(nullptr);
+		}
 
 		size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
@@ -156,7 +166,9 @@ namespace pcpp
 		{
 			recordBuffer[1] = static_cast<uint8_t>(optionSize);
 			if (optionSize > 2 && m_RecValue != nullptr)
+			{
 				memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
+			}
 		}
 
 		return IPv4Option(recordBuffer);
@@ -248,7 +260,9 @@ namespace pcpp
 	{
 		size_t hdrLen = getHeaderLen();
 		if (m_DataLen <= hdrLen || hdrLen == 0)
+		{
 			return;
+		}
 
 		iphdr* ipHdr = getIPv4Header();
 
@@ -324,9 +338,13 @@ namespace pcpp
 			case IGMPv3:
 			{
 				if (igmpQuery)
+				{
 					tryConstructNextLayerWithFallback<IgmpV3QueryLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+				}
 				else
+				{
 					tryConstructNextLayerWithFallback<IgmpV3ReportLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+				}
 				break;
 			}
 			default:
@@ -365,7 +383,9 @@ namespace pcpp
 
 		// If no next layer was constructed, assume it's a payload layer
 		if (!hasNextLayer())
+		{
 			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+		}
 	}
 
 	void IPv4Layer::computeCalculateFields()
@@ -441,11 +461,17 @@ namespace pcpp
 		if (isFragment())
 		{
 			if (isFirstFragment())
+			{
 				fragment = "First fragment";
+			}
 			else if (isLastFragment())
+			{
 				fragment = "Last fragment";
+			}
 			else
+			{
 				fragment = "Fragment";
+			}
 
 			std::stringstream sstm;
 			sstm << fragment << " [offset= " << getFragmentOffset() << "], ";
@@ -482,17 +508,25 @@ namespace pcpp
 
 		int newNumberOfTrailingBytes = 0;
 		while ((totalOptSize + newNumberOfTrailingBytes) % 4 != 0)
+		{
 			newNumberOfTrailingBytes++;
+		}
 
 		if (newNumberOfTrailingBytes < m_NumOfTrailingBytes)
+		{
 			shortenLayer(ipHdrSize + totalOptSize, m_NumOfTrailingBytes - newNumberOfTrailingBytes);
+		}
 		else if (newNumberOfTrailingBytes > m_NumOfTrailingBytes)
+		{
 			extendLayer(ipHdrSize + totalOptSize, newNumberOfTrailingBytes - m_NumOfTrailingBytes);
+		}
 
 		m_NumOfTrailingBytes = newNumberOfTrailingBytes;
 
 		for (int i = 0; i < m_NumOfTrailingBytes; i++)
+		{
 			m_Data[ipHdrSize + totalOptSize + i] = IPV4OPT_DUMMY;
+		}
 
 		m_TempHeaderExtension = 0;
 		getIPv4Header()->internetHeaderLength = ((ipHdrSize + totalOptSize + m_NumOfTrailingBytes) / 4 & 0x0f);
@@ -502,7 +536,9 @@ namespace pcpp
 	{
 		IPv4Option newOption = optionBuilder.build();
 		if (newOption.isNull())
+		{
 			return newOption;
+		}
 
 		size_t sizeToExtend = newOption.getTotalSize();
 
@@ -612,7 +648,9 @@ namespace pcpp
 		int offset = sizeof(iphdr);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		getIPv4Header()->internetHeaderLength = (5 & 0xf);
 		m_NumOfTrailingBytes = 0;

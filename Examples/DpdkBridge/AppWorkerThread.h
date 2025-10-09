@@ -67,7 +67,9 @@ public:
 		for (int i = 0; i < MAX_RECEIVE_BURST; i++)
 		{
 			if (packetArr[i] != nullptr)
+			{
 				delete packetArr[i];
+			}
 		}
 
 		return true;

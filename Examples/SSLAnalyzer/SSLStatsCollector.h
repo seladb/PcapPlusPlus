@@ -142,7 +142,9 @@ public:
 	{
 		// verify packet is TCP and SSL/TLS
 		if (!sslPacket->isPacketOfType(pcpp::TCP) || !sslPacket->isPacketOfType(pcpp::SSL))
+		{
 			return;
+		}
 
 		// collect general SSL traffic stats on this packet
 		uint32_t hashVal = collectSSLTrafficStats(sslPacket);
@@ -291,9 +293,13 @@ private:
 			uint16_t srcPort = tcpLayer->getSrcPort();
 			uint16_t dstPort = tcpLayer->getDstPort();
 			if (pcpp::SSLLayer::isSSLPort(srcPort))
+			{
 				m_GeneralStats.sslPortCount[srcPort]++;
+			}
 			else
+			{
 				m_GeneralStats.sslPortCount[dstPort]++;
+			}
 
 			m_FlowTable[hashVal].clear();
 		}
@@ -347,7 +353,9 @@ private:
 			{
 				pcpp::SSLHandshakeLayer* handshakeLayer = dynamic_cast<pcpp::SSLHandshakeLayer*>(sslLayer);
 				if (handshakeLayer == nullptr)
+				{
 					continue;
+				}
 
 				// try to find client-hello message
 				pcpp::SSLClientHelloMessage* clientHelloMessage =
@@ -385,7 +393,9 @@ private:
 		pcpp::SSLServerNameIndicationExtension* sniExt =
 		    clientHelloMessage->getExtensionOfType<pcpp::SSLServerNameIndicationExtension>();
 		if (sniExt != nullptr)
+		{
 			m_ClientHelloStats.serverNameCount[sniExt->getHostName()]++;
+		}
 	}
 
 	/**
@@ -397,7 +407,9 @@ private:
 
 		pcpp::SSLCipherSuite* cipherSuite = serverHelloMessage->getCipherSuite();
 		if (cipherSuite != nullptr)
+		{
 			m_ServerHelloStats.cipherSuiteCount[cipherSuite->asString()]++;
+		}
 	}
 
 	double getCurTime(void)

@@ -94,11 +94,15 @@ static size_t getPayloadLen(pcpp::RawPacket& rawPacket)
 
 	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 	if (tcpLayer == nullptr)
+	{
 		throw std::runtime_error("TCP Layer not found");
+	}
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	if (ipLayer == nullptr)
+	{
 		throw std::runtime_error("IPv4 Layer not found");
+	}
 
 	return be16toh(ipLayer->getIPv4Header()->totalLength) - ipLayer->getHeaderLen() - tcpLayer->getHeaderLen();
 }
@@ -186,7 +190,9 @@ static void tcpReassemblyConnectionStartCallback(const pcpp::ConnectionData& con
 	TcpReassemblyMultipleConnStats::FlowKeysList& flowKeys =
 	    ((TcpReassemblyMultipleConnStats*)userCookie)->flowKeysList;
 	if (std::find(flowKeys.begin(), flowKeys.end(), connectionData.flowKey) == flowKeys.end())
+	{
 		flowKeys.push_back(connectionData.flowKey);
+	}
 
 	iter->second.connectionsStarted = true;
 	iter->second.connData = connectionData;
@@ -211,12 +217,18 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
 	TcpReassemblyMultipleConnStats::FlowKeysList& flowKeys =
 	    ((TcpReassemblyMultipleConnStats*)userCookie)->flowKeysList;
 	if (std::find(flowKeys.begin(), flowKeys.end(), connectionData.flowKey) == flowKeys.end())
+	{
 		flowKeys.push_back(connectionData.flowKey);
+	}
 
 	if (reason == pcpp::TcpReassembly::TcpReassemblyConnectionClosedManually)
+	{
 		iter->second.connectionsEndedManually = true;
+	}
 	else
+	{
 		iter->second.connectionsEnded = true;
+	}
 	iter->second.connData = connectionData;
 }
 
@@ -230,11 +242,15 @@ static bool tcpReassemblyTest(const std::vector<pcpp::RawPacket>& packetStream, 
 	pcpp::TcpReassembly* tcpReassembly = nullptr;
 
 	if (monitorOpenCloseConns)
+	{
 		tcpReassembly =
 		    new pcpp::TcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback,
 		                            tcpReassemblyConnectionEndCallback);
+	}
 	else
+	{
 		tcpReassembly = new pcpp::TcpReassembly(tcpReassemblyMsgReadyCallback, &results);
+	}
 
 	for (auto iter : packetStream)
 	{
@@ -257,7 +273,9 @@ static bool tcpReassemblyTest(const std::vector<pcpp::RawPacket>& packetStream, 
 	// }
 
 	if (closeConnsManually)
+	{
 		tcpReassembly->closeAllConnections();
+	}
 
 	delete tcpReassembly;
 
@@ -298,17 +316,23 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 
 	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 	if (tcpLayer == nullptr)
+	{
 		throw std::runtime_error("TCP Layer not found");
+	}
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	if (ipLayer == nullptr)
+	{
 		throw std::runtime_error("IPv4 Layer not found");
+	}
 
 	int tcpPayloadSize =
 	    be16toh(ipLayer->getIPv4Header()->totalLength) - ipLayer->getHeaderLen() - tcpLayer->getHeaderLen();
 
 	if (numOfBytes <= 0)
+	{
 		numOfBytes = tcpPayloadSize - beginning;
+	}
 
 	uint8_t* newPayload = new uint8_t[numOfBytes];
 
@@ -328,7 +352,9 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 
 	pcpp::Layer* layerToRemove = tcpLayer->getNextLayer();
 	if (layerToRemove != nullptr)
+	{
 		packet.removeLayer(layerToRemove->getProtocol());
+	}
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(be32toh(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 

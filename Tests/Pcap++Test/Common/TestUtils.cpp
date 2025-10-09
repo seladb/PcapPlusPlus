@@ -52,7 +52,9 @@ int getFileLength(const std::string& filename)
 {
 	std::ifstream infile(filename.c_str(), std::ifstream::binary);
 	if (!infile)
+	{
 		return -1;
+	}
 	infile.seekg(0, infile.end);
 	int length = infile.tellg();
 	infile.close();
@@ -63,11 +65,15 @@ uint8_t* readFileIntoBuffer(const std::string& filename, int& bufferLength)
 {
 	int fileLength = getFileLength(filename);
 	if (fileLength == -1)
+	{
 		return nullptr;
+	}
 
 	std::ifstream infile(filename.c_str());
 	if (!infile)
+	{
 		return nullptr;
+	}
 
 	bufferLength = fileLength / 2 + 2;
 	uint8_t* result = new uint8_t[bufferLength];

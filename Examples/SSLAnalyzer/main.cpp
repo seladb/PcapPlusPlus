@@ -363,7 +363,9 @@ void analyzeSSLFromPcapFile(const std::string& pcapFileName)
 	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(pcapFileName));
 
 	if (!reader->open())
+	{
 		EXIT_WITH_ERROR("Could not open input pcap file");
+	}
 
 	// read the input file packet by packet and give it to the SSLStatsCollector for collecting stats
 	SSLStatsCollector collector;
@@ -390,7 +392,9 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 {
 	// open the device
 	if (!dev->open())
+	{
 		EXIT_WITH_ERROR("Could not open the device");
+	}
 
 	// set SSL/TLS ports filter on the live device to capture only SSL/TLS packets
 	std::vector<pcpp::GeneralFilter*> portFilterVec;
@@ -399,8 +403,12 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 	// The check is made for well known ports because currently SSLLayer does not support customizing of ports
 	// considered as SSL/TLS.
 	for (uint16_t port = 0; port < 1024; ++port)
+	{
 		if (pcpp::SSLLayer::isSSLPort(port))
+		{
 			portFilterVec.push_back(new pcpp::PortFilter(port, pcpp::SRC_OR_DST));
+		}
+	}
 
 	// make an OR filter out of all port filters
 	pcpp::OrFilter orFilter(portFilterVec);
@@ -521,7 +529,9 @@ int main(int argc, char* argv[])
 
 	// if no interface nor input pcap file were provided - exit with error
 	if (readPacketsFromPcapFileName == "" && interfaceNameOrIP == "")
+	{
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
+	}
 
 	// analyze in pcap file mode
 	if (readPacketsFromPcapFileName != "")
@@ -533,7 +543,9 @@ int main(int argc, char* argv[])
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
+		}
 
 		// start capturing and analyzing traffic
 		analyzeSSLFromLiveTraffic(dev, printRatesPeriodically, printRatePeriod, savePacketsToFileName);

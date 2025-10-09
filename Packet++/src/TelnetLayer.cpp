@@ -79,14 +79,20 @@ namespace pcpp
 		{
 			// If it is second turn position should be adjusted to after second FF
 			if (addition)
+			{
 				addition += 2;
+			}
 
 			pos = (uint8_t*)memchr(startPos + currentOffset + 1, static_cast<int>(TelnetCommand::InterpretAsCommand),
 			                       maxLength - currentOffset);
 			if (pos)
+			{
 				addition += pos - (startPos + currentOffset);
+			}
 			else
+			{
 				addition += maxLength - currentOffset;
+			}
 			currentOffset = currentOffset + addition;
 			// "FF FF" means data continue
 		} while (pos && ((pos + 1) < (startPos + maxLength)) &&
@@ -102,11 +108,15 @@ namespace pcpp
 		{
 			// If subnegotiation parse until next IAC
 			if (startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
+			{
 				return distanceToNextIAC(startPos, maxLength);
+			}
 			// Only WILL, WONT, DO, DONT have option. Ref http://pcmicro.com/netfoss/telnet.html
 			else if (startPos[1] >= static_cast<int>(TelnetCommand::WillPerform) &&
 			         startPos[1] <= static_cast<int>(TelnetCommand::DontPerform))
+			{
 				return 3;
+			}
 			return 2;
 		}
 		return distanceToNextIAC(startPos, maxLength);
@@ -179,7 +189,9 @@ namespace pcpp
 	int16_t TelnetLayer::getSubCommand(uint8_t* pos, size_t len)
 	{
 		if (len < 3 || pos[1] < static_cast<int>(TelnetCommand::Subnegotiation))
+		{
 			return static_cast<int>(TelnetOption::TelnetOptionNoOption);
+		}
 		return pos[2];
 	}
 
@@ -249,7 +261,9 @@ namespace pcpp
 	{
 		size_t ctr = 0;
 		if (isTelnetCommand(m_Data, m_DataLen))
+		{
 			++ctr;
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
@@ -257,7 +271,9 @@ namespace pcpp
 			size_t offset = pos - m_Data;
 			pos = getNextCommandField(pos, m_DataLen - offset);
 			if (pos)
+			{
 				++ctr;
+			}
 		}
 
 		return ctr;
@@ -266,11 +282,15 @@ namespace pcpp
 	size_t TelnetLayer::getNumberOfCommands(TelnetCommand command)
 	{
 		if (static_cast<int>(command) < 0)
+		{
 			return 0;
+		}
 
 		size_t ctr = 0;
 		if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
+		{
 			++ctr;
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
@@ -278,7 +298,9 @@ namespace pcpp
 			size_t offset = pos - m_Data;
 			pos = getNextCommandField(pos, m_DataLen - offset);
 			if (pos && pos[1] == static_cast<int>(command))
+			{
 				++ctr;
+			}
 		}
 
 		return ctr;
@@ -288,12 +310,16 @@ namespace pcpp
 	{
 		// If starts with command
 		if (isTelnetCommand(m_Data, m_DataLen))
+		{
 			return static_cast<TelnetCommand>(m_Data[1]);
+		}
 
 		// Check is there any command
 		uint8_t* pos = getNextCommandField(m_Data, m_DataLen);
 		if (pos)
+		{
 			return static_cast<TelnetCommand>(pos[1]);
+		}
 		return TelnetCommand::TelnetCommandEndOfPacket;
 	}
 
@@ -303,7 +329,9 @@ namespace pcpp
 		{
 			lastPositionOffset = 0;
 			if (isTelnetCommand(m_Data, m_DataLen))
+			{
 				return static_cast<TelnetLayer::TelnetCommand>(m_Data[1]);
+			}
 		}
 
 		uint8_t* pos = getNextCommandField(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset);
@@ -319,8 +347,10 @@ namespace pcpp
 	TelnetLayer::TelnetOption TelnetLayer::getOption()
 	{
 		if (lastPositionOffset < m_DataLen)
+		{
 			return static_cast<TelnetOption>(getSubCommand(
 			    &m_Data[lastPositionOffset], getFieldLen(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset)));
+		}
 		return TelnetOption::TelnetOptionNoOption;
 	}
 
@@ -334,7 +364,9 @@ namespace pcpp
 		}
 
 		if (isTelnetCommand(m_Data, m_DataLen) && m_Data[1] == static_cast<int>(command))
+		{
 			return static_cast<TelnetOption>(getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
@@ -343,7 +375,9 @@ namespace pcpp
 			pos = getNextCommandField(pos, m_DataLen - offset);
 
 			if (pos && pos[1] == static_cast<int>(command))
+			{
 				return static_cast<TelnetOption>(getSubCommand(pos, getFieldLen(pos, m_DataLen - offset)));
+			}
 		}
 
 		PCPP_LOG_DEBUG("Can't find requested command");

@@ -86,13 +86,19 @@ namespace pcpp
 		bool operator==(const TLVRecord& rhs) const
 		{
 			if (m_Data == rhs.m_Data)
+			{
 				return true;
+			}
 
 			if (getTotalSize() != rhs.getTotalSize())
+			{
 				return false;
+			}
 
 			if (isNull() || ((TLVRecord&)rhs).isNull())
+			{
 				return false;
+			}
 
 			return (memcmp(m_Data, rhs.m_Data, getTotalSize()) == 0);
 		}
@@ -109,7 +115,9 @@ namespace pcpp
 		TRecType getType() const
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return m_Data->recordType;
 		}
@@ -118,7 +126,9 @@ namespace pcpp
 		uint8_t* getValue() const
 		{
 			if (m_Data == nullptr)
+			{
 				return nullptr;
+			}
 
 			return m_Data->recordValue;
 		}
@@ -161,7 +171,9 @@ namespace pcpp
 		template <typename T> T getValueAs(size_t offset = 0) const
 		{
 			if (getDataSize() - offset < sizeof(T))
+			{
 				return 0;
+			}
 
 			T result;
 			memcpy(&result, m_Data->recordValue + getValueOffset() + offset, sizeof(T));
@@ -178,7 +190,9 @@ namespace pcpp
 		template <typename T> bool setValue(T newValue, int valueOffset = 0)
 		{
 			if (getDataSize() < sizeof(T))
+			{
 				return false;
+			}
 
 			memcpy(m_Data->recordValue + getValueOffset() + valueOffset, &newValue, sizeof(T));
 			return true;
@@ -239,16 +253,22 @@ namespace pcpp
 		{
 			TLVRecordType resRec(nullptr);  // for NRVO optimization
 			if (!TLVRecordType::canAssign(tlvDataBasePtr, tlvDataLen))
+			{
 				return resRec;
+			}
 
 			resRec.assign(tlvDataBasePtr);
 			// resRec pointer is out-bounds of the TLV records memory
 			if (resRec.getRecordBasePtr() + resRec.getTotalSize() > tlvDataBasePtr + tlvDataLen)
+			{
 				resRec.assign(nullptr);
+			}
 
 			// check if there are records at all and the total size is not zero
 			if (!resRec.isNull() && (tlvDataLen == 0 || resRec.getTotalSize() == 0))
+			{
 				resRec.assign(nullptr);
+			}
 
 			return resRec;
 		}
@@ -265,25 +285,35 @@ namespace pcpp
 			TLVRecordType resRec(nullptr);  // for NRVO optimization
 
 			if (record.isNull())
+			{
 				return resRec;
+			}
 
 			if (!TLVRecordType::canAssign(record.getRecordBasePtr() + record.getTotalSize(),
 			                              tlvDataBasePtr - record.getRecordBasePtr() + tlvDataLen -
 			                                  record.getTotalSize()))
+			{
 				return resRec;
+			}
 
 			resRec.assign(record.getRecordBasePtr() + record.getTotalSize());
 
 			if (resRec.getTotalSize() == 0)
+			{
 				resRec.assign(nullptr);
+			}
 
 			// resRec pointer is out-bounds of the TLV records memory
 			if ((resRec.getRecordBasePtr() - tlvDataBasePtr) < 0)
+			{
 				resRec.assign(nullptr);
+			}
 
 			// resRec pointer is out-bounds of the TLV records memory
 			if (!resRec.isNull() && resRec.getRecordBasePtr() + resRec.getTotalSize() > tlvDataBasePtr + tlvDataLen)
+			{
 				resRec.assign(nullptr);
+			}
 
 			return resRec;
 		}
@@ -321,7 +351,9 @@ namespace pcpp
 		size_t getTLVRecordCount(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
 			if (m_RecordCount != static_cast<size_t>(-1))
+			{
 				return m_RecordCount;
+			}
 
 			m_RecordCount = 0;
 			TLVRecordType curRec = getFirstTLVRecord(tlvDataBasePtr, tlvDataLen);
@@ -342,7 +374,9 @@ namespace pcpp
 		void changeTLVRecordCount(int changedBy)
 		{
 			if (m_RecordCount != static_cast<size_t>(-1))
+			{
 				m_RecordCount += changedBy;
+			}
 		}
 	};
 

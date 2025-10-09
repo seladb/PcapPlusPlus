@@ -165,10 +165,14 @@ namespace pcpp
 	DpdkDevice::~DpdkDevice()
 	{
 		if (m_TxBuffers != nullptr)
+		{
 			delete[] m_TxBuffers;
+		}
 
 		if (m_TxBufferLastDrainTsc != nullptr)
+		{
 			delete[] m_TxBufferLastDrainTsc;
+		}
 	}
 
 	uint32_t DpdkDevice::getCurrentCoreId() const
@@ -221,7 +225,9 @@ namespace pcpp
 		clearCoreConfiguration();
 
 		if (!initQueues(numOfRxQueuesToOpen, numOfTxQueuesToOpen))
+		{
 			return false;
+		}
 
 		if (!startDevice())
 		{
@@ -413,10 +419,14 @@ namespace pcpp
 		}
 
 		if (m_TxBuffers != nullptr)
+		{
 			delete[] m_TxBuffers;
+		}
 
 		if (m_TxBufferLastDrainTsc != nullptr)
+		{
 			delete[] m_TxBufferLastDrainTsc;
+		}
 
 		m_TxBuffers = new rte_eth_dev_tx_buffer*[numOfTxQueuesToInit];
 		m_TxBufferLastDrainTsc = new uint64_t[numOfTxQueuesToInit];
@@ -511,8 +521,12 @@ namespace pcpp
 	{
 		int res = 0;
 		for (int i = 0; i < MAX_NUM_OF_CORES; i++)
+		{
 			if (m_CoreConfiguration[i].IsCoreInUse)
+			{
 				res++;
+			}
+		}
 
 		return res;
 	}
@@ -528,41 +542,77 @@ namespace pcpp
 		m_PMDName = std::string(portInfo.driver_name);
 
 		if (m_PMDName == "eth_bond")
+		{
 			m_PMDType = PMD_BOND;
+		}
 		else if (m_PMDName == "rte_em_pmd")
+		{
 			m_PMDType = PMD_E1000EM;
+		}
 		else if (m_PMDName == "rte_igb_pmd")
+		{
 			m_PMDType = PMD_IGB;
+		}
 		else if (m_PMDName == "rte_igbvf_pmd")
+		{
 			m_PMDType = PMD_IGBVF;
+		}
 		else if (m_PMDName == "rte_enic_pmd")
+		{
 			m_PMDType = PMD_ENIC;
+		}
 		else if (m_PMDName == "rte_pmd_fm10k")
+		{
 			m_PMDType = PMD_FM10K;
+		}
 		else if (m_PMDName == "rte_i40e_pmd" || m_PMDName == "net_i40e")
+		{
 			m_PMDType = PMD_I40E;
+		}
 		else if (m_PMDName == "rte_i40evf_pmd")
+		{
 			m_PMDType = PMD_I40EVF;
+		}
 		else if (m_PMDName == "rte_ixgbe_pmd")
+		{
 			m_PMDType = PMD_IXGBE;
+		}
 		else if (m_PMDName == "rte_ixgbevf_pmd")
+		{
 			m_PMDType = PMD_IXGBEVF;
+		}
 		else if (m_PMDName == "librte_pmd_mlx4")
+		{
 			m_PMDType = PMD_MLX4;
+		}
 		else if (m_PMDName == "eth_null")
+		{
 			m_PMDType = PMD_NULL;
+		}
 		else if (m_PMDName == "eth_pcap")
+		{
 			m_PMDType = PMD_PCAP;
+		}
 		else if (m_PMDName == "eth_ring")
+		{
 			m_PMDType = PMD_RING;
+		}
 		else if (m_PMDName == "rte_virtio_pmd")
+		{
 			m_PMDType = PMD_VIRTIO;
+		}
 		else if (m_PMDName == "rte_vmxnet3_pmd")
+		{
 			m_PMDType = PMD_VMXNET3;
+		}
 		else if (m_PMDName == "eth_xenvirt")
+		{
 			m_PMDType = PMD_XENVIRT;
+		}
 		else
+		{
 			m_PMDType = PMD_UNKNOWN;
+		}
 
 #if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 5)  // before 18.05
 		char pciName[30];
@@ -688,7 +738,9 @@ namespace pcpp
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (coreId == (int)GET_MASTER_CORE() || !rte_lcore_is_enabled(coreId))
+			{
 				continue;
+			}
 
 			m_CoreConfiguration[coreId].IsCoreInUse = true;
 			m_CoreConfiguration[coreId].RxQueueId = 0;
@@ -720,7 +772,9 @@ namespace pcpp
 		}
 
 		if (!initCoreConfigurationByCoreMask(coreMask))
+		{
 			return false;
+		}
 
 		if (m_NumOfRxQueuesOpened != getCoresInUseCount())
 		{
@@ -736,7 +790,9 @@ namespace pcpp
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsCoreInUse)
+			{
 				continue;
+			}
 
 			// create a new thread
 			m_CoreConfiguration[coreId].RxQueueId = rxQueue++;
@@ -763,7 +819,9 @@ namespace pcpp
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsCoreInUse)
+			{
 				continue;
+			}
 			rte_eal_wait_lcore(coreId);
 			PCPP_LOG_DEBUG("Thread on core [" << coreId << "] stopped");
 		}
@@ -792,7 +850,9 @@ namespace pcpp
 			uint32_t numOfPktsReceived = rte_eth_rx_burst(pThis->m_Id, queueId, mBufArray, MAX_BURST_SIZE);
 
 			if (unlikely(numOfPktsReceived == 0))
+			{
 				continue;
+			}
 
 			timespec time;
 			clock_gettime(CLOCK_REALTIME, &time);
@@ -974,7 +1034,9 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			if (rawPacketsArr[index] == nullptr)
+			{
 				rawPacketsArr[index] = new MBufRawPacket();
+			}
 
 			rawPacketsArr[index]->setMBuf(mBuf, time);
 		}
@@ -1019,7 +1081,9 @@ namespace pcpp
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
 			newRawPacket->setMBuf(mBuf, time);
 			if (packetsArr[index] == nullptr)
+			{
 				packetsArr[index] = new Packet();
+			}
 
 			packetsArr[index]->setRawPacket(newRawPacket, true);
 		}
@@ -1036,13 +1100,19 @@ namespace pcpp
 			uint64_t curTsc = rte_rdtsc();
 
 			if (curTsc - m_TxBufferLastDrainTsc[txQueueId] > m_TxBufferDrainTsc)
+			{
 				m_TxBufferLastDrainTsc[txQueueId] = curTsc;
+			}
 			else
+			{
 				flush = false;
+			}
 		}
 
 		if (flush)
+		{
 			return rte_eth_tx_buffer_flush(m_Id, txQueueId, m_TxBuffers[txQueueId]);
+		}
 
 		return 0;
 	}
@@ -1153,10 +1223,14 @@ namespace pcpp
 		}
 
 		for (int index = 0; index < applyForMBufs; index++)
+		{
 			rawPacketsArr[index]->setFreeMbuf(needToFreeMbuf);
+		}
 
 		for (int index = applyForMBufs; index < arrLength; index++)
+		{
 			rawPacketsArr[index]->setFreeMbuf(!needToFreeMbuf);
+		}
 
 		return packetsSent;
 	}
@@ -1196,7 +1270,9 @@ namespace pcpp
 
 		bool needToFreeMbuf = (!useTxBuffer && (packetsSent != arrLength));
 		for (int index = 0; index < arrLength; index++)
+		{
 			mBufRawPacketArr[index]->setFreeMbuf(needToFreeMbuf);
+		}
 
 		return packetsSent;
 	}
@@ -1238,7 +1314,9 @@ namespace pcpp
 
 		bool needToFreeMbuf = (!useTxBuffer && (packetsSent != vecSize));
 		for (size_t index = 0; index < rawPacketsVec.size(); index++)
+		{
 			mBufRawPacketArr[index]->setFreeMbuf(needToFreeMbuf);
+		}
 
 		return packetsSent;
 	}
@@ -1252,7 +1330,9 @@ namespace pcpp
 		bool needToFreeMbuf = (!useTxBuffer && (packetsSent != vecSize));
 
 		for (size_t index = 0; index < vecSize; index++)
+		{
 			rawPacketsVec.at(index)->setFreeMbuf(needToFreeMbuf);
+		}
 
 		return packetsSent;
 	}
@@ -1271,7 +1351,9 @@ namespace pcpp
 
 		MBufRawPacket mbufRawPacket;
 		if (unlikely(!mbufRawPacket.initFromRawPacket(&rawPacket, this)))
+		{
 			return false;
+		}
 
 		bool packetSent =
 		    (sendPacketsInner(txQueueId, &mbufRawPacket, getNextPacketFromMBufRawPacket, 1, useTxBuffer) == 1);
@@ -1321,64 +1403,104 @@ namespace pcpp
 		uint64_t dpdkRssHF = 0;
 
 		if ((rssHF & RSS_IPV4) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_IPV4;
+		}
 
 		if ((rssHF & RSS_FRAG_IPV4) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_FRAG_IPV4;
+		}
 
 		if ((rssHF & RSS_NONFRAG_IPV4_TCP) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_TCP;
+		}
 
 		if ((rssHF & RSS_NONFRAG_IPV4_UDP) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_UDP;
+		}
 
 		if ((rssHF & RSS_NONFRAG_IPV4_SCTP) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_SCTP;
+		}
 
 		if ((rssHF & RSS_NONFRAG_IPV4_OTHER) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_OTHER;
+		}
 
 		if ((rssHF & RSS_IPV6) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_IPV6;
+		}
 
 		if ((rssHF & RSS_FRAG_IPV6) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_FRAG_IPV6;
+		}
 
 		if ((rssHF & RSS_NONFRAG_IPV6_TCP) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_TCP;
+		}
 
 		if ((rssHF & RSS_NONFRAG_IPV6_UDP) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_UDP;
+		}
 
 		if ((rssHF & RSS_NONFRAG_IPV6_SCTP) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_SCTP;
+		}
 
 		if ((rssHF & RSS_NONFRAG_IPV6_OTHER) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_OTHER;
+		}
 
 		if ((rssHF & RSS_L2_PAYLOAD) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_L2_PAYLOAD;
+		}
 
 		if ((rssHF & RSS_IPV6_EX) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_IPV6_EX;
+		}
 
 		if ((rssHF & RSS_IPV6_TCP_EX) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_IPV6_TCP_EX;
+		}
 
 		if ((rssHF & RSS_IPV6_UDP_EX) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_IPV6_UDP_EX;
+		}
 
 		if ((rssHF & RSS_PORT) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_PORT;
+		}
 
 		if ((rssHF & RSS_VXLAN) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_VXLAN;
+		}
 
 		if ((rssHF & RSS_GENEVE) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_GENEVE;
+		}
 
 		if ((rssHF & RSS_NVGRE) != 0)
+		{
 			dpdkRssHF |= DPDK_CONFIG_ETH_RSS_NVGRE;
+		}
 
 		return dpdkRssHF;
 	}
@@ -1388,64 +1510,104 @@ namespace pcpp
 		uint64_t rssHF = 0;
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_IPV4) != 0)
+		{
 			rssHF |= RSS_IPV4;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_FRAG_IPV4) != 0)
+		{
 			rssHF |= RSS_FRAG_IPV4;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_TCP) != 0)
+		{
 			rssHF |= RSS_NONFRAG_IPV4_TCP;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_UDP) != 0)
+		{
 			rssHF |= RSS_NONFRAG_IPV4_UDP;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_SCTP) != 0)
+		{
 			rssHF |= RSS_NONFRAG_IPV4_SCTP;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_OTHER) != 0)
+		{
 			rssHF |= RSS_NONFRAG_IPV4_OTHER;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_IPV6) != 0)
+		{
 			rssHF |= RSS_IPV6;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_FRAG_IPV6) != 0)
+		{
 			rssHF |= RSS_FRAG_IPV6;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_TCP) != 0)
+		{
 			rssHF |= RSS_NONFRAG_IPV6_TCP;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_UDP) != 0)
+		{
 			rssHF |= RSS_NONFRAG_IPV6_UDP;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_SCTP) != 0)
+		{
 			rssHF |= RSS_NONFRAG_IPV6_SCTP;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_OTHER) != 0)
+		{
 			rssHF |= RSS_NONFRAG_IPV6_OTHER;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_L2_PAYLOAD) != 0)
+		{
 			rssHF |= RSS_L2_PAYLOAD;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_IPV6_EX) != 0)
+		{
 			rssHF |= RSS_IPV6_EX;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_IPV6_TCP_EX) != 0)
+		{
 			rssHF |= RSS_IPV6_TCP_EX;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_IPV6_UDP_EX) != 0)
+		{
 			rssHF |= RSS_IPV6_UDP_EX;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_PORT) != 0)
+		{
 			rssHF |= RSS_PORT;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_VXLAN) != 0)
+		{
 			rssHF |= RSS_VXLAN;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_GENEVE) != 0)
+		{
 			rssHF |= RSS_GENEVE;
+		}
 
 		if ((dpdkRssHF & DPDK_CONFIG_ETH_RSS_NVGRE) != 0)
+		{
 			rssHF |= RSS_NVGRE;
+		}
 
 		return rssHF;
 	}
@@ -1513,64 +1675,104 @@ namespace pcpp
 		}
 
 		if ((rssHFMask & RSS_IPV4) != 0)
+		{
 			result.push_back("RSS_IPV4");
+		}
 
 		if ((rssHFMask & RSS_FRAG_IPV4) != 0)
+		{
 			result.push_back("RSS_FRAG_IPV4");
+		}
 
 		if ((rssHFMask & RSS_NONFRAG_IPV4_TCP) != 0)
+		{
 			result.push_back("RSS_NONFRAG_IPV4_TCP");
+		}
 
 		if ((rssHFMask & RSS_NONFRAG_IPV4_UDP) != 0)
+		{
 			result.push_back("RSS_NONFRAG_IPV4_UDP");
+		}
 
 		if ((rssHFMask & RSS_NONFRAG_IPV4_SCTP) != 0)
+		{
 			result.push_back("RSS_NONFRAG_IPV4_SCTP");
+		}
 
 		if ((rssHFMask & RSS_NONFRAG_IPV4_OTHER) != 0)
+		{
 			result.push_back("RSS_NONFRAG_IPV4_OTHER");
+		}
 
 		if ((rssHFMask & RSS_IPV6) != 0)
+		{
 			result.push_back("RSS_IPV6");
+		}
 
 		if ((rssHFMask & RSS_FRAG_IPV6) != 0)
+		{
 			result.push_back("RSS_FRAG_IPV6");
+		}
 
 		if ((rssHFMask & RSS_NONFRAG_IPV6_TCP) != 0)
+		{
 			result.push_back("RSS_NONFRAG_IPV6_TCP");
+		}
 
 		if ((rssHFMask & RSS_NONFRAG_IPV6_UDP) != 0)
+		{
 			result.push_back("RSS_NONFRAG_IPV6_UDP");
+		}
 
 		if ((rssHFMask & RSS_NONFRAG_IPV6_SCTP) != 0)
+		{
 			result.push_back("RSS_NONFRAG_IPV6_SCTP");
+		}
 
 		if ((rssHFMask & RSS_NONFRAG_IPV6_OTHER) != 0)
+		{
 			result.push_back("RSS_NONFRAG_IPV6_OTHER");
+		}
 
 		if ((rssHFMask & RSS_L2_PAYLOAD) != 0)
+		{
 			result.push_back("RSS_L2_PAYLOAD");
+		}
 
 		if ((rssHFMask & RSS_IPV6_EX) != 0)
+		{
 			result.push_back("RSS_IPV6_EX");
+		}
 
 		if ((rssHFMask & RSS_IPV6_TCP_EX) != 0)
+		{
 			result.push_back("RSS_IPV6_TCP_EX");
+		}
 
 		if ((rssHFMask & RSS_IPV6_UDP_EX) != 0)
+		{
 			result.push_back("RSS_IPV6_UDP_EX");
+		}
 
 		if ((rssHFMask & RSS_PORT) != 0)
+		{
 			result.push_back("RSS_PORT");
+		}
 
 		if ((rssHFMask & RSS_VXLAN) != 0)
+		{
 			result.push_back("RSS_VXLAN");
+		}
 
 		if ((rssHFMask & RSS_GENEVE) != 0)
+		{
 			result.push_back("RSS_GENEVE");
+		}
 
 		if ((rssHFMask & RSS_NVGRE) != 0)
+		{
 			result.push_back("RSS_NVGRE");
+		}
 
 		return result;
 	}

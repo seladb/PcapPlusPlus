@@ -468,7 +468,9 @@ namespace pcpp
 
 		auto it = X509ExtensionTypeOidMap.find(oidStr);
 		if (it != X509ExtensionTypeOidMap.end())
+		{
 			return { it->second };
+		}
 
 		return { Unknown };
 	}

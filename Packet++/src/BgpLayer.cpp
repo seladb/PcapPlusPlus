@@ -30,14 +30,18 @@ namespace pcpp
 	BgpLayer* BgpLayer::parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		if (data == nullptr || dataLen < sizeof(bgp_common_header))
+		{
 			return nullptr;
+		}
 
 		auto* bgpHeader = reinterpret_cast<bgp_common_header*>(data);
 
 		// illegal header data - length is too small
 		uint16_t messageLen = be16toh(bgpHeader->length);
 		if (dataLen < messageLen || messageLen < static_cast<uint16_t>(sizeof(bgp_common_header)))
+		{
 			return nullptr;
+		}
 
 		switch (bgpHeader->messageType)
 		{
@@ -81,7 +85,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen || headerLen == 0)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
@@ -721,15 +727,21 @@ namespace pcpp
 	bool BgpUpdateMessageLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t))
+		{
 			return false;
+		}
 
 		uint16_t withdrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header)));
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + withdrLen)
+		{
 			return false;
+		}
 
 		uint16_t attrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrLen));
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + withdrLen + attrLen)
+		{
 			return false;
+		}
 
 		return true;
 	}

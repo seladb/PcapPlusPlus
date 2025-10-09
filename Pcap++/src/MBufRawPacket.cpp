@@ -76,7 +76,9 @@ namespace pcpp
 	bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, struct rte_mempool* mempool)
 	{
 		if (!init(mempool))
+		{
 			return false;
+		}
 
 		m_RawPacketSet = false;
 
@@ -288,7 +290,9 @@ namespace pcpp
 		}
 
 		if (!RawPacket::removeData(atIndex, numOfBytesToRemove))
+		{
 			return false;
+		}
 
 		if (rte_pktmbuf_trim(m_MBuf, numOfBytesToRemove) != 0)
 		{

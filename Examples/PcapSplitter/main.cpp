@@ -188,7 +188,9 @@ std::string getFileNameWithoutExtension(const std::string& path)
 {
 	// if path is empty, return an empty string
 	if (path == "")
+	{
 		return "";
+	}
 
 	// find the last "\\" or "/" (depends on the os) - where path ends and filename starts
 	size_t i = path.rfind(SEPARATOR, path.length());
@@ -200,7 +202,9 @@ std::string getFileNameWithoutExtension(const std::string& path)
 		// from the file name - remove the extension (the part after the ".")
 		i = fileNameWithExtension.rfind('.', fileNameWithExtension.length());
 		if (i != std::string::npos)
+		{
 			return fileNameWithExtension.substr(0, i);
+		}
 
 		return fileNameWithExtension;
 	}
@@ -210,7 +214,9 @@ std::string getFileNameWithoutExtension(const std::string& path)
 		// from the file name - remove the extension (the part after the ".")
 		i = path.rfind('.', path.length());
 		if (i != std::string::npos)
+		{
 			return path.substr(0, i);
+		}
 
 		// filename doesn't have an extension
 		return path;
@@ -376,7 +382,9 @@ int main(int argc, char* argv[])
 	if (filter != "")
 	{
 		if (!reader->setFilter(filter))
+		{
 			EXIT_WITH_ERROR("Couldn't set filter '" << filter << "'");
+		}
 	}
 
 	std::cout << "Started..." << std::endl;
@@ -423,7 +431,9 @@ int main(int argc, char* argv[])
 
 			// open the writer
 			if (!outputFiles[fileNum]->open())
+			{
 				break;
+			}
 
 			numOfFiles++;
 		}
@@ -450,7 +460,9 @@ int main(int argc, char* argv[])
 
 			// open the writer in __append__ mode
 			if (!outputFiles[fileNum]->open(true))
+			{
 				break;
+			}
 		}
 
 		// write the packet to the writer

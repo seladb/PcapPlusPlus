@@ -11,7 +11,9 @@ namespace pcpp
 	Layer::~Layer()
 	{
 		if (!isAllocatedToPacket())
+		{
 			delete[] m_Data;
+		}
 	}
 
 	Layer::Layer(const Layer& other)
@@ -26,10 +28,14 @@ namespace pcpp
 	Layer& Layer::operator=(const Layer& other)
 	{
 		if (this == &other)
+		{
 			return *this;
+		}
 
 		if (m_Data != nullptr)
+		{
 			delete[] m_Data;
+		}
 
 		m_DataLen = other.getHeaderLen();
 		m_Packet = nullptr;

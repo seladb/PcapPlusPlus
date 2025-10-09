@@ -53,19 +53,33 @@ public:
 	{
 		PacketCount++;
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			EthCount++;
+		}
 		if (packet.isPacketOfType(pcpp::ARP))
+		{
 			ArpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			Ip4Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			Ip6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			TcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			UdpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::HTTP))
+		{
 			HttpCount++;
+		}
 	}
 
 	void collectStats(const PacketStats& stats)
@@ -104,9 +118,13 @@ public:
 	{
 		std::stringstream values;
 		if (ThreadId == MAX_NUM_OF_CORES + 1)
+		{
 			values << "Total" << delimiter;
+		}
 		else
+		{
 			values << (int)ThreadId << delimiter;
+		}
 		values << PacketCount << delimiter;
 		values << EthCount << delimiter;
 		values << ArpCount << delimiter;

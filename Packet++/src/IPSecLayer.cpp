@@ -38,7 +38,9 @@ namespace pcpp
 	{
 		size_t icvLength = getICVLength();
 		if (icvLength > 0)
+		{
 			return m_Data + sizeof(ipsec_authentication_header);
+		}
 		return nullptr;
 	}
 
@@ -46,7 +48,9 @@ namespace pcpp
 	{
 		uint8_t* bytes = getICVBytes();
 		if (bytes == nullptr)
+		{
 			return "";
+		}
 
 		return byteArrayToHexString(bytes, getICVLength());
 	}
@@ -55,7 +59,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
@@ -76,11 +82,17 @@ namespace pcpp
 		{
 			uint8_t ipVersion = *payload >> 4;
 			if (ipVersion == 4 && IPv4Layer::isDataValid(payload, payloadLen))
+			{
 				m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+			}
 			else if (ipVersion == 6 && IPv6Layer::isDataValid(payload, payloadLen))
+			{
 				m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
+			}
 			else
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 			break;
 		}
 		case PACKETPP_IPPROTO_ESP:
@@ -116,7 +128,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	}

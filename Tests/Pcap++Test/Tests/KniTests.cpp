@@ -173,7 +173,9 @@ PTF_TEST_CASE(TestKniDevice)
 		pcpp::KniDevice::KniLinkState linkState = device->getLinkState(pcpp::KniDevice::INFO_RENEW);
 		PTF_ASSERT_TRUE(linkState == pcpp::KniDevice::LINK_DOWN || linkState == pcpp::KniDevice::LINK_UP);
 		if (linkState == pcpp::KniDevice::LINK_DOWN)
+		{
 			isLinkUp = false;
+		}
 	}
 	{
 		pcpp::MacAddress mac = device->getMacAddress();
@@ -449,7 +451,9 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		while (fileReaderDev.getNextPacket(rawPacket))
 		{
 			if (packetsRead == 100)
+			{
 				break;
+			}
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			sendRawPacketVec.pushBack(newRawPacket);
 			pcpp::Packet* newPacket = new pcpp::Packet(newRawPacket, false);

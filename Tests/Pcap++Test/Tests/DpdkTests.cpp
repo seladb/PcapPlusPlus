@@ -61,7 +61,9 @@ int incSleep(int maxSleepTime, int minPacketCount, const DpdkPacketData& packetD
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 		if (packetData.PacketCount > minPacketCount)
+		{
 			break;
+		}
 	}
 
 	return totalSleepTime;
@@ -80,14 +82,20 @@ int incSleepMultiThread(int maxSleepTime, DpdkPacketData packetData[], int total
 		for (int i = 0; i < totalNumOfCores; i++)
 		{
 			if ((pcpp::SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
+			{
 				continue;
+			}
 
 			if (packetData[i].PacketCount > 0)
+			{
 				coresWithPacketCountNotZero++;
+			}
 		}
 
 		if (coresWithPacketCountNotZero >= numOfCoresInUse)
+		{
 			break;
+		}
 	}
 
 	return totalSleepTime;
@@ -105,19 +113,33 @@ void dpdkPacketsArrive(pcpp::MBufRawPacket* packets, uint32_t numOfPackets, uint
 	{
 		pcpp::Packet packet(&packets[i]);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			data->EthCount++;
+		}
 		if (packet.isPacketOfType(pcpp::ARP))
+		{
 			data->ArpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			data->Ip4Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			data->Ip6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			data->TcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			data->UdpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::HTTP))
+		{
 			data->HttpCount++;
+		}
 	}
 }
 
@@ -133,13 +155,21 @@ void dpdkPacketsArriveMultiThread(pcpp::MBufRawPacket* packets, uint32_t numOfPa
 	{
 		pcpp::Packet packet(&packets[i]);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			data[threadId].EthCount++;
+		}
 		if (packet.isPacketOfType(pcpp::ARP))
+		{
 			data[threadId].ArpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			data[threadId].Ip4Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			data[threadId].Ip6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
 			data[threadId].TcpCount++;
@@ -159,7 +189,9 @@ void dpdkPacketsArriveMultiThread(pcpp::MBufRawPacket* packets, uint32_t numOfPa
 			}
 		}
 		if (packet.isPacketOfType(pcpp::HTTP))
+		{
 			data[threadId].HttpCount++;
+		}
 	}
 }
 
@@ -230,7 +262,9 @@ public:
 		for (int i = 0; i < 32; i++)
 		{
 			if (mBufArr[i] != nullptr)
+			{
 				delete mBufArr[i];
+			}
 		}
 
 		m_RanAndStopped = true;
@@ -389,7 +423,9 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	int numOfRxQueuesToOpen =
 	    pcpp::getNumOfCores() - 1;  // using num of cores minus one since 1 core is the master core and cannot be used
 	if (dev->getTotalNumOfRxQueues() < numOfRxQueuesToOpen)
+	{
 		numOfRxQueuesToOpen = dev->getTotalNumOfRxQueues();
+	}
 
 	// verify num of RX queues is power of 2 due to DPDK limitation
 	bool isRxQueuePowerOfTwo = !(numOfRxQueuesToOpen == 0) && !(numOfRxQueuesToOpen & (numOfRxQueuesToOpen - 1));
@@ -431,7 +467,9 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	for (int coreId = 0; coreId < pcpp::getNumOfCores(); coreId++)
 	{
 		if (numOfCoresInUse == numOfRxQueuesToOpen)
+		{
 			break;
+		}
 
 		if (coreId != masterCore.Id)
 		{
@@ -450,7 +488,9 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	for (int i = 0; i < pcpp::getNumOfCores(); i++)
 	{
 		if ((pcpp::SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
+		{
 			continue;
+		}
 
 		PTF_PRINT_VERBOSE("Thread ID: " << packetDataMultiThread[i].ThreadId);
 		PTF_PRINT_VERBOSE("Total packets captured: " << packetDataMultiThread[i].PacketCount);
@@ -482,12 +522,16 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	for (int firstCoreId = 0; firstCoreId < pcpp::getNumOfCores(); firstCoreId++)
 	{
 		if ((pcpp::SystemCores::IdToSystemCore[firstCoreId].Mask & coreMask) == 0)
+		{
 			continue;
+		}
 
 		for (int secondCoreId = firstCoreId + 1; secondCoreId < pcpp::getNumOfCores(); secondCoreId++)
 		{
 			if ((pcpp::SystemCores::IdToSystemCore[secondCoreId].Mask & coreMask) == 0)
+			{
 				continue;
+			}
 
 			std::unordered_map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector>> res;
 			intersectMaps<uint32_t, pcpp::RawPacketVector, pcpp::RawPacketVector>(
@@ -569,7 +613,9 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 	while (fileReaderDev.getNextPacket(rawPacket))
 	{
 		if (packetsRead == 100)
+		{
 			break;
+		}
 
 		pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 		rawPacketVec.pushBack(newRawPacket);
@@ -672,7 +718,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 			++rxQueueId;
 		}
 		if (isPacketRecvd)
+		{
 			break;
+		}
 
 		numOfAttempts++;
 	}
@@ -700,7 +748,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 			++rxQueueId;
 		}
 		if (isPacketRecvd)
+		{
 			break;
+		}
 		numOfAttempts++;
 	}
 
@@ -711,7 +761,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	for (int i = 0; i < 32; i++)
 	{
 		if (mBufRawPacketArr[i] != nullptr)
+		{
 			delete mBufRawPacketArr[i];
+		}
 	}
 
 	// receive packets to packet array
@@ -733,7 +785,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 			++rxQueueId;
 		}
 		if (isPacketRecvd)
+		{
 			break;
+		}
 		numOfAttempts++;
 	}
 
@@ -743,7 +797,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	for (int i = 0; i < 32; i++)
 	{
 		if (packetArr[i] != nullptr)
+		{
 			delete packetArr[i];
+		}
 	}
 
 	// test worker threads
@@ -756,7 +812,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	{
 		pcpp::SystemCore core = pcpp::SystemCores::IdToSystemCore[i];
 		if (core == pcpp::DpdkDeviceList::getInstance().getDpdkMasterCore())
+		{
 			continue;
+		}
 		DpdkTestWorkerThread* newWorkerThread = new DpdkTestWorkerThread();
 		int queueId = core.Id % numOfRxQueues;
 		PTF_PRINT_VERBOSE("Assigning queue #" << queueId << " to core " << core.Id);
@@ -798,7 +856,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 		if (stats.aggregatedRxStats.packets > curPackets)
+		{
 			break;
+		}
 		numOfAttempts++;
 	}
 
@@ -860,19 +920,29 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 		pcpp::MBufRawPacket mBufRawPacket;
 		PTF_ASSERT_TRUE(mBufRawPacket.init(dev));
 		if (!(reader.getNextPacket(mBufRawPacket)))
+		{
 			break;
+		}
 
 		numOfPackets++;
 
 		pcpp::Packet packet(&mBufRawPacket);
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			ip6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::VLAN))
+		{
 			vlanCount++;
+		}
 
 		if (numOfPackets < 100)
 		{
@@ -913,7 +983,9 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 		}
 
 		if (foundTcpOrUdpPacket)
+		{
 			break;
+		}
 
 		numOfAttempts++;
 	}
@@ -1000,11 +1072,17 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 		{
 			int randomChar = rand() % (26 + 26 + 10);
 			if (randomChar < 26)
+			{
 				name[j] = 'a' + randomChar;
+			}
 			else if (randomChar < 26 + 26)
+			{
 				name[j] = 'A' + randomChar - 26;
+			}
 			else
+			{
 				name[j] = '0' + randomChar - 26 - 26;
+			}
 		}
 		name[nameLength] = 0;
 

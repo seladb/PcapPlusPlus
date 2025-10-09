@@ -228,7 +228,9 @@ namespace pcpp
 			{
 				size_t dataSize = getDataSize();
 				if (dataSize < 1)
+				{
 					return "";
+				}
 
 				return std::string(reinterpret_cast<const char*>(m_Data->recordValue), dataSize);
 			}

@@ -203,7 +203,9 @@ namespace pcpp
 	bool DoIpLayer::isDataValid(uint8_t* data, size_t dataLen)
 	{
 		if (data == nullptr || dataLen < DOIP_HEADER_LEN)
+		{
 			return false;
+		}
 
 		auto* doipHeader = reinterpret_cast<doiphdr*>(data);
 		const uint8_t version = doipHeader->protocolVersion;
@@ -212,14 +214,20 @@ namespace pcpp
 		const uint32_t lengthRaw = doipHeader->payloadLength;
 
 		if (!isPayloadTypeValid(be16toh(payloadTypeRaw)))
+		{
 			return false;
+		}
 		// if payload type is validated, we ensure passing a valid type to isProtocolVersionValid()
 		const DoIpPayloadTypes payloadType = static_cast<DoIpPayloadTypes>(be16toh(payloadTypeRaw));
 		if (!isProtocolVersionValid(version, inVersion, payloadType))
+		{
 			return false;
+		}
 
 		if (!isPayloadLengthValid(be32toh(lengthRaw), dataLen))
+		{
 			return false;
+		}
 
 		return true;
 	}
@@ -594,11 +602,15 @@ namespace pcpp
 	DoIpSyncStatus DoIpVehicleAnnouncementMessage::getSyncStatus() const
 	{
 		if (!hasSyncStatus())
+		{
 			throw std::runtime_error("Sync status field not present!");
+		}
 
 		uint8_t syncStatus = *(m_Data + SYNC_STATUS_OFFSET);
 		if (syncStatus <= static_cast<uint8_t>(DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED))
+		{
 			return static_cast<DoIpSyncStatus>(syncStatus);
+		}
 
 		return DoIpSyncStatus::UNKNOWN;
 	}
@@ -714,7 +726,9 @@ namespace pcpp
 	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationRequest::getReservedOem() const
 	{
 		if (!hasReservedOem())
+		{
 			throw std::runtime_error("Reserved OEM field not present!");
+		}
 
 		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
 		memcpy(reservedOem.data(), m_Data + RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
@@ -761,8 +775,10 @@ namespace pcpp
 		oss << "Reserved by ISO: " << pcpp::byteArrayToHexString(getReservedIso().data(), DOIP_RESERVED_ISO_LEN)
 		    << "\n";
 		if (hasReservedOem())
+		{
 			oss << "Reserved by OEM: " << pcpp::byteArrayToHexString(getReservedOem().data(), DOIP_RESERVED_OEM_LEN)
 			    << '\n';
+		}
 
 		return oss.str();
 	}
@@ -836,7 +852,9 @@ namespace pcpp
 	std::array<uint8_t, DOIP_RESERVED_OEM_LEN> DoIpRoutingActivationResponse::getReservedOem() const
 	{
 		if (!hasReservedOem())
+		{
 			throw std::runtime_error("Reserved OEM field not present!");
+		}
 
 		std::array<uint8_t, DOIP_RESERVED_OEM_LEN> reservedOem;
 		memcpy(reservedOem.data(), m_Data + RESERVED_OEM_OFFSET, DOIP_RESERVED_OEM_LEN);
@@ -884,8 +902,10 @@ namespace pcpp
 		oss << "Reserved by ISO: " << pcpp::byteArrayToHexString(getReservedIso().data(), DOIP_RESERVED_ISO_LEN)
 		    << "\n";
 		if (hasReservedOem())
+		{
 			oss << "Reserved by OEM: " << pcpp::byteArrayToHexString(getReservedOem().data(), DOIP_RESERVED_OEM_LEN)
 			    << "\n";
+		}
 
 		return oss.str();
 	}
@@ -976,7 +996,9 @@ namespace pcpp
 	uint32_t DoIpEntityStatusResponse::getMaxDataSize() const
 	{
 		if (!hasMaxDataSize())
+		{
 			throw std::runtime_error("MaxDataSize field not present!");
+		}
 
 		uint32_t value;
 		std::memcpy(&value, m_Data + MAX_DATA_SIZE_OFFSET, MAX_DATA_SIZE_LEN);
@@ -1199,7 +1221,9 @@ namespace pcpp
 	std::vector<uint8_t> DoIpDiagnosticResponseMessageBase::getPreviousMessage() const
 	{
 		if (!hasPreviousMessage())
+		{
 			return {};
+		}
 
 		const uint8_t* dataPtr = m_Data + PREVIOUS_MSG_OFFSET;
 		return std::vector<uint8_t>(dataPtr, dataPtr + (m_DataLen - PREVIOUS_MSG_OFFSET));

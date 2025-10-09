@@ -95,7 +95,9 @@ namespace pcpp
 	TLVRecordBuilder::~TLVRecordBuilder()
 	{
 		if (m_RecValue != nullptr)
+		{
 			delete[] m_RecValue;
+		}
 	}
 
 	void TLVRecordBuilder::init(uint32_t recType, const uint8_t* recValue, size_t recValueLen)
@@ -104,9 +106,13 @@ namespace pcpp
 		m_RecValueLen = recValueLen;
 		m_RecValue = new uint8_t[recValueLen];
 		if (recValue != nullptr)
+		{
 			memcpy(m_RecValue, recValue, recValueLen);
+		}
 		else
+		{
 			memset(m_RecValue, 0, recValueLen);
+		}
 	}
 
 }  // namespace pcpp

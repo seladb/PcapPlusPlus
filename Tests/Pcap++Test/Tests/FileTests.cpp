@@ -49,15 +49,25 @@ PTF_TEST_CASE(TestPcapFileReadWrite)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::SLL))
+		{
 			sllCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ipCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 
 		PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
 	}
@@ -239,15 +249,25 @@ PTF_TEST_CASE(TestPcapSllFileReadWrite)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::SLL))
+		{
 			sllCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ipCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 
 		PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
 	}
@@ -291,9 +311,13 @@ PTF_TEST_CASE(TestPcapSll2FileReadWrite)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::SLL2))
+		{
 			sll2Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IP))
+		{
 			ipCount++;
+		}
 
 		if (canOpenWriterDevice)
 		{
@@ -347,15 +371,25 @@ PTF_TEST_CASE(TestPcapRawIPFileReadWrite)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ipv4Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			ipv6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 
 		writerDev.writePacket(rawPacket);
 		writerNgDev.writePacket(rawPacket);
@@ -418,7 +452,9 @@ PTF_TEST_CASE(TestPcapFileAppend)
 	int counter = 0;
 	pcpp::RawPacket rawPacket;
 	while (readerDev.getNextPacket(rawPacket))
+	{
 		counter++;
+	}
 
 	PTF_ASSERT_EQUAL(counter, (4631 * 5));
 
@@ -461,23 +497,39 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 
 		pcpp::LinkLayerType linkType = rawPacket.getLinkLayerType();
 		if (linkType == pcpp::LINKTYPE_ETHERNET)
+		{
 			ethLinkLayerCount++;
+		}
 		else if (linkType == pcpp::LINKTYPE_NULL)
+		{
 			nullLinkLayerCount++;
+		}
 		else
+		{
 			otherLinkLayerCount++;
+		}
 
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::NULL_LOOPBACK))
+		{
 			nullLoopbackCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ipCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 
 		PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
 		PTF_ASSERT_TRUE(writerCompressDev.writePacket(rawPacket));
@@ -565,23 +617,39 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 		packetCount++;
 
 		if (rawPacket.getRawDataLen() != rawPacket.getFrameLength())
+		{
 			capLenNotMatchOrigLen++;
+		}
 
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::SLL))
+		{
 			sllCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ip4Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			ip6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::HTTP))
+		{
 			httpCount++;
+		}
 
 		if (pktComment != "")
 		{
@@ -657,19 +725,33 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::SLL))
+		{
 			sllCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ip4Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			ip6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::HTTP))
+		{
 			httpCount++;
+		}
 
 		if (pktComment != "")
 		{
@@ -826,9 +908,13 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	{
 		filteredReadPacketCount++;
 		if (writerDev2.writePacket(rawPacket))
+		{
 			filteredWritePacketCount++;
+		}
 		if (writerCompressDev2.writePacket(rawPacket))
+		{
 			filteredCompressWritePacketCount++;
+		}
 	}
 
 	PTF_ASSERT_EQUAL(filteredReadPacketCount, 14);
@@ -877,13 +963,21 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			ipCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 	}
 
 	pcpp::IPcapDevice::PcapStats readerStatistics;
@@ -920,13 +1014,21 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ipCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 	}
 
 	pcpp::IPcapDevice::PcapStats readerStatistics;
@@ -963,15 +1065,25 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::EthernetDot3))
+		{
 			ethDot3Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ipCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 		timeStamps.push_back(rawPacket.getPacketTimeStamp());
 	}
 

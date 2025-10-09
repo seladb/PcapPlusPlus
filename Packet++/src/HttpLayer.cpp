@@ -84,7 +84,9 @@ namespace pcpp
 		HttpMessage::operator=(other);
 
 		if (m_FirstLine != nullptr)
+		{
 			delete m_FirstLine;
+		}
 
 		m_FirstLine = new HttpRequestFirstLine(this);
 
@@ -95,7 +97,9 @@ namespace pcpp
 	{
 		HeaderField* hostField = getFieldByName(PCPP_HTTP_HOST_FIELD);
 		if (hostField == nullptr)
+		{
 			return m_FirstLine->getUri();
+		}
 
 		return hostField->getFieldValue() + m_FirstLine->getUri();
 	}
@@ -346,7 +350,9 @@ namespace pcpp
 		}
 
 		if (lengthDifference != 0)
+		{
 			m_HttpRequest->shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
+		}
 
 		memcpy(m_HttpRequest->m_Data, MethodEnumToString[newMethod].c_str(), MethodEnumToString[newMethod].length());
 
@@ -361,7 +367,9 @@ namespace pcpp
 	{
 		std::string result;
 		if (m_UriOffset != -1 && m_VersionOffset != -1)
+		{
 			result.assign((const char*)m_HttpRequest->m_Data + m_UriOffset, m_VersionOffset - 6 - m_UriOffset);
+		}
 
 		// else first line is illegal, return empty string
 
@@ -372,7 +380,9 @@ namespace pcpp
 	{
 		// make sure the new URI begins with "/"
 		if (newUri.compare(0, 1, "/") != 0)
+		{
 			newUri = "/" + newUri;
+		}
 
 		// extend or shorten layer
 		std::string currentUri = getUri();
@@ -395,7 +405,9 @@ namespace pcpp
 		}
 
 		if (lengthDifference != 0)
+		{
 			m_HttpRequest->shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
+		}
 
 		memcpy(m_HttpRequest->m_Data + m_UriOffset, newUri.c_str(), newUri.length());
 
@@ -407,10 +419,14 @@ namespace pcpp
 	void HttpRequestFirstLine::setVersion(HttpVersion newVersion)
 	{
 		if (m_VersionOffset == -1)
+		{
 			return;
+		}
 
 		if (newVersion == HttpVersionUnknown)
+		{
 			return;
+		}
 
 		char* verPos = (char*)(m_HttpRequest->m_Data + m_VersionOffset);
 		memcpy(verPos, VersionEnumToString[newVersion].c_str(), 3);
@@ -700,7 +716,9 @@ namespace pcpp
 		HttpMessage::operator=(other);
 
 		if (m_FirstLine != nullptr)
+		{
 			delete m_FirstLine;
+		}
 
 		m_FirstLine = new HttpResponseFirstLine(this);
 
@@ -719,7 +737,9 @@ namespace pcpp
 			contentLengthField = insertField(prevField, PCPP_HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString.str());
 		}
 		else
+		{
 			contentLengthField->setFieldValue(contentLengthAsString.str());
+		}
 
 		return contentLengthField;
 	}
@@ -731,7 +751,9 @@ namespace pcpp
 		               ::tolower);
 		HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
 		if (contentLengthField != nullptr)
+		{
 			return atoi(contentLengthField->getFieldValue().c_str());
+		}
 		return 0;
 	}
 
@@ -819,7 +841,9 @@ namespace pcpp
 		}
 
 		if (lengthDifference != 0)
+		{
 			m_HttpResponse->shiftFieldsOffset(m_HttpResponse->getFirstField(), lengthDifference);
+		}
 
 		// copy status string
 		memcpy(m_HttpResponse->m_Data + statusStringOffset, newStatusCodeMessage.c_str(),
@@ -838,7 +862,9 @@ namespace pcpp
 	void HttpResponseFirstLine::setVersion(HttpVersion newVersion)
 	{
 		if (newVersion == HttpVersionUnknown)
+		{
 			return;
+		}
 
 		char* verPos = (char*)(m_HttpResponse->m_Data + 5);
 		memcpy(verPos, VersionEnumToString[newVersion].c_str(), 3);

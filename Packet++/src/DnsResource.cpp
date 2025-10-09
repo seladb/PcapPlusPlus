@@ -14,7 +14,9 @@ namespace pcpp
 		char decodedName[4096];
 		m_NameLength = decodeName((const char*)getRawData(), decodedName);
 		if (m_NameLength > 0)
+		{
 			m_DecodedName = decodedName;
+		}
 	}
 
 	IDnsResource::IDnsResource(uint8_t* emptyRawData)
@@ -25,7 +27,9 @@ namespace pcpp
 	uint8_t* IDnsResource::getRawData() const
 	{
 		if (m_DnsLayer == nullptr)
+		{
 			return m_ExternalRawData;
+		}
 
 		return m_DnsLayer->m_Data + m_OffsetInLayer;
 	}
@@ -57,7 +61,9 @@ namespace pcpp
 
 		size_t curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
 		if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
+		{
 			return encodedNameLength;
+		}
 
 		if (iteration > 20)
 		{
@@ -73,7 +79,9 @@ namespace pcpp
 			if ((wordLength & 0xc0) == 0xc0)
 			{
 				if (curOffsetInLayer + 2 > m_DnsLayer->m_DataLen || encodedNameLength > 255)
+				{
 					return cleanup(resultPtr, result, encodedNameLength);
+				}
 
 				uint16_t offsetInLayer =
 				    (wordLength & 0x3f) * 256 + (0xFF & encodedName[1]) + m_DnsLayer->m_OffsetAdjustment;

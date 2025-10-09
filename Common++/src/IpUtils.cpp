@@ -189,7 +189,9 @@ static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	 */
 	memset(words, '\0', sizeof words);
 	for (i = 0; i < NS_IN6ADDRSZ; i++)
+	{
 		words[i / 2] |= (src[i] << ((1 - (i % 2)) << 3));
+	}
 	best.base = -1;
 	best.len = 0;
 	cur.base = -1;
@@ -199,16 +201,22 @@ static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 		if (words[i] == 0)
 		{
 			if (cur.base == -1)
+			{
 				cur.base = i, cur.len = 1;
+			}
 			else
+			{
 				cur.len++;
+			}
 		}
 		else
 		{
 			if (cur.base != -1)
 			{
 				if (best.base == -1 || cur.len > best.len)
+				{
 					best = cur;
+				}
 				cur.base = -1;
 			}
 		}
@@ -216,10 +224,14 @@ static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	if (cur.base != -1)
 	{
 		if (best.base == -1 || cur.len > best.len)
+		{
 			best = cur;
+		}
 	}
 	if (best.base != -1 && best.len < 2)
+	{
 		best.base = -1;
+	}
 
 	/*
 	 * Format the result.
@@ -231,17 +243,23 @@ static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 		if (best.base != -1 && i >= best.base && i < (best.base + best.len))
 		{
 			if (i == best.base)
+			{
 				*tp++ = ':';
+			}
 			continue;
 		}
 		/* Are we following an initial run of 0x00s or any real hex? */
 		if (i != 0)
+		{
 			*tp++ = ':';
+		}
 		/* Is this address an encapsulated IPv4? */
 		if (i == 6 && best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
 		{
 			if (!inet_ntop4(src + 12, tp, sizeof tmp - (tp - tmp)))
+			{
 				return (nullptr);
+			}
 			tp += strlen(tp);
 			break;
 		}
@@ -249,7 +267,9 @@ static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	}
 	/* Was it a trailing run of 0x00's? */
 	if (best.base != -1 && (best.base + best.len) == (NS_IN6ADDRSZ / NS_INT16SZ))
+	{
 		*tp++ = ':';
+	}
 	*tp++ = '\0';
 
 	/*
@@ -291,27 +311,37 @@ static int inet_pton4(const char* src, uint8_t* dst)
 			size_t newSize = *tp * 10 + (pch - digits);
 
 			if (newSize > 255)
+			{
 				return (0);
+			}
 			*tp = (u_char)newSize;
 			if (!saw_digit)
 			{
 				if (++octets > 4)
+				{
 					return (0);
+				}
 				saw_digit = 1;
 			}
 		}
 		else if (ch == '.' && saw_digit)
 		{
 			if (octets == 4)
+			{
 				return (0);
+			}
 			*++tp = 0;
 			saw_digit = 0;
 		}
 		else
+		{
 			return (0);
+		}
 	}
 	if (octets < 4)
+	{
 		return (0);
+	}
 	memcpy(dst, tmp, NS_INADDRSZ);
 	return (1);
 }
@@ -342,8 +372,12 @@ static int inet_pton6(const char* src, uint8_t* dst)
 	colonp = nullptr;
 	/* Leading :: requires some special handling. */
 	if (*src == ':')
+	{
 		if (*++src != ':')
+		{
 			return (0);
+		}
+	}
 	curtok = src;
 	saw_xdigit = 0;
 	val = 0;
@@ -352,13 +386,17 @@ static int inet_pton6(const char* src, uint8_t* dst)
 		const char *pch, *xdigits;
 
 		if ((pch = strchr((xdigits = xdigits_l), ch)) == nullptr)
+		{
 			pch = strchr((xdigits = xdigits_u), ch);
+		}
 		if (pch != nullptr)
 		{
 			val <<= 4;
 			val |= (pch - xdigits);
 			if (val > 0xffff)
+			{
 				return (0);
+			}
 			saw_xdigit = 1;
 			continue;
 		}
@@ -368,7 +406,9 @@ static int inet_pton6(const char* src, uint8_t* dst)
 			if (!saw_xdigit)
 			{
 				if (colonp)
+				{
 					return (0);
+				}
 				colonp = tp;
 				continue;
 			}
@@ -377,7 +417,9 @@ static int inet_pton6(const char* src, uint8_t* dst)
 				return (0);
 			}
 			if (tp + NS_INT16SZ > endp)
+			{
 				return (0);
+			}
 			*tp++ = (u_char)(val >> 8) & 0xff;
 			*tp++ = (u_char)val & 0xff;
 			saw_xdigit = 0;
@@ -395,7 +437,9 @@ static int inet_pton6(const char* src, uint8_t* dst)
 	if (saw_xdigit)
 	{
 		if (tp + NS_INT16SZ > endp)
+		{
 			return (0);
+		}
 		*tp++ = (u_char)(val >> 8) & 0xff;
 		*tp++ = (u_char)val & 0xff;
 	}
@@ -409,7 +453,9 @@ static int inet_pton6(const char* src, uint8_t* dst)
 		int i;
 
 		if (tp == endp)
+		{
 			return (0);
+		}
 		for (i = 1; i <= n; i++)
 		{
 			endp[-i] = colonp[n - i];
@@ -418,7 +464,9 @@ static int inet_pton6(const char* src, uint8_t* dst)
 		tp = endp;
 	}
 	if (tp != endp)
+	{
 		return (0);
+	}
 	memcpy(dst, tmp, NS_IN6ADDRSZ);
 	return (1);
 }

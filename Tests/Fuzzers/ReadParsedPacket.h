@@ -68,7 +68,9 @@ static void readParsedPacket(pcpp::Packet parsedPacket, pcpp::Layer* layer)
 			{
 				auto opts = someipLayer->getOptionsFromEntry(0);
 				for (auto opt : opts)
+				{
 					delete opt;
+				}
 			}
 
 			for (auto entry : entries)
@@ -246,9 +248,13 @@ static void readParsedPacket(pcpp::Packet parsedPacket, pcpp::Layer* layer)
 					clientHelloMessage->getCipherSuiteID(i, valid);
 				}
 				if (auto ext = clientHelloMessage->getExtensionOfType<pcpp::SSLServerNameIndicationExtension>())
+				{
 					ext->getHostName();
+				}
 				if (auto ext = clientHelloMessage->getExtensionOfType<pcpp::SSLSupportedVersionsExtension>())
+				{
 					ext->getSupportedVersions();
+				}
 
 				clientHelloMessage->getExtensionOfType(pcpp::SSL_EXT_SERVER_NAME);
 				clientHelloMessage->getExtensionOfType((uint16_t)0);

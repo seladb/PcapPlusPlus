@@ -139,13 +139,19 @@ namespace pcpp
 	uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 	{
 		if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
+		{
 			return 0;
+		}
 
 		if (packet->isPacketOfType(ICMP))
+		{
 			return 0;
+		}
 
 		if (!(packet->isPacketOfType(TCP)) && (!packet->isPacketOfType(UDP)))
+		{
 			return 0;
+		}
 
 		ScalarBuffer<uint8_t> vec[5];
 
@@ -169,7 +175,9 @@ namespace pcpp
 		if (!directionUnique)
 		{
 			if (portDst < portSrc)
+			{
 				srcPosition = 1;
+			}
 		}
 
 		vec[0 + srcPosition].buffer = reinterpret_cast<uint8_t*>(&portSrc);
@@ -182,7 +190,9 @@ namespace pcpp
 		{
 			if (!directionUnique && portSrc == portDst &&
 			    ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
+			{
 				srcPosition = 1;
+			}
 
 			vec[2 + srcPosition].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipSrc);
 			vec[2 + srcPosition].len = 4;
@@ -196,7 +206,9 @@ namespace pcpp
 			IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
 			if (!directionUnique && portSrc == portDst &&
 			    memcmp(ipv6Layer->getIPv6Header()->ipDst, ipv6Layer->getIPv6Header()->ipSrc, 16) < 0)
+			{
 				srcPosition = 1;
+			}
 
 			vec[2 + srcPosition].buffer = ipv6Layer->getIPv6Header()->ipSrc;
 			vec[2 + srcPosition].len = 16;
@@ -212,7 +224,9 @@ namespace pcpp
 	uint32_t hash2Tuple(Packet* packet)
 	{
 		if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
+		{
 			return 0;
+		}
 
 		ScalarBuffer<uint8_t> vec[2];
 
@@ -221,7 +235,9 @@ namespace pcpp
 		{
 			int srcPosition = 0;
 			if (ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
+			{
 				srcPosition = 1;
+			}
 
 			vec[0 + srcPosition].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipSrc);
 			vec[0 + srcPosition].len = 4;
@@ -233,7 +249,9 @@ namespace pcpp
 			IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
 			int srcPosition = 0;
 			if (memcmp(ipv6Layer->getIPv6Header()->ipDst, ipv6Layer->getIPv6Header()->ipSrc, 16) < 0)
+			{
 				srcPosition = 1;
+			}
 
 			vec[0 + srcPosition].buffer = ipv6Layer->getIPv6Header()->ipSrc;
 			vec[0 + srcPosition].len = 16;

@@ -391,7 +391,9 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	ipListValue.push_back(pcpp::IPv4Address("10.0.0.138"));
 	ipListValue.push_back(pcpp::IPv4Address("10.0.0.138"));
 	for (int i = 0; i < 6; i++)
+	{
 		ipListValue.push_back(pcpp::IPv4Address::Zero);
+	}
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RecordRoute, ipListValue)).isNull());
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, nullptr, 0)).isNull());
 	ipOpt4.computeCalculateFields();

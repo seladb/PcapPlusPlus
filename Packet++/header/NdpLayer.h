@@ -45,7 +45,9 @@ namespace pcpp
 		NDPNeighborOptionTypes getNdpOptionType() const
 		{
 			if (m_Data == nullptr)
+			{
 				return NDPNeighborOptionTypes::NDP_OPTION_UNKNOWN;
+			}
 
 			return static_cast<NDPNeighborOptionTypes>(m_Data->recordType);
 		}
@@ -55,7 +57,9 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) * 8;
 		}

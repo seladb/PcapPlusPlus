@@ -35,21 +35,37 @@ struct PacketStats
 	void consumePacket(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethPacketCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ipv4PacketCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			ipv6PacketCount++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpPacketCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpPacketCount++;
+		}
 		if (packet.isPacketOfType(pcpp::DNS))
+		{
 			dnsPacketCount++;
+		}
 		if (packet.isPacketOfType(pcpp::HTTP))
+		{
 			httpPacketCount++;
+		}
 		if (packet.isPacketOfType(pcpp::SSL))
+		{
 			sslPacketCount++;
+		}
 	}
 
 	/**

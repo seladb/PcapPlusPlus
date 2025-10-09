@@ -481,7 +481,9 @@ PTF_TEST_CASE(TestGetMacAddress)
 		}
 
 		if (ipAddr == liveDev->getIPv4Address())
+		{
 			continue;
+		}
 
 		foundValidIpAddr = true;
 		pcpp::Logger::getInstance().suppressLogs();
@@ -490,12 +492,16 @@ PTF_TEST_CASE(TestGetMacAddress)
 		{
 			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
 			if (result != pcpp::MacAddress::Zero)
+			{
 				break;
+			}
 		}
 
 		pcpp::Logger::getInstance().enableLogs();
 		if (result != pcpp::MacAddress::Zero)
+		{
 			break;
+		}
 	}
 
 	if (foundValidIpAddr)

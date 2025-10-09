@@ -282,14 +282,20 @@ namespace pcpp
 		{
 			const auto* data = reinterpret_cast<const TLVRawData*>(recordRawData);
 			if (data == nullptr)
+			{
 				return false;
+			}
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
+			{
 				return false;
+			}
 
 			const auto recordType = getTcpOptionEnumType(data);
 			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
+			{
 				return true;
+			}
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 		}
@@ -299,11 +305,15 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			const auto recordType = getTcpOptionEnumType(m_Data);
 			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
+			{
 				return sizeof(uint8_t);
+			}
 
 			return static_cast<size_t>(m_Data->recordLen);
 		}
@@ -311,11 +321,15 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			const auto recordType = getTcpOptionEnumType(m_Data);
 			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) - (2 * sizeof(uint8_t));
 		}
@@ -324,7 +338,9 @@ namespace pcpp
 		static TcpOptionType getTcpOptionType(const TLVRawData* optionRawData)
 		{
 			if (optionRawData == nullptr)
+			{
 				return TcpOptionType::TCPOPT_Unknown;
+			}
 
 			return static_cast<TcpOptionType>(optionRawData->recordType);
 		}
@@ -332,7 +348,9 @@ namespace pcpp
 		static TcpOptionEnumType getTcpOptionEnumType(const TLVRawData* optionRawData)
 		{
 			if (optionRawData == nullptr)
+			{
 				return TcpOptionEnumType::Unknown;
+			}
 
 			return static_cast<TcpOptionEnumType>(optionRawData->recordType);
 		}

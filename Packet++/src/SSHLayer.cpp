@@ -19,11 +19,15 @@ namespace pcpp
 	{
 		SSHIdentificationMessage* sshIdnetMsg = SSHIdentificationMessage::tryParse(data, dataLen, prevLayer, packet);
 		if (sshIdnetMsg != nullptr)
+		{
 			return sshIdnetMsg;
+		}
 
 		SSHHandshakeMessage* sshHandshakeMessage = SSHHandshakeMessage::tryParse(data, dataLen, prevLayer, packet);
 		if (sshHandshakeMessage != nullptr)
+		{
 			return sshHandshakeMessage;
+		}
 
 		return new SSHEncryptedMessage(data, dataLen, prevLayer, packet);
 	}
@@ -32,7 +36,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 		m_NextLayer = SSHLayer::createSSHMessage(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	}
 
@@ -45,11 +51,15 @@ namespace pcpp
 	{
 		// Payload must be at least as long as the string "SSH-"
 		if (dataLen < 5)
+		{
 			return nullptr;
+		}
 
 		// Payload must begin with "SSH-" and end with "\n"
 		if (data[0] == 0x53 && data[1] == 0x53 && data[2] == 0x48 && data[3] == 0x2d && data[dataLen - 1] == 0x0a)
+		{
 			return new SSHIdentificationMessage(data, dataLen, prevLayer, packet);
+		}
 
 		return nullptr;
 	}
@@ -74,7 +84,9 @@ namespace pcpp
 	{
 		uint8_t messageCode = getMsgBaseHeader()->messageCode;
 		if (messageCode == 20 || messageCode == 21 || (messageCode >= 30 && messageCode <= 34))
+		{
 			return static_cast<SSHHandshakeMessage::SSHHandshakeMessageType>(messageCode);
+		}
 		return SSHHandshakeMessage::SSH_MSG_UNKNOWN;
 	}
 
@@ -183,17 +195,23 @@ namespace pcpp
 	{
 		m_OffsetsInitialized = true;
 		if (m_DataLen <= sizeof(ssh_message_base) + 16)
+		{
 			return;
+		}
 
 		size_t offset = sizeof(ssh_message_base) + 16;
 		for (int i = 0; i < 10; i++)
 		{
 			if (offset + sizeof(uint32_t) >= m_DataLen)
+			{
 				return;
+			}
 
 			size_t fieldLength = static_cast<size_t>(be32toh(*reinterpret_cast<uint32_t*>(m_Data + offset)));
 			if (offset + sizeof(uint32_t) + fieldLength > m_DataLen)
+			{
 				return;
+			}
 
 			PCPP_LOG_DEBUG("Field offset [" << i << "] = " << offset << ", length = " << fieldLength);
 			m_FieldOffsets[i] = offset;
@@ -201,7 +219,9 @@ namespace pcpp
 		}
 
 		if (offset >= m_DataLen)
+		{
 			return;
+		}
 
 		m_FieldOffsets[10] = offset;
 	}
@@ -209,10 +229,14 @@ namespace pcpp
 	std::string SSHKeyExchangeInitMessage::getFieldValue(int fieldOffsetIndex)
 	{
 		if (!m_OffsetsInitialized)
+		{
 			parseMessageAndInitOffsets();
+		}
 
 		if (m_FieldOffsets[fieldOffsetIndex] == 0)
+		{
 			return "";
+		}
 
 		size_t fieldOffset = m_FieldOffsets[fieldOffsetIndex];
 		uint32_t fieldLength = be32toh(*reinterpret_cast<uint32_t*>(m_Data + fieldOffset));
@@ -222,7 +246,9 @@ namespace pcpp
 	uint8_t* SSHKeyExchangeInitMessage::getCookie()
 	{
 		if (m_DataLen < sizeof(ssh_message_base) + 16)
+		{
 			return nullptr;
+		}
 
 		return m_Data + sizeof(ssh_message_base);
 	}
@@ -231,7 +257,9 @@ namespace pcpp
 	{
 		uint8_t* cookie = getCookie();
 		if (cookie == nullptr)
+		{
 			return "";
+		}
 
 		return byteArrayToHexString(cookie, 16);
 	}
@@ -239,10 +267,14 @@ namespace pcpp
 	bool SSHKeyExchangeInitMessage::isFirstKexPacketFollows()
 	{
 		if (!m_OffsetsInitialized)
+		{
 			parseMessageAndInitOffsets();
+		}
 
 		if (m_FieldOffsets[10] == 0)
+		{
 			return false;
+		}
 
 		return m_Data[m_FieldOffsets[10]] != 0;
 	}

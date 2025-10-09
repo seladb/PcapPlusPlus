@@ -16,7 +16,9 @@ namespace pcpp
 		recordBuffer[0] = static_cast<uint8_t>(m_RecType);
 		recordBuffer[1] = static_cast<uint8_t>(recSize);
 		if (m_RecValueLen > 0)
+		{
 			memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
+		}
 
 		return RadiusAttribute(recordBuffer);
 	}
@@ -33,9 +35,13 @@ namespace pcpp
 		hdr->id = id;
 		hdr->length = htobe16(sizeof(radius_header));
 		if (authenticatorArrSize == 0 || authenticator == nullptr)
+		{
 			return;
+		}
 		if (authenticatorArrSize > 16)
+		{
 			authenticatorArrSize = 16;
+		}
 		memcpy(hdr->authenticator, authenticator, authenticatorArrSize);
 	}
 
@@ -136,7 +142,9 @@ namespace pcpp
 	{
 		uint16_t len = be16toh(getRadiusHeader()->length);
 		if (len > m_DataLen)
+		{
 			return m_DataLen;
+		}
 
 		return len;
 	}
@@ -230,7 +238,9 @@ namespace pcpp
 		int offset = sizeof(radius_header);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		m_AttributeReader.changeTLVRecordCount(0 - getAttributeCount());
 

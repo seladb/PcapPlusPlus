@@ -212,7 +212,9 @@ namespace pcpp
 	    : name(pInterface->name), isLoopback(pInterface->flags & PCAP_IF_LOOPBACK)
 	{
 		if (pInterface->description != nullptr)
+		{
 			description = pInterface->description;
+		}
 		for (pcap_addr* current = pInterface->addresses; current != nullptr; current = current->next)
 		{
 			in_addr* ipv4Addr = internal::try_sockaddr2in_addr(current->addr);
@@ -334,7 +336,9 @@ namespace pcpp
 		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
 
 		if (pThis->m_cbOnPacketArrives != nullptr)
+		{
 			pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
+		}
 	}
 
 	void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr,
@@ -366,9 +370,13 @@ namespace pcpp
 		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
 
 		if (pThis->m_cbOnPacketArrivesBlockingMode != nullptr)
+		{
 			if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis,
 			                                           pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
+			{
 				pThis->m_StopThread = true;
+			}
+		}
 	}
 
 	void PcapLiveDevice::captureThreadMain()
@@ -858,7 +866,9 @@ namespace pcpp
 	{
 		// in blocking mode stop capture isn't relevant
 		if (m_cbOnPacketArrivesBlockingMode != nullptr)
+		{
 			return;
+		}
 
 		if (m_CaptureThread.get_id() != std::thread::id{} && m_CaptureThread.get_id() == std::this_thread::get_id())
 		{
@@ -1087,7 +1097,9 @@ namespace pcpp
 			for (It iter = begin; iter != end; ++iter)
 			{
 				if (sendFunc(*iter))
+				{
 					packetsSent++;
+				}
 			}
 
 			PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << totalPackets - packetsSent
@@ -1356,12 +1368,16 @@ namespace pcpp
 			std::string interfaceName;
 			std::getline(lineStream, interfaceName, '\t');
 			if (interfaceName != m_InterfaceDetails.name)
+			{
 				continue;
+			}
 
 			std::string interfaceDest;
 			std::getline(lineStream, interfaceDest, '\t');
 			if (interfaceDest != "00000000")
+			{
 				continue;
+			}
 
 			std::string interfaceGateway;
 			std::getline(lineStream, interfaceGateway, '\t');
@@ -1468,7 +1484,9 @@ namespace pcpp
 
 		// remove spaces
 		while (ifaceInfo.at(0) == ' ')
+		{
 			ifaceInfo.erase(0, 1);
+		}
 
 		// erase string after gateway IP address
 		ifaceInfo.resize(ifaceInfo.find(' ', 0));

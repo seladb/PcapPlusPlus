@@ -76,15 +76,25 @@ std::string linkLayerToString(pcpp::LinkLayerType linkLayer)
 {
 
 	if (linkLayer == pcpp::LINKTYPE_ETHERNET)
+	{
 		return "Ethernet";
+	}
 	if (linkLayer == pcpp::LINKTYPE_IEEE802_5)
+	{
 		return "IEEE 802.5 Token Ring";
+	}
 	else if (linkLayer == pcpp::LINKTYPE_LINUX_SLL)
+	{
 		return "Linux cooked capture";
+	}
 	else if (linkLayer == pcpp::LINKTYPE_LINUX_SLL2)
+	{
 		return "Linux cooked capture v2";
+	}
 	else if (linkLayer == pcpp::LINKTYPE_NULL)
+	{
 		return "Null/Loopback";
+	}
 	else if (linkLayer == pcpp::LINKTYPE_RAW || linkLayer == pcpp::LINKTYPE_DLT_RAW1 ||
 	         linkLayer == pcpp::LINKTYPE_DLT_RAW2)
 	{
@@ -125,16 +135,24 @@ std::string printFileSummary(pcpp::IFileReaderDevice* reader)
 	{
 		pcpp::PcapNgFileReaderDevice* pcapNgReader = dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader);
 		if (pcapNgReader->getOS() != "")
+		{
 			stream << "   OS: " << pcapNgReader->getOS() << std::endl;
+		}
 
 		if (pcapNgReader->getCaptureApplication() != "")
+		{
 			stream << "   Capture application: " << pcapNgReader->getCaptureApplication() << std::endl;
+		}
 
 		if (pcapNgReader->getCaptureFileComment() != "")
+		{
 			stream << "   File comment: " << pcapNgReader->getCaptureFileComment() << std::endl;
+		}
 
 		if (pcapNgReader->getHardware() != "")
+		{
 			stream << "   Capture hardware: " << pcapNgReader->getHardware() << std::endl;
+		}
 	}
 
 	stream << std::endl;
@@ -178,7 +196,9 @@ int printPcapNgPackets(pcpp::PcapNgFileReaderDevice* reader, std::ostream* out, 
 	{
 		// print packet comment if exists
 		if (packetComment != "")
+		{
 			(*out) << "Packet Comment: " << packetComment << std::endl;
+		}
 
 		// parse the raw packet into a parsed packet
 		pcpp::Packet parsedPacket(&rawPacket);

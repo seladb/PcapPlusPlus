@@ -58,7 +58,9 @@ namespace pcpp
 	bool CotpLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		if (!data || dataSize < sizeof(cotphdr))
+		{
 			return false;
+		}
 
 		return data[1] == 0xf0 && data[0] == 2;
 	}
@@ -67,14 +69,20 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
 		if (S7CommLayer::isDataValid(payload, payloadLen))
+		{
 			m_NextLayer = new S7CommLayer(payload, payloadLen, this, m_Packet);
+		}
 		else
+		{
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		}
 	}
 }  // namespace pcpp

@@ -13,7 +13,9 @@ namespace pcpp
 	SomeIpSdOption::~SomeIpSdOption()
 	{
 		if (m_ShadowData != nullptr)
+		{
 			delete[] m_ShadowData;
+		}
 	}
 
 	SomeIpSdOption::OptionType SomeIpSdOption::getType() const
@@ -24,7 +26,9 @@ namespace pcpp
 	uint8_t* SomeIpSdOption::getDataPtr() const
 	{
 		if (m_DataContainer != nullptr)
+		{
 			return m_DataContainer->getDataPtr(m_Offset);
+		}
 
 		return m_ShadowData;
 	}
@@ -281,13 +285,17 @@ namespace pcpp
 	SomeIpSdEntry::~SomeIpSdEntry()
 	{
 		if (m_ShadowData != nullptr)
+		{
 			delete[] m_ShadowData;
+		}
 	}
 
 	uint8_t* SomeIpSdEntry::getDataPtr() const
 	{
 		if (m_Layer != nullptr)
+		{
 			return m_Layer->getDataPtr(m_Offset);
+		}
 
 		return m_ShadowData;
 	}
@@ -540,7 +548,9 @@ namespace pcpp
 		OptionPtr option;
 
 		if (index >= getNumEntries())
+		{
 			return vecOptions;
+		}
 
 		size_t remainingLen = getLenOptions();
 		size_t offset = sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries() + sizeof(uint32_t);
@@ -655,12 +665,16 @@ namespace pcpp
 		while (len < lenOptions)
 		{
 			if (len + sizeof(uint16_t) + 3 * sizeof(uint8_t) > lenOptions)
+			{
 				return false;
+			}
 
 			uint32_t lenOption = be16toh(*((uint16_t*)(data + offsetOption + len))) + 3 * sizeof(uint8_t);
 			len += lenOption;
 			if (len > lenOptions)  // the last one must be equal to lenOptions
+			{
 				return false;
+			}
 
 			++(count);
 		}

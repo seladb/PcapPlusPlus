@@ -154,13 +154,17 @@ namespace pcpp
 		struct rte_kni_ops kniOps;
 		struct rte_kni_conf kniConf;
 		if (!m_DeviceInfo.init(conf))
+		{
 			return;
+		}
 		m_Requests.thread = nullptr;
 		std::memset(&m_Capturing, 0, sizeof(m_Capturing));
 		std::memset(&m_Requests, 0, sizeof(m_Requests));
 
 		if ((m_MBufMempool = createMempool(mempoolSize, unique, conf.name.c_str())) == nullptr)
+		{
 			return;
+		}
 
 		std::memset(&kniOps, 0, sizeof(kniOps));
 		std::memset(&kniConf, 0, sizeof(kniConf));
@@ -170,7 +174,9 @@ namespace pcpp
 		kniConf.force_bind = conf.bindKthread ? 1 : 0;
 #if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 		if (conf.mac != MacAddress::Zero)
+		{
 			conf.mac.copyTo((uint8_t*)kniConf.mac_addr);
+		}
 		kniConf.mtu = conf.mtu;
 #endif
 
@@ -210,7 +216,9 @@ namespace pcpp
 			destroyKniDevice(m_Device, m_DeviceInfo.name.c_str());
 		}
 		if (m_MBufMempool != nullptr)
+		{
 			rte_mempool_free(m_MBufMempool);
+		}
 	}
 
 	bool KniDevice::KniDeviceInfo::init(const KniDeviceConfiguration& conf)
@@ -240,7 +248,9 @@ namespace pcpp
 	KniDevice::KniLinkState KniDevice::getLinkState(KniInfoState state)
 	{
 		if (state == KniDevice::INFO_CACHED)
+		{
 			return m_DeviceInfo.link;
+		}
 		struct ifreq req;
 		std::memset(&req, 0, sizeof(req));
 		if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
@@ -255,7 +265,9 @@ namespace pcpp
 	MacAddress KniDevice::getMacAddress(KniInfoState state)
 	{
 		if (state == KniDevice::INFO_CACHED)
+		{
 			return m_DeviceInfo.mac;
+		}
 		struct ifreq req;
 		std::memset(&req, 0, sizeof(req));
 		req.ifr_hwaddr.sa_family = ARPHRD_ETHER;
@@ -271,7 +283,9 @@ namespace pcpp
 	uint16_t KniDevice::getMtu(KniInfoState state)
 	{
 		if (state == KniDevice::INFO_CACHED)
+		{
 			return m_DeviceInfo.mtu;
+		}
 		struct ifreq req;
 		std::memset(&req, 0, sizeof(req));
 		if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFMTU, &req))
@@ -286,7 +300,9 @@ namespace pcpp
 	KniDevice::KniPromiscuousMode KniDevice::getPromiscuous(KniInfoState state)
 	{
 		if (state == KniDevice::INFO_CACHED)
+		{
 			return m_DeviceInfo.promisc;
+		}
 		struct ifreq req;
 		std::memset(&req, 0, sizeof(req));
 		if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
@@ -302,7 +318,9 @@ namespace pcpp
 	bool KniDevice::setLinkState(KniLinkState state)
 	{
 		if (!(state == KniDevice::LINK_DOWN || state == KniDevice::LINK_UP))
+		{
 			return false;
+		}
 		struct ifreq req;
 		std::memset(&req, 0, sizeof(req));
 		if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
@@ -356,7 +374,9 @@ namespace pcpp
 	bool KniDevice::setPromiscuous(KniPromiscuousMode mode)
 	{
 		if (!(mode == KniDevice::PROMISC_DISABLE || mode == KniDevice::PROMISC_ENABLE))
+		{
 			return false;
+		}
 		struct ifreq req;
 		std::memset(&req, 0, sizeof(req));
 		if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
@@ -382,7 +402,9 @@ namespace pcpp
 	{
 		KniLinkState oldState = setKniDeviceLinkState(m_Device, m_DeviceInfo.name.c_str(), state);
 		if (oldState != KniDevice::LINK_NOT_SUPPORTED && oldState != KniDevice::LINK_ERROR)
+		{
 			m_DeviceInfo.link = state;
+		}
 		return oldState;
 	}
 
@@ -394,7 +416,9 @@ namespace pcpp
 	void KniDevice::KniRequests::cleanup()
 	{
 		if (thread)
+		{
 			thread->cancel();
+		}
 		delete thread;
 		thread = nullptr;
 		sleepS = sleepNs = 0;
@@ -522,7 +546,9 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			if (rawPacketsArr[index] == nullptr)
+			{
 				rawPacketsArr[index] = new MBufRawPacket();
+			}
 
 			rawPacketsArr[index]->setMBuf(mBuf, time);
 		}
@@ -562,7 +588,9 @@ namespace pcpp
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
 			newRawPacket->setMBuf(mBuf, time);
 			if (packetsArr[index] == nullptr)
+			{
 				packetsArr[index] = new Packet();
+			}
 
 			packetsArr[index]->setRawPacket(newRawPacket, true);
 		}
@@ -637,7 +665,9 @@ namespace pcpp
 
 	error_out:
 		for (uint16_t i = 0; i < allocated_count; ++i)
+		{
 			delete allocated[i];
+		}
 		return packetsSent;
 	}
 
@@ -714,7 +744,9 @@ namespace pcpp
 
 	error_out:
 		for (uint16_t i = 0; i < allocatedCount; ++i)
+		{
 			delete allocated[i];
+		}
 		return packetsSent;
 	}
 
@@ -751,7 +783,9 @@ namespace pcpp
 		sent = rte_kni_tx_burst(m_Device, &mbuf, 1);
 		mbufRawPacket->setFreeMbuf(!sent);
 		if (wasAllocated)
+		{
 			delete mbufRawPacket;
+		}
 
 		return sent;
 	}
@@ -812,7 +846,9 @@ namespace pcpp
 				}
 
 				if (!callback(rawPackets, numOfPktsReceived, device, userCookie))
+				{
 					break;
+				}
 			}
 			if (stopThread)
 			{
@@ -824,7 +860,9 @@ namespace pcpp
 	void KniDevice::KniCapturing::cleanup()
 	{
 		if (thread)
+		{
 			thread->cancel();
+		}
 		delete thread;
 		thread = nullptr;
 		callback = nullptr;
@@ -909,7 +947,9 @@ namespace pcpp
 					}
 
 					if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))
+					{
 						return 1;
+					}
 				}
 			}
 		}
@@ -936,7 +976,9 @@ namespace pcpp
 					}
 
 					if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))
+					{
 						return 1;
+					}
 				}
 			}
 		}

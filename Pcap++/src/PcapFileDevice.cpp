@@ -124,9 +124,13 @@ namespace pcpp
 		const auto fileExtension = extensionPos != std::string::npos ? fileName.substr(extensionPos) : "";
 
 		if (fileExtension == ".pcapng" || fileExtension == ".zstd" || fileExtension == ".zst")
+		{
 			return new PcapNgFileReaderDevice(fileName);
+		}
 		else if (fileExtension == ".snoop")
+		{
 			return new SnoopFileReaderDevice(fileName);
+		}
 
 		return new PcapFileReaderDevice(fileName);
 	}
@@ -326,7 +330,9 @@ namespace pcpp
 		pktHdr.ts = internal::toTimeval(packet_timestamp);
 #endif
 		if (!m_AppendMode)
+		{
 			pcap_dump(reinterpret_cast<uint8_t*>(m_PcapDumpHandler), &pktHdr, packet.getRawData());
+		}
 		else
 		{
 			// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on
@@ -356,7 +362,9 @@ namespace pcpp
 		for (auto packet : packets)
 		{
 			if (!writePacket(*packet))
+			{
 				return false;
+			}
 		}
 
 		return true;
@@ -460,9 +468,13 @@ namespace pcpp
 		if (amountRead != sizeof(pcap_file_header))
 		{
 			if (ferror(m_File))
+			{
 				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', error was: " << errno);
+			}
 			else
+			{
 				PCPP_LOG_ERROR("Cannot read pcap header from file '" << m_FileName << "', unknown error");
+			}
 
 			closeFile();
 			return false;
@@ -495,7 +507,9 @@ namespace pcpp
 	void PcapFileWriterDevice::flush()
 	{
 		if (!m_DeviceOpened)
+		{
 			return;
+		}
 
 		if (!m_AppendMode && pcap_dump_flush(m_PcapDumpHandler) == -1)
 		{
@@ -511,7 +525,9 @@ namespace pcpp
 	void PcapFileWriterDevice::close()
 	{
 		if (!m_DeviceOpened)
+		{
 			return;
+		}
 
 		flush();
 
@@ -632,7 +648,9 @@ namespace pcpp
 	void PcapNgFileReaderDevice::close()
 	{
 		if (m_LightPcapNg == nullptr)
+		{
 			return;
+		}
 
 		light_pcapng_close(toLightPcapNgT(m_LightPcapNg));
 		m_LightPcapNg = nullptr;
@@ -651,7 +669,9 @@ namespace pcpp
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
 		if (fileInfo == nullptr || fileInfo->os_desc == nullptr || fileInfo->os_desc_size == 0)
+		{
 			return {};
+		}
 
 		return std::string(fileInfo->os_desc, fileInfo->os_desc_size);
 	}
@@ -666,7 +686,9 @@ namespace pcpp
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
 		if (fileInfo == nullptr || fileInfo->hardware_desc == nullptr || fileInfo->hardware_desc_size == 0)
+		{
 			return {};
+		}
 
 		return std::string(fileInfo->hardware_desc, fileInfo->hardware_desc_size);
 	}
@@ -681,7 +703,9 @@ namespace pcpp
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
 		if (fileInfo == nullptr || fileInfo->user_app_desc == nullptr || fileInfo->user_app_desc_size == 0)
+		{
 			return {};
+		}
 
 		return std::string(fileInfo->user_app_desc, fileInfo->user_app_desc_size);
 	}
@@ -696,7 +720,9 @@ namespace pcpp
 
 		light_pcapng_file_info* fileInfo = light_pcang_get_file_info(toLightPcapNgT(m_LightPcapNg));
 		if (fileInfo == nullptr || fileInfo->file_comment == nullptr || fileInfo->file_comment_size == 0)
+		{
 			return {};
+		}
 
 		return std::string(fileInfo->file_comment, fileInfo->file_comment_size);
 	}
@@ -760,7 +786,9 @@ namespace pcpp
 		for (RawPacketVector::ConstVectorIterator iter = packets.begin(); iter != packets.end(); iter++)
 		{
 			if (!writePacket(**iter))
+			{
 				return false;
+			}
 		}
 
 		return true;
@@ -858,7 +886,9 @@ namespace pcpp
 	void PcapNgFileWriterDevice::flush()
 	{
 		if (!m_DeviceOpened || m_LightPcapNg == nullptr)
+		{
 			return;
+		}
 
 		light_pcapng_flush(toLightPcapNgT(m_LightPcapNg));
 		PCPP_LOG_DEBUG("File writer flushed to file '" << m_FileName << "'");
@@ -867,7 +897,9 @@ namespace pcpp
 	void PcapNgFileWriterDevice::close()
 	{
 		if (m_LightPcapNg == nullptr)
+		{
 			return;
+		}
 
 		light_pcapng_close(toLightPcapNgT(m_LightPcapNg));
 		m_LightPcapNg = nullptr;
@@ -913,7 +945,9 @@ namespace pcpp
 
 		if (be64toh(snoop_file_header.identification_pattern) != 0x736e6f6f70000000 &&
 		    be32toh(snoop_file_header.version_number) == 2)
+		{
 			return false;
+		}
 
 		// From https://datatracker.ietf.org/doc/html/rfc1761
 		static const pcpp::LinkLayerType snoop_encap[] = {

@@ -28,15 +28,25 @@ public:
 	      m_MatchDstIp(false), m_MatchSrcPort(false), m_MatchDstPort(false), m_MatchProtocol(false)
 	{
 		if (m_SrcIpToMatch != pcpp::IPv4Address::Zero)
+		{
 			m_MatchSrcIp = true;
+		}
 		if (m_DstIpToMatch != pcpp::IPv4Address::Zero)
+		{
 			m_MatchDstIp = true;
+		}
 		if (m_SrcPortToMatch != 0)
+		{
 			m_MatchSrcPort = true;
+		}
 		if (m_DstPortToMatch != 0)
+		{
 			m_MatchDstPort = true;
+		}
 		if (m_ProtocolToMatch == pcpp::TCP || m_ProtocolToMatch == pcpp::UDP)
+		{
 			m_MatchProtocol = true;
+		}
 	}
 
 	bool isMatched(pcpp::Packet& packet)

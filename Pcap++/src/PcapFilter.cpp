@@ -97,7 +97,9 @@ namespace pcpp
 	                               uint16_t linkType) const
 	{
 		if (m_FilterStr.empty())
+		{
 			return true;
+		}
 
 		// Handle uncompiled program or link type mismatch
 		if (m_CachedProgram == nullptr || linkType != static_cast<uint16_t>(m_CachedProgramLinkType))
@@ -123,7 +125,9 @@ namespace pcpp
 	BpfFilterWrapper::BpfProgramUPtr BpfFilterWrapper::compileFilter(std::string const& filter, LinkLayerType linkType)
 	{
 		if (filter.empty())
+		{
 			return nullptr;
+		}
 
 		auto pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
 		if (pcap == nullptr)
@@ -296,7 +300,9 @@ namespace pcpp
 			result = "ether " + dir + ' ' + m_MacAddress.toString();
 		}
 		else
+		{
 			result = "ether host " + m_MacAddress.toString();
+		}
 	}
 
 	void EtherTypeFilter::parseToString(std::string& result) const
@@ -402,23 +408,37 @@ namespace pcpp
 
 		result = "tcp[tcpflags] & (";
 		if ((m_TcpFlagsBitMask & tcpFin) != 0)
+		{
 			result += "tcp-fin|";
+		}
 		if ((m_TcpFlagsBitMask & tcpSyn) != 0)
+		{
 			result += "tcp-syn|";
+		}
 		if ((m_TcpFlagsBitMask & tcpRst) != 0)
+		{
 			result += "tcp-rst|";
+		}
 		if ((m_TcpFlagsBitMask & tcpPush) != 0)
+		{
 			result += "tcp-push|";
+		}
 		if ((m_TcpFlagsBitMask & tcpAck) != 0)
+		{
 			result += "tcp-ack|";
+		}
 		if ((m_TcpFlagsBitMask & tcpUrg) != 0)
+		{
 			result += "tcp-urg|";
+		}
 
 		// replace the last '|' character
 		result[result.size() - 1] = ')';
 
 		if (m_MatchOption == MatchOneAtLeast)
+		{
 			result += " != 0";
+		}
 		else  // m_MatchOption == MatchAll
 		{
 			std::ostringstream stream;

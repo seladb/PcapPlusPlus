@@ -21,4 +21,5 @@ BreakBeforeBraces: Custom
 BraceWrapping:
   SplitEmptyFunction: false
   AfterCaseLabel: true
+InsertBraces: true
 ...

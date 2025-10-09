@@ -101,7 +101,9 @@ namespace pcpp
 			dstIP = ipLayer->getDstIPAddress();
 		}
 		else
+		{
 			return NonIpPacket;
+		}
 
 		// Ignore non-TCP packets
 		TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true);  // lookup in reverse order
@@ -165,7 +167,9 @@ namespace pcpp
 
 			// fire connection start callback
 			if (m_OnConnStart != nullptr)
+			{
 				m_OnConnStart(tcpReassemblyData->connData, m_UserCookie);
+			}
 		}
 		else  // connection already exists
 		{
@@ -317,7 +321,9 @@ namespace pcpp
 			// set initial sequence
 			tcpReassemblyData->twoSides[sideIndex].sequence = sequence + tcpPayloadSize;
 			if (tcpLayer->getTcpHeader()->synFlag != 0)
+			{
 				tcpReassemblyData->twoSides[sideIndex].sequence++;
+			}
 
 			// send data to the callback
 			if (tcpPayloadSize != 0 && m_OnMessageReadyCallback != nullptr)
@@ -330,7 +336,9 @@ namespace pcpp
 
 			// handle case where this packet is FIN or RST (although it's unlikely)
 			if (isFinOrRst)
+			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+			}
 
 			// return - nothing else to do here
 			return status;
@@ -373,7 +381,9 @@ namespace pcpp
 
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
+			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+			}
 
 			// return - nothing else to do here
 			return status;
@@ -408,7 +418,9 @@ namespace pcpp
 
 			// if this is a SYN packet - add +1 to the sequence
 			if (tcpLayer->getTcpHeader()->synFlag != 0)
+			{
 				tcpReassemblyData->twoSides[sideIndex].sequence++;
+			}
 
 			// send the data to the callback
 			if (m_OnMessageReadyCallback != nullptr)
@@ -425,7 +437,9 @@ namespace pcpp
 
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
+			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+			}
 
 			// return - nothing else to do here
 			return status;
@@ -504,7 +518,9 @@ namespace pcpp
 	{
 		// if this side already saw a FIN or RST packet, do nothing and return
 		if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
+		{
 			return;
+		}
 
 		PCPP_LOG_DEBUG("Handling FIN or RST packet on side " << static_cast<int>(sideIndex));
 
@@ -520,11 +536,15 @@ namespace pcpp
 			return;
 		}
 		else
+		{
 			checkOutOfOrderFragments(tcpReassemblyData, sideIndex, true);
+		}
 
 		// and if it's a rst, close the flow unilaterally
 		if (isRst)
+		{
 			closeConnectionInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
+		}
 	}
 
 	void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex,
@@ -737,7 +757,9 @@ namespace pcpp
 		TcpReassemblyData& tcpReassemblyData = iter->second;
 
 		if (tcpReassemblyData.closed)  // the connection is already closed
+		{
 			return;
+		}
 
 		PCPP_LOG_DEBUG("Closing connection with flow key 0x" << std::hex << flowKey);
 
@@ -748,7 +770,9 @@ namespace pcpp
 		checkOutOfOrderFragments(&tcpReassemblyData, 1, true);
 
 		if (m_OnConnEnd != nullptr)
+		{
 			m_OnConnEnd(tcpReassemblyData.connData, reason, m_UserCookie);
+		}
 
 		tcpReassemblyData.closed = true;  // mark the connection as closed
 		insertIntoCleanupList(flowKey);
@@ -766,7 +790,9 @@ namespace pcpp
 			TcpReassemblyData& tcpReassemblyData = iter->second;
 
 			if (tcpReassemblyData.closed)  // the connection is already closed, skip it
+			{
 				continue;
+			}
 
 			uint32_t flowKey = tcpReassemblyData.connData.flowKey;
 			PCPP_LOG_DEBUG("Closing connection with flow key 0x" << std::hex << flowKey);
@@ -778,7 +804,9 @@ namespace pcpp
 			checkOutOfOrderFragments(&tcpReassemblyData, 1, true);
 
 			if (m_OnConnEnd != nullptr)
+			{
 				m_OnConnEnd(tcpReassemblyData.connData, TcpReassemblyConnectionClosedManually, m_UserCookie);
+			}
 
 			tcpReassemblyData.closed = true;  // mark the connection as closed
 			insertIntoCleanupList(flowKey);
@@ -791,7 +819,9 @@ namespace pcpp
 	{
 		auto iter = m_ConnectionList.find(connection.flowKey);
 		if (iter != m_ConnectionList.end())
+		{
 			return iter->second.closed == false;
+		}
 
 		return -1;
 	}
@@ -815,7 +845,9 @@ namespace pcpp
 		uint32_t count = 0;
 
 		if (maxNumToClean == 0)
+		{
 			maxNumToClean = m_MaxNumToClean;
+		}
 
 		CleanupList::iterator iterTime = m_CleanupList.begin(), iterTimeEnd = m_CleanupList.upper_bound(time(nullptr));
 		while (iterTime != iterTimeEnd && count < maxNumToClean)
@@ -831,9 +863,13 @@ namespace pcpp
 			}
 
 			if (keysList.empty())
+			{
 				m_CleanupList.erase(iterTime++);
+			}
 			else
+			{
 				++iterTime;
+			}
 		}
 
 		return count;

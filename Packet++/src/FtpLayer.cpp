@@ -43,7 +43,9 @@ namespace pcpp
 			for (size_t idx = 0; idx < field.size(); ++idx)
 			{
 				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31)  // From SPACE to ~
+				{
 					ss << field.c_str()[idx];
+				}
 			}
 			return ss.str();
 		}
@@ -250,7 +252,9 @@ namespace pcpp
 			for (size_t idx = 0; idx < field.size(); ++idx)
 			{
 				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31)  // From SPACE to ~
+				{
 					ss << field.c_str()[idx];
+				}
 			}
 			return ss.str();
 		}
