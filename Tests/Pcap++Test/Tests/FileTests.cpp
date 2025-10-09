@@ -59,6 +59,22 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Nano)
 	PTF_ASSERT_TRUE(dev->open());
 }
 
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano_Unsupported)
+{
+	if (pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
+	{
+		PTF_SKIP_TEST("Nano-second precision is supported in this platform/environment");
+	}
+
+	constexpr const char* PCAP_NANOSEC_FILE_PATH = "PcapExamples/file_heuristics/nanosecs.pcap";
+
+	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader(PCAP_NANOSEC_FILE_PATH), std::runtime_error,
+	                  "Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
+
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAP_NANOSEC_FILE_PATH);
+	PTF_ASSERT_NULL(dev);
+}
+
 PTF_TEST_CASE(TestReaderFactory_PcapNG)
 {
 	// Correct format
@@ -100,6 +116,10 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
 	}
 
 	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
+
+	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH), std::runtime_error,
+	                  "PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+
 	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_ZST_FILE_PATH);
 	PTF_ASSERT_NULL(dev);
 }
@@ -119,8 +139,18 @@ PTF_TEST_CASE(TestReaderFactory_InvalidFile)
 	// Garbage data
 	constexpr const char* BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.txt";
 
+	// Test non-existent file
+	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader("this-file-does-not-exist.pcap"), std::runtime_error,
+	                  "Could not open: this-file-does-not-exist.pcap");
+
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader("this-file-does-not-exist.pcap");
+	PTF_ASSERT_NULL(dev);
+
 	// Test existent file with wrong extension and bogus content
-	auto dev = pcpp::IFileReaderDevice::tryCreateReader(BOGUS_FILE_PATH);
+	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader(BOGUS_FILE_PATH), std::runtime_error,
+	                  "File format of PcapExamples/file_heuristics/bogus-content.txt is not supported");
+
+	dev = pcpp::IFileReaderDevice::tryCreateReader(BOGUS_FILE_PATH);
 	PTF_ASSERT_NULL(dev);
 }
 

@@ -22,6 +22,7 @@ PTF_TEST_CASE(TestLoggerMultiThread);
 // Implemented in FileTests.cpp
 PTF_TEST_CASE(TestReaderFactory_Pcap_Micro);
 PTF_TEST_CASE(TestReaderFactory_Pcap_Nano);
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano_Unsupported);
 PTF_TEST_CASE(TestReaderFactory_PcapNG);
 PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST);
 PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported);

@@ -217,6 +217,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TestReaderFactory_Pcap_Micro, "no_network;pcap");
 	PTF_RUN_TEST(TestReaderFactory_Pcap_Nano, "no_network;pcap");
+	PTF_RUN_TEST(TestReaderFactory_Pcap_Nano_Unsupported, "no_network;pcap");
 	PTF_RUN_TEST(TestReaderFactory_PcapNG, "no_network;pcapng");
 	PTF_RUN_TEST(TestReaderFactory_PcapNG_ZST, "no_network;pcapng");
 	PTF_RUN_TEST(TestReaderFactory_PcapNG_ZST_Unsupported, "no_network;pcapng");

@@ -359,7 +359,7 @@ namespace pcpp
 			if (!checkNanoSupport())
 			{
 				throw std::runtime_error(
-				    "Pcap nano second precision files are not supported in this build of PcapPlusPlus");
+				    "Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
 			}
 			// fallthrough
 		}
