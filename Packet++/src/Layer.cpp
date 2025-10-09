@@ -88,6 +88,12 @@ namespace pcpp
 			return false;
 		}
 
+		if (static_cast<size_t>(offsetInLayer) + numOfBytesToShorten > m_DataLen)
+		{
+			PCPP_LOG_ERROR("Requested number of bytes to shorten is larger than data length");
+			return false;
+		}
+
 		if (m_Packet == nullptr)
 		{
 			if (static_cast<size_t>(offsetInLayer) >= m_DataLen)
@@ -103,12 +109,6 @@ namespace pcpp
 			m_Data = newData;
 			m_DataLen -= numOfBytesToShorten;
 			return true;
-		}
-
-		if (static_cast<size_t>(offsetInLayer) + numOfBytesToShorten > m_DataLen)
-		{
-			PCPP_LOG_ERROR("Requested number of bytes to shorten is larger than data length");
-			return false;
 		}
 
 		return m_Packet->shortenLayer(this, offsetInLayer, numOfBytesToShorten);
