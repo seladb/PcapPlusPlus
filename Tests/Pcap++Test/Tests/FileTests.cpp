@@ -68,19 +68,13 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG)
 
 	std::unique_ptr<pcpp::IFileReaderDevice> dev;
 
-	for (const auto& filePath : { PCAPNG_FILE_PATH })
+	for (const auto& filePath : { PCAPNG_FILE_PATH, PCAPNG_AS_PCAP_FILE_PATH })
 	{
 		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 		PTF_ASSERT_TRUE(dev->open());
 	}
-
-	// Test existent files with correct format but wrong extension
-	dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_AS_PCAP_FILE_PATH);
-	PTF_ASSERT_NOT_NULL(dev);
-	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_TRUE(dev->open());
 }
 
 PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST)
