@@ -767,8 +767,7 @@ namespace pcpp
 		}
 		case LinkLayerType::LINKTYPE_NULL:
 		{
-			// Check if rawDataLen is too small fit Null/Loopback
-			if (rawDataLen >= sizeof(uint32_t))
+			if (NullLoopbackLayer::isDataValid(rawData, rawDataLen))
 			{
 				return new NullLoopbackLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 			}
