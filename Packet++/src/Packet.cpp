@@ -747,7 +747,7 @@ namespace pcpp
 			{
 				return new EthLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 			}
-			else if (EthDot3Layer::isDataValid(rawData, rawDataLen))
+			if (EthDot3Layer::isDataValid(rawData, rawDataLen))
 			{
 				return new EthDot3Layer(const_cast<uint8_t*>(rawData), rawDataLen, this);
 			}
@@ -783,7 +783,7 @@ namespace pcpp
 			{
 				return new IPv4Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
 			}
-			else if (ipVer == 0x60 && IPv6Layer::isDataValid(rawData, rawDataLen))
+			if (ipVer == 0x60 && IPv6Layer::isDataValid(rawData, rawDataLen))
 			{
 				return new IPv6Layer(const_cast<uint8_t*>(rawData), rawDataLen, nullptr, this);
 			}
