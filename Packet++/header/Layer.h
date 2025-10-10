@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "ProtocolType.h"
+#include "ParserConfig.h"
 #include <string>
 #include <stdexcept>
 #include <utility>
@@ -142,7 +143,15 @@ namespace pcpp
 		// abstract methods
 
 		/// Each layer is responsible for parsing the next layer
-		virtual void parseNextLayer() = 0;
+		void parseNextLayer()
+		{
+			parseNextLayer(ParserConfiguration::getDefault());
+		}
+
+		void parseNextLayer(ParserConfiguration const& config)
+		{
+			doParseNextLayer(config);
+		}
 
 		/// @return The header length in bytes
 		virtual size_t getHeaderLen() const = 0;
@@ -196,6 +205,8 @@ namespace pcpp
 		{
 			return m_NextLayer != nullptr;
 		}
+
+		virtual void doParseNextLayer(ParserConfiguration const& config) = 0;
 
 		/// Construct the next layer in the protocol stack. No validation is performed on the data.
 		/// @tparam T The type of the layer to construct
