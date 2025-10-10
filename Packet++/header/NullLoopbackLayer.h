@@ -78,5 +78,14 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+		/// @brief Check if the data passes minimal validity checks for Null/Loopback layer
+		/// @param data A pointer to the data
+		/// @param dataLen Size of the data in bytes
+		/// @return True if the data can represent a valid Null/Loopback layer, false otherwise
+		bool static isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(uint32_t);
+		}
 	};
 }  // namespace pcpp
