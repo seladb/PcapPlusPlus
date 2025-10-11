@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "BgpLayer.h"
+#include "Packet.h"
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
 
@@ -744,9 +745,24 @@ namespace pcpp
 
 		if (newNlriDataLen > curNlriDataLen)
 		{
+			auto bytesToExtend = newNlriDataLen - curNlriDataLen;
+
+			if (m_Data != nullptr && m_Packet != nullptr)
+			{
+				auto rawLen = static_cast<size_t>(m_Packet->getRawPacket()->getRawDataLen());
+				// rawLen is a size_t, bytesToExtend is also a size_t
+				// their sum is unsigned but there is no guarantee it will not overflow
+				if (rawLen + bytesToExtend < rawLen)
+				{
+					PCPP_LOG_ERROR(
+					    "Failed to extend BGP update layer, the new data length exceeds the raw packet's data length");
+					return false;
+				}
+			}
+
 			bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
 			                           curPathAttributesDataLen,
-			                       newNlriDataLen - curNlriDataLen);
+			                       bytesToExtend);
 			if (!res)
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
