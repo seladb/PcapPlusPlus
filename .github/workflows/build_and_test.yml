@@ -130,7 +130,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.additional-test-flags }} "$BUILD_DIR"
+          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.additional-test-flags }} --build-dir "$BUILD_DIR"
 
       - name: Test Examples
         run: |
@@ -215,7 +215,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 --test-suites "packet" "$BUILD_DIR"
+          python3 ci/run_tests/run_tests.py --interface eth0 --test-suites "packet" --build-dir "$BUILD_DIR"
 
       - name: Check installation
         run: |
@@ -449,7 +449,7 @@ jobs:
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           . .venv/bin/activate
-          python ci/run_tests/run_tests.py --interface en0 "$BUILD_DIR"
+          python ci/run_tests/run_tests.py --interface en0 --build-dir "$BUILD_DIR"
 
       - name: Test Examples
         if: ${{ matrix.host-arch == matrix.arch }}
@@ -735,7 +735,7 @@ jobs:
           echo "Testing PcapPlusPlus"
           python -m ensurepip
           python -m pip install -r ci/run_tests/requirements.txt
-          python ci/run_tests/run_tests.py --interface "$interface_name" "$BUILD_DIR"
+          python ci/run_tests/run_tests.py --interface "$interface_name" --build-dir "$BUILD_DIR"
 
           echo "Testing PcapPlusPlus examples"
           cd Tests/ExamplesTest
@@ -868,7 +868,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp" "$BUILD_DIR"
+          python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp" --build-dir "$BUILD_DIR"
 
       - name: Create Cobertura Report
         run: |

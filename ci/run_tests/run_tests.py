@@ -94,7 +94,7 @@ def main():
         help="tcpreplay directory",
     )
     parser.add_argument(
-        "build_dir",
+        "--build-dir",
         type=str,
         default=os.getcwd(),
         help="path to the build directory"
