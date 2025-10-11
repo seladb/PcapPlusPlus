@@ -82,6 +82,11 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
 
 	for (const auto& filePath : { PCAP_MICROSEC_FILE_PATH, PCAP_AS_DAT_FILE_PATH })
 	{
+		dev = pcpp::IFileReaderDevice::createReader(filePath);
+		PTF_ASSERT_NOT_NULL(dev);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+		PTF_ASSERT_TRUE(dev->open());
+
 		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
@@ -98,7 +103,12 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Nano)
 
 	constexpr const char* PCAP_NANOSEC_FILE_PATH = "PcapExamples/file_heuristics/nanosecs.pcap";
 
-	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAP_NANOSEC_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::createReader(PCAP_NANOSEC_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+
+	dev = pcpp::IFileReaderDevice::tryCreateReader(PCAP_NANOSEC_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
@@ -131,6 +141,11 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG)
 
 	for (const auto& filePath : { PCAPNG_FILE_PATH, PCAPNG_AS_PCAP_FILE_PATH })
 	{
+		dev = pcpp::IFileReaderDevice::createReader(filePath);
+		PTF_ASSERT_NOT_NULL(dev);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+		PTF_ASSERT_TRUE(dev->open());
+
 		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
@@ -147,7 +162,12 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST)
 
 	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
 
-	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_ZST_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+
+	dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_ZST_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
@@ -173,7 +193,12 @@ PTF_TEST_CASE(TestReaderFactory_Snoop)
 {
 	constexpr const char* SNOOP_FILE_PATH = EXAMPLE_SOLARIS_SNOOP;
 
-	auto dev = pcpp::IFileReaderDevice::tryCreateReader(SNOOP_FILE_PATH);
+	auto dev = pcpp::IFileReaderDevice::createReader(SNOOP_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+
+	dev = pcpp::IFileReaderDevice::tryCreateReader(SNOOP_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
 	PTF_ASSERT_TRUE(dev->open());
@@ -277,8 +302,10 @@ PTF_TEST_CASE(TestPcapFileMicroPrecision)
 	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
-	pcpp::RawPacket rawPacketMicro(testPayload.data(), testPayload.size(), timeval({ 1, 2 }), false);     // 1.000002000
-	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1, 1234 }), false);  // 1.000001234
+	pcpp::RawPacket rawPacketMicro(testPayload.data(), testPayload.size(), timeval({ 1, 2 }),
+	                               false);  // 1.000002000
+	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1, 1234 }),
+	                              false);  // 1.000001234
 
 	// Write micro precision file
 	pcpp::PcapFileWriterDevice writerDevMicro(EXAMPLE_PCAP_MICRO_WRITE_PATH, pcpp::LINKTYPE_ETHERNET, false);
@@ -339,8 +366,10 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
-	pcpp::RawPacket rawPacketMicro(testPayload.data(), testPayload.size(), timeval({ 1, 2 }), false);     // 1.000002000
-	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1, 1234 }), false);  // 1.000001234
+	pcpp::RawPacket rawPacketMicro(testPayload.data(), testPayload.size(), timeval({ 1, 2 }),
+	                               false);  // 1.000002000
+	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1, 1234 }),
+	                              false);  // 1.000001234
 
 	// Write nano precision file
 	pcpp::PcapFileWriterDevice writerDevNano(EXAMPLE_PCAP_NANO_WRITE_PATH, pcpp::LINKTYPE_ETHERNET, true);
@@ -1177,8 +1206,8 @@ PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
 
 	// Create some pcaps in a nested scope to test cleanup on destruction.
 	{
-		// create a file to leave open on destruction. If close is properly done on destruction, the contents & size of
-		// this file should match the next explicitly closed file.
+		// create a file to leave open on destruction. If close is properly done on destruction, the contents & size
+		// of this file should match the next explicitly closed file.
 		pcpp::PcapFileWriterDevice writerDevDestructorNoClose(EXAMPLE_PCAP_DESTRUCTOR1_PATH, pcpp::LINKTYPE_ETHERNET,
 		                                                      false);
 		PTF_ASSERT_TRUE(writerDevDestructorNoClose.open());
