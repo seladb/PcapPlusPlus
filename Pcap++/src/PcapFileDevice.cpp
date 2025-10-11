@@ -189,6 +189,9 @@ namespace pcpp
 				CaptureFileFormat::PcapNano  // nanosecond-precision pcap
 			};
 
+			static_assert(formatMapping.size() * 2 == pcapMagicNumbers.size(),
+			              "Format mapping array size is inconsistent with magic numbers array size");
+
 			StreamPositionCheckpoint checkpoint(content);
 
 			uint32_t magic = 0;
