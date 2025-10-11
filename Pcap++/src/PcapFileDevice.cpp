@@ -118,7 +118,7 @@ namespace pcpp
 			/// @brief Checks a content stream for the magic number and determines the type.
 			/// @param content A content stream that contains the file content.
 			/// @return A CaptureFileFormat value with the detected content type.
-			CaptureFileFormat detectFormat(std::istream& content)
+			CaptureFileFormat detectFormat(std::istream& content) const
 			{
 				// Check if the stream supports seeking.
 				if (!isStreamSeekable(content))
@@ -173,7 +173,7 @@ namespace pcpp
 				return true;
 			}
 
-			CaptureFileFormat detectPcapFile(std::istream& content)
+			CaptureFileFormat detectPcapFile(std::istream& content) const
 			{
 				// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
 				// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
@@ -217,7 +217,7 @@ namespace pcpp
 				return formatMapping[std::distance(pcapMagicNumbers.begin(), it) / 2];
 			}
 
-			bool isPcapNgFile(std::istream& content)
+			bool isPcapNgFile(std::istream& content) const
 			{
 				constexpr std::array<uint32_t, 1> pcapMagicNumbers = {
 					0x0A'0D'0D'0A,  // pcapng magic number (palindrome)
@@ -235,7 +235,7 @@ namespace pcpp
 				return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic) != pcapMagicNumbers.end();
 			}
 
-			bool isSnoopFile(std::istream& content)
+			bool isSnoopFile(std::istream& content) const
 			{
 				constexpr std::array<uint64_t, 2> snoopMagicNumbers = {
 					0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
@@ -254,7 +254,7 @@ namespace pcpp
 				return std::find(snoopMagicNumbers.begin(), snoopMagicNumbers.end(), magic) != snoopMagicNumbers.end();
 			}
 
-			bool isZstdArchive(std::istream& content)
+			bool isZstdArchive(std::istream& content) const
 			{
 				constexpr std::array<uint32_t, 2> zstdMagicNumbers = {
 					0x28'B5'2F'FD,  // zstd archive magic number
