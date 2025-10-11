@@ -101,184 +101,168 @@ namespace pcpp
 			std::streampos m_Pos;
 		};
 
-		enum class CaptureFileFormat
+		/// @brief Check if a stream is seekable.
+		/// @param stream The stream to check.
+		/// @return True if the stream supports seek operations, false otherwise.
+		bool isStreamSeekable(std::istream& stream)
 		{
-			Unknown,
-			Pcap,        // regular pcap with microsecond precision
-			PcapNano,    // regular pcap with nanosecond precision
-			PcapNG,      // uncompressed pcapng
-			PcapNGZstd,  // zstd compressed pcapng
-			Snoop,       // solaris snoop
-		};
-
-		/// @brief Heuristic file format detector that scans the magic number of the file format header.
-		class CaptureFileFormatDetector
-		{
-		public:
-			/// @brief Checks a content stream for the magic number and determines the type.
-			/// @param content A content stream that contains the file content.
-			/// @return A CaptureFileFormat value with the detected content type.
-			CaptureFileFormat detectFormat(std::istream& content) const
+			auto pos = stream.tellg();
+			if (stream.fail())
 			{
-				// Check if the stream supports seeking.
-				if (!isStreamSeekable(content))
-				{
-					throw std::runtime_error("Heuristic file format detection requires seekable stream");
-				}
-
-				CaptureFileFormat format = detectPcapFile(content);
-				if (format != CaptureFileFormat::Unknown)
-				{
-					return format;
-				}
-
-				if (isPcapNgFile(content))
-				{
-					return CaptureFileFormat::PcapNG;
-				}
-
-				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
-				if (isZstdArchive(content))
-				{
-					return CaptureFileFormat::PcapNGZstd;
-				}
-
-				if (isSnoopFile(content))
-				{
-					return CaptureFileFormat::Snoop;
-				}
-
-				return CaptureFileFormat::Unknown;
+				stream.clear();
+				return false;
 			}
 
-		private:
-			/// @brief Check if a stream is seekable.
-			/// @param stream The stream to check.
-			/// @return True if the stream supports seek operations, false otherwise.
-			bool isStreamSeekable(std::istream& stream)
+			if (stream.seekg(pos).fail())
 			{
-				auto pos = stream.tellg();
-				if (stream.fail())
-				{
-					stream.clear();
-					return false;
-				}
-
-				if (stream.seekg(pos).fail())
-				{
-					stream.clear();
-					return false;
-				}
-
-				return true;
+				stream.clear();
+				return false;
 			}
 
-			CaptureFileFormat detectPcapFile(std::istream& content) const
-			{
-				// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
-				// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
-				// The order of the magic numbers in the array is important for format detection. See switch statement
-				// below.
-				constexpr std::array<uint32_t, 6> pcapMagicNumbers = {
-					0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
-					0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
-					// Libpcap 0.9.1 and later support reading a modified pcap format that contains an extended header.
-					// Format reference: https://wiki.wireshark.org/Development/LibpcapFileFormat#modified-pcap
-					0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
-					0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
-					// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
-					0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
-					0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
-				};
-
-				// Mapping of magic numbers to CaptureFileFormat values. Each format applies to two magic numbers.
-				// The function to select is Format Index = MagicNumber Index / 2.
-				constexpr std::array<CaptureFileFormat, 3> formatMapping = {
-					CaptureFileFormat::Pcap,     // regular pcap
-					CaptureFileFormat::Pcap,     // modified pcap, folded into regular pcap
-					CaptureFileFormat::PcapNano  // nanosecond-precision pcap
-				};
-
-				StreamPositionCheckpoint checkpoint(content);
-
-				uint32_t magic = 0;
-				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
-				if (content.gcount() != sizeof(magic))
-				{
-					return CaptureFileFormat::Unknown;
-				}
-
-				auto it = std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic);
-				if (it == pcapMagicNumbers.end())
-				{
-					return CaptureFileFormat::Unknown;
-				}
-
-				return formatMapping[std::distance(pcapMagicNumbers.begin(), it) / 2];
-			}
-
-			bool isPcapNgFile(std::istream& content) const
-			{
-				constexpr std::array<uint32_t, 1> pcapMagicNumbers = {
-					0x0A'0D'0D'0A,  // pcapng magic number (palindrome)
-				};
-
-				StreamPositionCheckpoint checkpoint(content);
-
-				uint32_t magic = 0;
-				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
-				if (content.gcount() != sizeof(magic))
-				{
-					return false;
-				}
-
-				return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic) != pcapMagicNumbers.end();
-			}
-
-			bool isSnoopFile(std::istream& content) const
-			{
-				constexpr std::array<uint64_t, 2> snoopMagicNumbers = {
-					0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
-					0x00'00'00'70'6F'6F'6E'73   // snoop magic number, "snoop" in ASCII (byte-swapped)
-				};
-
-				StreamPositionCheckpoint checkpoint(content);
-
-				uint64_t magic = 0;
-				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
-				if (content.gcount() != sizeof(magic))
-				{
-					return false;
-				}
-
-				return std::find(snoopMagicNumbers.begin(), snoopMagicNumbers.end(), magic) != snoopMagicNumbers.end();
-			}
-
-			bool isZstdArchive(std::istream& content) const
-			{
-				constexpr std::array<uint32_t, 2> zstdMagicNumbers = {
-					0x28'B5'2F'FD,  // zstd archive magic number
-					0xFD'2F'B5'28,  // zstd archive magic number (byte-swapped)
-				};
-
-				StreamPositionCheckpoint checkpoint(content);
-
-				uint32_t magic = 0;
-				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
-				if (content.gcount() != sizeof(magic))
-				{
-					return false;
-				}
-
-				return std::find(zstdMagicNumbers.begin(), zstdMagicNumbers.end(), magic) != zstdMagicNumbers.end();
-			}
-		};
+			return true;
+		}
 
 		template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
 		{
 			return N;
 		}
 	}  // namespace
+
+	namespace internal
+	{
+		CaptureFileFormat CaptureFileFormatDetector::detectFormat(std::istream& content) const
+		{
+			// Check if the stream supports seeking.
+			if (!isStreamSeekable(content))
+			{
+				throw std::runtime_error("Heuristic file format detection requires seekable stream");
+			}
+
+			CaptureFileFormat format = detectPcapFile(content);
+			if (format != CaptureFileFormat::Unknown)
+			{
+				return format;
+			}
+
+			if (isPcapNgFile(content))
+			{
+				return CaptureFileFormat::PcapNG;
+			}
+
+			// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
+			if (isZstdArchive(content))
+			{
+				return CaptureFileFormat::PcapNGZstd;
+			}
+
+			if (isSnoopFile(content))
+			{
+				return CaptureFileFormat::Snoop;
+			}
+
+			return CaptureFileFormat::Unknown;
+		}
+
+		CaptureFileFormat CaptureFileFormatDetector::detectPcapFile(std::istream& content) const
+		{
+			// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
+			// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
+			// The order of the magic numbers in the array is important for format detection. See switch statement
+			// below.
+			constexpr std::array<uint32_t, 6> pcapMagicNumbers = {
+				0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
+				0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
+				// Libpcap 0.9.1 and later support reading a modified pcap format that contains an extended header.
+				// Format reference: https://wiki.wireshark.org/Development/LibpcapFileFormat#modified-pcap
+				0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
+				0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+				// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
+				0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
+				0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
+			};
+
+			// Mapping of magic numbers to CaptureFileFormat values. Each format applies to two magic numbers.
+			// The function to select is Format Index = MagicNumber Index / 2.
+			constexpr std::array<CaptureFileFormat, 3> formatMapping = {
+				CaptureFileFormat::Pcap,     // regular pcap
+				CaptureFileFormat::Pcap,     // modified pcap, folded into regular pcap
+				CaptureFileFormat::PcapNano  // nanosecond-precision pcap
+			};
+
+			StreamPositionCheckpoint checkpoint(content);
+
+			uint32_t magic = 0;
+			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+			if (content.gcount() != sizeof(magic))
+			{
+				return CaptureFileFormat::Unknown;
+			}
+
+			auto it = std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic);
+			if (it == pcapMagicNumbers.end())
+			{
+				return CaptureFileFormat::Unknown;
+			}
+
+			return formatMapping[std::distance(pcapMagicNumbers.begin(), it) / 2];
+		}
+
+		bool CaptureFileFormatDetector::isPcapNgFile(std::istream& content) const
+		{
+			constexpr std::array<uint32_t, 1> pcapMagicNumbers = {
+				0x0A'0D'0D'0A,  // pcapng magic number (palindrome)
+			};
+
+			StreamPositionCheckpoint checkpoint(content);
+
+			uint32_t magic = 0;
+			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+			if (content.gcount() != sizeof(magic))
+			{
+				return false;
+			}
+
+			return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic) != pcapMagicNumbers.end();
+		}
+
+		bool CaptureFileFormatDetector::isSnoopFile(std::istream& content) const
+		{
+			constexpr std::array<uint64_t, 2> snoopMagicNumbers = {
+				0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
+				0x00'00'00'70'6F'6F'6E'73   // snoop magic number, "snoop" in ASCII (byte-swapped)
+			};
+
+			StreamPositionCheckpoint checkpoint(content);
+
+			uint64_t magic = 0;
+			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+			if (content.gcount() != sizeof(magic))
+			{
+				return false;
+			}
+
+			return std::find(snoopMagicNumbers.begin(), snoopMagicNumbers.end(), magic) != snoopMagicNumbers.end();
+		}
+
+		bool CaptureFileFormatDetector::isZstdArchive(std::istream& content) const
+		{
+			constexpr std::array<uint32_t, 2> zstdMagicNumbers = {
+				0x28'B5'2F'FD,  // zstd archive magic number
+				0xFD'2F'B5'28,  // zstd archive magic number (byte-swapped)
+			};
+
+			StreamPositionCheckpoint checkpoint(content);
+
+			uint32_t magic = 0;
+			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+			if (content.gcount() != sizeof(magic))
+			{
+				return false;
+			}
+
+			return std::find(zstdMagicNumbers.begin(), zstdMagicNumbers.end(), magic) != zstdMagicNumbers.end();
+		}
+	}  // namespace internal
 
 	// ~~~~~~~~~~~~~~~~~~~
 	// IFileDevice members
@@ -351,6 +335,9 @@ namespace pcpp
 		{
 			throw std::runtime_error("Could not open: " + fileName);
 		}
+
+		using internal::CaptureFileFormat;
+		using internal::CaptureFileFormatDetector;
 
 		switch (CaptureFileFormatDetector().detectFormat(fileContent))
 		{

@@ -26,6 +26,51 @@ public:
 	}
 };
 
+PTF_TEST_CASE(TestFileFormatDetector)
+{
+	using pcpp::internal::CaptureFileFormat;
+	using pcpp::internal::CaptureFileFormatDetector;
+
+	std::vector<std::pair<uint32_t, CaptureFileFormat>> simpleTestCases = {
+		{ 0xa1'b2'c3'd4, CaptureFileFormat::Pcap       }, // regular pcap, microsecond-precision
+		{ 0xd4'c3'b2'a1, CaptureFileFormat::Pcap       }, // regular pcap, microsecond-precision (byte-swapped)
+		{ 0xa1'b2'cd'34, CaptureFileFormat::Pcap       }, // Alexey Kuznetzov's modified libpcap format
+		{ 0x34'cd'b2'a1, CaptureFileFormat::Pcap       }, // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+		{ 0xa1'b2'3c'4d, CaptureFileFormat::PcapNano   }, // regular pcap, nanosecond-precision
+		{ 0x4d'3c'b2'a1, CaptureFileFormat::PcapNano   }, // regular pcap, nanosecond-precision (byte-swapped)
+		{ 0x0A'0D'0D'0A, CaptureFileFormat::PcapNG     }, // pcapng magic number (palindrome)
+		{ 0x28'B5'2F'FD, CaptureFileFormat::PcapNGZstd }, // zstd archive magic number, assumed to be compressed pcap
+		{ 0xFD'2F'B5'28, CaptureFileFormat::PcapNGZstd }, // zstd archive magic number (byte-swapped)
+		{ 0x12'34'56'78, CaptureFileFormat::Unknown    }, // unknown
+		{ 0x00'00'00'00, CaptureFileFormat::Unknown    }, // unknown
+		{ 0xFF'FF'FF'FF, CaptureFileFormat::Unknown    }, // unknown
+	};
+
+	for (const auto& testCase : simpleTestCases)
+	{
+		std::stringstream ss;
+		ss.write(reinterpret_cast<const char*>(&testCase.first), sizeof(testCase.first));
+		CaptureFileFormatDetector detector;
+		auto detectedFormat = detector.detectFormat(ss);
+		PTF_ASSERT_EQUAL(detectedFormat, testCase.second, enumclass);
+	}
+
+	// Snoop is special as it uses a 64-bit magic number sequence.
+	std::vector<std::pair<uint64_t, CaptureFileFormat>> snoopTestCases = {
+		{ 0x73'6E'6F'6F'70'00'00'00, CaptureFileFormat::Snoop }, // snoop magic number, "snoop" in ASCII
+		{ 0x00'00'00'70'6F'6F'6E'73, CaptureFileFormat::Snoop }, // snoop magic number, "snoop" in ASCII (byte-swapped)
+	};
+
+	for (const auto& testCase : snoopTestCases)
+	{
+		std::stringstream ss;
+		ss.write(reinterpret_cast<const char*>(&testCase.first), sizeof(testCase.first));
+		CaptureFileFormatDetector detector;
+		auto detectedFormat = detector.detectFormat(ss);
+		PTF_ASSERT_EQUAL(detectedFormat, testCase.second, enumclass);
+	}
+}
+
 PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
 {
 	// Correct format
