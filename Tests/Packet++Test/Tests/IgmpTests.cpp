@@ -8,16 +8,15 @@
 #include "IgmpLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(IgmpParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/IGMPv2_1.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IGMPv1_1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IGMPv2_1.dat");
-
-	pcpp::Packet igmpv1Packet(&rawPacket1);
-	pcpp::Packet igmpv2Packet(&rawPacket2);
+	pcpp::Packet igmpv1Packet(rawPacket1.get());
+	pcpp::Packet igmpv2Packet(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(igmpv1Packet.isPacketOfType(pcpp::IGMPv1));
 	PTF_ASSERT_TRUE(igmpv1Packet.isPacketOfType(pcpp::IGMP));
@@ -78,15 +77,15 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 	igmpv2Packet.computeCalculateFields();
 	ipLayer2.getIPv4Header()->headerChecksum = 0x541a;
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/IGMPv1_1.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/IGMPv2_1.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/IGMPv1_1.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/IGMPv2_1.dat");
 
-	PTF_ASSERT_EQUAL(igmpv1Packet.getRawPacket()->getRawDataLen(), bufferLength1 - 14);
-	PTF_ASSERT_BUF_COMPARE(igmpv1Packet.getRawPacket()->getRawData(), buffer1,
+	PTF_ASSERT_EQUAL(igmpv1Packet.getRawPacket()->getRawDataLen(), resource1.size() - 14);
+	PTF_ASSERT_BUF_COMPARE(igmpv1Packet.getRawPacket()->getRawData(), resource1.data(),
 	                       igmpv1Packet.getRawPacket()->getRawDataLen());
 
-	PTF_ASSERT_EQUAL(igmpv2Packet.getRawPacket()->getRawDataLen(), bufferLength2 - 14);
-	PTF_ASSERT_BUF_COMPARE(igmpv2Packet.getRawPacket()->getRawData(), buffer2,
+	PTF_ASSERT_EQUAL(igmpv2Packet.getRawPacket()->getRawDataLen(), resource2.size() - 14);
+	PTF_ASSERT_BUF_COMPARE(igmpv2Packet.getRawPacket()->getRawData(), resource2.data(),
 	                       igmpv2Packet.getRawPacket()->getRawDataLen());
 
 	pcpp::IgmpV1Layer* igmpLayer = igmpv1Packet.getLayerOfType<pcpp::IgmpV1Layer>();
@@ -95,21 +94,15 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 	igmpv1Packet.computeCalculateFields();
 
 	PTF_ASSERT_BUF_COMPARE(igmpLayer->getData(), igmpV2Layer.getData(), igmpLayer->getHeaderLen());
-
-	delete[] buffer1;
-	delete[] buffer2;
 }  // IgmpCreateAndEditTest
 
 PTF_TEST_CASE(Igmpv3ParsingTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/igmpv3_query.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/igmpv3_report.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/igmpv3_query.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/igmpv3_report.dat");
-
-	pcpp::Packet igmpv3QueryPacket(&rawPacket1);
-	pcpp::Packet igmpv3ReportPacket(&rawPacket2);
+	pcpp::Packet igmpv3QueryPacket(rawPacket1.get());
+	pcpp::Packet igmpv3ReportPacket(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(igmpv3QueryPacket.isPacketOfType(pcpp::IGMPv3));
 	PTF_ASSERT_TRUE(igmpv3QueryPacket.isPacketOfType(pcpp::IGMP));
@@ -202,13 +195,11 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 
 	igmpv3QueryPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/igmpv3_query2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/igmpv3_query2.dat");
 
-	PTF_ASSERT_EQUAL(igmpv3QueryPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(igmpv3QueryPacket.getRawPacket()->getRawData(), buffer1,
+	PTF_ASSERT_EQUAL(igmpv3QueryPacket.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(igmpv3QueryPacket.getRawPacket()->getRawData(), resource1.data(),
 	                       igmpv3QueryPacket.getRawPacket()->getRawDataLen());
-
-	delete[] buffer1;
 
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.removeSourceAddressAtIndex(4));
 
@@ -230,13 +221,11 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 
 	ipLayer.getIPv4Header()->headerChecksum = 0x2d36;
 
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/igmpv3_query.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/igmpv3_query.dat");
 
-	PTF_ASSERT_EQUAL(igmpv3QueryPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(igmpv3QueryPacket.getRawPacket()->getRawData(), buffer2,
+	PTF_ASSERT_EQUAL(igmpv3QueryPacket.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(igmpv3QueryPacket.getRawPacket()->getRawData(), resource2.data(),
 	                       igmpv3QueryPacket.getRawPacket()->getRawDataLen());
-
-	delete[] buffer2;
 
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.removeAllSourceAddresses());
 }  // Igmpv3QueryCreateAndEditTest
@@ -300,13 +289,11 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 
 	igmpv3ReportPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/igmpv3_report2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/igmpv3_report2.dat");
 
-	PTF_ASSERT_EQUAL(igmpv3ReportPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(igmpv3ReportPacket.getRawPacket()->getRawData(), buffer1,
+	PTF_ASSERT_EQUAL(igmpv3ReportPacket.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(igmpv3ReportPacket.getRawPacket()->getRawData(), resource1.data(),
 	                       igmpv3ReportPacket.getRawPacket()->getRawDataLen());
-
-	delete[] buffer1;
 
 	PTF_ASSERT_TRUE(igmpV3ReportLayer.removeGroupRecordAtIndex(4));
 
@@ -320,17 +307,15 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	PTF_ASSERT_TRUE(igmpV3ReportLayer.removeGroupRecordAtIndex(2));
 	PTF_ASSERT_TRUE(igmpV3ReportLayer.removeGroupRecordAtIndex(0));
 
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/igmpv3_report.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/igmpv3_report.dat");
 
-	PTF_ASSERT_EQUAL(igmpv3ReportPacket.getRawPacket()->getRawDataLen(), bufferLength2);
+	PTF_ASSERT_EQUAL(igmpv3ReportPacket.getRawPacket()->getRawDataLen(), resource2.size());
 
 	igmpv3ReportPacket.computeCalculateFields();
 	ipLayer.getIPv4Header()->headerChecksum = 0x4fb6;
 
-	PTF_ASSERT_BUF_COMPARE(igmpv3ReportPacket.getRawPacket()->getRawData(), buffer2,
+	PTF_ASSERT_BUF_COMPARE(igmpv3ReportPacket.getRawPacket()->getRawData(), resource2.data(),
 	                       igmpv3ReportPacket.getRawPacket()->getRawDataLen());
-
-	delete[] buffer2;
 
 	PTF_ASSERT_TRUE(igmpV3ReportLayer.removeAllGroupRecords());
 }  // Igmpv3ReportCreateAndEditTest

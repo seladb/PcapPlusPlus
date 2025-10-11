@@ -284,7 +284,7 @@ namespace pcpp
 		/// @param[in] key A pointer to the identifier of the packet that is being dropped
 		/// @param[in] userCookie A pointer to the cookie provided by the user in IPReassemby c'tor (or nullptr if no
 		/// cookie provided)
-		typedef void (*OnFragmentsClean)(const PacketKey* key, void* userCookie);
+		using OnFragmentsClean = void (*)(const PacketKey* key, void* userCookie);
 
 		/// An enum representing the status returned from processing a fragment
 		enum ReassemblyStatus

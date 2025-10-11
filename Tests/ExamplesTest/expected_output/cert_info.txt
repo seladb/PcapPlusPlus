@@ -1,0 +1,11 @@
+Subject:        CN=www.google.com
+Issuer:         C=US, O=Google Trust Services, CN=WE2
+Serial Number:  a8:d4:97:aa:c4:c4:d9:41:0a:69:11:c2:2e:e5:55:e
+
+Valid From:     2025-07-07 08:36:00 UTC
+Valid To:       2025-09-29 08:35:59 UTC
+
+Signature Algo: ECDSAWithSHA256
+Public Key:     ECDSA
+
+Certificate Version: 3

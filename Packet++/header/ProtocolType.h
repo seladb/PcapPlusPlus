@@ -32,11 +32,11 @@ namespace pcpp
 
 	/// @typedef ProtocolType
 	/// Representing all protocols supported by PcapPlusPlus
-	typedef uint8_t ProtocolType;
+	using ProtocolType = uint8_t;
 
 	/// @typedef ProtocolTypeFamily
 	/// Representing a family of protocols
-	typedef uint32_t ProtocolTypeFamily;
+	using ProtocolTypeFamily = uint32_t;
 
 	/// Unknown protocol (or unsupported by PcapPlusPlus)
 	const ProtocolType UnknownProtocol = 0;
@@ -247,6 +247,9 @@ namespace pcpp
 
 	/// File Transfer Protocol (FTP) Data channel
 	const ProtocolType FTPData = 60;
+
+	/// Modbus protocol
+	const ProtocolType Modbus = 61;
 
 	/// FTP protocol family (FTPControl and FtpData protocols)
 	const ProtocolTypeFamily FTP = 0x3c29;

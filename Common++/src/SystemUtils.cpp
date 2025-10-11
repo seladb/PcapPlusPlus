@@ -324,7 +324,7 @@ namespace pcpp
 		m_ApplicationInterruptedCookie = cookie;
 
 #if defined(_WIN32)
-		SetConsoleCtrlHandler((PHANDLER_ROUTINE)handlerRoutine, TRUE);
+		SetConsoleCtrlHandler(reinterpret_cast<PHANDLER_ROUTINE>(handlerRoutine), TRUE);
 #else
 		struct sigaction action{};
 		memset(&action, 0, sizeof(struct sigaction));

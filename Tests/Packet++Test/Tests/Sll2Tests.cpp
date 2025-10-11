@@ -11,14 +11,17 @@
 #include "UdpLayer.h"
 #include "Logger.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(Sll2PacketParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/Sll2Packet.dat", pcpp::LINKTYPE_LINUX_SLL2);
+	pcpp_tests::utils::PacketFactory ssl2Factory(pcpp::LINKTYPE_LINUX_SLL2);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Sll2Packet.dat", ssl2Factory);
 
-	pcpp::Packet sll2Packet(&rawPacket1);
+	pcpp::Packet sll2Packet(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::SLL2));
 	pcpp::Sll2Layer* sll2Layer = sll2Packet.getLayerOfType<pcpp::Sll2Layer>();
@@ -62,15 +65,13 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 	PTF_ASSERT_TRUE(sllPacket.addLayer(&tcpLayer));
 	sllPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/Sll2Packet.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/Sll2Packet.dat");
 	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), 60);
-	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, 52);
+	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), resource1.data(), 52);
 
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(nullptr, 0));
 	uint8_t tempBuf[] = { 0x0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
 	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(tempBuf, 9));
 	pcpp::Logger::getInstance().enableLogs();
-
-	delete[] buffer1;
 }  // Sll2PacketCreationTest

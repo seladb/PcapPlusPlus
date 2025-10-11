@@ -6,6 +6,7 @@ add_library(
   src/BgpLayer.cpp
   src/CiscoHdlcLayer.cpp
   src/CotpLayer.cpp
+  src/CryptoKeyDecoder.cpp
   src/DhcpLayer.cpp
   src/DhcpV6Layer.cpp
   src/DnsLayer.cpp
@@ -30,6 +31,7 @@ add_library(
   src/Layer.cpp
   src/LdapLayer.cpp
   src/LLCLayer.cpp
+  src/ModbusLayer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
   src/NflogLayer.cpp
@@ -81,6 +83,8 @@ set(
   header/BgpLayer.h
   header/CiscoHdlcLayer.h
   header/CotpLayer.h
+  header/CryptoDataReader.h
+  header/CryptoKeyDecoder.h
   header/DhcpLayer.h
   header/DhcpV6Layer.h
   header/DnsLayerEnums.h
@@ -152,6 +156,8 @@ set(
 
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+target_sources(Packet++ PRIVATE ${public_headers})
 
 target_compile_features(Packet++ PUBLIC cxx_std_14)
 

@@ -382,7 +382,7 @@ int main(int argc, char* argv[])
 	std::cout << "Started..." << std::endl;
 
 	// determine output file extension
-	std::string outputFileExtenison = (isReaderPcapng ? ".pcapng" : ".pcap");
+	std::string outputFileExtension = (isReaderPcapng ? ".pcapng" : ".pcap");
 
 	int packetCountSoFar = 0;
 	int numOfFiles = 0;
@@ -407,7 +407,7 @@ int main(int argc, char* argv[])
 		{
 			// get file name from the splitter and add the .pcap extension
 			std::string fileName =
-			    splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + outputFileExtenison;
+			    splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + outputFileExtension;
 
 			// create a new IFileWriterDevice for this file
 			if (isReaderPcapng)
@@ -434,7 +434,7 @@ int main(int argc, char* argv[])
 		{
 			// get file name from the splitter and add the .pcap extension
 			std::string fileName =
-			    splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + outputFileExtenison;
+			    splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + outputFileExtension;
 
 			// re-create the IFileWriterDevice object
 			if (isReaderPcapng)

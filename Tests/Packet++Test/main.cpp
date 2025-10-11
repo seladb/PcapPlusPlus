@@ -3,6 +3,7 @@
 #include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
 #include "Logger.h"
+#include "Resources.h"
 #include "Utils/TestUtils.h"
 
 static struct option PacketTestOptions[] = {
@@ -75,6 +76,12 @@ int main(int argc, char* argv[])
 	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
 	          << "Built: " << pcpp::getBuildDateTime() << std::endl
 	          << "Built from: " << pcpp::getGitInfo() << std::endl;
+
+	std::cout << "Using data root: current directory" << std::endl;
+
+	// Set the resource provider for the tests
+	auto resourceProvider = std::make_unique<pcpp_tests::utils::ResourceProvider>("");
+	pcpp_tests::setDefaultResourceProvider(resourceProvider.get());
 
 #ifdef NDEBUG
 	skipMemLeakCheck = true;
@@ -162,6 +169,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PrintPacketAndLayersTest, "packet;print");
 	PTF_RUN_TEST(ProtocolFamilyMembershipTest, "packet");
 	PTF_RUN_TEST(PacketParseLayerLimitTest, "packet");
+	PTF_RUN_TEST(PacketParseMultiLayerTest, "packet");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
@@ -384,6 +392,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerEditTest, "chdlc");
 
+	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
+	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
+
 	PTF_RUN_TEST(X509ParsingTest, "x509");
 	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
 	PTF_RUN_TEST(X509InvalidDataTest, "x509");
@@ -394,6 +405,9 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(PemEncodingTest, "pem");
 	PTF_RUN_TEST(PemDecodingTest, "pem");
+
+	PTF_RUN_TEST(CryptoKeyDecodingTest, "crypto");
+	PTF_RUN_TEST(CryptoKeyInvalidDataTest, "crypto");
 
 	PTF_END_RUNNING_TESTS;
 }
