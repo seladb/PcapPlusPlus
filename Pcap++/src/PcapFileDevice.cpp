@@ -201,14 +201,14 @@ namespace pcpp
 
 				StreamPositionCheckpoint checkpoint(content);
 
-				pcap_file_header header;
-				content.read(reinterpret_cast<char*>(&header), sizeof(header));
-				if (content.gcount() != sizeof(header))
+				uint32_t magic = 0;
+				content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+				if (content.gcount() != sizeof(magic))
 				{
 					return CaptureFileFormat::Unknown;
 				}
 
-				auto it = std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), header.magic);
+				auto it = std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic);
 				if (it == pcapMagicNumbers.end())
 				{
 					return CaptureFileFormat::Unknown;
