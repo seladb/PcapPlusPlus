@@ -113,6 +113,10 @@ namespace pcpp
 		}
 
 		void setBgpFields(size_t messageLen = 0);
+
+		bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend) override;
+
+		bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten) override;
 	};
 
 	/// @class BgpOpenMessageLayer
