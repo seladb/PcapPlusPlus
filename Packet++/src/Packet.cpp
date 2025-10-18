@@ -605,6 +605,12 @@ namespace pcpp
 		bool passedExtendedLayer = false;
 		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
+			if (dataPtr > m_RawPacket->getRawData() + m_RawPacket->getRawDataLen())
+			{
+				PCPP_LOG_ERROR("Layer data pointer exceeds packet's boundary");
+				return false;
+			}
+
 			// set the data ptr
 			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 
@@ -656,6 +662,12 @@ namespace pcpp
 		bool passedExtendedLayer = false;
 		while (curLayer != nullptr)
 		{
+			if (dataPtr > m_RawPacket->getRawData() + m_RawPacket->getRawDataLen())
+			{
+				PCPP_LOG_ERROR("Layer data pointer exceeds packet's boundary");
+				return false;
+			}
+
 			// set the data ptr
 			curLayer->m_Data = const_cast<uint8_t*>(dataPtr);
 
@@ -663,13 +675,15 @@ namespace pcpp
 			if (curLayer->getPrevLayer() == layer)
 				passedExtendedLayer = true;
 
+			size_t headerLen = curLayer->getHeaderLen();
+
 			// change the data length only for layers who come before the shortened layer. For layers who come after,
 			// data length isn't changed
 			if (!passedExtendedLayer)
 				curLayer->m_DataLen -= numOfBytesToShorten;
 
 			// assuming header length of the layer that requested to be extended hasn't been enlarged yet
-			size_t headerLen = curLayer->getHeaderLen() - (curLayer == layer ? numOfBytesToShorten : 0);
+			headerLen -= (curLayer == layer ? numOfBytesToShorten : 0);
 			dataPtr += headerLen;
 			curLayer = curLayer->getNextLayer();
 		}
