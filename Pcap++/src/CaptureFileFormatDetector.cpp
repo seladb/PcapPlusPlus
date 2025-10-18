@@ -1,7 +1,11 @@
 #include "CaptureFileFormatDetector.h"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
+#include <istream>
+#include <iterator>
+#include <stdexcept>
 
 namespace pcpp
 {
