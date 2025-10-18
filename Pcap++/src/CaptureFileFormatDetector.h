@@ -35,5 +35,5 @@ namespace pcpp
 
 			bool isZstdArchive(std::istream& content) const;
 		};
-	}
+	}  // namespace internal
 }  // namespace pcpp
