@@ -27,6 +27,16 @@ public:
 	}
 };
 
+namespace
+{
+	void copyContents(const std::string& srcFilePath, const std::string& dstFilePath)
+	{
+		std::ifstream srcFile(srcFilePath, std::ios::binary);
+		std::ofstream dstFile(dstFilePath, std::ios::binary);
+		dstFile << srcFile.rdbuf();
+	}
+}  // namespace
+
 PTF_TEST_CASE(TestFileFormatDetector)
 {
 	using pcpp::internal::CaptureFileFormat;
@@ -76,8 +86,11 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
 {
 	// Correct format
 	constexpr const char* PCAP_MICROSEC_FILE_PATH = "PcapExamples/file_heuristics/microsecs.pcap";
+
 	// Correct format, wrong extension, microsecond precision
-	constexpr const char* PCAP_AS_DAT_FILE_PATH = "PcapExamples/file_heuristics/pcap-with-dat-ext.pcap.dat";
+	constexpr const char* PCAP_AS_DAT_FILE_PATH = "PcapExamples/file_heuristics/temp/microsecs.pcap.dat";
+
+	copyContents(PCAP_MICROSEC_FILE_PATH, PCAP_AS_DAT_FILE_PATH);
 
 	std::unique_ptr<pcpp::IFileReaderDevice> dev;
 
@@ -135,8 +148,11 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG)
 {
 	// Correct format
 	constexpr const char* PCAPNG_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng";
+
 	// Correct format, wrong extension
-	constexpr const char* PCAPNG_AS_PCAP_FILE_PATH = "PcapExamples/file_heuristics/pcapng-with-pcap-ext.pcapng.pcap";
+	constexpr const char* PCAPNG_AS_PCAP_FILE_PATH = "PcapExamples/file_heuristics/temp/pcapng-example.pcapng.pcap";
+
+	copyContents(PCAPNG_FILE_PATH, PCAPNG_AS_PCAP_FILE_PATH);
 
 	std::unique_ptr<pcpp::IFileReaderDevice> dev;
 
