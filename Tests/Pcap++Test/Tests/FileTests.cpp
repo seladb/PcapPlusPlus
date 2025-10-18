@@ -3,6 +3,7 @@
 #include "Packet.h"
 #include "PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
+#include "../../Pcap++/src/CaptureFileFormatDetector.h"
 #include <array>
 #include <fstream>
 

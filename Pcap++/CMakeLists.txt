@@ -1,5 +1,6 @@
 add_library(
   Pcap++
+  src/CaptureFileFormatDetector.cpp
   src/DeviceUtils.cpp
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
