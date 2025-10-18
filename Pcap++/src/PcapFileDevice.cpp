@@ -181,17 +181,6 @@ namespace pcpp
 				0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
 			};
 
-			// Mapping of magic numbers to CaptureFileFormat values. Each format applies to two magic numbers.
-			// The function to select is Format Index = MagicNumber Index / 2.
-			constexpr std::array<CaptureFileFormat, 3> formatMapping = {
-				CaptureFileFormat::Pcap,     // regular pcap
-				CaptureFileFormat::Pcap,     // modified pcap, folded into regular pcap
-				CaptureFileFormat::PcapNano  // nanosecond-precision pcap
-			};
-
-			static_assert(formatMapping.size() * 2 == pcapMagicNumbers.size(),
-			              "Format mapping array size is inconsistent with magic numbers array size");
-
 			StreamPositionCheckpoint checkpoint(content);
 
 			uint32_t magic = 0;
@@ -207,7 +196,16 @@ namespace pcpp
 				return CaptureFileFormat::Unknown;
 			}
 
-			return formatMapping[std::distance(pcapMagicNumbers.begin(), it) / 2];
+			// Indices 0-3 are regular pcap (microsecond-precision or modified) files.
+			// Indices 4-5 are nanosecond-precision pcap.
+			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
+			auto const selectedIdx = std::distance(pcapMagicNumbers.begin(), it);
+			if (selectedIdx < 4)
+			{
+				return CaptureFileFormat::Pcap;
+			}
+
+			return CaptureFileFormat::PcapNano;
 		}
 
 		bool CaptureFileFormatDetector::isPcapNgFile(std::istream& content) const
