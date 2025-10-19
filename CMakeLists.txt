@@ -165,6 +165,7 @@ cmake_dependent_option(
 )
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
+option(PCAPPP_USE_WINDIVERT "Setup PcapPlusPlus with WinDivert")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
 
@@ -283,6 +284,14 @@ if(PCAPPP_BUILD_PCAPPP)
       message(FATAL_ERROR "libbpf not found!")
     endif()
     add_definitions(-DUSE_XDP)
+  endif()
+
+  if(PCAPPP_USE_WINDIVERT)
+    find_package(WinDivert REQUIRED)
+    if(NOT WinDivert_FOUND)
+      message(FATAL_ERROR "WinDivert not found!")
+    endif()
+    add_definitions(-DUSE_WINDIVERT)
   endif()
 endif()
 
