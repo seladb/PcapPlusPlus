@@ -29,15 +29,7 @@
 #       ├── WinDivert.lib
 #       ├── WinDivert.dll
 #       └── WinDivert32.sys
-#
-# Usage in CMakeLists.txt:
-#
-#   find_package(WinDivert REQUIRED)
-#   target_include_directories(MyTarget PRIVATE ${WinDivert_INCLUDE_DIRS})
-#   target_link_libraries(MyTarget PRIVATE ${WinDivert_LIBRARIES})
-#   # Optionally copy ${WinDivert_SYS_FILE} or ${WinDivert_DLL_FILE} after build
 
-# Check if running on Windows
 if(NOT WIN32)
     if(NOT WinDivert_FIND_QUIETLY)
         message(FATAL_ERROR "WinDivert is only available on Windows")
@@ -63,61 +55,72 @@ else()
     set(_WinDivert_ROOT_HINT "")
 endif()
 
-message(STATUS "WinDivert root hint: ${_WinDivert_ROOT_HINT}")
-message(STATUS "Looking in arch dir: ${_WinDivert_ARCH_DIR}")
+if(NOT WinDivert_FIND_QUIETLY)
+    message(STATUS "WinDivert root hint: ${_WinDivert_ROOT_HINT}")
+    message(STATUS "Looking in arch dir: ${_WinDivert_ARCH_DIR}")
+endif()
 
 # Look for header
 find_path(WinDivert_INCLUDE_DIR
         NAMES windivert.h
         PATHS
-        "${_WinDivert_ROOT_HINT}/include"
-        "C:/Program Files/WinDivert/include"
-        "C:/WinDivert/include"
+        "${_WinDivert_ROOT_HINT}"
+        "C:/Program Files/WinDivert"
+        "C:/WinDivert"
+        PATH_SUFFIXES include
 )
-
-include(FindPackageHandleStandardArgs)
-
-# For compatibility
-set(WinDivert_INCLUDE_DIRS ${WinDivert_INCLUDE_DIR})
-set(WinDivert_LIBRARIES ${WinDivert_LIBRARY})
-set(WinDivert_SYS_FILE ${WinDivert_SYS})
-set(WinDivert_DLL_FILE ${WinDivert_DLL})
 
 # Look for library
 find_library(WinDivert_LIBRARY
         NAMES WinDivert
         PATHS
-        "${_WinDivert_ROOT_HINT}/${_WinDivert_ARCH_DIR}"
-        "C:/Program Files/WinDivert/${_WinDivert_ARCH_DIR}"
-        "C:/WinDivert/${_WinDivert_ARCH_DIR}"
+        "${_WinDivert_ROOT_HINT}"
+        "C:/Program Files/WinDivert"
+        "C:/WinDivert"
+        PATH_SUFFIXES ${_WinDivert_ARCH_DIR}
 )
 
-message(STATUS "WinDivert_INCLUDE_DIR: ${WinDivert_INCLUDE_DIR}")
-message(STATUS "WinDivert_LIBRARY: ${WinDivert_LIBRARY}")
-
-# Look for .sys file
+# Look for .sys file (optional)
 find_file(WinDivert_SYS
         NAMES ${_WinDivert_SYS_NAME}
         PATHS
-        "${_WinDivert_ROOT_HINT}/${_WinDivert_ARCH_DIR}"
-        "C:/Program Files/WinDivert/${_WinDivert_ARCH_DIR}"
-        "C:/WinDivert/${_WinDivert_ARCH_DIR}"
+        "${_WinDivert_ROOT_HINT}"
+        "C:/Program Files/WinDivert"
+        "C:/WinDivert"
+        PATH_SUFFIXES ${_WinDivert_ARCH_DIR}
 )
 
-# Look for DLL (optional)
+# Look for .dll file (optional)
 find_file(WinDivert_DLL
         NAMES WinDivert.dll
         PATHS
-        "${_WinDivert_ROOT_HINT}/${_WinDivert_ARCH_DIR}"
-        "C:/Program Files/WinDivert/${_WinDivert_ARCH_DIR}"
-        "C:/WinDivert/${_WinDivert_ARCH_DIR}"
+        "${_WinDivert_ROOT_HINT}"
+        "C:/Program Files/WinDivert"
+        "C:/WinDivert"
+        PATH_SUFFIXES ${_WinDivert_ARCH_DIR}
 )
 
+# Handle REQUIRED + FOUND logic
+include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(WinDivert
         REQUIRED_VARS WinDivert_INCLUDE_DIR WinDivert_LIBRARY
-        VERSION_VAR WinDivert_VERSION  # Optional, only if you parse a version
 )
 
+# Print results if not quiet
+if(NOT WinDivert_FIND_QUIETLY)
+    message(STATUS "WinDivert_INCLUDE_DIR: ${WinDivert_INCLUDE_DIR}")
+    message(STATUS "WinDivert_LIBRARY: ${WinDivert_LIBRARY}")
+    message(STATUS "WinDivert_SYS: ${WinDivert_SYS}")
+    message(STATUS "WinDivert_DLL: ${WinDivert_DLL}")
+endif()
+
+# Compatibility variables (set AFTER discovery)
+set(WinDivert_INCLUDE_DIRS ${WinDivert_INCLUDE_DIR})
+set(WinDivert_LIBRARIES ${WinDivert_LIBRARY})
+set(WinDivert_SYS_FILE ${WinDivert_SYS})
+set(WinDivert_DLL_FILE ${WinDivert_DLL})
+
+# Create imported target
 if(WinDivert_FOUND AND NOT TARGET WinDivert::WinDivert)
     add_library(WinDivert::WinDivert STATIC IMPORTED)
     set_target_properties(WinDivert::WinDivert PROPERTIES
