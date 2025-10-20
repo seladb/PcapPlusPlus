@@ -126,7 +126,7 @@ namespace pcpp
 			m_SocketInfo[i] = nullptr;
 			m_ReceivingPackets[i] = false;
 			m_Umem[i] = nullptr;
-			memset(&m_Stats[i], 0, sizeof(mXdpDeviceStats));
+			memset(&m_Stats[i], 0, sizeof(XdpDeviceStats));
 			memset(&m_PrevStats[i], 0, sizeof(XdpPrevDeviceStats));
 		}
 	}
