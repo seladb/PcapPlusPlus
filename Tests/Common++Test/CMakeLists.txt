@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 include(FetchContent)
 
-# TODO: This may have issues with brew as it doesn't allow the use of FetchContent.
+# Google test is declared here, but is only fetched if not found on the system and fetching is allowed
+# 1.16.0 is the last version supporting C++14, Newer versions require C++17
 FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git GIT_TAG v1.16.0)
 
 if(WIN32)
@@ -10,7 +11,20 @@ if(WIN32)
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 endif()
 
-FetchContent_MakeAvailable(googletest)
+find_package(GTest)
+if(NOT GTest_FOUND)
+  if(PCAPPP_ALLOW_FETCH_CONTENT)
+    message(STATUS "GTest not found, fetching...")
+    FetchContent_MakeAvailable(googletest)
+  else()
+    message(
+      FATAL_ERROR
+      "GTest not found and PCPPP_ALLOW_FETCH_CONTENT is OFF. Please add the GTest so it can be found by 'find_package(GTest)' or allow fetch content to add it automatically."
+    )
+  endif()
+endif()
+
+message(STATUS "Using GTest from location: ${gtest_SOURCE_DIR}")
 
 add_executable(
   Common++Test
