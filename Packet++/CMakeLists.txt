@@ -157,6 +157,8 @@ set(
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+target_sources(Packet++ PRIVATE ${public_headers})
+
 target_compile_features(Packet++ PUBLIC cxx_std_14)
 
 target_include_directories(

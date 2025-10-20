@@ -232,6 +232,8 @@ namespace pcpp
 		/// Ethernet
 		/// @param[in] nanosecondsPrecision A boolean indicating whether to write timestamps in nano-precision. If set
 		/// to false, timestamps will be written in micro-precision
+		/// @throws std::runtime_error if nanosecondsPrecision is set to `true` but the current platform and environment
+		/// doesn't support it.
 		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET,
 		                     bool nanosecondsPrecision = false);
 

@@ -50,9 +50,14 @@ namespace pcpp
 #endif
 	}
 
+	thread_local std::string Logger::m_LastError = [] {
+		std::string str;
+		str.reserve(200);
+		return str;
+	}();
+
 	Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&printToCerr)
 	{
-		m_LastError.reserve(200);
 		m_LogModulesArray.fill(LogLevel::Info);
 	}
 
@@ -110,7 +115,6 @@ namespace pcpp
 		// If the log level is an error, save the error to the last error message variable.
 		if (logLevel == LogLevel::Error)
 		{
-			std::lock_guard<std::mutex> const lock(m_LastErrorMtx);
 			m_LastError = message;
 		}
 		if (m_LogsEnabled)
