@@ -36,6 +36,7 @@ namespace pcpp
 #define DEFAULT_FILL_RING_SIZE (XSK_RING_PROD__DEFAULT_NUM_DESCS * 2)
 #define DEFAULT_COMPLETION_RING_SIZE XSK_RING_PROD__DEFAULT_NUM_DESCS
 #define DEFAULT_BATCH_SIZE 64
+#define DEFAULT_NUMBER_QUEUES 1
 #define IS_POWER_OF_TWO(num) (num && ((num & (num - 1)) == 0))
 
 	XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize, uint32_t fillRingSize,
@@ -117,11 +118,17 @@ namespace pcpp
 	}
 
 	XdpDevice::XdpDevice(std::string interfaceName)
-	    : m_InterfaceName(std::move(interfaceName)), m_Config(nullptr), m_ReceivingPackets(false), m_Umem(nullptr),
-	      m_SocketInfo(nullptr)
+	    : m_InterfaceName(std::move(interfaceName)), m_Config(nullptr), m_NumQueues(0)
 	{
-		memset(&m_Stats, 0, sizeof(m_Stats));
-		memset(&m_PrevStats, 0, sizeof(m_PrevStats));
+		// initialize array of possible sockets
+		for(uint32_t i=0; i < MAXIMUM_NUMBER_QUEUES; i++) 
+		{ 
+			m_SocketInfo[i] = nullptr;
+			m_ReceivingPackets[i] = false;
+			m_Umem[i] = nullptr;
+			memset(&m_Stats[i], 0, sizeof(m_Stats[i]));
+			memset(&m_PrevStats[i], 0, sizeof(m_PrevStats[i]));
+		}
 	}
 
 	XdpDevice::~XdpDevice()
@@ -129,7 +136,7 @@ namespace pcpp
 		close();
 	}
 
-	bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS)
+	bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS, uint32_t queueid)
 	{
 		if (!m_DeviceOpened)
 		{
@@ -137,29 +144,35 @@ namespace pcpp
 			return false;
 		}
 
-		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
+		if (queueid >= m_NumQueues)
+		{
+			PCPP_LOG_ERROR("Queue Id must be less than the number of queues");
+			return false;
+		}
 
-		m_ReceivingPackets = true;
+		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo[queueid]);
+
+		m_ReceivingPackets[queueid] = true;
 		uint32_t rxId = 0;
 
 		pollfd pollFds[1];
 		pollFds[0] = { .fd = xsk_socket__fd(socketInfo->xsk), .events = POLLIN };
 
 		std::vector<RawPacket> receiveBuffer;
-		while (m_ReceivingPackets)
+		while (m_ReceivingPackets[queueid])
 		{
 			checkCompletionRing();
 
 			auto pollResult = poll(pollFds, 1, timeoutMS);
 			if (pollResult == 0 && timeoutMS != 0)
 			{
-				m_Stats.rxPollTimeout++;
-				m_ReceivingPackets = false;
+				m_Stats[queueid].rxPollTimeout++;
+				m_ReceivingPackets[queueid] = false;
 				return true;
 			}
 			if (pollResult < 0)
 			{
-				m_ReceivingPackets = false;
+				m_ReceivingPackets[queueid] = false;
 				if (errno != EINTR)
 				{
 					PCPP_LOG_ERROR("poll() returned an error: " << errno);
@@ -176,7 +189,7 @@ namespace pcpp
 				continue;
 			}
 
-			m_Stats.rxPackets += receivedPacketsCount;
+			m_Stats[queueid].rxPackets += receivedPacketsCount;
 
 			// Reserves at least enough memory to hold all the received packets. No-op if capacity is enough.
 			// May hold more memory than needed if a previous cycle has reserved more already.
@@ -187,25 +200,25 @@ namespace pcpp
 				uint64_t addr = xsk_ring_cons__rx_desc(&socketInfo->rx, rxId + i)->addr;
 				uint32_t len = xsk_ring_cons__rx_desc(&socketInfo->rx, rxId + i)->len;
 
-				auto data = m_Umem->getDataPtr(addr);
+				auto data = m_Umem[queueid]->getDataPtr(addr);
 				timespec ts;
 				clock_gettime(CLOCK_REALTIME, &ts);
 				// Initializes the RawPacket directly into the buffer.
 				receiveBuffer.emplace_back(data, static_cast<int>(len), ts, false);
 
-				m_Stats.rxBytes += len;
+				m_Stats[queueid].rxBytes += len;
 
-				m_Umem->freeFrame(addr);
+				m_Umem[queueid]->freeFrame(addr);
 			}
 
 			onPacketsArrive(receiveBuffer.data(), receiveBuffer.size(), this, onPacketsArriveUserCookie);
 
 			xsk_ring_cons__release(&socketInfo->rx, receivedPacketsCount);
-			m_Stats.rxRingId = rxId + receivedPacketsCount;
+			m_Stats[queueid].rxRingId = rxId + receivedPacketsCount;
 
-			if (!populateFillRing(receivedPacketsCount, rxId))
+			if (!populateFillRing(receivedPacketsCount, rxId, queueid))
 			{
-				m_ReceivingPackets = false;
+				m_ReceivingPackets[queueid] = false;
 			}
 
 			// Clears the receive buffer.
@@ -215,14 +228,14 @@ namespace pcpp
 		return true;
 	}
 
-	void XdpDevice::stopReceivePackets()
+	void XdpDevice::stopReceivePackets(uint32_t queueid)
 	{
-		m_ReceivingPackets = false;
+		m_ReceivingPackets[queueid] = false;
 	}
 
 	bool XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt,
 	                            const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion,
-	                            int waitForTxCompletionTimeoutMS)
+	                            int waitForTxCompletionTimeoutMS, uint32_t queueid)
 	{
 		if (!m_DeviceOpened)
 		{
@@ -230,14 +243,20 @@ namespace pcpp
 			return false;
 		}
 
-		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
+		if (queueid >= m_NumQueues)
+		{
+			PCPP_LOG_ERROR("Queue Id must be less than the number of queues");
+			return false;
+		}
+
+		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo[queueid]);
 
 		checkCompletionRing();
 
 		uint32_t txId = 0;
 		uint32_t packetCount = getPacketCount();
 
-		auto frameResponse = m_Umem->allocateFrames(packetCount);
+		auto frameResponse = m_Umem[queueid]->allocateFrames(packetCount);
 		if (!frameResponse.first)
 		{
 			return false;
@@ -247,7 +266,7 @@ namespace pcpp
 		{
 			for (auto frame : frameResponse.second)
 			{
-				m_Umem->freeFrame(frame);
+				m_Umem[queueid]->freeFrame(frame);
 			}
 			PCPP_LOG_ERROR("Cannot reserve " << packetCount << " tx slots");
 			return false;
@@ -255,11 +274,11 @@ namespace pcpp
 
 		for (uint32_t i = 0; i < packetCount; i++)
 		{
-			if (getPacketAt(i).getRawDataLen() > m_Umem->getFrameSize())
+			if (getPacketAt(i).getRawDataLen() > m_Umem[queueid]->getFrameSize())
 			{
 				PCPP_LOG_ERROR("Cannot send packets with data length (" << getPacketAt(i).getRawDataLen()
 				                                                        << ") greater than UMEM frame size ("
-				                                                        << m_Umem->getFrameSize() << ")");
+				                                                        << m_Umem[queueid]->getFrameSize() << ")");
 				return false;
 			}
 		}
@@ -268,7 +287,7 @@ namespace pcpp
 		for (uint32_t i = 0; i < packetCount; i++)
 		{
 			uint64_t frame = frameResponse.second[i];
-			m_Umem->setData(frame, getPacketAt(i).getRawData(), getPacketAt(i).getRawDataLen());
+			m_Umem[queueid]->setData(frame, getPacketAt(i).getRawData(), getPacketAt(i).getRawDataLen());
 
 			struct xdp_desc* txDesc = xsk_ring_prod__tx_desc(&socketInfo->tx, txId + i);
 			txDesc->addr = frame;
@@ -278,9 +297,9 @@ namespace pcpp
 		}
 
 		xsk_ring_prod__submit(&socketInfo->tx, packetCount);
-		m_Stats.txSentPackets += packetCount;
-		m_Stats.txSentBytes += sentBytes;
-		m_Stats.txRingId = txId + packetCount;
+		m_Stats[queueid].txSentPackets += packetCount;
+		m_Stats[queueid].txSentBytes += sentBytes;
+		m_Stats[queueid].txRingId = txId + packetCount;
 
 		if (waitForTxCompletion)
 		{
@@ -311,42 +330,42 @@ namespace pcpp
 	}
 
 	bool XdpDevice::sendPackets(const RawPacketVector& packets, bool waitForTxCompletion,
-	                            int waitForTxCompletionTimeoutMS)
+	                            int waitForTxCompletionTimeoutMS, uint32_t queueid)
 	{
 		return sendPackets([&](uint32_t i) { return *packets.at(static_cast<int>(i)); },
-		                   [&]() { return packets.size(); }, waitForTxCompletion, waitForTxCompletionTimeoutMS);
+		                   [&]() { return packets.size(); }, waitForTxCompletion, waitForTxCompletionTimeoutMS, queueid);
 	}
 
 	bool XdpDevice::sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion,
-	                            int waitForTxCompletionTimeoutMS)
+	                            int waitForTxCompletionTimeoutMS, uint32_t queueid)
 	{
 		return sendPackets([&](uint32_t i) { return packets[i]; }, [&]() { return static_cast<uint32_t>(packetCount); },
-		                   waitForTxCompletion, waitForTxCompletionTimeoutMS);
+		                   waitForTxCompletion, waitForTxCompletionTimeoutMS, queueid);
 	}
 
-	bool XdpDevice::populateFillRing(uint32_t count, uint32_t rxId)
+	bool XdpDevice::populateFillRing(uint32_t count, uint32_t rxId, uint32_t queueid)
 	{
-		auto frameResponse = m_Umem->allocateFrames(count);
+		auto frameResponse = m_Umem[queueid]->allocateFrames(count);
 		if (!frameResponse.first)
 		{
 			return false;
 		}
 
-		bool result = populateFillRing(frameResponse.second, rxId);
+		bool result = populateFillRing(frameResponse.second, rxId, queueid);
 		if (!result)
 		{
 			for (auto frame : frameResponse.second)
 			{
-				m_Umem->freeFrame(frame);
+				m_Umem[queueid]->freeFrame(frame);
 			}
 		}
 
 		return result;
 	}
 
-	bool XdpDevice::populateFillRing(const std::vector<uint64_t>& addresses, uint32_t rxId)
+	bool XdpDevice::populateFillRing(const std::vector<uint64_t>& addresses, uint32_t rxId, uint32_t queueid)
 	{
-		auto umem = static_cast<xsk_umem_info*>(m_Umem->getInfo());
+		auto umem = static_cast<xsk_umem_info*>(m_Umem[queueid]->getInfo());
 		auto count = static_cast<uint32_t>(addresses.size());
 
 		uint32_t ret = xsk_ring_prod__reserve(&umem->fq, count, &rxId);
@@ -362,17 +381,17 @@ namespace pcpp
 		}
 
 		xsk_ring_prod__submit(&umem->fq, count);
-		m_Stats.fqRingId = rxId + count;
+		m_Stats[queueid].fqRingId = rxId + count;
 
 		return true;
 	}
 
-	uint32_t XdpDevice::checkCompletionRing()
+	uint32_t XdpDevice::checkCompletionRing(uint32_t queueid)
 	{
 		uint32_t cqId = 0;
-		auto umemInfo = static_cast<xsk_umem_info*>(m_Umem->getInfo());
+		auto umemInfo = static_cast<xsk_umem_info*>(m_Umem[queueid]->getInfo());
 
-		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
+		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo[queueid]);
 		if (xsk_ring_prod__needs_wakeup(&socketInfo->tx))
 		{
 			sendto(xsk_socket__fd(socketInfo->xsk), nullptr, 0, MSG_DONTWAIT, nullptr, 0);
@@ -385,22 +404,22 @@ namespace pcpp
 			for (uint32_t i = 0; i < completedCount; i++)
 			{
 				uint64_t addr = *xsk_ring_cons__comp_addr(&umemInfo->cq, cqId + i);
-				m_Umem->freeFrame(addr);
+				m_Umem[queueid]->freeFrame(addr);
 			}
 
 			xsk_ring_cons__release(&umemInfo->cq, completedCount);
-			m_Stats.cqRingId = cqId + completedCount;
+			m_Stats[queueid].cqRingId = cqId + completedCount;
 		}
 
-		m_Stats.txCompletedPackets += completedCount;
+		m_Stats[queueid].txCompletedPackets += completedCount;
 		return completedCount;
 	}
 
-	bool XdpDevice::configureSocket()
+	bool XdpDevice::configureSocket(uint32_t queueid)
 	{
 		auto socketInfo = new xsk_socket_info();
 
-		auto umemInfo = static_cast<xsk_umem_info*>(m_Umem->getInfo());
+		auto umemInfo = static_cast<xsk_umem_info*>(m_Umem[queueid]->getInfo());
 
 		struct xsk_socket_config xskConfig;
 		xskConfig.rx_size = m_Config->txSize;
@@ -419,7 +438,7 @@ namespace pcpp
 			xskConfig.xdp_flags = XDP_FLAGS_DRV_MODE;
 		}
 
-		int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), 0, umemInfo->umem, &socketInfo->rx,
+		int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), queueid, umemInfo->umem, &socketInfo->rx,
 		                             &socketInfo->tx, &xskConfig);
 		if (ret)
 		{
@@ -428,13 +447,13 @@ namespace pcpp
 			return false;
 		}
 
-		m_SocketInfo = socketInfo;
+		m_SocketInfo[queueid] = socketInfo;
 		return true;
 	}
 
-	bool XdpDevice::initUmem()
+	bool XdpDevice::initUmem(uint32_t queueid)
 	{
-		m_Umem = new XdpUmem(m_Config->umemNumFrames, m_Config->umemFrameSize, m_Config->fillRingSize,
+		m_Umem[queueid] = new XdpUmem(m_Config->umemNumFrames, m_Config->umemFrameSize, m_Config->fillRingSize,
 		                     m_Config->completionRingSize);
 		return true;
 	}
@@ -454,6 +473,7 @@ namespace pcpp
 		uint32_t rxSize = m_Config->rxSize ? m_Config->rxSize : XSK_RING_CONS__DEFAULT_NUM_DESCS;
 		uint32_t txSize = m_Config->txSize ? m_Config->txSize : XSK_RING_PROD__DEFAULT_NUM_DESCS;
 		uint32_t batchSize = m_Config->rxTxBatchSize ? m_Config->rxTxBatchSize : DEFAULT_BATCH_SIZE;
+		uint32_t nQueues = m_Config->numQueues ? m_Config->numQueues : DEFAULT_NUMBER_QUEUES;
 
 		if (frameSize != getpagesize())
 		{
@@ -504,6 +524,14 @@ namespace pcpp
 			return false;
 		}
 
+		if (nQueues > MAXIMUM_NUMBER_QUEUES)
+		{
+			// the number of queues should be less than the number of NIC hardware queues
+			// TODO limit queues to be no more than hardware cores and hardware queues
+			PCPP_LOG_ERROR("Number of queues (" << nQueues << ") must be lower than maximum allowed");
+			return false;
+		}
+
 		m_Config->umemNumFrames = numFrames;
 		m_Config->umemFrameSize = frameSize;
 		m_Config->fillRingSize = fillRingSize;
@@ -511,6 +539,7 @@ namespace pcpp
 		m_Config->rxSize = rxSize;
 		m_Config->txSize = txSize;
 		m_Config->rxTxBatchSize = batchSize;
+		m_Config->numQueues = nQueues;
 
 		return true;
 	}
@@ -523,15 +552,22 @@ namespace pcpp
 			return false;
 		}
 
-		if (!(initConfig() && initUmem() &&
-		      populateFillRing(std::min(m_Config->fillRingSize, static_cast<uint32_t>(m_Config->umemNumFrames / 2))) &&
-		      configureSocket()))
+		// configure for each socket
+
+		if (initConfig())
 		{
-			if (m_Umem)
+			for(uint32_t i = 0; i < m_NumQueues; i++)
 			{
-				delete m_Umem;
-				m_Umem = nullptr;
+				initUmem(i);
+		      	populateFillRing(std::min(m_Config->fillRingSize, static_cast<uint32_t>(m_Config->umemNumFrames / 2)), i);
+		      	configureSocket(i);
+
+				memset(&m_Stats[i], 0, sizeof(m_Stats));
+				memset(&m_PrevStats[i], 0, sizeof(m_PrevStats));
 			}
+		}
+		else
+		{
 			if (m_Config)
 			{
 				delete m_Config;
@@ -539,9 +575,6 @@ namespace pcpp
 			}
 			return false;
 		}
-
-		memset(&m_Stats, 0, sizeof(m_Stats));
-		memset(&m_PrevStats, 0, sizeof(m_PrevStats));
 
 		m_DeviceOpened = true;
 		return m_DeviceOpened;
@@ -557,19 +590,24 @@ namespace pcpp
 	{
 		if (m_DeviceOpened)
 		{
-			auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
-			xsk_socket__delete(socketInfo->xsk);
+			for (uint32_t i = 0; i < m_NumQueues; i++)
+			{
+				auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo[i]);
+				xsk_socket__delete(socketInfo->xsk);
+
+				delete m_Umem[i];
+				m_Umem[i] = nullptr;
+			}
+			
 			m_DeviceOpened = false;
-			delete m_Umem;
 			delete m_Config;
 			m_Config = nullptr;
-			m_Umem = nullptr;
 		}
 	}
 
-	bool XdpDevice::getSocketStats()
+	bool XdpDevice::getSocketStats(uint32_t queueid)
 	{
-		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
+		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo[queueid]);
 		int fd = xsk_socket__fd(socketInfo->xsk);
 
 		struct xdp_statistics socketStats;
@@ -589,55 +627,65 @@ namespace pcpp
 			return false;
 		}
 
-		m_Stats.rxDroppedInvalidPackets = socketStats.rx_invalid_descs;
-		m_Stats.rxDroppedRxRingFullPackets = socketStats.rx_ring_full;
-		m_Stats.rxDroppedFillRingPackets = socketStats.rx_fill_ring_empty_descs;
-		m_Stats.rxDroppedTotalPackets = m_Stats.rxDroppedFillRingPackets + m_Stats.rxDroppedRxRingFullPackets +
-		                                m_Stats.rxDroppedInvalidPackets + socketStats.rx_dropped;
-		m_Stats.txDroppedInvalidPackets = socketStats.tx_invalid_descs;
+		m_Stats[queueid].rxDroppedInvalidPackets = socketStats.rx_invalid_descs;
+		m_Stats[queueid].rxDroppedRxRingFullPackets = socketStats.rx_ring_full;
+		m_Stats[queueid].rxDroppedFillRingPackets = socketStats.rx_fill_ring_empty_descs;
+		m_Stats[queueid].rxDroppedTotalPackets = m_Stats[queueid].rxDroppedFillRingPackets + m_Stats[queueid].rxDroppedRxRingFullPackets +
+		                                m_Stats[queueid].rxDroppedInvalidPackets + socketStats.rx_dropped;
+		m_Stats[queueid].txDroppedInvalidPackets = socketStats.tx_invalid_descs;
 
 		return true;
 	}
 
 #define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1'000'000'000.0 + (end.tv_nsec - begin.tv_nsec))
 
-	XdpDevice::XdpDeviceStats XdpDevice::getStatistics()
+	XdpDevice::XdpDeviceStats XdpDevice::getStatistics(uint32_t queueid)
 	{
+		if (queueid >= m_NumQueues)
+		{
+			PCPP_LOG_ERROR("Queue Id must be less than the number of queues");
+
+			XdpDeviceStats nullstats;
+			memset(&nullstats, 0, sizeof(XdpDeviceStats));
+
+			return nullstats;
+		}
+
 		timespec timestamp;
 		clock_gettime(CLOCK_MONOTONIC, &timestamp);
 
-		m_Stats.timestamp = timestamp;
+		m_Stats[queueid].timestamp = timestamp;
 
 		if (m_DeviceOpened)
 		{
 			getSocketStats();
-			m_Stats.umemFreeFrames = m_Umem->getFreeFrameCount();
-			m_Stats.umemAllocatedFrames = m_Umem->getFrameCount() - m_Stats.umemFreeFrames;
+			m_Stats[queueid].umemFreeFrames = m_Umem[queueid]->getFreeFrameCount();
+			m_Stats[queueid].umemAllocatedFrames = m_Umem[queueid]->getFrameCount() - m_Stats[queueid].umemFreeFrames;
 		}
 		else
 		{
-			m_Stats.umemFreeFrames = 0;
-			m_Stats.umemAllocatedFrames = 0;
+			m_Stats[queueid].umemFreeFrames = 0;
+			m_Stats[queueid].umemAllocatedFrames = 0;
 		}
 
-		double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1'000'000'000.0;
-		m_Stats.rxPacketsPerSec = static_cast<uint64_t>((m_Stats.rxPackets - m_PrevStats.rxPackets) / secsElapsed);
-		m_Stats.rxBytesPerSec = static_cast<uint64_t>((m_Stats.rxBytes - m_PrevStats.rxBytes) / secsElapsed);
-		m_Stats.txSentPacketsPerSec =
-		    static_cast<uint64_t>((m_Stats.txSentPackets - m_PrevStats.txSentPackets) / secsElapsed);
-		m_Stats.txSentBytesPerSec =
-		    static_cast<uint64_t>((m_Stats.txSentBytes - m_PrevStats.txSentBytes) / secsElapsed);
-		m_Stats.txCompletedPacketsPerSec =
-		    static_cast<uint64_t>((m_Stats.txCompletedPackets - m_PrevStats.txCompletedPackets) / secsElapsed);
+		double secsElapsed = (double)nanosec_gap(m_PrevStats[queueid].timestamp, timestamp) / 1'000'000'000.0;
+		m_Stats[queueid].rxPacketsPerSec = static_cast<uint64_t>((m_Stats[queueid].rxPackets - m_PrevStats[queueid].rxPackets) / secsElapsed);
+		m_Stats[queueid].rxBytesPerSec = static_cast<uint64_t>((m_Stats[queueid].rxBytes - m_PrevStats[queueid].rxBytes) / secsElapsed);
+		m_Stats[queueid].txSentPacketsPerSec =
+		    static_cast<uint64_t>((m_Stats[queueid].txSentPackets - m_PrevStats[queueid].txSentPackets) / secsElapsed);
+		m_Stats[queueid].txSentBytesPerSec =
+		    static_cast<uint64_t>((m_Stats[queueid].txSentBytes - m_PrevStats[queueid].txSentBytes) / secsElapsed);
+		m_Stats[queueid].txCompletedPacketsPerSec =
+		    static_cast<uint64_t>((m_Stats[queueid].txCompletedPackets - m_PrevStats[queueid].txCompletedPackets) / secsElapsed);
 
-		m_PrevStats.timestamp = timestamp;
-		m_PrevStats.rxPackets = m_Stats.rxPackets;
-		m_PrevStats.rxBytes = m_Stats.rxBytes;
-		m_PrevStats.txSentPackets = m_Stats.txSentPackets;
-		m_PrevStats.txSentBytes = m_Stats.txSentBytes;
-		m_PrevStats.txCompletedPackets = m_Stats.txCompletedPackets;
+		m_PrevStats[queueid].timestamp = timestamp;
+		m_PrevStats[queueid].rxPackets = m_Stats[queueid].rxPackets;
+		m_PrevStats[queueid].rxBytes = m_Stats[queueid].rxBytes;
+		m_PrevStats[queueid].txSentPackets = m_Stats[queueid].txSentPackets;
+		m_PrevStats[queueid].txSentBytes = m_Stats[queueid].txSentBytes;
+		m_PrevStats[queueid].txCompletedPackets = m_Stats[queueid].txCompletedPackets;
 
-		return m_Stats;
+		return m_Stats[queueid];
 	}
 
 }  // namespace pcpp

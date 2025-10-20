@@ -10,6 +10,10 @@
 /// @
 namespace pcpp
 {
+
+	// used to dimension sockets
+	#define MAXIMUM_NUMBER_QUEUES 8
+
 	/// @class XdpDevice
 	/// A class wrapping the main functionality of using AF_XDP (XSK) sockets
 	/// which are optimized for high performance packet processing.
@@ -46,6 +50,10 @@ namespace pcpp
 
 			/// AF_XDP operation mode
 			AttachMode attachMode;
+
+			/// number of queues. Should be less than or equal to the number of hardware queues supported by the device
+			// the queue ids are inferred as consecutive starting at zero
+			uint32_t numQueues;
 
 			/// UMEM is a region of virtual contiguous memory, divided into equal-sized frames.
 			/// This parameter determines the number of frames that will be allocated as pert of the UMEM.
@@ -89,7 +97,7 @@ namespace pcpp
 			explicit XdpDeviceConfiguration(AttachMode attachMode = AutoMode, uint16_t umemNumFrames = 0,
 			                                uint16_t umemFrameSize = 0, uint32_t fillRingSize = 0,
 			                                uint32_t completionRingSize = 0, uint32_t rxSize = 0, uint32_t txSize = 0,
-			                                uint16_t rxTxBatchSize = 0)
+			                                uint16_t rxTxBatchSize = 0, uint32_t numQueues = 0)
 			{
 				this->attachMode = attachMode;
 				this->umemNumFrames = umemNumFrames;
@@ -99,6 +107,7 @@ namespace pcpp
 				this->rxSize = rxSize;
 				this->txSize = txSize;
 				this->rxTxBatchSize = rxTxBatchSize;
+				this->numQueues = numQueues;
 			}
 		};
 
@@ -196,11 +205,11 @@ namespace pcpp
 		/// ms
 		/// @return True if stopped receiving packets because stopReceivePackets() was called or because timeoutMS
 		/// passed, or false if an error occurred.
-		bool receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000);
+		bool receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000, uint32_t queueid = 0);
 
 		/// Stop receiving packets. Call this method from within the callback passed to receivePackets() whenever you
 		/// want to stop receiving packets.
-		void stopReceivePackets();
+		void stopReceivePackets(uint32_t queueid = 0);
 
 		/// Send a vector of packet pointers.
 		/// @param[in] packets A vector of packet pointers to send
@@ -212,7 +221,7 @@ namespace pcpp
 		/// @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
 		/// Returns false if an error occurred or if poll timed out.
 		bool sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false,
-		                 int waitForTxCompletionTimeoutMS = 5000);
+		                 int waitForTxCompletionTimeoutMS = 5000, uint32_t queueid = 0);
 
 		/// Send an array of packets.
 		/// @param[in] packets An array of raw packets to send
@@ -225,7 +234,7 @@ namespace pcpp
 		/// @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
 		/// Returns false if an error occurred or if poll timed out.
 		bool sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false,
-		                 int waitForTxCompletionTimeoutMS = 5000);
+		                 int waitForTxCompletionTimeoutMS = 5000, uint32_t queueid = 0);
 
 		/// @return A pointer to the current device configuration. If the device is not open this method returns nullptr
 		XdpDeviceConfiguration* getConfig() const
@@ -234,7 +243,7 @@ namespace pcpp
 		}
 
 		/// @return Current device statistics
-		XdpDeviceStats getStatistics();
+		XdpDeviceStats getStatistics(uint32_t queueid = 0);
 
 	private:
 		class XdpUmem
@@ -294,21 +303,22 @@ namespace pcpp
 
 		std::string m_InterfaceName;
 		XdpDeviceConfiguration* m_Config;
-		bool m_ReceivingPackets;
-		XdpUmem* m_Umem;
-		void* m_SocketInfo;
-		XdpDeviceStats m_Stats;
-		XdpPrevDeviceStats m_PrevStats;
+		uint32_t m_NumQueues;
+		bool m_ReceivingPackets[MAXIMUM_NUMBER_QUEUES];
+		XdpUmem* m_Umem[MAXIMUM_NUMBER_QUEUES];
+		void* m_SocketInfo[MAXIMUM_NUMBER_QUEUES];
+		XdpDeviceStats m_Stats[MAXIMUM_NUMBER_QUEUES];
+		XdpPrevDeviceStats m_PrevStats[MAXIMUM_NUMBER_QUEUES];
 
 		bool sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt,
 		                 const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion = false,
-		                 int waitForTxCompletionTimeoutMS = 5000);
-		bool populateFillRing(uint32_t count, uint32_t rxId = 0);
-		bool populateFillRing(const std::vector<uint64_t>& addresses, uint32_t rxId);
-		uint32_t checkCompletionRing();
-		bool configureSocket();
-		bool initUmem();
+		                 int waitForTxCompletionTimeoutMS = 5000, uint32_t queueid = 0);
+		bool populateFillRing(uint32_t count, uint32_t rxId = 0, uint32_t queueid = 0);
+		bool populateFillRing(const std::vector<uint64_t>& addresses, uint32_t rxId, uint32_t queueid = 0);
+		uint32_t checkCompletionRing(uint32_t queueid = 0);
+		bool configureSocket(uint32_t queueid = 0);
+		bool initUmem(uint32_t queueid = 0);
 		bool initConfig();
-		bool getSocketStats();
+		bool getSocketStats(uint32_t queueid = 0);
 	};
 }  // namespace pcpp
