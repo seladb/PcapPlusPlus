@@ -126,8 +126,8 @@ namespace pcpp
 			m_SocketInfo[i] = nullptr;
 			m_ReceivingPackets[i] = false;
 			m_Umem[i] = nullptr;
-			memset(&m_Stats[i], 0, sizeof(m_Stats[i]));
-			memset(&m_PrevStats[i], 0, sizeof(m_PrevStats[i]));
+			memset(&m_Stats[i], 0, sizeof(mXdpDeviceStats));
+			memset(&m_PrevStats[i], 0, sizeof(XdpPrevDeviceStats));
 		}
 	}
 
@@ -562,8 +562,8 @@ namespace pcpp
 		      	populateFillRing(std::min(m_Config->fillRingSize, static_cast<uint32_t>(m_Config->umemNumFrames / 2)), i);
 		      	configureSocket(i);
 
-				memset(&m_Stats[i], 0, sizeof(m_Stats));
-				memset(&m_PrevStats[i], 0, sizeof(m_PrevStats));
+				memset(&m_Stats[i], 0, sizeof(XdpDeviceStats));
+				memset(&m_PrevStats[i], 0, sizeof(XdpPrevDeviceStats));
 			}
 		}
 		else
