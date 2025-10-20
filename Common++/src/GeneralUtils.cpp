@@ -11,6 +11,7 @@
 
 namespace pcpp
 {
+	constexpr char Base64::paddingChar;
 
 	std::string byteArrayToHexString(const uint8_t* byteArr, size_t byteArrSize, int stringSizeLimit)
 	{
