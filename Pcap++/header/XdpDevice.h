@@ -5,6 +5,7 @@
 #include "Device.h"
 #include <utility>
 #include <functional>
+#include <array>
 
 /// @namespace pcpp
 /// @
@@ -12,7 +13,7 @@ namespace pcpp
 {
 
 	// used to dimension sockets
-	#define MAXIMUM_NUMBER_QUEUES 8
+	#define PCPP_MAXIMUM_NUMBER_QUEUES 8
 
 	/// @class XdpDevice
 	/// A class wrapping the main functionality of using AF_XDP (XSK) sockets
@@ -23,13 +24,6 @@ namespace pcpp
 	class XdpDevice : public IDevice
 	{
 	public:
-		/// @typedef OnPacketsArrive
-		/// The callback that is called whenever packets are received on the socket
-		/// @param[in] packets An array of the raw packets received
-		/// @param[in] packetCount The number of packets received
-		/// @param[in] device The XdpDevice packets are received from (represents the AF_XDP socket)
-		/// @param[in] userCookie A pointer to an object set by the user when receivePackets() started
-		typedef void (*OnPacketsArrive)(RawPacket packets[], uint32_t packetCount, XdpDevice* device, void* userCookie);
 
 		/// @struct XdpDeviceConfiguration
 		/// A struct containing the configuration parameters available for opening an XDP device
@@ -193,57 +187,11 @@ namespace pcpp
 			return m_DeviceOpened;
 		}
 
-		/// Start receiving packets. In order to use this method the device should be open. Note that this method is
-		/// blocking and will return if:
-		/// - stopReceivePackets() was called from within the user callback
-		/// - timeoutMS passed without receiving any packets
-		/// - Some error occurred (an error log will be printed)
-		/// @param[in] onPacketsArrive A callback to be called when packets are received
-		/// @param[in] onPacketsArriveUserCookie The callback is invoked with this cookie as a parameter. It can be used
-		/// to pass information from the user application to the callback
-		/// @param[in] timeoutMS Timeout in milliseconds to stop if no packets are received. The default value is 5000
-		/// ms
-		/// @return True if stopped receiving packets because stopReceivePackets() was called or because timeoutMS
-		/// passed, or false if an error occurred.
-		bool receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000, uint32_t queueid = 0);
-
-		/// Stop receiving packets. Call this method from within the callback passed to receivePackets() whenever you
-		/// want to stop receiving packets.
-		void stopReceivePackets(uint32_t queueid = 0);
-
-		/// Send a vector of packet pointers.
-		/// @param[in] packets A vector of packet pointers to send
-		/// @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
-		/// this method will wait until the number of packets in the completion ring is equal or greater to the number
-		/// of packets that were sent. The default value is false
-		/// @param[in] waitForTxCompletionTimeoutMS If waitForTxCompletion is set to true, poll the completion ring with
-		/// this timeout. The default value is 5000 ms
-		/// @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
-		/// Returns false if an error occurred or if poll timed out.
-		bool sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false,
-		                 int waitForTxCompletionTimeoutMS = 5000, uint32_t queueid = 0);
-
-		/// Send an array of packets.
-		/// @param[in] packets An array of raw packets to send
-		/// @param[in] packetCount The length of the packet array
-		/// @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
-		/// this method will wait until the number of packets in the completion ring is equal or greater to the number
-		/// of packets sent. The default value is false
-		/// @param[in] waitForTxCompletionTimeoutMS If waitForTxCompletion is set to true, poll the completion ring with
-		/// this timeout. The default value is 5000 ms
-		/// @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
-		/// Returns false if an error occurred or if poll timed out.
-		bool sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false,
-		                 int waitForTxCompletionTimeoutMS = 5000, uint32_t queueid = 0);
-
 		/// @return A pointer to the current device configuration. If the device is not open this method returns nullptr
 		XdpDeviceConfiguration* getConfig() const
 		{
 			return m_Config;
 		}
-
-		/// @return Current device statistics
-		XdpDeviceStats getStatistics(uint32_t queueid = 0);
 
 	private:
 		class XdpUmem
@@ -299,26 +247,132 @@ namespace pcpp
 			uint64_t txCompletedPackets;
 		};
 
+
+
+
+	public:
+
+		class XdpSocket
+		{
+		public:
+			XdpSocket(XdpDevice *device, uint32_t qid);
+			~XdpSocket();
+
+			const XdpDevice *getDevice() { return m_Device; }
+
+			/// @typedef OnPacketsArrive
+			/// The callback that is called whenever packets are received on the socket
+			/// @param[in] packets An array of the raw packets received
+			/// @param[in] packetCount The number of packets received
+			/// @param[in] device The XdpDevice packets are received from (represents the AF_XDP socket)
+			/// @param[in] userCookie A pointer to an object set by the user when receivePackets() started
+			typedef void (*OnPacketsArrive)(RawPacket packets[], uint32_t packetCount, XdpSocket* socket, void* userCookie);
+
+
+			/// Start receiving packets. In order to use this method the device should be open. Note that this method is
+			/// blocking and will return if:
+			/// - stopReceivePackets() was called from within the user callback
+			/// - timeoutMS passed without receiving any packets
+			/// - Some error occurred (an error log will be printed)
+			/// @param[in] onPacketsArrive A callback to be called when packets are received
+			/// @param[in] onPacketsArriveUserCookie The callback is invoked with this cookie as a parameter. It can be used
+			/// to pass information from the user application to the callback
+			/// @param[in] timeoutMS Timeout in milliseconds to stop if no packets are received. The default value is 5000
+			/// ms
+			/// @return True if stopped receiving packets because stopReceivePackets() was called or because timeoutMS
+			/// passed, or false if an error occurred.
+			bool receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000);
+
+			/// Stop receiving packets. Call this method from within the callback passed to receivePackets() whenever you
+			/// want to stop receiving packets.
+			void stopReceivePackets();
+
+			/// Send a vector of packet pointers.
+			/// @param[in] packets A vector of packet pointers to send
+			/// @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
+			/// this method will wait until the number of packets in the completion ring is equal or greater to the number
+			/// of packets that were sent. The default value is false
+			/// @param[in] waitForTxCompletionTimeoutMS If waitForTxCompletion is set to true, poll the completion ring with
+			/// this timeout. The default value is 5000 ms
+			/// @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
+			/// Returns false if an error occurred or if poll timed out.
+			bool sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false,
+		            		int waitForTxCompletionTimeoutMS = 5000);
+
+			/// Send an array of packets.
+			/// @param[in] packets An array of raw packets to send
+			/// @param[in] packetCount The length of the packet array
+			/// @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
+			/// this method will wait until the number of packets in the completion ring is equal or greater to the number
+			/// of packets sent. The default value is false
+			/// @param[in] waitForTxCompletionTimeoutMS If waitForTxCompletion is set to true, poll the completion ring with
+			/// this timeout. The default value is 5000 ms
+			/// @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
+			/// Returns false if an error occurred or if poll timed out.
+			bool sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false,
+							int waitForTxCompletionTimeoutMS = 5000);
+
+			/// @return Current device statistics
+			XdpDeviceStats getStatistics();
+
+			bool configure();
+
+		private:
+
+			void initialize()
+			{
+				m_Device = nullptr;
+				m_Queueid = 0;
+
+				m_ReceivingPackets = false;
+				m_Umem = nullptr;
+				m_SocketInfo = nullptr;
+				memset(&m_Stats, 0, sizeof(XdpDeviceStats));
+				memset(&m_PrevStats, 0, sizeof(XdpPrevDeviceStats));
+			}
+
+			// point to the device that has this socket
+			XdpDevice *m_Device;
+			uint32_t m_Queueid;
+
+			bool m_ReceivingPackets = false;
+			XdpUmem* m_Umem = nullptr;
+			void* m_SocketInfo = nullptr;
+			XdpDeviceStats m_Stats;
+			XdpPrevDeviceStats m_PrevStats;
+
+			bool sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt,
+		                 const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion = false,
+		                 int waitForTxCompletionTimeoutMS = 5000);
+			bool populateFillRing(uint32_t count, uint32_t rxId = 0);
+			bool populateFillRing(const std::vector<uint64_t>& addresses, uint32_t rxId);
+			uint32_t checkCompletionRing();
+			bool initUmem();
+			bool getSocketStats();
+		};
+
+		const std::string& getInterfaceName() const { return m_InterfaceName; }
+		XdpSocket *getSocket(uint32_t queueid)
+		{
+			if(queueid < m_NumQueues)
+			{
+				return m_Socket[queueid];
+			}
+
+			return nullptr;
+		}
+
+	private:
+	
 		bool m_DeviceOpened = false;
 
 		std::string m_InterfaceName;
 		XdpDeviceConfiguration* m_Config;
-		uint32_t m_NumQueues;
-		bool m_ReceivingPackets[MAXIMUM_NUMBER_QUEUES];
-		XdpUmem* m_Umem[MAXIMUM_NUMBER_QUEUES];
-		void* m_SocketInfo[MAXIMUM_NUMBER_QUEUES];
-		XdpDeviceStats m_Stats[MAXIMUM_NUMBER_QUEUES];
-		XdpPrevDeviceStats m_PrevStats[MAXIMUM_NUMBER_QUEUES];
 
-		bool sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt,
-		                 const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion = false,
-		                 int waitForTxCompletionTimeoutMS = 5000, uint32_t queueid = 0);
-		bool populateFillRing(uint32_t count, uint32_t rxId = 0, uint32_t queueid = 0);
-		bool populateFillRing(const std::vector<uint64_t>& addresses, uint32_t rxId, uint32_t queueid = 0);
-		uint32_t checkCompletionRing(uint32_t queueid = 0);
-		bool configureSocket(uint32_t queueid = 0);
-		bool initUmem(uint32_t queueid = 0);
+		uint32_t m_NumQueues; // number of queues
+		std::array<XdpSocket*, PCPP_MAXIMUM_NUMBER_QUEUES> m_Socket;
+
 		bool initConfig();
-		bool getSocketStats(uint32_t queueid = 0);
+
 	};
 }  // namespace pcpp
