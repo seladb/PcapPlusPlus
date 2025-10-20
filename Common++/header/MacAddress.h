@@ -185,6 +185,14 @@ namespace pcpp
 		std::array<uint8_t, 6> m_Address{};
 	};
 
+	namespace literals
+	{
+		inline MacAddress operator""_mac(const char* addrString, size_t size)
+		{
+			return MacAddress(std::string(addrString, size));
+		}
+	}  // namespace literals
+
 	inline std::ostream& operator<<(std::ostream& oss, const pcpp::MacAddress& macAddress)
 	{
 		oss << macAddress.toString();
