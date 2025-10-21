@@ -85,7 +85,9 @@ protected:
 	{
 		int fileToClose;
 		if (m_LRUFileList.put(fileNum, &fileToClose) == 1)
+		{
 			filesToClose.push_back(fileToClose);
+		}
 	}
 
 	/**
@@ -101,7 +103,9 @@ protected:
 
 		// zero or negative m_MaxFiles means no limit
 		if (m_MaxFiles <= 0)
+		{
 			nextFile = m_NextFile++;
+		}
 		else  // m_MaxFiles is positive, meaning there is a output file limit
 		{
 			nextFile = (m_NextFile) % m_MaxFiles;
@@ -140,7 +144,9 @@ public:
 	{
 		// unlimited number of output files
 		if (m_MaxFiles == UNLIMITED_FILES_MAGIC_NUMBER)
+		{
 			return true;
+		}
 
 		if (m_MaxFiles <= 0)
 		{
@@ -199,7 +205,9 @@ protected:
 std::string getSrcIPString(pcpp::Packet& packet)
 {
 	if (packet.isPacketOfType(pcpp::IP))
+	{
 		return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().toString();
+	}
 	return "miscellaneous";
 }
 
@@ -209,7 +217,9 @@ std::string getSrcIPString(pcpp::Packet& packet)
 std::string getDstIPString(pcpp::Packet& packet)
 {
 	if (packet.isPacketOfType(pcpp::IP))
+	{
 		return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().toString();
+	}
 	return "miscellaneous";
 }
 

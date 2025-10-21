@@ -30,7 +30,9 @@ namespace pcpp
 	void EthLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(ether_header))
+		{
 			return;
+		}
 
 		ether_header* hdr = getEthHeader();
 		uint8_t* payload = m_Data + sizeof(ether_header);
@@ -67,13 +69,17 @@ namespace pcpp
 
 		// If no next layer was constructed, assume it's a payload layer
 		if (!hasNextLayer())
+		{
 			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+		}
 	}
 
 	void EthLayer::computeCalculateFields()
 	{
 		if (m_NextLayer == nullptr)
+		{
 			return;
+		}
 
 		switch (m_NextLayer->getProtocol())
 		{

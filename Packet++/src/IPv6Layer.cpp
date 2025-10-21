@@ -38,7 +38,9 @@ namespace pcpp
 
 		size_t totalLen = be16toh(getIPv6Header()->payloadLength) + getHeaderLen();
 		if (totalLen < m_DataLen)
+		{
 			m_DataLen = totalLen;
+		}
 	}
 
 	IPv6Layer::IPv6Layer()
@@ -123,7 +125,9 @@ namespace pcpp
 			}
 
 			if (newExt == nullptr)
+			{
 				break;
+			}
 
 			if (m_FirstExtension == nullptr)
 			{
@@ -181,7 +185,9 @@ namespace pcpp
 	void IPv6Layer::removeAllExtensions()
 	{
 		if (m_LastExtension != nullptr)
+		{
 			getIPv6Header()->nextHeader = m_LastExtension->getBaseHeader()->nextHeader;
+		}
 
 		shortenLayer((int)sizeof(ip6_hdr), m_ExtensionsLen);
 
@@ -198,7 +204,9 @@ namespace pcpp
 		size_t headerLen = getHeaderLen();
 
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
@@ -235,22 +243,34 @@ namespace pcpp
 		{
 			uint8_t ipVersion = *payload >> 4;
 			if (ipVersion == 4 && IPv4Layer::isDataValid(payload, payloadLen))
+			{
 				m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+			}
 			else if (ipVersion == 6 && IPv6Layer::isDataValid(payload, payloadLen))
+			{
 				m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
+			}
 			else
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 			break;
 		}
 		case PACKETPP_IPPROTO_GRE:
 		{
 			ProtocolType greVer = GreLayer::getGREVersion(payload, payloadLen);
 			if (greVer == GREv0 && GREv0Layer::isDataValid(payload, payloadLen))
+			{
 				m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
+			}
 			else if (greVer == GREv1 && GREv1Layer::isDataValid(payload, payloadLen))
+			{
 				m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
+			}
 			else
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 			break;
 		}
 		case PACKETPP_IPPROTO_AH:
@@ -272,9 +292,13 @@ namespace pcpp
 		{
 			auto vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
 			if (vrrpVer == VRRPv3)
+			{
 				m_NextLayer = new VrrpV3Layer(payload, payloadLen, this, m_Packet, IPAddress::IPv6AddressType);
+			}
 			else
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 			break;
 		}
 		default:
@@ -320,9 +344,13 @@ namespace pcpp
 			if (nextHeader != 0)
 			{
 				if (m_LastExtension != nullptr)
+				{
 					m_LastExtension->getBaseHeader()->nextHeader = nextHeader;
+				}
 				else
+				{
 					ipHdr->nextHeader = nextHeader;
+				}
 			}
 		}
 	}

@@ -84,7 +84,9 @@ namespace pcpp
 		if (m_IsDpdkInitialized)
 		{
 			if (coreMask == m_CoreMask)
+			{
 				return true;
+			}
 			else
 			{
 				PCPP_LOG_ERROR("Trying to re-initialize DPDK with a different core mask");
@@ -179,7 +181,9 @@ namespace pcpp
 		}
 
 		if (m_IsInitialized)
+		{
 			return true;
+		}
 
 #if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 5)
 		int numOfPorts = (int)rte_eth_dev_count();
@@ -294,7 +298,9 @@ namespace pcpp
 			}
 		}
 		else
+		{
 			PCPP_LOG_DEBUG("igb_uio driver is loaded");
+		}
 
 		return true;
 	}
@@ -308,14 +314,22 @@ namespace pcpp
 	{
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 		if (logLevel == Logger::Info)
+		{
 			rte_log_set_global_level(RTE_LOG_NOTICE);
+		}
 		else  // logLevel == Logger::Debug
+		{
 			rte_log_set_global_level(RTE_LOG_DEBUG);
+		}
 #else
 		if (logLevel == Logger::Info)
+		{
 			rte_set_log_level(RTE_LOG_NOTICE);
+		}
 		else  // logLevel == Logger::Debug
+		{
 			rte_set_log_level(RTE_LOG_DEBUG);
+		}
 #endif
 	}
 
@@ -328,7 +342,9 @@ namespace pcpp
 #endif
 			return Logger::Info;
 		else
+		{
 			return Logger::Debug;
+		}
 	}
 
 	bool DpdkDeviceList::writeDpdkLogToFile(FILE* logFile)

@@ -51,7 +51,9 @@ namespace pcpp
 	void SllLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(sll_header))
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + sizeof(sll_header);
 		size_t payloadLen = m_DataLen - sizeof(sll_header);
@@ -97,7 +99,9 @@ namespace pcpp
 	void SllLayer::computeCalculateFields()
 	{
 		if (m_NextLayer == nullptr)
+		{
 			return;
+		}
 
 		sll_header* hdr = getSllHeader();
 		switch (m_NextLayer->getProtocol())

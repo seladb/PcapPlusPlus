@@ -31,21 +31,37 @@ std::string printTcpFlags(pcpp::TcpLayer* tcpLayer)
 	std::string result;
 	auto* tcpHeader = tcpLayer->getTcpHeader();
 	if (tcpHeader->synFlag)
+	{
 		result += "SYN ";
+	}
 	if (tcpHeader->ackFlag)
+	{
 		result += "ACK ";
+	}
 	if (tcpHeader->pshFlag)
+	{
 		result += "PSH ";
+	}
 	if (tcpHeader->cwrFlag)
+	{
 		result += "CWR ";
+	}
 	if (tcpHeader->urgFlag)
+	{
 		result += "URG ";
+	}
 	if (tcpHeader->eceFlag)
+	{
 		result += "ECE ";
+	}
 	if (tcpHeader->rstFlag)
+	{
 		result += "RST ";
+	}
 	if (tcpHeader->finFlag)
+	{
 		result += "FIN ";
+	}
 	return result;
 }
 

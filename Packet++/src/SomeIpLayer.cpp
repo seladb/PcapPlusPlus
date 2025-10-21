@@ -48,16 +48,22 @@ namespace pcpp
 		// Ideas taken from wireshark some ip dissector
 		const size_t headerLen = sizeof(someiphdr);
 		if (dataLen < headerLen)
+		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
 
 		uint32_t lengthBE = 0;
 		memcpy(&lengthBE, data + sizeof(uint32_t), sizeof(uint32_t));  // length field in SOME/IP header
 		uint32_t length = be32toh(lengthBE);
 		if ((length < 8) || (length > dataLen - 8))
+		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
 
 		if (data[12] != SOMEIP_PROTOCOL_VERSION)
+		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
 
 		someiphdr* hdr = (someiphdr*)data;
 
@@ -259,7 +265,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;

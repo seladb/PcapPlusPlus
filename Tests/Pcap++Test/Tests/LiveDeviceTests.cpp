@@ -44,7 +44,9 @@ static bool packetArrivesBlockingModeNoTimeout(pcpp::RawPacket* rawPacket, pcpp:
 {
 	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
+	{
 		return true;
+	}
 
 	(*packetCount)++;
 	return false;
@@ -55,17 +57,23 @@ static bool packetArrivesBlockingModeStartCapture(pcpp::RawPacket* rawPacket, pc
 {
 	pcpp::Logger::getInstance().suppressLogs();
 	if (dev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, nullptr, 5) != 0)
+	{
 		return false;
+	}
 
 	int temp = 0;
 	if (dev->startCapture(packetArrives, &temp) != 0)
+	{
 		return false;
+	}
 
 	pcpp::Logger::getInstance().enableLogs();
 
 	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
+	{
 		return true;
+	}
 
 	(*packetCount)++;
 	return false;
@@ -79,7 +87,9 @@ static bool packetArrivesBlockingModeStopCapture(pcpp::RawPacket* rawPacket, pcp
 
 	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
+	{
 		return true;
+	}
 
 	(*packetCount)++;
 	return false;
@@ -129,7 +139,9 @@ public:
 	    : m_ProcessHandle(nullptr), m_JobHandle(nullptr)
 	{
 		if (!activateRemoteDevice)
+		{
 			return;
+		}
 
 		std::string cmd = "rpcapd\\rpcapd.exe";
 		std::array<char, 256> args;
@@ -234,7 +246,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	{
 		PTF_ASSERT_FALSE(iter->getName().empty());
 		if (defaultGateway == pcpp::IPv4Address::Zero)
+		{
 			defaultGateway = iter->getDefaultGateway();
+		}
 	}
 
 	PTF_ASSERT_NOT_EQUAL(defaultGateway, pcpp::IPv4Address::Zero);
@@ -318,7 +332,9 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
+		{
 			break;
+		}
 	}
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
@@ -379,7 +395,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
+		{
 			break;
+		}
 	}
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
@@ -451,7 +469,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 		pcpp::IPcapDevice::PcapStats statistics;
 		liveDev->getStatistics(statistics);
 		if (statistics.packetsRecv > 2)
+		{
 			break;
+		}
 	}
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
@@ -517,7 +537,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 			totalSleepTime += 1;
 			if (packetCount > 0)
+			{
 				break;
+			}
 		}
 
 		liveDev->stopCapture();
@@ -556,7 +578,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 			totalSleepTime += 1;
 			if (packetCount > 0)
+			{
 				break;
+			}
 		}
 
 		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
@@ -601,7 +625,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
+		{
 			break;
+		}
 	}
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
@@ -617,7 +643,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 	                                                   void* userCookie) {
 		int* packetCount = static_cast<int*>(userCookie);
 		if ((*packetCount) == 5)
+		{
 			return true;
+		}
 
 		(*packetCount)++;
 		return false;
@@ -974,7 +1002,9 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_TRUE(remoteDevice->startCapture(capturedPackets));
 
 	if (!useRemoteDevicesFromArgs)
+	{
 		PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
+	}
 
 	int totalSleepTime = 0;
 	while (totalSleepTime < 10)
@@ -1009,7 +1039,9 @@ PTF_TEST_CASE(TestRemoteCapture)
 			packetsToSend.pushBack(capturedPackets.getAndDetach(iter));
 		}
 		else
+		{
 			++iter;
+		}
 	}
 	int packetsSent = remoteDevice->sendPackets(packetsToSend);
 	PTF_ASSERT_EQUAL(packetsSent, static_cast<int>(packetsToSend.size()));

@@ -1056,9 +1056,13 @@ namespace pcpp
 	{
 		std::unordered_map<uint16_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteIdToObjectMap.find(id);
 		if (pos == CipherSuiteIdToObjectMap.end())
+		{
 			return nullptr;
+		}
 		else
+		{
 			return pos->second;
+		}
 	}
 
 	SSLCipherSuite* SSLCipherSuite::getCipherSuiteByName(std::string name)
@@ -1066,9 +1070,13 @@ namespace pcpp
 		uint32_t nameHash = hashString(std::move(name));
 		std::unordered_map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
 		if (pos == CipherSuiteStringToObjectMap.end())
+		{
 			return nullptr;
+		}
 		else
+		{
 			return pos->second;
+		}
 	}
 
 	// --------------------
@@ -1084,7 +1092,9 @@ namespace pcpp
 	{
 		uint16_t typeAsInt = getTypeAsInt();
 		if (typeAsInt <= 24 || typeAsInt == 35 || typeAsInt == 65281)
+		{
 			return (SSLExtensionType)typeAsInt;
+		}
 
 		return SSL_EXT_Unknown;
 	}
@@ -1154,7 +1164,9 @@ namespace pcpp
 		{
 			uint8_t listLength = *getData();
 			if (listLength != static_cast<uint8_t>(extensionLength - 1) || listLength % 2 != 0)
+			{
 				return result;  // bad extension data
+			}
 
 			uint8_t* dataPtr = getData() + sizeof(uint8_t);
 			for (int i = 0; i < listLength / 2; i++)
@@ -1177,11 +1189,15 @@ namespace pcpp
 
 		uint16_t extensionLength = getLength();
 		if (extensionLength < sizeof(uint16_t))
+		{
 			return result;  // bad extension data
+		}
 
 		uint16_t listLength = be16toh(*(uint16_t*)getData());
 		if (listLength != (extensionLength - sizeof(uint16_t)) || listLength % 2 != 0)
+		{
 			return result;  // bad extension data
+		}
 
 		uint8_t* dataPtr = getData() + sizeof(uint16_t);
 		for (int i = 0; i < listLength / 2; i++)
@@ -1204,7 +1220,9 @@ namespace pcpp
 		uint16_t extensionLength = getLength();
 		uint8_t listLength = *getData();
 		if (listLength != static_cast<uint8_t>(extensionLength - 1))
+		{
 			return result;  // bad extension data
+		}
 
 		uint8_t* dataPtr = getData() + sizeof(uint8_t);
 		for (int i = 0; i < listLength; i++)
@@ -1262,7 +1280,9 @@ namespace pcpp
 	                                                                 SSLHandshakeLayer* container)
 	{
 		if (dataLen < sizeof(ssl_tls_handshake_layer))
+		{
 			return nullptr;
+		}
 
 		ssl_tls_handshake_layer* hsMsgHeader = reinterpret_cast<ssl_tls_handshake_layer*>(data);
 
@@ -1318,7 +1338,9 @@ namespace pcpp
 		// TODO: add handshakeLayer->length1 to the calculation
 		size_t len = sizeof(ssl_tls_handshake_layer) + be16toh(handshakeLayer->length2);
 		if (len > m_DataLen)
+		{
 			return m_DataLen;
+		}
 
 		return len;
 	}
@@ -1326,7 +1348,9 @@ namespace pcpp
 	bool SSLHandshakeMessage::isMessageComplete() const
 	{
 		if (m_DataLen < sizeof(ssl_tls_handshake_layer))
+		{
 			return false;
+		}
 
 		ssl_tls_handshake_layer* handshakeLayer = reinterpret_cast<ssl_tls_handshake_layer*>(m_Data);
 		size_t len = sizeof(ssl_tls_handshake_layer) + be16toh(handshakeLayer->length2);
@@ -1344,7 +1368,9 @@ namespace pcpp
 		                               sizeof(uint16_t) + sizeof(uint16_t) * getCipherSuiteCount() +
 		                               2 * sizeof(uint8_t);
 		if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
+		{
 			return;
+		}
 
 		uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
 		uint16_t extensionLength = getExtensionsLength();
@@ -1397,11 +1423,15 @@ namespace pcpp
 	uint8_t SSLClientHelloMessage::getSessionIDLength() const
 	{
 		if (m_DataLen <= sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t))
+		{
 			return 0;
+		}
 
 		uint8_t val = *(m_Data + sizeof(ssl_tls_client_server_hello));
 		if ((size_t)val > m_DataLen - sizeof(ssl_tls_client_server_hello) - 1)
+		{
 			return (uint8_t)(m_DataLen - sizeof(ssl_tls_client_server_hello) - 1);
+		}
 
 		return val;
 	}
@@ -1409,16 +1439,22 @@ namespace pcpp
 	uint8_t* SSLClientHelloMessage::getSessionID() const
 	{
 		if (getSessionIDLength() > 0)
+		{
 			return (m_Data + sizeof(ssl_tls_client_server_hello) + 1);
+		}
 		else
+		{
 			return nullptr;
+		}
 	}
 
 	int SSLClientHelloMessage::getCipherSuiteCount() const
 	{
 		size_t cipherSuiteOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength();
 		if (cipherSuiteOffset + sizeof(uint16_t) > m_DataLen)
+		{
 			return 0;
+		}
 
 		uint16_t cipherSuiteLen = *(uint16_t*)(m_Data + cipherSuiteOffset);
 		return be16toh(cipherSuiteLen) / 2;
@@ -1457,7 +1493,9 @@ namespace pcpp
 		size_t offset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() +
 		                sizeof(uint16_t) + sizeof(uint16_t) * getCipherSuiteCount() + sizeof(uint8_t);
 		if (offset + sizeof(uint8_t) > m_DataLen)
+		{
 			return 0xff;
+		}
 
 		uint8_t* pos = m_Data + offset;
 		return *pos;
@@ -1474,7 +1512,9 @@ namespace pcpp
 		                               sizeof(uint16_t) + sizeof(uint16_t) * getCipherSuiteCount() +
 		                               2 * sizeof(uint8_t);
 		if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
+		{
 			return 0;
+		}
 
 		uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
 		return be16toh(*(uint16_t*)extensionLengthPos);
@@ -1492,7 +1532,9 @@ namespace pcpp
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (curElem->getTypeAsInt() == type)
+			{
 				return curElem;
+			}
 		}
 
 		return nullptr;
@@ -1505,7 +1547,9 @@ namespace pcpp
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (curElem->getType() == type)
+			{
 				return curElem;
+			}
 		}
 
 		return nullptr;
@@ -1525,7 +1569,9 @@ namespace pcpp
 			bool isValid = false;
 			uint16_t cipherSuiteID = getCipherSuiteID(i, isValid);
 			if (isValid && GreaseSet.find(cipherSuiteID) == GreaseSet.end())
+			{
 				result.cipherSuites.push_back(cipherSuiteID);
+			}
 		}
 
 		// extract extensions
@@ -1534,7 +1580,9 @@ namespace pcpp
 		{
 			uint16_t extensionType = getExtension(i)->getTypeAsInt();
 			if (GreaseSet.find(extensionType) != GreaseSet.end())
+			{
 				continue;
+			}
 
 			result.extensions.push_back(extensionType);
 		}
@@ -1545,8 +1593,12 @@ namespace pcpp
 		{
 			std::vector<uint16_t> supportedGroups = supportedGroupsExt->getSupportedGroups();
 			for (const auto& iter : supportedGroups)
+			{
 				if (GreaseSet.find(iter) == GreaseSet.end())
+				{
 					result.supportedGroups.push_back(iter);
+				}
+			}
 		}
 
 		// extract EC point formats
@@ -1635,7 +1687,9 @@ namespace pcpp
 		size_t extensionLengthOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() +
 		                               sizeof(uint16_t) + sizeof(uint8_t);
 		if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
+		{
 			return;
+		}
 
 		uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
 		uint16_t extensionLength = getExtensionsLength();
@@ -1684,7 +1738,9 @@ namespace pcpp
 		{
 			std::vector<SSLVersion> supportedVersions = supportedVersionsExt->getSupportedVersions();
 			if (supportedVersions.size() == 1)
+			{
 				return supportedVersions[0];
+			}
 		}
 
 		uint16_t handshakeVersion = be16toh(getServerHelloHeader()->handshakeVersion);
@@ -1693,11 +1749,15 @@ namespace pcpp
 	uint8_t SSLServerHelloMessage::getSessionIDLength() const
 	{
 		if (m_DataLen <= sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t))
+		{
 			return 0;
+		}
 
 		uint8_t val = *(m_Data + sizeof(ssl_tls_client_server_hello));
 		if ((size_t)val > m_DataLen - sizeof(ssl_tls_client_server_hello) - 1)
+		{
 			return (uint8_t)(m_DataLen - sizeof(ssl_tls_client_server_hello) - 1);
+		}
 
 		return val;
 	}
@@ -1705,9 +1765,13 @@ namespace pcpp
 	uint8_t* SSLServerHelloMessage::getSessionID() const
 	{
 		if (getSessionIDLength() > 0)
+		{
 			return (m_Data + sizeof(ssl_tls_client_server_hello) + 1);
+		}
 		else
+		{
 			return nullptr;
+		}
 	}
 
 	SSLCipherSuite* SSLServerHelloMessage::getCipherSuite() const
@@ -1735,7 +1799,9 @@ namespace pcpp
 	{
 		size_t offset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t);
 		if (offset + sizeof(uint8_t) > m_DataLen)
+		{
 			return 0xff;
+		}
 
 		uint8_t* pos = m_Data + offset;
 		return *pos;
@@ -1751,7 +1817,9 @@ namespace pcpp
 		size_t extensionLengthOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() +
 		                               sizeof(uint16_t) + sizeof(uint8_t);
 		if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
+		{
 			return 0;
+		}
 
 		uint16_t* extensionLengthPos = (uint16_t*)(m_Data + extensionLengthOffset);
 		return be16toh(*extensionLengthPos);
@@ -1760,7 +1828,9 @@ namespace pcpp
 	SSLExtension* SSLServerHelloMessage::getExtension(int index) const
 	{
 		if (index < 0 || index >= (int)m_ExtensionList.size())
+		{
 			return nullptr;
+		}
 
 		return const_cast<SSLExtension*>(m_ExtensionList.at(index));
 	}
@@ -1772,7 +1842,9 @@ namespace pcpp
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (curElem->getType() == type)
+			{
 				return curElem;
+			}
 		}
 
 		return nullptr;
@@ -1785,7 +1857,9 @@ namespace pcpp
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (curElem->getType() == type)
+			{
 				return curElem;
+			}
 		}
 
 		return nullptr;
@@ -1861,7 +1935,9 @@ namespace pcpp
 	    : SSLHandshakeMessage(data, dataLen, container)
 	{
 		if (dataLen < sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t) * 3)  // certificates length (3B)
+		{
 			return;
+		}
 
 		size_t messageLen = getMessageLength();
 		// read certificates length
@@ -1869,7 +1945,9 @@ namespace pcpp
 		uint8_t* curPos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
 		uint16_t certificatesLength = be16toh(*(uint16_t*)(curPos));
 		if (certificatesLength == 0)
+		{
 			return;
+		}
 
 		// advance to position of first certificate
 		curPos += sizeof(uint16_t);
@@ -1879,7 +1957,9 @@ namespace pcpp
 			// try to read certificate length (3B)
 			// TODO: certificate length is 3B. Currently assuming the MSB is 0 and reading only 2 LSBs
 			if (curPos + 3 * sizeof(uint8_t) - data > (int)messageLen)
+			{
 				break;
+			}
 
 			// read certificate length
 			curPos += sizeof(uint8_t);
@@ -1952,7 +2032,9 @@ namespace pcpp
 	uint8_t* SSLServerKeyExchangeMessage::getServerKeyExchangeParams() const
 	{
 		if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
+		{
 			return (m_Data + sizeof(ssl_tls_handshake_layer));
+		}
 
 		return nullptr;
 	}
@@ -1961,7 +2043,9 @@ namespace pcpp
 	{
 		size_t msgLength = getMessageLength();
 		if (msgLength <= sizeof(ssl_tls_handshake_layer))
+		{
 			return 0;
+		}
 
 		return msgLength - sizeof(ssl_tls_handshake_layer);
 	}
@@ -1978,7 +2062,9 @@ namespace pcpp
 	uint8_t* SSLClientKeyExchangeMessage::getClientKeyExchangeParams() const
 	{
 		if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
+		{
 			return (m_Data + sizeof(ssl_tls_handshake_layer));
+		}
 
 		return nullptr;
 	}
@@ -1987,7 +2073,9 @@ namespace pcpp
 	{
 		size_t msgLength = getMessageLength();
 		if (msgLength <= sizeof(ssl_tls_handshake_layer))
+		{
 			return 0;
+		}
 
 		return msgLength - sizeof(ssl_tls_handshake_layer);
 	}
@@ -2007,25 +2095,35 @@ namespace pcpp
 	{
 		size_t minMessageSize = sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);  // certificate types count (1B)
 		if (dataLen < minMessageSize)
+		{
 			return;
+		}
 
 		size_t messageLen = getMessageLength();
 		if (messageLen < minMessageSize)
+		{
 			return;
+		}
 
 		uint8_t certificateTypesCount = *(uint8_t*)(data + sizeof(ssl_tls_handshake_layer));
 
 		if (certificateTypesCount > messageLen - minMessageSize)
+		{
 			certificateTypesCount = messageLen - minMessageSize;
+		}
 
 		uint8_t* pos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
 		for (uint8_t i = 0; i < certificateTypesCount; i++)
 		{
 			uint8_t certType = *(uint8_t*)(pos + i);
 			if (certType == 0 || (certType > 6 && certType < 20) || (certType > 20 && certType < 64) || certType > 64)
+			{
 				m_ClientCertificateTypes.push_back(SSL_CCT_UNKNOWN);
+			}
 			else
+			{
 				m_ClientCertificateTypes.push_back(static_cast<SSLClientCertificateType>(certType));
+			}
 		}
 	}
 
@@ -2040,7 +2138,9 @@ namespace pcpp
 		size_t offset =
 		    sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t) + m_ClientCertificateTypes.size() + sizeof(uint16_t);
 		if (offset >= messageLen)
+		{
 			return nullptr;
+		}
 
 		return m_Data + offset;
 	}
@@ -2050,14 +2150,18 @@ namespace pcpp
 		size_t messageLen = getMessageLength();
 		size_t offset = sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t) + m_ClientCertificateTypes.size();
 		if (offset + sizeof(uint16_t) >= messageLen)
+		{
 			return 0;
+		}
 
 		uint16_t certAuthLen = be16toh(*(uint16_t*)(m_Data + offset));
 
 		offset += sizeof(uint16_t);
 
 		if (messageLen - offset < certAuthLen)
+		{
 			return messageLen - offset;
+		}
 
 		return certAuthLen;
 	}
@@ -2074,7 +2178,9 @@ namespace pcpp
 	uint8_t* SSLCertificateVerifyMessage::getSignedHash() const
 	{
 		if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
+		{
 			return (m_Data + sizeof(ssl_tls_handshake_layer));
+		}
 
 		return nullptr;
 	}
@@ -2083,7 +2189,9 @@ namespace pcpp
 	{
 		size_t msgLength = getMessageLength();
 		if (msgLength <= sizeof(ssl_tls_handshake_layer))
+		{
 			return 0;
+		}
 
 		return msgLength - sizeof(ssl_tls_handshake_layer);
 	}
@@ -2100,7 +2208,9 @@ namespace pcpp
 	uint8_t* SSLFinishedMessage::getSignedHash() const
 	{
 		if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
+		{
 			return (m_Data + sizeof(ssl_tls_handshake_layer));
+		}
 
 		return nullptr;
 	}
@@ -2109,7 +2219,9 @@ namespace pcpp
 	{
 		size_t msgLength = getMessageLength();
 		if (msgLength <= sizeof(ssl_tls_handshake_layer))
+		{
 			return 0;
+		}
 
 		return msgLength - sizeof(ssl_tls_handshake_layer);
 	}
@@ -2126,7 +2238,9 @@ namespace pcpp
 	uint8_t* SSLNewSessionTicketMessage::getSessionTicketData() const
 	{
 		if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
+		{
 			return (m_Data + sizeof(ssl_tls_handshake_layer));
+		}
 
 		return nullptr;
 	}
@@ -2135,7 +2249,9 @@ namespace pcpp
 	{
 		size_t msgLength = getMessageLength();
 		if (msgLength <= sizeof(ssl_tls_handshake_layer))
+		{
 			return 0;
+		}
 
 		return msgLength - sizeof(ssl_tls_handshake_layer);
 	}

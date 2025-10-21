@@ -174,7 +174,9 @@ int main(int argc, char* argv[])
 
 	// make sure that hostname is provided
 	if (!hostnameProvided)
+	{
 		EXIT_WITH_ERROR("Hostname not provided");
+	}
 
 	// find the interface to send the DNS request from
 	pcpp::PcapLiveDevice* dev = nullptr;
@@ -184,7 +186,9 @@ int main(int argc, char* argv[])
 	{
 		dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
+		}
 	}
 	// if interface name or IP was not provided - find a device that has a default gateway
 	else
@@ -201,7 +205,9 @@ int main(int argc, char* argv[])
 		}
 
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR("Couldn't find an interface with a default gateway");
+		}
 	}
 
 	std::cout << "Using interface '" << dev->getIPv4Address() << "'" << std::endl;

@@ -12,7 +12,9 @@ namespace pcpp
 	size_t tbp_my_own_strnlen(const char* s, size_t maxlen)
 	{
 		if (s == nullptr || maxlen == 0)
+		{
 			return 0;
+		}
 
 		size_t i = 0;
 		for (; (i < maxlen) && s[i]; ++i)
@@ -97,9 +99,13 @@ namespace pcpp
 		PCPP_LOG_DEBUG("     Field value = " << firstField->getFieldValue());
 
 		if (m_FieldList == nullptr)
+		{
 			m_FieldList = firstField;
+		}
 		else
+		{
 			m_FieldList->setNextField(firstField);
+		}
 
 		std::string fieldName = firstField->getFieldName();
 		std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
@@ -185,7 +191,9 @@ namespace pcpp
 		{
 			HeaderField* prevField = getFieldByName(prevFieldName);
 			if (prevField == nullptr)
+			{
 				return nullptr;
+			}
 
 			return insertField(prevField, fieldName, fieldValue);
 		}
@@ -209,7 +217,9 @@ namespace pcpp
 
 		int newFieldOffset = m_FieldsOffset;
 		if (prevField != nullptr)
+		{
 			newFieldOffset = prevField->m_NameOffsetInMessage + prevField->getFieldSize();
+		}
 
 		// extend layer to make room for the new field. Field will be added just before the last field
 		if (!extendLayer(newFieldOffset, newFieldToAdd->getFieldSize()))
@@ -221,7 +231,9 @@ namespace pcpp
 
 		HeaderField* curField = m_FieldList;
 		if (prevField != nullptr)
+		{
 			curField = prevField->getNextField();
+		}
 
 		// go over all fields after prevField and update their offsets
 		shiftFieldsOffset(curField, newFieldToAdd->getFieldSize());
@@ -246,7 +258,9 @@ namespace pcpp
 
 		// if newField is the last field, update m_LastField
 		if (newFieldToAdd->getNextField() == nullptr)
+		{
 			m_LastField = newFieldToAdd;
+		}
 
 		// insert the new field into name to field map
 		std::string fieldName = newFieldToAdd->getFieldName();
@@ -276,7 +290,9 @@ namespace pcpp
 		}
 
 		if (fieldToRemove != nullptr)
+		{
 			return removeField(fieldToRemove);
+		}
 		else
 		{
 			PCPP_LOG_ERROR("Cannot find field '" << fieldName << "'");
@@ -287,7 +303,9 @@ namespace pcpp
 	bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 	{
 		if (fieldToRemove == nullptr)
+		{
 			return true;
+		}
 
 		if (fieldToRemove->m_TextBasedProtocolMessage != this)
 		{
@@ -310,12 +328,16 @@ namespace pcpp
 
 		// update fields link list
 		if (fieldToRemove == m_FieldList)
+		{
 			m_FieldList = m_FieldList->getNextField();
+		}
 		else
 		{
 			curField = m_FieldList;
 			while (curField->getNextField() != fieldToRemove)
+			{
 				curField = curField->getNextField();
+			}
 
 			curField->setNextField(fieldToRemove->getNextField());
 		}
@@ -324,12 +346,16 @@ namespace pcpp
 		if (fieldToRemove == m_LastField)
 		{
 			if (m_FieldList == nullptr)
+			{
 				m_LastField = nullptr;
+			}
 			else
 			{
 				curField = m_FieldList;
 				while (curField->getNextField() != nullptr)
+				{
 					curField = curField->getNextField();
+				}
 				m_LastField = curField;
 			}
 		}
@@ -355,7 +381,9 @@ namespace pcpp
 	bool TextBasedProtocolMessage::isHeaderComplete() const
 	{
 		if (m_LastField == nullptr)
+		{
 			return false;
+		}
 
 		return (m_LastField->getFieldName() == PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER);
 	}
@@ -366,7 +394,9 @@ namespace pcpp
 		{
 			fromField->m_NameOffsetInMessage += numOfBytesToShift;
 			if (fromField->m_ValueOffsetInMessage != -1)
+			{
 				fromField->m_ValueOffsetInMessage += numOfBytesToShift;
+			}
 			fromField = fromField->getNextField();
 		}
 	}
@@ -380,7 +410,9 @@ namespace pcpp
 		for (std::multimap<std::string, HeaderField*>::const_iterator iter = range.first; iter != range.second; ++iter)
 		{
 			if (i == index)
+			{
 				return iter->second;
+			}
 
 			i++;
 		}
@@ -396,7 +428,9 @@ namespace pcpp
 		while (curField != nullptr)
 		{
 			if (!curField->isEndOfHeader())
+			{
 				result++;
+			}
 			curField = curField->getNextField();
 		}
 
@@ -407,7 +441,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	}
@@ -434,10 +470,14 @@ namespace pcpp
 		char* fieldEndPtr = static_cast<char*>(memchr(
 		    fieldData, '\n', m_TextBasedProtocolMessage->m_DataLen - static_cast<size_t>(m_NameOffsetInMessage)));
 		if (fieldEndPtr == nullptr)
+		{
 			m_FieldSize = tbp_my_own_strnlen(fieldData, m_TextBasedProtocolMessage->m_DataLen -
 			                                                static_cast<size_t>(m_NameOffsetInMessage));
+		}
 		else
+		{
 			m_FieldSize = fieldEndPtr - fieldData + 1;
+		}
 
 		if (m_FieldSize == 0 || (*fieldData) == '\r' || (*fieldData) == '\n')
 		{
@@ -449,7 +489,9 @@ namespace pcpp
 			return;
 		}
 		else
+		{
 			m_IsEndOfHeaderField = false;
+		}
 
 		char* fieldValuePtr = static_cast<char*>(
 		    memchr(fieldData, nameValueSeparator,
@@ -513,7 +555,9 @@ namespace pcpp
 					m_FieldValueSize = fieldEndPtr - fieldValuePtr;
 					// if field ends with \r\n, decrease the value length by 1
 					if ((*(--fieldEndPtr)) == '\r')
+					{
 						m_FieldValueSize--;
+					}
 				}
 			}
 		}
@@ -536,44 +580,64 @@ namespace pcpp
 		// first building the name-value separator
 		std::string nameValueSeparation(1, m_NameValueSeparator);
 		if (m_SpacesAllowedBetweenNameAndValue)
+		{
 			nameValueSeparation += " ";
+		}
 
 		// Field size is: name_length + separator_len + value_length + '\r\n'
 		if (name != PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
+		{
 			m_FieldSize = name.length() + nameValueSeparation.length() + value.length() + 2;
+		}
 		else
+		{
 			// Field is \r\n (2B)
 			m_FieldSize = 2;
+		}
 
 		m_NewFieldData = new uint8_t[m_FieldSize];
 		std::string fieldData;
 
 		if (name != PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
+		{
 			fieldData = name + nameValueSeparation + value + "\r\n";
+		}
 		else
+		{
 			fieldData = "\r\n";
+		}
 
 		// copy field data to m_NewFieldData
 		memcpy(m_NewFieldData, fieldData.c_str(), m_FieldSize);
 
 		// calculate value offset
 		if (name != PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
+		{
 			m_ValueOffsetInMessage = name.length() + nameValueSeparation.length();
+		}
 		else
+		{
 			m_ValueOffsetInMessage = 0;
+		}
 		m_FieldNameSize = name.length();
 		m_FieldValueSize = value.length();
 
 		if (name != PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
+		{
 			m_IsEndOfHeaderField = false;
+		}
 		else
+		{
 			m_IsEndOfHeaderField = true;
+		}
 	}
 
 	HeaderField::~HeaderField()
 	{
 		if (m_NewFieldData != nullptr)
+		{
 			delete[] m_NewFieldData;
+		}
 	}
 
 	HeaderField::HeaderField(const HeaderField& other)
@@ -589,7 +653,9 @@ namespace pcpp
 		m_NameValueSeparator = other.m_NameValueSeparator;
 		m_SpacesAllowedBetweenNameAndValue = other.m_SpacesAllowedBetweenNameAndValue;
 		if (m_NewFieldData != nullptr)
+		{
 			delete[] m_NewFieldData;
+		}
 		initNewField(other.getFieldName(), other.getFieldValue());
 
 		return (*this);
@@ -598,9 +664,13 @@ namespace pcpp
 	char* HeaderField::getData() const
 	{
 		if (m_TextBasedProtocolMessage == nullptr)
+		{
 			return reinterpret_cast<char*>(m_NewFieldData);
+		}
 		else
+		{
 			return reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data);
+		}
 	}
 
 	void HeaderField::setNextField(HeaderField* nextField)
@@ -618,7 +688,9 @@ namespace pcpp
 		std::string result;
 
 		if (m_FieldNameSize != static_cast<size_t>(-1))
+		{
 			result.assign((getData() + m_NameOffsetInMessage), m_FieldNameSize);
+		}
 
 		return result;
 	}
@@ -627,7 +699,9 @@ namespace pcpp
 	{
 		std::string result;
 		if (m_ValueOffsetInMessage != -1)
+		{
 			result.assign((getData() + m_ValueOffsetInMessage), m_FieldValueSize);
+		}
 		return result;
 	}
 
@@ -664,7 +738,9 @@ namespace pcpp
 		}
 
 		if (lengthDifference != 0)
+		{
 			m_TextBasedProtocolMessage->shiftFieldsOffset(getNextField(), lengthDifference);
+		}
 
 		// update sizes
 		m_FieldValueSize += lengthDifference;

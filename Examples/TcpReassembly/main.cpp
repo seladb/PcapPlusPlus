@@ -115,7 +115,9 @@ public:
 		// if user chooses to write to a directory other than the current directory - add the dir path to the return
 		// value
 		if (!outputDir.empty())
+		{
 			stream << outputDir << SEPARATOR;
+		}
 
 		std::string sourceIP = connData.srcIP.toString();
 		std::string destIP = connData.dstIP.toString();
@@ -126,9 +128,13 @@ public:
 
 		// side == 0 means data is sent from client->server
 		if (side <= 0 || !useSeparateSides)
+		{
 			stream << sourceIP << '.' << connData.srcPort << '-' << destIP << '.' << connData.dstPort;
+		}
 		else  // side == 1 means data is sent from server->client
+		{
 			stream << destIP << '.' << connData.dstPort << '-' << sourceIP << '.' << connData.srcPort;
+		}
 
 		// return the file path
 		return stream.str();
@@ -142,13 +148,19 @@ public:
 	{
 		// if the user chooses to write only to console, don't open anything and return std::cout
 		if (writeToConsole)
+		{
 			return &std::cout;
+		}
 
 		// open the file on the disk (with append or overwrite mode)
 		if (reopen)
+		{
 			return new std::ofstream(fileName.c_str(), std::ios_base::binary | std::ios_base::app);
+		}
 		else
+		{
 			return new std::ofstream(fileName.c_str(), std::ios_base::binary);
+		}
 	}
 
 	/**
@@ -177,7 +189,9 @@ public:
 		// the side of the LRU list is determined by the max number of allowed open files at any point in time. Default
 		// is DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES but the user can choose another number
 		if (m_RecentConnsWithActivity == nullptr)
+		{
 			m_RecentConnsWithActivity = new pcpp::LRUList<uint32_t>(maxOpenFiles);
+		}
 
 		// return the pointer
 		return m_RecentConnsWithActivity;
@@ -240,10 +254,14 @@ struct TcpReassemblyData
 	{
 		// close files on both sides if open
 		if (fileStreams[0] != nullptr)
+		{
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[0]);
+		}
 
 		if (fileStreams[1] != nullptr)
+		{
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[1]);
+		}
 	}
 
 	/**
@@ -362,9 +380,13 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 	// if the user wants to write each side in a different file - set side as the sideIndex, otherwise write everything
 	// to the same file ("side 0")
 	if (GlobalConfig::getInstance().separateSides)
+	{
 		side = sideIndex;
+	}
 	else
+	{
 		side = 0;
+	}
 
 	// if the file stream on the relevant side isn't open yet (meaning it's the first data on this connection)
 	if (flow->second.fileStreams[side] == nullptr)
@@ -466,7 +488,9 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
 
 	// connection wasn't found - shouldn't get here
 	if (connection == connMgr->end())
+	{
 		return;
+	}
 
 	// write a metadata file if required by the user
 	if (GlobalConfig::getInstance().writeMetadata)
@@ -524,13 +548,17 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName, pcpp::TcpReassembly&
 
 	// try to open the file device
 	if (!reader->open())
+	{
 		EXIT_WITH_ERROR("Cannot open pcap/pcapng file");
+	}
 
 	// set BPF filter if set by the user
 	if (!bpfFilter.empty())
 	{
 		if (!reader->setFilter(bpfFilter))
+		{
 			EXIT_WITH_ERROR("Cannot set BPF filter to pcap file");
+		}
 	}
 
 	std::cout << "Starting reading '" << fileName << "'..." << std::endl;
@@ -563,13 +591,17 @@ void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly
 {
 	// try to open device
 	if (!dev->open())
+	{
 		EXIT_WITH_ERROR("Cannot open interface");
+	}
 
 	// set BPF filter if set by the user
 	if (!bpfFilter.empty())
 	{
 		if (!dev->setFilter(bpfFilter))
+		{
 			EXIT_WITH_ERROR("Cannot set BPF filter to interface");
+		}
 	}
 
 	std::cout << "Starting packet capture on '" << dev->getIPv4Address() << "'..." << std::endl;
@@ -583,7 +615,9 @@ void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly
 
 	// run in an endless loop until the user presses ctrl+c
 	while (!shouldStop)
+	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 
 	// stop capturing and close the live device
 	dev->stopCapture();
@@ -661,11 +695,15 @@ int main(int argc, char* argv[])
 
 	// if no interface nor input pcap file were provided - exit with error
 	if (inputPcapFileName.empty() && interfaceNameOrIP.empty())
+	{
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
+	}
 
 	// verify output dir exists
 	if (!outputDir.empty() && !pcpp::directoryExists(outputDir))
+	{
 		EXIT_WITH_ERROR("Output directory doesn't exist");
+	}
 
 	// set global config singleton with input configuration
 	GlobalConfig::getInstance().outputDir = outputDir;
@@ -691,7 +729,9 @@ int main(int argc, char* argv[])
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
+		}
 
 		// start capturing packets and do TCP reassembly
 		doTcpReassemblyOnLiveTraffic(dev, tcpReassembly, bpfFilter);

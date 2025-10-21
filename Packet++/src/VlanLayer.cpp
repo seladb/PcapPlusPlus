@@ -62,7 +62,9 @@ namespace pcpp
 	void VlanLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(vlan_header))
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + sizeof(vlan_header);
 		size_t payloadLen = m_DataLen - sizeof(vlan_header);
@@ -110,7 +112,9 @@ namespace pcpp
 	void VlanLayer::computeCalculateFields()
 	{
 		if (m_NextLayer == nullptr)
+		{
 			return;
+		}
 
 		switch (m_NextLayer->getProtocol())
 		{

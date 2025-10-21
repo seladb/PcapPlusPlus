@@ -131,9 +131,13 @@ namespace pcpp
 		HeaderField* getNextField(HeaderField* prevField) const
 		{
 			if (prevField != nullptr)
+			{
 				return prevField->getNextField();
+			}
 			else
+			{
 				return nullptr;
+			}
 		}
 
 		/// @return The number of header fields currently in the layer (not including CRLF at the end of the header)

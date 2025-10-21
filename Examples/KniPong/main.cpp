@@ -164,7 +164,9 @@ namespace
 		}
 		// Default name for KNI device:
 		if (args.kniName.empty())
+		{
 			args.kniName = DEFAULT_KNI_NAME;
+		}
 		if (args.kniIp.empty())
 		{
 			printUsage();
@@ -279,7 +281,9 @@ namespace
 			pcpp::CoreMask cm = 0x3;
 			bool dpdkInitSuccess = pcpp::DpdkDeviceList::initDpdk(cm, 1023);
 			if (!dpdkInitSuccess)
+			{
 				EXIT_WITH_ERROR("Failed to init DPDK");
+			}
 		}
 		pcpp::IPv4Address kniIp = args.kniIp;
 		// Setup device config
@@ -298,23 +302,37 @@ namespace
 		devConfig.bindKthread = false;
 		pcpp::KniDeviceList& kniDeviceList = pcpp::KniDeviceList::getInstance();
 		if (!kniDeviceList.isInitialized())
+		{
 			EXIT_WITH_ERROR("Can't initialize KNI device list");
+		}
 		device = kniDeviceList.createDevice(devConfig, 1024);
 		if (device == nullptr)
+		{
 			EXIT_WITH_ERROR("Can't create KNI device");
+		}
 		// Check KNI device and start request thread
 		if (!device->isInitialized())
+		{
 			EXIT_WITH_ERROR("KNI device was not initialized correctly");
+		}
 		if (!device->open())
+		{
 			EXIT_WITH_ERROR("Could not open KNI device");
+		}
 		if (!device->startRequestHandlerThread(0, 500000000))
+		{
 			EXIT_WITH_ERROR("Could not start KNI device request handler thread");
+		}
 		// Assign IP
 		if (!setKniIp(kniIp, args.kniName))
+		{
 			EXIT_WITH_ERROR("Can't set KNI device IP");
+		}
 		// Turn device on for Linux Kernel
 		if (!device->setLinkState(pcpp::KniDevice::LINK_UP))
+		{
 			EXIT_WITH_ERROR("Can't set KNI device link state to UP");
+		}
 		return device;
 	}
 
@@ -404,12 +422,16 @@ namespace
 
 		ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
 		if (ipLayer == nullptr)  // Some invalid packet
+		{
 			return false;
+		}
 		pcpp::iphdr ipHdr;
 		pcpp::iphdr* origIpHdr = ipLayer->getIPv4Header();
 		std::memcpy(&ipHdr, origIpHdr, sizeof(ipHdr));
 		if (pcpp::netToHost16(ipHdr.fragmentOffset) & 0x1FFF)  // Fragmented packet
+		{
 			return false;
+		}
 		// Swap src and dst IPs
 		std::memcpy(&ipHdr.ipSrc, &origIpHdr->ipDst, sizeof(ipHdr.ipSrc));
 		std::memcpy(&ipHdr.ipDst, &origIpHdr->ipSrc, sizeof(ipHdr.ipDst));
@@ -453,7 +475,9 @@ namespace
 				processArp(packet, arpLayer);
 				// Packet is ready to be sent -> have no fields to recalculate
 				if (!kni->sendPacket(packet))
+				{
 					++packetStats->arpPacketsOutFail;
+				}
 				arpLayer = nullptr;
 				continue;
 			}
@@ -463,7 +487,9 @@ namespace
 				++packetStats->udpPacketsIn;
 				//! Warning (echo-Mike): DO NOT normalize next logic statement it relays on short circuiting
 				if (!processUdp(packet, udpLayer) || !kni->sendPacket(packet))
+				{
 					++packetStats->udpPacketsOutFail;
+				}
 				udpLayer = nullptr;
 				continue;
 			}
@@ -502,9 +528,13 @@ namespace
 
 		n = read(fd, buff + buffPos, num);
 		if (n == -1 && (errno == EAGAIN || errno == EINTR))
+		{
 			n = WANT_POLLIN;
+		}
 		if (n <= 0)
+		{
 			return n;
+		}
 		buffPos += n;
 		return n;
 	}
@@ -519,13 +549,19 @@ namespace
 
 		n = write(fd, buff, buffPos);
 		if (n == -1 && (errno == EAGAIN || errno == EINTR))
+		{
 			n = WANT_POLLOUT;
+		}
 		if (n <= 0)
+		{
 			return n;
+		}
 		/* adjust buffer */
 		adjust = buffPos - n;
 		if (adjust > 0)
+		{
 			std::memmove(buff, buff + n, adjust);
+		}
 		buffPos -= n;
 		return n;
 	}
@@ -576,7 +612,9 @@ namespace
 			}
 			/* both outputs are gone, we can't continue */
 			if (pfd[POLL_NETOUT].fd == -1 && pfd[POLL_STDOUT].fd == -1)
+			{
 				return;
+			}
 
 			/* poll */
 			int num_fds = poll(pfd, 4, DEFAULT_POLL_TIMEOUT);
@@ -625,15 +663,21 @@ namespace
 			}
 			/* if HUP, stop watching stdout */
 			if (pfd[POLL_STDOUT].revents & POLLHUP)
+			{
 				pfd[POLL_STDOUT].fd = -1;
+			}
 			/* if no net out, stop watching stdin */
 			if (pfd[POLL_NETOUT].fd == -1)
+			{
 				pfd[POLL_STDIN].fd = -1;
+			}
 			/* if no stdout, stop watching net in */
 			if (pfd[POLL_STDOUT].fd == -1)
 			{
 				if (pfd[POLL_NETIN].fd != -1)
+				{
 					shutdown(pfd[POLL_NETIN].fd, SHUT_RD);
+				}
 				pfd[POLL_NETIN].fd = -1;
 			}
 
@@ -642,39 +686,59 @@ namespace
 			{
 				ret = fillbuf(pfd[POLL_STDIN].fd, ttybuff, ttybuffPos);
 				if (ret == WANT_POLLIN)
+				{
 					pfd[POLL_STDIN].events = POLLIN;
+				}
 				else if (ret == 0 || ret == -1)
+				{
 					pfd[POLL_STDIN].fd = -1;
+				}
 				/* read something - poll net out */
 				if (ttybuffPos > 0)
+				{
 					pfd[POLL_NETOUT].events = POLLOUT;
+				}
 				/* filled buffer - remove self from polling */
 				if (ttybuffPos == IO_BUFF_SIZE)
+				{
 					pfd[POLL_STDIN].events = 0;
+				}
 			}
 			/* try to write to network */
 			if (pfd[POLL_NETOUT].revents & POLLOUT && ttybuffPos > 0)
 			{
 				ret = drainbuf(pfd[POLL_NETOUT].fd, ttybuff, ttybuffPos);
 				if (ret == WANT_POLLOUT)
+				{
 					pfd[POLL_NETOUT].events = POLLOUT;
+				}
 				else if (ret == -1)
+				{
 					pfd[POLL_NETOUT].fd = -1;
+				}
 				/* buffer empty - remove self from polling */
 				if (ttybuffPos == 0)
+				{
 					pfd[POLL_NETOUT].events = 0;
+				}
 				/* buffer no longer full - poll stdin again */
 				if (ttybuffPos < IO_BUFF_SIZE)
+				{
 					pfd[POLL_STDIN].events = POLLIN;
+				}
 			}
 			/* try to read from network */
 			if (pfd[POLL_NETIN].revents & POLLIN && netbuffPos < IO_BUFF_SIZE)
 			{
 				ret = fillbuf(pfd[POLL_NETIN].fd, netbuff, netbuffPos);
 				if (ret == WANT_POLLIN)
+				{
 					pfd[POLL_NETIN].events = POLLIN;
+				}
 				else if (ret == -1)
+				{
 					pfd[POLL_NETIN].fd = -1;
+				}
 				/* eof on net in - remove from pfd */
 				if (ret == 0)
 				{
@@ -683,25 +747,37 @@ namespace
 				}
 				/* read something - poll stdout */
 				if (netbuffPos > 0)
+				{
 					pfd[POLL_STDOUT].events = POLLOUT;
+				}
 				/* filled buffer - remove self from polling */
 				if (netbuffPos == IO_BUFF_SIZE)
+				{
 					pfd[POLL_NETIN].events = 0;
+				}
 			}
 			/* try to write to stdout */
 			if (pfd[POLL_STDOUT].revents & POLLOUT && netbuffPos > 0)
 			{
 				ret = drainbuf(pfd[POLL_STDOUT].fd, netbuff, netbuffPos);
 				if (ret == WANT_POLLOUT)
+				{
 					pfd[POLL_STDOUT].events = POLLOUT;
+				}
 				else if (ret == -1)
+				{
 					pfd[POLL_STDOUT].fd = -1;
+				}
 				/* buffer empty - remove self from polling */
 				if (netbuffPos == 0)
+				{
 					pfd[POLL_STDOUT].events = 0;
+				}
 				/* buffer no longer full - poll net in again */
 				if (netbuffPos < IO_BUFF_SIZE)
+				{
 					pfd[POLL_NETIN].events = POLLIN;
+				}
 			}
 
 			/* stdin gone and queue empty? */

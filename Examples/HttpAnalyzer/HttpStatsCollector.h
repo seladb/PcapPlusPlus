@@ -169,12 +169,16 @@ public:
 	{
 		// verify packet is TCP
 		if (!httpPacket->isPacketOfType(pcpp::TCP))
+		{
 			return;
+		}
 
 		// verify packet is port 80
 		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 		if (!(tcpLayer->getDstPort() == m_DstPort || tcpLayer->getSrcPort() == m_DstPort))
+		{
 			return;
+		}
 
 		// collect general HTTP traffic stats on this packet
 		uint32_t hashVal = collectHttpTrafficStats(httpPacket);
@@ -362,7 +366,9 @@ private:
 	{
 		// if num of current opened transaction is negative it means something went completely wrong
 		if (m_FlowTable[flowKey].numOfOpenTransactions < 0)
+		{
 			return;
+		}
 
 		if (message->getProtocol() == pcpp::HTTPRequest)
 		{
@@ -370,7 +376,9 @@ private:
 			// a re-transmitted packet and should be ignored
 			if (m_FlowTable[flowKey].curSeqNumberRequests >=
 			    pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
+			{
 				return;
+			}
 
 			// a new request - increase num of open transactions
 			m_FlowTable[flowKey].numOfOpenTransactions++;
@@ -395,7 +403,9 @@ private:
 			// a re-transmitted packet and should be ignored
 			if (m_FlowTable[flowKey].curSeqNumberResponses >=
 			    pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
+			{
 				return;
+			}
 
 			// a response - decrease num of open transactions
 			m_FlowTable[flowKey].numOfOpenTransactions--;
@@ -418,9 +428,11 @@ private:
 
 				// calc average transactions per flow
 				if (m_FlowTable.size() != 0)
+				{
 					m_GeneralStats.averageNumOfHttpTransactionsPerFlow =
 					    static_cast<double>(m_GeneralStats.numOfHttpTransactions) /
 					    static_cast<double>(m_FlowTable.size());
+				}
 			}
 
 			// set last seen sequence number
@@ -436,13 +448,17 @@ private:
 		m_RequestStats.numOfMessages++;
 		m_RequestStats.totalMessageHeaderSize += req->getHeaderLen();
 		if (m_RequestStats.numOfMessages != 0)
+		{
 			m_RequestStats.averageMessageHeaderSize = static_cast<double>(m_RequestStats.totalMessageHeaderSize) /
 			                                          static_cast<double>(m_RequestStats.numOfMessages);
+		}
 
 		// extract hostname and add to hostname count map
 		pcpp::HeaderField* hostField = req->getFieldByName(PCPP_HTTP_HOST_FIELD);
 		if (hostField != nullptr)
+		{
 			m_RequestStats.hostnameCount[hostField->getFieldValue()]++;
+		}
 
 		m_RequestStats.methodCount[req->getFirstLine()->getMethod()]++;
 	}
@@ -455,8 +471,10 @@ private:
 		m_ResponseStats.numOfMessages++;
 		m_ResponseStats.totalMessageHeaderSize += res->getHeaderLen();
 		if (m_ResponseStats.numOfMessages != 0)
+		{
 			m_ResponseStats.averageMessageHeaderSize = static_cast<double>(m_ResponseStats.totalMessageHeaderSize) /
 			                                           static_cast<double>(m_ResponseStats.numOfMessages);
+		}
 
 		// extract content-length (if exists)
 		pcpp::HeaderField* contentLengthField = res->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
@@ -465,9 +483,11 @@ private:
 			m_ResponseStats.numOfMessagesWithContentLength++;
 			m_ResponseStats.totalContentLengthSize += atoi(contentLengthField->getFieldValue().c_str());
 			if (m_ResponseStats.numOfMessagesWithContentLength != 0)
+			{
 				m_ResponseStats.averageContentLengthSize =
 				    static_cast<double>(m_ResponseStats.totalContentLengthSize) /
 				    static_cast<double>(m_ResponseStats.numOfMessagesWithContentLength);
+			}
 		}
 
 		// extract content-type and add to content-type map
@@ -481,7 +501,9 @@ private:
 			// remove charset as it's not relevant for these stats
 			size_t charsetPos = contentType.find(";");
 			if (charsetPos != std::string::npos)
+			{
 				contentType.resize(charsetPos);
+			}
 
 			m_ResponseStats.contentTypeCount[contentType]++;
 		}

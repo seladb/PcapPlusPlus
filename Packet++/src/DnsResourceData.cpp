@@ -42,7 +42,9 @@ namespace pcpp
 			m_Data = tempResult;
 		}
 		else
+		{
 			PCPP_LOG_ERROR("Cannot decode name, dataPtr is nullptr or length is 0");
+		}
 	}
 
 	bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
@@ -99,7 +101,9 @@ namespace pcpp
 			m_Data.mailExchange = tempMX;
 		}
 		else
+		{
 			PCPP_LOG_ERROR("Cannot decode name, dataPtr is nullptr or length is 0");
+		}
 	}
 
 	MxDnsResourceData::MxDnsResourceData(const uint16_t& preference, const std::string& mailExchange)
@@ -174,7 +178,9 @@ namespace pcpp
 	GenericDnsResourceData& GenericDnsResourceData::operator=(const GenericDnsResourceData& other)
 	{
 		if (m_Data != nullptr)
+		{
 			delete[] m_Data;
+		}
 
 		m_Data = nullptr;
 		m_DataLen = other.m_DataLen;
@@ -190,7 +196,9 @@ namespace pcpp
 	bool GenericDnsResourceData::operator==(const GenericDnsResourceData& other) const
 	{
 		if (m_DataLen != other.m_DataLen)
+		{
 			return false;
+		}
 
 		return (memcmp(m_Data, other.m_Data, m_DataLen) == 0);
 	}

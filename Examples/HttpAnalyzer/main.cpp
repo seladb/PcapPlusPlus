@@ -406,12 +406,16 @@ void analyzeHttpFromPcapFile(const std::string& pcapFileName, uint16_t dstPort)
 	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(pcapFileName));
 
 	if (!reader->open())
+	{
 		EXIT_WITH_ERROR("Could not open input pcap file");
+	}
 
 	// set a port  filter on the reader device to process only HTTP packets
 	pcpp::PortFilter httpPortFilter(dstPort, pcpp::SRC_OR_DST);
 	if (!reader->setFilter(httpPortFilter))
+	{
 		EXIT_WITH_ERROR("Could not set up filter on file");
+	}
 
 	// read the input file packet by packet and give it to the HttpStatsCollector for collecting stats
 	HttpStatsCollector collector(dstPort);
@@ -438,11 +442,15 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 {
 	// open the device
 	if (!dev->open())
+	{
 		EXIT_WITH_ERROR("Could not open the device");
+	}
 
 	pcpp::PortFilter httpPortFilter(dstPort, pcpp::SRC_OR_DST);
 	if (!dev->setFilter(httpPortFilter))
+	{
 		EXIT_WITH_ERROR("Could not set up filter on device");
+	}
 
 	// if needed to save the captured packets to file - open a writer device
 	std::unique_ptr<pcpp::PcapFileWriterDevice> pcapWriter;
@@ -555,12 +563,16 @@ int main(int argc, char* argv[])
 
 	// if no interface nor input pcap file were provided - exit with error
 	if (readPacketsFromPcapFileName == "" && interfaceNameOrIP == "")
+	{
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
+	}
 
 	// get the port
 	int nPort = atoi(port.c_str());
 	if (nPort <= 0 || nPort > 65535)
+	{
 		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
+	}
 
 	// analyze in pcap file mode
 	if (readPacketsFromPcapFileName != "")
@@ -571,7 +583,9 @@ int main(int argc, char* argv[])
 	{
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
+		}
 
 		// start capturing and analyzing traffic
 		analyzeHttpFromLiveTraffic(dev, printRatesPeriodically, printRatePeriod, savePacketsToFileName, nPort);

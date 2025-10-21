@@ -23,16 +23,24 @@ namespace pcpp
 	ProtocolType GreLayer::getGREVersion(uint8_t* greData, size_t greDataLen)
 	{
 		if (greDataLen < sizeof(gre_basic_header))
+		{
 			return UnknownProtocol;
+		}
 
 		uint8_t version = *(greData + 1);
 		version &= 0x07;
 		if (version == 0)
+		{
 			return GREv0;
+		}
 		else if (version == 1)
+		{
 			return GREv1;
+		}
 		else
+		{
 			return UnknownProtocol;
+		}
 	}
 
 	uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing) const
@@ -86,7 +94,9 @@ namespace pcpp
 			if (field == curField)
 			{
 				if (curFieldExists || returnOffsetEvenIfFieldMissing)
+				{
 					return origPtr;
+				}
 
 				return nullptr;
 			}
@@ -131,11 +141,15 @@ namespace pcpp
 		gre_basic_header* header = (gre_basic_header*)m_Data;
 
 		if (header->sequenceNumBit == 0)
+		{
 			return false;
+		}
 
 		uint32_t* val = (uint32_t*)getFieldValue(GreSeq, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		seqNumber = be32toh(*val);
 		return true;
@@ -148,7 +162,9 @@ namespace pcpp
 		bool needToExtendLayer = false;
 
 		if (header->sequenceNumBit == 0)
+		{
 			needToExtendLayer = true;
+		}
 
 		uint8_t* offsetPtr = getFieldValue(GreSeq, true);
 
@@ -196,7 +212,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		gre_basic_header* header = (gre_basic_header*)m_Data;
 		uint8_t* payload = m_Data + headerLen;
@@ -251,13 +269,21 @@ namespace pcpp
 		gre_basic_header* header = (gre_basic_header*)m_Data;
 
 		if (header->checksumBit == 1 || header->routingBit == 1)
+		{
 			result += 4;
+		}
 		if (header->keyBit == 1)
+		{
 			result += 4;
+		}
 		if (header->sequenceNumBit == 1)
+		{
 			result += 4;
+		}
 		if (header->ackSequenceNumBit == 1)
+		{
 			result += 4;
+		}
 
 		return result;
 	}
@@ -278,11 +304,15 @@ namespace pcpp
 	bool GREv0Layer::getChecksum(uint16_t& checksum)
 	{
 		if (getGreHeader()->checksumBit == 0)
+		{
 			return false;
+		}
 
 		uint16_t* val = (uint16_t*)getFieldValue(GreChecksumOrRouting, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		checksum = be16toh(*val);
 		return true;
@@ -295,7 +325,9 @@ namespace pcpp
 		bool needToExtendLayer = false;
 
 		if (header->routingBit == 0 && header->checksumBit == 0)
+		{
 			needToExtendLayer = true;
+		}
 
 		uint8_t* offsetPtr = getFieldValue(GreChecksumOrRouting, true);
 		int offset = offsetPtr - m_Data;
@@ -358,11 +390,15 @@ namespace pcpp
 	bool GREv0Layer::getOffset(uint16_t& offset) const
 	{
 		if (getGreHeader()->routingBit == 0)
+		{
 			return false;
+		}
 
 		uint8_t* val = (uint8_t*)getFieldValue(GreChecksumOrRouting, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		offset = be16toh(*(val + 2));
 		return true;
@@ -371,11 +407,15 @@ namespace pcpp
 	bool GREv0Layer::getKey(uint32_t& key) const
 	{
 		if (getGreHeader()->keyBit == 0)
+		{
 			return false;
+		}
 
 		uint32_t* val = (uint32_t*)getFieldValue(GreKey, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		key = be32toh(*val);
 		return true;
@@ -388,7 +428,9 @@ namespace pcpp
 		bool needToExtendLayer = false;
 
 		if (header->keyBit == 0)
+		{
 			needToExtendLayer = true;
+		}
 
 		uint8_t* offsetPtr = getFieldValue(GreKey, true);
 
@@ -437,7 +479,9 @@ namespace pcpp
 		computeCalculateFieldsInner();
 
 		if (getGreHeader()->checksumBit == 0)
+		{
 			return;
+		}
 
 		// calculate checksum
 		setChecksum(0);
@@ -476,11 +520,15 @@ namespace pcpp
 	bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum) const
 	{
 		if (getGreHeader()->ackSequenceNumBit == 0)
+		{
 			return false;
+		}
 
 		uint32_t* val = (uint32_t*)getFieldValue(GreAck, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		ackNum = be32toh(*val);
 		return true;
@@ -493,7 +541,9 @@ namespace pcpp
 		gre1_header* header = getGreHeader();
 
 		if (header->ackSequenceNumBit == 0)
+		{
 			needToExtendLayer = true;
+		}
 
 		uint8_t* offsetPtr = getFieldValue(GreAck, true);
 		int offset = offsetPtr - m_Data;
@@ -567,7 +617,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
@@ -608,7 +660,9 @@ namespace pcpp
 			}
 		}
 		else
+		{
 			header->protocol = 0;
+		}
 	}
 
 }  // namespace pcpp

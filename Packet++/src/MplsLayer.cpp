@@ -33,9 +33,13 @@ namespace pcpp
 	void MplsLayer::setBottomOfStack(bool val)
 	{
 		if (!val)
+		{
 			getMplsHeader()->misc &= 0xFE;
+		}
 		else
+		{
 			getMplsHeader()->misc |= 0x1;
+		}
 	}
 
 	uint8_t MplsLayer::getExperimentalUseValue() const
@@ -105,7 +109,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen < headerLen + 1)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + sizeof(mpls_header);
 		size_t payloadLen = m_DataLen - sizeof(mpls_header);

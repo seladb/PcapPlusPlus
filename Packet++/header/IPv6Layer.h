@@ -204,7 +204,9 @@ namespace pcpp
 	{
 		IPv6Extension* curExt = m_FirstExtension;
 		while (curExt != nullptr && dynamic_cast<TIPv6Extension*>(curExt) == nullptr)
+		{
 			curExt = curExt->getNextHeader();
+		}
 
 		return static_cast<TIPv6Extension*>(curExt);
 	}

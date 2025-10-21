@@ -194,11 +194,17 @@ protected:
 	uint32_t getSrcIPValue(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIPv4Address().toInt();
+		}
 		else if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIPv6Address().toBytes(), 16);
+		}
 		else
+		{
 			return 0;
+		}
 	}
 
 	/**
@@ -207,11 +213,17 @@ protected:
 	uint32_t getDstIPValue(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address().toInt();
+		}
 		else if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIPv6Address().toBytes(), 16);
+		}
 		else
+		{
 			return 0;
+		}
 	}
 
 	/**
@@ -220,7 +232,9 @@ protected:
 	bool isSrcIPMulticast(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IP))
+		{
 			return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().isMulticast();
+		}
 		return false;
 	}
 
@@ -230,7 +244,9 @@ protected:
 	bool isDstIPMulticast(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IP))
+		{
 			return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().isMulticast();
+		}
 		return false;
 	}
 };
@@ -269,17 +285,27 @@ protected:
 			return getDstIPValue(packet);
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return getSrcIPValue(packet);
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return getDstIPValue(packet);
+			}
 			else
+			{
 				return srcPort >= dstPort ? getSrcIPValue(packet) : getDstIPValue(packet);
+			}
 		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
+			{
 				return getSrcIPValue(packet);
+			}
 			else
+			{
 				return getDstIPValue(packet);
+			}
 		}
 	}
 
@@ -295,18 +321,28 @@ protected:
 			return prefix + hyphenIP(getDstIPString(packet));
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return prefix + hyphenIP(getSrcIPString(packet));
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return prefix + hyphenIP(getDstIPString(packet));
+			}
 			else
+			{
 				return srcPort >= dstPort ? prefix + hyphenIP(getSrcIPString(packet))
 				                          : prefix + hyphenIP(getDstIPString(packet));
+			}
 		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
+			{
 				return prefix + hyphenIP(getSrcIPString(packet));
+			}
 			else
+			{
 				return prefix + hyphenIP(getDstIPString(packet));
+			}
 		}
 	}
 };
@@ -345,17 +381,27 @@ protected:
 			return getSrcIPValue(packet);
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return getDstIPValue(packet);
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return getSrcIPValue(packet);
+			}
 			else
+			{
 				return srcPort >= dstPort ? getDstIPValue(packet) : getSrcIPValue(packet);
+			}
 		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
+			{
 				return getDstIPValue(packet);
+			}
 			else
+			{
 				return getSrcIPValue(packet);
+			}
 		}
 	}
 
@@ -371,18 +417,28 @@ protected:
 			return prefix + hyphenIP(getSrcIPString(packet));
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return prefix + hyphenIP(getDstIPString(packet));
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return prefix + hyphenIP(getSrcIPString(packet));
+			}
 			else
+			{
 				return srcPort >= dstPort ? prefix + hyphenIP(getDstIPString(packet))
 				                          : prefix + hyphenIP(getSrcIPString(packet));
+			}
 		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
+			{
 				return prefix + hyphenIP(getDstIPString(packet));
+			}
 			else
+			{
 				return prefix + hyphenIP(getSrcIPString(packet));
+			}
 		}
 	}
 };
@@ -422,11 +478,17 @@ protected:
 			return srcPort;
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return dstPort;
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return srcPort;
+			}
 			else
+			{
 				return std::min<uint16_t>(srcPort, dstPort);
+			}
 		// other TCP packet
 		default:
 			return std::min<uint16_t>(srcPort, dstPort);
@@ -448,11 +510,17 @@ protected:
 			break;
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				res = dstPort;
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				res = srcPort;
+			}
 			else
+			{
 				res = std::min<uint16_t>(srcPort, dstPort);
+			}
 			break;
 		// other TCP packet
 		default:
@@ -501,11 +569,17 @@ protected:
 			return dstPort;
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				return srcPort;
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				return dstPort;
+			}
 			else
+			{
 				return std::max<uint16_t>(srcPort, dstPort);
+			}
 		// other TCP packet
 		default:
 			return std::max<uint16_t>(srcPort, dstPort);
@@ -527,11 +601,17 @@ protected:
 			break;
 		case UDP:
 			if (isSrcIPMulticast(packet))
+			{
 				res = srcPort;
+			}
 			else if (isDstIPMulticast(packet))
+			{
 				res = dstPort;
+			}
 			else
+			{
 				res = std::max<uint16_t>(srcPort, dstPort);
+			}
 			break;
 		// other TCP packet
 		default:

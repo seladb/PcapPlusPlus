@@ -199,7 +199,9 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
 		for (int rxQIndex = 0; rxQIndex < numOfRxQueuesPerCore; rxQIndex++)
 		{
 			if (pairVecIter == deviceAndRxQVec.end())
+			{
 				break;
+			}
 			workerConfigArr[i].inDataCfg[pairVecIter->first].push_back(pairVecIter->second);
 			++pairVecIter;
 		}
@@ -452,9 +454,13 @@ int main(int argc, char* argv[])
 		{
 			std::string protocol = std::string(optarg);
 			if (protocol == "TCP")
+			{
 				protocolToMatch = pcpp::TCP;
+			}
 			else if (protocol == "UDP")
+			{
 				protocolToMatch = pcpp::UDP;
+			}
 			else
 			{
 				EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");

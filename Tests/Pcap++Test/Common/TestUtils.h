@@ -55,9 +55,13 @@ void intersectMaps(const std::unordered_map<KeyType, LeftValue>& left,
 	while (il != left.end() && ir != right.end())
 	{
 		if (il->first < ir->first)
+		{
 			++il;
+		}
 		else if (ir->first < il->first)
+		{
 			++ir;
+		}
 		else
 		{
 			result.insert(std::make_pair(il->first, std::make_pair(il->second, ir->second)));

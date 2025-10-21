@@ -911,7 +911,9 @@ namespace pcpp
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (dynamic_cast<TExtension*>(curElem) != nullptr)
+			{
 				return static_cast<TExtension*>(curElem);
+			}
 		}
 
 		return nullptr;
@@ -924,7 +926,9 @@ namespace pcpp
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (dynamic_cast<TExtension*>(curElem) != nullptr)
+			{
 				return static_cast<TExtension*>(curElem);
+			}
 		}
 
 		return nullptr;

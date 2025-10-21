@@ -76,7 +76,9 @@ namespace pcpp
 	KniDevice* KniDeviceList::createDevice(const KniDevice::KniDeviceConfiguration& config, const size_t mempoolSize)
 	{
 		if (!isInitialized())
+		{
 			return nullptr;
+		}
 		KniDevice* kniDevice = getDeviceByName(std::string(config.name));
 		if (kniDevice != nullptr)
 		{
@@ -110,7 +112,9 @@ namespace pcpp
 		//? We assume that no one will create large count of devices or will rapidly search them.
 		//? Same for <getDeviceByName> function
 		if (!isInitialized())
+		{
 			return nullptr;
+		}
 
 		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
 		                       [portId](KniDevice* device) { return device && device->m_DeviceInfo.portId == portId; });
@@ -121,7 +125,9 @@ namespace pcpp
 	KniDevice* KniDeviceList::getDeviceByName(const std::string& name)
 	{
 		if (!isInitialized())
+		{
 			return nullptr;
+		}
 
 		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
 		                       [&name](KniDevice* device) { return device && device->m_DeviceInfo.name == name; });

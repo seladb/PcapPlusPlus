@@ -26,7 +26,9 @@ namespace pcpp
 	NtpLayer::LeapIndicator NtpLayer::getLeapIndicator() const
 	{
 		if (getNtpHeader()->leapIndicator < 4)  // Since leap indicator field is 2bit
+		{
 			return static_cast<LeapIndicator>(getNtpHeader()->leapIndicator);
+		}
 		PCPP_LOG_ERROR("Unknown NTP Leap Indicator");
 		return Unknown;
 	}
@@ -49,7 +51,9 @@ namespace pcpp
 	NtpLayer::Mode NtpLayer::getMode() const
 	{
 		if (getNtpHeader()->mode < 8)  // Since mode field 3bit
+		{
 			return static_cast<Mode>(getNtpHeader()->mode);
+		}
 		PCPP_LOG_ERROR("Unknown NTP Mode");
 		return Reserved;
 	}
@@ -474,7 +478,9 @@ namespace pcpp
 		case 3:
 		{
 			if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v3_auth)))
+			{
 				return 0;
+			}
 
 			ntp_v3_auth* header = (ntp_v3_auth*)(m_Data + sizeof(ntp_header));
 			return header->keyID;
@@ -511,7 +517,9 @@ namespace pcpp
 		case 3:
 		{
 			if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v3_auth)))
+			{
 				return std::string();
+			}
 
 			ntp_v3_auth* header = (ntp_v3_auth*)(m_Data + sizeof(ntp_header));
 			return byteArrayToHexString(header->dgst, 8);
@@ -589,14 +597,18 @@ namespace pcpp
 		time_t timeStruct = integerPart;
 #if defined(_WIN32)
 		if (timeStruct < 0)
+		{
 			timeStruct = 0;
+		}
 		timer = gmtime(&timeStruct);
 #else
 		struct tm timer_r;
 		timer = gmtime_r(&timeStruct, &timer_r);
 
 		if (timer != nullptr)
+		{
 			timer = &timer_r;
+		}
 #endif
 		if (timer == nullptr)
 		{

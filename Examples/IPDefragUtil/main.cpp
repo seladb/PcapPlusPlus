@@ -213,9 +213,13 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			if (status == pcpp::IPReassembly::REASSEMBLED)
 			{
 				if (isIPv4Packet)
+				{
 					stats.ipv4PacketsDefragmented++;
+				}
 				else if (isIPv6Packet)
+				{
 					stats.ipv6PacketsDefragmented++;
+				}
 
 				// free packet
 				delete result;
@@ -227,9 +231,13 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			    status == pcpp::IPReassembly::MALFORMED_FRAGMENT || status == pcpp::IPReassembly::REASSEMBLED)
 			{
 				if (isIPv4Packet)
+				{
 					stats.ipv4FragmentsMatched++;
+				}
 				else if (isIPv6Packet)
+				{
 					stats.ipv6FragmentsMatched++;
+				}
 			}
 		}
 		// if packet isn't marked for de-fragmentation but the user asked to write all packets to output file
@@ -258,7 +266,9 @@ void printStats(const DefragStats& stats, bool filterByIpID, bool filterByBpf)
 		stream << "IPv6 packets match fragment ID list:     " << stats.ipv6PacketsMatchFragIDs << std::endl;
 	}
 	if (filterByBpf)
+	{
 		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << std::endl;
+	}
 	stream << "Total fragments matched:                 " << (stats.ipv4FragmentsMatched + stats.ipv6FragmentsMatched)
 	       << std::endl;
 	stream << "IPv4 fragments matched:                  " << stats.ipv4FragmentsMatched << std::endl;
@@ -332,7 +342,9 @@ int main(int argc, char* argv[])
 			bpfFilter = optarg;
 			pcpp::BPFStringFilter filter(bpfFilter);
 			if (!filter.verifyFilter())
+			{
 				EXIT_WITH_ERROR("Illegal BPF filter");
+			}
 			break;
 		}
 		case 'a':
@@ -362,7 +374,9 @@ int main(int argc, char* argv[])
 	{
 		paramIndex++;
 		if (paramIndex > expectedParams)
+		{
 			EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
+		}
 
 		switch (paramIndex)
 		{

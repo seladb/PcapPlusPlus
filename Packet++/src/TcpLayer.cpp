@@ -88,7 +88,9 @@ namespace pcpp
 		{
 			recordBuffer[1] = static_cast<uint8_t>(optionSize);
 			if (optionSize > 2 && m_RecValue != nullptr)
+			{
 				memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
+			}
 		}
 
 		return TcpOption(recordBuffer);
@@ -124,7 +126,9 @@ namespace pcpp
 		TcpOption nextOpt =
 		    m_OptionReader.getNextTLVRecord(tcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 		if (nextOpt.isNotNull() && nextOpt.getType() == TCPOPT_DUMMY)
+		{
 			return TcpOption(nullptr);
+		}
 
 		return nextOpt;
 	}
@@ -201,7 +205,9 @@ namespace pcpp
 		const int offset = sizeof(tcphdr);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		getTcpHeader()->dataOffset = sizeof(tcphdr) / 4;
 		m_NumOfTrailingBytes = 0;
@@ -213,7 +219,9 @@ namespace pcpp
 	{
 		TcpOption newOption = optionBuilder.build();
 		if (newOption.isNull())
+		{
 			return newOption;
+		}
 
 		// calculate total TCP option size
 		TcpOption curOpt = getFirstTcpOption();
@@ -251,17 +259,25 @@ namespace pcpp
 	{
 		int newNumberOfTrailingBytes = 0;
 		while ((totalOptSize + newNumberOfTrailingBytes) % 4 != 0)
+		{
 			newNumberOfTrailingBytes++;
+		}
 
 		if (newNumberOfTrailingBytes < m_NumOfTrailingBytes)
+		{
 			shortenLayer(sizeof(tcphdr) + totalOptSize, m_NumOfTrailingBytes - newNumberOfTrailingBytes - 1);
+		}
 		else if (newNumberOfTrailingBytes > m_NumOfTrailingBytes)
+		{
 			extendLayer(sizeof(tcphdr) + totalOptSize, newNumberOfTrailingBytes - m_NumOfTrailingBytes);
+		}
 
 		m_NumOfTrailingBytes = newNumberOfTrailingBytes;
 
 		for (int i = 0; i < m_NumOfTrailingBytes; i++)
+		{
 			m_Data[sizeof(tcphdr) + totalOptSize + i] = TCPOPT_DUMMY;
+		}
 
 		getTcpHeader()->dataOffset = (sizeof(tcphdr) + totalOptSize + m_NumOfTrailingBytes) / 4;
 	}
@@ -301,9 +317,13 @@ namespace pcpp
 		}
 
 		if (writeResultToPacket)
+		{
 			tcpHdr->headerChecksum = htobe16(checksumRes);
+		}
 		else
+		{
 			tcpHdr->headerChecksum = currChecksumValue;
+		}
 
 		return checksumRes;
 	}
@@ -360,7 +380,9 @@ namespace pcpp
 	{
 		const size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		const size_t payloadLen = m_DataLen - headerLen;
@@ -403,7 +425,9 @@ namespace pcpp
 		{
 			m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
 			if (!m_NextLayer)
+			{
 				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			}
 		}
 		else if (SSHLayer::isSSHPort(portSrc, portDst))
 		{
@@ -436,7 +460,9 @@ namespace pcpp
 		{
 			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet);
 			if (!m_NextLayer)
+			{
 				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			}
 		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{
@@ -458,7 +484,9 @@ namespace pcpp
 		{
 			m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
 			if (!m_NextLayer)
+			{
 				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			}
 		}
 		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
 		         GtpV2Layer::isDataValid(payload, payloadLen))
@@ -490,19 +518,29 @@ namespace pcpp
 		if (hdr->synFlag)
 		{
 			if (hdr->ackFlag)
+			{
 				result += "[SYN, ACK], ";
+			}
 			else
+			{
 				result += "[SYN], ";
+			}
 		}
 		else if (hdr->finFlag)
 		{
 			if (hdr->ackFlag)
+			{
 				result += "[FIN, ACK], ";
+			}
 			else
+			{
 				result += "[FIN], ";
+			}
 		}
 		else if (hdr->ackFlag)
+		{
 			result += "[ACK], ";
+		}
 
 		std::ostringstream srcPortStream;
 		srcPortStream << getSrcPort();

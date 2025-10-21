@@ -139,7 +139,9 @@ void readCommandLineArguments(int argc, char* argv[], const std::string& thisSid
 			break;
 		case 'p':
 			if (thisSide == "catcher")
+			{
 				EXIT_WITH_ERROR_PRINT_USAGE("Unknown option -p");
+			}
 			packetsPerSec = atoi(optarg);
 			packetsPerSecSet = true;
 			break;
@@ -165,7 +167,9 @@ void readCommandLineArguments(int argc, char* argv[], const std::string& thisSid
 
 	// extract my IP address by interface name or IP address string
 	if (interfaceNameOrIP.empty())
+	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide " << thisSide << " interface name or IP");
+	}
 
 	pcpp::IPv4Address interfaceIP;
 	try
@@ -177,14 +181,18 @@ void readCommandLineArguments(int argc, char* argv[], const std::string& thisSid
 	{
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByName(interfaceNameOrIP);
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR_PRINT_USAGE("Cannot find interface by provided name");
+		}
 
 		myIP = dev->getIPv4Address();
 	}
 
 	// validate pitcher/catcher IP address
 	if (otherSideIPAsString.empty())
+	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide " << otherSide << " IP address");
+	}
 
 	pcpp::IPv4Address tempIP;
 	try
@@ -199,23 +207,33 @@ void readCommandLineArguments(int argc, char* argv[], const std::string& thisSid
 
 	// verify only one of sender and receiver switches are set
 	if (sender && receiver)
+	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Cannot set both send file mode (-s) and receive file mode (-r) switches");
+	}
 
 	if (!sender && !receiver)
+	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Must set either send file mode (-s) or receive file mode (-r) switches");
+	}
 
 	// cannot set block size if in receiving file mode
 	if (!sender && blockSizeSet)
+	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Setting block size (-b switch) is relevant for sending files only");
+	}
 
 	// validate block size
 	if (blockSize < 1 || blockSize > 1464)
+	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Block size must be a positive integer lower or equal to 1464 bytes (which is the "
 		                            "maximum size for a standard packet)");
+	}
 
 	// validate packets per sec
 	if (packetsPerSecSet && packetsPerSec < 1)
+	{
 		EXIT_WITH_ERROR_PRINT_USAGE("message_per_sec must be a positive value greater or equal to 1");
+	}
 }
 
 bool sendIcmpMessage(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
@@ -227,7 +245,9 @@ bool sendIcmpMessage(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcp
 
 	// keep IP ID in the range of 0x1234-0xfff0
 	if (ipID == 0xfff0)
+	{
 		ipID = 0x1234;
+	}
 
 	// create the different layers
 
@@ -243,9 +263,13 @@ bool sendIcmpMessage(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcp
 	// then ICMP
 	pcpp::IcmpLayer icmpLayer;
 	if (sendRequest && icmpLayer.setEchoRequestData(icmpMsgId, 0, msgType, data, dataLen) == nullptr)
+	{
 		EXIT_WITH_ERROR("Cannot set ICMP echo request data");
+	}
 	else if (!sendRequest && icmpLayer.setEchoReplyData(icmpMsgId, 0, msgType, data, dataLen) == nullptr)
+	{
 		EXIT_WITH_ERROR("Cannot set ICMP echo response data");
+	}
 
 	// create an new packet and add all layers to it
 	pcpp::Packet packet;

@@ -112,7 +112,9 @@ void setIPv4FragmentParams(pcpp::IPv4Layer* fragIpLayer, size_t fragOffset, bool
 
 	// if this is not the last fragment, set a "more fragments" flag
 	if (!lastFrag)
+	{
 		fragOffsetValue |= (uint16_t)0x20;
+	}
 
 	// write fragment flags + fragment offset to packet
 	fragIpLayer->getIPv4Header()->fragmentOffset = fragOffsetValue;
@@ -159,17 +161,27 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 	// check if IPv4/6
 	pcpp::ProtocolType ipProto = pcpp::UnknownProtocol;
 	if (packet.isPacketOfType(pcpp::IPv4))
+	{
 		ipProto = pcpp::IPv4;
+	}
 	else if (packet.isPacketOfType(pcpp::IPv6))
+	{
 		ipProto = pcpp::IPv6;
+	}
 	else
+	{
 		return;
+	}
 
 	pcpp::Layer* ipLayer = nullptr;
 	if (ipProto == pcpp::IPv4)
+	{
 		ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
+	}
 	else  // ipProto == IPv6
+	{
 		ipLayer = packet.getLayerOfType<pcpp::IPv6Layer>();
+	}
 
 	// if packet payload size is less than the requested fragment size, don't fragment and return
 	if (ipLayer->getLayerPayloadSize() <= fragmentSize)
@@ -205,9 +217,13 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 		// find the IPv4/6 layer of the new fragment
 		pcpp::Layer* fragIpLayer = nullptr;
 		if (ipProto == pcpp::IPv4)
+		{
 			fragIpLayer = newFrag.getLayerOfType<pcpp::IPv4Layer>();
+		}
 		else  // ipProto == IPv6
+		{
 			fragIpLayer = newFrag.getLayerOfType<pcpp::IPv6Layer>();
+		}
 
 		// delete all layers above IP layer
 		newFrag.removeAllLayersAfter(fragIpLayer);
@@ -218,9 +234,13 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 
 		// set fragment parameters in IPv4/6 layer
 		if (ipProto == pcpp::IPv4)
+		{
 			setIPv4FragmentParams((pcpp::IPv4Layer*)fragIpLayer, curOffset, lastFrag);
+		}
 		else  // ipProto == IPv6
+		{
 			setIPv6FragmentParams((pcpp::IPv6Layer*)fragIpLayer, curOffset, lastFrag, randomNum);
+		}
 
 		// compute all calculated fields of the new fragment
 		newFrag.computeCalculateFields();
@@ -321,9 +341,13 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			else if (resultFrags.size() > 1)  // packet was fragmented
 			{
 				if (ipProto == pcpp::IPv4)
+				{
 					stats.ipv4PacketsFragmented++;
+				}
 				else  // ipProto == IPv6
+				{
 					stats.ipv6PacketsFragmented++;
+				}
 			}
 
 			// write the result fragments if either: (1) packet was indeed fragmented,
@@ -355,9 +379,13 @@ void printStats(const FragStats& stats, bool filterByIpID, bool filterByBpf)
 	stream << "IPv4 packets read:                       " << stats.ipv4Packets << std::endl;
 	stream << "IPv6 packets read:                       " << stats.ipv6Packets << std::endl;
 	if (filterByIpID)
+	{
 		stream << "IPv4 packets match IP ID list:           " << stats.ipv4PacketsMatchIpIDs << std::endl;
+	}
 	if (filterByBpf)
+	{
 		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << std::endl;
+	}
 	stream << "IP packets smaller than fragment size:   " << stats.ipPacketsUnderSize << std::endl;
 	stream << "IPv4 packets fragmented:                 " << stats.ipv4PacketsFragmented << std::endl;
 	stream << "IPv6 packets fragmented:                 " << stats.ipv6PacketsFragmented << std::endl;
@@ -401,9 +429,13 @@ int main(int argc, char* argv[])
 		{
 			fragSize = atoi(optarg);
 			if (fragSize < 1)
+			{
 				EXIT_WITH_ERROR("Fragment size must be a positive integer");
+			}
 			if (fragSize % 8 != 0)
+			{
 				EXIT_WITH_ERROR("Fragment size must divide by 8");
+			}
 			break;
 		}
 		case 'd':
@@ -436,7 +468,9 @@ int main(int argc, char* argv[])
 			bpfFilter = optarg;
 			pcpp::BPFStringFilter filter(bpfFilter);
 			if (!filter.verifyFilter())
+			{
 				EXIT_WITH_ERROR("Illegal BPF filter");
+			}
 			break;
 		}
 		case 'a':
@@ -467,7 +501,9 @@ int main(int argc, char* argv[])
 	{
 		paramIndex++;
 		if (paramIndex > expectedParams)
+		{
 			EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
+		}
 
 		switch (paramIndex)
 		{

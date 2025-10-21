@@ -46,7 +46,9 @@ namespace pcpp
 	void IgmpLayer::setType(IgmpType type)
 	{
 		if (type == IgmpType_Unknown)
+		{
 			return;
+		}
 
 		igmp_header* hdr = getIgmpHeader();
 		hdr->type = type;
@@ -57,7 +59,9 @@ namespace pcpp
 		isQuery = false;
 
 		if (dataLen < 8 || data == nullptr)
+		{
 			return UnknownProtocol;
+		}
 
 		switch ((int)data[0])
 		{
@@ -73,12 +77,18 @@ namespace pcpp
 			isQuery = true;
 
 			if (dataLen >= sizeof(igmpv3_query_header))
+			{
 				return IGMPv3;
+			}
 
 			if (data[1] == 0)
+			{
 				return IGMPv1;
+			}
 			else
+			{
 				return IGMPv2;
+			}
 		}
 		default:
 			return UnknownProtocol;
@@ -96,14 +106,20 @@ namespace pcpp
 	size_t IgmpLayer::getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const
 	{
 		if (igmpVer == IGMPv1 || igmpVer == IGMPv2)
+		{
 			return sizeof(igmp_header);
+		}
 
 		if (igmpVer == IGMPv3)
 		{
 			if (igmpType == IgmpType_MembershipQuery)
+			{
 				return sizeof(igmpv3_query_header);
+			}
 			else if (igmpType == IgmpType_MembershipReportV3)
+			{
 				return sizeof(igmpv3_report_header);
+			}
 		}
 
 		return 0;
@@ -216,12 +232,16 @@ namespace pcpp
 	{
 		uint16_t numOfSources = getSourceAddressCount();
 		if (index < 0 || index >= numOfSources)
+		{
 			return IPv4Address();
+		}
 
 		// verify numOfRecords is a reasonable number that points to data within the packet
 		int ptrOffset = index * sizeof(uint32_t) + sizeof(igmpv3_query_header);
 		if (ptrOffset + sizeof(uint32_t) > getDataLen())
+		{
 			return IPv4Address();
+		}
 
 		uint8_t* ptr = m_Data + ptrOffset;
 		return IPv4Address(*reinterpret_cast<uint32_t*>(ptr));
@@ -235,7 +255,9 @@ namespace pcpp
 
 		// verify numOfRecords is a reasonable number that points to data within the packet
 		if ((size_t)headerLen > getDataLen())
+		{
 			return getDataLen();
+		}
 
 		return (size_t)headerLen;
 	}
@@ -337,7 +359,9 @@ namespace pcpp
 	{
 		// check if there are group records at all
 		if (getHeaderLen() <= sizeof(igmpv3_report_header))
+		{
 			return nullptr;
+		}
 
 		uint8_t* curGroupPtr = m_Data + sizeof(igmpv3_report_header);
 		return (igmpv3_group_record*)curGroupPtr;
@@ -346,7 +370,9 @@ namespace pcpp
 	igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord) const
 	{
 		if (groupRecord == nullptr)
+		{
 			return nullptr;
+		}
 
 		uint8_t* nextGroupRecordBegin = reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen();
 		if (std::distance(m_Data, nextGroupRecordBegin) >= static_cast<std::ptrdiff_t>(getHeaderLen()))
@@ -507,7 +533,9 @@ namespace pcpp
 	{
 		uint16_t numOfRecords = getSourceAddressCount();
 		if (index < 0 || index >= numOfRecords)
+		{
 			return IPv4Address();
+		}
 
 		int offset = index * sizeof(uint32_t);
 		const uint8_t* ptr = sourceAddresses + offset;

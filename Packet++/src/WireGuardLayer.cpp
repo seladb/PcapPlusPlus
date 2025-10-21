@@ -10,7 +10,9 @@ namespace pcpp
 	WireGuardLayer* WireGuardLayer::parseWireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		if (dataLen < sizeof(WireGuardLayer::wg_common_header))
+		{
 			return nullptr;
+		}
 		wg_common_header* wgHeader = reinterpret_cast<wg_common_header*>(data);
 
 		switch (wgHeader->messageType)
@@ -77,7 +79,9 @@ namespace pcpp
 	bool WireGuardLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < sizeof(WireGuardLayer::wg_common_header))
+		{
 			return false;
+		}
 
 		uint8_t messageType = data[0];
 		return messageType >= static_cast<uint8_t>(WireGuardLayer::WireGuardMessageType::HandshakeInitiation) &&

@@ -271,8 +271,10 @@ namespace pcpp
 		case CTRL_BREAK_EVENT:
 		{
 			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != nullptr)
+			{
 				ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(
 				    ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+			}
 			return TRUE;
 		}
 

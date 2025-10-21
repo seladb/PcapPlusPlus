@@ -152,7 +152,9 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 
 	if (!dnsRequest.isPacketOfType(pcpp::DNS) || !dnsRequest.isPacketOfType(pcpp::IP) ||
 	    !dnsRequest.isPacketOfType(pcpp::UDP) || !dnsRequest.isPacketOfType(pcpp::Ethernet))
+	{
 		return;
+	}
 
 	// extract all packet layers
 	pcpp::EthLayer* ethLayer = dnsRequest.getLayerOfType<pcpp::EthLayer>();
@@ -162,13 +164,17 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 
 	// skip DNS requests with more than 1 request or with 0 requests
 	if (dnsLayer->getDnsHeader()->numberOfQuestions != pcpp::hostToNet16(1) || dnsLayer->getFirstQuery() == nullptr)
+	{
 		return;
+	}
 
 	// skip DNS requests which are not of class IN and type A (IPv4) or AAAA (IPv6)
 	pcpp::DnsType dnsType = (args->dnsServer.isIPv4() ? pcpp::DNS_TYPE_A : pcpp::DNS_TYPE_AAAA);
 	pcpp::DnsQuery* dnsQuery = dnsLayer->getFirstQuery();
 	if (dnsQuery->getDnsType() != dnsType || dnsQuery->getDnsClass() != pcpp::DNS_CLASS_IN)
+	{
 		return;
+	}
 
 	// empty dnsHostsToSpoof means spoofing all hosts
 	if (!args->dnsHostsToSpoof.empty())
@@ -186,7 +192,9 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 		}
 
 		if (!hostMatch)
+		{
 			return;
+		}
 	}
 
 	// create a response out of the request packet
@@ -227,20 +235,26 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	{
 		pcpp::IPv4DnsResourceData dnsServer(args->dnsServer.getIPv4());
 		if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 1, &dnsServer))
+		{
 			return;
+		}
 	}
 	else
 	{
 		pcpp::IPv6DnsResourceData dnsServer(args->dnsServer.getIPv6());
 		if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_AAAA, pcpp::DNS_CLASS_IN, 1, &dnsServer))
+		{
 			return;
+		}
 	}
 
 	dnsRequest.computeCalculateFields();
 
 	// send DNS response back to the network
 	if (!dev->sendPacket(dnsRequest))
+	{
 		return;
+	}
 
 	args->stats.numOfSpoofedDnsRequests++;
 	args->stats.spoofedHosts[dnsQuery->getName()]++;
@@ -313,7 +327,9 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, 
 {
 	// open device
 	if (!dev->open())
+	{
 		EXIT_WITH_ERROR("Cannot open capture device");
+	}
 
 	// set a filter to capture only DNS requests and client IP if provided
 	pcpp::PortFilter dnsPortFilter(53, pcpp::DST);
@@ -330,7 +346,9 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, 
 	pcpp::AndFilter andFilter(filterForAnd);
 
 	if (!dev->setFilter(andFilter))
+	{
 		EXIT_WITH_ERROR("Cannot set DNS and client IP filter for device");
+	}
 
 	// make args for callback
 	DnsSpoofingArgs args;
@@ -339,7 +357,9 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, 
 
 	// start capturing DNS requests
 	if (!dev->startCapture(handleDnsRequest, &args))
+	{
 		EXIT_WITH_ERROR("Cannot start packet capture");
+	}
 
 	// register the on app close event to print summary stats on app termination
 	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &args);
@@ -431,7 +451,9 @@ int main(int argc, char* argv[])
 			std::string token;
 
 			while (std::getline(stream, token, ','))
+			{
 				hostList.push_back(token);
+			}
 			break;
 		}
 		default:
@@ -452,15 +474,21 @@ int main(int argc, char* argv[])
 
 	dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 	if (dev == nullptr)
+	{
 		EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
+	}
 
 	// verify DNS server IP is a valid IPv4 address
 	if (dnsServer.isZero())
+	{
 		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or not a valid IPv4 address");
+	}
 
 	// verify client IP is valid if set
 	if (clientIpSet && clientIP.isZero())
+	{
 		EXIT_WITH_ERROR("Client IP to spoof is invalid");
+	}
 
 	doDnsSpoofing(dev, dnsServer, clientIP, hostList);
 }

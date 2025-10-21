@@ -146,9 +146,13 @@ namespace pcpp
 		{
 			m_IPLayer = fragment->isPacketOfType(IPv6) ? fragment->getLayerOfType<IPv6Layer>() : nullptr;
 			if (m_IPLayer != nullptr)
+			{
 				m_FragHeader = m_IPLayer->getExtensionOfType<IPv6FragmentationHeader>();
+			}
 			else
+			{
 				m_FragHeader = nullptr;
+			}
 		}
 
 		// implement abstract methods
@@ -161,7 +165,9 @@ namespace pcpp
 		bool isFirstFragment() override
 		{
 			if (isFragment())
+			{
 				return m_FragHeader->isFirstFragment();
+			}
 
 			return false;
 		}
@@ -169,7 +175,9 @@ namespace pcpp
 		bool isLastFragment() override
 		{
 			if (isFragment())
+			{
 				return m_FragHeader->isLastFragment();
+			}
 
 			return false;
 		}
@@ -177,7 +185,9 @@ namespace pcpp
 		uint16_t getFragmentOffset() override
 		{
 			if (isFragment())
+			{
 				return m_FragHeader->getFragmentOffset();
+			}
 
 			return 0;
 		}
@@ -190,7 +200,9 @@ namespace pcpp
 		uint32_t hashPacket() override
 		{
 			if (m_FragHeader == nullptr)
+			{
 				return 0;
+			}
 
 			ScalarBuffer<uint8_t> vec[3];
 
@@ -299,9 +311,13 @@ namespace pcpp
 		IPv6FragmentWrapper ipv6Wrapper(fragment);
 		IPFragmentWrapper* fragWrapper = nullptr;
 		if (fragment->isPacketOfType(IPv4))
+		{
 			fragWrapper = &ipv4Wrapper;
+		}
 		else  // fragment->isPacketOfType(IPv6)
+		{
 			fragWrapper = &ipv6Wrapper;
+		}
 
 		// packet is not a fragment
 		if (!(fragWrapper->isFragment()))
@@ -416,10 +432,14 @@ namespace pcpp
 
 				// if this is the last fragment - mark it
 				if (fragWrapper->isLastFragment())
+				{
 					gotLastFragment = true;
+				}
 				else
+				{
 					// if not the last fragment - check if the next fragments are waiting in the out-of-order list
 					gotLastFragment = matchOutOfOrderFragments(fragData);
+				}
 			}
 			// if current fragment offset is larger than expected - this means this fragment is out-of-order
 			else if (fragOffset > fragData->currentOffset)
@@ -509,7 +529,9 @@ namespace pcpp
 		// if got to here it means this fragment is either the first fragment or a fragment in the middle. Set the
 		// appropriate status and return
 		if (status != FIRST_FRAGMENT)
+		{
 			status = FRAGMENT;
+		}
 
 		return nullptr;
 	}
@@ -520,7 +542,9 @@ namespace pcpp
 		Packet* parsedFragment = new Packet(fragment, false, parseUntil, parseUntilLayer);
 		Packet* result = processPacket(parsedFragment, status, parseUntil, parseUntilLayer);
 		if (result != parsedFragment)
+		{
 			delete parsedFragment;
+		}
 
 		return result;
 	}
@@ -617,7 +641,9 @@ namespace pcpp
 
 			PacketKey* key = nullptr;
 			if (m_OnFragmentsCleanCallback != nullptr)
+			{
 				key = dataRemoved->packetKey->clone();
+			}
 
 			PCPP_LOG_DEBUG("Reached maximum packet capacity, removing data for FragID=0x" << std::hex
 			                                                                              << dataRemoved->fragmentID);
@@ -684,7 +710,9 @@ namespace pcpp
 					foundOutOfOrderFrag = true;
 				}
 				else
+				{
 					index++;
+				}
 			}
 
 			// during the search we did on the out-of-order list we didn't find any matching fragment

@@ -187,11 +187,15 @@ int main(int argc, char* argv[])
 
 	// verify that interface name or IP were provided
 	if (!ifaceNameOrIpProvided)
+	{
 		EXIT_WITH_ERROR("You must provide at least interface name or interface IP (-i switch)");
+	}
 
 	// verify target IP was provided
 	if (!targetIpProvided)
+	{
 		EXIT_WITH_ERROR("You must provide target IP (-T switch)");
+	}
 
 	pcpp::PcapLiveDevice* dev = nullptr;
 
@@ -200,28 +204,42 @@ int main(int argc, char* argv[])
 	{
 		dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(ifaceNameOrIP);
 		if (dev == nullptr)
+		{
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
+		}
 	}
 	else
+	{
 		EXIT_WITH_ERROR("Interface name or IP empty");
+	}
 
 	// open device in promiscuous mode
 	if (!dev->open())
+	{
 		EXIT_WITH_ERROR("Couldn't open interface device '" << dev->getName() << "'");
+	}
 
 	// if source MAC not provided - use the interface MAC address
 	if (sourceMac == pcpp::MacAddress::Zero)
+	{
 		sourceMac = dev->getMacAddress();
+	}
 
 	// if source MAC is still invalid, it means it couldn't be extracted from interface
 	if (sourceMac == pcpp::MacAddress::Zero)
+	{
 		EXIT_WITH_ERROR("MAC address couldn't be extracted from interface");
+	}
 
 	if (sourceIP == pcpp::IPv4Address::Zero)
+	{
 		sourceIP = dev->getIPv4Address();
+	}
 
 	if (sourceIP == pcpp::IPv4Address::Zero)
+	{
 		EXIT_WITH_ERROR("Source IPv4 address wasn't supplied and couldn't be retrieved from interface");
+	}
 
 	// let's go
 	double arpResponseTimeMS = 0;

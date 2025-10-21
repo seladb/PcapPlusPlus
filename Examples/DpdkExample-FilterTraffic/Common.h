@@ -84,23 +84,41 @@ public:
 	{
 		packetCount++;
 		if (packet.isPacketOfType(pcpp::Ethernet))
+		{
 			ethCount++;
+		}
 		if (packet.isPacketOfType(pcpp::ARP))
+		{
 			arpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv4))
+		{
 			ipv4Count++;
+		}
 		if (packet.isPacketOfType(pcpp::IPv6))
+		{
 			ipv6Count++;
+		}
 		if (packet.isPacketOfType(pcpp::TCP))
+		{
 			tcpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::UDP))
+		{
 			udpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::HTTP))
+		{
 			httpCount++;
+		}
 		if (packet.isPacketOfType(pcpp::DNS))
+		{
 			dnsCount++;
+		}
 		if (packet.isPacketOfType(pcpp::SSL))
+		{
 			tlsCount++;
+		}
 	}
 
 	void collectStats(const PacketStats& stats)

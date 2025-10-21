@@ -123,7 +123,9 @@ int main(int argc, char* argv[])
 	if (!runWithNetworking)
 	{
 		if (userTagsInclude != "")
+		{
 			userTagsInclude += ";";
+		}
 
 		userTagsInclude += "no_network";
 		std::cout << "Running only tests that don't require network connection" << std::endl;
@@ -151,7 +153,9 @@ int main(int argc, char* argv[])
 	if (skipMemLeakCheck)
 	{
 		if (configTags != "")
+		{
 			configTags += ";";
+		}
 
 		configTags += "skip_mem_leak_check";
 		std::cout << "Skipping memory leak check for all test cases" << std::endl;
@@ -160,7 +164,9 @@ int main(int argc, char* argv[])
 	if (memVerbose)
 	{
 		if (configTags != "")
+		{
 			configTags += ";";
+		}
 
 		configTags += "mem_leak_check_verbose";
 		std::cout << "Turning on verbose information on memory allocations" << std::endl;
@@ -191,9 +197,13 @@ int main(int argc, char* argv[])
 	{
 		std::cout << "Using DPDK port: " << PcapTestGlobalArgs.dpdkPort << std::endl;
 		if (PcapTestGlobalArgs.kniIp == "")
+		{
 			std::cout << "DPDK KNI tests: skipped" << std::endl;
+		}
 		else
+		{
 			std::cout << "Using IP address for KNI: " << PcapTestGlobalArgs.kniIp << std::endl;
+		}
 	}
 #endif
 

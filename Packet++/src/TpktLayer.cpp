@@ -58,7 +58,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
@@ -68,7 +70,9 @@ namespace pcpp
 			m_NextLayer = new CotpLayer(payload, payloadLen, this, m_Packet);
 		}
 		else
+		{
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		}
 	}
 
 }  // namespace pcpp

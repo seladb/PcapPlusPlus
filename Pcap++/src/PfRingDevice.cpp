@@ -79,9 +79,13 @@ namespace pcpp
 			return true;
 		}
 		else if (res == 1)
+		{
 			PCPP_LOG_ERROR("Couldn't open a ring on device [" << m_DeviceName << "]");
+		}
 		else if (res == 2)
+		{
 			PCPP_LOG_ERROR("Unable to enable ring for device [" << m_DeviceName << "]");
+		}
 
 		return false;
 	}
@@ -203,11 +207,15 @@ namespace pcpp
 				continue;
 			}
 			else if (res == 1)
+			{
 				PCPP_LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "] for device [" << m_DeviceName
 				                                                   << "]");
+			}
 			else if (res == 2)
+			{
 				PCPP_LOG_ERROR("Unable to enable ring on channel [" << (int)channelId << "] for device ["
 				                                                    << m_DeviceName << "]");
+			}
 
 			break;
 		}
@@ -254,7 +262,9 @@ namespace pcpp
 		{
 			// no more channels to open
 			if (numOfRingsPerRxChannel == 0 && remainderRings == 0)
+			{
 				break;
+			}
 
 			std::ostringstream ringName;
 			ringName << m_DeviceName << "@" << (int)channelId;
@@ -309,8 +319,10 @@ namespace pcpp
 				                         << "]");
 			}
 			else
+			{
 				PCPP_LOG_DEBUG("Opened " << (int)numOfRingsPerRxChannel << " rings on channel [" << (int)channelId
 				                         << "]");
+			}
 		}
 
 		if (m_PfRingDescriptors.size() < numOfRxChannelsToOpen)
@@ -324,7 +336,9 @@ namespace pcpp
 			for (pfring* rxChannel : m_PfRingDescriptors)
 			{
 				if (setPfRingDeviceClock(rxChannel))
+				{
 					PCPP_LOG_DEBUG("H/W clock set for device [" << m_DeviceName << "]");
+				}
 			}
 		}
 
@@ -380,10 +394,14 @@ namespace pcpp
 			if (res < 0)
 			{
 				if (res == PF_RING_ERROR_NOT_SUPPORTED)
+				{
 					PCPP_LOG_ERROR(
 					    "BPF filtering isn't supported on current PF_RING version. Please re-compile PF_RING with the --enable-bpf flag");
+				}
 				else
+				{
 					PCPP_LOG_ERROR("Couldn't set filter '" << filterAsString << "'");
+				}
 				return false;
 			}
 		}
@@ -397,7 +415,9 @@ namespace pcpp
 	bool PfRingDevice::clearFilter()
 	{
 		if (!m_IsFilterCurrentlySet)
+		{
 			return true;
+		}
 
 		for (pfring* rxChannel : m_PfRingDescriptors)
 		{
@@ -466,7 +486,9 @@ namespace pcpp
 		}
 
 		if (!initCoreConfigurationByCoreMask(coreMask))
+		{
 			return false;
+		}
 
 		if (m_PfRingDescriptors.size() != getCoresInUseCount())
 		{
@@ -484,7 +506,9 @@ namespace pcpp
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsInUse)
+			{
 				continue;
+			}
 
 			m_ReentrantMode = true;
 
@@ -512,7 +536,9 @@ namespace pcpp
 				for (int coreId2 = coreId; coreId2 >= 0; coreId2--)
 				{
 					if (!m_CoreConfiguration[coreId2].IsInUse)
+					{
 						continue;
+					}
 					m_CoreConfiguration[coreId2].RxThread.join();
 				}
 
@@ -596,7 +622,9 @@ namespace pcpp
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsInUse)
+			{
 				continue;
+			}
 			m_CoreConfiguration[coreId].RxThread.join();
 			PCPP_LOG_DEBUG("Thread on core [" << coreId << "] stopped");
 		}
@@ -717,7 +745,9 @@ namespace pcpp
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsInUse)
+			{
 				continue;
+			}
 
 			PfRingStats tempStat = {};
 			getThreadStatistics(SystemCores::IdToSystemCore[coreId], tempStat);
@@ -725,14 +755,18 @@ namespace pcpp
 			stats.recv += tempStat.recv;
 
 			if (!m_CoreConfiguration[coreId].IsAffinitySet)
+			{
 				break;
+			}
 		}
 	}
 
 	void PfRingDevice::clearCoreConfiguration()
 	{
 		for (auto& config : m_CoreConfiguration)
+		{
 			config.clear();
+		}
 	}
 
 	size_t PfRingDevice::getCoresInUseCount() const
@@ -744,12 +778,16 @@ namespace pcpp
 	void PfRingDevice::setPfRingDeviceAttributes()
 	{
 		if (m_InterfaceIndex > -1)
+		{
 			return;
+		}
 
 		pfring* ring = nullptr;
 		bool closeRing = false;
 		if (m_PfRingDescriptors.size() > 0)
+		{
 			ring = m_PfRingDescriptors[0];
+		}
 		else
 		{
 			uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
@@ -768,13 +806,19 @@ namespace pcpp
 
 		uint8_t macAddress[6];
 		if (pfring_get_bound_device_address(ring, macAddress) < 0)
+		{
 			PCPP_LOG_ERROR("Unable to read the device MAC address for interface '" << m_DeviceName << "'");
+		}
 		else
+		{
 			m_MacAddress = MacAddress(macAddress);
+		}
 
 		// set interface ID
 		if (pfring_get_bound_device_ifindex(ring, &m_InterfaceIndex) < 0)
+		{
 			PCPP_LOG_ERROR("Unable to read interface index of device");
+		}
 
 		// try to set hardware device clock
 		m_HwClockEnabled = setPfRingDeviceClock(ring);
@@ -782,10 +826,14 @@ namespace pcpp
 		// set interface MTU
 		int mtu = pfring_get_mtu_size(ring);
 		if (mtu < 0)
+		{
 			// cppcheck-suppress shiftNegative
 			PCPP_LOG_ERROR("Could not get MTU. pfring_get_mtu_size returned an error: " << mtu);
+		}
 		else
+		{
 			m_DeviceMTU = mtu + sizeof(ether_header) + sizeof(vlan_header);
+		}
 
 		if (Logger::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
 		{
@@ -796,7 +844,9 @@ namespace pcpp
 		}
 
 		if (closeRing)
+		{
 			pfring_close(ring);
+		}
 	}
 
 	bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, bool flushTxQueues)
@@ -816,7 +866,9 @@ namespace pcpp
 		{
 			// don't allow sending of data larger than the MTU, otherwise pfring_send will fail
 			if (packetDataLength > m_DeviceMTU)
+			{
 				packetDataLength = m_DeviceMTU;
+			}
 
 			// if the device is opened, m_PfRingDescriptors[0] will always be set and enables
 			res = pfring_send(m_PfRingDescriptors[0], (char*)packetData, packetDataLength, flushTxAsUint);
@@ -834,7 +886,9 @@ namespace pcpp
 				std::this_thread::sleep_for(std::chrono::microseconds(2000));
 			}
 			else
+			{
 				break;
+			}
 		}
 
 		if (tries >= MAX_TRIES)
@@ -848,10 +902,14 @@ namespace pcpp
 			// res == -1 means it's an error coming from "sendto" which is the Linux API PF_RING is using to send
 			// packets
 			if (res == -1)
+			{
 				PCPP_LOG_ERROR("Error sending packet: Linux errno: " << strerror(errno) << " [" << errno << "]");
+			}
 			else
+			{
 				PCPP_LOG_ERROR("Error sending packet: pfring_send returned an error: "
 				               << res << " , errno: " << strerror(errno) << " [" << errno << "]");
+			}
 			return false;
 		}
 		else if (res != packetDataLength)
@@ -886,9 +944,13 @@ namespace pcpp
 		for (int i = 0; i < arrLength; i++)
 		{
 			if (!sendData(rawPacketsArr[i].getRawData(), rawPacketsArr[i].getRawDataLen(), false))
+			{
 				break;
+			}
 			else
+			{
 				packetsSent++;
+			}
 		}
 
 		// In case of failure due to closed device, there are not handles to flush.
@@ -910,9 +972,13 @@ namespace pcpp
 		{
 			if (!sendData(packetsArr[i]->getRawPacketReadOnly()->getRawData(),
 			              packetsArr[i]->getRawPacketReadOnly()->getRawDataLen(), false))
+			{
 				break;
+			}
 			else
+			{
 				packetsSent++;
+			}
 		}
 
 		// In case of failure due to closed device, there are not handles to flush.
@@ -933,9 +999,13 @@ namespace pcpp
 		for (RawPacketVector::ConstVectorIterator iter = rawPackets.begin(); iter != rawPackets.end(); iter++)
 		{
 			if (!sendData((*iter)->getRawData(), (*iter)->getRawDataLen(), false))
+			{
 				break;
+			}
 			else
+			{
 				packetsSent++;
+			}
 		}
 
 		// In case of failure due to closed device, there are not handles to flush.

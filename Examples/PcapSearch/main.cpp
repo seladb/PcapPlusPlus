@@ -176,7 +176,9 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 			std::vector<std::string> packetLayers;
 			parsedPacket.toStringList(packetLayers);
 			for (const auto& layer : packetLayers)
+			{
 				(*detailedReportFile) << "\n    " << layer;
+			}
 			(*detailedReportFile) << std::endl;
 		}
 
@@ -191,7 +193,9 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 	if (detailedReportFile != nullptr)
 	{
 		if (packetCount > 0)
+		{
 			(*detailedReportFile) << "\n";
+		}
 
 		(*detailedReportFile) << "    ----> Found " << packetCount << " packets" << std::endl << std::endl;
 	}
@@ -217,7 +221,9 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 
 	// dir is null usually when user has no access permissions
 	if (dir == nullptr)
+	{
 		return;
+	}
 
 	struct dirent* entry = readdir(dir);
 
@@ -233,7 +239,9 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 		std::string dirSep = DIR_SEPARATOR;
 		if (0 != directory.compare(directory.length() - dirSep.length(), dirSep.length(),
 		                           dirSep))  // directory doesn't contain separator in the end
+		{
 			dirPath += DIR_SEPARATOR;
+		}
 		dirPath += name;
 
 		struct stat info;
@@ -251,7 +259,9 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 			// check if the file extension matches the requested extensions to search. If it does, put the file name in
 			// a list of files that should be searched (don't do the search just yet)
 			if (extensionsToSearch.find(getExtension(name)) != extensionsToSearch.end())
+			{
 				pcapList.push_back(dirPath);
+			}
 			entry = readdir(dir);
 			continue;
 		}
@@ -266,8 +276,10 @@ void searchDirectories(const std::string& directory, bool includeSubDirectories,
 		// if we got to here it means the file is actually a directory. If required to search sub-directories, call this
 		// method recursively to search inside this sub-directory
 		if (includeSubDirectories)
+		{
 			searchDirectories(dirPath, true, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched,
 			                  totalFilesSearched, totalPacketsFound);
+		}
 
 		// move to the next file
 		entry = readdir(dir);
@@ -349,7 +361,9 @@ int main(int argc, char* argv[])
 			{
 				// add the extension into the map if it doesn't already exist
 				if (extensionsToSearch.find(extension) == extensionsToSearch.end())
+				{
 					extensionsToSearch[extension] = true;
+				}
 			}
 
 			// verify list is not empty
@@ -425,7 +439,9 @@ int main(int argc, char* argv[])
 	if (detailedReportFile != nullptr)
 	{
 		if (detailedReportFile->is_open())
+		{
 			detailedReportFile->close();
+		}
 
 		delete detailedReportFile;
 		std::cout << "Detailed report written to '" << detailedReportFileName << "'" << std::endl;

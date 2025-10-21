@@ -92,7 +92,9 @@ namespace pcpp
 		{
 			static DpdkDeviceList instance;
 			if (!instance.isInitialized())
+			{
 				instance.initDpdkDevices(DpdkDeviceList::m_MBufPoolSizePerDevice, DpdkDeviceList::m_MBufDataSize);
+			}
 
 			return instance;
 		}

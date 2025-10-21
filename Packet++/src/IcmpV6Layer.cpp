@@ -17,7 +17,9 @@ namespace pcpp
 	Layer* IcmpV6Layer::parseIcmpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		if (dataLen < sizeof(icmpv6hdr))
+		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
 
 		icmpv6hdr* hdr = (icmpv6hdr*)data;
 		ICMPv6MessageType messageType = static_cast<ICMPv6MessageType>(hdr->type);
@@ -50,7 +52,9 @@ namespace pcpp
 		hdr->code = code;
 
 		if (data != nullptr && dataLen > 0)
+		{
 			memcpy(m_Data + sizeof(icmpv6hdr), data, dataLen);
+		}
 	}
 
 	ICMPv6MessageType IcmpV6Layer::getMessageType() const
@@ -145,7 +149,9 @@ namespace pcpp
 		header->sequence = htobe16(sequence);
 
 		if (data != nullptr && dataLen > 0)
+		{
 			memcpy(getEchoDataPtr(), data, dataLen);
+		}
 	}
 
 	uint16_t ICMPv6EchoLayer::getIdentifier() const

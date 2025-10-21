@@ -38,7 +38,9 @@ namespace pcpp
 		static void initialize()
 		{
 			if (m_IsInitialized)
+			{
 				return;
+			}
 
 			// Load Winsock
 			WSADATA wsaData;
@@ -110,7 +112,9 @@ namespace pcpp
 
 		// value of 0 timeout means disabling timeout
 		if (timeout < 0)
+		{
 			timeout = 0;
+		}
 
 		u_long blockingMode = (blocking ? 0 : 1);
 		ioctlsocket(fd, FIONBIO, &blockingMode);
@@ -127,7 +131,9 @@ namespace pcpp
 			RecvPacketResult error = getError(errorCode);
 
 			if (error == RecvError)
+			{
 				PCPP_LOG_ERROR("Error reading from recvfrom. Error code is " << errorCode);
+			}
 
 			return error;
 		}
@@ -158,7 +164,9 @@ namespace pcpp
 
 		// value of 0 timeout means disabling timeout
 		if (timeout < 0)
+		{
 			timeout = 0;
+		}
 
 		// set blocking or non-blocking flag
 		int flags = fcntl(fd, F_GETFL, 0);
@@ -190,7 +198,9 @@ namespace pcpp
 			RecvPacketResult error = getError(errorCode);
 
 			if (error == RecvError)
+			{
 				PCPP_LOG_ERROR("Error reading from recvfrom. Error code is " << errorCode);
+			}
 
 			return error;
 		}
@@ -380,8 +390,10 @@ namespace pcpp
 			int error = WSAGetLastError();
 			std::string additionalMessage = "";
 			if (error == WSAEACCES)
+			{
 				additionalMessage =
 				    ", you may not be running with administrative privileges which is required for opening raw sockets on Windows";
+			}
 			PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << error << " " << additionalMessage);
 			return false;
 		}
@@ -558,14 +570,20 @@ namespace pcpp
 #if defined(_WIN32)
 		errorCode = WSAGetLastError();
 		if (errorCode == WSAEWOULDBLOCK)
+		{
 			return RecvWouldBlock;
+		}
 		if (errorCode == WSAETIMEDOUT)
+		{
 			return RecvTimeout;
+		}
 
 		return RecvError;
 #elif defined(__linux__)
 		if ((errorCode == EAGAIN) || (errorCode == EWOULDBLOCK))
+		{
 			return RecvWouldBlock;
+		}
 
 		return RecvError;
 #else

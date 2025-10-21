@@ -29,7 +29,9 @@ namespace pcpp
 		int dataSize = 0;
 		int packetsSent = 0;
 		for (int i = 0; i < arrLength; i++)
+		{
 			dataSize += rawPacketsArr[i].getRawDataLen();
+		}
 
 		struct PcapSendQueueDeleter
 		{

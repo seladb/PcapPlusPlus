@@ -45,7 +45,9 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen);
 		}
@@ -53,7 +55,9 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) - 2 * sizeof(uint8_t);
 		}

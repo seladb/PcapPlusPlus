@@ -49,21 +49,29 @@ namespace pcpp
 
 		// verify that it's an ARP packet (although it must be because I set an ARP reply filter on the interface)
 		if (!packet.isPacketOfType(ARP))
+		{
 			return;
+		}
 
 		// extract the ARP layer from the packet
 		ArpLayer* arpReplyLayer = packet.getLayerOfType<ArpLayer>(true);  // lookup in reverse order
 		if (arpReplyLayer == nullptr)
+		{
 			return;
+		}
 
 		// verify it's the right ARP response
 		if (arpReplyLayer->getArpHeader()->hardwareType != htobe16(1)  // Ethernet
 		    || arpReplyLayer->getArpHeader()->protocolType != htobe16(PCPP_ETHERTYPE_IP))
+		{
 			return;
+		}
 
 		// verify the ARP response is the response for out request (and not some arbitrary ARP response)
 		if (arpReplyLayer->getSenderIpAddr() != data->ipAddr)
+		{
 			return;
+		}
 
 		// measure response time
 		auto duration = receiveTime - data->start;
@@ -94,13 +102,19 @@ namespace pcpp
 		}
 
 		if (sourceMac == MacAddress::Zero)
+		{
 			sourceMac = device->getMacAddress();
+		}
 
 		if (sourceIP == IPv4Address::Zero)
+		{
 			sourceIP = device->getIPv4Address();
+		}
 
 		if (arpTimeout <= 0)
+		{
 			arpTimeout = NetworkUtils::DefaultTimeout;
+		}
 
 		// create an ARP request from sourceMac and sourceIP and ask for target IP
 
@@ -170,9 +184,13 @@ namespace pcpp
 		}
 
 		if (closeDeviceAtTheEnd)
+		{
 			device->close();
+		}
 		else
+		{
 			device->clearFilter();
+		}
 
 		result = data.result;
 		arpResponseTimeMS = data.arpResponseTime;
@@ -205,12 +223,16 @@ namespace pcpp
 
 		// verify that it's an DNS packet (although it must be because DNS port filter was set on the interface)
 		if (!packet.isPacketOfType(DNS))
+		{
 			return;
+		}
 
 		// extract the DNS layer from the packet
 		DnsLayer* dnsResponseLayer = packet.getLayerOfType<DnsLayer>(true);  // lookup in reverse order
 		if (dnsResponseLayer == nullptr)
+		{
 			return;
+		}
 
 		// verify it's the right DNS response
 		if (dnsResponseLayer->getDnsHeader()->queryOrResponse != 1  // DNS response
@@ -322,7 +344,9 @@ namespace pcpp
 		}
 
 		if (dnsTimeout <= 0)
+		{
 			dnsTimeout = NetworkUtils::DefaultTimeout;
+		}
 
 		// validate DNS server IP. If it wasn't provided - set the system-configured DNS server
 		if (dnsServerIP == IPv4Address::Zero && device->getDnsServers().size() > 0)
@@ -415,9 +439,13 @@ namespace pcpp
 		}
 
 		if (closeDeviceAtTheEnd)
+		{
 			device->close();
+		}
 		else
+		{
 			device->clearFilter();
+		}
 
 		result = data.result;
 		dnsResponseTimeMS = data.dnsResponseTime;

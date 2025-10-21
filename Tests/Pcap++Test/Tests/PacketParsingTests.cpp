@@ -38,9 +38,13 @@ PTF_TEST_CASE(TestHttpRequestParsing)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::HTTPRequest))
+		{
 			httpPackets++;
+		}
 		else
+		{
 			continue;
+		}
 
 		pcpp::HttpRequestLayer* httpReqLayer = packet.getLayerOfType<pcpp::HttpRequestLayer>();
 		PTF_ASSERT_NOT_NULL(httpReqLayer->getFirstLine());
@@ -68,33 +72,51 @@ PTF_TEST_CASE(TestHttpRequestParsing)
 		}
 
 		if (httpReqLayer->getFirstLine()->getUri().find(".swf") != std::string::npos)
+		{
 			swfReqs++;
+		}
 		else if (httpReqLayer->getFirstLine()->getUri().find("home") != std::string::npos)
+		{
 			homeReqs++;
+		}
 
 		pcpp::HeaderField* hostField = httpReqLayer->getFieldByName("Host");
 		if (hostField != nullptr)
 		{
 			std::string host = hostField->getFieldValue();
 			if (host == "www.winwin.co.il")
+			{
 				winwinReqs++;
+			}
 			else if (host == "www.yad2.co.il")
+			{
 				yad2Reqs++;
+			}
 			else if (host == "www.google.com")
+			{
 				googleReqs++;
+			}
 		}
 
 		pcpp::HeaderField* userAgentField = httpReqLayer->getFieldByName("User-Agent");
 		if (userAgentField == nullptr)
+		{
 			continue;
+		}
 
 		std::string userAgent = userAgentField->getFieldValue();
 		if (userAgent.find("Trident/7.0") != std::string::npos)
+		{
 			ieReqs++;
+		}
 		else if (userAgent.find("Firefox/33.0") != std::string::npos)
+		{
 			ffReqs++;
+		}
 		else if (userAgent.find("Chrome/38.0") != std::string::npos)
+		{
 			chromeReqs++;
+		}
 	}
 
 	readerDev.close();
@@ -165,9 +187,13 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 		packetCount++;
 		pcpp::Packet packet(&rawPacket);
 		if (packet.isPacketOfType(pcpp::HTTPResponse))
+		{
 			httpResponsePackets++;
+		}
 		else
+		{
 			continue;
+		}
 
 		pcpp::HttpResponseLayer* httpResLayer = packet.getLayerOfType<pcpp::HttpResponseLayer>();
 		PTF_ASSERT_NOT_NULL(httpResLayer->getFirstLine());
@@ -190,18 +216,26 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 		{
 			std::string contentType = contentTypeField->getFieldValue();
 			if (contentType.find("image/") != std::string::npos)
+			{
 				imageCount++;
+			}
 			else if (contentType == "text/html")
+			{
 				textHtmlCount++;
+			}
 		}
 
 		pcpp::HeaderField* contentEncodingField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_ENCODING_FIELD);
 		if (contentEncodingField != nullptr && contentEncodingField->getFieldValue() == "gzip")
+		{
 			gzipCount++;
+		}
 
 		pcpp::HeaderField* transferEncodingField = httpResLayer->getFieldByName(PCPP_HTTP_TRANSFER_ENCODING_FIELD);
 		if (transferEncodingField != nullptr && transferEncodingField->getFieldValue() == "chunked")
+		{
 			chunkedCount++;
+		}
 
 		pcpp::HeaderField* contentLengthField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 		if (contentLengthField != nullptr)
@@ -209,7 +243,9 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 			std::string lengthAsString = contentLengthField->getFieldValue();
 			int length = atoi(lengthAsString.c_str());
 			if (length > 100000)
+			{
 				bigResponses++;
+			}
 		}
 	}
 
@@ -276,7 +312,9 @@ PTF_TEST_CASE(TestPrintPacketAndLayers)
 	{
 		index = referenceBufferAsString.find("\r\n", index);
 		if (index == std::string::npos)
+		{
 			break;
+		}
 		referenceBufferAsString.replace(index, 2, "\n");
 		index += 1;
 	}
@@ -328,9 +366,13 @@ PTF_TEST_CASE(TestDnsParsing)
 			packetsContainingDnsQuery++;
 
 			if (dnsLayer->getQuery("aus3.mozilla.org", true) != nullptr)
+			{
 				queriesWithNameMozillaOrg++;
+			}
 			if (dnsLayer->getQuery("www.google.com", true) != nullptr)
+			{
 				queriesWithNameGoogle++;
+			}
 
 			bool isTypeA = false;
 			bool isClassIN = false;
@@ -339,17 +381,27 @@ PTF_TEST_CASE(TestDnsParsing)
 			     query = dnsLayer->getNextQuery(query))
 			{
 				if (query->getDnsType() == pcpp::DNS_TYPE_A)
+				{
 					isTypeA = true;
+				}
 				if (query->getDnsClass() == pcpp::DNS_CLASS_IN || query->getDnsClass() == pcpp::DNS_CLASS_IN_QU)
+				{
 					isClassIN = true;
+				}
 			}
 
 			if (isTypeA)
+			{
 				queriesWithTypeA++;
+			}
 			else
+			{
 				queriesWithTypeNotA++;
+			}
 			if (isClassIN)
+			{
 				queriesWithClassIN++;
+			}
 		}
 
 		if (dnsLayer->getAnswerCount() > 0)
@@ -357,7 +409,9 @@ PTF_TEST_CASE(TestDnsParsing)
 			packetsContainingDnsAnswer++;
 
 			if (dnsLayer->getAnswer("www.google-analytics.com", true) != nullptr)
+			{
 				answersWithNameGoogleAnalytics++;
+			}
 
 			bool isTypeCNAME = false;
 			bool isTypePTR = false;
@@ -367,21 +421,35 @@ PTF_TEST_CASE(TestDnsParsing)
 			     answer = dnsLayer->getNextAnswer(answer))
 			{
 				if (answer->getTTL() < 30)
+				{
 					isTtlLessThan30 = true;
+				}
 				if (answer->getDnsType() == pcpp::DNS_TYPE_CNAME)
+				{
 					isTypeCNAME = true;
+				}
 				if (answer->getDnsType() == pcpp::DNS_TYPE_PTR)
+				{
 					isTypePTR = true;
+				}
 				if (answer->getData()->toString() == "fe80::5a1f:aaff:fe4f:3f9d")
+				{
 					answersWithDataCertainIPv6++;
+				}
 			}
 
 			if (isTypeCNAME)
+			{
 				answersWithTypeCNAME++;
+			}
 			if (isTypePTR)
+			{
 				answersWithTypePTR++;
+			}
 			if (isTtlLessThan30)
+			{
 				answersWithTtlLessThan30++;
+			}
 		}
 
 		if (dnsLayer->getAuthorityCount() > 0)
@@ -389,7 +457,9 @@ PTF_TEST_CASE(TestDnsParsing)
 			packetsContainingDnsAuthority++;
 
 			if (dnsLayer->getAuthority("Yaels-iPhone.local", true) != nullptr)
+			{
 				authoritiesWithNameYaelPhone++;
+			}
 
 			for (pcpp::DnsResource* auth = dnsLayer->getFirstAuthority(); auth != nullptr;
 			     auth = dnsLayer->getNextAuthority(auth))
@@ -407,11 +477,15 @@ PTF_TEST_CASE(TestDnsParsing)
 			packetsContainingDnsAdditional++;
 
 			if (dnsLayer->getAdditionalRecord("", true) != nullptr)
+			{
 				additionalWithEmptyName++;
+			}
 
 			if (dnsLayer->getAdditionalRecord(
 			        "D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa", true) != nullptr)
+			{
 				additionalWithLongUglyName++;
+			}
 
 			bool isTypeNSEC = false;
 
@@ -419,11 +493,15 @@ PTF_TEST_CASE(TestDnsParsing)
 			     add = dnsLayer->getNextAdditionalRecord(add))
 			{
 				if (add->getDnsType() == pcpp::DNS_TYPE_NSEC)
+				{
 					isTypeNSEC = true;
+				}
 			}
 
 			if (isTypeNSEC)
+			{
 				additionalWithTypeNSEC++;
+			}
 		}
 	}
 

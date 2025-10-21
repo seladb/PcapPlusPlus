@@ -15,9 +15,13 @@ namespace pcpp
 	{
 		size_t maxLen;
 		if (m_DataLen < MAX_COMMAND_LENGTH)
+		{
 			maxLen = m_DataLen;
+		}
 		else
+		{
 			maxLen = MAX_COMMAND_LENGTH;
+		}
 
 		// To correctly detect multi-line packets with the option containing a space in
 		// the first MAX_CONTENT_LENGTH bytes, search the both of hyphen and space to take
@@ -31,13 +35,19 @@ namespace pcpp
 
 		// No delimiter or packet end
 		if (posHyphen == std::string::npos && posSpace == std::string::npos && posCRLF == std::string::npos)
+		{
 			return 0;
+		}
 		// Both hyphen and space found
 		else if (posHyphen != std::string::npos || posSpace != std::string::npos)
+		{
 			return std::min(posSpace, posHyphen);
+		}
 		// If nothing found but there is a CRLF it is a only command packet
 		else if (posCRLF != std::string::npos)
+		{
 			return posCRLF;
+		}
 
 		return 0;
 	}
@@ -45,9 +55,13 @@ namespace pcpp
 	void SingleCommandTextProtocol::setDelimiter(bool hyphen)
 	{
 		if (hyphen)
+		{
 			memset(&m_Data[getArgumentFieldOffset()], ASCII_HYPHEN, 1);
+		}
 		else
+		{
 			memset(&m_Data[getArgumentFieldOffset()], ASCII_SPACE, 1);
+		}
 	}
 
 	bool SingleCommandTextProtocol::hyphenRequired(const std::string& value)
@@ -64,28 +78,40 @@ namespace pcpp
 		m_Data = new uint8_t[MIN_PACKET_LENGTH];
 		m_DataLen = MIN_PACKET_LENGTH;
 		if (!command.empty())
+		{
 			setCommandInternal(command);
+		}
 		if (!option.empty())
+		{
 			setCommandOptionInternal(option);
+		}
 	}
 
 	bool SingleCommandTextProtocol::setCommandInternal(std::string value)
 	{
 		size_t currentOffset = getArgumentFieldOffset();
 		if (currentOffset == m_DataLen - 1)
+		{
 			currentOffset = 0;
+		}
 		if (!currentOffset)
+		{
 			value += " \r\n";
+		}
 
 		if (value.size() < currentOffset)
 		{
 			if (!shortenLayer(0, currentOffset - value.size()))
+			{
 				return false;
+			}
 		}
 		else if (m_Data && value.size() > currentOffset)
 		{
 			if (!extendLayer(0, value.size() - currentOffset))
+			{
 				return false;
+			}
 		}
 
 		memcpy(m_Data, value.c_str(), value.size());
@@ -96,27 +122,37 @@ namespace pcpp
 	{
 		size_t lastPos = value.rfind("\r\n");
 		if (lastPos == std::string::npos || lastPos != value.size() - 2)
+		{
 			value += "\r\n";
+		}
 
 		size_t currentOffset = getArgumentFieldOffset() + 1;
 
 		if (value.size() < (m_DataLen - currentOffset))
 		{
 			if (!shortenLayer(currentOffset, (m_DataLen - currentOffset) - value.size()))
+			{
 				return false;
+			}
 		}
 		else if (m_Data && value.size() > (m_DataLen - currentOffset))
 		{
 			if (!extendLayer(currentOffset, value.size() - (m_DataLen - currentOffset)))
+			{
 				return false;
+			}
 		}
 
 		memcpy(&m_Data[currentOffset], value.c_str(), value.size());
 
 		if (hyphenRequired(value))
+		{
 			setDelimiter(true);
+		}
 		else
+		{
 			setDelimiter(false);
+		}
 		return true;
 	}
 
@@ -126,7 +162,9 @@ namespace pcpp
 
 		// If there is no option remove trailing newline characters
 		if (offset == (m_DataLen - 1) && offset > 1)
+		{
 			return std::string(reinterpret_cast<char*>(m_Data), offset - 1);
+		}
 		return std::string(reinterpret_cast<char*>(m_Data), offset);
 	}
 
@@ -170,7 +208,9 @@ namespace pcpp
 	bool SingleCommandTextProtocol::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		if (data == nullptr || dataSize < MIN_PACKET_LENGTH)
+		{
 			return false;
+		}
 
 		std::string payload = std::string(reinterpret_cast<const char*>(data), dataSize);
 		return payload.rfind("\r\n") == dataSize - 2;

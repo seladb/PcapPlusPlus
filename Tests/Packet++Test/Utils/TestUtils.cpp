@@ -12,7 +12,9 @@ namespace pcpp_tests
 	{
 		std::ifstream infile(filename, std::ifstream::binary);
 		if (!infile)
+		{
 			return -1;
+		}
 		infile.seekg(0, infile.end);
 		int length = infile.tellg();
 		infile.close();
@@ -24,11 +26,17 @@ namespace pcpp_tests
 		std::uint8_t hexCharToDigit(char c)
 		{
 			if (c >= '0' && c <= '9')
+			{
 				return c - '0';
+			}
 			if (c >= 'a' && c <= 'f')
+			{
 				return c - 'a' + 10;
+			}
 			if (c >= 'A' && c <= 'F')
+			{
 				return c - 'A' + 10;
+			}
 			throw std::invalid_argument("Invalid hex character");
 		}
 
@@ -42,11 +50,15 @@ namespace pcpp_tests
 	{
 		int fileLength = getFileLength(filename);
 		if (fileLength == -1)
+		{
 			throw std::runtime_error(std::string("Failed to open file: ") + filename);
+		}
 
 		std::ifstream infile(filename);
 		if (!infile)
+		{
 			throw std::runtime_error(std::string("Failed to open file: ") + filename);
+		}
 
 		std::vector<std::uint8_t> buffer;
 		char hexPair[2];  // 0 - high, 1 - low
@@ -61,11 +73,15 @@ namespace pcpp_tests
 	{
 		int fileLength = getFileLength(filename);
 		if (fileLength == -1)
+		{
 			return nullptr;
+		}
 
 		std::ifstream infile(filename);
 		if (!infile)
+		{
 			return nullptr;
+		}
 
 		bufferLength = fileLength / 2 + 2;
 		uint8_t* result = new uint8_t[bufferLength];

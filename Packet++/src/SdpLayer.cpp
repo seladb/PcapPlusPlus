@@ -13,7 +13,9 @@ namespace pcpp
 		std::stringstream stream(str);
 		std::vector<std::string> result;
 		while (stream >> buf)
+		{
 			result.push_back(buf);
+		}
 
 		return result;
 	}
@@ -74,14 +76,20 @@ namespace pcpp
 	{
 		HeaderField* originator = getFieldByName(PCPP_SDP_ORIGINATOR_FIELD);
 		if (originator == nullptr)
+		{
 			return IPv4Address::Zero;
+		}
 
 		std::vector<std::string> tokens = splitByWhiteSpaces(originator->getFieldValue());
 		if (tokens.size() < 6)
+		{
 			return IPv4Address::Zero;
+		}
 
 		if (tokens[3] != "IN" || tokens[4] != "IP4")
+		{
 			return IPv4Address::Zero;
+		}
 
 		try
 		{
@@ -103,7 +111,9 @@ namespace pcpp
 			std::vector<std::string> tokens = splitByWhiteSpaces(mediaDesc->getFieldValue());
 
 			if (tokens.size() >= 2 && tokens[0] == mediaType)
+			{
 				return atoi(tokens[1].c_str());
+			}
 
 			mediaFieldIndex++;
 			mediaDesc = getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldIndex);

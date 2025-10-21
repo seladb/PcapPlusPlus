@@ -37,7 +37,9 @@ public:
 		int nextFile = m_PacketCount / m_MaxPacketsPerFile;
 		// if reached packet count limit, close the previous file and return the next file number
 		if (curFile != nextFile)
+		{
 			filesToClose.push_back(curFile);
+		}
 		return curFile;
 	}
 
@@ -93,7 +95,9 @@ public:
 		int nextFile = m_TotalSize / m_MaxBytesPerFile;
 		// if reached the maximum size per file, close the previous file
 		if (prevFile != nextFile)
+		{
 			filesToClose.push_back(prevFile);
+		}
 		return nextFile;
 	}
 
@@ -132,7 +136,9 @@ public:
 	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		if (packet.getRawPacket() != nullptr && filter.matches(*packet.getRawPacket()))
+		{
 			return 0;
+		}
 		return 1;
 	}
 
@@ -143,9 +149,13 @@ public:
 	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
 	{
 		if (fileNumber == 0)
+		{
 			return outputPcapBasePath + "match-bpf";
+		}
 		else
+		{
 			return outputPcapBasePath + "not-match-bpf";
+		}
 	}
 
 	/**
@@ -162,7 +172,9 @@ public:
 		pcpp::BPFStringFilter localFilter(m_BpfFilter);
 		bool filterValid = localFilter.verifyFilter();
 		if (!filterValid)
+		{
 			errorString = "BPF filter is not valid";
+		}
 
 		return filterValid;
 	}

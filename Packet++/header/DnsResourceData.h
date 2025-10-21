@@ -315,7 +315,9 @@ namespace pcpp
 		~GenericDnsResourceData() override
 		{
 			if (m_Data != nullptr)
+			{
 				delete[] m_Data;
+			}
 		}
 
 		GenericDnsResourceData& operator=(const GenericDnsResourceData& other);

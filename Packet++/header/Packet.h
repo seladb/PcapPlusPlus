@@ -365,7 +365,9 @@ namespace pcpp
 	TLayer* Packet::searchLayerStackForType(Layer* curLayer, NextLayerFn nextLayerFn, bool skipFirst)
 	{
 		if (curLayer == nullptr)
+		{
 			return nullptr;
+		}
 
 		if (skipFirst)
 		{
@@ -376,7 +378,9 @@ namespace pcpp
 		{
 			auto* curLayerCasted = dynamic_cast<TLayer*>(curLayer);
 			if (curLayerCasted != nullptr)
+			{
 				return curLayerCasted;
+			}
 
 			curLayer = nextLayerFn(curLayer);
 		}

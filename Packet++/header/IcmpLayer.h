@@ -619,41 +619,59 @@ namespace pcpp
 	bool IcmpLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < sizeof(icmphdr))
+		{
 			return false;
+		}
 
 		uint8_t type = data[0];
 
 		// ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, ICMP_ROUTER_SOL, ICMP_INFO_REQUEST, ICMP_INFO_REPLY
 		if (type == 8 || type == 0 || type == 10 || type == 15 || type == 16)
+		{
 			return true;
+		}
 
 		// ICMP_TIMESTAMP_REQUEST, ICMP_TIMESTAMP_REPLY
 		if (type == 13 || type == 14)
+		{
 			return dataLen >= sizeof(icmp_timestamp_request);
+		}
 
 		// ICMP_ADDRESS_MASK_REPLY, ICMP_ADDRESS_MASK_REQUEST
 		if (type == 17 || type == 18)
+		{
 			return dataLen >= sizeof(icmp_address_mask_request);
+		}
 
 		// ICMP_DEST_UNREACHABLE
 		if (type == 3)
+		{
 			return dataLen >= sizeof(icmp_destination_unreachable);
+		}
 
 		// ICMP_REDIRECT
 		if (type == 5)
+		{
 			return dataLen >= sizeof(icmp_redirect);
+		}
 
 		// ICMP_TIME_EXCEEDED, ICMP_SOURCE_QUENCH
 		if (type == 4 || type == 11)
+		{
 			return dataLen >= sizeof(icmp_time_exceeded);
+		}
 
 		// ICMP_PARAM_PROBLEM
 		if (type == 12)
+		{
 			return dataLen >= sizeof(icmp_param_problem);
+		}
 
 		// ICMP_ROUTER_ADV
 		if (type == 9)
+		{
 			return dataLen >= sizeof(icmp_router_advertisement_hdr);
+		}
 
 		return false;
 	}

@@ -99,7 +99,9 @@ namespace pcpp
 		~S7CommLayer() override
 		{
 			if (m_Parameter)
+			{
 				delete m_Parameter;
+			}
 		}
 
 		/// @return S7comm protocol id

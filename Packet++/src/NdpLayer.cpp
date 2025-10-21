@@ -85,7 +85,9 @@ namespace pcpp
 	{
 		int offset = getNdpHeaderLen();
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		m_OptionReader.changeTLVRecordCount(0 - getNdpOptionCount());
 		return true;

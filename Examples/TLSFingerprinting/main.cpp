@@ -263,7 +263,9 @@ void printCommonTLSFingerprints(const std::unordered_map<std::string, uint64_t>&
 	for (auto iter = map2vec.begin(); iter != map2vec.end(); ++iter)
 	{
 		if (iter - map2vec.begin() >= printCountItems)
+		{
 			break;
+		}
 
 		std::stringstream values;
 		values << iter->first << "|" << iter->second;
@@ -300,7 +302,9 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 	if (chFP && !stats.chFingerprints.empty())
 	{
 		if (stats.chFingerprints.size() > 10)
+		{
 			std::cout << "Top 10 ";
+		}
 		std::cout << "ClientHello TLS fingerprints:" << std::endl;
 
 		// write no more than 10 most common TLS fingerprints
@@ -312,7 +316,9 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 	if (shFP && !stats.shFingerprints.empty())
 	{
 		if (stats.shFingerprints.size() > 10)
+		{
 			std::cout << "Top 10 ";
+		}
 		std::cout << "ServerHello TLS fingerprints:" << std::endl;
 
 		// write no more than 10 most common TLS fingerprints
@@ -391,7 +397,9 @@ void doTlsFingerprintingOnPcapFile(const std::string& inputPcapFileName, std::st
 
 	// try to open the file device
 	if (!reader->open())
+	{
 		EXIT_WITH_ERROR("Cannot open pcap/pcapng file");
+	}
 
 	// set output file name to input file name if not provided by the user
 	if (outputFileName.empty())
@@ -417,7 +425,9 @@ void doTlsFingerprintingOnPcapFile(const std::string& inputPcapFileName, std::st
 	if (!bpfFilter.empty())
 	{
 		if (!reader->setFilter(bpfFilter))
+		{
 			EXIT_WITH_ERROR("Error in setting BPF filter to the pcap file");
+		}
 	}
 
 	std::cout << "Start reading '" << inputPcapFileName << "'..." << std::endl;
@@ -465,10 +475,14 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 	// extract pcap live device by interface name or IP address
 	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 	if (dev == nullptr)
+	{
 		EXIT_WITH_ERROR("Couldn't find interface by given IP address or name");
+	}
 
 	if (!dev->open())
+	{
 		EXIT_WITH_ERROR("Couldn't open interface");
+	}
 
 	// set output file name to interface name if not provided by the user
 	if (outputFileName.empty())
@@ -495,7 +509,9 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 	if (!bpfFilter.empty())
 	{
 		if (!dev->setFilter(bpfFilter))
+		{
 			EXIT_WITH_ERROR("Error in setting BPF filter to interface");
+		}
 	}
 
 	std::cout << "Start capturing packets from '" << interfaceNameOrIP << "'..." << std::endl;
@@ -517,7 +533,9 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 
 	// run in an endless loop until the user press ctrl+c
 	while (!shouldStop)
+	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 
 	// stop capturing and close the live device
 	dev->stopCapture();

@@ -99,7 +99,9 @@ int main(int argc, char* argv[])
 	if (skipMemLeakCheck)
 	{
 		if (configTags != "")
+		{
 			configTags += ";";
+		}
 
 		configTags += "skip_mem_leak_check";
 		std::cout << "Skipping memory leak check for all test cases" << std::endl;
@@ -108,7 +110,9 @@ int main(int argc, char* argv[])
 	if (memVerbose)
 	{
 		if (configTags != "")
+		{
 			configTags += ";";
+		}
 
 		configTags += "mem_leak_check_verbose";
 		std::cout << "Turning on verbose information on memory allocations" << std::endl;

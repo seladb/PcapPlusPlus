@@ -12,15 +12,21 @@ namespace pcpp
 	SSLVersion::SSLVersionEnum SSLVersion::asEnum(bool countTlsDraftsAs1_3)
 	{
 		if (m_SSLVersionValue >= 0x0300 && m_SSLVersionValue <= 0x0304)
+		{
 			return static_cast<SSLVersion::SSLVersionEnum>(m_SSLVersionValue);
+		}
 
 		if ((m_SSLVersionValue >= 0x7f0e && m_SSLVersionValue <= 0x7f1c) || m_SSLVersionValue == 0xfb17 ||
 		    m_SSLVersionValue == 0xfb1a)
 		{
 			if (countTlsDraftsAs1_3)
+			{
 				return SSLVersion::TLS1_3;
+			}
 			else
+			{
 				return static_cast<SSLVersion::SSLVersionEnum>(m_SSLVersionValue);
+			}
 		}
 
 		return SSLVersion::Unknown;
