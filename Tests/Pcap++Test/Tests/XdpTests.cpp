@@ -61,10 +61,9 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 	PTF_ASSERT_TRUE(assertConfig(device.getConfig(), pcpp::XdpDevice::XdpDeviceConfiguration::AutoMode, 4096, 4096,
 	                             4096, 2048, 2048, 2048, 64));
 
-	pcpp::XdpDevice::XdpSocket *socket = device.getSocket(0);
 	XdpPacketData packetData;
 
-	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice::XdpSocket* socket,
+	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device,
 	                          void* userCookie) -> void {
 		auto packetData = static_cast<XdpPacketData*>(userCookie);
 
@@ -81,7 +80,7 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 
 		if (packetData->packetCount >= 5)
 		{
-			socket->stopReceivePackets();
+			device->stopReceivePackets();
 		}
 	};
 
@@ -90,22 +89,38 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 
 	uint64_t curTimestamp = 1000 * 1000 * 1000 * ts.tv_sec + ts.tv_nsec;
 
-	PTF_ASSERT_TRUE(socket->receivePackets(onPacketsArrive, &packetData, 20000));
+	PTF_ASSERT_TRUE(device.receivePackets(onPacketsArrive, &packetData, 20000));
 
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(packetData.packetCount, 5);
 	PTF_ASSERT_GREATER_THAN(packetData.latestTimestamp, curTimestamp);
 
-	auto stats = socket->getStatistics();
+	auto stats = device.getStatistics();
 	PTF_ASSERT_GREATER_THAN(stats.umemAllocatedFrames, 0);
 	PTF_ASSERT_GREATER_THAN(stats.umemFreeFrames, 0);
 
 	device.close();
 
-	socket = device.getSocket(0);
-	// the sockets should be null
-	PTF_ASSERT_EQUAL(socket, nullptr);
+	stats = device.getStatistics();
+
+	PTF_ASSERT_EQUAL(stats.rxPackets, packetData.packetCount);
+	PTF_ASSERT_EQUAL(stats.rxBytes, packetData.byteCount);
+	PTF_ASSERT_EQUAL(stats.rxDroppedTotalPackets, 0);
+	PTF_ASSERT_EQUAL(stats.txSentPackets, 0);
+	PTF_ASSERT_EQUAL(stats.txSentBytes, 0);
+	PTF_ASSERT_EQUAL(stats.txCompletedPackets, 0);
+	PTF_ASSERT_EQUAL(stats.txDroppedInvalidPackets, 0);
+	PTF_ASSERT_EQUAL(stats.txSentBytesPerSec, 0);
+	PTF_ASSERT_EQUAL(stats.txSentPacketsPerSec, 0);
+	PTF_ASSERT_EQUAL(stats.txCompletedPacketsPerSec, 0);
+	PTF_ASSERT_EQUAL(stats.umemAllocatedFrames, 0);
+	PTF_ASSERT_EQUAL(stats.umemFreeFrames, 0);
+	PTF_ASSERT_GREATER_THAN(stats.rxRingId, 0);
+	PTF_ASSERT_GREATER_THAN(stats.fqRingId, 0);
+	PTF_ASSERT_EQUAL(stats.txRingId, 0);
+	PTF_ASSERT_EQUAL(stats.cqRingId, 0);
 
 	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(device.receivePackets(onPacketsArrive, nullptr));
 	pcpp::Logger::getInstance().enableLogs();
 #else
 	PTF_SKIP_TEST("XDP not configured");
@@ -126,10 +141,9 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 
 	PTF_ASSERT_TRUE(device.open());
 
-	pcpp::XdpDevice::XdpSocket *socket = device.getSocket(0);
-	PTF_ASSERT_TRUE(socket->sendPackets(packets, true));
+	PTF_ASSERT_TRUE(device.sendPackets(packets, true));
 
-	auto stats = socket->getStatistics();
+	auto stats = device.getStatistics();
 	PTF_ASSERT_EQUAL(stats.rxPackets, 0);
 	PTF_ASSERT_EQUAL(stats.rxBytes, 0);
 	PTF_ASSERT_EQUAL(stats.rxDroppedTotalPackets, 0);
@@ -144,17 +158,15 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 	PTF_ASSERT_GREATER_THAN(stats.txRingId, 0);
 	PTF_ASSERT_GREATER_THAN(stats.cqRingId, 0);
 
-	PTF_ASSERT_TRUE(socket->sendPackets(packets));
+	PTF_ASSERT_TRUE(device.sendPackets(packets));
 
-	stats = socket->getStatistics();
+	stats = device.getStatistics();
 	PTF_ASSERT_NOT_EQUAL(stats.txSentPackets, stats.txCompletedPackets);
 
 	device.close();
-	socket = device.getSocket(0);
-	PTF_ASSERT_EQUAL(socket, nullptr);
 
 	pcpp::Logger::getInstance().suppressLogs();
-
+	PTF_ASSERT_FALSE(device.sendPackets(packets));
 	pcpp::Logger::getInstance().enableLogs();
 #else
 	PTF_SKIP_TEST("XDP not configured");
@@ -175,11 +187,9 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 	PTF_ASSERT_TRUE(assertConfig(device.getConfig(), pcpp::XdpDevice::XdpDeviceConfiguration::SkbMode, 1000, 4096, 512,
 	                             512, 512, 512, 20));
 
-	pcpp::XdpDevice::XdpSocket *socket = device.getSocket(0);
-
 	int numPackets = 0;
 
-	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice::XdpSocket* socket,
+	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device,
 	                          void* userCookie) -> void {
 		int* totalPacketCount = static_cast<int*>(userCookie);
 
@@ -193,11 +203,11 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 
 		if (*totalPacketCount >= 5)
 		{
-			socket->stopReceivePackets();
+			device->stopReceivePackets();
 		}
 	};
 
-	PTF_ASSERT_TRUE(socket->receivePackets(onPacketsArrive, &numPackets, 20000));
+	PTF_ASSERT_TRUE(device.receivePackets(onPacketsArrive, &numPackets, 20000));
 
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numPackets, 5);
 #else

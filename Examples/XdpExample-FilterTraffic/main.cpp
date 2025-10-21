@@ -100,7 +100,7 @@ struct PacketCaptureArgs
 	PacketStats* packetStats;
 	PacketMatchingEngine* matchingEngine;
 	std::unordered_map<uint32_t, bool> flowTable;
-	pcpp::XdpDevice::XdpSocket* sendPacketsTo;
+	pcpp::XdpDevice* sendPacketsTo;
 	pcpp::PcapFileWriterDevice* pcapWriter;
 	bool stopCapture;
 
@@ -128,14 +128,14 @@ static struct option XdpFilterTrafficOptions[] = {
 /**
  * A callback to handle packets that were received on the AF_XDP socket
  */
-void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice::XdpSocket* socket, void* userCookie)
+void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
 {
 	auto args = reinterpret_cast<PacketCaptureArgs*>(userCookie);
 
 	// if the user asked to interrupt the app, stop receiving packets
 	if (args->stopCapture)
 	{
-		socket->stopReceivePackets();
+		device->stopReceivePackets();
 		return;
 	}
 
@@ -268,10 +268,8 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
 	// run in an endless loop until the signal is received and print stats every 1 sec
 	while (futureObj.wait_for(std::chrono::milliseconds(1000)) == std::future_status::timeout)
 	{
-		// collect RX stats on socket 0
-		auto socket = dev->getSocket(0);
-		auto rxStats = socket->getStatistics();
-		auto sendsocket = sendDev->getSocket(0);
+		// collect RX stats
+		auto rxStats = dev->getStatistics();
 
 		pcpp::XdpDevice::XdpDeviceStats* txStats = nullptr;
 
@@ -280,7 +278,7 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
 			// if send socket is different from receive socket, collect stats from the send socket
 			if (sendDev != dev)
 			{
-				txStats = new pcpp::XdpDevice::XdpDeviceStats(sendsocket->getStatistics());
+				txStats = new pcpp::XdpDevice::XdpDeviceStats(sendDev->getStatistics());
 			}
 			else  // send and receive sockets are the same
 			{
@@ -548,7 +546,7 @@ int main(int argc, char* argv[])
 	PacketCaptureArgs args;
 	args.packetStats = &packetStats;
 	args.matchingEngine = &matchingEngine;
-	args.sendPacketsTo = sendDev->getSocket(0);
+	args.sendPacketsTo = sendDev;
 	args.pcapWriter = pcapWriter;
 
 	// create future and promise instances to signal the stats collection threads when to stop
@@ -563,8 +561,7 @@ int main(int argc, char* argv[])
 	    [](void* args) { reinterpret_cast<PacketCaptureArgs*>(args)->stopCapture = true; }, &args);
 
 	// start receiving packets on the AF_XDP socket
-	auto recvsocket = dev.getSocket(0);
-	auto res = recvsocket->receivePackets(onPacketsArrive, &args, -1);
+	auto res = dev.receivePackets(onPacketsArrive, &args, -1);
 
 	// user clicked ctrl+c, prepare to shut the app down
 
@@ -590,8 +587,7 @@ int main(int argc, char* argv[])
 	if (sendDev != nullptr)
 	{
 		// collect final TX stats
-		auto sendSocket = sendDev->getSocket(0);
-		txStats = new pcpp::XdpDevice::XdpDeviceStats(sendSocket->getStatistics());
+		txStats = new pcpp::XdpDevice::XdpDeviceStats(sendDev->getStatistics());
 
 		// if the send and receive devices are the same - no need to close the device again
 		if (sendInterfaceName != interfaceName)
@@ -602,7 +598,7 @@ int main(int argc, char* argv[])
 	}
 
 	// collect final RX stats
-	pcpp::XdpDevice::XdpDeviceStats rxStats = recvsocket->getStatistics();
+	pcpp::XdpDevice::XdpDeviceStats rxStats = dev.getStatistics();
 
 	// close the XDP device
 	dev.close();
