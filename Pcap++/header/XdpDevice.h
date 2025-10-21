@@ -3,6 +3,7 @@
 /// @file
 
 #include "Device.h"
+#include <memory>
 #include <utility>
 #include <functional>
 #include <vector>
@@ -246,7 +247,8 @@ namespace pcpp
 		/// @return A pointer to the current device configuration. If the device is not open this method returns nullptr
 		XdpDeviceConfiguration* getConfig() const
 		{
-			return m_Config;
+			// TODO: Return a copy or const ref to avoid user modifying config?
+			return m_Config.get();
 		}
 
 		/// @return Current device statistics for queue id zero
