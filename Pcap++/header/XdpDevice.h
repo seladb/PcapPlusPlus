@@ -102,6 +102,7 @@ namespace pcpp
 			/// @param[in] txSize The size of the TX ring used by the AF_XDP socket. The default value is 2048
 			/// @param[in] rxTxBatchSize The max number of packets to be received or sent in one batch. The default
 			/// value is 64
+			/// @param[in] numQueues The number of queues, and therefore sockets, to configure with device. The default is 1
 			explicit XdpDeviceConfiguration(AttachMode attachMode = AutoMode, uint16_t umemNumFrames = 0,
 			                                uint16_t umemFrameSize = 0, uint32_t fillRingSize = 0,
 			                                uint32_t completionRingSize = 0, uint32_t rxSize = 0, uint32_t txSize = 0,
@@ -248,7 +249,7 @@ namespace pcpp
 		XdpDeviceConfiguration* getConfig() const
 		{
 			// TODO: Return a copy or const ref to avoid user modifying config?
-			return m_Config.get();
+			return m_Config;
 		}
 
 		/// @return Current device statistics for queue id zero
@@ -311,8 +312,9 @@ namespace pcpp
 
 		/// A c'tor for this class. Please note that calling this c'tor doesn't initialize the AF_XDP socket. In order
 		/// to set up the socket call configureSocket().
-		/// @param[in] interfaceName The interface name to open the AF_XDP sockets on
-		explicit XdpSocket(XdpDevice *device, uint32_t qid);
+		/// @param[in] device The custodial XdpDevice
+		/// @param[in] queueid The queue id for the socket
+		explicit XdpSocket(XdpDevice *device, uint32_t queueid);
 
 		/// A d'tor for this class. It deletes the underlying socket resource and frees allocated UMEM
 		~XdpSocket();
