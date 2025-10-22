@@ -95,6 +95,7 @@ namespace pcpp
 		uint32_t m_DeviceMtu;
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
+
 		std::thread m_CaptureThread;
 		std::thread m_StatsThread;
 
@@ -103,12 +104,6 @@ namespace pcpp
 		// Should be set to true by the Callee for the Caller
 		std::atomic<bool> m_CaptureThreadStarted;
 
-		OnPacketArrivesCallback m_cbOnPacketArrives;
-		void* m_cbOnPacketArrivesUserCookie;
-		OnPacketArrivesStopBlocking m_cbOnPacketArrivesBlockingMode;
-		void* m_cbOnPacketArrivesBlockingModeUserCookie;
-		RawPacketVector* m_CapturedPackets;
-		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
 		bool m_UsePoll;
 
@@ -123,13 +118,6 @@ namespace pcpp
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
-
-		// threads
-		void captureThreadMain();
-
-		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 
 	public:
 		/// The type of the live device
