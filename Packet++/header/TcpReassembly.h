@@ -404,9 +404,11 @@ namespace pcpp
 			uint32_t sequence;
 			size_t dataLength;
 			uint8_t* data;
+			uint32_t flowKey;
+			bool isFin;
 			std::chrono::time_point<std::chrono::high_resolution_clock> timestamp;
 
-			TcpFragment() : sequence(0), dataLength(0), data(nullptr)
+			TcpFragment() : sequence(0), dataLength(0), data(nullptr), flowKey(0), isFin(false)
 			{}
 			~TcpFragment()
 			{

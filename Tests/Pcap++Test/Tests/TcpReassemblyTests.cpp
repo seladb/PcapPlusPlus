@@ -721,13 +721,13 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
 
 	PTF_ASSERT_EQUAL(stats.size(), 1);
-	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 5);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 6);
 	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[0], 1);
 	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[1], 1);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEnded);
 	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEndedManually);
-	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output2.txt"));
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
 }  // TestTcpReassemblyWithFIN_RST
 
