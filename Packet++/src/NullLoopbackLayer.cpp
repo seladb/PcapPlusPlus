@@ -63,16 +63,16 @@ namespace pcpp
 			{
 			case PCPP_ETHERTYPE_IP:
 				m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-				                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-				                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+				                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
+				                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 				return;
 			case PCPP_ETHERTYPE_IPV6:
 				m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-				                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-				                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+				                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
+				                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 				return;
 			default:
-				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 				return;
 			}
 		}
@@ -81,18 +81,18 @@ namespace pcpp
 		{
 		case PCPP_BSD_AF_INET:
 			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PCPP_BSD_AF_INET6_BSD:
 		case PCPP_BSD_AF_INET6_FREEBSD:
 		case PCPP_BSD_AF_INET6_DARWIN:
 			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 		}
 	}
 

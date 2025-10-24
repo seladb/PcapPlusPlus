@@ -48,9 +48,9 @@ namespace pcpp
 	{
 		// remove all layers after
 
-		if (m_Packet != nullptr)
+		if (getAttachedPacket() != nullptr)
 		{
-			bool res = m_Packet->removeAllLayersAfter(this);
+			bool res = getAttachedPacket()->removeAllLayersAfter(this);
 			if (!res)
 				return false;
 		}
@@ -99,20 +99,20 @@ namespace pcpp
 
 	bool IcmpLayer::setIpAndL4Layers(IPv4Layer* ipLayer, Layer* l4Layer)
 	{
-		if (m_Packet == nullptr)
+		if (getAttachedPacket() == nullptr)
 		{
 			PCPP_LOG_ERROR("Cannot set ICMP data that involves IP and L4 layers on a layer not attached to a packet. "
 			               "Please add the ICMP layer to a packet and try again");
 			return false;
 		}
 
-		if (ipLayer != nullptr && !m_Packet->addLayer(ipLayer))
+		if (ipLayer != nullptr && !getAttachedPacket()->addLayer(ipLayer))
 		{
 			PCPP_LOG_ERROR("Couldn't add IP layer to ICMP packet");
 			return false;
 		}
 
-		if (l4Layer != nullptr && !m_Packet->addLayer(l4Layer))
+		if (l4Layer != nullptr && !getAttachedPacket()->addLayer(l4Layer))
 		{
 			PCPP_LOG_ERROR("Couldn't add L4 layer to ICMP packet");
 			return false;
@@ -574,13 +574,13 @@ namespace pcpp
 		case ICMP_PARAM_PROBLEM:
 			// clang-format off
 			m_NextLayer = IPv4Layer::isDataValid(m_Data + headerLen, m_DataLen - headerLen)
-			        ? static_cast<Layer*>(new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet))
-			        : static_cast<Layer*>(new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet));
+			        ? static_cast<Layer*>(new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket()))
+			        : static_cast<Layer*>(new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket()));
 			// clang-format on
 			return;
 		default:
 			if (m_DataLen > headerLen)
-				m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+				m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
 			return;
 		}
 	}

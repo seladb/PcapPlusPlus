@@ -590,18 +590,18 @@ namespace pcpp
 		if (subProto >= 0x45 && subProto <= 0x4e)
 		{
 			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 		}
 		else if ((subProto & 0xf0) == 0x60)
 		{
 			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 		}
 		else
 		{
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 		}
 	}
 
@@ -1315,11 +1315,11 @@ namespace pcpp
 
 		if (getHeader()->piggybacking && GtpV2Layer::isDataValid(nextLayerData, nextLayerDataLen))
 		{
-			m_NextLayer = new GtpV2Layer(nextLayerData, nextLayerDataLen, this, m_Packet);
+			m_NextLayer = new GtpV2Layer(nextLayerData, nextLayerDataLen, this, getAttachedPacket());
 		}
 		else
 		{
-			m_NextLayer = new PayloadLayer(nextLayerData, nextLayerDataLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(nextLayerData, nextLayerDataLen, this, getAttachedPacket());
 		}
 	}
 

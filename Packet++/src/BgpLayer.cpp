@@ -87,7 +87,7 @@ namespace pcpp
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, getAttachedPacket());
 	}
 
 	std::string BgpLayer::toString() const
@@ -120,10 +120,10 @@ namespace pcpp
 
 	bool BgpLayer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
 	{
-		if (m_Packet != nullptr)
+		if (getAttachedPacket() != nullptr)
 		{
-			int rawPacketLen = m_Packet->getRawPacket()->getRawDataLen();
-			const uint8_t* rawPacketPtr = m_Packet->getRawPacket()->getRawData();
+			int rawPacketLen = getAttachedPacket()->getRawPacket()->getRawDataLen();
+			const uint8_t* rawPacketPtr = getAttachedPacket()->getRawPacket()->getRawData();
 
 			if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) > static_cast<ptrdiff_t>(rawPacketLen))
 			{
@@ -143,10 +143,10 @@ namespace pcpp
 
 	bool BgpLayer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
 	{
-		if (m_Packet != nullptr)
+		if (getAttachedPacket() != nullptr)
 		{
-			int rawPacketLen = m_Packet->getRawPacket()->getRawDataLen();
-			const uint8_t* rawPacketPtr = m_Packet->getRawPacket()->getRawData();
+			int rawPacketLen = getAttachedPacket()->getRawPacket()->getRawDataLen();
+			const uint8_t* rawPacketPtr = getAttachedPacket()->getRawPacket()->getRawData();
 
 			if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) +
 			        static_cast<ptrdiff_t>(numOfBytesToShorten) >
