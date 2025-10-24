@@ -3,6 +3,7 @@
 /// @file
 
 #include "Device.h"
+#include <memory>
 #include <utility>
 #include <functional>
 
@@ -230,7 +231,8 @@ namespace pcpp
 		/// @return A pointer to the current device configuration. If the device is not open this method returns nullptr
 		XdpDeviceConfiguration* getConfig() const
 		{
-			return m_Config;
+			// TODO: Return a copy or const ref to avoid user modifying config?
+			return m_Config.get();
 		}
 
 		/// @return Current device statistics
@@ -293,7 +295,7 @@ namespace pcpp
 		bool m_DeviceOpened = false;
 
 		std::string m_InterfaceName;
-		XdpDeviceConfiguration* m_Config;
+		std::unique_ptr<XdpDeviceConfiguration> m_Config;
 		bool m_ReceivingPackets;
 		XdpUmem* m_Umem;
 		void* m_SocketInfo;
@@ -308,7 +310,7 @@ namespace pcpp
 		uint32_t checkCompletionRing();
 		bool configureSocket();
 		bool initUmem();
-		bool initConfig();
+		bool populateConfigDefaults(XdpDeviceConfiguration& config) const;
 		bool getSocketStats();
 	};
 }  // namespace pcpp
