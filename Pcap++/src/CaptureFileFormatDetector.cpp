@@ -119,9 +119,9 @@ namespace pcpp
 				return CaptureFileFormat::Unknown;
 			}
 
-			// Indices 0-3 are regular pcap (microsecond-precision or modified) files.
-			// Indices 4-5 are nanosecond-precision pcap.
-			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
+			// Indices 0-1 are regular microsecond-precision pcap files.
+			// Indices 2-3 are "modified" pcap files
+			// Indices 4-5 are nanosecond-precision pcap files.
 			auto const selectedIdx = std::distance(pcapMagicNumbers.begin(), it);
 			if (selectedIdx < 2)
 			{

@@ -177,7 +177,7 @@ namespace pcpp
 		case CaptureFileFormat::Pcap:
 		case CaptureFileFormat::PcapMod:
 		{
-			// libpcap reads "modified" pcap as regular pcap transparently.
+			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
 			return std::make_unique<PcapFileReaderDevice>(fileName);
 		}
 		case CaptureFileFormat::ZstArchive:
