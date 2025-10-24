@@ -1,19 +1,52 @@
+#include "PcapFileDevice.h"
 #define LOG_MODULE PcapLogModuleFileDevice
 
 #include <cerrno>
 #include <stdexcept>
-#include "PcapFileDevice.h"
+#include <array>
+#include <algorithm>
 #include "light_pcapng_ext.h"
 #include "Logger.h"
 #include "TimespecTimeval.h"
 #include "pcap.h"
 #include <fstream>
 #include "EndianPortable.h"
+#include "CaptureFileFormatDetector.h"
 
 namespace pcpp
 {
 	namespace
 	{
+		constexpr bool checkNanoSupport()
+		{
+#ifdef PCAP_TSTAMP_PRECISION_NANO
+			return true;
+#else
+			return false;
+#endif
+		}
+
+		bool checkNanoSupportWithInfo()
+		{
+			constexpr auto ret = checkNanoSupport();
+			if (!ret)
+			{
+				PCPP_LOG_DEBUG(
+				    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+				    "recompile PcapPlusPlus with nano precision support to use this feature.");
+			}
+			return ret;
+		}
+
+		constexpr bool checkZstdSupport()
+		{
+#ifdef PCPP_PCAPNG_ZSTD_SUPPORT
+			return true;
+#else
+			return false;
+#endif
+		}
+
 		/// @brief Converts a light_pcapng_t* to an opaque LightPcapNgHandle*.
 		/// @param pcapngHandle The light_pcapng_t* to convert.
 		/// @return An pointer to the opaque handle.
@@ -29,43 +62,31 @@ namespace pcpp
 		{
 			return reinterpret_cast<light_pcapng_t*>(pcapngHandle);
 		}
+
+		struct pcap_file_header
+		{
+			uint32_t magic;
+			uint16_t version_major;
+			uint16_t version_minor;
+			int32_t thiszone;
+			uint32_t sigfigs;
+			uint32_t snaplen;
+			uint32_t linktype;
+		};
+
+		struct packet_header
+		{
+			uint32_t tv_sec;
+			uint32_t tv_usec;
+			uint32_t caplen;
+			uint32_t len;
+		};
+
+		template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
+		{
+			return N;
+		}
 	}  // namespace
-
-	template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
-	{
-		return N;
-	}
-
-	struct pcap_file_header
-	{
-		uint32_t magic;
-		uint16_t version_major;
-		uint16_t version_minor;
-		int32_t thiszone;
-		uint32_t sigfigs;
-		uint32_t snaplen;
-		uint32_t linktype;
-	};
-
-	struct packet_header
-	{
-		uint32_t tv_sec;
-		uint32_t tv_usec;
-		uint32_t caplen;
-		uint32_t len;
-	};
-
-	static bool checkNanoSupport()
-	{
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		return true;
-#else
-		PCPP_LOG_DEBUG(
-		    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-		    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
-		return false;
-#endif
-	}
 
 	// ~~~~~~~~~~~~~~~~~~~
 	// IFileDevice members
@@ -129,6 +150,67 @@ namespace pcpp
 			return new SnoopFileReaderDevice(fileName);
 
 		return new PcapFileReaderDevice(fileName);
+	}
+
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName)
+	{
+		std::ifstream fileContent(fileName, std::ios_base::binary);
+		if (fileContent.fail())
+		{
+			throw std::runtime_error("Could not open: " + fileName);
+		}
+
+		using internal::CaptureFileFormat;
+		using internal::CaptureFileFormatDetector;
+
+		switch (CaptureFileFormatDetector().detectFormat(fileContent))
+		{
+		case CaptureFileFormat::PcapNano:
+		{
+			if (!checkNanoSupport())
+			{
+				throw std::runtime_error(
+				    "Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
+			}
+			// fallthrough
+		}
+		case CaptureFileFormat::Pcap:
+		case CaptureFileFormat::PcapMod:
+		{
+			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
+			return std::make_unique<PcapFileReaderDevice>(fileName);
+		}
+		case CaptureFileFormat::ZstArchive:
+		{
+			// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
+			if (!checkZstdSupport())
+			{
+				throw std::runtime_error(
+				    "PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+			}
+			// fallthrough
+		}
+		case CaptureFileFormat::PcapNG:
+			return std::make_unique<PcapNgFileReaderDevice>(fileName);
+		case CaptureFileFormat::Snoop:
+			return std::make_unique<SnoopFileReaderDevice>(fileName);
+		default:
+			throw std::runtime_error("File format of " + fileName + " is not supported");
+		}
+	}
+
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::tryCreateReader(const std::string& fileName)
+	{
+		// Not the best implementation, but it is not expected to be called in hot loops
+		try
+		{
+			return createReader(fileName);
+		}
+		catch (const std::exception& e)
+		{
+			PCPP_LOG_ERROR(e.what());
+			return nullptr;
+		}
 	}
 
 	uint64_t IFileReaderDevice::getFileSize() const
@@ -222,7 +304,7 @@ namespace pcpp
 
 	bool PcapFileReaderDevice::isNanoSecondPrecisionSupported()
 	{
-		return checkNanoSupport();
+		return checkNanoSupportWithInfo();
 	}
 
 	bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
@@ -364,7 +446,7 @@ namespace pcpp
 
 	bool PcapFileWriterDevice::isNanoSecondPrecisionSupported()
 	{
-		return checkNanoSupport();
+		return checkNanoSupportWithInfo();
 	}
 
 	bool PcapFileWriterDevice::open()
@@ -536,6 +618,11 @@ namespace pcpp
 	// PcapNgFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+	bool PcapNgFileReaderDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
+
 	PcapNgFileReaderDevice::PcapNgFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName)
 	{
 		m_LightPcapNg = nullptr;
@@ -704,6 +791,11 @@ namespace pcpp
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapNgFileWriterDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	bool PcapNgFileWriterDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
 
 	PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel)
 	    : IFileWriterDevice(fileName)
