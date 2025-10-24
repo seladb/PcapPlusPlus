@@ -30,9 +30,9 @@ namespace pcpp
 		size_t payloadLen = m_DataLen - sizeof(ether_dot3_header);
 
 		if (LLCLayer::isDataValid(payload, payloadLen))
-			m_NextLayer = new LLCLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new LLCLayer(payload, payloadLen, this, getAttachedPacket());
 		else
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 	}
 
 	std::string EthDot3Layer::toString() const

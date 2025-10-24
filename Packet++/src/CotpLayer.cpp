@@ -73,8 +73,8 @@ namespace pcpp
 		size_t payloadLen = m_DataLen - headerLen;
 
 		if (S7CommLayer::isDataValid(payload, payloadLen))
-			m_NextLayer = new S7CommLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new S7CommLayer(payload, payloadLen, this, getAttachedPacket());
 		else
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 	}
 }  // namespace pcpp

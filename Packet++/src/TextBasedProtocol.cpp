@@ -409,7 +409,7 @@ namespace pcpp
 		if (m_DataLen <= headerLen)
 			return;
 
-		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
 	}
 
 	size_t TextBasedProtocolMessage::getHeaderLen() const
