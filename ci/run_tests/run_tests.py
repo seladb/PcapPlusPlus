@@ -21,6 +21,16 @@ def tcp_replay_worker(interface: str, tcpreplay_dir: str):
         tcpreplay_proc.kill()
 
 
+def run_common_tests(args: list[str], use_sudo: bool):
+    cmd_line = ["sudo"] if use_sudo else []
+    cmd_line += [os.path.join("Bin", "Common++Test"), *args]
+
+    completed_process = subprocess.run(cmd_line, cwd="Tests/Common++Test")
+
+    if completed_process.returncode != 0:
+        raise RuntimeError(f"Error while executing Common++ tests: {completed_process}")
+
+
 def run_packet_tests(args: list[str], use_sudo: bool):
     cmd_line = ["sudo"] if use_sudo else []
     cmd_line += [os.path.join("Bin", "Packet++Test"), *args]
@@ -56,9 +66,15 @@ def main():
         "--test-suites",
         nargs="+",
         type=str,
-        default=["packet", "pcap"],
-        choices=["packet", "pcap"],
+        default=["common", "packet", "pcap"],
+        choices=["common", "packet", "pcap"],
         help="test suites to use",
+    )
+    parser.add_argument(
+        "--common-test-args",
+        type=str,
+        default="",
+        help="common++ test arguments",
     )
     parser.add_argument(
         "--packet-test-args",
@@ -79,6 +95,9 @@ def main():
         help="tcpreplay directory",
     )
     args = parser.parse_args()
+
+    if "common" in args.test_suites:
+        run_common_tests(args.common_test_args.split(), args.use_sudo)
 
     if "packet" in args.test_suites:
         run_packet_tests(args.packet_test_args.split(), args.use_sudo)
