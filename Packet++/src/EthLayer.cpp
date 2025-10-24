@@ -52,10 +52,12 @@ namespace pcpp
 			tryConstructNextLayerWithFallback<VlanLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			break;
 		case PCPP_ETHERTYPE_PPPOES:
-			tryConstructNextLayerWithFallback<PPPoESessionLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<PPPoESessionLayer, PayloadLayer>(payload, payloadLen,
+			                                                                   getAttachedPacket());
 			break;
 		case PCPP_ETHERTYPE_PPPOED:
-			tryConstructNextLayerWithFallback<PPPoEDiscoveryLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<PPPoEDiscoveryLayer, PayloadLayer>(payload, payloadLen,
+			                                                                     getAttachedPacket());
 			break;
 		case PCPP_ETHERTYPE_MPLS:
 			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());

@@ -62,14 +62,16 @@ namespace pcpp
 			switch (ethType)
 			{
 			case PCPP_ETHERTYPE_IP:
-				m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-				                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
-				                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+				m_NextLayer =
+				    IPv4Layer::isDataValid(payload, payloadLen)
+				        ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
+				        : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 				return;
 			case PCPP_ETHERTYPE_IPV6:
-				m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-				                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
-				                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+				m_NextLayer =
+				    IPv6Layer::isDataValid(payload, payloadLen)
+				        ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
+				        : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 				return;
 			default:
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());

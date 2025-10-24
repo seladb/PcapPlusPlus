@@ -85,14 +85,16 @@ namespace pcpp
 			m_NextLayer = new VlanLayer(payload, payloadLen, this, getAttachedPacket());
 			break;
 		case PCPP_ETHERTYPE_PPPOES:
-			m_NextLayer = PPPoESessionLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new PPPoESessionLayer(payload, payloadLen, this, getAttachedPacket()))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+			m_NextLayer =
+			    PPPoESessionLayer::isDataValid(payload, payloadLen)
+			        ? static_cast<Layer*>(new PPPoESessionLayer(payload, payloadLen, this, getAttachedPacket()))
+			        : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PCPP_ETHERTYPE_PPPOED:
-			m_NextLayer = PPPoEDiscoveryLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new PPPoEDiscoveryLayer(payload, payloadLen, this, getAttachedPacket()))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+			m_NextLayer =
+			    PPPoEDiscoveryLayer::isDataValid(payload, payloadLen)
+			        ? static_cast<Layer*>(new PPPoEDiscoveryLayer(payload, payloadLen, this, getAttachedPacket()))
+			        : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PCPP_ETHERTYPE_MPLS:
 			m_NextLayer = new MplsLayer(payload, payloadLen, this, getAttachedPacket());

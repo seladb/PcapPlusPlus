@@ -254,9 +254,10 @@ namespace pcpp
 			break;
 		}
 		case PACKETPP_IPPROTO_AH:
-			m_NextLayer = AuthenticationHeaderLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new AuthenticationHeaderLayer(payload, payloadLen, this, getAttachedPacket()))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+			m_NextLayer =
+			    AuthenticationHeaderLayer::isDataValid(payload, payloadLen)
+			        ? static_cast<Layer*>(new AuthenticationHeaderLayer(payload, payloadLen, this, getAttachedPacket()))
+			        : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PACKETPP_IPPROTO_ESP:
 			m_NextLayer = ESPLayer::isDataValid(payload, payloadLen)
@@ -272,7 +273,8 @@ namespace pcpp
 		{
 			auto vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
 			if (vrrpVer == VRRPv3)
-				m_NextLayer = new VrrpV3Layer(payload, payloadLen, this, getAttachedPacket(), IPAddress::IPv6AddressType);
+				m_NextLayer =
+				    new VrrpV3Layer(payload, payloadLen, this, getAttachedPacket(), IPAddress::IPv6AddressType);
 			else
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 			break;

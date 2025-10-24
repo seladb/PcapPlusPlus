@@ -324,9 +324,11 @@ namespace pcpp
 			case IGMPv3:
 			{
 				if (igmpQuery)
-					tryConstructNextLayerWithFallback<IgmpV3QueryLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+					tryConstructNextLayerWithFallback<IgmpV3QueryLayer, PayloadLayer>(payload, payloadLen,
+					                                                                  getAttachedPacket());
 				else
-					tryConstructNextLayerWithFallback<IgmpV3ReportLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+					tryConstructNextLayerWithFallback<IgmpV3ReportLayer, PayloadLayer>(payload, payloadLen,
+					                                                                   getAttachedPacket());
 				break;
 			}
 			default:
@@ -336,7 +338,8 @@ namespace pcpp
 			break;
 		}
 		case PACKETPP_IPPROTO_AH:
-			tryConstructNextLayerWithFallback<AuthenticationHeaderLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<AuthenticationHeaderLayer, PayloadLayer>(payload, payloadLen,
+			                                                                           getAttachedPacket());
 			break;
 		case PACKETPP_IPPROTO_ESP:
 			tryConstructNextLayerWithFallback<ESPLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
