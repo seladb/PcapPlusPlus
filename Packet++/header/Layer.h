@@ -217,18 +217,6 @@ namespace pcpp
 		Layer* m_NextLayer;
 		Layer* m_PrevLayer;
 
-		/// @brief Get a pointer to the Packet this layer is attached to (if any).
-		/// @return A pointer to the Packet this layer is attached to, or nullptr if the layer is not attached.
-		Packet* getAttachedPacket()
-		{
-			return m_AllocationInfo.attachedPacket;
-		}
-
-		Packet const* getAttachedPacket() const
-		{
-			return m_AllocationInfo.attachedPacket;
-		}
-
 	private:
 		internal::LayerAllocationInfo m_AllocationInfo;
 
@@ -244,6 +232,20 @@ namespace pcpp
 		// Copy c'tor
 		Layer(const Layer& other);
 		Layer& operator=(const Layer& other);
+
+		/// @brief Get a pointer to the Packet this layer is attached to (if any).
+		/// @return A pointer to the Packet this layer is attached to, or nullptr if the layer is not attached.
+		Packet* getAttachedPacket()
+		{
+			return m_AllocationInfo.attachedPacket;
+		}
+
+		/// @brief Get a pointer to the Packet this layer is attached to (if any).
+		/// @return A const pointer to the Packet this layer is attached to, or nullptr if the layer is not attached.
+		Packet const* getAttachedPacket() const
+		{
+			return m_AllocationInfo.attachedPacket;
+		}
 
 		void setNextLayer(Layer* nextLayer)
 		{
