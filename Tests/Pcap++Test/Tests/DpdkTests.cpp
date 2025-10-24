@@ -402,7 +402,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	if (dev->getTotalNumOfRxQueues() > 1)
 	{
 		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(dev->openMultiQueues(numOfRxQueuesToOpen + 1, 1));
+		PTF_ASSERT_FALSE(dev->openMultiQueues(dev->getTotalNumOfRxQueues() + 1, 1));
 		pcpp::Logger::getInstance().enableLogs();
 	}
 
