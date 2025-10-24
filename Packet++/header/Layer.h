@@ -30,6 +30,57 @@ namespace pcpp
 
 	class Packet;
 
+	namespace internal
+	{
+		/// @brief Holds information about a Layer's data and object ownership.
+		struct LayerAllocationInfo
+		{
+			/// @brief Pointer to the Packet this layer is attached to (if any).
+			///
+			/// If the layer is attached to a Packet, the layer's memory span (data) is considered managed by the
+			/// Packet. The Packet is responsible for keeping the layer's memory span valid and updating it should it
+			/// become necessary as long as the layer is attached to it.
+			///
+			/// In an event the Packet is destroyed, all of its attached layers's memory views are considered invalid.
+			/// Accessing layer data after the Packet is destroyed results in undefined behavior.
+			///
+			/// If nullptr, the layer is not attached to any Packet and is considered unmanaged.
+			/// It also means the layer's memory span is considered owned by the layer itself and will be freed when
+			/// the layer is destroyed.
+			Packet* attachedPacket = nullptr;
+
+			/// @brief Controls if the layer object is considered managed by the attached Packet
+			///
+			/// If 'true', the Layer object is considered managed by the attached Packet and will be tracked and freed
+			/// by it
+			///
+			/// If 'false', the Layer object is considered unmanaged and the user is responsible for freeing it.
+			/// This is commonly the case for layers created on the stack and attached to a Packet.
+			bool managedByPacket = false;
+
+			/// @brief Sets the state of attachment to a specified Packet
+			/// @param packet Pointer to the Packet this layer is attached to (or nullptr if not attached to any Packet)
+			/// @param managed True if the layer object's lifetime is to be managed by the Packet, false otherwise
+			/// @param force If true, bypasses the check for existing attachment. Default is false.
+			/// @throws std::runtime_error if the layer is already attached to a Packet and 'force' is false
+			void attachPacket(Packet* packet, bool managed, bool force = false)
+			{
+				if (!force && attachedPacket != nullptr)
+					throw std::runtime_error("Layer is already attached to a Packet");
+
+				attachedPacket = packet;
+				managedByPacket = managed;
+			}
+
+			/// @brief Clears the attachment to any Packet, resetting to unmanaged state.
+			void detach()
+			{
+				attachedPacket = nullptr;
+				managedByPacket = false;
+			}
+		};
+	}  // namespace internal
+
 	/// @class Layer
 	/// Layer is the base class for all protocol layers. Each protocol supported in PcapPlusPlus has a class that
 	/// inherits Layer.
@@ -125,7 +176,7 @@ namespace pcpp
 		/// by the layer itself
 		bool isAllocatedToPacket() const
 		{
-			return m_Packet != nullptr;
+			return m_AllocationInfo.attachedPacket != nullptr;
 		}
 
 		/// Copy the raw data of this layer to another array
@@ -160,20 +211,32 @@ namespace pcpp
 	protected:
 		uint8_t* m_Data;
 		size_t m_DataLen;
-		Packet* m_Packet;
 		ProtocolType m_Protocol;
 		Layer* m_NextLayer;
 		Layer* m_PrevLayer;
-		bool m_IsAllocatedInPacket;
 
-		Layer()
-		    : m_Data(nullptr), m_DataLen(0), m_Packet(nullptr), m_Protocol(UnknownProtocol), m_NextLayer(nullptr),
-		      m_PrevLayer(nullptr), m_IsAllocatedInPacket(false)
+		/// @brief Get a pointer to the Packet this layer is attached to (if any).
+		/// @return A pointer to the Packet this layer is attached to, or nullptr if the layer is not attached.
+		Packet* getAttachedPacket()
+		{
+			return m_AllocationInfo.attachedPacket;
+		}
+
+		Packet const* getAttachedPacket() const
+		{
+			return m_AllocationInfo.attachedPacket;
+		}
+
+	private:
+		internal::LayerAllocationInfo m_AllocationInfo;
+
+	protected:
+		Layer() : m_Data(nullptr), m_DataLen(0), m_Protocol(UnknownProtocol), m_NextLayer(nullptr), m_PrevLayer(nullptr)
 		{}
 
 		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol = UnknownProtocol)
-		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(protocol), m_NextLayer(nullptr),
-		      m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false)
+		    : m_Data(data), m_DataLen(dataLen), m_Protocol(protocol), m_NextLayer(nullptr), m_PrevLayer(prevLayer),
+		      m_AllocationInfo{ packet, false }
 		{}
 
 		// Copy c'tor
