@@ -50,8 +50,8 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		{ 0xa1'b2'3c'4d, CaptureFileFormat::PcapNano   }, // regular pcap, nanosecond-precision
 		{ 0x4d'3c'b2'a1, CaptureFileFormat::PcapNano   }, // regular pcap, nanosecond-precision (byte-swapped)
 		{ 0x0A'0D'0D'0A, CaptureFileFormat::PcapNG     }, // pcapng magic number (palindrome)
-		{ 0x28'B5'2F'FD, CaptureFileFormat::PcapNGZstd }, // zstd archive magic number, assumed to be compressed pcap
-		{ 0xFD'2F'B5'28, CaptureFileFormat::PcapNGZstd }, // zstd archive magic number (byte-swapped)
+		{ 0x28'B5'2F'FD, CaptureFileFormat::ZstArchive }, // zstd archive magic number
+		{ 0xFD'2F'B5'28, CaptureFileFormat::ZstArchive }, // zstd archive magic number (byte-swapped)
 		{ 0x12'34'56'78, CaptureFileFormat::Unknown    }, // unknown
 		{ 0x00'00'00'00, CaptureFileFormat::Unknown    }, // unknown
 		{ 0xFF'FF'FF'FF, CaptureFileFormat::Unknown    }, // unknown

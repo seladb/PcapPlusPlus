@@ -73,10 +73,9 @@ namespace pcpp
 				return CaptureFileFormat::PcapNG;
 			}
 
-			// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
 			if (isZstdArchive(content))
 			{
-				return CaptureFileFormat::PcapNGZstd;
+				return CaptureFileFormat::ZstArchive;
 			}
 
 			if (isSnoopFile(content))

@@ -176,8 +176,9 @@ namespace pcpp
 		}
 		case CaptureFileFormat::Pcap:
 			return std::make_unique<PcapFileReaderDevice>(fileName);
-		case CaptureFileFormat::PcapNGZstd:
+		case CaptureFileFormat::ZstArchive:
 		{
+			// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
 			if (!checkZstdSupport())
 			{
 				throw std::runtime_error(

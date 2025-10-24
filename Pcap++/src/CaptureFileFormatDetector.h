@@ -13,8 +13,8 @@ namespace pcpp
 			Pcap,        // regular pcap with microsecond precision
 			PcapNano,    // regular pcap with nanosecond precision
 			PcapNG,      // uncompressed pcapng
-			PcapNGZstd,  // zstd compressed pcapng
 			Snoop,       // solaris snoop
+			ZstArchive,  // zstd compressed archive
 		};
 
 		/// @brief Heuristic file format detector that scans the magic number of the file format header.
