@@ -175,7 +175,11 @@ namespace pcpp
 			// fallthrough
 		}
 		case CaptureFileFormat::Pcap:
+		case CaptureFileFormat::PcapMod:
+		{
+			// libpcap reads "modified" pcap as regular pcap transparently.
 			return std::make_unique<PcapFileReaderDevice>(fileName);
+		}
 		case CaptureFileFormat::ZstArchive:
 		{
 			// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.

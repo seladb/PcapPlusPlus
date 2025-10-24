@@ -45,8 +45,8 @@ PTF_TEST_CASE(TestFileFormatDetector)
 	std::vector<std::pair<uint32_t, CaptureFileFormat>> simpleTestCases = {
 		{ 0xa1'b2'c3'd4, CaptureFileFormat::Pcap       }, // regular pcap, microsecond-precision
 		{ 0xd4'c3'b2'a1, CaptureFileFormat::Pcap       }, // regular pcap, microsecond-precision (byte-swapped)
-		{ 0xa1'b2'cd'34, CaptureFileFormat::Pcap       }, // Alexey Kuznetzov's modified libpcap format
-		{ 0x34'cd'b2'a1, CaptureFileFormat::Pcap       }, // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+		{ 0xa1'b2'cd'34, CaptureFileFormat::PcapMod    }, // Alexey Kuznetzov's modified libpcap format
+		{ 0x34'cd'b2'a1, CaptureFileFormat::PcapMod    }, // Alexey Kuznetzov's modified libpcap format (byte-swapped)
 		{ 0xa1'b2'3c'4d, CaptureFileFormat::PcapNano   }, // regular pcap, nanosecond-precision
 		{ 0x4d'3c'b2'a1, CaptureFileFormat::PcapNano   }, // regular pcap, nanosecond-precision (byte-swapped)
 		{ 0x0A'0D'0D'0A, CaptureFileFormat::PcapNG     }, // pcapng magic number (palindrome)

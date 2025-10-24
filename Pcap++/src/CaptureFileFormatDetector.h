@@ -11,6 +11,7 @@ namespace pcpp
 		{
 			Unknown,
 			Pcap,        // regular pcap with microsecond precision
+			PcapMod,     // Alexey Kuznetzov's "modified" pcap format
 			PcapNano,    // regular pcap with nanosecond precision
 			PcapNG,      // uncompressed pcapng
 			Snoop,       // solaris snoop

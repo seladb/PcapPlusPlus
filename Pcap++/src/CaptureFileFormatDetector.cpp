@@ -123,9 +123,13 @@ namespace pcpp
 			// Indices 4-5 are nanosecond-precision pcap.
 			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
 			auto const selectedIdx = std::distance(pcapMagicNumbers.begin(), it);
-			if (selectedIdx < 4)
+			if (selectedIdx < 2)
 			{
 				return CaptureFileFormat::Pcap;
+			}
+			if (selectedIdx < 4)
+			{
+				return CaptureFileFormat::PcapMod;
 			}
 
 			return CaptureFileFormat::PcapNano;
