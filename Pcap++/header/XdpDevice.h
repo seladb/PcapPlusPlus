@@ -11,6 +11,8 @@
 /// @
 namespace pcpp
 {
+#define XDP_MAX_RXTX_QUEUES 16
+
 	/// @class XdpDevice
 	/// A class wrapping the main functionality of using AF_XDP (XSK) sockets
 	/// which are optimized for high performance packet processing.
@@ -76,6 +78,10 @@ namespace pcpp
 			/// The max number of packets to be received or sent in one batch
 			uint16_t rxTxBatchSize;
 
+			/// The queue identifier for the underlying socket. This value should be less than the number
+			/// of hardware queues supported by the device
+			uint16_t queueId;
+
 			/// A c'tor for this struct. Each parameter has a default value described below.
 			/// @param[in] attachMode AF_XDP operation mode. The default value is auto mode
 			/// @param[in] umemNumFrames Number of UMEM frames to allocate. The default value is 4096
@@ -87,10 +93,11 @@ namespace pcpp
 			/// @param[in] txSize The size of the TX ring used by the AF_XDP socket. The default value is 2048
 			/// @param[in] rxTxBatchSize The max number of packets to be received or sent in one batch. The default
 			/// value is 64
+			/// @param[in] queueId The hardware queue id of the underlying socket. The default value is 0
 			explicit XdpDeviceConfiguration(AttachMode attachMode = AutoMode, uint16_t umemNumFrames = 0,
 			                                uint16_t umemFrameSize = 0, uint32_t fillRingSize = 0,
 			                                uint32_t completionRingSize = 0, uint32_t rxSize = 0, uint32_t txSize = 0,
-			                                uint16_t rxTxBatchSize = 0)
+			                                uint16_t rxTxBatchSize = 0, uint32_t queueId = 0)
 			{
 				this->attachMode = attachMode;
 				this->umemNumFrames = umemNumFrames;
@@ -100,6 +107,7 @@ namespace pcpp
 				this->rxSize = rxSize;
 				this->txSize = txSize;
 				this->rxTxBatchSize = rxTxBatchSize;
+				this->queueId = queueId;
 			}
 		};
 
@@ -238,6 +246,14 @@ namespace pcpp
 		/// @return Current device statistics
 		XdpDeviceStats getStatistics();
 
+		/// @return Return queue identifier for underlying socket
+		uint32_t getQueueId()
+		{
+			if(m_Config) return m_Config->queueId;
+
+			return 0;
+		}
+
 	private:
 		class XdpUmem
 		{
@@ -312,5 +328,7 @@ namespace pcpp
 		bool initUmem();
 		bool populateConfigDefaults(XdpDeviceConfiguration& config) const;
 		bool getSocketStats();
+		
+		uint32_t getNumQueues(const std::string& iface) const;
 	};
 }  // namespace pcpp

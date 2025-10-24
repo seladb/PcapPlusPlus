@@ -419,7 +419,7 @@ namespace pcpp
 			xskConfig.xdp_flags = XDP_FLAGS_DRV_MODE;
 		}
 
-		int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), 0, umemInfo->umem, &socketInfo->rx,
+		int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), m_Config->queueId, umemInfo->umem, &socketInfo->rx,
 		                             &socketInfo->tx, &xskConfig);
 		if (ret)
 		{
@@ -429,6 +429,7 @@ namespace pcpp
 		}
 
 		m_SocketInfo = socketInfo;
+		
 		return true;
 	}
 
@@ -449,6 +450,7 @@ namespace pcpp
 		uint32_t rxSize = config.rxSize ? config.rxSize : XSK_RING_CONS__DEFAULT_NUM_DESCS;
 		uint32_t txSize = config.txSize ? config.txSize : XSK_RING_PROD__DEFAULT_NUM_DESCS;
 		uint32_t batchSize = config.rxTxBatchSize ? config.rxTxBatchSize : DEFAULT_BATCH_SIZE;
+		uint32_t qId = config.queueId; // default is zero
 
 		if (frameSize != getpagesize())
 		{
@@ -499,6 +501,12 @@ namespace pcpp
 			return false;
 		}
 
+		if (qId >= XDP_MAX_RXTX_QUEUES)
+		{
+			PCPP_LOG_ERROR("Queue Id " << qId << " must be lower than the maximum number of hardware queues");
+			return(false);
+		}
+
 		config.umemNumFrames = numFrames;
 		config.umemFrameSize = frameSize;
 		config.fillRingSize = fillRingSize;
@@ -506,6 +514,7 @@ namespace pcpp
 		config.rxSize = rxSize;
 		config.txSize = txSize;
 		config.rxTxBatchSize = batchSize;
+		config.queueId = qId;
 
 		return true;
 	}
@@ -635,5 +644,4 @@ namespace pcpp
 
 		return m_Stats;
 	}
-
 }  // namespace pcpp
