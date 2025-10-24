@@ -66,7 +66,9 @@ namespace pcpp
 			void attachPacket(Packet* packet, bool managed, bool force = false)
 			{
 				if (!force && attachedPacket != nullptr)
+				{
 					throw std::runtime_error("Layer is already attached to a Packet");
+				}
 
 				attachedPacket = packet;
 				managedByPacket = managed;
