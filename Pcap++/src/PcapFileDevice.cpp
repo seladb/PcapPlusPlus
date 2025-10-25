@@ -624,7 +624,7 @@ namespace pcpp
 		return getNextPacket(rawPacket, temp);
 	}
 
-	bool PcapNgFileReaderDevice::setFilter(std::string filterAsString)
+	bool PcapNgFileReaderDevice::doUpdateFilter(std::string const& filterAsString)
 	{
 		return m_BpfWrapper.setFilter(filterAsString);
 	}

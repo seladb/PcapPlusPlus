@@ -370,14 +370,11 @@ namespace pcpp
 		/// for some reason (for example: file path does not exist)
 		bool open();
 
-		/// Set a filter for PcapNG reader device. Only packets that match the filter will be received
-		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
-		/// (http://biot.com/capstats/bpf.html)
-		/// @return True if filter set successfully, false otherwise
-		bool setFilter(std::string filterAsString);
-
 		/// Close the pacp-ng file
 		void close();
+
+	protected:
+		bool doUpdateFilter(std::string const& filter) override;
 	};
 
 	/// @class PcapNgFileWriterDevice

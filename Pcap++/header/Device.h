@@ -61,7 +61,7 @@ namespace pcpp
 		}
 
 		/// Set a filter for the device. When implemented by the device, only packets that match the filter will be
-		/// received
+		/// processed.
 		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
 		/// (http://biot.com/capstats/bpf.html)
 		/// @return True if filter set successfully, false otherwise
@@ -79,10 +79,10 @@ namespace pcpp
 
 	protected:
 		/// @brief Updates the filter on the device with a BPF string.
-		/// 
-		/// Only packets that match the filter should be received by the device after this method is called.
+		///
+		/// Only packets that match the filter should be processed by the device after this method is called.
 		/// An empty string is synonymous with ANY filter (i.e., no filtering).
-		/// 
+		///
 		/// @param filterAsString A string representing the filter in BPF syntax  (http://biot.com/capstats/bpf.html).
 		/// @return True if the operation was successful, false otherwise.
 		virtual bool doUpdateFilter(std::string const& filterAsString) = 0;
