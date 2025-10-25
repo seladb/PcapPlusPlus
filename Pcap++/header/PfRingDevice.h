@@ -315,15 +315,12 @@ namespace pcpp
 			return m_DeviceOpened;
 		}
 
-		using IFilterableDevice::setFilter;
+	protected:
+		bool doUpdateFilter(std::string const& filterAsString) override;
 
-		/// Sets a BPF filter to the device
-		/// @param[in] filterAsString The BPF filter in string format
-		bool setFilter(std::string filterAsString);
-
-		/// Remove a filter if currently set
-		/// @return True if filter was removed successfully or if no filter was set, false otherwise
-		bool clearFilter();
+	private:
+		bool removeFilterForAllChannels();
+		bool setFilterForAllChannels(std::string const& filterAsString);
 	};
 
 }  // namespace pcpp

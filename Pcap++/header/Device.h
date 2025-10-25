@@ -53,11 +53,11 @@ namespace pcpp
 		/// received
 		/// @param[in] filter The filter to be set in PcapPlusPlus' GeneralFilter format
 		/// @return True if filter set successfully, false otherwise
-		virtual bool setFilter(GeneralFilter& filter)
+		bool setFilter(GeneralFilter& filter)
 		{
 			std::string filterAsString;
 			filter.parseToString(filterAsString);
-			return setFilter(filterAsString);
+			return doUpdateFilter(filterAsString);
 		}
 
 		/// Set a filter for the device. When implemented by the device, only packets that match the filter will be
@@ -65,10 +65,26 @@ namespace pcpp
 		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
 		/// (http://biot.com/capstats/bpf.html)
 		/// @return True if filter set successfully, false otherwise
-		virtual bool setFilter(std::string filterAsString) = 0;
+		bool setFilter(std::string const& filterAsString)
+		{
+			return doUpdateFilter(filterAsString);
+		}
 
 		/// Clear the filter currently set on the device
 		/// @return True if filter was removed successfully or if no filter was set, false otherwise
-		virtual bool clearFilter() = 0;
+		bool clearFilter()
+		{
+			return doUpdateFilter("");
+		}
+
+	protected:
+		/// @brief Updates the filter on the device with a BPF string.
+		/// 
+		/// Only packets that match the filter should be received by the device after this method is called.
+		/// An empty string is synonymous with ANY filter (i.e., no filtering).
+		/// 
+		/// @param filterAsString A string representing the filter in BPF syntax  (http://biot.com/capstats/bpf.html).
+		/// @return True if the operation was successful, false otherwise.
+		virtual bool doUpdateFilter(std::string const& filterAsString) = 0;
 	};
 }  // namespace pcpp

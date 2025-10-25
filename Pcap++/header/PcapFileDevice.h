@@ -476,11 +476,8 @@ namespace pcpp
 		/// Flush and close the pcap-ng file
 		void close() override;
 
-		/// Set a filter for PcapNG writer device. Only packets that match the filter will be persisted
-		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
-		/// (http://biot.com/capstats/bpf.html)
-		/// @return True if filter set successfully, false otherwise
-		bool setFilter(std::string filterAsString) override;
+	protected:
+		bool doUpdateFilter(std::string const& filterAsString) override;
 
 	private:
 		/// @struct PcapNgMetadata
