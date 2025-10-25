@@ -164,20 +164,7 @@ namespace pcpp
 		PCPP_DEPRECATED("Prefer GeneralFilter::matches(...) method directly.")
 		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
-		// implement abstract methods
-
-		using IFilterableDevice::setFilter;
-
-		/// Set a filter for the device. When implemented by the device, only packets that match the filter will be
-		/// received. Please note that when the device is closed the filter is reset so when reopening the device you
-		/// need to call this method again in order to reactivate the filter
-		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
-		/// (http://biot.com/capstats/bpf.html)
-		/// @return True if filter set successfully, false otherwise
-		bool setFilter(std::string filterAsString) override;
-
-		/// Clear the filter currently set on device
-		/// @return True if filter was removed successfully or if no filter was set, false otherwise
-		bool clearFilter() override;
+	protected:
+		bool doUpdateFilter(std::string const& filterAsString) override;
 	};
 }  // namespace pcpp
