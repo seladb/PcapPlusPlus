@@ -133,3 +133,4 @@ PTF_TEST_CASE(TestWinDivertReceivePackets);
 PTF_TEST_CASE(TestWinDivertSendPackets);
 PTF_TEST_CASE(TestWinDivertParams);
 PTF_TEST_CASE(TestWinDivertNetworkInterfaces);
+PTF_TEST_CASE(TestWinDivertOpen);

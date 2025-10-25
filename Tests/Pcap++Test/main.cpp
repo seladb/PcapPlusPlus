@@ -316,6 +316,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestWinDivertSendPackets, "windivert");
 	PTF_RUN_TEST(TestWinDivertParams, "windivert");
 	PTF_RUN_TEST(TestWinDivertNetworkInterfaces, "windivert");
+	PTF_RUN_TEST(TestWinDivertOpen, "windivert");
 
 	PTF_END_RUNNING_TESTS;
 }

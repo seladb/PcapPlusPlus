@@ -1,3 +1,12 @@
+include(FetchContent)
+
+FetchContent_Declare(
+  trompeloeil
+  GIT_REPOSITORY https://github.com/rollbear/trompeloeil.git
+  GIT_TAG v49
+)
+FetchContent_MakeAvailable(trompeloeil)
+
 add_executable(
   Pcap++Test
   Common/TestUtils.cpp
@@ -20,7 +29,8 @@ add_executable(
   Tests/XdpTests.cpp
 )
 
-target_link_libraries(Pcap++Test PUBLIC memplumber Pcap++ PcppTestFramework EndianPortable)
+target_link_libraries(Pcap++Test PUBLIC memplumber Pcap++ PcppTestFramework EndianPortable trompeloeil)
+target_compile_features(Pcap++Test PUBLIC cxx_std_14)
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio

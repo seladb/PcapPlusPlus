@@ -1,11 +1,14 @@
-#include <IPLayer.h>
+#include <Logger.h>
 
+#include "trompeloeil.hpp"
 #include "../TestDefinition.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "WinDivertDevice.h"
 #include "PcapFileDevice.h"
 #include "Packet.h"
+#include "IPLayer.h"
+#include "Logger.h"
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
@@ -16,7 +19,6 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 	{
 		pcpp::WinDivertDevice device;
 		PTF_ASSERT_TRUE(device.open());
-
 		DeviceTeardown devTeardown(&device);
 
 		pcpp::WinDivertDevice::WinDivertRawPacketVector rawPackets;
@@ -429,3 +431,130 @@ PTF_TEST_CASE(TestWinDivertNetworkInterfaces)
 	PTF_SKIP_TEST("WinDivert is not configured");
 #endif
 }  // TestWinDivertNetworkInterfaces
+
+class MockWinDivertHandle : public pcpp::internal::IWinDivertHandle
+{
+public:
+	~MockWinDivertHandle() override = default;
+};
+
+class MockWinDivertImplementation : public pcpp::internal::IWinDivertImplementation
+{
+public:
+	MAKE_MOCK4(open, std::unique_ptr<pcpp::internal::IWinDivertHandle>(const std::string&, int, int16_t, uint64_t), override);
+	MAKE_MOCK1(close, uint32_t(const pcpp::internal::IWinDivertHandle*), override);
+	MAKE_MOCK5(recvEx, uint32_t(const pcpp::internal::IWinDivertHandle*, uint8_t*, uint32_t, size_t, pcpp::internal::IOverlappedWrapper*), override);
+	MAKE_MOCK0(recvExComplete, std::vector<pcpp::internal::WinDivertAddress>(), override);
+	MAKE_MOCK4(sendEx, uint32_t(const pcpp::internal::IWinDivertHandle*, uint8_t*, uint32_t, size_t), override);
+	MAKE_MOCK0(createOverlapped, std::unique_ptr<pcpp::internal::IOverlappedWrapper>(), override);
+	MAKE_MOCK3(getParam, bool(const pcpp::internal::IWinDivertHandle*, WinDivertParam, uint64_t&), override);
+	MAKE_MOCK3(setParam, bool(const pcpp::internal::IWinDivertHandle*, WinDivertParam, uint64_t), override);
+	MAKE_MOCK0(getNetworkInterfaces, std::vector<NetworkInterface>(), const override);
+};
+
+class WinDivertDeviceTestFixture
+{
+public:
+	WinDivertDeviceTestFixture()
+	{
+		m_MockImpl = std::make_unique<MockWinDivertImplementation>();
+		mockImplPtr = m_MockImpl.get();
+		device.setImplementation(std::move(m_MockImpl));
+		mockHandle = std::make_unique<MockWinDivertHandle>();
+	}
+
+	pcpp::WinDivertDevice device;
+	MockWinDivertImplementation* mockImplPtr;
+	std::unique_ptr<MockWinDivertHandle> mockHandle;
+
+private:
+	std::unique_ptr<MockWinDivertImplementation> m_MockImpl;
+};
+
+PTF_TEST_CASE(TestWinDivertOpen)
+{
+#ifdef USE_WINDIVERT
+	// Happy flow with a default filter
+	{
+		WinDivertDeviceTestFixture fixture;
+
+		std::vector<pcpp::WinDivertDevice::NetworkInterface> mockInterfaces = {
+			{1, L"eth0", L"Ethernet Adapter", false, true},
+			{2, L"lo", L"Loopback Adapter", true, true}
+		};
+
+		std::vector<pcpp::internal::IWinDivertImplementation::NetworkInterface> mockInternalInterfaces = {
+			{1, L"eth0", L"Ethernet Adapter", false, true},
+			{2, L"lo", L"Loopback Adapter", true, true}
+		};
+
+		ALLOW_CALL(*fixture.mockImplPtr, getNetworkInterfaces())
+			.RETURN(mockInternalInterfaces);
+
+		REQUIRE_CALL(*fixture.mockImplPtr, open("inbound or outbound", 0, 0, 0x0001 | 0x0020))
+			.LR_RETURN(std::move(fixture.mockHandle));
+
+		PTF_ASSERT_TRUE(fixture.device.open());
+		PTF_ASSERT_TRUE(fixture.device.isOpened());
+		PTF_ASSERT_VECTORS_EQUAL(fixture.device.getNetworkInterfaces(), mockInterfaces);
+	}
+
+	// Happy flow with a custom filter
+	{
+		WinDivertDeviceTestFixture fixture;
+
+		REQUIRE_CALL(*fixture.mockImplPtr, open("custom filter", 0, 0, 0x0001 | 0x0020))
+			.LR_RETURN(std::move(fixture.mockHandle));
+
+		ALLOW_CALL(*fixture.mockImplPtr, getNetworkInterfaces())
+			.RETURN(std::vector<pcpp::internal::IWinDivertImplementation::NetworkInterface>{});
+
+		PTF_ASSERT_TRUE(fixture.device.open("custom filter"));
+		PTF_ASSERT_TRUE(fixture.device.isOpened());
+	}
+
+	// Error opening device
+	{
+		WinDivertDeviceTestFixture fixture;
+
+		REQUIRE_CALL(*fixture.mockImplPtr, open(trompeloeil::_, trompeloeil::_, trompeloeil::_, trompeloeil::_))
+			.LR_RETURN(nullptr);
+
+		ALLOW_CALL(*fixture.mockImplPtr, getNetworkInterfaces())
+			.RETURN(std::vector<pcpp::internal::IWinDivertImplementation::NetworkInterface>{});
+
+		PTF_ASSERT_FALSE(fixture.device.open());
+		PTF_ASSERT_FALSE(fixture.device.isOpened());
+	}
+
+	// Open an already open device
+	{
+		WinDivertDeviceTestFixture fixture;
+
+		REQUIRE_CALL(*fixture.mockImplPtr, open(trompeloeil::_, trompeloeil::_, trompeloeil::_, trompeloeil::_))
+			.TIMES(1)
+			.LR_RETURN(std::move(fixture.mockHandle));
+
+		ALLOW_CALL(*fixture.mockImplPtr, getNetworkInterfaces())
+			.RETURN(std::vector<pcpp::internal::IWinDivertImplementation::NetworkInterface>{});
+
+		PTF_ASSERT_TRUE(fixture.device.open());
+		PTF_ASSERT_TRUE(fixture.device.open());
+	}
+
+	// Set network interface throws an exception
+	{
+		WinDivertDeviceTestFixture fixture;
+
+		REQUIRE_CALL(*fixture.mockImplPtr, getNetworkInterfaces())
+			.THROW(std::runtime_error("Failed to get interfaces"));
+
+		pcpp::Logger::getInstance().suppressLogs();
+		PTF_ASSERT_FALSE(fixture.device.open());
+		pcpp::Logger::getInstance().enableLogs();
+		PTF_ASSERT_FALSE(fixture.device.isOpened());
+	}
+#else
+	PTF_SKIP_TEST("WinDivert is not configured");
+#endif
+}

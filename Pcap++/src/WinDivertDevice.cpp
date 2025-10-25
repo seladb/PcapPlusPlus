@@ -289,13 +289,26 @@ namespace pcpp
 
 	bool WinDivertDevice::open(const std::string& filter)
 	{
+		if (m_DeviceOpened)
+		{
+			return true;
+		}
+
+		try
+		{
+			setNetworkInterfaces();
+		}
+		catch (const std::exception& ex)
+		{
+			PCPP_LOG_ERROR(ex.what());
+			return false;
+		}
+
 		m_Handle = m_Impl->open(filter, WINDIVERT_LAYER_NETWORK, 0, WINDIVERT_FLAG_SNIFF | WINDIVERT_FLAG_FRAGMENTS);
 		if (!m_Handle)
 		{
 			return false;
 		}
-
-		setNetworkInterfaces();
 
 		m_DeviceOpened = true;
 		return true;

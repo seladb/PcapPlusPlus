@@ -91,6 +91,21 @@ namespace pcpp
 				std::wstring description;
 				bool isLoopback;
 				bool isUp;
+
+				bool operator!=(const NetworkInterface& rhs) const
+				{
+					return index != rhs.index || name != rhs.name || description != rhs.description || isLoopback != rhs.isLoopback || isUp != rhs.isUp;
+				}
+
+				bool operator==(const NetworkInterface& rhs) const
+				{
+					return index == rhs.index && name == rhs.name && description == rhs.description && isLoopback == rhs.isLoopback && isUp == rhs.isUp;
+				}
+
+				friend std::ostream& operator<<(std::ostream& os, const NetworkInterface& networkInterface)
+				{
+					return os << networkInterface.index;
+				}
 			};
 
 			static constexpr uint32_t SuccessResult = 0;
@@ -224,6 +239,21 @@ namespace pcpp
 			std::wstring description;
 			bool isLoopback;
 			bool isUp;
+
+			bool operator!=(const NetworkInterface& rhs) const
+			{
+				return index != rhs.index || name != rhs.name || description != rhs.description || isLoopback != rhs.isLoopback || isUp != rhs.isUp;
+			}
+
+			bool operator==(const NetworkInterface& rhs) const
+			{
+				return index == rhs.index && name == rhs.name && description == rhs.description && isLoopback == rhs.isLoopback && isUp == rhs.isUp;
+			}
+
+			friend std::ostream& operator<<(std::ostream& os, const NetworkInterface& networkInterface)
+			{
+				return os << networkInterface.index;
+			}
 		};
 
 		/// @enum QueueParam
