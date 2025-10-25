@@ -387,7 +387,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 	// take min value between number of cores and number of available RX queues
 	int numOfRxQueuesToOpen =
-	    pcpp::getNumOfCores() - 1;  // using num of cores minus one since 1 core is the master core and cannot be used
+	    std::min(pcpp::getNumOfCores(), 32) - 1;  // using num of cores minus one (for the master core), capped at 32 which is the current maximum supported.
 	if (dev->getTotalNumOfRxQueues() < numOfRxQueuesToOpen)
 		numOfRxQueuesToOpen = dev->getTotalNumOfRxQueues();
 
@@ -402,7 +402,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	if (dev->getTotalNumOfRxQueues() > 1)
 	{
 		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(dev->openMultiQueues(numOfRxQueuesToOpen + 1, 1));
+		PTF_ASSERT_FALSE(dev->openMultiQueues(dev->getTotalNumOfRxQueues() + 1, 1));
 		pcpp::Logger::getInstance().enableLogs();
 	}
 
