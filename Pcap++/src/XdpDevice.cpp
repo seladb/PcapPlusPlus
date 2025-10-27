@@ -503,12 +503,6 @@ namespace pcpp
 			return false;
 		}
 
-		if (qId >= XDP_MAX_RXTX_QUEUES)
-		{
-			PCPP_LOG_ERROR("Queue Id " << qId << " must be lower than the maximum number of hardware queues");
-			return(false);
-		}
-
 		unsigned int nhwqueues = getNumQueues(m_InterfaceName);
 		if (qId >= nhwqueues)
 		{
