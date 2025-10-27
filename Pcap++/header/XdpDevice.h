@@ -259,6 +259,7 @@ namespace pcpp
 		}
 
 		/// Get number of RX or TX hardware queues for device
+		/// @param[in] interfaceName The interface name to use to detect hardware queues
 		/// @param[in] tx  If true, return TX queues, otherwise RX. Default is false
 		/// @return The number of hardware queues associated with the device. 
 		static uint32_t getNumQueues(const std::string& iface, bool tx = false);
