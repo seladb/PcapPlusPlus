@@ -31,7 +31,7 @@ namespace pcpp
 
 	/// @class PfRingDevice
 	/// A class representing a PF_RING port
-	class PfRingDevice : public IDevice, public IFilterableDevice
+	class PfRingDevice : public IFilterableDevice
 	{
 		friend class PfRingDeviceList;
 

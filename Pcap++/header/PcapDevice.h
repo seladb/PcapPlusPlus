@@ -138,14 +138,13 @@ namespace pcpp
 	/// @class IPcapDevice
 	/// An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and
 	/// RemoteCapture. This class is abstract and cannot be instantiated
-	class IPcapDevice : public IDevice, public IFilterableDevice, public IPcapStatisticsProvider
+	class IPcapDevice : public IFilterableDevice, public IPcapStatisticsProvider
 	{
 	protected:
 		internal::PcapHandle m_PcapDescriptor;
 
 		// c'tor should not be public
-		IPcapDevice() : IDevice()
-		{}
+		IPcapDevice() = default;
 
 	public:
 		virtual ~IPcapDevice() = default;

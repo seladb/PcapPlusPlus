@@ -40,7 +40,7 @@ namespace pcpp
 	/// An abstract interface representing all devices that have BPF (Berkeley Packet Filter) filtering capabilities,
 	/// meaning devices that can filter packets based on the BPF filtering syntax.
 	/// This is an abstract class that cannot be instantiated
-	class IFilterableDevice
+	class IFilterableDevice : public IDevice
 	{
 	protected:
 		// c'tor should not be public
