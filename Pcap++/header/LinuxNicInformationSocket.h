@@ -29,6 +29,10 @@ namespace pcpp
 		/// Tries to open handled socket on construction.
 		/// If fails prints the debug message
 		LinuxNicInformationSocket();
+		
+		LinuxNicInformationSocket(const LinuxNicInformationSocket&) = delete;
+		LinuxNicInformationSocket operator=(const LinuxNicInformationSocket&) = delete;
+
 		/// Closes handled socket on destruction.
 		/// If no socket was opened prints the debug message
 		~LinuxNicInformationSocket();
@@ -50,10 +54,6 @@ namespace pcpp
 		bool makeRequest(const char* nicName, const IoctlType ioctlType, ifreq* request);
 
 	private:
-		/// Hidden copy constructor. This structure is not copyable
-		LinuxNicInformationSocket(const LinuxNicInformationSocket&);
-		/// Hidden copy assignment operator. This structure is not copyable
-		LinuxNicInformationSocket operator=(const LinuxNicInformationSocket&);
 		LinuxSocket m_Socket;
 	};
 }  // namespace pcpp
