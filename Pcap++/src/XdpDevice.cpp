@@ -10,9 +10,11 @@
 #include <net/if.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include <regex>
 #include <poll.h>
 
 namespace pcpp
@@ -507,6 +509,13 @@ namespace pcpp
 			return(false);
 		}
 
+		unsigned int nhwqueues = getNumQueues(m_InterfaceName);
+		if (qId >= nhwqueues)
+		{
+			PCPP_LOG_ERROR("Queue Id (" << qId << ") must be less than the number hardware queues (" << nhwqueues << ") of device");
+			return false;
+		}
+
 		config.umemNumFrames = numFrames;
 		config.umemFrameSize = frameSize;
 		config.fillRingSize = fillRingSize;
@@ -644,4 +653,37 @@ namespace pcpp
 
 		return m_Stats;
 	}
+
+	uint32_t XdpDevice::getNumQueues(const std::string& iface, bool tx)
+	{
+		// returns number of hardware queues associated with the device
+		uint32_t rxtxqueues = 0;
+		std::string prefix = tx ? "tx-" : "rx-";
+		std::string path = "/sys/class/net/" + iface + "/queues/";
+		DIR *dir = opendir(path.c_str());
+
+		if(dir)
+		{
+			std::regex rxtx_regex("^" + prefix + "[0-9]+$");
+
+			struct dirent* entry;
+			while((entry = readdir(dir)) != nullptr)
+			{
+				if(std::regex_match(entry->d_name, rxtx_regex))
+				{
+					rxtxqueues++;
+				}
+			}
+
+			closedir(dir);
+		}
+
+		else
+		{
+			PCPP_LOG_ERROR("Error getting number of hardware queues from " << iface);
+		}
+
+		return rxtxqueues;
+	}
+
 }  // namespace pcpp

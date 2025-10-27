@@ -249,10 +249,19 @@ namespace pcpp
 		/// @return Return queue identifier for underlying socket
 		uint32_t getQueueId()
 		{
-			if(m_Config) return m_Config->queueId;
+			if(m_Config) 
+			{
+				return m_Config->queueId;
+
+			}
 
 			return 0;
 		}
+
+		/// Get number of RX or TX hardware queues for device
+		/// @param[in] tx  If true, return TX queues, otherwise RX. Default is false
+		/// @return The number of hardware queues associated with the device. 
+		static uint32_t getNumQueues(const std::string& iface, bool tx = false);
 
 	private:
 		class XdpUmem
@@ -328,7 +337,5 @@ namespace pcpp
 		bool initUmem();
 		bool populateConfigDefaults(XdpDeviceConfiguration& config) const;
 		bool getSocketStats();
-		
-		uint32_t getNumQueues(const std::string& iface) const;
 	};
 }  // namespace pcpp
