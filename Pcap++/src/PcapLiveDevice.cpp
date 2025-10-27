@@ -329,7 +329,7 @@ namespace pcpp
 			uint8_t* packetData = new uint8_t[pkthdr->caplen];
 			std::memcpy(packetData, packet, pkthdr->caplen);
 			auto rawPacket = std::make_unique<RawPacket>(packetData, pkthdr->caplen, pkthdr->ts, true,
-				                                            context->device->getLinkType());
+			                                             context->device->getLinkType());
 			context->capturedPackets->pushBack(std::move(rawPacket));
 		}
 
