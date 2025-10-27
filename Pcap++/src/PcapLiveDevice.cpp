@@ -303,19 +303,11 @@ namespace pcpp
 				return;
 			}
 
-			try
-			{
-				RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
-				context->callback(&rawPacket, context->device, context->userCookie);
-			}
-			catch (const std::exception& ex)
-			{
-				PCPP_LOG_ERROR("Exception occurred while invoking packet arrival callback: " << ex.what());
-			}
-			catch (...)
-			{
-				PCPP_LOG_ERROR("Unknown exception occurred while invoking packet arrival callback");
-			}
+			// TODO: Add exception handling to tunnel the exceptions from here to the capture thread
+			// through the C code boundary
+
+			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
+			context->callback(&rawPacket, context->device, context->userCookie);
 		}
 
 		/// @brief Wraps the raw packet data into a RawPacket instance and adds it to the captured packets vector
@@ -331,22 +323,14 @@ namespace pcpp
 				return;
 			}
 
-			try
-			{
-				uint8_t* packetData = new uint8_t[pkthdr->caplen];
-				std::memcpy(packetData, packet, pkthdr->caplen);
-				auto rawPacket = std::make_unique<RawPacket>(packetData, pkthdr->caplen, pkthdr->ts, true,
-				                                             context->device->getLinkType());
-				context->capturedPackets->pushBack(std::move(rawPacket));
-			}
-			catch (const std::exception& ex)
-			{
-				PCPP_LOG_ERROR("Exception occurred while invoking packet arrival callback: " << ex.what());
-			}
-			catch (...)
-			{
-				PCPP_LOG_ERROR("Unknown exception occurred while invoking packet arrival callback");
-			}
+			// TODO: Add exception handling to tunnel the exceptions from here to the capture thread
+			// through the C code boundary
+
+			uint8_t* packetData = new uint8_t[pkthdr->caplen];
+			std::memcpy(packetData, packet, pkthdr->caplen);
+			auto rawPacket = std::make_unique<RawPacket>(packetData, pkthdr->caplen, pkthdr->ts, true,
+				                                            context->device->getLinkType());
+			context->capturedPackets->pushBack(std::move(rawPacket));
 		}
 
 		/// @brief A procedure that dispatches packets to a user-defined callback function whenever a packet arrives.
