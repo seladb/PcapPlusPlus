@@ -173,6 +173,8 @@ namespace pcpp
 		/// @brief Result object returned by receive operations.
 		struct ReceiveResult
 		{
+			/// @enum Status
+			/// @brief Status codes for receive operations.
 			enum class Status
 			{
 				Completed,  ///< Receive completed successfully
@@ -189,6 +191,8 @@ namespace pcpp
 		/// @brief Result object returned by send operations.
 		struct SendResult
 		{
+			/// @enum Status
+			/// @brief Status codes for send operations.
 			enum class Status
 			{
 				Completed,  ///< Send operation completed successfully
