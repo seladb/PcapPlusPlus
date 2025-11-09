@@ -487,14 +487,17 @@ namespace pcpp
 		case PCPP_IN:
 		{
 			PCPP_LOG_DEBUG("Only incoming traffics will be captured");
+			break;
 		}
 		case PCPP_OUT:
 		{
 			PCPP_LOG_DEBUG("Only outgoing traffics will be captured");
+			break;
 		}
 		default:
 		{
 			PCPP_LOG_DEBUG("Both incoming and outgoing traffics will be captured");
+			break;
 		}
 		}
 
