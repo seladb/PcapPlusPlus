@@ -125,7 +125,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 		if (filterByBpf)
 		{
 			// check if packet matches the BPF filter supplied by the user
-			if (pcpp::IPcapDevice::matchPacketWithFilter(filter, &rawPacket))
+			if (filter.matches(rawPacket))
 			{
 				stats.ipPacketsMatchBpfFilter++;
 			}

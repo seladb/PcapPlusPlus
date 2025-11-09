@@ -5,6 +5,9 @@
 namespace pcpp
 {
 
+	constexpr uint8_t LdapResponseLayer::referralTagType;
+	constexpr int LdapBindResponseLayer::serverSaslCredentialsTagType;
+
 	// region LdapOperationType
 
 	// clang-format off

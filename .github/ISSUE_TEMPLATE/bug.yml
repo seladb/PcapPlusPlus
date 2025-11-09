@@ -45,6 +45,8 @@ body:
       multiple: true
       options:
         - "PcapPlusPlus master branch"
+        - "v25.05"
+        - "v24.09"
         - "v23.09"
         - "v22.11"
         - "v22.05"

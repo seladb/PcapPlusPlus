@@ -21,7 +21,8 @@ PTF_TEST_CASE(TestLoggerMultiThread);
 
 // Implemented in FileTests.cpp
 PTF_TEST_CASE(TestPcapFileReadWrite);
-PTF_TEST_CASE(TestPcapFilePrecision);
+PTF_TEST_CASE(TestPcapFileMicroPrecision);
+PTF_TEST_CASE(TestPcapFileNanoPrecision);
 PTF_TEST_CASE(TestPcapSllFileReadWrite);
 PTF_TEST_CASE(TestPcapSll2FileReadWrite);
 PTF_TEST_CASE(TestPcapRawIPFileReadWrite);

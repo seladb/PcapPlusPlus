@@ -439,21 +439,16 @@ namespace pcpp
 		return true;
 	}
 
-	bool XdpDevice::initConfig()
+	bool XdpDevice::populateConfigDefaults(XdpDeviceConfiguration& config) const
 	{
-		if (!m_Config)
-		{
-			m_Config = new XdpDeviceConfiguration();
-		}
-
-		uint16_t numFrames = m_Config->umemNumFrames ? m_Config->umemNumFrames : DEFAULT_UMEM_NUM_FRAMES;
-		uint16_t frameSize = m_Config->umemFrameSize ? m_Config->umemFrameSize : getpagesize();
-		uint32_t fillRingSize = m_Config->fillRingSize ? m_Config->fillRingSize : DEFAULT_FILL_RING_SIZE;
+		uint16_t numFrames = config.umemNumFrames ? config.umemNumFrames : DEFAULT_UMEM_NUM_FRAMES;
+		uint16_t frameSize = config.umemFrameSize ? config.umemFrameSize : getpagesize();
+		uint32_t fillRingSize = config.fillRingSize ? config.fillRingSize : DEFAULT_FILL_RING_SIZE;
 		uint32_t completionRingSize =
-		    m_Config->completionRingSize ? m_Config->completionRingSize : DEFAULT_COMPLETION_RING_SIZE;
-		uint32_t rxSize = m_Config->rxSize ? m_Config->rxSize : XSK_RING_CONS__DEFAULT_NUM_DESCS;
-		uint32_t txSize = m_Config->txSize ? m_Config->txSize : XSK_RING_PROD__DEFAULT_NUM_DESCS;
-		uint32_t batchSize = m_Config->rxTxBatchSize ? m_Config->rxTxBatchSize : DEFAULT_BATCH_SIZE;
+		    config.completionRingSize ? config.completionRingSize : DEFAULT_COMPLETION_RING_SIZE;
+		uint32_t rxSize = config.rxSize ? config.rxSize : XSK_RING_CONS__DEFAULT_NUM_DESCS;
+		uint32_t txSize = config.txSize ? config.txSize : XSK_RING_PROD__DEFAULT_NUM_DESCS;
+		uint32_t batchSize = config.rxTxBatchSize ? config.rxTxBatchSize : DEFAULT_BATCH_SIZE;
 
 		if (frameSize != getpagesize())
 		{
@@ -504,18 +499,23 @@ namespace pcpp
 			return false;
 		}
 
-		m_Config->umemNumFrames = numFrames;
-		m_Config->umemFrameSize = frameSize;
-		m_Config->fillRingSize = fillRingSize;
-		m_Config->completionRingSize = completionRingSize;
-		m_Config->rxSize = rxSize;
-		m_Config->txSize = txSize;
-		m_Config->rxTxBatchSize = batchSize;
+		config.umemNumFrames = numFrames;
+		config.umemFrameSize = frameSize;
+		config.fillRingSize = fillRingSize;
+		config.completionRingSize = completionRingSize;
+		config.rxSize = rxSize;
+		config.txSize = txSize;
+		config.rxTxBatchSize = batchSize;
 
 		return true;
 	}
 
 	bool XdpDevice::open()
+	{
+		return open(XdpDeviceConfiguration{});
+	}
+
+	bool XdpDevice::open(const XdpDeviceConfiguration& config)
 	{
 		if (m_DeviceOpened)
 		{
@@ -523,7 +523,14 @@ namespace pcpp
 			return false;
 		}
 
-		if (!(initConfig() && initUmem() &&
+		auto configCopy = std::make_unique<XdpDeviceConfiguration>(config);
+		if (!populateConfigDefaults(*configCopy))
+		{
+			return false;
+		}
+		m_Config = std::move(configCopy);
+
+		if (!(initUmem() &&
 		      populateFillRing(std::min(m_Config->fillRingSize, static_cast<uint32_t>(m_Config->umemNumFrames / 2))) &&
 		      configureSocket()))
 		{
@@ -532,11 +539,7 @@ namespace pcpp
 				delete m_Umem;
 				m_Umem = nullptr;
 			}
-			if (m_Config)
-			{
-				delete m_Config;
-				m_Config = nullptr;
-			}
+			m_Config.reset();
 			return false;
 		}
 
@@ -547,12 +550,6 @@ namespace pcpp
 		return m_DeviceOpened;
 	}
 
-	bool XdpDevice::open(const XdpDeviceConfiguration& config)
-	{
-		m_Config = new XdpDeviceConfiguration(config);
-		return open();
-	}
-
 	void XdpDevice::close()
 	{
 		if (m_DeviceOpened)
@@ -561,7 +558,6 @@ namespace pcpp
 			xsk_socket__delete(socketInfo->xsk);
 			m_DeviceOpened = false;
 			delete m_Umem;
-			delete m_Config;
 			m_Config = nullptr;
 			m_Umem = nullptr;
 		}

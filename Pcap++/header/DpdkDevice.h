@@ -344,7 +344,7 @@ namespace pcpp
 			/// Total number of erroneous packets
 			uint64_t rxErroneousPackets;
 			/// Total number of RX mbuf allocation failures
-			uint64_t rxMbufAlocFailed;
+			uint64_t rxMbufAllocFailed;
 		};
 
 		virtual ~DpdkDevice();
@@ -731,6 +731,11 @@ namespace pcpp
 		/// Close the DpdkDevice. When device is closed it's not possible work with it
 		void close() override;
 
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
+
 	private:
 		struct DpdkCoreConfiguration
 		{
@@ -768,6 +773,8 @@ namespace pcpp
 
 		uint64_t convertRssHfToDpdkRssHf(uint64_t rssHF) const;
 		uint64_t convertDpdkRssHfToRssHf(uint64_t dpdkRssHF) const;
+
+		bool m_DeviceOpened = false;
 
 		std::string m_DeviceName;
 		DpdkPMDType m_PMDType;
