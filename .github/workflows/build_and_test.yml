@@ -705,6 +705,32 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  windivert:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
+
+      - name: Install WinPcap
+        run: |
+          ci\install_winpcap.bat
+          echo "PCAP_SDK_DIR=C:\\WpdPack" >> $env:GITHUB_ENV
+
+      - name: Set WinDivert root
+        run: echo "WINDIVERT_DIR=C:\\WinDivert" >> $env:GITHUB_ENV
+
+      - name: Install WinDivert
+        run: ci\install_windivert.bat $env:WINDIVERT_DIR
+
+      - name: Configure PcapPlusPlus (WinDivert)
+        run: cmake -A x64 -G "Visual Studio 17 2022" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DPCAPPP_USE_WINDIVERT=ON -DWINDIVERT_ROOT=${{ env.WINDIVERT_DIR }} -S . -B "$env:BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build $env:BUILD_DIR -j
+
   freebsd:
     runs-on: ubuntu-latest
     strategy:
