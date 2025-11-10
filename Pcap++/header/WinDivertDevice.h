@@ -302,6 +302,11 @@ namespace pcpp
 		/// @brief Close the device and release the underlying WinDivert handle.
 		void close() override;
 
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
+
 		/// @brief Receive packets into a vector owned by the caller.
 		///
 		/// This method receives up to maxPackets packets (0 means unlimited) in batches of batchSize.
@@ -376,6 +381,7 @@ namespace pcpp
 		std::atomic<bool> m_IsReceiving{ false };
 		mutable std::unordered_map<uint32_t, NetworkInterface> m_NetworkInterfaces;
 		mutable bool m_NetworkInterfacesInitialized = false;
+		bool m_DeviceOpened = false;
 
 		struct ReceiveResultInternal : ReceiveResult
 		{

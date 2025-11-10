@@ -9,6 +9,7 @@
 #include <windows.h>
 #include <iphlpapi.h>
 #include <winsock2.h>
+#include <chrono>
 
 namespace pcpp
 {
