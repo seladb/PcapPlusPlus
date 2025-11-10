@@ -249,7 +249,7 @@ namespace pcpp
 		/// @return Return queue identifier for underlying socket
 		uint32_t getQueueId()
 		{
-			if(m_Config) 
+			if(m_Config)
 			{
 				return m_Config->queueId;
 
@@ -261,7 +261,7 @@ namespace pcpp
 		/// Get number of RX or TX hardware queues for device
 		/// @param[in] interfaceName The interface name to use to detect hardware queues
 		/// @param[in] tx  If true, return TX queues, otherwise RX. Default is false
-		/// @return The number of hardware queues associated with the device. 
+		/// @return The number of hardware queues associated with the device.
 		static uint32_t getNumQueues(const std::string& interfaceName, bool tx = false);
 
 	private:

@@ -405,8 +405,8 @@ namespace pcpp
 		auto umemInfo = static_cast<xsk_umem_info*>(m_Umem->getInfo());
 
 		struct xsk_socket_config xskConfig;
-		xskConfig.rx_size = m_Config->txSize;
-		xskConfig.tx_size = m_Config->rxSize;
+		xskConfig.rx_size = m_Config->rxSize;
+		xskConfig.tx_size = m_Config->txSize;
 		xskConfig.libbpf_flags = 0;
 		xskConfig.xdp_flags = 0;
 		xskConfig.bind_flags = 0;
@@ -431,7 +431,7 @@ namespace pcpp
 		}
 
 		m_SocketInfo = socketInfo;
-		
+
 		return true;
 	}
 
