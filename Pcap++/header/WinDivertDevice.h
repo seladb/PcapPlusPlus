@@ -24,39 +24,58 @@ namespace pcpp
 {
 	namespace internal
 	{
+		/// @brief Opaque handle wrapper for an opened WinDivert driver instance.
+		///
+		/// Implementations encapsulate the native WinDivert handle and its lifetime.
 		class IWinDivertHandle
 		{
 		public:
 			virtual ~IWinDivertHandle() = default;
 		};
 
+		/// @brief Abstract helper that wraps Windows OVERLAPPED I/O used by WinDivert operations.
+		///
+		/// Implementations provide waiting/resetting primitives and a way to fetch
+		/// the result of an asynchronous I/O tied to a specific WinDivert handle.
 		class IOverlappedWrapper
 		{
 		public:
+			/// @brief Result of waiting on an OVERLAPPED I/O operation.
+			///
+			/// Indicates whether the asynchronous operation completed, timed out or failed,
+			/// and carries an optional Windows error code.
 			struct WaitResult
 			{
+				/// @enum Status
+				/// @brief Status codes for wait result.
 				enum class Status
 				{
-					Completed,
-					Timeout,
-					Failed
+					Completed,  ///< The wait completed successfully
+					Timeout,    ///< The wait timed out before completion
+					Failed      ///< The wait failed; see errorCode
 				};
-
-				Status status;
-				uint32_t errorCode = 0;
+				
+				Status status;       ///< Final wait status
+				uint32_t errorCode = 0; ///< Windows error code (when relevant)
 			};
 
+			/// @brief Result of completing an OVERLAPPED I/O operation.
+			///
+			/// Contains the final status, the number of bytes/packet length produced by the
+			/// operation (when applicable), and a Windows error code on failure.
 			struct OverlappedResult
 			{
+				/// @enum Status
+				/// @brief Status codes for overlapped result.
 				enum class Status
 				{
-					Success,
-					Failed
+					Success, ///< Operation completed successfully
+					Failed   ///< Operation failed; see errorCode
 				};
-
-				Status status;
-				uint32_t packetLen = 0;
-				uint32_t errorCode = 0;
+				
+				Status status;           ///< Completion status
+				uint32_t packetLen = 0;  ///< Number of bytes read/written (when applicable)
+				uint32_t errorCode = 0;  ///< Windows error code (when relevant)
 			};
 
 			virtual WaitResult wait(uint32_t timeout) = 0;
@@ -65,32 +84,43 @@ namespace pcpp
 			virtual ~IOverlappedWrapper() = default;
 		};
 
+		/// @brief Minimal address/metadata returned by WinDivert for a captured packet.
+		///
+		/// This structure mirrors the subset of fields PcapPlusPlus needs from WinDivert's
+		/// WINDIVERT_ADDRESS: whether the packet is IPv6, the Windows interface index and
+		/// the original WinDivert timestamp.
 		struct WinDivertAddress
 		{
-			bool isIPv6;
-			uint32_t interfaceIndex;
-			uint64_t timestamp;
+			bool isIPv6;             ///< True if the packet is IPv6, false for IPv4
+			uint32_t interfaceIndex; ///< Windows network interface index
+			uint64_t timestamp;      ///< WinDivert timestamp associated with the packet
 		};
 
+		/// @brief Abstraction over the concrete WinDivert API used by WinDivertDevice.
+		///
+		/// This interface allows providing different backends (e.g., real WinDivert DLL
+		/// or a test double) while keeping the device logic independent from the API.
 		class IWinDivertImplementation
 		{
 		public:
+			/// @brief WinDivert runtime parameters that can be queried or configured.
 			enum class WinDivertParam
 			{
-				QueueLength = 0,
-				QueueTime = 1,
-				QueueSize = 2,
-				VersionMajor = 3,
-				VersionMinor = 4
+				QueueLength = 0, ///< Maximum number of packets in the queue
+				QueueTime   = 1, ///< Maximum time (ms) a packet may stay in the queue
+				QueueSize   = 2, ///< Maximum total queue size (bytes)
+				VersionMajor= 3, ///< WinDivert major version
+				VersionMinor= 4  ///< WinDivert minor version
 			};
 
+			/// @brief Information about a Windows network interface as reported by WinDivert.
 			struct NetworkInterface
 			{
-				uint32_t index;
-				std::wstring name;
-				std::wstring description;
-				bool isLoopback;
-				bool isUp;
+				uint32_t index;           ///< Interface index
+				std::wstring name;        ///< Interface GUID or system name
+				std::wstring description; ///< Human-readable description
+				bool isLoopback;          ///< True if the interface is loopback
+				bool isUp;                ///< True if the interface is up/running
 			};
 
 			static constexpr uint32_t SuccessResult = 0;
