@@ -54,9 +54,9 @@ namespace pcpp
 					Timeout,    ///< The wait timed out before completion
 					Failed      ///< The wait failed; see errorCode
 				};
-				
-				Status status;       ///< Final wait status
-				uint32_t errorCode = 0; ///< Windows error code (when relevant)
+
+				Status status;           ///< Final wait status
+				uint32_t errorCode = 0;  ///< Windows error code (when relevant)
 			};
 
 			/// @brief Result of completing an OVERLAPPED I/O operation.
@@ -69,10 +69,10 @@ namespace pcpp
 				/// @brief Status codes for overlapped result.
 				enum class Status
 				{
-					Success, ///< Operation completed successfully
-					Failed   ///< Operation failed; see errorCode
+					Success,  ///< Operation completed successfully
+					Failed    ///< Operation failed; see errorCode
 				};
-				
+
 				Status status;           ///< Completion status
 				uint32_t packetLen = 0;  ///< Number of bytes read/written (when applicable)
 				uint32_t errorCode = 0;  ///< Windows error code (when relevant)
@@ -91,9 +91,9 @@ namespace pcpp
 		/// the original WinDivert timestamp.
 		struct WinDivertAddress
 		{
-			bool isIPv6;             ///< True if the packet is IPv6, false for IPv4
-			uint32_t interfaceIndex; ///< Windows network interface index
-			uint64_t timestamp;      ///< WinDivert timestamp associated with the packet
+			bool isIPv6;              ///< True if the packet is IPv6, false for IPv4
+			uint32_t interfaceIndex;  ///< Windows network interface index
+			uint64_t timestamp;       ///< WinDivert timestamp associated with the packet
 		};
 
 		/// @brief Abstraction over the concrete WinDivert API used by WinDivertDevice.
@@ -106,21 +106,21 @@ namespace pcpp
 			/// @brief WinDivert runtime parameters that can be queried or configured.
 			enum class WinDivertParam
 			{
-				QueueLength = 0, ///< Maximum number of packets in the queue
-				QueueTime   = 1, ///< Maximum time (ms) a packet may stay in the queue
-				QueueSize   = 2, ///< Maximum total queue size (bytes)
-				VersionMajor= 3, ///< WinDivert major version
-				VersionMinor= 4  ///< WinDivert minor version
+				QueueLength = 0,   ///< Maximum number of packets in the queue
+				QueueTime = 1,     ///< Maximum time (ms) a packet may stay in the queue
+				QueueSize = 2,     ///< Maximum total queue size (bytes)
+				VersionMajor = 3,  ///< WinDivert major version
+				VersionMinor = 4   ///< WinDivert minor version
 			};
 
 			/// @brief Information about a Windows network interface as reported by WinDivert.
 			struct NetworkInterface
 			{
-				uint32_t index;           ///< Interface index
-				std::wstring name;        ///< Interface GUID or system name
-				std::wstring description; ///< Human-readable description
-				bool isLoopback;          ///< True if the interface is loopback
-				bool isUp;                ///< True if the interface is up/running
+				uint32_t index;            ///< Interface index
+				std::wstring name;         ///< Interface GUID or system name
+				std::wstring description;  ///< Human-readable description
+				bool isLoopback;           ///< True if the interface is loopback
+				bool isUp;                 ///< True if the interface is up/running
 			};
 
 			static constexpr uint32_t SuccessResult = 0;
