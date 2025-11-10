@@ -503,7 +503,7 @@ namespace pcpp
 			return false;
 		}
 
-		unsigned int nhwqueues = getNumQueues(m_InterfaceName);
+		unsigned int nhwqueues = numQueues(m_InterfaceName);
 		if (qId >= nhwqueues)
 		{
 			PCPP_LOG_ERROR("Queue Id (" << qId << ") must be less than the number hardware queues (" << nhwqueues << ") of device");
@@ -648,7 +648,7 @@ namespace pcpp
 		return m_Stats;
 	}
 
-	uint32_t XdpDevice::getNumQueues(const std::string& iface, bool tx)
+	uint32_t XdpDevice::numQueues(const std::string& iface, bool tx)
 	{
 		// returns number of hardware queues associated with the device
 		uint32_t rxtxqueues = 0;

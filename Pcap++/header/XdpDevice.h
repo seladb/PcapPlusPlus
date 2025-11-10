@@ -247,7 +247,7 @@ namespace pcpp
 		XdpDeviceStats getStatistics();
 
 		/// @return Return queue identifier for underlying socket
-		uint32_t getQueueId()
+		uint32_t getQueueId() const
 		{
 			if(m_Config)
 			{
@@ -262,7 +262,7 @@ namespace pcpp
 		/// @param[in] interfaceName The interface name to use to detect hardware queues
 		/// @param[in] tx  If true, return TX queues, otherwise RX. Default is false
 		/// @return The number of hardware queues associated with the device.
-		static uint32_t getNumQueues(const std::string& interfaceName, bool tx = false);
+		static uint32_t numQueues(const std::string& interfaceName, bool tx = false);
 
 	private:
 		class XdpUmem
