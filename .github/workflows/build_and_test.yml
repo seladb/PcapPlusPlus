@@ -57,7 +57,7 @@ jobs:
           using System;
           using System.Runtime.InteropServices;
           public class WinDivertAPI {
-              [DllImport("WinDivert.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
+              [DllImport(@"C:\\WinDivert\\x64\\WinDivert.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
               public static extern IntPtr WinDivertOpen(string filter, uint layer, short priority, ulong flags);
           }
           "@
