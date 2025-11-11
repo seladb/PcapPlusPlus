@@ -57,13 +57,6 @@ jobs:
           $env:Path += ";C:\WinDivert\x64"
           Write-Host "PATH is now: $env:Path"
 
-      - name: Debug workspace structure
-        shell: pwsh
-        run: |
-          Write-Host "Current directory: $(Get-Location)"
-          Write-Host "Listing subdirectories:"
-          Get-ChildItem -Recurse -Directory | Select-Object -First 30 | ForEach-Object { $_.FullName }
-
       - name: Run Pcap++ tests
         shell: pwsh
         run: |
@@ -73,5 +66,5 @@ jobs:
             exit 1
           }
 
-          Set-Location -Path "Tests\Pcap++Tests"
+          Set-Location -Path "Tests\Pcap++Test"
           .\Bin\Pcap++Test -i 10.1.0.104 -t windivert
