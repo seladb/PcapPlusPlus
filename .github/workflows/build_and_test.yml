@@ -66,7 +66,7 @@ jobs:
             exit 1
           }
 
-          .\Pcap++Test.exe -i 10.1.0.104 -t windivert *> test_output.log
+          .\Bin\Pcap++Test -i 10.1.0.104 -t windivert *> test_output.log
           $exitCode = $LASTEXITCODE
           
           Write-Host "Pcap++Test exited with code: $exitCode"
