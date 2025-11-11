@@ -66,12 +66,13 @@ jobs:
             exit 1
           }
 
+          Set-Location -Path "Tests\Pcap++Test"
           .\Bin\Pcap++Test -i 10.1.0.104 -t windivert *> test_output.log
           $exitCode = $LASTEXITCODE
-          
+
           Write-Host "Pcap++Test exited with code: $exitCode"
           Get-Content test_output.log | ForEach-Object { Write-Host $_ }
-          
+
           if ($exitCode -ne 0) {
             Write-Error "Pcap++Test failed with exit code $exitCode"
             exit $exitCode
