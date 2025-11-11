@@ -54,15 +54,15 @@ jobs:
         shell: pwsh
         run: |
           # Append C:\WinDivert to PATH for this job
-          $env:Path += ";C:\WinDivert"
+          $env:Path += ";C:\WinDivert\x64"
           Write-Host "PATH is now: $env:Path"
 
       - name: Run Pcap++ tests
         shell: pwsh
         run: |
           # Verify DLL is visible
-          if (-not (Test-Path "C:\WinDivert\WinDivert.dll")) {
-            Write-Error "WinDivert.dll not found in C:\WinDivert"
+          if (-not (Test-Path "C:\WinDivert\x64\WinDivert.dll")) {
+            Write-Error "WinDivert.dll not found in C:\WinDivert\x64"
             exit 1
           }
 
