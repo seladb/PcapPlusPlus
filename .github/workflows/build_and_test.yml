@@ -50,7 +50,21 @@ jobs:
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
 
-      - name: Test PcapPlusPlus
+      - name: Set up PATH to include WinDivert
+        shell: pwsh
         run: |
-          python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --include-tests windivert
+          # Append C:\WinDivert to PATH for this job
+          $env:Path += ";C:\WinDivert"
+          Write-Host "PATH is now: $env:Path"
+
+      - name: Run Pcap++ tests
+        shell: pwsh
+        run: |
+          # Verify DLL is visible
+          if (-not (Test-Path "C:\WinDivert\WinDivert.dll")) {
+            Write-Error "WinDivert.dll not found in C:\WinDivert"
+            exit 1
+          }
+
+          Set-Location -Path "Tests\Pcap++Tests"
+          .\Bin\Pcap++Test -i 10.1.0.104 -t windivert
