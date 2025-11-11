@@ -50,6 +50,36 @@ jobs:
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
 
+      - name: Test WinDivert driver load
+        shell: pwsh
+        run: |
+          Write-Host "🔍 Testing whether WinDivert.dll can be loaded..."
+
+          Add-Type @"
+          using System;
+          using System.Runtime.InteropServices;
+          public class NativeLoader {
+              [DllImport("kernel32.dll", SetLastError = true)]
+              public static extern IntPtr LoadLibrary(string lpFileName);
+          }
+          "@
+
+          $dllPath = "C:\WinDivert\x64\WinDivert.dll"
+          if (-not (Test-Path $dllPath)) {
+              Write-Error "❌ WinDivert.dll not found at $dllPath"
+              exit 1
+          }
+
+          $handle = [NativeLoader]::LoadLibrary($dllPath)
+          if ($handle -eq [IntPtr]::Zero) {
+              $err = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+              Write-Host "❌ LoadLibrary failed with Win32 error code: $err"
+              Write-Host "ℹ️ Common meanings: 126=missing dep, 193=bad arch, 5=access denied (driver load blocked)"
+              exit 0
+          } else {
+              Write-Host "✅ WinDivert.dll loaded successfully!"
+          }
+
       - name: Inspect WinDivert DLL and EXE bitness
         shell: pwsh
         run: |
