@@ -95,6 +95,8 @@ jobs:
             Write-Error "WinDivert.dll not found in C:\WinDivert\x64"
             exit 1
           }
+          
+          Copy-Item "C:\WinDivert\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
 
           Set-Location -Path "Tests\Pcap++Test"
           .\Bin\Pcap++Test -i 10.1.0.104 -t windivert *> test_output.log
