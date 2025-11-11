@@ -50,6 +50,15 @@ jobs:
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
 
+      - name: Inspect WinDivert DLL and EXE bitness
+        shell: pwsh
+        run: |
+          Write-Host "Inspecting architectures..."
+          Get-Item "C:\WinDivert\x64\WinDivert.dll" | Select-Object Name, Length
+          Get-Item "Tests\Pcap++Test\Bin\Pcap++Test.exe" | Select-Object Name, Length
+          Write-Host "Running file checks..."
+          Get-ChildItem "C:\WinDivert" -Recurse -Filter "WinDivert.dll" | ForEach-Object { $_.FullName }
+
       - name: Set up PATH to include WinDivert
         shell: pwsh
         run: |
