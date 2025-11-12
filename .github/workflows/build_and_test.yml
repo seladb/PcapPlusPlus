@@ -80,12 +80,12 @@ jobs:
 #          Write-Host "Running file checks..."
 #          Get-ChildItem "C:\WinDivert" -Recurse -Filter "WinDivert.dll" | ForEach-Object { $_.FullName }
 
-#      - name: Set up PATH to include WinDivert
-#        shell: pwsh
-#        run: |
-#          # Append C:\WinDivert to PATH for this job
-#          $env:Path += ";C:\WinDivert\x64"
-#          Write-Host "PATH is now: $env:Path"
+      - name: Set up PATH to include WinDivert
+        shell: pwsh
+        run: |
+          # Append C:\WinDivert to PATH for this job
+          $env:Path += ";C:\WinDivert\x64"
+          Write-Host "PATH is now: $env:Path"
 
       - name: Run Pcap++ tests
         shell: pwsh
@@ -99,8 +99,8 @@ jobs:
           #   exit 1
           # }
           
-          # Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
-          Copy-Item "C:\WinDivert\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
+          # Copy-Item "C:\WinDivert\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
 
           python -m pip install -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --include-tests windivert
