@@ -88,6 +88,7 @@ jobs:
         shell: pwsh
         run: |
           Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert64.sys" "Tests\Pcap++Test\Bin\WinDivert64.sys" -Force
           
           python -m pip install -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --include-tests windivert
