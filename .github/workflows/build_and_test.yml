@@ -86,11 +86,13 @@ jobs:
         shell: pwsh
         run: |
           # Verify DLL is visible
-          if (-not (Test-Path "C:\WinDivert\x64\WinDivert.dll")) {
-            Write-Error "WinDivert.dll not found in C:\WinDivert\x64"
-            exit 1
-          }
+          # if (-not (Test-Path "C:\WinDivert\x64\WinDivert.dll")) {
+          #   Write-Error "WinDivert.dll not found in C:\WinDivert\x64"
+          #   exit 1
+          # }
           
-          Copy-Item "C:\WinDivert\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
+          # Copy-Item "C:\WinDivert\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
+          
           python -m pip install -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --include-tests windivert
