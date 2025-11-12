@@ -36,7 +36,7 @@ jobs:
           echo "PCAP_SDK_DIR=C:\\WpdPack" >> $env:GITHUB_ENV
 
       - name: Set WinDivert root
-        run: echo "WINDIVERT_DIR=C:\\WinDivert" >> $env:GITHUB_ENV
+        run: echo "WINDIVERT_DIR=C:\WinDivert" >> $env:GITHUB_ENV
 
       - name: Install WinDivert
         run: ci\install_windivert.bat $env:WINDIVERT_DIR
