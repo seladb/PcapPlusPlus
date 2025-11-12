@@ -49,25 +49,25 @@ jobs:
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
 
-      - name: Test WinDivert driver open
-        shell: pwsh
-        run: |
-          Add-Type @"
-          using System;
-          using System.Runtime.InteropServices;
-          public class WinDivertAPI {
-              [DllImport(@"C:\\WinDivert\\x64\\WinDivert.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
-              public static extern IntPtr WinDivertOpen(string filter, uint layer, short priority, ulong flags);
-          }
-          "@
-          $handle = [WinDivertAPI]::WinDivertOpen("true", 0, 0, 0)
-          if ($handle -eq [IntPtr]::Zero) {
-              $err = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
-              Write-Host "❌ WinDivertOpen() failed with Win32 error: $err"
-              Write-Host "ℹ️ 5=access denied (driver load blocked), 577=unsigned driver, 127=entry point missing"
-          } else {
-              Write-Host "✅ WinDivertOpen() succeeded — driver loaded!"
-          }
+#      - name: Test WinDivert driver open
+#        shell: pwsh
+#        run: |
+#          Add-Type @"
+#          using System;
+#          using System.Runtime.InteropServices;
+#          public class WinDivertAPI {
+#              [DllImport(@"C:\\WinDivert\\x64\\WinDivert.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
+#              public static extern IntPtr WinDivertOpen(string filter, uint layer, short priority, ulong flags);
+#          }
+#          "@
+#          $handle = [WinDivertAPI]::WinDivertOpen("true", 0, 0, 0)
+#          if ($handle -eq [IntPtr]::Zero) {
+#              $err = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+#              Write-Host "❌ WinDivertOpen() failed with Win32 error: $err"
+#              Write-Host "ℹ️ 5=access denied (driver load blocked), 577=unsigned driver, 127=entry point missing"
+#          } else {
+#              Write-Host "✅ WinDivertOpen() succeeded — driver loaded!"
+#          }
 #      - name: Inspect WinDivert DLL and EXE bitness
 #        shell: pwsh
 #        run: |
