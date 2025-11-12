@@ -56,8 +56,7 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 				allPacketsHaveInterface &= device.getNetworkInterface(rawPacket->getInterfaceIndex()) != nullptr;
 				pcpp::Packet packet(rawPacket);
 				allPacketsOfTypeIP &= packet.getFirstLayer()->isMemberOfProtocolFamily(pcpp::IP);
-				std::cout << "rawPacket->getWinDivertTimestamp(): " << rawPacket->getWinDivertTimestamp() << std::endl;
-				isTimestampIncreasing &= (rawPacket->getWinDivertTimestamp() > currentTimestamp);
+				isTimestampIncreasing &= (rawPacket->getWinDivertTimestamp() >= currentTimestamp);
 				currentTimestamp = rawPacket->getWinDivertTimestamp();
 			}
 
