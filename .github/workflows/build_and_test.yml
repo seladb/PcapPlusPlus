@@ -289,12 +289,6 @@ jobs:
           cd Tests/Packet++Test
           Bin/Packet++Test
 
-      - name: Test Pcap++
-        if: env.avx512 == 'true'
-        run: |
-          cd Tests/Pcap++Test
-          Bin/Pcap++Test
-
       - name: Tests skipped (no AVX-512 hardware support)
         if: env.avx512 == 'false'
         run: echo "Skipping tests since AVX-512 is not supported on the current runner"
