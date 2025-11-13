@@ -738,7 +738,7 @@ jobs:
         run: |
           Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
           Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert64.sys" "Tests\Pcap++Test\Bin\WinDivert64.sys" -Force
-          
+
           python -m pip install -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --include-tests windivert
 
@@ -763,17 +763,17 @@ jobs:
             chmod a+rw /dev/bpf*
             cmake -S . -B Dist
             cmake --build Dist -j$(sysctl -n hw.ncpu)
-            
+
             echo "Setting up the network interface for the tests"
             # Get the first interface name that is not 'lo'
             interface_name=$(ifconfig -l | tr ' ' '\n' | grep -v '^lo' | head -n 1)
             ifconfig "$interface_name" promisc
-            
+
             echo "Testing PcapPlusPlus"
             python -m ensurepip
             python -m pip install -r ci/run_tests/requirements.txt
             python ci/run_tests/run_tests.py --interface "$interface_name"
-            
+
             echo "Testing PcapPlusPlus examples"
             cd Tests/ExamplesTest
             python -m pip install -r requirements.txt
