@@ -285,7 +285,7 @@ namespace pcpp
 
 	bool WinDivertDevice::open()
 	{
-		return open("inbound or outbound");
+		return open("true");
 	}
 
 	bool WinDivertDevice::open(const std::string& filter)

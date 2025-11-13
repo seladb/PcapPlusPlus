@@ -187,7 +187,7 @@ namespace pcpp
 	/// retrieve the WinDivert runtime version, and enumerate Windows network interfaces.
 	///
 	/// Notes:
-	/// - The default open() uses the filter "inbound or outbound", capturing both directions.
+	/// - The default open() uses the filter "true", capturing both directions.
 	/// - The device is opened in sniffing mode and supports fragmented packets.
 	/// - Receive can be done into a user-provided vector or via a callback loop that can be stopped with stopReceive().
 	/// - Send batches multiple packets at once for efficiency.
@@ -290,7 +290,7 @@ namespace pcpp
 
 		/// @brief Open the device with a default filter capturing both directions.
 		/// @return true on success, false on failure (see logs for details).
-		/// @note This calls open("inbound or outbound") on WINDIVERT_LAYER_NETWORK with sniffing/fragments flags.
+		/// @note This calls open("true") on WINDIVERT_LAYER_NETWORK with sniffing/fragments flags.
 		bool open() override;
 
 		/// @brief Open the device with a custom WinDivert filter.
