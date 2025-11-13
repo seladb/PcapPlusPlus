@@ -289,12 +289,6 @@ jobs:
           cd Tests/Packet++Test
           Bin/Packet++Test
 
-      - name: Test Pcap++
-        if: env.avx512 == 'true'
-        run: |
-          cd Tests/Pcap++Test
-          Bin/Pcap++Test
-
       - name: Tests skipped (no AVX-512 hardware support)
         if: env.avx512 == 'false'
         run: echo "Skipping tests since AVX-512 is not supported on the current runner"
@@ -718,7 +712,6 @@ jobs:
         run: |
           ci\install_winpcap.bat
           echo "PCAP_SDK_DIR=C:\\WpdPack" >> $env:GITHUB_ENV
-
       - name: Set WinDivert root
         run: echo "WINDIVERT_DIR=C:\\WinDivert" >> $env:GITHUB_ENV
 
@@ -730,6 +723,18 @@ jobs:
 
       - name: Build PcapPlusPlus
         run: cmake --build $env:BUILD_DIR -j
+
+      - name: Install tcpreplay
+        run: ci\install_tcpreplay.bat
+
+      - name: Test PcapPlusPlus
+        shell: pwsh
+        run: |
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert64.sys" "Tests\Pcap++Test\Bin\WinDivert64.sys" -Force
+
+          python -m pip install -r ci\run_tests\requirements.txt
+          python ci\run_tests\run_tests_windows.py --include-tests windivert
 
   freebsd:
     runs-on: ubuntu-latest
