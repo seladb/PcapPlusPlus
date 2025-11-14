@@ -159,6 +159,8 @@ namespace pcpp
 		      m_InterfaceIndex(interfaceIndex), m_WinDivertTimestamp(winDivertTimestamp)
 		{}
 
+		~WinDivertRawPacket() override = default;
+
 		/// @brief Get the Windows interface index the packet was captured on.
 		/// @return The interface index as reported by WinDivert.
 		uint32_t getInterfaceIndex() const
