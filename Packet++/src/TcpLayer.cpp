@@ -11,6 +11,7 @@
 #include "BgpLayer.h"
 #include "SSHLayer.h"
 #include "DnsLayer.h"
+#include "DoIpLayer.h"
 #include "TelnetLayer.h"
 #include "TpktLayer.h"
 #include "FtpLayer.h"
@@ -18,6 +19,7 @@
 #include "SmtpLayer.h"
 #include "LdapLayer.h"
 #include "GtpLayer.h"
+#include "ModbusLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "DeprecationUtils.h"
@@ -429,6 +431,13 @@ namespace pcpp
 		{
 			constructNextLayer<FtpDataLayer>(payload, payloadLen, m_Packet);
 		}
+		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
+		         (DoIpLayer::isDataValid(payload, payloadLen)))
+		{
+			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet);
+			if (!m_NextLayer)
+				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{
 			setNextLayer(SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, m_Packet));
@@ -455,6 +464,10 @@ namespace pcpp
 		         GtpV2Layer::isDataValid(payload, payloadLen))
 		{
 			constructNextLayer<GtpV2Layer>(payload, payloadLen, m_Packet);
+		}
+		else if (ModbusLayer::isModbusPort(portDst))
+		{
+			constructNextLayer<ModbusLayer>(payload, payloadLen, m_Packet);
 		}
 		else
 		{

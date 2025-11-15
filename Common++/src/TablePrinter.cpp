@@ -50,10 +50,10 @@ namespace pcpp
 			m_FirstRow = false;
 		}
 
-		for (int i = 0; i < (int)m_ColumnWidths.size(); i++)
+		for (int i = 0; i < static_cast<int>(m_ColumnWidths.size()); i++)
 		{
 			std::string val = values.at(i);
-			if (val.length() > (size_t)m_ColumnWidths.at(i))
+			if (val.length() > static_cast<size_t>(m_ColumnWidths.at(i)))
 			{
 				val.erase(m_ColumnWidths.at(i) - 3, std::string::npos);
 				val += "...";

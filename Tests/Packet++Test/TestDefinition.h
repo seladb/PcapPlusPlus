@@ -33,6 +33,7 @@ PTF_TEST_CASE(IPv6ExtensionsTest);
 // Implemented in TcpTests.cpp
 PTF_TEST_CASE(TcpPacketNoOptionsParsing);
 PTF_TEST_CASE(TcpPacketWithOptionsParsing);
+PTF_TEST_CASE(TcpPacketWithAccurateEcnParsing);
 PTF_TEST_CASE(TcpPacketWithOptionsParsing2);
 PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
@@ -59,6 +60,7 @@ PTF_TEST_CASE(ResizeLayerTest);
 PTF_TEST_CASE(PrintPacketAndLayersTest);
 PTF_TEST_CASE(ProtocolFamilyMembershipTest);
 PTF_TEST_CASE(PacketParseLayerLimitTest);
+PTF_TEST_CASE(PacketParseMultiLayerTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
@@ -87,6 +89,42 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest);
 PTF_TEST_CASE(DnsOverTcpParsingTest);
 PTF_TEST_CASE(DnsOverTcpCreationTest);
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest);
+
+// Implemented in DoIpTests.cpp
+PTF_TEST_CASE(DoIpRoutActReqParsing);
+PTF_TEST_CASE(DoIpRoutActReqCreation);
+PTF_TEST_CASE(DoIpRoutActResParsing);
+PTF_TEST_CASE(DoIpRoutActResCreation);
+PTF_TEST_CASE(DoIpGenHdrNackParsing);
+PTF_TEST_CASE(DoIpGenHdrNackCreation);
+PTF_TEST_CASE(DoIpVehIdenReqWithEIDParsing);
+PTF_TEST_CASE(DoIpVehIdenReqWithEIDCreation);
+PTF_TEST_CASE(DoIpVehIdenReqWithVINParsing);
+PTF_TEST_CASE(DoIpVehIdenReqWithVINCreation);
+PTF_TEST_CASE(DoIpVehAnnMessParsing);
+PTF_TEST_CASE(DoIpVehAnnMessCreation);
+PTF_TEST_CASE(DoIpAliveCheckRespParsing);
+PTF_TEST_CASE(DoIpAliveCheckRespCreation);
+PTF_TEST_CASE(DoIpDiagPowerModeRespParsing);
+PTF_TEST_CASE(DoIpDiagPowerModeRespCreation);
+PTF_TEST_CASE(DoIpEntityStatusRespParsing);
+PTF_TEST_CASE(DoIpEntityStatusRespCreation);
+PTF_TEST_CASE(DoIpDiagMessParsing);
+PTF_TEST_CASE(DoIpDiagMessCreation);
+PTF_TEST_CASE(DoIpDiagMessAckParsing);
+PTF_TEST_CASE(DoIpDiagMessAckCreation);
+PTF_TEST_CASE(DoIpDiagMessNackParsing);
+PTF_TEST_CASE(DoIpDiagMessNackCreation);
+PTF_TEST_CASE(DoIpVehIdenReqParsing);
+PTF_TEST_CASE(DoIpVehIdenReqCreation);
+PTF_TEST_CASE(DoIpDiagPowerModeReqParsing);
+PTF_TEST_CASE(DoIpDiagPowerModeReqCreation);
+PTF_TEST_CASE(DoIpEntityStatusReqParsing);
+PTF_TEST_CASE(DoIpEntityStatusReqCreation);
+PTF_TEST_CASE(DoIpAliveCheckReqParsing);
+PTF_TEST_CASE(DoIpAliveCheckReqCreation);
+PTF_TEST_CASE(DoIpVehIdenReqWithDefVersParsing);
+PTF_TEST_CASE(DoIpInvalidPackets);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);
@@ -262,6 +300,7 @@ PTF_TEST_CASE(SmtpEditTests);
 // Implemented in Asn1Tests.cpp
 PTF_TEST_CASE(Asn1DecodingTest);
 PTF_TEST_CASE(Asn1EncodingTest);
+PTF_TEST_CASE(Asn1ObjectIdentifierTest);
 
 // Implemented in LdapTests.cpp
 PTF_TEST_CASE(LdapParsingTest);
@@ -279,3 +318,25 @@ PTF_TEST_CASE(WireGuardEditTest);
 PTF_TEST_CASE(CiscoHdlcParsingTest);
 PTF_TEST_CASE(CiscoHdlcLayerCreationTest);
 PTF_TEST_CASE(CiscoHdlcLayerEditTest);
+
+// Implemented in ModbusTests.cpp
+PTF_TEST_CASE(ModbusLayerCreationTest);
+PTF_TEST_CASE(ModbusLayerParsingTest);
+
+// Implemented in X509Tests.cpp
+PTF_TEST_CASE(X509ParsingTest);
+PTF_TEST_CASE(X509VariantsParsingTest);
+PTF_TEST_CASE(X509InvalidDataTest);
+PTF_TEST_CASE(X509ExtensionDataTest);
+
+// Implemented in Base64Tests.cpp
+PTF_TEST_CASE(Base64EncodingTest);
+PTF_TEST_CASE(Base64DecodingTest);
+
+// Implemented in PemTests.cpp
+PTF_TEST_CASE(PemEncodingTest);
+PTF_TEST_CASE(PemDecodingTest);
+
+// Implemented in CryptoKeyTests.cpp
+PTF_TEST_CASE(CryptoKeyDecodingTest);
+PTF_TEST_CASE(CryptoKeyInvalidDataTest);

@@ -4,6 +4,7 @@
 #include "TestDefinition.h"
 #include "Logger.h"
 #include "../../Tests/Packet++Test/Utils/TestUtils.h"
+#include "Resources.h"
 
 static struct option PacketTestOptions[] = {
 	{ "include-tags",        required_argument, nullptr, 't' },
@@ -76,6 +77,12 @@ int main(int argc, char* argv[])
 	          << "Built: " << pcpp::getBuildDateTime() << std::endl
 	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 
+	std::cout << "Using data root: current directory" << std::endl;
+
+	// Set the resource provider for the tests
+	auto resourceProvider = std::make_unique<pcpp_tests::utils::ResourceProvider>("");
+	pcpp_tests::setDefaultResourceProvider(resourceProvider.get());
+
 #ifdef NDEBUG
 	skipMemLeakCheck = true;
 	std::cout
@@ -136,6 +143,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IPv6ExtensionsTest, "ipv6");
 
 	PTF_RUN_TEST(TcpPacketNoOptionsParsing, "tcp");
+	PTF_RUN_TEST(TcpPacketWithAccurateEcnParsing, "tcp");
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing, "tcp");
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
@@ -161,6 +169,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PrintPacketAndLayersTest, "packet;print");
 	PTF_RUN_TEST(ProtocolFamilyMembershipTest, "packet");
 	PTF_RUN_TEST(PacketParseLayerLimitTest, "packet");
+	PTF_RUN_TEST(PacketParseMultiLayerTest, "packet");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
@@ -186,6 +195,41 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DnsOverTcpParsingTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerAddDnsKeyTest, "dns");
+
+	PTF_RUN_TEST(DoIpRoutActReqParsing, "doip");
+	PTF_RUN_TEST(DoIpRoutActReqCreation, "doip");
+	PTF_RUN_TEST(DoIpRoutActResParsing, "doip");
+	PTF_RUN_TEST(DoIpRoutActResCreation, "doip");
+	PTF_RUN_TEST(DoIpGenHdrNackParsing, "doip");
+	PTF_RUN_TEST(DoIpGenHdrNackCreation, "doip");
+	PTF_RUN_TEST(DoIpVehIdenReqWithEIDParsing, "doip");
+	PTF_RUN_TEST(DoIpVehIdenReqWithEIDCreation, "doip");
+	PTF_RUN_TEST(DoIpVehIdenReqWithVINParsing, "doip");
+	PTF_RUN_TEST(DoIpVehIdenReqWithVINCreation, "doip");
+	PTF_RUN_TEST(DoIpVehAnnMessParsing, "doip");
+	PTF_RUN_TEST(DoIpVehAnnMessCreation, "doip");
+	PTF_RUN_TEST(DoIpAliveCheckRespParsing, "doip");
+	PTF_RUN_TEST(DoIpAliveCheckRespCreation, "doip");
+	PTF_RUN_TEST(DoIpDiagPowerModeRespParsing, "doip");
+	PTF_RUN_TEST(DoIpDiagPowerModeRespCreation, "doip");
+	PTF_RUN_TEST(DoIpEntityStatusRespParsing, "doip");
+	PTF_RUN_TEST(DoIpEntityStatusRespCreation, "doip");
+	PTF_RUN_TEST(DoIpDiagMessParsing, "doip");
+	PTF_RUN_TEST(DoIpDiagMessCreation, "doip");
+	PTF_RUN_TEST(DoIpDiagMessAckParsing, "doip");
+	PTF_RUN_TEST(DoIpDiagMessAckCreation, "doip");
+	PTF_RUN_TEST(DoIpDiagMessNackParsing, "doip");
+	PTF_RUN_TEST(DoIpDiagMessNackCreation, "doip");
+	PTF_RUN_TEST(DoIpVehIdenReqParsing, "doip");
+	PTF_RUN_TEST(DoIpVehIdenReqCreation, "doip");
+	PTF_RUN_TEST(DoIpDiagPowerModeReqParsing, "doip");
+	PTF_RUN_TEST(DoIpDiagPowerModeReqCreation, "doip");
+	PTF_RUN_TEST(DoIpEntityStatusReqParsing, "doip");
+	PTF_RUN_TEST(DoIpEntityStatusReqCreation, "doip");
+	PTF_RUN_TEST(DoIpAliveCheckReqParsing, "doip");
+	PTF_RUN_TEST(DoIpAliveCheckReqCreation, "doip");
+	PTF_RUN_TEST(DoIpVehIdenReqWithDefVersParsing, "doip");
+	PTF_RUN_TEST(DoIpInvalidPackets, "doip");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
@@ -332,6 +376,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(Asn1DecodingTest, "asn1");
 	PTF_RUN_TEST(Asn1EncodingTest, "asn1");
+	PTF_RUN_TEST(Asn1ObjectIdentifierTest, "asn1");
 
 	PTF_RUN_TEST(LdapParsingTest, "ldap");
 	PTF_RUN_TEST(LdapCreationTest, "ldap");
@@ -346,6 +391,23 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(CiscoHdlcParsingTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerEditTest, "chdlc");
+
+	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
+	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
+
+	PTF_RUN_TEST(X509ParsingTest, "x509");
+	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
+	PTF_RUN_TEST(X509InvalidDataTest, "x509");
+	PTF_RUN_TEST(X509ExtensionDataTest, "x509");
+
+	PTF_RUN_TEST(Base64EncodingTest, "base64");
+	PTF_RUN_TEST(Base64DecodingTest, "base64");
+
+	PTF_RUN_TEST(PemEncodingTest, "pem");
+	PTF_RUN_TEST(PemDecodingTest, "pem");
+
+	PTF_RUN_TEST(CryptoKeyDecodingTest, "crypto");
+	PTF_RUN_TEST(CryptoKeyInvalidDataTest, "crypto");
 
 	PTF_END_RUNNING_TESTS;
 }

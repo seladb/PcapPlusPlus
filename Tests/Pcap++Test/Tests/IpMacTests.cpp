@@ -21,6 +21,18 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 PTF_TEST_CASE(TestIPAddress)
 {
+	{
+		std::array<uint8_t, 16> buf;
+
+		PTF_ASSERT_RAISES(pcpp::IPv4Address(nullptr, 0), std::invalid_argument, "Buffer pointer is null");
+		PTF_ASSERT_RAISES(pcpp::IPv4Address(buf.data(), 3), std::out_of_range,
+		                  "Buffer size is smaller than IPv4 address size");
+
+		PTF_ASSERT_RAISES(pcpp::IPv6Address(nullptr, 0), std::invalid_argument, "Buffer pointer is null");
+		PTF_ASSERT_RAISES(pcpp::IPv6Address(buf.data(), 15), std::out_of_range,
+		                  "Buffer size is smaller than IPv6 address size");
+	}
+
 	pcpp::IPAddress ip4Addr = pcpp::IPAddress("10.0.0.4");
 	PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
 	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4");
@@ -113,13 +125,48 @@ PTF_TEST_CASE(TestIPAddress)
 		oss << ip6AddrFromIpAddr;
 		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4");
 	}
-	uint8_t addrAsByteArray[16];
-	ip6AddrFromIpAddr.copyTo(addrAsByteArray);
-	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51,
-		                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
-	for (int i = 0; i < 16; i++)
+
+	std::array<uint8_t, 16> addrAsByteArray;
+	std::array<uint8_t, 16> expectedByteArray = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51,
+		                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
+	ip6AddrFromIpAddr.copyTo(addrAsByteArray.data());
+	PTF_ASSERT_VECTORS_EQUAL(addrAsByteArray, expectedByteArray);
+
+	// Test copyTo with size
+	addrAsByteArray.fill(0);
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr.copyTo(addrAsByteArray.data(), addrAsByteArray.size()), 16);
+	PTF_ASSERT_VECTORS_EQUAL(addrAsByteArray, expectedByteArray);
+
+	// Test copyTo with size less than 16
+	addrAsByteArray.fill(0);
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr.copyTo(addrAsByteArray.data(), 8), 16);
+	PTF_ASSERT_TRUE(
+	    std::all_of(addrAsByteArray.begin(), addrAsByteArray.end(), [](uint8_t byte) { return byte == 0; }));
+
+	// Test copyTo in query mode
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr.copyTo(nullptr, 0), 16);
+
+	// Test copyTo with null pointer and non-zero size
+	PTF_ASSERT_RAISES(ip6AddrFromIpAddr.copyTo(nullptr, 16), std::invalid_argument,
+	                  "Buffer is null but size is not zero");
+
 	{
-		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
+		size_t unused = 0;
+		PTF_ASSERT_RAISES(ip6AddrFromIpAddr.copyToNewBuffer(nullptr, unused), std::invalid_argument,
+		                  "Buffer pointer is null");
+	}
+
+	{
+		// Test copyToNewBuffer
+		uint8_t* buffer = nullptr;
+		size_t size = 0;
+		bool success = ip6AddrFromIpAddr.copyToNewBuffer(&buffer, size);
+		std::unique_ptr<uint8_t[]> bufferCleanup(buffer);
+
+		PTF_ASSERT_TRUE(success);
+		PTF_ASSERT_EQUAL(size, expectedByteArray.size());
+		PTF_ASSERT_NOT_NULL(buffer);
+		PTF_ASSERT_BUF_COMPARE(buffer, expectedByteArray.data(), expectedByteArray.size());
 	}
 
 	{
@@ -265,24 +312,66 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_RAISES(pcpp::MacAddress{ invalidCharArrayAddress }, std::invalid_argument,
 	                  "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
 
+	PTF_ASSERT_RAISES(pcpp::MacAddress(nullptr, 0), std::invalid_argument, "Address pointer is null");
+	PTF_ASSERT_RAISES(pcpp::MacAddress(addrAsArr, 4), std::out_of_range,
+	                  "Buffer size is smaller than MAC address size (6 bytes)")
+
 	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06");
 	std::ostringstream oss;
 	oss << macAddr1;
 	PTF_ASSERT_EQUAL(oss.str(), "11:02:33:04:55:06");
 
-	uint8_t* arrToCopyTo = nullptr;
-	macAddr3.copyTo(&arrToCopyTo);
+	std::unique_ptr<uint8_t[]> arrToCopyTo;
+	{
+		uint8_t* arrToCopyToRaw = nullptr;
+		macAddr3.copyTo(&arrToCopyToRaw);
+		arrToCopyTo.reset(arrToCopyToRaw);
+	}
 	PTF_ASSERT_EQUAL(arrToCopyTo[0], 0x11, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[1], 0x02, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[2], 0x33, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[3], 0x04, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[4], 0x55, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[5], 0x06, hex);
-	delete[] arrToCopyTo;
 
-	uint8_t macBytes[6];
-	macAddr3.copyTo(macBytes);
-	PTF_ASSERT_BUF_COMPARE(macBytes, addrAsArr, 6);
+	std::array<uint8_t, 6> macBytes;
+	macAddr3.copyTo(macBytes.data());
+	PTF_ASSERT_BUF_COMPARE(macBytes.data(), addrAsArr, 6);
+
+	// Test copyTo with a buffer of size 6
+	macBytes.fill(0);
+	PTF_ASSERT_EQUAL(macAddr3.copyTo(macBytes.data(), macBytes.size()), macBytes.size());
+	PTF_ASSERT_BUF_COMPARE(macBytes.data(), addrAsArr, 6);
+
+	// Test copyTo with a buffer smaller than 6 bytes
+	macBytes.fill(0);
+	PTF_ASSERT_EQUAL(macAddr3.copyTo(macBytes.data(), 4), 6);
+	PTF_ASSERT_TRUE(std::all_of(macBytes.begin(), macBytes.end(), [](uint8_t byte) { return byte == 0; }));
+
+	// Test copyTo with a null buffer and size 0 (Query mode)
+	PTF_ASSERT_EQUAL(macAddr3.copyTo(nullptr, 0), 6);
+
+	// Test copyTo with a null buffer and non-zero size
+	PTF_ASSERT_RAISES(macAddr3.copyTo(nullptr, 4), std::invalid_argument, "Buffer is null but size is not zero");
+
+	// Test copyToNewBuffer with a null buffer and size 0
+	{
+		size_t unused = 0;
+		PTF_ASSERT_RAISES(macAddr3.copyToNewBuffer(nullptr, unused), std::invalid_argument, "Buffer pointer is null");
+	}
+
+	{
+		// Test copyToNewBuffer
+		uint8_t* buffer = nullptr;
+		size_t size = 0;
+		bool success = macAddr3.copyToNewBuffer(&buffer, size);
+		std::unique_ptr<uint8_t[]> bufferCleanup(buffer);
+
+		PTF_ASSERT_TRUE(success);
+		PTF_ASSERT_EQUAL(size, 6);
+		PTF_ASSERT_NOT_NULL(buffer);
+		PTF_ASSERT_BUF_COMPARE(buffer, addrAsArr, 6);
+	}
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 	pcpp::MacAddress macCpp11Valid{ 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };

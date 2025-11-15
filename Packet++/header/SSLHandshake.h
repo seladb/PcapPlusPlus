@@ -4,6 +4,7 @@
 #include "SSLCommon.h"
 #include "PointerVector.h"
 #include "Asn1Codec.h"
+#include "X509Decoder.h"
 
 /// @file
 /// See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
@@ -228,9 +229,15 @@ namespace pcpp
 			return m_DataLen;
 		}
 
-		/// @return The root ASN.1 record of the certificate data. All of the certificate data will be under this
-		/// record. If the Root ASN.1 record is malformed, an exception is thrown
+		/// @return The root ASN.1 record of the certificate data. All the certificate data will be under this
+		/// record. If the certificate data isn't complete, this method will return nullptr. If the Root ASN.1 record
+		/// is malformed, an exception is thrown
 		Asn1SequenceRecord* getRootAsn1Record();
+
+		/// Parse the certificate data as X509 certificate. If the certificate data isn't complete, this method will
+		/// return nullptr
+		/// @return A unique pointer to the parsed X509 certificate
+		std::unique_ptr<X509Certificate> getX509Certificate();
 
 		/// Certificate messages usually spread on more than 1 packet. So a certificate is likely to split between 2
 		/// packets or more. This method provides an indication whether all certificate data exists or only part of it

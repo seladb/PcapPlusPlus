@@ -3,6 +3,7 @@
 #include <stack>
 #include <mutex>
 #include <memory>
+#include <stdexcept>
 #include <limits>
 #include <type_traits>
 
@@ -18,7 +19,7 @@ namespace pcpp
 		/// created. If the pool is full when releasing an object, the object will be deleted.
 		///
 		/// @tparam T The type of objects managed by the pool. Must be default constructable.
-		template <class T, typename std::enable_if<std::is_default_constructible<T>::value, bool>::type = true>
+		template <class T, std::enable_if_t<std::is_default_constructible<T>::value, bool> = true>
 		class DynamicObjectPool
 		{
 		public:
@@ -35,10 +36,14 @@ namespace pcpp
 			    : m_MaxPoolSize(maxPoolSize)
 			{
 				if (initialSize > maxPoolSize)
+				{
 					throw std::invalid_argument("Preallocated objects cannot exceed the maximum pool size");
+				}
 
 				if (initialSize > 0)
+				{
 					this->preallocate(initialSize);
+				}
 			}
 
 			// These don't strictly need to be deleted, but don't need to be implemented for now either.

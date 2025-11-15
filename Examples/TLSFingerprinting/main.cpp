@@ -297,7 +297,7 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 	// write a table of the 10 most common TLS fingerprints
 
 	// if user requested to extract ClientHello TLS fingerprints and there is data to show
-	if (chFP && stats.chFingerprints.size() > 0)
+	if (chFP && !stats.chFingerprints.empty())
 	{
 		if (stats.chFingerprints.size() > 10)
 			std::cout << "Top 10 ";
@@ -309,7 +309,7 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 	}
 
 	// if user requested to extract ServerHello TLS fingerprints and there is data to show
-	if (shFP && stats.shFingerprints.size() > 0)
+	if (shFP && !stats.shFingerprints.empty())
 	{
 		if (stats.shFingerprints.size() > 10)
 			std::cout << "Top 10 ";

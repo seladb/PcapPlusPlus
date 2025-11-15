@@ -82,43 +82,7 @@ namespace pcpp
 			bool isLoopback;
 		};
 
-		/// @brief A worker thread that periodically calls the provided callback with updated statistics.
-		class StatisticsUpdateWorker
-		{
-		public:
-			/// @brief Constructs and starts a worker thread that periodically calls the provided callback with updated
-			/// statistics.
-			/// @param pcapDevice A pointer to the PcapLiveDevice instance to be monitored.
-			/// @param onStatsUpdateCallback A callback function to be called with updated statistics.
-			/// @param onStatsUpdateUserCookie A user-defined pointer that is passed to the callback function.
-			/// @param updateIntervalMs The interval in milliseconds between each callback invocation.
-			StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice, OnStatsUpdateCallback onStatsUpdateCallback,
-			                       void* onStatsUpdateUserCookie = nullptr, unsigned int updateIntervalMs = 1000);
-
-			/// @brief Stops the worker thread.
-			void stopWorker();
-
-		private:
-			struct ThreadData
-			{
-				PcapLiveDevice const* pcapDevice = nullptr;
-				OnStatsUpdateCallback cbOnStatsUpdate;
-				void* cbOnStatsUpdateUserCookie = nullptr;
-				unsigned int updateIntervalMs = 1000;  // Default update interval is 1 second
-			};
-
-			struct SharedThreadData
-			{
-				std::atomic_bool stopRequested{ false };
-			};
-
-			/// @brief Main function for the worker thread.
-			/// @remarks This function is static to allow the worker class to be movable.
-			static void workerMain(std::shared_ptr<SharedThreadData> sharedThreadData, ThreadData threadData);
-
-			std::shared_ptr<SharedThreadData> m_SharedThreadData;
-			std::thread m_WorkerThread;
-		};
+		bool m_DeviceOpened = false;
 
 		// This is a second descriptor for the same device. It is needed because of a bug
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
@@ -132,21 +96,15 @@ namespace pcpp
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
 		std::thread m_CaptureThread;
-
-		// TODO: Cpp17 Using std::optional might be better here
-		std::unique_ptr<StatisticsUpdateWorker> m_StatisticsUpdateWorker;
+		std::thread m_StatsThread;
 
 		// Should be set to true by the Caller for the Callee
 		std::atomic<bool> m_StopThread;
 		// Should be set to true by the Callee for the Caller
 		std::atomic<bool> m_CaptureThreadStarted;
 
-		OnPacketArrivesCallback m_cbOnPacketArrives;
-		void* m_cbOnPacketArrivesUserCookie;
 		OnPacketArrivesStopBlocking m_cbOnPacketArrivesBlockingMode;
 		void* m_cbOnPacketArrivesBlockingModeUserCookie;
-		RawPacketVector* m_CapturedPackets;
-		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
 		bool m_UsePoll;
 
@@ -162,11 +120,6 @@ namespace pcpp
 		void setDeviceMacAddress();
 		void setDefaultGateway();
 
-		// threads
-		void captureThreadMain();
-
-		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 
 	public:
@@ -653,6 +606,11 @@ namespace pcpp
 
 		void close() override;
 
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
+
 		/// Clones the current device class
 		/// @return Pointer to the copied class
 		virtual PcapLiveDevice* clone() const;
@@ -672,8 +630,65 @@ namespace pcpp
 
 		internal::PcapHandle doOpen(const DeviceConfiguration& config);
 
+		/// @brief Checks whether the packetPayloadLength is smaller or equal than the device MTU.
+		/// @param[in] payloadLength The length of the IP layer of the packet
+		/// @return True if the payloadLength is less than or equal to the device MTU
+		bool isPayloadWithinMtu(size_t payloadLength) const;
+
+		/// @brief Checks whether the packet's payload length is smaller or equal than the device MTU.
+		///
+		/// If the payload length cannot be determined, the function will return the value of allowUnknownLength.
+		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
+		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
+		///
+		/// @param[in] packet The packet to check
+		/// @param[in] allowUnknownLength Controls whether packets with unknown payload length are allowed.
+		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
+		/// pointer.
+		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		/// If the packet's length cannot be determined, it will return true if allowUnknownLength is true.
+		bool isPayloadWithinMtu(Packet const& packet, bool allowUnknownLength = false,
+		                        size_t* outPayloadLength = nullptr) const;
+
+		/// @brief Checks whether the payload length of a RawPacket is smaller or equal than the device MTU.
+		///
+		/// If the payload length cannot be determined, the function will return the value of allowUnknownLength.
+		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
+		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
+		///
+		/// @param[in] rawPacket The RawPacket to check.
+		/// @param[in] allowUnknownLength Controls whether packets with unknown payload length are allowed.
+		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
+		/// pointer.
+		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		/// If the packet's length cannot be determined, it will return true if allowUnknownLength is true.
+		bool isPayloadWithinMtu(RawPacket const& rawPacket, bool allowUnknownLength = false,
+		                        size_t* outPayloadLength = nullptr) const;
+
+		/// @brief Checks whether the payload length of a packet's raw data is smaller or equal than the device MTU.
+		///
+		/// If the payload length cannot be determined, the function will return the value of allowUnknownLength.
+		/// In such cases, if outPayloadLength is not nullptr, it will be set to the maximum value of size_t (i.e.,
+		/// std::numeric_limits<size_t>::max()), indicating that the payload length could not be determined.
+		///
+		/// @param[in] packetData A pointer to the raw data of the packet.
+		/// @param[in] packetLen The length of the raw data in bytes.
+		/// @param[in] linkType The link layer type of the packet. Default is pcpp::LINKTYPE_ETHERNET.
+		/// @param[in] allowUnknownLength Controls whether packets with unknown payload length are allowed.
+		/// @param[out] outPayloadLength If not nullptr, the payload length of the packet will be written to this
+		/// pointer.
+		/// @return True if the packet's payload length is less than or equal to the device MTU.
+		/// If the packet's length cannot be determined, it will return true if allowUnknownLength is true.
+		bool isPayloadWithinMtu(uint8_t const* packetData, size_t packetLen,
+		                        LinkLayerType linkType = pcpp::LINKTYPE_ETHERNET, bool allowUnknownLength = false,
+		                        size_t* outPayloadLength = nullptr) const;
+
 		// Sends a packet directly to the network.
-		bool sendPacketDirect(uint8_t const* packetData, int packetDataLength);
+		bool sendPacketUnchecked(uint8_t const* packetData, int packetDataLength);
+		bool sendPacketUnchecked(RawPacket const& rawPacket)
+		{
+			return sendPacketUnchecked(rawPacket.getRawData(), rawPacket.getRawDataLen());
+		}
 
 	private:
 		bool isNflogDevice() const;

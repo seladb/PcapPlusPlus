@@ -6,15 +6,19 @@
 #include "IPv6Layer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(CiscoHdlcParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	{
-		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/CiscoHDLC-IPv4.dat", pcpp::LINKTYPE_C_HDLC);
+	pcpp_tests::utils::PacketFactory packetFactory(pcpp::LINKTYPE_C_HDLC);
 
-		const pcpp::Packet ciscoHdlcPacket(&rawPacket1);
+	{
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/CiscoHDLC-IPv4.dat", packetFactory);
+
+		const pcpp::Packet ciscoHdlcPacket(rawPacket1.get());
 
 		PTF_ASSERT_TRUE(ciscoHdlcPacket.isPacketOfType(pcpp::CiscoHDLC));
 		const auto ciscoHdlcLayer = ciscoHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>();
@@ -28,9 +32,9 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/CiscoHDLC-IPv6.dat", pcpp::LINKTYPE_C_HDLC);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/CiscoHDLC-IPv6.dat", packetFactory);
 
-		const pcpp::Packet ciscoHdlcPacket(&rawPacket1);
+		const pcpp::Packet ciscoHdlcPacket(rawPacket1.get());
 
 		PTF_ASSERT_TRUE(ciscoHdlcPacket.isPacketOfType(pcpp::CiscoHDLC));
 		const auto ciscoHdlcLayer = ciscoHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>();
@@ -41,9 +45,9 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 	}
 
 	{
-		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/CiscoHDLC-SLARP.dat", pcpp::LINKTYPE_C_HDLC);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/CiscoHDLC-SLARP.dat", packetFactory);
 
-		const pcpp::Packet ciscoHdlcPacket(&rawPacket1);
+		const pcpp::Packet ciscoHdlcPacket(rawPacket1.get());
 
 		PTF_ASSERT_TRUE(ciscoHdlcPacket.isPacketOfType(pcpp::CiscoHDLC));
 		const auto ciscoHdlcLayer = ciscoHdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>();
@@ -70,8 +74,7 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 
 PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	pcpp_tests::utils::PacketFactory packetFactory(pcpp::LINKTYPE_C_HDLC);
 
 	{
 		pcpp::CiscoHdlcLayer newHdlcLayer(pcpp::CiscoHdlcLayer::AddressType::Unicast);
@@ -82,9 +85,9 @@ PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 		newHdlcPacket.addLayer(&ipv4Layer);
 		newHdlcPacket.computeCalculateFields();
 
-		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/CiscoHDLC-IPv4.dat", pcpp::LINKTYPE_C_HDLC);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/CiscoHDLC-IPv4.dat", packetFactory);
 
-		const pcpp::Packet hdlcPacket(&rawPacket1);
+		const pcpp::Packet hdlcPacket(rawPacket1.get());
 
 		const auto hdlcLayer = hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>();
 		PTF_ASSERT_NOT_NULL(hdlcLayer);
@@ -105,9 +108,9 @@ PTF_TEST_CASE(CiscoHdlcLayerCreationTest)
 		newHdlcPacket.addLayer(&ipv6Layer);
 		newHdlcPacket.computeCalculateFields();
 
-		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/CiscoHDLC-IPv6.dat", pcpp::LINKTYPE_C_HDLC);
+		auto rawPacket1 = createPacketFromHexResource("PacketExamples/CiscoHDLC-IPv6.dat", packetFactory);
 
-		const pcpp::Packet hdlcPacket(&rawPacket1);
+		const pcpp::Packet hdlcPacket(rawPacket1.get());
 
 		const auto hdlcLayer = hdlcPacket.getLayerOfType<pcpp::CiscoHdlcLayer>();
 		PTF_ASSERT_NOT_NULL(hdlcLayer);

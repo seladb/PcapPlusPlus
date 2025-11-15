@@ -7,19 +7,9 @@
 
 namespace pcpp
 {
-	namespace
-	{
-		timespec toTimespec(timeval value)
-		{
-			timespec nsec_time = {};
-			TIMEVAL_TO_TIMESPEC(&value, &nsec_time);
-			return nsec_time;
-		}
-	}  // namespace
-
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
 	                     LinkLayerType layerType)
-	    : RawPacket(pRawData, rawDataLen, toTimespec(timestamp), deleteRawDataAtDestructor, layerType)
+	    : RawPacket(pRawData, rawDataLen, internal::toTimespec(timestamp), deleteRawDataAtDestructor, layerType)
 	{}
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
@@ -80,7 +70,7 @@ namespace pcpp
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
-		return setRawData(pRawData, rawDataLen, toTimespec(timestamp), layerType, frameLength);
+		return setRawData(pRawData, rawDataLen, internal::toTimespec(timestamp), layerType, frameLength);
 	}
 
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
@@ -187,7 +177,7 @@ namespace pcpp
 
 	bool RawPacket::setPacketTimeStamp(timeval timestamp)
 	{
-		return setPacketTimeStamp(toTimespec(timestamp));
+		return setPacketTimeStamp(internal::toTimespec(timestamp));
 	}
 
 	bool RawPacket::setPacketTimeStamp(timespec timestamp)

@@ -18,17 +18,6 @@ namespace pcpp
 
 	static const int DEFAULT_SNAPLEN = 9000;
 
-	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
-	{
-		std::string filterStr;
-		parseToString(filterStr);
-
-		if (!m_BpfWrapper.setFilter(filterStr))
-			return false;
-
-		return m_BpfWrapper.matchPacketWithFilter(rawPacket);
-	}
-
 	namespace internal
 	{
 		void BpfProgramDeleter::operator()(bpf_program* ptr) const noexcept
@@ -38,17 +27,20 @@ namespace pcpp
 		}
 	}  // namespace internal
 
-	BpfFilterWrapper::BpfFilterWrapper() : m_LinkType(LinkLayerType::LINKTYPE_ETHERNET)
-	{}
-
-	BpfFilterWrapper::BpfFilterWrapper(const BpfFilterWrapper& other) : BpfFilterWrapper()
+	BpfFilterWrapper::BpfFilterWrapper(const BpfFilterWrapper& other)
 	{
-		setFilter(other.m_FilterStr, other.m_LinkType);
+		if (!setFilter(other.m_FilterStr, other.m_CachedProgramLinkType))
+		{
+			throw std::runtime_error("Couldn't compile BPF filter: '" + other.m_FilterStr + "'");
+		}
 	}
 
 	BpfFilterWrapper& BpfFilterWrapper::operator=(const BpfFilterWrapper& other)
 	{
-		setFilter(other.m_FilterStr, other.m_LinkType);
+		if (!setFilter(other.m_FilterStr, other.m_CachedProgramLinkType))
+		{
+			throw std::runtime_error("Couldn't compile BPF filter: '" + other.m_FilterStr + "'");
+		}
 		return *this;
 	}
 
@@ -56,77 +48,145 @@ namespace pcpp
 	{
 		if (filter.empty())
 		{
-			freeProgram();
+			m_CachedProgram = nullptr;
+			m_FilterStr.clear();
 			return true;
 		}
 
-		if (filter != m_FilterStr || linkType != m_LinkType)
+		if (filter != m_FilterStr || linkType != m_CachedProgramLinkType)
 		{
-			auto pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
-			if (pcap == nullptr)
+			auto newProgram = compileFilter(filter, linkType);
+			if (newProgram == nullptr)
 			{
+				PCPP_LOG_ERROR("Couldn't compile BPF filter: '" << filter << "'");
 				return false;
 			}
 
-			std::unique_ptr<bpf_program> newProg = std::unique_ptr<bpf_program>(new bpf_program);
-			int ret = pcap_compile(pcap.get(), newProg.get(), filter.c_str(), 1, 0);
-			if (ret < 0)
-			{
-				return false;
-			}
-
-			// Reassigns ownership of the bpf program to a new unique_ptr with a custom deleter as it now requires
-			// specialized cleanup.
-			m_Program = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>(newProg.release());
 			m_FilterStr = filter;
-			m_LinkType = linkType;
+			m_CachedProgram = std::move(newProgram);
+			m_CachedProgramLinkType = linkType;
 		}
 
 		return true;
 	}
 
-	void BpfFilterWrapper::freeProgram()
+	bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket) const
 	{
-		m_Program = nullptr;
-		m_FilterStr.clear();
-	}
+		if (rawPacket == nullptr)
+		{
+			PCPP_LOG_ERROR("Raw packet pointer is null");
+			return false;
+		}
 
-	bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket)
-	{
-		return matchPacketWithFilter(rawPacket->getRawData(), rawPacket->getRawDataLen(),
-		                             rawPacket->getPacketTimeStamp(), rawPacket->getLinkLayerType());
+		return matches(*rawPacket);
 	}
 
 	bool BpfFilterWrapper::matchPacketWithFilter(const uint8_t* packetData, uint32_t packetDataLength,
-	                                             timespec packetTimestamp, uint16_t linkType)
+	                                             timespec packetTimestamp, uint16_t linkType) const
+	{
+		return matches(packetData, packetDataLength, packetTimestamp, linkType);
+	}
+
+	bool BpfFilterWrapper::matches(const RawPacket& rawPacket) const
+	{
+		return matches(rawPacket.getRawData(), rawPacket.getRawDataLen(), rawPacket.getPacketTimeStamp(),
+		               rawPacket.getLinkLayerType());
+	}
+
+	bool BpfFilterWrapper::matches(const uint8_t* packetData, uint32_t packetDataLength, timespec timestamp,
+	                               uint16_t linkType) const
 	{
 		if (m_FilterStr.empty())
 			return true;
 
-		if (!setFilter(std::string(m_FilterStr), static_cast<LinkLayerType>(linkType)))
+		// Handle uncompiled program or link type mismatch
+		if (m_CachedProgram == nullptr || linkType != static_cast<uint16_t>(m_CachedProgramLinkType))
+		{
+			auto newProgram = compileFilter(m_FilterStr, static_cast<LinkLayerType>(linkType));
+			if (newProgram == nullptr)
+			{
+				PCPP_LOG_ERROR("Couldn't compile BPF filter: '" << m_FilterStr << "' for link type: " << linkType);
+				return false;
+			}
+			m_CachedProgram = std::move(newProgram);
+			m_CachedProgramLinkType = static_cast<LinkLayerType>(linkType);
+		}
+
+		// Test the packet against the filter
+		pcap_pkthdr pktHdr;
+		pktHdr.caplen = packetDataLength;
+		pktHdr.len = packetDataLength;
+		pktHdr.ts = internal::toTimeval(timestamp);
+		return (pcap_offline_filter(m_CachedProgram.get(), &pktHdr, packetData) != 0);
+	}
+
+	BpfFilterWrapper::BpfProgramUPtr BpfFilterWrapper::compileFilter(std::string const& filter, LinkLayerType linkType)
+	{
+		if (filter.empty())
+			return nullptr;
+
+		auto pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
+		if (pcap == nullptr)
+		{
+			return nullptr;
+		}
+
+		auto newProg = std::make_unique<bpf_program>();
+		int ret = pcap_compile(pcap.get(), newProg.get(), filter.c_str(), 1, 0);
+		if (ret < 0)
+		{
+			return nullptr;
+		}
+
+		// Reassigns ownership to a new unique_ptr with a custom deleter as it now requires specialized cleanup.
+		return BpfProgramUPtr(newProg.release());
+	}
+
+	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket) const
+	{
+		if (rawPacket == nullptr)
+		{
+			PCPP_LOG_ERROR("Raw packet pointer is null");
+			return false;
+		}
+
+		return matches(*rawPacket);
+	}
+
+	bool GeneralFilter::matches(RawPacket const& rawPacket) const
+	{
+		if (!m_CachedFilter && !cacheFilter())
 		{
 			return false;
 		}
 
-		struct pcap_pkthdr pktHdr;
-		pktHdr.caplen = packetDataLength;
-		pktHdr.len = packetDataLength;
-		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
-
-		return (pcap_offline_filter(m_Program.get(), &pktHdr, packetData) != 0);
+		return m_BpfWrapper.matches(rawPacket);
 	}
 
-	void BPFStringFilter::parseToString(std::string& result)
+	bool GeneralFilter::cacheFilter() const
+	{
+		std::string filterStr;
+		parseToString(filterStr);
+		if (!m_BpfWrapper.setFilter(filterStr))
+		{
+			return false;
+		}
+
+		m_CachedFilter = true;
+		return true;
+	}
+
+	void BPFStringFilter::parseToString(std::string& result) const
 	{
 		result = m_FilterStr;
 	}
 
 	bool BPFStringFilter::verifyFilter()
 	{
-		return m_BpfWrapper.setFilter(m_FilterStr);
+		return cacheFilter();
 	}
 
-	void IFilterWithDirection::parseDirection(std::string& directionAsString)
+	void IFilterWithDirection::parseDirection(std::string& directionAsString) const
 	{
 		switch (m_Dir)
 		{
@@ -142,7 +202,7 @@ namespace pcpp
 		}
 	}
 
-	std::string IFilterWithOperator::parseOperator()
+	std::string IFilterWithOperator::parseOperator() const
 	{
 		switch (m_Operator)
 		{
@@ -163,7 +223,7 @@ namespace pcpp
 		}
 	}
 
-	void IPFilter::parseToString(std::string& result)
+	void IPFilter::parseToString(std::string& result) const
 	{
 		std::string dir;
 		std::string ipAddr = m_Network.toString();
@@ -179,7 +239,7 @@ namespace pcpp
 		result += ipAddr;
 	}
 
-	void IPv4IDFilter::parseToString(std::string& result)
+	void IPv4IDFilter::parseToString(std::string& result) const
 	{
 		std::string op = parseOperator();
 		std::ostringstream stream;
@@ -187,7 +247,7 @@ namespace pcpp
 		result = "ip[4:2] " + op + ' ' + stream.str();
 	}
 
-	void IPv4TotalLengthFilter::parseToString(std::string& result)
+	void IPv4TotalLengthFilter::parseToString(std::string& result) const
 	{
 		std::string op = parseOperator();
 		std::ostringstream stream;
@@ -207,14 +267,14 @@ namespace pcpp
 		portToString(port);
 	}
 
-	void PortFilter::parseToString(std::string& result)
+	void PortFilter::parseToString(std::string& result) const
 	{
 		std::string dir;
 		parseDirection(dir);
 		result = dir + " port " + m_Port;
 	}
 
-	void PortRangeFilter::parseToString(std::string& result)
+	void PortRangeFilter::parseToString(std::string& result) const
 	{
 		std::string dir;
 		parseDirection(dir);
@@ -227,7 +287,7 @@ namespace pcpp
 		result = dir + " portrange " + fromPortStream.str() + '-' + toPortStream.str();
 	}
 
-	void MacAddressFilter::parseToString(std::string& result)
+	void MacAddressFilter::parseToString(std::string& result) const
 	{
 		if (getDir() != SRC_OR_DST)
 		{
@@ -239,7 +299,7 @@ namespace pcpp
 			result = "ether host " + m_MacAddress.toString();
 	}
 
-	void EtherTypeFilter::parseToString(std::string& result)
+	void EtherTypeFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 		stream << "0x" << std::hex << m_EtherType;
@@ -256,6 +316,7 @@ namespace pcpp
 			if (*it == filter)
 			{
 				m_FilterList.erase(it);
+				invalidateCache();
 				break;
 			}
 		}
@@ -264,16 +325,17 @@ namespace pcpp
 	void CompositeFilter::setFilters(const std::vector<GeneralFilter*>& filters)
 	{
 		m_FilterList = filters;
+		invalidateCache();
 	}
 
-	void NotFilter::parseToString(std::string& result)
+	void NotFilter::parseToString(std::string& result) const
 	{
 		std::string innerFilterAsString;
 		m_FilterToInverse->parseToString(innerFilterAsString);
 		result = "not (" + innerFilterAsString + ')';
 	}
 
-	void ProtoFilter::parseToString(std::string& result)
+	void ProtoFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 
@@ -316,21 +378,21 @@ namespace pcpp
 		}
 	}
 
-	void ArpFilter::parseToString(std::string& result)
+	void ArpFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream sstream;
 		sstream << "arp[7] = " << m_OpCode;
 		result += sstream.str();
 	}
 
-	void VlanFilter::parseToString(std::string& result)
+	void VlanFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 		stream << m_VlanID;
 		result = "vlan " + stream.str();
 	}
 
-	void TcpFlagsFilter::parseToString(std::string& result)
+	void TcpFlagsFilter::parseToString(std::string& result) const
 	{
 		if (m_TcpFlagsBitMask == 0)
 		{
@@ -365,14 +427,14 @@ namespace pcpp
 		}
 	}
 
-	void TcpWindowSizeFilter::parseToString(std::string& result)
+	void TcpWindowSizeFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 		stream << m_WindowSize;
 		result = "tcp[14:2] " + parseOperator() + ' ' + stream.str();
 	}
 
-	void UdpLengthFilter::parseToString(std::string& result)
+	void UdpLengthFilter::parseToString(std::string& result) const
 	{
 		std::ostringstream stream;
 		stream << m_Length;

@@ -45,11 +45,7 @@ namespace pcpp
 
 	bool Layer::isMemberOfProtocolFamily(ProtocolTypeFamily protocolTypeFamily) const
 	{
-		auto protocolToFamily = static_cast<ProtocolTypeFamily>(m_Protocol);
-		return (m_Protocol != UnknownProtocol && (protocolToFamily == (protocolTypeFamily & 0xff) ||
-		                                          protocolToFamily << 8 == (protocolTypeFamily & 0xff00) ||
-		                                          protocolToFamily << 16 == (protocolTypeFamily & 0xff0000) ||
-		                                          protocolToFamily << 24 == (protocolTypeFamily & 0xff000000)));
+		return m_Protocol != UnknownProtocol && internal::protoFamilyContainsProtocol(protocolTypeFamily, m_Protocol);
 	}
 
 	void Layer::copyData(uint8_t* toArr) const
@@ -67,12 +63,11 @@ namespace pcpp
 
 		if (m_Packet == nullptr)
 		{
-			if ((size_t)offsetInLayer > m_DataLen)
+			if (static_cast<size_t>(offsetInLayer) > m_DataLen)
 			{
 				PCPP_LOG_ERROR("Requested offset is larger than data length");
 				return false;
 			}
-
 			uint8_t* newData = new uint8_t[m_DataLen + numOfBytesToExtend];
 			memcpy(newData, m_Data, offsetInLayer);
 			memcpy(newData + offsetInLayer + numOfBytesToExtend, m_Data + offsetInLayer, m_DataLen - offsetInLayer);
@@ -93,14 +88,19 @@ namespace pcpp
 			return false;
 		}
 
+		if (static_cast<size_t>(offsetInLayer) + numOfBytesToShorten > m_DataLen)
+		{
+			PCPP_LOG_ERROR("Requested number of bytes to shorten is larger than data length");
+			return false;
+		}
+
 		if (m_Packet == nullptr)
 		{
-			if ((size_t)offsetInLayer >= m_DataLen)
+			if (static_cast<size_t>(offsetInLayer) >= m_DataLen)
 			{
 				PCPP_LOG_ERROR("Requested offset is larger than data length");
 				return false;
 			}
-
 			uint8_t* newData = new uint8_t[m_DataLen - numOfBytesToShorten];
 			memcpy(newData, m_Data, offsetInLayer);
 			memcpy(newData + offsetInLayer, m_Data + offsetInLayer + numOfBytesToShorten,

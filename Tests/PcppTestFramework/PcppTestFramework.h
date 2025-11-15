@@ -203,7 +203,7 @@
 	}
 
 #define PTF_ASSERT_NOT_NULL(exp)                                                                                       \
-	if ((exp) == NULL)                                                                                                 \
+	if ((exp) == nullptr)                                                                                              \
 	{                                                                                                                  \
 		PTF_PRINT_ASSERTION("FAILED", "NOT NULL") << "   [" << #exp << "] is NULL" << std::endl;                       \
 		ptfResult = PTF_RESULT_FAILED;                                                                                 \
@@ -211,7 +211,7 @@
 	}
 
 #define PTF_ASSERT_NULL(exp)                                                                                           \
-	if ((exp) != NULL)                                                                                                 \
+	if ((exp) != nullptr)                                                                                              \
 	{                                                                                                                  \
 		PTF_PRINT_ASSERTION("FAILED", "NULL") << "   [" << #exp << "] is not NULL" << std::endl;                       \
 		ptfResult = PTF_RESULT_FAILED;                                                                                 \

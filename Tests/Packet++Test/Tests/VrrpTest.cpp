@@ -11,6 +11,8 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(VrrpParsingTest)
 {
 	timeval time = {};
@@ -20,13 +22,13 @@ PTF_TEST_CASE(VrrpParsingTest)
 	uint8_t fakeBuffer[10] = { 0xb4, 0xaf, 0x98, 0x1a, 0xb4, 0xaf, 0x98, 0x1a, 0x98, 0x1a };
 	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(fakeBuffer, 10), pcpp::UnknownProtocol);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/VRRP-V2.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/VRRP-V3-IPv4.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/VRRP-V3-IPv6.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/VRRP-V2.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/VRRP-V3-IPv4.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/VRRP-V3-IPv6.dat");
 
-	pcpp::Packet vrrpv2Packet(&rawPacket1);
-	pcpp::Packet vrrpv3IPv4Packet(&rawPacket2);
-	pcpp::Packet vrrpv3IPv6Packet(&rawPacket3);
+	pcpp::Packet vrrpv2Packet(rawPacket1.get());
+	pcpp::Packet vrrpv3IPv4Packet(rawPacket2.get());
+	pcpp::Packet vrrpv3IPv6Packet(rawPacket3.get());
 
 	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(pcpp::VRRPv2))
@@ -93,12 +95,9 @@ PTF_TEST_CASE(VrrpParsingTest)
 
 PTF_TEST_CASE(VrrpCreateAndEditTest)
 {
-	timeval time = {};
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/VRRP-V2.dat")
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/VRRP-V3-IPv4.dat")
-	READ_FILE_INTO_BUFFER(3, "PacketExamples/VRRP-V3-IPv6.dat")
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/VRRP-V2.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/VRRP-V3-IPv4.dat");
+	auto resource3 = pcpp_tests::loadHexResourceToVector("PacketExamples/VRRP-V3-IPv6.dat");
 
 	// VRRP virtual IP addresses
 	pcpp::IPAddress ipv4Address1("192.168.0.1");
@@ -128,8 +127,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 
 	vrrpv2Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(vrrpv2Packet.getRawPacket()->getRawDataLen(), bufferLength1)
-	PTF_ASSERT_BUF_COMPARE(vrrpv2Packet.getRawPacket()->getRawData(), buffer1, bufferLength1)
+	PTF_ASSERT_EQUAL(vrrpv2Packet.getRawPacket()->getRawDataLen(), resource1.size())
+	PTF_ASSERT_BUF_COMPARE(vrrpv2Packet.getRawPacket()->getRawData(), resource1.data(), resource1.size())
 
 	PTF_ASSERT_TRUE(vrrpv2Layer.removeAllIPAddresses())
 	PTF_ASSERT_EQUAL(vrrpv2Layer.getIPAddressesCount(), 0)
@@ -192,8 +191,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 
 	vrrpv3IPv4Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(vrrpv3IPv4Packet.getRawPacket()->getRawDataLen(), bufferLength2)
-	PTF_ASSERT_BUF_COMPARE(vrrpv3IPv4Packet.getRawPacket()->getRawData(), buffer2, bufferLength2)
+	PTF_ASSERT_EQUAL(vrrpv3IPv4Packet.getRawPacket()->getRawDataLen(), resource2.size())
+	PTF_ASSERT_BUF_COMPARE(vrrpv3IPv4Packet.getRawPacket()->getRawData(), resource2.data(), resource2.size())
 
 	vrrpv3IPv4Layer.setPriority(0);
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Stop)
@@ -229,11 +228,7 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	PTF_ASSERT_TRUE(ipv6Packet.addLayer(&vrrpv3IPv6Layer))
 	ipv6Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(ipv6Packet.getRawPacket()->getRawDataLen(), bufferLength3)
-	PTF_ASSERT_BUF_COMPARE(ipv6Packet.getRawPacket()->getRawData(), buffer3, bufferLength3)
-
-	FREE_FILE_INTO_BUFFER(1)
-	FREE_FILE_INTO_BUFFER(2)
-	FREE_FILE_INTO_BUFFER(3)
+	PTF_ASSERT_EQUAL(ipv6Packet.getRawPacket()->getRawDataLen(), resource3.size())
+	PTF_ASSERT_BUF_COMPARE(ipv6Packet.getRawPacket()->getRawData(), resource3.data(), resource3.size())
 
 }  // VrrpCreateAndEditTest

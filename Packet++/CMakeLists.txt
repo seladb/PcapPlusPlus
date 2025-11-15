@@ -6,11 +6,13 @@ add_library(
   src/BgpLayer.cpp
   src/CiscoHdlcLayer.cpp
   src/CotpLayer.cpp
+  src/CryptoKeyDecoder.cpp
   src/DhcpLayer.cpp
   src/DhcpV6Layer.cpp
   src/DnsLayer.cpp
   src/DnsResource.cpp
   src/DnsResourceData.cpp
+  src/DoIpLayer.cpp
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
@@ -29,6 +31,7 @@ add_library(
   src/Layer.cpp
   src/LdapLayer.cpp
   src/LLCLayer.cpp
+  src/ModbusLayer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
   src/NflogLayer.cpp
@@ -38,6 +41,7 @@ add_library(
   src/PacketTrailerLayer.cpp
   src/PacketUtils.cpp
   src/PayloadLayer.cpp
+  src/PemCodec.cpp
   src/PPPoELayer.cpp
   src/RadiusLayer.cpp
   src/RawPacket.cpp
@@ -67,6 +71,8 @@ add_library(
   src/VxlanLayer.cpp
   src/WakeOnLanLayer.cpp
   src/WireGuardLayer.cpp
+  src/X509Decoder.cpp
+  src/X509ExtensionDataDecoder.cpp
   # Force hash-library pcapng to be link fully static
 )
 
@@ -77,12 +83,15 @@ set(
   header/BgpLayer.h
   header/CiscoHdlcLayer.h
   header/CotpLayer.h
+  header/CryptoDataReader.h
+  header/CryptoKeyDecoder.h
   header/DhcpLayer.h
   header/DhcpV6Layer.h
   header/DnsLayerEnums.h
   header/DnsLayer.h
   header/DnsResourceData.h
   header/DnsResource.h
+  header/DoIpLayer.h
   header/EthDot3Layer.h
   header/EthLayer.h
   header/FtpLayer.h
@@ -110,6 +119,7 @@ set(
   header/PacketTrailerLayer.h
   header/PacketUtils.h
   header/PayloadLayer.h
+  header/PemCodec.h
   header/PPPoELayer.h
   header/ProtocolType.h
   header/RadiusLayer.h
@@ -140,10 +150,14 @@ set(
   header/VxlanLayer.h
   header/WakeOnLanLayer.h
   header/WireGuardLayer.h
+  header/X509Decoder.h
+  header/X509ExtensionDataDecoder.h
 )
 
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+target_sources(Packet++ PRIVATE ${public_headers})
 
 target_compile_features(Packet++ PUBLIC cxx_std_14)
 
@@ -153,9 +167,10 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
     $<INSTALL_INTERFACE:include/pcapplusplus>
     $<INSTALL_INTERFACE:include>
-  # Don't link with hash-library nor EndianPortable as they won't be exported
+  # Don't link with hash-library, EndianPortable and json as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
+  PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 target_link_libraries(Packet++ PUBLIC Common++)

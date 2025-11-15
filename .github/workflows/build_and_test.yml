@@ -18,7 +18,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ !(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev') }}
 
 jobs:
   pre-commit:
@@ -26,7 +26,7 @@ jobs:
     container: seladb/alpine317
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -91,7 +91,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -105,7 +105,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -170,7 +170,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -182,7 +182,7 @@ jobs:
       image: ubuntu2404
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -190,7 +190,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -230,7 +230,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           files: ./coverage.xml
           flags: ${{ env.image }},unittest
@@ -240,7 +240,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -256,12 +256,21 @@ jobs:
           - image: ubuntu2204-dpdk2211
 
     steps:
+      - name: Check AVX-512 support
+        run: |
+          echo "::debug::$(grep flags /proc/cpuinfo)"
+          if grep -q avx512 /proc/cpuinfo; then
+            echo "avx512=true" >> $GITHUB_ENV
+          else
+            echo "avx512=false" >> $GITHUB_ENV
+          fi
+
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -274,18 +283,21 @@ jobs:
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
 
-      - name: Check AVX
-        run: grep avx /proc/cpuinfo
-
       - name: Test Packet++
+        if: env.avx512 == 'true'
         run: |
           cd Tests/Packet++Test
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
+          Bin/Packet++Test
 
       - name: Test Pcap++
+        if: env.avx512 == 'true'
         run: |
           cd Tests/Pcap++Test
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
+          Bin/Pcap++Test
+
+      - name: Tests skipped (no AVX-512 hardware support)
+        if: env.avx512 == 'false'
+        run: echo "Skipping tests since AVX-512 is not supported on the current runner"
 
       - name: Check installation
         run: |
@@ -302,7 +314,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -317,11 +329,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -359,7 +371,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -369,22 +381,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - os-version: macos-13
-            host-arch: x86_64
-            arch: x86_64
-            config-zstd: OFF
-          - os-version: macos-13
-            host-arch: x86_64
-            arch: x86_64
-            config-zstd: ON
-          - os-version: macos-13
-            host-arch: x86_64
-            arch: arm64
-            config-zstd: OFF
           - os-version: macos-14
             host-arch: x86_64
             arch: x86_64
             config-zstd: OFF
+          # TODO: see https://github.com/seladb/PcapPlusPlus/issues/1989
+          # - os-version: macos-14
+          #   host-arch: x86_64
+          #   arch: x86_64
+          #   config-zstd: ON
           - os-version: macos-14
             host-arch: arm64
             arch: arm64
@@ -400,10 +405,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
@@ -413,7 +418,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.os-version }}-${{ matrix.arch }}-ccache-${{ github.run_id }}
@@ -476,7 +481,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         if: ${{ matrix.host-arch == matrix.arch }}
         with:
           files: ./coverage.xml
@@ -487,27 +492,58 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
+  define-windows-pcap-backend-matrix:
+    name: Determine Windows Pcap Backend Matrix
+    runs-on: ubuntu-latest
+    outputs:
+        npcap-or-default: ${{ steps.generate-backends.outputs.npcap_or_default}}
+    steps:
+      - name: Initialize NPcap backend variable
+        run: echo "npcap_available=false" >> $GITHUB_ENV
+
+      - name: Enable NPcap backend if OEM credentials are available
+        env: # Secrets can't be accessed directly in 'if' conditionals.
+          npcap_username: ${{ secrets.NPCAP_USERNAME }}
+          npcap_password: ${{ secrets.NPCAP_PASSWORD }}
+        if: ${{ env.npcap_username != '' && env.npcap_password != '' }}
+        run: echo "npcap_available=true" >> $GITHUB_ENV
+
+      - name: NPcap backend is unavailable
+        if: ${{ env.npcap_available != 'true' }}
+        run: echo "NPcap backend will be skipped since OEM credentials are missing. NPCAP_USERNAME and NPCAP_PASSWORD are required."
+
+      - name: Generate pcap backends matrix
+        id: generate-backends
+        run: |
+          if [[ "${{ env.npcap_available }}" == "true" ]]; then
+            echo 'npcap_or_default=npcap' >> "$GITHUB_OUTPUT"
+          else
+            echo 'npcap_or_default=winpcap' >> "$GITHUB_OUTPUT"
+          fi
+
   mingw-w64:
-    runs-on: windows-latest
+    needs: define-windows-pcap-backend-matrix
     strategy:
       matrix:
         include:
-          - env: i686
-            sys: mingw32
-          - env: x86_64
-            sys: mingw64
-
+          - sys: mingw32
+            env: i686
+            pcap_lib: "winpcap"
+          - sys: mingw64
+            env: x86_64
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
+    runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@61f9e5e925871ba6c9e3e8da24ede83ea27fa91f # v2.27.0
+        uses: msys2/setup-msys2@fb197b72ce45fb24f17bf3f807a388985654d1f2 # v2.29.0
         with:
           msystem: ${{matrix.sys}}
           install: >-
@@ -517,7 +553,7 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: "3.12"
 
@@ -528,11 +564,18 @@ jobs:
         run: |
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
+        if: matrix.pcap_lib == 'npcap'
+
+      - name: Install WinPcap
+        run: |
+          ci\install_winpcap.bat
+          echo "PCAP_SDK_DIR=/C/WpdPack" >> $env:GITHUB_ENV
+        if: matrix.pcap_lib == 'winpcap'
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
-          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+          cmake -G "MinGW Makefiles" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
@@ -565,7 +608,7 @@ jobs:
         run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           files: ./coverage.xml
           flags: ${{ matrix.sys }},unittest
@@ -575,33 +618,30 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   visual-studio:
+    needs: define-windows-pcap-backend-matrix
     strategy:
       matrix:
         include:
-          - os: "windows-2019"
-            platform: "Visual Studio 16 2019"
-            arch: "x64"
-            pcap_lib: "npcap"
-          - os: windows-2019
-            platform: "Visual Studio 16 2019"
+          - os: windows-2025
+            platform: "Visual Studio 17 2022"
             arch: Win32
             pcap_lib: "winpcap"
+          - os: windows-2025
+            platform: "Visual Studio 17 2022"
+            arch: "x64"
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
           - os: windows-2022
             platform: "Visual Studio 17 2022"
             arch: "x64"
-            pcap_lib: "winpcap"
-          - os: windows-2022
-            platform: "Visual Studio 17 2022"
-            arch: "x64"
-            pcap_lib: "npcap"
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
 
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: "3.12"
 
@@ -656,7 +696,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
@@ -671,7 +711,7 @@ jobs:
       matrix:
         version: ["14.1", "13.4"]
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
     - name: Test in FreeBSD
       id: test
       uses: vmactions/freebsd-vm@8873d98fd1413b5977cb2f7348fe329775159892 # v1.1.9
@@ -679,7 +719,7 @@ jobs:
         release: ${{ matrix.version }}
         usesh: true
         prepare: |
-          pkg install -y python3 bash cmake git gmake gsed libpcap tcpreplay
+          pkg install -y python bash cmake git gmake gsed libpcap tcpreplay libffi openssl py311-cryptography
 
         run: |
           echo "Building PcapPlusPlus"
@@ -693,14 +733,14 @@ jobs:
           ifconfig "$interface_name" promisc
 
           echo "Testing PcapPlusPlus"
-          python3 -m ensurepip
-          python3 -m pip install -r ci/run_tests/requirements.txt
-          python3 ci/run_tests/run_tests.py --interface "$interface_name"
+          python -m ensurepip
+          python -m pip install -r ci/run_tests/requirements.txt
+          python ci/run_tests/run_tests.py --interface "$interface_name"
 
           echo "Testing PcapPlusPlus examples"
           cd Tests/ExamplesTest
-          python3 -m pip install -r requirements.txt
-          python3 -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
+          python -m pip install -r requirements.txt
+          python -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
 
   android:
     strategy:
@@ -723,10 +763,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -740,7 +780,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
@@ -760,7 +800,7 @@ jobs:
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "17"
           distribution: "zulu"
@@ -798,7 +838,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Install dependencies
         run: |
@@ -806,7 +846,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -836,7 +876,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           files: ./coverage.xml
           flags: xdp,unittest
@@ -846,7 +886,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -863,7 +903,7 @@ jobs:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Install prerequisites
         run: |
@@ -875,7 +915,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.engine }}-${{ matrix.sanitizer }}-ccache-${{ github.run_id }}
@@ -897,7 +937,7 @@ jobs:
           Tests/Fuzzers/RegressionTests/run_tests.sh
 
       - name: Save Ccache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}

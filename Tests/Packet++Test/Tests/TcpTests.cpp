@@ -10,6 +10,8 @@
 #include "PacketUtils.h"
 #include "DeprecationUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 // TODO: remove these macros, when deprecated code is gone
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_DEPRECATED
@@ -19,9 +21,9 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketNoOptions.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketNoOptions.dat");
 
-	pcpp::Packet tcpPacketNoOptions(&rawPacket1);
+	pcpp::Packet tcpPacketNoOptions(rawPacket1.get());
 	PTF_ASSERT_TRUE(tcpPacketNoOptions.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(tcpPacketNoOptions.isPacketOfType(pcpp::TCP));
 
@@ -46,6 +48,7 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->rstFlag, 0);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->eceFlag, 0);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->reserved, 0);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->accurateEcnFlag, 0);
 
 	// TCP options
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpOptionCount(), 0);
@@ -63,14 +66,31 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 	PTF_ASSERT_EQUAL(afterTcpLayer->getProtocol(), pcpp::HTTPResponse, enum);
 }  // TcpPacketNoOptionsParsing
 
+PTF_TEST_CASE(TcpPacketWithAccurateEcnParsing)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketNoOptionsAccEcn.dat");
+
+	pcpp::Packet TcpPacketWithAccurateEcn(rawPacket1.get());
+	PTF_ASSERT_TRUE(TcpPacketWithAccurateEcn.isPacketOfType(pcpp::TCP));
+
+	pcpp::TcpLayer* tcpLayer = TcpPacketWithAccurateEcn.getLayerOfType<pcpp::TcpLayer>();
+	PTF_ASSERT_NOT_NULL(tcpLayer);
+
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->reserved, 0);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->accurateEcnFlag, 1);
+}  // TcpPacketWithAccurateEcnParsing
+
 PTF_TEST_CASE(TcpPacketWithOptionsParsing)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions.dat");
 
-	pcpp::Packet tcpPacketWithOptions(&rawPacket1);
+	pcpp::Packet tcpPacketWithOptions(rawPacket1.get());
 	PTF_ASSERT_TRUE(tcpPacketWithOptions.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(tcpPacketWithOptions.isPacketOfType(pcpp::TCP));
 
@@ -113,9 +133,9 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions3.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TcpPacketWithOptions3.dat");
 
-	pcpp::Packet tcpPacketWithOptions(&rawPacket1);
+	pcpp::Packet tcpPacketWithOptions(rawPacket1.get());
 
 	pcpp::TcpLayer* tcpLayer = tcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
@@ -198,9 +218,9 @@ PTF_TEST_CASE(TcpMalformedPacketParsing)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tcp-malformed1.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/tcp-malformed1.dat");
 
-	pcpp::Packet badTcpPacket(&rawPacket1);
+	pcpp::Packet badTcpPacket(rawPacket1.get());
 
 	PTF_ASSERT_NOT_NULL(badTcpPacket.getLayerOfType<pcpp::IPv4Layer>());
 	PTF_ASSERT_NULL(badTcpPacket.getLayerOfType<pcpp::TcpLayer>());
@@ -265,11 +285,9 @@ PTF_TEST_CASE(TcpPacketCreation)
 
 	tcpPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/TcpPacketWithOptions2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/TcpPacketWithOptions2.dat");
 
-	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
-
-	delete[] buffer1;
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 }  // TcpPacketCreation
 
 PTF_TEST_CASE(TcpPacketCreation2)
@@ -323,9 +341,9 @@ PTF_TEST_CASE(TcpPacketCreation2)
 
 	tcpLayer.getTcpHeader()->headerChecksum = 0xe013;
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/TcpPacketWithOptions3.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/TcpPacketWithOptions3.dat");
 
-	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 
 	pcpp::TcpOption qsOption =
 	    tcpLayer.addTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TCPOPT_QS, nullptr, PCPP_TCPOLEN_QS), pcpp::TCPOPT_MSS);
@@ -348,9 +366,7 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	PTF_ASSERT_TRUE(tcpLayer.removeTcpOption(pcpp::TcpOptionEnumType::Nop));
 	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 5);
 
-	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
-
-	delete[] buffer1;
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 
 	PTF_ASSERT_TRUE(tcpLayer.removeAllTcpOptions());
 	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 0);

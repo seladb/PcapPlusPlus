@@ -10,6 +10,10 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 #include <iostream>
+
+using pcpp_tests::utils::createPacketAndBufferFromHexResource;
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(HttpRequestParseMethodTest)
 {
 	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(nullptr, 0),
@@ -47,13 +51,9 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 {
 	// This is a basic parsing test
 	// A much wider test is in Pcap++Test
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TwoHttpRequests1.dat");
 
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
-
-	pcpp::Packet httpPacket(&rawPacket1);
+	pcpp::Packet httpPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTPRequest));
 	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTP));
@@ -70,8 +70,8 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(requestLayer->getUrl(), "www.ynet.co.il/home/0,7340,L-8,00.html");
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/PartialHttpRequest.dat");
-	pcpp::Packet httpPacket2(&rawPacket2);
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/PartialHttpRequest.dat");
+	pcpp::Packet httpPacket2(rawPacket2.get());
 
 	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(pcpp::HTTPRequest));
 	requestLayer = httpPacket2.getLayerOfType<pcpp::HttpRequestLayer>();
@@ -98,12 +98,11 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 PTF_TEST_CASE(HttpRequestLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/TwoHttpRequests1.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
-
-	pcpp::Packet sampleHttpPacket(&rawPacket1);
+	pcpp::Packet sampleHttpPacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer(*sampleHttpPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ip4Layer;
@@ -153,19 +152,16 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 
 	httpPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength1, httpPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(), bufferLength1);
+	PTF_ASSERT_EQUAL(resource1.length, httpPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(resource1.data.get(), httpPacket.getRawPacket()->getRawData(), resource1.length);
 
 }  // HttpRequestLayerCreationTest
 
 PTF_TEST_CASE(HttpRequestLayerEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TwoHttpRequests1.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
-
-	pcpp::Packet httpRequest(&rawPacket1);
+	pcpp::Packet httpRequest(rawPacket1.get());
 
 	pcpp::IPv4Layer* ip4Layer = httpRequest.getLayerOfType<pcpp::IPv4Layer>();
 	ip4Layer->getIPv4Header()->ipId = htobe16(30170);
@@ -186,16 +182,13 @@ PTF_TEST_CASE(HttpRequestLayerEditTest)
 	PTF_ASSERT_NOT_NULL(userAgentField);
 	httpReqLayer->insertField(userAgentField, PCPP_HTTP_REFERER_FIELD, "http://www.ynet.co.il/home/0,7340,L-8,00.html");
 
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/TwoHttpRequests2.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/TwoHttpRequests2.dat");
 
-	PTF_ASSERT_EQUAL(bufferLength2, httpRequest.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(resource2.size(), httpRequest.getRawPacket()->getRawDataLen());
 
 	httpRequest.computeCalculateFields();
 
-	PTF_ASSERT_BUF_COMPARE(buffer2, httpRequest.getRawPacket()->getRawData(), bufferLength2);
-
-	delete[] buffer2;
-
+	PTF_ASSERT_BUF_COMPARE(resource2.data(), httpRequest.getRawPacket()->getRawData(), resource2.size());
 }  // HttpRequestLayerEditTest
 
 PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
@@ -388,13 +381,9 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 {
 	// This is a basic parsing test
 	// A much wider test is in Pcap++Test
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TwoHttpResponses1.dat");
 
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses1.dat");
-
-	pcpp::Packet httpPacket(&rawPacket1);
+	pcpp::Packet httpPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTPResponse));
 	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTP));
@@ -416,12 +405,11 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 
 PTF_TEST_CASE(HttpResponseLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/TwoHttpResponses1.dat");
+	auto& resource1 = rawPacketAndBuf1.resourceBuffer;
+	auto& rawPacket1 = rawPacketAndBuf1.packet;
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses1.dat");
-
-	pcpp::Packet sampleHttpPacket(&rawPacket1);
+	pcpp::Packet sampleHttpPacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer = *sampleHttpPacket.getLayerOfType<pcpp::EthLayer>();
 	pcpp::IPv4Layer ip4Layer(*sampleHttpPacket.getLayerOfType<pcpp::IPv4Layer>());
@@ -475,7 +463,7 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 
 	PTF_ASSERT_EQUAL(httpResponse.getHeaderLen(), 382);
 
-	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(),
+	PTF_ASSERT_BUF_COMPARE(resource1.data.get(), httpPacket.getRawPacket()->getRawData(),
 	                       ethLayer.getHeaderLen() + ip4Layer.getHeaderLen() + tcpLayer.getHeaderLen() +
 	                           httpResponse.getHeaderLen());
 
@@ -483,12 +471,9 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 
 PTF_TEST_CASE(HttpResponseLayerEditTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/TwoHttpResponses2.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses2.dat");
-
-	pcpp::Packet httpPacket(&rawPacket1);
+	pcpp::Packet httpPacket(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTPResponse));
 	pcpp::HttpResponseLayer* responseLayer = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
@@ -523,12 +508,9 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 /// In this test the first HTTP header field is malformed - it only has header name but not an header value
 PTF_TEST_CASE(HttpMalformedResponseTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/HttpMalformedResponse.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/HttpMalformedResponse.dat");
-
-	pcpp::Packet httpPacket(&rawPacket1);
+	pcpp::Packet httpPacket(rawPacket1.get());
 
 	pcpp::HttpResponseLayer* httpResp = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
 	PTF_ASSERT_EQUAL(httpResp->getFieldCount(), 6);

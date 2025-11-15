@@ -11,7 +11,7 @@
 namespace pcpp
 {
 	/// A vector of pointers to RawPacket
-	typedef PointerVector<RawPacket> RawPacketVector;
+	using RawPacketVector = PointerVector<RawPacket>;
 
 	/// @class IDevice
 	/// An abstract interface representing all packet processing devices. It stands as the root class for all devices.
@@ -19,15 +19,11 @@ namespace pcpp
 	class IDevice
 	{
 	protected:
-		bool m_DeviceOpened;
-
 		// c'tor should not be public
-		IDevice() : m_DeviceOpened(false)
-		{}
+		IDevice() = default;
 
 	public:
-		virtual ~IDevice()
-		{}
+		virtual ~IDevice() = default;
 
 		/// Open the device
 		/// @return True if device was opened successfully, false otherwise
@@ -37,10 +33,7 @@ namespace pcpp
 		virtual void close() = 0;
 
 		/// @return True if the file is opened, false otherwise
-		inline bool isOpened()
-		{
-			return m_DeviceOpened;
-		}
+		virtual bool isOpened() const = 0;
 	};
 
 	/// @class IFilterableDevice
