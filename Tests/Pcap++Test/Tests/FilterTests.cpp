@@ -57,7 +57,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
 	
 	// Delay a bit to avoid missing packets.
-	std::this_thread::sleep_for(std::chrono::nanoseconds(50));
+	std::this_thread::sleep_for(std::chrono::nanoseconds(10));
 	
 	PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
 	// let the capture work for couple of seconds
@@ -84,6 +84,10 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	portFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(portFilter));
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+
+	// Delay a bit to avoid missing packets.
+	std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+
 	PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
 	// let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
@@ -110,6 +114,10 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	andFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(andFilter));
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+	
+	// Delay a bit to avoid missing packets.
+	std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+
 	PTF_ASSERT_TRUE(sendURLRequest("www.walla.co.il"));
 	// let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
@@ -140,6 +148,10 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	orFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(orFilter));
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+
+	// Delay a bit to avoid missing packets.
+	std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+
 	PTF_ASSERT_TRUE(sendURLRequest("www.youtube.com"));
 	// let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
@@ -179,6 +191,10 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	notFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(notFilter));
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+	
+	// Delay a bit to avoid missing packets.
+	std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+
 	PTF_ASSERT_TRUE(sendURLRequest("www.ebay.com"));
 	// let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
