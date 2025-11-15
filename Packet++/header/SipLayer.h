@@ -2,6 +2,9 @@
 
 #include "TextBasedProtocol.h"
 
+#include <cstring>
+#include <algorithm>
+
 /// @file
 
 /// @namespace pcpp
@@ -113,6 +116,190 @@ namespace pcpp
 		{
 			return port == 5060 || port == 5061;
 		}
+
+		static int find_char(const uint8_t* buf, int offset, char needle)
+		{
+			if (!buf || offset < 0)
+				return -1;
+
+			const uint8_t* p = buf + offset;
+
+			while (*p && *p != static_cast<uint8_t>(needle))
+				++p;
+
+			return (*p == static_cast<uint8_t>(needle))
+				? static_cast<int>(p - buf)
+				: -1;
+		}
+		
+		static int findFirstLine(const uint8_t* data, size_t dataLen)
+		{
+			if (!data || dataLen == 0)
+				return -1;
+
+			const char* start = reinterpret_cast<const char*>(data);
+			const char* end   = start + dataLen;
+
+			// Find CR or LF
+			auto it = std::find_if(start, end, [](char c)
+			{
+				return c == '\r' || c == '\n';
+			});
+
+			return static_cast<int>(std::distance(start, it));
+		}
+		
+		static bool startsWithSipVersion(const char* s, size_t len)
+		{
+			constexpr char pfx[]   = "SIP/";
+			constexpr std::size_t pfxLen = sizeof(pfx) - 1;
+
+			if (len < pfxLen)
+				return false;
+
+			return std::equal(
+				pfx, pfx + pfxLen, s,
+				[](char a, char b)
+				{
+					return std::tolower(static_cast<unsigned char>(a)) ==
+						std::tolower(static_cast<unsigned char>(b));
+				}
+			);
+		}
+
+		// Checks if the token is exactly a 3-digit status code
+		static bool isThreeDigitCode(const char* s, size_t len)
+		{
+			if (len != 3)
+				return false;
+
+			return std::all_of(s, s + 3, [](unsigned char ch)
+			{
+				return std::isdigit(ch) != 0;
+			});
+		}
+
+		// Returns true if there is ':' in [begin, end)
+		static bool hasColonInRange(const char* s, size_t begin, size_t end)
+		{
+			const char* first = s + begin;
+			const char* last  = s + end;
+
+			return std::find(first, last, ':') != last;
+		}
+
+		// Find first space from start to len
+		static int findSpace(const char* s, int start, int len)
+		{
+			const char* begin = s + start;
+			const char* end   = s + len;
+
+			auto it = std::find(begin, end, ' ');
+			if (it == end)
+				return -1;
+
+			return static_cast<int>(std::distance(s, it));
+		}
+
+		static int skipSpaces(const char* s, int start, int len)
+		{
+			const char* begin = s + start;
+			const char* end = s + len;
+			const char* it = std::find_if(begin, end, [](unsigned char ch)
+			{
+				return ch != ' ';
+			});
+			return static_cast<int>(std::distance(s, it));
+		}
+
+		/*
+		* SIP Heuristic Detection:
+		*
+		* Request-Line:
+		*   Method SP Request-URI SP SIP-Version
+		*
+		* Status-Line:
+		*   SIP-Version SP Status-Code SP Reason-Phrase
+		*
+		* Returns:
+		*   true  = line looks like a valid SIP request or SIP response
+		*   false = not SIP
+		*/
+		static bool dissectSipHeuristic(const uint8_t* data, size_t dataLen)
+		{
+			if (!data || dataLen == 0)
+				return false;
+
+			int firstLineLen = findFirstLine(data, dataLen);
+			if (firstLineLen <= 0)
+				return false;
+
+			const char* line = reinterpret_cast<const char*>(data);
+			const int   len  = firstLineLen;
+
+			// ----------- Extract first 3 tokens -----------
+			int token1_start = 0;
+			token1_start = skipSpaces(line, token1_start, len);
+			if (token1_start >= len)
+				return false;
+
+			int space1 = findSpace(line, token1_start, len);
+			if (space1 == -1 || space1 == token1_start)
+				return false; // token1 invalid
+
+			int token1_len = space1 - token1_start;
+
+			int token2_start = skipSpaces(line, space1 + 1, len);
+			if (token2_start >= len)
+				return false;
+
+			int space2 = findSpace(line, token2_start, len);
+			if (space2 == -1)
+				return false; // missing token3
+
+			int token2_len = space2 - token2_start;
+
+			int token3_start = skipSpaces(line, space2 + 1, len);
+			if (token3_start >= len)
+				return false;
+
+			int token3_len = len - token3_start;
+
+			const char* t1 = line + token1_start;
+			const char* t2 = line + token2_start;
+			const char* t3 = line + token3_start;
+
+			// ----------- Status-Line: "SIP/x.y SP nnn SP Reason" -----------
+			if (startsWithSipVersion(t1, static_cast<size_t>(token1_len)))
+			{
+				// second token must be 3-digit status code
+				if (!isThreeDigitCode(t2, static_cast<size_t>(token2_len)))
+					return false;
+
+				return true; // SIP Response detected
+			}
+
+			// ----------- Request-Line: "METHOD SP URI SP SIP/x.y" -----------
+
+			// URI must have at least 3 characters
+			if (token2_len < 3)
+				return false;
+
+			// URI must contain ':' before token3 starts
+			if (!hasColonInRange(line,
+								static_cast<size_t>(token2_start + 1),
+								static_cast<size_t>(space2)))
+			{
+				return false;
+			}
+
+			// third token must be a SIP version string
+			if (!startsWithSipVersion(t3, static_cast<size_t>(token3_len)))
+				return false;
+
+			return true; // SIP Request detected
+		}
+
 
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)

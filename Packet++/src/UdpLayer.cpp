@@ -20,6 +20,7 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <sstream>
+#include <iostream>
 
 namespace pcpp
 {
@@ -100,6 +101,11 @@ namespace pcpp
 
 		uint8_t* udpData = m_Data + sizeof(udphdr);
 		size_t udpDataLen = m_DataLen - sizeof(udphdr);
+
+		bool result = SipLayer::dissectSipHeuristic(udpData, udpDataLen);
+		std::cout << "######################" << std::endl;
+		std::cout << "#### is SIP?: " << (result ? "Yes" : "No") << std::endl;
+		std::cout << "######################" << std::endl;
 
 		if (DhcpLayer::isDhcpPorts(portSrc, portDst))
 			m_NextLayer = new DhcpLayer(udpData, udpDataLen, this, m_Packet);
