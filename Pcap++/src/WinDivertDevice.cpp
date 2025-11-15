@@ -15,26 +15,12 @@ namespace pcpp
 {
 	namespace internal
 	{
-		class WinDivertHandle : public IWinDivertHandle
-		{
-		public:
-			explicit WinDivertHandle(const HANDLE handle) : m_Handle(handle)
-			{}
-
-			HANDLE get() const
-			{
-				return m_Handle;
-			}
-
-		private:
-			HANDLE m_Handle;
-		};
-
 		class WinDivertOverlappedWrapper : public IOverlappedWrapper
 		{
 		public:
-			WinDivertOverlappedWrapper()
+			explicit WinDivertOverlappedWrapper(const HANDLE handle)
 			{
+				m_Handle = handle;
 				ZeroMemory(&m_Overlapped, sizeof(m_Overlapped));
 
 				m_Event = CreateEvent(nullptr, TRUE, FALSE, nullptr);
@@ -88,16 +74,10 @@ namespace pcpp
 				m_Overlapped.hEvent = event;
 			}
 
-			OverlappedResult getOverlappedResult(const IWinDivertHandle* handle) override
+			OverlappedResult getOverlappedResult() override
 			{
-				auto winDivertHandle = dynamic_cast<const WinDivertHandle*>(handle);
-				if (winDivertHandle == nullptr)
-				{
-					throw std::runtime_error("Failed to get WinDivertHandle");
-				}
-
 				DWORD packetLen = 0;
-				if (GetOverlappedResult(winDivertHandle->get(), &m_Overlapped, &packetLen, FALSE))
+				if (GetOverlappedResult(m_Handle, &m_Overlapped, &packetLen, FALSE))
 				{
 					return { OverlappedResult::Status::Success, static_cast<uint32_t>(packetLen), 0 };
 				}
@@ -107,29 +87,19 @@ namespace pcpp
 
 		private:
 			HANDLE m_Event;
+			HANDLE m_Handle;
 			OVERLAPPED m_Overlapped = {};
 		};
 
-		class WinDivertImplementation : public IWinDivertImplementation
+		class WinDivertHandle : public IWinDivertHandle
 		{
 		public:
-			std::unique_ptr<IWinDivertHandle> open(const std::string& filter, int layer, int16_t priority,
-			                                       uint64_t flags) override
-			{
-				auto handle = WinDivertOpen(filter.c_str(), static_cast<WINDIVERT_LAYER>(layer), priority, flags);
-				if (handle == INVALID_HANDLE_VALUE)
-				{
-					PCPP_LOG_ERROR("Failed to open WinDivertHandle, error was: " << GetLastError());
-					return nullptr;
-				}
-				return std::make_unique<WinDivertHandle>(handle);
-			}
+			explicit WinDivertHandle(const HANDLE handle) : m_Handle(handle)
+			{}
 
-			uint32_t close(const IWinDivertHandle* handle) override
+			uint32_t close() override
 			{
-				auto winDivertHandle = getHandle(handle);
-
-				auto result = WinDivertClose(winDivertHandle->get());
+				auto result = WinDivertClose(m_Handle);
 				if (!result)
 				{
 					return GetLastError();
@@ -137,7 +107,7 @@ namespace pcpp
 				return SuccessResult;
 			}
 
-			uint32_t recvEx(const IWinDivertHandle* handle, uint8_t* buffer, uint32_t bufferLen, size_t addressesSize,
+			uint32_t recvEx(uint8_t* buffer, uint32_t bufferLen, size_t addressesSize,
 			                IOverlappedWrapper* overlapped) override
 			{
 				auto winDivertOverlapped = dynamic_cast<WinDivertOverlappedWrapper*>(overlapped);
@@ -146,15 +116,12 @@ namespace pcpp
 					throw std::runtime_error("Failed to get WinDivertOverlapped");
 				}
 
-				auto winDivertHandle = getHandle(handle);
-
 				m_WinDivertAddresses.resize(addressesSize);
 				m_WinDivertAddressesSize = sizeof(WINDIVERT_ADDRESS) * addressesSize;
 
 				uint32_t recvLen;
-				auto result =
-				    WinDivertRecvEx(winDivertHandle->get(), buffer, bufferLen, &recvLen, 0, m_WinDivertAddresses.data(),
-				                    &m_WinDivertAddressesSize, winDivertOverlapped->get());
+				auto result = WinDivertRecvEx(m_Handle, buffer, bufferLen, &recvLen, 0, m_WinDivertAddresses.data(),
+				                              &m_WinDivertAddressesSize, winDivertOverlapped->get());
 
 				if (!result)
 				{
@@ -179,11 +146,8 @@ namespace pcpp
 				return result;
 			}
 
-			uint32_t sendEx(const IWinDivertHandle* handle, uint8_t* buffer, uint32_t bufferLen,
-			                size_t addressesSize) override
+			uint32_t sendEx(uint8_t* buffer, uint32_t bufferLen, size_t addressesSize) override
 			{
-				auto winDivertHandle = getHandle(handle);
-
 				std::vector<WINDIVERT_ADDRESS> winDivertAddresses;
 				for (size_t i = 0; i < addressesSize; i++)
 				{
@@ -192,9 +156,8 @@ namespace pcpp
 					winDivertAddresses.push_back(addr);
 				}
 
-				auto result =
-				    WinDivertSendEx(winDivertHandle->get(), buffer, bufferLen, nullptr, 0, winDivertAddresses.data(),
-				                    addressesSize * sizeof(WINDIVERT_ADDRESS), nullptr);
+				auto result = WinDivertSendEx(m_Handle, buffer, bufferLen, nullptr, 0, winDivertAddresses.data(),
+				                              addressesSize * sizeof(WINDIVERT_ADDRESS), nullptr);
 				if (!result)
 				{
 					return GetLastError();
@@ -205,19 +168,38 @@ namespace pcpp
 
 			std::unique_ptr<IOverlappedWrapper> createOverlapped() override
 			{
-				return std::make_unique<WinDivertOverlappedWrapper>();
+				return std::make_unique<WinDivertOverlappedWrapper>(m_Handle);
 			}
 
-			bool getParam(const IWinDivertHandle* handle, WinDivertParam param, uint64_t& value) override
+			bool getParam(WinDivertParam param, uint64_t& value) override
 			{
-				auto winDivertHandle = getHandle(handle);
-				return WinDivertGetParam(winDivertHandle->get(), static_cast<WINDIVERT_PARAM>(param), &value);
+				return WinDivertGetParam(m_Handle, static_cast<WINDIVERT_PARAM>(param), &value);
 			}
 
-			bool setParam(const IWinDivertHandle* handle, WinDivertParam param, uint64_t value) override
+			bool setParam(WinDivertParam param, uint64_t value) override
 			{
-				auto winDivertHandle = getHandle(handle);
-				return WinDivertSetParam(winDivertHandle->get(), static_cast<WINDIVERT_PARAM>(param), value);
+				return WinDivertSetParam(m_Handle, static_cast<WINDIVERT_PARAM>(param), value);
+			}
+
+		private:
+			HANDLE m_Handle;
+			std::vector<WINDIVERT_ADDRESS> m_WinDivertAddresses;
+			uint32_t m_WinDivertAddressesSize = 0;
+		};
+
+		class WinDivertImplementation : public IWinDivertImplementation
+		{
+		public:
+			std::unique_ptr<IWinDivertHandle> open(const std::string& filter, int layer, int16_t priority,
+			                                       uint64_t flags) override
+			{
+				auto handle = WinDivertOpen(filter.c_str(), static_cast<WINDIVERT_LAYER>(layer), priority, flags);
+				if (handle == INVALID_HANDLE_VALUE)
+				{
+					PCPP_LOG_ERROR("Failed to open WinDivertHandle, error was: " << GetLastError());
+					return nullptr;
+				}
+				return std::make_unique<WinDivertHandle>(handle);
 			}
 
 			std::vector<NetworkInterface> getNetworkInterfaces() const override
@@ -259,21 +241,6 @@ namespace pcpp
 
 				return networkInterfaces;
 			}
-
-		private:
-			std::vector<WINDIVERT_ADDRESS> m_WinDivertAddresses;
-			uint32_t m_WinDivertAddressesSize = 0;
-
-			static const WinDivertHandle* getHandle(const IWinDivertHandle* handle)
-			{
-				auto winDivertHandle = dynamic_cast<const WinDivertHandle*>(handle);
-				if (winDivertHandle == nullptr)
-				{
-					throw std::runtime_error("Failed to get WinDivertHandle");
-				}
-
-				return winDivertHandle;
-			}
 		};
 
 	}  // namespace internal
@@ -304,8 +271,8 @@ namespace pcpp
 
 	void WinDivertDevice::close()
 	{
-		auto result = m_Impl->close(m_Handle.get());
-		if (result != internal::IWinDivertImplementation::SuccessResult)
+		auto result = m_Handle->close();
+		if (result != internal::IWinDivertHandle::SuccessResult)
 		{
 			PCPP_LOG_ERROR("Couldn't receive packet, status: " << getErrorString(static_cast<uint16_t>(result)) << "("
 			                                                   << static_cast<int>(result) << ")");
@@ -337,7 +304,7 @@ namespace pcpp
 				     "At least one of timeout and maxPackets must be a positive number" };
 		}
 
-		auto overlapped = m_Impl->createOverlapped();
+		auto overlapped = m_Handle->createOverlapped();
 		uint32_t bufferSize = WINDIVERT_BUFFER_LEN * batchSize;
 		std::vector<uint8_t> buffer(bufferSize);
 
@@ -403,7 +370,7 @@ namespace pcpp
 			return { ReceiveResult::Status::Failed, "Batch size has to be a positive number" };
 		}
 
-		auto overlapped = m_Impl->createOverlapped();
+		auto overlapped = m_Handle->createOverlapped();
 		uint32_t bufferSize = WINDIVERT_BUFFER_LEN * batchSize;
 		std::vector<uint8_t> buffer(bufferSize);
 
@@ -479,8 +446,8 @@ namespace pcpp
 
 			if (packetsInCurrentBatch >= batchSize || packetIndex >= packetsToSend - 1)
 			{
-				auto result = m_Impl->sendEx(m_Handle.get(), buffer, WINDIVERT_BUFFER_LEN, packetsInCurrentBatch);
-				if (result != internal::IWinDivertImplementation::SuccessResult)
+				auto result = m_Handle->sendEx(buffer, WINDIVERT_BUFFER_LEN, packetsInCurrentBatch);
+				if (result != internal::IWinDivertHandle::SuccessResult)
 				{
 					return { SendResult::Status::Failed, packetsSent,
 						     "Sending packets failed: " + getErrorString(result), result };
@@ -506,12 +473,9 @@ namespace pcpp
 		uint64_t queueLength, queueTime, queueSize;
 
 		auto getParamResult = true;
-		getParamResult |= m_Impl->getParam(
-		    m_Handle.get(), internal::IWinDivertImplementation::WinDivertParam::QueueLength, queueLength);
-		getParamResult |=
-		    m_Impl->getParam(m_Handle.get(), internal::IWinDivertImplementation::WinDivertParam::QueueTime, queueTime);
-		getParamResult |=
-		    m_Impl->getParam(m_Handle.get(), internal::IWinDivertImplementation::WinDivertParam::QueueSize, queueSize);
+		getParamResult |= m_Handle->getParam(internal::IWinDivertHandle::WinDivertParam::QueueLength, queueLength);
+		getParamResult |= m_Handle->getParam(internal::IWinDivertHandle::WinDivertParam::QueueTime, queueTime);
+		getParamResult |= m_Handle->getParam(internal::IWinDivertHandle::WinDivertParam::QueueSize, queueSize);
 
 		if (!getParamResult)
 		{
@@ -538,20 +502,17 @@ namespace pcpp
 			{
 			case QueueParam::QueueLength:
 			{
-				m_Impl->setParam(m_Handle.get(), internal::IWinDivertImplementation::WinDivertParam::QueueLength,
-				                 param.second);
+				m_Handle->setParam(internal::IWinDivertHandle::WinDivertParam::QueueLength, param.second);
 				break;
 			}
 			case QueueParam::QueueTime:
 			{
-				m_Impl->setParam(m_Handle.get(), internal::IWinDivertImplementation::WinDivertParam::QueueTime,
-				                 param.second);
+				m_Handle->setParam(internal::IWinDivertHandle::WinDivertParam::QueueTime, param.second);
 				break;
 			}
 			case QueueParam::QueueSize:
 			{
-				m_Impl->setParam(m_Handle.get(), internal::IWinDivertImplementation::WinDivertParam::QueueSize,
-				                 param.second);
+				m_Handle->setParam(internal::IWinDivertHandle::WinDivertParam::QueueSize, param.second);
 				break;
 			}
 			}
@@ -568,10 +529,8 @@ namespace pcpp
 		uint64_t versionMajor, versionMinor;
 
 		auto getParamResult = true;
-		getParamResult |= m_Impl->getParam(
-		    m_Handle.get(), internal::IWinDivertImplementation::WinDivertParam::VersionMajor, versionMajor);
-		getParamResult |= m_Impl->getParam(
-		    m_Handle.get(), internal::IWinDivertImplementation::WinDivertParam::VersionMajor, versionMinor);
+		getParamResult |= m_Handle->getParam(internal::IWinDivertHandle::WinDivertParam::VersionMajor, versionMajor);
+		getParamResult |= m_Handle->getParam(internal::IWinDivertHandle::WinDivertParam::VersionMajor, versionMinor);
 
 		if (!getParamResult)
 		{
@@ -615,8 +574,8 @@ namespace pcpp
 	WinDivertDevice::ReceiveResultInternal WinDivertDevice::receivePacketsInternal(
 	    uint32_t timeout, uint8_t batchSize, std::vector<uint8_t>& buffer, internal::IOverlappedWrapper* overlapped)
 	{
-		auto result = m_Impl->recvEx(m_Handle.get(), buffer.data(), buffer.size(), batchSize, overlapped);
-		if (result != internal::IWinDivertImplementation::ErrorIoPending)
+		auto result = m_Handle->recvEx(buffer.data(), buffer.size(), batchSize, overlapped);
+		if (result != internal::IWinDivertHandle::ErrorIoPending)
 		{
 			return { ReceiveResult::Status::Failed, "Error receiving packets: " + getErrorString(result), result };
 		}
@@ -631,7 +590,7 @@ namespace pcpp
 		{
 		case internal::IOverlappedWrapper::WaitResult::Status::Completed:
 		{
-			auto overlappedResult = overlapped->getOverlappedResult(m_Handle.get());
+			auto overlappedResult = overlapped->getOverlappedResult();
 			if (overlappedResult.status != internal::IOverlappedWrapper::OverlappedResult::Status::Success)
 			{
 				return { ReceiveResult::Status::Failed,
@@ -639,7 +598,7 @@ namespace pcpp
 					     overlappedResult.errorCode };
 			}
 
-			return { overlappedResult.packetLen, m_Impl->recvExComplete() };
+			return { overlappedResult.packetLen, m_Handle->recvExComplete() };
 		}
 		case internal::IOverlappedWrapper::WaitResult::Status::Timeout:
 		{

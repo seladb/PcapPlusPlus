@@ -24,15 +24,6 @@ namespace pcpp
 {
 	namespace internal
 	{
-		/// @brief Opaque handle wrapper for an opened WinDivert driver instance.
-		///
-		/// Implementations encapsulate the native WinDivert handle and its lifetime.
-		class IWinDivertHandle
-		{
-		public:
-			virtual ~IWinDivertHandle() = default;
-		};
-
 		/// @brief Abstract helper that wraps Windows OVERLAPPED I/O used by WinDivert operations.
 		///
 		/// Implementations provide waiting/resetting primitives and a way to fetch
@@ -80,7 +71,7 @@ namespace pcpp
 
 			virtual WaitResult wait(uint32_t timeout) = 0;
 			virtual void reset() = 0;
-			virtual OverlappedResult getOverlappedResult(const IWinDivertHandle* handle) = 0;
+			virtual OverlappedResult getOverlappedResult() = 0;
 			virtual ~IOverlappedWrapper() = default;
 		};
 
@@ -96,11 +87,14 @@ namespace pcpp
 			uint64_t timestamp;       ///< WinDivert timestamp associated with the packet
 		};
 
-		/// @brief Abstraction over the concrete WinDivert API used by WinDivertDevice.
+		/// @class IWinDivertHandle
+		/// @brief An abstract handle for interacting with the WinDivert device.
 		///
-		/// This interface allows providing different backends (e.g., real WinDivert DLL
-		/// or a test double) while keeping the device logic independent from the API.
-		class IWinDivertImplementation
+		/// This interface represents an opened WinDivert handle and provides the minimal
+		/// set of operations used by WinDivertDevice: asynchronous receive, batched send,
+		/// querying/setting queue parameters and handle closure. Concrete implementations
+		/// wrap the corresponding WinDivert C APIs and Windows OVERLAPPED I/O.
+		class IWinDivertHandle
 		{
 		public:
 			/// @brief WinDivert runtime parameters that can be queried or configured.
@@ -113,33 +107,95 @@ namespace pcpp
 				VersionMinor = 4   ///< WinDivert minor version
 			};
 
-			/// @brief Information about a Windows network interface as reported by WinDivert.
-			struct NetworkInterface
-			{
-				uint32_t index;            ///< Interface index
-				std::wstring name;         ///< Interface GUID or system name
-				std::wstring description;  ///< Human-readable description
-				bool isLoopback;           ///< True if the interface is loopback
-				bool isUp;                 ///< True if the interface is up/running
-			};
-
+			/// @brief Generic success code returned by most operations.
 			static constexpr uint32_t SuccessResult = 0;
+			/// @brief Windows ERROR_IO_PENDING (997) reported when an async operation is in flight.
 			static constexpr uint32_t ErrorIoPending = 997;
 
-			virtual ~IWinDivertImplementation() = default;
+			virtual ~IWinDivertHandle() = default;
 
+			/// @brief Close the underlying WinDivert handle.
+			/// @return Windows error code-style result. 0 indicates success.
+			virtual uint32_t close() = 0;
+
+			/// @brief Begin or perform an overlapped receive of raw packet data.
+			///
+			/// If an overlapped object is provided, the call initiates an asynchronous read
+			/// and typically returns ErrorIoPending. Completion status and size should be
+			/// obtained via the provided IOverlappedWrapper.
+			///
+			/// @param[in] buffer          Destination buffer for packet data.
+			/// @param[in] bufferLen       Size of the destination buffer in bytes.
+			/// @param[in] addressesSize   Number of address entries the implementation may capture for a batch.
+			/// @param[in] overlapped      Wrapper around Windows OVERLAPPED used for async I/O. Must not be null for
+			/// async.
+			/// @return 0 on success, ErrorIoPending if async operation started, or a Windows error code on failure.
+			virtual uint32_t recvEx(uint8_t* buffer, uint32_t bufferLen, size_t addressesSize,
+			                        IOverlappedWrapper* overlapped) = 0;
+
+			/// @brief Finalize a previous overlapped receive and fetch per-packet address metadata.
+			/// @return A vector of WinDivertAddress entries, one per packet captured in the last receive.
+			virtual std::vector<WinDivertAddress> recvExComplete() = 0;
+
+			/// @brief Send a batch of raw packets.
+			/// @param[in] buffer        Buffer containing one or more consecutive packets.
+			/// @param[in] bufferLen     Total size in bytes of the packets contained in buffer.
+			/// @param[in] addressesSize Number of address entries accompanying the send batch.
+			/// @return 0 on success, otherwise a Windows error code.
+			virtual uint32_t sendEx(uint8_t* buffer, uint32_t bufferLen, size_t addressesSize) = 0;
+
+			/// @brief Create a new overlapped wrapper bound to this handle.
+			/// @return A unique_ptr to a fresh IOverlappedWrapper for async operations.
+			virtual std::unique_ptr<IOverlappedWrapper> createOverlapped() = 0;
+
+			/// @brief Query a WinDivert runtime/queue parameter.
+			/// @param[in]  param The parameter to query.
+			/// @param[out] value The retrieved value.
+			/// @return True on success, false on failure.
+			virtual bool getParam(WinDivertParam param, uint64_t& value) = 0;
+
+			/// @brief Set a WinDivert runtime/queue parameter.
+			/// @param[in] param The parameter to set.
+			/// @param[in] value The value to set.
+			/// @return True on success, false on failure.
+			virtual bool setParam(WinDivertParam param, uint64_t value) = 0;
+		};
+
+		/// @class IWinDivertImplementation
+		/// @brief Factory and system-query abstraction used by WinDivertDevice.
+		///
+		/// The sole responsibilities of this interface are:
+		/// - Creating IWinDivertHandle instances (which expose the WinDivert API surface).
+		/// - Enumerating relevant Windows network interfaces.
+		/// Keeping these responsibilities here keeps WinDivertDevice decoupled from concrete
+		/// system/driver calls and enables unit testing and alternative implementations.
+		class IWinDivertImplementation
+		{
+		public:
+			/// @brief Information about a Windows network interface as reported by WinDivert/Windows APIs.
+			struct NetworkInterface
+			{
+				uint32_t index;            ///< Interface index as provided by Windows
+				std::wstring name;         ///< Interface name (GUID or friendly/system name)
+				std::wstring description;  ///< Human-readable description from the OS
+				bool isLoopback;           ///< True if the interface type is software loopback
+				bool isUp;                 ///< True when the interface operational status is up
+			};
+
+			/// @brief Open a WinDivert handle with the given filter and settings.
+			/// @param[in] filter   WinDivert filter string (see WinDivert documentation).
+			/// @param[in] layer    WinDivert layer value (typically WINDIVERT_LAYER_NETWORK).
+			/// @param[in] priority Injection/capture priority (lower is higher priority).
+			/// @param[in] flags    WinDivert open flags (sniff mode, fragments, etc.).
+			/// @return A unique_ptr to an IWinDivertHandle on success, or nullptr on failure.
 			virtual std::unique_ptr<IWinDivertHandle> open(const std::string& filter, int layer, int16_t priority,
 			                                               uint64_t flags) = 0;
-			virtual uint32_t close(const IWinDivertHandle* handle) = 0;
-			virtual uint32_t recvEx(const IWinDivertHandle* handle, uint8_t* buffer, uint32_t bufferLen,
-			                        size_t addressesSize, IOverlappedWrapper* overlapped) = 0;
-			virtual std::vector<WinDivertAddress> recvExComplete() = 0;
-			virtual uint32_t sendEx(const IWinDivertHandle* handle, uint8_t* buffer, uint32_t bufferLen,
-			                        size_t addressesSize) = 0;
-			virtual std::unique_ptr<IOverlappedWrapper> createOverlapped() = 0;
-			virtual bool getParam(const IWinDivertHandle* handle, WinDivertParam param, uint64_t& value) = 0;
-			virtual bool setParam(const IWinDivertHandle* handle, WinDivertParam param, uint64_t value) = 0;
+
+			/// @brief Enumerate Windows network interfaces relevant to WinDivert.
+			/// @return A vector of NetworkInterface objects with index, name, description and status.
 			virtual std::vector<NetworkInterface> getNetworkInterfaces() const = 0;
+
+			virtual ~IWinDivertImplementation() = default;
 		};
 	}  // namespace internal
 
