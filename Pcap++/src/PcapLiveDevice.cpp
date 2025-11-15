@@ -777,12 +777,13 @@ namespace pcpp
 
 		// Wait thread to be start
 		// C++20 = m_CaptureThreadStarted.wait(true);
-		do
+		while (m_CaptureThreadStarted != true)
 		{
-			// Yield at least once. m_CaptureThreadStarted is set to true slightly before the capture actually begins.
-			// Yielding here ensures that the capture thread has a chance to get to the actual pcap capture loop.
 			std::this_thread::yield();
-		} while (m_CaptureThreadStarted != true);
+		}	
+		// Yield at least once. m_CaptureThreadStarted is set to true slightly before the capture actually begins.
+		// Yielding here ensures that the capture thread has a chance to get to the actual pcap capture loop.
+		std::this_thread::yield();
 
 		PCPP_LOG_DEBUG("Successfully created capture thread for device '"
 		               << m_InterfaceDetails.name << "'. Thread id: " << m_CaptureThread.get_id());
