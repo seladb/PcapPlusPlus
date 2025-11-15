@@ -18,9 +18,8 @@ namespace pcpp
 		class WinDivertOverlappedWrapper : public IOverlappedWrapper
 		{
 		public:
-			explicit WinDivertOverlappedWrapper(const HANDLE handle)
+			explicit WinDivertOverlappedWrapper(const HANDLE handle) : m_Handle(handle)
 			{
-				m_Handle = handle;
 				ZeroMemory(&m_Overlapped, sizeof(m_Overlapped));
 
 				m_Event = CreateEvent(nullptr, TRUE, FALSE, nullptr);
