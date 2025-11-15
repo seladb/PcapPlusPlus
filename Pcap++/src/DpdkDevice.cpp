@@ -829,7 +829,7 @@ namespace pcpp
 		stats.devId = m_Id;
 		stats.timestamp = timestamp;
 		stats.rxErroneousPackets = rteStats.ierrors;
-		stats.rxMbufAlocFailed = rteStats.rx_nombuf;
+		stats.rxMbufAllocFailed = rteStats.rx_nombuf;
 		stats.rxPacketsDroppedByHW = rteStats.imissed;
 		stats.aggregatedRxStats.packets = rteStats.ipackets;
 		stats.aggregatedRxStats.bytes = rteStats.ibytes;
