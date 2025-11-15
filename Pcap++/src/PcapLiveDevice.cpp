@@ -781,9 +781,6 @@ namespace pcpp
 		{
 			std::this_thread::yield();
 		}
-		// Yield at least once. m_CaptureThreadStarted is set to true slightly before the capture actually begins.
-		// Yielding here ensures that the capture thread has a chance to get to the actual pcap capture loop.
-		std::this_thread::yield();
 
 		PCPP_LOG_DEBUG("Successfully created capture thread for device '"
 		               << m_InterfaceDetails.name << "'. Thread id: " << m_CaptureThread.get_id());

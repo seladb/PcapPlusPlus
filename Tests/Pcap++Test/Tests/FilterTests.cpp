@@ -55,6 +55,10 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	ipFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(ipFilter));
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+	
+	// Delay a bit to avoid missing packets.
+	std::this_thread::sleep_for(std::chrono::nanoseconds(50));
+	
 	PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
 	// let the capture work for couple of seconds
 	int totalSleepTime = incSleep(capturedPackets, 2, 7);
