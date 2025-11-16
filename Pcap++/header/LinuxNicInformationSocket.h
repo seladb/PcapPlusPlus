@@ -29,7 +29,7 @@ namespace pcpp
 		/// Tries to open handled socket on construction.
 		/// If fails prints the debug message
 		LinuxNicInformationSocket();
-		
+
 		LinuxNicInformationSocket(const LinuxNicInformationSocket&) = delete;
 		LinuxNicInformationSocket operator=(const LinuxNicInformationSocket&) = delete;
 

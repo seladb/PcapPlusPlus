@@ -232,10 +232,10 @@ namespace pcpp
 	private:
 		/// All instances of this class MUST be produced by KniDeviceList class
 		KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int unique);
-		
+
 		KniDevice(const KniDevice&) = delete;
 		KniDevice& operator=(const KniDevice&) = delete;
-		
+
 		/// All instances of this class MUST be destroyed by KniDeviceList class
 		~KniDevice();
 
