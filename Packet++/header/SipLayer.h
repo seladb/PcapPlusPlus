@@ -117,21 +117,14 @@ namespace pcpp
 			return port == 5060 || port == 5061;
 		}
 
-		static int find_char(const uint8_t* buf, int offset, char needle)
-		{
-			if (!buf || offset < 0)
-				return -1;
-
-			const uint8_t* p = buf + offset;
-
-			while (*p && *p != static_cast<uint8_t>(needle))
-				++p;
-
-			return (*p == static_cast<uint8_t>(needle))
-				? static_cast<int>(p - buf)
-				: -1;
-		}
-		
+		/// Finds the length of the first line in the buffer.
+		/// This method scans the input data for the first occurrence of '\r' or '\n',
+		/// marking the end of the first line. If no such character exists, the returned
+		/// value will be equal to the buffer length. Returns -1 if the buffer is null
+		/// or empty.
+		/// @param[in] data Pointer to the raw data buffer
+		/// @param[in] dataLen Length of the data buffer in bytes
+		/// @return The number of bytes until the first CR/LF, or -1 on invalid input
 		static int findFirstLine(const uint8_t* data, size_t dataLen)
 		{
 			if (!data || dataLen == 0)
@@ -149,16 +142,22 @@ namespace pcpp
 			return static_cast<int>(std::distance(start, it));
 		}
 		
+		/// Checks whether a buffer starts with the SIP version prefix "SIP/".
+		/// Comparison is case-insensitive and requires the input length to be at least
+		/// the size of the prefix.
+		/// @param[in] s Pointer to the buffer to examine
+		/// @param[in] len Number of bytes available in the buffer
+		/// @return True if the buffer begins with "SIP/" (case-insensitive), false otherwise
 		static bool startsWithSipVersion(const char* s, size_t len)
 		{
-			constexpr char pfx[]   = "SIP/";
-			constexpr std::size_t pfxLen = sizeof(pfx) - 1;
+			constexpr char prefix[]   = "SIP/";
+			constexpr std::size_t prefixLen = sizeof(prefix) - 1;
 
-			if (len < pfxLen)
+			if (len < prefixLen)
 				return false;
 
 			return std::equal(
-				pfx, pfx + pfxLen, s,
+				prefix, prefix + prefixLen, s,
 				[](char a, char b)
 				{
 					return std::tolower(static_cast<unsigned char>(a)) ==
@@ -167,7 +166,12 @@ namespace pcpp
 			);
 		}
 
-		// Checks if the token is exactly a 3-digit status code
+		/// Determines whether a buffer of length 3 contains only numeric digits.
+		/// This is primarily used to validate SIP response status codes, which must
+		/// always be 3-digit numeric values.
+		/// @param[in] s Pointer to the buffer to check
+		/// @param[in] len Must be exactly 3 to return true
+		/// @return True if all three characters are decimal digits, false otherwise
 		static bool isThreeDigitCode(const char* s, size_t len)
 		{
 			if (len != 3)
@@ -179,7 +183,13 @@ namespace pcpp
 			});
 		}
 
-		// Returns true if there is ':' in [begin, end)
+		/// Checks for the presence of a colon (':') within a specific range of a string.
+		/// This is used to validate that a SIP Request-URI contains a scheme (e.g., sip:),
+		/// which is required for proper SIP request-line syntax.
+		/// @param[in] s Pointer to the string to search
+		/// @param[in] begin Starting index of the range (inclusive)
+		/// @param[in] end Ending index of the range (exclusive)
+		/// @return True if a ':' character exists within the specified range, false otherwise
 		static bool hasColonInRange(const char* s, size_t begin, size_t end)
 		{
 			const char* first = s + begin;
@@ -188,7 +198,12 @@ namespace pcpp
 			return std::find(first, last, ':') != last;
 		}
 
-		// Find first space from start to len
+		/// Finds the first space (' ') character in the string starting from a given index.
+		/// The search is limited to the range [start, len). If no space is found, -1 is returned.
+		/// @param[in] s Pointer to the string to search
+		/// @param[in] start Index from which to start scanning
+		/// @param[in] len Total valid length of the string
+		/// @return The index of the first space, or -1 if not found
 		static int findSpace(const char* s, int start, int len)
 		{
 			const char* begin = s + start;
@@ -201,6 +216,12 @@ namespace pcpp
 			return static_cast<int>(std::distance(s, it));
 		}
 
+		/// Finds the first space (' ') character in the string starting from a given index.
+		/// The search is limited to the range [start, len). If no space is found, -1 is returned.
+		/// @param[in] s Pointer to the string to search
+		/// @param[in] start Index from which to start scanning
+		/// @param[in] len Total valid length of the string
+		/// @return The index of the first space, or -1 if not found
 		static int skipSpaces(const char* s, int start, int len)
 		{
 			const char* begin = s + start;
@@ -212,80 +233,112 @@ namespace pcpp
 			return static_cast<int>(std::distance(s, it));
 		}
 
-		/*
-		* SIP Heuristic Detection:
-		*
-		* Request-Line:
-		*   Method SP Request-URI SP SIP-Version
-		*
-		* Status-Line:
-		*   SIP-Version SP Status-Code SP Reason-Phrase
-		*
-		* Returns:
-		*   true  = line looks like a valid SIP request or SIP response
-		*   false = not SIP
-		*/
+		/// Heuristically detects whether the first line of a buffer looks like a SIP
+		/// Request-Line or Status-Line (RFC 3261).
+		///
+		/// Line is parsed as:
+		///   token1 SP(space1) token2 SP(space2) token3
+		///
+		/// SIP Request-Line:
+		///   token1 = Method  
+		///   token2 = Request-URI (must contain ':')  
+		///   token3 = SIP-Version (starts with "SIP/")  
+		///   Example: INVITE sip:alice@example.com SIP/2.0
+		///
+		/// SIP Status-Line:
+		///   token1 = SIP-Version (starts with "SIP/")  
+		///   token2 = Status-Code (3 digits)  
+		///   token3 = Reason-Phrase  
+		///   Example: SIP/2.0 200 OK
+		///
+		/// RFC References:
+		///   From section 4.1 of RFC 2543:
+		///     Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
+		///
+		///   From section 5.1 of RFC 2543:
+		///     Status-Line   =  SIP-Version SP Status-Code SP Reason-Phrase CRLF
+		///
+		///   From section 7.1 of RFC 3261:
+		///     Unlike HTTP, SIP treats the version number as a literal string.
+		///     In practice, this should make no difference.
+		///
+		/// @param[in] data Pointer to the raw data buffer
+		/// @param[in] dataLen Length of the data buffer in bytes
+		/// @return True if the first line matches SIP request/response syntax, false otherwise
 		static bool dissectSipHeuristic(const uint8_t* data, size_t dataLen)
 		{
 			if (!data || dataLen == 0)
+			{
 				return false;
+			}
 
 			int firstLineLen = findFirstLine(data, dataLen);
 			if (firstLineLen <= 0)
+			{
 				return false;
+			}
 
 			const char* line = reinterpret_cast<const char*>(data);
 			const int   len  = firstLineLen;
 
-			// ----------- Extract first 3 tokens -----------
+			// --- Extract first three tokens from the first line ---
 			int token1_start = 0;
 			token1_start = skipSpaces(line, token1_start, len);
 			if (token1_start >= len)
+			{
 				return false;
+			}
 
 			int space1 = findSpace(line, token1_start, len);
 			if (space1 == -1 || space1 == token1_start)
-				return false; // token1 invalid
+			{
+				return false;
+			}
 
 			int token1_len = space1 - token1_start;
 
 			int token2_start = skipSpaces(line, space1 + 1, len);
 			if (token2_start >= len)
+			{
 				return false;
+			}
 
 			int space2 = findSpace(line, token2_start, len);
 			if (space2 == -1)
-				return false; // missing token3
+			{
+				return false;
+			}
 
 			int token2_len = space2 - token2_start;
 
 			int token3_start = skipSpaces(line, space2 + 1, len);
 			if (token3_start >= len)
+			{
 				return false;
+			}
 
 			int token3_len = len - token3_start;
 
-			const char* t1 = line + token1_start;
-			const char* t2 = line + token2_start;
-			const char* t3 = line + token3_start;
+			const char* token1 = line + token1_start;
+			const char* token2 = line + token2_start;
+			const char* token3 = line + token3_start;
 
-			// ----------- Status-Line: "SIP/x.y SP nnn SP Reason" -----------
-			if (startsWithSipVersion(t1, static_cast<size_t>(token1_len)))
+			// --- Check if it's a SIP response line: "SIP/x.y SP nnn SP Reason" ---
+			if (startsWithSipVersion(token1, static_cast<size_t>(token1_len)))
 			{
 				// second token must be 3-digit status code
-				if (!isThreeDigitCode(t2, static_cast<size_t>(token2_len)))
+				if (!isThreeDigitCode(token2, static_cast<size_t>(token2_len)))
 					return false;
 
-				return true; // SIP Response detected
+				return true;
 			}
 
-			// ----------- Request-Line: "METHOD SP URI SP SIP/x.y" -----------
-
-			// URI must have at least 3 characters
+			// --- Check if it's a SIP request line: "METHOD SP URI SP SIP/x.y" ---
 			if (token2_len < 3)
+			{
 				return false;
+			}
 
-			// URI must contain ':' before token3 starts
 			if (!hasColonInRange(line,
 								static_cast<size_t>(token2_start + 1),
 								static_cast<size_t>(space2)))
@@ -293,11 +346,12 @@ namespace pcpp
 				return false;
 			}
 
-			// third token must be a SIP version string
-			if (!startsWithSipVersion(t3, static_cast<size_t>(token3_len)))
+			if (!startsWithSipVersion(token3, static_cast<size_t>(token3_len)))
+			{
 				return false;
+			}
 
-			return true; // SIP Request detected
+			return true;
 		}
 
 
@@ -312,7 +366,7 @@ namespace pcpp
 		SipLayer& operator=(const SipLayer& other)
 		{
 			TextBasedProtocolMessage::operator=(other);
-			return *this;
+			return///this;
 		}
 
 		// implementation of abstract methods
