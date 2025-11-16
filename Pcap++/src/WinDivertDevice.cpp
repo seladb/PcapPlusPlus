@@ -96,9 +96,18 @@ namespace pcpp
 			explicit WinDivertHandle(const HANDLE handle) : m_Handle(handle)
 			{}
 
+			~WinDivertHandle() override
+			{
+				if (m_IsOpened)
+				{
+					WinDivertHandle::close();
+				}
+			}
+
 			uint32_t close() override
 			{
 				auto result = WinDivertClose(m_Handle);
+				m_IsOpened = false;
 				if (!result)
 				{
 					return GetLastError();
@@ -182,6 +191,7 @@ namespace pcpp
 
 		private:
 			HANDLE m_Handle;
+			bool m_IsOpened = true;
 			std::vector<WINDIVERT_ADDRESS> m_WinDivertAddresses;
 			uint32_t m_WinDivertAddressesSize = 0;
 		};
