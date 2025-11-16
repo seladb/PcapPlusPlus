@@ -344,7 +344,7 @@ namespace pcpp
 			/// Total number of erroneous packets
 			uint64_t rxErroneousPackets;
 			/// Total number of RX mbuf allocation failures
-			uint64_t rxMbufAlocFailed;
+			uint64_t rxMbufAllocFailed;
 		};
 
 		virtual ~DpdkDevice();
