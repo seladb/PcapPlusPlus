@@ -250,7 +250,7 @@ namespace pcpp
 		SipLayer& operator=(const SipLayer& other)
 		{
 			TextBasedProtocolMessage::operator=(other);
-			return///this;
+			return *this;
 		}
 
 		// implementation of abstract methods

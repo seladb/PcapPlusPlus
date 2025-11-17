@@ -102,11 +102,6 @@ namespace pcpp
 		uint8_t* udpData = m_Data + sizeof(udphdr);
 		size_t udpDataLen = m_DataLen - sizeof(udphdr);
 
-		bool result = SipLayer::dissectSipHeuristic(udpData, udpDataLen);
-		std::cout << "######################" << std::endl;
-		std::cout << "#### is SIP?: " << (result ? "Yes" : "No") << std::endl;
-		std::cout << "######################" << std::endl;
-
 		if (DhcpLayer::isDhcpPorts(portSrc, portDst))
 			m_NextLayer = new DhcpLayer(udpData, udpDataLen, this, m_Packet);
 		else if (VxlanLayer::isVxlanPort(portDst))
@@ -114,7 +109,10 @@ namespace pcpp
 		else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 			m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
-		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
+		else if (SipLayer::isSipPort(portDst) ||
+				SipLayer::isSipPort(portSrc) ||
+				SipLayer::dissectSipHeuristic(udpData, udpDataLen)
+			)
 		{
 			if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown)
 				m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
