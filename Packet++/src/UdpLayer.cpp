@@ -20,7 +20,6 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <sstream>
-#include <iostream>
 
 namespace pcpp
 {
