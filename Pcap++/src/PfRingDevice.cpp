@@ -374,7 +374,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (filterAsString == nullptr || filterAsString.empty())
+		if (filterAsString == nullptr || filterAsString->empty())
 		{
 			return removeFilterForAllChannels();
 		}
