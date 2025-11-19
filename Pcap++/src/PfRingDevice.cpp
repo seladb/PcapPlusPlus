@@ -380,7 +380,7 @@ namespace pcpp
 		}
 		else
 		{
-			return setFilterForAllChannels(filterAsString);
+			return setFilterForAllChannels(*filterAsString);
 		}
 	}
 
