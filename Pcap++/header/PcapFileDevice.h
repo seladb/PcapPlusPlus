@@ -374,7 +374,7 @@ namespace pcpp
 		void close() override;
 
 	protected:
-		bool doUpdateFilter(std::string const& filter) override;
+		bool doUpdateFilter(std::string const* filter) override;
 	};
 
 	/// @class PcapNgFileWriterDevice
@@ -474,7 +474,7 @@ namespace pcpp
 		void close() override;
 
 	protected:
-		bool doUpdateFilter(std::string const& filterAsString) override;
+		bool doUpdateFilter(std::string const* filterAsString) override;
 
 	private:
 		/// @struct PcapNgMetadata

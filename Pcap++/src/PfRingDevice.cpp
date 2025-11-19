@@ -366,7 +366,7 @@ namespace pcpp
 		return SystemCores::IdToSystemCore[sched_getcpu()];
 	}
 
-	bool PfRingDevice::doUpdateFilter(std::string const& filterAsString)
+	bool PfRingDevice::doUpdateFilter(std::string const* filterAsString)
 	{
 		if (!m_DeviceOpened)
 		{
@@ -374,7 +374,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (filterAsString.empty())
+		if (filterAsString == nullptr || filterAsString.empty())
 		{
 			return removeFilterForAllChannels();
 		}

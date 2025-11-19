@@ -316,7 +316,7 @@ namespace pcpp
 		}
 
 	protected:
-		bool doUpdateFilter(std::string const& filterAsString) override;
+		bool doUpdateFilter(std::string const* filterAsString) override;
 
 	private:
 		bool removeFilterForAllChannels();

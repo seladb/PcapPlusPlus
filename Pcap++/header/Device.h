@@ -57,7 +57,7 @@ namespace pcpp
 		{
 			std::string filterAsString;
 			filter.parseToString(filterAsString);
-			return doUpdateFilter(filterAsString);
+			return doUpdateFilter(&filterAsString);
 		}
 
 		/// Set a filter for the device. When implemented by the device, only packets that match the filter will be
@@ -67,24 +67,25 @@ namespace pcpp
 		/// @return True if filter set successfully, false otherwise
 		bool setFilter(std::string const& filterAsString)
 		{
-			return doUpdateFilter(filterAsString);
+			return doUpdateFilter(&filterAsString);
 		}
 
 		/// Clear the filter currently set on the device
 		/// @return True if filter was removed successfully or if no filter was set, false otherwise
 		bool clearFilter()
 		{
-			return doUpdateFilter("");
+			return doUpdateFilter(nullptr);
 		}
 
 	protected:
 		/// @brief Updates the filter on the device with a BPF string.
 		///
 		/// Only packets that match the filter should be processed by the device after this method is called.
-		/// An empty string is synonymous with ANY filter (i.e., no filtering).
+		/// An nullptr should disable any existing filter on the device.
 		///
-		/// @param filterAsString A string representing the filter in BPF syntax  (http://biot.com/capstats/bpf.html).
+		/// @param filterAsString A pointer to a string representing the filter in BPF syntax
+		/// (http://biot.com/capstats/bpf.html).
 		/// @return True if the operation was successful, false otherwise.
-		virtual bool doUpdateFilter(std::string const& filterAsString) = 0;
+		virtual bool doUpdateFilter(std::string const* filterAsString) = 0;
 	};
 }  // namespace pcpp

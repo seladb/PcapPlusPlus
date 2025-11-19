@@ -165,6 +165,6 @@ namespace pcpp
 		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
 	protected:
-		bool doUpdateFilter(std::string const& filterAsString) override;
+		bool doUpdateFilter(std::string const* filterAsString) override;
 	};
 }  // namespace pcpp
