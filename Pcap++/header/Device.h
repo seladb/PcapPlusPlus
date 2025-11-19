@@ -81,7 +81,7 @@ namespace pcpp
 		/// @brief Updates the filter on the device with a BPF string.
 		///
 		/// Only packets that match the filter should be processed by the device after this method is called.
-		/// An nullptr should disable any existing filter on the device.
+		/// A nullptr should disable any existing filter on the device.
 		///
 		/// @param filterAsString A pointer to a string representing the filter in BPF syntax
 		/// (http://biot.com/capstats/bpf.html).
