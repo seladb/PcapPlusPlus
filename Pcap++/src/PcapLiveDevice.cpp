@@ -844,8 +844,12 @@ namespace pcpp
 		m_CaptureThreadStarted = true;
 		m_StopThread = false;
 
-		const int64_t timeoutMs = timeout * 1000;  // timeout unit is seconds, let's change it to milliseconds
+		// A valid timeout is only generated when timeout is positive.
+		// This means that the timeout timepoint should be after the start time.
+		const bool hasTimeout = timeout > 0;
 		auto startTime = std::chrono::steady_clock::now();
+		// Calculate the timeout timepoint, cast the double timeout (in seconds) to milliseconds for greater precision
+		auto timeoutTime = startTime + std::chrono::milliseconds(static_cast<int64_t>(timeout * 1000));
 		auto currentTime = startTime;
 
 #if !defined(_WIN32)
@@ -863,7 +867,8 @@ namespace pcpp
 		context.userCookie = userCookie;
 		context.requestStop = false;
 
-		if (timeoutMs <= 0)
+		// No timeout specified, run until stopped
+		if (!hasTimeout)
 		{
 			while (!m_StopThread)
 			{
@@ -883,15 +888,13 @@ namespace pcpp
 		}
 		else
 		{
-			auto const timeoutTimepoint = startTime + std::chrono::milliseconds(timeoutMs);
-
-			while (!m_StopThread && currentTime < timeoutTimepoint)
+			while (!m_StopThread && currentTime < timeoutTime)
 			{
 				if (m_UsePoll)
 				{
 #if !defined(_WIN32)
 					int64_t pollTimeoutMs =
-					    std::chrono::duration_cast<std::chrono::milliseconds>(timeoutTimepoint - currentTime).count();
+					    std::chrono::duration_cast<std::chrono::milliseconds>(timeoutTime - currentTime).count();
 
 					// poll will be in blocking mode if negative value
 					pollTimeoutMs = std::max(pollTimeoutMs, static_cast<int64_t>(0));
@@ -952,9 +955,10 @@ namespace pcpp
 			return 0;
 		}
 
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() >= timeoutMs)
+		// Check the time only if a valid timeout was specified. Otherwise it would always be true.
+		if (hasTimeout && currentTime >= timeoutTime)
 		{
-			return -1;
+			return -1;  // If we are past the timeout time, return -1
 		}
 		return 1;
 	}
