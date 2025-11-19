@@ -117,6 +117,7 @@ namespace pcpp
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
+
 	public:
 		/// The type of the live device
 		enum LiveDeviceType
