@@ -234,7 +234,7 @@ PTF_TEST_CASE(TestReaderFactory_InvalidFile)
 
 	// Test non-existent file
 	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader("this-file-does-not-exist.pcap"), std::runtime_error,
-	                  "Could not open: this-file-does-not-exist.pcap");
+	                  "Could not open file: this-file-does-not-exist.pcap");
 
 	auto dev = pcpp::IFileReaderDevice::tryCreateReader("this-file-does-not-exist.pcap");
 	PTF_ASSERT_NULL(dev);
