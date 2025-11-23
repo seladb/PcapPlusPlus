@@ -14,9 +14,7 @@ namespace pcpp
 			delete[] m_Data;
 	}
 
-	Layer::Layer(const Layer& other)
-	    : m_Packet(nullptr), m_Protocol(other.m_Protocol), m_NextLayer(nullptr), m_PrevLayer(nullptr),
-	      m_IsAllocatedInPacket(false)
+	Layer::Layer(const Layer& other) : m_Protocol(other.m_Protocol), m_NextLayer(nullptr), m_PrevLayer(nullptr)
 	{
 		m_DataLen = other.getHeaderLen();
 		m_Data = new uint8_t[other.m_DataLen];
@@ -28,16 +26,18 @@ namespace pcpp
 		if (this == &other)
 			return *this;
 
+		// Should this really always delete m_Data? What if the layer is attached to a packet?
 		if (m_Data != nullptr)
 			delete[] m_Data;
 
+		// Reset allocation info as the layer is considered copied and not attached to any packet.
+		m_AllocationInfo = internal::LayerAllocationInfo{};
+
 		m_DataLen = other.getHeaderLen();
-		m_Packet = nullptr;
 		m_Protocol = other.m_Protocol;
 		m_NextLayer = nullptr;
 		m_PrevLayer = nullptr;
 		m_Data = new uint8_t[other.m_DataLen];
-		m_IsAllocatedInPacket = false;
 		memcpy(m_Data, other.m_Data, other.m_DataLen);
 
 		return *this;
@@ -61,7 +61,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (m_Packet == nullptr)
+		if (getAttachedPacket() == nullptr)
 		{
 			if (static_cast<size_t>(offsetInLayer) > m_DataLen)
 			{
@@ -77,7 +77,7 @@ namespace pcpp
 			return true;
 		}
 
-		return m_Packet->extendLayer(this, offsetInLayer, numOfBytesToExtend);
+		return getAttachedPacket()->extendLayer(this, offsetInLayer, numOfBytesToExtend);
 	}
 
 	bool Layer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
@@ -94,7 +94,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (m_Packet == nullptr)
+		if (getAttachedPacket() == nullptr)
 		{
 			if (static_cast<size_t>(offsetInLayer) >= m_DataLen)
 			{
@@ -111,7 +111,7 @@ namespace pcpp
 			return true;
 		}
 
-		return m_Packet->shortenLayer(this, offsetInLayer, numOfBytesToShorten);
+		return getAttachedPacket()->shortenLayer(this, offsetInLayer, numOfBytesToShorten);
 	}
 
 }  // namespace pcpp

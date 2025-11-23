@@ -80,11 +80,11 @@ namespace pcpp
 
 		if (contentType.find("application/sdp") != std::string::npos)
 		{
-			m_NextLayer = new SdpLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			m_NextLayer = new SdpLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
 		}
 		else
 		{
-			m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
 		}
 	}
 

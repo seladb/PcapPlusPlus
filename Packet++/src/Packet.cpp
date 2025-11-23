@@ -69,7 +69,7 @@ namespace pcpp
 		for (auto* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			// Mark the current layer as allocated in the packet
-			curLayer->m_IsAllocatedInPacket = true;
+			curLayer->m_AllocationInfo.managedByPacket = true;
 			m_LastLayer = curLayer;  // Update last layer to current layer
 
 			// If the current layer is of a higher OSI layer than the target, stop parsing
@@ -119,7 +119,7 @@ namespace pcpp
 				    new PacketTrailerLayer(static_cast<uint8_t*>(m_LastLayer->getData() + m_LastLayer->getDataLen()),
 				                           trailerLen, m_LastLayer, this);
 
-				trailerLayer->m_IsAllocatedInPacket = true;
+				trailerLayer->m_AllocationInfo.managedByPacket = true;
 				m_LastLayer->setNextLayer(trailerLayer);
 				m_LastLayer = trailerLayer;
 			}
@@ -165,7 +165,7 @@ namespace pcpp
 		while (curLayer != nullptr)
 		{
 			Layer* nextLayer = curLayer->getNextLayer();
-			if (curLayer->m_IsAllocatedInPacket)
+			if (curLayer->m_AllocationInfo.managedByPacket)
 				delete curLayer;
 			curLayer = nextLayer;
 		}
@@ -197,7 +197,7 @@ namespace pcpp
 		while (curLayer != nullptr)
 		{
 			curLayer->parseNextLayer();
-			curLayer->m_IsAllocatedInPacket = true;
+			curLayer->m_AllocationInfo.managedByPacket = true;
 			curLayer = curLayer->getNextLayer();
 			if (curLayer != nullptr)
 				m_LastLayer = curLayer;
@@ -294,12 +294,8 @@ namespace pcpp
 		else
 			newLayer->getNextLayer()->setPrevLayer(newLayer);
 
-		// assign layer with this packet only
-		newLayer->m_Packet = this;
-
-		// Set flag to indicate if new layer is allocated to packet.
-		if (ownInPacket)
-			newLayer->m_IsAllocatedInPacket = true;
+		// Attach the layer to this packet. If ownInPacket is true, transfer ownership of the layer to the packet.
+		newLayer->m_AllocationInfo.attachPacket(this, ownInPacket);
 
 		// re-calculate all layers data ptr and data length
 
@@ -497,7 +493,7 @@ namespace pcpp
 		}
 
 		// if layer was allocated by this packet and tryToDelete flag is set, delete it
-		if (tryToDelete && layer->m_IsAllocatedInPacket)
+		if (tryToDelete && layer->m_AllocationInfo.managedByPacket)
 		{
 			delete layer;
 		}
@@ -505,7 +501,7 @@ namespace pcpp
 		// be reused
 		else
 		{
-			layer->m_Packet = nullptr;
+			layer->m_AllocationInfo.detach();
 			layer->m_Data = layerOldData.release();
 			layer->m_DataLen = layerOldDataSize;
 		}
@@ -567,7 +563,7 @@ namespace pcpp
 		}
 
 		// verify layer is allocated to this packet
-		if (!(layer->m_Packet == this))
+		if (!(layer->getAttachedPacket() == this))
 		{
 			PCPP_LOG_ERROR("Layer isn't allocated to this packet");
 			return false;
@@ -640,7 +636,7 @@ namespace pcpp
 		}
 
 		// verify layer is allocated to this packet
-		if (!(layer->m_Packet == this))
+		if (!(layer->getAttachedPacket() == this))
 		{
 			PCPP_LOG_ERROR("Layer isn't allocated to this packet");
 			return false;
