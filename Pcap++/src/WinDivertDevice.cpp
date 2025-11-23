@@ -36,6 +36,20 @@ namespace pcpp
 
 			~WinDivertOverlappedWrapper() override
 			{
+				if (CancelIoEx(m_Handle, &m_Overlapped))
+				{
+					WaitForSingleObject(m_Event, INFINITE);
+				}
+				else
+				{
+					DWORD error = GetLastError();
+					if (error != ERROR_NOT_FOUND)
+					{
+						PCPP_LOG_ERROR("CancelIoEx failed with unexpected error: " << error);
+						// May still want to wait with a timeout for safety
+						WaitForSingleObject(m_Event, 1000);
+					}
+				}
 				CloseHandle(m_Event);
 			}
 
@@ -584,7 +598,7 @@ namespace pcpp
 	    uint32_t timeout, uint8_t batchSize, std::vector<uint8_t>& buffer, internal::IOverlappedWrapper* overlapped)
 	{
 		auto result = m_Handle->recvEx(buffer.data(), buffer.size(), batchSize, overlapped);
-		if (result != internal::IWinDivertHandle::ErrorIoPending)
+		if (result != internal::IWinDivertHandle::ErrorIoPending && result != internal::IWinDivertHandle::SuccessResult)
 		{
 			return { ReceiveResult::Status::Failed, "Error receiving packets: " + getErrorString(result), result };
 		}
