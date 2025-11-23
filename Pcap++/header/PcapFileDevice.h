@@ -389,21 +389,18 @@ namespace pcpp
 		/// @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
 		/// @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an
 		/// error log will be printed) or if reached end-of-file
-		bool getNextPacket(RawPacket& rawPacket);
+		bool getNextPacket(RawPacket& rawPacket) override;
 
 		/// Open the file name which path was specified in the constructor in a read-only mode
 		/// @return True if file was opened successfully or if file is already opened. False if opening the file failed
 		/// for some reason (for example: file path does not exist)
-		bool open();
-
-		/// Set a filter for PcapNG reader device. Only packets that match the filter will be received
-		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
-		/// (http://biot.com/capstats/bpf.html)
-		/// @return True if filter set successfully, false otherwise
-		bool setFilter(std::string filterAsString);
+		bool open() override;
 
 		/// Close the pacp-ng file
-		void close();
+		void close() override;
+
+	protected:
+		bool doUpdateFilter(std::string const* filter) override;
 	};
 
 	/// @class PcapNgFileWriterDevice
@@ -506,11 +503,8 @@ namespace pcpp
 		/// Flush and close the pcap-ng file
 		void close() override;
 
-		/// Set a filter for PcapNG writer device. Only packets that match the filter will be persisted
-		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
-		/// (http://biot.com/capstats/bpf.html)
-		/// @return True if filter set successfully, false otherwise
-		bool setFilter(std::string filterAsString) override;
+	protected:
+		bool doUpdateFilter(std::string const* filterAsString) override;
 
 	private:
 		/// @struct PcapNgMetadata
