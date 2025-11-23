@@ -152,17 +152,18 @@ namespace pcpp
 		return new PcapFileReaderDevice(fileName);
 	}
 
-	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName)
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName, bool openDevice)
 	{
 		std::ifstream fileContent(fileName, std::ios_base::binary);
 		if (fileContent.fail())
 		{
-			throw std::runtime_error("Could not open: " + fileName);
+			throw std::runtime_error("Could not open file: " + fileName);
 		}
 
 		using internal::CaptureFileFormat;
 		using internal::CaptureFileFormatDetector;
 
+		std::unique_ptr<IFileReaderDevice> readerDev;
 		switch (CaptureFileFormatDetector().detectFormat(fileContent))
 		{
 		case CaptureFileFormat::PcapNano:
@@ -178,7 +179,8 @@ namespace pcpp
 		case CaptureFileFormat::PcapMod:
 		{
 			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
-			return std::make_unique<PcapFileReaderDevice>(fileName);
+			readerDev = std::make_unique<PcapFileReaderDevice>(fileName);
+			break;
 		}
 		case CaptureFileFormat::ZstArchive:
 		{
@@ -191,20 +193,38 @@ namespace pcpp
 			// fallthrough
 		}
 		case CaptureFileFormat::PcapNG:
-			return std::make_unique<PcapNgFileReaderDevice>(fileName);
+		{
+			readerDev = std::make_unique<PcapNgFileReaderDevice>(fileName);
+			break;
+		}
 		case CaptureFileFormat::Snoop:
-			return std::make_unique<SnoopFileReaderDevice>(fileName);
+		{
+			readerDev = std::make_unique<SnoopFileReaderDevice>(fileName);
+			break;
+		}
 		default:
 			throw std::runtime_error("File format of " + fileName + " is not supported");
 		}
+
+		if (!readerDev)
+		{
+			throw std::logic_error("Internal error: reader device is null for file: " + fileName);
+		}
+
+		if (openDevice && !readerDev->open())
+		{
+			throw std::runtime_error("Could not open device for file: " + fileName);
+		}
+
+		return readerDev;
 	}
 
-	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::tryCreateReader(const std::string& fileName)
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::tryCreateReader(const std::string& fileName, bool openDevice)
 	{
 		// Not the best implementation, but it is not expected to be called in hot loops
 		try
 		{
-			return createReader(fileName);
+			return createReader(fileName, openDevice);
 		}
 		catch (const std::exception& e)
 		{
