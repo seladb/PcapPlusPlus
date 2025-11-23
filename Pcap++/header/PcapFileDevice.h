@@ -129,7 +129,7 @@ namespace pcpp
 		PCPP_DEPRECATED("Prefer `tryCreateReader` due to selection of reader based on file content.")
 		static IFileReaderDevice* getReader(const std::string& fileName);
 
-		/// @brief Creates an instance of the reader best fit to read the file.
+		/// @brief Creates an instance of the reader best fit to read the file and optionally opens it.
 		///
 		/// The factory function uses heuristics based on the file content to decide the reader.
 		/// If the file type is known at compile time, it is better to construct a concrete reader instance directly.
@@ -140,7 +140,7 @@ namespace pcpp
 		/// @throws std::runtime_error If the file could not be opened or unsupported.
 		static std::unique_ptr<IFileReaderDevice> createReader(const std::string& fileName, bool openDevice = true);
 
-		/// @brief Tries to create an instance of the reader best fit to read the file.
+		/// @brief Tries to create an instance of the reader best fit to read the file and optionally opens it.
 		///
 		/// The factory function uses heuristics based on the file content to decide the reader.
 		/// If the file type is known at compile time, it is better to construct a concrete reader instance directly.
