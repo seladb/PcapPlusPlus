@@ -795,11 +795,18 @@ PTF_TEST_CASE(TestSendPacket)
 		// send packet as raw data
 		PTF_ASSERT_TRUE(liveDev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()));
 
-		// send packet as parsed EthPacekt
+		// send packet as parsed EthPacket
 		pcpp::Packet packet(&rawPacket);
 		PTF_ASSERT_TRUE(liveDev->sendPacket(packet));
 
 		packetsSent++;
+
+#ifdef __FreeBSD__
+		if (packetsSent % 30 == 0)
+		{
+			usleep(100);
+		}
+#endif
 	}
 
 	PTF_ASSERT_EQUAL(packetsRead, packetsSent);
