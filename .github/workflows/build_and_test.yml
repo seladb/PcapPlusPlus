@@ -38,6 +38,8 @@ jobs:
           pkg install -y python bash cmake git gmake gsed libpcap tcpreplay libffi openssl py311-cryptography
 
         run: |
+          set -e
+
           echo "Building PcapPlusPlus"
           chmod a+rw /dev/bpf*
           cmake -S . -B Dist
