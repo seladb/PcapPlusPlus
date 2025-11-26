@@ -36,6 +36,7 @@ jobs:
         usesh: true
         prepare: |
           pkg install -y python bash cmake git gmake gsed libpcap tcpreplay libffi openssl py311-cryptography
+          sysctl kern.ipc.maxsockbuf=16777216
 
         run: |
           set -e
