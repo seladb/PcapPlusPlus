@@ -804,7 +804,7 @@ PTF_TEST_CASE(TestSendPacket)
 #ifdef __FreeBSD__
 		if (packetsSent % 30 == 0)
 		{
-			usleep(100);
+			std::this_thread::sleep_for(std::chrono::microseconds(100));
 		}
 #endif
 	}
