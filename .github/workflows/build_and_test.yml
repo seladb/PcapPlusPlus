@@ -36,13 +36,11 @@ jobs:
         usesh: true
         prepare: |
           pkg install -y python bash cmake git gmake gsed libpcap tcpreplay libffi openssl py311-cryptography
-          sysctl kern.ipc.maxsockbuf=16777216
-          sysctl kern.ipc.nmbclusters=262144
-          sysctl kern.ipc.nmbufs=524288
-          sysctl net.link.ifqmaxlen=4096
 
         run: |
           set -e
+
+          sysctl kern.ipc.maxsockbuf=16777216
 
           echo "Building PcapPlusPlus"
           chmod a+rw /dev/bpf*
