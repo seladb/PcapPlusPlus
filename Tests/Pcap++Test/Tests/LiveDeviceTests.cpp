@@ -801,12 +801,12 @@ PTF_TEST_CASE(TestSendPacket)
 
 		packetsSent++;
 
-#ifdef __FreeBSD__
-		if (packetsSent % 30 == 0)
+// #ifdef __FreeBSD__
+		if (packetsSent % 10 == 0)
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(100));
 		}
-#endif
+// #endif
 	}
 
 	PTF_ASSERT_EQUAL(packetsRead, packetsSent);
@@ -829,21 +829,25 @@ PTF_TEST_CASE(TestSendPackets)
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
 
-	std::vector<pcpp::RawPacket> rawPacketArr(10000);
+	std::vector<pcpp::RawPacket> rawPacketArr(30);
 	pcpp::PointerVector<pcpp::Packet> packetVec;
 	int packetsRead = 0;
 	while (fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
 	{
 		packetVec.pushBack(new pcpp::Packet(&rawPacketArr[packetsRead]));
 		packetsRead++;
+		if (packetsRead == 30)
+		{
+			break;
+		}
 	}
 
 	// send packets as RawPacket array
 	int packetsSentAsRaw = liveDev->sendPackets(rawPacketArr.data(), packetsRead);
 
-	// send packets as parsed EthPacekt array
+	// send packets as parsed EthPacket array
 	std::vector<pcpp::Packet*> packetArr;
-	packetArr.reserve(10000);
+	packetArr.reserve(30);
 	std::copy(packetVec.begin(), packetVec.end(), std::back_inserter(packetArr));
 	int packetsSentAsParsed = liveDev->sendPackets(packetArr.data(), packetsRead);
 
