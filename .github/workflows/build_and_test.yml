@@ -829,11 +829,11 @@ jobs:
           arch: ${{ matrix.target }}
           working-directory: ./ToyVpn-PcapPlusPlus
           script: ./gradlew -is connectedCheck -PabiFilter=${{ matrix.target}}
-  # Uncomment to enable logs
-  #          script: |
-  #            adb logcat -c
-  #            adb logcat &
-  #            gradle -is connectedCheck
+# Uncomment to enable logs
+#          script: |
+#            adb logcat -c
+#            adb logcat &
+#            gradle -is connectedCheck
 
   xdp:
     runs-on: ubuntu-22.04
