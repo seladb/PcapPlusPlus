@@ -813,10 +813,9 @@ PTF_TEST_CASE(TestSendPackets)
 	PTF_ASSERT_EQUAL(liveDev->sendPackets(rawPacketPtrVec), expectedPacketCount);
 
 	std::vector<pcpp::RawPacket> rawPacketVec;
-	for (const auto& rawPacket : rawPacketPtrVec)
-	{
-		rawPacketVec.emplace_back(*rawPacket);
-	}
+	rawPacketVec.reserve(rawPacketPtrVec.size());
+	std::transform(rawPacketPtrVec.begin(), rawPacketPtrVec.end(), std::back_inserter(rawPacketVec),
+	               [](const auto& rawPacketPtr) { return *rawPacketPtr; });
 	PTF_ASSERT_EQUAL(liveDev->sendPackets(rawPacketVec.data(), expectedPacketCount), expectedPacketCount);
 
 	pcpp::PointerVector<pcpp::Packet> packetPtrVec;
