@@ -320,6 +320,11 @@ namespace pcpp
 			return m_Vector.at(index);
 		}
 
+		T** data()
+		{
+			return m_Vector.data();
+		}
+
 	private:
 		/// Performs a copy of the vector along with its elements.
 		/// The caller is responsible of freeing the copied elements.
