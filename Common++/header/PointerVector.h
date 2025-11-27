@@ -320,6 +320,7 @@ namespace pcpp
 			return m_Vector.at(index);
 		}
 
+		/// @return A pointer to the underlying array serving as the vector’s storage
 		T** data()
 		{
 			return m_Vector.data();
