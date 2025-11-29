@@ -343,8 +343,12 @@ namespace pcpp
 		/// @brief A map of QueueParam keys to their values. Units are per QueueParam description above.
 		using QueueParams = std::unordered_map<QueueParam, uint64_t>;
 
-		/// @brief Construct a WinDivertDevice with the default WinDivert implementation.
-		WinDivertDevice();
+		/// @brief Construct a WinDivertDevice.
+		///
+		/// @param[in] driver Optional WinDivert driver implementation.
+		/// Ownership is transferred to WinDivertDevice. Pass nullptr (the default)
+		/// to use the built-in default driver implementation.
+		WinDivertDevice(std::unique_ptr<internal::IWinDivertDriver> driver = nullptr);
 
 		/// @brief Open the device with a default filter capturing both directions.
 		/// @return true on success, false on failure (see logs for details).
@@ -428,10 +432,6 @@ namespace pcpp
 		/// @brief Enumerate Windows network interfaces.
 		/// @return A vector of NetworkInterface entries.
 		std::vector<NetworkInterface> getNetworkInterfaces() const;
-
-		/// @brief Replace the underlying driver (intended for testing/mocking).
-		/// @param[in] driver A driver of the WinDivert backend APIs.
-		void setDriver(std::unique_ptr<internal::IWinDivertDriver> driver);
 
 	private:
 		std::unique_ptr<internal::IWinDivertDriver> m_Driver;

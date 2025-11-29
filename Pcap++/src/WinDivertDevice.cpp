@@ -272,7 +272,8 @@ namespace pcpp
 
 	constexpr uint32_t WinDivertBufferLength = 65536;
 
-	WinDivertDevice::WinDivertDevice() : m_Driver(std::make_unique<internal::WinDivertDriver>())
+	WinDivertDevice::WinDivertDevice(std::unique_ptr<internal::IWinDivertDriver> driver)
+	    : m_Driver(driver != nullptr ? std::move(driver) : std::make_unique<internal::WinDivertDriver>())
 	{}
 
 	bool WinDivertDevice::open()
@@ -595,11 +596,6 @@ namespace pcpp
 		}
 
 		return interfaces;
-	}
-
-	void WinDivertDevice::setDriver(std::unique_ptr<internal::IWinDivertDriver> driver)
-	{
-		m_Driver = std::move(driver);
 	}
 
 	WinDivertDevice::ReceiveResultInternal WinDivertDevice::receivePacketsInternal(
