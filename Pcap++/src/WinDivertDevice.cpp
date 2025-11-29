@@ -30,9 +30,10 @@ namespace pcpp
 				m_Overlapped.hEvent = m_Event;
 			}
 
-			// Non-copyable
+			// Non-copyable or movable
 			WinDivertOverlappedWrapper(const WinDivertOverlappedWrapper&) = delete;
 			WinDivertOverlappedWrapper& operator=(const WinDivertOverlappedWrapper&) = delete;
+			WinDivertOverlappedWrapper(WinDivertOverlappedWrapper&&) = delete;
 
 			~WinDivertOverlappedWrapper() override
 			{
@@ -393,6 +394,11 @@ namespace pcpp
 			return { ReceiveResult::Status::Failed, "Batch size has to be a positive number" };
 		}
 
+		if (!callback)
+		{
+			return { ReceiveResult::Status::Failed, "Callback was not provided" };
+		}
+
 		auto overlapped = m_Handle->createOverlapped();
 		uint32_t bufferSize = WINDIVERT_BUFFER_LEN * batchSize;
 		std::vector<uint8_t> buffer(bufferSize);
@@ -455,8 +461,8 @@ namespace pcpp
 			return { SendResult::Status::Failed, 0, "Batch size has to be a positive number" };
 		}
 
-		uint8_t buffer[WINDIVERT_BUFFER_LEN];
-		auto curBufferPtr = buffer;
+		std::array<uint8_t, WINDIVERT_BUFFER_LEN> buffer{};
+		auto curBufferPtr = buffer.data();
 
 		uint8_t packetsInCurrentBatch = 0;
 		size_t packetsSent = 0;
@@ -469,7 +475,7 @@ namespace pcpp
 
 			if (packetsInCurrentBatch >= batchSize || packetIndex >= packetsToSend - 1)
 			{
-				auto result = m_Handle->sendEx(buffer, WINDIVERT_BUFFER_LEN, packetsInCurrentBatch);
+				auto result = m_Handle->sendEx(buffer.data(), WINDIVERT_BUFFER_LEN, packetsInCurrentBatch);
 				if (result != internal::IWinDivertHandle::SuccessResult)
 				{
 					return { SendResult::Status::Failed, packetsSent,
@@ -478,8 +484,8 @@ namespace pcpp
 				packetsSent += packetsInCurrentBatch;
 
 				packetsInCurrentBatch = 0;
-				memset(buffer, 0, sizeof(buffer));
-				curBufferPtr = buffer;
+				memset(buffer.data(), 0, sizeof(buffer));
+				curBufferPtr = buffer.data();
 			}
 		}
 

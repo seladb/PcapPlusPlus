@@ -9,6 +9,9 @@
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
+pcpp::WinDivertDevice::ReceivePacketCallback noOpCallback = [](const pcpp::WinDivertDevice::WinDivertRawPacketVector&) {
+};
+
 PTF_TEST_CASE(TestWinDivertReceivePackets)
 {
 #ifdef USE_WINDIVERT
@@ -154,7 +157,7 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 
 		pcpp::WinDivertDevice::WinDivertRawPacketVector rawPackets;
 		auto result1 = device.receivePackets(rawPackets);
-		auto result2 = device.receivePackets(nullptr);
+		auto result2 = device.receivePackets(noOpCallback);
 
 		for (const auto& result : { result1, result2 })
 		{
@@ -173,7 +176,7 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 
 		pcpp::WinDivertDevice::WinDivertRawPacketVector rawPackets;
 		auto result1 = device.receivePackets(rawPackets, 5000, 0, 0);
-		auto result2 = device.receivePackets(nullptr, 5000, 0);
+		auto result2 = device.receivePackets(noOpCallback, 5000, 0);
 
 		for (const auto& result : { result1, result2 })
 		{
@@ -208,7 +211,7 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 		bool failedReceiveWhileReceiving = false;
 
 		device.receivePackets([&](const pcpp::WinDivertDevice::WinDivertRawPacketVector&) {
-			auto result1 = device.receivePackets(nullptr);
+			auto result1 = device.receivePackets(noOpCallback);
 			pcpp::WinDivertDevice::WinDivertRawPacketVector rawPackets;
 			auto result2 = device.receivePackets(rawPackets);
 
@@ -224,6 +227,19 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 		});
 
 		PTF_ASSERT_TRUE(failedReceiveWhileReceiving);
+	}
+
+	// Receive with no callback
+	{
+		pcpp::WinDivertDevice device;
+		PTF_ASSERT_TRUE(device.open());
+
+		DeviceTeardown devTeardown(&device);
+
+		auto result = device.receivePackets(nullptr);
+
+		PTF_ASSERT_EQUAL(result.status, pcpp::WinDivertDevice::ReceiveResult::Status::Failed, enumclass);
+		PTF_ASSERT_EQUAL(result.error, "Callback was not provided");
 	}
 #else
 	PTF_SKIP_TEST("WinDivert is not configured");
