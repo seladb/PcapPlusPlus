@@ -149,95 +149,7 @@ namespace pcpp
 		/// @param[in] data Pointer to the raw data buffer
 		/// @param[in] dataLen Length of the data buffer in bytes
 		/// @return True if the first line matches SIP request/response syntax, false otherwise
-		static bool dissectSipHeuristic(const uint8_t* data, size_t dataLen)
-		{
-			if (!data || dataLen == 0)
-			{
-				return false;
-			}
-
-			int firstLineLen = findFirstLine(data, dataLen);
-			if (firstLineLen <= 0)
-			{
-				return false;
-			}
-
-			const char* line = reinterpret_cast<const char*>(data);
-			const int   len  = firstLineLen;
-
-			// --- Extract first three tokens from the first line ---
-			int token1_start = 0;
-			token1_start = skipSpaces(line, token1_start, len);
-			if (token1_start >= len)
-			{
-				return false;
-			}
-
-			int space1 = findSpace(line, token1_start, len);
-			if (space1 == -1 || space1 == token1_start)
-			{
-				return false;
-			}
-
-			int token1_len = space1 - token1_start;
-
-			int token2_start = skipSpaces(line, space1 + 1, len);
-			if (token2_start >= len)
-			{
-				return false;
-			}
-
-			int space2 = findSpace(line, token2_start, len);
-			if (space2 == -1)
-			{
-				return false;
-			}
-
-			int token2_len = space2 - token2_start;
-
-			int token3_start = skipSpaces(line, space2 + 1, len);
-			if (token3_start >= len)
-			{
-				return false;
-			}
-
-			int token3_len = len - token3_start;
-
-			const char* token1 = line + token1_start;
-			const char* token2 = line + token2_start;
-			const char* token3 = line + token3_start;
-
-			// --- Check if it's a SIP response line: "SIP/x.y SP nnn SP Reason" ---
-			if (startsWithSipVersion(token1, static_cast<size_t>(token1_len)))
-			{
-				// second token must be 3-digit status code
-				if (!isThreeDigitCode(token2, static_cast<size_t>(token2_len)))
-					return false;
-
-				return true;
-			}
-
-			// --- Check if it's a SIP request line: "METHOD SP URI SP SIP/x.y" ---
-			if (token2_len < 3)
-			{
-				return false;
-			}
-
-			if (!hasColonInRange(line,
-								static_cast<size_t>(token2_start + 1),
-								static_cast<size_t>(space2)))
-			{
-				return false;
-			}
-
-			if (!startsWithSipVersion(token3, static_cast<size_t>(token3_len)))
-			{
-				return false;
-			}
-
-			return true;
-		}
-
+		static bool dissectSipHeuristic(const uint8_t* data, size_t dataLen);
 
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
@@ -272,22 +184,7 @@ namespace pcpp
 		/// @param[in] data Pointer to the raw data buffer
 		/// @param[in] dataLen Length of the data buffer in bytes
 		/// @return The number of bytes until the first CR/LF, or -1 on invalid input
-		static int findFirstLine(const uint8_t* data, size_t dataLen)
-		{
-			if (!data || dataLen == 0)
-				return -1;
-
-			const char* start = reinterpret_cast<const char*>(data);
-			const char* end   = start + dataLen;
-
-			// Find CR or LF
-			auto it = std::find_if(start, end, [](char c)
-			{
-				return c == '\r' || c == '\n';
-			});
-
-			return static_cast<int>(std::distance(start, it));
-		}
+		static int findFirstLine(const uint8_t* data, size_t dataLen);
 		
 		/// Checks whether a buffer starts with the SIP version prefix "SIP/".
 		/// Comparison is case-insensitive and requires the input length to be at least
@@ -295,23 +192,7 @@ namespace pcpp
 		/// @param[in] s Pointer to the buffer to examine
 		/// @param[in] len Number of bytes available in the buffer
 		/// @return True if the buffer begins with "SIP/" (case-insensitive), false otherwise
-		static bool startsWithSipVersion(const char* s, size_t len)
-		{
-			constexpr char prefix[]   = "SIP/";
-			constexpr std::size_t prefixLen = sizeof(prefix) - 1;
-
-			if (len < prefixLen)
-				return false;
-
-			return std::equal(
-				prefix, prefix + prefixLen, s,
-				[](char a, char b)
-				{
-					return std::tolower(static_cast<unsigned char>(a)) ==
-						std::tolower(static_cast<unsigned char>(b));
-				}
-			);
-		}
+		static bool startsWithSipVersion(const char* s, size_t len);
 
 		/// Determines whether a buffer of length 3 contains only numeric digits.
 		/// This is primarily used to validate SIP response status codes, which must
@@ -319,16 +200,7 @@ namespace pcpp
 		/// @param[in] s Pointer to the buffer to check
 		/// @param[in] len Must be exactly 3 to return true
 		/// @return True if all three characters are decimal digits, false otherwise
-		static bool isThreeDigitCode(const char* s, size_t len)
-		{
-			if (len != 3)
-				return false;
-
-			return std::all_of(s, s + 3, [](unsigned char ch)
-			{
-				return std::isdigit(ch) != 0;
-			});
-		}
+		static bool isThreeDigitCode(const char* s, size_t len);
 
 		/// Checks for the presence of a colon (':') within a specific range of a string.
 		/// This is used to validate that a SIP Request-URI contains a scheme (e.g., sip:),
@@ -337,13 +209,7 @@ namespace pcpp
 		/// @param[in] begin Starting index of the range (inclusive)
 		/// @param[in] end Ending index of the range (exclusive)
 		/// @return True if a ':' character exists within the specified range, false otherwise
-		static bool hasColonInRange(const char* s, size_t begin, size_t end)
-		{
-			const char* first = s + begin;
-			const char* last  = s + end;
-
-			return std::find(first, last, ':') != last;
-		}
+		static bool hasColonInRange(const char* s, size_t begin, size_t end);
 
 		/// Finds the first space (' ') character in the string starting from a given index.
 		/// The search is limited to the range [start, len). If no space is found, -1 is returned.
@@ -351,17 +217,7 @@ namespace pcpp
 		/// @param[in] start Index from which to start scanning
 		/// @param[in] len Total valid length of the string
 		/// @return The index of the first space, or -1 if not found
-		static int findSpace(const char* s, int start, int len)
-		{
-			const char* begin = s + start;
-			const char* end   = s + len;
-
-			auto it = std::find(begin, end, ' ');
-			if (it == end)
-				return -1;
-
-			return static_cast<int>(std::distance(s, it));
-		}
+		static int findSpace(const char* s, int start, int len);
 
 		/// Finds the first space (' ') character in the string starting from a given index.
 		/// The search is limited to the range [start, len). If no space is found, -1 is returned.
@@ -369,16 +225,7 @@ namespace pcpp
 		/// @param[in] start Index from which to start scanning
 		/// @param[in] len Total valid length of the string
 		/// @return The index of the first space, or -1 if not found
-		static int skipSpaces(const char* s, int start, int len)
-		{
-			const char* begin = s + start;
-			const char* end = s + len;
-			const char* it = std::find_if(begin, end, [](unsigned char ch)
-			{
-				return ch != ' ';
-			});
-			return static_cast<int>(std::distance(s, it));
-		}
+		static int skipSpaces(const char* s, int start, int len);
 	};
 
 	class SipRequestFirstLine;
