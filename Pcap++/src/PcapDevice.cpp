@@ -133,7 +133,7 @@ namespace pcpp
 		return stats;
 	}
 
-	bool IPcapDevice::setFilter(std::string filterAsString)
+	bool IPcapDevice::doUpdateFilter(std::string const* filterAsString)
 	{
 		PCPP_LOG_DEBUG("Filter to be set: '" << filterAsString << "'");
 		if (!isOpened())
@@ -142,12 +142,14 @@ namespace pcpp
 			return false;
 		}
 
-		return m_PcapDescriptor.setFilter(filterAsString);
-	}
-
-	bool IPcapDevice::clearFilter()
-	{
-		return m_PcapDescriptor.clearFilter();
+		if (filterAsString == nullptr || filterAsString->empty())
+		{
+			return m_PcapDescriptor.clearFilter();
+		}
+		else
+		{
+			return m_PcapDescriptor.setFilter(*filterAsString);
+		}
 	}
 
 	bool IPcapDevice::matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket)
