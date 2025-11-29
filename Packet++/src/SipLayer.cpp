@@ -103,6 +103,172 @@ namespace pcpp
 		}
 	}
 
+	bool SipLayer::dissectSipHeuristic(const uint8_t* data, size_t dataLen)
+	{
+		if (!data || dataLen == 0)
+		{
+			return false;
+		}
+
+		int firstLineLen = findFirstLine(data, dataLen);
+		if (firstLineLen <= 0)
+		{
+			return false;
+		}
+
+		const char* line = reinterpret_cast<const char*>(data);
+		const int   len  = firstLineLen;
+
+		// --- Extract first three tokens from the first line ---
+		int token1_start = 0;
+		token1_start = skipSpaces(line, token1_start, len);
+		if (token1_start >= len)
+		{
+			return false;
+		}
+
+		int space1 = findSpace(line, token1_start, len);
+		if (space1 == -1 || space1 == token1_start)
+		{
+			return false;
+		}
+
+		int token1_len = space1 - token1_start;
+
+		int token2_start = skipSpaces(line, space1 + 1, len);
+		if (token2_start >= len)
+		{
+			return false;
+		}
+
+		int space2 = findSpace(line, token2_start, len);
+		if (space2 == -1)
+		{
+			return false;
+		}
+
+		int token2_len = space2 - token2_start;
+
+		int token3_start = skipSpaces(line, space2 + 1, len);
+		if (token3_start >= len)
+		{
+			return false;
+		}
+
+		int token3_len = len - token3_start;
+
+		const char* token1 = line + token1_start;
+		const char* token2 = line + token2_start;
+		const char* token3 = line + token3_start;
+
+		// --- Check if it's a SIP response line: "SIP/x.y SP nnn SP Reason" ---
+		if (startsWithSipVersion(token1, static_cast<size_t>(token1_len)))
+		{
+			// second token must be 3-digit status code
+			if (!isThreeDigitCode(token2, static_cast<size_t>(token2_len)))
+				return false;
+
+			return true;
+		}
+
+		// --- Check if it's a SIP request line: "METHOD SP URI SP SIP/x.y" ---
+		if (token2_len < 3)
+		{
+			return false;
+		}
+
+		if (!hasColonInRange(line,
+							static_cast<size_t>(token2_start + 1),
+							static_cast<size_t>(space2)))
+		{
+			return false;
+		}
+
+		if (!startsWithSipVersion(token3, static_cast<size_t>(token3_len)))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	int SipLayer::findFirstLine(const uint8_t* data, size_t dataLen)
+	{
+		if (!data || dataLen == 0)
+			return -1;
+
+		const char* start = reinterpret_cast<const char*>(data);
+		const char* end   = start + dataLen;
+
+		// Find CR or LF
+		auto it = std::find_if(start, end, [](char c)
+		{
+			return c == '\r' || c == '\n';
+		});
+
+		return static_cast<int>(std::distance(start, it));
+	}
+
+	bool SipLayer::startsWithSipVersion(const char* s, size_t len)
+	{
+		constexpr char prefix[]   = "SIP/";
+		constexpr std::size_t prefixLen = sizeof(prefix) - 1;
+
+		if (len < prefixLen)
+			return false;
+
+		return std::equal(
+			prefix, prefix + prefixLen, s,
+			[](char a, char b)
+			{
+				return std::tolower(static_cast<unsigned char>(a)) ==
+					std::tolower(static_cast<unsigned char>(b));
+			}
+		);
+	}
+
+	bool SipLayer::isThreeDigitCode(const char* s, size_t len)
+	{
+		if (len != 3)
+			return false;
+
+		return std::all_of(s, s + 3, [](unsigned char ch)
+		{
+			return std::isdigit(ch) != 0;
+		});
+	}
+
+	bool SipLayer::hasColonInRange(const char* s, size_t begin, size_t end)
+	{
+		const char* first = s + begin;
+		const char* last  = s + end;
+
+		return std::find(first, last, ':') != last;
+	}
+
+	int SipLayer::findSpace(const char* s, int start, int len)
+	{
+		const char* begin = s + start;
+		const char* end   = s + len;
+
+		auto it = std::find(begin, end, ' ');
+		if (it == end)
+			return -1;
+
+		return static_cast<int>(std::distance(s, it));
+	}
+
+	int SipLayer::skipSpaces(const char* s, int start, int len)
+	{
+		const char* begin = s + start;
+		const char* end = s + len;
+		const char* it = std::find_if(begin, end, [](unsigned char ch)
+		{
+			return ch != ' ';
+		});
+		return static_cast<int>(std::distance(s, it));
+	}
+
 	// -------- Class SipRequestFirstLine -----------------
 
 	SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipRequest(sipRequest)
