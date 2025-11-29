@@ -212,7 +212,7 @@ namespace pcpp
 			uint32_t m_WinDivertAddressesSize = 0;
 		};
 
-		class WinDivertImplementation : public IWinDivertImplementation
+		class WinDivertDriver : public IWinDivertDriver
 		{
 		public:
 			std::unique_ptr<IWinDivertHandle> open(const std::string& filter, int layer, int16_t priority,
@@ -272,7 +272,7 @@ namespace pcpp
 
 	constexpr uint32_t WinDivertBufferLength = 65536;
 
-	WinDivertDevice::WinDivertDevice() : m_Impl(std::make_unique<internal::WinDivertImplementation>())
+	WinDivertDevice::WinDivertDevice() : m_Driver(std::make_unique<internal::WinDivertDriver>())
 	{}
 
 	bool WinDivertDevice::open()
@@ -282,7 +282,7 @@ namespace pcpp
 
 	bool WinDivertDevice::open(const std::string& filter)
 	{
-		m_Handle = m_Impl->open(filter, WINDIVERT_LAYER_NETWORK, 0, WINDIVERT_FLAG_SNIFF | WINDIVERT_FLAG_FRAGMENTS);
+		m_Handle = m_Driver->open(filter, WINDIVERT_LAYER_NETWORK, 0, WINDIVERT_FLAG_SNIFF | WINDIVERT_FLAG_FRAGMENTS);
 		if (!m_Handle)
 		{
 			return false;
@@ -597,9 +597,9 @@ namespace pcpp
 		return interfaces;
 	}
 
-	void WinDivertDevice::setImplementation(std::unique_ptr<internal::IWinDivertImplementation> implementation)
+	void WinDivertDevice::setDriver(std::unique_ptr<internal::IWinDivertDriver> driver)
 	{
-		m_Impl = std::move(implementation);
+		m_Driver = std::move(driver);
 	}
 
 	WinDivertDevice::ReceiveResultInternal WinDivertDevice::receivePacketsInternal(
@@ -678,7 +678,7 @@ namespace pcpp
 			return;
 		}
 
-		auto networkInterfaces = m_Impl->getNetworkInterfaces();
+		auto networkInterfaces = m_Driver->getNetworkInterfaces();
 		for (const auto& networkInterface : networkInterfaces)
 		{
 			m_NetworkInterfaces[networkInterface.index] = { networkInterface.index, networkInterface.name,

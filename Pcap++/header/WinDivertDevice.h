@@ -161,7 +161,7 @@ namespace pcpp
 			virtual bool setParam(WinDivertParam param, uint64_t value) = 0;
 		};
 
-		/// @class IWinDivertImplementation
+		/// @class IWinDivertDriver
 		/// @brief Factory and system-query abstraction used by WinDivertDevice.
 		///
 		/// The sole responsibilities of this interface are:
@@ -169,7 +169,7 @@ namespace pcpp
 		/// - Enumerating relevant Windows network interfaces.
 		/// Keeping these responsibilities here keeps WinDivertDevice decoupled from concrete
 		/// system/driver calls and enables unit testing and alternative implementations.
-		class IWinDivertImplementation
+		class IWinDivertDriver
 		{
 		public:
 			/// @brief Information about a Windows network interface as reported by WinDivert/Windows APIs.
@@ -195,7 +195,7 @@ namespace pcpp
 			/// @return A vector of NetworkInterface objects with index, name, description and status.
 			virtual std::vector<NetworkInterface> getNetworkInterfaces() const = 0;
 
-			virtual ~IWinDivertImplementation() = default;
+			virtual ~IWinDivertDriver() = default;
 		};
 	}  // namespace internal
 
@@ -429,12 +429,12 @@ namespace pcpp
 		/// @return A vector of NetworkInterface entries.
 		std::vector<NetworkInterface> getNetworkInterfaces() const;
 
-		/// @brief Replace the underlying implementation (intended for testing/mocking).
-		/// @param[in] implementation An implementation of the WinDivert backend APIs.
-		void setImplementation(std::unique_ptr<internal::IWinDivertImplementation> implementation);
+		/// @brief Replace the underlying driver (intended for testing/mocking).
+		/// @param[in] driver A driver of the WinDivert backend APIs.
+		void setDriver(std::unique_ptr<internal::IWinDivertDriver> driver);
 
 	private:
-		std::unique_ptr<internal::IWinDivertImplementation> m_Impl;
+		std::unique_ptr<internal::IWinDivertDriver> m_Driver;
 		std::unique_ptr<internal::IWinDivertHandle> m_Handle;
 		std::atomic<bool> m_IsReceiving{ false };
 		mutable std::unordered_map<uint32_t, NetworkInterface> m_NetworkInterfaces;
