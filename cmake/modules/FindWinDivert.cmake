@@ -13,8 +13,8 @@
 #   WinDivert_DLL_FILE        - (Optional) Path to WinDivert.dll (for dynamic linking or redistribution)
 #
 # You can provide a hint to the search location using either:
-#   - The CMake variable WINDIVERT_ROOT
-#   - The environment variable WINDIVERT_ROOT
+#   - The CMake variable WinDivert_ROOT
+#   - The environment variable WinDivert_ROOT
 #
 # Expected directory structure:
 #
@@ -47,10 +47,10 @@ else()
 endif()
 
 # Normalize user-provided root path
-if(DEFINED WINDIVERT_ROOT)
-  file(TO_CMAKE_PATH "${WINDIVERT_ROOT}" _WinDivert_ROOT_HINT)
-elseif(DEFINED ENV{WINDIVERT_ROOT})
-  file(TO_CMAKE_PATH "$ENV{WINDIVERT_ROOT}" _WinDivert_ROOT_HINT)
+if(DEFINED WinDivert_ROOT)
+  file(TO_CMAKE_PATH "${WinDivert_ROOT}" _WinDivert_ROOT_HINT)
+elseif(DEFINED ENV{WinDivert_ROOT})
+  file(TO_CMAKE_PATH "$ENV{WinDivert_ROOT}" _WinDivert_ROOT_HINT)
 else()
   set(_WinDivert_ROOT_HINT "")
 endif()

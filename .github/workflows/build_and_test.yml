@@ -720,7 +720,7 @@ jobs:
         run: .\ci\install_windivert.ps1 -Target "$env:WINDIVERT_DIR"
 
       - name: Configure PcapPlusPlus (WinDivert)
-        run: cmake -A x64 -G "Visual Studio 17 2022" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DPCAPPP_USE_WINDIVERT=ON -DWINDIVERT_ROOT=${{ env.WINDIVERT_DIR }} -S . -B "$env:BUILD_DIR"
+        run: cmake -A x64 -G "Visual Studio 17 2022" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DPCAPPP_USE_WINDIVERT=ON -DWinDivert_ROOT=${{ env.WINDIVERT_DIR }} -S . -B "$env:BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build $env:BUILD_DIR -j

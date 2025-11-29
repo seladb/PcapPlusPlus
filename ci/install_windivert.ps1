@@ -23,7 +23,7 @@ try {
         if (Test-Path $path) { Copy-Item $path $Target -Recurse -Force }
     }
 
-    if ($env:GITHUB_ENV)  { "WINDIVERT_ROOT=$Target" | Out-File $env:GITHUB_ENV  -Append -Encoding utf8 }
+    if ($env:GITHUB_ENV)  { "WinDivert_ROOT=$Target" | Out-File $env:GITHUB_ENV  -Append -Encoding utf8 }
     if ($env:GITHUB_PATH) { Join-Path $Target "x64"   | Out-File $env:GITHUB_PATH -Append -Encoding utf8 }
 
     Write-Host "WinDivert installation completed."
