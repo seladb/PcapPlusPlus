@@ -33,6 +33,7 @@ namespace pcpp
 			// Non-copyable or movable
 			WinDivertOverlappedWrapper(const WinDivertOverlappedWrapper&) = delete;
 			WinDivertOverlappedWrapper& operator=(const WinDivertOverlappedWrapper&) = delete;
+			WinDivertOverlappedWrapper& operator=(WinDivertOverlappedWrapper&&) = delete;
 			WinDivertOverlappedWrapper(WinDivertOverlappedWrapper&&) = delete;
 
 			~WinDivertOverlappedWrapper() override
@@ -269,7 +270,7 @@ namespace pcpp
 
 	}  // namespace internal
 
-#define WINDIVERT_BUFFER_LEN 65536
+	constexpr uint32_t WinDivertBufferLength = 65536;
 
 	WinDivertDevice::WinDivertDevice() : m_Impl(std::make_unique<internal::WinDivertImplementation>())
 	{}
@@ -329,7 +330,7 @@ namespace pcpp
 		}
 
 		auto overlapped = m_Handle->createOverlapped();
-		uint32_t bufferSize = WINDIVERT_BUFFER_LEN * batchSize;
+		uint32_t bufferSize = WinDivertBufferLength * batchSize;
 		std::vector<uint8_t> buffer(bufferSize);
 
 		uint32_t receivedPacketCount = 0;
@@ -400,9 +401,10 @@ namespace pcpp
 		}
 
 		auto overlapped = m_Handle->createOverlapped();
-		uint32_t bufferSize = WINDIVERT_BUFFER_LEN * batchSize;
+		uint32_t bufferSize = WinDivertBufferLength * batchSize;
 		std::vector<uint8_t> buffer(bufferSize);
 
+		WinDivertRawPacketVector receivedPackets;
 		m_IsReceiving = true;
 		while (m_IsReceiving)
 		{
@@ -417,7 +419,7 @@ namespace pcpp
 			uint8_t* curPacketPtr = buffer.data();
 			size_t remainingBytes = result.capturedDataLength;
 
-			WinDivertRawPacketVector receivedPackets;
+			receivedPackets.clear();
 			for (auto& address : result.addresses)
 			{
 				auto packetInfo = getPacketInfo(curPacketPtr, remainingBytes, address);
@@ -461,7 +463,7 @@ namespace pcpp
 			return { SendResult::Status::Failed, 0, "Batch size has to be a positive number" };
 		}
 
-		std::array<uint8_t, WINDIVERT_BUFFER_LEN> buffer{};
+		std::array<uint8_t, WinDivertBufferLength> buffer{};
 		auto curBufferPtr = buffer.data();
 
 		uint8_t packetsInCurrentBatch = 0;
@@ -475,7 +477,7 @@ namespace pcpp
 
 			if (packetsInCurrentBatch >= batchSize || packetIndex >= packetsToSend - 1)
 			{
-				auto result = m_Handle->sendEx(buffer.data(), WINDIVERT_BUFFER_LEN, packetsInCurrentBatch);
+				auto result = m_Handle->sendEx(buffer.data(), WinDivertBufferLength, packetsInCurrentBatch);
 				if (result != internal::IWinDivertHandle::SuccessResult)
 				{
 					return { SendResult::Status::Failed, packetsSent,
