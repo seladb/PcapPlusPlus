@@ -253,42 +253,43 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 27. COTP
 28. GTP (v1 & v2)
 29. IPSec AH & ESP - parsing only (no editing capabilities)
-30. TCP
-31. TPKT
-32. UDP
+30. SCTP
+31. TCP
+32. TPKT
+33. UDP
 
 ### Session Layer (L5)
 
-33. SDP
-34. SIP
+34. SDP
+35. SIP
 
 ### Presentation Layer (L6)
 
-35. SSL/TLS - parsing only (no editing capabilities)
+36. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-36. ASN.1 decoder and encoder
-37. BGP (v4)
-38. Cryptographic key decoders
-39. DHCP
-40. DHCPv6
-41. DNS
-42. DoIP
-43. FTP
-44. HTTP headers (request & response)
-45. LDAP
-46. Modbus
-47. NTP (v3, v4)
-48. PEM decoder and encoder
-49. Radius
-50. S7 Communication (S7comm)
-51. SMTP
-52. SOME/IP
-53. SSH - parsing only (no editing capabilities)
-54. Telnet - parsing only (no editing capabilities)
-55. X509 certificates - parsing only (no editing capabilities)
-56. Generic payload
+37. ASN.1 decoder and encoder
+38. BGP (v4)
+39. Cryptographic key decoders
+40. DHCP
+41. DHCPv6
+42. DNS
+43. DoIP
+44. FTP
+45. HTTP headers (request & response)
+46. LDAP
+47. Modbus
+48. NTP (v3, v4)
+49. PEM decoder and encoder
+50. Radius
+51. S7 Communication (S7comm)
+52. SMTP
+53. SOME/IP
+54. SSH - parsing only (no editing capabilities)
+55. Telnet - parsing only (no editing capabilities)
+56. X509 certificates - parsing only (no editing capabilities)
+57. Generic payload
 
 ## DPDK And PF_RING Support
 
