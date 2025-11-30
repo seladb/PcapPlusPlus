@@ -253,18 +253,19 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 27. COTP
 28. GTP (v1 & v2)
 29. IPSec AH & ESP - parsing only (no editing capabilities)
-30. TCP
-31. TPKT
-32. UDP
+30. SCTP
+31. TCP
+32. TPKT
+33. UDP
 
 ### Session Layer (L5)
 
-33. SDP
-34. SIP
+34. SDP
+35. SIP
 
 ### Presentation Layer (L6)
 
-35. SSL/TLS - parsing only (no editing capabilities)
+36. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 

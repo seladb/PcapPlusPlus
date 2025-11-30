@@ -6,6 +6,7 @@
 #include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "TcpLayer.h"
+#include "SctpLayer.h"
 #include "GreLayer.h"
 #include "IPSecLayer.h"
 #include "IcmpV6Layer.h"
@@ -231,6 +232,11 @@ namespace pcpp
 			tryConstructNextLayerWithFallback<TcpLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
+		case PACKETPP_IPPROTO_SCTP:
+		{
+			tryConstructNextLayerWithFallback<SctpLayer, PayloadLayer>(payload, payloadLen);
+			break;
+		}
 		case PACKETPP_IPPROTO_IPIP:
 		{
 			uint8_t ipVersion = *payload >> 4;
@@ -329,6 +335,9 @@ namespace pcpp
 				break;
 			case UDP:
 				nextHeader = PACKETPP_IPPROTO_UDP;
+				break;
+			case SCTP:
+				nextHeader = PACKETPP_IPPROTO_SCTP;
 				break;
 			case ICMP:
 				nextHeader = PACKETPP_IPPROTO_ICMP;
