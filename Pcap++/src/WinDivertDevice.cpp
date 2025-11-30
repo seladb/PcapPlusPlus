@@ -439,7 +439,8 @@ namespace pcpp
 				remainingBytes -= packetLength;
 			}
 
-			callback(receivedPackets);
+			WinDivertReceiveCallbackContext context{ this };
+			callback(receivedPackets, context);
 
 			overlapped->reset();
 		}

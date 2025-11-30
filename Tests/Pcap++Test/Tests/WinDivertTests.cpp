@@ -9,8 +9,9 @@
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
-pcpp::WinDivertDevice::ReceivePacketCallback noOpCallback = [](const pcpp::WinDivertDevice::WinDivertRawPacketVector&) {
-};
+pcpp::WinDivertDevice::ReceivePacketCallback noOpCallback =
+    [](const pcpp::WinDivertDevice::WinDivertRawPacketVector&,
+       const pcpp::WinDivertDevice::WinDivertReceiveCallbackContext&) {};
 
 PTF_TEST_CASE(TestWinDivertReceivePackets)
 {
@@ -51,9 +52,16 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 		bool allPacketsHaveInterface = true;
 		bool allPacketsOfTypeIP = true;
 		bool isTimestampIncreasing = true;
+		bool deviceInContextMatch = false;
 		uint64_t currentTimestamp = 0;
 
-		auto result = device.receivePackets([&](const pcpp::WinDivertDevice::WinDivertRawPacketVector& packetVec) {
+		auto result = device.receivePackets([&](const pcpp::WinDivertDevice::WinDivertRawPacketVector& packetVec,
+		                                        const pcpp::WinDivertDevice::WinDivertReceiveCallbackContext& context) {
+			if (context.device == &device)
+			{
+				deviceInContextMatch = true;
+			}
+
 			for (auto& rawPacket : packetVec)
 			{
 				allPacketsHaveInterface &= device.getNetworkInterface(rawPacket->getInterfaceIndex()) != nullptr;
@@ -77,6 +85,7 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 		PTF_ASSERT_TRUE(allPacketsHaveInterface);
 		PTF_ASSERT_TRUE(allPacketsOfTypeIP);
 		PTF_ASSERT_TRUE(isTimestampIncreasing);
+		PTF_ASSERT_TRUE(deviceInContextMatch);
 	}
 
 	// Receive timeout
@@ -210,7 +219,8 @@ PTF_TEST_CASE(TestWinDivertReceivePackets)
 
 		bool failedReceiveWhileReceiving = false;
 
-		device.receivePackets([&](const pcpp::WinDivertDevice::WinDivertRawPacketVector&) {
+		device.receivePackets([&](const pcpp::WinDivertDevice::WinDivertRawPacketVector&,
+		                          const pcpp::WinDivertDevice::WinDivertReceiveCallbackContext&) {
 			auto result1 = device.receivePackets(noOpCallback);
 			pcpp::WinDivertDevice::WinDivertRawPacketVector rawPackets;
 			auto result2 = device.receivePackets(rawPackets);

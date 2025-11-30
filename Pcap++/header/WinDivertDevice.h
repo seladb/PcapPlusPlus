@@ -311,11 +311,11 @@ namespace pcpp
 		/// @brief A Windows network interface entry returned by getNetworkInterfaces().
 		struct NetworkInterface
 		{
-			uint32_t index;
-			std::wstring name;
-			std::wstring description;
-			bool isLoopback;
-			bool isUp;
+			uint32_t index;            ///< Interface index as provided by Windows
+			std::wstring name;         ///< Interface name (GUID or friendly/system name)
+			std::wstring description;  ///< Human-readable description from the OS
+			bool isLoopback;           ///< True if the interface type is software loopback
+			bool isUp;                 ///< True when the interface operational status is up
 		};
 
 		/// @enum QueueParam
@@ -335,10 +335,21 @@ namespace pcpp
 		/// @typedef WinDivertRawPacketVector
 		/// @brief Convenience alias for a vector of WinDivertRawPacket pointers with ownership semantics.
 		using WinDivertRawPacketVector = PointerVector<WinDivertRawPacket>;
-		/// @typedef ReceivePacketCallback
+
+		/// @struct WinDivertReceiveCallbackContext
+		/// @brief Context object passed to ReceivePacketCallback.
+		struct WinDivertReceiveCallbackContext
+		{
+			WinDivertDevice* device = nullptr;  ///< The device that owns the receive loop (may be null)
+		};
+
 		/// @brief Callback invoked with a batch of received packets when using the callback receive API.
 		/// The callback is called from the receiving loop until stopReceive() is invoked or an error/timeout occurs.
-		using ReceivePacketCallback = std::function<void(const WinDivertRawPacketVector& packetVec)>;
+		///
+		/// @param[in] packetVec A list of the currently received batch of WinDivertRawPacket objects.
+		/// @param[in] context   A context object providing the calling device and, potentially, other metadata.
+		using ReceivePacketCallback = std::function<void(const WinDivertRawPacketVector& packetVec,
+		                                                 const WinDivertReceiveCallbackContext& context)>;
 		/// @typedef QueueParams
 		/// @brief A map of QueueParam keys to their values. Units are per QueueParam description above.
 		using QueueParams = std::unordered_map<QueueParam, uint64_t>;
