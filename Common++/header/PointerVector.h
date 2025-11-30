@@ -320,6 +320,12 @@ namespace pcpp
 			return m_Vector.at(index);
 		}
 
+		/// @return A pointer to the underlying array serving as the vector’s storage
+		T** data()
+		{
+			return m_Vector.data();
+		}
+
 	private:
 		/// Performs a copy of the vector along with its elements.
 		/// The caller is responsible of freeing the copied elements.
