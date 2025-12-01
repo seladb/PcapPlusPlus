@@ -254,6 +254,9 @@ namespace pcpp
 	/// FTP protocol family (FTPControl and FtpData protocols)
 	const ProtocolTypeFamily FTP = 0x3c29;
 
+	/// SCTP (Stream Control Transmission Protocol)
+	const ProtocolType SCTP = 62;
+
 	/// @}
 
 	/// An enum representing OSI model layers
