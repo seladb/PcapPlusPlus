@@ -1,5 +1,6 @@
 add_library(
   Pcap++
+  src/CaptureFileFormatDetector.cpp
   src/DeviceUtils.cpp
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
@@ -102,6 +103,7 @@ target_link_libraries(
 )
 
 if(LIGHT_PCAPNG_ZSTD)
+  target_compile_definitions(Pcap++ PRIVATE -DPCPP_PCAPNG_ZSTD_SUPPORT)
   target_link_libraries(Pcap++ PRIVATE light_pcapng)
 endif()
 
