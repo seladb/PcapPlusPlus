@@ -65,10 +65,10 @@ namespace pcpp
 
 		if (CotpLayer::isDataValid(payload, payloadLen))
 		{
-			m_NextLayer = new CotpLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new CotpLayer(payload, payloadLen, this, getAttachedPacket());
 		}
 		else
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 	}
 
 }  // namespace pcpp
