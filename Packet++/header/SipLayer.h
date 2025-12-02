@@ -185,47 +185,6 @@ namespace pcpp
 		/// @param[in] dataLen Length of the data buffer in bytes
 		/// @return The number of bytes until the first CR/LF, or -1 on invalid input
 		static int findFirstLine(const uint8_t* data, size_t dataLen);
-		
-		/// Checks whether a buffer starts with the SIP version prefix "SIP/".
-		/// Comparison is case-insensitive and requires the input length to be at least
-		/// the size of the prefix.
-		/// @param[in] s Pointer to the buffer to examine
-		/// @param[in] len Number of bytes available in the buffer
-		/// @return True if the buffer begins with "SIP/" (case-insensitive), false otherwise
-		static bool startsWithSipVersion(const char* s, size_t len);
-
-		/// Determines whether a buffer of length 3 contains only numeric digits.
-		/// This is primarily used to validate SIP response status codes, which must
-		/// always be 3-digit numeric values.
-		/// @param[in] s Pointer to the buffer to check
-		/// @param[in] len Must be exactly 3 to return true
-		/// @return True if all three characters are decimal digits, false otherwise
-		static bool isThreeDigitCode(const char* s, size_t len);
-
-		/// Checks for the presence of a colon (':') within a specific range of a string.
-		/// This is used to validate that a SIP Request-URI contains a scheme (e.g., sip:),
-		/// which is required for proper SIP request-line syntax.
-		/// @param[in] s Pointer to the string to search
-		/// @param[in] begin Starting index of the range (inclusive)
-		/// @param[in] end Ending index of the range (exclusive)
-		/// @return True if a ':' character exists within the specified range, false otherwise
-		static bool hasColonInRange(const char* s, size_t begin, size_t end);
-
-		/// Finds the first space (' ') character in the string starting from a given index.
-		/// The search is limited to the range [start, len). If no space is found, -1 is returned.
-		/// @param[in] s Pointer to the string to search
-		/// @param[in] start Index from which to start scanning
-		/// @param[in] len Total valid length of the string
-		/// @return The index of the first space, or -1 if not found
-		static int findSpace(const char* s, int start, int len);
-
-		/// Finds the first space (' ') character in the string starting from a given index.
-		/// The search is limited to the range [start, len). If no space is found, -1 is returned.
-		/// @param[in] s Pointer to the string to search
-		/// @param[in] start Index from which to start scanning
-		/// @param[in] len Total valid length of the string
-		/// @return The index of the first space, or -1 if not found
-		static int skipSpaces(const char* s, int start, int len);
 	};
 
 	class SipRequestFirstLine;

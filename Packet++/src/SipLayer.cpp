@@ -165,66 +165,6 @@ namespace pcpp
 		return static_cast<int>(std::distance(start, it));
 	}
 
-	bool SipLayer::startsWithSipVersion(const char* s, size_t len)
-	{
-		constexpr char prefix[]   = "SIP/";
-		constexpr std::size_t prefixLen = sizeof(prefix) - 1;
-
-		if (len < prefixLen)
-			return false;
-
-		return std::equal(
-			prefix, prefix + prefixLen, s,
-			[](char a, char b)
-			{
-				return std::tolower(static_cast<unsigned char>(a)) ==
-					std::tolower(static_cast<unsigned char>(b));
-			}
-		);
-	}
-
-	bool SipLayer::isThreeDigitCode(const char* s, size_t len)
-	{
-		if (len != 3)
-			return false;
-
-		return std::all_of(s, s + 3, [](unsigned char ch)
-		{
-			return std::isdigit(ch) != 0;
-		});
-	}
-
-	bool SipLayer::hasColonInRange(const char* s, size_t begin, size_t end)
-	{
-		const char* first = s + begin;
-		const char* last  = s + end;
-
-		return std::find(first, last, ':') != last;
-	}
-
-	int SipLayer::findSpace(const char* s, int start, int len)
-	{
-		const char* begin = s + start;
-		const char* end   = s + len;
-
-		auto it = std::find(begin, end, ' ');
-		if (it == end)
-			return -1;
-
-		return static_cast<int>(std::distance(s, it));
-	}
-
-	int SipLayer::skipSpaces(const char* s, int start, int len)
-	{
-		const char* begin = s + start;
-		const char* end = s + len;
-		const char* it = std::find_if(begin, end, [](unsigned char ch)
-		{
-			return ch != ' ';
-		});
-		return static_cast<int>(std::distance(s, it));
-	}
-
 	// -------- Class SipRequestFirstLine -----------------
 
 	SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipRequest(sipRequest)
