@@ -119,77 +119,33 @@ namespace pcpp
 		const char* line = reinterpret_cast<const char*>(data);
 		const int   len  = firstLineLen;
 
-		// --- Extract first three tokens from the first line ---
-		int token1_start = 0;
-		token1_start = skipSpaces(line, token1_start, len);
-		if (token1_start >= len)
-		{
-			return false;
-		}
-
-		int space1 = findSpace(line, token1_start, len);
-		if (space1 == -1 || space1 == token1_start)
-		{
-			return false;
-		}
-
-		int token1_len = space1 - token1_start;
-
-		int token2_start = skipSpaces(line, space1 + 1, len);
-		if (token2_start >= len)
-		{
-			return false;
-		}
-
-		int space2 = findSpace(line, token2_start, len);
-		if (space2 == -1)
-		{
-			return false;
-		}
-
-		int token2_len = space2 - token2_start;
-
-		int token3_start = skipSpaces(line, space2 + 1, len);
-		if (token3_start >= len)
-		{
-			return false;
-		}
-
-		int token3_len = len - token3_start;
-
-		const char* token1 = line + token1_start;
-		const char* token2 = line + token2_start;
-		const char* token3 = line + token3_start;
-
 		// --- Check if it's a SIP response line: "SIP/x.y SP nnn SP Reason" ---
-		if (startsWithSipVersion(token1, static_cast<size_t>(token1_len)))
+		std::string responseSipVersion = SipResponseFirstLine::parseVersion(line, len);
+		if (!responseSipVersion.empty())
 		{
-			// second token must be 3-digit status code
-			if (!isThreeDigitCode(token2, static_cast<size_t>(token2_len)))
-				return false;
-
-			return true;
+			auto statusCode = SipResponseFirstLine::parseStatusCode(line, len);
+			if (statusCode != SipResponseLayer::SipStatusCodeUnknown)
+			{
+				return true;
+			}
 		}
 
 		// --- Check if it's a SIP request line: "METHOD SP URI SP SIP/x.y" ---
-		if (token2_len < 3)
+		SipRequestLayer::SipMethod method = SipRequestFirstLine::parseMethod(line, len);
+		if (method != SipRequestLayer::SipMethod::SipMethodUnknown)
 		{
-			return false;
+			std::string requestSipVersion = SipRequestFirstLine::parseVersion(line, len);
+			if (!requestSipVersion.empty())
+			{
+				std::string requestUri = SipRequestFirstLine::parseUri(line, len);
+				if (!requestUri.empty() && requestUri.find(':') != std::string::npos)
+				{
+					return true;
+				}
+			}
 		}
 
-		if (!hasColonInRange(line,
-							static_cast<size_t>(token2_start + 1),
-							static_cast<size_t>(space2)))
-		{
-			return false;
-		}
-
-		if (!startsWithSipVersion(token3, static_cast<size_t>(token3_len)))
-		{
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	int SipLayer::findFirstLine(const uint8_t* data, size_t dataLen)
@@ -372,6 +328,75 @@ namespace pcpp
 			return SipRequestLayer::SipMethodUnknown;
 		}
 		return methodAdEnum->second;
+	}
+
+	std::string SipRequestFirstLine::parseUri(const char* data, size_t dataLen)
+	{
+		if (data == nullptr || dataLen == 0)
+		{
+			PCPP_LOG_DEBUG("Empty data in SIP request line");
+			return "";
+		}
+
+		const char* firstSpace = static_cast<const char*>(memchr(data, ' ', dataLen));
+		if (firstSpace == nullptr)
+		{
+			PCPP_LOG_DEBUG("No space found after METHOD in SIP request line");
+			return "";
+		}
+
+		const char* lastSpace = static_cast<const char*>(memrchr(data, ' ', dataLen));
+		if (lastSpace == nullptr || lastSpace <= firstSpace)
+		{
+			PCPP_LOG_DEBUG("Couldn't find proper space before SIP version in SIP request line");
+			return "";
+		}
+
+		const char* uriStart = firstSpace + 1;
+		size_t uriLen = static_cast<size_t>(lastSpace - uriStart);
+
+		if (uriLen == 0)
+		{
+			PCPP_LOG_DEBUG("URI part is empty in SIP request line");
+			return "";
+		}
+
+		return std::string(uriStart, uriLen);
+	}
+
+	std::string SipRequestFirstLine::parseVersion(const char* data, size_t dataLen)
+	{
+		if (data == nullptr || dataLen == 0)
+		{
+			PCPP_LOG_DEBUG("Empty data in SIP request line for version parsing");
+			return "";
+		}
+
+		const char* lastSpace = static_cast<const char*>(memrchr(data, ' ', dataLen));
+
+		if (!lastSpace)
+		{
+			PCPP_LOG_DEBUG("No space found before SIP version in request line");
+			return "";
+		}
+
+		const char* versionStart = lastSpace + 1;
+		size_t versionLen = dataLen - (versionStart - data);
+
+		if (versionLen < 7) // "SIP/x.y"
+		{
+			PCPP_LOG_DEBUG("Version part too short");
+			return "";
+		}
+
+		if (versionStart[0] != 'S' || versionStart[1] != 'I' ||
+			versionStart[2] != 'P' || versionStart[3] != '/')
+		{
+			PCPP_LOG_DEBUG("SIP request version does not begin with 'SIP/'");
+			return "";
+		}
+
+		return std::string(versionStart, versionLen);
 	}
 
 	void SipRequestFirstLine::parseVersion()
