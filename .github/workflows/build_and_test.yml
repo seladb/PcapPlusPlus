@@ -215,7 +215,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 --test-suites "packet"
+          python3 ci/run_tests/run_tests.py --interface eth0 --test-suites "common" "packet"
 
       - name: Check installation
         run: |
