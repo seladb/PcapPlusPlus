@@ -102,7 +102,8 @@ namespace pcpp
 			explicit XdpDeviceConfiguration(AttachMode attachMode = AutoMode, uint16_t umemNumFrames = 0,
 			                                uint16_t umemFrameSize = 0, uint32_t fillRingSize = 0,
 			                                uint32_t completionRingSize = 0, uint32_t rxSize = 0, uint32_t txSize = 0,
-			                                uint16_t rxTxBatchSize = 0, uint16_t frameHeadroomSize = 0, uint32_t queueId = 0)
+			                                uint16_t rxTxBatchSize = 0, uint16_t frameHeadroomSize = 0,
+			                                uint32_t queueId = 0)
 			{
 				this->attachMode = attachMode;
 				this->umemNumFrames = umemNumFrames;
@@ -255,10 +256,9 @@ namespace pcpp
 		/// @return Return queue identifier for underlying socket
 		uint32_t getQueueId() const
 		{
-			if(m_Config)
+			if (m_Config)
 			{
 				return m_Config->queueId;
-
 			}
 
 			return 0;

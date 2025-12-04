@@ -41,8 +41,8 @@ namespace pcpp
 #define DEFAULT_FRAME_HEADROOM_SIZE XSK_UMEM__DEFAULT_FRAME_HEADROOM
 #define IS_POWER_OF_TWO(num) (num && ((num & (num - 1)) == 0))
 
-	XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize, uint16_t frameHeadroomSize, uint32_t fillRingSize,
-	                            uint32_t completionRingSize)
+	XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize, uint16_t frameHeadroomSize,
+	                            uint32_t fillRingSize, uint32_t completionRingSize)
 	{
 		size_t bufferSize = numFrames * frameSize;
 
@@ -422,8 +422,8 @@ namespace pcpp
 			xskConfig.xdp_flags = XDP_FLAGS_DRV_MODE;
 		}
 
-		int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), m_Config->queueId, umemInfo->umem, &socketInfo->rx,
-		                             &socketInfo->tx, &xskConfig);
+		int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), m_Config->queueId, umemInfo->umem,
+		                             &socketInfo->rx, &socketInfo->tx, &xskConfig);
 		if (ret)
 		{
 			PCPP_LOG_ERROR("xsk_socket__create returned an error: " << ret);
@@ -438,8 +438,8 @@ namespace pcpp
 
 	bool XdpDevice::initUmem()
 	{
-		m_Umem = new XdpUmem(m_Config->umemNumFrames, m_Config->umemFrameSize, m_Config->frameHeadroomSize, m_Config->fillRingSize,
-		                     m_Config->completionRingSize);
+		m_Umem = new XdpUmem(m_Config->umemNumFrames, m_Config->umemFrameSize, m_Config->frameHeadroomSize,
+		                     m_Config->fillRingSize, m_Config->completionRingSize);
 		return true;
 	}
 
@@ -454,7 +454,7 @@ namespace pcpp
 		uint32_t rxSize = config.rxSize ? config.rxSize : XSK_RING_CONS__DEFAULT_NUM_DESCS;
 		uint32_t txSize = config.txSize ? config.txSize : XSK_RING_PROD__DEFAULT_NUM_DESCS;
 		uint32_t batchSize = config.rxTxBatchSize ? config.rxTxBatchSize : DEFAULT_BATCH_SIZE;
-		uint32_t qId = config.queueId; // default is zero
+		uint32_t qId = config.queueId;  // default is zero
 
 		if (frameSize != getpagesize())
 		{
@@ -469,7 +469,7 @@ namespace pcpp
 			return false;
 		}
 
-		if(frameHeadroomSize > frameSize)
+		if (frameHeadroomSize > frameSize)
 		{
 			PCPP_LOG_ERROR("Frame headroom size must be less than the frame size");
 			return false;
@@ -514,7 +514,8 @@ namespace pcpp
 		unsigned int nhwqueues = numQueues(m_InterfaceName);
 		if (qId >= nhwqueues)
 		{
-			PCPP_LOG_ERROR("Queue Id (" << qId << ") must be less than the number hardware queues (" << nhwqueues << ") of device");
+			PCPP_LOG_ERROR("Queue Id (" << qId << ") must be less than the number hardware queues (" << nhwqueues
+			                            << ") of device");
 			return false;
 		}
 
@@ -663,16 +664,16 @@ namespace pcpp
 		uint32_t rxtxqueues = 0;
 		std::string prefix = tx ? "tx-" : "rx-";
 		std::string path = "/sys/class/net/" + iface + "/queues/";
-		DIR *dir = opendir(path.c_str());
+		DIR* dir = opendir(path.c_str());
 
-		if(dir)
+		if (dir)
 		{
 			std::regex rxtx_regex("^" + prefix + "[0-9]+$");
 
 			struct dirent* entry;
-			while((entry = readdir(dir)) != nullptr)
+			while ((entry = readdir(dir)) != nullptr)
 			{
-				if(std::regex_match(entry->d_name, rxtx_regex))
+				if (std::regex_match(entry->d_name, rxtx_regex))
 				{
 					rxtxqueues++;
 				}
