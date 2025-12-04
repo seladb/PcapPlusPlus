@@ -78,6 +78,10 @@ namespace pcpp
 			/// The max number of packets to be received or sent in one batch
 			uint16_t rxTxBatchSize;
 
+			/// This parameter specifies the amount of space designated for prepending data to the packet in the frame.
+			/// NOTE: the headroom size should be less than the frame size
+			uint16_t frameHeadroomSize;
+
 			/// The queue identifier for the underlying socket. This value should be less than the number
 			/// of hardware queues supported by the device
 			uint16_t queueId;
@@ -93,15 +97,17 @@ namespace pcpp
 			/// @param[in] txSize The size of the TX ring used by the AF_XDP socket. The default value is 2048
 			/// @param[in] rxTxBatchSize The max number of packets to be received or sent in one batch. The default
 			/// value is 64
+			/// @param[in] frameHeadroomSize Space for prepending to packets. The default value is 0
 			/// @param[in] queueId The hardware queue id of the underlying socket. The default value is 0
 			explicit XdpDeviceConfiguration(AttachMode attachMode = AutoMode, uint16_t umemNumFrames = 0,
 			                                uint16_t umemFrameSize = 0, uint32_t fillRingSize = 0,
 			                                uint32_t completionRingSize = 0, uint32_t rxSize = 0, uint32_t txSize = 0,
-			                                uint16_t rxTxBatchSize = 0, uint32_t queueId = 0)
+			                                uint16_t rxTxBatchSize = 0, uint16_t frameHeadroomSize = 0, uint32_t queueId = 0)
 			{
 				this->attachMode = attachMode;
 				this->umemNumFrames = umemNumFrames;
 				this->umemFrameSize = umemFrameSize;
+				this->frameHeadroomSize = frameHeadroomSize;
 				this->fillRingSize = fillRingSize;
 				this->completionRingSize = completionRingSize;
 				this->rxSize = rxSize;
@@ -268,7 +274,7 @@ namespace pcpp
 		class XdpUmem
 		{
 		public:
-			explicit XdpUmem(uint16_t numFrames, uint16_t frameSize, uint32_t fillRingSize,
+			explicit XdpUmem(uint16_t numFrames, uint16_t frameSize, uint16_t frameHeadroomSize, uint32_t fillRingSize,
 			                 uint32_t completionRingSize);
 
 			virtual ~XdpUmem();
