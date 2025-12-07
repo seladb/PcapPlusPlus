@@ -108,10 +108,7 @@ namespace pcpp
 		else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 			m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
-		else if (SipLayer::isSipPort(portDst) ||
-				SipLayer::isSipPort(portSrc) ||
-				SipLayer::dissectSipHeuristic(udpData, udpDataLen)
-			)
+		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
 			if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown)
 				m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);

@@ -2,9 +2,6 @@
 
 #include "TextBasedProtocol.h"
 
-#include <cstring>
-#include <algorithm>
-
 /// @file
 
 /// @namespace pcpp
@@ -117,40 +114,6 @@ namespace pcpp
 			return port == 5060 || port == 5061;
 		}
 
-		/// Heuristically detects whether the first line of a buffer looks like a SIP
-		/// Request-Line or Status-Line (RFC 3261).
-		///
-		/// Line is parsed as:
-		///   token1 SP(space1) token2 SP(space2) token3
-		///
-		/// SIP Request-Line:
-		///   token1 = Method  
-		///   token2 = Request-URI (must contain ':')  
-		///   token3 = SIP-Version (starts with "SIP/")  
-		///   Example: INVITE sip:alice@example.com SIP/2.0
-		///
-		/// SIP Status-Line:
-		///   token1 = SIP-Version (starts with "SIP/")  
-		///   token2 = Status-Code (3 digits)  
-		///   token3 = Reason-Phrase  
-		///   Example: SIP/2.0 200 OK
-		///
-		/// RFC References:
-		///   From section 4.1 of RFC 2543:
-		///     Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
-		///
-		///   From section 5.1 of RFC 2543:
-		///     Status-Line   =  SIP-Version SP Status-Code SP Reason-Phrase CRLF
-		///
-		///   From section 7.1 of RFC 3261:
-		///     Unlike HTTP, SIP treats the version number as a literal string.
-		///     In practice, this should make no difference.
-		///
-		/// @param[in] data Pointer to the raw data buffer
-		/// @param[in] dataLen Length of the data buffer in bytes
-		/// @return True if the first line matches SIP request/response syntax, false otherwise
-		static bool dissectSipHeuristic(const uint8_t* data, size_t dataLen);
-
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
 		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
@@ -174,17 +137,6 @@ namespace pcpp
 		{
 			return true;
 		}
-
-	private:
-		/// Finds the length of the first line in the buffer.
-		/// This method scans the input data for the first occurrence of '\r' or '\n',
-		/// marking the end of the first line. If no such character exists, the returned
-		/// value will be equal to the buffer length. Returns -1 if the buffer is null
-		/// or empty.
-		/// @param[in] data Pointer to the raw data buffer
-		/// @param[in] dataLen Length of the data buffer in bytes
-		/// @return The number of bytes until the first CR/LF, or -1 on invalid input
-		static int findFirstLine(const uint8_t* data, size_t dataLen);
 	};
 
 	class SipRequestFirstLine;
@@ -578,18 +530,6 @@ namespace pcpp
 		/// @param[in] dataLen The raw data length
 		/// @return The parsed SIP method
 		static SipRequestLayer::SipMethod parseMethod(const char* data, size_t dataLen);
-
-		/// A static method for parsing the SIP version out of raw data
-		/// @param[in] data The raw data
-		/// @param[in] dataLen The raw data length
-		/// @return The parsed SIP version string or an empty string if parsing fails
-		static std::string parseVersion(const char* data, size_t dataLen);
-		
-		/// A static method for parsing the Request-URI out of raw data
-		/// @param[in] data The raw data
-		/// @param[in] dataLen The raw data length
-		/// @return The parsed Request-URI string or an empty string if parsing fails
-		static std::string parseUri(const char* data, size_t dataLen);
 
 		/// @return The size in bytes of the SIP request first line
 		int getSize() const
