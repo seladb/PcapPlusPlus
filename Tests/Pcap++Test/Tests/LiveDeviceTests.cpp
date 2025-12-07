@@ -774,46 +774,30 @@ PTF_TEST_CASE(TestSendPacket)
 	PTF_ASSERT_TRUE(fileReaderDev.open());
 
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
-	uint32_t mtu = liveDev->getMtu();
+	auto mtu = liveDev->getMtu();
 	int buffLen = mtu + 1 + sizeof(pcpp::ether_header);
-	uint8_t* buff = new uint8_t[buffLen];
-	memset(buff, 0, buffLen);
+	std::vector<uint8_t> buff(buffLen, 0);
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->sendPacket(buff, buffLen, true));
+	PTF_ASSERT_FALSE(liveDev->sendPacket(buff.data(), buffLen, true));
 	pcpp::Logger::getInstance().enableLogs();
 
-	pcpp::RawPacket rawPacket;
-	int packetsSent = 0;
-	int packetsRead = 0;
-	while (fileReaderDev.getNextPacket(rawPacket))
+	pcpp::RawPacketVector rawPackets;
+	PTF_ASSERT_EQUAL(fileReaderDev.getNextPackets(rawPackets, 10), 10);
+	for (const auto& rawPacket : rawPackets)
 	{
-		packetsRead++;
-
-		// send packet as RawPacket
-		PTF_ASSERT_TRUE(liveDev->sendPacket(rawPacket));
-
-		// send packet as raw data
-		PTF_ASSERT_TRUE(liveDev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()));
-
-		// send packet as parsed EthPacekt
-		pcpp::Packet packet(&rawPacket);
+		PTF_ASSERT_TRUE(liveDev->sendPacket(*rawPacket));
+		PTF_ASSERT_TRUE(liveDev->sendPacket(rawPacket->getRawData(), rawPacket->getRawDataLen()));
+		pcpp::Packet packet(rawPacket);
 		PTF_ASSERT_TRUE(liveDev->sendPacket(packet));
-
-		packetsSent++;
 	}
 
-	PTF_ASSERT_EQUAL(packetsRead, packetsSent);
-
-	liveDev->close();
 	fileReaderDev.close();
-
-	delete[] buff;
 }  // TestSendPacket
 
 PTF_TEST_CASE(TestSendPackets)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets);
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
@@ -822,28 +806,25 @@ PTF_TEST_CASE(TestSendPackets)
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
 
-	std::vector<pcpp::RawPacket> rawPacketArr(10000);
-	pcpp::PointerVector<pcpp::Packet> packetVec;
-	int packetsRead = 0;
-	while (fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
+	int expectedPacketCount = 10;
+	pcpp::RawPacketVector rawPacketPtrVec;
+	PTF_ASSERT_EQUAL(fileReaderDev.getNextPackets(rawPacketPtrVec, expectedPacketCount), expectedPacketCount);
+
+	PTF_ASSERT_EQUAL(liveDev->sendPackets(rawPacketPtrVec), expectedPacketCount);
+
+	std::vector<pcpp::RawPacket> rawPacketVec;
+	rawPacketVec.reserve(rawPacketPtrVec.size());
+	std::transform(rawPacketPtrVec.begin(), rawPacketPtrVec.end(), std::back_inserter(rawPacketVec),
+	               [](const auto& rawPacketPtr) { return *rawPacketPtr; });
+	PTF_ASSERT_EQUAL(liveDev->sendPackets(rawPacketVec.data(), expectedPacketCount), expectedPacketCount);
+
+	pcpp::PointerVector<pcpp::Packet> packetPtrVec;
+	for (const auto& rawPacket : rawPacketPtrVec)
 	{
-		packetVec.pushBack(new pcpp::Packet(&rawPacketArr[packetsRead]));
-		packetsRead++;
+		packetPtrVec.pushBack(new pcpp::Packet(rawPacket));
 	}
+	PTF_ASSERT_EQUAL(liveDev->sendPackets(packetPtrVec.data(), expectedPacketCount), expectedPacketCount);
 
-	// send packets as RawPacket array
-	int packetsSentAsRaw = liveDev->sendPackets(rawPacketArr.data(), packetsRead);
-
-	// send packets as parsed EthPacekt array
-	std::vector<pcpp::Packet*> packetArr;
-	packetArr.reserve(10000);
-	std::copy(packetVec.begin(), packetVec.end(), std::back_inserter(packetArr));
-	int packetsSentAsParsed = liveDev->sendPackets(packetArr.data(), packetsRead);
-
-	PTF_ASSERT_EQUAL(packetsSentAsRaw, packetsRead);
-	PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead);
-
-	liveDev->close();
 	fileReaderDev.close();
 }  // TestSendPackets
 
