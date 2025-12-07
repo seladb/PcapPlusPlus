@@ -444,6 +444,8 @@ if(PCAPPP_PACKAGE)
   set(CPACK_GENERATOR "TGZ")
   # Archive will include all components (Runtime, Development, Examples, Static, etc.)
   set(CPACK_ARCHIVE_COMPONENT_INSTALL OFF)
+  # Enable component-based packaging for DEB generator
+  set(CPACK_DEB_COMPONENT_INSTALL ON)
 
   # Remove the tweak for Compiler Version
   string(REPLACE "." ";" VERSION_LIST ${CMAKE_CXX_COMPILER_VERSION})
