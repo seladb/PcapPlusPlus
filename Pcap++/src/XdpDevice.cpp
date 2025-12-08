@@ -38,6 +38,7 @@ namespace pcpp
 #define DEFAULT_FILL_RING_SIZE (XSK_RING_PROD__DEFAULT_NUM_DESCS * 2)
 #define DEFAULT_COMPLETION_RING_SIZE XSK_RING_PROD__DEFAULT_NUM_DESCS
 #define DEFAULT_BATCH_SIZE 64
+#define DEFAULT_NUM_QUEUES 1
 #define DEFAULT_FRAME_HEADROOM_SIZE XSK_UMEM__DEFAULT_FRAME_HEADROOM
 #define IS_POWER_OF_TWO(num) (num && ((num & (num - 1)) == 0))
 
@@ -511,7 +512,7 @@ namespace pcpp
 			return false;
 		}
 
-		unsigned int nhwqueues = numQueues(m_InterfaceName);
+		unsigned int nhwqueues = numOfHardwareQueues(m_InterfaceName);
 		if (qId >= nhwqueues)
 		{
 			PCPP_LOG_ERROR("Queue Id (" << qId << ") must be less than the number hardware queues (" << nhwqueues
@@ -658,10 +659,10 @@ namespace pcpp
 		return m_Stats;
 	}
 
-	uint32_t XdpDevice::numQueues(const std::string& iface, bool tx)
+	uint32_t XdpDevice::numOfHardwareQueues(const std::string& iface, bool tx)
 	{
 		// returns number of hardware queues associated with the device
-		uint32_t rxtxqueues = 0;
+		uint32_t rxtxqueues = DEFAULT_NUM_QUEUES;
 		std::string prefix = tx ? "tx-" : "rx-";
 		std::string path = "/sys/class/net/" + iface + "/queues/";
 		DIR* dir = opendir(path.c_str());

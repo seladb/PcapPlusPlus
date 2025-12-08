@@ -11,8 +11,6 @@
 /// @
 namespace pcpp
 {
-#define XDP_MAX_RXTX_QUEUES 16
-
 	/// @class XdpDevice
 	/// A class wrapping the main functionality of using AF_XDP (XSK) sockets
 	/// which are optimized for high performance packet processing.
@@ -268,7 +266,7 @@ namespace pcpp
 		/// @param[in] interfaceName The interface name to use to detect hardware queues
 		/// @param[in] tx  If true, return TX queues, otherwise RX. Default is false
 		/// @return The number of hardware queues associated with the device.
-		static uint32_t numQueues(const std::string& interfaceName, bool tx = false);
+		static uint32_t numOfHardwareQueues(const std::string& interfaceName, bool tx = false);
 
 	private:
 		class XdpUmem
