@@ -64,32 +64,32 @@ namespace pcpp
 		{
 		case PACKETPP_IPPROTO_UDP:
 			m_NextLayer = UdpLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new UdpLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new UdpLayer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PACKETPP_IPPROTO_TCP:
 			m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new TcpLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new TcpLayer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PACKETPP_IPPROTO_IPIP:
 		{
 			uint8_t ipVersion = *payload >> 4;
 			if (ipVersion == 4 && IPv4Layer::isDataValid(payload, payloadLen))
-				m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+				m_NextLayer = new IPv4Layer(payload, payloadLen, this, getAttachedPacket());
 			else if (ipVersion == 6 && IPv6Layer::isDataValid(payload, payloadLen))
-				m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
+				m_NextLayer = new IPv6Layer(payload, payloadLen, this, getAttachedPacket());
 			else
-				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 			break;
 		}
 		case PACKETPP_IPPROTO_ESP:
 			m_NextLayer = ESPLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new ESPLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new ESPLayer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 		}
 	}
 
@@ -118,7 +118,7 @@ namespace pcpp
 		if (m_DataLen <= headerLen)
 			return;
 
-		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
 	}
 
 	std::string ESPLayer::toString() const
