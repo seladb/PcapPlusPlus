@@ -106,9 +106,9 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	andFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(andFilter));
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
-	PTF_ASSERT_TRUE(sendURLRequest("www.walla.co.il"));
+	PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
 	// let the capture work for couple of seconds
-	totalSleepTime = incSleep(capturedPackets, 2, 7);
+	totalSleepTime = incSleep(capturedPackets, 2, 20);
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);

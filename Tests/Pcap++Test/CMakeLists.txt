@@ -16,6 +16,7 @@ add_executable(
   Tests/RawSocketTests.cpp
   Tests/SystemUtilsTests.cpp
   Tests/TcpReassemblyTests.cpp
+  Tests/WinDivertTests.cpp
   Tests/XdpTests.cpp
 )
 

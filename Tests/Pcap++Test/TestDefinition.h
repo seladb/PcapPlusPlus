@@ -128,3 +128,9 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets);
 PTF_TEST_CASE(TestXdpDeviceSendPackets);
 PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig);
 PTF_TEST_CASE(TestXdpDeviceInvalidConfig);
+
+// Implemented in WinDivertTests.cpp
+PTF_TEST_CASE(TestWinDivertReceivePackets);
+PTF_TEST_CASE(TestWinDivertSendPackets);
+PTF_TEST_CASE(TestWinDivertParams);
+PTF_TEST_CASE(TestWinDivertNetworkInterfaces);
