@@ -49,14 +49,14 @@ namespace pcpp
 			/// the layer is destroyed.
 			Packet* attachedPacket = nullptr;
 
-			/// @brief Controls if the layer object is considered managed by the attached Packet
+			/// @brief Controls if the layer object is considered owned by the attached Packet
 			///
-			/// If 'true', the Layer object is considered managed by the attached Packet and will be tracked and freed
-			/// by it
+			/// If 'true', the Layer object is considered owned by the attached Packet and will be freed by it on Packet
+			/// destruction.
 			///
 			/// If 'false', the Layer object is considered unmanaged and the user is responsible for freeing it.
 			/// This is commonly the case for layers created on the stack and attached to a Packet.
-			bool managedByPacket = false;
+			bool ownedByPacket = false;
 
 			/// @brief Sets the state of attachment to a specified Packet
 			/// @param packet Pointer to the Packet this layer is attached to (or nullptr if not attached to any Packet)
@@ -71,14 +71,14 @@ namespace pcpp
 				}
 
 				attachedPacket = packet;
-				managedByPacket = managed;
+				ownedByPacket = managed;
 			}
 
 			/// @brief Clears the attachment to any Packet, resetting to unmanaged state.
 			void detach()
 			{
 				attachedPacket = nullptr;
-				managedByPacket = false;
+				ownedByPacket = false;
 			}
 		};
 	}  // namespace internal

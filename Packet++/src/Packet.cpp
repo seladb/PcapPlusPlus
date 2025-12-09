@@ -69,7 +69,7 @@ namespace pcpp
 		for (auto* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			// Mark the current layer as allocated in the packet
-			curLayer->m_AllocationInfo.managedByPacket = true;
+			curLayer->m_AllocationInfo.ownedByPacket = true;
 			m_LastLayer = curLayer;  // Update last layer to current layer
 
 			// If the current layer is of a higher OSI layer than the target, stop parsing
@@ -119,7 +119,7 @@ namespace pcpp
 				    new PacketTrailerLayer(static_cast<uint8_t*>(m_LastLayer->getData() + m_LastLayer->getDataLen()),
 				                           trailerLen, m_LastLayer, this);
 
-				trailerLayer->m_AllocationInfo.managedByPacket = true;
+				trailerLayer->m_AllocationInfo.ownedByPacket = true;
 				m_LastLayer->setNextLayer(trailerLayer);
 				m_LastLayer = trailerLayer;
 			}
@@ -165,7 +165,7 @@ namespace pcpp
 		while (curLayer != nullptr)
 		{
 			Layer* nextLayer = curLayer->getNextLayer();
-			if (curLayer->m_AllocationInfo.managedByPacket)
+			if (curLayer->m_AllocationInfo.ownedByPacket)
 				delete curLayer;
 			curLayer = nextLayer;
 		}
@@ -197,7 +197,7 @@ namespace pcpp
 		while (curLayer != nullptr)
 		{
 			curLayer->parseNextLayer();
-			curLayer->m_AllocationInfo.managedByPacket = true;
+			curLayer->m_AllocationInfo.ownedByPacket = true;
 			curLayer = curLayer->getNextLayer();
 			if (curLayer != nullptr)
 				m_LastLayer = curLayer;
@@ -493,7 +493,7 @@ namespace pcpp
 		}
 
 		// if layer was allocated by this packet and tryToDelete flag is set, delete it
-		if (tryToDelete && layer->m_AllocationInfo.managedByPacket)
+		if (tryToDelete && layer->m_AllocationInfo.ownedByPacket)
 		{
 			delete layer;
 		}
