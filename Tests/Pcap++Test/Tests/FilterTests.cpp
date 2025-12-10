@@ -10,6 +10,7 @@
 #include "Packet.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
+#include "Logger.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/PcapFileNamesDef.h"
 #include "../Common/TestUtils.h"
@@ -105,9 +106,9 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	andFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(andFilter));
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
-	PTF_ASSERT_TRUE(sendURLRequest("www.walla.co.il"));
+	PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
 	// let the capture work for couple of seconds
-	totalSleepTime = incSleep(capturedPackets, 2, 7);
+	totalSleepTime = incSleep(capturedPackets, 2, 20);
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
@@ -208,7 +209,9 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	// Try to make an invalid filter
 	pcpp::BPFStringFilter badFilter("This is not a valid filter");
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(badFilter.verifyFilter());
+	pcpp::Logger::getInstance().enableLogs();
 
 	// Test stolen from MacAddress test below
 	pcpp::MacAddress macAddr("00:13:c3:df:ae:18");
@@ -222,12 +225,12 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	int validCounter = 0;
 
-	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	for (auto* rawPacketPtr : rawPacketVec)
 	{
-		if (bpfStringFilter.matchPacketWithFilter(*iter))
+		if (bpfStringFilter.matches(*rawPacketPtr))
 		{
 			++validCounter;
-			pcpp::Packet packet(*iter);
+			pcpp::Packet packet(rawPacketPtr);
 			pcpp::EthLayer* ethLayer = packet.getLayerOfType<pcpp::EthLayer>();
 			PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddr);
 		}
@@ -247,12 +250,14 @@ PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 	fileReaderDev.close();
 
 	//	Test empty BPFstring (the "ALL" filter) in combination with a "-" (example wrong filter)
-	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	for (auto* rawPacketPtr : rawPacketVec)
 	{
 		pcpp::BPFStringFilter emptyFilter("");
-		PTF_ASSERT_TRUE(emptyFilter.matchPacketWithFilter(*iter));
+		PTF_ASSERT_TRUE(emptyFilter.matches(*rawPacketPtr));
 		pcpp::BPFStringFilter wrongFilter("-");
-		PTF_ASSERT_FALSE(wrongFilter.matchPacketWithFilter(*iter));
+		pcpp::Logger::getInstance().suppressLogs();
+		PTF_ASSERT_FALSE(wrongFilter.matches(*rawPacketPtr));
+		pcpp::Logger::getInstance().enableLogs();
 	}
 
 	rawPacketVec.clear();
@@ -810,7 +815,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 {
-	// check if matchPacketWithFilter work properly for packets with different LinkLayerType
+	// check if GeneralFilter::matches(...) work properly for packets with different LinkLayerType
 
 	// pcpp::LINKTYPE_DLT_RAW1 layer
 	pcpp::PcapFileReaderDevice fileReaderDev1(RAW_IP_PCAP_PATH);
@@ -820,16 +825,16 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	fileReaderDev1.close();
 
 	int validCounter = 0;
-	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	for (auto* rawPacketPtr : rawPacketVec)
 	{
-		pcpp::Packet packet(*iter);
+		pcpp::Packet packet(rawPacketPtr);
 		if (pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
 			pcpp::BPFStringFilter bpfStringFilter(
 			    "host " + ip4layer->getDstIPAddress().toString());  // checking against real filter, not the "" filter
-			if (bpfStringFilter.matchPacketWithFilter(*iter))
+			if (bpfStringFilter.matches(*rawPacketPtr))
 			{
-				if ((*iter)->getLinkLayerType() == pcpp::LINKTYPE_DLT_RAW1)
+				if (rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_DLT_RAW1)
 				{
 					++validCounter;
 				}
@@ -846,16 +851,16 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	fileReaderDev2.close();
 
 	validCounter = 0;
-	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	for (auto* rawPacketPtr : rawPacketVec)
 	{
-		pcpp::Packet packet(*iter);
+		pcpp::Packet packet(rawPacketPtr);
 		if (pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
 			pcpp::BPFStringFilter bpfStringFilter(
 			    "host " + ip4layer->getDstIPAddress().toString());  // checking against real filter, not the "" filter
-			if (bpfStringFilter.matchPacketWithFilter(*iter))
+			if (bpfStringFilter.matches(*rawPacketPtr))
 			{
-				if ((*iter)->getLinkLayerType() == pcpp::LINKTYPE_LINUX_SLL)
+				if (rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_LINUX_SLL)
 				{
 					++validCounter;
 				}
@@ -872,16 +877,16 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	fileReaderDev3.close();
 
 	validCounter = 0;
-	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	for (auto* rawPacketPtr : rawPacketVec)
 	{
-		pcpp::Packet packet(*iter);
+		pcpp::Packet packet(rawPacketPtr);
 		if (pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
 			pcpp::BPFStringFilter bpfStringFilter(
 			    "host " + ip4layer->getDstIPAddress().toString());  // checking against real filter, not the "" filter
-			if (bpfStringFilter.matchPacketWithFilter(*iter))
+			if (bpfStringFilter.matches(*rawPacketPtr))
 			{
-				if ((*iter)->getLinkLayerType() == pcpp::LINKTYPE_ETHERNET)
+				if (rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_ETHERNET)
 				{
 					++validCounter;
 				}

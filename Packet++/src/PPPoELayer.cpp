@@ -53,16 +53,16 @@ namespace pcpp
 		{
 		case PCPP_PPP_IP:
 			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PCPP_PPP_IPV6:
 			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 			break;
 		}
 	}
@@ -256,7 +256,7 @@ namespace pcpp
 		if (m_Data == nullptr)
 			return PPPoEDiscoveryLayer::PPPoETagTypes::PPPOE_TAG_EOL;
 
-		return (PPPoEDiscoveryLayer::PPPoETagTypes)be16toh(m_Data->recordType);
+		return static_cast<PPPoEDiscoveryLayer::PPPoETagTypes>(be16toh(m_Data->recordType));
 	}
 
 	size_t PPPoEDiscoveryLayer::PPPoETag::getTotalSize() const

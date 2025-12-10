@@ -1,0 +1,58 @@
+{
+    "version": 3,
+    "serialNumber": "a8:d4:97:aa:c4:c4:d9:41:0a:69:11:c2:2e:e5:55:e",
+    "issuer": "C=US, O=Google Trust Services, CN=WE2",
+    "validity": {
+        "notBefore": "2025-07-07 08:36:00",
+        "notAfter": "2025-09-29 08:35:59"
+    },
+    "subject": "CN=www.google.com",
+    "subjectPublicKeyInfo": {
+        "subjectPublicKeyAlgorithm": "ECDSA",
+        "subjectPublicKey": "04:e2:06:9c:36:5f:ee:f2:5e:9a:12:fc:b5:a8:64:13:3d:78:63:e0:4e:86:3a:dc:0c:71:dc:13:8e:fb:d4:e9:2c:51:8a:5b:38:e3:93:cf:4f:89:79:96:df:b6:ae:48:5c:2e:38:56:6b:19:53:ea:4a:b0:69:8a:bb:cf:57:9c:41"
+    },
+    "extensions": [
+        {
+            "type": "KeyUsage",
+            "isCritical": true
+        },
+        {
+            "type": "ExtendedKeyUsage",
+            "isCritical": false
+        },
+        {
+            "type": "BasicConstraints",
+            "isCritical": true
+        },
+        {
+            "type": "SubjectKeyIdentifier",
+            "isCritical": false
+        },
+        {
+            "type": "AuthorityKeyIdentifier",
+            "isCritical": false
+        },
+        {
+            "type": "AuthorityInfoAccess",
+            "isCritical": false
+        },
+        {
+            "type": "SubjectAltName",
+            "isCritical": false
+        },
+        {
+            "type": "CertificatePolicies",
+            "isCritical": false
+        },
+        {
+            "type": "CRLDistributionPoints",
+            "isCritical": false
+        },
+        {
+            "type": "CTPrecertificateSCTs",
+            "isCritical": false
+        }
+    ],
+    "signatureAlgorithm": "ECDSAWithSHA256",
+    "signature": "30:45:02:21:00:c4:2b:6f:70:ac:64:ff:45:6d:44:4e:08:ea:84:0e:ca:24:3e:48:b0:38:a3:ae:80:96:f5:ca:64:93:fb:75:0d:02:20:69:f2:15:28:43:f1:e6:e1:a2:5d:ec:24:c6:33:86:e7:a3:83:22:6d:44:06:ef:5d:5f:fa:16:bc:c4:f0:05:8c"
+}

@@ -3,6 +3,7 @@
 /// @file
 
 #include "Device.h"
+#include <memory>
 #include <utility>
 #include <functional>
 
@@ -179,6 +180,11 @@ namespace pcpp
 		/// Close the device. This method closes the AF_XDP socket and frees the UMEM that was allocated for it.
 		void close() override;
 
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
+
 		/// Start receiving packets. In order to use this method the device should be open. Note that this method is
 		/// blocking and will return if:
 		/// - stopReceivePackets() was called from within the user callback
@@ -225,7 +231,8 @@ namespace pcpp
 		/// @return A pointer to the current device configuration. If the device is not open this method returns nullptr
 		XdpDeviceConfiguration* getConfig() const
 		{
-			return m_Config;
+			// TODO: Return a copy or const ref to avoid user modifying config?
+			return m_Config.get();
 		}
 
 		/// @return Current device statistics
@@ -285,8 +292,10 @@ namespace pcpp
 			uint64_t txCompletedPackets;
 		};
 
+		bool m_DeviceOpened = false;
+
 		std::string m_InterfaceName;
-		XdpDeviceConfiguration* m_Config;
+		std::unique_ptr<XdpDeviceConfiguration> m_Config;
 		bool m_ReceivingPackets;
 		XdpUmem* m_Umem;
 		void* m_SocketInfo;
@@ -301,7 +310,7 @@ namespace pcpp
 		uint32_t checkCompletionRing();
 		bool configureSocket();
 		bool initUmem();
-		bool initConfig();
+		bool populateConfigDefaults(XdpDeviceConfiguration& config) const;
 		bool getSocketStats();
 	};
 }  // namespace pcpp

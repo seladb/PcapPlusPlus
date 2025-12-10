@@ -11,7 +11,7 @@
 namespace pcpp
 {
 	/// A vector of pointers to RawPacket
-	typedef PointerVector<RawPacket> RawPacketVector;
+	using RawPacketVector = PointerVector<RawPacket>;
 
 	/// @class IDevice
 	/// An abstract interface representing all packet processing devices. It stands as the root class for all devices.
@@ -19,15 +19,11 @@ namespace pcpp
 	class IDevice
 	{
 	protected:
-		bool m_DeviceOpened;
-
 		// c'tor should not be public
-		IDevice() : m_DeviceOpened(false)
-		{}
+		IDevice() = default;
 
 	public:
-		virtual ~IDevice()
-		{}
+		virtual ~IDevice() = default;
 
 		/// Open the device
 		/// @return True if device was opened successfully, false otherwise
@@ -37,17 +33,14 @@ namespace pcpp
 		virtual void close() = 0;
 
 		/// @return True if the file is opened, false otherwise
-		inline bool isOpened()
-		{
-			return m_DeviceOpened;
-		}
+		virtual bool isOpened() const = 0;
 	};
 
 	/// @class IFilterableDevice
 	/// An abstract interface representing all devices that have BPF (Berkeley Packet Filter) filtering capabilities,
 	/// meaning devices that can filter packets based on the BPF filtering syntax.
 	/// This is an abstract class that cannot be instantiated
-	class IFilterableDevice
+	class IFilterableDevice : public IDevice
 	{
 	protected:
 		// c'tor should not be public
@@ -60,22 +53,39 @@ namespace pcpp
 		/// received
 		/// @param[in] filter The filter to be set in PcapPlusPlus' GeneralFilter format
 		/// @return True if filter set successfully, false otherwise
-		virtual bool setFilter(GeneralFilter& filter)
+		bool setFilter(GeneralFilter& filter)
 		{
 			std::string filterAsString;
 			filter.parseToString(filterAsString);
-			return setFilter(filterAsString);
+			return doUpdateFilter(&filterAsString);
 		}
 
 		/// Set a filter for the device. When implemented by the device, only packets that match the filter will be
-		/// received
+		/// processed.
 		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
 		/// (http://biot.com/capstats/bpf.html)
 		/// @return True if filter set successfully, false otherwise
-		virtual bool setFilter(std::string filterAsString) = 0;
+		bool setFilter(std::string const& filterAsString)
+		{
+			return doUpdateFilter(&filterAsString);
+		}
 
 		/// Clear the filter currently set on the device
 		/// @return True if filter was removed successfully or if no filter was set, false otherwise
-		virtual bool clearFilter() = 0;
+		bool clearFilter()
+		{
+			return doUpdateFilter(nullptr);
+		}
+
+	protected:
+		/// @brief Updates the filter on the device with a BPF string.
+		///
+		/// Only packets that match the filter should be processed by the device after this method is called.
+		/// A nullptr should disable any existing filter on the device.
+		///
+		/// @param filterAsString A pointer to a string representing the filter in BPF syntax
+		/// (http://biot.com/capstats/bpf.html).
+		/// @return True if the operation was successful, false otherwise.
+		virtual bool doUpdateFilter(std::string const* filterAsString) = 0;
 	};
 }  // namespace pcpp

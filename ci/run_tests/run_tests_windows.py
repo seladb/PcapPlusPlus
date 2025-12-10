@@ -73,6 +73,14 @@ def main():
         help="Pcap++ tests to skip",
     )
     parser.add_argument(
+        "--include-tests",
+        "-t",
+        type=str,
+        nargs="+",
+        default=[],
+        help="Pcap++ tests to include",
+    )
+    parser.add_argument(
         "--coverage",
         "-c",
         action="store_true",
@@ -125,6 +133,9 @@ def main():
             exit(completed_process.returncode)
 
         skip_tests = ["TestRemoteCapture"] + args.skip_tests
+        include_tests = (
+            ["-t", ";".join(args.include_tests)] if args.include_tests else []
+        )
         if args.coverage:
             completed_process = subprocess.run(
                 [
@@ -146,6 +157,7 @@ def main():
                     ip_address,
                     "-x",
                     ";".join(skip_tests),
+                    *include_tests,
                 ],
                 cwd=os.path.join("Tests", "Pcap++Test"),
                 shell=True,
@@ -158,6 +170,7 @@ def main():
                     ip_address,
                     "-x",
                     ";".join(skip_tests),
+                    *include_tests,
                 ],
                 cwd=os.path.join("Tests", "Pcap++Test"),
                 shell=True,

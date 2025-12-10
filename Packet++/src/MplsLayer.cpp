@@ -112,7 +112,7 @@ namespace pcpp
 
 		if (!isBottomOfStack())
 		{
-			m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new MplsLayer(payload, payloadLen, this, getAttachedPacket());
 			return;
 		}
 
@@ -121,16 +121,16 @@ namespace pcpp
 		{
 		case 4:
 			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case 6:
 			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 		}
 	}
 

@@ -133,26 +133,34 @@ namespace pcpp
 		return stats;
 	}
 
-	bool IPcapDevice::setFilter(std::string filterAsString)
+	bool IPcapDevice::doUpdateFilter(std::string const* filterAsString)
 	{
 		PCPP_LOG_DEBUG("Filter to be set: '" << filterAsString << "'");
-		if (!m_DeviceOpened)
+		if (!isOpened())
 		{
 			PCPP_LOG_ERROR("Device not Opened!! cannot set filter");
 			return false;
 		}
 
-		return m_PcapDescriptor.setFilter(filterAsString);
-	}
-
-	bool IPcapDevice::clearFilter()
-	{
-		return m_PcapDescriptor.clearFilter();
+		if (filterAsString == nullptr || filterAsString->empty())
+		{
+			return m_PcapDescriptor.clearFilter();
+		}
+		else
+		{
+			return m_PcapDescriptor.setFilter(*filterAsString);
+		}
 	}
 
 	bool IPcapDevice::matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket)
 	{
-		return filter.matchPacketWithFilter(rawPacket);
+		if (rawPacket == nullptr)
+		{
+			PCPP_LOG_ERROR("Raw packet pointer is null");
+			return false;
+		}
+
+		return filter.matches(*rawPacket);
 	}
 
 	std::string IPcapDevice::getPcapLibVersionInfo()

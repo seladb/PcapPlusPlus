@@ -693,7 +693,7 @@ namespace pcpp
 	static uint32_t hashString(std::string str)
 	{
 		unsigned h = FIRST_HASH;
-		for (std::string::size_type i = 0; i < str.size(); ++i)
+		for (auto i = 0u; i < str.size(); ++i)
 		{
 			h = (h * A) ^ (str[i] * B);
 		}
@@ -1127,7 +1127,7 @@ namespace pcpp
 		}
 
 		uint8_t* hostNameLengthPos = extensionDataPtr + sizeof(uint16_t) + sizeof(uint8_t);
-		uint16_t hostNameLength = be16toh(*(uint16_t*)hostNameLengthPos);
+		uint16_t hostNameLength = be16toh(*reinterpret_cast<uint16_t*>(hostNameLengthPos));
 
 		char* hostNameAsCharArr = new char[hostNameLength + 1];
 		memset(hostNameAsCharArr, 0, hostNameLength + 1);
@@ -1148,7 +1148,7 @@ namespace pcpp
 		uint16_t extensionLength = getLength();
 		if (extensionLength == 2)  // server hello message
 		{
-			result.push_back(SSLVersion(be16toh(*(uint16_t*)getData())));
+			result.push_back(SSLVersion(be16toh(*reinterpret_cast<uint16_t*>(getData()))));
 		}
 		else  // client-hello message
 		{
@@ -1159,7 +1159,7 @@ namespace pcpp
 			uint8_t* dataPtr = getData() + sizeof(uint8_t);
 			for (int i = 0; i < listLength / 2; i++)
 			{
-				result.push_back(SSLVersion(be16toh(*(uint16_t*)dataPtr)));
+				result.push_back(SSLVersion(be16toh(*reinterpret_cast<uint16_t*>(dataPtr))));
 				dataPtr += sizeof(uint16_t);
 			}
 		}
@@ -1222,12 +1222,29 @@ namespace pcpp
 
 	Asn1SequenceRecord* SSLx509Certificate::getRootAsn1Record()
 	{
+		if (!m_AllDataExists)
+		{
+			PCPP_LOG_ERROR("Certificate data is not complete, cannot parse ASN.1 record");
+			return nullptr;
+		}
+
 		if (m_Asn1Record == nullptr)
 		{
 			m_Asn1Record = Asn1Record::decode(m_Data, m_DataLen);
 		}
 
 		return m_Asn1Record->castAs<Asn1SequenceRecord>();
+	}
+
+	std::unique_ptr<X509Certificate> SSLx509Certificate::getX509Certificate()
+	{
+		if (!m_AllDataExists)
+		{
+			PCPP_LOG_ERROR("Certificate data is not complete, cannot parse X509 certificate");
+			return nullptr;
+		}
+
+		return X509Certificate::fromDER(m_Data, m_DataLen);
 	}
 
 	// ---------------------------
@@ -1247,7 +1264,7 @@ namespace pcpp
 		if (dataLen < sizeof(ssl_tls_handshake_layer))
 			return nullptr;
 
-		ssl_tls_handshake_layer* hsMsgHeader = (ssl_tls_handshake_layer*)data;
+		ssl_tls_handshake_layer* hsMsgHeader = reinterpret_cast<ssl_tls_handshake_layer*>(data);
 
 		if (dataLen >= 16 && (be64toh(*(uint64_t*)data) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
 		{
@@ -1291,13 +1308,13 @@ namespace pcpp
 
 	SSLHandshakeType SSLHandshakeMessage::getHandshakeType() const
 	{
-		ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
+		ssl_tls_handshake_layer* handshakeLayer = reinterpret_cast<ssl_tls_handshake_layer*>(m_Data);
 		return (SSLHandshakeType)handshakeLayer->handshakeType;
 	}
 
 	size_t SSLHandshakeMessage::getMessageLength() const
 	{
-		ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
+		ssl_tls_handshake_layer* handshakeLayer = reinterpret_cast<ssl_tls_handshake_layer*>(m_Data);
 		// TODO: add handshakeLayer->length1 to the calculation
 		size_t len = sizeof(ssl_tls_handshake_layer) + be16toh(handshakeLayer->length2);
 		if (len > m_DataLen)
@@ -1311,7 +1328,7 @@ namespace pcpp
 		if (m_DataLen < sizeof(ssl_tls_handshake_layer))
 			return false;
 
-		ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
+		ssl_tls_handshake_layer* handshakeLayer = reinterpret_cast<ssl_tls_handshake_layer*>(m_Data);
 		size_t len = sizeof(ssl_tls_handshake_layer) + be16toh(handshakeLayer->length2);
 		return len <= m_DataLen;
 	}

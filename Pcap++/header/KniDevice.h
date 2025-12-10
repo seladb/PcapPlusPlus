@@ -86,8 +86,8 @@ namespace pcpp
 	class KniDeviceList;
 
 	/// Defines the signature callback used by capturing API on KNI device
-	typedef bool (*OnKniPacketArriveCallback)(MBufRawPacket* packets, uint32_t numOfPackets, KniDevice* device,
-	                                          void* userCookie);
+	using OnKniPacketArriveCallback = bool (*)(MBufRawPacket* packets, uint32_t numOfPackets, KniDevice* device,
+	                                           void* userCookie);
 
 	/// @class KniDevice
 	/// This class represents special kind of DPDK devices called KNI - Kernel Network Interface
@@ -232,10 +232,10 @@ namespace pcpp
 	private:
 		/// All instances of this class MUST be produced by KniDeviceList class
 		KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int unique);
-		/// This class is not copyable
-		KniDevice(const KniDevice&);
-		/// This class is not copyable
-		KniDevice& operator=(const KniDevice&);
+
+		KniDevice(const KniDevice&) = delete;
+		KniDevice& operator=(const KniDevice&) = delete;
+
 		/// All instances of this class MUST be destroyed by KniDeviceList class
 		~KniDevice();
 
@@ -524,7 +524,14 @@ namespace pcpp
 		/// Stops asynchronous packet capture if it is running.
 		void close();
 
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
+
 	private:
+		bool m_DeviceOpened = false;
+
 		struct rte_kni* m_Device;
 		struct rte_mempool* m_MBufMempool;
 		struct KniDeviceInfo

@@ -31,7 +31,7 @@ namespace pcpp
 
 	/// @class PfRingDevice
 	/// A class representing a PF_RING port
-	class PfRingDevice : public IDevice, public IFilterableDevice
+	class PfRingDevice : public IFilterableDevice
 	{
 		friend class PfRingDeviceList;
 
@@ -58,6 +58,8 @@ namespace pcpp
 			std::condition_variable m_Cv;
 			bool m_Ready = false;
 		};
+
+		bool m_DeviceOpened = false;
 
 		std::vector<pfring*> m_PfRingDescriptors;
 		std::string m_DeviceName;
@@ -308,15 +310,17 @@ namespace pcpp
 		/// Closes all RX channels currently opened in device
 		void close();
 
-		using IFilterableDevice::setFilter;
+		bool isOpened() const override
+		{
+			return m_DeviceOpened;
+		}
 
-		/// Sets a BPF filter to the device
-		/// @param[in] filterAsString The BPF filter in string format
-		bool setFilter(std::string filterAsString);
+	protected:
+		bool doUpdateFilter(std::string const* filterAsString) override;
 
-		/// Remove a filter if currently set
-		/// @return True if filter was removed successfully or if no filter was set, false otherwise
-		bool clearFilter();
+	private:
+		bool removeFilterForAllChannels();
+		bool setFilterForAllChannels(std::string const& filterAsString);
 	};
 
 }  // namespace pcpp

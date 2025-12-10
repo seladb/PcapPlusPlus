@@ -230,67 +230,169 @@ namespace pcpp
 		}
 	}
 
-	PcapLiveDevice::StatisticsUpdateWorker::StatisticsUpdateWorker(PcapLiveDevice const& pcapDevice,
-	                                                               OnStatsUpdateCallback onStatsUpdateCallback,
-	                                                               void* onStatsUpdateUserCookie,
-	                                                               unsigned int updateIntervalMs)
+	namespace
 	{
-		// Setup thread data
-		m_SharedThreadData = std::make_shared<SharedThreadData>();
-
-		ThreadData threadData;
-		threadData.pcapDevice = &pcapDevice;
-		threadData.cbOnStatsUpdate = onStatsUpdateCallback;
-		threadData.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
-		threadData.updateIntervalMs = updateIntervalMs;
-
-		// Start the thread
-		m_WorkerThread = std::thread(&StatisticsUpdateWorker::workerMain, m_SharedThreadData, std::move(threadData));
-	}
-
-	void PcapLiveDevice::StatisticsUpdateWorker::stopWorker()
-	{
-		m_SharedThreadData->stopRequested = true;
-		if (m_WorkerThread.joinable())
+		struct StatisticsUpdateContext
 		{
-			m_WorkerThread.join();
-		}
-	}
+			OnStatsUpdateCallback cbOnStatsUpdate;
+			void* cbOnStatsUpdateUserCookie = nullptr;
+			std::chrono::milliseconds updateInterval = std::chrono::seconds(1);
+		};
 
-	void PcapLiveDevice::StatisticsUpdateWorker::workerMain(std::shared_ptr<SharedThreadData> sharedThreadData,
-	                                                        ThreadData threadData)
-	{
-		if (sharedThreadData == nullptr)
+		void statsThreadMain(std::atomic<bool>& stopFlag, internal::PcapHandle const& pcapDescriptor,
+		                     StatisticsUpdateContext context)
 		{
-			PCPP_LOG_ERROR("Shared thread data is null");
-			return;
-		}
+			if (context.cbOnStatsUpdate == nullptr)
+			{
+				PCPP_LOG_ERROR("No callback provided for statistics updates");
+				return;
+			}
 
-		if (threadData.pcapDevice == nullptr)
-		{
-			PCPP_LOG_ERROR("Pcap device is null");
-			return;
-		}
+			PCPP_LOG_DEBUG("Begin periodic statistics update procedure");
 
-		if (threadData.cbOnStatsUpdate == nullptr)
-		{
-			PCPP_LOG_ERROR("Statistics Callback is null");
-			return;
+			IPcapDevice::PcapStats stats;
+			while (!stopFlag.load())
+			{
+				try
+				{
+					pcapDescriptor.getStatistics(stats);
+					context.cbOnStatsUpdate(stats, context.cbOnStatsUpdateUserCookie);
+				}
+				catch (const std::exception& ex)
+				{
+					PCPP_LOG_ERROR("Exception occurred while invoking statistics update callback: " << ex.what());
+					break;
+				}
+				catch (...)
+				{
+					PCPP_LOG_ERROR("Unknown exception occurred while invoking statistics update callback");
+					break;
+				}
+				std::this_thread::sleep_for(context.updateInterval);
+			}
+			PCPP_LOG_DEBUG("Ended periodic statistics update procedure");
 		}
 
-		PCPP_LOG_DEBUG("Started statistics thread");
-
-		PcapStats stats;
-		auto sleepDuration = std::chrono::milliseconds(threadData.updateIntervalMs);
-		while (!sharedThreadData->stopRequested)
+		struct CaptureContext
 		{
-			threadData.pcapDevice->getStatistics(stats);
-			threadData.cbOnStatsUpdate(stats, threadData.cbOnStatsUpdateUserCookie);
-			std::this_thread::sleep_for(sleepDuration);
+			PcapLiveDevice* device = nullptr;
+			OnPacketArrivesCallback callback;
+			void* userCookie = nullptr;
+		};
+
+		struct AccumulatorCaptureContext
+		{
+			PcapLiveDevice* device = nullptr;
+			RawPacketVector* capturedPackets = nullptr;
+		};
+
+		// A noop function to be used when no callback is set
+		void onPacketArrivesNoop(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{}
+
+		// @brief Wraps the raw packet data into a RawPacket instance and calls the user callback
+		// @param user A pointer to a CaptureContext instance
+		// @param pkthdr A pointer to the pcap_pkthdr struct
+		// @param packet A pointer to the raw packet data
+		void onPacketArrivesCallback(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{
+			auto* context = reinterpret_cast<CaptureContext*>(user);
+			if (context == nullptr || context->device == nullptr || context->callback == nullptr)
+			{
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or callback");
+				return;
+			}
+
+			// TODO: Add exception handling to tunnel the exceptions from here to the capture thread
+			// through the C code boundary
+
+			RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, context->device->getLinkType());
+			context->callback(&rawPacket, context->device, context->userCookie);
 		}
 
-		PCPP_LOG_DEBUG("Stopped statistics thread");
-	}
+		/// @brief Wraps the raw packet data into a RawPacket instance and adds it to the captured packets vector
+		/// @param user A pointer to an AccumulatorCaptureContext instance
+		/// @param pkthdr A pointer to the pcap_pkthdr struct
+		/// @param packet A pointer to the raw packet data
+		void onPacketArrivesAccumulator(uint8_t* user, const pcap_pkthdr* pkthdr, const uint8_t* packet)
+		{
+			auto* context = reinterpret_cast<AccumulatorCaptureContext*>(user);
+			if (context == nullptr || context->device == nullptr || context->capturedPackets == nullptr)
+			{
+				PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance or captured packets vector");
+				return;
+			}
+
+			// TODO: Add exception handling to tunnel the exceptions from here to the capture thread
+			// through the C code boundary
+
+			uint8_t* packetData = new uint8_t[pkthdr->caplen];
+			std::memcpy(packetData, packet, pkthdr->caplen);
+			auto rawPacket = std::make_unique<RawPacket>(packetData, pkthdr->caplen, pkthdr->ts, true,
+			                                             context->device->getLinkType());
+			context->capturedPackets->pushBack(std::move(rawPacket));
+		}
+
+		/// @brief A procedure that dispatches packets to a user-defined callback function whenever a packet arrives.
+		///
+		/// The procedure runs in a loop until the `stopFlag` is set to true.
+		/// The procedure will set the `hasStarted` flag to true at the start of the procedure.
+		///
+		/// @param stopFlag A reference to an atomic boolean that indicates when to stop capturing packets
+		/// @param hasStarted A reference to an atomic boolean that indicates when the capture thread has started
+		/// @param pcapDescriptor A reference to the pcap handle on which to call pcap_dispatch
+		/// @param context A CaptureContext instance that holds the device, callback and user cookie.
+		void captureThreadMain(std::atomic_bool& stopFlag, std::atomic_bool& hasStarted,
+		                       internal::PcapHandle const& pcapDescriptor, CaptureContext context)
+		{
+			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
+			hasStarted.store(true);
+
+			// If the callback is null, we use a no-op handler to avoid unnecessary overhead
+			// Statistics only capture still requires pcap_dispatch to be called, but we don't need to process
+			// packets.
+			pcap_handler callbackHandler = context.callback ? onPacketArrivesCallback : onPacketArrivesNoop;
+
+			while (!stopFlag.load())
+			{
+				if (pcap_dispatch(pcapDescriptor.get(), -1, callbackHandler, reinterpret_cast<uint8_t*>(&context)) ==
+				    -1)
+				{
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcapDescriptor.getLastError());
+					stopFlag.store(true);
+				}
+			}
+
+			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
+		}
+
+		/// @brief A procedure that accumulates captured packets into a vector.
+		///
+		/// The procedure runs in a loop until the `stopFlag` is set to true.
+		/// The procedure will set the `hasStarted` flag to true at the start of the procedure.
+		///
+		/// @param stopFlag A reference to an atomic boolean that indicates when to stop capturing packets
+		/// @param hasStarted A reference to an atomic boolean that indicates when the capture thread has started
+		/// @param pcapDescriptor A reference to the pcap handle on which to call pcap_dispatch
+		/// @param context An AccumulatorCaptureContext instance that holds the device and the captured packets vector.
+		void captureThreadMainAccumulator(std::atomic_bool& stopFlag, std::atomic_bool& hasStarted,
+		                                  internal::PcapHandle const& pcapDescriptor, AccumulatorCaptureContext context)
+		{
+			PCPP_LOG_DEBUG("Started capture thread for device '" << context.device->getName() << "'");
+			hasStarted.store(true);
+			while (!stopFlag.load())
+			{
+				if (pcap_dispatch(pcapDescriptor.get(), 100, onPacketArrivesAccumulator,
+				                  reinterpret_cast<uint8_t*>(&context)) == -1)
+				{
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcapDescriptor.getLastError());
+					stopFlag.store(true);
+				}
+			}
+
+			PCPP_LOG_DEBUG("Ended capture thread for device '" << context.device->getName() << "'");
+		}
+	}  // namespace
 
 	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
 	                               bool calculateDefaultGateway)
@@ -327,48 +429,13 @@ namespace pcpp
 		m_CaptureThreadStarted = false;
 		m_StopThread = false;
 		m_CaptureThread = {};
-		m_cbOnPacketArrives = nullptr;
 		m_cbOnPacketArrivesBlockingMode = nullptr;
 		m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
-		m_cbOnPacketArrivesUserCookie = nullptr;
-		m_CaptureCallbackMode = true;
-		m_CapturedPackets = nullptr;
 		if (calculateMacAddress)
 		{
 			setDeviceMacAddress();
 			PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
 		}
-	}
-
-	void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
-	{
-		PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
-		if (pThis == nullptr)
-		{
-			PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-			return;
-		}
-
-		RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
-
-		if (pThis->m_cbOnPacketArrives != nullptr)
-			pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
-	}
-
-	void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr,
-	                                               const uint8_t* packet)
-	{
-		PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
-		if (pThis == nullptr)
-		{
-			PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-			return;
-		}
-
-		uint8_t* packetData = new uint8_t[pkthdr->caplen];
-		memcpy(packetData, packet, pkthdr->caplen);
-		RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
-		pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 	}
 
 	void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr,
@@ -387,37 +454,6 @@ namespace pcpp
 			if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis,
 			                                           pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
 				pThis->m_StopThread = true;
-	}
-
-	void PcapLiveDevice::captureThreadMain()
-	{
-		PCPP_LOG_DEBUG("Started capture thread for device '" << m_InterfaceDetails.name << "'");
-		m_CaptureThreadStarted = true;
-
-		if (m_CaptureCallbackMode)
-		{
-			while (!m_StopThread)
-			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
-				{
-					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
-					m_StopThread = true;
-				}
-			}
-		}
-		else
-		{
-			while (!m_StopThread)
-			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), 100, onPacketArrivesNoCallback,
-				                  reinterpret_cast<uint8_t*>(this)) == -1)
-				{
-					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastError());
-					m_StopThread = true;
-				}
-			}
-		}
-		PCPP_LOG_DEBUG("Ended capture thread for device '" << m_InterfaceDetails.name << "'");
 	}
 
 	internal::PcapHandle PcapLiveDevice::doOpen(const DeviceConfiguration& config)
@@ -505,14 +541,17 @@ namespace pcpp
 		case PCPP_IN:
 		{
 			PCPP_LOG_DEBUG("Only incoming traffics will be captured");
+			break;
 		}
 		case PCPP_OUT:
 		{
 			PCPP_LOG_DEBUG("Only outgoing traffics will be captured");
+			break;
 		}
 		default:
 		{
 			PCPP_LOG_DEBUG("Both incoming and outgoing traffics will be captured");
+			break;
 		}
 		}
 
@@ -669,11 +708,13 @@ namespace pcpp
 			return false;
 		}
 
-		m_CaptureCallbackMode = true;
-		m_cbOnPacketArrives = std::move(onPacketArrives);
-		m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
+		CaptureContext context;
+		context.device = this;
+		context.callback = std::move(onPacketArrives);
+		context.userCookie = onPacketArrivesUserCookie;
 
-		m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
+		m_CaptureThread = std::thread(&captureThreadMain, std::ref(m_StopThread), std::ref(m_CaptureThreadStarted),
+		                              std::ref(m_PcapDescriptor), std::move(context));
 
 		// Wait thread to be start
 		// C++20 = m_CaptureThreadStarted.wait(true);
@@ -686,10 +727,14 @@ namespace pcpp
 
 		if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 		{
-			// Due to passing a 'this' pointer, the current device object shouldn't be relocated, while the worker is
-			// active.
-			m_StatisticsUpdateWorker = std::make_unique<StatisticsUpdateWorker>(
-			    *this, std::move(onStatsUpdate), onStatsUpdateUserCookie, intervalInSecondsToUpdateStats * 1000);
+			StatisticsUpdateContext statsContext;
+
+			statsContext.cbOnStatsUpdate = std::move(onStatsUpdate);
+			statsContext.cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
+			statsContext.updateInterval = std::chrono::seconds(intervalInSecondsToUpdateStats);
+
+			m_StatsThread = std::thread(statsThreadMain, std::ref(m_StopThread), std::ref(m_PcapDescriptor),
+			                            std::move(statsContext));
 
 			PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_InterfaceDetails.name << "'.");
 		}
@@ -721,11 +766,15 @@ namespace pcpp
 			return false;
 		}
 
-		m_CapturedPackets = &capturedPacketsVector;
-		m_CapturedPackets->clear();
+		capturedPacketsVector.clear();
 
-		m_CaptureCallbackMode = false;
-		m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
+		AccumulatorCaptureContext context;
+		context.device = this;
+		context.capturedPackets = &capturedPacketsVector;
+
+		m_CaptureThread = std::thread(&captureThreadMainAccumulator, std::ref(m_StopThread),
+		                              std::ref(m_CaptureThreadStarted), std::ref(m_PcapDescriptor), std::move(context));
+
 		// Wait thread to be start
 		// C++20 = m_CaptureThreadStarted.wait(true);
 		while (m_CaptureThreadStarted != true)
@@ -763,8 +812,6 @@ namespace pcpp
 			PCPP_LOG_ERROR("Failed to prepare capture: " << ex.what());
 			return 0;
 		}
-		m_cbOnPacketArrives = nullptr;
-		m_cbOnPacketArrivesUserCookie = nullptr;
 
 		m_cbOnPacketArrivesBlockingMode = std::move(onPacketArrives);
 		m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
@@ -890,11 +937,10 @@ namespace pcpp
 		}
 		PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
 
-		if (m_StatisticsUpdateWorker != nullptr)
+		if (m_StatsThread.joinable())
 		{
 			PCPP_LOG_DEBUG("Stopping stats thread, waiting for it to join...");
-			m_StatisticsUpdateWorker->stopWorker();
-			m_StatisticsUpdateWorker.reset();
+			m_StatsThread.join();
 			PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_InterfaceDetails.name << "'");
 		}
 

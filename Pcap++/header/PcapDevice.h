@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Device.h"
+#include "DeprecationUtils.h"
 
 // forward declaration for the pcap descriptor defined in pcap.h
 struct pcap;
@@ -137,14 +138,13 @@ namespace pcpp
 	/// @class IPcapDevice
 	/// An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and
 	/// RemoteCapture. This class is abstract and cannot be instantiated
-	class IPcapDevice : public IDevice, public IFilterableDevice, public IPcapStatisticsProvider
+	class IPcapDevice : public IFilterableDevice, public IPcapStatisticsProvider
 	{
 	protected:
 		internal::PcapHandle m_PcapDescriptor;
 
 		// c'tor should not be public
-		IPcapDevice() : IDevice()
-		{}
+		IPcapDevice() = default;
 
 	public:
 		virtual ~IPcapDevice() = default;
@@ -159,22 +159,11 @@ namespace pcpp
 		/// @param[in] filter A filter class to test against
 		/// @param[in] rawPacket A pointer to the raw packet to match the filter with
 		/// @return True if raw packet matches the filter or false otherwise
+		/// @deprecated This method is deprecated, use GeneralFilter::matches(...) method directly.
+		PCPP_DEPRECATED("Prefer GeneralFilter::matches(...) method directly.")
 		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
-		// implement abstract methods
-
-		using IFilterableDevice::setFilter;
-
-		/// Set a filter for the device. When implemented by the device, only packets that match the filter will be
-		/// received. Please note that when the device is closed the filter is reset so when reopening the device you
-		/// need to call this method again in order to reactivate the filter
-		/// @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
-		/// (http://biot.com/capstats/bpf.html)
-		/// @return True if filter set successfully, false otherwise
-		bool setFilter(std::string filterAsString) override;
-
-		/// Clear the filter currently set on device
-		/// @return True if filter was removed successfully or if no filter was set, false otherwise
-		bool clearFilter() override;
+	protected:
+		bool doUpdateFilter(std::string const* filterAsString) override;
 	};
 }  // namespace pcpp

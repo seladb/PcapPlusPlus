@@ -11,6 +11,8 @@
 #include <array>
 #include <cstring>
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 class SomeIpTeardown
 {
 public:
@@ -52,10 +54,10 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(29180);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/someip.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/someip2.dat");
-	pcpp::Packet someIpPacket(&rawPacket1);
-	pcpp::Packet someIpPacket2(&rawPacket2);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/someip.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/someip2.dat");
+	pcpp::Packet someIpPacket(rawPacket1.get());
+	pcpp::Packet someIpPacket2(rawPacket2.get());
 
 	// Test with one SOME/IP layer
 	PTF_ASSERT_TRUE(someIpPacket.isPacketOfType(pcpp::SomeIP));
@@ -129,8 +131,8 @@ PTF_TEST_CASE(SomeIpCreationTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/someip.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/someip2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/someip.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/someip2.dat");
 
 	std::array<uint8_t, 22> data1{ 0x40, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		                           0x00, 0x85, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x01, 0x00 };
@@ -145,8 +147,8 @@ PTF_TEST_CASE(SomeIpCreationTest)
 	PTF_ASSERT_TRUE(someIpPacket.addLayer(&someipLayer1));
 	someIpPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(someIpPacket.getRawPacket()->getRawDataLen(), bufferLength1 - 78);
-	PTF_ASSERT_BUF_COMPARE(someIpPacket.getRawPacket()->getRawData(), buffer1 + 78, bufferLength1 - 78);
+	PTF_ASSERT_EQUAL(someIpPacket.getRawPacket()->getRawDataLen(), resource1.size() - 78);
+	PTF_ASSERT_BUF_COMPARE(someIpPacket.getRawPacket()->getRawData(), resource1.data() + 78, resource1.size() - 78);
 
 	// Test with two SOME/IP layers
 	pcpp::EthLayer ethLayer2(pcpp::MacAddress("02:7d:fa:01:17:40"), pcpp::MacAddress("02:7d:fa:00:10:01"),
@@ -169,11 +171,8 @@ PTF_TEST_CASE(SomeIpCreationTest)
 	PTF_ASSERT_TRUE(someIpPacket2.addLayer(&someipLayer2_2));
 	someIpPacket2.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(someIpPacket2.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(someIpPacket2.getRawPacket()->getRawData(), buffer2, bufferLength2);
-
-	delete[] buffer1;
-	delete[] buffer2;
+	PTF_ASSERT_EQUAL(someIpPacket2.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(someIpPacket2.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 }
 
 PTF_TEST_CASE(SomeIpTpParsingTest)
@@ -185,11 +184,11 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(16832);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SomeIpTp1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SomeIpTp2.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SomeIpTp1.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SomeIpTp2.dat");
 
-	pcpp::Packet someIpTpPacket1(&rawPacket1);
-	pcpp::Packet someIpTpPacket2(&rawPacket2);
+	pcpp::Packet someIpTpPacket1(rawPacket1.get());
+	pcpp::Packet someIpTpPacket2(rawPacket2.get());
 
 	// Test SOME/IP-TP start packet
 	PTF_ASSERT_TRUE(someIpTpPacket1.isPacketOfType(pcpp::SomeIP));
@@ -233,7 +232,7 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getMessageType(), pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN, enumclass);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getReturnCode(), 0);
-	PTF_ASSERT_EQUAL(someIpTpLayer2->getOffset() * 16, 91872);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getOffset(), 91872);
 	PTF_ASSERT_FALSE(someIpTpLayer2->getMoreSegmentsFlag());
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getPduPayloadSize(), 225);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getPduPayload()[0], 0xab);
@@ -247,8 +246,8 @@ PTF_TEST_CASE(SomeIpTpCreationTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/SomeIpTp1.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/SomeIpTp2.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/SomeIpTp1.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/SomeIpTp2.dat");
 
 	const size_t dataLen1 = 1392;
 	uint8_t data1[dataLen1] = { 0 };
@@ -277,15 +276,15 @@ PTF_TEST_CASE(SomeIpTpCreationTest)
 	PTF_ASSERT_TRUE(someIpTpPacket1.addLayer(&someIpTpLayer1));
 	someIpTpPacket1.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(someIpTpPacket1.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(someIpTpPacket1.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	PTF_ASSERT_EQUAL(someIpTpPacket1.getRawPacket()->getRawDataLen(), resource1.size());
+	PTF_ASSERT_BUF_COMPARE(someIpTpPacket1.getRawPacket()->getRawData(), resource1.data(), resource1.size());
 
 	// Test SOME/IP-TP end packet
 	pcpp::EthLayer ethLayer2(ethLayer1);
 	pcpp::IPv4Layer ipLayer2(ipLayer1);
 	pcpp::UdpLayer udpLayer2(udpLayer1);
-	pcpp::SomeIpTpLayer someIpTpLayer2(0xd05f, 0x8001, 0, 0, 1, pcpp::SomeIpLayer::MsgType::REQUEST_NO_RETURN, 0,
-	                                   91872 / 16, false, data2, dataLen2);
+	pcpp::SomeIpTpLayer someIpTpLayer2(0xd05f, 0x8001, 0, 0, 1, pcpp::SomeIpLayer::MsgType::REQUEST_NO_RETURN, 0, 91872,
+	                                   false, data2, dataLen2);
 
 	pcpp::Packet someIpTpPacket2(500);
 	PTF_ASSERT_TRUE(someIpTpPacket2.addLayer(&ethLayer2));
@@ -294,11 +293,8 @@ PTF_TEST_CASE(SomeIpTpCreationTest)
 	PTF_ASSERT_TRUE(someIpTpPacket2.addLayer(&someIpTpLayer2));
 	someIpTpPacket2.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(someIpTpPacket2.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(someIpTpPacket2.getRawPacket()->getRawData(), buffer2, bufferLength2);
-
-	delete[] buffer1;
-	delete[] buffer2;
+	PTF_ASSERT_EQUAL(someIpTpPacket2.getRawPacket()->getRawDataLen(), resource2.size());
+	PTF_ASSERT_BUF_COMPARE(someIpTpPacket2.getRawPacket()->getRawData(), resource2.data(), resource2.size());
 }
 
 PTF_TEST_CASE(SomeIpTpEditTest)
@@ -306,15 +302,18 @@ PTF_TEST_CASE(SomeIpTpEditTest)
 	const size_t dataLen2 = 225;
 	uint8_t data2[dataLen2] = { 0 };
 
-	pcpp::SomeIpTpLayer someIpTpLayer(0x6059, 0x410c, 0x3, 0xa, 0x5, pcpp::SomeIpLayer::MsgType::REQUEST, 0, 91872 / 16,
+	pcpp::SomeIpTpLayer someIpTpLayer(0x6059, 0x410c, 0x3, 0xa, 0x5, pcpp::SomeIpLayer::MsgType::REQUEST, 0, 91872,
 	                                  true, data2, dataLen2);
-	someIpTpLayer.setOffset(123);
+	someIpTpLayer.setOffset(1968);
 
-	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 123);
+	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 1968);
 	PTF_ASSERT_TRUE(someIpTpLayer.getMoreSegmentsFlag());
 
 	someIpTpLayer.setMoreSegmentsFlag(false);
 
-	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 123);
+	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 1968);
 	PTF_ASSERT_FALSE(someIpTpLayer.getMoreSegmentsFlag());
+
+	PTF_ASSERT_RAISES(someIpTpLayer.setOffset(17), std::invalid_argument,
+	                  "Invalid offset - should be a multiple of 16");
 }

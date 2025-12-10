@@ -20,7 +20,7 @@ namespace pcpp
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
-		sll_header* sllHdr = (sll_header*)m_Data;
+		auto* sllHdr = reinterpret_cast<sll_header*>(m_Data);
 		sllHdr->packet_type = htobe16(packetType);
 		sllHdr->ARPHRD_type = htobe16(ARPHRDType);
 		m_Protocol = SLL;
@@ -61,36 +61,38 @@ namespace pcpp
 		{
 		case PCPP_ETHERTYPE_IP:
 			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PCPP_ETHERTYPE_IPV6:
 			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
+			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PCPP_ETHERTYPE_ARP:
-			m_NextLayer = new ArpLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new ArpLayer(payload, payloadLen, this, getAttachedPacket());
 			break;
 		case PCPP_ETHERTYPE_VLAN:
 		case PCPP_ETHERTYPE_IEEE_802_1AD:
-			m_NextLayer = new VlanLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new VlanLayer(payload, payloadLen, this, getAttachedPacket());
 			break;
 		case PCPP_ETHERTYPE_PPPOES:
-			m_NextLayer = PPPoESessionLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new PPPoESessionLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			m_NextLayer =
+			    PPPoESessionLayer::isDataValid(payload, payloadLen)
+			        ? static_cast<Layer*>(new PPPoESessionLayer(payload, payloadLen, this, getAttachedPacket()))
+			        : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PCPP_ETHERTYPE_PPPOED:
-			m_NextLayer = PPPoEDiscoveryLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new PPPoEDiscoveryLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			m_NextLayer =
+			    PPPoEDiscoveryLayer::isDataValid(payload, payloadLen)
+			        ? static_cast<Layer*>(new PPPoEDiscoveryLayer(payload, payloadLen, this, getAttachedPacket()))
+			        : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		case PCPP_ETHERTYPE_MPLS:
-			m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new MplsLayer(payload, payloadLen, this, getAttachedPacket());
 			break;
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
 		}
 	}
 

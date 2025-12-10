@@ -349,7 +349,7 @@ namespace pcpp
 	{
 		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
-			return IPv4Address(*((uint32_t*)data));
+			return IPv4Address(*reinterpret_cast<const uint32_t*>(data));
 		}
 
 		return IPv6Address(data);
@@ -436,7 +436,7 @@ namespace pcpp
 
 		auto vrrpHeader = getVrrpHeader();
 		ScalarBuffer<uint16_t> buffer = {};
-		buffer.buffer = (uint16_t*)vrrpHeader;
+		buffer.buffer = reinterpret_cast<uint16_t*>(vrrpHeader);
 		buffer.len = getHeaderLen();
 
 		uint16_t currChecksumValue = vrrpHeader->checksum;
@@ -476,7 +476,7 @@ namespace pcpp
 
 	uint16_t VrrpV3Layer::calculateChecksum() const
 	{
-		auto* ipLayer = m_Packet->getLayerOfType<pcpp::IPLayer>();
+		auto* ipLayer = getAttachedPacket()->getLayerOfType<pcpp::IPLayer>();
 		if (ipLayer == nullptr)
 		{
 			PCPP_LOG_ERROR("Calculate checksum failed, for can not get IPLayer" << "");

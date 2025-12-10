@@ -8,13 +8,15 @@
 #include "RadiusLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(RadiusLayerParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_1.dat");
-	pcpp::Packet radiusPacket(&rawPacket1);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/radius_1.dat");
+	pcpp::Packet radiusPacket(rawPacket1.get());
 
 	pcpp::RadiusLayer* radiusLayer = radiusPacket.getLayerOfType<pcpp::RadiusLayer>();
 	PTF_ASSERT_NOT_NULL(radiusLayer);
@@ -45,8 +47,10 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), 6);
 	PTF_ASSERT_EQUAL(htobe32(radiusAttr.getValueAs<int>()), 2);
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(2, "PacketExamples/radius_3.dat", pcpp::LINKTYPE_NULL);
-	pcpp::Packet radiusPacket2(&rawPacket2);
+	pcpp_tests::utils::PacketFactory nullFactory(pcpp::LINKTYPE_NULL);
+
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/radius_3.dat", nullFactory);
+	pcpp::Packet radiusPacket2(rawPacket2.get());
 
 	radiusLayer = radiusPacket2.getLayerOfType<pcpp::RadiusLayer>();
 
@@ -72,8 +76,8 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	}
 
 	// incorrect RADIUS packet
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(3, "PacketExamples/radius_wrong.dat", pcpp::LINKTYPE_NULL);
-	pcpp::Packet radiusPacket3(&rawPacket3);
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/radius_wrong.dat", nullFactory);
+	pcpp::Packet radiusPacket3(rawPacket3.get());
 
 	radiusLayer = radiusPacket3.getLayerOfType<pcpp::RadiusLayer>();
 	PTF_ASSERT_NULL(radiusLayer);
@@ -84,9 +88,9 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_11.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/radius_11.dat");
 
-	pcpp::Packet radiusPacket(&rawPacket1);
+	pcpp::Packet radiusPacket(rawPacket1.get());
 
 	pcpp::EthLayer ethLayer(*radiusPacket.getLayerOfType<pcpp::EthLayer>());
 	pcpp::IPv4Layer ip4Layer;
@@ -153,11 +157,11 @@ PTF_TEST_CASE(RadiusLayerEditTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(11, "PacketExamples/radius_11.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/radius_2.dat");
+	auto rawPacket11 = createPacketFromHexResource("PacketExamples/radius_11.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/radius_2.dat");
 
-	pcpp::Packet radiusPacket11(&rawPacket11);
-	pcpp::Packet radiusPacket2(&rawPacket2);
+	pcpp::Packet radiusPacket11(rawPacket11.get());
+	pcpp::Packet radiusPacket2(rawPacket2.get());
 
 	pcpp::RadiusLayer* radiusLayer = radiusPacket11.getLayerOfType<pcpp::RadiusLayer>();
 	PTF_ASSERT_NOT_NULL(radiusLayer);

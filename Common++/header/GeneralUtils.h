@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdint>
 #include <type_traits>
+#include <vector>
 
 /// @file
 
@@ -54,6 +55,65 @@ namespace pcpp
 		int mask = alignment - 1;
 		return (number + mask) & ~mask;
 	}
+
+	/// @class Base64
+	/// A class for encoding and decoding strings/data using Base64 algorithm
+	/// This implementation is based on the work by Tobias Locker, available at https://github.com/tobiaslocker/base64
+	class Base64
+	{
+	public:
+		/// Encode an array of bytes to a Base64 string
+		/// @param[in] input The array of bytes to be encoded
+		/// @param[in] inputLen The length of the input array [in bytes]
+		/// @return The encoded string
+		static std::string encode(const uint8_t* input, size_t inputLen);
+
+		/// Encode a string to a Base64 string
+		/// @param[in] input The string to be encoded
+		/// @return The encoded string
+		static std::string encode(const std::string& input);
+
+		/// Encode a hex string to a Base64 string
+		/// @param[in] hexStringInput The hex string to be encoded
+		/// @return The encoded string
+		static std::string encodeHexString(const std::string& hexStringInput);
+
+		/// Encode a vector of bytes to a Base64 string
+		/// @param[in] input The vector of bytes to be encoded
+		/// @return The encoded string
+		static std::string encode(const std::vector<uint8_t>& input);
+
+		/// Decode a Base64 string to a vector of bytes
+		/// @param[in] input The Base64 string to be decoded
+		/// @return The decoded vector of bytes
+		static std::vector<uint8_t> decodeToByteVector(const std::string& input);
+
+		/// Decode a Base64 string to a hex string
+		/// @param[in] input The Base64 string to be decoded
+		/// @return The decoded hex string
+		static std::string decodeToHexString(const std::string& input);
+
+		/// Decode a Base64 string to a regular string
+		/// @param[in] input The Base64 string to be decoded
+		/// @return The decoded string
+		static std::string decodeToString(const std::string& input);
+
+		/// Decode a Base64 string to a byte array
+		/// @param[in] input The Base64 string to be decoded
+		/// @param[out] resultByteArr A pre-allocated byte array where the result will be written to
+		/// @param[in] resultByteArrSize The size of the pre-allocated byte array
+		/// @return The size of the decoded data
+		static size_t decodeToByteArray(const std::string& input, uint8_t* resultByteArr, size_t resultByteArrSize);
+
+		/// Get the expected decoded size of a Base64 string without actually decoding it
+		/// @param[in] input The Base64 string to be decoded
+		/// @return The expected size of the decoded data
+		static size_t getDecodedSize(const std::string& input);
+
+	private:
+		static constexpr uint32_t badChar = 0x01ffffff;
+		static constexpr char paddingChar = '=';
+	};
 
 	/// A template class to calculate enum class hash
 	/// @tparam EnumClass

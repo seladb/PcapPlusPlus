@@ -7,18 +7,20 @@
 #include "SomeIpSdLayer.h"
 #include "SystemUtils.h"
 
+using pcpp_tests::utils::createPacketFromHexResource;
+
 PTF_TEST_CASE(SomeIpSdParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SomeIpSdOffer.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SomeIpSdOffer2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/SomeIpSdSubscribe.dat");
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/SomeIpSdOffer.dat");
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SomeIpSdOffer2.dat");
+	auto rawPacket3 = createPacketFromHexResource("PacketExamples/SomeIpSdSubscribe.dat");
 
-	pcpp::Packet someIpSdPacket(&rawPacket1);
-	pcpp::Packet someIpSdPacket2(&rawPacket2);
-	pcpp::Packet someIpSdPacket3(&rawPacket3);
+	pcpp::Packet someIpSdPacket(rawPacket1.get());
+	pcpp::Packet someIpSdPacket2(rawPacket2.get());
+	pcpp::Packet someIpSdPacket3(rawPacket3.get());
 
 	// OfferService (Entry: OfferService, Option: IPv4Endpoint)
 	PTF_ASSERT_TRUE(someIpSdPacket.isPacketOfType(pcpp::SomeIP));
@@ -226,8 +228,8 @@ PTF_TEST_CASE(SomeIpSdCreationTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/SomeIpSdOffer.dat");
-	READ_FILE_INTO_BUFFER(2, "PacketExamples/SomeIpSdSubscribe.dat");
+	auto resource1 = pcpp_tests::loadHexResourceToVector("PacketExamples/SomeIpSdOffer.dat");
+	auto resource2 = pcpp_tests::loadHexResourceToVector("PacketExamples/SomeIpSdSubscribe.dat");
 
 	// OfferService (Entry: OfferService, Option: IPv4Endpoint)
 	pcpp::SomeIpSdLayer someIpSdLayer(0xffff, 0x8100, 0, 0x2, 0x1, pcpp::SomeIpLayer::MsgType::NOTIFICATION, 0, 0xc0);
@@ -243,8 +245,8 @@ PTF_TEST_CASE(SomeIpSdCreationTest)
 	PTF_ASSERT_TRUE(someIpSdPacket.addLayer(&someIpSdLayer));
 	someIpSdPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(someIpSdPacket.getRawPacket()->getRawDataLen(), bufferLength1 - 46);
-	PTF_ASSERT_BUF_COMPARE(someIpSdPacket.getRawPacket()->getRawData(), buffer1 + 46, bufferLength1 - 46);
+	PTF_ASSERT_EQUAL(someIpSdPacket.getRawPacket()->getRawDataLen(), resource1.size() - 46);
+	PTF_ASSERT_BUF_COMPARE(someIpSdPacket.getRawPacket()->getRawData(), resource1.data() + 46, resource1.size() - 46);
 
 	// Subscribe (Entry: 2xSubscribeEventgroup, Option: IPv4Endpoint)
 	pcpp::SomeIpSdLayer someIpSdLayer2(0xffff, 0x8100, 0, 0x3, 0x1, pcpp::SomeIpLayer::MsgType::NOTIFICATION, 0, 0xc0);
@@ -264,9 +266,6 @@ PTF_TEST_CASE(SomeIpSdCreationTest)
 	PTF_ASSERT_TRUE(someIpSdPacket2.addLayer(&someIpSdLayer2));
 	someIpSdPacket2.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(someIpSdPacket2.getRawPacket()->getRawDataLen(), bufferLength2 - 46);
-	PTF_ASSERT_BUF_COMPARE(someIpSdPacket2.getRawPacket()->getRawData(), buffer2 + 46, bufferLength2 - 46);
-
-	delete[] buffer1;
-	delete[] buffer2;
+	PTF_ASSERT_EQUAL(someIpSdPacket2.getRawPacket()->getRawDataLen(), resource2.size() - 46);
+	PTF_ASSERT_BUF_COMPARE(someIpSdPacket2.getRawPacket()->getRawData(), resource2.data() + 46, resource2.size() - 46);
 }

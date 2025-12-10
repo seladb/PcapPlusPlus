@@ -77,8 +77,7 @@ else()
 
   # Get all the libraries regarding the version
   list(
-    APPEND
-    _DPDK_LOOK_FOR_LIBS
+    APPEND _DPDK_LOOK_FOR_LIBS
     net
     kni
     ethdev
@@ -97,8 +96,7 @@ else()
 
   if(DPDK_VERSION VERSION_LESS "20.11")
     list(
-      APPEND
-      _DPDK_LOOK_FOR_LIBS
+      APPEND _DPDK_LOOK_FOR_LIBS
       pmd_bond
       pmd_vmxnet3
       pmd_virtio

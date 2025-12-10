@@ -6,11 +6,13 @@ add_library(
   src/BgpLayer.cpp
   src/CiscoHdlcLayer.cpp
   src/CotpLayer.cpp
+  src/CryptoKeyDecoder.cpp
   src/DhcpLayer.cpp
   src/DhcpV6Layer.cpp
   src/DnsLayer.cpp
   src/DnsResource.cpp
   src/DnsResourceData.cpp
+  src/DoIpLayer.cpp
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
@@ -29,6 +31,7 @@ add_library(
   src/Layer.cpp
   src/LdapLayer.cpp
   src/LLCLayer.cpp
+  src/ModbusLayer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
   src/NflogLayer.cpp
@@ -38,6 +41,7 @@ add_library(
   src/PacketTrailerLayer.cpp
   src/PacketUtils.cpp
   src/PayloadLayer.cpp
+  src/PemCodec.cpp
   src/PPPoELayer.cpp
   src/RadiusLayer.cpp
   src/RawPacket.cpp
@@ -79,12 +83,15 @@ set(
   header/BgpLayer.h
   header/CiscoHdlcLayer.h
   header/CotpLayer.h
+  header/CryptoDataReader.h
+  header/CryptoKeyDecoder.h
   header/DhcpLayer.h
   header/DhcpV6Layer.h
   header/DnsLayerEnums.h
   header/DnsLayer.h
   header/DnsResourceData.h
   header/DnsResource.h
+  header/DoIpLayer.h
   header/EthDot3Layer.h
   header/EthLayer.h
   header/FtpLayer.h
@@ -112,6 +119,7 @@ set(
   header/PacketTrailerLayer.h
   header/PacketUtils.h
   header/PayloadLayer.h
+  header/PemCodec.h
   header/PPPoELayer.h
   header/ProtocolType.h
   header/RadiusLayer.h
@@ -148,6 +156,8 @@ set(
 
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+target_sources(Packet++ PRIVATE ${public_headers})
 
 target_compile_features(Packet++ PUBLIC cxx_std_14)
 

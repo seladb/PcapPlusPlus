@@ -216,7 +216,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");
 
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
-	PTF_RUN_TEST(TestPcapFilePrecision, "no_network;pcap");
+	PTF_RUN_TEST(TestPcapFileMicroPrecision, "no_network;pcap");
+	PTF_RUN_TEST(TestPcapFileNanoPrecision, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSllFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSll2FileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapRawIPFileReadWrite, "no_network;pcap");
@@ -311,6 +312,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestXdpDeviceSendPackets, "xdp");
 	PTF_RUN_TEST(TestXdpDeviceNonDefaultConfig, "xdp");
 	PTF_RUN_TEST(TestXdpDeviceInvalidConfig, "xdp");
+
+	PTF_RUN_TEST(TestWinDivertReceivePackets, "windivert");
+	PTF_RUN_TEST(TestWinDivertSendPackets, "windivert");
+	PTF_RUN_TEST(TestWinDivertParams, "windivert");
+	PTF_RUN_TEST(TestWinDivertNetworkInterfaces, "windivert");
 
 	PTF_END_RUNNING_TESTS;
 }

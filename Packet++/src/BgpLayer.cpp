@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "BgpLayer.h"
+#include "Packet.h"
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
 
@@ -32,7 +33,7 @@ namespace pcpp
 		if (data == nullptr || dataLen < sizeof(bgp_common_header))
 			return nullptr;
 
-		bgp_common_header* bgpHeader = (bgp_common_header*)data;
+		auto* bgpHeader = reinterpret_cast<bgp_common_header*>(data);
 
 		// illegal header data - length is too small
 		uint16_t messageLen = be16toh(bgpHeader->length);
@@ -86,7 +87,7 @@ namespace pcpp
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, getAttachedPacket());
 	}
 
 	std::string BgpLayer::toString() const
@@ -115,6 +116,56 @@ namespace pcpp
 		{
 			bgpHdr->length = m_DataLen;
 		}
+	}
+
+	bool BgpLayer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
+	{
+		if (getAttachedPacket() != nullptr)
+		{
+			int rawPacketLen = getAttachedPacket()->getRawPacket()->getRawDataLen();
+			const uint8_t* rawPacketPtr = getAttachedPacket()->getRawPacket()->getRawData();
+
+			if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) > static_cast<ptrdiff_t>(rawPacketLen))
+			{
+				PCPP_LOG_ERROR("Requested offset is larger than total packet length");
+				return false;
+			}
+
+			if (m_NextLayer != nullptr && static_cast<ptrdiff_t>(offsetInLayer) > m_NextLayer->getData() - m_Data)
+			{
+				PCPP_LOG_ERROR("Requested offset exceeds current layer's boundary");
+				return false;
+			}
+		}
+
+		return Layer::extendLayer(offsetInLayer, numOfBytesToExtend);
+	}
+
+	bool BgpLayer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
+	{
+		if (getAttachedPacket() != nullptr)
+		{
+			int rawPacketLen = getAttachedPacket()->getRawPacket()->getRawDataLen();
+			const uint8_t* rawPacketPtr = getAttachedPacket()->getRawPacket()->getRawData();
+
+			if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) +
+			        static_cast<ptrdiff_t>(numOfBytesToShorten) >
+			    static_cast<ptrdiff_t>(rawPacketLen))
+			{
+				PCPP_LOG_ERROR("Requested number of bytes to shorten is larger than total packet length");
+				return false;
+			}
+
+			if (m_NextLayer != nullptr &&
+			    static_cast<ptrdiff_t>(offsetInLayer) + static_cast<ptrdiff_t>(numOfBytesToShorten) >
+			        m_NextLayer->getData() - m_Data)
+			{
+				PCPP_LOG_ERROR("Requested number of bytes to shorten exceeds current layer's boundary");
+				return false;
+			}
+		}
+
+		return Layer::shortenLayer(offsetInLayer, numOfBytesToShorten);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -261,29 +312,32 @@ namespace pcpp
 		uint8_t newOptionalParamsData[1500];
 		size_t newOptionalParamsDataLen = optionalParamsToByteArray(optionalParameters, newOptionalParamsData, 1500);
 		size_t curOptionalParamsDataLen = getOptionalParametersLength();
+		int offsetInLayer = sizeof(bgp_open_message);
 
 		if (newOptionalParamsDataLen > curOptionalParamsDataLen)
 		{
-			bool res = extendLayer(sizeof(bgp_open_message), newOptionalParamsDataLen - curOptionalParamsDataLen);
-			if (!res)
+			size_t numOfBytesToExtend = newOptionalParamsDataLen - curOptionalParamsDataLen;
+
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
-				return res;
+				return false;
 			}
 		}
 		else if (newOptionalParamsDataLen < curOptionalParamsDataLen)
 		{
-			bool res = shortenLayer(sizeof(bgp_open_message), curOptionalParamsDataLen - newOptionalParamsDataLen);
-			if (!res)
+			size_t numOfBytesToShorten = curOptionalParamsDataLen - newOptionalParamsDataLen;
+
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
-				return res;
+				return false;
 			}
 		}
 
 		if (newOptionalParamsDataLen > 0)
 		{
-			memcpy(m_Data + sizeof(bgp_open_message), newOptionalParamsData, newOptionalParamsDataLen);
+			memcpy(m_Data + offsetInLayer, newOptionalParamsData, newOptionalParamsDataLen);
 		}
 
 		getOpenMsgHeader()->optionalParameterLength = (uint8_t)newOptionalParamsDataLen;
@@ -565,32 +619,32 @@ namespace pcpp
 		uint8_t newWithdrawnRoutesData[1500];
 		size_t newWithdrawnRoutesDataLen = prefixAndIPDataToByteArray(withdrawnRoutes, newWithdrawnRoutesData, 1500);
 		size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
+		int offsetInLayer = sizeof(bgp_common_header) + sizeof(uint16_t);
 
 		if (newWithdrawnRoutesDataLen > curWithdrawnRoutesDataLen)
 		{
-			bool res = extendLayer(sizeof(bgp_common_header) + sizeof(uint16_t),
-			                       newWithdrawnRoutesDataLen - curWithdrawnRoutesDataLen);
-			if (!res)
+			size_t numOfBytesToExtend = newWithdrawnRoutesDataLen - curWithdrawnRoutesDataLen;
+
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional withdrawn routes");
-				return res;
+				return false;
 			}
 		}
 		else if (newWithdrawnRoutesDataLen < curWithdrawnRoutesDataLen)
 		{
-			bool res = shortenLayer(sizeof(bgp_common_header) + sizeof(uint16_t),
-			                        curWithdrawnRoutesDataLen - newWithdrawnRoutesDataLen);
-			if (!res)
+			size_t numOfBytesToShorten = curWithdrawnRoutesDataLen - newWithdrawnRoutesDataLen;
+
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the withdrawn routes data");
-				return res;
+				return false;
 			}
 		}
 
 		if (newWithdrawnRoutesDataLen > 0)
 		{
-			memcpy(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t), newWithdrawnRoutesData,
-			       newWithdrawnRoutesDataLen);
+			memcpy(m_Data + offsetInLayer, newWithdrawnRoutesData, newWithdrawnRoutesDataLen);
 		}
 
 		getBasicHeader()->length =
@@ -642,32 +696,32 @@ namespace pcpp
 		size_t newPathAttributesDataLen = pathAttributesToByteArray(pathAttributes, newPathAttributesData, 1500);
 		size_t curPathAttributesDataLen = getPathAttributesLength();
 		size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
+		int offsetInLayer = sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen;
 
 		if (newPathAttributesDataLen > curPathAttributesDataLen)
 		{
-			bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen,
-			                       newPathAttributesDataLen - curPathAttributesDataLen);
-			if (!res)
+			size_t numOfBytesToExtend = newPathAttributesDataLen - curPathAttributesDataLen;
+
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional path attributes");
-				return res;
+				return false;
 			}
 		}
 		else if (newPathAttributesDataLen < curPathAttributesDataLen)
 		{
-			bool res = shortenLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen,
-			                        curPathAttributesDataLen - newPathAttributesDataLen);
-			if (!res)
+			size_t numOfBytesToShorten = curPathAttributesDataLen - newPathAttributesDataLen;
+
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the path attributes data");
-				return res;
+				return false;
 			}
 		}
 
 		if (newPathAttributesDataLen > 0)
 		{
-			memcpy(m_Data + sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen,
-			       newPathAttributesData, newPathAttributesDataLen);
+			memcpy(m_Data + offsetInLayer, newPathAttributesData, newPathAttributesDataLen);
 		}
 
 		getBasicHeader()->length =
@@ -741,35 +795,33 @@ namespace pcpp
 		size_t curNlriDataLen = getNetworkLayerReachabilityInfoLength();
 		size_t curPathAttributesDataLen = getPathAttributesLength();
 		size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
+		int offsetInLayer =
+		    sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen + curPathAttributesDataLen;
 
 		if (newNlriDataLen > curNlriDataLen)
 		{
-			bool res = extendLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
-			                           curPathAttributesDataLen,
-			                       newNlriDataLen - curNlriDataLen);
-			if (!res)
+			size_t numOfBytesToExtend = newNlriDataLen - curNlriDataLen;
+
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
-				return res;
+				return false;
 			}
 		}
 		else if (newNlriDataLen < curNlriDataLen)
 		{
-			bool res = shortenLayer(sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
-			                            curPathAttributesDataLen,
-			                        curNlriDataLen - newNlriDataLen);
-			if (!res)
+			size_t numOfBytesToShorten = curNlriDataLen - newNlriDataLen;
+
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the NLRI data");
-				return res;
+				return false;
 			}
 		}
 
 		if (newNlriDataLen > 0)
 		{
-			memcpy(m_Data + sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen +
-			           curPathAttributesDataLen,
-			       newNlriData, newNlriDataLen);
+			memcpy(m_Data + offsetInLayer, newNlriData, newNlriDataLen);
 		}
 
 		getBasicHeader()->length = htobe16(be16toh(getBasicHeader()->length) + newNlriDataLen - curNlriDataLen);
@@ -866,30 +918,33 @@ namespace pcpp
 		}
 
 		size_t curNotificationDataLen = getNotificationDataLen();
+		int offsetInLayer = sizeof(bgp_notification_message);
 
 		if (newNotificationDataLen > curNotificationDataLen)
 		{
-			bool res = extendLayer(sizeof(bgp_notification_message), newNotificationDataLen - curNotificationDataLen);
-			if (!res)
+			size_t numOfBytesToExtend = newNotificationDataLen - curNotificationDataLen;
+
+			if (!extendLayer(offsetInLayer, numOfBytesToExtend))
 			{
 				PCPP_LOG_ERROR("Couldn't extend BGP notification layer to include the additional notification data");
-				return res;
+				return false;
 			}
 		}
 		else if (newNotificationDataLen < curNotificationDataLen)
 		{
-			bool res = shortenLayer(sizeof(bgp_notification_message), curNotificationDataLen - newNotificationDataLen);
-			if (!res)
+			size_t numOfBytesToShorten = curNotificationDataLen - newNotificationDataLen;
+
+			if (!shortenLayer(offsetInLayer, numOfBytesToShorten))
 			{
 				PCPP_LOG_ERROR(
 				    "Couldn't shorten BGP notification layer to set the right size of the notification data");
-				return res;
+				return false;
 			}
 		}
 
 		if (newNotificationDataLen > 0)
 		{
-			memcpy(m_Data + sizeof(bgp_notification_message), newNotificationData, newNotificationDataLen);
+			memcpy(m_Data + offsetInLayer, newNotificationData, newNotificationDataLen);
 		}
 
 		getNotificationMsgHeader()->length = htobe16(sizeof(bgp_notification_message) + newNotificationDataLen);

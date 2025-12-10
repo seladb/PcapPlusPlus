@@ -7,6 +7,7 @@
 #include <mutex>
 #include <ostream>
 #include <sstream>
+#include <functional>
 #include "DeprecationUtils.h"
 #include "ObjectPool.h"
 
@@ -100,6 +101,7 @@ namespace pcpp
 		PacketLogModuleWakeOnLanLayer,   ///< WakeOnLanLayer module (Packet++)
 		PacketLogModuleSmtpLayer,        ///< SmtpLayer module (Packet++)
 		PacketLogModuleWireGuardLayer,   ///< WireGuardLayer module (Packet++)
+		PacketLogModuleDoIpLayer,        ///< DoipLayer module (Packet++)
 		PcapLogModuleWinPcapLiveDevice,  ///< WinPcapLiveDevice module (Pcap++)
 		PcapLogModuleRemoteDevice,       ///< WinPcapRemoteDevice module (Pcap++)
 		PcapLogModuleLiveDevice,         ///< PcapLiveDevice module (Pcap++)
@@ -245,8 +247,8 @@ namespace pcpp
 		/// @param[in] method The method in PcapPlusPlus code the log message is coming from
 		/// @param[in] line The line in PcapPlusPlus code the log message is coming from
 		/// @remarks The printer callback should support being called from multiple threads simultaneously.
-		using LogPrinter = std::add_pointer_t<void(LogLevel logLevel, const std::string& logMessage,
-		                                           const std::string& file, const std::string& method, const int line)>;
+		using LogPrinter = std::function<void(LogLevel logLevel, const std::string& logMessage, const std::string& file,
+		                                      const std::string& method, const int line)>;
 
 		/// A static method for converting the log level enum to a string.
 		/// @param[in] logLevel A log level enum
@@ -304,15 +306,11 @@ namespace pcpp
 		}
 
 		/// Set the log printer back to the default printer
-		void resetLogPrinter()
-		{
-			m_LogPrinter = &defaultLogPrinter;
-		}
+		void resetLogPrinter();
 
 		/// @return Get the last error message
 		std::string getLastError() const
 		{
-			std::lock_guard<std::mutex> const lock(m_LastErrorMtx);
 			return m_LastError;
 		}
 
@@ -396,8 +394,7 @@ namespace pcpp
 		std::array<LogLevel, NumOfLogModules> m_LogModulesArray{};
 		LogPrinter m_LogPrinter;
 
-		mutable std::mutex m_LastErrorMtx;
-		std::string m_LastError;
+		static thread_local std::string m_LastError;
 
 		bool m_UseContextPooling = true;
 		// Keep a maximum of 10 LogContext objects in the pool.
@@ -405,9 +402,6 @@ namespace pcpp
 
 		// private c'tor - this class is a singleton
 		Logger();
-
-		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                              const std::string& method, int line);
 	};
 
 }  // namespace pcpp

@@ -612,12 +612,9 @@ namespace pcpp
 			throw std::invalid_argument("Value is not a valid hex stream");
 		}
 
-		for (const char i : valueStr)
+		if (std::any_of(valueStr.begin(), valueStr.end(), [](char c) { return !std::isxdigit(c); }))
 		{
-			if (!std::isxdigit(i))
-			{
-				throw std::invalid_argument("Value is not a valid hex stream");
-			}
+			throw std::invalid_argument("Value is not a valid hex stream");
 		}
 
 		return valueStr;
@@ -634,9 +631,20 @@ namespace pcpp
 		return m_Value.size() / 2;
 	}
 
-	std::string Asn1IntegerRecord::BigInt::toString() const
+	std::string Asn1IntegerRecord::BigInt::toString(bool removeLeadingZeros) const
 	{
-		return m_Value;
+		if (!removeLeadingZeros)
+		{
+			return m_Value;
+		}
+
+		auto firstNonZero = m_Value.find_first_not_of('0');
+		if (firstNonZero == std::string::npos)
+		{
+			return "0";
+		}
+
+		return m_Value.substr(firstNonZero);
 	}
 
 	std::vector<uint8_t> Asn1IntegerRecord::BigInt::toBytes() const

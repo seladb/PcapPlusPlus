@@ -21,6 +21,7 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_XDP}>:src/XdpDevice.cpp>
   src/RawSocketDevice.cpp
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
+  $<$<BOOL:${PCAPPP_USE_WINDIVERT}>:src/WinDivertDevice.cpp>
   # Force light pcapng to be link fully static
   $<TARGET_OBJECTS:light_pcapng>
 )
@@ -54,6 +55,10 @@ if(PCAPPP_USE_XDP)
   list(APPEND public_headers header/XdpDevice.h)
 endif()
 
+if(PCAPPP_USE_WINDIVERT)
+  list(APPEND public_headers header/WinDivertDevice.h)
+endif()
+
 if(LINUX)
   list(APPEND public_headers header/LinuxNicInformationSocket.h)
 endif()
@@ -63,6 +68,8 @@ if(WIN32)
 endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+target_sources(Pcap++ PRIVATE ${public_headers})
 
 target_compile_features(Pcap++ PUBLIC cxx_std_14)
 
@@ -95,6 +102,7 @@ target_link_libraries(
     $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
     $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
     $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
+    $<$<BOOL:${PCAPPP_USE_WINDIVERT}>:WinDivert::WinDivert>
     PCAP::PCAP
     Threads::Threads
 )

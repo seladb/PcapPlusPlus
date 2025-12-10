@@ -93,12 +93,18 @@ set(
   "1"
   "2"
   "3"
+  "4"
+  "Off"
+  "Error"
+  "Warn"
+  "Info"
+  "Debug"
 )
 set(
   PCAPPP_LOG_LEVEL
   ""
   CACHE STRING
-  "Compile time log level (0 - Off, 1 - Error, 2 - Info, 3 - Debug) Default(empty): Debug"
+  "Compile time log level (0 - Off, 1 - Error, 2 - Warn, 3 - Info, 4 - Debug) Default(empty): Debug"
 )
 set_property(CACHE PCAPPP_LOG_LEVEL PROPERTY STRINGS ${PCAPP_ALLOWED_LOG_LEVELS})
 
@@ -107,7 +113,23 @@ if(NOT PCAPPP_LOG_LEVEL IN_LIST PCAPP_ALLOWED_LOG_LEVELS)
 endif()
 
 if(PCAPPP_LOG_LEVEL)
-  add_compile_definitions("PCPP_ACTIVE_LOG_LEVEL=${PCAPPP_LOG_LEVEL}")
+  if(PCAPPP_LOG_LEVEL STREQUAL "0" OR PCAPPP_LOG_LEVEL STREQUAL "Off")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_OFF")
+  elseif(PCAPPP_LOG_LEVEL STREQUAL "1" OR PCAPPP_LOG_LEVEL STREQUAL "Error")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_ERROR")
+  elseif(PCAPPP_LOG_LEVEL STREQUAL "2" OR PCAPPP_LOG_LEVEL STREQUAL "Warn")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_WARN")
+  elseif(PCAPPP_LOG_LEVEL STREQUAL "3" OR PCAPPP_LOG_LEVEL STREQUAL "Info")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_INFO")
+  elseif(PCAPPP_LOG_LEVEL STREQUAL "4" OR PCAPPP_LOG_LEVEL STREQUAL "Debug")
+    set(PCAPPP_LOG_LEVEL_VALUE "PCPP_LOG_LEVEL_DEBUG")
+  endif()
+
+  message(
+    STATUS
+    "Compile time logging verbocity has been set to level \"${PCAPPP_LOG_LEVEL_VALUE}\". All messages below this level will be pruned."
+  )
+  add_compile_definitions("PCPP_ACTIVE_LOG_LEVEL=${PCAPPP_LOG_LEVEL_VALUE}")
 endif()
 
 # Build options (Turn on Examples and Tests if it's the main project)
@@ -143,6 +165,7 @@ cmake_dependent_option(
 )
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
+option(PCAPPP_USE_WINDIVERT "Setup PcapPlusPlus with WinDivert")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
 
@@ -262,6 +285,11 @@ if(PCAPPP_BUILD_PCAPPP)
     endif()
     add_definitions(-DUSE_XDP)
   endif()
+
+  if(PCAPPP_USE_WINDIVERT)
+    find_package(WinDivert REQUIRED)
+    add_definitions(-DUSE_WINDIVERT)
+  endif()
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -298,6 +326,7 @@ endif()
 if(MINGW)
   add_link_options(-static-libgcc -static-libstdc++)
   add_link_options(-static)
+  add_compile_options(-Wno-unused-function)
 endif()
 
 if(PCAPPP_TARGET_COMPILER_MSVC)

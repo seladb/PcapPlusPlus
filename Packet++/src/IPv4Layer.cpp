@@ -259,20 +259,20 @@ namespace pcpp
 		// TODO: assuming first fragment contains at least L4 header, what if it's not true?
 		if (isFragment())
 		{
-			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			return;
 		}
 
 		switch (ipHdr->protocol)
 		{
 		case PACKETPP_IPPROTO_UDP:
-			tryConstructNextLayerWithFallback<UdpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<UdpLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			break;
 		case PACKETPP_IPPROTO_TCP:
-			tryConstructNextLayerWithFallback<TcpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<TcpLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			break;
 		case PACKETPP_IPPROTO_ICMP:
-			tryConstructNextLayerWithFallback<IcmpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<IcmpLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			break;
 		case PACKETPP_IPPROTO_IPIP:
 		{
@@ -280,13 +280,13 @@ namespace pcpp
 			switch (IPLayer::getIPVersion(payload, payloadLen))
 			{
 			case IPv4:
-				tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			case IPv6:
-				tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			default:
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+				constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			}
 			break;
@@ -296,13 +296,13 @@ namespace pcpp
 			switch (GreLayer::getGREVersion(payload, payloadLen))
 			{
 			case GREv0:
-				tryConstructNextLayerWithFallback<GREv0Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<GREv0Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			case GREv1:
-				tryConstructNextLayerWithFallback<GREv1Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<GREv1Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			default:
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+				constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			};
 			break;
@@ -316,47 +316,50 @@ namespace pcpp
 			switch (igmpVer)
 			{
 			case IGMPv1:
-				tryConstructNextLayerWithFallback<IgmpV1Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<IgmpV1Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			case IGMPv2:
-				tryConstructNextLayerWithFallback<IgmpV2Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<IgmpV2Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			case IGMPv3:
 			{
 				if (igmpQuery)
-					tryConstructNextLayerWithFallback<IgmpV3QueryLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+					tryConstructNextLayerWithFallback<IgmpV3QueryLayer, PayloadLayer>(payload, payloadLen,
+					                                                                  getAttachedPacket());
 				else
-					tryConstructNextLayerWithFallback<IgmpV3ReportLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+					tryConstructNextLayerWithFallback<IgmpV3ReportLayer, PayloadLayer>(payload, payloadLen,
+					                                                                   getAttachedPacket());
 				break;
 			}
 			default:
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+				constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			}
 			break;
 		}
 		case PACKETPP_IPPROTO_AH:
-			tryConstructNextLayerWithFallback<AuthenticationHeaderLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<AuthenticationHeaderLayer, PayloadLayer>(payload, payloadLen,
+			                                                                           getAttachedPacket());
 			break;
 		case PACKETPP_IPPROTO_ESP:
-			tryConstructNextLayerWithFallback<ESPLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<ESPLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			break;
 		case PACKETPP_IPPROTO_IPV6:
-			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			break;
 		case PACKETPP_IPPROTO_VRRP:
 		{
 			switch (VrrpLayer::getVersionFromData(payload, payloadLen))
 			{
 			case VRRPv2:
-				tryConstructNextLayerWithFallback<VrrpV2Layer, PayloadLayer>(payload, payloadLen, m_Packet);
+				tryConstructNextLayerWithFallback<VrrpV2Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			case VRRPv3:
-				tryConstructNextLayerWithFallback<VrrpV3Layer, PayloadLayer>(payload, payloadLen, m_Packet,
+				tryConstructNextLayerWithFallback<VrrpV3Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket(),
 				                                                             IPAddress::IPv4AddressType);
 				break;
 			default:
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+				constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 				break;
 			}
 			break;
@@ -365,7 +368,7 @@ namespace pcpp
 
 		// If no next layer was constructed, assume it's a payload layer
 		if (!hasNextLayer())
-			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 	}
 
 	void IPv4Layer::computeCalculateFields()
