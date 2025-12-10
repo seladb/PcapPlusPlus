@@ -327,9 +327,9 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_NULL(vxlanPacketOrig.getLayerOfType(pcpp::ICMP));
 
 	pcpp::Packet packetWithoutTunnel;
-	PTF_ASSERT_TRUE(packetWithoutTunnel.addLayer(vxlanEthLayer));
-	PTF_ASSERT_TRUE(packetWithoutTunnel.addLayer(vxlanIP4Layer));
-	PTF_ASSERT_TRUE(packetWithoutTunnel.addLayer(vxlanIcmpLayer));
+	PTF_ASSERT_TRUE(packetWithoutTunnel.addLayer(vxlanEthLayer, true));
+	PTF_ASSERT_TRUE(packetWithoutTunnel.addLayer(vxlanIP4Layer, true));
+	PTF_ASSERT_TRUE(packetWithoutTunnel.addLayer(vxlanIcmpLayer, true));
 	packetWithoutTunnel.computeCalculateFields();
 
 	auto resource4 = pcpp_tests::loadHexResourceToVector("PacketExamples/IcmpWithoutTunnel.dat");
