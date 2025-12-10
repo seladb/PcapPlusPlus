@@ -5,6 +5,7 @@
 #include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "TcpLayer.h"
+#include "SctpLayer.h"
 #include "IcmpLayer.h"
 #include "GreLayer.h"
 #include "IgmpLayer.h"
@@ -271,6 +272,9 @@ namespace pcpp
 		case PACKETPP_IPPROTO_TCP:
 			tryConstructNextLayerWithFallback<TcpLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			break;
+		case PACKETPP_IPPROTO_SCTP:
+			tryConstructNextLayerWithFallback<SctpLayer, PayloadLayer>(payload, payloadLen, m_Packet);
+			break;
 		case PACKETPP_IPPROTO_ICMP:
 			tryConstructNextLayerWithFallback<IcmpLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			break;
@@ -387,6 +391,9 @@ namespace pcpp
 				break;
 			case UDP:
 				ipHdr->protocol = PACKETPP_IPPROTO_UDP;
+				break;
+			case SCTP:
+				ipHdr->protocol = PACKETPP_IPPROTO_SCTP;
 				break;
 			case ICMP:
 				ipHdr->protocol = PACKETPP_IPPROTO_ICMP;

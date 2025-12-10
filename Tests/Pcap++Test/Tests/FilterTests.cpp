@@ -46,11 +46,16 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	DeviceTeardown devTeardown(liveDev);
 	pcpp::RawPacketVector capturedPackets;
 
+	// Use the actual IP address from the device for filtering and assertions.
+	// The configured IP is used to find the interface, but the actual interface IP
+	// may differ (e.g., in CI environments with dynamic IP assignment).
+	pcpp::IPv4Address deviceIp = liveDev->getIPv4Address();
+
 	//-----------
 	// IP filter
 	//-----------
 	PTF_PRINT_VERBOSE("Testing IPFilter");
-	std::string filterAddrAsString(PcapTestGlobalArgs.ipToSendReceivePackets);
+	std::string filterAddrAsString = deviceIp.toString();
 	pcpp::IPFilter ipFilter(filterAddrAsString, pcpp::DST);
 	ipFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(ipFilter));
@@ -67,7 +72,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(ipv4Layer->getDstIPAddress(), ipToSearch);
+		PTF_ASSERT_EQUAL(ipv4Layer->getDstIPAddress(), deviceIp);
 	}
 	capturedPackets.clear();
 
@@ -120,7 +125,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 		pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80);
-		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch);
+		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), deviceIp);
 	}
 	capturedPackets.clear();
 
@@ -153,14 +158,14 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 			if (ip4Layer != nullptr)
 			{
-				srcIpMatch = ip4Layer->getSrcIPAddress() == ipToSearch;
+				srcIpMatch = ip4Layer->getSrcIPAddress() == deviceIp;
 			}
 			PTF_ASSERT_TRUE(srcIpMatch || srcPortMatch);
 		}
 		else if (packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch);
+			PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), deviceIp);
 		}
 		// else packet isn't of type IP or TCP
 	}
@@ -187,7 +192,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch);
+			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), deviceIp);
 		}
 	}
 	capturedPackets.clear();
