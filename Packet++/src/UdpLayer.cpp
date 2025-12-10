@@ -109,16 +109,7 @@ namespace pcpp
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 			m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
-		{
-			if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown)
-				m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
-			else if (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) !=
-			             SipResponseLayer::SipStatusCodeUnknown &&
-			         SipResponseFirstLine::parseVersion((char*)udpData, udpDataLen) != "")
-				m_NextLayer = new SipResponseLayer(udpData, udpDataLen, this, m_Packet);
-			else
-				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
-		}
+			m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, m_Packet, portSrc, portDst);
 		else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
 		         RadiusLayer::isDataValid(udpData, udpDataLen))
 			m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, m_Packet);
@@ -152,7 +143,14 @@ namespace pcpp
 			if (!m_NextLayer)
 				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 		}
-		else
+		
+		if (m_NextLayer)
+			return;
+
+		// All heristic run
+		m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, m_Packet);
+
+		if (!m_NextLayer)
 			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 	}
 

@@ -33,6 +33,23 @@ namespace pcpp
 		{ "MESSAGE",   SipRequestLayer::SipMethod::SipMESSAGE   },
 		{ "UPDATE",    SipRequestLayer::SipMethod::SipUPDATE    },
 	};
+	
+	const std::unordered_map<std::string, SipRequestLayer::SipMethod> SipMethodShortMap{
+		{ "INV",    SipRequestLayer::SipMethod::SipINVITE    },
+		{ "ACK",       SipRequestLayer::SipMethod::SipACK       },
+		{ "BYE",       SipRequestLayer::SipMethod::SipBYE       },
+		{ "CAN",    SipRequestLayer::SipMethod::SipCANCEL    },
+		{ "REG",  SipRequestLayer::SipMethod::SipREGISTER  },
+		{ "PRA",     SipRequestLayer::SipMethod::SipPRACK     },
+		{ "OPT",   SipRequestLayer::SipMethod::SipOPTIONS   },
+		{ "SUB", SipRequestLayer::SipMethod::SipSUBSCRIBE },
+		{ "NOT",    SipRequestLayer::SipMethod::SipNOTIFY    },
+		{ "PUB",   SipRequestLayer::SipMethod::SipPUBLISH   },
+		{ "INF",      SipRequestLayer::SipMethod::SipINFO      },
+		{ "REF",     SipRequestLayer::SipMethod::SipREFER     },
+		{ "MES",   SipRequestLayer::SipMethod::SipMESSAGE   },
+		{ "UPD",    SipRequestLayer::SipMethod::SipUPDATE    },
+	};
 
 	// -------- Class SipLayer -----------------
 
@@ -101,6 +118,50 @@ namespace pcpp
 			if (currentContentLength != static_cast<int>(m_DataLen - headerLen))
 				setContentLength(m_DataLen - headerLen);
 		}
+	}
+
+	SipLayer::SipParseResult SipLayer::dissectSipHeuristic(uint8_t* data, size_t dataLen)
+	{
+		if (!data || dataLen < 3)
+		{
+			
+			return SipLayer::SipParseResult::Unknown;
+		}
+
+		if (data[0] == 'S' && data[1] == 'I' && data[2] == 'P')
+		{
+			return SipLayer::SipParseResult::Response;	
+		}
+
+		auto it = SipMethodShortMap.find(std::string(data, data + 3));
+		if (it != SipMethodShortMap.end())
+		{
+			return SipLayer::SipParseResult::Request;
+		}
+		return SipLayer::SipParseResult::Unknown;
+	}
+
+	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+		uint16_t srcPort, uint16_t dstPort)
+	{
+		if (SipRequestFirstLine::parseMethod((char*)data, dataLen) != SipRequestLayer::SipMethodUnknown)
+			return new SipRequestLayer(data, dataLen, prevLayer, packet);
+		else if (SipResponseFirstLine::parseStatusCode((char*)data, dataLen) !=
+						SipResponseLayer::SipStatusCodeUnknown &&
+					SipResponseFirstLine::parseVersion((char*)data, dataLen) != "")
+			return new SipResponseLayer(data, dataLen, prevLayer, packet);
+		else
+			return nullptr;
+	}
+
+	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	{
+		SipLayer::SipParseResult sipParseResult = dissectSipHeuristic(data, dataLen);
+		if (sipParseResult == SipLayer::SipParseResult::Request)
+			return new SipRequestLayer(data, dataLen, prevLayer, packet);
+		if (sipParseResult == SipLayer::SipParseResult::Response)
+			return new SipRequestLayer(data, dataLen, prevLayer, packet);
+		return nullptr;
 	}
 
 	// -------- Class SipRequestFirstLine -----------------

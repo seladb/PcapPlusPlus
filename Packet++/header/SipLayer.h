@@ -69,6 +69,17 @@ namespace pcpp
 	class SipLayer : public TextBasedProtocolMessage
 	{
 	public:
+		/// SIP parse result types
+		enum class SipParseResult
+		{
+			/// Unknown or invalid format
+			Unknown  = 0,
+			/// The message is a SIP request
+			Request  = 1,
+			/// The message is a SIP response
+			Response = 2,
+		};
+
 		/// The length of the body of many SIP response messages is determined by a SIP header field called
 		/// "Content-Length". This method parses this field, extracts its value and return it. If this field doesn't
 		/// exist 0 is returned
@@ -113,6 +124,13 @@ namespace pcpp
 		{
 			return port == 5060 || port == 5061;
 		}
+
+		static SipParseResult dissectSipHeuristic(uint8_t* data, size_t dataLen);
+
+		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+			 uint16_t srcPort, uint16_t dstPort);
+
+		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
