@@ -109,7 +109,7 @@ namespace pcpp
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 			m_NextLayer = new DnsLayer(udpData, udpDataLen, this, getAttachedPacket());
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
-			m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, m_Packet, portSrc, portDst);
+			m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, getAttachedPacket(), portSrc, portDst);
 		else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
 		         RadiusLayer::isDataValid(udpData, udpDataLen))
 			m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, getAttachedPacket());
@@ -148,10 +148,10 @@ namespace pcpp
 			return;
 
 		// All heristic run
-		m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, m_Packet);
+		m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, getAttachedPacket());
 
 		if (!m_NextLayer)
-			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, getAttachedPacket());
 	}
 
 	void UdpLayer::computeCalculateFields()
