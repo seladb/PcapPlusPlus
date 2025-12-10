@@ -3,7 +3,6 @@
 #include "Packet.h"
 #include "PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
-#include "../../Pcap++/src/CaptureFileFormatDetector.h"
 #include <array>
 #include <fstream>
 
@@ -35,50 +34,96 @@ namespace
 		std::ofstream dstFile(dstFilePath, std::ios::binary);
 		dstFile << srcFile.rdbuf();
 	}
+
+	void writeContents(const std::string& filePath, char const* data, size_t dataSize)
+	{
+		std::ofstream outFile(filePath, std::ios::binary);
+		outFile.write(data, dataSize);
+	}
 }  // namespace
 
 PTF_TEST_CASE(TestFileFormatDetector)
 {
-	using pcpp::internal::CaptureFileFormat;
-	using pcpp::internal::CaptureFileFormatDetector;
-
-	std::vector<std::pair<uint32_t, CaptureFileFormat>> simpleTestCases = {
-		{ 0xa1'b2'c3'd4, CaptureFileFormat::Pcap       }, // regular pcap, microsecond-precision
-		{ 0xd4'c3'b2'a1, CaptureFileFormat::Pcap       }, // regular pcap, microsecond-precision (byte-swapped)
-		{ 0xa1'b2'cd'34, CaptureFileFormat::PcapMod    }, // Alexey Kuznetzov's modified libpcap format
-		{ 0x34'cd'b2'a1, CaptureFileFormat::PcapMod    }, // Alexey Kuznetzov's modified libpcap format (byte-swapped)
-		{ 0xa1'b2'3c'4d, CaptureFileFormat::PcapNano   }, // regular pcap, nanosecond-precision
-		{ 0x4d'3c'b2'a1, CaptureFileFormat::PcapNano   }, // regular pcap, nanosecond-precision (byte-swapped)
-		{ 0x0A'0D'0D'0A, CaptureFileFormat::PcapNG     }, // pcapng magic number (palindrome)
-		{ 0x28'B5'2F'FD, CaptureFileFormat::ZstArchive }, // zstd archive magic number
-		{ 0xFD'2F'B5'28, CaptureFileFormat::ZstArchive }, // zstd archive magic number (byte-swapped)
-		{ 0x12'34'56'78, CaptureFileFormat::Unknown    }, // unknown
-		{ 0x00'00'00'00, CaptureFileFormat::Unknown    }, // unknown
-		{ 0xFF'FF'FF'FF, CaptureFileFormat::Unknown    }, // unknown
+	std::vector<uint32_t> pcapTestCases = {
+		0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
+		0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
+		0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
+		0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+		0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
+		0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
 	};
 
-	for (const auto& testCase : simpleTestCases)
+	for (const auto& testCase : pcapTestCases)
 	{
-		std::stringstream ss;
-		ss.write(reinterpret_cast<const char*>(&testCase.first), sizeof(testCase.first));
-		CaptureFileFormatDetector detector;
-		auto detectedFormat = detector.detectFormat(ss);
-		PTF_ASSERT_EQUAL(detectedFormat, testCase.second, enumclass);
+		writeContents("PcapExamples/file_heuristics/temp/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
+		              sizeof(testCase));
+
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp", false);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+	}
+
+	std::vector<uint32_t> pcapngTestCases = {
+		0x0A'0D'0D'0A,  // pcapng magic number (palindrome)
+	};
+
+	for (const auto& testCase : pcapngTestCases)
+	{
+		writeContents("PcapExamples/file_heuristics/temp/pcapng_test.tmp", reinterpret_cast<const char*>(&testCase),
+		              sizeof(testCase));
+
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcapng_test.tmp", false);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+	}
+
+	if (pcpp::PcapNgFileReaderDevice::isZstdSupported())
+	{
+		std::vector<uint32_t> zstdTestCases = {
+			0x28'B5'2F'FD,  // zstd archive magic number
+			0xFD'2F'B5'28,  // zstd archive magic number (byte-swapped)
+		};
+
+		for (const auto& testCase : zstdTestCases)
+		{
+			writeContents("PcapExamples/file_heuristics/temp/zstd_test.tmp", reinterpret_cast<const char*>(&testCase),
+			              sizeof(testCase));
+			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/zstd_test.tmp", false);
+			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+		}
+	}
+
+	std::vector<uint32_t> unknownTestCases = {
+		0x12'34'56'78,  // unknown
+		0x00'00'00'00,  // unknown
+		0xFF'FF'FF'FF,  // unknown
+	};
+
+	for (const auto& testCase : unknownTestCases)
+	{
+		writeContents("PcapExamples/file_heuristics/temp/unknown_test.tmp", reinterpret_cast<const char*>(&testCase),
+		              sizeof(testCase));
+
+		PTF_ASSERT_RAISES(
+		    pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/unknown_test.tmp", false),
+		    std::runtime_error, "File format of PcapExamples/file_heuristics/temp/unknown_test.tmp is not supported");
+
+		auto dev =
+		    pcpp::IFileReaderDevice::tryCreateReader("PcapExamples/file_heuristics/temp/unknown_test.tmp", false);
+		PTF_ASSERT_NULL(dev);
 	}
 
 	// Snoop is special as it uses a 64-bit magic number sequence.
-	std::vector<std::pair<uint64_t, CaptureFileFormat>> snoopTestCases = {
-		{ 0x73'6E'6F'6F'70'00'00'00, CaptureFileFormat::Snoop }, // snoop magic number, "snoop" in ASCII
-		{ 0x00'00'00'70'6F'6F'6E'73, CaptureFileFormat::Snoop }, // snoop magic number, "snoop" in ASCII (byte-swapped)
+	std::vector<uint64_t> snoopTestCases = {
+		0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
+		0x00'00'00'70'6F'6F'6E'73,  // snoop magic number, "snoop" in ASCII (byte-swapped)
 	};
 
 	for (const auto& testCase : snoopTestCases)
 	{
-		std::stringstream ss;
-		ss.write(reinterpret_cast<const char*>(&testCase.first), sizeof(testCase.first));
-		CaptureFileFormatDetector detector;
-		auto detectedFormat = detector.detectFormat(ss);
-		PTF_ASSERT_EQUAL(detectedFormat, testCase.second, enumclass);
+		writeContents("PcapExamples/file_heuristics/temp/snoop_test.tmp", reinterpret_cast<const char*>(&testCase),
+		              sizeof(testCase));
+
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/snoop_test.tmp", false);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
 	}
 }
 
