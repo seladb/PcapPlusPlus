@@ -124,7 +124,6 @@ namespace pcpp
 	{
 		if (!data || dataLen < 3)
 		{
-			
 			return SipLayer::SipParseResult::Unknown;
 		}
 
