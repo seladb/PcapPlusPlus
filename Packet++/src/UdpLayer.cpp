@@ -147,7 +147,7 @@ namespace pcpp
 		if (m_NextLayer)
 			return;
 
-		// All heristic run
+		// All heuristic run
 		m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, getAttachedPacket());
 
 		if (!m_NextLayer)
