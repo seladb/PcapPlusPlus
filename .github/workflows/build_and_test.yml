@@ -344,7 +344,7 @@ jobs:
         working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Packet++Test
 
       - name: Test Pcap++
-        run: Bin/Pcap++Test -n
+        run: Pcap++Test -n
         working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Pcap++Test
 
       - name: Check installation
