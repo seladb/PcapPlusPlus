@@ -311,7 +311,6 @@ namespace pcpp
 		/// @return Get the last error message
 		std::string getLastError() const
 		{
-			std::lock_guard<std::mutex> const lock(m_LastErrorMtx);
 			return m_LastError;
 		}
 
@@ -395,8 +394,7 @@ namespace pcpp
 		std::array<LogLevel, NumOfLogModules> m_LogModulesArray{};
 		LogPrinter m_LogPrinter;
 
-		mutable std::mutex m_LastErrorMtx;
-		std::string m_LastError;
+		static thread_local std::string m_LastError;
 
 		bool m_UseContextPooling = true;
 		// Keep a maximum of 10 LogContext objects in the pool.

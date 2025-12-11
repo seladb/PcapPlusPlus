@@ -313,6 +313,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestXdpDeviceNonDefaultConfig, "xdp");
 	PTF_RUN_TEST(TestXdpDeviceInvalidConfig, "xdp");
 
+	PTF_RUN_TEST(TestWinDivertReceivePackets, "windivert");
+	PTF_RUN_TEST(TestWinDivertSendPackets, "windivert");
+	PTF_RUN_TEST(TestWinDivertParams, "windivert");
+	PTF_RUN_TEST(TestWinDivertNetworkInterfaces, "windivert");
+
 	PTF_END_RUNNING_TESTS;
 }
 

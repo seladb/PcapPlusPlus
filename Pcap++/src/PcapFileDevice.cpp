@@ -624,9 +624,14 @@ namespace pcpp
 		return getNextPacket(rawPacket, temp);
 	}
 
-	bool PcapNgFileReaderDevice::setFilter(std::string filterAsString)
+	bool PcapNgFileReaderDevice::doUpdateFilter(std::string const* filterAsString)
 	{
-		return m_BpfWrapper.setFilter(filterAsString);
+		if (filterAsString == nullptr)
+		{
+			return m_BpfWrapper.setFilter("");
+		}
+
+		return m_BpfWrapper.setFilter(*filterAsString);
 	}
 
 	void PcapNgFileReaderDevice::close()
@@ -876,9 +881,14 @@ namespace pcpp
 		PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
 	}
 
-	bool PcapNgFileWriterDevice::setFilter(std::string filterAsString)
+	bool PcapNgFileWriterDevice::doUpdateFilter(std::string const* filterAsString)
 	{
-		return m_BpfWrapper.setFilter(filterAsString);
+		if (filterAsString == nullptr)
+		{
+			return m_BpfWrapper.setFilter("");
+		}
+
+		return m_BpfWrapper.setFilter(*filterAsString);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
