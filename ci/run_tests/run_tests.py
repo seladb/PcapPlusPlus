@@ -35,7 +35,7 @@ class Runner:
         work_dir = exe_path.parent
 
         cmd_line = ["sudo"] if self.use_sudo else []
-        cmd_line += [str(exe_path), *args]
+        cmd_line += [str(exe_path.absolute()), *args]
 
         completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
 
@@ -51,7 +51,7 @@ class Runner:
         work_dir = exe_path.parent
 
         cmd_line = ["sudo"] if self.use_sudo else []
-        cmd_line += [str(exe_path), "-i", ip_address, *args]
+        cmd_line += [str(exe_path.absolute()), "-i", ip_address, *args]
 
         with tcp_replay_worker(interface, tcpreplay_dir):
             completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
