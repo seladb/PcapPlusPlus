@@ -73,9 +73,9 @@ namespace pcpp
 		enum class SipParseResult
 		{
 			/// Unknown or invalid format
-			Unknown  = 0,
+			Unknown = 0,
 			/// The message is a SIP request
-			Request  = 1,
+			Request = 1,
 			/// The message is a SIP response
 			Response = 2,
 		};
@@ -140,7 +140,7 @@ namespace pcpp
 		/// @param[in] dstPort Dest port number to check
 		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
 		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
-			 uint16_t srcPort, uint16_t dstPort);
+		                               uint16_t srcPort, uint16_t dstPort);
 
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data (will be casted to @ref arphdr)

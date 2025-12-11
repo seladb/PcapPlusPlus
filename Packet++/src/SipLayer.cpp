@@ -35,20 +35,20 @@ namespace pcpp
 	};
 
 	const std::unordered_map<std::string, SipRequestLayer::SipMethod> SipMethodShortMap{
-		{ "INV",    SipRequestLayer::SipMethod::SipINVITE    },
-		{ "ACK",       SipRequestLayer::SipMethod::SipACK       },
-		{ "BYE",       SipRequestLayer::SipMethod::SipBYE       },
-		{ "CAN",    SipRequestLayer::SipMethod::SipCANCEL    },
-		{ "REG",  SipRequestLayer::SipMethod::SipREGISTER  },
-		{ "PRA",     SipRequestLayer::SipMethod::SipPRACK     },
-		{ "OPT",   SipRequestLayer::SipMethod::SipOPTIONS   },
-		{ "SUB", SipRequestLayer::SipMethod::SipSUBSCRIBE },
-		{ "NOT",    SipRequestLayer::SipMethod::SipNOTIFY    },
-		{ "PUB",   SipRequestLayer::SipMethod::SipPUBLISH   },
-		{ "INF",      SipRequestLayer::SipMethod::SipINFO      },
-		{ "REF",     SipRequestLayer::SipMethod::SipREFER     },
-		{ "MES",   SipRequestLayer::SipMethod::SipMESSAGE   },
-		{ "UPD",    SipRequestLayer::SipMethod::SipUPDATE    },
+		{ "INV", SipRequestLayer::SipMethod::SipINVITE    },
+        { "ACK", SipRequestLayer::SipMethod::SipACK       },
+		{ "BYE", SipRequestLayer::SipMethod::SipBYE       },
+        { "CAN", SipRequestLayer::SipMethod::SipCANCEL    },
+		{ "REG", SipRequestLayer::SipMethod::SipREGISTER  },
+        { "PRA", SipRequestLayer::SipMethod::SipPRACK     },
+		{ "OPT", SipRequestLayer::SipMethod::SipOPTIONS   },
+        { "SUB", SipRequestLayer::SipMethod::SipSUBSCRIBE },
+		{ "NOT", SipRequestLayer::SipMethod::SipNOTIFY    },
+        { "PUB", SipRequestLayer::SipMethod::SipPUBLISH   },
+		{ "INF", SipRequestLayer::SipMethod::SipINFO      },
+        { "REF", SipRequestLayer::SipMethod::SipREFER     },
+		{ "MES", SipRequestLayer::SipMethod::SipMESSAGE   },
+        { "UPD", SipRequestLayer::SipMethod::SipUPDATE    },
 	};
 
 	// -------- Class SipLayer -----------------
@@ -140,14 +140,14 @@ namespace pcpp
 		return SipLayer::SipParseResult::Unknown;
 	}
 
-	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
-		uint16_t srcPort, uint16_t dstPort)
+	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, uint16_t srcPort,
+	                                  uint16_t dstPort)
 	{
 		if (SipRequestFirstLine::parseMethod((char*)data, dataLen) != SipRequestLayer::SipMethodUnknown)
 			return new SipRequestLayer(data, dataLen, prevLayer, packet);
 		else if (SipResponseFirstLine::parseStatusCode((char*)data, dataLen) !=
-						SipResponseLayer::SipStatusCodeUnknown &&
-					SipResponseFirstLine::parseVersion((char*)data, dataLen) != "")
+		             SipResponseLayer::SipStatusCodeUnknown &&
+		         SipResponseFirstLine::parseVersion((char*)data, dataLen) != "")
 			return new SipResponseLayer(data, dataLen, prevLayer, packet);
 		else
 			return nullptr;
