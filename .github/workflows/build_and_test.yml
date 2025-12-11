@@ -677,7 +677,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --coverage
+          python ci\run_tests\run_tests_windows.py --coverage --build_dir $env:BUILD_DIR
 
       - name: Test Examples
         run: |
@@ -766,7 +766,7 @@ jobs:
             echo "Testing PcapPlusPlus"
             python -m ensurepip
             python -m pip install -r ci/run_tests/requirements.txt
-            python ci/run_tests/run_tests.py --interface "$interface_name"
+            python ci/run_tests/run_tests.py --interface "$interface_name" --build-dir Dist
 
             echo "Testing PcapPlusPlus examples"
             cd Tests/ExamplesTest
