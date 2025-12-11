@@ -118,6 +118,7 @@ class Runner:
         interface, ip_address = find_interface()
         if not interface or not ip_address:
             raise RuntimeError("Cannot find an interface to run tests on!")
+        print(f"Interface is {interface} and IP address is {ip_address}")
 
         source_pcap = work_dir / 'PcapExamples' / 'example.pcap'
 
@@ -142,6 +143,7 @@ class Runner:
         interface, ip_address = find_interface()
         if not interface or not ip_address:
             raise RuntimeError("Cannot find an interface to run tests on!")
+        print(f"Interface is {interface} and IP address is {ip_address}")
 
         source_pcap = work_dir / 'PcapExamples' / 'example.pcap'
 
@@ -199,12 +201,6 @@ def main():
         help="Path to the build directory"
     )
     args = parser.parse_args()
-
-    tcpreplay_interface, ip_address = find_interface()
-    if not tcpreplay_interface or not ip_address:
-        print("Cannot find an interface to run tests on!")
-        exit(1)
-    print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
 
     runner = Runner(build_dir=Path(args.build_dir))
 
