@@ -56,9 +56,7 @@ class Runner:
         with tcp_replay_worker(interface, tcpreplay_dir):
             completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
             if completed_process.returncode != 0:
-                raise RuntimeError(
-                    f"Error while executing Pcap++ tests: {completed_process}"
-                )
+                raise RuntimeError(f"Error while executing Pcap++ tests: {completed_process}")
 
 
 def main():
