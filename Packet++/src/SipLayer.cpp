@@ -120,7 +120,7 @@ namespace pcpp
 		}
 	}
 
-	SipLayer::SipParseResult SipLayer::dissectSipHeuristic(uint8_t* data, size_t dataLen)
+	SipLayer::SipParseResult SipLayer::dissectSipHeuristic(const uint8_t* data, size_t dataLen)
 	{
 		if (!data || dataLen < 3)
 		{
