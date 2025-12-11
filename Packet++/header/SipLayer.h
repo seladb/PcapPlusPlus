@@ -136,8 +136,8 @@ namespace pcpp
 		/// @param[in] dataLen Size of the data in bytes
 		/// @param[in] prevLayer A pointer to the previous layer
 		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
-		/// @param[in] portSrc Source port number to check
-		/// @param[in] portDst Dest port number to check
+		/// @param[in] srcPort Source port number to check
+		/// @param[in] dstPort Dest port number to check
 		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
 		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
 			 uint16_t srcPort, uint16_t dstPort);
