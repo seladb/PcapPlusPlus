@@ -49,8 +49,6 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
 		0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
 		0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
-		0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
-		0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
 	};
 
 	for (const auto& testCase : pcapTestCases)
@@ -60,6 +58,23 @@ PTF_TEST_CASE(TestFileFormatDetector)
 
 		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp", false);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+	}
+
+	if (pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
+	{
+		std::vector<uint32_t> pcapNanoTestCases = {
+			0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
+			0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
+		};
+
+		for (const auto& testCase : pcapNanoTestCases)
+		{
+			writeContents("PcapExamples/file_heuristics/temp/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
+			              sizeof(testCase));
+
+			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp", false);
+			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+		}
 	}
 
 	std::vector<uint32_t> pcapngTestCases = {
