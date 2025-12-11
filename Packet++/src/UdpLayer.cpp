@@ -143,7 +143,7 @@ namespace pcpp
 			if (!m_NextLayer)
 				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, getAttachedPacket());
 		}
-		
+
 		if (m_NextLayer)
 			return;
 

@@ -33,7 +33,7 @@ namespace pcpp
 		{ "MESSAGE",   SipRequestLayer::SipMethod::SipMESSAGE   },
 		{ "UPDATE",    SipRequestLayer::SipMethod::SipUPDATE    },
 	};
-	
+
 	const std::unordered_map<std::string, SipRequestLayer::SipMethod> SipMethodShortMap{
 		{ "INV",    SipRequestLayer::SipMethod::SipINVITE    },
 		{ "ACK",       SipRequestLayer::SipMethod::SipACK       },
@@ -129,7 +129,7 @@ namespace pcpp
 
 		if (data[0] == 'S' && data[1] == 'I' && data[2] == 'P')
 		{
-			return SipLayer::SipParseResult::Response;	
+			return SipLayer::SipParseResult::Response;
 		}
 
 		auto it = SipMethodShortMap.find(std::string(data, data + 3));

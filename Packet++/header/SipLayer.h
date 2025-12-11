@@ -130,7 +130,7 @@ namespace pcpp
 		/// @param[in] dataLen Size of the data in bytes
 		/// @return A SipParseResult indicating whether the data is a SIP Request, Response, or Unknown
 		static SipParseResult dissectSipHeuristic(const uint8_t* data, size_t dataLen);
-		
+
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
 		/// @param[in] dataLen Size of the data in bytes
