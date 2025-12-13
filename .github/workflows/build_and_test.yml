@@ -340,11 +340,11 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Test Packet++
-        run: Packet++Test
+        run: ./Packet++Test
         working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Packet++Test
 
       - name: Test Pcap++
-        run: Pcap++Test -n
+        run: ./Pcap++Test -n
         working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Pcap++Test
 
       - name: Check installation
