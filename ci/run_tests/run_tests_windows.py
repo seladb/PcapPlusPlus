@@ -24,7 +24,6 @@ def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, No
         return subprocess.run(
             ["curl", "--interface", str(ip_address), "www.google.com"],
             capture_output=True,
-            shell=True,
         )
 
     # Create a set of detected device paths. Possibly unnecessary, but scapy only returns GUID
