@@ -129,7 +129,7 @@ namespace pcpp
 		/// @param[in] data A pointer to the raw packet data
 		/// @param[in] dataLen Size of the data in bytes
 		/// @return A SipParseResult indicating whether the data is a SIP Request, Response, or Unknown
-		static SipParseResult dissectSipHeuristic(const uint8_t* data, size_t dataLen);
+		static SipParseResult detectSipMessageType(const uint8_t* data, size_t dataLen);
 
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
@@ -566,6 +566,18 @@ namespace pcpp
 		/// @param[in] dataLen The raw data length
 		/// @return The parsed SIP method
 		static SipRequestLayer::SipMethod parseMethod(const char* data, size_t dataLen);
+
+		/// A static method for parsing the SIP version out of raw data
+		/// @param[in] data The raw data
+		/// @param[in] dataLen The raw data length
+		/// @return The parsed SIP version string or an empty string if parsing fails
+		static std::string parseVersion(const char* data, size_t dataLen);
+
+		/// A static method for parsing the Request-URI out of raw data
+		/// @param[in] data The raw data
+		/// @param[in] dataLen The raw data length
+		/// @return The parsed Request-URI string or an empty string if parsing fails
+		static std::string parseUri(const char* data, size_t dataLen);
 
 		/// @return The size in bytes of the SIP request first line
 		int getSize() const

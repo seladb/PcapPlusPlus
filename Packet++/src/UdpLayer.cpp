@@ -144,10 +144,11 @@ namespace pcpp
 				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, getAttachedPacket());
 		}
 
+		// If a valid layer was found, return immediately
 		if (m_NextLayer)
 			return;
 
-		// All heuristic run
+		// Here, heuristics for all protocols should be invoked to determine the correct layer
 		m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, getAttachedPacket());
 
 		if (!m_NextLayer)

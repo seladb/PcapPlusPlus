@@ -120,7 +120,7 @@ namespace pcpp
 		}
 	}
 
-	SipLayer::SipParseResult SipLayer::dissectSipHeuristic(const uint8_t* data, size_t dataLen)
+	SipLayer::SipParseResult SipLayer::detectSipMessageType(const uint8_t* data, size_t dataLen)
 	{
 		if (!data || dataLen < 3)
 		{
@@ -143,23 +143,55 @@ namespace pcpp
 	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, uint16_t srcPort,
 	                                  uint16_t dstPort)
 	{
-		if (SipRequestFirstLine::parseMethod((char*)data, dataLen) != SipRequestLayer::SipMethodUnknown)
-			return new SipRequestLayer(data, dataLen, prevLayer, packet);
-		else if (SipResponseFirstLine::parseStatusCode((char*)data, dataLen) !=
-		             SipResponseLayer::SipStatusCodeUnknown &&
-		         SipResponseFirstLine::parseVersion((char*)data, dataLen) != "")
-			return new SipResponseLayer(data, dataLen, prevLayer, packet);
-		else
+		if (!(SipLayer::isSipPort(srcPort) || SipLayer::isSipPort(dstPort)))
+		{
 			return nullptr;
+		}
+
+		if (SipRequestFirstLine::parseMethod((char*)data, dataLen) != SipRequestLayer::SipMethodUnknown)
+		{
+			return new SipRequestLayer(data, dataLen, prevLayer, packet);
+		}
+
+		if (SipResponseFirstLine::parseStatusCode((char*)data, dataLen) != SipResponseLayer::SipStatusCodeUnknown &&
+		    SipResponseFirstLine::parseVersion((char*)data, dataLen) != "")
+		{
+			return new SipResponseLayer(data, dataLen, prevLayer, packet);
+		}
+
+		return nullptr;
 	}
 
 	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
-		SipLayer::SipParseResult sipParseResult = dissectSipHeuristic(data, dataLen);
+		SipLayer::SipParseResult sipParseResult = detectSipMessageType(data, dataLen);
+
+		if (sipParseResult == SipLayer::SipParseResult::Unknown)
+		{
+			return nullptr;
+		}
+
 		if (sipParseResult == SipLayer::SipParseResult::Request)
-			return new SipRequestLayer(data, dataLen, prevLayer, packet);
+		{
+			if (SipRequestFirstLine::parseMethod((char*)data, dataLen) != SipRequestLayer::SipMethodUnknown &&
+			    SipRequestFirstLine::parseUri((char*)data, dataLen) != "" &&
+			    SipRequestFirstLine::parseVersion((char*)data, dataLen) != "")
+			{
+				return new SipRequestLayer(data, dataLen, prevLayer, packet);
+			}
+			return nullptr;
+		}
+
 		if (sipParseResult == SipLayer::SipParseResult::Response)
-			return new SipRequestLayer(data, dataLen, prevLayer, packet);
+		{
+			if (SipResponseFirstLine::parseStatusCode((char*)data, dataLen) != SipResponseLayer::SipStatusCodeUnknown &&
+			    SipResponseFirstLine::parseVersion((char*)data, dataLen) != "")
+			{
+				return new SipResponseLayer(data, dataLen, prevLayer, packet);
+			}
+			return nullptr;
+		}
+
 		return nullptr;
 	}
 
@@ -266,6 +298,96 @@ namespace pcpp
 			return SipRequestLayer::SipMethodUnknown;
 		}
 		return methodAdEnum->second;
+	}
+
+	std::string SipRequestFirstLine::parseUri(const char* data, size_t dataLen)
+	{
+		if (data == nullptr || dataLen == 0)
+		{
+			PCPP_LOG_DEBUG("Empty data in SIP request line");
+			return "";
+		}
+
+		// Find the position of the first space (end of METHOD)
+		size_t firstSpaceIndex = 0;
+		while (firstSpaceIndex < dataLen && data[firstSpaceIndex] != ' ')
+		{
+			firstSpaceIndex++;
+		}
+
+		if (firstSpaceIndex == dataLen || firstSpaceIndex == 0)
+		{
+			PCPP_LOG_DEBUG("No space found after METHOD in SIP request line");
+			return "";
+		}
+
+		// URI starts right after the first space
+		const char* uriStart = data + firstSpaceIndex + 1;
+
+		// Continue searching from after the first space to find the second space
+		size_t secondSpaceIndex = firstSpaceIndex + 1;
+		while (secondSpaceIndex < dataLen && data[secondSpaceIndex] != ' ')
+		{
+			secondSpaceIndex++;
+		}
+
+		if (secondSpaceIndex == dataLen)
+		{
+			PCPP_LOG_DEBUG("Couldn't find space before SIP version in SIP request line");
+			return "";
+		}
+
+		size_t uriLen = static_cast<size_t>(secondSpaceIndex - (firstSpaceIndex + 1));
+
+		if (uriLen == 0)
+		{
+			PCPP_LOG_DEBUG("URI part is empty in SIP request line");
+			return "";
+		}
+
+		return std::string(uriStart, uriLen);
+	}
+
+	std::string SipRequestFirstLine::parseVersion(const char* data, size_t dataLen)
+	{
+		if (data == nullptr || dataLen == 0)
+		{
+			PCPP_LOG_DEBUG("Empty data in SIP request line for version parsing");
+			return "";
+		}
+
+		// Find the last space by searching from the end manually
+		size_t lastSpaceIndex = dataLen;
+		while (lastSpaceIndex > 0 && data[lastSpaceIndex - 1] != ' ')
+		{
+			lastSpaceIndex--;
+		}
+
+		if (lastSpaceIndex == 0)
+		{
+			PCPP_LOG_DEBUG("No space found before SIP version in request line");
+			return "";
+		}
+
+		// Version starts right after the last space
+		const char* versionStart = data + lastSpaceIndex;
+		size_t versionLen = dataLen - lastSpaceIndex;
+
+		// Minimum length for "SIP/x.y"
+		if (versionLen < 7)
+		{
+			PCPP_LOG_DEBUG("Version part too short");
+			return "";
+		}
+
+		// Basic validation: must start with "SIP/"
+		if (versionStart[0] != 'S' || versionStart[1] != 'I' || versionStart[2] != 'P' || versionStart[3] != '/')
+		{
+			PCPP_LOG_DEBUG("SIP request version does not begin with 'SIP/'");
+			return "";
+		}
+
+		return std::string(versionStart, versionLen);
 	}
 
 	void SipRequestFirstLine::parseVersion()
