@@ -86,8 +86,8 @@ def tcp_replay_worker(interface: str, tcpreplay_dir: Path, source_pcap: Path):
 @dataclass
 class Runner:
     build_dir: Path
-    packet_test_path = Path("Tests", "Packet++Test", "Packet++Test")
-    pcap_test_path = Path("Tests", "Pcap++Test", "Pcap++Test")
+    packet_test_path = Path("Tests", "Packet++Test", "Packet++Test.exe")
+    pcap_test_path = Path("Tests", "Pcap++Test", "Pcap++Test.exe")
 
     def run_packet_test(self):
         exe_path = (self.build_dir / self.packet_test_path).resolve()
