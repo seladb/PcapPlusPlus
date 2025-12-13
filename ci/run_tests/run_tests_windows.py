@@ -84,7 +84,7 @@ class Runner:
         exe_path = self.build_dir / self.packet_test_path
         work_dir = exe_path.parent
 
-        completed_process = subprocess.run(exe_path, cwd=work_dir)
+        completed_process = subprocess.run(exe_path.absolute(), cwd=work_dir)
         if completed_process.returncode != 0:
             raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
 
@@ -163,7 +163,7 @@ class Runner:
                     f"-x {";".join(skip_tests)}",
                     *include_tests,
                 ],
-                cwd=os.path.join("Tests", "Pcap++Test"),
+                cwd=work_dir,
                 shell=True,
             )
 
