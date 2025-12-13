@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import logging
 import argparse
 import subprocess
 import scapy.arch.windows
@@ -9,7 +10,7 @@ from pathlib import Path
 from contextlib import contextmanager
 from ipaddress import IPv4Address
 
-TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
+TCPREPLAY_PATH = Path("tcpreplay-4.4.1-win")
 
 
 def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, None]:
@@ -89,15 +90,17 @@ class Runner:
     pcap_test_path = Path("Tests", "Pcap++Test", "Pcap++Test")
 
     def run_packet_test(self):
-        exe_path = self.build_dir / self.packet_test_path
+        exe_path = (self.build_dir / self.packet_test_path).resolve()
         work_dir = exe_path.parent
 
-        subprocess.run(str(exe_path.absolute()), cwd=work_dir, check=True)
+        logging.info(f"Running {exe_path} in {work_dir}")
+        subprocess.run(str(exe_path), cwd=work_dir, check=True)
 
     def run_packet_coverage(self):
-        exe_path = self.build_dir / self.packet_test_path
+        exe_path = (self.build_dir / self.packet_test_path).resolve()
         work_dir = exe_path.parent
 
+        logging.info(f"Running coverage for {exe_path} in {work_dir}")
         subprocess.run(
             [
                 "OpenCppCoverage.exe",
@@ -113,31 +116,34 @@ class Runner:
                 "--export_type",
                 "cobertura:Packet++Coverage.xml",
                 "--working_dir",
-                str(work_dir.absolute()),
+                str(work_dir),
                 "--",
-                str(exe_path.absolute()),
+                str(exe_path),
             ],
             cwd=work_dir,
             check=True,
         )
 
     def run_pcap_tests(self, include_tests: list[str], skip_tests: list[str]):
-        exe_path = self.build_dir / self.pcap_test_path
+        exe_path = (self.build_dir / self.pcap_test_path).resolve()
         work_dir = exe_path.parent
 
+        logging.debug('Searching suitable interface')
         interface, ip_address = find_first_connected_interface()
         if not interface or not ip_address:
             raise RuntimeError("Cannot find an interface to run tests on!")
-        print(f"Interface is {interface} and IP address is {ip_address}")
+
+        logging.info(f"Interface is {interface} and IP address is {ip_address}")
 
         source_pcap = work_dir / "PcapExamples" / "example.pcap"
 
         with tcp_replay_worker(
             interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap
         ):
+            logging.info(f'Running tests for {exe_path} in {work_dir}')
             subprocess.run(
                 [
-                    str(exe_path.absolute()),
+                    str(exe_path),
                     "-i",
                     str(ip_address),
                     "-x;".join(skip_tests),
@@ -148,19 +154,21 @@ class Runner:
             )
 
     def run_pcap_coverage(self, include_tests: list[str], skip_tests: list[str]):
-        exe_path = self.build_dir / self.pcap_test_path
+        exe_path = (self.build_dir / self.pcap_test_path).resolve()
         work_dir = exe_path.parent
 
+        logging.debug('Searching suitable interface')
         interface, ip_address = find_first_connected_interface()
         if not interface or not ip_address:
             raise RuntimeError("Cannot find an interface to run tests on!")
-        print(f"Interface is {interface} and IP address is {ip_address}")
+        logging.info(f"Interface is {interface} and IP address is {ip_address}")
 
         source_pcap = work_dir / "PcapExamples" / "example.pcap"
 
         with tcp_replay_worker(
             interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap
         ):
+            logging.info(f'Running coverage for {exe_path} in {work_dir}')
             subprocess.run(
                 [
                     "OpenCppCoverage.exe",
@@ -176,7 +184,7 @@ class Runner:
                     "--export_type",
                     "cobertura:Pcap++Coverage.xml",
                     "--",
-                    str(exe_path.absolute()),
+                    str(exe_path),
                     "-i",
                     str(ip_address),
                     "-x",
@@ -226,7 +234,10 @@ def main():
         type=str,
         help="Custom path to Pcap++ test executable. Can be relative to the build directory.",
     )
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose logging output')
     args = parser.parse_args()
+
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
 
     runner = Runner(build_dir=Path(args.build_dir))
 
