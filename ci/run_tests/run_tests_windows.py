@@ -197,9 +197,19 @@ def main():
         default=os.getcwd(),
         help="Path to the build directory"
     )
+    parser.add_argument("--packet-test-exe", type=str,
+                        help="Custom path to Packet++ test executable. Can be relative to the build directory.")
+    parser.add_argument("--pcap-test-exe", type=str,
+                        help="Custom path to Pcap++ test executable. Can be relative to the build directory.")
     args = parser.parse_args()
 
     runner = Runner(build_dir=Path(args.build_dir))
+
+    # Override default paths if they are provided via the command line.
+    if args.packet_test_exe:
+        runner.packet_test_path = Path(args.packet_test_exe)
+    if args.pcap_test_exe:
+        runner.pcap_test_path = Path(args.pcap_test_exe)
 
     skip_tests = ["TestRemoteCapture"] + args.skip_tests
     include_tests = ["-t", ";".join(args.include_tests)] if args.include_tests else []
