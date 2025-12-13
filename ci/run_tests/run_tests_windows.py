@@ -1,65 +1,69 @@
 import os
 import argparse
 import subprocess
-from tkinter import E
 import scapy.arch.windows
 from dataclasses import dataclass
 from pathlib import Path
 from contextlib import contextmanager
-from ipaddress import IPv4Address, ip_address
+from ipaddress import IPv4Address
 
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
 
 
-def validate_ipv4_address(address):
-    try:
-        IPv4Address(address)
-        return True
-    except ValueError:
-        return False
+def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, None]:
+    """Find a network interface connected to the internet by checking if it can reach www.google.com."""
+    def tcp_replay_list_nics():
+        return subprocess.run(
+            ["tcpreplay.exe", "--listnics"],
+            capture_output=True,
+            cwd=TCPREPLAY_PATH,
+            check=True,
+        )
 
+    def curl_google(ip_address):
+        return subprocess.run(
+            ["curl", "--interface", str(ip_address), "www.google.com"],
+            capture_output=True,
+            shell=True,
+        )
 
-def get_ip_by_guid(guid):
-    interfaces = scapy.arch.windows.get_windows_if_list()
-    for iface in interfaces:
-        ips = iface.get("ips", [])
-        # Find the first valid IPv4 address inside iface["ips"]. If no address is found, return None
-        return next(filter(validate_ipv4_address, ips), None)
-    # Return None if no matching interface is found
-    return None
+    # Create a set of detected device paths. Possibly unnecessary, but scapy only returns GUID
+    tcp_result = tcp_replay_list_nics()
+    npf_guids = set()
+    for row in tcp_result.stdout.decode('utf-8').split('\n')[2::2]:
+        columns = row.split('\t')
+        if len(columns) > 1 and columns[1].startswith("\\Device\\NPF"):
+            npf_guids.add(columns[1].lstrip("\\Device\\NPF_"))
 
+    all_interfaces = scapy.arch.windows.get_windows_if_list()
+    for interface in all_interfaces:
+        if_guid: str | None = interface.get('guid', None)
+        if if_guid is None:
+            continue
 
-def find_interface():
-    completed_process = subprocess.run(
-        ["tcpreplay.exe", "--listnics"],
-        shell=True,
-        capture_output=True,
-        cwd=TCPREPLAY_PATH,
-    )
-    if completed_process.returncode != 0:
-        print('Error executing "tcpreplay.exe --listnics"!')
-        exit(1)
+        # Not a NPF guid? Can we even get those on a machine with NPcap / WinPcap?
+        if if_guid not in npf_guids:
+            continue
 
-    raw_nics_output = completed_process.stdout.decode("utf-8")
-    for row in raw_nics_output.split("\n")[2:]:
-        columns = row.split("\t")
-        if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
-            interface = columns[1]
+        ips = interface.get('ips', [])
+
+        if len(ips) <= 0:
+            continue
+
+        for ip_raw in ips:
             try:
-                nic_guid = interface.lstrip("\\Device\\NPF_")
-                ip_address = get_ip_by_guid(nic_guid)
-                if ip_address.startswith("169.254"):
-                    continue
-                completed_process = subprocess.run(
-                    ["curl", "--interface", ip_address, "www.google.com"],
-                    capture_output=True,
-                    shell=True,
-                )
-                if completed_process.returncode != 0:
-                    continue
-                return interface, ip_address
-            except Exception:
-                pass
+                ipv4 = IPv4Address(ip_raw)
+            except ValueError:
+                continue
+
+            # Discards 169.245.x.x
+            if ipv4.is_link_local:
+                continue
+
+            if curl_google(ipv4).returncode == 0:
+                # Construct the full device path again.
+                return f"\\Device\\NPF_{if_guid}", ipv4
+
     return None, None
 
 
@@ -94,11 +98,12 @@ class Runner:
             [
                 "OpenCppCoverage.exe",
                 "--verbose",
-                "--sources Packet++",
-                "--sources Pcap++",
-                "--sources Common++",
-                "--excluded_sources Tests",
-                "--export_type cobertura:Packet++Coverage.xml",
+                "--sources", "Packet++",
+                "--sources", "Pcap++",
+                "--sources", "Common++",
+                "--excluded_sources", "Tests",
+                "--export_type", "cobertura:Packet++Coverage.xml",
+                "--working_dir", str(work_dir.absolute()),
                 "--",
                 str(exe_path.absolute()),
             ],
@@ -110,7 +115,7 @@ class Runner:
         exe_path = self.build_dir / self.pcap_test_path
         work_dir = exe_path.parent
 
-        interface, ip_address = find_interface()
+        interface, ip_address = find_first_connected_interface()
         if not interface or not ip_address:
             raise RuntimeError("Cannot find an interface to run tests on!")
         print(f"Interface is {interface} and IP address is {ip_address}")
@@ -121,8 +126,8 @@ class Runner:
             subprocess.run(
                 [
                     str(exe_path.absolute()),
-                    f"-i {ip_address}",
-                    f"-x {';'.join(skip_tests)}",
+                    "-i", str(ip_address),
+                    "-x" ';'.join(skip_tests),
                     *include_tests,
                 ],
                 cwd=work_dir,
@@ -133,7 +138,7 @@ class Runner:
         exe_path = self.build_dir / self.pcap_test_path
         work_dir = exe_path.parent
 
-        interface, ip_address = find_interface()
+        interface, ip_address = find_first_connected_interface()
         if not interface or not ip_address:
             raise RuntimeError("Cannot find an interface to run tests on!")
         print(f"Interface is {interface} and IP address is {ip_address}")
@@ -145,21 +150,20 @@ class Runner:
                 [
                     "OpenCppCoverage.exe",
                     "--verbose",
-                    "--sources Packet++",
-                    "--sources Pcap++",
-                    "--sources Common++",
-                    "--excluded_sources Tests",
-                    "--export_type cobertura:Pcap++Coverage.xml",
+                    "--sources", "Packet++",
+                    "--sources", "Pcap++",
+                    "--sources", "Common++",
+                    "--excluded_sources", "Tests",
+                    "--export_type", "cobertura:Pcap++Coverage.xml",
                     "--",
                     str(exe_path.absolute()),
-                    f"-i {ip_address}",
-                    f"-x {';'.join(skip_tests)}",
+                    f"-i", str(ip_address),
+                    f"-x", ';'.join(skip_tests),
                     *include_tests,
                 ],
                 cwd=work_dir,
                 check=True,
             )
-
 
 
 def main():
