@@ -127,7 +127,7 @@ class Runner:
                 [
                     str(exe_path.absolute()),
                     f"-i {ip_address}",
-                    f"-x {";".join(skip_tests)}",
+                    f"-x {';'.join(skip_tests)}",
                     *include_tests,
                 ],
                 cwd=work_dir,
