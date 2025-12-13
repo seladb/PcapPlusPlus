@@ -40,8 +40,9 @@ class Runner:
         completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
 
         if completed_process.returncode != 0:
-            raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
-
+            raise RuntimeError(
+                f"Error while executing Packet++ tests: {completed_process}"
+            )
 
     def run_pcap_tests(self, interface: str, tcpreplay_dir: str, args: list[str]):
         ip_address = get_if_addr(interface)
@@ -56,7 +57,9 @@ class Runner:
         with tcp_replay_worker(interface, tcpreplay_dir):
             completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
             if completed_process.returncode != 0:
-                raise RuntimeError(f"Error while executing Pcap++ tests: {completed_process}")
+                raise RuntimeError(
+                    f"Error while executing Pcap++ tests: {completed_process}"
+                )
 
 
 def main():
@@ -92,10 +95,7 @@ def main():
         help="tcpreplay directory",
     )
     parser.add_argument(
-        "--build-dir",
-        type=str,
-        default=os.getcwd(),
-        help="path to the build directory"
+        "--build-dir", type=str, default=os.getcwd(), help="path to the build directory"
     )
     args = parser.parse_args()
 
@@ -106,9 +106,7 @@ def main():
 
     if "pcap" in args.test_suites:
         runner.run_pcap_tests(
-            args.interface,
-            args.tcpreplay_dir,
-            args.pcap_test_args.split()
+            args.interface, args.tcpreplay_dir, args.pcap_test_args.split()
         )
 
 

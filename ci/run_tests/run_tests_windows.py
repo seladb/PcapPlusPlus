@@ -14,6 +14,7 @@ TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
 
 def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, None]:
     """Find a network interface connected to the internet by checking if it can reach www.google.com."""
+
     def tcp_replay_list_nics():
         return subprocess.run(
             ["tcpreplay.exe", "--listnics"],
@@ -31,14 +32,14 @@ def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, No
     # Create a set of detected device paths. Possibly unnecessary, but scapy only returns GUID
     tcp_result = tcp_replay_list_nics()
     npf_guids = set()
-    for row in tcp_result.stdout.decode('utf-8').split('\n')[2::2]:
-        columns = row.split('\t')
+    for row in tcp_result.stdout.decode("utf-8").split("\n")[2::2]:
+        columns = row.split("\t")
         if len(columns) > 1 and columns[1].startswith("\\Device\\NPF"):
             npf_guids.add(columns[1].lstrip("\\Device\\NPF_"))
 
     all_interfaces = scapy.arch.windows.get_windows_if_list()
     for interface in all_interfaces:
-        if_guid: str | None = interface.get('guid', None)
+        if_guid: str | None = interface.get("guid", None)
         if if_guid is None:
             continue
 
@@ -46,7 +47,7 @@ def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, No
         if if_guid not in npf_guids:
             continue
 
-        ips = interface.get('ips', [])
+        ips = interface.get("ips", [])
 
         if len(ips) <= 0:
             continue
@@ -70,9 +71,11 @@ def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, No
 
 @contextmanager
 def tcp_replay_worker(interface: str, tcpreplay_dir: Path, source_pcap: Path):
-    tcpreplay_proc = subprocess.Popen(f'tcpreplay.exe -i "{interface}" --mbps=10 -l 0 {source_pcap}',
-                                      cwd=tcpreplay_dir)
-    
+    tcpreplay_proc = subprocess.Popen(
+        f'tcpreplay.exe -i "{interface}" --mbps=10 -l 0 {source_pcap}',
+        cwd=tcpreplay_dir,
+    )
+
     try:
         yield tcpreplay_proc
     finally:
@@ -99,17 +102,23 @@ class Runner:
             [
                 "OpenCppCoverage.exe",
                 "--verbose",
-                "--sources", "Packet++",
-                "--sources", "Pcap++",
-                "--sources", "Common++",
-                "--excluded_sources", "Tests",
-                "--export_type", "cobertura:Packet++Coverage.xml",
-                "--working_dir", str(work_dir.absolute()),
+                "--sources",
+                "Packet++",
+                "--sources",
+                "Pcap++",
+                "--sources",
+                "Common++",
+                "--excluded_sources",
+                "Tests",
+                "--export_type",
+                "cobertura:Packet++Coverage.xml",
+                "--working_dir",
+                str(work_dir.absolute()),
                 "--",
                 str(exe_path.absolute()),
             ],
             cwd=work_dir,
-            check=True
+            check=True,
         )
 
     def run_pcap_tests(self, include_tests: list[str], skip_tests: list[str]):
@@ -121,14 +130,17 @@ class Runner:
             raise RuntimeError("Cannot find an interface to run tests on!")
         print(f"Interface is {interface} and IP address is {ip_address}")
 
-        source_pcap = work_dir / 'PcapExamples' / 'example.pcap'
+        source_pcap = work_dir / "PcapExamples" / "example.pcap"
 
-        with tcp_replay_worker(interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap):
+        with tcp_replay_worker(
+            interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap
+        ):
             subprocess.run(
                 [
                     str(exe_path.absolute()),
-                    "-i", str(ip_address),
-                    "-x" ';'.join(skip_tests),
+                    "-i",
+                    str(ip_address),
+                    "-x;".join(skip_tests),
                     *include_tests,
                 ],
                 cwd=work_dir,
@@ -144,22 +156,31 @@ class Runner:
             raise RuntimeError("Cannot find an interface to run tests on!")
         print(f"Interface is {interface} and IP address is {ip_address}")
 
-        source_pcap = work_dir / 'PcapExamples' / 'example.pcap'
+        source_pcap = work_dir / "PcapExamples" / "example.pcap"
 
-        with tcp_replay_worker(interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap):
+        with tcp_replay_worker(
+            interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap
+        ):
             subprocess.run(
                 [
                     "OpenCppCoverage.exe",
                     "--verbose",
-                    "--sources", "Packet++",
-                    "--sources", "Pcap++",
-                    "--sources", "Common++",
-                    "--excluded_sources", "Tests",
-                    "--export_type", "cobertura:Pcap++Coverage.xml",
+                    "--sources",
+                    "Packet++",
+                    "--sources",
+                    "Pcap++",
+                    "--sources",
+                    "Common++",
+                    "--excluded_sources",
+                    "Tests",
+                    "--export_type",
+                    "cobertura:Pcap++Coverage.xml",
                     "--",
                     str(exe_path.absolute()),
-                    f"-i", str(ip_address),
-                    f"-x", ';'.join(skip_tests),
+                    "-i",
+                    str(ip_address),
+                    "-x",
+                    ";".join(skip_tests),
                     *include_tests,
                 ],
                 cwd=work_dir,
@@ -193,15 +214,18 @@ def main():
         help="Enable OpenCppCoverage encapsulation to generate coverage report",
     )
     parser.add_argument(
-        "--build-dir",
-        type=str,
-        default=os.getcwd(),
-        help="Path to the build directory"
+        "--build-dir", type=str, default=os.getcwd(), help="Path to the build directory"
     )
-    parser.add_argument("--packet-test-exe", type=str,
-                        help="Custom path to Packet++ test executable. Can be relative to the build directory.")
-    parser.add_argument("--pcap-test-exe", type=str,
-                        help="Custom path to Pcap++ test executable. Can be relative to the build directory.")
+    parser.add_argument(
+        "--packet-test-exe",
+        type=str,
+        help="Custom path to Packet++ test executable. Can be relative to the build directory.",
+    )
+    parser.add_argument(
+        "--pcap-test-exe",
+        type=str,
+        help="Custom path to Pcap++ test executable. Can be relative to the build directory.",
+    )
     args = parser.parse_args()
 
     runner = Runner(build_dir=Path(args.build_dir))
