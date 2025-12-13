@@ -69,6 +69,17 @@ namespace pcpp
 	class SipLayer : public TextBasedProtocolMessage
 	{
 	public:
+		/// SIP parse result types
+		enum class SipParseResult
+		{
+			/// Unknown or invalid format
+			Unknown = 0,
+			/// The message is a SIP request
+			Request = 1,
+			/// The message is a SIP response
+			Response = 2,
+		};
+
 		/// The length of the body of many SIP response messages is determined by a SIP header field called
 		/// "Content-Length". This method parses this field, extracts its value and return it. If this field doesn't
 		/// exist 0 is returned
@@ -113,6 +124,31 @@ namespace pcpp
 		{
 			return port == 5060 || port == 5061;
 		}
+
+		/// A heuristic method that attempts to identify SIP packets without fully parsing them
+		/// @param[in] data A pointer to the raw packet data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @return A SipParseResult indicating whether the data is a SIP Request, Response, or Unknown
+		static SipParseResult detectSipMessageType(const uint8_t* data, size_t dataLen);
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		/// @param[in] srcPort Source port number to check
+		/// @param[in] dstPort Dest port number to check
+		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
+		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+		                               uint16_t srcPort, uint16_t dstPort);
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
+		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
@@ -530,6 +566,18 @@ namespace pcpp
 		/// @param[in] dataLen The raw data length
 		/// @return The parsed SIP method
 		static SipRequestLayer::SipMethod parseMethod(const char* data, size_t dataLen);
+
+		/// A static method for parsing the SIP version out of raw data
+		/// @param[in] data The raw data
+		/// @param[in] dataLen The raw data length
+		/// @return The parsed SIP version string or an empty string if parsing fails
+		static std::string parseVersion(const char* data, size_t dataLen);
+
+		/// A static method for parsing the Request-URI out of raw data
+		/// @param[in] data The raw data
+		/// @param[in] dataLen The raw data length
+		/// @return The parsed Request-URI string or an empty string if parsing fails
+		static std::string parseUri(const char* data, size_t dataLen);
 
 		/// @return The size in bytes of the SIP request first line
 		int getSize() const
