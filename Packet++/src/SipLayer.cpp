@@ -356,14 +356,26 @@ namespace pcpp
 			return "";
 		}
 
+		size_t lineEnd = 0;
+		while (lineEnd < dataLen && data[lineEnd] != '\n' && data[lineEnd] != '\r')
+		{
+			lineEnd++;
+		}
+
+		if (lineEnd == 0)
+		{
+			PCPP_LOG_DEBUG("Empty request line");
+			return "";
+		}
+
 		// Find the last space by searching from the end manually
-		size_t lastSpaceIndex = dataLen;
+		size_t lastSpaceIndex = lineEnd;
 		while (lastSpaceIndex > 0 && data[lastSpaceIndex - 1] != ' ')
 		{
 			lastSpaceIndex--;
 		}
 
-		if (lastSpaceIndex == 0)
+		if (lastSpaceIndex == 0 || lastSpaceIndex == lineEnd)
 		{
 			PCPP_LOG_DEBUG("No space found before SIP version in request line");
 			return "";
@@ -371,7 +383,7 @@ namespace pcpp
 
 		// Version starts right after the last space
 		const char* versionStart = data + lastSpaceIndex;
-		size_t versionLen = dataLen - lastSpaceIndex;
+		size_t versionLen = lineEnd - lastSpaceIndex;
 
 		// Minimum length for "SIP/x.y"
 		if (versionLen < 7)
