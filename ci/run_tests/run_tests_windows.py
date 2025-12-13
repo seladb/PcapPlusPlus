@@ -84,15 +84,13 @@ class Runner:
         exe_path = self.build_dir / self.packet_test_path
         work_dir = exe_path.parent
 
-        completed_process = subprocess.run(str(exe_path.absolute()), cwd=work_dir)
-        if completed_process.returncode != 0:
-            raise RuntimeError(f"Error while executing Packet++ tests: {completed_process}")
+        subprocess.run(str(exe_path.absolute()), cwd=work_dir, check=True)
 
     def run_packet_coverage(self):
         exe_path = self.build_dir / self.packet_test_path
         work_dir = exe_path.parent
 
-        completed_process = subprocess.run(
+        subprocess.run(
             [
                 "OpenCppCoverage.exe",
                 "--verbose",
@@ -105,11 +103,8 @@ class Runner:
                 str(exe_path.absolute()),
             ],
             cwd=work_dir,
-            shell=True,
+            check=True
         )
-
-        if completed_process.returncode != 0:
-            raise RuntimeError(f"Error while executing coverage for Packet++ tests: {completed_process}")
 
     def run_pcap_tests(self, include_tests: list[str], skip_tests: list[str]):
         exe_path = self.build_dir / self.pcap_test_path
@@ -123,7 +118,7 @@ class Runner:
         source_pcap = work_dir / 'PcapExamples' / 'example.pcap'
 
         with tcp_replay_worker(interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap):
-            completed_process = subprocess.run(
+            subprocess.run(
                 [
                     str(exe_path.absolute()),
                     f"-i {ip_address}",
@@ -131,10 +126,8 @@ class Runner:
                     *include_tests,
                 ],
                 cwd=work_dir,
+                check=True,
             )
-        
-        if completed_process.returncode != 0:
-            raise RuntimeError(f"Error while executing Pcap++ tests: {completed_process}")
 
     def run_pcap_coverage(self, include_tests: list[str], skip_tests: list[str]):
         exe_path = self.build_dir / self.pcap_test_path
@@ -148,7 +141,7 @@ class Runner:
         source_pcap = work_dir / 'PcapExamples' / 'example.pcap'
 
         with tcp_replay_worker(interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap):
-            completed_process = subprocess.run(
+            subprocess.run(
                 [
                     "OpenCppCoverage.exe",
                     "--verbose",
@@ -164,7 +157,7 @@ class Runner:
                     *include_tests,
                 ],
                 cwd=work_dir,
-                shell=True,
+                check=True,
             )
 
 
