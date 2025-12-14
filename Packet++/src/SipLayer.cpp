@@ -215,12 +215,12 @@ namespace pcpp
 		         static_cast<char*>(memchr(reinterpret_cast<char*>(m_SipRequest->m_Data + m_VersionOffset), '\n',
 		                                   m_SipRequest->m_DataLen - static_cast<size_t>(m_VersionOffset)))) != nullptr)
 		{
-			m_FirstfirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipRequest->m_Data) + 1;
+			m_FirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipRequest->m_Data) + 1;
 			m_IsComplete = true;
 		}
 		else
 		{
-			m_FirstfirstLineEndOffset = m_SipRequest->getDataLen();
+			m_FirstLineEndOffset = m_SipRequest->getDataLen();
 			m_IsComplete = false;
 		}
 
@@ -256,7 +256,7 @@ namespace pcpp
 		std::string firstLine = SipMethodEnumToString[m_Method] + " " + uri + " " + version + "\r\n";
 
 		m_UriOffset = SipMethodEnumToString[m_Method].length() + 1;
-		m_FirstfirstLineEndOffset = firstLine.length();
+		m_FirstLineEndOffset = firstLine.length();
 		m_VersionOffset = m_UriOffset + uri.length() + 6;
 
 		m_SipRequest->m_DataLen = firstLine.length();
@@ -480,7 +480,7 @@ namespace pcpp
 
 		m_UriOffset += lengthDifference;
 		m_VersionOffset += lengthDifference;
-		m_FirstfirstLineEndOffset += lengthDifference;
+		m_FirstLineEndOffset += lengthDifference;
 
 		m_Method = newMethod;
 
@@ -536,7 +536,7 @@ namespace pcpp
 		memcpy(m_SipRequest->m_Data + m_UriOffset, newUri.c_str(), newUri.length());
 
 		m_VersionOffset += lengthDifference;
-		m_FirstfirstLineEndOffset += lengthDifference;
+		m_FirstLineEndOffset += lengthDifference;
 
 		return true;
 	}
@@ -862,7 +862,7 @@ namespace pcpp
 		const int statusStringOffset = 12;
 		if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
 		{
-			int statusStringEndOffset = m_FirstfirstLineEndOffset - 2;
+			int statusStringEndOffset = m_FirstLineEndOffset - 2;
 			if ((*(m_SipResponse->m_Data + statusStringEndOffset)) != '\r')
 				statusStringEndOffset++;
 			result.assign(reinterpret_cast<char*>(m_SipResponse->m_Data + statusStringOffset),
@@ -922,7 +922,7 @@ namespace pcpp
 		memcpy(m_SipResponse->m_Data + 8, statusCodeAsString.str().c_str(), 3);
 
 		m_StatusCode = newStatusCode;
-		m_FirstfirstLineEndOffset += lengthDifference;
+		m_FirstLineEndOffset += lengthDifference;
 
 		return true;
 	}
@@ -982,12 +982,12 @@ namespace pcpp
 		if ((endOfFirstLine = static_cast<char*>(
 		         memchr(reinterpret_cast<char*>(m_SipResponse->m_Data), '\n', m_SipResponse->m_DataLen))) != nullptr)
 		{
-			m_FirstfirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipResponse->m_Data) + 1;
+			m_FirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipResponse->m_Data) + 1;
 			m_IsComplete = true;
 		}
 		else
 		{
-			m_FirstfirstLineEndOffset = m_SipResponse->getDataLen();
+			m_FirstLineEndOffset = m_SipResponse->getDataLen();
 			m_IsComplete = false;
 		}
 
@@ -1027,7 +1027,7 @@ namespace pcpp
 			statusCodeString = StatusCodeEnumToString[m_StatusCode];
 		std::string firstLine = m_Version + " " + statusCodeAsString.str() + " " + statusCodeString + "\r\n";
 
-		m_FirstfirstLineEndOffset = firstLine.length();
+		m_FirstLineEndOffset = firstLine.length();
 
 		m_SipResponse->m_DataLen = firstLine.length();
 		m_SipResponse->m_Data = new uint8_t[m_SipResponse->m_DataLen];
