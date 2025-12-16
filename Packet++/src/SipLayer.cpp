@@ -148,13 +148,15 @@ namespace pcpp
 			return nullptr;
 		}
 
-		if (SipRequestFirstLine::parseMethod((char*)data, dataLen) != SipRequestLayer::SipMethodUnknown)
+		if (SipRequestFirstLine::parseMethod(reinterpret_cast<char*>(data), dataLen) !=
+		    SipRequestLayer::SipMethodUnknown)
 		{
 			return new SipRequestLayer(data, dataLen, prevLayer, packet);
 		}
 
-		if (SipResponseFirstLine::parseStatusCode((char*)data, dataLen) != SipResponseLayer::SipStatusCodeUnknown &&
-		    SipResponseFirstLine::parseVersion((char*)data, dataLen) != "")
+		if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
+		        SipResponseLayer::SipStatusCodeUnknown &&
+		    SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen) != "")
 		{
 			return new SipResponseLayer(data, dataLen, prevLayer, packet);
 		}
@@ -173,9 +175,10 @@ namespace pcpp
 
 		if (sipParseResult == SipLayer::SipParseResult::Request)
 		{
-			if (SipRequestFirstLine::parseMethod((char*)data, dataLen) != SipRequestLayer::SipMethodUnknown &&
-			    SipRequestFirstLine::parseUri((char*)data, dataLen) != "" &&
-			    SipRequestFirstLine::parseVersion((char*)data, dataLen) != "")
+			if (SipRequestFirstLine::parseMethod(reinterpret_cast<char*>(data), dataLen) !=
+			        SipRequestLayer::SipMethodUnknown &&
+			    SipRequestFirstLine::parseUri(reinterpret_cast<char*>(data), dataLen) != "" &&
+			    SipRequestFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen) != "")
 			{
 				return new SipRequestLayer(data, dataLen, prevLayer, packet);
 			}
@@ -184,8 +187,9 @@ namespace pcpp
 
 		if (sipParseResult == SipLayer::SipParseResult::Response)
 		{
-			if (SipResponseFirstLine::parseStatusCode((char*)data, dataLen) != SipResponseLayer::SipStatusCodeUnknown &&
-			    SipResponseFirstLine::parseVersion((char*)data, dataLen) != "")
+			if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
+			        SipResponseLayer::SipStatusCodeUnknown &&
+			    SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen) != "")
 			{
 				return new SipResponseLayer(data, dataLen, prevLayer, packet);
 			}
