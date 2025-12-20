@@ -156,7 +156,7 @@ namespace pcpp
 
 		if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
 		        SipResponseLayer::SipStatusCodeUnknown &&
-		    SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen) != "")
+		    !SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
 		{
 			return new SipResponseLayer(data, dataLen, prevLayer, packet);
 		}
@@ -177,25 +177,20 @@ namespace pcpp
 		{
 			if (SipRequestFirstLine::parseMethod(reinterpret_cast<char*>(data), dataLen) !=
 			        SipRequestLayer::SipMethodUnknown &&
-			    SipRequestFirstLine::parseUri(reinterpret_cast<char*>(data), dataLen) != "" &&
-			    SipRequestFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen) != "")
+			    !SipRequestFirstLine::parseUri(reinterpret_cast<char*>(data), dataLen).empty() &&
+			    !SipRequestFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
 			{
 				return new SipRequestLayer(data, dataLen, prevLayer, packet);
 			}
 			return nullptr;
 		}
 
-		if (sipParseResult == SipLayer::SipParseResult::Response)
+		if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
+				SipResponseLayer::SipStatusCodeUnknown &&
+			!SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
 		{
-			if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
-			        SipResponseLayer::SipStatusCodeUnknown &&
-			    SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen) != "")
-			{
-				return new SipResponseLayer(data, dataLen, prevLayer, packet);
-			}
-			return nullptr;
+			return new SipResponseLayer(data, dataLen, prevLayer, packet);
 		}
-
 		return nullptr;
 	}
 
@@ -349,7 +344,7 @@ namespace pcpp
 			return "";
 		}
 
-		return std::string(uriStart, uriLen);
+		return {uriStart, uriLen};
 	}
 
 	std::string SipRequestFirstLine::parseVersion(const char* data, size_t dataLen)
@@ -403,7 +398,7 @@ namespace pcpp
 			return "";
 		}
 
-		return std::string(versionStart, versionLen);
+		return {versionStart, versionLen};
 	}
 
 	void SipRequestFirstLine::parseVersion()
