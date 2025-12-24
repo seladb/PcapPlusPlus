@@ -186,8 +186,8 @@ namespace pcpp
 		}
 
 		if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
-				SipResponseLayer::SipStatusCodeUnknown &&
-			!SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
+		        SipResponseLayer::SipStatusCodeUnknown &&
+		    !SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
 		{
 			return new SipResponseLayer(data, dataLen, prevLayer, packet);
 		}
@@ -344,7 +344,7 @@ namespace pcpp
 			return "";
 		}
 
-		return {uriStart, uriLen};
+		return { uriStart, uriLen };
 	}
 
 	std::string SipRequestFirstLine::parseVersion(const char* data, size_t dataLen)
@@ -398,7 +398,7 @@ namespace pcpp
 			return "";
 		}
 
-		return {versionStart, versionLen};
+		return { versionStart, versionLen };
 	}
 
 	void SipRequestFirstLine::parseVersion()

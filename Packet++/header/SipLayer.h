@@ -124,8 +124,8 @@ namespace pcpp
 		/// @param[in] dstPort Dest port number to check
 		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
 		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
-			uint16_t srcPort, uint16_t dstPort);
-	
+		                               uint16_t srcPort, uint16_t dstPort);
+
 		/// A static factory method that attempts to create a SIP layer from existing packet raw data
 		/// This method does not check source or destination ports. Instead, it uses heuristics
 		/// to determine whether the data represents a SIP request or response.
@@ -159,7 +159,7 @@ namespace pcpp
 		{
 			return true;
 		}
-	
+
 	private:
 		enum class SipParseResult
 		{
@@ -167,7 +167,7 @@ namespace pcpp
 			Request = 1,
 			Response = 2,
 		};
-		
+
 		/// A heuristic method that attempts to identify SIP packets without fully parsing them
 		/// @param[in] data A pointer to the raw packet data
 		/// @param[in] dataLen Size of the data in bytes
