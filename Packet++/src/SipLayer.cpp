@@ -175,10 +175,7 @@ namespace pcpp
 
 		if (sipParseResult == SipLayer::SipParseResult::Request)
 		{
-			if (SipRequestFirstLine::parseMethod(reinterpret_cast<char*>(data), dataLen) !=
-			        SipRequestLayer::SipMethodUnknown &&
-			    !SipRequestFirstLine::parseUri(reinterpret_cast<char*>(data), dataLen).empty() &&
-			    !SipRequestFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
+			if (SipRequestFirstLine::parseFirstLine(reinterpret_cast<char*>(data), dataLen).isValid)
 			{
 				return new SipRequestLayer(data, dataLen, prevLayer, packet);
 			}
@@ -299,106 +296,83 @@ namespace pcpp
 		return methodAdEnum->second;
 	}
 
-	std::string SipRequestFirstLine::parseUri(const char* data, size_t dataLen)
+	SipRequestFirstLine::SipFirstLineData SipRequestFirstLine::parseFirstLine(const char* data, size_t dataLen)
 	{
+		SipFirstLineData result = { "", "", "", false };
+
 		if (data == nullptr || dataLen == 0)
 		{
 			PCPP_LOG_DEBUG("Empty data in SIP request line");
-			return "";
+			return result;
 		}
 
-		// Find the position of the first space (end of METHOD)
+		// Find first space (end of METHOD)
 		size_t firstSpaceIndex = 0;
 		while (firstSpaceIndex < dataLen && data[firstSpaceIndex] != ' ')
 		{
 			firstSpaceIndex++;
 		}
 
-		if (firstSpaceIndex == dataLen || firstSpaceIndex == 0)
+		if (firstSpaceIndex == 0 || firstSpaceIndex == dataLen)
 		{
-			PCPP_LOG_DEBUG("No space found after METHOD in SIP request line");
-			return "";
+			PCPP_LOG_DEBUG("Invalid METHOD in SIP request line");
+			return result;
 		}
 
-		// URI starts right after the first space
-		const char* uriStart = data + firstSpaceIndex + 1;
+		// Validate method exists in SipMethodStringToEnum
+		std::string methodStr{ data, firstSpaceIndex };
+		auto methodIt = SipMethodStringToEnum.find(methodStr);
+		if (methodIt == SipMethodStringToEnum.end())
+		{
+			PCPP_LOG_DEBUG("Unknown SIP method");
+			return result;
+		}
 
-		// Continue searching from after the first space to find the second space
+		// Find second space (end of URI)
 		size_t secondSpaceIndex = firstSpaceIndex + 1;
 		while (secondSpaceIndex < dataLen && data[secondSpaceIndex] != ' ')
-		{
 			secondSpaceIndex++;
-		}
 
 		if (secondSpaceIndex == dataLen)
 		{
-			PCPP_LOG_DEBUG("Couldn't find space before SIP version in SIP request line");
-			return "";
+			PCPP_LOG_DEBUG("No space before version");
+			return result;
 		}
 
-		size_t uriLen = static_cast<size_t>(secondSpaceIndex - (firstSpaceIndex + 1));
-
+		size_t uriLen = secondSpaceIndex - firstSpaceIndex - 1;
 		if (uriLen == 0)
 		{
-			PCPP_LOG_DEBUG("URI part is empty in SIP request line");
-			return "";
+			PCPP_LOG_DEBUG("Empty URI");
+			return result;
 		}
 
-		return { uriStart, uriLen };
-	}
-
-	std::string SipRequestFirstLine::parseVersion(const char* data, size_t dataLen)
-	{
-		if (data == nullptr || dataLen == 0)
-		{
-			PCPP_LOG_DEBUG("Empty data in SIP request line for version parsing");
-			return "";
-		}
-
-		size_t firstLineEnd = 0;
-		while (firstLineEnd < dataLen && data[firstLineEnd] != '\n' && data[firstLineEnd] != '\r')
-		{
-			firstLineEnd++;
-		}
-
-		if (firstLineEnd == 0)
-		{
-			PCPP_LOG_DEBUG("Empty request line");
-			return "";
-		}
-
-		// Find the last space by searching from the end manually
-		size_t lastSpaceIndex = firstLineEnd;
-		while (lastSpaceIndex > 0 && data[lastSpaceIndex - 1] != ' ')
-		{
-			lastSpaceIndex--;
-		}
-
-		if (lastSpaceIndex == 0 || lastSpaceIndex == firstLineEnd)
-		{
-			PCPP_LOG_DEBUG("No space found before SIP version in request line");
-			return "";
-		}
-
-		// Version starts right after the last space
-		const char* versionStart = data + lastSpaceIndex;
-		size_t versionLen = firstLineEnd - lastSpaceIndex;
+		// Find end of line
+		size_t lineEnd = secondSpaceIndex + 1;
+		while (lineEnd < dataLen && data[lineEnd] != '\r' && data[lineEnd] != '\n')
+			lineEnd++;
 
 		// Minimum length for "SIP/x.y"
+		size_t versionLen = lineEnd - secondSpaceIndex - 1;
 		if (versionLen < 7)
 		{
-			PCPP_LOG_DEBUG("Version part too short");
-			return "";
+			PCPP_LOG_DEBUG("Version too short");
+			return result;
 		}
 
-		// Basic validation: must start with "SIP/"
+		const char* versionStart = data + secondSpaceIndex + 1;
 		if (versionStart[0] != 'S' || versionStart[1] != 'I' || versionStart[2] != 'P' || versionStart[3] != '/')
 		{
-			PCPP_LOG_DEBUG("SIP request version does not begin with 'SIP/'");
-			return "";
+			PCPP_LOG_DEBUG("Invalid SIP version format");
+			return result;
 		}
 
-		return { versionStart, versionLen };
+		// All validations passed
+		result.method = methodStr;
+		result.uri = std::string{ data + firstSpaceIndex + 1, uriLen };
+		result.version = std::string{ versionStart, versionLen };
+		result.isValid = true;
+
+		return result;
 	}
 
 	void SipRequestFirstLine::parseVersion()
