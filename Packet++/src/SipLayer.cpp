@@ -175,7 +175,7 @@ namespace pcpp
 
 		if (sipParseResult == SipLayer::SipParseResult::Request)
 		{
-			if (SipRequestFirstLine::parseFirstLine(reinterpret_cast<char*>(data), dataLen).isValid)
+			if (SipRequestFirstLine::parseFirstLine(reinterpret_cast<char*>(data), dataLen).first)
 			{
 				return new SipRequestLayer(data, dataLen, prevLayer, packet);
 			}
@@ -296,14 +296,15 @@ namespace pcpp
 		return methodAdEnum->second;
 	}
 
-	SipRequestFirstLine::SipFirstLineData SipRequestFirstLine::parseFirstLine(const char* data, size_t dataLen)
+	std::pair<bool, SipRequestFirstLine::SipFirstLineData> SipRequestFirstLine::parseFirstLine(const char* data,
+	                                                                                           size_t dataLen)
 	{
-		SipFirstLineData result = { "", "", "", false };
+		SipFirstLineData result = { "", "", "" };
 
 		if (data == nullptr || dataLen == 0)
 		{
 			PCPP_LOG_DEBUG("Empty data in SIP request line");
-			return result;
+			return { false, result };
 		}
 
 		// Find first space (end of METHOD)
@@ -316,7 +317,7 @@ namespace pcpp
 		if (firstSpaceIndex == 0 || firstSpaceIndex == dataLen)
 		{
 			PCPP_LOG_DEBUG("Invalid METHOD in SIP request line");
-			return result;
+			return { false, result };
 		}
 
 		// Validate method exists in SipMethodStringToEnum
@@ -325,7 +326,7 @@ namespace pcpp
 		if (methodIt == SipMethodStringToEnum.end())
 		{
 			PCPP_LOG_DEBUG("Unknown SIP method");
-			return result;
+			return { false, result };
 		}
 
 		// Find second space (end of URI)
@@ -336,14 +337,14 @@ namespace pcpp
 		if (secondSpaceIndex == dataLen)
 		{
 			PCPP_LOG_DEBUG("No space before version");
-			return result;
+			return { false, result };
 		}
 
 		size_t uriLen = secondSpaceIndex - firstSpaceIndex - 1;
 		if (uriLen == 0)
 		{
 			PCPP_LOG_DEBUG("Empty URI");
-			return result;
+			return { false, result };
 		}
 
 		// Find end of line
@@ -356,23 +357,22 @@ namespace pcpp
 		if (versionLen < 7)
 		{
 			PCPP_LOG_DEBUG("Version too short");
-			return result;
+			return { false, result };
 		}
 
 		const char* versionStart = data + secondSpaceIndex + 1;
 		if (versionStart[0] != 'S' || versionStart[1] != 'I' || versionStart[2] != 'P' || versionStart[3] != '/')
 		{
 			PCPP_LOG_DEBUG("Invalid SIP version format");
-			return result;
+			return { false, result };
 		}
 
 		// All validations passed
 		result.method = methodStr;
 		result.uri = std::string{ data + firstSpaceIndex + 1, uriLen };
 		result.version = std::string{ versionStart, versionLen };
-		result.isValid = true;
 
-		return result;
+		return { true, result };
 	}
 
 	void SipRequestFirstLine::parseVersion()

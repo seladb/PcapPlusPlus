@@ -535,13 +535,12 @@ namespace pcpp
 
 	public:
 		/// A structure containing parsed components from a SIP request first line.
-		/// All string fields are empty if isValid is false
+		/// All string fields are empty if parsing fails
 		struct SipFirstLineData
 		{
 			std::string method;   ///< The SIP method (e.g., INVITE, REGISTER, BYE)
 			std::string uri;      ///< The Request-URI destinati
 			std::string version;  ///< The SIP protocol version (e.g., SIP/2.0)
-			bool isValid;         ///< True if parsing succeeded, false otherwise
 		};
 
 		/// @return The SIP request method
@@ -580,10 +579,9 @@ namespace pcpp
 		/// A static method for parsing the complete SIP request first line from raw data
 		/// @param[in] data The raw data containing the SIP request line
 		/// @param[in] dataLen The raw data length
-		/// @return A SipFirstLineData struct containing the parsed method, URI, and version.
-		/// The isValid field indicates whether parsing succeeded. If parsing fails,
-		/// all string fields are empty and isValid is false
-		static SipFirstLineData parseFirstLine(const char* data, size_t dataLen);
+		/// @return A pair where first indicates success/failure, and second contains the parsed data.
+		/// If parsing fails, first is false and second contains empty strings
+		static std::pair<bool, SipFirstLineData> parseFirstLine(const char* data, size_t dataLen);
 
 		/// @return The size in bytes of the SIP request first line
 		int getSize() const
