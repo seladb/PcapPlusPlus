@@ -368,7 +368,7 @@ namespace pcpp
 		}
 
 		// All validations passed
-		result.method = methodStr;
+		result.method = std::move(methodStr);
 		result.uri = std::string{ data + firstSpaceIndex + 1, uriLen };
 		result.version = std::string{ versionStart, versionLen };
 
