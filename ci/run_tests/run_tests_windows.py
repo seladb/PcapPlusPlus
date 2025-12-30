@@ -35,7 +35,7 @@ def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, No
     npf_guids = set()
     for row in tcp_result.stdout.decode("utf-8").split("\n")[2::2]:
         columns = row.split("\t")
-        if len(columns) > 1 and columns[1].startswith("\\Device\\NPF"):
+        if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
             npf_guids.add(columns[1].lstrip("\\Device\\NPF_"))
 
     all_interfaces = scapy.arch.windows.get_windows_if_list()
