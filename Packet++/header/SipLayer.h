@@ -539,7 +539,7 @@ namespace pcpp
 		struct SipFirstLineData
 		{
 			std::string method;   ///< The SIP method (e.g., INVITE, REGISTER, BYE)
-			std::string uri;      ///< The Request-URI destinati
+			std::string uri;      ///< The Request-URI destination
 			std::string version;  ///< The SIP protocol version (e.g., SIP/2.0)
 		};
 
