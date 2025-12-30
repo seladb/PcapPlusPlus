@@ -74,7 +74,7 @@ def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, No
 @contextmanager
 def tcp_replay_worker(interface: str, tcpreplay_dir: Path, source_pcap: Path):
     tcpreplay_proc = subprocess.Popen(
-        f'tcpreplay.exe -i "{interface}" --mbps=10 -l 0 {source_pcap}',
+        ["tcpreplay.exe", "-i", interface, "--mbps=10", "-l", "0", str(source_pcap)],
         cwd=tcpreplay_dir,
     )
 
@@ -129,7 +129,7 @@ class Runner:
         exe_path = (self.build_dir / self.pcap_test_path).resolve()
         work_dir = exe_path.parent
 
-        logging.debug('Searching suitable interface')
+        logging.debug("Searching suitable interface")
         interface, ip_address = find_first_connected_interface()
         if not interface or not ip_address:
             raise RuntimeError("Cannot find an interface to run tests on!")
@@ -141,7 +141,7 @@ class Runner:
         with tcp_replay_worker(
             interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap
         ):
-            logging.info(f'Running tests for {exe_path} in {work_dir}')
+            logging.info(f"Running tests for {exe_path} in {work_dir}")
             subprocess.run(
                 [
                     str(exe_path),
@@ -158,7 +158,7 @@ class Runner:
         exe_path = (self.build_dir / self.pcap_test_path).resolve()
         work_dir = exe_path.parent
 
-        logging.debug('Searching suitable interface')
+        logging.debug("Searching suitable interface")
         interface, ip_address = find_first_connected_interface()
         if not interface or not ip_address:
             raise RuntimeError("Cannot find an interface to run tests on!")
@@ -169,7 +169,7 @@ class Runner:
         with tcp_replay_worker(
             interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap
         ):
-            logging.info(f'Running coverage for {exe_path} in {work_dir}')
+            logging.info(f"Running coverage for {exe_path} in {work_dir}")
             subprocess.run(
                 [
                     "OpenCppCoverage.exe",
@@ -235,7 +235,9 @@ def main():
         type=str,
         help="Custom path to Pcap++ test executable. Can be relative to the build directory.",
     )
-    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose logging output')
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose logging output"
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
