@@ -381,7 +381,8 @@ namespace pcpp
 		/// @param fileName The file name to create the reader for.
 		/// @param outDevice A pointer to store the created device.
 		/// @return A TryCreateReaderResult value indicating the result of the operation.
-		TryCreateReaderResult tryCreateReaderInternal(const std::string& fileName, std::unique_ptr<IFileReaderDevice>& outDevice)
+		TryCreateReaderResult tryCreateReaderInternal(const std::string& fileName,
+		                                              std::unique_ptr<IFileReaderDevice>& outDevice)
 		{
 			std::ifstream fileContent(fileName, std::ios_base::binary);
 			if (fileContent.fail())
@@ -503,14 +504,12 @@ namespace pcpp
 		}
 		case TryCreateReaderResult::NoPlatformNanoSupport:
 		{
-			PCPP_LOG_ERROR(
-				"Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
+			PCPP_LOG_ERROR("Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
 			return nullptr;
 		}
 		case TryCreateReaderResult::NoPlatformZstdSupport:
 		{
-			PCPP_LOG_ERROR(
-				"PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+			PCPP_LOG_ERROR("PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
 			return nullptr;
 		}
 		default:

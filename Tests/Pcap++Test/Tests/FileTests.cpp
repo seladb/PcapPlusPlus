@@ -117,12 +117,11 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		writeContents("PcapExamples/file_heuristics/temp/unknown_test.tmp", reinterpret_cast<const char*>(&testCase),
 		              sizeof(testCase));
 
-		PTF_ASSERT_RAISES(
-		    pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/unknown_test.tmp"),
-		    std::runtime_error, "File format of PcapExamples/file_heuristics/temp/unknown_test.tmp is not supported");
+		PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/unknown_test.tmp"),
+		                  std::runtime_error,
+		                  "File format of PcapExamples/file_heuristics/temp/unknown_test.tmp is not supported");
 
-		auto dev =
-		    pcpp::IFileReaderDevice::tryCreateReader("PcapExamples/file_heuristics/temp/unknown_test.tmp");
+		auto dev = pcpp::IFileReaderDevice::tryCreateReader("PcapExamples/file_heuristics/temp/unknown_test.tmp");
 		PTF_ASSERT_NULL(dev);
 	}
 
