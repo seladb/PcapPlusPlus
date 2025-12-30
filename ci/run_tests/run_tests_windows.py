@@ -20,6 +20,7 @@ def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, No
         return subprocess.run(
             ["tcpreplay.exe", "--listnics"],
             capture_output=True,
+            shell=True,
             cwd=TCPREPLAY_PATH,
             check=True,
         )
