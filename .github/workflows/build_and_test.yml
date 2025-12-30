@@ -665,6 +665,8 @@ jobs:
           echo "ZSTD_HOME_PARAM=-z C:\zstd" >> $env:GITHUB_ENV
         if: matrix.use_zstd == true
 
+        # The visual studio generator is a multi-config generator. This means that the executable will be in a configuration subfolder (e.g., Debug or Release),
+        # relative to the target folder. Example: $(BuildDir)/Test/Packet++Test/Debug/Packet++Test.exe
       - name: Configure PcapPlusPlus
         run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B "$env:BUILD_DIR"
 
@@ -677,7 +679,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --coverage --build-dir $env:BUILD_DIR
+          python ci\run_tests\run_tests_windows.py --coverage --build-dir $env:BUILD_DIR --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
       - name: Test Examples
         run: |
@@ -716,6 +718,8 @@ jobs:
         shell: pwsh
         run: .\ci\install_windivert.ps1 -Target "$env:WINDIVERT_DIR"
 
+        # The visual studio generator is a multi-config generator. This means that the executable will be in a configuration subfolder (e.g., Debug or Release),
+        # relative to the target folder. Example: $(BuildDir)/Test/Packet++Test/Debug/Packet++Test.exe
       - name: Configure PcapPlusPlus (WinDivert)
         run: cmake -A x64 -G "Visual Studio 17 2022" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DPCAPPP_USE_WINDIVERT=ON -DWinDivert_ROOT=${{ env.WINDIVERT_DIR }} -S . -B "$env:BUILD_DIR"
 
@@ -725,14 +729,17 @@ jobs:
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
 
-      - name: Test PcapPlusPlus
+      - name: Copy WinDivert files to test folder
         shell: pwsh
         run: |
-          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "$env:BUILD_DIR\Tests\Pcap++Test\WinDivert.dll" -Force
-          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert64.sys" "$env:BUILD_DIR\Tests\Pcap++Test\WinDivert64.sys" -Force
-
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "$env:BUILD_DIR\Tests\Pcap++Test\Debug\WinDivert.dll" -Force
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert64.sys" "$env:BUILD_DIR\Tests\Pcap++Test\Debug\WinDivert64.sys" -Force
+            
+      - name: Test PcapPlusPlus
+        shell: pwsh
+        run:
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --include-tests windivert --build-dir "$env:BUILD_DIR"
+          python ci\run_tests\run_tests_windows.py --include-tests windivert --build-dir "$env:BUILD_DIR" --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
   freebsd:
     runs-on: ubuntu-latest
