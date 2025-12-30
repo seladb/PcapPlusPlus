@@ -56,7 +56,7 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		writeContents("PcapExamples/file_heuristics/temp/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
 		              sizeof(testCase));
 
-		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp", false);
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp");
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 	}
 
@@ -72,7 +72,7 @@ PTF_TEST_CASE(TestFileFormatDetector)
 			writeContents("PcapExamples/file_heuristics/temp/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
 			              sizeof(testCase));
 
-			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp", false);
+			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp");
 			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 		}
 	}
@@ -86,7 +86,7 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		writeContents("PcapExamples/file_heuristics/temp/pcapng_test.tmp", reinterpret_cast<const char*>(&testCase),
 		              sizeof(testCase));
 
-		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcapng_test.tmp", false);
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcapng_test.tmp");
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 	}
 
@@ -101,7 +101,7 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		{
 			writeContents("PcapExamples/file_heuristics/temp/zstd_test.tmp", reinterpret_cast<const char*>(&testCase),
 			              sizeof(testCase));
-			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/zstd_test.tmp", false);
+			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/zstd_test.tmp");
 			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 		}
 	}
@@ -118,11 +118,11 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		              sizeof(testCase));
 
 		PTF_ASSERT_RAISES(
-		    pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/unknown_test.tmp", false),
+		    pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/unknown_test.tmp"),
 		    std::runtime_error, "File format of PcapExamples/file_heuristics/temp/unknown_test.tmp is not supported");
 
 		auto dev =
-		    pcpp::IFileReaderDevice::tryCreateReader("PcapExamples/file_heuristics/temp/unknown_test.tmp", false);
+		    pcpp::IFileReaderDevice::tryCreateReader("PcapExamples/file_heuristics/temp/unknown_test.tmp");
 		PTF_ASSERT_NULL(dev);
 	}
 
@@ -137,7 +137,7 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		writeContents("PcapExamples/file_heuristics/temp/snoop_test.tmp", reinterpret_cast<const char*>(&testCase),
 		              sizeof(testCase));
 
-		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/snoop_test.tmp", false);
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/snoop_test.tmp");
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
 	}
 }
@@ -159,19 +159,13 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
 		dev = pcpp::IFileReaderDevice::createReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
-		PTF_ASSERT_TRUE(dev->isOpened());
+		PTF_ASSERT_TRUE(dev->open());
 
 		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
-		PTF_ASSERT_TRUE(dev->isOpened());
+		PTF_ASSERT_TRUE(dev->open());
 	}
-
-	// Test with openDevice = false
-	dev = pcpp::IFileReaderDevice::createReader(PCAP_MICROSEC_FILE_PATH, false);
-	PTF_ASSERT_NOT_NULL(dev);
-	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_FALSE(dev->isOpened());
 }
 
 PTF_TEST_CASE(TestReaderFactory_Pcap_Nano)
@@ -186,12 +180,12 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Nano)
 	auto dev = pcpp::IFileReaderDevice::createReader(PCAP_NANOSEC_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_TRUE(dev->isOpened());
+	PTF_ASSERT_TRUE(dev->open());
 
 	dev = pcpp::IFileReaderDevice::tryCreateReader(PCAP_NANOSEC_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_TRUE(dev->isOpened());
+	PTF_ASSERT_TRUE(dev->open());
 }
 
 PTF_TEST_CASE(TestReaderFactory_Pcap_Nano_Unsupported)
@@ -227,12 +221,12 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG)
 		dev = pcpp::IFileReaderDevice::createReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
-		PTF_ASSERT_TRUE(dev->isOpened());
+		PTF_ASSERT_TRUE(dev->open());
 
 		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
 		PTF_ASSERT_NOT_NULL(dev);
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
-		PTF_ASSERT_TRUE(dev->isOpened());
+		PTF_ASSERT_TRUE(dev->open());
 	}
 }
 
@@ -248,12 +242,12 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST)
 	auto dev = pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_TRUE(dev->isOpened());
+	PTF_ASSERT_TRUE(dev->open());
 
 	dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_ZST_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_TRUE(dev->isOpened());
+	PTF_ASSERT_TRUE(dev->open());
 }
 
 PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
@@ -279,12 +273,12 @@ PTF_TEST_CASE(TestReaderFactory_Snoop)
 	auto dev = pcpp::IFileReaderDevice::createReader(SNOOP_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_TRUE(dev->isOpened());
+	PTF_ASSERT_TRUE(dev->open());
 
 	dev = pcpp::IFileReaderDevice::tryCreateReader(SNOOP_FILE_PATH);
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
-	PTF_ASSERT_TRUE(dev->isOpened());
+	PTF_ASSERT_TRUE(dev->open());
 }
 
 PTF_TEST_CASE(TestReaderFactory_InvalidFile)

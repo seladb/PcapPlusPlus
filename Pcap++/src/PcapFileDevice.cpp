@@ -15,6 +15,8 @@
 #include <istream>
 #include <iterator>
 
+#include "AssertionUtils.h"
+
 namespace pcpp
 {
 	namespace
@@ -363,81 +365,160 @@ namespace pcpp
 		return new PcapFileReaderDevice(fileName);
 	}
 
-	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName, bool openDevice)
+	namespace
 	{
-		std::ifstream fileContent(fileName, std::ios_base::binary);
-		if (fileContent.fail())
+		enum class TryCreateReaderResult
+		{
+			Success,
+			Failure,
+			FileNotFound,
+			UnsupportedFileFormat,
+			NoPlatformNanoSupport,
+			NoPlatformZstdSupport,
+		};
+
+		/// @brief Tries to create a file reader device for the given file name.
+		/// @param fileName The file name to create the reader for.
+		/// @param outDevice A pointer to store the created device.
+		/// @return A TryCreateReaderResult value indicating the result of the operation.
+		TryCreateReaderResult tryCreateReaderInternal(const std::string& fileName, std::unique_ptr<IFileReaderDevice>& outDevice)
+		{
+			std::ifstream fileContent(fileName, std::ios_base::binary);
+			if (fileContent.fail())
+			{
+				return TryCreateReaderResult::FileNotFound;
+			}
+
+			switch (CaptureFileFormatDetector().detectFormat(fileContent))
+			{
+			case CaptureFileFormat::PcapNano:
+			{
+				if (!checkNanoSupport())
+				{
+					return TryCreateReaderResult::NoPlatformNanoSupport;
+				}
+				// fallthrough
+			}
+			case CaptureFileFormat::Pcap:
+			case CaptureFileFormat::PcapMod:
+			{
+				// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
+				outDevice = std::make_unique<PcapFileReaderDevice>(fileName);
+				break;
+			}
+			case CaptureFileFormat::ZstArchive:
+			{
+				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
+				if (!checkZstdSupport())
+				{
+					return TryCreateReaderResult::NoPlatformZstdSupport;
+				}
+				// fallthrough
+			}
+			case CaptureFileFormat::PcapNG:
+			{
+				outDevice = std::make_unique<PcapNgFileReaderDevice>(fileName);
+				break;
+			}
+			case CaptureFileFormat::Snoop:
+			{
+				outDevice = std::make_unique<SnoopFileReaderDevice>(fileName);
+				break;
+			}
+			default:
+				return TryCreateReaderResult::UnsupportedFileFormat;
+			}
+
+			return TryCreateReaderResult::Success;
+		}
+	}  // namespace
+
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName)
+	{
+		std::unique_ptr<IFileReaderDevice> readerDev;
+		TryCreateReaderResult result = tryCreateReaderInternal(fileName, readerDev);
+
+		switch (result)
+		{
+		case TryCreateReaderResult::Success:
+		{
+			PCPP_ASSERT(readerDev != nullptr, "Reader device should not be null upon success");
+			return readerDev;
+		}
+		case TryCreateReaderResult::Failure:
+		{
+			// Generic failure
+			throw std::runtime_error("Could not create reader for file: " + fileName);
+		}
+		case TryCreateReaderResult::FileNotFound:
 		{
 			throw std::runtime_error("Could not open file: " + fileName);
 		}
-
-		std::unique_ptr<IFileReaderDevice> readerDev;
-		switch (CaptureFileFormatDetector().detectFormat(fileContent))
+		case TryCreateReaderResult::UnsupportedFileFormat:
 		{
-		case CaptureFileFormat::PcapNano:
-		{
-			if (!checkNanoSupport())
-			{
-				throw std::runtime_error(
-				    "Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
-			}
-			// fallthrough
-		}
-		case CaptureFileFormat::Pcap:
-		case CaptureFileFormat::PcapMod:
-		{
-			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
-			readerDev = std::make_unique<PcapFileReaderDevice>(fileName);
-			break;
-		}
-		case CaptureFileFormat::ZstArchive:
-		{
-			// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
-			if (!checkZstdSupport())
-			{
-				throw std::runtime_error(
-				    "PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
-			}
-			// fallthrough
-		}
-		case CaptureFileFormat::PcapNG:
-		{
-			readerDev = std::make_unique<PcapNgFileReaderDevice>(fileName);
-			break;
-		}
-		case CaptureFileFormat::Snoop:
-		{
-			readerDev = std::make_unique<SnoopFileReaderDevice>(fileName);
-			break;
-		}
-		default:
 			throw std::runtime_error("File format of " + fileName + " is not supported");
 		}
-
-		if (!readerDev)
+		case TryCreateReaderResult::NoPlatformNanoSupport:
 		{
-			throw std::logic_error("Internal error: reader device is null for file: " + fileName);
+			throw std::runtime_error(
+			    "Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
 		}
-
-		if (openDevice && !readerDev->open())
+		case TryCreateReaderResult::NoPlatformZstdSupport:
 		{
-			throw std::runtime_error("Could not open device for file: " + fileName);
+			throw std::runtime_error("PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
 		}
-
-		return readerDev;
+		default:
+			// Should never happen
+			throw std::logic_error("Internal error: Unexpected result type: TryCreateReaderResult");
+		}
 	}
 
-	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::tryCreateReader(const std::string& fileName, bool openDevice)
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::tryCreateReader(const std::string& fileName)
 	{
-		// Not the best implementation, but it is not expected to be called in hot loops
-		try
+		std::unique_ptr<IFileReaderDevice> readerDev;
+		TryCreateReaderResult result = tryCreateReaderInternal(fileName, readerDev);
+
+		switch (result)
 		{
-			return createReader(fileName, openDevice);
+		case TryCreateReaderResult::Success:
+		{
+			PCPP_ASSERT(readerDev != nullptr, "Reader device should not be null upon success");
+			return readerDev;
 		}
-		catch (const std::exception& e)
+		case TryCreateReaderResult::Failure:
 		{
-			PCPP_LOG_ERROR(e.what());
+			// Generic failure
+			PCPP_LOG_ERROR("Could not create reader for file: " << fileName);
 			return nullptr;
+		}
+		case TryCreateReaderResult::FileNotFound:
+		{
+			PCPP_LOG_ERROR("Could not open file: " << fileName);
+			return nullptr;
+		}
+		case TryCreateReaderResult::UnsupportedFileFormat:
+		{
+			PCPP_LOG_ERROR("File format of " << fileName << " is not supported");
+			return nullptr;
+		}
+		case TryCreateReaderResult::NoPlatformNanoSupport:
+		{
+			PCPP_LOG_ERROR(
+				"Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
+			return nullptr;
+		}
+		case TryCreateReaderResult::NoPlatformZstdSupport:
+		{
+			PCPP_LOG_ERROR(
+				"PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+			return nullptr;
+		}
+		default:
+		{
+			// Should never happen
+			PCPP_ASSERT(false, "Internal error: Unexpected result type: TryCreateReaderResult");
+			return nullptr;
+		}
 		}
 	}
 

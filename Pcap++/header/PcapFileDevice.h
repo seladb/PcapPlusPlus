@@ -138,7 +138,7 @@ namespace pcpp
 		/// @param[in] openDevice Whether to open the device upon creation. Default is true.
 		/// @return A unique pointer to a reader instance
 		/// @throws std::runtime_error If the file could not be opened or unsupported.
-		static std::unique_ptr<IFileReaderDevice> createReader(const std::string& fileName, bool openDevice = true);
+		static std::unique_ptr<IFileReaderDevice> createReader(const std::string& fileName);
 
 		/// @brief Tries to create an instance of the reader best fit to read the file and optionally opens it.
 		///
@@ -148,7 +148,7 @@ namespace pcpp
 		/// @param fileName The path to the file to open.
 		/// @param openDevice Whether to open the device upon creation. Default is true.
 		/// @return A unique pointer to a reader instance, or nullptr if the file could not be opened or unsupported.
-		static std::unique_ptr<IFileReaderDevice> tryCreateReader(const std::string& fileName, bool openDevice = true);
+		static std::unique_ptr<IFileReaderDevice> tryCreateReader(const std::string& fileName);
 	};
 
 	/// @class IFileWriterDevice
