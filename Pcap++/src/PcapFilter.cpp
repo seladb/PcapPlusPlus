@@ -53,6 +53,8 @@ namespace pcpp
 			return true;
 		}
 
+		linkType = (linkType == LINKTYPE_RAW ? LINKTYPE_DLT_RAW1 : linkType);
+
 		if (filter != m_FilterStr || linkType != m_CachedProgramLinkType)
 		{
 			auto newProgram = compileFilter(filter, linkType);
@@ -98,6 +100,8 @@ namespace pcpp
 	{
 		if (m_FilterStr.empty())
 			return true;
+
+		linkType = (linkType == LINKTYPE_RAW ? LINKTYPE_DLT_RAW1 : linkType);
 
 		// Handle uncompiled program or link type mismatch
 		if (m_CachedProgram == nullptr || linkType != static_cast<uint16_t>(m_CachedProgramLinkType))

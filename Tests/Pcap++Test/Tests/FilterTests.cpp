@@ -834,7 +834,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 			    "host " + ip4layer->getDstIPAddress().toString());  // checking against real filter, not the "" filter
 			if (bpfStringFilter.matches(*rawPacketPtr))
 			{
-				if (rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_DLT_RAW1)
+				if (rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_RAW)
 				{
 					++validCounter;
 				}
