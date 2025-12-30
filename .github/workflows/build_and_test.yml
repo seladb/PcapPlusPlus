@@ -737,7 +737,7 @@ jobs:
             
       - name: Test PcapPlusPlus
         shell: pwsh
-        run:
+        run: |
           python -m pip install -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --include-tests windivert --build-dir "$env:BUILD_DIR" --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
