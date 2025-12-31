@@ -140,7 +140,7 @@ std::vector<uint8_t> createPcapPacketHeader(
 	                : std::chrono::duration_cast<std::chrono::microseconds>(subSec).count();
 	packet_header header = { static_cast<uint32_t>(sec), static_cast<uint32_t>(nsec), 1514, 1514 };
 
-	for (auto& param : params)
+	for (const auto& param : params)
 	{
 		switch (param.first)
 		{
