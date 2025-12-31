@@ -387,7 +387,7 @@ namespace pcpp
 		auto packetData = std::make_unique<uint8_t[]>(m_SnapshotLength);
 		uint32_t capturedLength = 0, frameLength = 0;
 
-		while (readNextPacket(packetTimestamp, packetData.get(), capturedLength, frameLength))
+		while (readNextPacket(packetTimestamp, packetData.get(), m_SnapshotLength, capturedLength, frameLength))
 		{
 			if (m_BpfWrapper.matches(packetData.get(), capturedLength, packetTimestamp, m_PcapLinkLayerType))
 			{
@@ -418,8 +418,8 @@ namespace pcpp
 		return m_BpfWrapper.setFilter(*filterAsString);
 	}
 
-	bool PcapFileReaderDevice::readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t& capturedLength,
-	                                          uint32_t& frameLength)
+	bool PcapFileReaderDevice::readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
+	                                          uint32_t& capturedLength, uint32_t& frameLength)
 	{
 		packet_header packetHeader{};
 		m_PcapFile.read(reinterpret_cast<char*>(&packetHeader), sizeof(packetHeader));
@@ -442,13 +442,6 @@ namespace pcpp
 			packetHeader.tv_usec = swap32(packetHeader.tv_usec);
 			packetHeader.caplen = swap32(packetHeader.caplen);
 			packetHeader.len = swap32(packetHeader.len);
-		}
-
-		if (packetHeader.caplen > m_SnapshotLength)
-		{
-			PCPP_LOG_ERROR("Packet captured length " << packetHeader.caplen << " exceeds file snapshot length "
-			                                         << m_SnapshotLength);
-			return false;
 		}
 
 		if (packetHeader.caplen > packetHeader.len)
@@ -484,16 +477,28 @@ namespace pcpp
 			}
 		}
 
-		capturedLength = packetHeader.caplen;
-		if (capturedLength > 0)
+		uint32_t bytesToDiscard = 0;
+		if (packetHeader.caplen > packetDataLen)
 		{
-			if (!m_PcapFile.read(reinterpret_cast<char*>(packetData), packetHeader.caplen))
-			{
-				PCPP_LOG_ERROR("Failed to read packet data");
-				return false;
-			}
+			PCPP_LOG_WARN("Packet captured length " << packetHeader.caplen << " exceeds file snapshot length "
+			                                        << packetDataLen);
+			bytesToDiscard = packetHeader.caplen - packetDataLen;
+			packetHeader.caplen = packetDataLen;
 		}
 
+		if (packetHeader.caplen > 0 && !m_PcapFile.read(reinterpret_cast<char*>(packetData), packetHeader.caplen))
+		{
+			PCPP_LOG_ERROR("Failed to read packet data");
+			return false;
+		}
+
+		if (bytesToDiscard && !m_PcapFile.ignore(bytesToDiscard))
+		{
+			PCPP_LOG_ERROR("Failed to read discarded packet data");
+			return false;
+		}
+
+		capturedLength = packetHeader.caplen;
 		frameLength = packetHeader.len;
 		packetTimestamp = { static_cast<time_t>(packetHeader.tv_sec),
 			                static_cast<long>(m_Precision == FileTimestampPrecision::Microseconds

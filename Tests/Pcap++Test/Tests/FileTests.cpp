@@ -587,22 +587,36 @@ PTF_TEST_CASE(TestPcapFileReadAdv)
 
 	// Snapshot length is smaller than packet length
 	{
+		constexpr uint32_t snapshotLen = 2;
+
 		TempFile pcapFile("pcap");
 		pcapFile << createPcapHeader({
-		    { PcapHeaderParam::Snaplen, 1 }
+		    { PcapHeaderParam::Snaplen, snapshotLen }
         });
 
 		pcapFile << createPcapPacketHeader({
 		    { PcapPacketHeaderParam::Caplen, packetData.size() }
         });
+		pcapFile << packetData;
+
+		std::array<uint8_t, snapshotLen> secondPacketData = { 0x11, 0x12 };
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, secondPacketData.size() }
+        });
+		pcapFile << secondPacketData;
 
 		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
 		PTF_ASSERT_TRUE(reader.open());
 
 		pcpp::RawPacket rawPacket;
-		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket));
-		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
-		                 "Packet captured length 5 exceeds file snapshot length 1");
+
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), snapshotLen);
+		PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), packetData.data(), snapshotLen);
+
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), snapshotLen);
+		PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), secondPacketData.data(), snapshotLen);
 	}
 
 	// Captured length is smaller than actual length

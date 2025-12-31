@@ -219,8 +219,8 @@ namespace pcpp
 		uint32_t m_SnapshotLength = 0;
 		BpfFilterWrapper m_BpfWrapper;
 
-		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t& capturedLength,
-		                    uint32_t& frameLength);
+		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
+		                    uint32_t& capturedLength, uint32_t& frameLength);
 	};
 
 	/// @class PcapFileWriterDevice
