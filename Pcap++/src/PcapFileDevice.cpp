@@ -63,18 +63,6 @@ namespace pcpp
 		uint32_t len;
 	};
 
-	static bool checkNanoSupport()
-	{
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-		return true;
-#else
-		PCPP_LOG_DEBUG(
-		    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-		    "recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
-		return false;
-#endif
-	}
-
 	LinkLayerType toLinkLayerType(uint32_t value)
 	{
 		switch (value)
@@ -442,7 +430,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (bytesRead < sizeof(packetHeader))
+		if (static_cast<size_t>(bytesRead) < sizeof(packetHeader))
 		{
 			PCPP_LOG_ERROR("Failed to read packet metadata");
 			return false;
@@ -507,9 +495,10 @@ namespace pcpp
 		}
 
 		frameLength = packetHeader.len;
-		packetTimestamp = { packetHeader.tv_sec, static_cast<long>(m_Precision == FileTimestampPrecision::Microseconds
-			                                                           ? packetHeader.tv_usec * 1000
-			                                                           : packetHeader.tv_usec) };
+		packetTimestamp = { static_cast<time_t>(packetHeader.tv_sec),
+			                static_cast<long>(m_Precision == FileTimestampPrecision::Microseconds
+			                                      ? packetHeader.tv_usec * 1000
+			                                      : packetHeader.tv_usec) };
 		return true;
 	}
 

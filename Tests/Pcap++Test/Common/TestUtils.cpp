@@ -107,8 +107,8 @@ void testSetUp()
 }
 
 TempFile::TempFile(const std::string& extension, const std::string& name, bool open)
+    : m_Filename((name.empty() ? generateRandomName() : name) + "." + extension)
 {
-	m_Filename = (name.empty() ? generateRandomName() : name) + "." + extension;
 	if (!open)
 	{
 		return;

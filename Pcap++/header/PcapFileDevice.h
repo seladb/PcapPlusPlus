@@ -293,7 +293,6 @@ namespace pcpp
 
 	private:
 		LinkLayerType m_PcapLinkLayerType = LINKTYPE_ETHERNET;
-		bool m_AppendMode = false;
 		bool m_NeedsSwap = false;
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;
 		std::ofstream m_PcapFile;

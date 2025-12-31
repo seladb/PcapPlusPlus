@@ -38,15 +38,15 @@ public:
 	}
 };
 
-class SupressLogs
+class SuppressLogs
 {
 public:
-	SupressLogs()
+	SuppressLogs()
 	{
 		pcpp::Logger::getInstance().suppressLogs();
 	}
 
-	~SupressLogs()
+	~SuppressLogs()
 	{
 		pcpp::Logger::getInstance().enableLogs();
 	}

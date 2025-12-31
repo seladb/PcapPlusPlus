@@ -362,7 +362,7 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 
 PTF_TEST_CASE(TestPcapFileReadAdv)
 {
-	SupressLogs logSuppress;
+	SuppressLogs logSuppress;
 
 	std::array<uint8_t, 5> packetData = { 0x1, 0x2, 0x3, 0x4, 0x5 };
 
@@ -715,7 +715,7 @@ PTF_TEST_CASE(TestPcapFileReadAdv)
 
 PTF_TEST_CASE(TestPcapFileWriteAdv)
 {
-	SupressLogs logSuppress;
+	SuppressLogs logSuppress;
 
 	std::array<uint8_t, 5> packetData = { 0x00, 0x01, 0x02, 0x03, 0x04 };
 	pcpp::RawPacket rawPacket(packetData.data(), packetData.size(), timespec({ 1, 1234 }), false);
@@ -1083,7 +1083,7 @@ PTF_TEST_CASE(TestPcapFileAppend)
 
 		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
 
-		SupressLogs logSuppress;
+		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Malformed file header or not a pcap file");
 	}
@@ -1100,7 +1100,7 @@ PTF_TEST_CASE(TestPcapFileAppend)
 		// Create the device with microseconds precision
 		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
 
-		SupressLogs logSuppress;
+		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
 		PTF_ASSERT_EQUAL(
 		    pcpp::Logger::getInstance().getLastError(),
@@ -1118,7 +1118,7 @@ PTF_TEST_CASE(TestPcapFileAppend)
 		// Create the device with the default link type (Ethernet)
 		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
 
-		SupressLogs logSuppress;
+		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
 		                 "Existing file link type does not match the requested device link type");
@@ -1134,7 +1134,7 @@ PTF_TEST_CASE(TestPcapFileAppend)
 
 		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
 
-		SupressLogs logSuppress;
+		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Unsupported pcap file format");
 	}
@@ -1149,7 +1149,7 @@ PTF_TEST_CASE(TestPcapFileAppend)
 
 		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
 
-		SupressLogs logSuppress;
+		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Unsupported pcap file version");
 	}
