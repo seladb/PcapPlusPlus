@@ -248,8 +248,8 @@ namespace pcpp
 #else
 		struct timeval ts = pkthdr.ts;
 #endif
-		if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType),
-		                          pkthdr.len))
+		if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, true, ts,
+		                          static_cast<LinkLayerType>(m_PcapLinkLayerType), pkthdr.len))
 		{
 			PCPP_LOG_ERROR("Couldn't set data to raw packet");
 			return false;
@@ -598,7 +598,7 @@ namespace pcpp
 			PCPP_LOG_ERROR("Link layer type of raw packet could not be determined");
 		}
 
-		if (!rawPacket.setRawData(myPacketData, pktHeader.captured_length, pktHeader.timestamp, linkType,
+		if (!rawPacket.setRawData(myPacketData, pktHeader.captured_length, true, pktHeader.timestamp, linkType,
 		                          pktHeader.original_length))
 		{
 			PCPP_LOG_ERROR("Couldn't set data to raw packet");
@@ -978,7 +978,7 @@ namespace pcpp
 		}
 		timespec ts = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)),
 			            static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
-		if (!rawPacket.setRawData((const uint8_t*)packetData.release(), packetSize, ts,
+		if (!rawPacket.setRawData((const uint8_t*)packetData.release(), packetSize, true, ts,
 		                          static_cast<LinkLayerType>(m_PcapLinkLayerType)))
 		{
 			PCPP_LOG_ERROR("Couldn't set data to raw packet");
