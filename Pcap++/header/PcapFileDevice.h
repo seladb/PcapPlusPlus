@@ -183,6 +183,15 @@ namespace pcpp
 			return m_SnapshotLength;
 		}
 
+		/// A static method that checks if nano-second precision is supported in the current platform and environment
+		/// @return True if nano-second precision is supported, false otherwise
+		/// @deprecated Nanosecond precision is now natively supported by the internal parser and always returns true
+		PCPP_DEPRECATED("Nanosecond precision is now natively supported by the internal parser and always returns true")
+		static bool isNanoSecondPrecisionSupported()
+		{
+			return true;
+		}
+
 		// overridden methods
 
 		/// Read the next packet from the file. Before using this method please verify the file is opened using open()
@@ -259,6 +268,15 @@ namespace pcpp
 		FileTimestampPrecision getTimestampPrecision() const
 		{
 			return m_Precision;
+		}
+
+		/// A static method that checks if nano-second precision is supported in the current platform and environment
+		/// @return True if nano-second precision is supported, false otherwise
+		/// @deprecated Nanosecond precision is now natively supported by the internal parser and always returns true
+		PCPP_DEPRECATED("Nanosecond precision is now natively supported by the internal parser and always returns true")
+		static bool isNanoSecondPrecisionSupported()
+		{
+			return true;
 		}
 
 		LinkLayerType getLinkLayerType() const
