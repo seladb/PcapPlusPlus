@@ -13,6 +13,7 @@
 #define SLL_PCAP_PATH "PcapExamples/sll.pcap"
 #define RAW_IP_PCAP_WRITE_PATH "PcapExamples/raw_ip_copy.pcap"
 #define RAW_IP_PCAP_PATH "PcapExamples/raw_ip.pcap"
+#define NULL_LOOPBACK_PCAP_PATH "PcapExamples/null_loopback.pcap"
 #define RAW_IP_PCAPNG_PATH "PcapExamples/raw_ip.pcapng"
 #define EXAMPLE_PCAPNG_PATH "PcapExamples/many_interfaces-1.pcapng"
 #define EXAMPLE2_PCAPNG_PATH "PcapExamples/pcapng-example.pcapng"
