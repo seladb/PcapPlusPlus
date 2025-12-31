@@ -168,10 +168,6 @@ namespace pcpp
 			Response = 2,
 		};
 
-		/// A heuristic method that attempts to identify SIP packets without fully parsing them
-		/// @param[in] data A pointer to the raw packet data
-		/// @param[in] dataLen Size of the data in bytes
-		/// @return A SipParseResult indicating whether the data is a SIP Request, Response, or Unknown
 		static SipParseResult detectSipMessageType(const uint8_t* data, size_t dataLen);
 	};
 

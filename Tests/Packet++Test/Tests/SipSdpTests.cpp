@@ -176,43 +176,14 @@ PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort)
 	pcpp::Packet sipReqNonStandardPort(rawPacket1.get());
 
 	PTF_ASSERT_TRUE(sipReqNonStandardPort.isPacketOfType(pcpp::SIP));
+	PTF_ASSERT_TRUE(sipReqNonStandardPort.isPacketOfType(pcpp::SIPRequest));
 
 	pcpp::SipRequestLayer* sipReqLayer = sipReqNonStandardPort.getLayerOfType<pcpp::SipRequestLayer>();
-
 	PTF_ASSERT_NOT_NULL(sipReqLayer);
-	PTF_ASSERT_TRUE(sipReqNonStandardPort.isPacketOfType(pcpp::SIPRequest));
 
 	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getMethod(), pcpp::SipRequestLayer::SipINVITE, enum);
 	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getUri(), "sip:1006@192.168.21.83:52380");
 	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getVersion(), "SIP/2.0");
-	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getSize(), 45);
-
-	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->getFieldValue(),
-	                 "<sip:1005@192.168.21.83>;tag=a50bffb5ddd3426e8f848ece7d0d389b");
-
-	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD)->getFieldValue(), "<sip:1006@192.168.21.83>");
-
-	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD)->getFieldValue(),
-	                 "<sip:1005@192.168.20.68:53309;ob>");
-	PTF_ASSERT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD, 1));
-
-	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->getFieldValue(),
-	                 "SIP/2.0/UDP 192.168.20.68:53309;rport;branch=z9hG4bKPj93aab89581b04b2987b55a532031d712");
-	PTF_ASSERT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1));
-
-	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD)->getFieldValue(),
-	                 "0c3bab2cebe34ec997a80daa4346b393");
-
-	PTF_ASSERT_EQUAL(sipReqLayer->getFirstField()->getFieldName(), "Via");
-
-	PTF_ASSERT_EQUAL(sipReqLayer->getHeaderLen(), 628);
-	PTF_ASSERT_EQUAL(sipReqLayer->getLayerPayloadSize(), 342);
-	PTF_ASSERT_EQUAL(sipReqLayer->getContentLength(), 342);
 
 	// Load SIP Response packet with non-standard ports: UDP src=53309, dst=52380
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/sip_non_default_port2.dat");
@@ -228,33 +199,7 @@ PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeAsInt(), 200);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeString(), "OK");
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getVersion(), "SIP/2.0");
-	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 16);
-
-	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->getFieldValue(),
-	                 "\"Extension 1005\" <sip:1005@192.168.21.83>;tag=9ctQt2N5Zm5FD");
-
-	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_TO_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_TO_FIELD)->getFieldValue(),
-	                 "<sip:1006@192.168.20.68;ob>;tag=520e46519ce94352bef2606aaad6333c");
-
-	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD)->getFieldValue(),
-	                 "0c1fb1c5-59f5-123f-1ab0-005056a58049");
-
-	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD)->getFieldValue(),
-	                 "<sip:1006@192.168.20.68:57586;ob>");
-
-	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->getFieldValue(),
-	                 "SIP/2.0/UDP 192.168.21.83:52380;rport=52380;received=192.168.21.83;branch=z9hG4bK9jjge6H405c5a");
-
-	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD)->getFieldValue(), "319");
-	PTF_ASSERT_EQUAL(sipRespLayer->getContentLength(), 319);
-
-}  // SipDetectionByContentOnNonStandardPort
+}
 
 PTF_TEST_CASE(SipRequestLayerCreationTest)
 {

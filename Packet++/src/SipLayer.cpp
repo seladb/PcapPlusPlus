@@ -132,8 +132,7 @@ namespace pcpp
 			return SipLayer::SipParseResult::Response;
 		}
 
-		auto it = SipMethodShortMap.find(std::string(data, data + 3));
-		if (it != SipMethodShortMap.end())
+		if (SipMethodShortMap.find(std::string(data, data + 3)) != SipMethodShortMap.end())
 		{
 			return SipLayer::SipParseResult::Request;
 		}
@@ -322,8 +321,7 @@ namespace pcpp
 
 		// Validate method exists in SipMethodStringToEnum
 		std::string methodStr{ data, firstSpaceIndex };
-		auto methodIt = SipMethodStringToEnum.find(methodStr);
-		if (methodIt == SipMethodStringToEnum.end())
+		if (SipMethodStringToEnum.find(methodStr) == SipMethodStringToEnum.end())
 		{
 			PCPP_LOG_DEBUG("Unknown SIP method");
 			return { false, result };
