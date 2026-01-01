@@ -34,23 +34,6 @@ namespace pcpp
 		{ "UPDATE",    SipRequestLayer::SipMethod::SipUPDATE    },
 	};
 
-	const std::unordered_map<std::string, SipRequestLayer::SipMethod> SipMethodShortMap{
-		{ "INV", SipRequestLayer::SipMethod::SipINVITE    },
-        { "ACK", SipRequestLayer::SipMethod::SipACK       },
-		{ "BYE", SipRequestLayer::SipMethod::SipBYE       },
-        { "CAN", SipRequestLayer::SipMethod::SipCANCEL    },
-		{ "REG", SipRequestLayer::SipMethod::SipREGISTER  },
-        { "PRA", SipRequestLayer::SipMethod::SipPRACK     },
-		{ "OPT", SipRequestLayer::SipMethod::SipOPTIONS   },
-        { "SUB", SipRequestLayer::SipMethod::SipSUBSCRIBE },
-		{ "NOT", SipRequestLayer::SipMethod::SipNOTIFY    },
-        { "PUB", SipRequestLayer::SipMethod::SipPUBLISH   },
-		{ "INF", SipRequestLayer::SipMethod::SipINFO      },
-        { "REF", SipRequestLayer::SipMethod::SipREFER     },
-		{ "MES", SipRequestLayer::SipMethod::SipMESSAGE   },
-        { "UPD", SipRequestLayer::SipMethod::SipUPDATE    },
-	};
-
 	// -------- Class SipLayer -----------------
 
 	int SipLayer::getContentLength() const
