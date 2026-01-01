@@ -391,7 +391,7 @@ namespace pcpp
 		{
 			if (m_BpfWrapper.matches(packetData.get(), capturedLength, packetTimestamp, m_PcapLinkLayerType))
 			{
-				rawPacket.setRawData(capturedLength > 0 ? packetData.release() : nullptr, capturedLength,
+				rawPacket.setRawData(capturedLength > 0 ? packetData.release() : nullptr, capturedLength, true,
 				                     packetTimestamp, m_PcapLinkLayerType, frameLength);
 				reportPacketProcessed();
 				return true;
