@@ -112,7 +112,9 @@ namespace pcpp
 		{
 			m_NextLayer = SipLayer::parseSipLayer(udpData, udpDataLen, this, getAttachedPacket(), portSrc, portDst);
 			if (!m_NextLayer)
+			{
 				constructNextLayer<PayloadLayer>(udpData, udpDataLen, getAttachedPacket());
+			}
 		}
 		else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
 		         RadiusLayer::isDataValid(udpData, udpDataLen))

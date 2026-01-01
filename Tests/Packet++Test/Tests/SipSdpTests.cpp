@@ -175,10 +175,9 @@ PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort)
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sip_non_default_port1.dat");
 	pcpp::Packet sipReqNonStandardPort(rawPacket1.get());
 
-	PTF_ASSERT_TRUE(sipReqNonStandardPort.isPacketOfType(pcpp::SIP));
 	PTF_ASSERT_TRUE(sipReqNonStandardPort.isPacketOfType(pcpp::SIPRequest));
 
-	pcpp::SipRequestLayer* sipReqLayer = sipReqNonStandardPort.getLayerOfType<pcpp::SipRequestLayer>();
+	auto sipReqLayer = sipReqNonStandardPort.getLayerOfType<pcpp::SipRequestLayer>();
 	PTF_ASSERT_NOT_NULL(sipReqLayer);
 
 	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getMethod(), pcpp::SipRequestLayer::SipINVITE, enum);
@@ -192,14 +191,14 @@ PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort)
 	PTF_ASSERT_TRUE(sipResNonStandardPort.isPacketOfType(pcpp::SIP));
 	PTF_ASSERT_TRUE(sipResNonStandardPort.isPacketOfType(pcpp::SIPResponse));
 
-	pcpp::SipResponseLayer* sipRespLayer = sipResNonStandardPort.getLayerOfType<pcpp::SipResponseLayer>();
+	auto sipRespLayer = sipResNonStandardPort.getLayerOfType<pcpp::SipResponseLayer>();
 	PTF_ASSERT_NOT_NULL(sipRespLayer);
 
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip200OK, enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeAsInt(), 200);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeString(), "OK");
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getVersion(), "SIP/2.0");
-}
+}  // SipDetectionByContentOnNonStandardPort
 
 PTF_TEST_CASE(SipRequestLayerCreationTest)
 {
