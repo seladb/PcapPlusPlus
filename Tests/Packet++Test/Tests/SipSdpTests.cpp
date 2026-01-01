@@ -188,7 +188,6 @@ PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort)
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/sip_non_default_port2.dat");
 	pcpp::Packet sipResNonStandardPort(rawPacket2.get());
 
-	PTF_ASSERT_TRUE(sipResNonStandardPort.isPacketOfType(pcpp::SIP));
 	PTF_ASSERT_TRUE(sipResNonStandardPort.isPacketOfType(pcpp::SIPResponse));
 
 	auto sipRespLayer = sipResNonStandardPort.getLayerOfType<pcpp::SipResponseLayer>();

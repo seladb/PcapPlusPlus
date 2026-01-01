@@ -127,16 +127,32 @@ namespace pcpp
 			return SipLayer::SipParseResult::Unknown;
 		}
 
-		if (data[0] == 'S' && data[1] == 'I' && data[2] == 'P')
-		{
-			return SipLayer::SipParseResult::Response;
-		}
+		uint32_t key = pack4(reinterpret_cast<const char*>(data), dataLen);
 
-		if (SipMethodShortMap.find(std::string(data, data + 3)) != SipMethodShortMap.end())
+		switch (key)
 		{
+		case "INVI"_packed4:  // INVITE
+		case "ACK "_packed4:  // ACK
+		case "BYE "_packed4:  // BYE
+		case "CANC"_packed4:  // CANCEL
+		case "REGI"_packed4:  // REGISTER
+		case "PRAC"_packed4:  // PRACK
+		case "OPTI"_packed4:  // OPTIONS
+		case "SUBS"_packed4:  // SUBSCRIBE
+		case "NOTI"_packed4:  // NOTIFY
+		case "PUBL"_packed4:  // PUBLISH
+		case "INFO"_packed4:  // INFO
+		case "REFE"_packed4:  // REFER
+		case "MESS"_packed4:  // MESSAGE
+		case "UPDA"_packed4:  // UPDATE
 			return SipLayer::SipParseResult::Request;
+
+		case "SIP/"_packed4:
+			return SipLayer::SipParseResult::Response;
+
+		default:
+			return SipLayer::SipParseResult::Unknown;
 		}
-		return SipLayer::SipParseResult::Unknown;
 	}
 
 	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, uint16_t srcPort,
