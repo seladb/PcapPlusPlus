@@ -288,12 +288,12 @@ namespace pcpp
 	// PcapFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	uint16_t swap16(uint16_t value)
+	static uint16_t swap16(uint16_t value)
 	{
 		return static_cast<uint16_t>((value >> 8) | (value << 8));
 	}
 
-	uint32_t swap32(uint32_t value)
+	static uint32_t swap32(uint32_t value)
 	{
 		return (value >> 24) | ((value >> 8) & 0x0000FF00) | ((value << 8) & 0x00FF0000) | (value << 24);
 	}
@@ -303,7 +303,7 @@ namespace pcpp
 		resetStatisticCounters();
 
 		m_PcapFile.open(m_FileName.c_str(), std::ifstream::binary);
-		if (!m_PcapFile.is_open() || !m_PcapFile.good())
+		if (!m_PcapFile)
 		{
 			PCPP_LOG_ERROR("Cannot open pcap reader device for filename '" << m_FileName << "'");
 			return false;
