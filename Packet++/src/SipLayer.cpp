@@ -12,6 +12,17 @@
 
 namespace pcpp
 {
+	constexpr uint32_t pack4(const char* data, size_t len)
+	{
+		return ((len > 0 ? static_cast<uint32_t>(data[0]) << 24 : 0) |
+		        (len > 1 ? static_cast<uint32_t>(data[1]) << 16 : 0) |
+		        (len > 2 ? static_cast<uint32_t>(data[2]) << 8 : 0) | (len > 3 ? static_cast<uint32_t>(data[3]) : 0));
+	}
+
+	constexpr uint32_t operator""_packed4(const char* str, size_t len)
+	{
+		return pack4(str, len);
+	}
 
 	const std::string SipMethodEnumToString[14] = { "INVITE", "ACK",     "BYE",       "CANCEL", "REGISTER",
 		                                            "PRACK",  "OPTIONS", "SUBSCRIBE", "NOTIFY", "PUBLISH",
@@ -101,6 +112,92 @@ namespace pcpp
 			if (currentContentLength != static_cast<int>(m_DataLen - headerLen))
 				setContentLength(m_DataLen - headerLen);
 		}
+	}
+
+	SipLayer::SipParseResult SipLayer::detectSipMessageType(const uint8_t* data, size_t dataLen)
+	{
+		if (!data || dataLen < 3)
+		{
+			return SipLayer::SipParseResult::Unknown;
+		}
+
+		uint32_t key = pack4(reinterpret_cast<const char*>(data), dataLen);
+
+		switch (key)
+		{
+		case "INVI"_packed4:  // INVITE
+		case "ACK "_packed4:  // ACK
+		case "BYE "_packed4:  // BYE
+		case "CANC"_packed4:  // CANCEL
+		case "REGI"_packed4:  // REGISTER
+		case "PRAC"_packed4:  // PRACK
+		case "OPTI"_packed4:  // OPTIONS
+		case "SUBS"_packed4:  // SUBSCRIBE
+		case "NOTI"_packed4:  // NOTIFY
+		case "PUBL"_packed4:  // PUBLISH
+		case "INFO"_packed4:  // INFO
+		case "REFE"_packed4:  // REFER
+		case "MESS"_packed4:  // MESSAGE
+		case "UPDA"_packed4:  // UPDATE
+			return SipLayer::SipParseResult::Request;
+
+		case "SIP/"_packed4:
+			return SipLayer::SipParseResult::Response;
+
+		default:
+			return SipLayer::SipParseResult::Unknown;
+		}
+	}
+
+	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, uint16_t srcPort,
+	                                  uint16_t dstPort)
+	{
+		if (!(SipLayer::isSipPort(srcPort) || SipLayer::isSipPort(dstPort)))
+		{
+			return nullptr;
+		}
+
+		if (SipRequestFirstLine::parseMethod(reinterpret_cast<char*>(data), dataLen) !=
+		    SipRequestLayer::SipMethodUnknown)
+		{
+			return new SipRequestLayer(data, dataLen, prevLayer, packet);
+		}
+
+		if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
+		        SipResponseLayer::SipStatusCodeUnknown &&
+		    !SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
+		{
+			return new SipResponseLayer(data, dataLen, prevLayer, packet);
+		}
+
+		return nullptr;
+	}
+
+	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	{
+		SipLayer::SipParseResult sipParseResult = detectSipMessageType(data, dataLen);
+
+		if (sipParseResult == SipLayer::SipParseResult::Unknown)
+		{
+			return nullptr;
+		}
+
+		if (sipParseResult == SipLayer::SipParseResult::Request)
+		{
+			if (SipRequestFirstLine::parseFirstLine(reinterpret_cast<char*>(data), dataLen).first)
+			{
+				return new SipRequestLayer(data, dataLen, prevLayer, packet);
+			}
+			return nullptr;
+		}
+
+		if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
+		        SipResponseLayer::SipStatusCodeUnknown &&
+		    !SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
+		{
+			return new SipResponseLayer(data, dataLen, prevLayer, packet);
+		}
+		return nullptr;
 	}
 
 	// -------- Class SipRequestFirstLine -----------------
@@ -206,6 +303,84 @@ namespace pcpp
 			return SipRequestLayer::SipMethodUnknown;
 		}
 		return methodAdEnum->second;
+	}
+
+	std::pair<bool, SipRequestFirstLine::SipFirstLineData> SipRequestFirstLine::parseFirstLine(const char* data,
+	                                                                                           size_t dataLen)
+	{
+		SipFirstLineData result = { "", "", "" };
+
+		if (data == nullptr || dataLen == 0)
+		{
+			PCPP_LOG_DEBUG("Empty data in SIP request line");
+			return { false, result };
+		}
+
+		// Find first space (end of METHOD)
+		size_t firstSpaceIndex = 0;
+		while (firstSpaceIndex < dataLen && data[firstSpaceIndex] != ' ')
+		{
+			firstSpaceIndex++;
+		}
+
+		if (firstSpaceIndex == 0 || firstSpaceIndex == dataLen)
+		{
+			PCPP_LOG_DEBUG("Invalid METHOD in SIP request line");
+			return { false, result };
+		}
+
+		// Validate method exists in SipMethodStringToEnum
+		std::string methodStr{ data, firstSpaceIndex };
+		if (SipMethodStringToEnum.find(methodStr) == SipMethodStringToEnum.end())
+		{
+			PCPP_LOG_DEBUG("Unknown SIP method");
+			return { false, result };
+		}
+
+		// Find second space (end of URI)
+		size_t secondSpaceIndex = firstSpaceIndex + 1;
+		while (secondSpaceIndex < dataLen && data[secondSpaceIndex] != ' ')
+			secondSpaceIndex++;
+
+		if (secondSpaceIndex == dataLen)
+		{
+			PCPP_LOG_DEBUG("No space before version");
+			return { false, result };
+		}
+
+		size_t uriLen = secondSpaceIndex - firstSpaceIndex - 1;
+		if (uriLen == 0)
+		{
+			PCPP_LOG_DEBUG("Empty URI");
+			return { false, result };
+		}
+
+		// Find end of line
+		size_t lineEnd = secondSpaceIndex + 1;
+		while (lineEnd < dataLen && data[lineEnd] != '\r' && data[lineEnd] != '\n')
+			lineEnd++;
+
+		// Minimum length for "SIP/x.y"
+		size_t versionLen = lineEnd - secondSpaceIndex - 1;
+		if (versionLen < 7)
+		{
+			PCPP_LOG_DEBUG("Version too short");
+			return { false, result };
+		}
+
+		const char* versionStart = data + secondSpaceIndex + 1;
+		if (versionStart[0] != 'S' || versionStart[1] != 'I' || versionStart[2] != 'P' || versionStart[3] != '/')
+		{
+			PCPP_LOG_DEBUG("Invalid SIP version format");
+			return { false, result };
+		}
+
+		// All validations passed
+		result.method = std::move(methodStr);
+		result.uri = std::string{ data + firstSpaceIndex + 1, uriLen };
+		result.version = std::string{ versionStart, versionLen };
+
+		return { true, result };
 	}
 
 	void SipRequestFirstLine::parseVersion()
