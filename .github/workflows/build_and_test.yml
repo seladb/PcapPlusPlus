@@ -734,7 +734,7 @@ jobs:
         run: |
           Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "$env:BUILD_DIR\Tests\Pcap++Test\Debug\WinDivert.dll" -Force
           Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert64.sys" "$env:BUILD_DIR\Tests\Pcap++Test\Debug\WinDivert64.sys" -Force
-            
+
       - name: Test PcapPlusPlus
         shell: pwsh
         run: |
