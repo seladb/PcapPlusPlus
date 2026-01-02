@@ -285,7 +285,7 @@ jobs:
 
       - name: Test Packet++
         if: env.avx512 == 'true'
-        run: Packet++Test
+        run: ./Packet++Test
         working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Packet++Test
 
       - name: Tests skipped (no AVX-512 hardware support)
