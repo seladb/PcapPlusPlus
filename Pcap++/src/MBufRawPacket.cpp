@@ -109,7 +109,7 @@ namespace pcpp
 
 	MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 	{
-		m_DeleteRawDataAtDestructor = false;
+		m_OwnsRawData = false;
 		m_MBuf = nullptr;
 		m_RawDataLen = 0;
 		m_RawPacketSet = false;
@@ -176,8 +176,8 @@ namespace pcpp
 		return new MBufRawPacket(*this);
 	}
 
-	bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
-	                               int frameLength)
+	bool MBufRawPacket::doSetRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timespec timestamp,
+	                                 LinkLayerType layerType, int frameLength)
 	{
 		if (rawDataLen > m_MbufDataSize)
 		{
@@ -216,7 +216,13 @@ namespace pcpp
 		m_RawData = rte_pktmbuf_mtod(m_MBuf, uint8_t*);
 		m_RawDataLen = rte_pktmbuf_pkt_len(m_MBuf);
 		memcpy(m_RawData, pRawData, m_RawDataLen);
-		delete[] pRawData;
+
+		// Free the original data if needed
+		if (takeOwnership)
+		{
+			delete[] pRawData;
+		}
+
 		m_TimeStamp = timestamp;
 		m_RawPacketSet = true;
 		m_FrameLength = frameLength;

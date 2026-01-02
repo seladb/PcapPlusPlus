@@ -7,16 +7,15 @@
 
 namespace pcpp
 {
-	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
+	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool takeOwnership,
 	                     LinkLayerType layerType)
-	    : RawPacket(pRawData, rawDataLen, internal::toTimespec(timestamp), deleteRawDataAtDestructor, layerType)
+	    : RawPacket(pRawData, rawDataLen, internal::toTimespec(timestamp), takeOwnership, layerType)
 	{}
 
-	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
+	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool takeOwnership,
 	                     LinkLayerType layerType)
 	    : m_RawData(const_cast<uint8_t*>(pRawData)), m_RawDataLen(rawDataLen), m_FrameLength(rawDataLen),
-	      m_TimeStamp(timestamp), m_DeleteRawDataAtDestructor(deleteRawDataAtDestructor), m_RawPacketSet(true),
-	      m_LinkLayerType(layerType)
+	      m_TimeStamp(timestamp), m_OwnsRawData(takeOwnership), m_RawPacketSet(true), m_LinkLayerType(layerType)
 	{}
 
 	RawPacket::~RawPacket()
@@ -56,7 +55,7 @@ namespace pcpp
 
 		if (allocateData)
 		{
-			m_DeleteRawDataAtDestructor = true;
+			m_OwnsRawData = true;
 			m_RawData = new uint8_t[other.m_RawDataLen];
 			m_RawDataLen = other.m_RawDataLen;
 		}
@@ -70,14 +69,41 @@ namespace pcpp
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
+		DISABLE_WARNING_PUSH;
+		DISABLE_WARNING_DEPRECATED;
+
 		return setRawData(pRawData, rawDataLen, internal::toTimespec(timestamp), layerType, frameLength);
+
+		DISABLE_WARNING_POP;
+	}
+
+	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timeval timestamp,
+	                           LinkLayerType layerType, int frameLength)
+	{
+		return setRawData(pRawData, rawDataLen, takeOwnership, internal::toTimespec(timestamp), layerType, frameLength);
 	}
 
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
+		// Legacy compatibility:
+		//  In previous versions of this method inherited the old ownership value and used it for the new buffer.
+		//  To keep backward compatibility we keep the same behavior here.
+		return doSetRawData(pRawData, rawDataLen, m_OwnsRawData, timestamp, layerType, frameLength);
+	}
+
+	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timespec timestamp,
+	                           LinkLayerType layerType, int frameLength)
+	{
+		return doSetRawData(pRawData, rawDataLen, takeOwnership, timestamp, layerType, frameLength);
+	}
+
+	bool RawPacket::doSetRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timespec timestamp,
+	                             LinkLayerType layerType, int frameLength)
+	{
 		clear();
 
+		m_OwnsRawData = takeOwnership;
 		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
 		m_RawData = (uint8_t*)pRawData;
 		m_RawDataLen = rawDataLen;
@@ -90,13 +116,12 @@ namespace pcpp
 	bool RawPacket::initWithRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
 	                                LinkLayerType layerType)
 	{
-		m_DeleteRawDataAtDestructor = false;
-		return setRawData(pRawData, rawDataLen, timestamp, layerType);
+		return setRawData(pRawData, rawDataLen, false, timestamp, layerType);
 	}
 
 	void RawPacket::clear()
 	{
-		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
+		if (m_RawData != nullptr && m_OwnsRawData)
 			delete[] m_RawData;
 
 		m_RawData = nullptr;
@@ -144,10 +169,10 @@ namespace pcpp
 		uint8_t* newBuffer = new uint8_t[newBufferLength];
 		memset(newBuffer, 0, newBufferLength);
 		memcpy(newBuffer, m_RawData, m_RawDataLen);
-		if (m_DeleteRawDataAtDestructor)
+		if (m_OwnsRawData)
 			delete[] m_RawData;
 
-		m_DeleteRawDataAtDestructor = true;
+		m_OwnsRawData = true;
 		m_RawData = newBuffer;
 
 		return true;
