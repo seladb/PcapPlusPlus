@@ -149,8 +149,8 @@ class Runner:
                     str(exe_path),
                     "-i",
                     str(ip_address),
-                    "-x;".join(skip_tests),
-                    *include_tests,
+                    *self._make_include_tests_option(include_tests),
+                    *self._make_skip_tests_option(skip_tests),
                 ],
                 cwd=work_dir,
                 check=True,
@@ -190,13 +190,22 @@ class Runner:
                     str(exe_path),
                     "-i",
                     str(ip_address),
-                    "-x",
-                    ";".join(skip_tests),
-                    *include_tests,
+                    *self._make_include_tests_option(include_tests),
+                    *self._make_skip_tests_option(skip_tests),
                 ],
                 cwd=work_dir,
                 check=True,
             )
+
+    def _make_include_tests_option(self, tests: list[str]) -> list[str]:
+        if not tests:
+            return []
+        return ["-t", ";".join(tests)]
+
+    def _make_skip_tests_option(self, tests: list[str]) -> list[str]:
+        if not tests:
+            return []
+        return ["-x", ";".join(tests)]
 
 
 def main():
@@ -252,15 +261,14 @@ def main():
     if args.pcap_test_exe:
         runner.pcap_test_path = Path(args.pcap_test_exe)
 
-    skip_tests = ["TestRemoteCapture"] + args.skip_tests
-    include_tests = ["-t", ";".join(args.include_tests)] if args.include_tests else []
-
+    # Always skip remote capture tests on Windows
+    args.skip_tests.append("TestRemoteCapture")
     if args.coverage:
         runner.run_packet_coverage()
-        runner.run_pcap_coverage(include_tests, skip_tests)
+        runner.run_pcap_coverage(args.include_tests, args.skip_tests)
     else:
         runner.run_packet_test()
-        runner.run_pcap_tests(include_tests, skip_tests)
+        runner.run_pcap_tests(args.include_tests, args.skip_tests)
 
 
 if __name__ == "__main__":
