@@ -73,7 +73,6 @@ def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, No
 
 @contextmanager
 def tcp_replay_worker(interface: str, tcpreplay_dir: Path, source_pcap: Path):
-
     tcpreplay_proc = subprocess.Popen(
         ["tcpreplay.exe", "-i", interface, "--mbps=10", "-l", "0", str(source_pcap)],
         cwd=tcpreplay_dir,
