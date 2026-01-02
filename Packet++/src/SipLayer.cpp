@@ -12,6 +12,17 @@
 
 namespace pcpp
 {
+	constexpr uint32_t pack4(const char* data, size_t len)
+	{
+		return ((len > 0 ? static_cast<uint32_t>(data[0]) << 24 : 0) |
+		        (len > 1 ? static_cast<uint32_t>(data[1]) << 16 : 0) |
+		        (len > 2 ? static_cast<uint32_t>(data[2]) << 8 : 0) | (len > 3 ? static_cast<uint32_t>(data[3]) : 0));
+	}
+
+	constexpr uint32_t operator""_packed4(const char* str, size_t len)
+	{
+		return pack4(str, len);
+	}
 
 	const std::string SipMethodEnumToString[14] = { "INVITE", "ACK",     "BYE",       "CANCEL", "REGISTER",
 		                                            "PRACK",  "OPTIONS", "SUBSCRIBE", "NOTIFY", "PUBLISH",

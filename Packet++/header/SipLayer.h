@@ -8,26 +8,6 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-	/// Packs up to 4 characters into a 32-bit unsigned integer
-	/// @param[in] data Pointer to the character array
-	/// @param[in] len Number of characters to pack (maximum 4)
-	/// @return A 32-bit integer containing the packed characters in big-endian order
-	constexpr uint32_t pack4(const char* data, size_t len)
-	{
-		return ((len > 0 ? static_cast<uint32_t>(data[0]) << 24 : 0) |
-		        (len > 1 ? static_cast<uint32_t>(data[1]) << 16 : 0) |
-		        (len > 2 ? static_cast<uint32_t>(data[2]) << 8 : 0) | (len > 3 ? static_cast<uint32_t>(data[3]) : 0));
-	}
-
-	/// User-defined literal for creating a packed 4-byte integer from a string literal
-	/// @param[in] str The string literal
-	/// @param[in] len Length of the string literal
-	/// @return A 32-bit integer containing the packed characters
-	constexpr uint32_t operator""_packed4(const char* str, size_t len)
-	{
-		return pack4(str, len);
-	}
-
 // some popular SIP header fields
 
 /// From field
