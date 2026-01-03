@@ -689,9 +689,9 @@ namespace pcpp
 			}
 
 			uint16_t code = 0;
-			code |= (static_cast<uint16_t>(data[0]) - '0') * 100;
-			code |= (static_cast<uint16_t>(data[1]) - '0') * 10;
-			code |= (static_cast<uint16_t>(data[2]) - '0');
+			code += (static_cast<uint16_t>(data[0]) - '0') * 100;
+			code += (static_cast<uint16_t>(data[1]) - '0') * 10;
+			code += (static_cast<uint16_t>(data[2]) - '0');
 
 			switch (code)
 			{
