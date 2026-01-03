@@ -191,9 +191,7 @@ namespace pcpp
 			return nullptr;
 		}
 
-		if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
-		        SipResponseLayer::SipStatusCodeUnknown &&
-		    !SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
+		if (SipResponseFirstLine::parseFirstLine(reinterpret_cast<char*>(data), dataLen).first)
 		{
 			return new SipResponseLayer(data, dataLen, prevLayer, packet);
 		}
@@ -680,85 +678,188 @@ namespace pcpp
 		                                  483, 484, 485, 486, 487, 488, 489, 491, 493, 494, 500, 501, 502,
 		                                  503, 504, 505, 513, 555, 580, 600, 603, 604, 606, 607, 608 };
 
-	const std::unordered_map<std::string, SipResponseLayer::SipResponseStatusCode> StatusCodeStringToEnumMap{
-		{ "100", SipResponseLayer::SipResponseStatusCode::Sip100Trying                              },
-		{ "180", SipResponseLayer::SipResponseStatusCode::Sip180Ringing                             },
-		{ "181", SipResponseLayer::SipResponseStatusCode::Sip181CallisBeingForwarded                },
-		{ "182", SipResponseLayer::SipResponseStatusCode::Sip182Queued                              },
-		{ "183", SipResponseLayer::SipResponseStatusCode::Sip183SessioninProgress                   },
-		{ "199", SipResponseLayer::SipResponseStatusCode::Sip199EarlyDialogTerminated               },
-		{ "200", SipResponseLayer::SipResponseStatusCode::Sip200OK                                  },
-		{ "202", SipResponseLayer::SipResponseStatusCode::Sip202Accepted                            },
-		{ "204", SipResponseLayer::SipResponseStatusCode::Sip204NoNotification                      },
-		{ "300", SipResponseLayer::SipResponseStatusCode::Sip300MultipleChoices                     },
-		{ "301", SipResponseLayer::SipResponseStatusCode::Sip301MovedPermanently                    },
-		{ "302", SipResponseLayer::SipResponseStatusCode::Sip302MovedTemporarily                    },
-		{ "305", SipResponseLayer::SipResponseStatusCode::Sip305UseProxy                            },
-		{ "380", SipResponseLayer::SipResponseStatusCode::Sip380AlternativeService                  },
-		{ "400", SipResponseLayer::SipResponseStatusCode::Sip400BadRequest                          },
-		{ "401", SipResponseLayer::SipResponseStatusCode::Sip401Unauthorized                        },
-		{ "402", SipResponseLayer::SipResponseStatusCode::Sip402PaymentRequired                     },
-		{ "403", SipResponseLayer::SipResponseStatusCode::Sip403Forbidden                           },
-		{ "404", SipResponseLayer::SipResponseStatusCode::Sip404NotFound                            },
-		{ "405", SipResponseLayer::SipResponseStatusCode::Sip405MethodNotAllowed                    },
-		{ "406", SipResponseLayer::SipResponseStatusCode::Sip406NotAcceptable                       },
-		{ "407", SipResponseLayer::SipResponseStatusCode::Sip407ProxyAuthenticationRequired         },
-		{ "408", SipResponseLayer::SipResponseStatusCode::Sip408RequestTimeout                      },
-		{ "409", SipResponseLayer::SipResponseStatusCode::Sip409Conflict                            },
-		{ "410", SipResponseLayer::SipResponseStatusCode::Sip410Gone                                },
-		{ "411", SipResponseLayer::SipResponseStatusCode::Sip411LengthRequired                      },
-		{ "412", SipResponseLayer::SipResponseStatusCode::Sip412ConditionalRequestFailed            },
-		{ "413", SipResponseLayer::SipResponseStatusCode::Sip413RequestEntityTooLarge               },
-		{ "414", SipResponseLayer::SipResponseStatusCode::Sip414RequestURITooLong                   },
-		{ "415", SipResponseLayer::SipResponseStatusCode::Sip415UnsupportedMediaType                },
-		{ "416", SipResponseLayer::SipResponseStatusCode::Sip416UnsupportedURIScheme                },
-		{ "417", SipResponseLayer::SipResponseStatusCode::Sip417UnknownResourcePriority             },
-		{ "420", SipResponseLayer::SipResponseStatusCode::Sip420BadExtension                        },
-		{ "421", SipResponseLayer::SipResponseStatusCode::Sip421ExtensionRequired                   },
-		{ "422", SipResponseLayer::SipResponseStatusCode::Sip422SessionIntervalTooSmall             },
-		{ "423", SipResponseLayer::SipResponseStatusCode::Sip423IntervalTooBrief                    },
-		{ "424", SipResponseLayer::SipResponseStatusCode::Sip424BadLocationInformation              },
-		{ "425", SipResponseLayer::SipResponseStatusCode::Sip425BadAlertMessage                     },
-		{ "428", SipResponseLayer::SipResponseStatusCode::Sip428UseIdentityHeader                   },
-		{ "429", SipResponseLayer::SipResponseStatusCode::Sip429ProvideReferrerIdentity             },
-		{ "430", SipResponseLayer::SipResponseStatusCode::Sip430FlowFailed                          },
-		{ "433", SipResponseLayer::SipResponseStatusCode::Sip433AnonymityDisallowed                 },
-		{ "436", SipResponseLayer::SipResponseStatusCode::Sip436BadIdentityInfo                     },
-		{ "437", SipResponseLayer::SipResponseStatusCode::Sip437UnsupportedCertificate              },
-		{ "438", SipResponseLayer::SipResponseStatusCode::Sip438InvalidIdentityHeader               },
-		{ "439", SipResponseLayer::SipResponseStatusCode::Sip439FirstHopLacksOutboundSupport        },
-		{ "440", SipResponseLayer::SipResponseStatusCode::Sip440MaxBreadthExceeded                  },
-		{ "469", SipResponseLayer::SipResponseStatusCode::Sip469BadInfoPackage                      },
-		{ "470", SipResponseLayer::SipResponseStatusCode::Sip470ConsentNeeded                       },
-		{ "480", SipResponseLayer::SipResponseStatusCode::Sip480TemporarilyUnavailable              },
-		{ "481", SipResponseLayer::SipResponseStatusCode::Sip481Call_TransactionDoesNotExist        },
-		{ "482", SipResponseLayer::SipResponseStatusCode::Sip482LoopDetected                        },
-		{ "483", SipResponseLayer::SipResponseStatusCode::Sip483TooManyHops                         },
-		{ "484", SipResponseLayer::SipResponseStatusCode::Sip484AddressIncomplete                   },
-		{ "485", SipResponseLayer::SipResponseStatusCode::Sip485Ambiguous                           },
-		{ "486", SipResponseLayer::SipResponseStatusCode::Sip486BusyHere                            },
-		{ "487", SipResponseLayer::SipResponseStatusCode::Sip487RequestTerminated                   },
-		{ "488", SipResponseLayer::SipResponseStatusCode::Sip488NotAcceptableHere                   },
-		{ "489", SipResponseLayer::SipResponseStatusCode::Sip489BadEvent                            },
-		{ "491", SipResponseLayer::SipResponseStatusCode::Sip491RequestPending                      },
-		{ "493", SipResponseLayer::SipResponseStatusCode::Sip493Undecipherable                      },
-		{ "494", SipResponseLayer::SipResponseStatusCode::Sip494SecurityAgreementRequired           },
-		{ "500", SipResponseLayer::SipResponseStatusCode::Sip500ServerInternalError                 },
-		{ "501", SipResponseLayer::SipResponseStatusCode::Sip501NotImplemented                      },
-		{ "502", SipResponseLayer::SipResponseStatusCode::Sip502BadGateway                          },
-		{ "503", SipResponseLayer::SipResponseStatusCode::Sip503ServiceUnavailable                  },
-		{ "504", SipResponseLayer::SipResponseStatusCode::Sip504ServerTimeout                       },
-		{ "505", SipResponseLayer::SipResponseStatusCode::Sip505VersionNotSupported                 },
-		{ "513", SipResponseLayer::SipResponseStatusCode::Sip513MessageTooLarge                     },
-		{ "555", SipResponseLayer::SipResponseStatusCode::Sip555PushNotificationServiceNotSupported },
-		{ "580", SipResponseLayer::SipResponseStatusCode::Sip580PreconditionFailure                 },
-		{ "600", SipResponseLayer::SipResponseStatusCode::Sip600BusyEverywhere                      },
-		{ "603", SipResponseLayer::SipResponseStatusCode::Sip603Decline                             },
-		{ "604", SipResponseLayer::SipResponseStatusCode::Sip604DoesNotExistAnywhere                },
-		{ "606", SipResponseLayer::SipResponseStatusCode::Sip606NotAcceptable                       },
-		{ "607", SipResponseLayer::SipResponseStatusCode::Sip607Unwanted                            },
-		{ "608", SipResponseLayer::SipResponseStatusCode::Sip608Rejected                            },
-	};
+	namespace
+	{
+		// Parses the SIP status code from raw data. The data must point to the beginning of the status code.
+		SipResponseLayer::SipResponseStatusCode parseStatusCodePure(const char* data, size_t dataLen)
+		{
+			if (data == nullptr || dataLen < 3)
+			{
+				return SipResponseLayer::SipStatusCodeUnknown;
+			}
+
+			uint16_t code = 0;
+			code |= (static_cast<uint16_t>(data[0]) - '0') * 100;
+			code |= (static_cast<uint16_t>(data[1]) - '0') * 10;
+			code |= (static_cast<uint16_t>(data[2]) - '0');
+
+			switch (code)
+			{
+			// 1xx: Informational
+			case 100:
+				return SipResponseLayer::SipResponseStatusCode::Sip100Trying;
+			case 180:
+				return SipResponseLayer::SipResponseStatusCode::Sip180Ringing;
+			case 181:
+				return SipResponseLayer::SipResponseStatusCode::Sip181CallisBeingForwarded;
+			case 182:
+				return SipResponseLayer::SipResponseStatusCode::Sip182Queued;
+			case 183:
+				return SipResponseLayer::SipResponseStatusCode::Sip183SessioninProgress;
+			case 199:
+				return SipResponseLayer::SipResponseStatusCode::Sip199EarlyDialogTerminated;
+			// 2xx: Success
+			case 200:
+				return SipResponseLayer::SipResponseStatusCode::Sip200OK;
+			case 202:
+				return SipResponseLayer::SipResponseStatusCode::Sip202Accepted;
+			case 204:
+				return SipResponseLayer::SipResponseStatusCode::Sip204NoNotification;
+			// 3xx: Redirection
+			case 300:
+				return SipResponseLayer::SipResponseStatusCode::Sip300MultipleChoices;
+			case 301:
+				return SipResponseLayer::SipResponseStatusCode::Sip301MovedPermanently;
+			case 302:
+				return SipResponseLayer::SipResponseStatusCode::Sip302MovedTemporarily;
+			case 305:
+				return SipResponseLayer::SipResponseStatusCode::Sip305UseProxy;
+			case 380:
+				return SipResponseLayer::SipResponseStatusCode::Sip380AlternativeService;
+			// 4xx: Client Failure
+			case 400:
+				return SipResponseLayer::SipResponseStatusCode::Sip400BadRequest;
+			case 401:
+				return SipResponseLayer::SipResponseStatusCode::Sip401Unauthorized;
+			case 402:
+				return SipResponseLayer::SipResponseStatusCode::Sip402PaymentRequired;
+			case 403:
+				return SipResponseLayer::SipResponseStatusCode::Sip403Forbidden;
+			case 404:
+				return SipResponseLayer::SipResponseStatusCode::Sip404NotFound;
+			case 405:
+				return SipResponseLayer::SipResponseStatusCode::Sip405MethodNotAllowed;
+			case 406:
+				return SipResponseLayer::SipResponseStatusCode::Sip406NotAcceptable;
+			case 407:
+				return SipResponseLayer::SipResponseStatusCode::Sip407ProxyAuthenticationRequired;
+			case 408:
+				return SipResponseLayer::SipResponseStatusCode::Sip408RequestTimeout;
+			case 409:
+				return SipResponseLayer::SipResponseStatusCode::Sip409Conflict;
+			case 410:
+				return SipResponseLayer::SipResponseStatusCode::Sip410Gone;
+			case 411:
+				return SipResponseLayer::SipResponseStatusCode::Sip411LengthRequired;
+			case 412:
+				return SipResponseLayer::SipResponseStatusCode::Sip412ConditionalRequestFailed;
+			case 413:
+				return SipResponseLayer::SipResponseStatusCode::Sip413RequestEntityTooLarge;
+			case 414:
+				return SipResponseLayer::SipResponseStatusCode::Sip414RequestURITooLong;
+			case 415:
+				return SipResponseLayer::SipResponseStatusCode::Sip415UnsupportedMediaType;
+			case 416:
+				return SipResponseLayer::SipResponseStatusCode::Sip416UnsupportedURIScheme;
+			case 417:
+				return SipResponseLayer::SipResponseStatusCode::Sip417UnknownResourcePriority;
+			case 420:
+				return SipResponseLayer::SipResponseStatusCode::Sip420BadExtension;
+			case 421:
+				return SipResponseLayer::SipResponseStatusCode::Sip421ExtensionRequired;
+			case 422:
+				return SipResponseLayer::SipResponseStatusCode::Sip422SessionIntervalTooSmall;
+			case 423:
+				return SipResponseLayer::SipResponseStatusCode::Sip423IntervalTooBrief;
+			case 424:
+				return SipResponseLayer::SipResponseStatusCode::Sip424BadLocationInformation;
+			case 425:
+				return SipResponseLayer::SipResponseStatusCode::Sip425BadAlertMessage;
+			case 428:
+				return SipResponseLayer::SipResponseStatusCode::Sip428UseIdentityHeader;
+			case 429:
+				return SipResponseLayer::SipResponseStatusCode::Sip429ProvideReferrerIdentity;
+			case 430:
+				return SipResponseLayer::SipResponseStatusCode::Sip430FlowFailed;
+			case 433:
+				return SipResponseLayer::SipResponseStatusCode::Sip433AnonymityDisallowed;
+			case 436:
+				return SipResponseLayer::SipResponseStatusCode::Sip436BadIdentityInfo;
+			case 437:
+				return SipResponseLayer::SipResponseStatusCode::Sip437UnsupportedCertificate;
+			case 438:
+				return SipResponseLayer::SipResponseStatusCode::Sip438InvalidIdentityHeader;
+			case 439:
+				return SipResponseLayer::SipResponseStatusCode::Sip439FirstHopLacksOutboundSupport;
+			case 440:
+				return SipResponseLayer::SipResponseStatusCode::Sip440MaxBreadthExceeded;
+			case 469:
+				return SipResponseLayer::SipResponseStatusCode::Sip469BadInfoPackage;
+			case 470:
+				return SipResponseLayer::SipResponseStatusCode::Sip470ConsentNeeded;
+			case 480:
+				return SipResponseLayer::SipResponseStatusCode::Sip480TemporarilyUnavailable;
+			case 481:
+				return SipResponseLayer::SipResponseStatusCode::Sip481Call_TransactionDoesNotExist;
+			case 482:
+				return SipResponseLayer::SipResponseStatusCode::Sip482LoopDetected;
+			case 483:
+				return SipResponseLayer::SipResponseStatusCode::Sip483TooManyHops;
+			case 484:
+				return SipResponseLayer::SipResponseStatusCode::Sip484AddressIncomplete;
+			case 485:
+				return SipResponseLayer::SipResponseStatusCode::Sip485Ambiguous;
+			case 486:
+				return SipResponseLayer::SipResponseStatusCode::Sip486BusyHere;
+			case 487:
+				return SipResponseLayer::SipResponseStatusCode::Sip487RequestTerminated;
+			case 488:
+				return SipResponseLayer::SipResponseStatusCode::Sip488NotAcceptableHere;
+			case 489:
+				return SipResponseLayer::SipResponseStatusCode::Sip489BadEvent;
+			case 491:
+				return SipResponseLayer::SipResponseStatusCode::Sip491RequestPending;
+			case 493:
+				return SipResponseLayer::SipResponseStatusCode::Sip493Undecipherable;
+			case 494:
+				return SipResponseLayer::SipResponseStatusCode::Sip494SecurityAgreementRequired;
+			// 5xx: Server Failure
+			case 500:
+				return SipResponseLayer::SipResponseStatusCode::Sip500ServerInternalError;
+			case 501:
+				return SipResponseLayer::SipResponseStatusCode::Sip501NotImplemented;
+			case 502:
+				return SipResponseLayer::SipResponseStatusCode::Sip502BadGateway;
+			case 503:
+				return SipResponseLayer::SipResponseStatusCode::Sip503ServiceUnavailable;
+			case 504:
+				return SipResponseLayer::SipResponseStatusCode::Sip504ServerTimeout;
+			case 505:
+				return SipResponseLayer::SipResponseStatusCode::Sip505VersionNotSupported;
+			case 513:
+				return SipResponseLayer::SipResponseStatusCode::Sip513MessageTooLarge;
+			case 555:
+				return SipResponseLayer::SipResponseStatusCode::Sip555PushNotificationServiceNotSupported;
+			case 580:
+				return SipResponseLayer::SipResponseStatusCode::Sip580PreconditionFailure;
+			// 6xx: Global Failure
+			case 600:
+				return SipResponseLayer::SipResponseStatusCode::Sip600BusyEverywhere;
+			case 603:
+				return SipResponseLayer::SipResponseStatusCode::Sip603Decline;
+			case 604:
+				return SipResponseLayer::SipResponseStatusCode::Sip604DoesNotExistAnywhere;
+			case 606:
+				return SipResponseLayer::SipResponseStatusCode::Sip606NotAcceptable;
+			case 607:
+				return SipResponseLayer::SipResponseStatusCode::Sip607Unwanted;
+			case 608:
+				return SipResponseLayer::SipResponseStatusCode::Sip608Rejected;
+			default:
+				return SipResponseLayer::SipStatusCodeUnknown;
+			}
+		}
+	}  // namespace
 
 	SipResponseLayer::SipResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	    : SipLayer(data, dataLen, prevLayer, packet, SIPResponse)
@@ -939,12 +1040,7 @@ namespace pcpp
 			return SipResponseLayer::SipStatusCodeUnknown;
 		}
 
-		auto codeAsEnum = StatusCodeStringToEnumMap.find(std::string(statusCodeData, 3));
-		if (codeAsEnum == StatusCodeStringToEnumMap.end())
-		{
-			return SipResponseLayer::SipStatusCodeUnknown;
-		}
-		return codeAsEnum->second;
+		return parseStatusCodePure(statusCodeData, 3);
 	}
 
 	SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse) : m_SipResponse(sipResponse)
@@ -1036,6 +1132,56 @@ namespace pcpp
 			return "";
 
 		return std::string(data, nextSpace - data);
+	}
+
+	std::pair<bool, SipResponseFirstLine::FirstLineData> SipResponseFirstLine::parseFirstLine(const char* data,
+	                                                                                          size_t dataLen)
+	{
+		std::pair<bool, FirstLineData> result{};  // initialize to false and empty strings
+
+		// Minimum data should be 12 bytes long: "SIP/x.y XXX "
+		if (data == nullptr || dataLen < 12)
+		{
+			PCPP_LOG_DEBUG("SIP response length < 12, cannot parse first line");
+			return result;
+		}
+
+		if (pack4(data, 4) != "SIP/"_packed4)
+		{
+			PCPP_LOG_DEBUG("SIP response does not begin with 'SIP/'");
+			return result;
+		}
+
+		const auto dataEndIt = data + dataLen;
+		// Find first space (end of version)
+		auto firstSpaceIt = std::find(data + 4, dataEndIt, ' ');
+		if (firstSpaceIt == dataEndIt)
+		{
+			PCPP_LOG_DEBUG("No space after version in SIP response line");
+			return result;
+		}
+
+		// Status code is strictly 3 characters followed by a space
+		auto statusCodeIt = firstSpaceIt + 1;
+		auto statusCodeEndIt = statusCodeIt + 3;
+		if (*statusCodeEndIt != ' ')
+		{
+			PCPP_LOG_DEBUG("No space after status code in SIP response line");
+			return result;
+		}
+
+		auto statusCode = parseStatusCodePure(statusCodeIt, 3);
+		if(statusCode == SipResponseLayer::SipStatusCodeUnknown)
+		{
+			PCPP_LOG_DEBUG("Unknown SIP status code");
+			return result;
+		}
+
+		// Write parsed values to result
+		result.first = true;
+		result.second.version = std::string(data, firstSpaceIt);
+		result.second.statusCode = statusCode;
+		return result;
 	}
 
 }  // namespace pcpp
