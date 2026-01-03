@@ -1171,7 +1171,7 @@ namespace pcpp
 		}
 
 		auto statusCode = parseStatusCodePure(statusCodeIt, 3);
-		if(statusCode == SipResponseLayer::SipStatusCodeUnknown)
+		if (statusCode == SipResponseLayer::SipStatusCodeUnknown)
 		{
 			PCPP_LOG_DEBUG("Unknown SIP status code");
 			return result;
