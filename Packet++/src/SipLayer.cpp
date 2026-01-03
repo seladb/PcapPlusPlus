@@ -5,6 +5,8 @@
 #include "PayloadLayer.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
+#include <array>
+#include <string>
 #include <algorithm>
 #include <exception>
 #include <utility>
@@ -12,38 +14,43 @@
 
 namespace pcpp
 {
-	constexpr uint32_t pack4(const char* data, size_t len)
+	namespace
 	{
-		return ((len > 0 ? static_cast<uint32_t>(data[0]) << 24 : 0) |
-		        (len > 1 ? static_cast<uint32_t>(data[1]) << 16 : 0) |
-		        (len > 2 ? static_cast<uint32_t>(data[2]) << 8 : 0) | (len > 3 ? static_cast<uint32_t>(data[3]) : 0));
-	}
+		constexpr uint32_t pack4(const char* data, size_t len)
+		{
+			return ((len > 0 ? static_cast<uint32_t>(data[0]) << 24 : 0) |
+			        (len > 1 ? static_cast<uint32_t>(data[1]) << 16 : 0) |
+			        (len > 2 ? static_cast<uint32_t>(data[2]) << 8 : 0) |
+			        (len > 3 ? static_cast<uint32_t>(data[3]) : 0));
+		}
 
-	constexpr uint32_t operator""_packed4(const char* str, size_t len)
-	{
-		return pack4(str, len);
-	}
+		constexpr uint32_t operator""_packed4(const char* str, size_t len)
+		{
+			return pack4(str, len);
+		}
 
-	const std::string SipMethodEnumToString[14] = { "INVITE", "ACK",     "BYE",       "CANCEL", "REGISTER",
-		                                            "PRACK",  "OPTIONS", "SUBSCRIBE", "NOTIFY", "PUBLISH",
-		                                            "INFO",   "REFER",   "MESSAGE",   "UPDATE" };
+		const std::array<std::string, 14> SipMethodEnumToString = {  //
+			"INVITE",    "ACK",    "BYE",     "CANCEL", "REGISTER", "PRACK",   "OPTIONS",
+			"SUBSCRIBE", "NOTIFY", "PUBLISH", "INFO",   "REFER",    "MESSAGE", "UPDATE"
+		};
 
-	const std::unordered_map<std::string, SipRequestLayer::SipMethod> SipMethodStringToEnum{
-		{ "INVITE",    SipRequestLayer::SipMethod::SipINVITE    },
-		{ "ACK",       SipRequestLayer::SipMethod::SipACK       },
-		{ "BYE",       SipRequestLayer::SipMethod::SipBYE       },
-		{ "CANCEL",    SipRequestLayer::SipMethod::SipCANCEL    },
-		{ "REGISTER",  SipRequestLayer::SipMethod::SipREGISTER  },
-		{ "PRACK",     SipRequestLayer::SipMethod::SipPRACK     },
-		{ "OPTIONS",   SipRequestLayer::SipMethod::SipOPTIONS   },
-		{ "SUBSCRIBE", SipRequestLayer::SipMethod::SipSUBSCRIBE },
-		{ "NOTIFY",    SipRequestLayer::SipMethod::SipNOTIFY    },
-		{ "PUBLISH",   SipRequestLayer::SipMethod::SipPUBLISH   },
-		{ "INFO",      SipRequestLayer::SipMethod::SipINFO      },
-		{ "REFER",     SipRequestLayer::SipMethod::SipREFER     },
-		{ "MESSAGE",   SipRequestLayer::SipMethod::SipMESSAGE   },
-		{ "UPDATE",    SipRequestLayer::SipMethod::SipUPDATE    },
-	};
+		const std::unordered_map<std::string, SipRequestLayer::SipMethod> SipMethodStringToEnum{
+			{ "INVITE",    SipRequestLayer::SipMethod::SipINVITE    },
+			{ "ACK",       SipRequestLayer::SipMethod::SipACK       },
+			{ "BYE",       SipRequestLayer::SipMethod::SipBYE       },
+			{ "CANCEL",    SipRequestLayer::SipMethod::SipCANCEL    },
+			{ "REGISTER",  SipRequestLayer::SipMethod::SipREGISTER  },
+			{ "PRACK",     SipRequestLayer::SipMethod::SipPRACK     },
+			{ "OPTIONS",   SipRequestLayer::SipMethod::SipOPTIONS   },
+			{ "SUBSCRIBE", SipRequestLayer::SipMethod::SipSUBSCRIBE },
+			{ "NOTIFY",    SipRequestLayer::SipMethod::SipNOTIFY    },
+			{ "PUBLISH",   SipRequestLayer::SipMethod::SipPUBLISH   },
+			{ "INFO",      SipRequestLayer::SipMethod::SipINFO      },
+			{ "REFER",     SipRequestLayer::SipMethod::SipREFER     },
+			{ "MESSAGE",   SipRequestLayer::SipMethod::SipMESSAGE   },
+			{ "UPDATE",    SipRequestLayer::SipMethod::SipUPDATE    },
+		};
+	}  // namespace
 
 	// -------- Class SipLayer -----------------
 
@@ -593,93 +600,95 @@ namespace pcpp
 
 	// -------- Class SipResponseLayer -----------------
 
-	const std::string StatusCodeEnumToString[77] = { "Trying",
-		                                             "Ringing",
-		                                             "Call is Being Forwarded",
-		                                             "Queued",
-		                                             "Session in Progress",
-		                                             "Early Dialog Terminated",
-		                                             "OK",
-		                                             "Accepted",
-		                                             "No Notification",
-		                                             "Multiple Choices",
-		                                             "Moved Permanently",
-		                                             "Moved Temporarily",
-		                                             "Use Proxy",
-		                                             "Alternative Service",
-		                                             "Bad Request",
-		                                             "Unauthorized",
-		                                             "Payment Required",
-		                                             "Forbidden",
-		                                             "Not Found",
-		                                             "Method Not Allowed",
-		                                             "Not Acceptable",
-		                                             "Proxy Authentication Required",
-		                                             "Request Timeout",
-		                                             "Conflict",
-		                                             "Gone",
-		                                             "Length Required",
-		                                             "Conditional Request Failed",
-		                                             "Request Entity Too Large",
-		                                             "Request-URI Too Long",
-		                                             "Unsupported Media Type",
-		                                             "Unsupported URI Scheme",
-		                                             "Unknown Resource-Priority",
-		                                             "Bad Extension",
-		                                             "Extension Required",
-		                                             "Session Interval Too Small",
-		                                             "Interval Too Brief",
-		                                             "Bad Location Information",
-		                                             "Bad Alert Message",
-		                                             "Use Identity Header",
-		                                             "Provide Referrer Identity",
-		                                             "Flow Failed",
-		                                             "Anonymity Disallowed",
-		                                             "Bad Identity-Info",
-		                                             "Unsupported Certificate",
-		                                             "Invalid Identity Header",
-		                                             "First Hop Lacks Outbound Support",
-		                                             "Max-Breadth Exceeded",
-		                                             "Bad Info Package",
-		                                             "Consent Needed",
-		                                             "Temporarily Unavailable",
-		                                             "Call_Transaction Does Not Exist",
-		                                             "Loop Detected",
-		                                             "Too Many Hops",
-		                                             "Address Incomplete",
-		                                             "Ambiguous",
-		                                             "Busy Here",
-		                                             "Request Terminated",
-		                                             "Not Acceptable Here",
-		                                             "Bad Event",
-		                                             "Request Pending",
-		                                             "Undecipherable",
-		                                             "Security Agreement Required",
-		                                             "Server Internal Error",
-		                                             "Not Implemented",
-		                                             "Bad Gateway",
-		                                             "Service Unavailable",
-		                                             "Server Timeout",
-		                                             "Version Not Supported",
-		                                             "Message Too Large",
-		                                             "Push Notification Service Not Supported",
-		                                             "Precondition Failure",
-		                                             "Busy Everywhere",
-		                                             "Decline",
-		                                             "Does Not Exist Anywhere",
-		                                             "Not Acceptable",
-		                                             "Unwanted",
-		                                             "Rejected" };
-
-	const int StatusCodeEnumToInt[77] = { 100, 180, 181, 182, 183, 199, 200, 202, 204, 300, 301, 302, 305,
-		                                  380, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411,
-		                                  412, 413, 414, 415, 416, 417, 420, 421, 422, 425, 423, 424, 428,
-		                                  429, 430, 433, 436, 437, 438, 439, 440, 469, 470, 480, 481, 482,
-		                                  483, 484, 485, 486, 487, 488, 489, 491, 493, 494, 500, 501, 502,
-		                                  503, 504, 505, 513, 555, 580, 600, 603, 604, 606, 607, 608 };
-
 	namespace
 	{
+		const std::array<std::string, 77> StatusCodeEnumToString = {  // format override comment
+			"Trying",
+			"Ringing",
+			"Call is Being Forwarded",
+			"Queued",
+			"Session in Progress",
+			"Early Dialog Terminated",
+			"OK",
+			"Accepted",
+			"No Notification",
+			"Multiple Choices",
+			"Moved Permanently",
+			"Moved Temporarily",
+			"Use Proxy",
+			"Alternative Service",
+			"Bad Request",
+			"Unauthorized",
+			"Payment Required",
+			"Forbidden",
+			"Not Found",
+			"Method Not Allowed",
+			"Not Acceptable",
+			"Proxy Authentication Required",
+			"Request Timeout",
+			"Conflict",
+			"Gone",
+			"Length Required",
+			"Conditional Request Failed",
+			"Request Entity Too Large",
+			"Request-URI Too Long",
+			"Unsupported Media Type",
+			"Unsupported URI Scheme",
+			"Unknown Resource-Priority",
+			"Bad Extension",
+			"Extension Required",
+			"Session Interval Too Small",
+			"Interval Too Brief",
+			"Bad Location Information",
+			"Bad Alert Message",
+			"Use Identity Header",
+			"Provide Referrer Identity",
+			"Flow Failed",
+			"Anonymity Disallowed",
+			"Bad Identity-Info",
+			"Unsupported Certificate",
+			"Invalid Identity Header",
+			"First Hop Lacks Outbound Support",
+			"Max-Breadth Exceeded",
+			"Bad Info Package",
+			"Consent Needed",
+			"Temporarily Unavailable",
+			"Call_Transaction Does Not Exist",
+			"Loop Detected",
+			"Too Many Hops",
+			"Address Incomplete",
+			"Ambiguous",
+			"Busy Here",
+			"Request Terminated",
+			"Not Acceptable Here",
+			"Bad Event",
+			"Request Pending",
+			"Undecipherable",
+			"Security Agreement Required",
+			"Server Internal Error",
+			"Not Implemented",
+			"Bad Gateway",
+			"Service Unavailable",
+			"Server Timeout",
+			"Version Not Supported",
+			"Message Too Large",
+			"Push Notification Service Not Supported",
+			"Precondition Failure",
+			"Busy Everywhere",
+			"Decline",
+			"Does Not Exist Anywhere",
+			"Not Acceptable",
+			"Unwanted",
+			"Rejected"
+		};
+
+		const std::array<int, 77> StatusCodeEnumToInt = {
+			100, 180, 181, 182, 183, 199, 200, 202, 204, 300, 301, 302, 305, 380, 400, 401, 402, 403, 404, 405,
+			406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 420, 421, 422, 425, 423, 424, 428, 429,
+			430, 433, 436, 437, 438, 439, 440, 469, 470, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 491,
+			493, 494, 500, 501, 502, 503, 504, 505, 513, 555, 580, 600, 603, 604, 606, 607, 608
+		};
+
 		// Parses the SIP status code from raw data. The data must point to the beginning of the status code.
 		SipResponseLayer::SipResponseStatusCode parseStatusCodePure(const char* data, size_t dataLen)
 		{
