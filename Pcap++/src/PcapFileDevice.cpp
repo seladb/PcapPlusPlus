@@ -739,7 +739,7 @@ namespace pcpp
 		std::ifstream pcapFileTemp(fileName, std::ios::binary);
 		if (!pcapFileTemp.is_open())
 		{
-			return { CheckHeaderResult::Result::HeaderError, "Failed to open file: " + fileName };
+			return CheckHeaderResult::fromError("Failed to open file: " + fileName);
 		}
 
 		pcapFileTemp.seekg(0, std::ios::end);
@@ -747,12 +747,12 @@ namespace pcpp
 
 		if (size == 0)
 		{
-			return { CheckHeaderResult::Result::HeaderNeeded };
+			return CheckHeaderResult::fromHeaderNeeded();
 		}
 
 		if (size < static_cast<std::streamsize>(sizeof(pcap_file_header)))
 		{
-			return { CheckHeaderResult::Result::HeaderError, "Malformed file header or not a pcap file" };
+			return CheckHeaderResult::fromError("Malformed file header or not a pcap file");
 		}
 
 		pcapFileTemp.seekg(0, std::ios::beg);
@@ -760,7 +760,7 @@ namespace pcpp
 		pcap_file_header pcapFileHeader{};
 		if (!pcapFileTemp.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
 		{
-			return { CheckHeaderResult::Result::HeaderError, "Cannot read file header" };
+			return CheckHeaderResult::fromError("Cannot read file header");
 		}
 
 		FileTimestampPrecision precisionFromHeader = FileTimestampPrecision::Microseconds;
@@ -790,7 +790,7 @@ namespace pcpp
 		}
 		default:
 		{
-			return { CheckHeaderResult::Result::HeaderError, "Unsupported pcap file format" };
+			return CheckHeaderResult::fromError("Unsupported pcap file format");
 		}
 		}
 
@@ -815,24 +815,23 @@ namespace pcpp
 					return "Unknown";
 				}
 			};
-			return { CheckHeaderResult::Result::HeaderError, "Existing file precision (" +
-				                                                 getPrecisionStr(precisionFromHeader) +
-				                                                 ") does not match the requested device precision (" +
-				                                                 getPrecisionStr(requestedPrecision) + ")" };
+			return CheckHeaderResult::fromError("Existing file precision (" + getPrecisionStr(precisionFromHeader) +
+			                                    ") does not match the requested device precision (" +
+			                                    getPrecisionStr(requestedPrecision) + ")");
 		}
 
 		if (pcapFileHeader.version_major != PCAP_MAJOR_VERSION || pcapFileHeader.version_minor != PCAP_MINOR_VERSION)
 		{
-			return { CheckHeaderResult::Result::HeaderError, "Unsupported pcap file version" };
+			return CheckHeaderResult::fromError("Unsupported pcap file version");
 		}
 
 		if (pcapFileHeader.linktype != static_cast<uint32_t>(requestedLinkType))
 		{
-			return { CheckHeaderResult::Result::HeaderError,
-				     "Existing file link type does not match the requested device link type" };
+			return CheckHeaderResult::fromError(
+			    "Existing file link type does not match the requested device link type");
 		}
 
-		return { CheckHeaderResult::Result::HeaderOk, "", needsSwap };
+		return CheckHeaderResult::fromOk(needsSwap);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

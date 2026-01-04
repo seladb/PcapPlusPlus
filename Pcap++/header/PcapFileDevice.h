@@ -328,6 +328,21 @@ namespace pcpp
 			Result result;
 			std::string error;
 			bool needsSwap = false;
+
+			static CheckHeaderResult fromOk(bool needsSwap)
+			{
+				return { Result::HeaderOk, "", needsSwap };
+			}
+
+			static CheckHeaderResult fromError(const std::string& error)
+			{
+				return { Result::HeaderError, error };
+			}
+
+			static CheckHeaderResult fromHeaderNeeded()
+			{
+				return { Result::HeaderNeeded };
+			}
 		};
 
 		bool openWrite();
