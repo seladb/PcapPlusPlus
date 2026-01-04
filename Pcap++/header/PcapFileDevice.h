@@ -227,7 +227,7 @@ namespace pcpp
 	/// A class for opening a pcap file for writing or creating a new pcap file and writing packets to it.
 	/// It supports opening a pcap file in append mode where packets are written at the end of the file
 	/// instead of overwriting it. This implementation writes the pcap stream directly using C++ I/O
-	/// facilities (std::ofstream) and does not require libpcap/WinPcap at runtime.
+	/// facilities (std::fstream) and does not require libpcap/WinPcap at runtime.
 	class PcapFileWriterDevice : public IFileWriterDevice
 	{
 	public:
@@ -313,7 +313,7 @@ namespace pcpp
 		LinkLayerType m_PcapLinkLayerType = LINKTYPE_ETHERNET;
 		bool m_NeedsSwap = false;
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;
-		std::ofstream m_PcapFile;
+		std::fstream m_PcapFile;
 		BpfFilterWrapper m_BpfWrapper;
 
 		struct CheckHeaderResult
@@ -348,9 +348,9 @@ namespace pcpp
 		bool openWrite();
 		bool openAppend();
 
-		static bool writeHeader(std::ofstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
+		static bool writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
 		                        LinkLayerType linkType);
-		static CheckHeaderResult checkHeader(const std::string& fileName, FileTimestampPrecision requestedPrecision,
+		static CheckHeaderResult checkHeader(std::fstream& pcapFile, FileTimestampPrecision requestedPrecision,
 		                                     LinkLayerType requestedLinkType);
 	};
 

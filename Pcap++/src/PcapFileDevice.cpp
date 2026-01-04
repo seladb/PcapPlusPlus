@@ -533,8 +533,7 @@ namespace pcpp
 
 	bool PcapFileWriterDevice::open(bool appendMode)
 	{
-		std::ifstream file(m_FileName);
-		if (appendMode && file.good())
+		if (appendMode)
 		{
 			return openAppend();
 		}
@@ -655,7 +654,7 @@ namespace pcpp
 			return false;
 		}
 
-		m_PcapFile.open(m_FileName, std::ios::binary);
+		m_PcapFile.open(m_FileName, std::ios::binary | std::ios::out);
 
 		if (!m_PcapFile.is_open())
 		{
@@ -679,19 +678,19 @@ namespace pcpp
 			return false;
 		}
 
-		auto checkHeaderResult = checkHeader(m_FileName, m_Precision, m_PcapLinkLayerType);
-
-		if (checkHeaderResult.result == CheckHeaderResult::Result::HeaderError)
-		{
-			PCPP_LOG_ERROR(checkHeaderResult.error);
-			return false;
-		}
-
-		m_PcapFile.open(m_FileName, std::ios::binary | std::ios::app);
+		m_PcapFile.open(m_FileName, std::ios::binary | std::ios::in | std::ios::out | std::ios::app);
 
 		if (!m_PcapFile.is_open())
 		{
 			PCPP_LOG_ERROR("Failed to open file: " << m_FileName);
+			return false;
+		}
+
+		auto checkHeaderResult = checkHeader(m_PcapFile, m_Precision, m_PcapLinkLayerType);
+
+		if (checkHeaderResult.result == CheckHeaderResult::Result::HeaderError)
+		{
+			PCPP_LOG_ERROR(checkHeaderResult.error);
 			return false;
 		}
 
@@ -706,11 +705,13 @@ namespace pcpp
 			return false;
 		}
 
+		m_PcapFile.seekg(0, std::ios::end);
+
 		m_DeviceOpened = true;
 		return true;
 	}
 
-	bool PcapFileWriterDevice::writeHeader(std::ofstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
+	bool PcapFileWriterDevice::writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
 	                                       LinkLayerType linkType)
 	{
 		pcap_file_header header{ precision == FileTimestampPrecision::Microseconds ? TCPDUMP_MAGIC : NSEC_TCPDUMP_MAGIC,
@@ -732,18 +733,17 @@ namespace pcpp
 		return true;
 	}
 
-	PcapFileWriterDevice::CheckHeaderResult PcapFileWriterDevice::checkHeader(const std::string& fileName,
+	PcapFileWriterDevice::CheckHeaderResult PcapFileWriterDevice::checkHeader(std::fstream& pcapFile,
 	                                                                          FileTimestampPrecision requestedPrecision,
 	                                                                          LinkLayerType requestedLinkType)
 	{
-		std::ifstream pcapFileTemp(fileName, std::ios::binary);
-		if (!pcapFileTemp.is_open())
+		if (!pcapFile.is_open())
 		{
-			return CheckHeaderResult::fromError("Failed to open file: " + fileName);
+			return CheckHeaderResult::fromError("Pcap file isn't open");
 		}
 
-		pcapFileTemp.seekg(0, std::ios::end);
-		std::streamsize size = pcapFileTemp.tellg();
+		pcapFile.seekg(0, std::ios::end);
+		std::streamsize size = pcapFile.tellg();
 
 		if (size == 0)
 		{
@@ -755,10 +755,10 @@ namespace pcpp
 			return CheckHeaderResult::fromError("Malformed file header or not a pcap file");
 		}
 
-		pcapFileTemp.seekg(0, std::ios::beg);
+		pcapFile.seekg(0, std::ios::beg);
 
 		pcap_file_header pcapFileHeader{};
-		if (!pcapFileTemp.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
+		if (!pcapFile.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
 		{
 			return CheckHeaderResult::fromError("Cannot read file header");
 		}
