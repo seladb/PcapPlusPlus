@@ -647,6 +647,15 @@ namespace pcpp
 		friend class SipResponseLayer;
 
 	public:
+		/// @brief A structure containing parsed components from a SIP response first line.
+		struct FirstLineData
+		{
+			/// @brief The SIP protocol version (e.g., SIP/2.0)
+			std::string version;
+			/// @brief The response status code number (e.g., 200, 100)
+			SipResponseLayer::SipResponseStatusCode statusCode;
+		};
+
 		/// @return The status code as SipResponseLayer#SipResponseStatusCode enum
 		SipResponseLayer::SipResponseStatusCode getStatusCode() const
 		{
@@ -688,6 +697,12 @@ namespace pcpp
 		/// @param[in] dataLen The raw data length
 		/// @return The parsed SIP version string or an empty string if version cannot be extracted
 		static std::string parseVersion(const char* data, size_t dataLen);
+
+		/// @brief A static method for parsing the complete SIP response first line from raw data
+		/// @param data The raw data containing the SIP response line
+		/// @param dataLen The raw data length
+		/// @return A pair where first indicates success/failure, and second contains the parsed data.
+		static std::pair<bool, FirstLineData> parseFirstLine(const char* data, size_t dataLen);
 
 		/// @return The size in bytes of the SIP response first line
 		int getSize() const
