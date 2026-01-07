@@ -533,11 +533,51 @@ namespace pcpp
 
 	bool PcapFileWriterDevice::open(bool appendMode)
 	{
+		if (m_DeviceOpened || m_PcapFile.is_open())
+		{
+			PCPP_LOG_ERROR("File already opened");
+			return false;
+		}
+
+		auto flags = std::ios::binary | std::ios::out;
 		if (appendMode)
 		{
-			return openAppend();
+			flags |= std::ios::in | std::ios::app;
 		}
-		return openWrite();
+		m_PcapFile.open(m_FileName, flags);
+
+		if (!m_PcapFile.is_open())
+		{
+			PCPP_LOG_ERROR("Failed to open file: " << m_FileName);
+			return false;
+		}
+
+		m_NeedsSwap = false;
+		bool shouldWriteHeader = true;
+
+		if (appendMode)
+		{
+			auto checkHeaderResult = checkHeader(m_PcapFile, m_Precision, m_PcapLinkLayerType);
+
+			if (checkHeaderResult.result == CheckHeaderResult::Result::HeaderError)
+			{
+				PCPP_LOG_ERROR(checkHeaderResult.error);
+				return false;
+			}
+
+			m_NeedsSwap = checkHeaderResult.needsSwap;
+			shouldWriteHeader = checkHeaderResult.result == CheckHeaderResult::Result::HeaderNeeded;
+
+			m_PcapFile.seekg(0, std::ios::end);
+		}
+
+		if (shouldWriteHeader && !writeHeader(m_PcapFile, m_Precision, PCPP_MAX_PACKET_SIZE, m_PcapLinkLayerType))
+		{
+			return false;
+		}
+
+		m_DeviceOpened = true;
+		return true;
 	}
 
 	bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
@@ -644,71 +684,6 @@ namespace pcpp
 		}
 
 		return m_BpfWrapper.setFilter(*filterAsString);
-	}
-
-	bool PcapFileWriterDevice::openWrite()
-	{
-		if (m_DeviceOpened || m_PcapFile.is_open())
-		{
-			PCPP_LOG_ERROR("File already opened");
-			return false;
-		}
-
-		m_PcapFile.open(m_FileName, std::ios::binary | std::ios::out);
-
-		if (!m_PcapFile.is_open())
-		{
-			PCPP_LOG_ERROR("Failed to open file: " << m_FileName);
-			return false;
-		}
-
-		bool wroteHeader = writeHeader(m_PcapFile, m_Precision, PCPP_MAX_PACKET_SIZE, m_PcapLinkLayerType);
-		if (wroteHeader)
-		{
-			m_DeviceOpened = true;
-		}
-		return wroteHeader;
-	}
-
-	bool PcapFileWriterDevice::openAppend()
-	{
-		if (m_DeviceOpened || m_PcapFile.is_open())
-		{
-			PCPP_LOG_ERROR("File already opened");
-			return false;
-		}
-
-		m_PcapFile.open(m_FileName, std::ios::binary | std::ios::in | std::ios::out | std::ios::app);
-
-		if (!m_PcapFile.is_open())
-		{
-			PCPP_LOG_ERROR("Failed to open file: " << m_FileName);
-			return false;
-		}
-
-		auto checkHeaderResult = checkHeader(m_PcapFile, m_Precision, m_PcapLinkLayerType);
-
-		if (checkHeaderResult.result == CheckHeaderResult::Result::HeaderError)
-		{
-			PCPP_LOG_ERROR(checkHeaderResult.error);
-			return false;
-		}
-
-		if (checkHeaderResult.needsSwap)
-		{
-			m_NeedsSwap = true;
-		}
-
-		if (checkHeaderResult.result == CheckHeaderResult::Result::HeaderNeeded &&
-		    !writeHeader(m_PcapFile, m_Precision, PCPP_MAX_PACKET_SIZE, m_PcapLinkLayerType))
-		{
-			return false;
-		}
-
-		m_PcapFile.seekg(0, std::ios::end);
-
-		m_DeviceOpened = true;
-		return true;
 	}
 
 	bool PcapFileWriterDevice::writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,

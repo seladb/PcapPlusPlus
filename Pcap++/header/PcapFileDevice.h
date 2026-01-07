@@ -345,9 +345,6 @@ namespace pcpp
 			}
 		};
 
-		bool openWrite();
-		bool openAppend();
-
 		static bool writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
 		                        LinkLayerType linkType);
 		static CheckHeaderResult checkHeader(std::fstream& pcapFile, FileTimestampPrecision requestedPrecision,
