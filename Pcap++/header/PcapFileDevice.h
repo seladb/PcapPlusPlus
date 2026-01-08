@@ -208,6 +208,11 @@ namespace pcpp
 		/// Close the pacp file
 		void close() override;
 
+		bool isOpened() const override
+		{
+			return m_PcapFile.is_open();
+		}
+
 	protected:
 		bool doUpdateFilter(std::string const* filterAsString) override;
 
@@ -305,6 +310,11 @@ namespace pcpp
 
 		/// Flush packets to disk.
 		void flush();
+
+		bool isOpened() const override
+		{
+			return m_PcapFile.is_open();
+		}
 
 	protected:
 		bool doUpdateFilter(std::string const* filterAsString) override;

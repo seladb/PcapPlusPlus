@@ -412,6 +412,14 @@ PTF_TEST_CASE(TestPcapFileReadAdv)
 		PTF_ASSERT_FALSE(reader.setFilter("invalid"));
 	}
 
+	// File already open
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File already opened");
+	}
+
 	// File doesn't exist
 	{
 		pcpp::PcapFileReaderDevice reader("file_does_not_exist.pcap");
@@ -435,6 +443,7 @@ PTF_TEST_CASE(TestPcapFileReadAdv)
 		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
 		PTF_ASSERT_FALSE(reader.open());
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Cannot read pcap file header");
+		PTF_ASSERT_FALSE(reader.isOpened());
 	}
 
 	// Invalid magic number
@@ -1100,6 +1109,7 @@ PTF_TEST_CASE(TestPcapFileAppend)
 		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Malformed file header or not a pcap file");
+		PTF_ASSERT_FALSE(writer.isOpened());
 	}
 
 	// Precision mismatch
