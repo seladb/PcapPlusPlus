@@ -94,7 +94,8 @@ private:
 		{}
 	};
 
-	using SSLConnectionManager = std::unordered_map<uint32_t, SSLConnectionData>;
+	using FlowKey = decltype(reinterpret_cast<pcpp::ConnectionData*>(0)->flowKey);
+	using SSLConnectionManager = std::unordered_map<FlowKey, SSLConnectionData>;
 
 	/// Tracks statistics about the PCAP processing
 	struct SSLPcapStats

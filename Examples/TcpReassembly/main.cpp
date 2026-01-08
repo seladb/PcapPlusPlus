@@ -67,6 +67,8 @@ static struct option TcpAssemblyOptions[] = {
 	{ nullptr,            0,                 nullptr, 0   }
 };
 
+using FlowKey = decltype(reinterpret_cast<pcpp::ConnectionData*>(0)->flowKey);
+
 /**
  * A singleton class containing the configuration as requested by the user. This singleton is used throughout the
  * application
@@ -85,7 +87,7 @@ private:
 	// A least-recently-used (LRU) list of all connections seen so far. Each connection is represented by its flow key.
 	// This LRU list is used to decide which connection was seen least recently in case we reached max number of open
 	// file descriptors and we need to decide which files to close
-	pcpp::LRUList<uint32_t>* m_RecentConnsWithActivity;
+	pcpp::LRUList<FlowKey>* m_RecentConnsWithActivity;
 
 public:
 	// a flag indicating whether to write a metadata file for each connection (containing several stats)
@@ -171,13 +173,13 @@ public:
 	/**
 	 * Return a pointer to the least-recently-used (LRU) list of connections
 	 */
-	pcpp::LRUList<uint32_t>* getRecentConnsWithActivity()
+	pcpp::LRUList<FlowKey>* getRecentConnsWithActivity()
 	{
 		// This is a lazy implementation - the instance isn't created until the user requests it for the first time.
 		// the side of the LRU list is determined by the max number of allowed open files at any point in time. Default
 		// is DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES but the user can choose another number
 		if (m_RecentConnsWithActivity == nullptr)
-			m_RecentConnsWithActivity = new pcpp::LRUList<uint32_t>(maxOpenFiles);
+			m_RecentConnsWithActivity = new pcpp::LRUList<FlowKey>(maxOpenFiles);
 
 		// return the pointer
 		return m_RecentConnsWithActivity;
@@ -277,7 +279,7 @@ struct TcpReassemblyData
 };
 
 // using declaration representing the connection manager
-using TcpReassemblyConnMgr = std::unordered_map<uint32_t, TcpReassemblyData>;
+using TcpReassemblyConnMgr = std::unordered_map<FlowKey, TcpReassemblyData>;
 
 /**
  * Print application usage
@@ -372,7 +374,7 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 		// add the flow key of this connection to the list of open connections. If the return value isn't nullptr it
 		// means that there are too many open files and we need to close the connection with least recently used file(s)
 		// in order to open a new one. The connection with the least recently used file is the return value
-		uint32_t flowKeyToCloseFiles;
+		FlowKey flowKeyToCloseFiles;
 		int result = GlobalConfig::getInstance().getRecentConnsWithActivity()->put(tcpData.getConnectionData().flowKey,
 		                                                                           &flowKeyToCloseFiles);
 

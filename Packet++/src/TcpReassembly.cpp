@@ -22,7 +22,6 @@
 
 namespace pcpp
 {
-
 	static timeval timePointToTimeval(const std::chrono::time_point<std::chrono::high_resolution_clock>& in)
 	{
 		auto duration = in.time_since_epoch();
@@ -56,6 +55,52 @@ namespace pcpp
 	{
 		endTime = timePointToTimeval(endTimeValue);
 		endTimePrecise = endTimeValue;
+	}
+
+	bool ConnectionData::isIPv4() const
+	{
+		return srcIP.isIPv4() && dstIP.isIPv4();
+	}
+	bool ConnectionData::isIPv6() const
+	{
+		return srcIP.isIPv6() && dstIP.isIPv6();
+	}
+	const uint8_t* ConnectionData::ipSrc() const
+	{
+		const IPAddress& ip = srcIP;
+		if (ip.isIPv4())
+			return ip.getIPv4().toBytes();
+		if (ip.isIPv6())
+			return ip.getIPv6().toBytes();
+		return nullptr;
+	}
+	const uint8_t* ConnectionData::ipDst() const
+	{
+		const IPAddress& ip = dstIP;
+		if (ip.isIPv4())
+			return ip.getIPv4().toBytes();
+		if (ip.isIPv6())
+			return ip.getIPv6().toBytes();
+		return nullptr;
+	}
+	IPProtocolTypes ConnectionData::ipProtocol() const
+	{
+		return PACKETPP_IPPROTO_TCP;
+	}
+	uint16_t ConnectionData::portSrc() const
+	{
+		return srcPort;
+	}
+	uint16_t ConnectionData::portDst() const
+	{
+		return dstPort;
+	}
+
+	std::ostream& operator<<(std::ostream& oss, const ConnectionData& conn)
+	{
+		using time_io::operator<<;
+		return oss << '(' << conn.srcIP << ':' << conn.srcPort << " -> " << conn.dstIP << ':' << conn.dstPort << ' '
+		           << conn.startTimePrecise << " - " << conn.endTimePrecise << ')';
 	}
 
 	timeval TcpStreamData::getTimeStamp() const
@@ -138,34 +183,36 @@ namespace pcpp
 
 		TcpReassemblyData* tcpReassemblyData = nullptr;
 
-		// calculate flow key for this packet
-		uint32_t flowKey = hash5Tuple(&tcpData);
-
 		// time stamp for this packet
 		auto currTime = timespecToTimePoint(tcpData.getRawPacket()->getPacketTimeStamp());
 
 		// find the connection in the connection map
-		auto iter = m_ConnectionList.find(flowKey);
+		PacketHashable tcpDataHashable{ &tcpData };
+		auto iter = m_ConnectionList.find(&tcpDataHashable);
 
 		if (iter == m_ConnectionList.end())
 		{
 			// if it's a packet of a new connection, create a TcpReassemblyData object and add it to the active
 			// connection list
-			std::pair<ConnectionList::iterator, bool> pair =
-			    m_ConnectionList.insert(std::make_pair(flowKey, TcpReassemblyData()));
-			tcpReassemblyData = &pair.first->second;
-			tcpReassemblyData->connData.srcIP = srcIP;
-			tcpReassemblyData->connData.dstIP = dstIP;
-			tcpReassemblyData->connData.srcPort = tcpLayer->getSrcPort();
-			tcpReassemblyData->connData.dstPort = tcpLayer->getDstPort();
-			tcpReassemblyData->connData.flowKey = flowKey;
-			tcpReassemblyData->connData.setStartTime(currTime);
+			auto itConnData = m_ConnectionInfo.emplace(m_ConnectionInfo.end());
+			itConnData->srcIP = srcIP;
+			itConnData->dstIP = dstIP;
+			itConnData->srcPort = tcpLayer->getSrcPort();
+			itConnData->dstPort = tcpLayer->getDstPort();
+			DISABLE_WARNING_PUSH
+			DISABLE_WARNING_DEPRECATED
+			itConnData->flowKey = &*itConnData;
+			DISABLE_WARNING_POP
+			itConnData->setStartTime(currTime);
 
-			m_ConnectionInfo[flowKey] = tcpReassemblyData->connData;
+			std::pair<ConnectionList::iterator, bool> pair =
+			    m_ConnectionList.insert(std::make_pair(&*itConnData, TcpReassemblyData(itConnData)));
+
+			tcpReassemblyData = &pair.first->second;
 
 			// fire connection start callback
 			if (m_OnConnStart != nullptr)
-				m_OnConnStart(tcpReassemblyData->connData, m_UserCookie);
+				m_OnConnStart(*tcpReassemblyData->connData, m_UserCookie);
 		}
 		else  // connection already exists
 		{
@@ -173,16 +220,15 @@ namespace pcpp
 			// FIN), ignore it.
 			if (iter->second.closed)
 			{
-				PCPP_LOG_DEBUG("Ignoring packet of already closed flow [0x" << std::hex << flowKey << "]");
+				PCPP_LOG_DEBUG("Ignoring packet of already closed connection " << *iter->second.connData);
 				return Ignore_PacketOfClosedFlow;
 			}
 
 			tcpReassemblyData = &iter->second;
 
-			if (currTime > tcpReassemblyData->connData.endTimePrecise)
+			if (currTime > tcpReassemblyData->connData->endTimePrecise)
 			{
-				tcpReassemblyData->connData.setEndTime(currTime);
-				m_ConnectionInfo[flowKey].setEndTime(currTime);
+				tcpReassemblyData->connData->setEndTime(currTime);
 			}
 		}
 
@@ -258,7 +304,7 @@ namespace pcpp
 		{
 			if (!tcpReassemblyData->twoSides[1 - sideIndex].gotFinOrRst && isRst)
 			{
-				handleFinOrRst(tcpReassemblyData, 1 - sideIndex, flowKey, isRst);
+				handleFinOrRst(tcpReassemblyData, 1 - sideIndex, *tcpReassemblyData->connData, isRst);
 				return FIN_RSTWithNoData;
 			}
 
@@ -273,7 +319,7 @@ namespace pcpp
 		{
 			PCPP_LOG_DEBUG("Got FIN or RST packet without data on side " << sideIndex);
 
-			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+			handleFinOrRst(tcpReassemblyData, sideIndex, *tcpReassemblyData->connData, isRst);
 			return FIN_RSTWithNoData;
 		}
 
@@ -322,7 +368,7 @@ namespace pcpp
 			// send data to the callback
 			if (tcpPayloadSize != 0 && m_OnMessageReadyCallback != nullptr)
 			{
-				TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData,
+				TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, *tcpReassemblyData->connData,
 				                         currTime);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
@@ -330,7 +376,7 @@ namespace pcpp
 
 			// handle case where this packet is FIN or RST (although it's unlikely)
 			if (isFinOrRst)
-				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+				handleFinOrRst(tcpReassemblyData, sideIndex, *tcpReassemblyData->connData, isRst);
 
 			// return - nothing else to do here
 			return status;
@@ -361,7 +407,7 @@ namespace pcpp
 				if (m_OnMessageReadyCallback != nullptr)
 				{
 					TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, 0,
-					                         tcpReassemblyData->connData, currTime);
+					                         *tcpReassemblyData->connData, currTime);
 					m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 				}
 				status = TcpMessageHandled;
@@ -373,7 +419,7 @@ namespace pcpp
 
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
-				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+				handleFinOrRst(tcpReassemblyData, sideIndex, *tcpReassemblyData->connData, isRst);
 
 			// return - nothing else to do here
 			return status;
@@ -390,7 +436,7 @@ namespace pcpp
 				// handle case where this packet is FIN or RST
 				if (isFinOrRst)
 				{
-					handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+					handleFinOrRst(tcpReassemblyData, sideIndex, *tcpReassemblyData->connData, isRst);
 					status = FIN_RSTWithNoData;
 				}
 				else
@@ -413,7 +459,7 @@ namespace pcpp
 			// send the data to the callback
 			if (m_OnMessageReadyCallback != nullptr)
 			{
-				TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData,
+				TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, *tcpReassemblyData->connData,
 				                         currTime);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
@@ -425,7 +471,7 @@ namespace pcpp
 
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
-				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+				handleFinOrRst(tcpReassemblyData, sideIndex, *tcpReassemblyData->connData, isRst);
 
 			// return - nothing else to do here
 			return status;
@@ -444,7 +490,7 @@ namespace pcpp
 				// handle case where this packet is FIN or RST
 				if (isFinOrRst)
 				{
-					handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+					handleFinOrRst(tcpReassemblyData, sideIndex, *tcpReassemblyData->connData, isRst);
 					status = FIN_RSTWithNoData;
 				}
 				else
@@ -479,7 +525,7 @@ namespace pcpp
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
 			{
-				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
+				handleFinOrRst(tcpReassemblyData, sideIndex, *tcpReassemblyData->connData, isRst);
 			}
 
 			return status;
@@ -499,8 +545,8 @@ namespace pcpp
 		return missingDataTextStream.str();
 	}
 
-	void TcpReassembly::handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, uint32_t flowKey,
-	                                   bool isRst)
+	void TcpReassembly::handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex,
+	                                   const ConnectionData& connection, bool isRst)
 	{
 		// if this side already saw a FIN or RST packet, do nothing and return
 		if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
@@ -516,7 +562,7 @@ namespace pcpp
 		int otherSideIndex = 1 - sideIndex;
 		if (tcpReassemblyData->twoSides[otherSideIndex].gotFinOrRst)
 		{
-			closeConnectionInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
+			closeConnectionInternal(connection, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
 			return;
 		}
 		else
@@ -524,7 +570,7 @@ namespace pcpp
 
 		// and if it's a rst, close the flow unilaterally
 		if (isRst)
-			closeConnectionInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
+			closeConnectionInternal(connection, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
 	}
 
 	void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex,
@@ -573,7 +619,7 @@ namespace pcpp
 							if (m_OnMessageReadyCallback != nullptr)
 							{
 								TcpStreamData streamData(curTcpFrag->data, curTcpFrag->dataLength, 0,
-								                         tcpReassemblyData->connData, curTcpFrag->timestamp);
+								                         *tcpReassemblyData->connData, curTcpFrag->timestamp);
 								m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 							}
 						}
@@ -611,7 +657,7 @@ namespace pcpp
 							{
 								TcpStreamData streamData(curTcpFrag->data + newLength,
 								                         curTcpFrag->dataLength - newLength, 0,
-								                         tcpReassemblyData->connData, curTcpFrag->timestamp);
+								                         *tcpReassemblyData->connData, curTcpFrag->timestamp);
 								m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 							}
 
@@ -698,7 +744,7 @@ namespace pcpp
 						// TcpStreamData streamData(curTcpFrag->data, curTcpFrag->dataLength,
 						// tcpReassemblyData->connData);
 						TcpStreamData streamData(&dataWithMissingDataText[0], dataWithMissingDataText.size(),
-						                         missingDataLen, tcpReassemblyData->connData, curTcpFrag->timestamp);
+						                         missingDataLen, *tcpReassemblyData->connData, curTcpFrag->timestamp);
 						m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 
 						PCPP_LOG_DEBUG("Found missing data on side "
@@ -719,18 +765,22 @@ namespace pcpp
 		} while (foundSomething);
 	}
 
-	void TcpReassembly::closeConnection(uint32_t flowKey)
+	void TcpReassembly::closeConnection(const ConnectionData* connection)
 	{
-		closeConnectionInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedManually);
+		closeConnectionInternal(*connection, TcpReassembly::TcpReassemblyConnectionClosedManually);
 	}
 
-	void TcpReassembly::closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason)
+	void TcpReassembly::closeConnection(const ConnectionData& connection)
 	{
-		auto iter = m_ConnectionList.find(flowKey);
+		closeConnectionInternal(connection, TcpReassembly::TcpReassemblyConnectionClosedManually);
+	}
+
+	void TcpReassembly::closeConnectionInternal(const ConnectionData& connection, ConnectionEndReason reason)
+	{
+		auto iter = m_ConnectionList.find(&connection);
 		if (iter == m_ConnectionList.end())
 		{
-			PCPP_LOG_ERROR("Cannot close flow with key 0x" << std::uppercase << std::hex << flowKey
-			                                               << ": cannot find flow");
+			PCPP_LOG_ERROR("Cannot close connection " << connection << ": cannot find connection");
 			return;
 		}
 
@@ -739,7 +789,7 @@ namespace pcpp
 		if (tcpReassemblyData.closed)  // the connection is already closed
 			return;
 
-		PCPP_LOG_DEBUG("Closing connection with flow key 0x" << std::hex << flowKey);
+		PCPP_LOG_DEBUG("Closing connection " << connection);
 
 		PCPP_LOG_DEBUG("Calling checkOutOfOrderFragments on side 0");
 		checkOutOfOrderFragments(&tcpReassemblyData, 0, true);
@@ -748,12 +798,12 @@ namespace pcpp
 		checkOutOfOrderFragments(&tcpReassemblyData, 1, true);
 
 		if (m_OnConnEnd != nullptr)
-			m_OnConnEnd(tcpReassemblyData.connData, reason, m_UserCookie);
+			m_OnConnEnd(*tcpReassemblyData.connData, reason, m_UserCookie);
 
 		tcpReassemblyData.closed = true;  // mark the connection as closed
-		insertIntoCleanupList(flowKey);
+		insertIntoCleanupList(connection);
 
-		PCPP_LOG_DEBUG("Connection with flow key 0x" << std::hex << flowKey << " is closed");
+		PCPP_LOG_DEBUG("Connection " << connection << " is closed");
 	}
 
 	void TcpReassembly::closeAllConnections()
@@ -764,12 +814,12 @@ namespace pcpp
 		for (; iter != iterEnd; ++iter)
 		{
 			TcpReassemblyData& tcpReassemblyData = iter->second;
+			ConnectionData& connection = *tcpReassemblyData.connData;
 
 			if (tcpReassemblyData.closed)  // the connection is already closed, skip it
 				continue;
 
-			uint32_t flowKey = tcpReassemblyData.connData.flowKey;
-			PCPP_LOG_DEBUG("Closing connection with flow key 0x" << std::hex << flowKey);
+			PCPP_LOG_DEBUG("Closing connection " << connection);
 
 			PCPP_LOG_DEBUG("Calling checkOutOfOrderFragments on side 0");
 			checkOutOfOrderFragments(&tcpReassemblyData, 0, true);
@@ -778,25 +828,25 @@ namespace pcpp
 			checkOutOfOrderFragments(&tcpReassemblyData, 1, true);
 
 			if (m_OnConnEnd != nullptr)
-				m_OnConnEnd(tcpReassemblyData.connData, TcpReassemblyConnectionClosedManually, m_UserCookie);
+				m_OnConnEnd(*tcpReassemblyData.connData, TcpReassemblyConnectionClosedManually, m_UserCookie);
 
 			tcpReassemblyData.closed = true;  // mark the connection as closed
-			insertIntoCleanupList(flowKey);
+			insertIntoCleanupList(connection);
 
-			PCPP_LOG_DEBUG("Connection with flow key 0x" << std::hex << flowKey << " is closed");
+			PCPP_LOG_DEBUG("Connection " << connection << " is closed");
 		}
 	}
 
 	int TcpReassembly::isConnectionOpen(const ConnectionData& connection) const
 	{
-		auto iter = m_ConnectionList.find(connection.flowKey);
+		auto iter = m_ConnectionList.find(&connection);
 		if (iter != m_ConnectionList.end())
 			return iter->second.closed == false;
 
 		return -1;
 	}
 
-	void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
+	void TcpReassembly::insertIntoCleanupList(const ConnectionData& connection)
 	{
 		// m_CleanupList is a map with key of type time_t (expiration time). The mapped type is a list that stores the
 		// flow keys to be cleared in certain point of time. m_CleanupList.insert inserts an empty list if the container
@@ -807,7 +857,7 @@ namespace pcpp
 
 		// getting the reference to list
 		CleanupList::mapped_type& keysList = pair.first->second;
-		keysList.push_front(flowKey);
+		keysList.push_front(&connection);
 	}
 
 	uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
@@ -825,8 +875,17 @@ namespace pcpp
 			for (; !keysList.empty() && count < maxNumToClean; ++count)
 			{
 				CleanupList::mapped_type::const_reference key = keysList.front();
-				m_ConnectionInfo.erase(key);
-				m_ConnectionList.erase(key);
+				auto iter = m_ConnectionList.find(key);
+				if (iter != m_ConnectionList.end())
+				{
+					m_ConnectionInfo.erase(iter->second.connData);
+					m_ConnectionList.erase(iter);
+				}
+				else
+				{
+					// Should never happen. Probably will crash at m_ConnectionList.find(key) instead.
+					PCPP_LOG_ERROR("Error occurred - connection " << *key << " is already deleted");
+				}
 				keysList.pop_front();
 			}
 

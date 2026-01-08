@@ -1,10 +1,13 @@
 #pragma once
 
+#include "DeprecationUtils.h"
 #include "Packet.h"
+#include "PacketUtils.h"
 #include "IpAddress.h"
 #include "PointerVector.h"
 #include <unordered_map>
 #include <chrono>
+#include <iomanip>
 #include <map>
 #include <list>
 #include <time.h>
@@ -87,9 +90,21 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	namespace time_io
+	{
+		/// ISO 8601 formatting for the ConnectionData precise timestamps
+		inline std::ostream& operator<<(std::ostream& oss,
+		                                std::chrono::time_point<std::chrono::high_resolution_clock> const& t)
+		{
+			auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t.time_since_epoch()).count();
+			std::time_t sec = ns / 1000'000'000;
+			return oss << std::put_time(std::gmtime(&sec), "%Y-%m-%dT%H:%M:%S.") << (ns % 1000'000'000) << 'Z';
+		};
+	}  // namespace time_io
+
 	/// @struct ConnectionData
 	/// Represents basic TCP/UDP + IP connection data
-	struct ConnectionData
+	struct ConnectionData : public IHashableConnectionInfo
 	{
 		/// Source IP address
 		IPAddress srcIP;
@@ -100,7 +115,9 @@ namespace pcpp
 		/// Destination TCP/UDP port
 		uint16_t dstPort;
 		/// A 4-byte hash key representing the connection
-		uint32_t flowKey;
+		/// @deprecated Use ConnectionHashable or ConnectionData* instead.
+		PCPP_DEPRECATED("Use ConnectionHashable or ConnectionData* instead")
+		const ConnectionData* flowKey;
 		/// Start timestamp of the connection with microsecond precision
 		timeval startTime;
 		/// End timestamp of the connection with microsecond precision
@@ -110,9 +127,26 @@ namespace pcpp
 		/// End timestamp of the connection with nanosecond precision
 		std::chrono::time_point<std::chrono::high_resolution_clock> endTimePrecise;
 
+		DISABLE_WARNING_PUSH
+		DISABLE_WARNING_DEPRECATED
 		/// A c'tor for this struct that basically zeros all members
-		ConnectionData() : srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()
+		ConnectionData() : srcPort(0), dstPort(0), flowKey(nullptr), startTime(), endTime()
 		{}
+		ConnectionData(ConnectionData const&) = default;
+		ConnectionData& operator=(ConnectionData const&) = default;
+		ConnectionData(ConnectionData&&) noexcept = default;
+		ConnectionData& operator=(ConnectionData&&) noexcept = default;
+		DISABLE_WARNING_POP
+
+		/// IHashableConnectionInfo interface implementation
+		~ConnectionData() override = default;
+		bool isIPv4() const override;
+		bool isIPv6() const override;
+		const uint8_t* ipSrc() const override;
+		const uint8_t* ipDst() const override;
+		IPProtocolTypes ipProtocol() const override;
+		uint16_t portSrc() const override;
+		uint16_t portDst() const override;
 
 		/// Set the start time of the connection
 		/// @param[in] startTimeValue timestamp value
@@ -122,6 +156,8 @@ namespace pcpp
 		/// @param[in] endTimeValue timestamp value
 		void setEndTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& endTimeValue);
 	};
+
+	std::ostream& operator<<(std::ostream& oss, const ConnectionData& conn);
 
 	class TcpReassembly;
 
@@ -308,7 +344,7 @@ namespace pcpp
 		};
 
 		/// The type for storing the connection information
-		using ConnectionInfoList = std::unordered_map<uint32_t, ConnectionData>;
+		using ConnectionInfoList = std::list<ConnectionData>;
 
 		/// @typedef OnTcpMessageReady
 		/// A callback invoked when new data arrives on a connection
@@ -372,7 +408,9 @@ namespace pcpp
 		/// TcpReassembly#TcpReassemblyConnectionClosedManually
 		/// @param[in] flowKey A 4-byte hash key representing the connection. Can be taken from a ConnectionData
 		/// instance
-		void closeConnection(uint32_t flowKey);
+		PCPP_DEPRECATED("Use closeConnection(const ConnectionData&) instead")
+		void closeConnection(const ConnectionData* flowKey);
+		void closeConnection(const ConnectionData& connection);
 
 		/// Close all open connections manually. This method will cause the TcpReassembly#OnTcpConnectionEnd to be
 		/// invoked for each connection with a reason of TcpReassembly#TcpReassemblyConnectionClosedManually
@@ -432,9 +470,10 @@ namespace pcpp
 			int8_t numOfSides;
 			int8_t prevSide;
 			TcpOneSideData twoSides[2];
-			ConnectionData connData;
+			ConnectionInfoList::iterator connData;
 
-			TcpReassemblyData() : closed(false), numOfSides(0), prevSide(-1)
+			inline TcpReassemblyData(ConnectionInfoList::iterator connData_)
+			    : closed(false), numOfSides(0), prevSide(-1), connData(connData_)
 			{}
 		};
 
@@ -459,8 +498,8 @@ namespace pcpp
 			OutOfOrderProcessingGuard& operator=(const OutOfOrderProcessingGuard&) = delete;
 		};
 
-		using ConnectionList = std::unordered_map<uint32_t, TcpReassemblyData>;
-		using CleanupList = std::map<time_t, std::list<uint32_t>>;
+		using ConnectionList = std::unordered_map<ConnectionHashable, TcpReassemblyData>;
+		using CleanupList = std::map<time_t, std::list<const ConnectionData*>>;
 
 		OnTcpMessageReady m_OnMessageReadyCallback;
 		OnTcpConnectionStart m_OnConnStart;
@@ -479,11 +518,12 @@ namespace pcpp
 
 		void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, bool cleanWholeFragList);
 
-		void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, uint32_t flowKey, bool isRst);
+		void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, const ConnectionData& connection,
+		                    bool isRst);
 
-		void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
+		void closeConnectionInternal(const ConnectionData& connection, ConnectionEndReason reason);
 
-		void insertIntoCleanupList(uint32_t flowKey);
+		void insertIntoCleanupList(const ConnectionData& connection);
 	};
 
 }  // namespace pcpp

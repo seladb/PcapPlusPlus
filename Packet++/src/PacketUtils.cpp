@@ -111,105 +111,201 @@ namespace pcpp
 		return checksumRes;
 	}
 
-	static const uint32_t FNV_PRIME = 16777619u;
-	static const uint32_t OFFSET_BASIS = 2166136261u;
-
-	uint32_t fnvHash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
+	template <typename T> struct FnvParams
 	{
-		uint32_t hash = OFFSET_BASIS;
+	};
+	template <> struct FnvParams<uint32_t>
+	{
+		static const uint32_t PRIME = 16777619u;
+		static const uint32_t OFFSET_BASIS = 2166136261u;
+	};
+	template <> struct FnvParams<uint64_t>
+	{
+		static const uint64_t PRIME = 0x00000100000001b3ull;
+		static const uint64_t OFFSET_BASIS = 0xcbf29ce484222325ull;
+	};
+
+	template <typename T> T fnvHash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
+	{
+		T hash = FnvParams<T>::OFFSET_BASIS;
 		for (size_t i = 0; i < vecSize; ++i)
 		{
 			for (size_t j = 0; j < vec[i].len; ++j)
 			{
-				hash *= FNV_PRIME;
+				hash *= FnvParams<T>::PRIME;
 				hash ^= vec[i].buffer[j];
 			}
 		}
 		return hash;
 	}
+	template uint32_t fnvHash<uint32_t>(ScalarBuffer<uint8_t> vec[], size_t vecSize);
+	template uint64_t fnvHash<uint64_t>(ScalarBuffer<uint8_t> vec[], size_t vecSize);
 
-	uint32_t fnvHash(uint8_t* buffer, size_t bufSize)
+	template <typename T> T fnvHash(uint8_t* buffer, size_t bufSize)
 	{
 		ScalarBuffer<uint8_t> scalarBuf;
 		scalarBuf.buffer = buffer;
 		scalarBuf.len = bufSize;
-		return fnvHash(&scalarBuf, 1);
+		return fnvHash<T>(&scalarBuf, 1);
+	}
+	template uint32_t fnvHash<uint32_t>(uint8_t* buffer, size_t bufSize);
+	template uint64_t fnvHash<uint64_t>(uint8_t* buffer, size_t bufSize);
+
+	bool IHashableConnectionInfo::equals(IHashableConnectionInfo const& other, bool ignoreDirection) const
+	{
+		if (ipProtocol() != other.ipProtocol())
+			return false;
+
+		unsigned ipSize;
+		if (isIPv4() && other.isIPv4())
+			ipSize = 4;
+		else if (isIPv6() && other.isIPv6())
+			ipSize = 16;
+		else
+			return false;
+
+		uint8_t const* lhsIpSrc = ipSrc();
+		uint8_t const* lhsIpDst = ipDst();
+		uint8_t const* rhsIpSrc = other.ipSrc();
+		uint8_t const* rhsIpDst = other.ipDst();
+		if (!lhsIpSrc || !lhsIpDst || !rhsIpSrc || !rhsIpDst)
+			return false;
+
+		uint16_t lhsPortSrc = portSrc();
+		uint16_t lhsPortDst = portDst();
+		uint16_t rhsPortSrc = other.portSrc();
+		uint16_t rhsPortDst = other.portDst();
+
+		if (lhsPortSrc == rhsPortSrc && lhsPortDst == rhsPortDst && memcmp(lhsIpSrc, rhsIpSrc, ipSize) == 0 &&
+		    memcmp(lhsIpDst, rhsIpDst, ipSize) == 0)
+			return true;
+
+		if (ignoreDirection && lhsPortSrc == rhsPortDst && lhsPortDst == rhsPortSrc &&
+		    memcmp(lhsIpSrc, rhsIpDst, ipSize) == 0 && memcmp(lhsIpDst, rhsIpSrc, ipSize) == 0)
+			return true;
+
+		return false;
 	}
 
-	uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
+	PacketHashable::PacketHashable(Packet const* packet)
 	{
-		if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
-			return 0;
-
-		if (packet->isPacketOfType(ICMP))
-			return 0;
-
-		if (!(packet->isPacketOfType(TCP)) && (!packet->isPacketOfType(UDP)))
-			return 0;
-
-		ScalarBuffer<uint8_t> vec[5];
-
-		uint16_t portSrc = 0;
-		uint16_t portDst = 0;
-		int srcPosition = 0;
-
+		m_ipv4Layer = packet->getLayerOfType<IPv4Layer>();
+		if (!m_ipv4Layer)
+			m_ipv6Layer = packet->getLayerOfType<IPv6Layer>();
 		TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>(true);  // lookup in reverse order
 		if (tcpLayer != nullptr)
 		{
-			portSrc = tcpLayer->getTcpHeader()->portSrc;
-			portDst = tcpLayer->getTcpHeader()->portDst;
+			m_portSrc = tcpLayer->getSrcPort();
+			m_portDst = tcpLayer->getDstPort();
 		}
 		else
 		{
 			UdpLayer* udpLayer = packet->getLayerOfType<UdpLayer>(true);
-			portSrc = udpLayer->getUdpHeader()->portSrc;
-			portDst = udpLayer->getUdpHeader()->portDst;
+			if (udpLayer != nullptr)
+			{
+				m_portSrc = udpLayer->getSrcPort();
+				m_portDst = udpLayer->getDstPort();
+			}
 		}
+	}
+	bool PacketHashable::isIPv4() const
+	{
+		return m_ipv4Layer;
+	}
+	bool PacketHashable::isIPv6() const
+	{
+		return m_ipv6Layer;
+	}
+	const uint8_t* PacketHashable::ipSrc() const
+	{
+		if (m_ipv4Layer)
+			return reinterpret_cast<uint8_t*>(&m_ipv4Layer->getIPv4Header()->ipSrc);
+		if (m_ipv6Layer)
+			return m_ipv6Layer->getIPv6Header()->ipSrc;
+		return nullptr;
+	}
+	const uint8_t* PacketHashable::ipDst() const
+	{
+		if (m_ipv4Layer)
+			return reinterpret_cast<uint8_t*>(&m_ipv4Layer->getIPv4Header()->ipDst);
+		if (m_ipv6Layer)
+			return m_ipv6Layer->getIPv6Header()->ipDst;
+		return nullptr;
+	}
+	IPProtocolTypes PacketHashable::ipProtocol() const
+	{
+		if (m_ipv4Layer)
+			return static_cast<IPProtocolTypes>(m_ipv4Layer->getIPv4Header()->protocol);
+		if (m_ipv6Layer)
+			return static_cast<IPProtocolTypes>(m_ipv6Layer->getIPv6Header()->nextHeader);
+		return PACKETPP_IPPROTO_IP;
+	}
+	uint16_t PacketHashable::portSrc() const
+	{
+		return m_portSrc;
+	}
+	uint16_t PacketHashable::portDst() const
+	{
+		return m_portDst;
+	}
 
-		if (!directionUnique)
-		{
-			if (portDst < portSrc)
-				srcPosition = 1;
-		}
+	template <typename T> T hash5Tuple(Packet* packet, bool const& directionUnique)
+	{
+		return hash5Tuple<T>(PacketHashable{ packet }, directionUnique);
+	}
+	template uint32_t hash5Tuple<uint32_t>(Packet* packet, bool const& directionUnique);
+	template uint64_t hash5Tuple<uint64_t>(Packet* packet, bool const& directionUnique);
+
+	template <typename T> T hash5Tuple(const IHashableConnectionInfo& target, bool const& directionUnique)
+	{
+		ScalarBuffer<uint8_t> vec[5];
+
+		unsigned ipSize;
+		if (target.isIPv4())
+			ipSize = 4;
+		else if (target.isIPv6())
+			ipSize = 16;
+		else
+			return 0;
+
+		IPProtocolTypes ipProtocol = target.ipProtocol();
+		if (ipProtocol != PACKETPP_IPPROTO_TCP && ipProtocol != PACKETPP_IPPROTO_UDP)
+			return 0;
+
+		vec[4].buffer = reinterpret_cast<uint8_t*>(&ipProtocol);
+		vec[4].len = 1;
+
+		uint16_t portSrc = htobe16(target.portSrc());
+		uint16_t portDst = htobe16(target.portDst());
+		int srcPosition = 0;
+
+		if (!directionUnique && portDst < portSrc)
+			srcPosition = 1;
 
 		vec[0 + srcPosition].buffer = reinterpret_cast<uint8_t*>(&portSrc);
 		vec[0 + srcPosition].len = 2;
 		vec[1 - srcPosition].buffer = reinterpret_cast<uint8_t*>(&portDst);
 		vec[1 - srcPosition].len = 2;
 
-		IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
-		if (ipv4Layer != nullptr)
-		{
-			if (!directionUnique && portSrc == portDst &&
-			    ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
-				srcPosition = 1;
+		const uint8_t* ipSrc = target.ipSrc();
+		const uint8_t* ipDst = target.ipDst();
+		if (!ipSrc || !ipDst)
+			return 0;
 
-			vec[2 + srcPosition].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipSrc);
-			vec[2 + srcPosition].len = 4;
-			vec[3 - srcPosition].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipDst);
-			vec[3 - srcPosition].len = 4;
-			vec[4].buffer = &(ipv4Layer->getIPv4Header()->protocol);
-			vec[4].len = 1;
-		}
-		else
-		{
-			IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
-			if (!directionUnique && portSrc == portDst &&
-			    memcmp(ipv6Layer->getIPv6Header()->ipDst, ipv6Layer->getIPv6Header()->ipSrc, 16) < 0)
-				srcPosition = 1;
+		if (!directionUnique && portSrc == portDst && memcmp(ipDst, ipSrc, ipSize) < 0)
+			srcPosition = 1;
 
-			vec[2 + srcPosition].buffer = ipv6Layer->getIPv6Header()->ipSrc;
-			vec[2 + srcPosition].len = 16;
-			vec[3 - srcPosition].buffer = ipv6Layer->getIPv6Header()->ipDst;
-			vec[3 - srcPosition].len = 16;
-			vec[4].buffer = &(ipv6Layer->getIPv6Header()->nextHeader);
-			vec[4].len = 1;
-		}
+		vec[2 + srcPosition].buffer = const_cast<uint8_t*>(ipSrc);
+		vec[2 + srcPosition].len = ipSize;
+		vec[3 - srcPosition].buffer = const_cast<uint8_t*>(ipDst);
+		vec[3 - srcPosition].len = ipSize;
 
-		return pcpp::fnvHash(vec, 5);
+		return pcpp::fnvHash<T>(vec, 5);
 	}
+	template uint32_t hash5Tuple<uint32_t>(const IHashableConnectionInfo& packet, bool const& directionUnique);
+	template uint64_t hash5Tuple<uint64_t>(const IHashableConnectionInfo& packet, bool const& directionUnique);
 
-	uint32_t hash2Tuple(Packet* packet)
+	template <typename T> T hash2Tuple(Packet* packet)
 	{
 		if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
 			return 0;
@@ -241,7 +337,9 @@ namespace pcpp
 			vec[1 - srcPosition].len = 16;
 		}
 
-		return pcpp::fnvHash(vec, 2);
+		return pcpp::fnvHash<T>(vec, 2);
 	}
+	template uint32_t hash2Tuple<uint32_t>(Packet* packet);
+	template uint64_t hash2Tuple<uint64_t>(Packet* packet);
 
 }  // namespace pcpp

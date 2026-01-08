@@ -13,6 +13,14 @@
 #include "PayloadLayer.h"
 #include "PcapFileDevice.h"
 
+namespace pcpp
+{
+	static bool operator==(const ConnectionData& lhs, const ConnectionData& rhs)
+	{
+		return std::addressof(lhs) == std::addressof(rhs) || lhs.flowKey == rhs.flowKey;
+	}
+}  // namespace pcpp
+
 // ~~~~~~~~~~~~~~~~~~
 // TcpReassemblyStats
 // ~~~~~~~~~~~~~~~~~~
@@ -54,8 +62,9 @@ struct TcpReassemblyStats
 
 struct TcpReassemblyMultipleConnStats
 {
-	using FlowKeysList = std::vector<uint32_t>;
-	using Stats = std::map<uint32_t, TcpReassemblyStats>;
+	using FlowKey = decltype(reinterpret_cast<pcpp::ConnectionData*>(0)->flowKey);
+	using FlowKeysList = std::vector<FlowKey>;
+	using Stats = std::map<FlowKey, TcpReassemblyStats>;
 
 	Stats stats;
 	FlowKeysList flowKeysList;
@@ -808,8 +817,10 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	PTF_ASSERT_EQUAL(stats.size(), 3);
 	PTF_ASSERT_EQUAL(results.flowKeysList.size(), 3);
 
-	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.begin();
+	TcpReassemblyMultipleConnStats::Stats::iterator iter;
 
+	iter = stats.find(results.flowKeysList[1]);
+	PTF_ASSERT_TRUE(iter != stats.end());
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 2);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[1], 1);
@@ -819,8 +830,8 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/three_http_streams_conn_1_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
-	++iter;
-
+	iter = stats.find(results.flowKeysList[2]);
+	PTF_ASSERT_TRUE(iter != stats.end());
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 2);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[1], 1);
@@ -830,8 +841,8 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/three_http_streams_conn_2_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
-	++iter;
-
+	iter = stats.find(results.flowKeysList[0]);
+	PTF_ASSERT_TRUE(iter != stats.end());
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 2);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[1], 1);
@@ -847,40 +858,39 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	PTF_ASSERT_EQUAL(managedConnections.size(), 3);
 
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn1 =
-	    managedConnections.find(results.flowKeysList[0]);
+	    std::find(managedConnections.begin(), managedConnections.end(), *results.flowKeysList[0]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn2 =
-	    managedConnections.find(results.flowKeysList[1]);
+	    std::find(managedConnections.begin(), managedConnections.end(), *results.flowKeysList[1]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn3 =
-	    managedConnections.find(results.flowKeysList[2]);
+	    std::find(managedConnections.begin(), managedConnections.end(), *results.flowKeysList[2]);
 	PTF_ASSERT_TRUE(iterConn1 != managedConnections.end());
 	PTF_ASSERT_TRUE(iterConn2 != managedConnections.end());
 	PTF_ASSERT_TRUE(iterConn3 != managedConnections.end());
-	PTF_ASSERT_GREATER_THAN(tcpReassembly.isConnectionOpen(iterConn1->second), 0);
-	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0);
-	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0);
+	PTF_ASSERT_GREATER_THAN(tcpReassembly.isConnectionOpen(*iterConn1), 0);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(*iterConn2), 0);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(*iterConn3), 0);
 
 	// test Connection Information data
 	pcpp::IPv4Address expectedSrcIP("172.16.133.132");
 	pcpp::IPv4Address expectedDstIP("98.139.161.29");
-	PTF_ASSERT_EQUAL(iterConn1->second.srcIP, expectedSrcIP);
-	PTF_ASSERT_EQUAL(iterConn1->second.dstIP, expectedDstIP);
-	PTF_ASSERT_EQUAL(iterConn1->second.srcPort, 54615);
-	PTF_ASSERT_EQUAL(iterConn1->second.dstPort, 80);
-	PTF_ASSERT_EQUAL(iterConn1->second.flowKey, results.flowKeysList[0]);
-	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_sec, 1361916156);
-	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_usec, 677488);
+	PTF_ASSERT_EQUAL(iterConn1->srcIP, expectedSrcIP);
+	PTF_ASSERT_EQUAL(iterConn1->dstIP, expectedDstIP);
+	PTF_ASSERT_EQUAL(iterConn1->srcPort, 54615);
+	PTF_ASSERT_EQUAL(iterConn1->dstPort, 80);
+	PTF_ASSERT_EQUAL(iterConn1->flowKey, results.flowKeysList[0]);
+	PTF_ASSERT_EQUAL(iterConn1->startTime.tv_sec, 1361916156);
+	PTF_ASSERT_EQUAL(iterConn1->startTime.tv_usec, 677488);
 	// clang-format off
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(iterConn1->second.startTimePrecise.time_since_epoch()).count(), 1361916156677488000);
-	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_sec, 1361916156);
-	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_usec, 766111);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iterConn1->startTimePrecise.time_since_epoch()).count(), 1361916156677488000);
+	PTF_ASSERT_EQUAL(iterConn1->endTime.tv_sec, 1361916156);
+	PTF_ASSERT_EQUAL(iterConn1->endTime.tv_usec, 766111);
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(iterConn1->second.endTimePrecise.time_since_epoch()).count(), 1361916156766111000);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iterConn1->endTimePrecise.time_since_epoch()).count(), 1361916156766111000);
 	// clang-format on
 
 	// test the return of invalid connection flowKey
 	pcpp::ConnectionData dummyConn;
-	dummyConn.flowKey = 0x12345678;
 	PTF_ASSERT_LOWER_THAN(tcpReassembly.isConnectionOpen(dummyConn), 0);
 
 	// close flow manually and verify it's closed
@@ -951,12 +961,14 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	TcpReassemblyMultipleConnStats::Stats& stats = tcpReassemblyResults.stats;
 	PTF_ASSERT_EQUAL(stats.size(), 4);
 
-	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.begin();
+	TcpReassemblyMultipleConnStats::Stats::iterator iter;
 
 	pcpp::IPv6Address expectedSrcIP("2001:618:400::5199:cc70");
 	pcpp::IPv6Address expectedDstIP1("2001:618:1:8000::5");
 	pcpp::IPv6Address expectedDstIP2("2001:638:902:1:202:b3ff:feee:5dc2");
 
+	iter = std::find_if(stats.begin(), stats.end(), [](auto const& el) { return el.second.connData.srcPort == 35995; });
+	PTF_ASSERT_TRUE(iter != stats.end());
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 14);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 3);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[1], 3);
@@ -966,21 +978,21 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(iter->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35995);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551795);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 526632);
+	PTF_ASSERT_EQUAL(iter->second.connData.startTime.tv_sec, 1147551795);
+	PTF_ASSERT_EQUAL(iter->second.connData.startTime.tv_usec, 526632);
 	// clang-format off
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(stats.begin()->second.connData.startTimePrecise.time_since_epoch()).count(), 1147551795526632000);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 1147551797);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 111060);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iter->second.connData.startTimePrecise.time_since_epoch()).count(), 1147551795526632000);
+	PTF_ASSERT_EQUAL(iter->second.connData.endTime.tv_sec, 1147551797);
+	PTF_ASSERT_EQUAL(iter->second.connData.endTime.tv_usec, 111060);
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(stats.begin()->second.connData.endTimePrecise.time_since_epoch()).count(), 1147551797111060000);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iter->second.connData.endTimePrecise.time_since_epoch()).count(), 1147551797111060000);
 	// clang-format on
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream4.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
-	++iter;
-
+	iter = std::find_if(stats.begin(), stats.end(), [](auto const& el) { return el.second.connData.srcPort == 35999; });
+	PTF_ASSERT_TRUE(iter != stats.end());
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 10);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[1], 1);
@@ -990,19 +1002,19 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(iter->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35999);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551795);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 526632);
+	PTF_ASSERT_EQUAL(iter->second.connData.startTime.tv_sec, 1147551797);
+	PTF_ASSERT_EQUAL(iter->second.connData.startTime.tv_usec, 338424);
 	// clang-format off
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(stats.begin()->second.connData.startTimePrecise.time_since_epoch()).count(), 1147551795526632000);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 1147551797);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 111060);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iter->second.connData.startTimePrecise.time_since_epoch()).count(), 1147551797338424000);
+	PTF_ASSERT_EQUAL(iter->second.connData.endTime.tv_sec, 1147551797);
+	PTF_ASSERT_EQUAL(iter->second.connData.endTime.tv_usec, 526499);
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(stats.begin()->second.connData.endTimePrecise.time_since_epoch()).count(), 1147551797111060000);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iter->second.connData.endTimePrecise.time_since_epoch()).count(), 1147551797526499000);
 	// clang-format on
 
-	++iter;
-
+	iter = std::find_if(stats.begin(), stats.end(), [](auto const& el) { return el.second.connData.srcPort == 40426; });
+	PTF_ASSERT_TRUE(iter != stats.end());
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 2);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[1], 1);
@@ -1012,21 +1024,21 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(iter->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP2);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 40426);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551795);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 526632);
+	PTF_ASSERT_EQUAL(iter->second.connData.startTime.tv_sec, 1147551798);
+	PTF_ASSERT_EQUAL(iter->second.connData.startTime.tv_usec, 923702);
 	// clang-format off
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(stats.begin()->second.connData.startTimePrecise.time_since_epoch()).count(), 1147551795526632000);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 1147551797);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 111060);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iter->second.connData.startTimePrecise.time_since_epoch()).count(), 1147551798923702000);
+	PTF_ASSERT_EQUAL(iter->second.connData.endTime.tv_sec, 1147551799);
+	PTF_ASSERT_EQUAL(iter->second.connData.endTime.tv_usec, 429458);
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(stats.begin()->second.connData.endTimePrecise.time_since_epoch()).count(), 1147551797111060000);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iter->second.connData.endTimePrecise.time_since_epoch()).count(), 1147551799429458000);
 	// clang-format on
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream3.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
-	++iter;
-
+	iter = std::find_if(stats.begin(), stats.end(), [](auto const& el) { return el.second.connData.srcPort == 35997; });
+	PTF_ASSERT_TRUE(iter != stats.end());
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 13);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 4);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[1], 4);
@@ -1036,15 +1048,15 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(iter->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35997);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551795);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 526632);
+	PTF_ASSERT_EQUAL(iter->second.connData.startTime.tv_sec, 1147551796);
+	PTF_ASSERT_EQUAL(iter->second.connData.startTime.tv_usec, 702602);
 	// clang-format off
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(stats.begin()->second.connData.startTimePrecise.time_since_epoch()).count(), 1147551795526632000);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 1147551797);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 111060);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iter->second.connData.startTimePrecise.time_since_epoch()).count(), 1147551796702602000);
+	PTF_ASSERT_EQUAL(iter->second.connData.endTime.tv_sec, 1147551797);
+	PTF_ASSERT_EQUAL(iter->second.connData.endTime.tv_usec, 306466);
 	PTF_ASSERT_EQUAL(
-	    std::chrono::duration_cast<std::chrono::nanoseconds>(stats.begin()->second.connData.endTimePrecise.time_since_epoch()).count(), 1147551797111060000);
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(iter->second.connData.endTimePrecise.time_since_epoch()).count(), 1147551797306466000);
 	// clang-format on
 
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream2.txt"));
@@ -1126,17 +1138,17 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(results.flowKeysList.size(), 3);
 
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn1 =
-	    managedConnections.find(results.flowKeysList[0]);
+	    std::find(managedConnections.begin(), managedConnections.end(), *results.flowKeysList[0]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn2 =
-	    managedConnections.find(results.flowKeysList[1]);
+	    std::find(managedConnections.begin(), managedConnections.end(), *results.flowKeysList[1]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn3 =
-	    managedConnections.find(results.flowKeysList[2]);
+	    std::find(managedConnections.begin(), managedConnections.end(), *results.flowKeysList[2]);
 	PTF_ASSERT_TRUE(iterConn1 != managedConnections.end());
 	PTF_ASSERT_TRUE(iterConn2 != managedConnections.end());
 	PTF_ASSERT_TRUE(iterConn3 != managedConnections.end());
-	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), 0);
-	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0);
-	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(*iterConn1), 0);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(*iterConn2), 0);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(*iterConn3), 0);
 
 	std::this_thread::sleep_for(std::chrono::seconds(3));
 
@@ -1150,15 +1162,18 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 0);
 
 	const TcpReassemblyMultipleConnStats::FlowKeysList& flowKeys = results.flowKeysList;
-	iterConn1 = managedConnections.find(flowKeys[0]);
-	iterConn2 = managedConnections.find(flowKeys[1]);
-	iterConn3 = managedConnections.find(flowKeys[2]);
+	iterConn1 = std::find_if(managedConnections.begin(), managedConnections.end(),
+	                         [&flowKeys](auto const& el) { return el.flowKey == flowKeys[0]; });
+	iterConn2 = std::find_if(managedConnections.begin(), managedConnections.end(),
+	                         [&flowKeys](auto const& el) { return el.flowKey == flowKeys[1]; });
+	iterConn3 = std::find_if(managedConnections.begin(), managedConnections.end(),
+	                         [&flowKeys](auto const& el) { return el.flowKey == flowKeys[2]; });
 	PTF_ASSERT_TRUE(iterConn1 != managedConnections.end());
 	PTF_ASSERT_TRUE(iterConn2 != managedConnections.end());
 	PTF_ASSERT_TRUE(iterConn3 != managedConnections.end());
-	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), -1);
-	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), -1);
-	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), -1);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(*iterConn1), -1);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(*iterConn2), -1);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(*iterConn3), -1);
 }  // TestTcpReassemblyCleanup
 
 PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags)
@@ -1195,13 +1210,13 @@ PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags)
 	PTF_ASSERT_EQUAL(results2.flowKeysList.size(), 1);
 
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn1 =
-	    managedConnections1.find(results1.flowKeysList[0]);
+	    std::find(managedConnections1.begin(), managedConnections1.end(), *results1.flowKeysList[0]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn2 =
-	    managedConnections2.find(results2.flowKeysList[0]);
+	    std::find(managedConnections2.begin(), managedConnections2.end(), *results2.flowKeysList[0]);
 	PTF_ASSERT_TRUE(iterConn1 != managedConnections1.end());
 	PTF_ASSERT_TRUE(iterConn2 != managedConnections2.end());
-	PTF_ASSERT_EQUAL(tcpReassembly1.isConnectionOpen(iterConn1->second), 1);
-	PTF_ASSERT_EQUAL(tcpReassembly2.isConnectionOpen(iterConn2->second), 1);
+	PTF_ASSERT_EQUAL(tcpReassembly1.isConnectionOpen(*iterConn1), 1);
+	PTF_ASSERT_EQUAL(tcpReassembly2.isConnectionOpen(*iterConn2), 1);
 	// The second data packet is incomplete so we stopped at one
 	PTF_ASSERT_EQUAL(results1.stats.begin()->second.numOfDataPackets, 1);
 	// We hit the fragment limit so skipped the missing fragment and continued to the end
@@ -1305,6 +1320,7 @@ PTF_TEST_CASE(TestTcpReassemblyTimeStamps)
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
 
 	TcpReassemblyMultipleConnStats::Stats& stats = tcpReassemblyResults.stats;
+	PTF_ASSERT_EQUAL(stats.size(), 1);
 	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 7);
 	std::ifstream expectedOutput("PcapExamples/timestamp_output.txt");
 	for (long unsigned int i = 0; i < tcpReassemblyResults.timestamps.size(); i++)
@@ -1374,5 +1390,5 @@ PTF_TEST_CASE(TestTcpReassemblyHighPrecision)
 
 	std::string expectedReassemblyData =
 	    readFileIntoString(std::string("PcapExamples/three_http_streams_conn_1_output.txt"));
-	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
+	PTF_ASSERT_EQUAL(expectedReassemblyData, stats[flowKeys[1]].reassembledData);
 }  // TestTcpReassemblyHighPrecision
