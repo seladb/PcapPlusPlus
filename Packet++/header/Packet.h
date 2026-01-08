@@ -10,6 +10,40 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	/// @brief Options struct for configuring packet parsing behavior.
+	///
+	/// The parsing options are combined. If multiple stop conditions are specified, parsing stops
+	/// as soon as any condition is met.
+	struct ParseOptions
+	{
+		/// @brief Defines the protocol type up to and including which the packet should be parsed (inclusive).
+		///
+		/// For large packets where only the lower layers are of interest, this option can be used to limit the parsing
+		/// procedure to the desired protocol. The packet is parsed until the specified protocol is reached and
+		/// consumed. Layers beyond this protocol are not parsed, which can improve performance and reduce
+		/// memory usage.
+		///
+		/// @remarks If multiple consecutive layers of the same protocol type exist, parsing stops after exhausting the
+		/// first contiguous sequence of that protocol type. This matters for protocols that may appear multiple times
+		/// in succession within a packet (e.g. BgpLayer).
+		ProtocolTypeFamily parseUntil = UnknownProtocol;
+
+		/// @brief Defines an OSI model layer up to and including which the packet should be parsed (inclusive).
+		///
+		/// For large packets where only the lower layers are of interest, this option can be used to limit the parsing
+		/// procedure to the desired OSI layer. The packet is parsed until all layers belonging to the specified OSI
+		/// layer are consumed. Layers beyond that are ignored, which can improve performance and reduce memory usage.
+		OsiModelLayer parseUntilLayer = OsiModelLayerUnknown;
+	};
+
+	/// @brief An tag to defer parsing of a packet.
+	struct NoParseTag
+	{
+	};
+
+	/// @brief A constant tag to indicate that the packet should not be parsed.
+	static constexpr NoParseTag NoParse = {};
+
 	/// @class Packet
 	/// This class represents a parsed packet. It contains the raw data (RawPacket instance), and a linked list of
 	/// layers, each layer is a parsed protocol that this packet contains. The layers linked list is ordered where the
@@ -103,6 +137,24 @@ namespace pcpp
 		/// whole packet
 		explicit Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
 
+		/// @brief A constructor for creating a packet out of already allocated RawPacket.
+		///
+		/// The packet saves a reference to the RawPacket (data isn't copied) and the RawPacket is parsed according to
+		/// the provided parsing options.
+		///
+		/// @param rawPacket The raw packet to parse.
+		/// @param takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
+		/// @param options Parsing options to configure the parsing behavior.
+		explicit Packet(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
+
+		/// @brief A constructor for creating a packet out of already allocated RawPacket without parsing it.
+		///
+		/// @param rawPacket The raw packet to associate with this Packet instance.
+		/// @param takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
+		explicit Packet(NoParseTag, RawPacket* rawPacket, bool takeOwnership);
+
 		/// A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers
 		/// that weren't allocated by this class, for example layers that were added by addLayer() or insertLayer() ).
 		/// In addition it frees the raw packet if it was allocated by this instance (meaning if it was allocated by
@@ -149,6 +201,40 @@ namespace pcpp
 		/// into account
 		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil = UnknownProtocol,
 		                  OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+
+		/// @brief Set a RawPacket and parse it according to the provided options.
+		///
+		/// All layers previously managed by this Packet instance are destroyed before associating the new RawPacket.
+		/// If the Packet instance owned the previous RawPacket, it is also disposed of.
+		///
+		/// @param rawPacket The raw packet to associate with this Packet instance.
+		/// @param takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
+		/// @param options Parsing options to configure the parsing behavior.
+		void setRawPacket(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
+
+		/// @brief Set a RawPacket without parsing it.
+		///
+		/// All layers previously managed by this Packet instance are destroyed before associating the new RawPacket.
+		/// If the Packet instance owned the previous RawPacket, it is also disposed of.
+		///
+		/// @param rawPacket The raw packet to associate with this Packet instance.
+		/// @param takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
+		void setRawPacket(NoParseTag, RawPacket* rawPacket, bool takeOwnership);
+
+		/// @brief Parse the packet according to the provided options.
+		///
+		/// The packet is parsed according to the specified options, constructing the layer hierarchy if it does not
+		/// exist. If the packet has already been parsed, it will be re-parsed based on the new options.
+		///
+		/// Unless @p fullReparse is set to true, the procedure attempts to reuse existing layers where possible,
+		/// enabling incremental parsing.
+		///
+		/// @param options Parsing options to configure the parsing behavior.
+		/// @param fullReparse If 'true', forces a complete re-parse of the packet, disregarding any existing layer
+		/// structure.
+		void parsePacket(ParseOptions options, bool fullReparse = false);
 
 		/// Get a pointer to the Packet's RawPacket in a read-only manner
 		/// @return A pointer to the Packet's RawPacket
@@ -321,6 +407,7 @@ namespace pcpp
 		void copyDataFrom(const Packet& other);
 
 		void destructPacketData();
+		void destroyAllLayers();
 
 		bool extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExtend);
 		bool shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToShorten);

@@ -59,29 +59,72 @@ namespace pcpp
 		if (m_RawPacket == nullptr)
 			return;
 
-		LinkLayerType linkType = m_RawPacket->getLinkLayerType();
+		parsePacket({ parseUntil, parseUntilLayer }, true);
+	}
 
-		m_FirstLayer = createFirstLayer(linkType);
+	void Packet::parsePacket(ParseOptions options, bool fullReparse)
+	{
+		// If a full reparse is requested, destroy all existing layers and start from scratch
+		if (fullReparse)
+		{
+			destroyAllLayers();
+		}
+
+		// Flag indicating whether we are currently parsing new layers (as opposed to traversing already parsed ones).
+		bool parsingNewLayers = false;
+
+		// If there is no first layer, create it based on the link layer type
+		if (m_FirstLayer == nullptr)
+		{
+			parsingNewLayers = true;
+
+			LinkLayerType linkType = m_RawPacket->getLinkLayerType();
+			m_FirstLayer = createFirstLayer(linkType);
+			// Mark the first layer as allocated in the packet
+			m_FirstLayer->m_AllocationInfo.ownedByPacket = true;
+		}
+
+		Layer* parseStartLayer = m_FirstLayer;
+
+		// Fast path:
+		//   If we are doing an incremental parse and we are not searching for a specific protocol type,
+		//   we can directly start from the last parsed layer.
+		if (m_LastLayer != nullptr && options.parseUntil == UnknownProtocol)
+		{
+			if (m_LastLayer->getOsiModelLayer() > options.parseUntilLayer)
+			{
+				// Already past the OSI target layer, nothing to do
+				return;
+			}
+
+			parseStartLayer = m_LastLayer;
+		}
 
 		// As the stop conditions are inclusive, the parse must go one layer further and then roll back if needed
 		bool rollbackLastLayer = false;
 		bool foundTargetProtocol = false;
-		for (auto* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
+		for (auto* curLayer = parseStartLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
-			// Mark the current layer as allocated in the packet
-			curLayer->m_AllocationInfo.ownedByPacket = true;
-			m_LastLayer = curLayer;  // Update last layer to current layer
+			// If we are parsing new layers, update the last layer pointer
+			// Otherwise we are just traversing already parsed layers
+			if (parsingNewLayers)
+			{
+				// Mark the current layer as allocated in the packet, as it was just created
+				curLayer->m_AllocationInfo.ownedByPacket = true;
+				m_LastLayer = curLayer;
+			}
 
 			// If the current layer is of a higher OSI layer than the target, stop parsing
-			if (curLayer->getOsiModelLayer() > parseUntilLayer)
+			if (curLayer->getOsiModelLayer() > options.parseUntilLayer)
 			{
-				rollbackLastLayer = true;
+				// If we are traversing already parsed layers, we don't want to roll back as they must be kept as is.
+				rollbackLastLayer = parsingNewLayers;
 				break;
 			}
 
 			// If we are searching for a specific layer protocol, record when we find at least one target.
-			const bool matchesTarget = curLayer->isMemberOfProtocolFamily(parseUntil);
-			if (parseUntil != UnknownProtocol && matchesTarget)
+			const bool matchesTarget = curLayer->isMemberOfProtocolFamily(options.parseUntil);
+			if (options.parseUntil != UnknownProtocol && matchesTarget)
 			{
 				foundTargetProtocol = true;
 			}
@@ -89,12 +132,20 @@ namespace pcpp
 			// If we have found the target protocol already, we are parsing until we find a different protocol
 			if (foundTargetProtocol && !matchesTarget)
 			{
-				rollbackLastLayer = true;
+				// If we are traversing already parsed layers, we don't want to roll back as they must be kept as is.
+				rollbackLastLayer = parsingNewLayers;
 				break;
 			}
 
-			// Parse the next layer. This will update the next layer pointer of the current layer.
-			curLayer->parseNextLayer();
+			// If the current layer doesn't have a next layer yet, parse it.
+			// This is important for the case of a re-parse where some layers may already have been parsed
+			if (!curLayer->hasNextLayer())
+			{
+				parsingNewLayers = true;  // We are now parsing new layers.
+
+				// Parse the next layer. This will update the next layer pointer of the current layer.
+				curLayer->parseNextLayer();
+			}
 		}
 
 		// Roll back one layer, if parsing with search condition as the conditions are inclusive.
@@ -107,7 +158,8 @@ namespace pcpp
 		}
 
 		// If there is data left in the raw packet that doesn't belong to any layer, create a PacketTrailerLayer
-		if (m_LastLayer != nullptr && parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
+		if (m_LastLayer != nullptr && options.parseUntil == UnknownProtocol &&
+		    options.parseUntilLayer == OsiModelLayerUnknown)
 		{
 			// find if there is data left in the raw packet that doesn't belong to any layer. In that case it's probably
 			// a packet trailer. create a PacketTrailerLayer layer and add it at the end of the packet
@@ -161,19 +213,30 @@ namespace pcpp
 
 	void Packet::destructPacketData()
 	{
-		Layer* curLayer = m_FirstLayer;
-		while (curLayer != nullptr)
-		{
-			Layer* nextLayer = curLayer->getNextLayer();
-			if (curLayer->m_AllocationInfo.ownedByPacket)
-				delete curLayer;
-			curLayer = nextLayer;
-		}
+		destroyAllLayers();
 
 		if (m_RawPacket != nullptr && m_FreeRawPacket)
 		{
 			delete m_RawPacket;
 		}
+	}
+
+	void Packet::destroyAllLayers()
+	{
+		Layer* curLayer = m_FirstLayer;
+		while (curLayer != nullptr)
+		{
+			Layer* nextLayer = curLayer->getNextLayer();
+			if (curLayer->m_AllocationInfo.ownedByPacket)
+			{
+				delete curLayer;
+			}
+
+			curLayer = nextLayer;
+		}
+
+		m_FirstLayer = nullptr;
+		m_LastLayer = nullptr;
 	}
 
 	Packet& Packet::operator=(const Packet& other)
