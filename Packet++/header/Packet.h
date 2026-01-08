@@ -142,16 +142,16 @@ namespace pcpp
 		/// The packet saves a reference to the RawPacket (data isn't copied) and the RawPacket is parsed according to
 		/// the provided parsing options.
 		///
-		/// @param rawPacket The raw packet to parse.
-		/// @param takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// @param[in] rawPacket The raw packet to parse.
+		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
 		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
 		/// @param options Parsing options to configure the parsing behavior.
 		explicit Packet(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
 
 		/// @brief A constructor for creating a packet out of already allocated RawPacket without parsing it.
 		///
-		/// @param rawPacket The raw packet to associate with this Packet instance.
-		/// @param takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// @param[in] rawPacket The raw packet to associate with this Packet instance.
+		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
 		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
 		explicit Packet(NoParseTag, RawPacket* rawPacket, bool takeOwnership);
 
@@ -207,8 +207,8 @@ namespace pcpp
 		/// All layers previously managed by this Packet instance are destroyed before associating the new RawPacket.
 		/// If the Packet instance owned the previous RawPacket, it is also disposed of.
 		///
-		/// @param rawPacket The raw packet to associate with this Packet instance.
-		/// @param takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// @param[in] rawPacket The raw packet to associate with this Packet instance.
+		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
 		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
 		/// @param options Parsing options to configure the parsing behavior.
 		void setRawPacket(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
@@ -218,8 +218,8 @@ namespace pcpp
 		/// All layers previously managed by this Packet instance are destroyed before associating the new RawPacket.
 		/// If the Packet instance owned the previous RawPacket, it is also disposed of.
 		///
-		/// @param rawPacket The raw packet to associate with this Packet instance.
-		/// @param takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// @param[in] rawPacket The raw packet to associate with this Packet instance.
+		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
 		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
 		void setRawPacket(NoParseTag, RawPacket* rawPacket, bool takeOwnership);
 
@@ -231,9 +231,10 @@ namespace pcpp
 		/// Unless @p fullReparse is set to true, the procedure attempts to reuse existing layers where possible,
 		/// enabling incremental parsing.
 		///
-		/// @param options Parsing options to configure the parsing behavior.
-		/// @param fullReparse If 'true', forces a complete re-parse of the packet, disregarding any existing layer
+		/// @param[in] options Parsing options to configure the parsing behavior.
+		/// @param[in] fullReparse If 'true', forces a complete re-parse of the packet, disregarding any existing layer
 		/// structure.
+		/// @throws std::runtime_error if there is no RawPacket associated with this Packet instance.
 		void parsePacket(ParseOptions options, bool fullReparse = false);
 
 		/// Get a pointer to the Packet's RawPacket in a read-only manner
