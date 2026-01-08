@@ -91,6 +91,10 @@ namespace pcpp
 		//   we can directly start from the last parsed layer.
 		if (m_LastLayer != nullptr && options.parseUntil == UnknownProtocol)
 		{
+			// NOTE: Potential edge case, PacketTrailerLayer is considered DataLinkLayer.
+			//  If the user requested a higher OSI layer, this condition would not skip the parse.
+			//  The parse should still do nothing, as the trailer layer doesn't have a next layer,
+			//  but it will have to go through 1 extra iteration.
 			if (m_LastLayer->getOsiModelLayer() > options.parseUntilLayer)
 			{
 				// Already past the OSI target layer, nothing to do
