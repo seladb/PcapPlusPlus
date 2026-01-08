@@ -86,7 +86,7 @@ namespace pcpp
 		setRawPacket(rawPacket, takeOwnership, options);
 	}
 
-	Packet::Packet(NoParseTag, RawPacket* rawPacket, bool takeOwnership) 
+	Packet::Packet(NoParseTag, RawPacket* rawPacket, bool takeOwnership)
 	{
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;

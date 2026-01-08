@@ -231,6 +231,8 @@ namespace pcpp
 		/// Unless @p fullReparse is set to true, the procedure attempts to reuse existing layers where possible,
 		/// enabling incremental parsing.
 		///
+		/// If @p fullReparse is true, any existing layer pointers owned by this Packet instance are destroyed.
+		///
 		/// @param[in] options Parsing options to configure the parsing behavior.
 		/// @param[in] fullReparse If 'true', forces a complete re-parse of the packet, disregarding any existing layer
 		/// structure.
