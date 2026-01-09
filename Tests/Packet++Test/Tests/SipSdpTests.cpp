@@ -166,6 +166,39 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 
 }  // SipRequestLayerParsingTest
 
+PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	// Load SIP Request packet with non-standard ports: UDP src=53309, dst=52380
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sip_non_default_port1.dat");
+	pcpp::Packet sipReqNonStandardPort(rawPacket1.get());
+
+	PTF_ASSERT_TRUE(sipReqNonStandardPort.isPacketOfType(pcpp::SIPRequest));
+
+	auto sipReqLayer = sipReqNonStandardPort.getLayerOfType<pcpp::SipRequestLayer>();
+	PTF_ASSERT_NOT_NULL(sipReqLayer);
+
+	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getMethod(), pcpp::SipRequestLayer::SipINVITE, enum);
+	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getUri(), "sip:1006@192.168.21.83:52380");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getVersion(), "SIP/2.0");
+
+	// Load SIP Response packet with non-standard ports: UDP src=53309, dst=52380
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/sip_non_default_port2.dat");
+	pcpp::Packet sipResNonStandardPort(rawPacket2.get());
+
+	PTF_ASSERT_TRUE(sipResNonStandardPort.isPacketOfType(pcpp::SIPResponse));
+
+	auto sipRespLayer = sipResNonStandardPort.getLayerOfType<pcpp::SipResponseLayer>();
+	PTF_ASSERT_NOT_NULL(sipRespLayer);
+
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip200OK, enum);
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeAsInt(), 200);
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeString(), "OK");
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getVersion(), "SIP/2.0");
+}  // SipDetectionByContentOnNonStandardPort
+
 PTF_TEST_CASE(SipRequestLayerCreationTest)
 {
 	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/sip_req1.dat");
