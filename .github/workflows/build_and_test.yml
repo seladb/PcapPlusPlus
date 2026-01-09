@@ -156,7 +156,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==8.4
+          python3 -m pip install gcovr==8.2
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -226,7 +226,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==8.4
+          python3 -m pip install gcovr==8.2
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -471,7 +471,7 @@ jobs:
       - name: Create Cobertura Report
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
-          python3 -m pip install gcovr==8.4
+          python3 -m pip install gcovr==8.2
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -592,7 +592,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Install Coverage Requirements
-        run: python3 -m pip install gcovr==8.4
+        run: python3 -m pip install gcovr==8.2
 
       - name: Process Coverage Files
         shell: msys2 {0}
