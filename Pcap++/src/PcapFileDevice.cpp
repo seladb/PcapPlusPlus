@@ -385,6 +385,7 @@ namespace pcpp
 		m_SnapshotLength = pcapFileHeader.snaplen;
 
 		m_PcapFile = std::move(pcapFile);
+		m_DeviceOpened = true;
 		return true;
 	}
 
@@ -586,6 +587,7 @@ namespace pcpp
 		}
 
 		m_PcapFile = std::move(pcapFile);
+		m_DeviceOpened = true;
 		return true;
 	}
 
