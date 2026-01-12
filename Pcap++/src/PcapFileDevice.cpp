@@ -655,12 +655,13 @@ namespace pcpp
 		}
 
 		bool result = true;
-		std::for_each(packets.begin(), packets.end(), [&](const auto& packet) {
+		for (auto const& packet : packets)
+		{
 			if (!writePacket(*packet))
 			{
 				result = false;
 			}
-		});
+		}
 
 		return result;
 	}
