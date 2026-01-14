@@ -4,10 +4,6 @@
 #include "RawPacket.h"
 #include <fstream>
 
-// forward declaration for structs and typedefs defined in pcap.h
-struct pcap_dumper;
-typedef struct pcap_dumper pcap_dumper_t;
-
 /// @file
 
 /// @namespace pcpp
@@ -36,28 +32,21 @@ namespace pcpp
 
 	/// @class IFileDevice
 	/// An abstract class (cannot be instantiated, has a private c'tor) which is the parent class for all file devices
-	class IFileDevice : public IPcapDevice
+	class IFileDevice : public IFilterableDevice, public IPcapStatisticsProvider
 	{
 	protected:
-		bool m_DeviceOpened = false;
 		std::string m_FileName;
+		BpfFilterWrapper m_BpfWrapper;
 
 		explicit IFileDevice(const std::string& fileName);
-		virtual ~IFileDevice();
+
+		bool doUpdateFilter(std::string const* filterAsString) override;
 
 	public:
 		/// @return The name of the file
 		std::string getFileName() const;
 
 		// override methods
-
-		/// Close the file
-		void close() override;
-
-		bool isOpened() const override
-		{
-			return m_DeviceOpened;
-		}
 
 		/// @brief Get the statistics for this device.
 		///
@@ -105,7 +94,7 @@ namespace pcpp
 
 	public:
 		/// A destructor for this class
-		virtual ~IFileReaderDevice() = default;
+		~IFileReaderDevice() override = default;
 
 		/// @return The file size in bytes
 		uint64_t getFileSize() const;
@@ -137,7 +126,7 @@ namespace pcpp
 
 	public:
 		/// A destructor for this class
-		virtual ~IFileWriterDevice() = default;
+		~IFileWriterDevice() override = default;
 
 		virtual bool writePacket(RawPacket const& packet) = 0;
 
@@ -194,6 +183,12 @@ namespace pcpp
 
 		// overridden methods
 
+		/// @return True if the file is opened, false otherwise
+		bool isOpened() const override
+		{
+			return m_PcapFile.is_open();
+		}
+
 		/// Read the next packet from the file. Before using this method please verify the file is opened using open()
 		/// @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
 		/// @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an
@@ -208,16 +203,12 @@ namespace pcpp
 		/// Close the pacp file
 		void close() override;
 
-	protected:
-		bool doUpdateFilter(std::string const* filterAsString) override;
-
 	private:
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;
 		LinkLayerType m_PcapLinkLayerType = LINKTYPE_ETHERNET;
 		std::ifstream m_PcapFile;
 		bool m_NeedsSwap = false;
 		uint32_t m_SnapshotLength = 0;
-		BpfFilterWrapper m_BpfWrapper;
 
 		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
 		                    uint32_t& capturedLength, uint32_t& frameLength);
@@ -300,21 +291,23 @@ namespace pcpp
 		/// for return values
 		bool open(bool appendMode) override;
 
+		/// @return True if the file is opened, false otherwise
+		bool isOpened() const override
+		{
+			return m_PcapFile.is_open();
+		}
+
 		/// Flush and close the pacp file
 		void close() override;
 
 		/// Flush packets to disk.
 		void flush();
 
-	protected:
-		bool doUpdateFilter(std::string const* filterAsString) override;
-
 	private:
 		LinkLayerType m_PcapLinkLayerType = LINKTYPE_ETHERNET;
 		bool m_NeedsSwap = false;
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;
 		std::fstream m_PcapFile;
-		BpfFilterWrapper m_BpfWrapper;
 
 		struct CheckHeaderResult
 		{
@@ -358,11 +351,6 @@ namespace pcpp
 	{
 	private:
 		internal::LightPcapNgHandle* m_LightPcapNg;
-		BpfFilterWrapper m_BpfWrapper;
-
-		// private copy c'tor
-		PcapNgFileReaderDevice(const PcapNgFileReaderDevice& other);
-		PcapNgFileReaderDevice& operator=(const PcapNgFileReaderDevice& other);
 
 	public:
 		/// A constructor for this class that gets the pcap-ng full path file name to open. Notice that after calling
@@ -371,10 +359,13 @@ namespace pcpp
 		PcapNgFileReaderDevice(const std::string& fileName);
 
 		/// A destructor for this class
-		virtual ~PcapNgFileReaderDevice()
+		~PcapNgFileReaderDevice() override
 		{
-			close();
+			PcapNgFileReaderDevice::close();
 		}
+
+		PcapNgFileReaderDevice(const PcapNgFileReaderDevice& other) = delete;
+		PcapNgFileReaderDevice& operator=(const PcapNgFileReaderDevice& other) = delete;
 
 		/// The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string
 		/// specifying the operating system that was used for capturing the packets. This method reads this string from
@@ -422,11 +413,14 @@ namespace pcpp
 		/// for some reason (for example: file path does not exist)
 		bool open() override;
 
+		/// @return True if the file is opened, false otherwise
+		bool isOpened() const override
+		{
+			return m_LightPcapNg != nullptr;
+		}
+
 		/// Close the pacp-ng file
 		void close() override;
-
-	protected:
-		bool doUpdateFilter(std::string const* filter) override;
 	};
 
 	/// @class PcapNgFileWriterDevice
@@ -439,11 +433,6 @@ namespace pcpp
 	private:
 		internal::LightPcapNgHandle* m_LightPcapNg;
 		int m_CompressionLevel;
-		BpfFilterWrapper m_BpfWrapper;
-
-		// private copy c'tor
-		PcapNgFileWriterDevice(const PcapFileWriterDevice& other);
-		PcapNgFileWriterDevice& operator=(const PcapNgFileWriterDevice& other);
 
 	public:
 		/// A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice
@@ -455,10 +444,13 @@ namespace pcpp
 		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
 
 		/// A destructor for this class
-		virtual ~PcapNgFileWriterDevice()
+		~PcapNgFileWriterDevice() override
 		{
 			PcapNgFileWriterDevice::close();
 		}
+
+		PcapNgFileWriterDevice(const PcapFileWriterDevice& other) = delete;
+		PcapNgFileWriterDevice& operator=(const PcapNgFileWriterDevice& other) = delete;
 
 		/// The pcap-ng format allows adding a user-defined comment for each stored packet. This method writes a
 		/// RawPacket to the file and adds a comment to it. Before using this method please verify the file is opened
@@ -519,14 +511,17 @@ namespace pcpp
 		bool open(const std::string& os, const std::string& hardware, const std::string& captureApp,
 		          const std::string& fileComment);
 
+		/// @return True if the file is opened, false otherwise
+		bool isOpened() const override
+		{
+			return m_LightPcapNg != nullptr;
+		}
+
 		/// Flush packets to the pcap-ng file
 		void flush();
 
 		/// Flush and close the pcap-ng file
 		void close() override;
-
-	protected:
-		bool doUpdateFilter(std::string const* filterAsString) override;
 
 	private:
 		/// @struct PcapNgMetadata
@@ -578,10 +573,6 @@ namespace pcpp
 		LinkLayerType m_PcapLinkLayerType;
 		std::ifstream m_snoopFile;
 
-		// private copy c'tor
-		SnoopFileReaderDevice(const PcapFileReaderDevice& other);
-		SnoopFileReaderDevice& operator=(const PcapFileReaderDevice& other);
-
 	public:
 		/// A constructor for this class that gets the snoop full path file name to open. Notice that after calling this
 		/// constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
@@ -591,7 +582,10 @@ namespace pcpp
 		{}
 
 		/// A destructor for this class
-		virtual ~SnoopFileReaderDevice();
+		~SnoopFileReaderDevice() override;
+
+		SnoopFileReaderDevice(const PcapFileReaderDevice& other) = delete;
+		SnoopFileReaderDevice& operator=(const PcapFileReaderDevice& other) = delete;
 
 		/// @return The link layer type of this file
 		LinkLayerType getLinkLayerType() const
@@ -605,14 +599,20 @@ namespace pcpp
 		/// @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
 		/// @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an
 		/// error log will be printed) or if reached end-of-file
-		bool getNextPacket(RawPacket& rawPacket);
+		bool getNextPacket(RawPacket& rawPacket) override;
 
 		/// Open the file name which path was specified in the constructor in a read-only mode
 		/// @return True if file was opened successfully or if file is already opened. False if opening the file failed
 		/// for some reason (for example: file path does not exist)
-		bool open();
+		bool open() override;
+
+		/// @return True if the file is opened, false otherwise
+		bool isOpened() const override
+		{
+			return m_snoopFile.is_open();
+		}
 
 		/// Close the snoop file
-		void close();
+		void close() override;
 	};
 }  // namespace pcpp

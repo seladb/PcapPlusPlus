@@ -1,12 +1,8 @@
 #define LOG_MODULE PcapLogModuleFileDevice
 
-#include <cerrno>
-#include <stdexcept>
 #include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
-#include "pcap.h"
-#include <fstream>
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -189,30 +185,14 @@ namespace pcpp
 	// IFileDevice members
 	// ~~~~~~~~~~~~~~~~~~~
 
-	IFileDevice::IFileDevice(const std::string& fileName) : IPcapDevice()
+	IFileDevice::IFileDevice(const std::string& fileName) : IFilterableDevice(), IPcapStatisticsProvider()
 	{
 		m_FileName = fileName;
-	}
-
-	IFileDevice::~IFileDevice()
-	{
-		IFileDevice::close();
 	}
 
 	std::string IFileDevice::getFileName() const
 	{
 		return m_FileName;
-	}
-
-	void IFileDevice::close()
-	{
-		if (m_PcapDescriptor != nullptr)
-		{
-			m_PcapDescriptor = nullptr;
-			PCPP_LOG_DEBUG("Successfully closed file reader device for filename '" << m_FileName << "'");
-		}
-
-		m_DeviceOpened = false;
 	}
 
 	void IFileDevice::getStatistics(PcapStats& stats) const
@@ -227,6 +207,16 @@ namespace pcpp
 	{
 		m_NumOfPacketsProcessed = 0;
 		m_NumOfPacketsDropped = 0;
+	}
+
+	bool IFileDevice::doUpdateFilter(std::string const* filterAsString)
+	{
+		if (filterAsString == nullptr)
+		{
+			return m_BpfWrapper.setFilter("");
+		}
+
+		return m_BpfWrapper.setFilter(*filterAsString);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -385,7 +375,6 @@ namespace pcpp
 		m_SnapshotLength = pcapFileHeader.snaplen;
 
 		m_PcapFile = std::move(pcapFile);
-		m_DeviceOpened = true;
 		return true;
 	}
 
@@ -413,17 +402,6 @@ namespace pcpp
 	void PcapFileReaderDevice::close()
 	{
 		m_PcapFile.close();
-		IFileDevice::close();
-	}
-
-	bool PcapFileReaderDevice::doUpdateFilter(std::string const* filterAsString)
-	{
-		if (filterAsString == nullptr)
-		{
-			return m_BpfWrapper.setFilter("");
-		}
-
-		return m_BpfWrapper.setFilter(*filterAsString);
 	}
 
 	bool PcapFileReaderDevice::readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
@@ -587,7 +565,6 @@ namespace pcpp
 		}
 
 		m_PcapFile = std::move(pcapFile);
-		m_DeviceOpened = true;
 		return true;
 	}
 
@@ -684,18 +661,6 @@ namespace pcpp
 		}
 
 		m_PcapFile.close();
-
-		IFileDevice::close();
-	}
-
-	bool PcapFileWriterDevice::doUpdateFilter(std::string const* filterAsString)
-	{
-		if (filterAsString == nullptr)
-		{
-			return m_BpfWrapper.setFilter("");
-		}
-
-		return m_BpfWrapper.setFilter(*filterAsString);
 	}
 
 	bool PcapFileWriterDevice::writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
@@ -844,12 +809,10 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Cannot open pcapng reader device for filename '" << m_FileName << "'");
-			m_DeviceOpened = false;
 			return false;
 		}
 
 		PCPP_LOG_DEBUG("Successfully opened pcapng reader device for filename '" << m_FileName << "'");
-		m_DeviceOpened = true;
 		return true;
 	}
 
@@ -913,16 +876,6 @@ namespace pcpp
 		return getNextPacket(rawPacket, temp);
 	}
 
-	bool PcapNgFileReaderDevice::doUpdateFilter(std::string const* filterAsString)
-	{
-		if (filterAsString == nullptr)
-		{
-			return m_BpfWrapper.setFilter("");
-		}
-
-		return m_BpfWrapper.setFilter(*filterAsString);
-	}
-
 	void PcapNgFileReaderDevice::close()
 	{
 		if (m_LightPcapNg == nullptr)
@@ -931,7 +884,6 @@ namespace pcpp
 		light_pcapng_close(toLightPcapNgT(m_LightPcapNg));
 		m_LightPcapNg = nullptr;
 
-		m_DeviceOpened = false;
 		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
 	}
 
@@ -1113,11 +1065,9 @@ namespace pcpp
 
 			light_free_file_info(info);
 
-			m_DeviceOpened = false;
 			return false;
 		}
 
-		m_DeviceOpened = true;
 		PCPP_LOG_DEBUG("pcap-ng writer device for file '" << m_FileName << "' opened successfully");
 		return true;
 	}
@@ -1140,18 +1090,16 @@ namespace pcpp
 		{
 			PCPP_LOG_ERROR("Error opening file writer device in append mode for file '"
 			               << m_FileName << "': light_pcapng_open_append returned nullptr");
-			m_DeviceOpened = false;
 			return false;
 		}
 
-		m_DeviceOpened = true;
 		PCPP_LOG_DEBUG("pcap-ng writer device for file '" << m_FileName << "' opened successfully");
 		return true;
 	}
 
 	void PcapNgFileWriterDevice::flush()
 	{
-		if (!m_DeviceOpened || m_LightPcapNg == nullptr)
+		if (!isOpened())
 			return;
 
 		light_pcapng_flush(toLightPcapNgT(m_LightPcapNg));
@@ -1166,18 +1114,7 @@ namespace pcpp
 		light_pcapng_close(toLightPcapNgT(m_LightPcapNg));
 		m_LightPcapNg = nullptr;
 
-		m_DeviceOpened = false;
 		PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
-	}
-
-	bool PcapNgFileWriterDevice::doUpdateFilter(std::string const* filterAsString)
-	{
-		if (filterAsString == nullptr)
-		{
-			return m_BpfWrapper.setFilter("");
-		}
-
-		return m_BpfWrapper.setFilter(*filterAsString);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1237,13 +1174,12 @@ namespace pcpp
 		m_PcapLinkLayerType = snoop_encap[datalink_type];
 
 		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
-		m_DeviceOpened = true;
 		return true;
 	}
 
 	bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	{
-		if (m_DeviceOpened != true)
+		if (!isOpened())
 		{
 			PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
 			return false;
@@ -1288,7 +1224,6 @@ namespace pcpp
 	void SnoopFileReaderDevice::close()
 	{
 		m_snoopFile.close();
-		m_DeviceOpened = false;
 		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
 	}
 }  // namespace pcpp
