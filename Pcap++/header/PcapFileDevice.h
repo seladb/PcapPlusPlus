@@ -573,6 +573,9 @@ namespace pcpp
 		LinkLayerType m_PcapLinkLayerType;
 		std::ifstream m_snoopFile;
 
+		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
+		                    uint32_t& capturedLength);
+
 	public:
 		/// A constructor for this class that gets the snoop full path file name to open. Notice that after calling this
 		/// constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
