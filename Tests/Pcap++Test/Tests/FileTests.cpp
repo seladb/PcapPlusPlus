@@ -1,5 +1,6 @@
 #include "../TestDefinition.h"
 #include "Logger.h"
+#include "IPv4Layer.h"
 #include "Packet.h"
 #include "PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
@@ -7,8 +8,6 @@
 #include <array>
 #include <fstream>
 #include <chrono>
-
-#include "IPv4Layer.h"
 
 class FileReaderTeardown
 {

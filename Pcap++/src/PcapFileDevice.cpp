@@ -1,10 +1,6 @@
 #define LOG_MODULE PcapLogModuleFileDevice
 
 #include "PcapFileDevice.h"
-
-#include <io.h>
-#include <iostream>
-
 #include "light_pcapng_ext.h"
 #include "Logger.h"
 #include "EndianPortable.h"
