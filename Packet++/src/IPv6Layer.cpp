@@ -258,7 +258,7 @@ namespace pcpp
 		{
 			ProtocolType greVer = GreLayer::getGREVersion(payload, payloadLen);
 
-			switch(greVer)
+			switch (greVer)
 			{
 			case GREv0:
 			{
@@ -295,7 +295,7 @@ namespace pcpp
 		{
 			auto vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
 
-			if(vrrpVer == VRRPv3)
+			if (vrrpVer == VRRPv3)
 			{
 				constructNextLayer<VrrpV3Layer>(payload, payloadLen, IPAddress::IPv6AddressType);
 			}
