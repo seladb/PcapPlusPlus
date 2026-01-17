@@ -54,21 +54,17 @@ namespace pcpp
 		{
 		case CISCO_HDLC_TYPE_IP:
 		{
-			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, getAttachedPacket()))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		case CISCO_HDLC_TYPE_IPV6:
 		{
-			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, getAttachedPacket()))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		default:
 		{
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+			constructNextLayer<PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		}
