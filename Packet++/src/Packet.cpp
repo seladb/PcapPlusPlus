@@ -144,6 +144,13 @@ namespace pcpp
 
 			LinkLayerType linkType = m_RawPacket->getLinkLayerType();
 			m_FirstLayer = createFirstLayer(linkType);
+
+			if (m_FirstLayer == nullptr)
+			{
+				PCPP_LOG_ERROR("Failed to create first layer! Possibly attempting to parse a RawPacket with no data.");
+				return;
+			}
+
 			// Mark the first layer as allocated in the packet
 			m_FirstLayer->m_AllocationInfo.ownedByPacket = true;
 		}
