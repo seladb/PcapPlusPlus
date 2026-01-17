@@ -20,27 +20,6 @@ namespace pcpp
 {
 	namespace
 	{
-		constexpr bool checkNanoSupport()
-		{
-#ifdef PCAP_TSTAMP_PRECISION_NANO
-			return true;
-#else
-			return false;
-#endif
-		}
-
-		bool checkNanoSupportWithInfo()
-		{
-			constexpr auto ret = checkNanoSupport();
-			if (!ret)
-			{
-				PCPP_LOG_DEBUG(
-				    "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-				    "recompile PcapPlusPlus with nano precision support to use this feature.");
-			}
-			return ret;
-		}
-
 		constexpr bool checkZstdSupport()
 		{
 #ifdef PCPP_PCAPNG_ZSTD_SUPPORT
@@ -503,7 +482,6 @@ namespace pcpp
 			Failure,
 			FileNotFound,
 			UnsupportedFileFormat,
-			NoPlatformNanoSupport,
 			NoPlatformZstdSupport,
 		};
 
@@ -523,13 +501,6 @@ namespace pcpp
 			switch (CaptureFileFormatDetector().detectFormat(fileContent))
 			{
 			case CaptureFileFormat::PcapNano:
-			{
-				if (!checkNanoSupport())
-				{
-					return TryCreateReaderResult::NoPlatformNanoSupport;
-				}
-				// fallthrough
-			}
 			case CaptureFileFormat::Pcap:
 			case CaptureFileFormat::PcapMod:
 			{
@@ -589,11 +560,6 @@ namespace pcpp
 		{
 			throw std::runtime_error("File format of " + fileName + " is not supported");
 		}
-		case TryCreateReaderResult::NoPlatformNanoSupport:
-		{
-			throw std::runtime_error(
-			    "Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
-		}
 		case TryCreateReaderResult::NoPlatformZstdSupport:
 		{
 			throw std::runtime_error("PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
@@ -630,11 +596,6 @@ namespace pcpp
 		case TryCreateReaderResult::UnsupportedFileFormat:
 		{
 			PCPP_LOG_ERROR("File format of " << fileName << " is not supported");
-			return nullptr;
-		}
-		case TryCreateReaderResult::NoPlatformNanoSupport:
-		{
-			PCPP_LOG_ERROR("Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
 			return nullptr;
 		}
 		case TryCreateReaderResult::NoPlatformZstdSupport:
