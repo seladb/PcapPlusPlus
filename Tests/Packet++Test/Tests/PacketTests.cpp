@@ -1144,7 +1144,7 @@ PTF_TEST_CASE(PacketIncrementalParseTest)
 	// Assert that the end of the packet is reached and trailer layer is present
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
 
-	// Do an incremental parse up to a previouly parsed layer (IP layer)
+	// Do an incremental parse up to a previously parsed layer (IP layer)
 	pOpts.parseUntil = pcpp::IP;
 	igmpPacket.parsePacket(pOpts);
 
@@ -1182,7 +1182,7 @@ PTF_TEST_CASE(PacketFullReparseTest)
 
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
-	
+
 	// IGMP and Trailer layers should have been discarded after full reparse.
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
