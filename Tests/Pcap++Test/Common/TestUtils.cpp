@@ -1,5 +1,5 @@
+#include <random>
 #include "TestUtils.h"
-#include <fstream>
 #include "GlobalTestArgs.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
@@ -104,4 +104,46 @@ void testSetUp()
 		pcpp::DpdkDeviceList::initDpdk(coreMask, 16383);
 	}
 #endif
+}
+
+TempFile::TempFile(const std::string& extension, const std::string& name, bool open)
+    : m_Filename((name.empty() ? generateRandomName() : name) + "." + extension)
+{
+	if (!open)
+	{
+		return;
+	}
+
+	m_File.open(m_Filename, std::ios::binary);
+	if (!m_File)
+	{
+		throw std::runtime_error("Failed to create file: " + m_Filename);
+	}
+}
+
+TempFile::~TempFile()
+{
+	if (m_File.is_open())
+	{
+		m_File.close();
+	}
+	std::remove(m_Filename.c_str());
+}
+
+std::string TempFile::generateRandomName()
+{
+	static const char chars[] = "0123456789"
+	                            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	                            "abcdefghijklmnopqrstuvwxyz";
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, sizeof(chars) - 2);
+
+	std::string name = "temp_";
+	for (int i = 0; i < 16; ++i)
+	{
+		name += chars[dis(gen)];
+	}
+	return name;
 }

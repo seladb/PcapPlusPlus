@@ -35,6 +35,8 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision);
 PTF_TEST_CASE(TestPcapSllFileReadWrite);
 PTF_TEST_CASE(TestPcapSll2FileReadWrite);
 PTF_TEST_CASE(TestPcapRawIPFileReadWrite);
+PTF_TEST_CASE(TestPcapFileReadAdv);
+PTF_TEST_CASE(TestPcapFileWriteAdv);
 PTF_TEST_CASE(TestPcapFileAppend);
 PTF_TEST_CASE(TestPcapNgFileReadWrite);
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv);
