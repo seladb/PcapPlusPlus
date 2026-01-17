@@ -28,6 +28,280 @@ public:
 	}
 };
 
+namespace
+{
+	void copyContents(const std::string& srcFilePath, const std::string& dstFilePath)
+	{
+		std::ifstream srcFile(srcFilePath, std::ios::binary);
+		std::ofstream dstFile(dstFilePath, std::ios::binary);
+		dstFile << srcFile.rdbuf();
+	}
+
+	void writeContents(const std::string& filePath, char const* data, size_t dataSize)
+	{
+		std::ofstream outFile(filePath, std::ios::binary);
+		outFile.write(data, dataSize);
+	}
+}  // namespace
+
+PTF_TEST_CASE(TestFileFormatDetector)
+{
+	std::vector<uint32_t> pcapTestCases = {
+		0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
+		0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
+		0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
+		0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+	};
+
+	for (const auto& testCase : pcapTestCases)
+	{
+		writeContents("PcapExamples/file_heuristics/temp/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
+		              sizeof(testCase));
+
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp");
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+	}
+
+	if (pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
+	{
+		std::vector<uint32_t> pcapNanoTestCases = {
+			0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
+			0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
+		};
+
+		for (const auto& testCase : pcapNanoTestCases)
+		{
+			writeContents("PcapExamples/file_heuristics/temp/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
+			              sizeof(testCase));
+
+			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp");
+			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+		}
+	}
+
+	std::vector<uint32_t> pcapngTestCases = {
+		0x0A'0D'0D'0A,  // pcapng magic number (palindrome)
+	};
+
+	for (const auto& testCase : pcapngTestCases)
+	{
+		writeContents("PcapExamples/file_heuristics/temp/pcapng_test.tmp", reinterpret_cast<const char*>(&testCase),
+		              sizeof(testCase));
+
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcapng_test.tmp");
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+	}
+
+	if (pcpp::PcapNgFileReaderDevice::isZstdSupported())
+	{
+		std::vector<uint32_t> zstdTestCases = {
+			0x28'B5'2F'FD,  // zstd archive magic number
+			0xFD'2F'B5'28,  // zstd archive magic number (byte-swapped)
+		};
+
+		for (const auto& testCase : zstdTestCases)
+		{
+			writeContents("PcapExamples/file_heuristics/temp/zstd_test.tmp", reinterpret_cast<const char*>(&testCase),
+			              sizeof(testCase));
+			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/zstd_test.tmp");
+			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+		}
+	}
+
+	std::vector<uint32_t> unknownTestCases = {
+		0x12'34'56'78,  // unknown
+		0x00'00'00'00,  // unknown
+		0xFF'FF'FF'FF,  // unknown
+	};
+
+	for (const auto& testCase : unknownTestCases)
+	{
+		writeContents("PcapExamples/file_heuristics/temp/unknown_test.tmp", reinterpret_cast<const char*>(&testCase),
+		              sizeof(testCase));
+
+		PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/unknown_test.tmp"),
+		                  std::runtime_error,
+		                  "File format of PcapExamples/file_heuristics/temp/unknown_test.tmp is not supported");
+
+		auto dev = pcpp::IFileReaderDevice::tryCreateReader("PcapExamples/file_heuristics/temp/unknown_test.tmp");
+		PTF_ASSERT_NULL(dev);
+	}
+
+	// Snoop is special as it uses a 64-bit magic number sequence.
+	std::vector<uint64_t> snoopTestCases = {
+		0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
+		0x00'00'00'70'6F'6F'6E'73,  // snoop magic number, "snoop" in ASCII (byte-swapped)
+	};
+
+	for (const auto& testCase : snoopTestCases)
+	{
+		writeContents("PcapExamples/file_heuristics/temp/snoop_test.tmp", reinterpret_cast<const char*>(&testCase),
+		              sizeof(testCase));
+
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/snoop_test.tmp");
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
+	}
+}
+
+PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
+{
+	// Correct format
+	constexpr const char* PCAP_MICROSEC_FILE_PATH = "PcapExamples/file_heuristics/microsecs.pcap";
+
+	// Correct format, wrong extension, microsecond precision
+	constexpr const char* PCAP_AS_DAT_FILE_PATH = "PcapExamples/file_heuristics/temp/microsecs.pcap.dat";
+
+	copyContents(PCAP_MICROSEC_FILE_PATH, PCAP_AS_DAT_FILE_PATH);
+
+	std::unique_ptr<pcpp::IFileReaderDevice> dev;
+
+	for (const auto& filePath : { PCAP_MICROSEC_FILE_PATH, PCAP_AS_DAT_FILE_PATH })
+	{
+		dev = pcpp::IFileReaderDevice::createReader(filePath);
+		PTF_ASSERT_NOT_NULL(dev);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+		PTF_ASSERT_TRUE(dev->open());
+
+		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
+		PTF_ASSERT_NOT_NULL(dev);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+		PTF_ASSERT_TRUE(dev->open());
+	}
+}
+
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano)
+{
+	if (!pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
+	{
+		PTF_SKIP_TEST("Nano-second precision is not supported in this platform/environment");
+	}
+
+	constexpr const char* PCAP_NANOSEC_FILE_PATH = "PcapExamples/file_heuristics/nanosecs.pcap";
+
+	auto dev = pcpp::IFileReaderDevice::createReader(PCAP_NANOSEC_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+
+	dev = pcpp::IFileReaderDevice::tryCreateReader(PCAP_NANOSEC_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+}
+
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano_Unsupported)
+{
+	if (pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
+	{
+		PTF_SKIP_TEST("Nano-second precision is supported in this platform/environment");
+	}
+
+	constexpr const char* PCAP_NANOSEC_FILE_PATH = "PcapExamples/file_heuristics/nanosecs.pcap";
+
+	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader(PCAP_NANOSEC_FILE_PATH), std::runtime_error,
+	                  "Pcap files with nanosecond precision are not supported in this build of PcapPlusPlus");
+
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAP_NANOSEC_FILE_PATH);
+	PTF_ASSERT_NULL(dev);
+}
+
+PTF_TEST_CASE(TestReaderFactory_PcapNG)
+{
+	// Correct format
+	constexpr const char* PCAPNG_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng";
+
+	// Correct format, wrong extension
+	constexpr const char* PCAPNG_AS_PCAP_FILE_PATH = "PcapExamples/file_heuristics/temp/pcapng-example.pcapng.pcap";
+
+	copyContents(PCAPNG_FILE_PATH, PCAPNG_AS_PCAP_FILE_PATH);
+
+	std::unique_ptr<pcpp::IFileReaderDevice> dev;
+
+	for (const auto& filePath : { PCAPNG_FILE_PATH, PCAPNG_AS_PCAP_FILE_PATH })
+	{
+		dev = pcpp::IFileReaderDevice::createReader(filePath);
+		PTF_ASSERT_NOT_NULL(dev);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+		PTF_ASSERT_TRUE(dev->open());
+
+		dev = pcpp::IFileReaderDevice::tryCreateReader(filePath);
+		PTF_ASSERT_NOT_NULL(dev);
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+		PTF_ASSERT_TRUE(dev->open());
+	}
+}
+
+PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST)
+{
+	if (!pcpp::PcapNgFileReaderDevice::isZstdSupported())
+	{
+		PTF_SKIP_TEST("Zstandard compression is not supported in this platform/environment");
+	}
+
+	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
+
+	auto dev = pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+
+	dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_ZST_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+}
+
+PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported)
+{
+	if (pcpp::PcapNgFileReaderDevice::isZstdSupported())
+	{
+		PTF_SKIP_TEST("Zstandard compression is supported in this platform/environment");
+	}
+
+	constexpr const char* PCAPNG_ZST_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.zst";
+
+	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader(PCAPNG_ZST_FILE_PATH), std::runtime_error,
+	                  "PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader(PCAPNG_ZST_FILE_PATH);
+	PTF_ASSERT_NULL(dev);
+}
+
+PTF_TEST_CASE(TestReaderFactory_Snoop)
+{
+	constexpr const char* SNOOP_FILE_PATH = EXAMPLE_SOLARIS_SNOOP;
+
+	auto dev = pcpp::IFileReaderDevice::createReader(SNOOP_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+
+	dev = pcpp::IFileReaderDevice::tryCreateReader(SNOOP_FILE_PATH);
+	PTF_ASSERT_NOT_NULL(dev);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
+	PTF_ASSERT_TRUE(dev->open());
+}
+
+PTF_TEST_CASE(TestReaderFactory_InvalidFile)
+{
+	// Garbage data
+	constexpr const char* BOGUS_FILE_PATH = "PcapExamples/file_heuristics/bogus-content.txt";
+
+	// Test non-existent file
+	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader("this-file-does-not-exist.pcap"), std::runtime_error,
+	                  "Could not open file: this-file-does-not-exist.pcap");
+
+	auto dev = pcpp::IFileReaderDevice::tryCreateReader("this-file-does-not-exist.pcap");
+	PTF_ASSERT_NULL(dev);
+
+	// Test existent file with wrong extension and bogus content
+	PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader(BOGUS_FILE_PATH), std::runtime_error,
+	                  "File format of PcapExamples/file_heuristics/bogus-content.txt is not supported");
+
+	dev = pcpp::IFileReaderDevice::tryCreateReader(BOGUS_FILE_PATH);
+	PTF_ASSERT_NULL(dev);
+}
+
 constexpr uint32_t TCPDUMP_MAGIC = 0xa1b2c3d4;
 constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
 constexpr uint32_t NSEC_TCPDUMP_MAGIC = 0xa1b23c4d;
@@ -259,8 +533,10 @@ PTF_TEST_CASE(TestPcapFileMicroPrecision)
 	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
-	pcpp::RawPacket rawPacketMicro(testPayload.data(), testPayload.size(), timeval({ 1, 2 }), false);     // 1.000002000
-	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1, 1234 }), false);  // 1.000001234
+	pcpp::RawPacket rawPacketMicro(testPayload.data(), testPayload.size(), timeval({ 1, 2 }),
+	                               false);  // 1.000002000
+	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1, 1234 }),
+	                              false);  // 1.000001234
 
 	// Write micro precision file
 	pcpp::PcapFileWriterDevice writerDevMicro(EXAMPLE_PCAP_MICRO_WRITE_PATH, pcpp::LINKTYPE_ETHERNET, false);
@@ -313,8 +589,10 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
-	pcpp::RawPacket rawPacketMicro(testPayload.data(), testPayload.size(), timeval({ 1, 2 }), false);     // 1.000002000
-	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1, 1234 }), false);  // 1.000001234
+	pcpp::RawPacket rawPacketMicro(testPayload.data(), testPayload.size(), timeval({ 1, 2 }),
+	                               false);  // 1.000002000
+	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1, 1234 }),
+	                              false);  // 1.000001234
 
 	// Write nano precision file
 	pcpp::PcapFileWriterDevice writerDevNano(EXAMPLE_PCAP_NANO_WRITE_PATH, pcpp::LINKTYPE_ETHERNET, true);
@@ -1558,7 +1836,7 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 	PTF_ASSERT_EQUAL(packetCount, 161);
 
-	// -------
+	// ------- IFileReaderDevice::getReader() Factory
 
 	// copy the .zstd file to a similar file with .zst extension
 	std::ifstream zstdFile(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH, std::ios::binary);
@@ -1790,8 +2068,8 @@ PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
 
 	// Create some pcaps in a nested scope to test cleanup on destruction.
 	{
-		// create a file to leave open on destruction. If close is properly done on destruction, the contents & size of
-		// this file should match the next explicitly closed file.
+		// create a file to leave open on destruction. If close is properly done on destruction, the contents & size
+		// of this file should match the next explicitly closed file.
 		pcpp::PcapFileWriterDevice writerDevDestructorNoClose(EXAMPLE_PCAP_DESTRUCTOR1_PATH, pcpp::LINKTYPE_ETHERNET,
 		                                                      false);
 		PTF_ASSERT_TRUE(writerDevDestructorNoClose.open());

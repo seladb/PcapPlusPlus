@@ -1,4 +1,4 @@
-exclude: '.*\.(pcap|pcapng|dat)|(PacketExamples|PcapExamples|expected_output|pcap_examples).*\.txt'
+exclude: '.*\.(pcap|pcapng|dat)|(PacketExamples|PcapExamples|expected_output|pcap_examples).*\.(txt|zst|zstd)'
 fail_fast: false
 repos:
   - repo: local
@@ -37,6 +37,7 @@ repos:
         files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++14", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
+        exclude: ^3rdParty/json
   - repo: https://github.com/BlankSpruce/gersemi
     rev: 0.25.0
     hooks:
