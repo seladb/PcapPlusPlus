@@ -264,6 +264,22 @@ namespace pcpp
 			return m_NextLayer != nullptr;
 		}
 
+		/// @brief Construct the next layer in the protocol stack. No validation is performed on the data.
+		///
+		/// This overload infers the Packet from the current layer.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam Args The types of the arguments to pass to the layer constructor
+		/// @param data The data to construct the layer from
+		/// @param dataLen The length of the data
+		/// @param extraArgs Extra arguments to be forwarded to the layer constructor
+		/// @return The constructed layer
+		template <typename T, typename... Args>
+		Layer* constructNextLayer(uint8_t* data, size_t dataLen, Args&&... extraArgs)
+		{
+			return constructNextLayer<T>(data, dataLen, getAttachedPacket(), std::forward<Args>(extraArgs)...);
+		}
+
 		/// Construct the next layer in the protocol stack. No validation is performed on the data.
 		/// @tparam T The type of the layer to construct
 		/// @tparam Args The types of the arguments to pass to the layer constructor
@@ -283,6 +299,27 @@ namespace pcpp
 			Layer* newLayer = new T(data, dataLen, this, packet, std::forward<Args>(extraArgs)...);
 			setNextLayer(newLayer);
 			return newLayer;
+		}
+
+		/// @brief Try to construct the next layer in the protocol stack with a fallback option.
+		/// 
+		/// This overload infers the Packet from the current layer.
+		/// 
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, it constructs the layer of type TFallback.
+		/// 
+		/// @tparam T The type of the layer to construct
+		/// @tparam TFallback The fallback layer type to construct if T fails
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor of T
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		///	@param[in] extraArgs Extra arguments to be forwarded to the layer constructor of T
+		/// @return The constructed layer of type T or TFallback
+		template <typename T, typename TFallback, typename... Args>
+		Layer* tryConstructNextLayerWithFallback(uint8_t* data, size_t dataLen, Args&&... extraArgs)
+		{
+			return tryConstructNextLayerWithFallback<T, TFallback>(data, dataLen, getAttachedPacket(),
+			                                                       std::forward<Args>(extraArgs)...);
 		}
 
 		/// Try to construct the next layer in the protocol stack with a fallback option.
