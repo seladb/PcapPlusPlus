@@ -1170,10 +1170,11 @@ PTF_TEST_CASE(PacketFullReparseTest)
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
 
-	// Do a full reparse of the entire packet. A full reparse should discard previous layers
+	// Disable incremental parsing and do a full reparse up to IP layer.
+	// The IGMP and Trailer layers shouldn't be present after the reparse.
 	ParseOptions pOpts;
 	pOpts.parseUntil = pcpp::IP;
-	igmpPacket.parsePacket(pOpts, true);
+	igmpPacket.parsePacket(pOpts, false);
 
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));

@@ -121,15 +121,15 @@ namespace pcpp
 		m_CanReallocateData = true;
 	}
 
-	void Packet::parsePacket(ParseOptions options, bool fullReparse)
+	void Packet::parsePacket(ParseOptions options, bool incrementalParsing)
 	{
 		if (m_RawPacket == nullptr)
 		{
 			throw std::runtime_error("Cannot parse packet: RawPacket is null");
 		}
 
-		// If a full reparse is requested, destroy all existing layers and start from scratch
-		if (fullReparse)
+		// If we aren't doing an incremental parse, destroy all existing layers and start from scratch
+		if (!incrementalParsing)
 		{
 			destroyAllLayers();
 		}

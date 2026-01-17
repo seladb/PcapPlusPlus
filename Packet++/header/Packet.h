@@ -228,16 +228,15 @@ namespace pcpp
 		/// The packet is parsed according to the specified options, constructing the layer hierarchy if it does not
 		/// exist. If the packet has already been parsed, it will be re-parsed based on the new options.
 		///
-		/// Unless @p fullReparse is set to true, the procedure attempts to reuse existing layers where possible,
-		/// enabling incremental parsing.
-		///
-		/// If @p fullReparse is true, any existing layer pointers owned by this Packet instance are destroyed.
+		/// If @p incrementalParsing is true, the procedure will reuse existing layers where possible, only creating new
+		/// layers for previously unparsed data. Otherwise, all existing layers are discarded and the packet is parsed
+		/// from scratch.
 		///
 		/// @param[in] options Parsing options to configure the parsing behavior.
-		/// @param[in] fullReparse If 'true', forces a complete re-parse of the packet, disregarding any existing layer
-		/// structure.
+		/// @param[in] incrementalParsing If 'true', incremental parsing is performed, reusing existing layers where
+		/// possible.
 		/// @throws std::runtime_error if there is no RawPacket associated with this Packet instance.
-		void parsePacket(ParseOptions options, bool fullReparse = false);
+		void parsePacket(ParseOptions options, bool incrementalParsing = true);
 
 		/// Get a pointer to the Packet's RawPacket in a read-only manner
 		/// @return A pointer to the Packet's RawPacket
