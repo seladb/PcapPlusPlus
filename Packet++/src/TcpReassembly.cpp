@@ -878,8 +878,9 @@ namespace pcpp
 				auto iter = m_ConnectionList.find(key);
 				if (iter != m_ConnectionList.end())
 				{
-					m_ConnectionInfo.erase(iter->second.connData);
+					auto iterInfo = iter->second.connData;
 					m_ConnectionList.erase(iter);
+					m_ConnectionInfo.erase(iterInfo);
 				}
 				else
 				{
