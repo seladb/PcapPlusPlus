@@ -162,10 +162,16 @@ namespace pcpp
 	};
 }  // namespace pcpp
 
+/// std::hash specialization for ConnectionHashable. With this specialization, ConnectionHashable can be used as a key
+/// in an std::unordered_map or std::unordered_set without the need for explicitly specifying a Hash class in the
+/// template parameters.
 template <> struct std::hash<pcpp::ConnectionHashable>
 {
-	inline size_t operator()(pcpp::ConnectionHashable const& obj) const
+	/// Calculates the hash of the argument
+	/// @param[in] object An object to calculate hash for
+	/// @return The hash of the object
+	inline size_t operator()(pcpp::ConnectionHashable const& object) const
 	{
-		return obj();
+		return object();
 	}
 };
