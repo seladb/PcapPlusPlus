@@ -751,7 +751,7 @@ jobs:
           release: ${{ matrix.version }}
           usesh: true
           prepare: |
-            pkg install -y pcre2 python bash cmake git gmake gsed libpcap tcpreplay libffi openssl py311-cryptography
+            pkg install -y pcre2 python bash cmake git gmake gsed libpcap tcpreplay libffi openssl rust
             sysctl kern.ipc.maxsockbuf=16777216
           run: |
             set -e
