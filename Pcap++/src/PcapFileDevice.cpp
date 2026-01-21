@@ -185,7 +185,7 @@ namespace pcpp
 	// IFileDevice members
 	// ~~~~~~~~~~~~~~~~~~~
 
-	IFileDevice::IFileDevice(const std::string& fileName) : IFilterableDevice(), IPcapStatisticsProvider()
+	IFileDevice::IFileDevice(const std::string& fileName)
 	{
 		m_FileName = fileName;
 	}
