@@ -1,5 +1,6 @@
 #include "../TestDefinition.h"
 #include "Logger.h"
+#include "IPv4Layer.h"
 #include "Packet.h"
 #include "PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
@@ -1732,53 +1733,217 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4)
 
 }  // TestPcapFileReadLinkTypeIPv4
 
-PTF_TEST_CASE(TestSolarisSnoopFileRead)
+enum class SnoopHeaderParam
 {
-	pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
-	PTF_ASSERT_TRUE(readerDev.open());
-	pcpp::RawPacket rawPacket;
-	int packetCount = 0;
-	int ethCount = 0;
-	int ethDot3Count = 0;
-	int ipCount = 0;
-	int tcpCount = 0;
-	int udpCount = 0;
-	std::vector<timespec> timeStamps;
-	while (readerDev.getNextPacket(rawPacket))
+	Magic,
+	Version,
+	LinkType,
+};
+
+std::vector<uint8_t> createSnoopHeader(const std::unordered_map<SnoopHeaderParam, uint64_t>& params)
+{
+	struct snoop_file_header
 	{
-		packetCount++;
-		pcpp::Packet packet(&rawPacket);
-		if (packet.isPacketOfType(pcpp::Ethernet))
-			ethCount++;
-		if (packet.isPacketOfType(pcpp::EthernetDot3))
-			ethDot3Count++;
-		if (packet.isPacketOfType(pcpp::IPv4))
-			ipCount++;
-		if (packet.isPacketOfType(pcpp::TCP))
-			tcpCount++;
-		if (packet.isPacketOfType(pcpp::UDP))
-			udpCount++;
-		timeStamps.push_back(rawPacket.getPacketTimeStamp());
+		uint64_t identification_pattern;
+		uint32_t version_number;
+		uint32_t datalink_type;
+	};
+
+	snoop_file_header header = { 0x706f6f6e73, 0x2000000, 0x1000000 };
+
+	for (auto& param : params)
+	{
+		switch (param.first)
+		{
+		case SnoopHeaderParam::Magic:
+		{
+			header.identification_pattern = param.second;
+			break;
+		}
+		case SnoopHeaderParam::Version:
+		{
+			header.version_number = static_cast<uint16_t>(param.second);
+			break;
+		}
+		case SnoopHeaderParam::LinkType:
+		{
+			header.datalink_type = static_cast<uint16_t>(param.second);
+			break;
+		}
+		}
 	}
 
-	pcpp::IPcapDevice::PcapStats readerStatistics;
+	std::vector<uint8_t> result(sizeof(snoop_file_header));
+	std::memcpy(result.data(), &header, sizeof(snoop_file_header));
+	return result;
+}
 
-	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 250);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+enum class SnoopPacketHeaderParam
+{
+	TimestampSec,
+	TimestampUsec,
+	Caplen,
+	TotalLen
+};
 
-	PTF_ASSERT_EQUAL(packetCount, 250);
-	PTF_ASSERT_EQUAL(ethCount, 142);
-	PTF_ASSERT_EQUAL(ethDot3Count, 108);
-	PTF_ASSERT_EQUAL(ipCount, 71);
-	PTF_ASSERT_EQUAL(tcpCount, 15);
-	PTF_ASSERT_EQUAL(udpCount, 55);
-	PTF_ASSERT_EQUAL(timeStamps[0].tv_sec, 911274719);
-	PTF_ASSERT_EQUAL(timeStamps[0].tv_nsec, 885516000);
-	PTF_ASSERT_EQUAL(timeStamps[249].tv_sec, 911274726);
-	PTF_ASSERT_EQUAL(timeStamps[249].tv_nsec, 499893000);
+PTF_TEST_CASE(TestSolarisSnoopFileRead)
+{
+	SuppressLogs suppressLogs;
 
-	readerDev.close();
+	// Basic test
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		PTF_ASSERT_TRUE(readerDev.open());
+		pcpp::RawPacket rawPacket;
+		int packetCount = 0;
+		int ethCount = 0;
+		int ethDot3Count = 0;
+		int ipCount = 0;
+		int tcpCount = 0;
+		int udpCount = 0;
+		std::vector<timespec> timeStamps;
+		while (readerDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+			pcpp::Packet packet(&rawPacket);
+			if (packet.isPacketOfType(pcpp::Ethernet))
+				ethCount++;
+			if (packet.isPacketOfType(pcpp::EthernetDot3))
+				ethDot3Count++;
+			if (packet.isPacketOfType(pcpp::IPv4))
+				ipCount++;
+			if (packet.isPacketOfType(pcpp::TCP))
+				tcpCount++;
+			if (packet.isPacketOfType(pcpp::UDP))
+				udpCount++;
+			timeStamps.push_back(rawPacket.getPacketTimeStamp());
+		}
+
+		pcpp::IPcapDevice::PcapStats readerStatistics;
+
+		readerDev.getStatistics(readerStatistics);
+		PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 250);
+		PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+
+		PTF_ASSERT_EQUAL(packetCount, 250);
+		PTF_ASSERT_EQUAL(ethCount, 142);
+		PTF_ASSERT_EQUAL(ethDot3Count, 108);
+		PTF_ASSERT_EQUAL(ipCount, 71);
+		PTF_ASSERT_EQUAL(tcpCount, 15);
+		PTF_ASSERT_EQUAL(udpCount, 55);
+		PTF_ASSERT_EQUAL(timeStamps[0].tv_sec, 911274719);
+		PTF_ASSERT_EQUAL(timeStamps[0].tv_nsec, 885516000);
+		PTF_ASSERT_EQUAL(timeStamps[249].tv_sec, 911274726);
+		PTF_ASSERT_EQUAL(timeStamps[249].tv_nsec, 499893000);
+
+		PTF_ASSERT_EQUAL(readerDev.getLinkLayerType(), pcpp::LINKTYPE_ETHERNET, enum);
+		readerDev.close();
+	}
+
+	// Packet filtering
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		PTF_ASSERT_TRUE(readerDev.setFilter("src net 129.111.182.28"));
+
+		int packetCount = 0;
+
+		pcpp::RawPacket rawPacket;
+		while (readerDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+			pcpp::Packet packet(&rawPacket);
+
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
+			auto ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+			PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "129.111.182.28");
+		}
+
+		PTF_ASSERT_EQUAL(packetCount, 16);
+	}
+
+	// Device not open
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File device not open");
+	}
+
+	// File doesn't exist
+	{
+		pcpp::SnoopFileReaderDevice readerDev("does_not_exist.snoop");
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot open snoop reader device for filename 'does_not_exist.snoop'");
+	}
+
+	// Cannot read file header
+	{
+		TempFile snoopFile("snoop");
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot read snoop file header for '" + snoopFile.getFileName() + "'");
+	}
+
+	// Wrong magic number
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({
+		    { SnoopHeaderParam::Magic, 1234 }
+        });
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Malformed snoop file header for '" + snoopFile.getFileName() + "'");
+	}
+
+	// Wrong version number
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({
+		    { SnoopHeaderParam::Version, 1 }
+        });
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Malformed snoop file header for '" + snoopFile.getFileName() + "'");
+	}
+
+	// Unsupported link type
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({
+		    { SnoopHeaderParam::LinkType, pcpp::LINKTYPE_ARCNET_LINUX }
+        });
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot read data link type for '" + snoopFile.getFileName() + "'");
+	}
+
+	// Cannot read packet metadata
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Failed to read packet metadata");
+	}
 }  // TestSolarisSnoopFileRead
 
 PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
