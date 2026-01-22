@@ -208,7 +208,7 @@ namespace pcpp
 		{
 			if (m_LastExtension->getExtensionType() == IPv6Extension::IPv6Fragmentation)
 			{
-				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+				constructNextLayer<PayloadLayer>(payload, payloadLen);
 				return;
 			}
 
@@ -222,66 +222,94 @@ namespace pcpp
 		switch (nextHdr)
 		{
 		case PACKETPP_IPPROTO_UDP:
-			m_NextLayer = UdpLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new UdpLayer(payload, payloadLen, this, getAttachedPacket()))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+		{
+			tryConstructNextLayerWithFallback<UdpLayer, PayloadLayer>(payload, payloadLen);
 			break;
+		}
 		case PACKETPP_IPPROTO_TCP:
-			m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new TcpLayer(payload, payloadLen, this, getAttachedPacket()))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+		{
+			tryConstructNextLayerWithFallback<TcpLayer, PayloadLayer>(payload, payloadLen);
 			break;
+		}
 		case PACKETPP_IPPROTO_IPIP:
 		{
 			uint8_t ipVersion = *payload >> 4;
-			if (ipVersion == 4 && IPv4Layer::isDataValid(payload, payloadLen))
-				m_NextLayer = new IPv4Layer(payload, payloadLen, this, getAttachedPacket());
-			else if (ipVersion == 6 && IPv6Layer::isDataValid(payload, payloadLen))
-				m_NextLayer = new IPv6Layer(payload, payloadLen, this, getAttachedPacket());
-			else
-				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+			switch (ipVersion)
+			{
+			case 4:
+			{
+				tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen);
+				break;
+			}
+			case 6:
+			{
+				tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
+				break;
+			}
+			default:
+			{
+				constructNextLayer<PayloadLayer>(payload, payloadLen);
+				break;
+			}
+			}
 			break;
 		}
 		case PACKETPP_IPPROTO_GRE:
 		{
 			ProtocolType greVer = GreLayer::getGREVersion(payload, payloadLen);
-			if (greVer == GREv0 && GREv0Layer::isDataValid(payload, payloadLen))
-				m_NextLayer = new GREv0Layer(payload, payloadLen, this, getAttachedPacket());
-			else if (greVer == GREv1 && GREv1Layer::isDataValid(payload, payloadLen))
-				m_NextLayer = new GREv1Layer(payload, payloadLen, this, getAttachedPacket());
-			else
-				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+
+			switch (greVer)
+			{
+			case GREv0:
+			{
+				tryConstructNextLayerWithFallback<GREv0Layer, PayloadLayer>(payload, payloadLen);
+				break;
+			}
+			case GREv1:
+			{
+				tryConstructNextLayerWithFallback<GREv1Layer, PayloadLayer>(payload, payloadLen);
+				break;
+			}
+			default:
+				constructNextLayer<PayloadLayer>(payload, payloadLen);
+				break;
+			}
 			break;
 		}
 		case PACKETPP_IPPROTO_AH:
-			m_NextLayer =
-			    AuthenticationHeaderLayer::isDataValid(payload, payloadLen)
-			        ? static_cast<Layer*>(new AuthenticationHeaderLayer(payload, payloadLen, this, getAttachedPacket()))
-			        : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+		{
+			tryConstructNextLayerWithFallback<AuthenticationHeaderLayer, PayloadLayer>(payload, payloadLen);
 			break;
+		}
 		case PACKETPP_IPPROTO_ESP:
-			m_NextLayer = ESPLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new ESPLayer(payload, payloadLen, this, getAttachedPacket()))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, getAttachedPacket()));
+		{
+			tryConstructNextLayerWithFallback<ESPLayer, PayloadLayer>(payload, payloadLen);
 			break;
+		}
 		case PACKETPP_IPPROTO_ICMPV6:
 		{
-			m_NextLayer = IcmpV6Layer::parseIcmpV6Layer(payload, payloadLen, this, getAttachedPacket());
+			setNextLayer(IcmpV6Layer::parseIcmpV6Layer(payload, payloadLen, this, getAttachedPacket()));
 			break;
 		}
 		case PACKETPP_IPPROTO_VRRP:
 		{
 			auto vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
+
 			if (vrrpVer == VRRPv3)
-				m_NextLayer =
-				    new VrrpV3Layer(payload, payloadLen, this, getAttachedPacket(), IPAddress::IPv6AddressType);
+			{
+				constructNextLayer<VrrpV3Layer>(payload, payloadLen, IPAddress::IPv6AddressType);
+			}
 			else
-				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+			{
+				constructNextLayer<PayloadLayer>(payload, payloadLen);
+			}
 			break;
 		}
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
-			return;
+		{
+			constructNextLayer<PayloadLayer>(payload, payloadLen);
+			break;
+		}
 		}
 	}
 
