@@ -27,8 +27,7 @@ class InterfaceList:
         ips = interface.get("ips", [])
         for ip in ips:
             try:
-                ipv4 = IPv4Address(ip)
-                return ipv4
+                return IPv4Address(ip)
             except ValueError:
                 pass
 
