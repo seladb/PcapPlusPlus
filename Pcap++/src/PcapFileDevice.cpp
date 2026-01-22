@@ -818,7 +818,7 @@ namespace pcpp
 
 	bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& packetComment)
 	{
-		getNextPacketInternal(rawPacket, &packetComment);
+		return getNextPacketInternal(rawPacket, &packetComment);
 	}
 
 	bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket)
