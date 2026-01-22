@@ -421,6 +421,9 @@ namespace pcpp
 
 		/// Close the pacp-ng file
 		void close() override;
+
+	private:
+		bool getNextPacketInternal(RawPacket& rawPacket, std::string* packetComment);
 	};
 
 	/// @class PcapNgFileWriterDevice
