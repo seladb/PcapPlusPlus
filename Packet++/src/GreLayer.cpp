@@ -221,7 +221,7 @@ namespace pcpp
 			break;
 		case PCPP_ETHERTYPE_ETHBRIDGE:
 		{
-			if(tryConstructNextLayer<EthLayer>(payload,payloadLen) != nullptr)
+			if (tryConstructNextLayer<EthLayer>(payload, payloadLen) != nullptr)
 			{
 				break;
 			}

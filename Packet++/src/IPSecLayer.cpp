@@ -75,7 +75,7 @@ namespace pcpp
 		case PACKETPP_IPPROTO_IPIP:
 		{
 			uint8_t ipVersion = *payload >> 4;
-			switch(ipVersion)
+			switch (ipVersion)
 			{
 			case 4:
 			{
