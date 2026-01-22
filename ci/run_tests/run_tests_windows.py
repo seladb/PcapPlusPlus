@@ -24,8 +24,7 @@ class InterfaceList:
         if interface is None:
             return None
 
-        ips = interface.get("ips", [])
-        for ip in ips:
+        for ip in interface.get("ips", []):
             try:
                 return IPv4Address(ip)
             except ValueError:
