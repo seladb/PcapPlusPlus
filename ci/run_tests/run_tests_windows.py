@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import argparse
 import subprocess
@@ -10,25 +12,30 @@ PCAP_FILE_PATH = os.path.abspath(
 )
 
 
-def validate_ipv4_address(address):
-    try:
-        IPv4Address(address)
-        return True
-    except ValueError:
-        return False
+class InterfaceList:
+    def __init__(self):
+        interfaces = scapy.arch.windows.get_windows_if_list()
+        self.interfaces = {
+            iface["guid"]: iface for iface in interfaces if "guid" in iface
+        }
+
+    def get_ipv4_by_guid(self, guid: str) -> IPv4Address | None:
+        interface = self.interfaces.get(guid, None)
+        if interface is None:
+            return None
+
+        ips = interface.get("ips", [])
+        for ip in ips:
+            try:
+                ipv4 = IPv4Address(ip)
+                return ipv4
+            except ValueError:
+                pass
+
+        return None
 
 
-def get_ip_by_guid(guid):
-    interfaces = scapy.arch.windows.get_windows_if_list()
-    for iface in interfaces:
-        ips = iface.get("ips", [])
-        # Find the first valid IPv4 address inside iface["ips"]. If no address is found, return None
-        return next(filter(validate_ipv4_address, ips), None)
-    # Return None if no matching interface is found
-    return None
-
-
-def find_interface():
+def find_interface() -> tuple[str, IPv4Address] | tuple[None, None]:
     completed_process = subprocess.run(
         ["tcpreplay.exe", "--listnics"],
         shell=True,
@@ -39,6 +46,8 @@ def find_interface():
         print('Error executing "tcpreplay.exe --listnics"!')
         exit(1)
 
+    if_list = InterfaceList()
+
     raw_nics_output = completed_process.stdout.decode("utf-8")
     for row in raw_nics_output.split("\n")[2:]:
         columns = row.split("\t")
@@ -46,17 +55,24 @@ def find_interface():
             interface = columns[1]
             try:
                 nic_guid = interface.lstrip("\\Device\\NPF_")
-                ip_address = get_ip_by_guid(nic_guid)
-                if ip_address.startswith("169.254"):
+
+                ipv4 = if_list.get_ipv4_by_guid(nic_guid)
+
+                if ipv4 is None:
                     continue
+
+                if ipv4.is_link_local or ipv4.is_loopback:
+                    continue
+
                 completed_process = subprocess.run(
-                    ["curl", "--interface", ip_address, "www.google.com"],
+                    ["curl", "--interface", str(ipv4), "www.google.com"],
                     capture_output=True,
                     shell=True,
                 )
                 if completed_process.returncode != 0:
                     continue
-                return interface, ip_address
+
+                return interface, ipv4
             except Exception:
                 pass
     return None, None
@@ -154,7 +170,7 @@ def main():
                     "--",
                     os.path.join("Bin", "Pcap++Test"),
                     "-i",
-                    ip_address,
+                    str(ip_address),
                     "-x",
                     ";".join(skip_tests),
                     *include_tests,
@@ -167,7 +183,7 @@ def main():
                 [
                     os.path.join("Bin", "Pcap++Test"),
                     "-i",
-                    ip_address,
+                    str(ip_address),
                     "-x",
                     ";".join(skip_tests),
                     *include_tests,
