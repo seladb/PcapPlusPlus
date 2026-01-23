@@ -301,6 +301,47 @@ namespace pcpp
 			return newLayer;
 		}
 
+		/// Try to construct the next layer in the protocol stack.
+		///
+		/// This overload infers the Packet from the current layer.
+		///
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, no layer is constructed and a nullptr is returned.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] extraArgs Extra arguments to be forwarded to the layer constructor
+		/// @return The constructed layer or nullptr if the data is invalid
+		template <typename T, typename... Args>
+		Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Args&&... extraArgs)
+		{
+			return tryConstructNextLayer<T>(data, dataLen, getAttachedPacket(), std::forward<Args>(extraArgs)...);
+		}
+
+		/// Try to construct the next layer in the protocol stack.
+		///
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, no layer is constructed and a nullptr is returned.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		/// @param[in] extraArgs Extra arguments to be forwarded to the layer constructor
+		/// @return The constructed layer or nullptr if the data is invalid
+		template <typename T, typename... Args>
+		Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		{
+			if (T::isDataValid(data, dataLen))
+			{
+				return constructNextLayer<T>(data, dataLen, packet, std::forward<Args>(extraArgs)...);
+			}
+			return nullptr;
+		}
+
 		/// @brief Try to construct the next layer in the protocol stack with a fallback option.
 		///
 		/// This overload infers the Packet from the current layer.
@@ -357,29 +398,6 @@ namespace pcpp
 		template <typename T> static bool canReinterpretAs(const uint8_t* data, size_t dataLen)
 		{
 			return data != nullptr && dataLen >= sizeof(T);
-		}
-
-	private:
-		/// Try to construct the next layer in the protocol stack.
-		///
-		/// The method checks if the data is valid for the layer type T before constructing it by calling
-		/// T::isDataValid(data, dataLen). If the data is invalid, a nullptr is returned.
-		///
-		/// @tparam T The type of the layer to construct
-		/// @tparam Args The types of the extra arguments to pass to the layer constructor
-		/// @param[in] data The data to construct the layer from
-		/// @param[in] dataLen The length of the data
-		/// @param[in] packet The packet the layer belongs to
-		/// @param[in] extraArgs Extra arguments to be forwarded to the layer constructor
-		/// @return The constructed layer or nullptr if the data is invalid
-		template <typename T, typename... Args>
-		Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
-		{
-			if (T::isDataValid(data, dataLen))
-			{
-				return constructNextLayer<T>(data, dataLen, packet, std::forward<Args>(extraArgs)...);
-			}
-			return nullptr;
 		}
 	};
 
