@@ -82,7 +82,9 @@ namespace pcpp
 	void StpTopologyChangeBPDULayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(stp_tcn_bpdu))
-			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_tcn_bpdu), this, getAttachedPacket());
+		{
+			constructNextLayer<PayloadLayer>(m_Data, m_DataLen - sizeof(stp_tcn_bpdu));
+		}
 	}
 
 	// ---------------------- Class StpConfigurationBPDULayer ----------------------
@@ -226,8 +228,10 @@ namespace pcpp
 
 	void StpConfigurationBPDULayer::parseNextLayer()
 	{
-		if (m_DataLen > sizeof(stp_conf_bpdu))
-			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_conf_bpdu), this, getAttachedPacket());
+		if(m_DataLen > sizeof(stp_conf_bpdu))
+		{
+			constructNextLayer<PayloadLayer>(m_Data, m_DataLen - sizeof(stp_conf_bpdu));
+		}
 	}
 
 	// ---------------------- Class RapidStpLayer ----------------------
@@ -241,8 +245,10 @@ namespace pcpp
 
 	void RapidStpLayer::parseNextLayer()
 	{
-		if (m_DataLen > sizeof(rstp_conf_bpdu))
-			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(rstp_conf_bpdu), this, getAttachedPacket());
+		if(m_DataLen > sizeof(rstp_conf_bpdu))
+		{
+			constructNextLayer<PayloadLayer>(m_Data, m_DataLen - sizeof(rstp_conf_bpdu));
+		}
 	}
 
 	// ---------------------- Class MultipleStpLayer ----------------------
