@@ -228,7 +228,7 @@ namespace pcpp
 
 	void StpConfigurationBPDULayer::parseNextLayer()
 	{
-		if(m_DataLen > sizeof(stp_conf_bpdu))
+		if (m_DataLen > sizeof(stp_conf_bpdu))
 		{
 			constructNextLayer<PayloadLayer>(m_Data, m_DataLen - sizeof(stp_conf_bpdu));
 		}
@@ -245,7 +245,7 @@ namespace pcpp
 
 	void RapidStpLayer::parseNextLayer()
 	{
-		if(m_DataLen > sizeof(rstp_conf_bpdu))
+		if (m_DataLen > sizeof(rstp_conf_bpdu))
 		{
 			constructNextLayer<PayloadLayer>(m_Data, m_DataLen - sizeof(rstp_conf_bpdu));
 		}

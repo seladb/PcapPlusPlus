@@ -101,16 +101,16 @@ namespace pcpp
 		uint8_t* udpData = m_Data + sizeof(udphdr);
 		size_t udpDataLen = m_DataLen - sizeof(udphdr);
 
-		if(DhcpLayer::isDhcpPorts(portSrc,portDst))
+		if (DhcpLayer::isDhcpPorts(portSrc, portDst))
 		{
 			constructNextLayer<DhcpLayer>(udpData, udpDataLen);
 		}
-		else if(VxlanLayer::isVxlanPort(portDst))
+		else if (VxlanLayer::isVxlanPort(portDst))
 		{
 			constructNextLayer<VxlanLayer>(udpData, udpDataLen);
 		}
-		else if(DnsLayer::isDataValid(udpData,udpDataLen) &&
-				 (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
+		else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
+		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		{
 			constructNextLayer<DnsLayer>(udpData, udpDataLen);
 		}
@@ -122,28 +122,28 @@ namespace pcpp
 				constructNextLayer<PayloadLayer>(udpData, udpDataLen, getAttachedPacket());
 			}
 		}
-		else if((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
-				 RadiusLayer::isDataValid(udpData,udpDataLen))
+		else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
+		         RadiusLayer::isDataValid(udpData, udpDataLen))
 		{
 			constructNextLayer<RadiusLayer>(udpData, udpDataLen);
 		}
-		else if((GtpV1Layer::isGTPv1Port(portDst) || GtpV1Layer::isGTPv1Port(portSrc)) &&
-				 GtpV1Layer::isGTPv1(udpData,udpDataLen))
+		else if ((GtpV1Layer::isGTPv1Port(portDst) || GtpV1Layer::isGTPv1Port(portSrc)) &&
+		         GtpV1Layer::isGTPv1(udpData, udpDataLen))
 		{
 			constructNextLayer<GtpV1Layer>(udpData, udpDataLen);
 		}
-		else if((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
-				 GtpV2Layer::isDataValid(udpData,udpDataLen))
+		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
+		         GtpV2Layer::isDataValid(udpData, udpDataLen))
 		{
 			constructNextLayer<GtpV2Layer>(udpData, udpDataLen);
 		}
-		else if((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) &&
-				 (DhcpV6Layer::isDataValid(udpData,udpDataLen)))
+		else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) &&
+		         (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
 		{
 			constructNextLayer<DhcpV6Layer>(udpData, udpDataLen);
 		}
-		else if((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
-				 NtpLayer::isDataValid(udpData,udpDataLen))
+		else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
+		         NtpLayer::isDataValid(udpData, udpDataLen))
 		{
 			constructNextLayer<NtpLayer>(udpData, udpDataLen);
 		}
@@ -154,12 +154,12 @@ namespace pcpp
 			if (!hasNextLayer())
 				constructNextLayer<PayloadLayer>(udpData, udpDataLen);
 		}
-		else if(SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
+		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{
-			
+
 			setNextLayer(SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, getAttachedPacket()));
 		}
-		else if((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData,udpDataLen)))
+		else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
 		{
 			constructNextLayer<WakeOnLanLayer>(udpData, udpDataLen);
 		}

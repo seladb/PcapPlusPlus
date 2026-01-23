@@ -38,7 +38,7 @@ namespace pcpp
 			setNextLayer(StpLayer::parseStpLayer(payload, payloadLen, this, getAttachedPacket()));
 		}
 
-		if(!hasNextLayer())
+		if (!hasNextLayer())
 		{
 			constructNextLayer<PayloadLayer>(payload, payloadLen);
 		}
