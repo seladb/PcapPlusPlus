@@ -5,6 +5,7 @@
 #include "PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
 #include "../Common/TestUtils.h"
+#include "EndianPortable.h"
 #include <array>
 #include <fstream>
 #include <chrono>
@@ -1783,17 +1784,88 @@ enum class SnoopPacketHeaderParam
 	TimestampSec,
 	TimestampUsec,
 	Caplen,
-	TotalLen
+	Wirelen,
+	Pad
 };
+
+std::vector<uint8_t> createSnoopPacketHeader(const std::unordered_map<SnoopPacketHeaderParam, uint32_t>& params)
+{
+	struct snoop_packet_header
+	{
+		uint32_t original_length;
+		uint32_t included_length;
+		uint32_t packet_record_length;
+		uint32_t ndrops_cumulative;
+		uint32_t time_sec;
+		uint32_t time_usec;
+	};
+
+	// Defaults
+	uint32_t caplen = 1514;
+	uint32_t wirelen = 1514;
+	uint32_t pad = 0;
+
+	auto now = std::chrono::system_clock::now();
+	auto duration = now.time_since_epoch();
+	auto subSec = duration % std::chrono::seconds(1);
+	uint32_t sec = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::seconds>(duration).count());
+	uint32_t usec = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::microseconds>(subSec).count());
+
+	for (const auto& p : params)
+	{
+		switch (p.first)
+		{
+		case SnoopPacketHeaderParam::TimestampSec:
+		{
+			sec = p.second;
+			break;
+		}
+		case SnoopPacketHeaderParam::TimestampUsec:
+		{
+			usec = p.second;
+			break;
+		}
+		case SnoopPacketHeaderParam::Caplen:
+		{
+			caplen = p.second;
+			break;
+		}
+		case SnoopPacketHeaderParam::Wirelen:
+		{
+			wirelen = p.second;
+			break;
+		}
+		case SnoopPacketHeaderParam::Pad:
+		{
+			pad = p.second;
+			break;
+		}
+		}
+	}
+
+	snoop_packet_header header = { htobe32(wirelen),
+		                           htobe32(caplen),
+		                           htobe32(static_cast<uint32_t>(sizeof(snoop_packet_header) + caplen + pad)),
+		                           0u,
+		                           htobe32(sec),
+		                           htobe32(usec) };
+
+	std::vector<uint8_t> result(sizeof(snoop_packet_header));
+	std::memcpy(result.data(), &header, sizeof(snoop_packet_header));
+	return result;
+}
 
 PTF_TEST_CASE(TestSolarisSnoopFileRead)
 {
 	SuppressLogs suppressLogs;
 
+	std::array<uint8_t, 5> packetData = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+
 	// Basic test
 	{
 		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
 		PTF_ASSERT_TRUE(readerDev.open());
+		PTF_ASSERT_TRUE(readerDev.isOpened());
 		pcpp::RawPacket rawPacket;
 		int packetCount = 0;
 		int ethCount = 0;
@@ -1822,8 +1894,8 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		pcpp::IPcapDevice::PcapStats readerStatistics;
 
 		readerDev.getStatistics(readerStatistics);
-		PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 250);
-		PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+		PTF_ASSERT_EQUAL(readerStatistics.packetsRecv, 250);
+		PTF_ASSERT_EQUAL(readerStatistics.packetsDrop, 0);
 
 		PTF_ASSERT_EQUAL(packetCount, 250);
 		PTF_ASSERT_EQUAL(ethCount, 142);
@@ -1861,6 +1933,65 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		}
 
 		PTF_ASSERT_EQUAL(packetCount, 16);
+
+		pcpp::IPcapDevice::PcapStats readerStatistics;
+		readerDev.getStatistics(readerStatistics);
+		PTF_ASSERT_EQUAL(readerStatistics.packetsRecv, 16);
+	}
+
+	// Packet details
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile << createSnoopPacketHeader({
+		    { SnoopPacketHeaderParam::Caplen,        packetData.size()     },
+		    { SnoopPacketHeaderParam::Wirelen,       packetData.size() + 5 },
+		    { SnoopPacketHeaderParam::TimestampSec,  1234                  },
+		    { SnoopPacketHeaderParam::TimestampUsec, 5678                  }
+        });
+		snoopFile << packetData;
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_TRUE(readerDev.getNextPacket(rawPacket));
+
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), packetData.size());
+		PTF_ASSERT_EQUAL(rawPacket.getFrameLength(), packetData.size() + 5);
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_sec, 1234);
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_nsec, 5678000);
+
+		PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), packetData.data(), packetData.size());
+	}
+
+	// Packet padding
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile << createSnoopPacketHeader({
+		    { SnoopPacketHeaderParam::Caplen, packetData.size() },
+            { SnoopPacketHeaderParam::Pad,    3                 }
+        });
+		snoopFile << packetData;
+		snoopFile << std::array<uint8_t, 3>{ 0xff, 0xff, 0xff };
+		snoopFile << createSnoopPacketHeader({
+		    { SnoopPacketHeaderParam::Caplen, packetData.size() }
+        });
+		snoopFile << packetData;
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		pcpp::RawPacket rawPacket;
+		for (int i = 0; i < 2; i++)
+		{
+			PTF_ASSERT_TRUE(readerDev.getNextPacket(rawPacket));
+			PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), packetData.size());
+			PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), packetData.data(), packetData.size());
+		}
 	}
 
 	// Device not open
@@ -1879,6 +2010,23 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		                 "Cannot open snoop reader device for filename 'does_not_exist.snoop'");
 	}
 
+	// File already open
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File already open");
+	}
+
+	// Read packet from a non-open device
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File device not open");
+	}
+
 	// Cannot read file header
 	{
 		TempFile snoopFile("snoop");
@@ -1888,6 +2036,7 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		PTF_ASSERT_FALSE(readerDev.open());
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
 		                 "Cannot read snoop file header for '" + snoopFile.getFileName() + "'");
+		PTF_ASSERT_FALSE(readerDev.isOpened());
 	}
 
 	// Wrong magic number
@@ -1943,6 +2092,36 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		pcpp::RawPacket rawPacket;
 		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Failed to read packet metadata");
+	}
+
+	// Packet data too large
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile << createSnoopPacketHeader({
+		    { SnoopPacketHeaderParam::Caplen, 15'500 }
+        });
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Packet length 15500 is too large");
+	}
+
+	// Cannot read packet data
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile << createSnoopPacketHeader({});
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Failed to read packet data");
 	}
 }  // TestSolarisSnoopFileRead
 

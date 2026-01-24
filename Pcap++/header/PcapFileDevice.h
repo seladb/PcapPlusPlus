@@ -571,10 +571,10 @@ namespace pcpp
 #pragma pack()
 
 		LinkLayerType m_PcapLinkLayerType;
-		std::ifstream m_snoopFile;
+		std::ifstream m_SnoopFile;
 
 		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
-		                    uint32_t& capturedLength);
+		                    uint32_t& capturedLength, uint32_t& frameLength);
 
 	public:
 		/// A constructor for this class that gets the snoop full path file name to open. Notice that after calling this
@@ -612,7 +612,7 @@ namespace pcpp
 		/// @return True if the file is opened, false otherwise
 		bool isOpened() const override
 		{
-			return m_snoopFile.is_open();
+			return m_SnoopFile.is_open();
 		}
 
 		/// Close the snoop file

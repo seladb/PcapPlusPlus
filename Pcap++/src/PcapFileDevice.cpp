@@ -1123,27 +1123,32 @@ namespace pcpp
 
 	SnoopFileReaderDevice::~SnoopFileReaderDevice()
 	{
-		m_snoopFile.close();
+		m_SnoopFile.close();
 	}
 
 	bool SnoopFileReaderDevice::open()
 	{
+		if (m_SnoopFile.is_open())
+		{
+			PCPP_LOG_ERROR("File already open");
+			return false;
+		}
+
 		resetStatisticCounters();
 
-		m_snoopFile.open(m_FileName.c_str(), std::ifstream::binary);
-		if (!m_snoopFile.is_open())
+		std::ifstream snoopFile;
+		snoopFile.open(m_FileName.c_str(), std::ifstream::binary);
+		if (!snoopFile.is_open())
 		{
 			PCPP_LOG_ERROR("Cannot open snoop reader device for filename '" << m_FileName << "'");
-			m_snoopFile.close();
 			return false;
 		}
 
 		snoop_file_header_t snoop_file_header;
-		m_snoopFile.read((char*)&snoop_file_header, sizeof(snoop_file_header_t));
-		if (!m_snoopFile)
+		snoopFile.read(reinterpret_cast<char*>(&snoop_file_header), sizeof(snoop_file_header_t));
+		if (!snoopFile)
 		{
 			PCPP_LOG_ERROR("Cannot read snoop file header for '" << m_FileName << "'");
-			m_snoopFile.close();
 			return false;
 		}
 
@@ -1170,10 +1175,10 @@ namespace pcpp
 		if (datalink_type > ARRAY_SIZE(snoop_encap) - 1)
 		{
 			PCPP_LOG_ERROR("Cannot read data link type for '" << m_FileName << "'");
-			m_snoopFile.close();
 			return false;
 		}
 
+		m_SnoopFile = std::move(snoopFile);
 		m_PcapLinkLayerType = snoop_encap[datalink_type];
 
 		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
@@ -1181,11 +1186,11 @@ namespace pcpp
 	}
 
 	bool SnoopFileReaderDevice::readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
-	                                           uint32_t& capturedLength)
+	                                           uint32_t& capturedLength, uint32_t& frameLength)
 	{
 		snoop_packet_header_t snoop_packet_header;
-		m_snoopFile.read(reinterpret_cast<char*>(&snoop_packet_header), sizeof(snoop_packet_header_t));
-		if (!m_snoopFile)
+		m_SnoopFile.read(reinterpret_cast<char*>(&snoop_packet_header), sizeof(snoop_packet_header_t));
+		if (!m_SnoopFile)
 		{
 			PCPP_LOG_ERROR("Failed to read packet metadata");
 			return false;
@@ -1194,26 +1199,26 @@ namespace pcpp
 		capturedLength = be32toh(snoop_packet_header.included_length);
 		if (capturedLength > packetDataLen)
 		{
+			PCPP_LOG_ERROR("Packet length " << capturedLength << " is too large");
 			return false;
 		}
 
-		m_snoopFile.read(reinterpret_cast<char*>(packetData), capturedLength);
-		if (!m_snoopFile)
+		m_SnoopFile.read(reinterpret_cast<char*>(packetData), capturedLength);
+		if (!m_SnoopFile)
 		{
+			PCPP_LOG_ERROR("Failed to read packet data");
 			return false;
 		}
 
 		packetTimestamp = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)),
 			                static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
 
+		frameLength = be32toh(snoop_packet_header.original_length);
+
 		auto pad = be32toh(snoop_packet_header.packet_record_length) -
 		           (sizeof(snoop_packet_header_t) + be32toh(snoop_packet_header.included_length));
 
-		m_snoopFile.ignore(pad);
-		if (!m_snoopFile)
-		{
-			return false;
-		}
+		m_SnoopFile.ignore(pad);
 
 		return true;
 	}
@@ -1228,15 +1233,15 @@ namespace pcpp
 
 		constexpr uint32_t maxPacketLength = 15'000;
 		timespec packetTimestamp{};
-		uint32_t capturedLength = 0;
+		uint32_t capturedLength = 0, frameLength = 0;
 		auto packetData = std::make_unique<uint8_t[]>(maxPacketLength);
 
-		while (readNextPacket(packetTimestamp, packetData.get(), maxPacketLength, capturedLength))
+		while (readNextPacket(packetTimestamp, packetData.get(), maxPacketLength, capturedLength, frameLength))
 		{
 			if (m_BpfWrapper.matches(packetData.get(), capturedLength, packetTimestamp, m_PcapLinkLayerType))
 			{
 				rawPacket.setRawData(capturedLength > 0 ? packetData.release() : nullptr, capturedLength, true,
-				                     packetTimestamp, m_PcapLinkLayerType);
+				                     packetTimestamp, m_PcapLinkLayerType, frameLength);
 				reportPacketProcessed();
 				return true;
 			}
@@ -1248,7 +1253,7 @@ namespace pcpp
 
 	void SnoopFileReaderDevice::close()
 	{
-		m_snoopFile.close();
+		m_SnoopFile.close();
 		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
 	}
 }  // namespace pcpp
