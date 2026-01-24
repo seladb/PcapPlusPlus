@@ -1593,17 +1593,26 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 	pcpp::PcapNgFileReaderDevice readerDev5(EXAMPLE2_PCAPNG_PATH);
 	PTF_ASSERT_TRUE(readerDev5.open());
-	PTF_ASSERT_FALSE(readerDev5.setFilter("bla bla bla"));
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(readerDev5.setFilter("bla bla bla"));
+	}
 	PTF_ASSERT_TRUE(readerDev5.setFilter("src net 130.217.250.129"));
 
 	pcpp::PcapNgFileWriterDevice writerDev2(EXAMPLE2_PCAPNG_WRITE_PATH);
 	PTF_ASSERT_TRUE(writerDev2.open(true));
-	PTF_ASSERT_FALSE(writerDev2.setFilter("bla bla bla"));
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(writerDev2.setFilter("bla bla bla"));
+	}
 	PTF_ASSERT_TRUE(writerDev2.setFilter("dst port 35938"));
 
 	pcpp::PcapNgFileWriterDevice writerCompressDev2(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH, 5);
 	PTF_ASSERT_TRUE(writerCompressDev2.open());  // Do not try append mode on compressed files!!!
-	PTF_ASSERT_FALSE(writerCompressDev2.setFilter("bla bla bla"));
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(writerCompressDev2.setFilter("bla bla bla"));
+	}
 	PTF_ASSERT_TRUE(writerCompressDev2.setFilter("dst port 35938"));
 
 	int filteredReadPacketCount = 0;
