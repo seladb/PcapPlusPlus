@@ -398,9 +398,9 @@ int main(int argc, char* argv[])
 	// create a writer device for output file in the same file type as input file
 	pcpp::IFileWriterDevice* writer = nullptr;
 
-	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
+	if (auto pcapReader = dynamic_cast<pcpp::PcapFileReaderDevice*>(reader))
 	{
-		writer = new pcpp::PcapFileWriterDevice(outputFile, ((pcpp::PcapFileReaderDevice*)reader)->getLinkLayerType());
+		writer = new pcpp::PcapFileWriterDevice(outputFile, pcapReader->getLinkLayerType());
 	}
 	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
 	{
