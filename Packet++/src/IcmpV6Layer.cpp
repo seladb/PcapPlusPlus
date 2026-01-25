@@ -85,6 +85,8 @@ namespace pcpp
 
 		if (m_PrevLayer != nullptr)
 		{
+			auto prevLayerAsIPv6 = static_cast<IPv6Layer*>(m_PrevLayer);
+
 			ScalarBuffer<uint16_t> vec[2];
 
 			vec[0].buffer = (uint16_t*)m_Data;
@@ -95,8 +97,8 @@ namespace pcpp
 			const unsigned int bigEndianNextHeader = htobe32(PACKETPP_IPPROTO_ICMPV6);
 
 			uint16_t pseudoHeader[pseudoHeaderLen / 2];
-			((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address().copyTo((uint8_t*)pseudoHeader);
-			((IPv6Layer*)m_PrevLayer)->getDstIPv6Address().copyTo((uint8_t*)(pseudoHeader + 8));
+			prevLayerAsIPv6->getSrcIPv6Address().copyTo(reinterpret_cast<uint8_t*>(pseudoHeader));
+			prevLayerAsIPv6->getDstIPv6Address().copyTo(reinterpret_cast<uint8_t*>(pseudoHeader + 8));
 			memcpy(&pseudoHeader[16], &bigEndianLen, sizeof(uint32_t));
 			memcpy(&pseudoHeader[18], &bigEndianNextHeader, sizeof(uint32_t));
 			vec[1].buffer = pseudoHeader;

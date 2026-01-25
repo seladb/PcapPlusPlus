@@ -340,7 +340,7 @@ namespace pcpp
 			return nullptr;
 
 		uint8_t* curGroupPtr = m_Data + sizeof(igmpv3_report_header);
-		return (igmpv3_group_record*)curGroupPtr;
+		return reinterpret_cast<igmpv3_group_record*>(curGroupPtr);
 	}
 
 	igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord) const
@@ -386,7 +386,7 @@ namespace pcpp
 
 		uint8_t* groupRecordBuffer = new uint8_t[groupRecordSize];
 		memset(groupRecordBuffer, 0, groupRecordSize);
-		igmpv3_group_record* newGroupRecord = (igmpv3_group_record*)groupRecordBuffer;
+		igmpv3_group_record* newGroupRecord = reinterpret_cast<igmpv3_group_record*>(groupRecordBuffer);
 		newGroupRecord->multicastAddress = multicastAddress.toInt();
 		newGroupRecord->recordType = recordType;
 		newGroupRecord->auxDataLen = 0;
