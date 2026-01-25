@@ -20,6 +20,9 @@ public:
 	    : m_Device(device), m_CancelTeardown(false), m_DeleteDevice(deleteDevice)
 	{}
 
+	DeviceTeardown(DeviceTeardown const&) = delete;
+	DeviceTeardown& operator=(DeviceTeardown const&) = delete;
+
 	~DeviceTeardown()
 	{
 		if (!m_CancelTeardown && m_Device != nullptr && m_Device->isOpened())
@@ -115,7 +118,7 @@ public:
 		return *this;
 	}
 
-	std::string getFileName() const
+	std::string const& getFileName() const
 	{
 		return m_Filename;
 	}
