@@ -1,6 +1,7 @@
 *:3rdParty/*
 
 checkersReport:*
+normalCheckLevelMaxBranches:*
 ConfigurationNotChecked:*
 ctuOneDefinitionRuleViolation:Examples/*
 missingInclude:*
