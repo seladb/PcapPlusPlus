@@ -462,7 +462,6 @@ namespace pcpp
 		/// @param[in] factoryFn The factory functor to create the layer.
 		/// @param[in] data The data to construct the layer from
 		/// @param[in] dataLen The length of the data
-		/// @param[in] packet The packet the layer belongs to
 		/// @param[in] extraArgs Extra arguments to be forwarded to the factory.
 		/// @return The return value of the factory functor.
 		/// @remarks The parameters extraArgs are forwarded to the factory function, but not to the TFallback
