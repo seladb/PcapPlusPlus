@@ -404,26 +404,26 @@ namespace pcpp
 	uint8_t VrrpV2Layer::getAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto authAdvIntPtr = (vrrpv2_auth_adv*)(&authAdvInt);
+		auto authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&authAdvInt);
 		return authAdvIntPtr->advInt;
 	}
 
 	void VrrpV2Layer::setAdvInt(uint8_t advInt)
 	{
-		auto authAdvIntPtr = (vrrpv2_auth_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		authAdvIntPtr->advInt = advInt;
 	}
 
 	uint8_t VrrpV2Layer::getAuthType() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto* authAdvIntPtr = (vrrpv2_auth_adv*)(&authAdvInt);
+		auto* authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&authAdvInt);
 		return authAdvIntPtr->authType;
 	}
 
 	void VrrpV2Layer::setAuthType(uint8_t authType)
 	{
-		auto authAdvIntPtr = (vrrpv2_auth_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		authAdvIntPtr->authType = authType;
 	}
 
@@ -460,7 +460,7 @@ namespace pcpp
 	uint16_t VrrpV3Layer::getMaxAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto rsvdAdv = (vrrpv3_rsvd_adv*)(&authAdvInt);
+		auto rsvdAdv = reinterpret_cast<vrrpv3_rsvd_adv*>(&authAdvInt);
 		return be16toh(rsvdAdv->maxAdvInt);
 	}
 
@@ -470,7 +470,7 @@ namespace pcpp
 		{
 			throw std::invalid_argument("maxAdvInt must not exceed 12 bits length");
 		}
-		auto rsvdAdv = (vrrpv3_rsvd_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto rsvdAdv = reinterpret_cast<vrrpv3_rsvd_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		rsvdAdv->maxAdvInt = htobe16(maxAdvInt);
 	}
 

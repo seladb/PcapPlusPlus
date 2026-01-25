@@ -409,7 +409,7 @@ namespace pcpp
 			}
 		}
 
-		ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength * 4) };
+		ScalarBuffer<uint16_t> scalar = { reinterpret_cast<uint16_t*>(ipHdr), static_cast<size_t>(ipHdr->internetHeaderLength * 4) };
 		ipHdr->headerChecksum = htobe16(computeChecksum(&scalar, 1));
 	}
 
