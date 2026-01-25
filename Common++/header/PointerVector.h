@@ -177,10 +177,14 @@ namespace pcpp
 
 			// Release is called after the raw pointer is already inserted into the vector to prevent
 			// a memory leak if push_back throws.
-			// cppcheck-suppress danglingLifetime
+
+			// cppcheck-suppress-begin [danglingLifetime, ignoredReturnValue]
 			m_Vector.push_back(element.get());
 			element.release();
+			// cppcheck-suppress-end [danglingLifetime, ignoredReturnValue]
 		}
+
+		// cppcheck-suppress-begin danglingLifetime
 
 		/// Get the first element of the vector
 		/// @return An iterator object pointing to the first element of the vector
@@ -209,6 +213,8 @@ namespace pcpp
 		{
 			return m_Vector.end();
 		}
+
+		// cppcheck-suppress-end danglingLifetime
 
 		/// Get number of elements in the vector
 		/// @return The number of elements in the vector
