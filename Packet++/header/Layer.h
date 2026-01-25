@@ -350,6 +350,7 @@ namespace pcpp
 				throw std::runtime_error("Next layer already exists");
 			}
 
+			// cppcheck-suppress redundantInitialization
 			Layer* newLayer = factoryFn(data, dataLen, this, packet, std::forward<Args>(extraArgs)...);
 			setNextLayer(newLayer);
 			return newLayer;
