@@ -288,7 +288,7 @@ namespace pcpp
 		}
 		case PACKETPP_IPPROTO_ICMPV6:
 		{
-			setNextLayer(IcmpV6Layer::parseIcmpV6Layer(payload, payloadLen, this, getAttachedPacket()));
+			constructNextLayerFromFactory(IcmpV6Layer::parseIcmpV6Layer, payload, payloadLen);
 			break;
 		}
 		case PACKETPP_IPPROTO_VRRP:

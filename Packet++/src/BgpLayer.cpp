@@ -87,7 +87,7 @@ namespace pcpp
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		setNextLayer(BgpLayer::parseBgpLayer(payload, payloadLen, this, getAttachedPacket()));
+		constructNextLayerFromFactory(BgpLayer::parseBgpLayer, payload, payloadLen);
 	}
 
 	std::string BgpLayer::toString() const

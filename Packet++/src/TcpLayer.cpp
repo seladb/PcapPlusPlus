@@ -436,7 +436,7 @@ namespace pcpp
 		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{
-			setNextLayer(SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, getAttachedPacket()));
+			constructNextLayerFromFactory(SomeIpLayer::parseSomeIpLayer, payload, payloadLen);
 		}
 		else if (TpktLayer::isDataValid(payload, payloadLen) && TpktLayer::isTpktPort(portSrc, portDst))
 		{
