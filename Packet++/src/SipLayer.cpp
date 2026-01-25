@@ -96,13 +96,16 @@ namespace pcpp
 				contentType = contentTypeField->getFieldValue();
 		}
 
+		auto payload = m_Data + headerLen;
+		auto payloadLen = m_DataLen - headerLen;
+
 		if (contentType.find("application/sdp") != std::string::npos)
 		{
-			m_NextLayer = new SdpLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
+			constructNextLayer<SdpLayer>(payload, payloadLen);
 		}
 		else
 		{
-			m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
+			constructNextLayer<PayloadLayer>(payload, payloadLen);
 		}
 	}
 
