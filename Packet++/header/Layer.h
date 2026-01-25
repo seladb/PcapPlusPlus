@@ -301,9 +301,14 @@ namespace pcpp
 			return newLayer;
 		}
 
-		/// @brief Construct the next layer in the protocol stack using a factory functor. No validation is performed
-		/// on the data.
+		/// @brief Construct the next layer in the protocol stack using a factory functor.
 		///
+		/// No validation is performed on the data, outside of what the factory functor may perform.
+		/// If the factory returns a nullptr, no next layer is set.
+		///
+		/// The factory functor is expected to have the following signature:
+		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
+		/// 
 		/// This overload infers the Packet from the current layer.
 		///
 		/// @tparam TFactory The factory functor type.
@@ -313,7 +318,6 @@ namespace pcpp
 		/// @param[in] dataLen The length of the data
 		/// @param[in] extraArgs Extra arguments to be forwarded to the factory.
 		/// @return The return value of the factory functor.
-		/// @remarks If the factory functor returns nullptr, a nullptr is returned and no next layer is set.
 		template <typename TFactory, typename... Args>
 		Layer* constructNextLayerFromFactory(TFactory factoryFn, uint8_t* data, size_t dataLen, Args&&... extraArgs)
 		{
@@ -321,8 +325,13 @@ namespace pcpp
 			                                               std::forward<Args>(extraArgs)...);
 		}
 
-		/// @brief Construct the next layer in the protocol stack using a factory functor. No validation is performed
-		/// on the data.
+		/// @brief Construct the next layer in the protocol stack using a factory functor.
+		///
+		/// No validation is performed on the data, outside of what the factory functor may perform.
+		/// If the factory returns a nullptr, no next layer is set.
+		///
+		/// The factory functor is expected to have the following signature:
+		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
 		///
 		/// @tparam TFactory The factory functor type.
 		/// @tparam ...Args Parameter pack for extra arguments to pass to the factory functor.
@@ -332,7 +341,6 @@ namespace pcpp
 		/// @param[in] packet The packet the layer belongs to
 		/// @param[in] extraArgs Extra arguments to be forwarded to the factory.
 		/// @return The return value of the factory functor.
-		/// @remarks If the factory functor returns nullptr, a nullptr is returned and no next layer is set.
 		template <typename TFactory, typename... Args>
 		Layer* constructNextLayerFromFactory(TFactory factoryFn, uint8_t* data, size_t dataLen, Packet* packet,
 		                                     Args&&... extraArgs)
@@ -439,9 +447,12 @@ namespace pcpp
 
 		/// @brief Try to construct the next layer in the protocol stack using a factory functor with a fallback option.
 		///
-		/// The method will attempt to construct the next layer using the provided factory function. If the factory
-		/// function returns nullptr, indicating failure to create the layer, the method will then construct a layer of
-		/// type TFallback.
+		/// The method will attempt to construct the next layer using the provided factory function.
+		/// If the factory function returns nullptr, indicating failure to create the layer, the method will then
+		/// construct a layer of type TFallback.
+		///
+		/// The factory functor is expected to have the following signature:
+		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
 		///
 		/// This overload infers the Packet from the current layer.
 		///
@@ -467,10 +478,13 @@ namespace pcpp
 
 		/// @brief Try to construct the next layer in the protocol stack using a factory functor with a fallback option.
 		///
-		/// The method will attempt to construct the next layer using the provided factory function. If the factory
-		/// function returns nullptr, indicating failure to create the layer, the method will then construct a layer of
-		/// type TFallback.
+		/// The method will attempt to construct the next layer using the provided factory function.
+		/// If the factory function returns nullptr, indicating failure to create the layer, the method will then
+		/// construct a layer of type TFallback.
 		///
+		/// The factory functor is expected to have the following signature:
+		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
+		/// 
 		/// @tparam TFallback The fallback layer type to construct if the factory fails.
 		/// @tparam TFactory The factory functor type.
 		/// @tparam ...Args Parameter pack for extra arguments to pass to the factory functor.
