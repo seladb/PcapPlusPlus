@@ -117,11 +117,11 @@ namespace pcpp
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
 			// Resolves the overload of parseSipLayer, without static_casting a function pointer.
-			auto*(*fac)(uint8_t*, size_t, Layer*, Packet*, uint16_t, uint16_t) = SipLayer::parseSipLayer;
+			auto* (*fac)(uint8_t*, size_t, Layer*, Packet*, uint16_t, uint16_t) = SipLayer::parseSipLayer;
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen, portSrc, portDst);
 		}
-		else if((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
-				 RadiusLayer::isDataValid(udpData,udpDataLen))
+		else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
+		         RadiusLayer::isDataValid(udpData, udpDataLen))
 		{
 			constructNextLayer<RadiusLayer>(udpData, udpDataLen);
 		}
@@ -161,7 +161,8 @@ namespace pcpp
 		else if ((WireGuardLayer::isWireGuardPorts(portDst, portSrc) &&
 		          WireGuardLayer::isDataValid(udpData, udpDataLen)))
 		{
-			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(WireGuardLayer::parseWireGuardLayer, udpData, udpDataLen);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(WireGuardLayer::parseWireGuardLayer, udpData,
+			                                                           udpDataLen);
 		}
 
 		// If a valid layer was found, return immediately

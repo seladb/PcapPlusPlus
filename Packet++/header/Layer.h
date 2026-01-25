@@ -308,7 +308,7 @@ namespace pcpp
 		///
 		/// The factory functor is expected to have the following signature:
 		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
-		/// 
+		///
 		/// This overload infers the Packet from the current layer.
 		///
 		/// @tparam TFactory The factory functor type.
@@ -484,7 +484,7 @@ namespace pcpp
 		///
 		/// The factory functor is expected to have the following signature:
 		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
-		/// 
+		///
 		/// @tparam TFallback The fallback layer type to construct if the factory fails.
 		/// @tparam TFactory The factory functor type.
 		/// @tparam ...Args Parameter pack for extra arguments to pass to the factory functor.
