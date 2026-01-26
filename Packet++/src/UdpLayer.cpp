@@ -116,11 +116,9 @@ namespace pcpp
 		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
-			setNextLayer(SipLayer::parseSipLayer(udpData, udpDataLen, this, getAttachedPacket(), portSrc, portDst));
-			if (!hasNextLayer())
-			{
-				constructNextLayer<PayloadLayer>(udpData, udpDataLen, getAttachedPacket());
-			}
+			// Resolves the overload of parseSipLayer, without static_casting a function pointer.
+			auto* (*fac)(uint8_t*, size_t, Layer*, Packet*, uint16_t, uint16_t) = SipLayer::parseSipLayer;
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen, portSrc, portDst);
 		}
 		else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
 		         RadiusLayer::isDataValid(udpData, udpDataLen))
@@ -150,14 +148,11 @@ namespace pcpp
 		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
 		         (DoIpLayer::isDataValid(udpData, udpDataLen)))
 		{
-			setNextLayer(DoIpLayer::parseDoIpLayer(udpData, udpDataLen, this, getAttachedPacket()));
-			if (!hasNextLayer())
-				constructNextLayer<PayloadLayer>(udpData, udpDataLen);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(DoIpLayer::parseDoIpLayer, udpData, udpDataLen);
 		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{
-
-			setNextLayer(SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, getAttachedPacket()));
+			constructNextLayerFromFactory(SomeIpLayer::parseSomeIpLayer, udpData, udpDataLen);
 		}
 		else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
 		{
@@ -166,9 +161,8 @@ namespace pcpp
 		else if ((WireGuardLayer::isWireGuardPorts(portDst, portSrc) &&
 		          WireGuardLayer::isDataValid(udpData, udpDataLen)))
 		{
-			setNextLayer(WireGuardLayer::parseWireGuardLayer(udpData, udpDataLen, this, getAttachedPacket()));
-			if (!hasNextLayer())
-				constructNextLayer<PayloadLayer>(udpData, udpDataLen);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(WireGuardLayer::parseWireGuardLayer, udpData,
+			                                                           udpDataLen);
 		}
 
 		// If a valid layer was found, return immediately
@@ -178,7 +172,11 @@ namespace pcpp
 		}
 
 		// Here, heuristics for all protocols should be invoked to determine the correct layer
-		setNextLayer(SipLayer::parseSipLayer(udpData, udpDataLen, this, getAttachedPacket()));
+		{
+			// Resolves the overload of parseSipLayer, without static_casting a function pointer.
+			auto* (*fac)(uint8_t*, size_t, Layer*, Packet*) = SipLayer::parseSipLayer;
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen);
+		}
 
 		if (!hasNextLayer())
 		{

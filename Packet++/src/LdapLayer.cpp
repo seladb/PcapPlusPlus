@@ -372,7 +372,7 @@ namespace pcpp
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		setNextLayer(LdapLayer::parseLdapMessage(payload, payloadLen, this, getAttachedPacket()));
+		constructNextLayerFromFactory(LdapLayer::parseLdapMessage, payload, payloadLen);
 	}
 	// endregion
 

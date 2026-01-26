@@ -95,8 +95,9 @@ namespace pcpp
 			return;
 
 		if (SSLLayer::IsSSLMessage(0, 0, m_Data + headerLen, m_DataLen - headerLen, true))
-			setNextLayer(
-			    SSLLayer::createSSLMessage(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket()));
+		{
+			constructNextLayerFromFactory(SSLLayer::createSSLMessage, m_Data + headerLen, m_DataLen - headerLen);
+		}
 	}
 
 	// -------------------------
