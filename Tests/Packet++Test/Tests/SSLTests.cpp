@@ -492,10 +492,11 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 	pcpp::SSLx509Certificate* cert = certMsg->getCertificate(0);
 	PTF_ASSERT_FALSE(cert->allDataExists());
 	PTF_ASSERT_EQUAL(cert->getDataLength(), 1266);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(cert->getX509Certificate());
-	PTF_ASSERT_NULL(cert->getRootAsn1Record());
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_NULL(cert->getX509Certificate());
+		PTF_ASSERT_NULL(cert->getRootAsn1Record());
+	}
 
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SSL-PartialCertificate2.dat");
 
@@ -513,10 +514,11 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 	cert = certMsg->getCertificate(0);
 	PTF_ASSERT_FALSE(cert->allDataExists());
 	PTF_ASSERT_EQUAL(cert->getDataLength(), 1268);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(cert->getX509Certificate());
-	PTF_ASSERT_NULL(cert->getRootAsn1Record());
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_NULL(cert->getX509Certificate());
+		PTF_ASSERT_NULL(cert->getRootAsn1Record());
+	}
 }  // SSLPartialCertificateParseTest
 
 PTF_TEST_CASE(SSLNewSessionTicketParseTest)

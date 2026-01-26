@@ -119,9 +119,10 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 	PTF_ASSERT_EQUAL(stats.txRingId, 0);
 	PTF_ASSERT_EQUAL(stats.cqRingId, 0);
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(device.receivePackets(onPacketsArrive, nullptr));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(device.receivePackets(onPacketsArrive, nullptr));
+	}
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
@@ -165,9 +166,10 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 
 	device.close();
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(device.sendPackets(packets));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(device.sendPackets(packets));
+	}
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
@@ -222,69 +224,69 @@ PTF_TEST_CASE(TestXdpDeviceInvalidConfig)
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
 
-	pcpp::Logger::getInstance().suppressLogs();
+	{
+		SuppressLogs suppressLogs;
 
-	// Frame size is not a power of 2
-	auto config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.umemFrameSize = 1000;
+		// Frame size is not a power of 2
+		auto config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.umemFrameSize = 1000;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// Fill ring size is not a power of 2
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.fillRingSize = 100;
+		// Fill ring size is not a power of 2
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.fillRingSize = 100;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// Completion ring size is not a power of 2
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.completionRingSize = 100;
+		// Completion ring size is not a power of 2
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.completionRingSize = 100;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// RX ring size is not a power of 2
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.rxSize = 100;
+		// RX ring size is not a power of 2
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.rxSize = 100;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// TX ring size is not a power of 2
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.txSize = 100;
+		// TX ring size is not a power of 2
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.txSize = 100;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// Fill ring size is larger than total number of frames
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.fillRingSize = 8192;
+		// Fill ring size is larger than total number of frames
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.fillRingSize = 8192;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// Completion ring size is larger than total number of frames
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.completionRingSize = 8192;
+		// Completion ring size is larger than total number of frames
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.completionRingSize = 8192;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// RX ring size is larger than total number of frames
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.rxSize = 8192;
+		// RX ring size is larger than total number of frames
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.rxSize = 8192;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// TX ring size is larger than total number of frames
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.txSize = 8192;
+		// TX ring size is larger than total number of frames
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.txSize = 8192;
 
-	PTF_ASSERT_FALSE(device.open(config));
+		PTF_ASSERT_FALSE(device.open(config));
 
-	// Batch ring size is larger than RX/TX size
-	config = pcpp::XdpDevice::XdpDeviceConfiguration();
-	config.rxTxBatchSize = 8192;
+		// Batch ring size is larger than RX/TX size
+		config = pcpp::XdpDevice::XdpDeviceConfiguration();
+		config.rxTxBatchSize = 8192;
 
-	PTF_ASSERT_FALSE(device.open(config));
-
-	pcpp::Logger::getInstance().enableLogs();
+		PTF_ASSERT_FALSE(device.open(config));
+	}
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif

@@ -1,6 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Common/PcapFileNamesDef.h"
 #include "../Common/GlobalTestArgs.h"
+#include "../Common/TestUtils.h"
 #include "Logger.h"
 #include "Packet.h"
 #include "RawSocketDevice.h"
@@ -23,12 +24,13 @@ PTF_TEST_CASE(TestRawSockets)
 	pcpp::ProtocolType protocol = pcpp::Ethernet;
 	bool sendSupported = false;
 	{
-		pcpp::Logger::getInstance().suppressLogs();
-		pcpp::RawPacket rawPacket;
-		PTF_ASSERT_FALSE(rawSock.open());
-		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 20), pcpp::RawSocketDevice::RecvError, enum);
-		PTF_ASSERT_FALSE(rawSock.sendPacket(&rawPacket));
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			pcpp::RawPacket rawPacket;
+			PTF_ASSERT_FALSE(rawSock.open());
+			PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 20), pcpp::RawSocketDevice::RecvError, enum);
+			PTF_ASSERT_FALSE(rawSock.sendPacket(&rawPacket));
+		}
 	}
 
 	PTF_TEST_CASE_PASSED;
@@ -97,10 +99,11 @@ PTF_TEST_CASE(TestRawSockets)
 	// close and reopen sockets, verify can't send and receive while closed
 	rawSock.close();
 	pcpp::RawPacket tempPacket;
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_EQUAL(rawSock.receivePacket(tempPacket, true, 2), pcpp::RawSocketDevice::RecvError, enum);
-	PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_EQUAL(rawSock.receivePacket(tempPacket, true, 2), pcpp::RawSocketDevice::RecvError, enum);
+		PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
+	}
 
 	PTF_ASSERT_TRUE(rawSock.open());
 
@@ -153,9 +156,10 @@ PTF_TEST_CASE(TestRawSockets)
 	else
 	{
 		// test send on unsupported platforms
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
-		PTF_ASSERT_FALSE(rawSock.sendPackets(packetVec));
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
+			PTF_ASSERT_FALSE(rawSock.sendPackets(packetVec));
+		}
 	}
 }  // TestRawSockets

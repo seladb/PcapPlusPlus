@@ -1,4 +1,5 @@
 #include "../TestDefinition.h"
+#include "../Utils/TestUtils.h"
 #include "GeneralUtils.h"
 #include "Logger.h"
 #include <vector>
@@ -60,9 +61,10 @@ PTF_TEST_CASE(Base64EncodingTest)
 	// Invalid inputs
 	{
 		PTF_ASSERT_RAISES(pcpp::Base64::encode(nullptr, 10), std::invalid_argument, "Input buffer is null");
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_RAISES(pcpp::Base64::encodeHexString("invalid"), std::invalid_argument, "Invalid hex string");
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			PTF_ASSERT_RAISES(pcpp::Base64::encodeHexString("invalid"), std::invalid_argument, "Invalid hex string");
+		}
 	}
 }  // Base64EncodingTest
 

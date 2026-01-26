@@ -121,17 +121,18 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 	pcpp::PayloadLayer payloadLayer(payload, 10);
 	PTF_ASSERT_TRUE(newPacket->addLayer(&payloadLayer));
 
-	pcpp::Logger::getInstance().suppressLogs();
+	{
+		SuppressLogs suppressLogs;
 
-	// Inserting a new layer should fail because the size of the new layer exceeds the buffer size
-	pcpp::TcpLayer tcpLayer(12345, 80);
-	PTF_ASSERT_FALSE(newPacket->insertLayer(&ip4Layer, &tcpLayer));
+		// Inserting a new layer should fail because the size of the new layer exceeds the buffer size
+		pcpp::TcpLayer tcpLayer(12345, 80);
+		PTF_ASSERT_FALSE(newPacket->insertLayer(&ip4Layer, &tcpLayer));
 
-	// Extending the IPv4 layer should fail because the size of the new option exceeds the buffer size
-	pcpp::IPv4Option newOption = ip4Layer.addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)100));
-	PTF_ASSERT_TRUE(newOption.isNull());
-
-	pcpp::Logger::getInstance().enableLogs();
+		// Extending the IPv4 layer should fail because the size of the new option exceeds the buffer size
+		pcpp::IPv4Option newOption =
+		    ip4Layer.addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)100));
+		PTF_ASSERT_TRUE(newOption.isNull());
+	}
 
 	newPacket->computeCalculateFields();
 
@@ -220,10 +221,11 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// e. Remove a layer that doesn't exist
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::HTTPRequest));
-	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::Ethernet, 1));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::HTTPRequest));
+		PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::Ethernet, 1));
+	}
 
 	// create packet and remove layers
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -806,9 +808,10 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// add layer after trailer (result with an error)
 	uint8_t payload[4] = { 0x1, 0x2, 0x3, 0x4 };
 	std::unique_ptr<pcpp::PayloadLayer> newPayloadLayer = std::make_unique<pcpp::PayloadLayer>(payload, 4);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(newPayloadLayer.get(), true));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(newPayloadLayer.get(), true));
+	}
 
 	// remove layer before trailer
 	PTF_ASSERT_TRUE(trailerIPv4Packet.removeLayer(pcpp::TCP));
