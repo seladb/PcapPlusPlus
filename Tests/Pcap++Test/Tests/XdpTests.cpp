@@ -1,5 +1,6 @@
 #include "../TestDefinition.h"
 #include "../Common/GlobalTestArgs.h"
+#include "../Common/TestUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "XdpDevice.h"
 #include "PcapFileDevice.h"
