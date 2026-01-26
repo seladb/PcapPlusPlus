@@ -1,6 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/PcapFileNamesDef.h"
+#include "../Common/TestUtils.h"
 
 #ifdef USE_DPDK_KNI
 #	include "KniDeviceList.h"
@@ -355,14 +356,14 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		pcpp::RawPacketVector rawPacketVec;
 		pcpp::MBufRawPacketVector mbufRawPacketVec;
 		pcpp::MBufRawPacket* mBufRawPacketArr[32] = {};
-		size_t mBufRawPacketArrLen = 32;
 		pcpp::Packet* packetArr[32] = {};
-		size_t packetArrLen = 32;
 		PTF_ASSERT_TRUE(fileReaderDev.open());
 
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter));
 		{
 			SuppressLogs suppressLogs;
+			size_t mBufRawPacketArrLen = 32;
+			size_t packetArrLen = 32;
 			PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, nullptr));
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));  // Give some time to start capture thread
