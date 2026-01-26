@@ -818,6 +818,16 @@ namespace pcpp
 
 	bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& packetComment)
 	{
+		return getNextPacketInternal(rawPacket, &packetComment);
+	}
+
+	bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket)
+	{
+		return getNextPacketInternal(rawPacket, nullptr);
+	}
+
+	bool PcapNgFileReaderDevice::getNextPacketInternal(RawPacket& rawPacket, std::string* packetComment)
+	{
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
@@ -857,23 +867,20 @@ namespace pcpp
 			return false;
 		}
 
-		if (pktHeader.comment != nullptr && pktHeader.comment_length > 0)
+		if (packetComment != nullptr)
 		{
-			packetComment = std::string(pktHeader.comment, pktHeader.comment_length);
-		}
-		else
-		{
-			packetComment.clear();
+			if (pktHeader.comment != nullptr && pktHeader.comment_length > 0)
+			{
+				packetComment->assign(pktHeader.comment, pktHeader.comment_length);
+			}
+			else
+			{
+				packetComment->clear();
+			}
 		}
 
 		reportPacketProcessed();
 		return true;
-	}
-
-	bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket)
-	{
-		std::string temp;
-		return getNextPacket(rawPacket, temp);
 	}
 
 	void PcapNgFileReaderDevice::close()
