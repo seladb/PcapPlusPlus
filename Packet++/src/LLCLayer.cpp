@@ -35,12 +35,13 @@ namespace pcpp
 
 		if (hdr->dsap == 0x42 && hdr->ssap == 0x42 && StpLayer::isDataValid(payload, payloadLen))
 		{
-			m_NextLayer = StpLayer::parseStpLayer(payload, payloadLen, this, getAttachedPacket());
-			if (!m_NextLayer)
-				m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
-			return;
+			constructNextLayerFromFactory(StpLayer::parseStpLayer, payload, payloadLen);
 		}
-		m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+
+		if (!hasNextLayer())
+		{
+			constructNextLayer<PayloadLayer>(payload, payloadLen);
+		}
 	}
 
 	std::string LLCLayer::toString() const

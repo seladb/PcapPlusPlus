@@ -29,10 +29,7 @@ namespace pcpp
 		uint8_t* payload = m_Data + sizeof(ether_dot3_header);
 		size_t payloadLen = m_DataLen - sizeof(ether_dot3_header);
 
-		if (LLCLayer::isDataValid(payload, payloadLen))
-			m_NextLayer = new LLCLayer(payload, payloadLen, this, getAttachedPacket());
-		else
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+		tryConstructNextLayerWithFallback<LLCLayer, PayloadLayer>(payload, payloadLen);
 	}
 
 	std::string EthDot3Layer::toString() const

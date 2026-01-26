@@ -72,9 +72,6 @@ namespace pcpp
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		if (S7CommLayer::isDataValid(payload, payloadLen))
-			m_NextLayer = new S7CommLayer(payload, payloadLen, this, getAttachedPacket());
-		else
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+		tryConstructNextLayerWithFallback<S7CommLayer, PayloadLayer>(payload, payloadLen);
 	}
 }  // namespace pcpp

@@ -39,37 +39,35 @@ namespace pcpp
 		switch (be16toh(hdr->etherType))
 		{
 		case PCPP_ETHERTYPE_IP:
-			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_IPV6:
-			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_ARP:
-			tryConstructNextLayerWithFallback<ArpLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<ArpLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_VLAN:
 		case PCPP_ETHERTYPE_IEEE_802_1AD:
-			tryConstructNextLayerWithFallback<VlanLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<VlanLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_PPPOES:
-			tryConstructNextLayerWithFallback<PPPoESessionLayer, PayloadLayer>(payload, payloadLen,
-			                                                                   getAttachedPacket());
+			tryConstructNextLayerWithFallback<PPPoESessionLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_PPPOED:
-			tryConstructNextLayerWithFallback<PPPoEDiscoveryLayer, PayloadLayer>(payload, payloadLen,
-			                                                                     getAttachedPacket());
+			tryConstructNextLayerWithFallback<PPPoEDiscoveryLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_MPLS:
-			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_WAKE_ON_LAN:
-			tryConstructNextLayerWithFallback<WakeOnLanLayer, PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerWithFallback<WakeOnLanLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 
 		// If no next layer was constructed, assume it's a payload layer
 		if (!hasNextLayer())
-			constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			constructNextLayer<PayloadLayer>(payload, payloadLen);
 	}
 
 	void EthLayer::computeCalculateFields()
