@@ -362,8 +362,6 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter));
 		{
 			SuppressLogs suppressLogs;
-			size_t mBufRawPacketArrLen = 32;
-			size_t packetArrLen = 32;
 			PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, nullptr));
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));  // Give some time to start capture thread
@@ -386,6 +384,8 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		std::this_thread::sleep_for(std::chrono::seconds(1));  // Give some time to start capture thread
 		{
 			SuppressLogs suppressLogs;
+			size_t mBufRawPacketArrLen = 32;
+			size_t packetArrLen = 32;
 			PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0);
 			PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0);
 			PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0);
