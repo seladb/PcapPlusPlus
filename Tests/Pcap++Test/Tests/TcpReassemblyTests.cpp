@@ -1392,3 +1392,37 @@ PTF_TEST_CASE(TestTcpReassemblyHighPrecision)
 	    readFileIntoString(std::string("PcapExamples/three_http_streams_conn_1_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats[flowKeys[1]].reassembledData);
 }  // TestTcpReassemblyHighPrecision
+
+PTF_TEST_CASE(TestTcpReassemblyOstreamOperator)
+{
+	using namespace std::chrono;
+	using namespace std::chrono_literals;
+	using pcpp::time_io::operator<<;
+
+	std::ostringstream oss;
+
+	auto tp = time_point<high_resolution_clock>(0ns);
+	oss << tp;
+	PTF_ASSERT_EQUAL(oss.str(), std::string("1970-01-01T00:00:00.000000000Z"));
+	oss.str("");
+
+	tp = time_point<high_resolution_clock>(17h + 1min + 10s + 1ms);
+	oss << std::left << tp;
+	PTF_ASSERT_EQUAL(oss.str(), std::string("1970-01-01T17:01:10.001000000Z"));
+	oss.str("");
+
+	std::string errMsg;
+	std::vector<pcpp::RawPacket> packetStream;
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg));
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	TcpReassemblyMultipleConnStats::Stats& stats = tcpReassemblyResults.stats;
+	PTF_ASSERT_EQUAL(stats.size(), 1);
+	std::string expectedConnDataFormatting{
+		"(10.0.0.1:61541 -> 81.218.72.15:80 2017-04-06T22:06:23.915793000Z - 2017-04-06T22:06:39.576245000Z)"
+	};
+	oss << stats.begin()->second.connData;
+	PTF_ASSERT_EQUAL(oss.str(), expectedConnDataFormatting);
+	oss.str("");
+}

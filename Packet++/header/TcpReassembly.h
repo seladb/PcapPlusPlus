@@ -97,8 +97,17 @@ namespace pcpp
 		                                std::chrono::time_point<std::chrono::high_resolution_clock> const& t)
 		{
 			auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t.time_since_epoch()).count();
-			std::time_t sec = ns / 1000'000'000;
-			return oss << std::put_time(std::gmtime(&sec), "%Y-%m-%dT%H:%M:%S.") << (ns % 1000'000'000) << 'Z';
+			std::time_t s = ns / 1'000'000'000;
+			std::tm tm;
+			// std::gmtime is not threadsafe, so the platform-specific versions are used instead
+#if defined(_WIN32)
+			gmtime_s(&tm, &s);
+#else
+			gmtime_r(&s, &tm);
+#endif
+			auto fillPrev = oss.fill();
+			return oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S.") << std::setw(9) << std::right << std::setfill('0')
+			           << (ns % 1'000'000'000) << std::setfill(fillPrev) << 'Z';
 		};
 	}  // namespace time_io
 
