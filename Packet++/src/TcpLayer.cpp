@@ -381,7 +381,7 @@ namespace pcpp
 		}
 		else if (SSLLayer::IsSSLMessage(portSrc, portDst, payload, payloadLen))
 		{
-			setNextLayer(SSLLayer::createSSLMessage(payload, payloadLen, this, getAttachedPacket()));
+			constructNextLayerFromFactory(SSLLayer::createSSLMessage, payload, payloadLen);
 		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
@@ -401,13 +401,11 @@ namespace pcpp
 		}
 		else if (BgpLayer::isBgpPort(portSrc, portDst))
 		{
-			m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, getAttachedPacket());
-			if (!m_NextLayer)
-				constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(BgpLayer::parseBgpLayer, payload, payloadLen);
 		}
 		else if (SSHLayer::isSSHPort(portSrc, portDst))
 		{
-			setNextLayer(SSHLayer::createSSHMessage(payload, payloadLen, this, getAttachedPacket()));
+			constructNextLayerFromFactory(SSHLayer::createSSHMessage, payload, payloadLen);
 		}
 		else if (DnsLayer::isDataValid(payload, payloadLen, true) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
@@ -434,13 +432,11 @@ namespace pcpp
 		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
 		         (DoIpLayer::isDataValid(payload, payloadLen)))
 		{
-			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, getAttachedPacket());
-			if (!m_NextLayer)
-				constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(DoIpLayer::parseDoIpLayer, payload, payloadLen);
 		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{
-			setNextLayer(SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, getAttachedPacket()));
+			constructNextLayerFromFactory(SomeIpLayer::parseSomeIpLayer, payload, payloadLen);
 		}
 		else if (TpktLayer::isDataValid(payload, payloadLen) && TpktLayer::isTpktPort(portSrc, portDst))
 		{
@@ -456,9 +452,8 @@ namespace pcpp
 		}
 		else if (LdapLayer::isLdapPort(portDst) || LdapLayer::isLdapPort(portSrc))
 		{
-			m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, getAttachedPacket());
-			if (!m_NextLayer)
-				constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(LdapLayer::parseLdapMessage, payload,
+			                                                           payloadLen);
 		}
 		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
 		         GtpV2Layer::isDataValid(payload, payloadLen))

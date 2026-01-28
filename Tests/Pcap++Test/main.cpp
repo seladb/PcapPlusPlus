@@ -222,6 +222,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapSll2FileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapRawIPFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileAppend, "no_network;pcap");
+	PTF_RUN_TEST(TestPcapFileReadAdv, "no_network;pcap");
+	PTF_RUN_TEST(TestPcapFileWriteAdv, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapNgFileReadWrite, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapNgFileReadWriteAdv, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapNgFileTooManyInterfaces, "no_network;pcap;pcapng");
