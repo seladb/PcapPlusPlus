@@ -102,58 +102,86 @@ namespace pcpp
 		size_t udpDataLen = m_DataLen - sizeof(udphdr);
 
 		if (DhcpLayer::isDhcpPorts(portSrc, portDst))
-			m_NextLayer = new DhcpLayer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<DhcpLayer>(udpData, udpDataLen);
+		}
 		else if (VxlanLayer::isVxlanPort(portDst))
-			m_NextLayer = new VxlanLayer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<VxlanLayer>(udpData, udpDataLen);
+		}
 		else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
-			m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<DnsLayer>(udpData, udpDataLen);
+		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
-			if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown)
-				m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
-			else if (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) !=
-			             SipResponseLayer::SipStatusCodeUnknown &&
-			         SipResponseFirstLine::parseVersion((char*)udpData, udpDataLen) != "")
-				m_NextLayer = new SipResponseLayer(udpData, udpDataLen, this, m_Packet);
-			else
-				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+			// Resolves the overload of parseSipLayer, without static_casting a function pointer.
+			auto* (*fac)(uint8_t*, size_t, Layer*, Packet*, uint16_t, uint16_t) = SipLayer::parseSipLayer;
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen, portSrc, portDst);
 		}
 		else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) &&
 		         RadiusLayer::isDataValid(udpData, udpDataLen))
-			m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<RadiusLayer>(udpData, udpDataLen);
+		}
 		else if ((GtpV1Layer::isGTPv1Port(portDst) || GtpV1Layer::isGTPv1Port(portSrc)) &&
 		         GtpV1Layer::isGTPv1(udpData, udpDataLen))
-			m_NextLayer = new GtpV1Layer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<GtpV1Layer>(udpData, udpDataLen);
+		}
 		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
 		         GtpV2Layer::isDataValid(udpData, udpDataLen))
-			m_NextLayer = new GtpV2Layer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<GtpV2Layer>(udpData, udpDataLen);
+		}
 		else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) &&
 		         (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
-			m_NextLayer = new DhcpV6Layer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<DhcpV6Layer>(udpData, udpDataLen);
+		}
 		else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
 		         NtpLayer::isDataValid(udpData, udpDataLen))
-			m_NextLayer = new NtpLayer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<NtpLayer>(udpData, udpDataLen);
+		}
 		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
 		         (DoIpLayer::isDataValid(udpData, udpDataLen)))
 		{
-			m_NextLayer = DoIpLayer::parseDoIpLayer(udpData, udpDataLen, this, m_Packet);
-			if (!m_NextLayer)
-				constructNextLayer<PayloadLayer>(udpData, udpDataLen, m_Packet);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(DoIpLayer::parseDoIpLayer, udpData, udpDataLen);
 		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
-			m_NextLayer = SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayerFromFactory(SomeIpLayer::parseSomeIpLayer, udpData, udpDataLen);
+		}
 		else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
-			m_NextLayer = new WakeOnLanLayer(udpData, udpDataLen, this, m_Packet);
+		{
+			constructNextLayer<WakeOnLanLayer>(udpData, udpDataLen);
+		}
 		else if ((WireGuardLayer::isWireGuardPorts(portDst, portSrc) &&
 		          WireGuardLayer::isDataValid(udpData, udpDataLen)))
 		{
-			m_NextLayer = WireGuardLayer::parseWireGuardLayer(udpData, udpDataLen, this, m_Packet);
-			if (!m_NextLayer)
-				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(WireGuardLayer::parseWireGuardLayer, udpData,
+			                                                           udpDataLen);
 		}
-		else
-			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+
+		// If a valid layer was found, return immediately
+		if (hasNextLayer())
+		{
+			return;
+		}
+
+		// Here, heuristics for all protocols should be invoked to determine the correct layer
+		{
+			// Resolves the overload of parseSipLayer, without static_casting a function pointer.
+			auto* (*fac)(uint8_t*, size_t, Layer*, Packet*) = SipLayer::parseSipLayer;
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen);
+		}
+
+		if (!hasNextLayer())
+		{
+			constructNextLayer<PayloadLayer>(udpData, udpDataLen);
+		}
 	}
 
 	void UdpLayer::computeCalculateFields()

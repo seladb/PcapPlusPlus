@@ -396,7 +396,7 @@ namespace pcpp
 			uint8_t* payload = m_Data + headerLen;
 			size_t payloadLen = m_DataLen - headerLen;
 
-			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 		}
 	}
 

@@ -114,6 +114,28 @@ namespace pcpp
 			return port == 5060 || port == 5061;
 		}
 
+		/// A static factory method that attempts to create a SIP layer from existing packet raw data
+		/// The method first checks whether the source or destination port matches the SIP protocol.
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		/// @param[in] srcPort Source port number to check
+		/// @param[in] dstPort Dest port number to check
+		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
+		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+		                               uint16_t srcPort, uint16_t dstPort);
+
+		/// A static factory method that attempts to create a SIP layer from existing packet raw data
+		/// This method does not check source or destination ports. Instead, it uses heuristics
+		/// to determine whether the data represents a SIP request or response.
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
+		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
 		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
@@ -137,6 +159,16 @@ namespace pcpp
 		{
 			return true;
 		}
+
+	private:
+		enum class SipParseResult
+		{
+			Unknown = 0,
+			Request = 1,
+			Response = 2,
+		};
+
+		static SipParseResult detectSipMessageType(const uint8_t* data, size_t dataLen);
 	};
 
 	class SipRequestFirstLine;
@@ -498,6 +530,15 @@ namespace pcpp
 		friend class SipRequestLayer;
 
 	public:
+		/// A structure containing parsed components from a SIP request first line.
+		/// All string fields are empty if parsing fails
+		struct SipFirstLineData
+		{
+			std::string method;   ///< The SIP method (e.g., INVITE, REGISTER, BYE)
+			std::string uri;      ///< The Request-URI destination
+			std::string version;  ///< The SIP protocol version (e.g., SIP/2.0)
+		};
+
 		/// @return The SIP request method
 		SipRequestLayer::SipMethod getMethod() const
 		{
@@ -530,6 +571,13 @@ namespace pcpp
 		/// @param[in] dataLen The raw data length
 		/// @return The parsed SIP method
 		static SipRequestLayer::SipMethod parseMethod(const char* data, size_t dataLen);
+
+		/// A static method for parsing the complete SIP request first line from raw data
+		/// @param[in] data The raw data containing the SIP request line
+		/// @param[in] dataLen The raw data length
+		/// @return A pair where first indicates success/failure, and second contains the parsed data.
+		/// If parsing fails, first is false and second contains empty strings
+		static std::pair<bool, SipFirstLineData> parseFirstLine(const char* data, size_t dataLen);
 
 		/// @return The size in bytes of the SIP request first line
 		int getSize() const
@@ -599,6 +647,15 @@ namespace pcpp
 		friend class SipResponseLayer;
 
 	public:
+		/// @brief A structure containing parsed components from a SIP response first line.
+		struct FirstLineData
+		{
+			/// @brief The SIP protocol version (e.g., SIP/2.0)
+			std::string version;
+			/// @brief The response status code number (e.g., 200, 100)
+			SipResponseLayer::SipResponseStatusCode statusCode;
+		};
+
 		/// @return The status code as SipResponseLayer#SipResponseStatusCode enum
 		SipResponseLayer::SipResponseStatusCode getStatusCode() const
 		{
@@ -640,6 +697,12 @@ namespace pcpp
 		/// @param[in] dataLen The raw data length
 		/// @return The parsed SIP version string or an empty string if version cannot be extracted
 		static std::string parseVersion(const char* data, size_t dataLen);
+
+		/// @brief A static method for parsing the complete SIP response first line from raw data
+		/// @param data The raw data containing the SIP response line
+		/// @param dataLen The raw data length
+		/// @return A pair where first indicates success/failure, and second contains the parsed data.
+		static std::pair<bool, FirstLineData> parseFirstLine(const char* data, size_t dataLen);
 
 		/// @return The size in bytes of the SIP response first line
 		int getSize() const

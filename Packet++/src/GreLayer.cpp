@@ -205,42 +205,32 @@ namespace pcpp
 		switch (be16toh(header->protocol))
 		{
 		case PCPP_ETHERTYPE_IP:
-			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_IPV6:
-			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_VLAN:
-			m_NextLayer = new VlanLayer(payload, payloadLen, this, m_Packet);
+			constructNextLayer<VlanLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_MPLS:
-			m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
+			constructNextLayer<MplsLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_PPP:
-			m_NextLayer = PPP_PPTPLayer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new PPP_PPTPLayer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<PPP_PPTPLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_ETHBRIDGE:
-			if (EthLayer::isDataValid(payload, payloadLen))
+		{
+			if (tryConstructNextLayer<EthLayer>(payload, payloadLen) != nullptr)
 			{
-				m_NextLayer = new EthLayer(payload, payloadLen, this, m_Packet);
+				break;
 			}
-			else if (EthDot3Layer::isDataValid(payload, payloadLen))
-			{
-				m_NextLayer = new EthDot3Layer(payload, payloadLen, this, m_Packet);
-			}
-			else
-			{
-				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
-			}
+
+			tryConstructNextLayerWithFallback<EthDot3Layer, PayloadLayer>(payload, payloadLen);
 			break;
+		}
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			constructNextLayer<PayloadLayer>(payload, payloadLen);
 		}
 	}
 
@@ -575,17 +565,13 @@ namespace pcpp
 		switch (be16toh(getPPP_PPTPHeader()->protocol))
 		{
 		case PCPP_PPP_IP:
-			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_PPP_IPV6:
-			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
-			                  ? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
-			                  : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		default:
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			constructNextLayer<PayloadLayer>(payload, payloadLen);
 			break;
 		}
 	}

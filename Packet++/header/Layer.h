@@ -30,6 +30,59 @@ namespace pcpp
 
 	class Packet;
 
+	namespace internal
+	{
+		/// @brief Holds information about a Layer's data and object ownership.
+		struct LayerAllocationInfo
+		{
+			/// @brief Pointer to the Packet this layer is attached to (if any).
+			///
+			/// If the layer is attached to a Packet, the layer's memory span (data) is considered managed by the
+			/// Packet. The Packet is responsible for keeping the layer's memory span valid and updating it should it
+			/// become necessary as long as the layer is attached to it.
+			///
+			/// In an event the Packet is destroyed, all of its attached layers's memory views are considered invalid.
+			/// Accessing layer data after the Packet is destroyed results in undefined behavior.
+			///
+			/// If nullptr, the layer is not attached to any Packet and is considered unmanaged.
+			/// It also means the layer's memory span is considered owned by the layer itself and will be freed when
+			/// the layer is destroyed.
+			Packet* attachedPacket = nullptr;
+
+			/// @brief Controls if the layer object is considered owned by the attached Packet
+			///
+			/// If 'true', the Layer object is considered owned by the attached Packet and will be freed by it on Packet
+			/// destruction.
+			///
+			/// If 'false', the Layer object is considered unmanaged and the user is responsible for freeing it.
+			/// This is commonly the case for layers created on the stack and attached to a Packet.
+			bool ownedByPacket = false;
+
+			/// @brief Sets the state of attachment to a specified Packet
+			/// @param packet Pointer to the Packet this layer is attached to (or nullptr if not attached to any Packet)
+			/// @param managed True if the layer object's lifetime is to be managed by the Packet, false otherwise
+			/// @param force If true, bypasses the check for existing attachment. Default is false.
+			/// @throws std::runtime_error if the layer is already attached to a Packet and 'force' is false
+			void attachPacket(Packet* packet, bool managed, bool force = false)
+			{
+				if (!force && attachedPacket != nullptr)
+				{
+					throw std::runtime_error("Layer is already attached to a Packet");
+				}
+
+				attachedPacket = packet;
+				ownedByPacket = managed;
+			}
+
+			/// @brief Clears the attachment to any Packet, resetting to unmanaged state.
+			void detach()
+			{
+				attachedPacket = nullptr;
+				ownedByPacket = false;
+			}
+		};
+	}  // namespace internal
+
 	/// @class Layer
 	/// Layer is the base class for all protocol layers. Each protocol supported in PcapPlusPlus has a class that
 	/// inherits Layer.
@@ -125,7 +178,7 @@ namespace pcpp
 		/// by the layer itself
 		bool isAllocatedToPacket() const
 		{
-			return m_Packet != nullptr;
+			return m_AllocationInfo.attachedPacket != nullptr;
 		}
 
 		/// Copy the raw data of this layer to another array
@@ -160,25 +213,39 @@ namespace pcpp
 	protected:
 		uint8_t* m_Data;
 		size_t m_DataLen;
-		Packet* m_Packet;
 		ProtocolType m_Protocol;
 		Layer* m_NextLayer;
 		Layer* m_PrevLayer;
-		bool m_IsAllocatedInPacket;
 
-		Layer()
-		    : m_Data(nullptr), m_DataLen(0), m_Packet(nullptr), m_Protocol(UnknownProtocol), m_NextLayer(nullptr),
-		      m_PrevLayer(nullptr), m_IsAllocatedInPacket(false)
+	private:
+		internal::LayerAllocationInfo m_AllocationInfo;
+
+	protected:
+		Layer() : m_Data(nullptr), m_DataLen(0), m_Protocol(UnknownProtocol), m_NextLayer(nullptr), m_PrevLayer(nullptr)
 		{}
 
 		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol = UnknownProtocol)
-		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(protocol), m_NextLayer(nullptr),
-		      m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false)
+		    : m_Data(data), m_DataLen(dataLen), m_Protocol(protocol), m_NextLayer(nullptr), m_PrevLayer(prevLayer),
+		      m_AllocationInfo{ packet, false }
 		{}
 
 		// Copy c'tor
 		Layer(const Layer& other);
 		Layer& operator=(const Layer& other);
+
+		/// @brief Get a pointer to the Packet this layer is attached to (if any).
+		/// @return A pointer to the Packet this layer is attached to, or nullptr if the layer is not attached.
+		Packet* getAttachedPacket()
+		{
+			return m_AllocationInfo.attachedPacket;
+		}
+
+		/// @brief Get a pointer to the Packet this layer is attached to (if any).
+		/// @return A const pointer to the Packet this layer is attached to, or nullptr if the layer is not attached.
+		Packet const* getAttachedPacket() const
+		{
+			return m_AllocationInfo.attachedPacket;
+		}
 
 		void setNextLayer(Layer* nextLayer)
 		{
@@ -195,6 +262,22 @@ namespace pcpp
 		bool hasNextLayer() const
 		{
 			return m_NextLayer != nullptr;
+		}
+
+		/// @brief Construct the next layer in the protocol stack. No validation is performed on the data.
+		///
+		/// This overload infers the Packet from the current layer.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam Args The types of the arguments to pass to the layer constructor
+		/// @param data The data to construct the layer from
+		/// @param dataLen The length of the data
+		/// @param extraArgs Extra arguments to be forwarded to the layer constructor
+		/// @return The constructed layer
+		template <typename T, typename... Args>
+		Layer* constructNextLayer(uint8_t* data, size_t dataLen, Args&&... extraArgs)
+		{
+			return constructNextLayer<T>(data, dataLen, getAttachedPacket(), std::forward<Args>(extraArgs)...);
 		}
 
 		/// Construct the next layer in the protocol stack. No validation is performed on the data.
@@ -218,48 +301,84 @@ namespace pcpp
 			return newLayer;
 		}
 
-		/// Try to construct the next layer in the protocol stack with a fallback option.
+		/// @brief Construct the next layer in the protocol stack using a factory functor.
 		///
-		/// The method checks if the data is valid for the layer type T before constructing it by calling
-		/// T::isDataValid(data, dataLen). If the data is invalid, it constructs the layer of type TFallback.
+		/// No validation is performed on the data, outside of what the factory functor may perform.
+		/// If the factory returns a nullptr, no next layer is set.
 		///
-		/// @tparam T The type of the layer to construct
-		/// @tparam TFallback The fallback layer type to construct if T fails
-		/// @tparam Args The types of the extra arguments to pass to the layer constructor of T
+		/// The factory functor is expected to have the following signature:
+		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
+		///
+		/// This overload infers the Packet from the current layer.
+		///
+		/// @tparam TFactory The factory functor type.
+		/// @tparam ...Args Parameter pack for extra arguments to pass to the factory functor.
+		/// @param[in] factoryFn The factory functor to create the layer.
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] extraArgs Extra arguments to be forwarded to the factory.
+		/// @return The return value of the factory functor.
+		template <typename TFactory, typename... Args>
+		Layer* constructNextLayerFromFactory(TFactory factoryFn, uint8_t* data, size_t dataLen, Args&&... extraArgs)
+		{
+			return constructNextLayerFromFactory<TFactory>(factoryFn, data, dataLen, getAttachedPacket(),
+			                                               std::forward<Args>(extraArgs)...);
+		}
+
+		/// @brief Construct the next layer in the protocol stack using a factory functor.
+		///
+		/// No validation is performed on the data, outside of what the factory functor may perform.
+		/// If the factory returns a nullptr, no next layer is set.
+		///
+		/// The factory functor is expected to have the following signature:
+		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
+		///
+		/// @tparam TFactory The factory functor type.
+		/// @tparam ...Args Parameter pack for extra arguments to pass to the factory functor.
+		/// @param[in] factoryFn The factory functor to create the layer.
 		/// @param[in] data The data to construct the layer from
 		/// @param[in] dataLen The length of the data
 		/// @param[in] packet The packet the layer belongs to
-		///	@param[in] extraArgs Extra arguments to be forwarded to the layer constructor of T
-		/// @return The constructed layer of type T or TFallback
-		template <typename T, typename TFallback, typename... Args>
-		Layer* tryConstructNextLayerWithFallback(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		/// @param[in] extraArgs Extra arguments to be forwarded to the factory.
+		/// @return The return value of the factory functor.
+		template <typename TFactory, typename... Args>
+		Layer* constructNextLayerFromFactory(TFactory factoryFn, uint8_t* data, size_t dataLen, Packet* packet,
+		                                     Args&&... extraArgs)
 		{
-			if (tryConstructNextLayer<T>(data, dataLen, packet, std::forward<Args>(extraArgs)...))
+			if (hasNextLayer())
 			{
-				return m_NextLayer;
+				throw std::runtime_error("Next layer already exists");
 			}
 
-			return constructNextLayer<TFallback>(data, dataLen, packet);
+			// cppcheck-suppress redundantInitialization
+			Layer* newLayer = factoryFn(data, dataLen, this, packet, std::forward<Args>(extraArgs)...);
+			setNextLayer(newLayer);
+			return newLayer;
 		}
 
-		/// @brief Check if the data is large enough to reinterpret as a type
+		/// Try to construct the next layer in the protocol stack.
 		///
-		/// The data must be non-null and at least as large as the type
+		/// This overload infers the Packet from the current layer.
 		///
-		/// @tparam T The type to reinterpret as
-		/// @param data The data to check
-		/// @param dataLen The length of the data
-		/// @return True if the data is large enough to reinterpret as T, false otherwise
-		template <typename T> static bool canReinterpretAs(const uint8_t* data, size_t dataLen)
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, no layer is constructed and a nullptr is returned.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] extraArgs Extra arguments to be forwarded to the layer constructor
+		/// @return The constructed layer or nullptr if the data is invalid
+		template <typename T, typename... Args>
+		Layer* tryConstructNextLayer(uint8_t* data, size_t dataLen, Args&&... extraArgs)
 		{
-			return data != nullptr && dataLen >= sizeof(T);
+			return tryConstructNextLayer<T>(data, dataLen, getAttachedPacket(), std::forward<Args>(extraArgs)...);
 		}
 
-	private:
 		/// Try to construct the next layer in the protocol stack.
 		///
 		/// The method checks if the data is valid for the layer type T before constructing it by calling
-		/// T::isDataValid(data, dataLen). If the data is invalid, a nullptr is returned.
+		/// T::isDataValid(data, dataLen). If the data is invalid, no layer is constructed and a nullptr is returned.
 		///
 		/// @tparam T The type of the layer to construct
 		/// @tparam Args The types of the extra arguments to pass to the layer constructor
@@ -276,6 +395,133 @@ namespace pcpp
 				return constructNextLayer<T>(data, dataLen, packet, std::forward<Args>(extraArgs)...);
 			}
 			return nullptr;
+		}
+
+		/// @brief Try to construct the next layer in the protocol stack with a fallback option.
+		///
+		/// This overload infers the Packet from the current layer.
+		///
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, it constructs the layer of type TFallback.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam TFallback The fallback layer type to construct if T fails
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor of T
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		///	@param[in] extraArgs Extra arguments to be forwarded to the layer constructor of T
+		/// @return The constructed layer of type T or TFallback
+		/// @remarks The parameters extraArgs are forwarded to the factory function, but not to the TFallback
+		/// constructor.
+		template <typename T, typename TFallback, typename... Args>
+		Layer* tryConstructNextLayerWithFallback(uint8_t* data, size_t dataLen, Args&&... extraArgs)
+		{
+			return tryConstructNextLayerWithFallback<T, TFallback>(data, dataLen, getAttachedPacket(),
+			                                                       std::forward<Args>(extraArgs)...);
+		}
+
+		/// Try to construct the next layer in the protocol stack with a fallback option.
+		///
+		/// The method checks if the data is valid for the layer type T before constructing it by calling
+		/// T::isDataValid(data, dataLen). If the data is invalid, it constructs the layer of type TFallback.
+		///
+		/// @tparam T The type of the layer to construct
+		/// @tparam TFallback The fallback layer type to construct if T fails
+		/// @tparam Args The types of the extra arguments to pass to the layer constructor of T
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		///	@param[in] extraArgs Extra arguments to be forwarded to the layer constructor of T
+		/// @return The constructed layer of type T or TFallback
+		/// @remarks The parameters extraArgs are forwarded to the factory function, but not to the TFallback
+		/// constructor.
+		template <typename T, typename TFallback, typename... Args>
+		Layer* tryConstructNextLayerWithFallback(uint8_t* data, size_t dataLen, Packet* packet, Args&&... extraArgs)
+		{
+			if (tryConstructNextLayer<T>(data, dataLen, packet, std::forward<Args>(extraArgs)...))
+			{
+				return m_NextLayer;
+			}
+
+			return constructNextLayer<TFallback>(data, dataLen, packet);
+		}
+
+		/// @brief Try to construct the next layer in the protocol stack using a factory functor with a fallback option.
+		///
+		/// The method will attempt to construct the next layer using the provided factory function.
+		/// If the factory function returns nullptr, indicating failure to create the layer, the method will then
+		/// construct a layer of type TFallback.
+		///
+		/// The factory functor is expected to have the following signature:
+		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
+		///
+		/// This overload infers the Packet from the current layer.
+		///
+		/// @tparam TFallback The fallback layer type to construct if the factory fails.
+		/// @tparam TFactory The factory functor type.
+		/// @tparam ...Args Parameter pack for extra arguments to pass to the factory functor.
+		/// @param[in] factoryFn The factory functor to create the layer.
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] extraArgs Extra arguments to be forwarded to the factory.
+		/// @return The return value of the factory functor.
+		/// @remarks The parameters extraArgs are forwarded to the factory function, but not to the TFallback
+		/// constructor.
+		template <typename TFallback, typename TFactory, typename... Args>
+		Layer* tryConstructNextLayerFromFactoryWithFallback(TFactory factoryFn, uint8_t* data, size_t dataLen,
+		                                                    Args&&... extraArgs)
+		{
+			// Note that the fallback is first to allow template argument deduction of the factory type.
+			return tryConstructNextLayerFromFactoryWithFallback<TFallback, TFactory>(
+			    factoryFn, data, dataLen, getAttachedPacket(), std::forward<Args>(extraArgs)...);
+		}
+
+		/// @brief Try to construct the next layer in the protocol stack using a factory functor with a fallback option.
+		///
+		/// The method will attempt to construct the next layer using the provided factory function.
+		/// If the factory function returns nullptr, indicating failure to create the layer, the method will then
+		/// construct a layer of type TFallback.
+		///
+		/// The factory functor is expected to have the following signature:
+		/// Layer* factoryFn(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ...);
+		///
+		/// @tparam TFallback The fallback layer type to construct if the factory fails.
+		/// @tparam TFactory The factory functor type.
+		/// @tparam ...Args Parameter pack for extra arguments to pass to the factory functor.
+		/// @param[in] factoryFn The factory functor to create the layer.
+		/// @param[in] data The data to construct the layer from
+		/// @param[in] dataLen The length of the data
+		/// @param[in] packet The packet the layer belongs to
+		/// @param[in] extraArgs Extra arguments to be forwarded to the factory.
+		/// @return The return value of the factory functor.
+		/// @remarks The parameters extraArgs are forwarded to the factory function, but not to the TFallback
+		/// constructor.
+		template <typename TFallback, typename TFactory, typename... Args>
+		Layer* tryConstructNextLayerFromFactoryWithFallback(TFactory factoryFn, uint8_t* data, size_t dataLen,
+		                                                    Packet* packet, Args&&... extraArgs)
+		{
+			auto nextLayer = constructNextLayerFromFactory<TFactory>(factoryFn, data, dataLen, packet,
+			                                                         std::forward<Args>(extraArgs)...);
+			if (nextLayer != nullptr)
+			{
+				return nextLayer;
+			}
+
+			// factory failed, construct fallback layer
+			return constructNextLayer<TFallback>(data, dataLen, packet);
+		}
+
+		/// @brief Check if the data is large enough to reinterpret as a type
+		///
+		/// The data must be non-null and at least as large as the type
+		///
+		/// @tparam T The type to reinterpret as
+		/// @param data The data to check
+		/// @param dataLen The length of the data
+		/// @return True if the data is large enough to reinterpret as T, false otherwise
+		template <typename T> static bool canReinterpretAs(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(T);
 		}
 	};
 

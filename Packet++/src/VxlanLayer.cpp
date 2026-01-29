@@ -54,7 +54,9 @@ namespace pcpp
 		if (m_DataLen <= sizeof(vxlan_header))
 			return;
 
-		m_NextLayer = new EthLayer(m_Data + sizeof(vxlan_header), m_DataLen - sizeof(vxlan_header), this, m_Packet);
+		auto payload = m_Data + sizeof(vxlan_header);
+		auto payloadLen = m_DataLen - sizeof(vxlan_header);
+		constructNextLayer<EthLayer>(payload, payloadLen);
 	}
 
 }  // namespace pcpp

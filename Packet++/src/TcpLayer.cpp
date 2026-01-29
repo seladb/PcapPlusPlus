@@ -371,107 +371,102 @@ namespace pcpp
 		if (HttpMessage::isHttpPort(portDst) &&
 		    HttpRequestFirstLine::parseMethod(payloadChar, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
 		{
-			constructNextLayer<HttpRequestLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<HttpRequestLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (HttpMessage::isHttpPort(portSrc) &&
 		         HttpResponseFirstLine::parseVersion(payloadChar, payloadLen) != HttpVersion::HttpVersionUnknown &&
 		         !HttpResponseFirstLine::parseStatusCode(payloadChar, payloadLen).isUnsupportedCode())
 		{
-			constructNextLayer<HttpResponseLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<HttpResponseLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (SSLLayer::IsSSLMessage(portSrc, portDst, payload, payloadLen))
 		{
-			setNextLayer(SSLLayer::createSSLMessage(payload, payloadLen, this, m_Packet));
+			constructNextLayerFromFactory(SSLLayer::createSSLMessage, payload, payloadLen);
 		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
 			if (SipRequestFirstLine::parseMethod(payloadChar, payloadLen) != SipRequestLayer::SipMethodUnknown)
 			{
-				constructNextLayer<SipRequestLayer>(payload, payloadLen, m_Packet);
+				constructNextLayer<SipRequestLayer>(payload, payloadLen, getAttachedPacket());
 			}
 			else if (SipResponseFirstLine::parseStatusCode(payloadChar, payloadLen) !=
 			         SipResponseLayer::SipStatusCodeUnknown)
 			{
-				constructNextLayer<SipResponseLayer>(payload, payloadLen, m_Packet);
+				constructNextLayer<SipResponseLayer>(payload, payloadLen, getAttachedPacket());
 			}
 			else
 			{
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+				constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 			}
 		}
 		else if (BgpLayer::isBgpPort(portSrc, portDst))
 		{
-			m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
-			if (!m_NextLayer)
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(BgpLayer::parseBgpLayer, payload, payloadLen);
 		}
 		else if (SSHLayer::isSSHPort(portSrc, portDst))
 		{
-			setNextLayer(SSHLayer::createSSHMessage(payload, payloadLen, this, m_Packet));
+			constructNextLayerFromFactory(SSHLayer::createSSHMessage, payload, payloadLen);
 		}
 		else if (DnsLayer::isDataValid(payload, payloadLen, true) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		{
-			constructNextLayer<DnsOverTcpLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<DnsOverTcpLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (TelnetLayer::isDataValid(payload, payloadLen) &&
 		         (TelnetLayer::isTelnetPort(portDst) || TelnetLayer::isTelnetPort(portSrc)))
 		{
-			constructNextLayer<TelnetLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<TelnetLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (FtpLayer::isFtpPort(portSrc) && FtpLayer::isDataValid(payload, payloadLen))
 		{
-			constructNextLayer<FtpResponseLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<FtpResponseLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (FtpLayer::isFtpPort(portDst) && FtpLayer::isDataValid(payload, payloadLen))
 		{
-			constructNextLayer<FtpRequestLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<FtpRequestLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (FtpLayer::isFtpDataPort(portSrc) || FtpLayer::isFtpDataPort(portDst))
 		{
-			constructNextLayer<FtpDataLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<FtpDataLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
 		         (DoIpLayer::isDataValid(payload, payloadLen)))
 		{
-			m_NextLayer = DoIpLayer::parseDoIpLayer(payload, payloadLen, this, m_Packet);
-			if (!m_NextLayer)
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(DoIpLayer::parseDoIpLayer, payload, payloadLen);
 		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		{
-			setNextLayer(SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, m_Packet));
+			constructNextLayerFromFactory(SomeIpLayer::parseSomeIpLayer, payload, payloadLen);
 		}
 		else if (TpktLayer::isDataValid(payload, payloadLen) && TpktLayer::isTpktPort(portSrc, portDst))
 		{
-			constructNextLayer<TpktLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<TpktLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (SmtpLayer::isSmtpPort(portSrc) && SmtpLayer::isDataValid(payload, payloadLen))
 		{
-			constructNextLayer<SmtpResponseLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<SmtpResponseLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (SmtpLayer::isSmtpPort(portDst) && SmtpLayer::isDataValid(payload, payloadLen))
 		{
-			constructNextLayer<SmtpRequestLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<SmtpRequestLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (LdapLayer::isLdapPort(portDst) || LdapLayer::isLdapPort(portSrc))
 		{
-			m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
-			if (!m_NextLayer)
-				constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(LdapLayer::parseLdapMessage, payload,
+			                                                           payloadLen);
 		}
 		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
 		         GtpV2Layer::isDataValid(payload, payloadLen))
 		{
-			constructNextLayer<GtpV2Layer>(payload, payloadLen, m_Packet);
+			constructNextLayer<GtpV2Layer>(payload, payloadLen, getAttachedPacket());
 		}
 		else if (ModbusLayer::isModbusPort(portDst))
 		{
-			constructNextLayer<ModbusLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<ModbusLayer>(payload, payloadLen, getAttachedPacket());
 		}
 		else
 		{
-			constructNextLayer<PayloadLayer>(payload, payloadLen, m_Packet);
+			constructNextLayer<PayloadLayer>(payload, payloadLen, getAttachedPacket());
 		}
 	}
 

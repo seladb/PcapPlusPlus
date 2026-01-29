@@ -1,10 +1,14 @@
 #include "../TestDefinition.h"
 #include "Logger.h"
+#include "IPv4Layer.h"
 #include "Packet.h"
 #include "PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
+#include "../Common/TestUtils.h"
+#include "EndianPortable.h"
 #include <array>
 #include <fstream>
+#include <chrono>
 
 class FileReaderTeardown
 {
@@ -26,77 +30,230 @@ public:
 	}
 };
 
-PTF_TEST_CASE(TestPcapFileReadWrite)
-{
-	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
-	pcpp::PcapFileWriterDevice writerDev(EXAMPLE_PCAP_WRITE_PATH);
-	PTF_ASSERT_TRUE(readerDev.open());
-	PTF_ASSERT_TRUE(readerDev.isOpened());
-	PTF_ASSERT_TRUE(writerDev.open());
-	PTF_ASSERT_TRUE(writerDev.isOpened());
-	PTF_ASSERT_EQUAL(readerDev.getFileName(), EXAMPLE_PCAP_PATH);
-	PTF_ASSERT_EQUAL(writerDev.getFileName(), EXAMPLE_PCAP_WRITE_PATH);
-	PTF_ASSERT_EQUAL(readerDev.getFileSize(), 3812643);
-	pcpp::RawPacket rawPacket;
-	int packetCount = 0;
-	int ethCount = 0;
-	int sllCount = 0;
-	int ipCount = 0;
-	int tcpCount = 0;
-	int udpCount = 0;
-	while (readerDev.getNextPacket(rawPacket))
-	{
-		packetCount++;
-		pcpp::Packet packet(&rawPacket);
-		if (packet.isPacketOfType(pcpp::Ethernet))
-			ethCount++;
-		if (packet.isPacketOfType(pcpp::SLL))
-			sllCount++;
-		if (packet.isPacketOfType(pcpp::IPv4))
-			ipCount++;
-		if (packet.isPacketOfType(pcpp::TCP))
-			tcpCount++;
-		if (packet.isPacketOfType(pcpp::UDP))
-			udpCount++;
+constexpr uint32_t TCPDUMP_MAGIC = 0xa1b2c3d4;
+constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
+constexpr uint32_t NSEC_TCPDUMP_MAGIC = 0xa1b23c4d;
+constexpr uint32_t NSEC_TCPDUMP_MAGIC_SWAPPED = 0x4d3cb2a1;
 
-		PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
+enum class PcapHeaderParam
+{
+	Magic,
+	MajorVersion,
+	MinorVersion,
+	Snaplen,
+	LinkType,
+};
+
+std::vector<uint8_t> createPcapHeader(const std::unordered_map<PcapHeaderParam, uint32_t>& params, bool swapped = false)
+{
+	constexpr uint16_t PCAP_MAJOR_VERSION = 2;
+	constexpr uint16_t PCAP_MINOR_VERSION = 4;
+	constexpr uint32_t DEFAULT_SNAPLEN = 65535;
+
+	auto swap16 = [](uint16_t value) { return static_cast<uint16_t>((value >> 8) | (value << 8)); };
+
+	auto swap32 = [](uint32_t value) {
+		return (value >> 24) | ((value >> 8) & 0x0000FF00) | ((value << 8) & 0x00FF0000) | (value << 24);
+	};
+
+	struct pcap_file_header
+	{
+		uint32_t magic;
+		uint16_t version_major;
+		uint16_t version_minor;
+		int32_t thiszone;
+		uint32_t sigfigs;
+		uint32_t snaplen;
+		uint32_t linktype;
+	};
+
+	pcap_file_header header = { swapped ? TCPDUMP_MAGIC_SWAPPED : TCPDUMP_MAGIC,
+		                        swapped ? swap16(PCAP_MAJOR_VERSION) : PCAP_MAJOR_VERSION,
+		                        swapped ? swap16(PCAP_MINOR_VERSION) : PCAP_MINOR_VERSION,
+		                        0,
+		                        0,
+		                        swapped ? swap32(DEFAULT_SNAPLEN) : DEFAULT_SNAPLEN,
+		                        swapped ? swap32(pcpp::LINKTYPE_ETHERNET) : pcpp::LINKTYPE_ETHERNET };
+
+	for (auto& param : params)
+	{
+		switch (param.first)
+		{
+		case PcapHeaderParam::Magic:
+		{
+			header.magic = param.second;
+			break;
+		}
+		case PcapHeaderParam::MajorVersion:
+		{
+			header.version_major = static_cast<uint16_t>(param.second);
+			break;
+		}
+		case PcapHeaderParam::MinorVersion:
+		{
+			header.version_minor = static_cast<uint16_t>(param.second);
+			break;
+		}
+		case PcapHeaderParam::LinkType:
+		{
+			header.linktype = param.second;
+			break;
+		}
+		case PcapHeaderParam::Snaplen:
+		{
+			header.snaplen = param.second;
+			break;
+		}
+		}
 	}
 
-	pcpp::IPcapDevice::PcapStats readerStatistics;
-	pcpp::IPcapDevice::PcapStats writerStatistics;
+	std::vector<uint8_t> result(sizeof(pcap_file_header));
+	std::memcpy(result.data(), &header, sizeof(pcap_file_header));
+	return result;
+}
 
-	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 4631);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+enum class PcapPacketHeaderParam
+{
+	TimestampSec,
+	TimestampUsec,
+	Caplen,
+	Len
+};
 
-	writerDev.getStatistics(writerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 4631);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0);
+std::vector<uint8_t> createPcapPacketHeader(
+    const std::unordered_map<PcapPacketHeaderParam, uint32_t>& params,
+    pcpp::FileTimestampPrecision precision = pcpp::FileTimestampPrecision::Microseconds)
+{
+	struct packet_header
+	{
+		uint32_t tv_sec;
+		uint32_t tv_usec;
+		uint32_t caplen;
+		uint32_t len;
+	};
 
-	PTF_ASSERT_EQUAL(packetCount, 4631);
-	PTF_ASSERT_EQUAL(ethCount, 4631);
-	PTF_ASSERT_EQUAL(sllCount, 0);
-	PTF_ASSERT_EQUAL(ipCount, 4631);
-	PTF_ASSERT_EQUAL(tcpCount, 4492);
-	PTF_ASSERT_EQUAL(udpCount, 139);
+	auto now = std::chrono::system_clock::now();
+	auto duration = now.time_since_epoch();
 
-	readerDev.close();
-	PTF_ASSERT_FALSE(readerDev.isOpened());
-	writerDev.close();
-	PTF_ASSERT_FALSE(writerDev.isOpened());
+	auto subSec = duration % std::chrono::seconds(1);
+	auto sec = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+	auto nsec = precision == pcpp::FileTimestampPrecision::Nanoseconds
+	                ? std::chrono::duration_cast<std::chrono::nanoseconds>(subSec).count()
+	                : std::chrono::duration_cast<std::chrono::microseconds>(subSec).count();
+	packet_header header = { static_cast<uint32_t>(sec), static_cast<uint32_t>(nsec), 1514, 1514 };
 
-	// read all packets in a bulk
-	pcpp::PcapFileReaderDevice readerDev2(EXAMPLE_PCAP_PATH);
-	PTF_ASSERT_TRUE(readerDev2.open());
-	PTF_ASSERT_TRUE(readerDev2.isOpened());
+	for (const auto& param : params)
+	{
+		switch (param.first)
+		{
+		case PcapPacketHeaderParam::TimestampSec:
+		{
+			header.tv_sec = param.second;
+			break;
+		}
+		case PcapPacketHeaderParam::TimestampUsec:
+		{
+			header.tv_usec = param.second;
+			break;
+		}
+		case PcapPacketHeaderParam::Caplen:
+		{
+			header.caplen = param.second;
+			break;
+		}
+		case PcapPacketHeaderParam::Len:
+		{
+			header.len = param.second;
+			break;
+		}
+		}
+	}
 
-	pcpp::RawPacketVector packetVec;
-	int numOfPacketsRead = readerDev2.getNextPackets(packetVec);
-	PTF_ASSERT_EQUAL(numOfPacketsRead, 4631);
-	PTF_ASSERT_EQUAL(packetVec.size(), 4631);
+	std::vector<uint8_t> result(sizeof(packet_header));
+	std::memcpy(result.data(), &header, sizeof(packet_header));
+	return result;
+}
 
-	readerDev2.close();
-	PTF_ASSERT_FALSE(readerDev2.isOpened());
+PTF_TEST_CASE(TestPcapFileReadWrite)
+{
+	// Read and write packets
+	{
+		pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
+		pcpp::PcapFileWriterDevice writerDev(EXAMPLE_PCAP_WRITE_PATH);
+		PTF_ASSERT_TRUE(readerDev.open());
+		PTF_ASSERT_TRUE(readerDev.isOpened());
+		PTF_ASSERT_TRUE(writerDev.open());
+		PTF_ASSERT_TRUE(writerDev.isOpened());
+		PTF_ASSERT_EQUAL(readerDev.getFileName(), EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_EQUAL(writerDev.getFileName(), EXAMPLE_PCAP_WRITE_PATH);
+		PTF_ASSERT_EQUAL(readerDev.getFileSize(), 3812643);
+		pcpp::RawPacket rawPacket;
+		int packetCount = 0;
+		int ethCount = 0;
+		int sllCount = 0;
+		int ipCount = 0;
+		int tcpCount = 0;
+		int udpCount = 0;
+		while (readerDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+			pcpp::Packet packet(&rawPacket);
+			if (packet.isPacketOfType(pcpp::Ethernet))
+				ethCount++;
+			if (packet.isPacketOfType(pcpp::SLL))
+				sllCount++;
+			if (packet.isPacketOfType(pcpp::IPv4))
+				ipCount++;
+			if (packet.isPacketOfType(pcpp::TCP))
+				tcpCount++;
+			if (packet.isPacketOfType(pcpp::UDP))
+				udpCount++;
+
+			PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
+		}
+
+		pcpp::IPcapDevice::PcapStats readerStatistics;
+		pcpp::IPcapDevice::PcapStats writerStatistics;
+
+		readerDev.getStatistics(readerStatistics);
+		PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 4631);
+		PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+
+		writerDev.getStatistics(writerStatistics);
+		PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 4631);
+		PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0);
+
+		PTF_ASSERT_EQUAL(packetCount, 4631);
+		PTF_ASSERT_EQUAL(ethCount, 4631);
+		PTF_ASSERT_EQUAL(sllCount, 0);
+		PTF_ASSERT_EQUAL(ipCount, 4631);
+		PTF_ASSERT_EQUAL(tcpCount, 4492);
+		PTF_ASSERT_EQUAL(udpCount, 139);
+
+		readerDev.close();
+		PTF_ASSERT_FALSE(readerDev.isOpened());
+		writerDev.close();
+		PTF_ASSERT_FALSE(writerDev.isOpened());
+	}
+
+	// Read and write packets in a bulk
+	{
+		pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(readerDev.open());
+		PTF_ASSERT_TRUE(readerDev.isOpened());
+
+		pcpp::RawPacketVector packetVec;
+		int numOfPacketsRead = readerDev.getNextPackets(packetVec);
+		PTF_ASSERT_EQUAL(numOfPacketsRead, 4631);
+		PTF_ASSERT_EQUAL(packetVec.size(), numOfPacketsRead);
+
+		pcpp::PcapFileWriterDevice writerDev(EXAMPLE_PCAP_WRITE_PATH);
+		PTF_ASSERT_TRUE(writerDev.open());
+		PTF_ASSERT_TRUE(writerDev.writePackets(packetVec));
+		pcpp::IPcapDevice::PcapStats writerStatistics;
+		writerDev.getStatistics(writerStatistics);
+		PTF_ASSERT_EQUAL(writerStatistics.packetsRecv, numOfPacketsRead);
+	}
 }  // TestPcapFileReadWrite
 
 PTF_TEST_CASE(TestPcapFileMicroPrecision)
@@ -118,10 +275,6 @@ PTF_TEST_CASE(TestPcapFileMicroPrecision)
 	PTF_ASSERT_TRUE(writerDevMicro.writePacket(rawPacketNano));
 	writerDevMicro.close();
 
-	pcpp::FileTimestampPrecision expectedPrecision = pcpp::PcapFileWriterDevice::isNanoSecondPrecisionSupported()
-	                                                     ? pcpp::FileTimestampPrecision::Nanoseconds
-	                                                     : pcpp::FileTimestampPrecision::Microseconds;
-
 	// Read micro precision file, both original and written
 	for (auto const path : { EXAMPLE_PCAP_MICRO_PATH, EXAMPLE_PCAP_MICRO_WRITE_PATH })
 	{
@@ -129,7 +282,7 @@ PTF_TEST_CASE(TestPcapFileMicroPrecision)
 		pcpp::PcapFileReaderDevice readerDevMicro(path);
 		PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
 		PTF_ASSERT_TRUE(readerDevMicro.open());
-		PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(), expectedPrecision, enumclass);
+		PTF_ASSERT_EQUAL(readerDevMicro.getTimestampPrecision(), pcpp::FileTimestampPrecision::Microseconds, enumclass);
 
 		pcpp::RawPacket readPacketNano2, readPacketMicro2;
 		PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketMicro2));
@@ -141,28 +294,24 @@ PTF_TEST_CASE(TestPcapFileMicroPrecision)
 		PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_nsec, 1000);
 		readerDevMicro.close();
 	}
+
+	// Big endian pcap file
+	{
+		pcpp::PcapFileReaderDevice readerDevMicroBE(EXAMPLE_PCAP_MICRO_BIG_ENDIAN_PATH);
+		PTF_ASSERT_EQUAL(readerDevMicroBE.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
+		PTF_ASSERT_TRUE(readerDevMicroBE.open());
+		PTF_ASSERT_EQUAL(readerDevMicroBE.getTimestampPrecision(), pcpp::FileTimestampPrecision::Microseconds,
+		                 enumclass);
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_TRUE(readerDevMicroBE.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_sec, 1474059824);
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_nsec, 864984000);
+	}
 }  // TestPcapFileMicroPrecision
 
 PTF_TEST_CASE(TestPcapFileNanoPrecision)
 {
-	// Writer precision support should equal to reader precision support
-	PTF_ASSERT_EQUAL(pcpp::PcapFileWriterDevice::isNanoSecondPrecisionSupported(),
-	                 pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported());
-
-	if (!pcpp::PcapFileWriterDevice::isNanoSecondPrecisionSupported())
-	{
-		PTF_PRINT_VERBOSE("Pcap nano precision is not supported on the current platform! "
-		                  "The test will check for proper failure messages.\n");
-		PTF_ASSERT_RAISES(pcpp::PcapFileWriterDevice(EXAMPLE_PCAP_NANO_WRITE_PATH, pcpp::LINKTYPE_ETHERNET, true),
-		                  std::runtime_error,
-		                  "PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. "
-		                  "Please recompile PcapPlusPlus with nano precision support to use this feature.");
-
-		pcpp::PcapFileReaderDevice readerDevNano(EXAMPLE_PCAP_NANO_PATH);
-		PTF_ASSERT_FALSE(readerDevNano.open());
-		return;
-	}
-
 	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
@@ -198,7 +347,493 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision)
 		PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_nsec, 1234);
 		readerDevNano.close();
 	}
+
+	// Big endian pcap file
+	{
+		pcpp::PcapFileReaderDevice readerDevNanoBE(EXAMPLE_PCAP_NANO_BIG_ENDIAN_PATH);
+		PTF_ASSERT_EQUAL(readerDevNanoBE.getTimestampPrecision(), pcpp::FileTimestampPrecision::Unknown, enumclass);
+		PTF_ASSERT_TRUE(readerDevNanoBE.open());
+		PTF_ASSERT_EQUAL(readerDevNanoBE.getTimestampPrecision(), pcpp::FileTimestampPrecision::Nanoseconds, enumclass);
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_TRUE(readerDevNanoBE.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_sec, 1766361926);
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_nsec, 167647291);
+	}
 }  // TestPcapFileNanoPrecision
+
+PTF_TEST_CASE(TestPcapFileReadAdv)
+{
+	SuppressLogs logSuppress;
+
+	std::array<uint8_t, 5> packetData = { 0x1, 0x2, 0x3, 0x4, 0x5 };
+
+	// Reopen after close
+	{
+		pcpp::RawPacket rawPacket, rawPacket2;
+		pcpp::PcapFileReaderDevice reader(EXAMPLE2_PCAP_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+
+		reader.close();
+
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
+
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), rawPacket2.getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), rawPacket2.getRawData(), rawPacket.getRawDataLen());
+	}
+
+	// Filter packets
+	{
+		constexpr int expectedTotalPacketCount = 4631;
+		constexpr int expectedFilteredPacketCount = 1813;
+
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_TRUE(reader.setFilter("ip src 10.0.0.6"));
+
+		pcpp::RawPacketVector rawPackets;
+
+		PTF_ASSERT_EQUAL(reader.getNextPackets(rawPackets), expectedFilteredPacketCount);
+		PTF_ASSERT_EQUAL(rawPackets.size(), expectedFilteredPacketCount);
+		pcpp::IPcapDevice::PcapStats stats;
+		reader.getStatistics(stats);
+		PTF_ASSERT_EQUAL(stats.packetsRecv, expectedFilteredPacketCount);
+		PTF_ASSERT_EQUAL(stats.packetsDrop, 0);
+
+		reader.close();
+		PTF_ASSERT_TRUE(reader.open());
+
+		PTF_ASSERT_TRUE(reader.clearFilter());
+		rawPackets.clear();
+
+		PTF_ASSERT_EQUAL(reader.getNextPackets(rawPackets), expectedTotalPacketCount);
+		PTF_ASSERT_EQUAL(rawPackets.size(), expectedTotalPacketCount);
+
+		PTF_ASSERT_FALSE(reader.setFilter("invalid"));
+	}
+
+	// File already open
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File already opened");
+	}
+
+	// File doesn't exist
+	{
+		pcpp::PcapFileReaderDevice reader("file_does_not_exist.pcap");
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot open pcap reader device for filename 'file_does_not_exist.pcap'");
+	}
+
+	// Empty file
+	{
+		TempFile pcapFile("pcap");
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Cannot read pcap file header");
+	}
+
+	// File content is shorter than a pcap header
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << 0xa1b2;
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Cannot read pcap file header");
+		PTF_ASSERT_FALSE(reader.isOpened());
+	}
+
+	// Invalid magic number
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::Magic, 0xdeadbeef }
+        });
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Invalid magic number: 0xdeadbeef");
+	}
+
+	// Older pcap version
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::MajorVersion, 2 },
+            { PcapHeaderParam::MinorVersion, 3 }
+        });
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+	}
+
+	// Invalid pcap version
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::MajorVersion, 1 }
+        });
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Unsupported pcap file version: 1.4");
+	}
+
+	// Snapshot length is zero
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::Snaplen, 0 }
+        });
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Invalid snapshot length: 0");
+	}
+
+	// Snapshot length is too large
+	{
+		TempFile pcapFile("pcap");
+		constexpr uint32_t LARGE_SNAPLEN = 1024 * 1024 + 1;
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::Snaplen, LARGE_SNAPLEN }
+        });
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_FALSE(reader.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Invalid snapshot length: " + std::to_string(LARGE_SNAPLEN));
+	}
+
+	// File with a header but no packets
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket));
+	}
+
+	// Unsupported link type
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::LinkType, 300 }
+        });
+
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, packetData.size() }
+        });
+		pcapFile << packetData;
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_EQUAL(reader.getLinkLayerType(), pcpp::LINKTYPE_INVALID, enum);
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getLinkLayerType(), pcpp::LINKTYPE_INVALID, enum);
+	}
+
+	// Zero timestamp
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::TimestampSec,  0                 },
+		    { PcapPacketHeaderParam::TimestampUsec, 0                 },
+		    { PcapPacketHeaderParam::Caplen,        packetData.size() }
+        });
+		pcapFile << packetData;
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_sec, 0);
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_nsec, 0);
+	}
+
+	// Invalid microseconds timestamp
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::TimestampUsec, 1'000'001 }
+        });
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Invalid microsecond timestamp: 1000001");
+	}
+
+	// Invalid nanoseconds timestamp
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::Magic, NSEC_TCPDUMP_MAGIC }
+        });
+
+		pcapFile << createPcapPacketHeader(
+		    {
+		        { PcapPacketHeaderParam::TimestampUsec, 1'000'000'001 }
+        },
+		    pcpp::FileTimestampPrecision::Nanoseconds);
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_EQUAL(reader.getTimestampPrecision(), pcpp::FileTimestampPrecision::Nanoseconds, enumclass);
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Invalid nanosecond timestamp: 1000000001");
+	}
+
+	// Snapshot length is smaller than packet length
+	{
+		constexpr uint32_t snapshotLen = 2;
+
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::Snaplen, snapshotLen }
+        });
+
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, packetData.size() }
+        });
+		pcapFile << packetData;
+
+		std::array<uint8_t, snapshotLen> secondPacketData = { 0x11, 0x12 };
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, secondPacketData.size() }
+        });
+		pcapFile << secondPacketData;
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), snapshotLen);
+		PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), packetData.data(), snapshotLen);
+
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), snapshotLen);
+		PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), secondPacketData.data(), snapshotLen);
+	}
+
+	// Captured length is smaller than actual length
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, packetData.size()     },
+		    { PcapPacketHeaderParam::Len,    packetData.size() + 1 }
+        });
+		pcapFile << packetData;
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), packetData.size());
+		PTF_ASSERT_EQUAL(rawPacket.getFrameLength(), packetData.size() + 1);
+	}
+
+	// Captured length is larger than actual length
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, packetData.size() },
+            { PcapPacketHeaderParam::Len,    1                 }
+        });
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Packet captured length 5 exceeds packet length 1");
+	}
+
+	// Captured length is zero
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, 0 }
+        });
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 0);
+		PTF_ASSERT_NULL(rawPacket.getRawData());
+	}
+
+	// Captured length is too large
+	{
+		constexpr uint32_t tooLargeCapturedLength = 256 * 1024 + 1;
+
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::Snaplen, tooLargeCapturedLength }
+        });
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, tooLargeCapturedLength },
+		    { PcapPacketHeaderParam::Len,    tooLargeCapturedLength }
+        });
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Packet captured length " + std::to_string(tooLargeCapturedLength) + " is suspiciously large");
+	}
+
+	// Incomplete packet header
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+		pcapFile << 0x11 << 0x22;
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Failed to read packet metadata");
+	}
+
+	// Incomplete packet data
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+		pcapFile << createPcapPacketHeader({});
+		pcapFile << 0x11;
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Failed to read packet data");
+	}
+}  // TestPcapFileReadAdv
+
+PTF_TEST_CASE(TestPcapFileWriteAdv)
+{
+	SuppressLogs logSuppress;
+
+	std::array<uint8_t, 5> packetData = { 0x00, 0x01, 0x02, 0x03, 0x04 };
+	pcpp::RawPacket rawPacket(packetData.data(), packetData.size(), timespec({ 1, 1234 }), false);
+
+	// Reopen after close
+	{
+		TempFile pcapFile("pcap");
+		pcapFile.close();
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(writer.open());
+		PTF_ASSERT_TRUE(writer.writePacket(rawPacket));
+
+		writer.close();
+
+		PTF_ASSERT_TRUE(writer.open());
+		PTF_ASSERT_TRUE(writer.writePacket(rawPacket));
+	}
+
+	// Filter packets
+	{
+		constexpr int expectedTotalPacketCount = 4631;
+		constexpr int expectedFilteredPacketCount = 1813;
+
+		pcpp::RawPacketVector rawPackets;
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_EQUAL(reader.getNextPackets(rawPackets), expectedTotalPacketCount);
+
+		TempFile pcapFile("pcap");
+		pcapFile.close();
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(writer.open());
+
+		PTF_ASSERT_TRUE(writer.setFilter("ip src 10.0.0.6"));
+		PTF_ASSERT_FALSE(writer.writePackets(rawPackets));
+		pcpp::IPcapDevice::PcapStats stats;
+		writer.getStatistics(stats);
+		PTF_ASSERT_EQUAL(stats.packetsRecv, expectedFilteredPacketCount);
+		PTF_ASSERT_EQUAL(stats.packetsDrop, 0);
+
+		PTF_ASSERT_FALSE(writer.setFilter("invalid"));
+		writer.close();
+
+		pcpp::PcapFileReaderDevice reader2(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader2.open());
+		PTF_ASSERT_EQUAL(reader2.getNextPackets(rawPackets), expectedFilteredPacketCount);
+	}
+
+	// File already open
+	{
+		TempFile pcapFile("pcap");
+		pcapFile.close();
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(writer.open());
+		PTF_ASSERT_FALSE(writer.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File already opened");
+	}
+
+	// Cannot open file for write
+	{
+		pcpp::PcapFileWriterDevice writer("/non/existent/directory/file.pcap");
+		PTF_ASSERT_FALSE(writer.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Failed to open file: /non/existent/directory/file.pcap");
+		PTF_ASSERT_FALSE(writer.open(true));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Failed to open file: /non/existent/directory/file.pcap");
+	}
+
+	// Write when file isn't open
+	{
+		TempFile pcapFile("pcap");
+		pcapFile.close();
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+		PTF_ASSERT_FALSE(writer.writePacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File is not open");
+		pcpp::RawPacketVector rawPackets;
+		PTF_ASSERT_FALSE(writer.writePackets(rawPackets));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File is not open");
+	}
+
+	// Write packet with a different link type
+	{
+		TempFile pcapFile("pcap");
+		pcapFile.close();
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName(), pcpp::LINKTYPE_RAW);
+
+		PTF_ASSERT_TRUE(writer.open());
+		PTF_ASSERT_FALSE(writer.writePacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot write a packet with a different link type");
+	}
+}  // TestPcapFileWriteAdv
 
 PTF_TEST_CASE(TestPcapNgFilePrecision)
 {
@@ -279,8 +914,8 @@ PTF_TEST_CASE(TestPcapSll2FileReadWrite)
 	pcpp::PcapFileReaderDevice readerDev(SLL2_PCAP_PATH);
 	pcpp::PcapFileWriterDevice writerDev(SLL2_PCAP_WRITE_PATH, pcpp::LINKTYPE_LINUX_SLL2);
 	PTF_ASSERT_TRUE(readerDev.open());
-	// SLL2 is not supported in all libpcap versions
-	auto canOpenWriterDevice = writerDev.open();
+	PTF_ASSERT_TRUE(writerDev.open());
+	PTF_ASSERT_EQUAL(writerDev.getLinkLayerType(), pcpp::LINKTYPE_LINUX_SLL2, enum);
 	pcpp::RawPacket rawPacket;
 	int packetCount = 0;
 	int sll2Count = 0;
@@ -295,10 +930,7 @@ PTF_TEST_CASE(TestPcapSll2FileReadWrite)
 		if (packet.isPacketOfType(pcpp::IP))
 			ipCount++;
 
-		if (canOpenWriterDevice)
-		{
-			PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
-		}
+		PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
 	}
 
 	pcpp::IPcapDevice::PcapStats readerStatistics;
@@ -307,14 +939,11 @@ PTF_TEST_CASE(TestPcapSll2FileReadWrite)
 	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 3);
 	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
 
-	if (canOpenWriterDevice)
-	{
-		pcpp::IPcapDevice::PcapStats writerStatistics;
-		writerDev.getStatistics(writerStatistics);
-		PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 3);
-		PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0);
-		writerDev.close();
-	}
+	pcpp::IPcapDevice::PcapStats writerStatistics;
+	writerDev.getStatistics(writerStatistics);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 3);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0);
+	writerDev.close();
 
 	PTF_ASSERT_EQUAL(packetCount, 3);
 	PTF_ASSERT_EQUAL(sll2Count, 3);
@@ -325,15 +954,12 @@ PTF_TEST_CASE(TestPcapSll2FileReadWrite)
 
 PTF_TEST_CASE(TestPcapRawIPFileReadWrite)
 {
-	pcpp::Logger::getInstance().suppressLogs();
-	pcpp::PcapFileWriterDevice tempWriter(RAW_IP_PCAP_WRITE_PATH, pcpp::LINKTYPE_RAW);
-	PTF_ASSERT_FALSE(tempWriter.open());
-	pcpp::Logger::getInstance().enableLogs();
 	pcpp::PcapFileReaderDevice readerDev(RAW_IP_PCAP_PATH);
 	pcpp::PcapFileWriterDevice writerDev(RAW_IP_PCAP_WRITE_PATH, pcpp::LINKTYPE_DLT_RAW1);
 	pcpp::PcapNgFileWriterDevice writerNgDev(RAW_IP_PCAPNG_PATH);
 	PTF_ASSERT_TRUE(readerDev.open());
 	PTF_ASSERT_TRUE(writerDev.open());
+	PTF_ASSERT_EQUAL(writerDev.getLinkLayerType(), pcpp::LINKTYPE_RAW, enum);
 	PTF_ASSERT_TRUE(writerNgDev.open());
 	pcpp::RawPacket rawPacket;
 	int packetCount = 0;
@@ -391,42 +1017,204 @@ PTF_TEST_CASE(TestPcapRawIPFileReadWrite)
 
 PTF_TEST_CASE(TestPcapFileAppend)
 {
-	// opening the file for the first time just to delete all packets in it
-	pcpp::PcapFileWriterDevice wd(EXAMPLE_PCAP_WRITE_PATH);
-	PTF_ASSERT_TRUE(wd.open());
-	wd.close();
+	std::array<uint8_t, 5> packetData = { 0x00, 0x01, 0x02, 0x03, 0x04 };
+	pcpp::RawPacket rawPacket(packetData.data(), packetData.size(), timespec({ 1, 1234 }), false);
 
-	for (int i = 0; i < 5; i++)
+	// File does not exist
 	{
-		pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
-		pcpp::PcapFileWriterDevice writerDev(EXAMPLE_PCAP_WRITE_PATH);
-		PTF_ASSERT_TRUE(writerDev.open(true));
-		PTF_ASSERT_TRUE(readerDev.open());
+		TempFile pcapFile("pcap", "", false);
 
-		pcpp::RawPacket rawPacket;
-		while (readerDev.getNextPacket(rawPacket))
-		{
-			writerDev.writePacket(rawPacket);
-		}
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(writer.open(true));
+		PTF_ASSERT_TRUE(writer.writePacket(rawPacket));
+		writer.flush();
 
-		writerDev.close();
-		readerDev.close();
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+		pcpp::RawPacket rawPacket2;
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
+		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
 	}
 
-	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_WRITE_PATH);
-	PTF_ASSERT_TRUE(readerDev.open());
-	int counter = 0;
-	pcpp::RawPacket rawPacket;
-	while (readerDev.getNextPacket(rawPacket))
-		counter++;
+	// Empty file
+	{
+		TempFile pcapFile("pcap");
+		pcapFile.close();
 
-	PTF_ASSERT_EQUAL(counter, (4631 * 5));
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(writer.open(true));
+		PTF_ASSERT_TRUE(writer.writePacket(rawPacket));
+		writer.flush();
 
-	pcpp::Logger::getInstance().suppressLogs();
-	pcpp::PcapFileWriterDevice writerDev2(EXAMPLE_PCAP_WRITE_PATH, pcpp::LINKTYPE_LINUX_SLL);
-	PTF_ASSERT_FALSE(writerDev2.open(true));
-	pcpp::Logger::getInstance().enableLogs();
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+		pcpp::RawPacket rawPacket2;
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
+		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
+	}
 
+	// File with header and no packets
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+		pcapFile.close();
+
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(writer.open(true));
+		PTF_ASSERT_TRUE(writer.writePacket(rawPacket));
+		writer.flush();
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+		pcpp::RawPacket rawPacket2;
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
+		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
+	}
+
+	// File with packets
+	{
+		std::array<uint8_t, 5> anotherPacketData = { 0x05, 0x06, 0x07, 0x08, 0x09 };
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({});
+		pcapFile << createPcapPacketHeader({
+		    { PcapPacketHeaderParam::Caplen, 5 }
+        });
+		pcapFile << anotherPacketData;
+		pcapFile.close();
+
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(writer.open(true));
+		PTF_ASSERT_TRUE(writer.writePacket(rawPacket));
+		writer.flush();
+
+		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+		PTF_ASSERT_TRUE(reader.open());
+		pcpp::RawPacket rawPacket2;
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
+		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), anotherPacketData.data(), anotherPacketData.size());
+		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
+		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
+	}
+
+	// Malformed file header
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << 0x01 << 0x02;
+		pcapFile.close();
+
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+
+		SuppressLogs logSuppress;
+		PTF_ASSERT_FALSE(writer.open(true));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Malformed file header or not a pcap file");
+		PTF_ASSERT_FALSE(writer.isOpened());
+	}
+
+	// Precision mismatch
+	{
+		TempFile pcapFile("pcap");
+		// File with nanoseconds precision
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::Magic, NSEC_TCPDUMP_MAGIC }
+        });
+		pcapFile.close();
+
+		// Create the device with microseconds precision
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+
+		SuppressLogs logSuppress;
+		PTF_ASSERT_FALSE(writer.open(true));
+		PTF_ASSERT_EQUAL(
+		    pcpp::Logger::getInstance().getLastError(),
+		    "Existing file precision (Nanoseconds) does not match the requested device precision (Microseconds)");
+	}
+
+	// Link type mismatch
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::LinkType, pcpp::LINKTYPE_C_HDLC }
+        });
+		pcapFile.close();
+
+		// Create the device with the default link type (Ethernet)
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+
+		SuppressLogs logSuppress;
+		PTF_ASSERT_FALSE(writer.open(true));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Existing file link type does not match the requested device link type");
+	}
+
+	// Unsupported magic number
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::Magic, 1234 }
+        });
+		pcapFile.close();
+
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+
+		SuppressLogs logSuppress;
+		PTF_ASSERT_FALSE(writer.open(true));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Unsupported pcap file format");
+	}
+
+	// Unsupported version
+	{
+		TempFile pcapFile("pcap");
+		pcapFile << createPcapHeader({
+		    { PcapHeaderParam::MajorVersion, 5 }
+        });
+		pcapFile.close();
+
+		pcpp::PcapFileWriterDevice writer(pcapFile.getFileName());
+
+		SuppressLogs logSuppress;
+		PTF_ASSERT_FALSE(writer.open(true));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Unsupported pcap file version");
+	}
+
+	// All magic numbers - micro/nano precision and little/big endian
+	{
+		std::vector<std::tuple<uint32_t, bool, bool>> magicNumberVariations = {
+			{ TCPDUMP_MAGIC,              false, false },
+			{ TCPDUMP_MAGIC_SWAPPED,      false, true  },
+			{ NSEC_TCPDUMP_MAGIC,         true,  false },
+			{ NSEC_TCPDUMP_MAGIC_SWAPPED, true,  true  }
+		};
+
+		for (auto const& magicNumberVariation : magicNumberVariations)
+		{
+			TempFile pcapFile("pcap");
+			pcapFile << createPcapHeader(
+			    {
+			        { PcapHeaderParam::Magic, std::get<0>(magicNumberVariation) }
+            },
+			    std::get<2>(magicNumberVariation));
+			pcapFile.close();
+
+			pcpp::PcapFileWriterDevice writer(pcapFile.getFileName(), pcpp::LINKTYPE_ETHERNET,
+			                                  std::get<1>(magicNumberVariation));
+			PTF_ASSERT_TRUE(writer.open(true));
+			PTF_ASSERT_TRUE(writer.writePacket(rawPacket));
+			writer.flush();
+
+			pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
+			PTF_ASSERT_TRUE(reader.open());
+			pcpp::RawPacket rawPacket2;
+			PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
+			PTF_ASSERT_EQUAL(rawPacket2.getPacketTimeStamp().tv_sec, 1);
+			auto expectedNsec = std::get<1>(magicNumberVariation) ? 1234 : 1000;
+			PTF_ASSERT_EQUAL(rawPacket2.getPacketTimeStamp().tv_nsec, expectedNsec);
+			PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		}
+	}
 }  // TestPcapFileAppend
 
 PTF_TEST_CASE(TestPcapNgFileReadWrite)
@@ -806,17 +1594,26 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 	pcpp::PcapNgFileReaderDevice readerDev5(EXAMPLE2_PCAPNG_PATH);
 	PTF_ASSERT_TRUE(readerDev5.open());
-	PTF_ASSERT_FALSE(readerDev5.setFilter("bla bla bla"));
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(readerDev5.setFilter("bla bla bla"));
+	}
 	PTF_ASSERT_TRUE(readerDev5.setFilter("src net 130.217.250.129"));
 
 	pcpp::PcapNgFileWriterDevice writerDev2(EXAMPLE2_PCAPNG_WRITE_PATH);
 	PTF_ASSERT_TRUE(writerDev2.open(true));
-	PTF_ASSERT_FALSE(writerDev2.setFilter("bla bla bla"));
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(writerDev2.setFilter("bla bla bla"));
+	}
 	PTF_ASSERT_TRUE(writerDev2.setFilter("dst port 35938"));
 
 	pcpp::PcapNgFileWriterDevice writerCompressDev2(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH, 5);
 	PTF_ASSERT_TRUE(writerCompressDev2.open());  // Do not try append mode on compressed files!!!
-	PTF_ASSERT_FALSE(writerCompressDev2.setFilter("bla bla bla"));
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(writerCompressDev2.setFilter("bla bla bla"));
+	}
 	PTF_ASSERT_TRUE(writerCompressDev2.setFilter("dst port 35938"));
 
 	int filteredReadPacketCount = 0;
@@ -946,53 +1743,395 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4)
 
 }  // TestPcapFileReadLinkTypeIPv4
 
-PTF_TEST_CASE(TestSolarisSnoopFileRead)
+enum class SnoopHeaderParam
 {
-	pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
-	PTF_ASSERT_TRUE(readerDev.open());
-	pcpp::RawPacket rawPacket;
-	int packetCount = 0;
-	int ethCount = 0;
-	int ethDot3Count = 0;
-	int ipCount = 0;
-	int tcpCount = 0;
-	int udpCount = 0;
-	std::vector<timespec> timeStamps;
-	while (readerDev.getNextPacket(rawPacket))
+	Magic,
+	Version,
+	LinkType,
+};
+
+std::vector<uint8_t> createSnoopHeader(const std::unordered_map<SnoopHeaderParam, uint64_t>& params)
+{
+	struct snoop_file_header
 	{
-		packetCount++;
-		pcpp::Packet packet(&rawPacket);
-		if (packet.isPacketOfType(pcpp::Ethernet))
-			ethCount++;
-		if (packet.isPacketOfType(pcpp::EthernetDot3))
-			ethDot3Count++;
-		if (packet.isPacketOfType(pcpp::IPv4))
-			ipCount++;
-		if (packet.isPacketOfType(pcpp::TCP))
-			tcpCount++;
-		if (packet.isPacketOfType(pcpp::UDP))
-			udpCount++;
-		timeStamps.push_back(rawPacket.getPacketTimeStamp());
+		uint64_t identification_pattern;
+		uint32_t version_number;
+		uint32_t datalink_type;
+	};
+
+	snoop_file_header header = { 0x706f6f6e73, 0x2000000, 0x1000000 };
+
+	for (auto& param : params)
+	{
+		switch (param.first)
+		{
+		case SnoopHeaderParam::Magic:
+		{
+			header.identification_pattern = param.second;
+			break;
+		}
+		case SnoopHeaderParam::Version:
+		{
+			header.version_number = static_cast<uint16_t>(param.second);
+			break;
+		}
+		case SnoopHeaderParam::LinkType:
+		{
+			header.datalink_type = static_cast<uint16_t>(param.second);
+			break;
+		}
+		}
 	}
 
-	pcpp::IPcapDevice::PcapStats readerStatistics;
+	std::vector<uint8_t> result(sizeof(snoop_file_header));
+	std::memcpy(result.data(), &header, sizeof(snoop_file_header));
+	return result;
+}
 
-	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 250);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+enum class SnoopPacketHeaderParam
+{
+	TimestampSec,
+	TimestampUsec,
+	Caplen,
+	Wirelen,
+	Pad
+};
 
-	PTF_ASSERT_EQUAL(packetCount, 250);
-	PTF_ASSERT_EQUAL(ethCount, 142);
-	PTF_ASSERT_EQUAL(ethDot3Count, 108);
-	PTF_ASSERT_EQUAL(ipCount, 71);
-	PTF_ASSERT_EQUAL(tcpCount, 15);
-	PTF_ASSERT_EQUAL(udpCount, 55);
-	PTF_ASSERT_EQUAL(timeStamps[0].tv_sec, 911274719);
-	PTF_ASSERT_EQUAL(timeStamps[0].tv_nsec, 885516000);
-	PTF_ASSERT_EQUAL(timeStamps[249].tv_sec, 911274726);
-	PTF_ASSERT_EQUAL(timeStamps[249].tv_nsec, 499893000);
+std::vector<uint8_t> createSnoopPacketHeader(const std::unordered_map<SnoopPacketHeaderParam, uint32_t>& params)
+{
+	struct snoop_packet_header
+	{
+		uint32_t original_length;
+		uint32_t included_length;
+		uint32_t packet_record_length;
+		uint32_t ndrops_cumulative;
+		uint32_t time_sec;
+		uint32_t time_usec;
+	};
 
-	readerDev.close();
+	// Defaults
+	uint32_t caplen = 1514;
+	uint32_t wirelen = 1514;
+	uint32_t pad = 0;
+
+	auto now = std::chrono::system_clock::now();
+	auto duration = now.time_since_epoch();
+	auto subSec = duration % std::chrono::seconds(1);
+	uint32_t sec = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::seconds>(duration).count());
+	uint32_t usec = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::microseconds>(subSec).count());
+
+	for (const auto& p : params)
+	{
+		switch (p.first)
+		{
+		case SnoopPacketHeaderParam::TimestampSec:
+		{
+			sec = p.second;
+			break;
+		}
+		case SnoopPacketHeaderParam::TimestampUsec:
+		{
+			usec = p.second;
+			break;
+		}
+		case SnoopPacketHeaderParam::Caplen:
+		{
+			caplen = p.second;
+			break;
+		}
+		case SnoopPacketHeaderParam::Wirelen:
+		{
+			wirelen = p.second;
+			break;
+		}
+		case SnoopPacketHeaderParam::Pad:
+		{
+			pad = p.second;
+			break;
+		}
+		}
+	}
+
+	snoop_packet_header header = { htobe32(wirelen),
+		                           htobe32(caplen),
+		                           htobe32(static_cast<uint32_t>(sizeof(snoop_packet_header) + caplen + pad)),
+		                           0u,
+		                           htobe32(sec),
+		                           htobe32(usec) };
+
+	std::vector<uint8_t> result(sizeof(snoop_packet_header));
+	std::memcpy(result.data(), &header, sizeof(snoop_packet_header));
+	return result;
+}
+
+PTF_TEST_CASE(TestSolarisSnoopFileRead)
+{
+	SuppressLogs suppressLogs;
+
+	std::array<uint8_t, 5> packetData = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+
+	// Basic test
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		PTF_ASSERT_TRUE(readerDev.open());
+		PTF_ASSERT_TRUE(readerDev.isOpened());
+		pcpp::RawPacket rawPacket;
+		int packetCount = 0;
+		int ethCount = 0;
+		int ethDot3Count = 0;
+		int ipCount = 0;
+		int tcpCount = 0;
+		int udpCount = 0;
+		std::vector<timespec> timeStamps;
+		while (readerDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+			pcpp::Packet packet(&rawPacket);
+			if (packet.isPacketOfType(pcpp::Ethernet))
+				ethCount++;
+			if (packet.isPacketOfType(pcpp::EthernetDot3))
+				ethDot3Count++;
+			if (packet.isPacketOfType(pcpp::IPv4))
+				ipCount++;
+			if (packet.isPacketOfType(pcpp::TCP))
+				tcpCount++;
+			if (packet.isPacketOfType(pcpp::UDP))
+				udpCount++;
+			timeStamps.push_back(rawPacket.getPacketTimeStamp());
+		}
+
+		pcpp::IPcapDevice::PcapStats readerStatistics;
+
+		readerDev.getStatistics(readerStatistics);
+		PTF_ASSERT_EQUAL(readerStatistics.packetsRecv, 250);
+		PTF_ASSERT_EQUAL(readerStatistics.packetsDrop, 0);
+
+		PTF_ASSERT_EQUAL(packetCount, 250);
+		PTF_ASSERT_EQUAL(ethCount, 142);
+		PTF_ASSERT_EQUAL(ethDot3Count, 108);
+		PTF_ASSERT_EQUAL(ipCount, 71);
+		PTF_ASSERT_EQUAL(tcpCount, 15);
+		PTF_ASSERT_EQUAL(udpCount, 55);
+		PTF_ASSERT_EQUAL(timeStamps[0].tv_sec, 911274719);
+		PTF_ASSERT_EQUAL(timeStamps[0].tv_nsec, 885516000);
+		PTF_ASSERT_EQUAL(timeStamps[249].tv_sec, 911274726);
+		PTF_ASSERT_EQUAL(timeStamps[249].tv_nsec, 499893000);
+
+		PTF_ASSERT_EQUAL(readerDev.getLinkLayerType(), pcpp::LINKTYPE_ETHERNET, enum);
+		readerDev.close();
+	}
+
+	// Packet filtering
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		PTF_ASSERT_TRUE(readerDev.setFilter("src net 129.111.182.28"));
+
+		int packetCount = 0;
+
+		pcpp::RawPacket rawPacket;
+		while (readerDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+			pcpp::Packet packet(&rawPacket);
+
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
+			auto ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+			PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "129.111.182.28");
+		}
+
+		PTF_ASSERT_EQUAL(packetCount, 16);
+
+		pcpp::IPcapDevice::PcapStats readerStatistics;
+		readerDev.getStatistics(readerStatistics);
+		PTF_ASSERT_EQUAL(readerStatistics.packetsRecv, 16);
+	}
+
+	// Packet details
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile << createSnoopPacketHeader({
+		    { SnoopPacketHeaderParam::Caplen,        packetData.size()     },
+		    { SnoopPacketHeaderParam::Wirelen,       packetData.size() + 5 },
+		    { SnoopPacketHeaderParam::TimestampSec,  1234                  },
+		    { SnoopPacketHeaderParam::TimestampUsec, 5678                  }
+        });
+		snoopFile << packetData;
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_TRUE(readerDev.getNextPacket(rawPacket));
+
+		PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), packetData.size());
+		PTF_ASSERT_EQUAL(rawPacket.getFrameLength(), packetData.size() + 5);
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_sec, 1234);
+		PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_nsec, 5678000);
+
+		PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), packetData.data(), packetData.size());
+	}
+
+	// Packet padding
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile << createSnoopPacketHeader({
+		    { SnoopPacketHeaderParam::Caplen, packetData.size() },
+            { SnoopPacketHeaderParam::Pad,    3                 }
+        });
+		snoopFile << packetData;
+		snoopFile << std::array<uint8_t, 3>{ 0xff, 0xff, 0xff };
+		snoopFile << createSnoopPacketHeader({
+		    { SnoopPacketHeaderParam::Caplen, packetData.size() }
+        });
+		snoopFile << packetData;
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		pcpp::RawPacket rawPacket;
+		for (int i = 0; i < 2; i++)
+		{
+			PTF_ASSERT_TRUE(readerDev.getNextPacket(rawPacket));
+			PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), packetData.size());
+			PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), packetData.data(), packetData.size());
+		}
+	}
+
+	// Device not open
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File device not open");
+	}
+
+	// File doesn't exist
+	{
+		pcpp::SnoopFileReaderDevice readerDev("does_not_exist.snoop");
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot open snoop reader device for filename 'does_not_exist.snoop'");
+	}
+
+	// File already open
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File already open");
+	}
+
+	// Read packet from a non-open device
+	{
+		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "File device not open");
+	}
+
+	// Cannot read file header
+	{
+		TempFile snoopFile("snoop");
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot read snoop file header for '" + snoopFile.getFileName() + "'");
+		PTF_ASSERT_FALSE(readerDev.isOpened());
+	}
+
+	// Wrong magic number
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({
+		    { SnoopHeaderParam::Magic, 1234 }
+        });
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Malformed snoop file header for '" + snoopFile.getFileName() + "'");
+	}
+
+	// Wrong version number
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({
+		    { SnoopHeaderParam::Version, 1 }
+        });
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Malformed snoop file header for '" + snoopFile.getFileName() + "'");
+	}
+
+	// Unsupported link type
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({
+		    { SnoopHeaderParam::LinkType, pcpp::LINKTYPE_ARCNET_LINUX }
+        });
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_FALSE(readerDev.open());
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot read data link type for '" + snoopFile.getFileName() + "'");
+	}
+
+	// Cannot read packet metadata
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Failed to read packet metadata");
+	}
+
+	// Packet data too large
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile << createSnoopPacketHeader({
+		    { SnoopPacketHeaderParam::Caplen, 15'500 }
+        });
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Packet length 15500 is too large");
+	}
+
+	// Cannot read packet data
+	{
+		TempFile snoopFile("snoop");
+		snoopFile << createSnoopHeader({});
+		snoopFile << createSnoopPacketHeader({});
+		snoopFile.close();
+
+		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
+		PTF_ASSERT_TRUE(readerDev.open());
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(readerDev.getNextPacket(rawPacket));
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Failed to read packet data");
+	}
 }  // TestSolarisSnoopFileRead
 
 PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
