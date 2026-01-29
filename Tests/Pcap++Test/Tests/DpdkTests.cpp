@@ -402,21 +402,17 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 	if (dev->getTotalNumOfRxQueues() > 1)
 	{
-		{
-			SuppressLogs suppressLogs;
-			PTF_ASSERT_FALSE(dev->openMultiQueues(numOfRxQueuesToOpen + 1, 1));
-		}
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(dev->openMultiQueues(numOfRxQueuesToOpen + 1, 1));
 	}
 
 	PTF_ASSERT_TRUE(dev->openMultiQueues(numOfRxQueuesToOpen, 1));
 
 	if (numOfRxQueuesToOpen > 1)
 	{
-		{
-			SuppressLogs suppressLogs;
-			DpdkPacketData dummyPacketData;
-			PTF_ASSERT_FALSE(dev->startCaptureSingleThread(dpdkPacketsArrive, &dummyPacketData));
-		}
+		SuppressLogs suppressLogs;
+		DpdkPacketData dummyPacketData;
+		PTF_ASSERT_FALSE(dev->startCaptureSingleThread(dpdkPacketsArrive, &dummyPacketData));
 	}
 
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxQueues(), (uint16_t)numOfRxQueuesToOpen);

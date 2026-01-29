@@ -24,13 +24,11 @@ PTF_TEST_CASE(TestRawSockets)
 	pcpp::ProtocolType protocol = pcpp::Ethernet;
 	bool sendSupported = false;
 	{
-		{
-			SuppressLogs suppressLogs;
-			pcpp::RawPacket rawPacket;
-			PTF_ASSERT_FALSE(rawSock.open());
-			PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 20), pcpp::RawSocketDevice::RecvError, enum);
-			PTF_ASSERT_FALSE(rawSock.sendPacket(&rawPacket));
-		}
+		SuppressLogs suppressLogs;
+		pcpp::RawPacket rawPacket;
+		PTF_ASSERT_FALSE(rawSock.open());
+		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 20), pcpp::RawSocketDevice::RecvError, enum);
+		PTF_ASSERT_FALSE(rawSock.sendPacket(&rawPacket));
 	}
 
 	PTF_TEST_CASE_PASSED;
@@ -156,10 +154,8 @@ PTF_TEST_CASE(TestRawSockets)
 	else
 	{
 		// test send on unsupported platforms
-		{
-			SuppressLogs suppressLogs;
-			PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
-			PTF_ASSERT_FALSE(rawSock.sendPackets(packetVec));
-		}
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
+		PTF_ASSERT_FALSE(rawSock.sendPackets(packetVec));
 	}
 }  // TestRawSockets
