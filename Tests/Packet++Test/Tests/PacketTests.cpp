@@ -1101,15 +1101,11 @@ PTF_TEST_CASE(PacketIncrementalParseTest)
 	using namespace pcpp;
 
 	auto rawPacket = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
-	Packet igmpPacket(NoParse, rawPacket.get(), false);
-
-	PTF_ASSERT_NULL(igmpPacket.getFirstLayer());
-	PTF_ASSERT_NULL(igmpPacket.getLastLayer());
 
 	ParseOptions pOpts;
 	pOpts.parseUntil = pcpp::IP;
 
-	igmpPacket.parsePacket(pOpts);
+	Packet igmpPacket(rawPacket.get(), false, pOpts);
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(pcpp::IGMP));

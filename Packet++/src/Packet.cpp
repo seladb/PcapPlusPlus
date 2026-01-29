@@ -86,14 +86,6 @@ namespace pcpp
 		setRawPacket(rawPacket, takeOwnership, options);
 	}
 
-	Packet::Packet(NoParseTag, RawPacket* rawPacket, bool takeOwnership)
-	{
-		m_FreeRawPacket = false;
-		m_RawPacket = nullptr;
-		m_FirstLayer = nullptr;
-		setRawPacket(NoParse, rawPacket, takeOwnership);
-	}
-
 	void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
 	                          OsiModelLayer parseUntilLayer)
 	{
@@ -101,15 +93,6 @@ namespace pcpp
 	}
 
 	void Packet::setRawPacket(RawPacket* rawPacket, bool takeOwnership, ParseOptions options)
-	{
-		setRawPacket(NoParse, rawPacket, takeOwnership);
-		if (m_RawPacket == nullptr)
-			return;
-
-		parsePacket(options);
-	}
-
-	void Packet::setRawPacket(NoParseTag, RawPacket* rawPacket, bool takeOwnership)
 	{
 		destructPacketData();
 
@@ -119,6 +102,11 @@ namespace pcpp
 		m_FreeRawPacket = takeOwnership;
 		m_RawPacket = rawPacket;
 		m_CanReallocateData = true;
+
+		if (m_RawPacket == nullptr)
+			return;
+
+		parsePacket(options);
 	}
 
 	void Packet::parsePacket(ParseOptions options, bool incrementalParsing)

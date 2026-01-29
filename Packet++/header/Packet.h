@@ -36,14 +36,6 @@ namespace pcpp
 		OsiModelLayer parseUntilLayer = OsiModelLayerUnknown;
 	};
 
-	/// @brief An tag to defer parsing of a packet.
-	struct NoParseTag
-	{
-	};
-
-	/// @brief A constant tag to indicate that the packet should not be parsed.
-	static constexpr NoParseTag NoParse = {};
-
 	/// @class Packet
 	/// This class represents a parsed packet. It contains the raw data (RawPacket instance), and a linked list of
 	/// layers, each layer is a parsed protocol that this packet contains. The layers linked list is ordered where the
@@ -148,13 +140,6 @@ namespace pcpp
 		/// @param options Parsing options to configure the parsing behavior.
 		explicit Packet(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
 
-		/// @brief A constructor for creating a packet out of already allocated RawPacket without parsing it.
-		///
-		/// @param[in] rawPacket The raw packet to associate with this Packet instance.
-		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
-		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
-		explicit Packet(NoParseTag, RawPacket* rawPacket, bool takeOwnership);
-
 		/// A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers
 		/// that weren't allocated by this class, for example layers that were added by addLayer() or insertLayer() ).
 		/// In addition it frees the raw packet if it was allocated by this instance (meaning if it was allocated by
@@ -212,16 +197,6 @@ namespace pcpp
 		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
 		/// @param options Parsing options to configure the parsing behavior.
 		void setRawPacket(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
-
-		/// @brief Set a RawPacket without parsing it.
-		///
-		/// All layers previously managed by this Packet instance are destroyed before associating the new RawPacket.
-		/// If the Packet instance owned the previous RawPacket, it is also disposed of.
-		///
-		/// @param[in] rawPacket The raw packet to associate with this Packet instance.
-		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
-		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
-		void setRawPacket(NoParseTag, RawPacket* rawPacket, bool takeOwnership);
 
 		/// @brief Parse the packet according to the provided options.
 		///
