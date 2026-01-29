@@ -589,9 +589,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 		(*static_cast<int*>(userCookie))++;
 	};
 
-	auto statsUpdateLambda = [](pcpp::PcapStats& stats, void* userCookie) {
-		(*static_cast<int*>(userCookie))++;
-	};
+	auto statsUpdateLambda = [](pcpp::PcapStats& stats, void* userCookie) { (*static_cast<int*>(userCookie))++; };
 
 	PTF_ASSERT_TRUE(liveDev->startCapture(packetArrivesLambda, static_cast<void*>(&packetCount), 1, statsUpdateLambda,
 	                                      static_cast<void*>(&numOfTimeStatsWereInvoked)));

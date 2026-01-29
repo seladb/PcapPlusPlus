@@ -516,8 +516,8 @@ namespace pcpp
 
 	PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
 	                               bool calculateDefaultGateway)
-	    : m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1),
-	      m_InterfaceDetails(std::move(interfaceDetails)), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
+	    : m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1), m_InterfaceDetails(std::move(interfaceDetails)),
+	      m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 	{
 		m_DeviceMtu = 0;
 		m_LinkType = LINKTYPE_ETHERNET;
@@ -1702,7 +1702,7 @@ namespace pcpp
 
 	std::string PcapLiveDevice::getPcapLibVersionInfo()
 	{
-		return {pcap_lib_version()};
+		return { pcap_lib_version() };
 	}
 
 	bool PcapLiveDevice::isNflogDevice() const
