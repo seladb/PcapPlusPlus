@@ -30,7 +30,7 @@ static void packetArrives(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDev
 	(*static_cast<int*>(userCookie))++;
 }
 
-static void statsUpdate(pcpp::IPcapDevice::PcapStats& stats, void* userCookie)
+static void statsUpdate(pcpp::PcapStats& stats, void* userCookie)
 {
 	(*static_cast<int*>(userCookie))++;
 }
@@ -327,7 +327,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime - 2);
 
-	pcpp::IPcapDevice::PcapStats statistics;
+	pcpp::PcapStats statistics;
 	liveDev->getStatistics(statistics);
 	// Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
 	// PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
@@ -387,7 +387,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime - 1);
-	pcpp::IPcapDevice::PcapStats statistics;
+	pcpp::PcapStats statistics;
 	liveDev->getStatistics(statistics);
 	// Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
 	// PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
@@ -404,7 +404,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 
 PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 {
-	PTF_ASSERT_NOT_EQUAL(pcpp::IPcapDevice::getPcapLibVersionInfo(), "");
+	PTF_ASSERT_NOT_EQUAL(pcpp::PcapLiveDevice::getPcapLibVersionInfo(), "");
 
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 
@@ -448,7 +448,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
-		pcpp::IPcapDevice::PcapStats statistics;
+		pcpp::PcapStats statistics;
 		liveDev->getStatistics(statistics);
 		if (statistics.packetsRecv > 2)
 			break;
@@ -458,7 +458,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime - 1);
-	pcpp::IPcapDevice::PcapStats statistics;
+	pcpp::PcapStats statistics;
 	liveDev->getStatistics(statistics);
 	PTF_ASSERT_GREATER_THAN((uint32_t)statistics.packetsRecv, 2);
 	// Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
@@ -589,7 +589,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 		(*static_cast<int*>(userCookie))++;
 	};
 
-	auto statsUpdateLambda = [](pcpp::IPcapDevice::PcapStats& stats, void* userCookie) {
+	auto statsUpdateLambda = [](pcpp::PcapStats& stats, void* userCookie) {
 		(*static_cast<int*>(userCookie))++;
 	};
 
@@ -736,7 +736,7 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 		sendURLRequest("www.ebay.com");
 	}
 
-	pcpp::IPcapDevice::PcapStats statistics;
+	pcpp::PcapStats statistics;
 	winPcapLiveDevice->getStatistics(statistics);
 	PTF_ASSERT_GREATER_THAN(statistics.packetsRecv, 20);
 	// Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
@@ -996,7 +996,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_EQUAL(packetsSent, static_cast<int>(packetsToSend.size()));
 
 	// check statistics
-	pcpp::IPcapDevice::PcapStats stats;
+	pcpp::PcapStats stats;
 	remoteDevice->getStatistics(stats);
 	PTF_ASSERT_EQUAL(static_cast<uint32_t>(stats.packetsRecv), capturedPacketsSize);
 
