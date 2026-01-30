@@ -195,8 +195,6 @@ namespace pcpp
 		// Should be set to true by the Callee for the Caller
 		std::atomic<bool> m_CaptureThreadStarted;
 
-		OnPacketArrivesStopBlocking m_cbOnPacketArrivesBlockingMode;
-		void* m_cbOnPacketArrivesBlockingModeUserCookie;
 		LinkLayerType m_LinkType;
 		bool m_UsePoll;
 
@@ -211,8 +209,6 @@ namespace pcpp
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
-
-		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 
 	public:
 		/// The type of the live device

@@ -97,14 +97,15 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(pcpp::IPv4Network(networkWithPrefixAsString)));
 	}
 
-	pcpp::Logger::getInstance().suppressLogs();
-	auto invalidMasks = std::vector<std::string>{ "aaaa",        "10.0.0.0",       "10.0.0.0/aa",
-		                                          "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99" };
-	for (const auto& invalidMask : invalidMasks)
 	{
-		PTF_ASSERT_FALSE(ipv4Addr.matchNetwork(invalidMask));
+		SuppressLogs suppressLogs;
+		auto invalidMasks = std::vector<std::string>{ "aaaa",        "10.0.0.0",       "10.0.0.0/aa",
+			                                          "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99" };
+		for (const auto& invalidMask : invalidMasks)
+		{
+			PTF_ASSERT_FALSE(ipv4Addr.matchNetwork(invalidMask));
+		}
 	}
-	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_RAISES(pcpp::IPv4Address("invalid"), std::invalid_argument, "Not a valid IPv4 address: invalid");
 	PTF_ASSERT_RAISES(pcpp::IPv4Address("321.123.1000.1"), std::invalid_argument,
@@ -245,10 +246,11 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithMaskAsString));
 	}
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("invalid"));
-	PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("10.8.0.0/16"));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("invalid"));
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("10.8.0.0/16"));
+	}
 
 	// Test less-than comparison operator
 	pcpp::IPv4Address IpV4_1("1.1.1.1");
@@ -423,15 +425,16 @@ PTF_TEST_CASE(TestGeneralUtils)
 	PTF_ASSERT_TRUE(result <= sizeof(resultArr));
 	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes, result);
 
-	pcpp::Logger::getInstance().suppressLogs();
-	// odd length
-	result = pcpp::hexStringToByteArray("aab", resultArr, sizeof(resultArr));
-	PTF_ASSERT_EQUAL(result, 0);
-	// wrong input
-	result = pcpp::hexStringToByteArray("zzvv", resultArr, sizeof(resultArr));
-	PTF_ASSERT_EQUAL(result, 0);
-	PTF_ASSERT_EQUAL(resultArr[0], '\0', ptr);
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		// odd length
+		result = pcpp::hexStringToByteArray("aab", resultArr, sizeof(resultArr));
+		PTF_ASSERT_EQUAL(result, 0);
+		// wrong input
+		result = pcpp::hexStringToByteArray("zzvv", resultArr, sizeof(resultArr));
+		PTF_ASSERT_EQUAL(result, 0);
+		PTF_ASSERT_EQUAL(resultArr[0], '\0', ptr);
+	}
 
 	// short buffer
 	const uint8_t expectedBytes2[] = { 0x01, 0x02, 0x03, 0x04 };
@@ -484,16 +487,16 @@ PTF_TEST_CASE(TestGetMacAddress)
 			continue;
 
 		foundValidIpAddr = true;
-		pcpp::Logger::getInstance().suppressLogs();
-
-		for (int i = 0; i < 3; i++)
 		{
-			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
-			if (result != pcpp::MacAddress::Zero)
-				break;
-		}
+			SuppressLogs suppressLogs;
 
-		pcpp::Logger::getInstance().enableLogs();
+			for (int i = 0; i < 3; i++)
+			{
+				result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+				if (result != pcpp::MacAddress::Zero)
+					break;
+			}
+		}
 		if (result != pcpp::MacAddress::Zero)
 			break;
 	}

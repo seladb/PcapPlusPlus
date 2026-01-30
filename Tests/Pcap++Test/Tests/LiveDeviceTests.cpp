@@ -53,15 +53,15 @@ static bool packetArrivesBlockingModeNoTimeout(pcpp::RawPacket* rawPacket, pcpp:
 static bool packetArrivesBlockingModeStartCapture(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev,
                                                   void* userCookie)
 {
-	pcpp::Logger::getInstance().suppressLogs();
-	if (dev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, nullptr, 5) != 0)
-		return false;
+	{
+		SuppressLogs suppressLogs;
+		if (dev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, nullptr, 5) != 0)
+			return false;
 
-	int temp = 0;
-	if (dev->startCapture(packetArrives, &temp) != 0)
-		return false;
-
-	pcpp::Logger::getInstance().enableLogs();
+		int temp = 0;
+		if (dev->startCapture(packetArrives, &temp) != 0)
+			return false;
+	}
 
 	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
@@ -335,10 +335,11 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	// a negative test
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate,
-	                                       static_cast<void*>(&numOfTimeStatsWereInvoked)));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate,
+		                                       static_cast<void*>(&numOfTimeStatsWereInvoked)));
+	}
 }  // TestPcapLiveDevice
 
 PTF_TEST_CASE(TestPcapLiveDeviceClone)
@@ -395,10 +396,11 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	// a negative test
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate,
-	                                       static_cast<void*>(&numOfTimeStatsWereInvoked)));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate,
+		                                       static_cast<void*>(&numOfTimeStatsWereInvoked)));
+	}
 
 }  // TestPcapLiveDeviceClone
 
@@ -426,9 +428,10 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 
 	// a negative test - check invalid IP address
 	liveDev = nullptr;
-	pcpp::Logger::getInstance().suppressLogs();
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp("eth0");
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp("eth0");
+	}
 	PTF_ASSERT_NULL(liveDev);
 
 }  // TestPcapLiveDeviceNoNetworking
@@ -467,9 +470,10 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	// a negative test
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(liveDev->startCapture(1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
+	}
 }  // TestPcapLiveDeviceStatsMode
 
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
@@ -546,9 +550,10 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 		PTF_ASSERT_TRUE(liveDev->startCapture(packetArrives, &packetCount));
 
 		// verify an error returns if trying capture blocking while non-blocking is running
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, nullptr, 1), 0);
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, nullptr, 1), 0);
+		}
 
 		totalSleepTime = 0;
 		while (totalSleepTime <= 5)
@@ -567,9 +572,10 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 		liveDev->close();
 
 		// a negative test
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
+		}
 	}
 }  // TestPcapLiveDeviceBlockingMode
 
@@ -635,9 +641,10 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 	liveDev->close();
 
 	// a negative test
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
+	}
 }  // TestPcapLiveDeviceBlockingModeWithLambda
 
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
@@ -745,10 +752,11 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	// a negative test
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(winPcapLiveDevice->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate,
-	                                                 static_cast<void*>(&numOfTimeStatsWereInvoked)));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(winPcapLiveDevice->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1,
+		                                                 &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
+	}
 
 #else
 	pcpp::PcapLiveDevice* liveDev =
@@ -775,9 +783,10 @@ PTF_TEST_CASE(TestSendPacket)
 	auto mtu = liveDev->getMtu();
 	int buffLen = mtu + 1 + sizeof(pcpp::ether_header);
 	std::vector<uint8_t> buff(buffLen, 0);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->sendPacket(buff.data(), buffLen, true));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(liveDev->sendPacket(buff.data(), buffLen, true));
+	}
 
 	pcpp::RawPacketVector rawPackets;
 	PTF_ASSERT_EQUAL(fileReaderDev.getNextPackets(rawPackets, 10), 10);
@@ -902,15 +911,16 @@ PTF_TEST_CASE(TestMtuSize)
 	PTF_PRINT_VERBOSE("Large packet: " << largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
 	PTF_ASSERT_EQUAL(largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)(liveDev->getMtu() + 1), ptr);
 	// Try sending the packet
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->sendPacket(largePacket));
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(liveDev->sendPacket(largePacket));
 
-	pcpp::RawPacket* rawLargePacketPtr = largePacket.getRawPacket();
-	pcpp::RawPacket& rawLargePacketRef = *rawLargePacketPtr;
-	PTF_ASSERT_FALSE(liveDev->sendPacket(rawLargePacketRef, true));
-	PTF_ASSERT_FALSE(liveDev->sendPacket(rawLargePacketPtr->getRawData(), rawLargePacketPtr->getRawDataLen(), true,
-	                                     pcpp::LINKTYPE_ETHERNET));
-	pcpp::Logger::getInstance().enableLogs();
+		pcpp::RawPacket* rawLargePacketPtr = largePacket.getRawPacket();
+		pcpp::RawPacket& rawLargePacketRef = *rawLargePacketPtr;
+		PTF_ASSERT_FALSE(liveDev->sendPacket(rawLargePacketRef, true));
+		PTF_ASSERT_FALSE(liveDev->sendPacket(rawLargePacketPtr->getRawData(), rawLargePacketPtr->getRawDataLen(), true,
+		                                     pcpp::LINKTYPE_ETHERNET));
+	}
 
 	delete[] largeData;
 }  // TestMtuSize
@@ -944,9 +954,10 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_NOT_NULL(remoteDevice);
 	PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
 	PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero);
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero);
+	}
 	PTF_ASSERT_TRUE(remoteDevice->open());
 	DeviceTeardown devTeardown(remoteDevice);
 	pcpp::RawPacketVector capturedPackets;

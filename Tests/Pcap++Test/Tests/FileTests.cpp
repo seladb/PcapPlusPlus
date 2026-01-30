@@ -1308,9 +1308,10 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 	// negative tests
 	readerDev.close();
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_EQUAL(readerDev.getOS(), "");
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_EQUAL(readerDev.getOS(), "");
+	}
 	// --------------
 
 	PTF_ASSERT_TRUE(readerDev.open());
@@ -1639,19 +1640,20 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces)
 {
-	pcpp::Logger::getInstance().suppressLogs();
 	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_INTERFACES_PATH);
 	PTF_ASSERT_TRUE(readerDev.open());
 	pcpp::RawPacket rawPacket;
 	int packetCount = 0;
-	while (readerDev.getNextPacket(rawPacket))
 	{
-		packetCount++;
-		PTF_ASSERT_EQUAL(rawPacket.getLinkLayerType(), pcpp::LINKTYPE_INVALID, enum);
-		const timespec timestamp = rawPacket.getPacketTimeStamp();
-		pcpp::Logger::getInstance().enableLogs();
-		PTF_ASSERT_EQUAL(timestamp.tv_sec, 0);
-		PTF_ASSERT_EQUAL(timestamp.tv_nsec, 0);
+		SuppressLogs suppressLogs;
+		while (readerDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+			PTF_ASSERT_EQUAL(rawPacket.getLinkLayerType(), pcpp::LINKTYPE_INVALID, enum);
+			const timespec timestamp = rawPacket.getPacketTimeStamp();
+			PTF_ASSERT_EQUAL(timestamp.tv_sec, 0);
+			PTF_ASSERT_EQUAL(timestamp.tv_nsec, 0);
+		}
 	}
 	PTF_ASSERT_EQUAL(packetCount, 1);
 	readerDev.close();
