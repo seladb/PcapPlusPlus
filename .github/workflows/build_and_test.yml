@@ -82,6 +82,7 @@ jobs:
           - runner: ubuntu-latest
             image: fedora42
             config-zstd: OFF
+            additional-gcov-flags: --gcov-ignore-errors
           - runner: ubuntu-latest
             image: alpine320
             config-zstd: OFF

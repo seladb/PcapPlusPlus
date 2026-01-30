@@ -1,6 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/PcapFileNamesDef.h"
+#include "../Common/TestUtils.h"
 
 #ifdef USE_DPDK_KNI
 #	include "KniDeviceList.h"
@@ -355,15 +356,14 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		pcpp::RawPacketVector rawPacketVec;
 		pcpp::MBufRawPacketVector mbufRawPacketVec;
 		pcpp::MBufRawPacket* mBufRawPacketArr[32] = {};
-		size_t mBufRawPacketArrLen = 32;
 		pcpp::Packet* packetArr[32] = {};
-		size_t packetArrLen = 32;
 		PTF_ASSERT_TRUE(fileReaderDev.open());
 
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter));
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, nullptr));
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, nullptr));
+		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));  // Give some time to start capture thread
 		for (int i = 0; i < 10; ++i)
 		{
@@ -371,9 +371,10 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::Logger::getInstance().suppressLogs();
-		rsdevice.sendPackets(rawPacketVec);
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			rsdevice.sendPackets(rawPacketVec);
+		}
 		rawPacketVec.clear();
 		std::this_thread::sleep_for(std::chrono::seconds(1));  // Give some time to receive packets
 		device->stopCapture();
@@ -381,20 +382,24 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		counter = 0;
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter));
 		std::this_thread::sleep_for(std::chrono::seconds(1));  // Give some time to start capture thread
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0);
-		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0);
-		PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0);
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			size_t mBufRawPacketArrLen = 32;
+			size_t packetArrLen = 32;
+			PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0);
+			PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0);
+			PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0);
+		}
 		for (int i = 0; i < 10; ++i)
 		{
 			fileReaderDev.getNextPacket(rawPacket);
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::Logger::getInstance().suppressLogs();
-		rsdevice.sendPackets(rawPacketVec);
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			rsdevice.sendPackets(rawPacketVec);
+		}
 		rawPacketVec.clear();
 		std::this_thread::sleep_for(std::chrono::seconds(1));  // Give some time to receive packets
 		device->stopCapture();
@@ -405,9 +410,10 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::Logger::getInstance().suppressLogs();
-		rsdevice.sendPackets(rawPacketVec);
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			rsdevice.sendPackets(rawPacketVec);
+		}
 		rawPacketVec.clear();
 		//? Note(echo-Mike): Some amount of packets are always queued inside kernel
 		//? so blocking mode has a slight chance to obtain this packets
@@ -433,9 +439,10 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		}
 	}
 
-	pcpp::Logger::getInstance().suppressLogs();
-	fileReaderDev.close();
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		fileReaderDev.close();
+	}
 	PTF_ASSERT_TRUE(fileReaderDev.open());
 
 	{  // Send test part
