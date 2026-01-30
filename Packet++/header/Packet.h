@@ -222,6 +222,8 @@ namespace pcpp
 		/// you need to parse only up to a certain layer and want to avoid the performance impact and memory consumption
 		/// of parsing the whole packet. Default value is ::OsiModelLayerUnknown which means don't take this parameter
 		/// into account
+		/// @deprecated Use the overload that takes ParseOptions struct.
+		PCPP_DEPRECATED("Use the overload that takes ParseOptions struct.")
 		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil = UnknownProtocol,
 		                  OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
