@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-IGNORE_LIST=".*dirent.* .*DpdkDevice* .*KniDevice* .*MBufRawPacket* .*PfRingDevice* .*RemoteDevice* .*XdpDevice* .*WinPcap* .*WinDivert* .*FuzzTarget*"
+IGNORE_LIST=".*dirent.* .*DpdkDevice* .*KniDevice* .*MBufRawPacket* .*PfRingDevice* .*RemoteDevice* .*XdpDevice* .*WinPcap* .*WinDivert* .*Fuzz*"
 
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "${SCRIPT}")
