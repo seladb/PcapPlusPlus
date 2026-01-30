@@ -148,7 +148,7 @@ namespace pcpp
 		// Fast path:
 		//   If we are doing an incremental parse and we are not searching for a specific protocol type,
 		//   we can directly start from the last parsed layer.
-		if (m_LastLayer != nullptr && options.parseUntil == UnknownProtocol)
+		if (m_LastLayer != nullptr && options.parseUntilProtocol == UnknownProtocol)
 		{
 			// NOTE: Potential edge case, PacketTrailerLayer is considered DataLinkLayer.
 			//  If the user requested a higher OSI layer, this condition would not skip the parse.
@@ -186,8 +186,8 @@ namespace pcpp
 			}
 
 			// If we are searching for a specific layer protocol, record when we find at least one target.
-			const bool matchesTarget = curLayer->isMemberOfProtocolFamily(options.parseUntil);
-			if (options.parseUntil != UnknownProtocol && matchesTarget)
+			const bool matchesTarget = curLayer->isMemberOfProtocolFamily(options.parseUntilProtocol);
+			if (options.parseUntilProtocol != UnknownProtocol && matchesTarget)
 			{
 				foundTargetProtocol = true;
 			}
@@ -221,7 +221,7 @@ namespace pcpp
 		}
 
 		// If there is data left in the raw packet that doesn't belong to any layer, create a PacketTrailerLayer
-		if (m_LastLayer != nullptr && options.parseUntil == UnknownProtocol &&
+		if (m_LastLayer != nullptr && options.parseUntilProtocol == UnknownProtocol &&
 		    options.parseUntilLayer == OsiModelLayerUnknown)
 		{
 			// find if there is data left in the raw packet that doesn't belong to any layer. In that case it's probably

@@ -1103,7 +1103,7 @@ PTF_TEST_CASE(PacketIncrementalParseTest)
 	auto rawPacket = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
 
 	ParseOptions pOpts;
-	pOpts.parseUntil = pcpp::IP;
+	pOpts.parseUntilProtocol = pcpp::IP;
 
 	Packet igmpPacket(rawPacket.get(), false, pOpts);
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
@@ -1120,7 +1120,7 @@ PTF_TEST_CASE(PacketIncrementalParseTest)
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PayloadLayer>());
 
 	// Do an incremental parse up to IGMP layer
-	pOpts.parseUntil = pcpp::IGMP;
+	pOpts.parseUntilProtocol = pcpp::IGMP;
 	igmpPacket.parsePacket(pOpts);
 
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
@@ -1141,7 +1141,7 @@ PTF_TEST_CASE(PacketIncrementalParseTest)
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
 
 	// Do an incremental parse up to a previously parsed layer (IP layer)
-	pOpts.parseUntil = pcpp::IP;
+	pOpts.parseUntilProtocol = pcpp::IP;
 	igmpPacket.parsePacket(pOpts);
 
 	PTF_ASSERT_EQUAL(igmpPacket.getLayerOfType<pcpp::IPLayer>(), ipLayer);
@@ -1169,7 +1169,7 @@ PTF_TEST_CASE(PacketFullReparseTest)
 	// Disable incremental parsing and do a full reparse up to IP layer.
 	// The IGMP and Trailer layers shouldn't be present after the reparse.
 	ParseOptions pOpts;
-	pOpts.parseUntil = pcpp::IP;
+	pOpts.parseUntilProtocol = pcpp::IP;
 	igmpPacket.parsePacket(pOpts, false);
 
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));

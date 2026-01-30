@@ -26,7 +26,7 @@ namespace pcpp
 		/// @remarks If multiple consecutive layers of the same protocol type exist, parsing stops after exhausting the
 		/// first contiguous sequence of that protocol type. This matters for protocols that may appear multiple times
 		/// in succession within a packet (e.g. BgpLayer).
-		ProtocolTypeFamily parseUntil = UnknownProtocol;
+		ProtocolTypeFamily parseUntilProtocol = UnknownProtocol;
 
 		/// @brief Defines an OSI model layer up to and including which the packet should be parsed (inclusive).
 		///
