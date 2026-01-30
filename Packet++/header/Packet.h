@@ -129,17 +129,6 @@ namespace pcpp
 		/// whole packet
 		explicit Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
 
-		/// @brief A constructor for creating a packet out of already allocated RawPacket.
-		///
-		/// The packet saves a reference to the RawPacket (data isn't copied) and the RawPacket is parsed according to
-		/// the provided parsing options.
-		///
-		/// @param[in] rawPacket The raw packet to parse.
-		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
-		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
-		/// @param options Parsing options to configure the parsing behavior.
-		explicit Packet(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
-
 		/// A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers
 		/// that weren't allocated by this class, for example layers that were added by addLayer() or insertLayer() ).
 		/// In addition it frees the raw packet if it was allocated by this instance (meaning if it was allocated by
@@ -186,17 +175,6 @@ namespace pcpp
 		/// into account
 		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil = UnknownProtocol,
 		                  OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
-
-		/// @brief Set a RawPacket and parse it according to the provided options.
-		///
-		/// All layers previously managed by this Packet instance are destroyed before associating the new RawPacket.
-		/// If the Packet instance owned the previous RawPacket, it is also disposed of.
-		///
-		/// @param[in] rawPacket The raw packet to associate with this Packet instance.
-		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
-		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
-		/// @param options Parsing options to configure the parsing behavior.
-		void setRawPacket(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
 
 		/// @brief Parse the packet according to the provided options.
 		///

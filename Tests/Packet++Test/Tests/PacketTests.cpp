@@ -1103,9 +1103,9 @@ PTF_TEST_CASE(PacketIncrementalParseTest)
 	auto rawPacket = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
 
 	ParseOptions pOpts;
-	pOpts.parseUntilProtocol = pcpp::IP;
+	pOpts.parseUntilProtocol = pcpp::IPv4;
 
-	Packet igmpPacket(rawPacket.get(), false, pOpts);
+	Packet igmpPacket(rawPacket.get(), false, pOpts.parseUntilProtocol, pOpts.parseUntilLayer);
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(pcpp::IGMP));
