@@ -78,22 +78,35 @@ namespace pcpp
 		setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
 	}
 
+	Packet::Packet(RawPacket* rawPacket, bool takeOwnership, ParseOptions options)
+	{
+		m_FreeRawPacket = false;
+		m_RawPacket = nullptr;
+		m_FirstLayer = nullptr;
+		setRawPacket(rawPacket, takeOwnership, options);
+	}
+
 	void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
 	                          OsiModelLayer parseUntilLayer)
+	{
+		setRawPacket(rawPacket, freeRawPacket, ParseOptions{ parseUntil, parseUntilLayer });
+	}
+
+	void Packet::setRawPacket(RawPacket* rawPacket, bool takeOwnership, ParseOptions options)
 	{
 		destructPacketData();
 
 		m_FirstLayer = nullptr;
 		m_LastLayer = nullptr;
 		m_MaxPacketLen = rawPacket->getRawDataLen();
-		m_FreeRawPacket = freeRawPacket;
+		m_FreeRawPacket = takeOwnership;
 		m_RawPacket = rawPacket;
 		m_CanReallocateData = true;
 
 		if (m_RawPacket == nullptr)
 			return;
 
-		parsePacket(ParseOptions{ parseUntil, parseUntilLayer });
+		parsePacket(options);
 	}
 
 	void Packet::parsePacket(ParseOptions options, bool incrementalParsing)
