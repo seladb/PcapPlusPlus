@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Device.h"
 #include "PcapDevice.h"
 #include "RawPacket.h"
 #include <fstream>
