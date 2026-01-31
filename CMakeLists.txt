@@ -163,6 +163,7 @@ cmake_dependent_option(
   "PCAPPP_USE_DPDK"
   OFF
 )
+option(PCAPPP_USE_PCAP "Setup PcapPlusPlus with libpcap / WinPcap / Npcap")
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_USE_WINDIVERT "Setup PcapPlusPlus with WinDivert")
@@ -210,26 +211,30 @@ endif()
 
 # Required dependencies only for PCap++ project.
 if(PCAPPP_BUILD_PCAPPP)
-  # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
-  if(WIN32 AND PCAP_ROOT AND NOT Packet_ROOT)
-    set(Packet_ROOT ${PCAP_ROOT})
-  endif()
+  # PCAP/Npcap/WinPcap is optional and controlled by PCAPPP_USE_PCAP
+  if(PCAPPP_USE_PCAP)
+    # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
+    if(WIN32 AND PCAP_ROOT AND NOT Packet_ROOT)
+      set(Packet_ROOT ${PCAP_ROOT})
+    endif()
 
-  find_package(PCAP)
-  if(NOT PCAP_FOUND)
+    find_package(PCAP)
+    if(NOT PCAP_FOUND)
+      if(WIN32)
+        message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
+      else()
+        message(FATAL_ERROR "PCAP library not found!")
+      endif()
+    endif()
+
+    # Look for Packet
     if(WIN32)
-      message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
-    else()
-      message(FATAL_ERROR "PCAP library not found!")
+      find_package(Packet)
+      if(NOT Packet_FOUND)
+        message(FATAL_ERROR "Please specify Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
+      endif()
     endif()
-  endif()
-
-  # Look for Packet
-  if(WIN32)
-    find_package(Packet)
-    if(NOT Packet_FOUND)
-      message(FATAL_ERROR "Please specify Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
-    endif()
+    add_definitions(-DUSE_PCAP)
   endif()
 
   if(HAVE_PCAP_IMMEDIATE_MODE)
@@ -379,10 +384,12 @@ if(PCAPPP_INSTALL)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
   endif()
 
-  # CMake helpers to compile Pcap++ with CMake
-  pcapp_install_cmake_module(PCAP)
-  if(WIN32)
-    pcapp_install_cmake_module(Packet)
+  # CMake helpers to compile Pcap++ with CMake (only if PCAP is used)
+  if(PCAPPP_USE_PCAP)
+    pcapp_install_cmake_module(PCAP)
+    if(WIN32)
+      pcapp_install_cmake_module(Packet)
+    endif()
   endif()
 
   if(PCAPPP_USE_PF_RING)

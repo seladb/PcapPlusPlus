@@ -445,6 +445,7 @@ PTF_TEST_CASE(TestGeneralUtils)
 
 PTF_TEST_CASE(TestGetMacAddress)
 {
+#ifdef USE_PCAP
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
@@ -505,6 +506,9 @@ PTF_TEST_CASE(TestGetMacAddress)
 	{
 		PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
 	}
+#else
+PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestGetMacAddress
 
 PTF_TEST_CASE(TestIPv4Network)
