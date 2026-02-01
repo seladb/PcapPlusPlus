@@ -610,8 +610,8 @@ namespace pcpp
 		for (uint16_t i = 0; i < arrLength; ++i)
 		{
 			const auto* raw_pkt = packetsArr[i]->getRawPacketReadOnly();
-			uint8_t raw_type = raw_pkt->getObjectType();
-			if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
+			auto raw_type = raw_pkt->getImplType();
+			if (raw_type != internal::RawPacketImplType::DpdkMBuf)
 			{
 				MBufRawPacket* pkt = new MBufRawPacket();
 				if (unlikely(!pkt->initFromRawPacket(raw_pkt, this)))
@@ -686,8 +686,8 @@ namespace pcpp
 
 		for (RawPacketVector::VectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); ++iter)
 		{
-			uint8_t raw_type = (*iter)->getObjectType();
-			if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
+			auto raw_type = (*iter)->getImplType();
+			if (raw_type != internal::RawPacketImplType::DpdkMBuf)
 			{
 				MBufRawPacket* pkt = new MBufRawPacket();
 				if (unlikely(!pkt->initFromRawPacket(*iter, this)))
@@ -731,7 +731,7 @@ namespace pcpp
 		bool sent = false;
 		bool wasAllocated = false;
 
-		if (rawPacket.getObjectType() != MBUFRAWPACKET_OBJECT_TYPE)
+		if (rawPacket.getImplType() != internal::RawPacketImplType::DpdkMBuf)
 		{
 			mbufRawPacket = new MBufRawPacket();
 			if (unlikely(!mbufRawPacket->initFromRawPacket(&rawPacket, this)))

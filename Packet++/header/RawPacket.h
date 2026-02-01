@@ -253,6 +253,24 @@ namespace pcpp
 	/// Max packet size supported
 #define PCPP_MAX_PACKET_SIZE 65536
 
+	namespace internal
+	{
+		/// @brief Type of RawPacket implementation
+		///
+		/// This is mainly used internally to distinguish between different implementations without using RTTI.
+		enum class RawPacketImplType : uint8_t
+		{
+			/// @brief Unknown type
+			Unknown = 0,
+			/// @brief Standard RawPacket
+			Standard = 1,
+			/// @brief DPDK MBuf based RawPacket
+			DpdkMBuf = 2,
+			/// @brief WinDivert based RawPacket
+			WinDivert = 3
+		};
+	}  // namespace internal
+
 	/// @class RawPacket
 	/// This class holds the packet as raw (not parsed) data. The data is held as byte array. In addition to the data
 	/// itself every instance also holds a timestamp representing the time the packet was received by the NIC. RawPacket
@@ -324,7 +342,16 @@ namespace pcpp
 		/// @return A pointer to the new RawPacket object which is a clone of this object
 		virtual RawPacket* clone() const;
 
+		/// @brief Get the type of RawPacket implementation.
+		/// @remarks This method is for internal use only and may be subject to change without prior notice.
+		virtual internal::RawPacketImplType getImplType() const
+		{
+			return internal::RawPacketImplType::Standard;
+		}
+
 		/// @return RawPacket object type. Each derived class should return a different value
+		/// @deprecated Deprecated in favor of getImplType()
+		PCPP_DEPRECATED("Deprecated in favor of getImplType()")
 		virtual uint8_t getObjectType() const
 		{
 			return 0;

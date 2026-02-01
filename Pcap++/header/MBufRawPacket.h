@@ -132,7 +132,14 @@ namespace pcpp
 
 		// overridden methods
 
+		internal::RawPacketImplType getImplType() const override
+		{
+			return internal::RawPacketImplType::DpdkMBuf;
+		}
+
 		/// @return MBufRawPacket object type
+		/// @deprecated Deprecated in favor of getImplType()
+		PCPP_DEPRECATED("Deprecated in favor of getImplType()")
 		inline uint8_t getObjectType() const override
 		{
 			return MBUFRAWPACKET_OBJECT_TYPE;
