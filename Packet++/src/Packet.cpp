@@ -45,39 +45,6 @@ namespace pcpp
 		m_RawPacket = new RawPacket(buffer, 0, time, false, linkType);
 	}
 
-	Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
-	{
-		m_FreeRawPacket = false;
-		m_RawPacket = nullptr;
-		m_FirstLayer = nullptr;
-		setRawPacket(rawPacket, freeRawPacket, parseUntil, parseUntilLayer);
-	}
-
-	Packet::Packet(RawPacket* rawPacket, ProtocolType parseUntil)
-	{
-		m_FreeRawPacket = false;
-		m_RawPacket = nullptr;
-		m_FirstLayer = nullptr;
-		auto parseUntilFamily = static_cast<ProtocolTypeFamily>(parseUntil);
-		setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
-	}
-
-	Packet::Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily)
-	{
-		m_FreeRawPacket = false;
-		m_RawPacket = nullptr;
-		m_FirstLayer = nullptr;
-		setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
-	}
-
-	Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
-	{
-		m_FreeRawPacket = false;
-		m_RawPacket = nullptr;
-		m_FirstLayer = nullptr;
-		setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
-	}
-
 	void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
 	                          OsiModelLayer parseUntilLayer)
 	{
@@ -226,6 +193,39 @@ namespace pcpp
 				m_LastLayer = trailerLayer;
 			}
 		}
+	}
+
+	Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
+	{
+		m_FreeRawPacket = false;
+		m_RawPacket = nullptr;
+		m_FirstLayer = nullptr;
+		setRawPacket(rawPacket, freeRawPacket, parseUntil, parseUntilLayer);
+	}
+
+	Packet::Packet(RawPacket* rawPacket, ProtocolType parseUntil)
+	{
+		m_FreeRawPacket = false;
+		m_RawPacket = nullptr;
+		m_FirstLayer = nullptr;
+		auto parseUntilFamily = static_cast<ProtocolTypeFamily>(parseUntil);
+		setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
+	}
+
+	Packet::Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily)
+	{
+		m_FreeRawPacket = false;
+		m_RawPacket = nullptr;
+		m_FirstLayer = nullptr;
+		setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
+	}
+
+	Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
+	{
+		m_FreeRawPacket = false;
+		m_RawPacket = nullptr;
+		m_FirstLayer = nullptr;
+		setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
 	}
 
 	void Packet::destructPacketData()
