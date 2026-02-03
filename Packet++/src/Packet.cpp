@@ -60,10 +60,10 @@ namespace pcpp
 		if (m_RawPacket == nullptr)
 			return;
 
-		parsePacket(ParseOptions{ parseUntil, parseUntilLayer });
+		parsePacket(PacketParseOptions{ parseUntil, parseUntilLayer });
 	}
 
-	void Packet::parsePacket(ParseOptions options, bool incrementalParsing)
+	void Packet::parsePacket(PacketParseOptions options, bool incrementalParsing)
 	{
 		if (m_RawPacket == nullptr)
 		{

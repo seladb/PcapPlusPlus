@@ -14,7 +14,7 @@ namespace pcpp
 	///
 	/// The parsing options are combined. If multiple stop conditions are specified, parsing stops
 	/// as soon as any condition is met.
-	struct ParseOptions
+	struct PacketParseOptions
 	{
 		/// @brief Defines the protocol type up to and including which the packet should be parsed (inclusive).
 		///
@@ -189,7 +189,7 @@ namespace pcpp
 		/// @param[in] incrementalParsing If 'true', incremental parsing is performed, reusing existing layers where
 		/// possible.
 		/// @throws std::runtime_error if there is no RawPacket associated with this Packet instance.
-		void parsePacket(ParseOptions options, bool incrementalParsing = true);
+		void parsePacket(PacketParseOptions options, bool incrementalParsing = true);
 
 		/// Get a pointer to the Packet's RawPacket in a read-only manner
 		/// @return A pointer to the Packet's RawPacket
