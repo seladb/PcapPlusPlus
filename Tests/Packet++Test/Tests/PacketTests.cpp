@@ -1157,8 +1157,10 @@ PTF_TEST_CASE(PacketFullReparseTest)
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IGMP));
 
-	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+	auto ethLayer = igmpPacket.getLayerOfType<pcpp::EthLayer>();
+	auto ipLayer = igmpPacket.getLayerOfType<pcpp::IPv4Layer>();
+	PTF_ASSERT_NOT_NULL(ethLayer);
+	PTF_ASSERT_NOT_NULL(ipLayer);
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
 
@@ -1174,6 +1176,11 @@ PTF_TEST_CASE(PacketFullReparseTest)
 
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
 	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+
+	// Assert that the previously obtained layers are different after full reparse
+	// Technically they can be at the same memory location, but it's highly unlikely.
+	PTF_ASSERT_NOT_EQUAL(igmpPacket.getLayerOfType<pcpp::EthLayer>(), ethLayer);
+	PTF_ASSERT_NOT_EQUAL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>(), ipLayer);
 
 	// IGMP and Trailer layers should have been discarded after full reparse.
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
