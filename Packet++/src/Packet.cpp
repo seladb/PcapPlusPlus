@@ -105,7 +105,7 @@ namespace pcpp
 		if (m_RawPacket == nullptr)
 			return;
 
-		parsePacket(PacketParseOptions{ parseUntil, parseUntilLayer });
+		parsePacket(options);
 	}
 
 	void Packet::parsePacket(PacketParseOptions options, bool incrementalParsing)
@@ -241,16 +241,6 @@ namespace pcpp
 	}
 
 	void Packet::destructPacketData()
-	{
-		destroyAllLayers();
-
-		if (m_RawPacket != nullptr && m_FreeRawPacket)
-		{
-			delete m_RawPacket;
-		}
-	}
-
-	void Packet::destroyAllLayers()
 	{
 		destroyAllLayers();
 
