@@ -58,7 +58,7 @@ namespace pcpp
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
 		m_FirstLayer = nullptr;
-		setRawPacket(rawPacket, false, PacketParseOptions::parseUntil(parseUntil));
+		setRawPacket(rawPacket, false, makeParseOpts(parseUntil));
 	}
 
 	Packet::Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily)
@@ -66,7 +66,7 @@ namespace pcpp
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
 		m_FirstLayer = nullptr;
-		setRawPacket(rawPacket, false, PacketParseOptions::parseUntil(parseUntilFamily));
+		setRawPacket(rawPacket, false, makeParseOpts(parseUntilFamily));
 	}
 
 	Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
@@ -74,7 +74,7 @@ namespace pcpp
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
 		m_FirstLayer = nullptr;
-		setRawPacket(rawPacket, false, PacketParseOptions::parseUntil(parseUntilLayer));
+		setRawPacket(rawPacket, false, makeParseOpts(parseUntilLayer));
 	}
 
 	Packet::Packet(RawPacket* rawPacket, bool takeOwnership, PacketParseOptions options)

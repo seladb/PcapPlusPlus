@@ -45,7 +45,7 @@ namespace pcpp
 		ArpingReceivedData* data = (ArpingReceivedData*)userCookie;
 
 		// parse the response packet
-		Packet packet(rawPacket);
+		Packet packet(rawPacket, false);
 
 		// verify that it's an ARP packet (although it must be because I set an ARP reply filter on the interface)
 		if (!packet.isPacketOfType(ARP))
@@ -201,7 +201,7 @@ namespace pcpp
 		DNSReceivedData* data = (DNSReceivedData*)userCookie;
 
 		// parse the response packet
-		Packet packet(rawPacket);
+		Packet packet(rawPacket, false);
 
 		// verify that it's an DNS packet (although it must be because DNS port filter was set on the interface)
 		if (!packet.isPacketOfType(DNS))

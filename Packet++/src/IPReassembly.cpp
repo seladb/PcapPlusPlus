@@ -463,7 +463,7 @@ namespace pcpp
 			// fix IP length field
 			if (fragData->packetKey->getProtocolType() == IPv4)
 			{
-				Packet tempPacket(fragData->data, IPv4);
+				Packet tempPacket(fragData->data, false, IPv4);
 				IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
 				iphdr* iphdr = ipLayer->getIPv4Header();
 				iphdr->totalLength = htobe16(fragData->currentOffset + ipLayer->getHeaderLen());
@@ -471,14 +471,15 @@ namespace pcpp
 			}
 			else
 			{
-				Packet tempPacket(fragData->data, IPv6);
+				Packet tempPacket(fragData->data, false, IPv6);
 				IPv6Layer* ipLayer = tempPacket.getLayerOfType<IPv6Layer>();
 				tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength =
 				    fragData->currentOffset + ipLayer->getHeaderLen();
 			}
 
 			// create a new Packet object with the reassembled data as its RawPacket
-			Packet* reassembledPacket = new Packet(fragData->data, true, parseUntil, parseUntilLayer);
+			Packet* reassembledPacket =
+			    new Packet(fragData->data, true, PacketParseOptions{ parseUntil, parseUntilLayer });
 
 			if (fragData->packetKey->getProtocolType() == IPv4)
 			{
@@ -517,7 +518,7 @@ namespace pcpp
 	Packet* IPReassembly::processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil,
 	                                    OsiModelLayer parseUntilLayer)
 	{
-		Packet* parsedFragment = new Packet(fragment, false, parseUntil, parseUntilLayer);
+		Packet* parsedFragment = new Packet(fragment, false, PacketParseOptions{ parseUntil, parseUntilLayer });
 		Packet* result = processPacket(parsedFragment, status, parseUntil, parseUntilLayer);
 		if (result != parsedFragment)
 			delete parsedFragment;
@@ -547,13 +548,13 @@ namespace pcpp
 				// fix IP length field
 				if (fragData->packetKey->getProtocolType() == IPv4)
 				{
-					Packet tempPacket(partialRawPacket, IPv4);
+					Packet tempPacket(partialRawPacket, false, IPv4);
 					IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
 					ipLayer->getIPv4Header()->totalLength = htobe16(fragData->currentOffset + ipLayer->getHeaderLen());
 				}
 				else
 				{
-					Packet tempPacket(partialRawPacket, IPv6);
+					Packet tempPacket(partialRawPacket, false, IPv6);
 					IPv6Layer* ipLayer = tempPacket.getLayerOfType<IPv6Layer>();
 					tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength =
 					    fragData->currentOffset + +ipLayer->getHeaderLen();

@@ -34,26 +34,6 @@ namespace pcpp
 		/// procedure to the desired OSI layer. The packet is parsed until all layers belonging to the specified OSI
 		/// layer are consumed. Layers beyond that are ignored, which can improve performance and reduce memory usage.
 		OsiModelLayer parseUntilLayer = OsiModelLayerUnknown;
-
-		/// @brief Helper function to create PacketParseOptions that parse until a certain protocol type family.
-		/// @param protocol The protocol type family up to which to parse (inclusive).
-		/// @return PacketParseOptions instance configured to parse until the specified protocol.
-		static PacketParseOptions parseUntil(ProtocolTypeFamily protocol)
-		{
-			PacketParseOptions options;
-			options.parseUntilProtocol = protocol;
-			return options;
-		}
-
-		/// @brief Helper function to create PacketParseOptions that parse until a certain OSI model layer.
-		/// @param osiLayer The OSI model layer up to which to parse (inclusive).
-		/// @return PacketParseOptions instance configured to parse until the specified OSI layer.
-		static PacketParseOptions parseUntil(OsiModelLayer osiLayer)
-		{
-			PacketParseOptions options;
-			options.parseUntilLayer = osiLayer;
-			return options;
-		}
 	};
 
 	/// @class Packet
@@ -98,12 +78,12 @@ namespace pcpp
 		/// @brief A constructor for creating a packet out of already allocated RawPacket, without taking ownership of
 		/// the RawPacket.
 		///
-		/// See @ref Packet(RawPacket* rawPacket, bool takeOwnership, PacketParseOptions parseOptions) for more details.
+		/// See @ref Packet(RawPacket* rawPacket, bool takeOwnership, PacketParseOptions options) for more details.
 		///
 		/// @param rawPacket A pointer to the raw packet.
-		/// @deprecated Use the overload Packet(RawPacket* rawPacket, bool takeOwnership, PacketParseOptions options = {}) for
-		/// explicit control over raw packet ownership.
-		PCPP_DEPRECATED("Use the constructor that takes an explicit takeOwnership parameter")
+		/// @deprecated This constructor has been deprecated due to unclear ownership semantics.
+		/// Use Packet(RawPacket* rawPacket, bool takeOwnership, PacketParseOptions options = {}) instead.
+		PCPP_DEPRECATED("Use a constructor that takes an explicit takeOwnership parameter.")
 		explicit Packet(RawPacket* rawPacket) : Packet(rawPacket, false, PacketParseOptions{})
 		{}
 
@@ -123,10 +103,11 @@ namespace pcpp
 		/// model (inclusive). Can be useful for cases when you need to parse only up to a certain OSI layer (for
 		/// example transport layer) and want to avoid the performance impact and memory consumption of parsing the
 		/// whole packet. Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
-		/// @deprecated Use the constructor that takes PacketParseOptions struct.
+		/// @deprecated This constructor has been deprecated. For specifying multiple parsing options use the
+		/// constructor that takes a PacketParseOptions struct instead.
 		PCPP_DEPRECATED("Use the constructor that takes PacketParseOptions struct.")
 		explicit Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil,
-		                OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+		                OsiModelLayer parseUntilLayer);
 
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
 		/// that came from the network. When using this constructor a pointer to the RawPacket is saved (data isn't
@@ -137,8 +118,9 @@ namespace pcpp
 		/// @param[in] parseUntil Parse the packet until you reach a certain protocol (inclusive). Can be useful for
 		/// cases when you need to parse only up to a certain layer and want to avoid the performance impact and memory
 		/// consumption of parsing the whole packet
-		/// @deprecated Use the constructor that takes PacketParseOptions struct.
-		PCPP_DEPRECATED("Use the constructor that takes PacketParseOptions struct.")
+		/// @deprecated This constructor has been deprecated due to unclear ownership semantics.
+		/// Use Packet(RawPacket* rawPacket, bool takeOwnership, ProtocolTypeFamily parseUntilProtocol) instead.
+		PCPP_DEPRECATED("Use a constructor that takes explicit takeOwnership parameter.")
 		explicit Packet(RawPacket* rawPacket, ProtocolType parseUntil);
 
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
@@ -150,8 +132,9 @@ namespace pcpp
 		/// @param[in] parseUntilFamily Parse the packet until you reach a certain protocol family (inclusive). Can be
 		/// useful for cases when you need to parse only up to a certain layer and want to avoid the performance impact
 		/// and memory consumption of parsing the whole packet
-		/// @deprecated Use the constructor that takes PacketParseOptions struct.
-		PCPP_DEPRECATED("Use the constructor that takes PacketParseOptions struct for parsing options")
+		/// @deprecated This constructor has been deprecated due to unclear ownership semantics.
+		/// Use Packet(RawPacket* rawPacket, bool takeOwnership, ProtocolTypeFamily parseUntilProtocol) instead.
+		PCPP_DEPRECATED("Use a constructor that takes explicit takeOwnership parameter.")
 		explicit Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily);
 
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
@@ -165,9 +148,49 @@ namespace pcpp
 		/// model (inclusive). Can be useful for cases when you need to parse only up to a certain OSI layer (for
 		/// example transport layer) and want to avoid the performance impact and memory consumption of parsing the
 		/// whole packet
-		/// @deprecated Use the constructor that takes PacketParseOptions struct.
-		PCPP_DEPRECATED("Use the constructor that takes PacketParseOptions struct for parsing options")
+		/// @deprecated This constructor has been deprecated due to unclear ownership semantics.
+		/// Use Packet(RawPacket* rawPacket, bool takeOwnership, OsiModelLayer parseUntilLayer) instead.
+		PCPP_DEPRECATED("Use a constructor that takes explicit takeOwnership parameter.")
 		explicit Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
+
+		/// @brief Creates a Packet instance over an existing RawPacket, parsing the packet data.
+		///
+		/// No data is copied; the Packet instance holds a reference to the provided RawPacket.
+		/// The RawPacket must be kept alive for the lifetime of the Packet instance, either by:
+		/// - transferring ownership of the RawPacket to the Packet instance by setting 'takeOwnership' to true
+		/// - ensuring the caller keeps the RawPacket alive if 'takeOwnership' is false
+		///
+		/// This overload allows specifying a protocol type family up to which the packet should be parsed.
+		/// It is equivalent to calling the constructor with PacketParseOptions with only its 'parseUntilProtocol'
+		/// member set to the protocol family value.
+		///
+		/// @param[in] rawPacket A pointer to the RawPacket object to parse.
+		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// when it is no longer required. If 'false', the caller retains ownership and is responsible for its disposal.
+		/// @param[in] parseUntilProtocol The protocol type family up to and including which the packet should be
+		/// parsed.
+		explicit Packet(RawPacket* rawPacket, bool takeOwnership, ProtocolTypeFamily parseUntilProtocol)
+		    : Packet(rawPacket, takeOwnership, makeParseOpts(parseUntilProtocol))
+		{}
+
+		/// @brief Creates a Packet instance over an existing RawPacket, parsing the packet data.
+		///
+		/// No data is copied; the Packet instance holds a reference to the provided RawPacket.
+		/// The RawPacket must be kept alive for the lifetime of the Packet instance, either by:
+		/// - transferring ownership of the RawPacket to the Packet instance by setting 'takeOwnership' to true
+		/// - ensuring the caller keeps the RawPacket alive if 'takeOwnership' is false
+		///
+		/// This overload allows specifying an OSI model layer up to which the packet should be parsed.
+		/// It is equivalent to calling the constructor with PacketParseOptions with only its 'parseUntilLayer'
+		/// member set to the OSI layer value.
+		///
+		/// @param[in] rawPacket A pointer to the RawPacket object to parse.
+		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
+		/// when it is no longer required. If 'false', the caller retains ownership and is responsible for its disposal.
+		/// @param[in] parseUntilLayer The OSI model layer up to and including which the packet should be parsed.
+		explicit Packet(RawPacket* rawPacket, bool takeOwnership, OsiModelLayer parseUntilLayer)
+		    : Packet(rawPacket, takeOwnership, makeParseOpts(parseUntilLayer))
+		{}
 
 		/// @brief A constructor for creating a packet out of already allocated RawPacket.
 		///
@@ -423,6 +446,20 @@ namespace pcpp
 		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true) const;
 
 	private:
+		static PacketParseOptions makeParseOpts(ProtocolTypeFamily protocol)
+		{
+			PacketParseOptions options;
+			options.parseUntilProtocol = protocol;
+			return options;
+		}
+
+		static PacketParseOptions makeParseOpts(OsiModelLayer osiLayer)
+		{
+			PacketParseOptions options;
+			options.parseUntilLayer = osiLayer;
+			return options;
+		}
+
 		void copyDataFrom(const Packet& other);
 
 		void destructPacketData();
