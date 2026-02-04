@@ -69,21 +69,12 @@ jobs:
           cmake --build "$BUILD_DIR" -j
           cmake --install "$BUILD_DIR"
 
-      - name: Create Cobertura Report
+      - name: Test Examples
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==8.2
-          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
-
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
-        with:
-          files: ./coverage.xml
-          flags: ${{ env.image }},unittest
-          fail_ci_if_error: false
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          cd Tests/ExamplesTest
+          python3 -m pip install -r requirements.txt
+          python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin -m no-pcap
 
       - name: Save Ccache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
