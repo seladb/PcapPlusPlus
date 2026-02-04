@@ -75,8 +75,7 @@ namespace pcpp
 		/// @param[in] linkType The link type to use for this packet (the default is Ethernet)
 		Packet(uint8_t* buffer, size_t bufferSize, LinkLayerType linkType = LINKTYPE_ETHERNET);
 
-		/// @brief A constructor for creating a packet out of already allocated RawPacket, without taking ownership of
-		/// the RawPacket.
+		/// @brief Creates a Packet instance over an existing RawPacket without taking ownership, parsing the packet data.
 		///
 		/// See @ref Packet(RawPacket* rawPacket, bool takeOwnership, PacketParseOptions options) for more details.
 		///
