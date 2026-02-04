@@ -17,9 +17,8 @@
 
 namespace pcpp
 {
-
-#define IPV4OPT_DUMMY 0xff
-#define IPV4_MAX_OPT_SIZE 40
+	constexpr uint8_t IPV4OPT_DUMMY = 0xff;
+	constexpr size_t IPV4_MAX_OPT_SIZE = 40;
 
 	/// ~~~~~~~~~~~~~~~~~
 	/// IPv4OptionBuilder

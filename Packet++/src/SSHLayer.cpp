@@ -8,8 +8,7 @@
 
 namespace pcpp
 {
-
-#define SSH_LAYER_BASE_STRING "SSH Layer"
+	constexpr auto SSH_LAYER_BASE_STRING = "SSH Layer";
 
 	// ----------------
 	// SSHLayer methods

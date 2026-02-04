@@ -9,10 +9,10 @@
 
 namespace pcpp
 {
-/// IPv4 protocol
-#define PCPP_WS_NFPROTO_IPV4 2
-/// IPv6 protocol
-#define PCPP_WS_NFPROTO_IPV6 10
+	/// IPv4 protocol
+	constexpr uint8_t PCPP_WS_NFPROTO_IPV4 = 2;
+	/// IPv6 protocol
+	constexpr uint8_t PCPP_WS_NFPROTO_IPV6 = 10;
 
 	uint8_t NflogLayer::getFamily()
 	{

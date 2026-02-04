@@ -27,8 +27,7 @@
 
 namespace pcpp
 {
-
-#define TCPOPT_DUMMY 0xff
+	constexpr uint8_t TCPOPT_DUMMY = 0xff;
 
 	/// ~~~~~~~~~~~~~~~~
 	/// TcpOptionBuilder
