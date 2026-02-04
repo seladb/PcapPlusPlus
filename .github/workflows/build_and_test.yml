@@ -74,7 +74,7 @@ jobs:
           . .venv/bin/activate
           cd Tests/ExamplesTest
           python3 -m pip install -r requirements.txt
-          python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin -m no-pcap
+          python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin -m no_pcap
 
       - name: Save Ccache
         uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
