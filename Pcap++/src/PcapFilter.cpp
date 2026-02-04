@@ -10,7 +10,7 @@
 #	include <winsock2.h>
 #endif
 #ifdef USE_PCAP
-#include "pcap.h"
+#	include "pcap.h"
 #endif
 #include "RawPacket.h"
 #include "TimespecTimeval.h"
@@ -30,7 +30,6 @@ namespace pcpp
 #else
 			(void)ptr;
 #endif
-
 		}
 	}  // namespace internal
 

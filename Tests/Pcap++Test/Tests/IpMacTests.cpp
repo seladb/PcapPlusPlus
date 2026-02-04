@@ -455,14 +455,14 @@ PTF_TEST_CASE(TestGetMacAddress)
 
 	// fetch all IP addresses from arp table
 	std::string ipsInArpTableAsString;
-#ifdef _WIN32
+#	ifdef _WIN32
 	ipsInArpTableAsString =
 	    pcpp::executeShellCommand(R"(arp -a | for /f "tokens=1" %i in ('findstr dynamic') do @echo %i)");
 	ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '),
 	                            ipsInArpTableAsString.end());
-#else
+#	else
 	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
-#endif
+#	endif
 
 	PTF_ASSERT_NOT_EQUAL(ipsInArpTableAsString, "");
 
@@ -507,7 +507,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 		PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
 	}
 #else
-PTF_SKIP_TEST("pcap not configured");
+	PTF_SKIP_TEST("pcap not configured");
 #endif
 }  // TestGetMacAddress
 

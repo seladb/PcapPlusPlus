@@ -366,20 +366,20 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 		pcpp::PcapLiveDevice* originalDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
 		PTF_ASSERT_NOT_NULL(originalDev);
 
-#ifdef _WIN32
+#	ifdef _WIN32
 		// Tests if device pointer points to a Windows Live Device on a Windows machine.
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::WinPcapLiveDevice*>(originalDev));
-#endif  // _WIN32
+#	endif  // _WIN32
 
 		liveDev = originalDev->clone();
 	}
 
 	PTF_ASSERT_NOT_NULL(liveDev);
 
-#ifdef _WIN32
+#	ifdef _WIN32
 	// Tests if the clone is correctly returns a Windows Live Device on Windows systems.
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::WinPcapLiveDevice*>(liveDev));
-#endif  // _WIN32
+#	endif  // _WIN32
 
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
@@ -505,10 +505,10 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	std::vector<pcpp::PcapLiveDevice::DeviceConfiguration> configs;
 	configs.emplace_back();  // the default config
 
-#if !defined(_WIN32)
+#	if !defined(_WIN32)
 	configs.emplace_back();  // the config used poll
 	configs[1].usePoll = true;
-#endif
+#	endif
 
 	// test the common behaviour for all configs
 	for (const auto& config : configs)
@@ -721,7 +721,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	packetCount = 0;
 
 	// Setting direction isn't available on Windows, and setting "outgoing only" isn't available on macOS
-#if !defined(_WIN32) && !defined(__APPLE__)
+#	if !defined(_WIN32) && !defined(__APPLE__)
 	// create a non-default configuration with only capturing incoming packets and open the device again
 	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithDirection(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000,
 	                                                                 pcpp::PcapLiveDevice::PCPP_OUT);
@@ -735,7 +735,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
-#endif
+#	endif
 
 	// create a non-default configuration with a snapshot length of 10 bytes
 	int snaplen = 20;
