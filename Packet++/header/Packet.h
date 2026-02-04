@@ -14,7 +14,7 @@ namespace pcpp
 	///
 	/// The parsing options are combined. If multiple stop conditions are specified, parsing stops
 	/// as soon as any condition is met.
-	struct ParseOptions
+	struct PacketParseOptions
 	{
 		/// @brief Defines the protocol type up to and including which the packet should be parsed (inclusive).
 		///
@@ -35,20 +35,20 @@ namespace pcpp
 		/// layer are consumed. Layers beyond that are ignored, which can improve performance and reduce memory usage.
 		OsiModelLayer parseUntilLayer = OsiModelLayerUnknown;
 
-		/// @brief Helper function to create ParseOptions that parse until a certain protocol type family.
+		/// @brief Helper function to create PacketParseOptions that parse until a certain protocol type family.
 		/// @param protocol The protocol type family up to which to parse (inclusive).
-		/// @return ParseOptions instance configured to parse until the specified protocol.
-		static ParseOptions parseUntil(ProtocolTypeFamily protocol)
+		/// @return PacketParseOptions instance configured to parse until the specified protocol.
+		static PacketParseOptions parseUntil(ProtocolTypeFamily protocol)
 		{
 			ParseOptions options;
 			options.parseUntilProtocol = protocol;
 			return options;
 		}
 
-		/// @brief Helper function to create ParseOptions that parse until a certain OSI model layer.
+		/// @brief Helper function to create PacketParseOptions that parse until a certain OSI model layer.
 		/// @param osiLayer The OSI model layer up to which to parse (inclusive).
-		/// @return ParseOptions instance configured to parse until the specified OSI layer.
-		static ParseOptions parseUntil(OsiModelLayer osiLayer)
+		/// @return PacketParseOptions instance configured to parse until the specified OSI layer.
+		static PacketParseOptions parseUntil(OsiModelLayer osiLayer)
 		{
 			ParseOptions options;
 			options.parseUntilLayer = osiLayer;
@@ -237,7 +237,7 @@ namespace pcpp
 		/// @param[in] takeOwnership If 'true' the Packet will take ownership of the rawPacket pointer and dispose of it
 		/// when it is no longer needed. If 'false', the caller retains ownership and is responsible for its disposal.
 		/// @param options Parsing options to configure the parsing behavior.
-		void setRawPacket(RawPacket* rawPacket, bool takeOwnership, ParseOptions options);
+		void setRawPacket(RawPacket* rawPacket, bool takeOwnership, PacketParseOptions options);
 
 		/// @brief Parse the packet according to the provided options.
 		///
@@ -252,7 +252,7 @@ namespace pcpp
 		/// @param[in] incrementalParsing If 'true', incremental parsing is performed, reusing existing layers where
 		/// possible.
 		/// @throws std::runtime_error if there is no RawPacket associated with this Packet instance.
-		void parsePacket(ParseOptions options, bool incrementalParsing = true);
+		void parsePacket(PacketParseOptions options, bool incrementalParsing = true);
 
 		/// Get a pointer to the Packet's RawPacket in a read-only manner
 		/// @return A pointer to the Packet's RawPacket

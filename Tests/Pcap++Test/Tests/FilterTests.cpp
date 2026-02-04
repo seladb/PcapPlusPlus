@@ -209,9 +209,10 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	// Try to make an invalid filter
 	pcpp::BPFStringFilter badFilter("This is not a valid filter");
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(badFilter.verifyFilter());
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(badFilter.verifyFilter());
+	}
 
 	// Test stolen from MacAddress test below
 	pcpp::MacAddress macAddr("00:13:c3:df:ae:18");
@@ -255,9 +256,10 @@ PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 		pcpp::BPFStringFilter emptyFilter("");
 		PTF_ASSERT_TRUE(emptyFilter.matches(*rawPacketPtr));
 		pcpp::BPFStringFilter wrongFilter("-");
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(wrongFilter.matches(*rawPacketPtr));
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			PTF_ASSERT_FALSE(wrongFilter.matches(*rawPacketPtr));
+		}
 	}
 
 	rawPacketVec.clear();

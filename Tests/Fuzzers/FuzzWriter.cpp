@@ -69,7 +69,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 		pcapWriter.writePacket(rawPacket);
 	} while (reader->getNextPacket(rawPacket));
 
-	pcpp::IPcapDevice::PcapStats stats;
+	pcpp::PcapStats stats;
 	pcapWriter.getStatistics(stats);
 	std::cout << "Written " << stats.packetsRecv << " packets successfully to pcap writer and " << stats.packetsDrop
 	          << " packets could not be written" << std::endl;

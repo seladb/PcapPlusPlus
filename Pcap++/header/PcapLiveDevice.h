@@ -6,13 +6,15 @@
 #include <functional>
 
 #include "IpAddress.h"
+#include "Device.h"
 #include "PcapDevice.h"
 
 // forward declarations for structs and typedefs that are defined in pcap.h
 struct pcap_if;
 typedef pcap_if pcap_if_t;
-struct pcap_addr;
-typedef struct pcap_addr pcap_addr_t;
+struct pcap;
+typedef pcap pcap_t;
+struct pcap_pkthdr;
 
 /// @file
 
@@ -20,6 +22,95 @@ typedef struct pcap_addr pcap_addr_t;
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	namespace internal
+	{
+		/// @class PcapHandle
+		/// @brief A wrapper class for pcap_t* which is the libpcap packet capture descriptor.
+		/// This class is used to manage the lifecycle of the pcap_t* object
+		class PcapHandle
+		{
+		public:
+			/// @brief Creates an empty handle.
+			constexpr PcapHandle() noexcept = default;
+			/// @brief Creates a handle from the provided pcap descriptor.
+			/// @param pcapDescriptor The pcap descriptor to wrap.
+			explicit PcapHandle(pcap_t* pcapDescriptor) noexcept;
+
+			PcapHandle(const PcapHandle&) = delete;
+			PcapHandle(PcapHandle&& other) noexcept;
+
+			PcapHandle& operator=(const PcapHandle&) = delete;
+			PcapHandle& operator=(PcapHandle&& other) noexcept;
+			PcapHandle& operator=(std::nullptr_t) noexcept;
+
+			~PcapHandle();
+
+			/// @return True if the handle is not null, false otherwise.
+			bool isValid() const noexcept
+			{
+				return m_PcapDescriptor != nullptr;
+			}
+
+			/// @return The underlying pcap descriptor.
+			pcap_t* get() const noexcept
+			{
+				return m_PcapDescriptor;
+			}
+
+			/// @brief Releases ownership of the handle and returns the pcap descriptor.
+			/// @return The pcap descriptor or nullptr if no handle is owned.
+			pcap_t* release() noexcept;
+
+			/// @brief Replaces the managed handle with the provided one.
+			/// @param pcapDescriptor A new pcap descriptor to manage.
+			/// @remarks If the handle contains a non-null descriptor it will be closed.
+			void reset(pcap_t* pcapDescriptor = nullptr) noexcept;
+
+			/// @brief Helper function to retrieve a view of the last error string for this handle.
+			/// @return A null-terminated view of the last error string.
+			/// @remarks The returned view is only valid until the next call to a pcap function.
+			char const* getLastError() const noexcept;
+
+			/// @brief Sets a filter on the handle. Only packets that match the filter will be captured by the handle.
+			///
+			/// The filter uses Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html).
+			///
+			/// @param[in] filter The filter to set in Berkeley Packet Filter (BPF) syntax.
+			/// @return True if the filter was set successfully, false otherwise.
+			bool setFilter(std::string const& filter);
+
+			/// @brief Clears the filter currently set on the handle.
+			/// @return True if the filter was removed successfully or if no filter was set, false otherwise.
+			bool clearFilter();
+
+			/// @brief Retrieves statistics from the pcap handle.
+			///
+			/// The function internally calls pcap_stats() to retrieve the statistics and only works on live devices.
+			///
+			/// @param stats Structure to store the statistics.
+			/// @return True if the statistics were retrieved successfully, false otherwise.
+			bool getStatistics(PcapStats& stats) const;
+
+			/// @return True if the handle is not null, false otherwise.
+			explicit operator bool() const noexcept
+			{
+				return isValid();
+			}
+
+			bool operator==(std::nullptr_t) const noexcept
+			{
+				return !isValid();
+			}
+			bool operator!=(std::nullptr_t) const noexcept
+			{
+				return isValid();
+			}
+
+		private:
+			pcap_t* m_PcapDescriptor = nullptr;
+		};
+	}  // namespace internal
+
 	class PcapLiveDevice;
 
 	/// A callback that is called when a packet is captured by PcapLiveDevice
@@ -39,7 +130,7 @@ namespace pcpp
 	/// periodic stats collection
 	/// @param[in] stats A reference to the most updated stats
 	/// @param[in] userCookie A pointer to the object put by the user when packet capturing stared
-	using OnStatsUpdateCallback = std::function<void(IPcapDevice::PcapStats&, void*)>;
+	using OnStatsUpdateCallback = std::function<void(PcapStats&, void*)>;
 
 	/// @class PcapLiveDevice
 	/// A class that wraps a network interface (each of the interfaces listed in ifconfig/ipconfig).
@@ -62,7 +153,7 @@ namespace pcpp
 	///   by supplying a callback and a timeout to startCapture()
 	/// - Send packets back to the network. Sending the packets is done on the caller thread. No additional threads are
 	///   created for this task
-	class PcapLiveDevice : public IPcapDevice
+	class PcapLiveDevice : public IFilterableDevice, public IPcapStatisticsProvider
 	{
 		friend class PcapLiveDeviceList;
 
@@ -83,6 +174,7 @@ namespace pcpp
 		};
 
 		bool m_DeviceOpened = false;
+		internal::PcapHandle m_PcapDescriptor;
 
 		// This is a second descriptor for the same device. It is needed because of a bug
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
@@ -103,8 +195,6 @@ namespace pcpp
 		// Should be set to true by the Callee for the Caller
 		std::atomic<bool> m_CaptureThreadStarted;
 
-		OnPacketArrivesStopBlocking m_cbOnPacketArrivesBlockingMode;
-		void* m_cbOnPacketArrivesBlockingModeUserCookie;
 		LinkLayerType m_LinkType;
 		bool m_UsePoll;
 
@@ -119,8 +209,6 @@ namespace pcpp
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
-
-		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 
 	public:
 		/// The type of the live device
@@ -342,6 +430,11 @@ namespace pcpp
 		/// class and can be also retrieved from there. This method exists for convenience - so it'll be possible to get
 		/// this list from PcapLiveDevice as well
 		const std::vector<IPv4Address>& getDnsServers() const;
+
+		/// A static method for retrieving pcap lib (libpcap/WinPcap/etc.) version information. This method is actually
+		/// a wrapper for [pcap_lib_version()](https://www.tcpdump.org/manpages/pcap_lib_version.3pcap.html)
+		/// @return A string containing the pcap lib version information
+		static std::string getPcapLibVersionInfo();
 
 		/// Start capturing packets on this network interface (device). Each time a packet is captured the
 		/// onPacketArrives callback is called. The capture is done on a new thread created by this method, meaning all
@@ -615,7 +708,16 @@ namespace pcpp
 		/// @return Pointer to the copied class
 		virtual PcapLiveDevice* clone() const;
 
-		void getStatistics(IPcapDevice::PcapStats& stats) const override;
+		void getStatistics(PcapStats& stats) const override;
+
+		/// Match a raw packet with a given BPF filter. Notice this method is static which means you don't need any
+		/// device instance in order to perform this match
+		/// @param[in] filter A filter class to test against
+		/// @param[in] rawPacket A pointer to the raw packet to match the filter with
+		/// @return True if raw packet matches the filter or false otherwise
+		/// @deprecated This method is deprecated, use GeneralFilter::matches(...) method directly.
+		PCPP_DEPRECATED("Prefer GeneralFilter::matches(...) method directly.")
+		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
 	protected:
 		/// @brief Called before starting a capture to prepare the device for capturing packets.
@@ -692,5 +794,7 @@ namespace pcpp
 
 	private:
 		bool isNflogDevice() const;
+
+		bool doUpdateFilter(std::string const* filterAsString) override;
 	};
 }  // namespace pcpp
