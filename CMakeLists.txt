@@ -163,7 +163,7 @@ cmake_dependent_option(
   "PCAPPP_USE_DPDK"
   OFF
 )
-option(PCAPPP_USE_PCAP "Setup PcapPlusPlus with libpcap / WinPcap / Npcap")
+option(PCAPPP_USE_PCAP "Setup PcapPlusPlus with libpcap / WinPcap / Npcap" ON)
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_USE_WINDIVERT "Setup PcapPlusPlus with WinDivert")
