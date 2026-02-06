@@ -26,8 +26,9 @@ namespace pcpp
 		{
 #ifdef USE_PCAP
 			pcap_freecode(ptr);
-#else
 			delete ptr;
+#else
+			(void)ptr;
 #endif
 		}
 	}  // namespace internal
