@@ -234,7 +234,7 @@ if(PCAPPP_BUILD_PCAPPP)
         message(FATAL_ERROR "Please specify Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
       endif()
     endif()
-    add_definitions(-DUSE_PCAP)
+    add_compile_definitions(USE_PCAP)
   endif()
 
   if(HAVE_PCAP_IMMEDIATE_MODE)
