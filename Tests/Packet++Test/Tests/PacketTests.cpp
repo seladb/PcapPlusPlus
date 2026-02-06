@@ -1098,3 +1098,87 @@ PTF_TEST_CASE(PacketParseMultiLayerTest)
 
 	PTF_ASSERT_EQUAL(actualNumOfBgpMessages, expectedNumOfBgpMessages);
 }
+
+PTF_TEST_CASE(PacketIncrementalParseTest)
+{
+	auto rawPacket = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
+
+	pcpp::PacketParseOptions pOpts;
+	pOpts.parseUntilProtocol = pcpp::IPv4;
+
+	pcpp::Packet igmpPacket(rawPacket.get(), false, pOpts.parseUntilProtocol, pOpts.parseUntilLayer);
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	auto ethLayer = igmpPacket.getLayerOfType<pcpp::EthLayer>();
+	PTF_ASSERT_NOT_NULL(ethLayer);
+
+	auto ipLayer = igmpPacket.getLayerOfType<pcpp::IPv4Layer>();
+	PTF_ASSERT_NOT_NULL(ipLayer);
+
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PayloadLayer>());
+
+	// Do an incremental parse up to IGMP layer
+	pOpts.parseUntilProtocol = pcpp::IGMP;
+	igmpPacket.parsePacket(pOpts);
+
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	// Assert that the previously obtained layers are the same as the ones, after incremental parsing
+	PTF_ASSERT_EQUAL(igmpPacket.getLayerOfType<pcpp::EthLayer>(), ethLayer);
+	PTF_ASSERT_EQUAL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>(), ipLayer);
+
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+
+	// Do an incremental parse up to the end of the packet
+	igmpPacket.parsePacket(pcpp::PacketParseOptions{});
+
+	// Assert that the end of the packet is reached and trailer layer is present
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+
+	// Do an incremental parse up to a previously parsed layer (IP layer)
+	pOpts.parseUntilProtocol = pcpp::IP;
+	igmpPacket.parsePacket(pOpts);
+
+	PTF_ASSERT_EQUAL(igmpPacket.getLayerOfType<pcpp::IPLayer>(), ipLayer);
+
+	// Incremental parsing shouldn't remove layers previously parsed beyond the specified layer
+	PTF_ASSERT_EQUAL(igmpPacket.getLastLayer(), igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+}
+
+PTF_TEST_CASE(PacketFullReparseTest)
+{
+	auto rawPacket = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
+	pcpp::Packet igmpPacket(rawPacket.get(), false);
+
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+
+	// Disable incremental parsing and do a full reparse up to IP layer.
+	// The IGMP and Trailer layers shouldn't be present after the reparse.
+	pcpp::PacketParseOptions pOpts;
+	pOpts.parseUntilProtocol = pcpp::IP;
+	igmpPacket.parsePacket(pOpts, false);
+
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+
+	// IGMP and Trailer layers should have been discarded after full reparse.
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+}
