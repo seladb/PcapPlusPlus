@@ -9,12 +9,14 @@ from .test_utils import ExampleTest
 class TestPcapSplitter(ExampleTest):
     pytestmark = [pytest.mark.pcapsplitter, pytest.mark.no_network]
 
+    @pytest.mark.no_pcap
     def run_example(self, **kwargs) -> Any:
         if "timeout" not in kwargs:
             kwargs["timeout"] = 20
 
         return super().run_example(**kwargs)
 
+    @pytest.mark.no_pcap
     def test_split_by_file_size(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -30,6 +32,7 @@ class TestPcapSplitter(ExampleTest):
                     98500 <= os.path.getsize(os.path.join(tmpdir, filename)) <= 101500
                 )
 
+    @pytest.mark.no_pcap
     def test_split_by_packet_count(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -44,6 +47,7 @@ class TestPcapSplitter(ExampleTest):
                 packets = rdpcap(os.path.join(tmpdir, filename))
                 assert len(packets) == 300
 
+    @pytest.mark.no_pcap
     def test_split_by_client_ip(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -78,6 +82,7 @@ class TestPcapSplitter(ExampleTest):
                             or ipaddress.ip_address(packet[IPv6].dst) == ip_addr
                         )
 
+    @pytest.mark.no_pcap
     def test_split_by_server_ip(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -112,6 +117,7 @@ class TestPcapSplitter(ExampleTest):
                             or ipaddress.ip_address(packet[IPv6].dst) == ip_addr
                         )
 
+    @pytest.mark.no_pcap
     def test_split_by_server_port(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -142,6 +148,7 @@ class TestPcapSplitter(ExampleTest):
                         )
                     )
 
+    @pytest.mark.no_pcap
     def test_split_by_client_port(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -172,6 +179,7 @@ class TestPcapSplitter(ExampleTest):
                         )
                     )
 
+    @pytest.mark.no_pcap
     def test_split_by_ip_src_dst(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -202,6 +210,7 @@ class TestPcapSplitter(ExampleTest):
                     [packet[ip_type].src, packet[ip_type].dst]
                 )
 
+    @pytest.mark.no_pcap
     def test_split_by_connection(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -275,6 +284,7 @@ class TestPcapSplitter(ExampleTest):
             for packet in packets:
                 assert packet.haslayer(UDP) == match_bpf
 
+    @pytest.mark.no_pcap
     def test_split_by_round_robin(self, tmpdir):
         divide_by = 10
         args = {
@@ -296,16 +306,19 @@ class TestPcapSplitter(ExampleTest):
                 <= num_of_packets_per_file + 1
             )
 
+    @pytest.mark.no_pcap
     def test_input_file_not_given(self):
         args = {}
         completed_process = self.run_example(args=args, expected_return_code=1)
         assert "ERROR: Input file name was not given" in completed_process.stdout
 
+    @pytest.mark.no_pcap
     def test_output_dir_not_given(self):
         args = {"-f": os.path.join("pcap_examples", "many-protocols.pcap")}
         completed_process = self.run_example(args=args, expected_return_code=1)
         assert "ERROR: Output directory name was not given" in completed_process.stdout
 
+    @pytest.mark.no_pcap
     def test_split_method_not_given(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -314,6 +327,7 @@ class TestPcapSplitter(ExampleTest):
         completed_process = self.run_example(args=args, expected_return_code=1)
         assert "ERROR: Split method was not given" in completed_process.stdout
 
+    @pytest.mark.no_pcap
     def test_output_dir_not_exist(self):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
@@ -322,6 +336,7 @@ class TestPcapSplitter(ExampleTest):
         completed_process = self.run_example(args=args, expected_return_code=1)
         assert "ERROR: Output directory doesn't exist" in completed_process.stdout
 
+    @pytest.mark.no_pcap
     def test_input_file_not_exist(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols123.pcap"),
@@ -331,6 +346,7 @@ class TestPcapSplitter(ExampleTest):
         completed_process = self.run_example(args=args, expected_return_code=1)
         assert "ERROR: Error opening input pcap file" in completed_process.stdout
 
+    @pytest.mark.no_pcap
     def test_split_method_not_exist(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols123.pcap"),
