@@ -10,7 +10,7 @@ from .test_utils import ExampleTest, compare_stdout_with_file
 
 
 class TestX509Toolkit(ExampleTest):
-    pytestmark = [pytest.mark.tlsfingerprinting, pytest.mark.no_network]
+    pytestmark = [pytest.mark.x509toolkit, pytest.mark.no_network, pytest.mark.no_pcap]
 
     @pytest.mark.parametrize("file_name", ["cert.pem", "cert.der"])
     def test_info(self, file_name):

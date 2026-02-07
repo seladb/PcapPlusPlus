@@ -384,6 +384,7 @@ PTF_TEST_CASE(TestPcapFileReadAdv)
 		PTF_ASSERT_BUF_COMPARE(rawPacket.getRawData(), rawPacket2.getRawData(), rawPacket.getRawDataLen());
 	}
 
+#ifdef USE_PCAP
 	// Filter packets
 	{
 		constexpr int expectedTotalPacketCount = 4631;
@@ -413,6 +414,7 @@ PTF_TEST_CASE(TestPcapFileReadAdv)
 
 		PTF_ASSERT_FALSE(reader.setFilter("invalid"));
 	}
+#endif
 
 	// File already open
 	{
@@ -759,6 +761,7 @@ PTF_TEST_CASE(TestPcapFileWriteAdv)
 		PTF_ASSERT_TRUE(writer.writePacket(rawPacket));
 	}
 
+#ifdef USE_PCAP
 	// Filter packets
 	{
 		constexpr int expectedTotalPacketCount = 4631;
@@ -788,6 +791,7 @@ PTF_TEST_CASE(TestPcapFileWriteAdv)
 		PTF_ASSERT_TRUE(reader2.open());
 		PTF_ASSERT_EQUAL(reader2.getNextPackets(rawPackets), expectedFilteredPacketCount);
 	}
+#endif
 
 	// File already open
 	{
@@ -1593,6 +1597,7 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 	// -------
 
+#ifdef USE_PCAP
 	pcpp::PcapNgFileReaderDevice readerDev5(EXAMPLE2_PCAPNG_PATH);
 	PTF_ASSERT_TRUE(readerDev5.open());
 	{
@@ -1636,6 +1641,7 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	writerCompressDev2.close();
 	readerDev5.close();
 	writerDev2.close();
+#endif
 }  // TestPcapNgFileReadWriteAdv
 
 PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces)
@@ -1923,6 +1929,7 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		readerDev.close();
 	}
 
+#ifdef USE_PCAP
 	// Packet filtering
 	{
 		pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
@@ -1949,6 +1956,7 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		readerDev.getStatistics(readerStatistics);
 		PTF_ASSERT_EQUAL(readerStatistics.packetsRecv, 16);
 	}
+#endif
 
 	// Packet details
 	{
