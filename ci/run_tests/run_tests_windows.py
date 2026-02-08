@@ -5,6 +5,7 @@ import argparse
 import subprocess
 from pathlib import Path
 from contextlib import contextmanager
+from typing import Literal
 
 import scapy.arch.windows
 from ipaddress import IPv4Address
@@ -156,16 +157,15 @@ def main():
             check=True,
         )
 
-    skip_tests = ["TestRemoteCapture"] + args.skip_tests
-    include_tests = (
-        ["-t", ";".join(args.include_tests)] if args.include_tests else []
-    )
+    def make_tests_list_option(option: Literal['-t', '-x'], tests: list[str]) -> list[str]:
+        if not tests:
+            return []
+        return [option, ";".join(tests)]
 
     with tcp_replay_worker(tcpreplay_interface, Path(TCPREPLAY_PATH), Path(PCAP_FILE_PATH)) as worker:
-        tcpreplay_cmd = (
-            f'tcpreplay.exe -i "{tcpreplay_interface}" --mbps=10 -l 0 {PCAP_FILE_PATH}'
-        )
-        tcpreplay_proc = subprocess.Popen(tcpreplay_cmd, shell=True, cwd=TCPREPLAY_PATH)
+        include_tests_opt = make_tests_list_option('-t', args.include_tests)
+        skip_tests_opt = make_tests_list_option('-x', ["TestRemoteCapture"] + args.skip_tests)
+
         if args.coverage:
             subprocess.run(
                 [
@@ -185,9 +185,8 @@ def main():
                     os.path.join("Bin", "Pcap++Test"),
                     "-i",
                     str(ip_address),
-                    "-x",
-                    ";".join(skip_tests),
-                    *include_tests,
+                    *skip_tests_opt,
+                    *include_tests_opt,
                 ],
                 cwd=os.path.join("Tests", "Pcap++Test"),
                 shell=True,
@@ -199,9 +198,8 @@ def main():
                     os.path.join("Bin", "Pcap++Test"),
                     "-i",
                     str(ip_address),
-                    "-x",
-                    ";".join(skip_tests),
-                    *include_tests,
+                    *skip_tests_opt,
+                    *include_tests_opt,
                 ],
                 cwd=os.path.join("Tests", "Pcap++Test"),
                 shell=True,
