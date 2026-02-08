@@ -12,9 +12,6 @@ import scapy.arch.windows
 from ipaddress import IPv4Address
 
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
-PCAP_FILE_PATH = os.path.abspath(
-    os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
-)
 
 
 class InterfaceList:
