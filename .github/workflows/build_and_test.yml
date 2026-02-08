@@ -246,6 +246,67 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
+  libpcap-free:
+    runs-on: ubuntu-latest
+    container: seladb/ubuntu2404
+    env:
+      image: ubuntu2404
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: |
+            ${{ env.CCACHE_DIR }}
+            !*.gcda
+            !*.gcno
+          key: ${{ env.image }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ env.image }}-ccache
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_BUILD_COVERAGE=ON -DPCAPPP_USE_PCAP=OFF -S . -B "$BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build "$BUILD_DIR" -j
+
+      - name: Prepare environment for tests
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install -r ci/run_tests/requirements.txt
+
+      - name: Test PcapPlusPlus
+        run: |
+          . .venv/bin/activate
+          python3 ci/run_tests/run_tests.py --interface eth0
+
+      - name: Check installation
+        run: |
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+          cmake --build "$BUILD_DIR" -j
+          cmake --install "$BUILD_DIR"
+
+      - name: Test Examples
+        run: |
+          . .venv/bin/activate
+          cd Tests/ExamplesTest
+          python3 -m pip install -r requirements.txt
+          python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin -m no_pcap
+
+      - name: Save Ccache
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
+
   dpdk:
     runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
