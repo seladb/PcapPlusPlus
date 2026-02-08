@@ -130,7 +130,7 @@ namespace pcpp
 		/// will be printed to log as well, including the WinPcap/Npcap error if exists
 		bool open() override;
 
-		void getStatistics(IPcapDevice::PcapStats& stats) const override;
+		void getStatistics(PcapStats& stats) const override;
 
 		PcapRemoteDevice* clone() const override;
 	};

@@ -209,9 +209,10 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	// Try to make an invalid filter
 	pcpp::BPFStringFilter badFilter("This is not a valid filter");
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(badFilter.verifyFilter());
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(badFilter.verifyFilter());
+	}
 
 	// Test stolen from MacAddress test below
 	pcpp::MacAddress macAddr("00:13:c3:df:ae:18");
@@ -255,9 +256,10 @@ PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 		pcpp::BPFStringFilter emptyFilter("");
 		PTF_ASSERT_TRUE(emptyFilter.matches(*rawPacketPtr));
 		pcpp::BPFStringFilter wrongFilter("-");
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(wrongFilter.matches(*rawPacketPtr));
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			PTF_ASSERT_FALSE(wrongFilter.matches(*rawPacketPtr));
+		}
 	}
 
 	rawPacketVec.clear();
@@ -817,8 +819,8 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 {
 	// check if GeneralFilter::matches(...) work properly for packets with different LinkLayerType
 
-	// pcpp::LINKTYPE_DLT_RAW1 layer
-	pcpp::PcapFileReaderDevice fileReaderDev1(RAW_IP_PCAP_PATH);
+	// pcpp::LINKTYPE_NULL layer
+	pcpp::PcapFileReaderDevice fileReaderDev1(NULL_LOOPBACK_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev1.open());
 	pcpp::RawPacketVector rawPacketVec;
 	fileReaderDev1.getNextPackets(rawPacketVec);
@@ -827,21 +829,15 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	int validCounter = 0;
 	for (auto* rawPacketPtr : rawPacketVec)
 	{
-		pcpp::Packet packet(rawPacketPtr);
-		if (pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
+		pcpp::BPFStringFilter bpfStringFilter(
+		    "len = " +
+		    std::to_string(rawPacketPtr->getRawDataLen()));  // checking against real filter, not the "" filter
+		if (bpfStringFilter.matches(*rawPacketPtr) && rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_NULL)
 		{
-			pcpp::BPFStringFilter bpfStringFilter(
-			    "host " + ip4layer->getDstIPAddress().toString());  // checking against real filter, not the "" filter
-			if (bpfStringFilter.matches(*rawPacketPtr))
-			{
-				if (rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_DLT_RAW1)
-				{
-					++validCounter;
-				}
-			}
+			++validCounter;
 		}
 	}
-	PTF_ASSERT_EQUAL(validCounter, 50);
+	PTF_ASSERT_EQUAL(validCounter, 3);
 	rawPacketVec.clear();
 
 	// pcpp::LINKTYPE_LINUX_SLL layer

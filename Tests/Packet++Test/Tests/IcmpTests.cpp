@@ -313,9 +313,10 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::EthLayer ethLayer3(ethLayer);
 	pcpp::IPv4Layer ipLayer3(ipLayer);
 	pcpp::IcmpLayer timeExceededLayer;
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(timeExceededLayer.setTimeExceededData(1, nullptr, nullptr));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_NULL(timeExceededLayer.setTimeExceededData(1, nullptr, nullptr));
+	}
 	pcpp::IPv4Layer ipLayerForTimeExceeded(pcpp::IPv4Address("10.0.0.6"), pcpp::IPv4Address("8.8.8.8"));
 	ipLayerForTimeExceeded.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayerForTimeExceeded.getIPv4Header()->timeToLive = 1;
@@ -336,9 +337,10 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::EthLayer ethLayer4(ethLayer);
 	pcpp::IPv4Layer ipLayer4(ipLayer);
 	pcpp::IcmpLayer destUnreachableLayer;
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(destUnreachableLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, nullptr, nullptr));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_NULL(destUnreachableLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, nullptr, nullptr));
+	}
 	pcpp::UdpLayer udpLayerForDestUnreachable(49182, 33446);
 	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address("10.0.1.2"), pcpp::IPv4Address("172.16.0.2"));
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
@@ -387,9 +389,10 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::EthLayer ethLayer7(ethLayer);
 	pcpp::IPv4Layer ipLayer7(ipLayer);
 	pcpp::IcmpLayer redirectLayer;
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(redirectLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, nullptr, nullptr));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_NULL(redirectLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, nullptr, nullptr));
+	}
 	pcpp::IPv4Layer ipLayerForRedirect(pcpp::IPv4Address("10.2.10.2"), pcpp::IPv4Address("10.3.71.7"));
 	ipLayerForRedirect.getIPv4Header()->ipId = be16toh(14848);
 	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;

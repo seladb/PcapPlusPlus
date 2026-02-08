@@ -1,210 +1,79 @@
 from __future__ import annotations
 
 import os
-import logging
 import argparse
 import subprocess
 import scapy.arch.windows
-from dataclasses import dataclass
-from pathlib import Path
-from contextlib import contextmanager
 from ipaddress import IPv4Address
 
-TCPREPLAY_PATH = Path("tcpreplay-4.4.1-win")
+TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
+PCAP_FILE_PATH = os.path.abspath(
+    os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
+)
 
 
-def find_first_connected_interface() -> tuple[str, IPv4Address] | tuple[None, None]:
-    """Find a network interface connected to the internet by checking if it can reach www.google.com."""
+class InterfaceList:
+    def __init__(self):
+        interfaces = scapy.arch.windows.get_windows_if_list()
+        self.interfaces = {
+            iface["guid"]: iface for iface in interfaces if "guid" in iface
+        }
 
-    def tcp_replay_list_nics():
-        return subprocess.run(
-            ["tcpreplay.exe", "--listnics"],
-            capture_output=True,
-            shell=True,
-            cwd=TCPREPLAY_PATH,
-            check=True,
-        )
+    def get_ipv4_by_guid(self, guid: str) -> IPv4Address | None:
+        interface = self.interfaces.get(guid, None)
+        if interface is None:
+            return None
 
-    def curl_google(ip_address):
-        return subprocess.run(
-            ["curl", "--interface", str(ip_address), "www.google.com"],
-            capture_output=True,
-        )
+        for ip in interface.get("ips", []):
+            try:
+                return IPv4Address(ip)
+            except ValueError:
+                pass
 
-    # Create a set of detected device paths. Possibly unnecessary, but scapy only returns GUID
-    tcp_result = tcp_replay_list_nics()
-    npf_guids = set()
-    for row in tcp_result.stdout.decode("utf-8").split("\n")[2::2]:
+        return None
+
+
+def find_interface() -> tuple[str, IPv4Address] | tuple[None, None]:
+    completed_process = subprocess.run(
+        ["tcpreplay.exe", "--listnics"],
+        shell=True,
+        capture_output=True,
+        cwd=TCPREPLAY_PATH,
+    )
+    if completed_process.returncode != 0:
+        print('Error executing "tcpreplay.exe --listnics"!')
+        exit(1)
+
+    if_list = InterfaceList()
+
+    raw_nics_output = completed_process.stdout.decode("utf-8")
+    for row in raw_nics_output.split("\n")[2:]:
         columns = row.split("\t")
         if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
-            npf_guids.add(columns[1].lstrip("\\Device\\NPF_"))
-
-    all_interfaces = scapy.arch.windows.get_windows_if_list()
-    for interface in all_interfaces:
-        if_guid: str | None = interface.get("guid", None)
-        if if_guid is None:
-            continue
-
-        # Not a NPF guid? Can we even get those on a machine with NPcap / WinPcap?
-        if if_guid not in npf_guids:
-            continue
-
-        ips = interface.get("ips", [])
-
-        if len(ips) <= 0:
-            continue
-
-        for ip_raw in ips:
+            interface = columns[1]
             try:
-                ipv4 = IPv4Address(ip_raw)
-            except ValueError:
-                continue
+                nic_guid = interface.lstrip("\\Device\\NPF_")
 
-            # Discards 169.245.x.x
-            if ipv4.is_link_local:
-                continue
+                ipv4 = if_list.get_ipv4_by_guid(nic_guid)
 
-            if curl_google(ipv4).returncode == 0:
-                # Construct the full device path again.
-                return f"\\Device\\NPF_{if_guid}", ipv4
+                if ipv4 is None:
+                    continue
 
+                if ipv4.is_link_local or ipv4.is_loopback:
+                    continue
+
+                completed_process = subprocess.run(
+                    ["curl", "--interface", str(ipv4), "www.google.com"],
+                    capture_output=True,
+                    shell=True,
+                )
+                if completed_process.returncode != 0:
+                    continue
+
+                return interface, ipv4
+            except Exception:
+                pass
     return None, None
-
-
-@contextmanager
-def tcp_replay_worker(interface: str, tcpreplay_dir: Path, source_pcap: Path):
-    tcpreplay_proc = subprocess.Popen(
-        ["tcpreplay.exe", "-i", interface, "--mbps=10", "-l", "0", str(source_pcap)],
-        cwd=tcpreplay_dir,
-        shell=True,
-    )
-
-    try:
-        yield tcpreplay_proc
-    finally:
-        subprocess.call(["taskkill", "/F", "/T", "/PID", str(tcpreplay_proc.pid)])
-
-
-@dataclass
-class Runner:
-    build_dir: Path
-    packet_test_path = Path("Tests", "Packet++Test", "Packet++Test.exe")
-    pcap_test_path = Path("Tests", "Pcap++Test", "Pcap++Test.exe")
-
-    def run_packet_test(self):
-        exe_path = (self.build_dir / self.packet_test_path).resolve()
-        work_dir = exe_path.parent
-
-        logging.info(f"Running {exe_path} in {work_dir}")
-        subprocess.run(str(exe_path), cwd=work_dir, check=True)
-
-    def run_packet_coverage(self):
-        exe_path = (self.build_dir / self.packet_test_path).resolve()
-        work_dir = exe_path.parent
-
-        logging.info(f"Running coverage for {exe_path} in {work_dir}")
-        subprocess.run(
-            [
-                "OpenCppCoverage.exe",
-                "--verbose",
-                "--sources",
-                "Packet++",
-                "--sources",
-                "Pcap++",
-                "--sources",
-                "Common++",
-                "--excluded_sources",
-                "Tests",
-                "--export_type",
-                "cobertura:Packet++Coverage.xml",
-                "--working_dir",
-                str(work_dir),
-                "--",
-                str(exe_path),
-            ],
-            cwd=work_dir,
-            check=True,
-        )
-
-    def run_pcap_tests(self, include_tests: list[str], skip_tests: list[str]):
-        exe_path = (self.build_dir / self.pcap_test_path).resolve()
-        work_dir = exe_path.parent
-
-        logging.debug("Searching suitable interface")
-        interface, ip_address = find_first_connected_interface()
-        if not interface or not ip_address:
-            raise RuntimeError("Cannot find an interface to run tests on!")
-
-        logging.info(f"Interface is {interface} and IP address is {ip_address}")
-
-        source_pcap = work_dir / "PcapExamples" / "example.pcap"
-
-        with tcp_replay_worker(
-            interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap
-        ):
-            logging.info(f"Running tests for {exe_path} in {work_dir}")
-            subprocess.run(
-                [
-                    str(exe_path),
-                    "-i",
-                    str(ip_address),
-                    *self._make_include_tests_option(include_tests),
-                    *self._make_skip_tests_option(skip_tests),
-                ],
-                cwd=work_dir,
-                check=True,
-            )
-
-    def run_pcap_coverage(self, include_tests: list[str], skip_tests: list[str]):
-        exe_path = (self.build_dir / self.pcap_test_path).resolve()
-        work_dir = exe_path.parent
-
-        logging.debug("Searching suitable interface")
-        interface, ip_address = find_first_connected_interface()
-        if not interface or not ip_address:
-            raise RuntimeError("Cannot find an interface to run tests on!")
-        logging.info(f"Interface is {interface} and IP address is {ip_address}")
-
-        source_pcap = work_dir / "PcapExamples" / "example.pcap"
-
-        with tcp_replay_worker(
-            interface=interface, tcpreplay_dir=TCPREPLAY_PATH, source_pcap=source_pcap
-        ):
-            logging.info(f"Running coverage for {exe_path} in {work_dir}")
-            subprocess.run(
-                [
-                    "OpenCppCoverage.exe",
-                    "--verbose",
-                    "--sources",
-                    "Packet++",
-                    "--sources",
-                    "Pcap++",
-                    "--sources",
-                    "Common++",
-                    "--excluded_sources",
-                    "Tests",
-                    "--export_type",
-                    "cobertura:Pcap++Coverage.xml",
-                    "--",
-                    str(exe_path),
-                    "-i",
-                    str(ip_address),
-                    *self._make_include_tests_option(include_tests),
-                    *self._make_skip_tests_option(skip_tests),
-                ],
-                cwd=work_dir,
-                check=True,
-            )
-
-    def _make_include_tests_option(self, tests: list[str]) -> list[str]:
-        if not tests:
-            return []
-        return ["-t", ";".join(tests)]
-
-    def _make_skip_tests_option(self, tests: list[str]) -> list[str]:
-        if not tests:
-            return []
-        return ["-x", ";".join(tests)]
 
 
 def main():
@@ -232,42 +101,100 @@ def main():
         default=False,
         help="Enable OpenCppCoverage encapsulation to generate coverage report",
     )
-    parser.add_argument(
-        "--build-dir", type=str, default=os.getcwd(), help="Path to the build directory"
-    )
-    parser.add_argument(
-        "--packet-test-exe",
-        type=str,
-        help="Custom path to Packet++ test executable. Can be relative to the build directory.",
-    )
-    parser.add_argument(
-        "--pcap-test-exe",
-        type=str,
-        help="Custom path to Pcap++ test executable. Can be relative to the build directory.",
-    )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose logging output"
-    )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+    tcpreplay_interface, ip_address = find_interface()
+    if not tcpreplay_interface or not ip_address:
+        print("Cannot find an interface to run tests on!")
+        exit(1)
+    print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
 
-    runner = Runner(build_dir=Path(args.build_dir))
+    try:
+        tcpreplay_cmd = (
+            f'tcpreplay.exe -i "{tcpreplay_interface}" --mbps=10 -l 0 {PCAP_FILE_PATH}'
+        )
+        tcpreplay_proc = subprocess.Popen(tcpreplay_cmd, shell=True, cwd=TCPREPLAY_PATH)
 
-    # Override default paths if they are provided via the command line.
-    if args.packet_test_exe:
-        runner.packet_test_path = Path(args.packet_test_exe)
-    if args.pcap_test_exe:
-        runner.pcap_test_path = Path(args.pcap_test_exe)
+        if args.coverage:
+            completed_process = subprocess.run(
+                [
+                    "OpenCppCoverage.exe",
+                    "--verbose",
+                    "--sources",
+                    "Packet++",
+                    "--sources",
+                    "Pcap++",
+                    "--sources",
+                    "Common++",
+                    "--excluded_sources",
+                    "Tests",
+                    "--export_type",
+                    "cobertura:Packet++Coverage.xml",
+                    "--",
+                    os.path.join("Bin", "Packet++Test"),
+                ],
+                cwd=os.path.join("Tests", "Packet++Test"),
+                shell=True,
+            )
+        else:
+            completed_process = subprocess.run(
+                os.path.join("Bin", "Packet++Test"),
+                cwd=os.path.join("Tests", "Packet++Test"),
+                shell=True,
+            )
+        if completed_process.returncode != 0:
+            print("Error while executing Packet++ tests: " + str(completed_process))
+            exit(completed_process.returncode)
 
-    # Always skip remote capture tests on Windows
-    args.skip_tests.append("TestRemoteCapture")
-    if args.coverage:
-        runner.run_packet_coverage()
-        runner.run_pcap_coverage(args.include_tests, args.skip_tests)
-    else:
-        runner.run_packet_test()
-        runner.run_pcap_tests(args.include_tests, args.skip_tests)
+        skip_tests = ["TestRemoteCapture"] + args.skip_tests
+        include_tests = (
+            ["-t", ";".join(args.include_tests)] if args.include_tests else []
+        )
+        if args.coverage:
+            completed_process = subprocess.run(
+                [
+                    "OpenCppCoverage.exe",
+                    "--verbose",
+                    "--sources",
+                    "Packet++",
+                    "--sources",
+                    "Pcap++",
+                    "--sources",
+                    "Common++",
+                    "--excluded_sources",
+                    "Tests",
+                    "--export_type",
+                    "cobertura:Pcap++Coverage.xml",
+                    "--",
+                    os.path.join("Bin", "Pcap++Test"),
+                    "-i",
+                    str(ip_address),
+                    "-x",
+                    ";".join(skip_tests),
+                    *include_tests,
+                ],
+                cwd=os.path.join("Tests", "Pcap++Test"),
+                shell=True,
+            )
+        else:
+            completed_process = subprocess.run(
+                [
+                    os.path.join("Bin", "Pcap++Test"),
+                    "-i",
+                    str(ip_address),
+                    "-x",
+                    ";".join(skip_tests),
+                    *include_tests,
+                ],
+                cwd=os.path.join("Tests", "Pcap++Test"),
+                shell=True,
+            )
+        if completed_process.returncode != 0:
+            print("Error while executing Pcap++ tests: " + str(completed_process))
+            exit(completed_process.returncode)
+
+    finally:
+        subprocess.call(["taskkill", "/F", "/T", "/PID", str(tcpreplay_proc.pid)])
 
 
 if __name__ == "__main__":

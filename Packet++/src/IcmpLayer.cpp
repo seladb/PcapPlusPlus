@@ -565,6 +565,9 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 
+		auto payloadPtr = m_Data + headerLen;
+		auto payloadLen = m_DataLen - headerLen;
+
 		switch (getMessageType())
 		{
 		case ICMP_DEST_UNREACHABLE:
@@ -572,16 +575,16 @@ namespace pcpp
 		case ICMP_TIME_EXCEEDED:
 		case ICMP_REDIRECT:
 		case ICMP_PARAM_PROBLEM:
-			// clang-format off
-			m_NextLayer = IPv4Layer::isDataValid(m_Data + headerLen, m_DataLen - headerLen)
-			        ? static_cast<Layer*>(new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket()))
-			        : static_cast<Layer*>(new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket()));
-			// clang-format on
-			return;
+		{
+			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payloadPtr, payloadLen);
+			break;
+		}
 		default:
 			if (m_DataLen > headerLen)
-				m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
-			return;
+			{
+				constructNextLayer<PayloadLayer>(payloadPtr, payloadLen);
+			}
+			break;
 		}
 	}
 
