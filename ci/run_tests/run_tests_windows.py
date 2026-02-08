@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import logging
 import argparse
 import subprocess
 from pathlib import Path
@@ -119,15 +120,43 @@ def main():
         default=False,
         help="Enable OpenCppCoverage encapsulation to generate coverage report",
     )
+    parser.add_argument(
+        "--build-dir", type=str, default=os.getcwd(), help="Path to the build directory"
+    )
+    parser.add_argument(
+        "--packet-test-exe",
+        type=str,
+        default=os.path.join("Tests", "Packet++Test", "Packet++Test.exe"),
+        help="Custom path to Packet++ test executable. Can be relative to the build directory.",
+    )
+    parser.add_argument(
+        "--pcap-test-exe",
+        type=str,
+        default=os.path.join("Tests", "Pcap++Test", "Pcap++Test.exe"),
+        help="Custom path to Pcap++ test executable. Can be relative to the build directory.",
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose logging output"
+    )
     args = parser.parse_args()
+
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
 
     tcpreplay_interface, ip_address = find_interface()
     if not tcpreplay_interface or not ip_address:
-        print("Cannot find an interface to run tests on!")
+        logging.critical("Cannot find an interface to run tests on!")
         exit(1)
-    print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
+
+    logging.info(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
+
+    build_dir = Path(args.build_dir)
+    logging.debug(f"Using build directory: {build_dir}")
+
+    packet_exec_path = build_dir / args.packet_test_exe
+    packet_exec_path = packet_exec_path.resolve()
 
     if args.coverage:
+        logging.debug("Running Packet++ tests with coverage from: %s", packet_exec_path)
         subprocess.run(
             [
                 "OpenCppCoverage.exe",
@@ -142,18 +171,19 @@ def main():
                 "Tests",
                 "--export_type",
                 "cobertura:Packet++Coverage.xml",
+                "--working_dir",
+                str(packet_exec_path.parent),
                 "--",
-                os.path.join("Bin", "Packet++Test"),
+                str(packet_exec_path),
             ],
-            cwd=os.path.join("Tests", "Packet++Test"),
-            shell=True,
+            cwd=packet_exec_path.parent,
             check=True,
         )
     else:
+        logging.debug("Running Packet++ tests from: %s", packet_exec_path)
         subprocess.run(
-            os.path.join("Bin", "Packet++Test"),
-            cwd=os.path.join("Tests", "Packet++Test"),
-            shell=True,
+            str(packet_exec_path),
+            cwd=packet_exec_path.parent,
             check=True,
         )
 
@@ -162,11 +192,18 @@ def main():
             return []
         return [option, ";".join(tests)]
 
-    with tcp_replay_worker(tcpreplay_interface, Path(TCPREPLAY_PATH), Path(PCAP_FILE_PATH)) as worker:
+    pcap_exec_path = build_dir / args.pcap_test_exe
+    pcap_exec_path = pcap_exec_path.resolve()
+
+    pcap_file_source = pcap_exec_path.parent / "PcapExamples" / "example.pcap"
+    logging.debug("Pcap sample file: %s", pcap_file_source)
+
+    with tcp_replay_worker(tcpreplay_interface, Path(TCPREPLAY_PATH), pcap_file_source):
         include_tests_opt = make_tests_list_option('-t', args.include_tests)
         skip_tests_opt = make_tests_list_option('-x', ["TestRemoteCapture"] + args.skip_tests)
 
         if args.coverage:
+            logging.debug("Running Pcap++ tests with coverage from: %s", pcap_exec_path)
             subprocess.run(
                 [
                     "OpenCppCoverage.exe",
@@ -182,27 +219,26 @@ def main():
                     "--export_type",
                     "cobertura:Pcap++Coverage.xml",
                     "--",
-                    os.path.join("Bin", "Pcap++Test"),
+                    str(pcap_exec_path),
                     "-i",
                     str(ip_address),
                     *skip_tests_opt,
                     *include_tests_opt,
                 ],
-                cwd=os.path.join("Tests", "Pcap++Test"),
-                shell=True,
+                cwd=pcap_exec_path.parent,
                 check=True,
             )
         else:
+            logging.debug("Running Pcap++ tests from: %s", pcap_exec_path)
             subprocess.run(
                 [
-                    os.path.join("Bin", "Pcap++Test"),
+                    str(pcap_exec_path),
                     "-i",
                     str(ip_address),
                     *skip_tests_opt,
                     *include_tests_opt,
                 ],
-                cwd=os.path.join("Tests", "Pcap++Test"),
-                shell=True,
+                cwd=pcap_exec_path.parent,
                 check=True,
             )
 
