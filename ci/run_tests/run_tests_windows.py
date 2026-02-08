@@ -147,7 +147,7 @@ def main():
     logging.info(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
 
     build_dir = Path(args.build_dir)
-    logging.debug(f"Using build directory: {build_dir}")
+    logging.debug("Using build directory: %s", build_dir)
 
     packet_exec_path = build_dir / args.packet_test_exe
     packet_exec_path = packet_exec_path.resolve()
@@ -184,7 +184,9 @@ def main():
             check=True,
         )
 
-    def make_tests_list_option(option: Literal['-t', '-x'], tests: list[str]) -> list[str]:
+    def make_tests_list_option(
+        option: Literal["-t", "-x"], tests: list[str]
+    ) -> list[str]:
         if not tests:
             return []
         return [option, ";".join(tests)]
@@ -196,8 +198,10 @@ def main():
     logging.debug("Pcap sample file: %s", pcap_file_source)
 
     with tcp_replay_worker(tcpreplay_interface, Path(TCPREPLAY_PATH), pcap_file_source):
-        include_tests_opt = make_tests_list_option('-t', args.include_tests)
-        skip_tests_opt = make_tests_list_option('-x', ["TestRemoteCapture"] + args.skip_tests)
+        include_tests_opt = make_tests_list_option("-t", args.include_tests)
+        skip_tests_opt = make_tests_list_option(
+            "-x", ["TestRemoteCapture"] + args.skip_tests
+        )
 
         if args.coverage:
             logging.debug("Running Pcap++ tests with coverage from: %s", pcap_exec_path)
