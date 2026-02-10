@@ -260,7 +260,7 @@ namespace pcpp
 		/// @brief Type of RawPacket implementation
 		///
 		/// This is mainly used internally to distinguish between different implementations without using RTTI.
-		/// 
+		///
 		/// Only the standard RawPacket implementation is defined in Packet++ library.
 		/// Other device specific implementations are defined in their respective parts of Pcap++.
 		enum class RawPacketImplType : uint8_t
@@ -279,7 +279,7 @@ namespace pcpp
 		/// @param rawPacket The RawPacket instance
 		/// @return A value of RawPacketImplType enum representing the concrete implementation type of the given
 		/// RawPacket instance.
-		RawPacketImplType getRawPacketImplemenationType(RawPacket const& rawPacket);
+		RawPacketImplType getRawPacketImplementationType(RawPacket const& rawPacket);
 	}  // namespace internal
 
 	/// @class RawPacket
@@ -288,7 +288,7 @@ namespace pcpp
 	/// instance isn't read only. The user can change the packet data, add or remove data, etc.
 	class RawPacket
 	{
-		friend internal::RawPacketImplType internal::getRawPacketImplemenationType(RawPacket const& rawPacket);
+		friend internal::RawPacketImplType internal::getRawPacketImplementationType(RawPacket const& rawPacket);
 
 	protected:
 		uint8_t* m_RawData = nullptr;
@@ -567,7 +567,7 @@ namespace pcpp
 
 	namespace internal
 	{
-		inline RawPacketImplType getRawPacketImplemenationType(RawPacket const& rawPacket)
+		inline RawPacketImplType getRawPacketImplementationType(RawPacket const& rawPacket)
 		{
 			return rawPacket.getImplType();
 		}

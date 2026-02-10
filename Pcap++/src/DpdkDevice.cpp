@@ -1171,7 +1171,7 @@ namespace pcpp
 		{
 			MBufRawPacket* rawPacket = nullptr;
 
-			auto rawPacketType = internal::getRawPacketImplemenationType(*packetsArr[i]->getRawPacketReadOnly());
+			auto rawPacketType = internal::getRawPacketImplementationType(*packetsArr[i]->getRawPacketReadOnly());
 			if (rawPacketType != internal::RawPacketImplType::DpdkMBuf)
 			{
 				rawPacket = new MBufRawPacket();
@@ -1213,7 +1213,7 @@ namespace pcpp
 		for (RawPacketVector::ConstVectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); iter++)
 		{
 			MBufRawPacket* rawPacket = nullptr;
-			auto rawPacketType = internal::getRawPacketImplemenationType(**iter);
+			auto rawPacketType = internal::getRawPacketImplementationType(**iter);
 			if (rawPacketType != internal::RawPacketImplType::DpdkMBuf)
 			{
 				rawPacket = new MBufRawPacket();
@@ -1260,7 +1260,7 @@ namespace pcpp
 
 	bool DpdkDevice::sendPacket(RawPacket& rawPacket, uint16_t txQueueId, bool useTxBuffer)
 	{
-		auto rawPacketType = internal::getRawPacketImplemenationType(rawPacket);
+		auto rawPacketType = internal::getRawPacketImplementationType(rawPacket);
 		if (rawPacketType == internal::RawPacketImplType::DpdkMBuf)
 		{
 			bool packetSent = (sendPacketsInner(txQueueId, (MBufRawPacket*)&rawPacket, getNextPacketFromMBufRawPacket,
