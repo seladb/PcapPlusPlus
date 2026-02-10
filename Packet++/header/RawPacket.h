@@ -358,7 +358,7 @@ namespace pcpp
 		/// @return RawPacket object type. Each derived class should return a different value
 		/// @deprecated Deprecated due to unclear semantics and type safety.
 		/// The functionality has been moved to the unstable internal API in as
-		/// internal::getRawPacketImplemenationType(RawPacket const& rawPacket).
+		/// internal::getRawPacketImplementationType(RawPacket const& rawPacket).
 		PCPP_DEPRECATED("Deprecated due to unclear semantics.")
 		virtual uint8_t getObjectType() const
 		{
