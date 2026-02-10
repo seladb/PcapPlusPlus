@@ -253,11 +253,16 @@ namespace pcpp
 	/// Max packet size supported
 #define PCPP_MAX_PACKET_SIZE 65536
 
+	class RawPacket;
+
 	namespace internal
 	{
 		/// @brief Type of RawPacket implementation
 		///
 		/// This is mainly used internally to distinguish between different implementations without using RTTI.
+		/// 
+		/// Only the standard RawPacket implementation is defined in Packet++ library.
+		/// Other device specific implementations are defined in their respective parts of Pcap++.
 		enum class RawPacketImplType : uint8_t
 		{
 			/// @brief Unknown type
@@ -269,6 +274,12 @@ namespace pcpp
 			/// @brief WinDivert based RawPacket
 			WinDivert = 3
 		};
+
+		/// @brief Get the concrete implementation type of a RawPacket instance
+		/// @param rawPacket The RawPacket instance
+		/// @return A value of RawPacketImplType enum representing the concrete implementation type of the given
+		/// RawPacket instance.
+		RawPacketImplType getRawPacketImplemenationType(RawPacket const& rawPacket);
 	}  // namespace internal
 
 	/// @class RawPacket
@@ -277,6 +288,8 @@ namespace pcpp
 	/// instance isn't read only. The user can change the packet data, add or remove data, etc.
 	class RawPacket
 	{
+		friend internal::RawPacketImplType internal::getRawPacketImplemenationType(RawPacket const& rawPacket);
+
 	protected:
 		uint8_t* m_RawData = nullptr;
 		int m_RawDataLen = 0;
@@ -342,16 +355,11 @@ namespace pcpp
 		/// @return A pointer to the new RawPacket object which is a clone of this object
 		virtual RawPacket* clone() const;
 
-		/// @brief Get the type of RawPacket implementation.
-		/// @remarks This method is for internal use only and may be subject to change without prior notice.
-		virtual internal::RawPacketImplType getImplType() const
-		{
-			return internal::RawPacketImplType::Standard;
-		}
-
 		/// @return RawPacket object type. Each derived class should return a different value
-		/// @deprecated Deprecated in favor of getImplType()
-		PCPP_DEPRECATED("Deprecated in favor of getImplType()")
+		/// @deprecated Deprecated due to unclear semantics and type safety.
+		/// The functionality has been moved to the unstable internal API in as
+		/// internal::getRawPacketImplemenationType(RawPacket const& rawPacket).
+		PCPP_DEPRECATED("Deprecated due to unclear semantics.")
 		virtual uint8_t getObjectType() const
 		{
 			return 0;
@@ -546,9 +554,22 @@ namespace pcpp
 		virtual bool reallocateData(size_t newBufferLength);
 
 	protected:
+		/// @brief Get the type of RawPacket implementation.
+		virtual internal::RawPacketImplType getImplType() const
+		{
+			return internal::RawPacketImplType::Standard;
+		}
+
 		// Updates the raw data buffer and related members. Used by setRawData() methods.
 		virtual bool doSetRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timespec timestamp,
 		                          LinkLayerType layerType, int frameLength);
 	};
 
+	namespace internal
+	{
+		inline RawPacketImplType getRawPacketImplemenationType(RawPacket const& rawPacket)
+		{
+			return rawPacket.getImplType();
+		}
+	}  // namespace internal
 }  // namespace pcpp

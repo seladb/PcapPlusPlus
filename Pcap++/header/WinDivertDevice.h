@@ -217,11 +217,6 @@ namespace pcpp
 
 		~WinDivertRawPacket() override = default;
 
-		internal::RawPacketImplType getImplType() const override
-		{
-			return internal::RawPacketImplType::WinDivert;
-		}
-
 		/// @brief Get the Windows interface index the packet was captured on.
 		/// @return The interface index as reported by WinDivert.
 		uint32_t getInterfaceIndex() const
@@ -234,6 +229,12 @@ namespace pcpp
 		uint64_t getWinDivertTimestamp() const
 		{
 			return m_WinDivertTimestamp;
+		}
+
+	protected:
+		internal::RawPacketImplType getImplType() const override
+		{
+			return internal::RawPacketImplType::WinDivert;
 		}
 
 	private:
