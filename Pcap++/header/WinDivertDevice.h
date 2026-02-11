@@ -231,6 +231,12 @@ namespace pcpp
 			return m_WinDivertTimestamp;
 		}
 
+	protected:
+		internal::RawPacketImplType getImplType() const override
+		{
+			return internal::RawPacketImplType::WinDivert;
+		}
+
 	private:
 		uint32_t m_InterfaceIndex;
 		uint64_t m_WinDivertTimestamp;
