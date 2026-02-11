@@ -3,8 +3,8 @@
 #include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
 #include "Logger.h"
-#include "../../Tests/Packet++Test/Utils/TestUtils.h"
 #include "Resources.h"
+#include "Utils/TestUtils.h"
 
 static struct option PacketTestOptions[] = {
 	{ "include-tags",        required_argument, nullptr, 't' },
