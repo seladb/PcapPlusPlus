@@ -1200,7 +1200,7 @@ namespace pcpp
 	{
 		// Const cast because Packet requires a non-const RawPacket pointer
 		// and we don't modify the RawPacket in this function.
-		return isPayloadWithinMtu(Packet(const_cast<RawPacket*>(&rawPacket), OsiModelDataLinkLayer), allowUnknownLength,
+		return isPayloadWithinMtu(Packet(const_cast<RawPacket*>(&rawPacket), false, OsiModelDataLinkLayer), allowUnknownLength,
 		                          outPayloadLength);
 	}
 
