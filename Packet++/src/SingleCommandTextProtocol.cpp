@@ -3,13 +3,12 @@
 #include <algorithm>
 #include <vector>
 
-#define ASCII_HYPHEN 0x2d
-#define ASCII_SPACE 0x20
-#define MAX_COMMAND_LENGTH 9  // From SMTP command "STARTTLS" + 1 byte hyphen or space
-#define MIN_PACKET_LENGTH 2   // CRLF
-
 namespace pcpp
 {
+	constexpr char ASCII_HYPHEN = 0x2d;
+	constexpr char ASCII_SPACE = 0x20;
+	constexpr size_t MAX_COMMAND_LENGTH = 9;  // From SMTP command "STARTTLS" + 1 byte hyphen or space
+	constexpr size_t MIN_PACKET_LENGTH = 2;   // CRLF
 
 	size_t SingleCommandTextProtocol::getArgumentFieldOffset() const
 	{
