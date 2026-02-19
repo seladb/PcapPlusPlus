@@ -229,7 +229,7 @@ PTF_TEST_CASE(MyNewProtocolParseTest)
   ```bash
   clang-format -i -style=file <your_file.cpp> <your_file.h>
   ```
-- **Documentation:** Public API classes, methods, and enums should have Doxygen-style comments using tiple slashes (`///`).
+- **Documentation:** Public API classes, methods, and enums should have Doxygen-style comments using triple slashes (`///`).
 - **No raw `new`/`delete` without ownership clarity:** Prefer RAII. When a class owns heap
   memory, implement or explicitly delete the copy constructor and assignment operator.
 
