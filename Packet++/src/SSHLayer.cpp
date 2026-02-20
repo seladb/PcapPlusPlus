@@ -33,7 +33,8 @@ namespace pcpp
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
 			return;
-		m_NextLayer = SSHLayer::createSSHMessage(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket());
+
+		constructNextLayerFromFactory(SSHLayer::createSSHMessage, m_Data + headerLen, m_DataLen - headerLen);
 	}
 
 	// --------------------------------

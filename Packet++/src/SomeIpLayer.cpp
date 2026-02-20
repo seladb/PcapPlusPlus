@@ -264,7 +264,7 @@ namespace pcpp
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		m_NextLayer = parseSomeIpLayer(payload, payloadLen, this, getAttachedPacket());
+		constructNextLayerFromFactory(parseSomeIpLayer, payload, payloadLen);
 	}
 
 	std::string SomeIpLayer::toString() const

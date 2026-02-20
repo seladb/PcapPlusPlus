@@ -103,21 +103,22 @@ PTF_TEST_CASE(DhcpV6CreationTest)
 	PTF_ASSERT_EQUAL(option.getDataSize(), 13);
 	PTF_ASSERT_EQUAL(newDhcpV6Layer.getOptionCount(), 6);
 
-	pcpp::Logger::getInstance().suppressLogs();
-	// prev/next option doesn't exist in layer
-	option = newDhcpV6Layer.addOptionAfter(pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_DOMAIN_LIST, "05"),
-	                                       pcpp::DHCPV6_OPT_ELAPSED_TIME);
-	PTF_ASSERT_TRUE(option.isNull());
-	option = newDhcpV6Layer.addOptionBefore(pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_DOMAIN_LIST, "05"),
-	                                        pcpp::DHCPV6_OPT_ELAPSED_TIME);
-	PTF_ASSERT_TRUE(option.isNull());
+	{
+		SuppressLogs suppressLogs;
+		// prev/next option doesn't exist in layer
+		option = newDhcpV6Layer.addOptionAfter(pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_DOMAIN_LIST, "05"),
+		                                       pcpp::DHCPV6_OPT_ELAPSED_TIME);
+		PTF_ASSERT_TRUE(option.isNull());
+		option = newDhcpV6Layer.addOptionBefore(pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_DOMAIN_LIST, "05"),
+		                                        pcpp::DHCPV6_OPT_ELAPSED_TIME);
+		PTF_ASSERT_TRUE(option.isNull());
 
-	// string is not a valid hex stream
-	option = newDhcpV6Layer.addOption(pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_DOMAIN_LIST, "xyza"));
-	PTF_ASSERT_TRUE(option.isNull());
+		// string is not a valid hex stream
+		option = newDhcpV6Layer.addOption(pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_DOMAIN_LIST, "xyza"));
+		PTF_ASSERT_TRUE(option.isNull());
 
-	PTF_ASSERT_EQUAL(newDhcpV6Layer.getOptionCount(), 6);
-	pcpp::Logger::getInstance().enableLogs();
+		PTF_ASSERT_EQUAL(newDhcpV6Layer.getOptionCount(), 6);
+	}
 
 	PTF_ASSERT_EQUAL(newDhcpV6Layer.getDataLen(), origDhcpV6Layer->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(newDhcpV6Layer.getData(), origDhcpV6Layer->getData(), origDhcpV6Layer->getDataLen());

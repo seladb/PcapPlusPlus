@@ -190,9 +190,10 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 5);
 	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, htobe16(48));
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(pppoedLayer.removeTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_CREDITS));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(pppoedLayer.removeTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_CREDITS));
+	}
 
 	PTF_ASSERT_TRUE(pppoedLayer.removeTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HURL));
 	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 4);

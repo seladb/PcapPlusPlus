@@ -54,7 +54,7 @@ namespace pcpp
 			PCPP_LOG_ERROR(e.what());
 		}
 
-		PCPP_LOG_DEBUG("Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
+		PCPP_LOG_DEBUG("Pcap lib version info: " << PcapLiveDevice::getPcapLibVersionInfo());
 
 		for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr;
 		     currInterface = currInterface->next)

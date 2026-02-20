@@ -121,17 +121,18 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 	pcpp::PayloadLayer payloadLayer(payload, 10);
 	PTF_ASSERT_TRUE(newPacket->addLayer(&payloadLayer));
 
-	pcpp::Logger::getInstance().suppressLogs();
+	{
+		SuppressLogs suppressLogs;
 
-	// Inserting a new layer should fail because the size of the new layer exceeds the buffer size
-	pcpp::TcpLayer tcpLayer(12345, 80);
-	PTF_ASSERT_FALSE(newPacket->insertLayer(&ip4Layer, &tcpLayer));
+		// Inserting a new layer should fail because the size of the new layer exceeds the buffer size
+		pcpp::TcpLayer tcpLayer(12345, 80);
+		PTF_ASSERT_FALSE(newPacket->insertLayer(&ip4Layer, &tcpLayer));
 
-	// Extending the IPv4 layer should fail because the size of the new option exceeds the buffer size
-	pcpp::IPv4Option newOption = ip4Layer.addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)100));
-	PTF_ASSERT_TRUE(newOption.isNull());
-
-	pcpp::Logger::getInstance().enableLogs();
+		// Extending the IPv4 layer should fail because the size of the new option exceeds the buffer size
+		pcpp::IPv4Option newOption =
+		    ip4Layer.addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)100));
+		PTF_ASSERT_TRUE(newOption.isNull());
+	}
 
 	newPacket->computeCalculateFields();
 
@@ -220,10 +221,11 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// e. Remove a layer that doesn't exist
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::HTTPRequest));
-	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::Ethernet, 1));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::HTTPRequest));
+		PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::Ethernet, 1));
+	}
 
 	// create packet and remove layers
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -806,9 +808,10 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// add layer after trailer (result with an error)
 	uint8_t payload[4] = { 0x1, 0x2, 0x3, 0x4 };
 	std::unique_ptr<pcpp::PayloadLayer> newPayloadLayer = std::make_unique<pcpp::PayloadLayer>(payload, 4);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(newPayloadLayer.get(), true));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(newPayloadLayer.get(), true));
+	}
 
 	// remove layer before trailer
 	PTF_ASSERT_TRUE(trailerIPv4Packet.removeLayer(pcpp::TCP));
@@ -1094,4 +1097,88 @@ PTF_TEST_CASE(PacketParseMultiLayerTest)
 	}
 
 	PTF_ASSERT_EQUAL(actualNumOfBgpMessages, expectedNumOfBgpMessages);
+}
+
+PTF_TEST_CASE(PacketIncrementalParseTest)
+{
+	auto rawPacket = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
+
+	pcpp::PacketParseOptions pOpts;
+	pOpts.parseUntilProtocol = pcpp::IPv4;
+
+	pcpp::Packet igmpPacket(rawPacket.get(), false, pOpts.parseUntilProtocol, pOpts.parseUntilLayer);
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	auto ethLayer = igmpPacket.getLayerOfType<pcpp::EthLayer>();
+	PTF_ASSERT_NOT_NULL(ethLayer);
+
+	auto ipLayer = igmpPacket.getLayerOfType<pcpp::IPv4Layer>();
+	PTF_ASSERT_NOT_NULL(ipLayer);
+
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PayloadLayer>());
+
+	// Do an incremental parse up to IGMP layer
+	pOpts.parseUntilProtocol = pcpp::IGMP;
+	igmpPacket.parsePacket(pOpts);
+
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	// Assert that the previously obtained layers are the same as the ones, after incremental parsing
+	PTF_ASSERT_EQUAL(igmpPacket.getLayerOfType<pcpp::EthLayer>(), ethLayer);
+	PTF_ASSERT_EQUAL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>(), ipLayer);
+
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+
+	// Do an incremental parse up to the end of the packet
+	igmpPacket.parsePacket(pcpp::PacketParseOptions{});
+
+	// Assert that the end of the packet is reached and trailer layer is present
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+
+	// Do an incremental parse up to a previously parsed layer (IP layer)
+	pOpts.parseUntilProtocol = pcpp::IP;
+	igmpPacket.parsePacket(pOpts);
+
+	PTF_ASSERT_EQUAL(igmpPacket.getLayerOfType<pcpp::IPLayer>(), ipLayer);
+
+	// Incremental parsing shouldn't remove layers previously parsed beyond the specified layer
+	PTF_ASSERT_EQUAL(igmpPacket.getLastLayer(), igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+}
+
+PTF_TEST_CASE(PacketFullReparseTest)
+{
+	auto rawPacket = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
+	pcpp::Packet igmpPacket(rawPacket.get(), false);
+
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+
+	// Disable incremental parsing and do a full reparse up to IP layer.
+	// The IGMP and Trailer layers shouldn't be present after the reparse.
+	pcpp::PacketParseOptions pOpts;
+	pOpts.parseUntilProtocol = pcpp::IP;
+	igmpPacket.parsePacket(pOpts, false);
+
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+
+	// IGMP and Trailer layers should have been discarded after full reparse.
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
 }

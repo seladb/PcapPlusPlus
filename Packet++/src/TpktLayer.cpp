@@ -63,12 +63,7 @@ namespace pcpp
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		if (CotpLayer::isDataValid(payload, payloadLen))
-		{
-			m_NextLayer = new CotpLayer(payload, payloadLen, this, getAttachedPacket());
-		}
-		else
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, getAttachedPacket());
+		tryConstructNextLayerWithFallback<CotpLayer, PayloadLayer>(payload, payloadLen);
 	}
 
 }  // namespace pcpp

@@ -67,13 +67,13 @@ int main(int argc, char* argv[])
 	}
 
 	// Use lambda to simplify statistics output
-	auto printStats = [](const std::string& writerName, const pcpp::IPcapDevice::PcapStats& stats) {
+	auto printStats = [](const std::string& writerName, const pcpp::PcapStats& stats) {
 		std::cout << "Written " << stats.packetsRecv << " packets successfully to " << writerName << " and "
 		          << stats.packetsDrop << " packets could not be written" << std::endl;
 	};
 
 	// create the stats object
-	pcpp::IPcapDevice::PcapStats stats;
+	pcpp::PcapStats stats;
 
 	// read stats from reader and print them
 	reader->getStatistics(stats);
