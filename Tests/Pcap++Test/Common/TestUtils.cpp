@@ -87,7 +87,9 @@ uint8_t* readFileIntoBuffer(const std::string& filename, int& bufferLength)
 
 void testSetUp()
 {
+#ifdef USE_PCAP
 	pcpp::PcapLiveDeviceList::getInstance();
+#endif
 
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList::getInstance();
