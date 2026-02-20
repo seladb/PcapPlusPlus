@@ -1,0 +1,350 @@
+#pragma once
+
+#include "Layer.h"
+#include <ostream>
+#include <unordered_map>
+#include <vector>
+
+/// @file
+
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
+namespace pcpp
+{
+
+	/// @enum PostgresMessageOrigin
+	/// Indicates whether the message is from the frontend (client) or backend (server)
+	enum class PostgresMessageOrigin
+	{
+		Frontend,
+		Backend
+	};
+
+	/// @class PostgresMessageType
+	/// Represents PostgreSQL message types (both frontend and backend)
+	class PostgresMessageType
+	{
+	public:
+		/// Define enum types for all PostgreSQL message types
+		enum Value : uint8_t
+		{
+			// Frontend (client) message types
+			Frontend_StartupMessage,
+			Frontend_SSLRequest,
+			Frontend_CancelRequest,
+			Frontend_GSSENCRequest,
+			Frontend_Query,
+			Frontend_Parse,
+			Frontend_Bind,
+			Frontend_Execute,
+			Frontend_Close,
+			Frontend_Describe,
+			Frontend_FunctionCall,
+			Frontend_Flush,
+			Frontend_Sync,
+			Frontend_CopyData,
+			Frontend_CopyDone,
+			Frontend_CopyFail,
+			Frontend_Terminate,
+			Frontend_Unknown,
+
+			// Backend (server) message types
+			Backend_AuthenticationOk,
+			Backend_AuthenticationKerberosV4,
+			Backend_AuthenticationKerberosV5,
+			Backend_AuthenticationCleartextPassword,
+			Backend_AuthenticationMD5Password,
+			Backend_AuthenticationGSS,
+			Backend_AuthenticationGSSContinue,
+			Backend_AuthenticationSSPI,
+			Backend_AuthenticationSASL,
+			Backend_AuthenticationSASLContinue,
+			Backend_AuthenticationSASLFinal,
+			Backend_BackendKeyData,
+			Backend_BindComplete,
+			Backend_CloseComplete,
+			Backend_CommandComplete,
+			Backend_CopyData,
+			Backend_CopyDone,
+			Backend_CopyInResponse,
+			Backend_CopyOutResponse,
+			Backend_CopyBothResponse,
+			Backend_DataRow,
+			Backend_EmptyQueryResponse,
+			Backend_ErrorResponse,
+			Backend_FunctionCallResponse,
+			Backend_NegotiateProtocolVersion,
+			Backend_NoData,
+			Backend_NoticeResponse,
+			Backend_NotificationResponse,
+			Backend_ParameterDescription,
+			Backend_ParameterStatus,
+			Backend_ParseComplete,
+			Backend_PortalSuspended,
+			Backend_ReadyForQuery,
+			Backend_RowDescription,
+			Backend_Unknown,
+		};
+
+		PostgresMessageType() = default;
+
+		// cppcheck-suppress noExplicitConstructor
+		/// @brief Constructs a PostgresMessageType object from a Value enum
+		/// @param[in] value The Value enum value
+		constexpr PostgresMessageType(Value value) : m_Value(value)
+		{}
+
+		/// @brief Converts the message type to its character representation
+		/// @return The message type character
+		char toChar() const;
+
+		/// @brief Returns a string representation of the message type
+		/// @return A string representation of the message type
+		std::string toString() const;
+
+		/// @brief Stream operator for PostgresMessageType
+		/// @param[in] os The output stream
+		/// @param[in] messageType The message type to print
+		/// @return The output stream
+		friend std::ostream& operator<<(std::ostream& os, const PostgresMessageType& messageType)
+		{
+			os << messageType.toString();
+			return os;
+		}
+
+		/// @brief Converts the message type to a string
+		/// @return The message type as a string
+		explicit operator std::string() const
+		{
+			return toString();
+		}
+
+		/// @brief Returns the origin of the message (frontend or backend)
+		/// @return The message origin
+		PostgresMessageOrigin getOrigin() const;
+
+		// Allow switch and comparisons
+		constexpr operator Value() const
+		{
+			return m_Value;
+		}
+
+		// Prevent usage: if(PostgresMessageType)
+		explicit operator bool() const = delete;
+
+	private:
+		Value m_Value;
+	};
+
+	/// @class PostgresMessage
+	/// Represents a PostgreSQL message (base class)
+	class PostgresMessage
+	{
+	public:
+		virtual ~PostgresMessage() = default;
+
+		/// @brief Parse a PostgreSQL backend message from raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @return A pointer to the parsed PostgresMessage, or nullptr if parsing fails
+		static PostgresMessage* parsePostgresBackendMessage(const uint8_t* data, size_t dataLen);
+
+		/// @brief Parse a PostgreSQL frontend message from raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @return A pointer to the parsed PostgresMessage, or nullptr if parsing fails
+		static PostgresMessage* parsePostgresFrontendMessage(const uint8_t* data, size_t dataLen);
+
+		/// @return The message type
+		PostgresMessageType getMessageType() const
+		{
+			return m_MessageType;
+		}
+
+		/// @return The message origin (frontend or backend)
+		PostgresMessageOrigin getMessageOrigin() const
+		{
+			return m_MessageType.getOrigin();
+		}
+
+		/// @brief Returns the length of the message payload
+		/// @return The message length. If the first byte the message starts is 0, with length (no message type)
+		uint32_t getMessageLength() const;
+
+		/// @brief Returns the total length of the message including the length field
+		/// @return The total message length in bytes
+		size_t getTotalMessageLength() const
+		{
+			return m_DataLen;
+		}
+
+		/// @brief Returns the raw payload bytes of the message
+		/// @return The raw payload bytes of the message
+		std::vector<uint8_t> getRawPayload() const;
+
+	protected:
+		PostgresMessage(const uint8_t* data, size_t dataLen, const PostgresMessageType& messageType) : m_Data(data), m_DataLen(dataLen), m_MessageType(messageType)
+		{}
+
+		const uint8_t* m_Data;
+		size_t m_DataLen;
+		PostgresMessageType m_MessageType;
+	};
+
+	/// @class PostgresStartupMessage
+	/// Represents a PostgreSQL StartupMessage
+	class PostgresStartupMessage : public PostgresMessage
+	{
+	public:
+		/// A map of parameter name to value
+		using ParameterMap = std::unordered_map<std::string, std::string>;
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresStartupMessage(const uint8_t* data, size_t dataLen)
+			: PostgresMessage(data, dataLen, PostgresMessageType::Frontend_StartupMessage)
+		{}
+
+		/// @return The protocol version (major version in high 16 bits, minor version in low 16 bits)
+		uint32_t getProtocolVersion() const;
+
+		/// @return The major protocol version number
+		uint16_t getProtocolMajorVersion() const;
+
+		/// @return The minor protocol version number
+		uint16_t getProtocolMinorVersion() const;
+
+		/// @return The parameter name/value pairs as a map
+		const ParameterMap& getParameters() const;
+
+		/// @return The value of a specific parameter, or empty string if not found
+		std::string getParameter(const std::string& name) const;
+
+	private:
+		static constexpr size_t ProtocolVersionOffset = 4;
+		static constexpr size_t MinStartupMessageLength = 8;
+
+		mutable ParameterMap m_Parameters;
+		mutable bool m_ParametersParsed = false;
+
+		std::string readString(size_t offset) const;
+	};
+
+	/// @class PostgresParameterStatus
+	/// Represents a PostgreSQL ParameterStatus message
+	class PostgresParameterStatus : public PostgresMessage
+	{
+	public:
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresParameterStatus(const uint8_t* data, size_t dataLen)
+			: PostgresMessage(data, dataLen, PostgresMessageType::Backend_ParameterStatus)
+		{}
+
+		/// @return The parameter name
+		std::string getParameterName() const;
+
+		/// @return The parameter value
+		std::string getParameterValue() const;
+	};
+
+	/// @class PostgresLayer
+	/// Represents a PostgreSQL protocol layer
+	class PostgresLayer : public Layer
+	{
+	public:
+		/// A d'tor for this layer
+		~PostgresLayer() override = default;
+
+		/// A static method that checks whether the port is considered as PostgreSQL
+		/// @param[in] port The port number to be checked
+		static bool isPostgresPort(uint16_t port)
+		{
+			return port == 5432;
+		}
+
+		/// Parse a PostgreSQL backend message from raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		/// @return A pointer to the parsed PostgresLayer, or nullptr if parsing fails
+		static PostgresLayer* parsePostgresBackendMessages(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// Parse a PostgreSQL frontend message from raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		/// @return A pointer to the parsed PostgresLayer, or nullptr if parsing fails
+		static PostgresLayer* parsePostgresFrontendMessages(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// @return The message origin (frontend or backend)
+		PostgresMessageOrigin getPostgresOrigin() const
+		{
+			return m_MessageOrigin;
+		}
+
+		/// @return A vector of all PostgreSQL messages in this layer
+		const std::vector<std::unique_ptr<PostgresMessage>>& getPostgresMessages() const;
+
+		/// @brief Get a PostgreSQL message by its type
+		/// @param[in] messageType The type of message to retrieve
+		/// @return A pointer to the message, or nullptr if not found
+		const PostgresMessage* getPostgresMessage(const PostgresMessageType& messageType) const;
+
+		/// @brief Get a PostgreSQL message by its type (template version)
+		/// @tparam TMessage The message type to retrieve (must derive from PostgresMessage)
+		/// @return A pointer to the message of the specified type, or nullptr if not found
+		template <class TMessage, typename std::enable_if<std::is_base_of<PostgresMessage, TMessage>::value>::type* = nullptr>
+		const TMessage* getPostgresMessage() const
+		{
+			const auto& messages = getPostgresMessages();
+			for (const auto& msg : messages)
+			{
+				auto result = dynamic_cast<const TMessage*>(msg.get());
+				if (result != nullptr)
+				{
+					return result;
+				}
+			}
+			return nullptr;
+		}
+
+		// Overridden methods
+
+		/// @return The size of the Postgres layer header
+		size_t getHeaderLen() const override
+		{
+			return m_DataLen;
+		}
+
+		/// Does nothing for this layer, Postgres is always last
+		void parseNextLayer() override
+		{}
+
+		/// Does nothing for this layer
+		void computeCalculateFields() override
+		{}
+
+		/// @return The OSI layer level of Postgres (Application Layer).
+		OsiModelLayer getOsiModelLayer() const override
+		{
+			return OsiModelApplicationLayer;
+		}
+
+		/// @return Returns the protocol info as readable string
+		std::string toString() const override;
+
+	private:
+		PostgresMessageOrigin m_MessageOrigin;
+		mutable std::vector<std::unique_ptr<PostgresMessage>> m_Messages;
+		mutable bool m_MessagesInitialized = false;
+
+		PostgresLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, PostgresMessageOrigin messageOrigin)
+			: Layer(data, dataLen, prevLayer, packet, Postgres), m_MessageOrigin(messageOrigin)
+		{}
+	};
+}  // namespace pcpp

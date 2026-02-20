@@ -30,6 +30,7 @@ add_executable(
   Tests/PacketTests.cpp
   Tests/PacketUtilsTests.cpp
   Tests/PemTests.cpp
+  Tests/PostgresTests.cpp
   Tests/PPPoETests.cpp
   Tests/RadiusTests.cpp
   Tests/S7CommTests.cpp
