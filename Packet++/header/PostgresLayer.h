@@ -29,60 +29,115 @@ namespace pcpp
 		enum Value : uint8_t
 		{
 			// Frontend (client) message types
+
+			/// Startup message (first message in connection)
 			Frontend_StartupMessage,
+			/// SSL request code (sent by client to request SSL)
 			Frontend_SSLRequest,
+			/// Cancel request (sent by client to cancel a running query)
 			Frontend_CancelRequest,
+			/// GSSAPI encryption request
 			Frontend_GSSENCRequest,
+			/// Simple query message
 			Frontend_Query,
+			/// Parse message (prepared statement)
 			Frontend_Parse,
+			/// Bind message (portal binding)
 			Frontend_Bind,
+			/// Execute message (portal execution)
 			Frontend_Execute,
+			/// Close message (close a prepared statement or portal)
 			Frontend_Close,
+			/// Describe message (describe a prepared statement or portal)
 			Frontend_Describe,
+			/// Function call message
 			Frontend_FunctionCall,
+			/// Flush message
 			Frontend_Flush,
+			/// Sync message (sync after batch)
 			Frontend_Sync,
+			/// Copy data message (during COPY)
 			Frontend_CopyData,
+			/// Copy done message (during COPY)
 			Frontend_CopyDone,
+			/// Copy fail message (during COPY)
 			Frontend_CopyFail,
+			/// Terminate message (disconnect)
 			Frontend_Terminate,
+			/// Unknown frontend message type
 			Frontend_Unknown,
 
 			// Backend (server) message types
+
+			/// Authentication successful
 			Backend_AuthenticationOk,
+			/// Authentication using Kerberos V4
 			Backend_AuthenticationKerberosV4,
+			/// Authentication using Kerberos V5
 			Backend_AuthenticationKerberosV5,
+			/// Authentication using cleartext password
 			Backend_AuthenticationCleartextPassword,
+			/// Authentication using MD5 password
 			Backend_AuthenticationMD5Password,
+			/// Authentication using GSSAPI
 			Backend_AuthenticationGSS,
+			/// GSSAPI authentication continues
 			Backend_AuthenticationGSSContinue,
+			/// Authentication using SSPI
 			Backend_AuthenticationSSPI,
+			/// SASL authentication mechanism list
 			Backend_AuthenticationSASL,
+			/// SASL authentication continues
 			Backend_AuthenticationSASLContinue,
+			/// SASL authentication final message
 			Backend_AuthenticationSASLFinal,
+			/// Backend key data (secret key for cancel)
 			Backend_BackendKeyData,
+			/// Bind complete
 			Backend_BindComplete,
+			/// Close complete
 			Backend_CloseComplete,
+			/// Command complete (after query execution)
 			Backend_CommandComplete,
+			/// Copy data (during COPY)
 			Backend_CopyData,
+			/// Copy done (during COPY)
 			Backend_CopyDone,
+			/// Copy in response (during COPY from client)
 			Backend_CopyInResponse,
+			/// Copy out response (during COPY to client)
 			Backend_CopyOutResponse,
+			/// Copy both response (during COPY bidirectional)
 			Backend_CopyBothResponse,
+			/// Data row (result set)
 			Backend_DataRow,
+			/// Empty query response
 			Backend_EmptyQueryResponse,
+			/// Error response
 			Backend_ErrorResponse,
+			/// Function call response
 			Backend_FunctionCallResponse,
+			/// Negotiate protocol version
 			Backend_NegotiateProtocolVersion,
+			/// No data (for queries that don't return rows)
 			Backend_NoData,
+			/// Notice response (warning)
 			Backend_NoticeResponse,
+			/// Notification response (LISTEN/NOTIFY)
 			Backend_NotificationResponse,
+			/// Parameter description (for prepared statements)
 			Backend_ParameterDescription,
+			/// Parameter status (runtime parameter setting)
 			Backend_ParameterStatus,
+			/// Parse complete
 			Backend_ParseComplete,
+			/// Portal suspended (during cursor fetch)
 			Backend_PortalSuspended,
+			/// Ready for query (idle state)
 			Backend_ReadyForQuery,
+			/// Row description (column definitions)
 			Backend_RowDescription,
+			/// Unknown backend message type
 			Backend_Unknown,
 		};
 
