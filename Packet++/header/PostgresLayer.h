@@ -142,7 +142,8 @@ namespace pcpp
 			Backend_Unknown,
 		};
 
-		PostgresMessageType() = default;
+		PostgresMessageType() : m_Value(Frontend_Unknown)
+		{}
 
 		// cppcheck-suppress noExplicitConstructor
 		/// @brief Constructs a PostgresMessageType object from a Value enum
