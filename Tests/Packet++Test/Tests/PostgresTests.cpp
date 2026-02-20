@@ -875,11 +875,10 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 	// Backend - ParameterStatus with truncated data (no null terminator for name)
 	{
 		std::vector<uint8_t> truncatedParamData = {
-			0x53,                          // message type 'S'
-			0x00, 0x00, 0x00, 0x10,        // length (16)
-			0x63, 0x6C, 0x69, 0x65, 0x6E,  // "client_encod"
-			0x74, 0x5F, 0x65, 0x6E, 0x63,
-			0x00, 0x55                     // null + partial value
+			0x53,                                                        // message type 'S'
+			0x00, 0x00, 0x00, 0x10,                                      // length (16)
+			0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74, 0x5F, 0x65, 0x6E, 0x63,  // "client_encod"
+			0x00, 0x55                                                   // null + partial value
 		};
 		auto message = std::unique_ptr<pcpp::PostgresMessage>(
 		    pcpp::PostgresMessage::parsePostgresBackendMessage(truncatedParamData.data(), truncatedParamData.size()));
