@@ -238,7 +238,8 @@ namespace pcpp
 		std::vector<uint8_t> getRawPayload() const;
 
 	protected:
-		PostgresMessage(const uint8_t* data, size_t dataLen, const PostgresMessageType& messageType) : m_Data(data), m_DataLen(dataLen), m_MessageType(messageType)
+		PostgresMessage(const uint8_t* data, size_t dataLen, const PostgresMessageType& messageType)
+		    : m_Data(data), m_DataLen(dataLen), m_MessageType(messageType)
 		{}
 
 		const uint8_t* m_Data;
@@ -258,7 +259,7 @@ namespace pcpp
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
 		PostgresStartupMessage(const uint8_t* data, size_t dataLen)
-			: PostgresMessage(data, dataLen, PostgresMessageType::Frontend_StartupMessage)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Frontend_StartupMessage)
 		{}
 
 		/// @return The protocol version (major version in high 16 bits, minor version in low 16 bits)
@@ -295,7 +296,7 @@ namespace pcpp
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
 		PostgresParameterStatus(const uint8_t* data, size_t dataLen)
-			: PostgresMessage(data, dataLen, PostgresMessageType::Backend_ParameterStatus)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Backend_ParameterStatus)
 		{}
 
 		/// @return The parameter name
@@ -326,7 +327,8 @@ namespace pcpp
 		/// @param[in] prevLayer A pointer to the previous layer
 		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		/// @return A pointer to the parsed PostgresLayer, or nullptr if parsing fails
-		static PostgresLayer* parsePostgresBackendMessages(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		static PostgresLayer* parsePostgresBackendMessages(uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                                                   Packet* packet);
 
 		/// Parse a PostgreSQL frontend message from raw data
 		/// @param[in] data A pointer to the raw data
@@ -334,7 +336,8 @@ namespace pcpp
 		/// @param[in] prevLayer A pointer to the previous layer
 		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		/// @return A pointer to the parsed PostgresLayer, or nullptr if parsing fails
-		static PostgresLayer* parsePostgresFrontendMessages(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		static PostgresLayer* parsePostgresFrontendMessages(uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                                                    Packet* packet);
 
 		/// @return The message origin (frontend or backend)
 		PostgresMessageOrigin getPostgresOrigin() const
@@ -353,7 +356,8 @@ namespace pcpp
 		/// @brief Get a PostgreSQL message by its type (template version)
 		/// @tparam TMessage The message type to retrieve (must derive from PostgresMessage)
 		/// @return A pointer to the message of the specified type, or nullptr if not found
-		template <class TMessage, typename std::enable_if<std::is_base_of<PostgresMessage, TMessage>::value>::type* = nullptr>
+		template <class TMessage,
+		          typename std::enable_if<std::is_base_of<PostgresMessage, TMessage>::value>::type* = nullptr>
 		const TMessage* getPostgresMessage() const
 		{
 			const auto& messages = getPostgresMessages();
@@ -398,8 +402,9 @@ namespace pcpp
 		mutable std::vector<std::unique_ptr<PostgresMessage>> m_Messages;
 		mutable bool m_MessagesInitialized = false;
 
-		PostgresLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, PostgresMessageOrigin messageOrigin)
-			: Layer(data, dataLen, prevLayer, packet, Postgres), m_MessageOrigin(messageOrigin)
+		PostgresLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+		              PostgresMessageOrigin messageOrigin)
+		    : Layer(data, dataLen, prevLayer, packet, Postgres), m_MessageOrigin(messageOrigin)
 		{}
 	};
 }  // namespace pcpp
