@@ -1,5 +1,8 @@
 #include "PostgresLayer.h"
 #include "EndianPortable.h"
+#include <algorithm>
+#include <cstring>
+#include <memory>
 
 namespace pcpp
 {
@@ -650,7 +653,7 @@ namespace pcpp
 
 	std::vector<uint8_t> PostgresMessage::getRawPayload() const
 	{
-		const auto offset = (m_Data[0] == 0) ? 0 : 1;
+		const size_t offset = (m_Data[0] == 0) ? 0 : 1;
 		if (m_DataLen < offset + 4)
 		{
 			return {};

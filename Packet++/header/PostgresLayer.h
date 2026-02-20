@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Layer.h"
+#include <memory>
 #include <ostream>
 #include <unordered_map>
 #include <vector>
