@@ -36,6 +36,7 @@ static int incSleep(const pcpp::RawPacketVector& capturedPackets, size_t expecte
 
 PTF_TEST_CASE(TestPcapFiltersLive)
 {
+#ifdef USE_PCAP
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
@@ -193,11 +194,14 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	capturedPackets.clear();
 
 	liveDev->close();
-
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestPcapFiltersLive
 
 PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 {
+#ifdef USE_PCAP
 	pcpp::RawPacketVector rawPacketVec;
 	std::string filterAsString;
 
@@ -240,10 +244,14 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 	PTF_ASSERT_EQUAL(validCounter, 5);
 
 	rawPacketVec.clear();
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestPcapFilters_General_BPFStr
 
 PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 {
+#ifdef USE_PCAP
 	pcpp::RawPacketVector rawPacketVec;
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
@@ -263,10 +271,14 @@ PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 	}
 
 	rawPacketVec.clear();
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestPcapFilters_MatchStatic
 
 PTF_TEST_CASE(TestPcapFiltersOffline)
 {
+#ifdef USE_PCAP
 	pcpp::RawPacketVector rawPacketVec;
 	std::string filterAsString;
 
@@ -813,10 +825,14 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		}
 	}
 	rawPacketVec.clear();
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }
 
 PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 {
+#ifdef USE_PCAP
 	// check if GeneralFilter::matches(...) work properly for packets with different LinkLayerType
 
 	// pcpp::LINKTYPE_NULL layer
@@ -891,4 +907,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	}
 	PTF_ASSERT_EQUAL(validCounter, 62);
 	rawPacketVec.clear();
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestPcapFilters_LinkLayer

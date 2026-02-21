@@ -9,7 +9,9 @@
 #if defined(_WIN32)
 #	include <winsock2.h>
 #endif
-#include "pcap.h"
+#ifdef USE_PCAP
+#	include "pcap.h"
+#endif
 #include "RawPacket.h"
 #include "TimespecTimeval.h"
 
@@ -22,8 +24,12 @@ namespace pcpp
 	{
 		void BpfProgramDeleter::operator()(bpf_program* ptr) const noexcept
 		{
+#ifdef USE_PCAP
 			pcap_freecode(ptr);
 			delete ptr;
+#else
+			(void)ptr;
+#endif
 		}
 	}  // namespace internal
 
@@ -99,6 +105,7 @@ namespace pcpp
 		if (m_FilterStr.empty())
 			return true;
 
+#ifdef USE_PCAP
 		// Handle uncompiled program or link type mismatch
 		if (m_CachedProgram == nullptr || linkType != static_cast<uint16_t>(m_CachedProgramLinkType))
 		{
@@ -118,6 +125,10 @@ namespace pcpp
 		pktHdr.len = packetDataLength;
 		pktHdr.ts = internal::toTimeval(timestamp);
 		return (pcap_offline_filter(m_CachedProgram.get(), &pktHdr, packetData) != 0);
+#else
+		PCPP_LOG_ERROR("pcap is not available");
+		return false;
+#endif
 	}
 
 	BpfFilterWrapper::BpfProgramUPtr BpfFilterWrapper::compileFilter(std::string const& filter, LinkLayerType linkType)
@@ -125,6 +136,7 @@ namespace pcpp
 		if (filter.empty())
 			return nullptr;
 
+#ifdef USE_PCAP
 		auto pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
 		if (pcap == nullptr)
 		{
@@ -140,6 +152,10 @@ namespace pcpp
 
 		// Reassigns ownership to a new unique_ptr with a custom deleter as it now requires specialized cleanup.
 		return BpfProgramUPtr(newProg.release());
+#else
+		PCPP_LOG_ERROR("pcap is not available");
+		return BpfProgramUPtr(nullptr);
+#endif
 	}
 
 	bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket) const
