@@ -687,7 +687,7 @@ namespace pcpp
 
 	constexpr unsigned int A = 54059;        ///< a prime
 	constexpr unsigned int B = 76963;        ///< another prime
-	constexpr unsigned int C = 86969;        ///< yet another prime
+	// constexpr unsigned int C = 86969;        ///< yet another prime
 	constexpr unsigned int FIRST_HASH = 37;  ///< also prime
 
 	static uint32_t hashString(std::string str)
