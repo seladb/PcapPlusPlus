@@ -132,12 +132,9 @@ def main():
         default=os.path.join("Tests", "Pcap++Test", "Pcap++Test.exe"),
         help="Custom path to Pcap++ test executable. Can be relative to the build directory.",
     )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose logging output"
-    )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+    logging.basicConfig(level=logging.INFO)
 
     tcpreplay_interface, ip_address = find_interface()
     if not tcpreplay_interface or not ip_address:
