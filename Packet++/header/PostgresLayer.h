@@ -308,6 +308,71 @@ namespace pcpp
 		std::string getParameterValue() const;
 	};
 
+	/// @class PostgresQueryMessage
+	/// Represents a PostgreSQL Query message (Frontend)
+	class PostgresQueryMessage : public PostgresMessage
+	{
+	public:
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresQueryMessage(const uint8_t* data, size_t dataLen)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Query)
+		{}
+
+		/// @return The SQL query string
+		std::string getQuery() const;
+	};
+
+	/// @class PostgresRowDescriptionMessage
+	/// Represents a PostgreSQL RowDescription message (backend)
+	class PostgresRowDescriptionMessage : public PostgresMessage
+	{
+	public:
+		/// @enum PostgresColumnFormat
+		/// Represents the format of a column in a PostgreSQL RowDescription message.
+		/// PostgreSQL supports two formats: text (0) and binary (1).
+		enum class PostgresColumnFormat
+		{
+			/// Text format (format code 0)
+			Text = 0,
+			/// Binary format (format code 1)
+			Binary = 1,
+			/// Unknown format (format code >= 2)
+			Unknown = 2
+		};
+
+		/// @struct PostgresColumnInfo
+		/// Represents metadata for a single column in a RowDescription message
+		struct PostgresColumnInfo
+		{
+			/// Column name
+			std::string name;
+			/// Table OID (0 if not from a table column)
+			uint32_t tableOID;
+			/// Column index within the table
+			uint16_t columnIndex;
+			/// Data type OID
+			uint32_t typeOID;
+			/// Type size (-1 for variable length)
+			int16_t typeSize;
+			/// Type modifier (-1 if none)
+			int32_t typeModifier;
+			/// Format
+			PostgresColumnFormat format;
+		};
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresRowDescriptionMessage(const uint8_t* data, size_t dataLen)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Backend_RowDescription)
+		{}
+
+		/// @return Vector of column metadata
+		std::vector<PostgresColumnInfo> getColumnInfos() const;
+	};
+
 	/// @class PostgresLayer
 	/// Represents a PostgreSQL protocol layer
 	class PostgresLayer : public Layer

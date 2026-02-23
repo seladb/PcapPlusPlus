@@ -4,6 +4,23 @@
 #include <cstring>
 #include <memory>
 
+#pragma pack(push, 1)
+namespace internal
+{
+	struct PostgresColumnFixedData
+	{
+		uint32_t tableOID;
+		uint16_t columnIndex;
+		uint32_t typeOID;
+		int16_t typeSize;
+		int32_t typeModifier;
+		uint16_t formatCode;
+	};
+}  // namespace internal
+#pragma pack(pop)
+
+static_assert(sizeof(::internal::PostgresColumnFixedData) == 18, "PostgresColumnFixedData must be 18 bytes");
+
 namespace pcpp
 {
 	constexpr char PostgresMessage_0 = '\0';
@@ -485,13 +502,11 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_T:
 		{
-			messageType = PostgresMessageType::Backend_RowDescription;
-			break;
+			return new PostgresRowDescriptionMessage(data, messageLength + 1);
 		}
 		default:
 		{
 			break;
-			;
 		}
 		}
 
@@ -568,8 +583,7 @@ namespace pcpp
 		{
 		case PostgresFrontendMessage_Q:
 		{
-			messageType = PostgresMessageType::Frontend_Query;
-			break;
+			return new PostgresQueryMessage(data, std::min(static_cast<size_t>(messageLength) + 1, dataLen));
 		}
 		case PostgresFrontendMessage_P:
 		{
@@ -699,6 +713,81 @@ namespace pcpp
 
 		const char* valueEnd = static_cast<const char*>(memchr(valueStart, '\0', valueMaxLen));
 		return std::string(valueStart, valueEnd != nullptr ? valueEnd : valueStart + valueMaxLen);
+	}
+
+	std::string PostgresQueryMessage::getQuery() const
+	{
+		constexpr size_t headerLen = 5;
+
+		if (m_DataLen < headerLen + 1)
+		{
+			return "";
+		}
+
+		const char* queryStart = reinterpret_cast<const char*>(m_Data) + headerLen;
+		const size_t maxQueryLen = m_DataLen - headerLen;
+
+		const char* nullPos = static_cast<const char*>(memchr(queryStart, '\0', maxQueryLen));
+		return std::string(queryStart, nullPos != nullptr ? nullPos : queryStart + maxQueryLen);
+	}
+
+	std::vector<PostgresRowDescriptionMessage::PostgresColumnInfo> PostgresRowDescriptionMessage::getColumnInfos() const
+	{
+		std::vector<PostgresColumnInfo> columns;
+
+		constexpr size_t headerLen = 7;
+		if (m_DataLen < headerLen)
+			return columns;
+
+		uint16_t numFields = be16toh(*reinterpret_cast<const uint16_t*>(m_Data + 5));
+		if (numFields > 10000)
+			return columns;
+
+		size_t offset = headerLen;
+
+		for (uint16_t i = 0; i < numFields; ++i)
+		{
+			if (offset >= m_DataLen)
+				break;
+
+			PostgresColumnInfo column;
+
+			const char* nameStart = reinterpret_cast<const char*>(m_Data) + offset;
+			size_t remaining = m_DataLen - offset;
+			const char* nullPos = static_cast<const char*>(memchr(nameStart, '\0', remaining));
+
+			if (nullPos != nullptr)
+			{
+				column.name.assign(nameStart, nullPos - nameStart);
+				offset = static_cast<size_t>(nullPos - reinterpret_cast<const char*>(m_Data)) + 1;
+			}
+			else
+			{
+				column.name.assign(nameStart, remaining);
+				break;
+			}
+
+			if (offset + sizeof(::internal::PostgresColumnFixedData) > m_DataLen)
+			{
+				columns.push_back(column);
+				break;
+			}
+
+			const auto* fixedData = reinterpret_cast<const ::internal::PostgresColumnFixedData*>(m_Data + offset);
+			column.tableOID = be32toh(fixedData->tableOID);
+			column.columnIndex = be16toh(fixedData->columnIndex);
+			column.typeOID = be32toh(fixedData->typeOID);
+			column.typeSize = be16toh(fixedData->typeSize);
+			column.typeModifier = be32toh(fixedData->typeModifier);
+			auto formatCode = be16toh(fixedData->formatCode);
+			column.format =
+			    formatCode < 2 ? static_cast<PostgresColumnFormat>(formatCode) : PostgresColumnFormat::Unknown;
+
+			offset += sizeof(::internal::PostgresColumnFixedData);
+			columns.push_back(column);
+		}
+
+		return columns;
 	}
 
 	uint32_t PostgresStartupMessage::getProtocolVersion() const
