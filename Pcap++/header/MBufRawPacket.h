@@ -133,6 +133,10 @@ namespace pcpp
 		// overridden methods
 
 		/// @return MBufRawPacket object type
+		/// @deprecated Deprecated due to unclear semantics.
+		/// This functionality has been moved to the unstable internal API as
+		/// internal::getRawPacketImplementationType(RawPacket const& rawPacket).
+		PCPP_DEPRECATED("Deprecated due to unclear semantics.")
 		inline uint8_t getObjectType() const override
 		{
 			return MBUFRAWPACKET_OBJECT_TYPE;
@@ -193,6 +197,11 @@ namespace pcpp
 		}
 
 	protected:
+		internal::RawPacketImplType getImplType() const override
+		{
+			return internal::RawPacketImplType::DpdkMBuf;
+		}
+
 		/// Set raw data to the mbuf by copying the data to it. In order to stay compatible with the ancestor method
 		/// which takes control of the data pointer and frees it when RawPacket is destroyed, this method frees this
 		/// pointer right away after data is copied to the mbuf. So when using this method please notice that after it's
