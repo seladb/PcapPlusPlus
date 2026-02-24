@@ -250,26 +250,62 @@ namespace pcpp
 			ZstArchive,  // zstd compressed archive
 		};
 
+		/// @brief Specifies the byte order (endianness) of a capture file relative to the host system.
+		enum class CaptureFileByteOrder
+		{
+			Unknown,  // Unknown format. Magic number is palindrome.
+			Native,   // Byte order is native to the host system.
+			Swapped   // Byte order is swapped to the host system.
+		};
+
 		/// @brief Heuristic file format detector that scans the magic number of the file format header.
 		class CaptureFileFormatDetector
 		{
 		public:
 			/// @brief Checks a content stream for the magic number and determines the type.
-			/// @param content A content stream that contains the file content.
+			///
+			/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+			/// The byte order is not updated if no supported format is detected.
+			///
+			/// @param[in] content A stream that contains the file content.
+			/// @param[out] byteOrder Optional location to store the detected byte order.
 			/// @return A CaptureFileFormat value with the detected content type.
-			CaptureFileFormat detectFormat(std::istream& content) const;
+			CaptureFileFormat detectFormat(std::istream& content, CaptureFileByteOrder* byteOrder = nullptr) const;
 
-		private:
-			CaptureFileFormat detectPcapFile(std::istream& content) const;
+			/// @brief Checks a content stream for the magic number and determines if it is a Pcap file.
+			///
+			/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+			/// The byte order is not updated if no supported format is detected.
+			///
+			/// @param[in] content A stream that contains the file content.
+			/// @param[out] byteOrder Optional location to store the detected byte order.
+			/// @return A CaptureFileFormat value with the detected Pcap format or Unknown if the file is not pcap.
+			CaptureFileFormat detectPcapFile(std::istream& content, CaptureFileByteOrder* byteOrder = nullptr) const;
 
+			/// @brief Checks a content stream for the magic number and determines if it is a PcapNG file.
+			/// @param[in] content A stream that contains the file content.
+			/// @return True if the content stream is PcapNG file, false otherwise.
 			bool isPcapNgFile(std::istream& content) const;
 
-			bool isSnoopFile(std::istream& content) const;
+			/// @brief Checks a content stream for the magic number and determines if it is a Snoop file.
+			/// @param[in] content A stream that contains the file content.
+			/// @param[out] byteOrder Optional location to store the detected byte order.
+			/// @return True if the content stream is Snoop file, false otherwise.
+			bool isSnoopFile(std::istream& content, CaptureFileByteOrder* byteOrder = nullptr) const;
 
-			bool isZstdArchive(std::istream& content) const;
+			/// @brief Checks a content stream for the magic number and determines if it is a Zstd archive.
+			///
+			/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+			/// The byte order is not updated if no supported format is detected.
+			///
+			/// @param[in] content A stream that contains the file content.
+			/// @param[out] byteOrder Optional location to store the detected byte order.
+			/// @return True if the content stream is Snoop file, false otherwise.
+			bool isZstdArchive(std::istream& content, CaptureFileByteOrder* byteOrder = nullptr) const;
 		};
 
-		CaptureFileFormat CaptureFileFormatDetector::detectFormat(std::istream& content) const
+		CaptureFileFormat CaptureFileFormatDetector::detectFormat(std::istream& content,
+		                                                          CaptureFileByteOrder* byteOrder) const
 		{
 			// Check if the stream supports seeking.
 			if (!isStreamSeekable(content))
@@ -277,7 +313,7 @@ namespace pcpp
 				throw std::runtime_error("Heuristic file format detection requires seekable stream");
 			}
 
-			CaptureFileFormat format = detectPcapFile(content);
+			CaptureFileFormat format = detectPcapFile(content, byteOrder);
 			if (format != CaptureFileFormat::Unknown)
 			{
 				return format;
@@ -285,15 +321,20 @@ namespace pcpp
 
 			if (isPcapNgFile(content))
 			{
+				if (byteOrder != nullptr)
+				{
+					*byteOrder = CaptureFileByteOrder::Unknown;
+				}
+
 				return CaptureFileFormat::PcapNG;
 			}
 
-			if (isZstdArchive(content))
+			if (isZstdArchive(content, byteOrder))
 			{
 				return CaptureFileFormat::ZstArchive;
 			}
 
-			if (isSnoopFile(content))
+			if (isSnoopFile(content, byteOrder))
 			{
 				return CaptureFileFormat::Snoop;
 			}
@@ -301,7 +342,8 @@ namespace pcpp
 			return CaptureFileFormat::Unknown;
 		}
 
-		CaptureFileFormat CaptureFileFormatDetector::detectPcapFile(std::istream& content) const
+		CaptureFileFormat CaptureFileFormatDetector::detectPcapFile(std::istream& content,
+		                                                            CaptureFileByteOrder* byteOrder) const
 		{
 			// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
 			// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
@@ -338,6 +380,29 @@ namespace pcpp
 			// Indices 2-3 are "modified" pcap files
 			// Indices 4-5 are nanosecond-precision pcap files.
 			auto const selectedIdx = std::distance(pcapMagicNumbers.begin(), it);
+
+			if (byteOrder != nullptr)
+			{
+				switch (selectedIdx % 2)
+				{
+				case 0:
+				{
+					*byteOrder = CaptureFileByteOrder::Native;
+					break;
+				}
+				case 1:
+				{
+					*byteOrder = CaptureFileByteOrder::Swapped;
+					break;
+				}
+				default:
+				{
+					*byteOrder = CaptureFileByteOrder::Unknown;
+					break;
+				}
+				}
+			}
+
 			if (selectedIdx < 2)
 			{
 				return CaptureFileFormat::Pcap;
@@ -368,7 +433,7 @@ namespace pcpp
 			return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic) != pcapMagicNumbers.end();
 		}
 
-		bool CaptureFileFormatDetector::isSnoopFile(std::istream& content) const
+		bool CaptureFileFormatDetector::isSnoopFile(std::istream& content, CaptureFileByteOrder* byteOrder) const
 		{
 			constexpr std::array<uint64_t, 2> snoopMagicNumbers = {
 				0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
@@ -384,10 +449,38 @@ namespace pcpp
 				return false;
 			}
 
-			return std::find(snoopMagicNumbers.begin(), snoopMagicNumbers.end(), magic) != snoopMagicNumbers.end();
+			auto it = std::find(snoopMagicNumbers.begin(), snoopMagicNumbers.end(), magic);
+			if (it == snoopMagicNumbers.end())
+			{
+				return false;
+			}
+
+			if (byteOrder != nullptr)
+			{
+				switch (std::distance(snoopMagicNumbers.begin(), it) % 2)
+				{
+				case 0:
+				{
+					*byteOrder = CaptureFileByteOrder::Native;
+					break;
+				}
+				case 1:
+				{
+					*byteOrder = CaptureFileByteOrder::Swapped;
+					break;
+				}
+				default:
+				{
+					*byteOrder = CaptureFileByteOrder::Unknown;
+					break;
+				}
+				}
+			}
+
+			return true;
 		}
 
-		bool CaptureFileFormatDetector::isZstdArchive(std::istream& content) const
+		bool CaptureFileFormatDetector::isZstdArchive(std::istream& content, CaptureFileByteOrder* byteOrder) const
 		{
 			constexpr std::array<uint32_t, 2> zstdMagicNumbers = {
 				0x28'B5'2F'FD,  // zstd archive magic number
@@ -403,7 +496,35 @@ namespace pcpp
 				return false;
 			}
 
-			return std::find(zstdMagicNumbers.begin(), zstdMagicNumbers.end(), magic) != zstdMagicNumbers.end();
+			auto it = std::find(zstdMagicNumbers.begin(), zstdMagicNumbers.end(), magic);
+			if (it == zstdMagicNumbers.end())
+			{
+				return false;
+			}
+
+			if (byteOrder != nullptr)
+			{
+				switch (std::distance(zstdMagicNumbers.begin(), it) % 2)
+				{
+				case 0:
+				{
+					*byteOrder = CaptureFileByteOrder::Native;
+					break;
+				}
+				case 1:
+				{
+					*byteOrder = CaptureFileByteOrder::Swapped;
+					break;
+				}
+				default:
+				{
+					*byteOrder = CaptureFileByteOrder::Unknown;
+					break;
+				}
+				}
+			}
+
+			return true;
 		}
 
 	}  // namespace
