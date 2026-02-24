@@ -736,7 +736,9 @@ PTF_TEST_CASE(TestPcapFileReadAdv)
         });
 		pcpp::PcapFileReaderDevice reader(pcapFile.getFileName());
 		PTF_ASSERT_FALSE(reader.open());
-		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Invalid magic number: 0xdeadbeef");
+		PTF_ASSERT_EQUAL(
+		    pcpp::Logger::getInstance().getLastError(),
+		    "File content is not pcap or byte order can't be determined. Detected magic number: 0xdeadbeef");
 	}
 
 	// Older pcap version
@@ -2347,7 +2349,7 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
 		PTF_ASSERT_FALSE(readerDev.open());
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
-		                 "Malformed snoop file header for '" + snoopFile.getFileName() + "'");
+		                 "File content does not match snoop magic number for file: '" + snoopFile.getFileName() + "'");
 	}
 
 	// Wrong version number
@@ -2361,7 +2363,7 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 		pcpp::SnoopFileReaderDevice readerDev(snoopFile.getFileName());
 		PTF_ASSERT_FALSE(readerDev.open());
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
-		                 "Malformed snoop file header for '" + snoopFile.getFileName() + "'");
+		                 "Malformed snoop file header version number for '" + snoopFile.getFileName() + "'");
 	}
 
 	// Unsupported link type
