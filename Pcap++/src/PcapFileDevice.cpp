@@ -792,46 +792,43 @@ namespace pcpp
 			return false;
 		}
 
+		CaptureFileByteOrder byteOrder;
+		CaptureFileFormat pcapFormat = CaptureFileFormatDetector().detectPcapFile(pcapFile, &byteOrder);
+
+		if (pcapFormat == CaptureFileFormat::Unknown || byteOrder == CaptureFileByteOrder::Unknown)
+		{
+			PCPP_LOG_ERROR("File content is not pcap or byte order can't be determined.");
+			return false;
+		}
+
+		switch (pcapFormat)
+		{
+		case CaptureFileFormat::Pcap:
+		{
+			m_Precision = FileTimestampPrecision::Microseconds;
+			break;
+		}
+		case CaptureFileFormat::PcapMod:
+		{
+			PCPP_LOG_ERROR("\"Modified\" pcap files are currently not supported.");
+			return false;
+		}
+		case CaptureFileFormat::PcapNano:
+		{
+			m_Precision = FileTimestampPrecision::Nanoseconds;
+			break;
+		}
+		default:
+			throw std::logic_error("Unexpected format");  // Should never happen.
+		}
+
+		m_NeedsSwap = byteOrder == CaptureFileByteOrder::Swapped;
+
 		pcap_file_header pcapFileHeader{};
 		if (!pcapFile.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
 		{
 			PCPP_LOG_ERROR("Cannot read pcap file header");
 			return false;
-		}
-
-		switch (pcapFileHeader.magic)
-		{
-		case TCPDUMP_MAGIC:
-		{
-			m_Precision = FileTimestampPrecision::Microseconds;
-			break;
-		}
-
-		case TCPDUMP_MAGIC_SWAPPED:
-		{
-			m_NeedsSwap = true;
-			m_Precision = FileTimestampPrecision::Microseconds;
-			break;
-		}
-
-		case NSEC_TCPDUMP_MAGIC:
-		{
-			m_Precision = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-
-		case NSEC_TCPDUMP_MAGIC_SWAPPED:
-		{
-			m_NeedsSwap = true;
-			m_Precision = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-
-		default:
-		{
-			PCPP_LOG_ERROR("Invalid magic number: 0x" << std::hex << pcapFileHeader.magic);
-			return false;
-		}
 		}
 
 		if (m_NeedsSwap)
@@ -1195,41 +1192,42 @@ namespace pcpp
 
 		pcapFile.seekg(0, std::ios::beg);
 
-		pcap_file_header pcapFileHeader{};
-		if (!pcapFile.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
+		CaptureFileByteOrder byteOrder;
+		CaptureFileFormat pcapFormat = CaptureFileFormatDetector().detectPcapFile(pcapFile, &byteOrder);
+
+		if (pcapFormat == CaptureFileFormat::Unknown || byteOrder == CaptureFileByteOrder::Unknown)
 		{
-			return CheckHeaderResult::fromError("Cannot read file header");
+			return CheckHeaderResult::fromError("Malformed file header or unsupported file format.");
 		}
 
-		FileTimestampPrecision precisionFromHeader = FileTimestampPrecision::Microseconds;
+		FileTimestampPrecision precisionFromHeader;
 
-		bool needsSwap = false;
-		switch (pcapFileHeader.magic)
+		switch (pcapFormat)
 		{
-		case TCPDUMP_MAGIC:
+		case CaptureFileFormat::Pcap:
 		{
+			precisionFromHeader = FileTimestampPrecision::Microseconds;
 			break;
 		}
-		case TCPDUMP_MAGIC_SWAPPED:
+		case CaptureFileFormat::PcapMod:
 		{
-			needsSwap = true;
-			break;
+			return CheckHeaderResult::fromError("\"Modified\" pcap format is currently not supported.");
 		}
-		case NSEC_TCPDUMP_MAGIC:
+		case CaptureFileFormat::PcapNano:
 		{
-			precisionFromHeader = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-		case NSEC_TCPDUMP_MAGIC_SWAPPED:
-		{
-			needsSwap = true;
 			precisionFromHeader = FileTimestampPrecision::Nanoseconds;
 			break;
 		}
 		default:
-		{
-			return CheckHeaderResult::fromError("Unsupported pcap file format");
+			throw std::logic_error("Unexpected format");  // Should never happen
 		}
+
+		bool needsSwap = byteOrder == CaptureFileByteOrder::Swapped;
+
+		pcap_file_header pcapFileHeader{};
+		if (!pcapFile.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
+		{
+			return CheckHeaderResult::fromError("Cannot read file header");
 		}
 
 		if (needsSwap)
@@ -1647,6 +1645,12 @@ namespace pcpp
 			return false;
 		}
 
+		if (!CaptureFileFormatDetector().isSnoopFile(snoopFile))
+		{
+			PCPP_LOG_ERROR("File content does not match snoop magic number for file: \'" << m_FileName << '\'');
+			return false;
+		}
+
 		snoop_file_header_t snoop_file_header;
 		snoopFile.read(reinterpret_cast<char*>(&snoop_file_header), sizeof(snoop_file_header_t));
 		if (!snoopFile)
@@ -1655,10 +1659,9 @@ namespace pcpp
 			return false;
 		}
 
-		if (be64toh(snoop_file_header.identification_pattern) != 0x736e6f6f70000000 ||
-		    be32toh(snoop_file_header.version_number) != 2)
+		if (be32toh(snoop_file_header.version_number) != 2)
 		{
-			PCPP_LOG_ERROR("Malformed snoop file header for '" << m_FileName << "'");
+			PCPP_LOG_ERROR("Malformed snoop file header version number for '" << m_FileName << "'");
 			return false;
 		}
 
