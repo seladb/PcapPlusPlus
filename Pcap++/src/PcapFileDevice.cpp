@@ -1,5 +1,8 @@
 #define LOG_MODULE PcapLogModuleFileDevice
 
+#include <algorithm>
+#include <iterator>
+
 #include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
@@ -373,6 +376,7 @@ namespace pcpp
 		m_PcapLinkLayerType = toLinkLayerType(pcapFileHeader.linktype);
 
 		m_SnapshotLength = pcapFileHeader.snaplen;
+		m_ReadBuffer.resize(m_SnapshotLength);
 
 		m_PcapFile = std::move(pcapFile);
 		return true;
@@ -381,13 +385,15 @@ namespace pcpp
 	bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	{
 		timespec packetTimestamp;
-		auto packetData = std::make_unique<uint8_t[]>(m_SnapshotLength);
 		uint32_t capturedLength = 0, frameLength = 0;
 
-		while (readNextPacket(packetTimestamp, packetData.get(), m_SnapshotLength, capturedLength, frameLength))
+		while (readNextPacket(packetTimestamp, m_ReadBuffer.data(), m_SnapshotLength, capturedLength, frameLength))
 		{
-			if (m_BpfWrapper.matches(packetData.get(), capturedLength, packetTimestamp, m_PcapLinkLayerType))
+			if (m_BpfWrapper.matches(m_ReadBuffer.data(), capturedLength, packetTimestamp, m_PcapLinkLayerType))
 			{
+				auto packetData = std::make_unique<uint8_t[]>(capturedLength);
+				std::copy(m_ReadBuffer.begin(), std::next(m_ReadBuffer.begin(), capturedLength), packetData.get());
+
 				rawPacket.setRawData(capturedLength > 0 ? packetData.release() : nullptr, capturedLength, true,
 				                     packetTimestamp, m_PcapLinkLayerType, frameLength);
 				reportPacketProcessed();
