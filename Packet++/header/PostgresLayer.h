@@ -373,6 +373,56 @@ namespace pcpp
 		std::vector<PostgresColumnInfo> getColumnInfos() const;
 	};
 
+	/// @class PostgresRowDataMessage
+	/// Represents a PostgreSQL DataRow message (backend)
+	class PostgresRowDataMessage : public PostgresMessage
+	{
+	public:
+		/// @class ColumnData
+		/// Represents raw column data in a PostgreSQL DataRow message
+		class ColumnData
+		{
+		public:
+			/// A constructor that creates ColumnData from raw bytes
+			/// @param[in] data A pointer to the raw column data
+			/// @param[in] dataLen Size of the data in bytes
+			ColumnData(const uint8_t* data, size_t dataLen) : m_Data(data), m_DataLen(dataLen)
+			{}
+
+			/// @return The raw column data as a vector of bytes
+			std::vector<uint8_t> getData() const
+			{
+				return {m_Data, m_Data + m_DataLen};
+			}
+
+			/// @return The column data as a hex string
+			std::string toHexString() const;
+
+			/// @return The column data as a UTF-8 string (empty if conversion fails)
+			std::string toString() const;
+
+			/// @return True if the column value is NULL
+			bool isNull() const
+			{
+				return m_Data == nullptr;
+			}
+
+		private:
+			const uint8_t* m_Data;
+			size_t m_DataLen;
+		};
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresRowDataMessage(const uint8_t* data, size_t dataLen)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Backend_DataRow)
+		{}
+
+		/// @return Vector of column data values
+		std::vector<ColumnData> getRowData() const;
+	};
+
 	/// @class PostgresLayer
 	/// Represents a PostgreSQL protocol layer
 	class PostgresLayer : public Layer

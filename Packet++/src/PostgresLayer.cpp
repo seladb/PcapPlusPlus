@@ -1,5 +1,6 @@
 #include "PostgresLayer.h"
 #include "EndianPortable.h"
+#include "GeneralUtils.h"
 #include <algorithm>
 #include <cstring>
 #include <memory>
@@ -447,8 +448,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_D:
 		{
-			messageType = PostgresMessageType::Backend_DataRow;
-			break;
+			return new PostgresRowDataMessage(data, messageLength + 1);
 		}
 		case PostgresBackendMessage_I:
 		{
@@ -788,6 +788,67 @@ namespace pcpp
 		}
 
 		return columns;
+	}
+
+	std::vector<PostgresRowDataMessage::ColumnData> PostgresRowDataMessage::getRowData() const
+	{
+		constexpr size_t headerLen = 7;
+		if (m_DataLen < headerLen)
+		{
+			return {};
+		}
+
+		uint16_t numColumns = be16toh(*reinterpret_cast<const uint16_t*>(m_Data + 5));
+		if (numColumns > 10000)
+		{
+			return {};
+		}
+
+		std::vector<ColumnData> rowData;
+
+		size_t offset = headerLen;
+
+		for (uint16_t i = 0; i < numColumns; ++i)
+		{
+			if (offset >= m_DataLen)
+			{
+				break;
+			}
+
+			const auto colLength = be32toh(*reinterpret_cast<const uint32_t*>(m_Data + offset));
+			offset += 4;
+
+			if (colLength == 0 || colLength == 0xffffffff)
+			{
+				rowData.emplace_back(nullptr, 0);
+				continue;
+			}
+
+			if (offset + colLength > m_DataLen)
+			{
+				break;
+			}
+
+			rowData.emplace_back(m_Data + offset, colLength);
+			offset += colLength;
+		}
+
+		return rowData;
+	}
+
+	std::string PostgresRowDataMessage::ColumnData::toHexString() const
+	{
+		return byteArrayToHexString(m_Data, m_DataLen);
+	}
+
+	std::string PostgresRowDataMessage::ColumnData::toString() const
+	{
+		if (m_Data == nullptr || m_DataLen == 0)
+		{
+			return "";
+		}
+
+		return {m_Data, m_Data + m_DataLen};
 	}
 
 	uint32_t PostgresStartupMessage::getProtocolVersion() const
