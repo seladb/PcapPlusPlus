@@ -263,8 +263,7 @@ namespace pcpp
 			return;
 		}
 
-		size_t optionalParamsLen = (size_t)be16toh(msgHdr->optionalParameterLength);
-
+		size_t optionalParamsLen = msgHdr->optionalParameterLength;
 		if (optionalParamsLen > getHeaderLen() - sizeof(bgp_open_message))
 		{
 			optionalParamsLen = getHeaderLen() - sizeof(bgp_open_message);
@@ -301,7 +300,16 @@ namespace pcpp
 		bgp_open_message* msgHdr = getOpenMsgHeader();
 		if (msgHdr != nullptr)
 		{
-			return (size_t)(msgHdr->optionalParameterLength);
+			auto optParamLen = static_cast<size_t>(msgHdr->optionalParameterLength);
+
+			if (optParamLen > getHeaderLen() - sizeof(bgp_open_message))
+			{
+				PCPP_LOG_WARN("BGP Layer optional param length exceeds total BGP message. "
+				              "This packet might be malformed! Trimming to maximum allowed by BGP message length.");
+				optParamLen = getHeaderLen() - sizeof(bgp_open_message);
+			}
+
+			return optParamLen;
 		}
 
 		return 0;
