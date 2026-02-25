@@ -81,8 +81,9 @@ namespace pcpp
 			if (addition)
 				addition += 2;
 
-			pos = (uint8_t*)memchr(startPos + currentOffset + 1, static_cast<int>(TelnetCommand::InterpretAsCommand),
-			                       maxLength - currentOffset);
+			pos = static_cast<uint8_t*>(memchr(startPos + currentOffset + 1,
+			                                   static_cast<int>(TelnetCommand::InterpretAsCommand),
+			                                   maxLength - currentOffset - 1));
 			if (pos)
 				addition += pos - (startPos + currentOffset);
 			else
