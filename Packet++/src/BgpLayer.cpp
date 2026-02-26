@@ -302,11 +302,13 @@ namespace pcpp
 		{
 			auto optParamLen = static_cast<size_t>(msgHdr->optionalParameterLength);
 
-			if (optParamLen > getHeaderLen() - sizeof(bgp_open_message))
+			constexpr size_t bgpOpenMsgHeaderSize = sizeof(bgp_open_message);
+			size_t headerLen = getHeaderLen();
+			if (headerLen < optParamLen + bgpOpenMsgHeaderSize)
 			{
 				PCPP_LOG_WARN("BGP Layer optional param length exceeds total BGP message. "
 				              "This packet might be malformed! Trimming to maximum allowed by BGP message length.");
-				optParamLen = getHeaderLen() - sizeof(bgp_open_message);
+				optParamLen = headerLen >= bgpOpenMsgHeaderSize ? headerLen - bgpOpenMsgHeaderSize : 0;
 			}
 
 			return optParamLen;
