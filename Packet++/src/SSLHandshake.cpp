@@ -1752,6 +1752,12 @@ namespace pcpp
 		uint8_t* extensionIt = extensionPos;
 		uint8_t* extensionEndIt = extensionPos + extensionLength;
 
+		uint8_t* endOfMessageIt = m_Data + messageLen;
+		if (endOfMessageIt < extensionEndIt)
+		{
+			extensionEndIt = endOfMessageIt;
+		}
+
 		m_ExtensionList = parseSSLExtensionBuffer(extensionIt, extensionEndIt);
 
 		/*
