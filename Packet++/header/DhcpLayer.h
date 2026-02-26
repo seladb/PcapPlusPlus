@@ -591,7 +591,7 @@ namespace pcpp
 
 		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
-			return data != nullptr && dataLen >= sizeof(dhcp_header);
+			return canReinterpretAs<dhcp_header>(data, dataLen);
 		}
 
 		/// Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the

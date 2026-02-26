@@ -92,7 +92,7 @@ namespace pcpp
 
 		static bool isDataValid(uint8_t const* data,size_t dataLen)
 		{
-			return data != nullptr && dataLen >= sizeof(vxlan_header);
+			return canReinterpretAs<vxlan_header>(data, dataLen);
 		}
 
 		/// Get a pointer to the VXLAN header. Notice this points directly to the data, so every change will change the
