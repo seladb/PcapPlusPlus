@@ -392,7 +392,7 @@ namespace pcpp
 			if (m_BpfWrapper.matches(m_ReadBuffer.data(), capturedLength, packetTimestamp, m_PcapLinkLayerType))
 			{
 				// TODO: Fixup tirage hack of adding 20 bytes buffer to pass fuzz.
-				auto packetData = std::make_unique<uint8_t[]>(capturedLength + 20);
+				auto packetData = std::make_unique<uint8_t[]>(capturedLength + 200);
 				std::copy(m_ReadBuffer.begin(), std::next(m_ReadBuffer.begin(), capturedLength), packetData.get());
 
 				rawPacket.setRawData(capturedLength > 0 ? packetData.release() : nullptr, capturedLength, true,
