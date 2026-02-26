@@ -589,6 +589,11 @@ namespace pcpp
 		/// A destructor for this layer
 		~DhcpLayer() override = default;
 
+		static bool isDataValid(uint8_t const* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(dhcp_header);
+		}
+
 		/// Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the
 		/// actual packet data
 		/// @return A pointer to the @ref dhcp_header

@@ -90,6 +90,11 @@ namespace pcpp
 
 		~VxlanLayer() override = default;
 
+		static bool isDataValid(uint8_t const* data,size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(vxlan_header);
+		}
+
 		/// Get a pointer to the VXLAN header. Notice this points directly to the data, so every change will change the
 		/// actual packet data
 		/// @return A pointer to the vxlan_header
