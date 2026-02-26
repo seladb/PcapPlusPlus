@@ -418,7 +418,9 @@ namespace pcpp
 		/// @return DHCP option data as string
 		std::string getValueAsString(int valueOffset = 0) const
 		{
-			if (m_Data == nullptr || getDataSize() < valueOffset + 1)
+			// TODO: This will burn if valueOffset is negative. 
+			// Should negative offsets even be allowed? Potentially change it to size_t?
+			if (m_Data == nullptr || getDataSize() < static_cast<size_t>(valueOffset) + 1)
 				return "";
 
 			return std::string(reinterpret_cast<const char*>(m_Data->recordValue) + valueOffset,
