@@ -418,7 +418,7 @@ namespace pcpp
 		/// @return DHCP option data as string
 		std::string getValueAsString(int valueOffset = 0) const
 		{
-			if (m_Data == nullptr || m_Data->recordLen - valueOffset < 1)
+			if (m_Data == nullptr || getDataSize() < valueOffset + 1)
 				return "";
 
 			return std::string(reinterpret_cast<const char*>(m_Data->recordValue) + valueOffset,
