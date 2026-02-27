@@ -1,9 +1,9 @@
 #include "PostgresLayer.h"
 #include "EndianPortable.h"
+#include "PointerVector.h"
 #include "GeneralUtils.h"
 #include <algorithm>
 #include <cstring>
-#include <memory>
 #include <unordered_set>
 
 #pragma pack(push, 1)

@@ -38,7 +38,7 @@ PTF_TEST_CASE(PostgresLayerParsingTest)
 
 		for (size_t i = 0; i < messages.size(); i++)
 		{
-			PTF_ASSERT_EQUAL(messages[i]->getMessageType(), expectedTypes[i], enum);
+			PTF_ASSERT_EQUAL(messages.at(i)->getMessageType(), expectedTypes[i], enum);
 		}
 
 		PTF_ASSERT_NOT_NULL(postgresLayer->getPostgresMessage(pcpp::PostgresMessageType::Backend_ParameterStatus));
@@ -61,7 +61,7 @@ PTF_TEST_CASE(PostgresLayerParsingTest)
 		auto& messages = postgresLayer->getPostgresMessages();
 		PTF_ASSERT_EQUAL(messages.size(), 1);
 
-		PTF_ASSERT_EQUAL(messages[0]->getMessageType(), pcpp::PostgresMessageType::Frontend_StartupMessage, enum);
+		PTF_ASSERT_EQUAL(messages.at(0)->getMessageType(), pcpp::PostgresMessageType::Frontend_StartupMessage, enum);
 
 		PTF_ASSERT_NOT_NULL(postgresLayer->getPostgresMessage(pcpp::PostgresMessageType::Frontend_StartupMessage));
 	}
