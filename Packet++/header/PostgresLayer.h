@@ -373,9 +373,9 @@ namespace pcpp
 		std::vector<PostgresColumnInfo> getColumnInfos() const;
 	};
 
-	/// @class PostgresRowDataMessage
+	/// @class PostgresDataRowMessage
 	/// Represents a PostgreSQL DataRow message (backend)
-	class PostgresRowDataMessage : public PostgresMessage
+	class PostgresDataRowMessage : public PostgresMessage
 	{
 	public:
 		/// @class ColumnData
@@ -415,12 +415,12 @@ namespace pcpp
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
-		PostgresRowDataMessage(const uint8_t* data, size_t dataLen)
+		PostgresDataRowMessage(const uint8_t* data, size_t dataLen)
 		    : PostgresMessage(data, dataLen, PostgresMessageType::Backend_DataRow)
 		{}
 
 		/// @return Vector of column data values
-		std::vector<ColumnData> getRowData() const;
+		std::vector<ColumnData> getDataRow() const;
 	};
 
 	/// @class PostgresErrorResponseMessage

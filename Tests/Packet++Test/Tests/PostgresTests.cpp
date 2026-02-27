@@ -334,7 +334,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 
 	// Backend - DataRow message
 	{
-		std::vector<uint8_t> dataRowData = {
+		std::vector<uint8_t> data = {
 			0x44, 0x00, 0x00, 0x00, 0x7a, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x01, 0x31, 0x00, 0x00, 0x00, 0x01, 0x31, 0x00,
 			0x00, 0x00, 0x04, 0x4d, 0x61, 0x72, 0x79, 0x00, 0x00, 0x00, 0x05, 0x53, 0x6d, 0x69, 0x74, 0x68, 0x00, 0x00,
 			0x00, 0x1d, 0x6d, 0x61, 0x72, 0x79, 0x2e, 0x73, 0x6d, 0x69, 0x74, 0x68, 0x40, 0x73, 0x61, 0x6b, 0x69, 0x6c,
@@ -344,20 +344,20 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x3a, 0x34, 0x39, 0x3a, 0x34, 0x35, 0x2e, 0x37, 0x33, 0x38, 0x00, 0x00, 0x00, 0x01, 0x31
 		};
 		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(dataRowData.data(), dataRowData.size()));
-		auto* rowDataMsg = dynamic_cast<pcpp::PostgresRowDataMessage*>(message.get());
-		PTF_ASSERT_NOT_NULL(rowDataMsg);
-		PTF_ASSERT_EQUAL(rowDataMsg->getMessageType(), pcpp::PostgresMessageType::Backend_DataRow, enum);
-		PTF_ASSERT_EQUAL(rowDataMsg->getMessageOrigin(), pcpp::PostgresMessageOrigin::Backend, enumclass);
-		PTF_ASSERT_EQUAL(rowDataMsg->getMessageLength(), 122);
-		PTF_ASSERT_EQUAL(rowDataMsg->getTotalMessageLength(), 123);
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(data.data(), data.size()));
+		auto* dataRowMsg = dynamic_cast<pcpp::PostgresDataRowMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(dataRowMsg);
+		PTF_ASSERT_EQUAL(dataRowMsg->getMessageType(), pcpp::PostgresMessageType::Backend_DataRow, enum);
+		PTF_ASSERT_EQUAL(dataRowMsg->getMessageOrigin(), pcpp::PostgresMessageOrigin::Backend, enumclass);
+		PTF_ASSERT_EQUAL(dataRowMsg->getMessageLength(), 122);
+		PTF_ASSERT_EQUAL(dataRowMsg->getTotalMessageLength(), 123);
 
-		auto rowData = rowDataMsg->getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 10);
+		auto dataRow = dataRowMsg->getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 10);
 
-		std::vector<std::string> rowDataAsString(rowData.size());
-		std::transform(rowData.begin(), rowData.end(), rowDataAsString.begin(),
-		               [](const pcpp::PostgresRowDataMessage::ColumnData& obj) { return obj.toString(); });
+		std::vector<std::string> dataRowAsString(dataRow.size());
+		std::transform(dataRow.begin(), dataRow.end(), dataRowAsString.begin(),
+		               [](const pcpp::PostgresDataRowMessage::ColumnData& obj) { return obj.toString(); });
 		std::vector<std::string> expectedStrings = { "1",
 			                                         "1",
 			                                         "Mary",
@@ -368,11 +368,11 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			                                         "2006-02-14",
 			                                         "2013-05-26 14:49:45.738",
 			                                         "1" };
-		PTF_ASSERT_VECTORS_EQUAL(rowDataAsString, expectedStrings);
+		PTF_ASSERT_VECTORS_EQUAL(dataRowAsString, expectedStrings);
 
-		std::vector<std::string> rowDataAsHexString(rowData.size());
-		std::transform(rowData.begin(), rowData.end(), rowDataAsHexString.begin(),
-		               [](const pcpp::PostgresRowDataMessage::ColumnData& obj) { return obj.toHexString(); });
+		std::vector<std::string> dataRowAsHexString(dataRow.size());
+		std::transform(dataRow.begin(), dataRow.end(), dataRowAsHexString.begin(),
+		               [](const pcpp::PostgresDataRowMessage::ColumnData& obj) { return obj.toHexString(); });
 		std::vector<std::string> expectedHexStrings = { "31",
 			                                            "31",
 			                                            "4d617279",
@@ -383,7 +383,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			                                            "323030362d30322d3134",
 			                                            "323031332d30352d32362031343a34393a34352e373338",
 			                                            "31" };
-		PTF_ASSERT_VECTORS_EQUAL(rowDataAsHexString, expectedHexStrings);
+		PTF_ASSERT_VECTORS_EQUAL(dataRowAsHexString, expectedHexStrings);
 	}
 
 	// Backend - DataRow with NULL values
@@ -397,13 +397,13 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x48, 0x65, 0x6C, 0x6C, 0x6F,  // "Hello"
 			0xFF, 0xFF, 0xFF, 0xFF         // column 3: NULL
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(mixedValues.data(), mixedValues.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 3);
-		PTF_ASSERT_TRUE(rowData[0].isNull());
-		PTF_ASSERT_EQUAL(rowData[0].toString(), "");
-		PTF_ASSERT_EQUAL(rowData[1].toString(), "Hello");
-		PTF_ASSERT_TRUE(rowData[2].isNull());
+		pcpp::PostgresDataRowMessage dataRowMsg(mixedValues.data(), mixedValues.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 3);
+		PTF_ASSERT_TRUE(dataRow[0].isNull());
+		PTF_ASSERT_EQUAL(dataRow[0].toString(), "");
+		PTF_ASSERT_EQUAL(dataRow[1].toString(), "Hello");
+		PTF_ASSERT_TRUE(dataRow[2].isNull());
 	}
 
 	// Backend - EmptyQueryResponse message
@@ -1181,9 +1181,9 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x00, 0x00, 0x0a  // length (10)
 			                        // missing: column count
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(truncatedHeader.data(), truncatedHeader.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 0);
+		pcpp::PostgresDataRowMessage dataRowMsg(truncatedHeader.data(), truncatedHeader.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
 	}
 
 	// Backend - DataRow with invalid column count (too high)
@@ -1193,9 +1193,9 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x00, 0x00, 0x10,  // length (16)
 			0xFF, 0xFF               // column count (65535 - invalid)
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(invalidColumnCount.data(), invalidColumnCount.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 0);
+		pcpp::PostgresDataRowMessage dataRowMsg(invalidColumnCount.data(), invalidColumnCount.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
 	}
 
 	// Backend - DataRow with truncated column count (only 1 byte)
@@ -1205,9 +1205,9 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x00, 0x00, 0x10,  // length (16)
 			0x01                     // partial column count
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(truncatedColumnCount.data(), truncatedColumnCount.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 0);
+		pcpp::PostgresDataRowMessage dataRowMsg(truncatedColumnCount.data(), truncatedColumnCount.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
 	}
 
 	// Backend - DataRow with zero columns (empty row)
@@ -1217,9 +1217,9 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x00, 0x00, 0x07,  // length (7 - header only)
 			0x00, 0x00               // column count = 0
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(zeroColumns.data(), zeroColumns.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 0);
+		pcpp::PostgresDataRowMessage dataRowMsg(zeroColumns.data(), zeroColumns.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
 	}
 
 	// Backend - DataRow with truncated column length field (only 2 bytes provided instead of 4)
@@ -1230,10 +1230,10 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x01,              // column count (1)
 			0x00, 0x00               // partial column length (only 2 bytes, reads as 0)
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(truncatedColLength.data(), truncatedColLength.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 1);
-		PTF_ASSERT_TRUE(rowData[0].isNull());
+		pcpp::PostgresDataRowMessage dataRowMsg(truncatedColLength.data(), truncatedColLength.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 1);
+		PTF_ASSERT_TRUE(dataRow[0].isNull());
 	}
 
 	// Backend - DataRow with column claiming more data than available
@@ -1244,9 +1244,9 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x01,              // column count (1)
 			0x00, 0x00, 0x00, 0xFF   // column length claims 255 bytes, but no data follows
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(invalidColLength.data(), invalidColLength.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 0);
+		pcpp::PostgresDataRowMessage dataRowMsg(invalidColLength.data(), invalidColLength.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
 	}
 
 	// Backend - DataRow with column count claiming more columns than message length allows
@@ -1258,10 +1258,10 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x00, 0x00, 0x02,  // first column: length=2
 			0x41, 0x42               // "AB" - 2 bytes of data
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(excessColumns.data(), excessColumns.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 1);
-		PTF_ASSERT_EQUAL(rowData[0].toString(), std::string("AB"));
+		pcpp::PostgresDataRowMessage dataRowMsg(excessColumns.data(), excessColumns.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 1);
+		PTF_ASSERT_EQUAL(dataRow[0].toString(), std::string("AB"));
 	}
 
 	// Backend - DataRow message with length claiming more data than available (direct construction)
@@ -1271,9 +1271,9 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x00, 0x00, 0xFF,  // length claims 255 bytes
 			0x00, 0x01               // column count (1) - but no actual data
 		};
-		pcpp::PostgresRowDataMessage rowDataMsg(mismatchedLength.data(), mismatchedLength.size());
-		auto rowData = rowDataMsg.getRowData();
-		PTF_ASSERT_EQUAL(rowData.size(), 0);
+		pcpp::PostgresDataRowMessage dataRowMsg(mismatchedLength.data(), mismatchedLength.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
 	}
 
 	// Backend - PostgresErrorResponseMessage with empty fields (only header)

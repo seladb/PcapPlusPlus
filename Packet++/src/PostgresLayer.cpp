@@ -452,7 +452,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_D:
 		{
-			return new PostgresRowDataMessage(data, messageLength + 1);
+			return new PostgresDataRowMessage(data, messageLength + 1);
 		}
 		case PostgresBackendMessage_I:
 		{
@@ -793,7 +793,7 @@ namespace pcpp
 		return columns;
 	}
 
-	std::vector<PostgresRowDataMessage::ColumnData> PostgresRowDataMessage::getRowData() const
+	std::vector<PostgresDataRowMessage::ColumnData> PostgresDataRowMessage::getDataRow() const
 	{
 		constexpr size_t headerLen = 7;
 		if (m_DataLen < headerLen)
@@ -839,12 +839,12 @@ namespace pcpp
 		return rowData;
 	}
 
-	std::string PostgresRowDataMessage::ColumnData::toHexString() const
+	std::string PostgresDataRowMessage::ColumnData::toHexString() const
 	{
 		return byteArrayToHexString(m_Data, m_DataLen);
 	}
 
-	std::string PostgresRowDataMessage::ColumnData::toString() const
+	std::string PostgresDataRowMessage::ColumnData::toString() const
 	{
 		if (m_Data == nullptr || m_DataLen == 0)
 		{
