@@ -142,7 +142,7 @@ namespace pcpp
 			Backend_Unknown,
 		};
 
-		PostgresMessageType() : m_Value(Frontend_Unknown)
+		constexpr PostgresMessageType() : m_Value(Frontend_Unknown)
 		{}
 
 		// cppcheck-suppress noExplicitConstructor
