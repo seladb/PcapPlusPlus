@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstring>
 #include <memory>
+#include <unordered_set>
 
 #pragma pack(push, 1)
 namespace internal
@@ -62,6 +63,9 @@ namespace pcpp
 	constexpr char PostgresFrontendMessage_c = 'c';
 	constexpr char PostgresFrontendMessage_f = 'f';
 	constexpr char PostgresFrontendMessage_X = 'X';
+
+	const std::unordered_set<uint8_t> validErrorFieldTypes = { 'S', 'V', 'C', 'M', 'D', 'H', 'P', 'p', 'q',
+		                                                       'W', 's', 't', 'c', 'd', 'n', 'F', 'L', 'R' };
 
 	constexpr uint32_t PostgresFrontendTag_SSLRequest = 80877103;
 	constexpr uint32_t PostgresFrontendTag_GSSENCRequest = 80877104;
@@ -457,8 +461,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_E:
 		{
-			messageType = PostgresMessageType::Backend_ErrorResponse;
-			break;
+			return new PostgresErrorResponseMessage(data, messageLength + 1);
 		}
 		case PostgresBackendMessage_V:
 		{
@@ -848,7 +851,65 @@ namespace pcpp
 			return "";
 		}
 
-		return {m_Data, m_Data + m_DataLen};
+		return { m_Data, m_Data + m_DataLen };
+	}
+
+	const PostgresErrorResponseMessage::FieldMap& PostgresErrorResponseMessage::getFields() const
+	{
+		if (m_FieldsParsed)
+		{
+			return m_Fields;
+		}
+
+		constexpr auto headerLen = static_cast<size_t>(5);
+		if (m_DataLen < headerLen)
+		{
+			m_FieldsParsed = true;
+			return m_Fields;
+		}
+
+		auto offset = headerLen;
+		while (offset < m_DataLen)
+		{
+			auto fieldTypeValue = m_Data[offset];
+			if (fieldTypeValue == 0)
+			{
+				break;
+			}
+
+			const bool isKnownField = validErrorFieldTypes.find(fieldTypeValue) != validErrorFieldTypes.end();
+
+			offset++;
+			if (offset >= m_DataLen)
+			{
+				break;
+			}
+
+			auto* valueStart = reinterpret_cast<const char*>(m_Data) + offset;
+			auto remaining = m_DataLen - offset;
+			auto* nullPos = static_cast<const char*>(memchr(valueStart, '\0', remaining));
+
+			std::string fieldValue;
+			if (nullPos != nullptr)
+			{
+				fieldValue.assign(valueStart, nullPos - valueStart);
+				offset = static_cast<size_t>(nullPos - reinterpret_cast<const char*>(m_Data)) + 1;
+			}
+			else
+			{
+				fieldValue.assign(valueStart, remaining);
+				break;
+			}
+
+			if (isKnownField)
+			{
+				const auto fieldType = static_cast<ErrorField>(fieldTypeValue);
+				m_Fields[fieldType] = std::move(fieldValue);
+			}
+		}
+
+		m_FieldsParsed = true;
+		return m_Fields;
 	}
 
 	uint32_t PostgresStartupMessage::getProtocolVersion() const

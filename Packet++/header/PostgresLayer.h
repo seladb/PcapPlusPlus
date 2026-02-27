@@ -392,7 +392,7 @@ namespace pcpp
 			/// @return The raw column data as a vector of bytes
 			std::vector<uint8_t> getData() const
 			{
-				return {m_Data, m_Data + m_DataLen};
+				return { m_Data, m_Data + m_DataLen };
 			}
 
 			/// @return The column data as a hex string
@@ -421,6 +421,74 @@ namespace pcpp
 
 		/// @return Vector of column data values
 		std::vector<ColumnData> getRowData() const;
+	};
+
+	/// @class PostgresErrorResponseMessage
+	/// Represents a PostgreSQL ErrorResponse or NoticeResponse message (backend)
+	class PostgresErrorResponseMessage : public PostgresMessage
+	{
+	public:
+		/// @enum ErrorField
+		/// Represents the field types in a PostgreSQL ErrorResponse or NoticeResponse message
+		enum class ErrorField : uint8_t
+		{
+			/// Severity: the field contents are ERROR, FATAL, or PANIC (localized)
+			Severity = 'S',
+			/// Severity: the field contents are ERROR, FATAL, PANIC or DEBUG, LOG, INFO, NOTICE, WARNING, or DEBUG
+			/// (non-localized)
+			SeverityNonLocalized = 'V',
+			/// SQLSTATE code
+			SQLState = 'C',
+			/// Primary human-readable error message
+			Message = 'M',
+			/// Optional secondary error message
+			Detail = 'D',
+			/// Optional hint
+			Hint = 'H',
+			/// Decimal integer indicating an error cursor position
+			Position = 'P',
+			/// Internal cursor position (where error occurred)
+			InternalPosition = 'p',
+			/// Text of internal query
+			InternalQuery = 'q',
+			/// Indicating context of error
+			Where = 'W',
+			/// Schema name
+			Schema = 's',
+			/// Table name
+			Table = 't',
+			/// Column name
+			Column = 'c',
+			/// Data type name
+			DataType = 'd',
+			/// Constraint name
+			Constraint = 'n',
+			/// File name of error
+			File = 'F',
+			/// Line number of error
+			Line = 'L',
+			/// Routine name
+			Routine = 'R',
+			/// Terminator (always '\0')
+			Terminator = '\0'
+		};
+
+		/// A map of error field type to value
+		using FieldMap = std::unordered_map<ErrorField, std::string>;
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresErrorResponseMessage(const uint8_t* data, size_t dataLen)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Backend_ErrorResponse)
+		{}
+
+		/// @return The error fields as a map
+		const FieldMap& getFields() const;
+
+	private:
+		mutable FieldMap m_Fields;
+		mutable bool m_FieldsParsed = false;
 	};
 
 	/// @class PostgresLayer

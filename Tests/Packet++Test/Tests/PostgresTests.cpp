@@ -3,6 +3,7 @@
 #include "Packet.h"
 #include "PostgresLayer.h"
 
+#include <map>
 #include <memory>
 
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -419,14 +420,50 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 	// Backend - ErrorResponse message
 	{
 		std::vector<uint8_t> errorData = {
-			0x45, 0x00, 0x00, 0x00, 0x0C,  // message type 'E' + length
-			0x53, 0x00, 0x45, 0x00,        // severity + null
-			0x45, 0x52, 0x52, 0x00         // "ERROR" + null
+			0x45, 0x00, 0x00, 0x00, 0xfe, 0x53, 0x45, 0x52, 0x52, 0x4f, 0x52, 0x00, 0x56, 0x45, 0x52, 0x52, 0x4f,
+			0x52, 0x00, 0x43, 0x32, 0x33, 0x35, 0x30, 0x32, 0x00, 0x4d, 0x6e, 0x75, 0x6c, 0x6c, 0x20, 0x76, 0x61,
+			0x6c, 0x75, 0x65, 0x20, 0x69, 0x6e, 0x20, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x20, 0x22, 0x66, 0x69,
+			0x72, 0x73, 0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x20, 0x6f, 0x66, 0x20, 0x72, 0x65, 0x6c, 0x61,
+			0x74, 0x69, 0x6f, 0x6e, 0x20, 0x22, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x22, 0x20, 0x76, 0x69, 0x6f, 0x6c,
+			0x61, 0x74, 0x65, 0x73, 0x20, 0x6e, 0x6f, 0x74, 0x2d, 0x6e, 0x75, 0x6c, 0x6c, 0x20, 0x63, 0x6f, 0x6e,
+			0x73, 0x74, 0x72, 0x61, 0x69, 0x6e, 0x74, 0x00, 0x44, 0x46, 0x61, 0x69, 0x6c, 0x69, 0x6e, 0x67, 0x20,
+			0x72, 0x6f, 0x77, 0x20, 0x63, 0x6f, 0x6e, 0x74, 0x61, 0x69, 0x6e, 0x73, 0x20, 0x28, 0x32, 0x30, 0x31,
+			0x2c, 0x20, 0x6e, 0x75, 0x6c, 0x6c, 0x2c, 0x20, 0x53, 0x6d, 0x69, 0x74, 0x68, 0x2c, 0x20, 0x32, 0x30,
+			0x32, 0x36, 0x2d, 0x30, 0x32, 0x2d, 0x32, 0x35, 0x20, 0x32, 0x31, 0x3a, 0x31, 0x32, 0x3a, 0x34, 0x35,
+			0x2e, 0x39, 0x37, 0x33, 0x37, 0x38, 0x31, 0x29, 0x2e, 0x00, 0x73, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63,
+			0x00, 0x74, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x00, 0x63, 0x66, 0x69, 0x72, 0x73, 0x74, 0x5f, 0x6e, 0x61,
+			0x6d, 0x65, 0x00, 0x46, 0x65, 0x78, 0x65, 0x63, 0x4d, 0x61, 0x69, 0x6e, 0x2e, 0x63, 0x00, 0x4c, 0x32,
+			0x32, 0x31, 0x39, 0x00, 0x52, 0x52, 0x65, 0x70, 0x6f, 0x72, 0x74, 0x4e, 0x6f, 0x74, 0x4e, 0x75, 0x6c,
+			0x6c, 0x56, 0x69, 0x6f, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x00, 0x00
 		};
 		auto message = std::unique_ptr<pcpp::PostgresMessage>(
 		    pcpp::PostgresMessage::parsePostgresBackendMessage(errorData.data(), errorData.size()));
+		auto* errorMsg = dynamic_cast<pcpp::PostgresErrorResponseMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(errorMsg);
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_ErrorResponse, pcpp::PostgresMessageOrigin::Backend,
-		               12, 13, "Backend_ErrorResponse");
+		               254, 255, "Backend_ErrorResponse");
+
+		std::map<pcpp::PostgresErrorResponseMessage::ErrorField, std::string> expectedFields = {
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Severity,             "ERROR"                       },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::SeverityNonLocalized, "ERROR"                       },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::SQLState,             "23502"                       },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Message,
+             "null value in column \"first_name\" of relation \"actor\" violates not-null constraint"             },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Detail,
+             "Failing row contains (201, null, Smith, 2026-02-25 21:12:45.973781)."                               },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Schema,               "public"                      },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Table,                "actor"                       },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Column,               "first_name"                  },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::File,                 "execMain.c"                  },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Line,                 "2219"                        },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Routine,              "ReportNotNullViolationError" }
+		};
+		auto& fields = errorMsg->getFields();
+		PTF_ASSERT_EQUAL(fields.size(), expectedFields.size());
+		for (const auto& expected : expectedFields)
+		{
+			PTF_ASSERT_EQUAL(fields.at(expected.first), expected.second);
+		}
 	}
 
 	// Backend - FunctionCallResponse message
@@ -1237,5 +1274,112 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 		pcpp::PostgresRowDataMessage rowDataMsg(mismatchedLength.data(), mismatchedLength.size());
 		auto rowData = rowDataMsg.getRowData();
 		PTF_ASSERT_EQUAL(rowData.size(), 0);
+	}
+
+	// Backend - PostgresErrorResponseMessage with empty fields (only header)
+	{
+		std::vector<uint8_t> emptyErrorData = {
+			0x45,                    // message type 'E'
+			0x00, 0x00, 0x00, 0x01,  // length (1 = only null terminator)
+			0x00                     // null terminator
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(emptyErrorData.data(), emptyErrorData.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 0);
+	}
+
+	// Backend - PostgresErrorResponseMessage with only severity field
+	{
+		std::vector<uint8_t> minimalErrorData = {
+			0x45,                          // message type 'E'
+			0x00, 0x00, 0x00, 0x09,        // length (9 = 1 field type + 5 value + 2 null terminators)
+			0x53,                          // field type 'S' (Severity)
+			0x45, 0x52, 0x52, 0x4F, 0x52,  // "ERROR"
+			0x00,                          // null terminator for value
+			0x00                           // null terminator for fields list
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(minimalErrorData.data(), minimalErrorData.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 1);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "ERROR");
+	}
+
+	// Backend - PostgresErrorResponseMessage with truncated header (less than 5 bytes)
+	{
+		std::vector<uint8_t> truncatedHeader = {
+			0x45, 0x00, 0x00  // message type 'E' + partial length
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(truncatedHeader.data(), truncatedHeader.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 0);
+	}
+
+	// Backend - PostgresErrorResponseMessage with field type at end (no value)
+	{
+		std::vector<uint8_t> fieldTypeNoValue = {
+			0x45,                    // message type 'E'
+			0x00, 0x00, 0x00, 0x07,  // length (7)
+			0x53,                    // field type 'S' (Severity)
+			                         // no value bytes after field type
+			0x00                     // terminator (but comes right after field type)
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(fieldTypeNoValue.data(), fieldTypeNoValue.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 1);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "");
+	}
+
+	// Backend - PostgresErrorResponseMessage with unknown field type (should be skipped)
+	{
+		std::vector<uint8_t> unknownFieldType = {
+			0x45,                    // message type 'E'
+			0x00, 0x00, 0x00, 0x0C,  // length (12)
+			0x5A,                    // field type 'Z' (unknown/invalid)
+			0x73, 0x6F, 0x6D, 0x65,  // "some"
+			0x00,                    // null terminator for value
+			0x53,                    // valid field type 'S' (Severity)
+			0x57, 0x41, 0x52, 0x4E,  // "WARN"
+			0x00                     // null terminator
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(unknownFieldType.data(), unknownFieldType.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 1);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "WARN");
+	}
+
+	// Backend - PostgresErrorResponseMessage with empty field value
+	{
+		std::vector<uint8_t> emptyValueField = {
+			0x45,                    // message type 'E'
+			0x00, 0x00, 0x00, 0x09,  // length (9)
+			0x53,                    // field type 'S' (Severity)
+			0x00,                    // empty value (immediate null)
+			0x4D,                    // field type 'M' (Message)
+			0x00                     // null terminator
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(emptyValueField.data(), emptyValueField.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 2);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "");
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Message), "");
+	}
+
+	// Backend - PostgresErrorResponseMessage with duplicate fields (last one wins)
+	{
+		std::vector<uint8_t> duplicateFields = {
+			0x45,                          // message type 'E'
+			0x00, 0x00, 0x00, 0x10,        // length (16)
+			0x53,                          // field type 'S' (Severity)
+			0x45, 0x52, 0x52, 0x4F, 0x52,  // "ERROR"
+			0x00,
+			0x53,                          // field type 'S' again (Severity)
+			0x46, 0x41, 0x54, 0x41, 0x4C,  // "FATAL"
+			0x00,
+			0x00  // terminator
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(duplicateFields.data(), duplicateFields.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 1);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "FATAL");
 	}
 }
