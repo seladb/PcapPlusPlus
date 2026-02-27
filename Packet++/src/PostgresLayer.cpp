@@ -1,6 +1,5 @@
 #include "PostgresLayer.h"
 #include "EndianPortable.h"
-#include "PointerVector.h"
 #include <algorithm>
 #include <cstring>
 
