@@ -1148,16 +1148,20 @@ namespace pcpp
 			return "";
 		}
 
-		uint8_t* hostNameLengthPos = extensionDataPtr + sizeof(uint16_t) + sizeof(uint8_t);
-		uint16_t hostNameLength = be16toh(*reinterpret_cast<uint16_t*>(hostNameLengthPos));
+		uint8_t const* hostNameLengthPos = extensionDataPtr + sizeof(uint16_t) + sizeof(uint8_t);
+		uint16_t hostNameLength = be16toh(*reinterpret_cast<uint16_t const*>(hostNameLengthPos));
 
-		char* hostNameAsCharArr = new char[hostNameLength + 1];
-		memset(hostNameAsCharArr, 0, hostNameLength + 1);
-		memcpy(hostNameAsCharArr, hostNameLengthPos + sizeof(uint16_t), hostNameLength);
+		uint8_t const* hostNameDataIt = hostNameLengthPos + sizeof(uint16_t);
+		uint8_t const* hostNameDataEndIt = hostNameDataIt + hostNameLength;
+		uint8_t const* extensionDataEndIt = extensionDataPtr + getLength();
 
-		std::string res = std::string(hostNameAsCharArr);
-		delete[] hostNameAsCharArr;
-		return res;
+		if (hostNameDataEndIt > extensionDataEndIt)
+		{
+			PCPP_LOG_WARN("Host name length exceeds extension data length. Possible data corruption. Truncating.");
+			hostNameDataEndIt = extensionDataEndIt;
+		}
+
+		return std::string(hostNameDataIt, hostNameDataEndIt);
 	}
 
 	// -------------------------------------
