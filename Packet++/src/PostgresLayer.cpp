@@ -1,8 +1,8 @@
 #include "PostgresLayer.h"
 #include "EndianPortable.h"
+#include "PointerVector.h"
 #include <algorithm>
 #include <cstring>
-#include <memory>
 
 namespace pcpp
 {
@@ -800,7 +800,7 @@ namespace pcpp
 		return new PostgresLayer(data, dataLen, prevLayer, packet, PostgresMessageOrigin::Frontend);
 	}
 
-	const std::vector<std::unique_ptr<PostgresMessage>>& PostgresLayer::getPostgresMessages() const
+	const PointerVector<PostgresMessage>& PostgresLayer::getPostgresMessages() const
 	{
 		if (!m_MessagesInitialized)
 		{
@@ -821,7 +821,7 @@ namespace pcpp
 
 				dataLen -= curMessage->getTotalMessageLength();
 				data += curMessage->getTotalMessageLength();
-				m_Messages.emplace_back(std::move(curMessage));
+				m_Messages.pushBack(std::move(curMessage));
 			}
 
 			m_MessagesInitialized = true;
@@ -833,12 +833,11 @@ namespace pcpp
 	const PostgresMessage* PostgresLayer::getPostgresMessage(const PostgresMessageType& messageType) const
 	{
 		const auto& messages = getPostgresMessages();
-		auto it = std::find_if(messages.begin(), messages.end(),
-		                       [&messageType](const std::unique_ptr<PostgresMessage>& message) {
-			                       return message->getMessageType() == messageType;
-		                       });
+		auto it = std::find_if(messages.begin(), messages.end(), [&messageType](const PostgresMessage* message) {
+			return message->getMessageType() == messageType;
+		});
 
-		return it != messages.end() ? it->get() : nullptr;
+		return it != messages.end() ? *it : nullptr;
 	}
 
 	std::string PostgresLayer::toString() const

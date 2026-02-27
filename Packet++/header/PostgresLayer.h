@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Layer.h"
-#include <memory>
+#include "PointerVector.h"
 #include <ostream>
 #include <unordered_map>
-#include <vector>
 
 /// @file
 
@@ -348,7 +347,7 @@ namespace pcpp
 		}
 
 		/// @return A vector of all PostgreSQL messages in this layer
-		const std::vector<std::unique_ptr<PostgresMessage>>& getPostgresMessages() const;
+		const PointerVector<PostgresMessage>& getPostgresMessages() const;
 
 		/// @brief Get a PostgreSQL message by its type
 		/// @param[in] messageType The type of message to retrieve
@@ -365,7 +364,7 @@ namespace pcpp
 			const auto& messages = getPostgresMessages();
 			for (const auto& msg : messages)
 			{
-				auto result = dynamic_cast<const TMessage*>(msg.get());
+				auto result = dynamic_cast<const TMessage*>(msg);
 				if (result != nullptr)
 				{
 					return result;
@@ -401,7 +400,7 @@ namespace pcpp
 
 	private:
 		PostgresMessageOrigin m_MessageOrigin;
-		mutable std::vector<std::unique_ptr<PostgresMessage>> m_Messages;
+		mutable PointerVector<PostgresMessage> m_Messages;
 		mutable bool m_MessagesInitialized = false;
 
 		PostgresLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
