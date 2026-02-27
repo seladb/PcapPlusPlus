@@ -585,7 +585,7 @@ namespace pcpp
 		{
 		case PostgresFrontendMessage_Q:
 		{
-			return new PostgresQueryMessage(data, std::min(static_cast<size_t>(messageLength) + 1, dataLen));
+			return new PostgresQueryMessage(data, (std::min)(static_cast<size_t>(messageLength) + 1, dataLen));
 		}
 		case PostgresFrontendMessage_P:
 		{

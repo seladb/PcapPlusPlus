@@ -3,6 +3,7 @@
 #include "Packet.h"
 #include "PostgresLayer.h"
 
+#include <algorithm>
 #include <map>
 #include <memory>
 
