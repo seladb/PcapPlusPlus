@@ -812,7 +812,7 @@ namespace pcpp
 
 		for (uint16_t i = 0; i < numColumns; ++i)
 		{
-			if (offset >= m_DataLen)
+			if (offset + 4 > m_DataLen)
 			{
 				break;
 			}
