@@ -814,6 +814,10 @@ namespace pcpp
 		{
 			if (offset + 4 > m_DataLen)
 			{
+				if (offset < m_DataLen)
+				{
+					rowData.emplace_back(nullptr, 0);
+				}
 				break;
 			}
 
