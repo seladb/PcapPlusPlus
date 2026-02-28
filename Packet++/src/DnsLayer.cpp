@@ -479,7 +479,7 @@ namespace pcpp
 		{
 			newResourceOffsetInLayer += curResource->getSize();
 
-			if(newResourceOffsetInLayer > m_DataLen)
+			if (newResourceOffsetInLayer > m_DataLen)
 			{
 				// This possibly means that the DNS layer has been created from a malformed packet.
 				PCPP_LOG_ERROR("Couldn't add resource! DNS Layer is malformed and contains out of bounds resources.");

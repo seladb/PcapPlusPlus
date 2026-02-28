@@ -100,20 +100,24 @@ namespace pcpp
 	public:
 		/// C'tor for this class
 		/// @param[in] data The raw data for the extension
-		/// @deprecated This constructor is deprecated because it uses an unbound memory span. Use the constructor with bounded span.
+		/// @deprecated This constructor is deprecated because it uses an unbound memory span. Use the constructor with
+		/// bounded span.
 		PCPP_DEPRECATED("Unbound memory span. Use the constructor with bounded span.")
 		explicit SSLExtension(uint8_t* data);
 
 		/// @brief Constructs an SSLExtension that interprets the provided data as the raw bytes of the extension.
-		/// 
+		///
 		/// The memory span defined by data and dataLen can be larger than the actual extension data.
 		/// If so, only the bytes corresponding to the extension header (type and length fields) + [length] bytes of
 		/// extension data will be parsed. The rest of the span will be ignored.
-		/// 
-		/// The above behaviour allows variable length extensions to be parsed, as SSL extensions are layed out sequentially in memory on a payload.
-		/// 
+		///
+		/// The above behaviour allows variable length extensions to be parsed, as SSL extensions are laid out
+		/// sequentially in memory on a payload.
+		///
 		/// @param[in] data The raw data for the extension.
 		/// @param[in] dataLen The length of the data in bytes.
+		/// @throws std::invalid_argument if data is nullptr or if dataLen is smaller than the size of the extension
+		/// header (type and length fields).
 		SSLExtension(uint8_t* data, size_t dataLen);
 
 		virtual ~SSLExtension() = default;
@@ -134,11 +138,11 @@ namespace pcpp
 		uint8_t* getData() const;
 
 		/// @brief A static method that tries to create an instance of a specific extension type.
-		/// 
+		///
 		/// The factory method handles potential buffer overflows by validating that the data length of the span
 		/// is sufficient to contain the extension header (type and length fields) and the extension data as specified
 		/// in the length field.
-		/// 
+		///
 		/// @tparam T The type of the extension to create. This type must be a class that inherits from SSLExtension.
 		/// @param data Pointer to the raw data of the extension.
 		/// @param dataLen Max length of the span to be parsed.
@@ -168,7 +172,7 @@ namespace pcpp
 			/// Extension data as raw (byte array)
 			uint8_t extensionData[];
 
-			/// @brief Gets the extension type in host byte order 
+			/// @brief Gets the extension type in host byte order
 			uint16_t getExtType() const;
 			/// @brief Gets the extension length in host byte order
 			uint16_t getDataLength() const;

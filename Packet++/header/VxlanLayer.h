@@ -90,7 +90,7 @@ namespace pcpp
 
 		~VxlanLayer() override = default;
 
-		static bool isDataValid(uint8_t const* data,size_t dataLen)
+		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
 			return canReinterpretAs<vxlan_header>(data, dataLen);
 		}

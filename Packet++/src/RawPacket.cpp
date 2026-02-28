@@ -141,7 +141,8 @@ namespace pcpp
 	{
 		if (atIndex > m_RawDataLen)
 		{
-			throw std::out_of_range("Insert index is out of raw packet bound. Inserts can only happen in range [0, " + std::to_string(m_RawDataLen) + ']');
+			throw std::out_of_range("Insert index is out of raw packet bound. Inserts can only happen in range [0, " +
+			                        std::to_string(m_RawDataLen) + ']');
 		}
 
 		// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on

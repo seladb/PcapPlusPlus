@@ -91,7 +91,7 @@ namespace pcpp
 			{
 				// Find the next IAC symbol.
 				it = std::find(it, last, IAC);
-				
+
 				// Reached the end of the sequence.
 				if (it == last)
 					return last;
@@ -99,11 +99,11 @@ namespace pcpp
 				auto itNext = std::next(it);
 				// Reached the end of the sequence.
 				// IAC at the end of the sequence is invalid.
-				if(itNext == last)
+				if (itNext == last)
 					return last;
 
 				// If the next symbol is not IAC, this isn't an escaped sequence.
-				if(*itNext != IAC)
+				if (*itNext != IAC)
 					return it;
 
 				// Escaped sequence "FF FF", move it to 1 past the second FF, to skip the view "FF [[FF XX]]".
