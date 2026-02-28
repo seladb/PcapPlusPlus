@@ -100,10 +100,20 @@ namespace pcpp
 	public:
 		/// C'tor for this class
 		/// @param[in] data The raw data for the extension
-		PCPP_DEPRECATED(
-		    "Unbound memory span. Use the constructor with data length parameter instead to avoid potential buffer overflows.")
+		/// @deprecated This constructor is deprecated because it uses an unbound memory span. Use the constructor with bounded span.
+		PCPP_DEPRECATED("Unbound memory span. Use the constructor with bounded span.")
 		explicit SSLExtension(uint8_t* data);
 
+		/// @brief Constructs an SSLExtension that interprets the provided data as the raw bytes of the extension.
+		/// 
+		/// The memory span defined by data and dataLen can be larger than the actual extension data.
+		/// If so, only the bytes corresponding to the extension header (type and length fields) + [length] bytes of
+		/// extension data will be parsed. The rest of the span will be ignored.
+		/// 
+		/// The above behaviour allows variable length extensions to be parsed, as SSL extensions are layed out sequentially in memory on a payload.
+		/// 
+		/// @param[in] data The raw data for the extension.
+		/// @param[in] dataLen The length of the data in bytes.
 		SSLExtension(uint8_t* data, size_t dataLen);
 
 		virtual ~SSLExtension() = default;
