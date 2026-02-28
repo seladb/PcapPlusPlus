@@ -3,6 +3,7 @@
 #include "Packet.h"
 #include "PostgresLayer.h"
 
+#include <algorithm>
 #include <map>
 #include <memory>
 
@@ -355,12 +356,9 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		auto dataRow = dataRowMsg->getDataRow();
 		PTF_ASSERT_EQUAL(dataRow.size(), 10);
 
-		std::vector<std::string> dataRowAsString;
-		dataRowAsString.reserve(dataRow.size());
-		for (const auto& obj : dataRow)
-		{
-			dataRowAsString.push_back(obj.toString());
-		}
+		std::vector<std::string> dataRowAsString(dataRow.size());
+		std::transform(dataRow.begin(), dataRow.end(), dataRowAsString.begin(),
+		               [](const pcpp::PostgresDataRowMessage::ColumnData& obj) { return obj.toString(); });
 		std::vector<std::string> expectedStrings = { "1",
 			                                         "1",
 			                                         "Mary",
@@ -373,12 +371,9 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			                                         "1" };
 		PTF_ASSERT_VECTORS_EQUAL(dataRowAsString, expectedStrings);
 
-		std::vector<std::string> dataRowAsHexString;
-		dataRowAsHexString.reserve(dataRow.size());
-		for (const auto& obj : dataRow)
-		{
-			dataRowAsHexString.push_back(obj.toHexString());
-		}
+		std::vector<std::string> dataRowAsHexString(dataRow.size());
+		std::transform(dataRow.begin(), dataRow.end(), dataRowAsHexString.begin(),
+		               [](const pcpp::PostgresDataRowMessage::ColumnData& obj) { return obj.toHexString(); });
 		std::vector<std::string> expectedHexStrings = { "31",
 			                                            "31",
 			                                            "4d617279",
