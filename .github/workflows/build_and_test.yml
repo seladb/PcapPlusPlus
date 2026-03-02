@@ -73,6 +73,7 @@ jobs:
           - runner: ubuntu-latest
             image: ubuntu2004
             config-zstd: OFF
+            gcovr-version: 8.2
           - runner: ubuntu-latest
             image: rhel94
             config-zstd: OFF
