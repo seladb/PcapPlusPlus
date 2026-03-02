@@ -1363,72 +1363,6 @@ namespace pcpp
 	// SSLClientHelloMessage methods
 	// -----------------------------
 
-	namespace
-	{
-		PointerVector<SSLExtension> parseSSLExtensionBuffer(uint8_t* first, uint8_t* last)
-		{
-			PointerVector<SSLExtension> result;
-
-			constexpr size_t minSSLExtensionLen = 2 * sizeof(uint16_t);
-			while (first < last && std::distance(first, last) >= static_cast<std::ptrdiff_t>(minSSLExtensionLen))
-			{
-				std::unique_ptr<SSLExtension> newExt;
-
-				uint16_t sslExtType = be16toh(*reinterpret_cast<uint16_t*>(first));
-				size_t availableDataLen = std::distance(first, last);
-
-				switch (sslExtType)
-				{
-				case SSL_EXT_SERVER_NAME:
-				{
-					newExt =
-					    SSLExtension::tryCreateExtension<SSLServerNameIndicationExtension>(first, availableDataLen);
-					break;
-				}
-				case SSL_EXT_SUPPORTED_VERSIONS:
-				{
-					newExt = SSLExtension::tryCreateExtension<SSLSupportedVersionsExtension>(first, availableDataLen);
-					break;
-				}
-				case SSL_EXT_SUPPORTED_GROUPS:
-				{
-					newExt = SSLExtension::tryCreateExtension<TLSSupportedGroupsExtension>(first, availableDataLen);
-					break;
-				}
-				case SSL_EXT_EC_POINT_FORMATS:
-				{
-					newExt = SSLExtension::tryCreateExtension<TLSECPointFormatExtension>(first, availableDataLen);
-					break;
-				}
-				default:
-				{
-					newExt = SSLExtension::tryCreateExtension<SSLExtension>(first, availableDataLen);
-				}
-				}
-
-				if (newExt == nullptr)
-				{
-					PCPP_LOG_DEBUG("Failed to parse SSL extension of type " << sslExtType
-					                                                        << " skipping remaining extensions.");
-					break;
-				}
-
-				// Total length can be zero only if getLength() == 0xfffc which is way too large
-				// and means that this extension (and packet) are malformed
-				size_t newExtTotalLen = newExt->getTotalLength();
-				if (newExtTotalLen == 0)
-				{
-					break;
-				}
-
-				result.pushBack(std::move(newExt));
-				std::advance(first, newExtTotalLen);
-			}
-
-			return result;
-		}
-	}  // namespace
-
 	SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
 	    : SSLHandshakeMessage(data, dataLen, container)
 	{
@@ -1456,7 +1390,62 @@ namespace pcpp
 			extensionEndIt = endOfMessageIt;
 		}
 
-		m_ExtensionList = parseSSLExtensionBuffer(extensionIt, extensionEndIt);
+		constexpr size_t minSSLExtensionLen = 2 * sizeof(uint16_t);
+		while (extensionIt < extensionEndIt &&
+		       std::distance(extensionIt, extensionEndIt) >= static_cast<std::ptrdiff_t>(minSSLExtensionLen))
+		{
+			std::unique_ptr<SSLExtension> newExt;
+
+			uint16_t sslExtType = be16toh(*reinterpret_cast<uint16_t*>(extensionIt));
+			size_t availableDataLen = std::distance(extensionIt, extensionEndIt);
+
+			switch (sslExtType)
+			{
+			case SSL_EXT_SERVER_NAME:
+			{
+				newExt =
+				    SSLExtension::tryCreateExtension<SSLServerNameIndicationExtension>(extensionIt, availableDataLen);
+				break;
+			}
+			case SSL_EXT_SUPPORTED_VERSIONS:
+			{
+				newExt = SSLExtension::tryCreateExtension<SSLSupportedVersionsExtension>(extensionIt, availableDataLen);
+				break;
+			}
+			case SSL_EXT_SUPPORTED_GROUPS:
+			{
+				newExt = SSLExtension::tryCreateExtension<TLSSupportedGroupsExtension>(extensionIt, availableDataLen);
+				break;
+			}
+			case SSL_EXT_EC_POINT_FORMATS:
+			{
+				newExt = SSLExtension::tryCreateExtension<TLSECPointFormatExtension>(extensionIt, availableDataLen);
+				break;
+			}
+			default:
+			{
+				newExt = SSLExtension::tryCreateExtension<SSLExtension>(extensionIt, availableDataLen);
+			}
+			}
+
+			if (newExt == nullptr)
+			{
+				PCPP_LOG_DEBUG("Failed to parse SSL extension of type " << sslExtType
+				                                                        << " skipping remaining extensions.");
+				break;
+			}
+
+			// Total length can be zero only if getLength() == 0xfffc which is way too large
+			// and means that this extension (and packet) are malformed
+			size_t newExtTotalLen = newExt->getTotalLength();
+			if (newExtTotalLen == 0)
+			{
+				break;
+			}
+
+			m_ExtensionList.pushBack(std::move(newExt));
+			std::advance(extensionIt, newExtTotalLen);
+		}
 	}
 
 	SSLVersion SSLClientHelloMessage::getHandshakeVersion() const
@@ -1722,7 +1711,62 @@ namespace pcpp
 			extensionEndIt = endOfMessageIt;
 		}
 
-		m_ExtensionList = parseSSLExtensionBuffer(extensionIt, extensionEndIt);
+		constexpr size_t minSSLExtensionLen = 2 * sizeof(uint16_t);
+		while (extensionIt < extensionEndIt &&
+		       std::distance(extensionIt, extensionEndIt) >= static_cast<std::ptrdiff_t>(minSSLExtensionLen))
+		{
+			std::unique_ptr<SSLExtension> newExt;
+
+			uint16_t sslExtType = be16toh(*reinterpret_cast<uint16_t*>(extensionIt));
+			size_t availableDataLen = std::distance(extensionIt, extensionEndIt);
+
+			switch (sslExtType)
+			{
+			case SSL_EXT_SERVER_NAME:
+			{
+				newExt =
+				    SSLExtension::tryCreateExtension<SSLServerNameIndicationExtension>(extensionIt, availableDataLen);
+				break;
+			}
+			case SSL_EXT_SUPPORTED_VERSIONS:
+			{
+				newExt = SSLExtension::tryCreateExtension<SSLSupportedVersionsExtension>(extensionIt, availableDataLen);
+				break;
+			}
+			case SSL_EXT_SUPPORTED_GROUPS:
+			{
+				newExt = SSLExtension::tryCreateExtension<TLSSupportedGroupsExtension>(extensionIt, availableDataLen);
+				break;
+			}
+			case SSL_EXT_EC_POINT_FORMATS:
+			{
+				newExt = SSLExtension::tryCreateExtension<TLSECPointFormatExtension>(extensionIt, availableDataLen);
+				break;
+			}
+			default:
+			{
+				newExt = SSLExtension::tryCreateExtension<SSLExtension>(extensionIt, availableDataLen);
+			}
+			}
+
+			if (newExt == nullptr)
+			{
+				PCPP_LOG_DEBUG("Failed to parse SSL extension of type " << sslExtType
+				                                                        << " skipping remaining extensions.");
+				break;
+			}
+
+			// Total length can be zero only if getLength() == 0xfffc which is way too large
+			// and means that this extension (and packet) are malformed
+			size_t newExtTotalLen = newExt->getTotalLength();
+			if (newExtTotalLen == 0)
+			{
+				break;
+			}
+
+			m_ExtensionList.pushBack(std::move(newExt));
+			std::advance(extensionIt, newExtTotalLen);
+		}
 	}
 
 	SSLVersion SSLServerHelloMessage::getHandshakeVersion() const
