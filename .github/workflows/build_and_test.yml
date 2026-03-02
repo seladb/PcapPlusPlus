@@ -81,6 +81,7 @@ jobs:
           - runner: ubuntu-latest
             image: ubuntu2004-zstd
             config-zstd: ON
+            gcovr-version: 8.2
           - runner: ubuntu-latest
             image: fedora42
             config-zstd: OFF
