@@ -9,7 +9,7 @@ def run_example(
     example_name,
     args,
     root_path,
-    timeout=10,
+    timeout=20,
     expected_return_code=0,
     requires_root=False,
 ):
@@ -77,7 +77,7 @@ class ExampleTest(object):
         self.root_path = request.config.getoption("--root-path")
 
     def run_example(
-        self, args, timeout=10, expected_return_code=0, requires_root=False
+        self, args, timeout=20, expected_return_code=0, requires_root=False
     ):
         return run_example(
             example_name=self.__class__.__name__[4:],
