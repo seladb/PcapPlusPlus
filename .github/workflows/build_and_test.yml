@@ -57,6 +57,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     container: seladb/${{ matrix.image }}
     strategy:
+      fail-fast: false
       matrix:
         include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
           - runner: ubuntu-latest
