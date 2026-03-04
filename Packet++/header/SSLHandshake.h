@@ -151,11 +151,15 @@ namespace pcpp
 		static std::unique_ptr<T> tryCreateExtension(uint8_t* data, size_t dataLen)
 		{
 			if (data == nullptr || dataLen < sizeof(SSLExtensionStruct))
+			{
 				return nullptr;
+			}
 
-			SSLExtensionStruct* extStruct = reinterpret_cast<SSLExtensionStruct*>(data);
+			auto* extStruct = reinterpret_cast<SSLExtensionStruct*>(data);
 			if (dataLen < sizeof(SSLExtensionStruct) + extStruct->getDataLength())
+			{
 				return nullptr;
+			}
 
 			return std::make_unique<T>(data, dataLen);
 		}
