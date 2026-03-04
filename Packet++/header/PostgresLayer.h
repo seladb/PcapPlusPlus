@@ -358,7 +358,7 @@ namespace pcpp
 		/// @tparam TMessage The message type to retrieve (must derive from PostgresMessage)
 		/// @return A pointer to the message of the specified type, or nullptr if not found
 		template <class TMessage,
-		          typename std::enable_if<std::is_base_of<PostgresMessage, TMessage>::value>::type* = nullptr>
+		          std::enable_if_t<std::is_base_of<PostgresMessage, TMessage>::value, bool> = nullptr>
 		const TMessage* getPostgresMessage() const
 		{
 			const auto& messages = getPostgresMessages();

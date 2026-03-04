@@ -641,7 +641,7 @@ namespace pcpp
 
 	uint32_t PostgresMessage::getMessageLength() const
 	{
-		if (m_Data == nullptr || m_DataLen < 4)
+		if (m_Data == nullptr || m_DataLen < 5)
 		{
 			return 0;
 		}
@@ -662,16 +662,18 @@ namespace pcpp
 
 	std::string PostgresParameterStatus::getParameterName() const
 	{
-		if (m_DataLen < 6)
+		constexpr size_t headerLen = 5;
+
+		if (m_DataLen < headerLen + 1)
 		{
 			return {};
 		}
 
-		const auto* start = reinterpret_cast<const char*>(m_Data + 5);
-		const auto maxLen = m_DataLen - 5;
-		const auto* end = static_cast<const char*>(memchr(start, '\0', maxLen));
+		const auto* start = reinterpret_cast<const char*>(m_Data + headerLen);
+		const auto* end = start + m_DataLen - headerLen;
+		end = std::find(start, end, '\0');
 
-		return std::string(start, end != nullptr ? end : start + maxLen);
+		return { start, end };
 	}
 
 	std::string PostgresParameterStatus::getParameterValue() const
@@ -684,20 +686,18 @@ namespace pcpp
 		}
 
 		const char* base = reinterpret_cast<const char*>(m_Data) + headerLen;
-		const size_t remaining = m_DataLen - headerLen;
+		const char* baseEnd = base + m_DataLen - headerLen;
 
-		const char* nameEnd = static_cast<const char*>(memchr(base, '\0', remaining));
-		if (nameEnd == nullptr)
+		const char* nameEnd = std::find(base, baseEnd, '\0');
+		if (nameEnd >= baseEnd || nameEnd + 1 >= baseEnd)
 		{
 			return "";
 		}
 
-		const size_t nameLen = static_cast<size_t>(nameEnd - base);
 		const char* valueStart = nameEnd + 1;
-		const size_t valueMaxLen = remaining - nameLen - 1;
+		const char* valueEnd = std::find(valueStart, baseEnd, '\0');
 
-		const char* valueEnd = static_cast<const char*>(memchr(valueStart, '\0', valueMaxLen));
-		return std::string(valueStart, valueEnd != nullptr ? valueEnd : valueStart + valueMaxLen);
+		return { valueStart, valueEnd };
 	}
 
 	uint32_t PostgresStartupMessage::getProtocolVersion() const
