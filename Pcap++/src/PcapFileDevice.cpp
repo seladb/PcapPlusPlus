@@ -50,9 +50,9 @@ namespace pcpp
 
 		// Magic numbers for different pcap formats
 		constexpr uint32_t TCPDUMP_MAGIC = 0xa1b2c3d4;
-		constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
+		// constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
 		constexpr uint32_t NSEC_TCPDUMP_MAGIC = 0xa1b23c4d;
-		constexpr uint32_t NSEC_TCPDUMP_MAGIC_SWAPPED = 0x4d3cb2a1;
+		// constexpr uint32_t NSEC_TCPDUMP_MAGIC_SWAPPED = 0x4d3cb2a1;
 
 		constexpr uint16_t PCAP_MAJOR_VERSION = 2;
 		constexpr uint16_t PCAP_MINOR_VERSION = 4;
