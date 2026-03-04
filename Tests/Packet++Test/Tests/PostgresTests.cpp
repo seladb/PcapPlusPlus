@@ -85,8 +85,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x52, 0x00, 0x00, 0x00, 0x08,  // message type 'R' + length
 			0x00, 0x00, 0x00, 0x00         // auth type 0
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authOkData.data(), authOkData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authOkData.data(), authOkData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationOk,
 		               pcpp::PostgresMessageOrigin::Backend, 8, 9, "Backend_AuthenticationOk");
 	}
@@ -97,8 +96,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x52, 0x00, 0x00, 0x00, 0x08,  // message type 'R' + length
 			0x00, 0x00, 0x00, 0x03         // auth type 3
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationCleartextPassword,
 		               pcpp::PostgresMessageOrigin::Backend, 8, 9, "Backend_AuthenticationCleartextPassword");
 		std::vector<uint8_t> expectedPayload = { 0x00, 0x00, 0x00, 0x03 };
@@ -112,8 +110,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x05,        // auth type 5
 			0xAB, 0xCD, 0xEF, 0x12         // salt value
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationMD5Password,
 		               pcpp::PostgresMessageOrigin::Backend, 12, 13, "Backend_AuthenticationMD5Password");
 	}
@@ -124,8 +121,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x52, 0x00, 0x00, 0x00, 0x08,  // message type 'R' + length
 			0x00, 0x00, 0x00, 0x01         // auth type 1
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationKerberosV4,
 		               pcpp::PostgresMessageOrigin::Backend, 8, 9, "Backend_AuthenticationKerberosV4");
 	}
@@ -136,8 +132,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x52, 0x00, 0x00, 0x00, 0x08,  // message type 'R' + length
 			0x00, 0x00, 0x00, 0x02         // auth type 2
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationKerberosV5,
 		               pcpp::PostgresMessageOrigin::Backend, 8, 9, "Backend_AuthenticationKerberosV5");
 	}
@@ -148,8 +143,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x52, 0x00, 0x00, 0x00, 0x08,  // message type 'R' + length
 			0x00, 0x00, 0x00, 0x07         // auth type 7
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationGSS,
 		               pcpp::PostgresMessageOrigin::Backend, 8, 9, "Backend_AuthenticationGSS");
 	}
@@ -161,8 +155,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x08,        // auth type 8
 			0x01, 0x02, 0x03, 0x04         // GSS data
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationGSSContinue,
 		               pcpp::PostgresMessageOrigin::Backend, 12, 13, "Backend_AuthenticationGSSContinue");
 	}
@@ -173,8 +166,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x52, 0x00, 0x00, 0x00, 0x08,  // message type 'R' + length
 			0x00, 0x00, 0x00, 0x09         // auth type 9
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationSSPI,
 		               pcpp::PostgresMessageOrigin::Backend, 8, 9, "Backend_AuthenticationSSPI");
 	}
@@ -188,8 +180,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x2D, 0x53, 0x48, 0x41,        // "-SHA256"
 			0x00                           // null terminator
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationSASL,
 		               pcpp::PostgresMessageOrigin::Backend, 16, 17, "Backend_AuthenticationSASL");
 	}
@@ -201,8 +192,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x0B,        // auth type 11
 			0x01, 0x02, 0x03, 0x04         // SASL data
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationSASLContinue,
 		               pcpp::PostgresMessageOrigin::Backend, 12, 13, "Backend_AuthenticationSASLContinue");
 	}
@@ -214,8 +204,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x0C,        // auth type 12
 			0x01, 0x02, 0x03, 0x04         // SASL final data
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(authData.data(), authData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_AuthenticationSASLFinal,
 		               pcpp::PostgresMessageOrigin::Backend, 12, 13, "Backend_AuthenticationSASLFinal");
 	}
@@ -227,8 +216,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x01,        // process ID
 			0x00, 0x00, 0x00, 0x02         // secret key
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(keyData.data(), keyData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(keyData.data(), keyData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_BackendKeyData, pcpp::PostgresMessageOrigin::Backend,
 		               12, 13, "Backend_BackendKeyData");
 	}
@@ -238,8 +226,8 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> bindCompleteData = {
 			0x32, 0x00, 0x00, 0x00, 0x04  // message type '2' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(bindCompleteData.data(), bindCompleteData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(bindCompleteData.data(), bindCompleteData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_BindComplete, pcpp::PostgresMessageOrigin::Backend,
 		               4, 5, "Backend_BindComplete");
 	}
@@ -249,8 +237,8 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> closeCompleteData = {
 			0x33, 0x00, 0x00, 0x00, 0x04  // message type '3' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(closeCompleteData.data(), closeCompleteData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(closeCompleteData.data(), closeCompleteData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_CloseComplete, pcpp::PostgresMessageOrigin::Backend,
 		               4, 5, "Backend_CloseComplete");
 	}
@@ -262,8 +250,8 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x53, 0x45, 0x4C, 0x45, 0x43,  // "SELECT"
 			0x54, 0x20, 0x31, 0x00         // "T 1" + null
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(cmdCompleteData.data(), cmdCompleteData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(cmdCompleteData.data(), cmdCompleteData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_CommandComplete,
 		               pcpp::PostgresMessageOrigin::Backend, 13, 14, "Backend_CommandComplete");
 	}
@@ -274,8 +262,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x64, 0x00, 0x00, 0x00, 0x08,  // message type 'd' + length
 			0x01, 0x02, 0x03, 0x04         // copy data
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(copyData.data(), copyData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(copyData.data(), copyData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_CopyData, pcpp::PostgresMessageOrigin::Backend, 8, 9,
 		               "Backend_CopyData");
 	}
@@ -285,8 +272,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> copyDoneData = {
 			0x63, 0x00, 0x00, 0x00, 0x04  // message type 'c' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(copyDoneData.data(), copyDoneData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(copyDoneData.data(), copyDoneData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_CopyDone, pcpp::PostgresMessageOrigin::Backend, 4, 5,
 		               "Backend_CopyDone");
 	}
@@ -299,8 +285,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x01,                    // num columns (1)
 			0x00                           // column format (text)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(copyInData.data(), copyInData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(copyInData.data(), copyInData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_CopyInResponse, pcpp::PostgresMessageOrigin::Backend,
 		               8, 9, "Backend_CopyInResponse");
 	}
@@ -313,8 +298,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x01,                    // num columns (1)
 			0x00                           // column format (text)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(copyOutData.data(), copyOutData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(copyOutData.data(), copyOutData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_CopyOutResponse,
 		               pcpp::PostgresMessageOrigin::Backend, 8, 9, "Backend_CopyOutResponse");
 	}
@@ -327,8 +311,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x01,                    // num columns (1)
 			0x00                           // column format (text)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(copyBothData.data(), copyBothData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(copyBothData.data(), copyBothData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_CopyBothResponse,
 		               pcpp::PostgresMessageOrigin::Backend, 8, 9, "Backend_CopyBothResponse");
 	}
@@ -344,8 +327,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x34, 0x00, 0x00, 0x00, 0x17, 0x32, 0x30, 0x31, 0x33, 0x2d, 0x30, 0x35, 0x2d, 0x32, 0x36, 0x20, 0x31, 0x34,
 			0x3a, 0x34, 0x39, 0x3a, 0x34, 0x35, 0x2e, 0x37, 0x33, 0x38, 0x00, 0x00, 0x00, 0x01, 0x31
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(data.data(), data.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(data.data(), data.size());
 		auto* dataRowMsg = dynamic_cast<pcpp::PostgresDataRowMessage*>(message.get());
 		PTF_ASSERT_NOT_NULL(dataRowMsg);
 		PTF_ASSERT_EQUAL(dataRowMsg->getMessageType(), pcpp::PostgresMessageType::Backend_DataRow, enum);
@@ -412,8 +394,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> emptyQueryData = {
 			0x49, 0x00, 0x00, 0x00, 0x04  // message type 'I' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(emptyQueryData.data(), emptyQueryData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(emptyQueryData.data(), emptyQueryData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_EmptyQueryResponse,
 		               pcpp::PostgresMessageOrigin::Backend, 4, 5, "Backend_EmptyQueryResponse");
 	}
@@ -421,24 +402,11 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 	// Backend - ErrorResponse message
 	{
 		std::vector<uint8_t> errorData = {
-			0x45, 0x00, 0x00, 0x00, 0xfe, 0x53, 0x45, 0x52, 0x52, 0x4f, 0x52, 0x00, 0x56, 0x45, 0x52, 0x52, 0x4f,
-			0x52, 0x00, 0x43, 0x32, 0x33, 0x35, 0x30, 0x32, 0x00, 0x4d, 0x6e, 0x75, 0x6c, 0x6c, 0x20, 0x76, 0x61,
-			0x6c, 0x75, 0x65, 0x20, 0x69, 0x6e, 0x20, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x20, 0x22, 0x66, 0x69,
-			0x72, 0x73, 0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x20, 0x6f, 0x66, 0x20, 0x72, 0x65, 0x6c, 0x61,
-			0x74, 0x69, 0x6f, 0x6e, 0x20, 0x22, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x22, 0x20, 0x76, 0x69, 0x6f, 0x6c,
-			0x61, 0x74, 0x65, 0x73, 0x20, 0x6e, 0x6f, 0x74, 0x2d, 0x6e, 0x75, 0x6c, 0x6c, 0x20, 0x63, 0x6f, 0x6e,
-			0x73, 0x74, 0x72, 0x61, 0x69, 0x6e, 0x74, 0x00, 0x44, 0x46, 0x61, 0x69, 0x6c, 0x69, 0x6e, 0x67, 0x20,
-			0x72, 0x6f, 0x77, 0x20, 0x63, 0x6f, 0x6e, 0x74, 0x61, 0x69, 0x6e, 0x73, 0x20, 0x28, 0x32, 0x30, 0x31,
-			0x2c, 0x20, 0x6e, 0x75, 0x6c, 0x6c, 0x2c, 0x20, 0x53, 0x6d, 0x69, 0x74, 0x68, 0x2c, 0x20, 0x32, 0x30,
-			0x32, 0x36, 0x2d, 0x30, 0x32, 0x2d, 0x32, 0x35, 0x20, 0x32, 0x31, 0x3a, 0x31, 0x32, 0x3a, 0x34, 0x35,
-			0x2e, 0x39, 0x37, 0x33, 0x37, 0x38, 0x31, 0x29, 0x2e, 0x00, 0x73, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63,
-			0x00, 0x74, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x00, 0x63, 0x66, 0x69, 0x72, 0x73, 0x74, 0x5f, 0x6e, 0x61,
-			0x6d, 0x65, 0x00, 0x46, 0x65, 0x78, 0x65, 0x63, 0x4d, 0x61, 0x69, 0x6e, 0x2e, 0x63, 0x00, 0x4c, 0x32,
-			0x32, 0x31, 0x39, 0x00, 0x52, 0x52, 0x65, 0x70, 0x6f, 0x72, 0x74, 0x4e, 0x6f, 0x74, 0x4e, 0x75, 0x6c,
-			0x6c, 0x56, 0x69, 0x6f, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x00, 0x00
+			0x45, 0x00, 0x00, 0x00, 0x0C,  // message type 'E' + length
+			0x53, 0x00, 0x45, 0x00,        // severity + null
+			0x45, 0x52, 0x52, 0x00         // "ERROR" + null
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(errorData.data(), errorData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(errorData.data(), errorData.size());
 		auto* errorMsg = dynamic_cast<pcpp::PostgresErrorResponseMessage*>(message.get());
 		PTF_ASSERT_NOT_NULL(errorMsg);
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_ErrorResponse, pcpp::PostgresMessageOrigin::Backend,
@@ -473,8 +441,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x56, 0x00, 0x00, 0x00, 0x06,  // message type 'V' + length
 			0x00, 0x00, 0x00, 0x02         // result length (2)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(funcCallData.data(), funcCallData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(funcCallData.data(), funcCallData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_FunctionCallResponse,
 		               pcpp::PostgresMessageOrigin::Backend, 6, 7, "Backend_FunctionCallResponse");
 	}
@@ -487,8 +454,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x00,        // protocol version minor
 			0x00                           // no additional info
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(negotiateData.data(), negotiateData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(negotiateData.data(), negotiateData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_NegotiateProtocolVersion,
 		               pcpp::PostgresMessageOrigin::Backend, 12, 13, "Backend_NegotiateProtocolVersion");
 	}
@@ -498,8 +464,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> noDataData = {
 			0x6E, 0x00, 0x00, 0x00, 0x04  // message type 'n' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(noDataData.data(), noDataData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(noDataData.data(), noDataData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_NoData, pcpp::PostgresMessageOrigin::Backend, 4, 5,
 		               "Backend_NoData");
 	}
@@ -511,8 +476,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x53, 0x00, 0x4E, 0x00,        // severity + null
 			0x57, 0x41, 0x52, 0x00         // "WARN" + null
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(noticeData.data(), noticeData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(noticeData.data(), noticeData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_NoticeResponse, pcpp::PostgresMessageOrigin::Backend,
 		               12, 13, "Backend_NoticeResponse");
 	}
@@ -527,8 +491,8 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x70, 0x61, 0x79, 0x6C, 0x6F,  // "payload"
 			0x61, 0x64, 0x00               // "ad" + null
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(notificationData.data(), notificationData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(notificationData.data(), notificationData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_NotificationResponse,
 		               pcpp::PostgresMessageOrigin::Backend, 20, 21, "Backend_NotificationResponse");
 	}
@@ -544,8 +508,8 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x55, 0x54, 0x46, 0x38,  // "UTF8"
 			0x00                     // null terminator for value
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(paramStatusData.data(), paramStatusData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(paramStatusData.data(), paramStatusData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_ParameterStatus,
 		               pcpp::PostgresMessageOrigin::Backend, 25, 26, "Backend_ParameterStatus");
 
@@ -560,8 +524,8 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> parseCompleteData = {
 			0x31, 0x00, 0x00, 0x00, 0x04  // message type '1' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(parseCompleteData.data(), parseCompleteData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(parseCompleteData.data(), parseCompleteData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_ParseComplete, pcpp::PostgresMessageOrigin::Backend,
 		               4, 5, "Backend_ParseComplete");
 	}
@@ -572,8 +536,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x5A, 0x00, 0x00, 0x00, 0x05,  // message type 'Z' + length
 			0x49                           // transaction status: Idle (I)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(readyData.data(), readyData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(readyData.data(), readyData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_ReadyForQuery, pcpp::PostgresMessageOrigin::Backend,
 		               5, 6, "Backend_ReadyForQuery");
 	}
@@ -633,8 +596,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x06,  // length (6)
 			0x00, 0x00               // number of fields (0)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(rowDescData.data(), rowDescData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(rowDescData.data(), rowDescData.size());
 		auto* rowDescMsg = dynamic_cast<pcpp::PostgresRowDescriptionMessage*>(message.get());
 		PTF_ASSERT_NOT_NULL(rowDescMsg);
 		auto columnInfos = rowDescMsg->getColumnInfos();
@@ -644,8 +606,8 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 	// Backend - PortalSuspended message
 	{
 		std::vector<uint8_t> portalSuspendedData = { 0x73, 0x00, 0x00, 0x00, 0x04 };
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(portalSuspendedData.data(), portalSuspendedData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(portalSuspendedData.data(), portalSuspendedData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_PortalSuspended,
 		               pcpp::PostgresMessageOrigin::Backend, 4, 5, "Backend_PortalSuspended");
 	}
@@ -658,8 +620,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x17,        // OID 23 (INTEGER)
 			0x00, 0x00, 0x04, 0x13         // OID 1043 (VARCHAR)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(paramDescData.data(), paramDescData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(paramDescData.data(), paramDescData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_ParameterDescription,
 		               pcpp::PostgresMessageOrigin::Backend, 14, 15, "Backend_ParameterDescription");
 	}
@@ -691,8 +652,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00                     // null terminator (end of message)
 		};
 
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(startupData.data(), startupData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(startupData.data(), startupData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_StartupMessage,
 		               pcpp::PostgresMessageOrigin::Frontend, 85, 85, "Frontend_StartupMessage");
 
@@ -725,8 +685,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x08,  // length (8)
 			0x04, 0xD2, 0x16, 0x2F   // SSL request code (80877103)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(sslData.data(), sslData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(sslData.data(), sslData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_SSLRequest, pcpp::PostgresMessageOrigin::Frontend,
 		               8, 8, "Frontend_SSLRequest");
 	}
@@ -739,8 +698,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x01,  // process ID
 			0x00, 0x00, 0x00, 0x02   // secret key
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(cancelData.data(), cancelData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(cancelData.data(), cancelData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_CancelRequest,
 		               pcpp::PostgresMessageOrigin::Frontend, 16, 16, "Frontend_CancelRequest");
 	}
@@ -751,8 +709,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x08,  // length (8)
 			0x04, 0xD2, 0x16, 0x30   // GSS request code (80877104)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(gssData.data(), gssData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(gssData.data(), gssData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_GSSENCRequest,
 		               pcpp::PostgresMessageOrigin::Frontend, 8, 8, "Frontend_GSSENCRequest");
 	}
@@ -767,8 +724,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00  // null terminator
 
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(queryData.data(), queryData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(queryData.data(), queryData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Query, pcpp::PostgresMessageOrigin::Frontend, 24,
 		               25, "Frontend_Query");
 		auto* queryMsg = dynamic_cast<pcpp::PostgresQueryMessage*>(message.get());
@@ -789,8 +745,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x17,        // parameter type OID (23 = INTEGER)
 			0x00                           // padding
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(parseData.data(), parseData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(parseData.data(), parseData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Parse, pcpp::PostgresMessageOrigin::Frontend, 26,
 		               27, "Frontend_Parse");
 	}
@@ -810,8 +765,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x01,                          // num result format codes (1)
 			0x00, 0x00                           // format code (0 = text)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(bindData.data(), bindData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(bindData.data(), bindData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Bind, pcpp::PostgresMessageOrigin::Frontend, 20, 21,
 		               "Frontend_Bind");
 	}
@@ -825,8 +779,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x00, 0x00, 0x00, 0x00,  // max rows (0 = all)
 			0x00, 0x00, 0x00         // padding
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(executeData.data(), executeData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(executeData.data(), executeData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Execute, pcpp::PostgresMessageOrigin::Frontend, 12,
 		               13, "Frontend_Execute");
 	}
@@ -839,8 +792,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x53,                               // 'S' (statement)
 			0x73, 0x74, 0x6D, 0x74, 0x31, 0x00  // "stmt1" + null
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(closeData.data(), closeData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(closeData.data(), closeData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Close, pcpp::PostgresMessageOrigin::Frontend, 9, 10,
 		               "Frontend_Close");
 	}
@@ -853,8 +805,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x53,                    // 'S' (statement)
 			0x00, 0x00, 0x00         // name (empty) + null + padding
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(describeData.data(), describeData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(describeData.data(), describeData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Describe, pcpp::PostgresMessageOrigin::Frontend, 8,
 		               9, "Frontend_Describe");
 	}
@@ -872,8 +823,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x68, 0x65, 0x6C, 0x6C, 0x6F,  // "hello"
 			0x00, 0x00                     // result format code (0 = text)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(funcCallData.data(), funcCallData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(funcCallData.data(), funcCallData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_FunctionCall, pcpp::PostgresMessageOrigin::Frontend,
 		               16, 17, "Frontend_FunctionCall");
 	}
@@ -883,8 +833,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> flushData = {
 			0x48, 0x00, 0x00, 0x00, 0x04  // message type 'H' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(flushData.data(), flushData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(flushData.data(), flushData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Flush, pcpp::PostgresMessageOrigin::Frontend, 4, 5,
 		               "Frontend_Flush");
 	}
@@ -894,8 +843,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> syncData = {
 			0x53, 0x00, 0x00, 0x00, 0x04  // message type 'S' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(syncData.data(), syncData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(syncData.data(), syncData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Sync, pcpp::PostgresMessageOrigin::Frontend, 4, 5,
 		               "Frontend_Sync");
 	}
@@ -906,8 +854,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x64, 0x00, 0x00, 0x00, 0x08,  // message type 'd' + length
 			0x01, 0x02, 0x03, 0x04         // copy data
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(copyData.data(), copyData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(copyData.data(), copyData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_CopyData, pcpp::PostgresMessageOrigin::Frontend, 8,
 		               9, "Frontend_CopyData");
 	}
@@ -917,8 +864,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> copyDoneData = {
 			0x63, 0x00, 0x00, 0x00, 0x04  // message type 'c' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(copyDoneData.data(), copyDoneData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(copyDoneData.data(), copyDoneData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_CopyDone, pcpp::PostgresMessageOrigin::Frontend, 4,
 		               5, "Frontend_CopyDone");
 	}
@@ -930,8 +876,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			0x63, 0x6F, 0x70, 0x79, 0x20,       // "copy "
 			0x66, 0x61, 0x69, 0x6C, 0x65, 0x64  // "failed"
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(copyFailData.data(), copyFailData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(copyFailData.data(), copyFailData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_CopyFail, pcpp::PostgresMessageOrigin::Frontend, 12,
 		               13, "Frontend_CopyFail");
 	}
@@ -941,8 +886,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		std::vector<uint8_t> terminateData = {
 			0x58, 0x00, 0x00, 0x00, 0x04  // message type 'X' + length
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(terminateData.data(), terminateData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(terminateData.data(), terminateData.size());
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Terminate, pcpp::PostgresMessageOrigin::Frontend, 4,
 		               5, "Frontend_Terminate");
 	}
@@ -954,29 +898,25 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 {
 	// nullptr data
 	{
-		PTF_ASSERT_NULL(
-		    std::unique_ptr<pcpp::PostgresMessage>(pcpp::PostgresMessage::parsePostgresBackendMessage(nullptr, 10)));
-		PTF_ASSERT_NULL(
-		    std::unique_ptr<pcpp::PostgresMessage>(pcpp::PostgresMessage::parsePostgresFrontendMessage(nullptr, 10)));
+		PTF_ASSERT_NULL(pcpp::PostgresMessage::parsePostgresBackendMessage(nullptr, 10).get());
+		PTF_ASSERT_NULL(pcpp::PostgresMessage::parsePostgresFrontendMessage(nullptr, 10).get());
 	}
 
 	// Zero length data
 	{
 		std::vector<uint8_t> emptyData = {};
-		PTF_ASSERT_NULL(std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(emptyData.data(), emptyData.size())));
-		PTF_ASSERT_NULL(std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(emptyData.data(), emptyData.size())));
+		PTF_ASSERT_NULL(pcpp::PostgresMessage::parsePostgresBackendMessage(emptyData.data(), emptyData.size()).get());
+		PTF_ASSERT_NULL(pcpp::PostgresMessage::parsePostgresFrontendMessage(emptyData.data(), emptyData.size()).get());
 	}
 
 	// Truncated message (less than 5 bytes)
 	{
 		std::vector<uint8_t> truncatedData = { 0x52, 0x00, 0x00 };
-		auto backendMessage = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(truncatedData.data(), truncatedData.size()));
+		auto backendMessage =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(truncatedData.data(), truncatedData.size());
 		PTF_ASSERT_EQUAL(backendMessage->getMessageType(), pcpp::PostgresMessageType::Backend_Unknown, enum);
-		auto frontendMessage = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(truncatedData.data(), truncatedData.size()));
+		auto frontendMessage =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(truncatedData.data(), truncatedData.size());
 		PTF_ASSERT_EQUAL(frontendMessage->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
 	}
 
@@ -985,11 +925,11 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 		std::vector<uint8_t> invalidLenData = {
 			0x64, 0x00, 0x00, 0x00, 0xFF  // message type 'd' + length claims 255 bytes
 		};
-		auto backendMessage = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(invalidLenData.data(), invalidLenData.size()));
+		auto backendMessage =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(invalidLenData.data(), invalidLenData.size());
 		PTF_ASSERT_EQUAL(backendMessage->getMessageType(), pcpp::PostgresMessageType::Backend_Unknown, enum);
-		auto frontendMessage = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(invalidLenData.data(), invalidLenData.size()));
+		auto frontendMessage =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(invalidLenData.data(), invalidLenData.size());
 		PTF_ASSERT_EQUAL(frontendMessage->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
 	}
 
@@ -999,11 +939,11 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x3F, 0x00, 0x00, 0x00, 0x05,  // message type '?' (unknown) + length
 			0x49                           // transaction status
 		};
-		auto backendMessage = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(unknownData.data(), unknownData.size()));
+		auto backendMessage =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(unknownData.data(), unknownData.size());
 		PTF_ASSERT_EQUAL(backendMessage->getMessageType(), pcpp::PostgresMessageType::Backend_Unknown, enum);
-		auto frontendMessage = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(unknownData.data(), unknownData.size()));
+		auto frontendMessage =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(unknownData.data(), unknownData.size());
 		PTF_ASSERT_EQUAL(frontendMessage->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
 	}
 
@@ -1013,8 +953,8 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x52, 0x00, 0x00, 0x00, 0x08,  // message type 'R' + length
 			0x00, 0x00, 0x00, 0x04         // auth type 4 (not a valid auth type)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(invalidAuthData.data(), invalidAuthData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(invalidAuthData.data(), invalidAuthData.size());
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Backend_Unknown, enum);
 	}
 
@@ -1026,8 +966,8 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74, 0x5F, 0x65, 0x6E, 0x63,  // "client_encod"
 			0x00, 0x55                                                   // null + partial value
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(truncatedParamData.data(), truncatedParamData.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(truncatedParamData.data(), truncatedParamData.size());
 		auto* paramMsg = dynamic_cast<pcpp::PostgresParameterStatus*>(message.get());
 		PTF_ASSERT_EQUAL(paramMsg->getParameterName(), "client_enc");
 		PTF_ASSERT_EQUAL(paramMsg->getParameterValue(), "U");
@@ -1036,8 +976,8 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 	// Frontend - truncated startup message (less than 8 bytes)
 	{
 		std::vector<uint8_t> truncatedStartup = { 0x00, 0x00, 0x00, 0x08 };
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(truncatedStartup.data(), truncatedStartup.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(truncatedStartup.data(), truncatedStartup.size());
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
 	}
 
@@ -1046,8 +986,8 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 		std::vector<uint8_t> invalidStartup = {
 			0x00, 0x00, 0x00, 0xFF  // length claims 255 bytes
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(invalidStartup.data(), invalidStartup.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(invalidStartup.data(), invalidStartup.size());
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
 	}
 
@@ -1057,8 +997,8 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x00, 0x00, 0x08,  // length (8)
 			0x00, 0x00, 0x00, 0x00   // unknown tag (0)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(unknownTagStartup.data(), unknownTagStartup.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(unknownTagStartup.data(), unknownTagStartup.size());
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
 	}
 
@@ -1068,8 +1008,8 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00, 0x00, 0x00, 0x06,  // length (6) - less than minimum 8 for startup
 			0x00, 0x03               // partial protocol version
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(truncatedProtocol.data(), truncatedProtocol.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(truncatedProtocol.data(), truncatedProtocol.size());
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
 	}
 
@@ -1082,8 +1022,8 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 			0x00,                    // null terminator for name
 			0x70, 0x6F, 0x73, 0x74   // "post" - missing null terminator (value incomplete)
 		};
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresFrontendMessage(missingNullParam.data(), missingNullParam.size()));
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(missingNullParam.data(), missingNullParam.size());
 		auto* startupMsg = dynamic_cast<pcpp::PostgresStartupMessage*>(message.get());
 		PTF_ASSERT_NOT_NULL(startupMsg);
 		PTF_ASSERT_EQUAL(startupMsg->getParameter("user"), "pos");
@@ -1092,8 +1032,7 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 	// getMessageLength with short data
 	{
 		std::vector<uint8_t> shortData = { 0x52, 0x00 };
-		auto message = std::unique_ptr<pcpp::PostgresMessage>(
-		    pcpp::PostgresMessage::parsePostgresBackendMessage(shortData.data(), shortData.size()));
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(shortData.data(), shortData.size());
 		PTF_ASSERT_NOT_NULL(message);
 		PTF_ASSERT_EQUAL(message->getMessageLength(), 0);
 		PTF_ASSERT_EQUAL(message->getRawPayload().size(), 0);

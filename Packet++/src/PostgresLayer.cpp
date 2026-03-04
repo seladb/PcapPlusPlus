@@ -305,7 +305,7 @@ namespace pcpp
 		}
 	}
 
-	PostgresMessage* PostgresMessage::parsePostgresBackendMessage(const uint8_t* data, size_t dataLen)
+	std::unique_ptr<PostgresMessage> PostgresMessage::parsePostgresBackendMessage(const uint8_t* data, size_t dataLen)
 	{
 		if (data == nullptr || dataLen < 1)
 		{
@@ -314,13 +314,15 @@ namespace pcpp
 
 		if (dataLen < 5)
 		{
-			return new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown);
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
 		}
 
 		auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
 		if (dataLen < messageLength + 1)
 		{
-			return new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown);
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
 		}
 
 		auto messageTypeValue = data[0];
@@ -412,7 +414,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_S:
 		{
-			return new PostgresParameterStatus(data, messageLength + 1);
+			return std::unique_ptr<PostgresMessage>(new PostgresParameterStatus(data, messageLength + 1));
 		}
 		case PostgresBackendMessage_Z:
 		{
@@ -451,7 +453,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_D:
 		{
-			return new PostgresDataRowMessage(data, messageLength + 1);
+			return std::unique_ptr<PostgresMessage>(new PostgresDataRowMessage(data, messageLength + 1));
 		}
 		case PostgresBackendMessage_I:
 		{
@@ -460,7 +462,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_E:
 		{
-			return new PostgresErrorResponseMessage(data, messageLength + 1);
+			return std::unique_ptr<PostgresMessage>(new PostgresErrorResponseMessage(data, messageLength + 1));
 		}
 		case PostgresBackendMessage_V:
 		{
@@ -504,7 +506,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_T:
 		{
-			return new PostgresRowDescriptionMessage(data, messageLength + 1);
+			return std::unique_ptr<PostgresMessage>(new PostgresRowDescriptionMessage(data, messageLength + 1));
 		}
 		default:
 		{
@@ -512,10 +514,10 @@ namespace pcpp
 		}
 		}
 
-		return new PostgresMessage(data, messageLength + 1, messageType);
+		return std::unique_ptr<PostgresMessage>(new PostgresMessage(data, messageLength + 1, messageType));
 	}
 
-	PostgresMessage* PostgresMessage::parsePostgresFrontendMessage(const uint8_t* data, size_t dataLen)
+	std::unique_ptr<PostgresMessage> PostgresMessage::parsePostgresFrontendMessage(const uint8_t* data, size_t dataLen)
 	{
 		if (data == nullptr || dataLen < 1)
 		{
@@ -527,13 +529,15 @@ namespace pcpp
 		{
 			if (dataLen < 8)
 			{
-				return new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown);
+				return std::unique_ptr<PostgresMessage>(
+				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 			}
 
 			auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data));
 			if (messageLength > dataLen)
 			{
-				return new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown);
+				return std::unique_ptr<PostgresMessage>(
+				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 			}
 
 			auto messageTag = be32toh(*reinterpret_cast<const uint32_t*>(data + 4));
@@ -543,7 +547,7 @@ namespace pcpp
 			{
 			case PostgresFrontendTag_StartupMessage:
 			{
-				return new PostgresStartupMessage(data, messageLength);
+				return std::unique_ptr<PostgresMessage>(new PostgresStartupMessage(data, messageLength));
 			}
 			case PostgresFrontendTag_SSLRequest:
 			{
@@ -566,18 +570,20 @@ namespace pcpp
 			}
 			}
 
-			return new PostgresMessage(data, messageLength, messageType);
+			return std::unique_ptr<PostgresMessage>(new PostgresMessage(data, messageLength, messageType));
 		}
 
 		if (dataLen < 5)
 		{
-			return new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown);
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 		}
 
 		auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
 		if (dataLen < messageLength + 1)
 		{
-			return new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown);
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 		}
 
 		auto messageType = PostgresMessageType::Frontend_Unknown;
@@ -585,7 +591,8 @@ namespace pcpp
 		{
 		case PostgresFrontendMessage_Q:
 		{
-			return new PostgresQueryMessage(data, (std::min)(static_cast<size_t>(messageLength) + 1, dataLen));
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresQueryMessage(data, (std::min)(static_cast<size_t>(messageLength) + 1, dataLen)));
 		}
 		case PostgresFrontendMessage_P:
 		{
@@ -653,12 +660,12 @@ namespace pcpp
 		}
 		}
 
-		return new PostgresMessage(data, messageLength + 1, messageType);
+		return std::unique_ptr<PostgresMessage>(new PostgresMessage(data, messageLength + 1, messageType));
 	}
 
 	uint32_t PostgresMessage::getMessageLength() const
 	{
-		if (m_Data == nullptr || m_DataLen < 4)
+		if (m_Data == nullptr || m_DataLen < 5)
 		{
 			return 0;
 		}
@@ -679,16 +686,18 @@ namespace pcpp
 
 	std::string PostgresParameterStatus::getParameterName() const
 	{
-		if (m_DataLen < 6)
+		constexpr size_t headerLen = 5;
+
+		if (m_DataLen < headerLen + 1)
 		{
 			return {};
 		}
 
-		const auto* start = reinterpret_cast<const char*>(m_Data + 5);
-		const auto maxLen = m_DataLen - 5;
-		const auto* end = static_cast<const char*>(memchr(start, '\0', maxLen));
+		const auto* start = reinterpret_cast<const char*>(m_Data + headerLen);
+		const auto* end = start + m_DataLen - headerLen;
+		end = std::find(start, end, '\0');
 
-		return std::string(start, end != nullptr ? end : start + maxLen);
+		return { start, end };
 	}
 
 	std::string PostgresParameterStatus::getParameterValue() const
@@ -701,20 +710,18 @@ namespace pcpp
 		}
 
 		const char* base = reinterpret_cast<const char*>(m_Data) + headerLen;
-		const size_t remaining = m_DataLen - headerLen;
+		const char* baseEnd = base + m_DataLen - headerLen;
 
-		const char* nameEnd = static_cast<const char*>(memchr(base, '\0', remaining));
-		if (nameEnd == nullptr)
+		const char* nameEnd = std::find(base, baseEnd, '\0');
+		if (nameEnd >= baseEnd || nameEnd + 1 >= baseEnd)
 		{
 			return "";
 		}
 
-		const size_t nameLen = static_cast<size_t>(nameEnd - base);
 		const char* valueStart = nameEnd + 1;
-		const size_t valueMaxLen = remaining - nameLen - 1;
+		const char* valueEnd = std::find(valueStart, baseEnd, '\0');
 
-		const char* valueEnd = static_cast<const char*>(memchr(valueStart, '\0', valueMaxLen));
-		return std::string(valueStart, valueEnd != nullptr ? valueEnd : valueStart + valueMaxLen);
+		return { valueStart, valueEnd };
 	}
 
 	std::string PostgresQueryMessage::getQuery() const
@@ -1027,7 +1034,7 @@ namespace pcpp
 
 			while (dataLen > 0)
 			{
-				auto curMessage = std::unique_ptr<PostgresMessage>(parseFunc(data, dataLen));
+				auto curMessage = parseFunc(data, dataLen);
 				if (curMessage == nullptr)
 				{
 					break;
