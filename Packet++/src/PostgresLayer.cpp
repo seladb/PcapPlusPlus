@@ -283,7 +283,7 @@ namespace pcpp
 		}
 	}
 
-	PostgresMessage* PostgresMessage::parsePostgresBackendMessage(const uint8_t* data, size_t dataLen)
+	std::unique_ptr<PostgresMessage> PostgresMessage::parsePostgresBackendMessage(const uint8_t* data, size_t dataLen)
 	{
 		if (data == nullptr || dataLen < 1)
 		{
@@ -292,13 +292,15 @@ namespace pcpp
 
 		if (dataLen < 5)
 		{
-			return new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown);
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
 		}
 
 		auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
 		if (dataLen < messageLength + 1)
 		{
-			return new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown);
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
 		}
 
 		auto messageTypeValue = data[0];
@@ -390,7 +392,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_S:
 		{
-			return new PostgresParameterStatus(data, messageLength + 1);
+			return std::unique_ptr<PostgresMessage>(new PostgresParameterStatus(data, messageLength + 1));
 		}
 		case PostgresBackendMessage_Z:
 		{
@@ -494,10 +496,10 @@ namespace pcpp
 		}
 		}
 
-		return new PostgresMessage(data, messageLength + 1, messageType);
+		return std::unique_ptr<PostgresMessage>(new PostgresMessage(data, messageLength + 1, messageType));
 	}
 
-	PostgresMessage* PostgresMessage::parsePostgresFrontendMessage(const uint8_t* data, size_t dataLen)
+	std::unique_ptr<PostgresMessage> PostgresMessage::parsePostgresFrontendMessage(const uint8_t* data, size_t dataLen)
 	{
 		if (data == nullptr || dataLen < 1)
 		{
@@ -509,13 +511,15 @@ namespace pcpp
 		{
 			if (dataLen < 8)
 			{
-				return new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown);
+				return std::unique_ptr<PostgresMessage>(
+				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 			}
 
 			auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data));
 			if (messageLength > dataLen)
 			{
-				return new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown);
+				return std::unique_ptr<PostgresMessage>(
+				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 			}
 
 			auto messageTag = be32toh(*reinterpret_cast<const uint32_t*>(data + 4));
@@ -525,7 +529,7 @@ namespace pcpp
 			{
 			case PostgresFrontendTag_StartupMessage:
 			{
-				return new PostgresStartupMessage(data, messageLength);
+				return std::unique_ptr<PostgresMessage>(new PostgresStartupMessage(data, messageLength));
 			}
 			case PostgresFrontendTag_SSLRequest:
 			{
@@ -548,18 +552,20 @@ namespace pcpp
 			}
 			}
 
-			return new PostgresMessage(data, messageLength, messageType);
+			return std::unique_ptr<PostgresMessage>(new PostgresMessage(data, messageLength, messageType));
 		}
 
 		if (dataLen < 5)
 		{
-			return new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown);
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 		}
 
 		auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
 		if (dataLen < messageLength + 1)
 		{
-			return new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown);
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 		}
 
 		auto messageType = PostgresMessageType::Frontend_Unknown;
@@ -636,7 +642,7 @@ namespace pcpp
 		}
 		}
 
-		return new PostgresMessage(data, messageLength + 1, messageType);
+		return std::unique_ptr<PostgresMessage>(new PostgresMessage(data, messageLength + 1, messageType));
 	}
 
 	uint32_t PostgresMessage::getMessageLength() const
@@ -812,7 +818,7 @@ namespace pcpp
 
 			while (dataLen > 0)
 			{
-				auto curMessage = std::unique_ptr<PostgresMessage>(parseFunc(data, dataLen));
+				auto curMessage = parseFunc(data, dataLen);
 				if (curMessage == nullptr)
 				{
 					break;

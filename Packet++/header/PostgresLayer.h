@@ -2,6 +2,7 @@
 
 #include "Layer.h"
 #include "PointerVector.h"
+#include <memory>
 #include <ostream>
 #include <unordered_map>
 
@@ -202,14 +203,14 @@ namespace pcpp
 		/// @brief Parse a PostgreSQL backend message from raw data
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
-		/// @return A pointer to the parsed PostgresMessage, or nullptr if parsing fails
-		static PostgresMessage* parsePostgresBackendMessage(const uint8_t* data, size_t dataLen);
+		/// @return A unique pointer to the parsed PostgresMessage, or nullptr if parsing fails
+		static std::unique_ptr<PostgresMessage> parsePostgresBackendMessage(const uint8_t* data, size_t dataLen);
 
 		/// @brief Parse a PostgreSQL frontend message from raw data
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
-		/// @return A pointer to the parsed PostgresMessage, or nullptr if parsing fails
-		static PostgresMessage* parsePostgresFrontendMessage(const uint8_t* data, size_t dataLen);
+		/// @return A unique pointer to the parsed PostgresMessage, or nullptr if parsing fails
+		static std::unique_ptr<PostgresMessage> parsePostgresFrontendMessage(const uint8_t* data, size_t dataLen);
 
 		/// @return The message type
 		PostgresMessageType getMessageType() const
@@ -357,8 +358,7 @@ namespace pcpp
 		/// @brief Get a PostgreSQL message by its type (template version)
 		/// @tparam TMessage The message type to retrieve (must derive from PostgresMessage)
 		/// @return A pointer to the message of the specified type, or nullptr if not found
-		template <class TMessage,
-		          std::enable_if_t<std::is_base_of<PostgresMessage, TMessage>::value, bool> = nullptr>
+		template <class TMessage, std::enable_if_t<std::is_base_of<PostgresMessage, TMessage>::value, bool> = nullptr>
 		const TMessage* getPostgresMessage() const
 		{
 			const auto& messages = getPostgresMessages();
