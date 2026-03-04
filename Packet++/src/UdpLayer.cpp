@@ -103,11 +103,11 @@ namespace pcpp
 
 		if (DhcpLayer::isDhcpPorts(portSrc, portDst))
 		{
-			constructNextLayer<DhcpLayer>(udpData, udpDataLen);
+			tryConstructNextLayerWithFallback<DhcpLayer, PayloadLayer>(udpData, udpDataLen);
 		}
 		else if (VxlanLayer::isVxlanPort(portDst))
 		{
-			constructNextLayer<VxlanLayer>(udpData, udpDataLen);
+			tryConstructNextLayerWithFallback<VxlanLayer, PayloadLayer>(udpData, udpDataLen);
 		}
 		else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))

@@ -995,7 +995,7 @@ jobs:
     name: Run ${{ matrix.engine }}-${{ matrix.sanitizer }} fuzzer for regressions
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         sanitizer: [address, undefined, memory]
         engine: [libfuzzer]
