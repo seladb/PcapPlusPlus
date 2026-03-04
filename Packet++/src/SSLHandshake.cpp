@@ -1103,7 +1103,7 @@ namespace pcpp
 
 	uint16_t SSLExtension::getTypeAsInt() const
 	{
-		return getExtensionStruct()->getExtType();
+		return be16toh(getExtensionStruct()->extensionType);
 	}
 
 	uint16_t SSLExtension::getLength() const
@@ -1124,11 +1124,6 @@ namespace pcpp
 		}
 
 		return nullptr;
-	}
-
-	uint16_t SSLExtension::SSLExtensionStruct::getExtType() const
-	{
-		return be16toh(extensionType);
 	}
 
 	uint16_t SSLExtension::SSLExtensionStruct::getDataLength() const

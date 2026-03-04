@@ -176,8 +176,6 @@ namespace pcpp
 			/// Extension data as raw (byte array)
 			uint8_t extensionData[];
 
-			/// @brief Gets the extension type in host byte order
-			uint16_t getExtType() const;
 			/// @brief Gets the extension length in host byte order
 			uint16_t getDataLength() const;
 		};
