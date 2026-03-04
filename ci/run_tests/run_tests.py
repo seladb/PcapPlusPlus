@@ -13,7 +13,15 @@ PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pc
 
 @contextmanager
 def tcp_replay_worker(interface: str, tcpreplay_dir: str, use_sudo: bool):
-    cmd_line = ["sudo"] * use_sudo + ["tcpreplay", "-i", interface, "--mbps=10", "-l", "0", PCAP_FILE_PATH]
+    cmd_line = ["sudo"] * use_sudo + [
+        "tcpreplay",
+        "-i",
+        interface,
+        "--mbps=10",
+        "-l",
+        "0",
+        PCAP_FILE_PATH,
+    ]
     tcpreplay_proc = subprocess.Popen(cmd_line, cwd=tcpreplay_dir)
     try:
         yield tcpreplay_proc
@@ -49,7 +57,12 @@ class Runner:
         exe_path = self.build_dir / self.pcap_test_path
         work_dir = exe_path.parent
 
-        cmd_line = ["sudo"] * self.use_sudo + [str(exe_path.absolute()), "-i", ip_address, *args]
+        cmd_line = ["sudo"] * self.use_sudo + [
+            str(exe_path.absolute()),
+            "-i",
+            ip_address,
+            *args,
+        ]
 
         with tcp_replay_worker(interface, tcpreplay_dir, self.use_sudo):
             completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
