@@ -90,6 +90,10 @@ namespace pcpp
 
 		~VxlanLayer() override = default;
 
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an Vxlan layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an Vxlan layer
 		static bool isDataValid(uint8_t const* data, size_t dataLen)
 		{
 			return canReinterpretAs<vxlan_header>(data, dataLen);
