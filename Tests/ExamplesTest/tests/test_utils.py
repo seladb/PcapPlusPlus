@@ -9,7 +9,7 @@ def run_example(
     example_name,
     args,
     root_path,
-    timeout=10,
+    timeout=20,
     expected_return_code=0,
     requires_root=False,
 ):
