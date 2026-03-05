@@ -5,8 +5,7 @@
 
 namespace pcpp
 {
-
-#define DHCP_MAGIC_NUMBER 0x63538263
+	constexpr uint32_t DHCP_MAGIC_NUMBER = 0x63538263;
 
 	DhcpOption DhcpOptionBuilder::build() const
 	{
