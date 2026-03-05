@@ -9,7 +9,7 @@ on:
 
 env:
   BUILD_DIR: Dist
-  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
+  GCOVR_FLAGS: --gcov-ignore-errors all --gcov-ignore-parse-errors all --merge-mode-functions=separate --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
   CCACHE_DIR: ${{ github.workspace }}/.ccache
   CPPCHECK_VERSION: 2.9
 
@@ -57,6 +57,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     container: seladb/${{ matrix.image }}
     strategy:
+      fail-fast: false
       matrix:
         include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
           - runner: ubuntu-latest
@@ -73,12 +74,15 @@ jobs:
           - runner: ubuntu-latest
             image: ubuntu2004
             config-zstd: OFF
+            gcovr-version: 8.2
           - runner: ubuntu-latest
             image: rhel94
             config-zstd: OFF
+            gcovr-version: 8.5
           - runner: ubuntu-latest
             image: ubuntu2004-zstd
             config-zstd: ON
+            gcovr-version: 8.2
           - runner: ubuntu-latest
             image: fedora42
             config-zstd: OFF
@@ -157,7 +161,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==8.2
+          python3 -m pip install gcovr==${{ matrix.gcovr-version || '8.6' }}
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -227,7 +231,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==8.2
+          python3 -m pip install gcovr==8.6
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -530,7 +534,7 @@ jobs:
       - name: Create Cobertura Report
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
-          python3 -m pip install gcovr==8.2
+          python3 -m pip install gcovr==8.6
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -651,7 +655,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Install Coverage Requirements
-        run: python3 -m pip install gcovr==8.2
+        run: python3 -m pip install gcovr==8.6
 
       - name: Process Coverage Files
         shell: msys2 {0}
@@ -812,7 +816,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Test in FreeBSD
         id: test
-        uses: vmactions/freebsd-vm@ba6bedee4a4884da2b782a41a64329a1c8e42ffb # v1.3.8
+        uses: vmactions/freebsd-vm@c9f815bc7aa0d34c9fdd0619b034a32d6ca7b57e # v1.4.2
         with:
           release: ${{ matrix.version }}
           usesh: true
@@ -972,7 +976,7 @@ jobs:
 
       - name: Create Cobertura Report
         run: |
-          python -m pip install gcovr==8.2
+          python -m pip install gcovr==8.6
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
