@@ -1106,7 +1106,7 @@ PTF_TEST_CASE(PacketIncrementalParseTest)
 	pcpp::PacketParseOptions pOpts;
 	pOpts.parseUntilProtocol = pcpp::IPv4;
 
-	pcpp::Packet igmpPacket(rawPacket.get(), false, pOpts.parseUntilProtocol, pOpts.parseUntilLayer);
+	pcpp::Packet igmpPacket(rawPacket.get(), false, pOpts);
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(pcpp::IGMP));
