@@ -353,6 +353,12 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 			                                         "1" };
 		PTF_ASSERT_VECTORS_EQUAL(dataRowAsString, expectedStrings);
 
+		std::vector<uint8_t> expectedFirstColData = std::vector<uint8_t>{ 0x31 };
+		PTF_ASSERT_VECTORS_EQUAL(dataRow[0].getData(), expectedFirstColData);
+
+		std::vector<uint8_t> expectedFourthColData = std::vector<uint8_t>{ 0x4d, 0x61, 0x72, 0x79 };
+		PTF_ASSERT_VECTORS_EQUAL(dataRow[2].getData(), expectedFourthColData);
+
 		std::vector<std::string> dataRowAsHexString(dataRow.size());
 		std::transform(dataRow.begin(), dataRow.end(), dataRowAsHexString.begin(),
 		               [](const pcpp::PostgresDataRowMessage::ColumnData& obj) { return obj.toHexString(); });
@@ -384,6 +390,7 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		auto dataRow = dataRowMsg.getDataRow();
 		PTF_ASSERT_EQUAL(dataRow.size(), 3);
 		PTF_ASSERT_TRUE(dataRow[0].isNull());
+		PTF_ASSERT_TRUE(dataRow[0].getData().empty());
 		PTF_ASSERT_EQUAL(dataRow[0].toString(), "");
 		PTF_ASSERT_EQUAL(dataRow[1].toString(), "Hello");
 		PTF_ASSERT_TRUE(dataRow[2].isNull());

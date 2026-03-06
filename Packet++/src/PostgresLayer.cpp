@@ -734,10 +734,9 @@ namespace pcpp
 		}
 
 		const char* queryStart = reinterpret_cast<const char*>(m_Data) + headerLen;
-		const size_t maxQueryLen = m_DataLen - headerLen;
-
-		const char* nullPos = static_cast<const char*>(memchr(queryStart, '\0', maxQueryLen));
-		return std::string(queryStart, nullPos != nullptr ? nullPos : queryStart + maxQueryLen);
+		const char* queryEnd = queryStart + m_DataLen - headerLen;
+		queryEnd = std::find(queryStart, queryEnd, '\0');
+		return { queryStart, queryEnd };
 	}
 
 	std::vector<PostgresRowDescriptionMessage::PostgresColumnInfo> PostgresRowDescriptionMessage::getColumnInfos() const
@@ -752,37 +751,36 @@ namespace pcpp
 		if (numFields > 10000)
 			return columns;
 
-		size_t offset = headerLen;
+		const char* iter = reinterpret_cast<const char*>(m_Data) + headerLen;
+		const char* end = reinterpret_cast<const char*>(m_Data) + m_DataLen;
 
 		for (uint16_t i = 0; i < numFields; ++i)
 		{
-			if (offset >= m_DataLen)
+			if (iter >= end)
 				break;
 
 			PostgresColumnInfo column;
 
-			const char* nameStart = reinterpret_cast<const char*>(m_Data) + offset;
-			size_t remaining = m_DataLen - offset;
-			const char* nullPos = static_cast<const char*>(memchr(nameStart, '\0', remaining));
+			const char* nameEnd = static_cast<const char*>(memchr(iter, '\0', end - iter));
 
-			if (nullPos != nullptr)
+			if (nameEnd != nullptr)
 			{
-				column.name.assign(nameStart, nullPos - nameStart);
-				offset = static_cast<size_t>(nullPos - reinterpret_cast<const char*>(m_Data)) + 1;
+				column.name.assign(iter, nameEnd - iter);
+				iter = nameEnd + 1;
 			}
 			else
 			{
-				column.name.assign(nameStart, remaining);
+				column.name.assign(iter, end - iter);
 				break;
 			}
 
-			if (offset + sizeof(::internal::PostgresColumnFixedData) > m_DataLen)
+			if (iter + sizeof(::internal::PostgresColumnFixedData) > end)
 			{
 				columns.push_back(column);
 				break;
 			}
 
-			const auto* fixedData = reinterpret_cast<const ::internal::PostgresColumnFixedData*>(m_Data + offset);
+			const auto* fixedData = reinterpret_cast<const ::internal::PostgresColumnFixedData*>(iter);
 			column.tableOID = be32toh(fixedData->tableOID);
 			column.columnIndex = be16toh(fixedData->columnIndex);
 			column.typeOID = be32toh(fixedData->typeOID);
@@ -792,7 +790,7 @@ namespace pcpp
 			column.format =
 			    formatCode < 2 ? static_cast<PostgresColumnFormat>(formatCode) : PostgresColumnFormat::Unknown;
 
-			offset += sizeof(::internal::PostgresColumnFixedData);
+			iter += sizeof(::internal::PostgresColumnFixedData);
 			columns.push_back(column);
 		}
 

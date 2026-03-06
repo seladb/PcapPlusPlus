@@ -392,6 +392,10 @@ namespace pcpp
 			/// @return The raw column data as a vector of bytes
 			std::vector<uint8_t> getData() const
 			{
+				if (!m_Data)
+				{
+					return {};
+				}
 				return { m_Data, m_Data + m_DataLen };
 			}
 
