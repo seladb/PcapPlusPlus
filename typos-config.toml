@@ -39,6 +39,7 @@ helo = "helo"
 hom = "hom"
 pn = "pn"
 ND = "ND"
+SELEC = "SELEC"
 
 [type.make]
 extend-glob = []
