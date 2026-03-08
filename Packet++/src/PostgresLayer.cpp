@@ -761,24 +761,22 @@ namespace pcpp
 
 			PostgresColumnInfo column;
 
-			const char* nameEnd = static_cast<const char*>(memchr(iter, '\0', end - iter));
-
-			if (nameEnd != nullptr)
+			const char* nameEnd = std::find(iter, end, '\0');
+			if (nameEnd == end)
 			{
-				column.name.assign(iter, nameEnd - iter);
-				iter = nameEnd + 1;
-			}
-			else
-			{
-				column.name.assign(iter, end - iter);
 				break;
 			}
 
-			if (iter + sizeof(::internal::PostgresColumnFixedData) > end)
+			column.name.assign(iter, nameEnd);
+
+			// +1 offset because the nameEnd is currently at the null terminator of column name.
+			if (end - nameEnd < static_cast<std::ptrdiff_t>(sizeof(::internal::PostgresColumnFixedData) + 1))
 			{
 				columns.push_back(column);
 				break;
 			}
+
+			iter = nameEnd + 1;
 
 			const auto* fixedData = reinterpret_cast<const ::internal::PostgresColumnFixedData*>(iter);
 			column.tableOID = be32toh(fixedData->tableOID);
