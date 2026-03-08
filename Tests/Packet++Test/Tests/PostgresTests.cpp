@@ -3,6 +3,8 @@
 #include "Packet.h"
 #include "PostgresLayer.h"
 
+#include <algorithm>
+#include <map>
 #include <memory>
 
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -316,15 +318,82 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 
 	// Backend - DataRow message
 	{
-		std::vector<uint8_t> dataRowData = {
-			0x44, 0x00, 0x00, 0x00, 0x0A,  // message type 'D' + length
-			0x00, 0x01,                    // number of columns (1)
-			0x00, 0x00, 0x00, 0x05,        // column length (5)
-			0x68, 0x65, 0x6C, 0x6C, 0x6F   // "hello"
+		std::vector<uint8_t> data = {
+			0x44, 0x00, 0x00, 0x00, 0x7a, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x01, 0x31, 0x00, 0x00, 0x00, 0x01, 0x31, 0x00,
+			0x00, 0x00, 0x04, 0x4d, 0x61, 0x72, 0x79, 0x00, 0x00, 0x00, 0x05, 0x53, 0x6d, 0x69, 0x74, 0x68, 0x00, 0x00,
+			0x00, 0x1d, 0x6d, 0x61, 0x72, 0x79, 0x2e, 0x73, 0x6d, 0x69, 0x74, 0x68, 0x40, 0x73, 0x61, 0x6b, 0x69, 0x6c,
+			0x61, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x2e, 0x6f, 0x72, 0x67, 0x00, 0x00, 0x00, 0x01, 0x35,
+			0x00, 0x00, 0x00, 0x01, 0x74, 0x00, 0x00, 0x00, 0x0a, 0x32, 0x30, 0x30, 0x36, 0x2d, 0x30, 0x32, 0x2d, 0x31,
+			0x34, 0x00, 0x00, 0x00, 0x17, 0x32, 0x30, 0x31, 0x33, 0x2d, 0x30, 0x35, 0x2d, 0x32, 0x36, 0x20, 0x31, 0x34,
+			0x3a, 0x34, 0x39, 0x3a, 0x34, 0x35, 0x2e, 0x37, 0x33, 0x38, 0x00, 0x00, 0x00, 0x01, 0x31
 		};
-		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(dataRowData.data(), dataRowData.size());
-		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_DataRow, pcpp::PostgresMessageOrigin::Backend, 10,
-		               11, "Backend_DataRow");
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(data.data(), data.size());
+		auto* dataRowMsg = dynamic_cast<pcpp::PostgresDataRowMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(dataRowMsg);
+		PTF_ASSERT_EQUAL(dataRowMsg->getMessageType(), pcpp::PostgresMessageType::Backend_DataRow, enum);
+		PTF_ASSERT_EQUAL(dataRowMsg->getMessageOrigin(), pcpp::PostgresMessageOrigin::Backend, enumclass);
+		PTF_ASSERT_EQUAL(dataRowMsg->getMessageLength(), 122);
+		PTF_ASSERT_EQUAL(dataRowMsg->getTotalMessageLength(), 123);
+
+		auto dataRow = dataRowMsg->getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 10);
+
+		std::vector<std::string> dataRowAsString(dataRow.size());
+		std::transform(dataRow.begin(), dataRow.end(), dataRowAsString.begin(),
+		               [](const pcpp::PostgresDataRowMessage::ColumnData& obj) { return obj.toString(); });
+		std::vector<std::string> expectedStrings = { "1",
+			                                         "1",
+			                                         "Mary",
+			                                         "Smith",
+			                                         "mary.smith@sakilacustomer.org",
+			                                         "5",
+			                                         "t",
+			                                         "2006-02-14",
+			                                         "2013-05-26 14:49:45.738",
+			                                         "1" };
+		PTF_ASSERT_VECTORS_EQUAL(dataRowAsString, expectedStrings);
+
+		std::vector<uint8_t> expectedFirstColData = std::vector<uint8_t>{ 0x31 };
+		PTF_ASSERT_VECTORS_EQUAL(dataRow[0].getData(), expectedFirstColData);
+
+		std::vector<uint8_t> expectedFourthColData = std::vector<uint8_t>{ 0x4d, 0x61, 0x72, 0x79 };
+		PTF_ASSERT_VECTORS_EQUAL(dataRow[2].getData(), expectedFourthColData);
+
+		std::vector<std::string> dataRowAsHexString(dataRow.size());
+		std::transform(dataRow.begin(), dataRow.end(), dataRowAsHexString.begin(),
+		               [](const pcpp::PostgresDataRowMessage::ColumnData& obj) { return obj.toHexString(); });
+		std::vector<std::string> expectedHexStrings = { "31",
+			                                            "31",
+			                                            "4d617279",
+			                                            "536d697468",
+			                                            "6d6172792e736d6974684073616b696c61637573746f6d65722e6f7267",
+			                                            "35",
+			                                            "74",
+			                                            "323030362d30322d3134",
+			                                            "323031332d30352d32362031343a34393a34352e373338",
+			                                            "31" };
+		PTF_ASSERT_VECTORS_EQUAL(dataRowAsHexString, expectedHexStrings);
+	}
+
+	// Backend - DataRow with NULL values
+	{
+		std::vector<uint8_t> mixedValues = {
+			0x44,                          // message type 'D'
+			0x00, 0x00, 0x00, 0x17,        // length (23)
+			0x00, 0x03,                    // column count (3)
+			0xFF, 0xFF, 0xFF, 0xFF,        // column 1: NULL
+			0x00, 0x00, 0x00, 0x05,        // column 2 length (5)
+			0x48, 0x65, 0x6C, 0x6C, 0x6F,  // "Hello"
+			0xFF, 0xFF, 0xFF, 0xFF         // column 3: NULL
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(mixedValues.data(), mixedValues.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 3);
+		PTF_ASSERT_TRUE(dataRow[0].isNull());
+		PTF_ASSERT_TRUE(dataRow[0].getData().empty());
+		PTF_ASSERT_EQUAL(dataRow[0].toString(), "");
+		PTF_ASSERT_EQUAL(dataRow[1].toString(), "Hello");
+		PTF_ASSERT_TRUE(dataRow[2].isNull());
 	}
 
 	// Backend - EmptyQueryResponse message
@@ -340,13 +409,49 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 	// Backend - ErrorResponse message
 	{
 		std::vector<uint8_t> errorData = {
-			0x45, 0x00, 0x00, 0x00, 0x0C,  // message type 'E' + length
-			0x53, 0x00, 0x45, 0x00,        // severity + null
-			0x45, 0x52, 0x52, 0x00         // "ERROR" + null
+			0x45, 0x00, 0x00, 0x00, 0xfe, 0x53, 0x45, 0x52, 0x52, 0x4f, 0x52, 0x00, 0x56, 0x45, 0x52, 0x52, 0x4f,
+			0x52, 0x00, 0x43, 0x32, 0x33, 0x35, 0x30, 0x32, 0x00, 0x4d, 0x6e, 0x75, 0x6c, 0x6c, 0x20, 0x76, 0x61,
+			0x6c, 0x75, 0x65, 0x20, 0x69, 0x6e, 0x20, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x20, 0x22, 0x66, 0x69,
+			0x72, 0x73, 0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x20, 0x6f, 0x66, 0x20, 0x72, 0x65, 0x6c, 0x61,
+			0x74, 0x69, 0x6f, 0x6e, 0x20, 0x22, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x22, 0x20, 0x76, 0x69, 0x6f, 0x6c,
+			0x61, 0x74, 0x65, 0x73, 0x20, 0x6e, 0x6f, 0x74, 0x2d, 0x6e, 0x75, 0x6c, 0x6c, 0x20, 0x63, 0x6f, 0x6e,
+			0x73, 0x74, 0x72, 0x61, 0x69, 0x6e, 0x74, 0x00, 0x44, 0x46, 0x61, 0x69, 0x6c, 0x69, 0x6e, 0x67, 0x20,
+			0x72, 0x6f, 0x77, 0x20, 0x63, 0x6f, 0x6e, 0x74, 0x61, 0x69, 0x6e, 0x73, 0x20, 0x28, 0x32, 0x30, 0x31,
+			0x2c, 0x20, 0x6e, 0x75, 0x6c, 0x6c, 0x2c, 0x20, 0x53, 0x6d, 0x69, 0x74, 0x68, 0x2c, 0x20, 0x32, 0x30,
+			0x32, 0x36, 0x2d, 0x30, 0x32, 0x2d, 0x32, 0x35, 0x20, 0x32, 0x31, 0x3a, 0x31, 0x32, 0x3a, 0x34, 0x35,
+			0x2e, 0x39, 0x37, 0x33, 0x37, 0x38, 0x31, 0x29, 0x2e, 0x00, 0x73, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63,
+			0x00, 0x74, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x00, 0x63, 0x66, 0x69, 0x72, 0x73, 0x74, 0x5f, 0x6e, 0x61,
+			0x6d, 0x65, 0x00, 0x46, 0x65, 0x78, 0x65, 0x63, 0x4d, 0x61, 0x69, 0x6e, 0x2e, 0x63, 0x00, 0x4c, 0x32,
+			0x32, 0x31, 0x39, 0x00, 0x52, 0x52, 0x65, 0x70, 0x6f, 0x72, 0x74, 0x4e, 0x6f, 0x74, 0x4e, 0x75, 0x6c,
+			0x6c, 0x56, 0x69, 0x6f, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x00, 0x00
 		};
 		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(errorData.data(), errorData.size());
+		auto* errorMsg = dynamic_cast<pcpp::PostgresErrorResponseMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(errorMsg);
 		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_ErrorResponse, pcpp::PostgresMessageOrigin::Backend,
-		               12, 13, "Backend_ErrorResponse");
+		               254, 255, "Backend_ErrorResponse");
+
+		std::map<pcpp::PostgresErrorResponseMessage::ErrorField, std::string> expectedFields = {
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Severity,             "ERROR"                       },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::SeverityNonLocalized, "ERROR"                       },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::SQLState,             "23502"                       },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Message,
+             "null value in column \"first_name\" of relation \"actor\" violates not-null constraint"             },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Detail,
+             "Failing row contains (201, null, Smith, 2026-02-25 21:12:45.973781)."                               },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Schema,               "public"                      },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Table,                "actor"                       },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Column,               "first_name"                  },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::File,                 "execMain.c"                  },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Line,                 "2219"                        },
+			{ pcpp::PostgresErrorResponseMessage::ErrorField::Routine,              "ReportNotNullViolationError" }
+		};
+		auto& fields = errorMsg->getFields();
+		PTF_ASSERT_EQUAL(fields.size(), expectedFields.size());
+		for (const auto& expected : expectedFields)
+		{
+			PTF_ASSERT_EQUAL(fields.at(expected.first), expected.second);
+		}
 	}
 
 	// Backend - FunctionCallResponse message
@@ -455,23 +560,66 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 		               5, 6, "Backend_ReadyForQuery");
 	}
 
-	// Backend - RowDescription message
+	// Backend - RowDescription message with multiple columns
 	{
 		std::vector<uint8_t> rowDescData = {
-			0x54,                          // message type 'T'
-			0x00, 0x00, 0x00, 0x1B,        // length (27 = 0x1B)
-			0x00, 0x01,                    // number of fields (1)
-			0x69, 0x64, 0x00,              // "id" + null
-			0x00, 0x00, 0x00, 0x17,        // table OID (23)
-			0x00, 0x01,                    // column index (1)
-			0x00, 0x00, 0x00, 0x17,        // type OID (23 = INTEGER)
-			0x00, 0x04,                    // type size (4)
-			0x00, 0x00, 0x00, 0xFF, 0xFF,  // type modifier (-1)
-			0x00, 0x00                     // format code (0 = text)
+			0x54, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x06, 0x69, 0x64, 0x00, 0x03, 0x2E, 0x96, 0xAE, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0x14, 0x00, 0x08, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x74, 0x69, 0x74, 0x6C, 0x65, 0x00,
+			0x03, 0x2E, 0x96, 0xAE, 0x00, 0x02, 0x00, 0x00, 0x04, 0x13, 0xFF, 0xFF, 0x00, 0x00, 0x03, 0xEC, 0x00,
+			0x00, 0x63, 0x6F, 0x6E, 0x74, 0x65, 0x6E, 0x74, 0x00, 0x03, 0x2E, 0x96, 0xAE, 0x00, 0x03, 0x00, 0x00,
+			0x00, 0x19, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64,
+			0x00, 0x03, 0x2E, 0x96, 0xAE, 0x00, 0x04, 0x00, 0x00, 0x04, 0x3A, 0x00, 0x04, 0xFF, 0xFF, 0xFF, 0xFF,
+			0x00, 0x00, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x64, 0x00, 0x03, 0x2E, 0x96, 0xAE, 0x00, 0x05,
+			0x00, 0x00, 0x00, 0x10, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x72, 0x65, 0x6C, 0x65, 0x61,
+			0x73, 0x65, 0x5F, 0x69, 0x6D, 0x61, 0x67, 0x65, 0x00, 0x03, 0x2E, 0x96, 0xAE, 0x00, 0x06, 0x00, 0x00,
+			0x04, 0x13, 0xFF, 0xFF, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00
+		};
+
+		auto message = std::unique_ptr<pcpp::PostgresMessage>(
+		    pcpp::PostgresMessage::parsePostgresBackendMessage(rowDescData.data(), rowDescData.size()));
+		auto* rowDescMsg = dynamic_cast<pcpp::PostgresRowDescriptionMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(rowDescMsg);
+		auto columnInfos = rowDescMsg->getColumnInfos();
+		PTF_ASSERT_EQUAL(columnInfos.size(), 6);
+
+		std::vector<std::tuple<std::string, uint32_t, uint16_t, uint32_t, int32_t, int32_t,
+		                       pcpp::PostgresRowDescriptionMessage::PostgresColumnFormat>>
+		    expected = {
+			    { "id",            53384878, 1, 20,   8,  -1,   pcpp::PostgresRowDescriptionMessage::PostgresColumnFormat::Text },
+			    { "title",         53384878, 2, 1043, -1, 1004,
+                 pcpp::PostgresRowDescriptionMessage::PostgresColumnFormat::Text                                                },
+			    { "content",       53384878, 3, 25,   -1, -1,   pcpp::PostgresRowDescriptionMessage::PostgresColumnFormat::Text },
+			    { "created",       53384878, 4, 1082, 4,  -1,
+                 pcpp::PostgresRowDescriptionMessage::PostgresColumnFormat::Text                                                },
+			    { "featured",      53384878, 5, 16,   1,  -1,   pcpp::PostgresRowDescriptionMessage::PostgresColumnFormat::Text },
+			    { "release_image", 53384878, 6, 1043, -1, 259,
+                 pcpp::PostgresRowDescriptionMessage::PostgresColumnFormat::Text                                                }
+        };
+
+		for (size_t i = 0; i < expected.size(); ++i)
+		{
+			PTF_ASSERT_EQUAL(columnInfos[i].name, std::get<0>(expected[i]));
+			PTF_ASSERT_EQUAL(columnInfos[i].tableOID, std::get<1>(expected[i]));
+			PTF_ASSERT_EQUAL(columnInfos[i].columnIndex, std::get<2>(expected[i]));
+			PTF_ASSERT_EQUAL(columnInfos[i].typeOID, std::get<3>(expected[i]));
+			PTF_ASSERT_EQUAL(columnInfos[i].typeSize, std::get<4>(expected[i]));
+			PTF_ASSERT_EQUAL(columnInfos[i].typeModifier, std::get<5>(expected[i]));
+			PTF_ASSERT_EQUAL(columnInfos[i].format, std::get<6>(expected[i]), enumclass);
+		}
+	}
+
+	// Backend - RowDescription message with zero columns
+	{
+		std::vector<uint8_t> rowDescData = {
+			0x54,                    // message type 'T'
+			0x00, 0x00, 0x00, 0x06,  // length (6)
+			0x00, 0x00               // number of fields (0)
 		};
 		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(rowDescData.data(), rowDescData.size());
-		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Backend_RowDescription, pcpp::PostgresMessageOrigin::Backend,
-		               27, 28, "Backend_RowDescription");
+		auto* rowDescMsg = dynamic_cast<pcpp::PostgresRowDescriptionMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(rowDescMsg);
+		auto columnInfos = rowDescMsg->getColumnInfos();
+		PTF_ASSERT_EQUAL(columnInfos.size(), 0);
 	}
 
 	// Backend - PortalSuspended message
@@ -588,14 +736,19 @@ PTF_TEST_CASE(PostgresMessageParsingTest)
 	// Frontend - Query message
 	{
 		std::vector<uint8_t> queryData = {
-			0x51,                                           // message type 'Q'
-			0x00, 0x00, 0x00, 0x12,                         // length (18)
-			0x53, 0x45, 0x4C, 0x45, 0x43, 0x54,             // "SELECT"
-			0x20, 0x31, 0x2C, 0x32, 0x00, 0x00, 0x00, 0x00  // " T 1,2" + null + padding
+			0x51,                                            // message type 'Q'
+			0x00, 0x00, 0x00, 0x18,                          // length (24)
+			0x73, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x20, 0x2a,  // "select * from blog;"
+			0x20, 0x66, 0x72, 0x6f, 0x6d, 0x20, 0x62, 0x6c, 0x6f, 0x67, 0x3b,
+			0x00  // null terminator
+
 		};
 		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(queryData.data(), queryData.size());
-		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Query, pcpp::PostgresMessageOrigin::Frontend, 18,
-		               19, "Frontend_Query");
+		ASSERT_MESSAGE(message, pcpp::PostgresMessageType::Frontend_Query, pcpp::PostgresMessageOrigin::Frontend, 24,
+		               25, "Frontend_Query");
+		auto* queryMsg = dynamic_cast<pcpp::PostgresQueryMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(queryMsg);
+		PTF_ASSERT_EQUAL(queryMsg->getQuery(), "select * from blog;");
 	}
 
 	// Frontend - Parse message
@@ -902,5 +1055,290 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 		PTF_ASSERT_NOT_NULL(message);
 		PTF_ASSERT_EQUAL(message->getMessageLength(), 0);
 		PTF_ASSERT_EQUAL(message->getRawPayload().size(), 0);
+	}
+
+	// Frontend - Query message without null terminator
+	{
+		std::vector<uint8_t> noNullTerminator = {
+			0x51,                                // message type 'Q'
+			0x00, 0x00, 0x00, 0x0C,              // length (12)
+			0x53, 0x45, 0x4C, 0x45, 0x43, 0x54,  // "SELECT"
+			0x20, 0x31                           // " 1" (no null terminator)
+		};
+		auto message = std::unique_ptr<pcpp::PostgresMessage>(
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(noNullTerminator.data(), noNullTerminator.size()));
+		auto* queryMsg = dynamic_cast<pcpp::PostgresQueryMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(queryMsg);
+		PTF_ASSERT_EQUAL(queryMsg->getQuery(), "SELECT 1");
+	}
+
+	// Frontend - Query message with data shorter than header (direct construction)
+	{
+		std::vector<uint8_t> shortData = {
+			0x51, 0x00, 0x00, 0x00, 0x05  // only 5 bytes (less than header)
+		};
+		pcpp::PostgresQueryMessage queryMsg(shortData.data(), shortData.size());
+		PTF_ASSERT_EQUAL(queryMsg.getQuery(), "");
+	}
+
+	// Frontend - Query message with length claiming 32 bytes but only 9 bytes available (direct construction)
+	{
+		std::vector<uint8_t> mismatchedLength = {
+			0x51,                         // message type 'Q'
+			0x00, 0x00, 0x00, 0x20,       // length claims 32, but only 9 bytes available
+			0x53, 0x45, 0x4C, 0x45, 0x43  // partial query "SELEC"
+		};
+		pcpp::PostgresQueryMessage queryMsg(mismatchedLength.data(), mismatchedLength.size());
+		PTF_ASSERT_EQUAL(queryMsg.getQuery(), "SELEC");
+	}
+
+	// Backend - RowDescription with truncated header (less than 7 bytes)
+	{
+		std::vector<uint8_t> truncatedHeader = {
+			0x54,                    // message type 'T'
+			0x00, 0x00, 0x00, 0x10,  // length (16)
+			                         // missing: numFields
+		};
+		pcpp::PostgresRowDescriptionMessage rowDescMsg(truncatedHeader.data(), truncatedHeader.size());
+		auto columnInfos = rowDescMsg.getColumnInfos();
+		PTF_ASSERT_EQUAL(columnInfos.size(), 0);
+	}
+
+	// Backend - RowDescription with invalid field count (claims more than message length)
+	{
+		std::vector<uint8_t> invalidFieldCount = {
+			0x54,                    // message type 'T'
+			0x00, 0x00, 0x00, 0x10,  // length (16)
+			0xFF, 0xFF               // field count (65535 - invalid)
+		};
+		pcpp::PostgresRowDescriptionMessage rowDescMsg(invalidFieldCount.data(), invalidFieldCount.size());
+		auto columnInfos = rowDescMsg.getColumnInfos();
+		PTF_ASSERT_EQUAL(columnInfos.size(), 0);
+	}
+
+	// Backend - RowDescription with truncated field metadata
+	{
+		std::vector<uint8_t> truncatedMeta = {
+			0x54,                    // message type 'T'
+			0x00, 0x00, 0x00, 0x19,  // length (25)
+			0x00, 0x01,              // number of fields (1)
+			0x69, 0x64, 0x00,        // "id" + null
+			0x00, 0x00, 0x00, 0x17,  // table OID (23)
+			0x00, 0x01,              // column index (1)
+			                         // type OID, type size, type modifier, format code - all missing
+		};
+		pcpp::PostgresRowDescriptionMessage rowDescMsg(truncatedMeta.data(), truncatedMeta.size());
+		auto columnInfos = rowDescMsg.getColumnInfos();
+		PTF_ASSERT_EQUAL(columnInfos.size(), 1);
+		PTF_ASSERT_EQUAL(columnInfos[0].name, std::string("id"));
+	}
+
+	// Backend - DataRow with truncated header (less than 7 bytes)
+	{
+		std::vector<uint8_t> truncatedHeader = {
+			0x44,                   // message type 'D'
+			0x00, 0x00, 0x00, 0x0a  // length (10)
+			                        // missing: column count
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(truncatedHeader.data(), truncatedHeader.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
+	}
+
+	// Backend - DataRow with invalid column count (too high)
+	{
+		std::vector<uint8_t> invalidColumnCount = {
+			0x44,                    // message type 'D'
+			0x00, 0x00, 0x00, 0x10,  // length (16)
+			0xFF, 0xFF               // column count (65535 - invalid)
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(invalidColumnCount.data(), invalidColumnCount.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
+	}
+
+	// Backend - DataRow with truncated column count (only 1 byte)
+	{
+		std::vector<uint8_t> truncatedColumnCount = {
+			0x44,                    // message type 'D'
+			0x00, 0x00, 0x00, 0x10,  // length (16)
+			0x01                     // partial column count
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(truncatedColumnCount.data(), truncatedColumnCount.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
+	}
+
+	// Backend - DataRow with zero columns (empty row)
+	{
+		std::vector<uint8_t> zeroColumns = {
+			0x44,                    // message type 'D'
+			0x00, 0x00, 0x00, 0x07,  // length (7 - header only)
+			0x00, 0x00               // column count = 0
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(zeroColumns.data(), zeroColumns.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
+	}
+
+	// Backend - DataRow with truncated column length field (only 2 bytes provided instead of 4)
+	{
+		std::vector<uint8_t> truncatedColLength = {
+			0x44,                    // message type 'D'
+			0x00, 0x00, 0x00, 0x10,  // length (16)
+			0x00, 0x01,              // column count (1)
+			0x00, 0x00               // partial column length (only 2 bytes, reads as 0)
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(truncatedColLength.data(), truncatedColLength.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 1);
+		PTF_ASSERT_TRUE(dataRow[0].isNull());
+	}
+
+	// Backend - DataRow with column claiming more data than available
+	{
+		std::vector<uint8_t> invalidColLength = {
+			0x44,                    // message type 'D'
+			0x00, 0x00, 0x00, 0x10,  // length (16)
+			0x00, 0x01,              // column count (1)
+			0x00, 0x00, 0x00, 0xFF   // column length claims 255 bytes, but no data follows
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(invalidColLength.data(), invalidColLength.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
+	}
+
+	// Backend - DataRow with column count claiming more columns than message length allows
+	{
+		std::vector<uint8_t> excessColumns = {
+			0x44,                    // message type 'D'
+			0x00, 0x00, 0x00, 0x0D,  // length (13) - enough for header + 1 col length + 2 bytes data
+			0x00, 0x10,              // column count (16) - more than data can hold
+			0x00, 0x00, 0x00, 0x02,  // first column: length=2
+			0x41, 0x42               // "AB" - 2 bytes of data
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(excessColumns.data(), excessColumns.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 1);
+		PTF_ASSERT_EQUAL(dataRow[0].toString(), std::string("AB"));
+	}
+
+	// Backend - DataRow message with length claiming more data than available (direct construction)
+	{
+		std::vector<uint8_t> mismatchedLength = {
+			0x44,                    // message type 'D'
+			0x00, 0x00, 0x00, 0xFF,  // length claims 255 bytes
+			0x00, 0x01               // column count (1) - but no actual data
+		};
+		pcpp::PostgresDataRowMessage dataRowMsg(mismatchedLength.data(), mismatchedLength.size());
+		auto dataRow = dataRowMsg.getDataRow();
+		PTF_ASSERT_EQUAL(dataRow.size(), 0);
+	}
+
+	// Backend - PostgresErrorResponseMessage with empty fields (only header)
+	{
+		std::vector<uint8_t> emptyErrorData = {
+			0x45,                    // message type 'E'
+			0x00, 0x00, 0x00, 0x01,  // length (1 = only null terminator)
+			0x00                     // null terminator
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(emptyErrorData.data(), emptyErrorData.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 0);
+	}
+
+	// Backend - PostgresErrorResponseMessage with only severity field
+	{
+		std::vector<uint8_t> minimalErrorData = {
+			0x45,                          // message type 'E'
+			0x00, 0x00, 0x00, 0x09,        // length (9 = 1 field type + 5 value + 2 null terminators)
+			0x53,                          // field type 'S' (Severity)
+			0x45, 0x52, 0x52, 0x4F, 0x52,  // "ERROR"
+			0x00,                          // null terminator for value
+			0x00                           // null terminator for fields list
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(minimalErrorData.data(), minimalErrorData.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 1);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "ERROR");
+	}
+
+	// Backend - PostgresErrorResponseMessage with truncated header (less than 5 bytes)
+	{
+		std::vector<uint8_t> truncatedHeader = {
+			0x45, 0x00, 0x00  // message type 'E' + partial length
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(truncatedHeader.data(), truncatedHeader.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 0);
+	}
+
+	// Backend - PostgresErrorResponseMessage with field type at end (no value)
+	{
+		std::vector<uint8_t> fieldTypeNoValue = {
+			0x45,                    // message type 'E'
+			0x00, 0x00, 0x00, 0x07,  // length (7)
+			0x53,                    // field type 'S' (Severity)
+			                         // no value bytes after field type
+			0x00                     // terminator (but comes right after field type)
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(fieldTypeNoValue.data(), fieldTypeNoValue.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 1);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "");
+	}
+
+	// Backend - PostgresErrorResponseMessage with unknown field type (should be skipped)
+	{
+		std::vector<uint8_t> unknownFieldType = {
+			0x45,                    // message type 'E'
+			0x00, 0x00, 0x00, 0x0C,  // length (12)
+			0x5A,                    // field type 'Z' (unknown/invalid)
+			0x73, 0x6F, 0x6D, 0x65,  // "some"
+			0x00,                    // null terminator for value
+			0x53,                    // valid field type 'S' (Severity)
+			0x57, 0x41, 0x52, 0x4E,  // "WARN"
+			0x00                     // null terminator
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(unknownFieldType.data(), unknownFieldType.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 1);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "WARN");
+	}
+
+	// Backend - PostgresErrorResponseMessage with empty field value
+	{
+		std::vector<uint8_t> emptyValueField = {
+			0x45,                    // message type 'E'
+			0x00, 0x00, 0x00, 0x09,  // length (9)
+			0x53,                    // field type 'S' (Severity)
+			0x00,                    // empty value (immediate null)
+			0x4D,                    // field type 'M' (Message)
+			0x00                     // null terminator
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(emptyValueField.data(), emptyValueField.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 2);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "");
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Message), "");
+	}
+
+	// Backend - PostgresErrorResponseMessage with duplicate fields (last one wins)
+	{
+		std::vector<uint8_t> duplicateFields = {
+			0x45,                          // message type 'E'
+			0x00, 0x00, 0x00, 0x10,        // length (16)
+			0x53,                          // field type 'S' (Severity)
+			0x45, 0x52, 0x52, 0x4F, 0x52,  // "ERROR"
+			0x00,
+			0x53,                          // field type 'S' again (Severity)
+			0x46, 0x41, 0x54, 0x41, 0x4C,  // "FATAL"
+			0x00,
+			0x00  // terminator
+		};
+		pcpp::PostgresErrorResponseMessage errorMsg(duplicateFields.data(), duplicateFields.size());
+		auto& fields = errorMsg.getFields();
+		PTF_ASSERT_EQUAL(fields.size(), 1);
+		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "FATAL");
 	}
 }

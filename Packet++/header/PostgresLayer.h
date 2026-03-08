@@ -308,6 +308,193 @@ namespace pcpp
 		std::string getParameterValue() const;
 	};
 
+	/// @class PostgresQueryMessage
+	/// Represents a PostgreSQL Query message (Frontend)
+	class PostgresQueryMessage : public PostgresMessage
+	{
+	public:
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresQueryMessage(const uint8_t* data, size_t dataLen)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Query)
+		{}
+
+		/// @return The SQL query string
+		std::string getQuery() const;
+	};
+
+	/// @class PostgresRowDescriptionMessage
+	/// Represents a PostgreSQL RowDescription message (backend)
+	class PostgresRowDescriptionMessage : public PostgresMessage
+	{
+	public:
+		/// @enum PostgresColumnFormat
+		/// Represents the format of a column in a PostgreSQL RowDescription message.
+		/// PostgreSQL supports two formats: text (0) and binary (1).
+		enum class PostgresColumnFormat
+		{
+			/// Text format (format code 0)
+			Text = 0,
+			/// Binary format (format code 1)
+			Binary = 1,
+			/// Unknown format (format code >= 2)
+			Unknown = 2
+		};
+
+		/// @struct PostgresColumnInfo
+		/// Represents metadata for a single column in a RowDescription message
+		struct PostgresColumnInfo
+		{
+			/// Column name
+			std::string name;
+			/// Table OID (0 if not from a table column)
+			uint32_t tableOID;
+			/// Column index within the table
+			uint16_t columnIndex;
+			/// Data type OID
+			uint32_t typeOID;
+			/// Type size (-1 for variable length)
+			int16_t typeSize;
+			/// Type modifier (-1 if none)
+			int32_t typeModifier;
+			/// Format
+			PostgresColumnFormat format;
+		};
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresRowDescriptionMessage(const uint8_t* data, size_t dataLen)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Backend_RowDescription)
+		{}
+
+		/// @return Vector of column metadata
+		std::vector<PostgresColumnInfo> getColumnInfos() const;
+	};
+
+	/// @class PostgresDataRowMessage
+	/// Represents a PostgreSQL DataRow message (backend)
+	class PostgresDataRowMessage : public PostgresMessage
+	{
+	public:
+		/// @class ColumnData
+		/// Represents raw column data in a PostgreSQL DataRow message
+		class ColumnData
+		{
+		public:
+			/// A constructor that creates ColumnData from raw bytes
+			/// @param[in] data A pointer to the raw column data
+			/// @param[in] dataLen Size of the data in bytes
+			ColumnData(const uint8_t* data, size_t dataLen) : m_Data(data), m_DataLen(dataLen)
+			{}
+
+			/// @return The raw column data as a vector of bytes
+			std::vector<uint8_t> getData() const
+			{
+				if (!m_Data)
+				{
+					return {};
+				}
+				return { m_Data, m_Data + m_DataLen };
+			}
+
+			/// @return The column data as a hex string
+			std::string toHexString() const;
+
+			/// @return The column data as a UTF-8 string (empty if conversion fails)
+			std::string toString() const;
+
+			/// @return True if the column value is NULL
+			bool isNull() const
+			{
+				return m_Data == nullptr;
+			}
+
+		private:
+			const uint8_t* m_Data;
+			size_t m_DataLen;
+		};
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresDataRowMessage(const uint8_t* data, size_t dataLen)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Backend_DataRow)
+		{}
+
+		/// @return Vector of column data values
+		std::vector<ColumnData> getDataRow() const;
+	};
+
+	/// @class PostgresErrorResponseMessage
+	/// Represents a PostgreSQL ErrorResponse or NoticeResponse message (backend)
+	class PostgresErrorResponseMessage : public PostgresMessage
+	{
+	public:
+		/// @enum ErrorField
+		/// Represents the field types in a PostgreSQL ErrorResponse or NoticeResponse message
+		enum class ErrorField : uint8_t
+		{
+			/// Severity: the field contents are ERROR, FATAL, or PANIC (localized)
+			Severity = 'S',
+			/// Severity: the field contents are ERROR, FATAL, PANIC or DEBUG, LOG, INFO, NOTICE, WARNING, or DEBUG
+			/// (non-localized)
+			SeverityNonLocalized = 'V',
+			/// SQLSTATE code
+			SQLState = 'C',
+			/// Primary human-readable error message
+			Message = 'M',
+			/// Optional secondary error message
+			Detail = 'D',
+			/// Optional hint
+			Hint = 'H',
+			/// Decimal integer indicating an error cursor position
+			Position = 'P',
+			/// Internal cursor position (where error occurred)
+			InternalPosition = 'p',
+			/// Text of internal query
+			InternalQuery = 'q',
+			/// Indicating context of error
+			Where = 'W',
+			/// Schema name
+			Schema = 's',
+			/// Table name
+			Table = 't',
+			/// Column name
+			Column = 'c',
+			/// Data type name
+			DataType = 'd',
+			/// Constraint name
+			Constraint = 'n',
+			/// File name of error
+			File = 'F',
+			/// Line number of error
+			Line = 'L',
+			/// Routine name
+			Routine = 'R',
+			/// Terminator (always '\0')
+			Terminator = '\0'
+		};
+
+		/// A map of error field type to value
+		using FieldMap = std::unordered_map<ErrorField, std::string>;
+
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		PostgresErrorResponseMessage(const uint8_t* data, size_t dataLen)
+		    : PostgresMessage(data, dataLen, PostgresMessageType::Backend_ErrorResponse)
+		{}
+
+		/// @return The error fields as a map
+		const FieldMap& getFields() const;
+
+	private:
+		mutable FieldMap m_Fields;
+		mutable bool m_FieldsParsed = false;
+	};
+
 	/// @class PostgresLayer
 	/// Represents a PostgreSQL protocol layer
 	class PostgresLayer : public Layer
