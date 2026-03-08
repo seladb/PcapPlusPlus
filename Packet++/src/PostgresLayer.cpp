@@ -762,6 +762,11 @@ namespace pcpp
 			PostgresColumnInfo column;
 
 			const char* nameEnd = std::find(iter, end, '\0');
+			if(nameEnd == end)
+			{
+				break;  
+			}
+
 			column.name.assign(iter, nameEnd);
 
 			// +1 offset because the nameEnd is currently at the null terminator of column name.
