@@ -765,7 +765,7 @@ namespace pcpp
 			column.name.assign(iter, nameEnd);
 
 			// +1 offset because the nameEnd is currently at the null terminator of column name.
-			if (end - nameEnd <= sizeof(::internal::PostgresColumnFixedData) + 1)
+			if (end - nameEnd < sizeof(::internal::PostgresColumnFixedData) + 1)
 			{
 				columns.push_back(column);
 				break;
