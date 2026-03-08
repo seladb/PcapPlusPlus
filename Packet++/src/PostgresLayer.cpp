@@ -762,9 +762,9 @@ namespace pcpp
 			PostgresColumnInfo column;
 
 			const char* nameEnd = std::find(iter, end, '\0');
-			if(nameEnd == end)
+			if (nameEnd == end)
 			{
-				break;  
+				break;
 			}
 
 			column.name.assign(iter, nameEnd);
