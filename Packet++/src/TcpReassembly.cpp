@@ -268,10 +268,10 @@ namespace pcpp
 			return Ignore_PacketOfClosedFlow;
 		}
 
-		// handle FIN/RST packets that don't contain additional TCP data
-		if (isFinOrRst && tcpPayloadSize == 0)
+		// handle RST packets that don't contain additional TCP data
+		if (isRst && tcpPayloadSize == 0)
 		{
-			PCPP_LOG_DEBUG("Got FIN or RST packet without data on side " << sideIndex);
+			PCPP_LOG_DEBUG("Got RST packet without data on side " << sideIndex);
 
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 			return FIN_RSTWithNoData;
@@ -441,27 +441,36 @@ namespace pcpp
 			{
 				PCPP_LOG_DEBUG("Payload length is 0, doing nothing");
 
-				// handle case where this packet is FIN or RST
-				if (isFinOrRst)
+				// handle case where this packet is RST
+				if (isRst)
 				{
 					handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 					status = FIN_RSTWithNoData;
-				}
-				else
-				{
-					status = Ignore_PacketWithNoData;
+					return status;
 				}
 
-				return status;
+				if (!isFin)
+				{
+					status = Ignore_PacketWithNoData;
+					return status;
+				}
 			}
 
 			// create a new TcpFragment, copy the TCP data to it and add this packet to the the out-of-order packet list
 			TcpFragment* newTcpFrag = new TcpFragment();
-			newTcpFrag->data = new uint8_t[tcpPayloadSize];
+
+			if (tcpPayloadSize)
+			{
+				newTcpFrag->data = new uint8_t[tcpPayloadSize];
+				memcpy(newTcpFrag->data, tcpLayer->getLayerPayload(), tcpPayloadSize);
+			}
+
 			newTcpFrag->dataLength = tcpPayloadSize;
 			newTcpFrag->sequence = sequence;
 			newTcpFrag->timestamp = currTime;
-			memcpy(newTcpFrag->data, tcpLayer->getLayerPayload(), tcpPayloadSize);
+			newTcpFrag->isFin = isFin;
+			newTcpFrag->flowKey = flowKey;
+
 			tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
 			PCPP_LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size "
@@ -476,8 +485,8 @@ namespace pcpp
 				checkOutOfOrderFragments(tcpReassemblyData, sideIndex, false);
 			}
 
-			// handle case where this packet is FIN or RST
-			if (isFinOrRst)
+			// handle case where this packet is RST
+			if (isRst)
 			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 			}
@@ -580,6 +589,12 @@ namespace pcpp
 
 						foundSomething = true;
 
+						if (curTcpFrag->isFin)
+						{
+							PCPP_LOG_DEBUG("handle saved FIN flag on sequence match");
+							handleFinOrRst(tcpReassemblyData, sideIndex, curTcpFrag->flowKey, false);
+						}
+
 						continue;
 					}
 
@@ -616,6 +631,12 @@ namespace pcpp
 							}
 
 							foundSomething = true;
+
+							if (curTcpFrag->isFin)
+							{
+								PCPP_LOG_DEBUG("handle saved FIN flag on lower sequence");
+								handleFinOrRst(tcpReassemblyData, sideIndex, curTcpFrag->flowKey, false);
+							}
 						}
 						else
 						{
