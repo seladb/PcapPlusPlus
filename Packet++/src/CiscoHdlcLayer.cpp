@@ -9,9 +9,9 @@
 namespace pcpp
 {
 
-// Protocol types for Cisco HDLC
-#define CISCO_HDLC_TYPE_IP 0x0800
-#define CISCO_HDLC_TYPE_IPV6 0x86DD
+	// Protocol types for Cisco HDLC
+	constexpr uint16_t CISCO_HDLC_TYPE_IP = 0x0800;
+	constexpr uint16_t CISCO_HDLC_TYPE_IPV6 = 0x86DD;
 
 	CiscoHdlcLayer::CiscoHdlcLayer(AddressType address)
 	{

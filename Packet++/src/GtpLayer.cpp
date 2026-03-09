@@ -11,8 +11,7 @@
 
 namespace pcpp
 {
-
-#define PCPP_GTP_V1_GPDU_MESSAGE_TYPE 0xff
+	constexpr uint8_t PCPP_GTP_V1_GPDU_MESSAGE_TYPE = 0xff;
 
 	/// ==================
 	/// GtpExtension class

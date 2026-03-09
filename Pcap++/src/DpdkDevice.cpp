@@ -1093,7 +1093,7 @@ namespace pcpp
 		uint16_t packetsSent = 0;
 		int lastSleep = 0;
 
-#define PACKET_TRANSMISSION_THRESHOLD 0.8
+		constexpr float PACKET_TRANSMISSION_THRESHOLD = 0.8f;
 		int packetTxThreshold = m_Config.transmitDescriptorsNumber * PACKET_TRANSMISSION_THRESHOLD;
 
 		while (packetIndex < arrLength)
