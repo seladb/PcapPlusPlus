@@ -251,6 +251,9 @@ namespace pcpp
 	/// Modbus protocol
 	const ProtocolType Modbus = 61;
 
+	/// PostgreSQL protocol
+	const ProtocolType Postgres = 62;
+
 	/// FTP protocol family (FTPControl and FtpData protocols)
 	const ProtocolTypeFamily FTP = 0x3c29;
 

@@ -412,5 +412,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(CryptoKeyDecodingTest, "crypto");
 	PTF_RUN_TEST(CryptoKeyInvalidDataTest, "crypto");
 
+	PTF_RUN_TEST(PostgresLayerParsingTest, "postgres");
+	PTF_RUN_TEST(PostgresMessageParsingTest, "postgres");
+	PTF_RUN_TEST(PostgresInvalidDataTest, "postgres");
+
 	PTF_END_RUNNING_TESTS;
 }

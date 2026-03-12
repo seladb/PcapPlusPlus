@@ -139,6 +139,12 @@ namespace pcpp
 
 	void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 	{
+		if (atIndex > m_RawDataLen)
+		{
+			throw std::out_of_range("Insert index is out of raw packet bound. Inserts can only happen in range [0, " +
+			                        std::to_string(m_RawDataLen) + ']');
+		}
+
 		// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on
 		// overlapping src/dest ptrs if insertData is called with atIndex == m_RawDataLen, then no data is being moved.
 		// The data of the raw packet is still extended by dataToInsertLen

@@ -343,3 +343,8 @@ PTF_TEST_CASE(PemDecodingTest);
 // Implemented in CryptoKeyTests.cpp
 PTF_TEST_CASE(CryptoKeyDecodingTest);
 PTF_TEST_CASE(CryptoKeyInvalidDataTest);
+
+// Implemented in PostgresTests.cpp
+PTF_TEST_CASE(PostgresLayerParsingTest);
+PTF_TEST_CASE(PostgresMessageParsingTest);
+PTF_TEST_CASE(PostgresInvalidDataTest);
