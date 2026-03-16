@@ -43,6 +43,7 @@ namespace pcpp
 	constexpr uint16_t PCAP_MAJOR_VERSION = 2;
 	constexpr uint16_t PCAP_MINOR_VERSION = 4;
 
+#pragma pack(push, 1)
 	struct pcap_file_header
 	{
 		uint32_t magic;
@@ -54,6 +55,8 @@ namespace pcpp
 		uint32_t linktype;
 	};
 
+	static_assert(sizeof(pcap_file_header) == 24, "pcap_file_header must be 24 bytes long");
+
 	struct packet_header
 	{
 		uint32_t tv_sec;
@@ -61,6 +64,8 @@ namespace pcpp
 		uint32_t caplen;
 		uint32_t len;
 	};
+	static_assert(sizeof(packet_header) == 16, "packet_header must be 16 bytes long");
+#pragma pack(pop)
 
 	LinkLayerType toLinkLayerType(uint32_t value)
 	{
