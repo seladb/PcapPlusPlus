@@ -678,11 +678,11 @@ namespace pcpp
 				throw std::logic_error("Unexpected PcapReadHeaderStatus value");
 			}
 
-			m_NeedsSwap = needsSwap;
-
 			// If we have a header, validate that the file is compatible.
 			if (!shouldWriteHeader)
 			{
+				m_NeedsSwap = needsSwap;
+
 				if (precisionFromHeader != m_Precision)
 				{
 					PCPP_LOG_ERROR("Existing file precision (" + toString(precisionFromHeader) +
