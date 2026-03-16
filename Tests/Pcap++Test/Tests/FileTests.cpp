@@ -1114,7 +1114,8 @@ PTF_TEST_CASE(TestPcapFileAppend)
 
 		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
-		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Malformed file header or not a pcap file");
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot read pcap file header. File may be malformed or not a pcap file");
 		PTF_ASSERT_FALSE(writer.isOpened());
 	}
 
@@ -1166,7 +1167,8 @@ PTF_TEST_CASE(TestPcapFileAppend)
 
 		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
-		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Unsupported pcap file format");
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot read pcap file header. Unsupported format or invalid magic number: 0x4d2");
 	}
 
 	// Unsupported version

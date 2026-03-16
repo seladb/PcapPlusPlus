@@ -659,7 +659,7 @@ namespace pcpp
 			}
 			case PcapReadHeaderStatus::NoData:
 			{
-				// Empty file - preceed as if we are creating a new file
+				// Empty file - proceed as if we are creating a new file
 				shouldWriteHeader = true;
 				break;
 			}
