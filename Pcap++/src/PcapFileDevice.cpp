@@ -184,6 +184,19 @@ namespace pcpp
 		}
 	}
 
+	static std::string toString(FileTimestampPrecision precision)
+	{
+		switch (precision)
+		{
+		case FileTimestampPrecision::Microseconds:
+			return "Microseconds";
+		case FileTimestampPrecision::Nanoseconds:
+			return "Nanoseconds";
+		default:
+			return "Unknown";
+		}
+	}
+
 	// ~~~~~~~~~~~~~~~~~~~
 	// IFileDevice members
 	// ~~~~~~~~~~~~~~~~~~~
@@ -672,21 +685,8 @@ namespace pcpp
 			{
 				if (precisionFromHeader != m_Precision)
 				{
-					auto getPrecisionStr = [](const FileTimestampPrecision precision) -> std::string {
-						switch (precision)
-						{
-						case FileTimestampPrecision::Microseconds:
-							return "Microseconds";
-						case FileTimestampPrecision::Nanoseconds:
-							return "Nanoseconds";
-						default:
-							return "Unknown";
-						}
-					};
-
-					PCPP_LOG_ERROR("Existing file precision (" + getPrecisionStr(precisionFromHeader) +
-					               ") does not match the requested device precision (" + getPrecisionStr(m_Precision) +
-					               ")");
+					PCPP_LOG_ERROR("Existing file precision (" + toString(precisionFromHeader) +
+					               ") does not match the requested device precision (" + toString(m_Precision) + ")");
 					return false;
 				}
 
