@@ -554,6 +554,19 @@ namespace pcpp
 			return true;
 		}
 
+		FileTimestampPrecision getPcapPrecision(CaptureFileFormat format)
+		{
+			switch(format)
+			{
+			case CaptureFileFormat::Pcap:
+			case CaptureFileFormat::PcapMod:
+				return FileTimestampPrecision::Microseconds;
+			case CaptureFileFormat::PcapNano:
+				return FileTimestampPrecision::Nanoseconds;
+			default:
+				return FileTimestampPrecision::Unknown;
+			}
+		}
 	}  // namespace
 
 	// ~~~~~~~~~~~~~~~~~~~
@@ -837,26 +850,15 @@ namespace pcpp
 			return false;
 		}
 
-		switch (pcapFormat)
-		{
-		case CaptureFileFormat::Pcap:
-		{
-			m_Precision = FileTimestampPrecision::Microseconds;
-			break;
-		}
-		case CaptureFileFormat::PcapMod:
+		if (pcapFormat == CaptureFileFormat::PcapMod)
 		{
 			PCPP_LOG_ERROR("\"Modified\" pcap files are currently not supported.");
 			return false;
 		}
-		case CaptureFileFormat::PcapNano:
-		{
-			m_Precision = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-		default:
-			throw std::logic_error("Unexpected format");  // Should never happen.
-		}
+
+		m_Precision = getPcapPrecision(pcapFormat);
+		PCPP_ASSERT(m_Precision != FileTimestampPrecision::Unknown,
+		            "Pcap format should have a known timestamp precision");
 
 		m_NeedsSwap = byteOrder == CaptureFileByteOrder::Swapped;
 		if (m_NeedsSwap)
@@ -1237,26 +1239,14 @@ namespace pcpp
 			return CheckHeaderResult::fromError("Unsupported pcap file format");
 		}
 
-		FileTimestampPrecision precisionFromHeader;
-		switch (pcapFormat)
-		{
-		case CaptureFileFormat::Pcap:
-		{
-			precisionFromHeader = FileTimestampPrecision::Microseconds;
-			break;
-		}
-		case CaptureFileFormat::PcapMod:
+		if (pcapFormat == CaptureFileFormat::PcapMod)
 		{
 			return CheckHeaderResult::fromError("\"Modified\" pcap format is currently not supported.");
 		}
-		case CaptureFileFormat::PcapNano:
-		{
-			precisionFromHeader = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-		default:
-			throw std::logic_error("Unexpected format");  // Should never happen
-		}
+
+		FileTimestampPrecision precisionFromHeader = getPcapPrecision(pcapFormat);
+		PCPP_ASSERT(precisionFromHeader != FileTimestampPrecision::Unknown,
+		            "Pcap format should have a known timestamp precision");
 
 		bool needsSwap = byteOrder == CaptureFileByteOrder::Swapped;
 		if (needsSwap)
