@@ -281,15 +281,123 @@ namespace pcpp
 	// PcapFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	static uint16_t swap16(uint16_t value)
+	namespace
 	{
-		return static_cast<uint16_t>((value >> 8) | (value << 8));
-	}
+		uint16_t swap16(uint16_t value)
+		{
+			return static_cast<uint16_t>((value >> 8) | (value << 8));
+		}
 
-	static uint32_t swap32(uint32_t value)
-	{
-		return (value >> 24) | ((value >> 8) & 0x0000FF00) | ((value << 8) & 0x00FF0000) | (value << 24);
-	}
+		uint32_t swap32(uint32_t value)
+		{
+			return (value >> 24) | ((value >> 8) & 0x0000FF00) | ((value << 8) & 0x00FF0000) | (value << 24);
+		}
+
+		enum class PcapReadHeaderStatus
+		{
+			Ok,
+			NoData,
+			MalformedData,
+			UnsupportedFormat
+		};
+
+		/// @brief Reads a pcap file header from the given input stream and fills the provided header structure,
+		/// timestamp precision, and byte swap flag.
+		///
+		/// The function will populate the file header structure and convert it to host byte order.
+		///
+		/// @param inStream The input stream to read from.
+		/// @param header A pcap_file_header structure that will be filled with the header data read from the stream.
+		/// @param precision The precision of the timestamps in the pcap file.
+		/// @param needsSwap If the file contents need to be byte-swapped to match the host's endianness.
+		/// @return The status of the reading operation.
+		PcapReadHeaderStatus readPcapHeader(std::istream& inStream, pcap_file_header& header,
+		                                    FileTimestampPrecision& precision, bool& needsSwap)
+		{
+			inStream.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+			auto readBytes = inStream.gcount();
+
+			// Clear any error flags that may have been set by read() to allow further operations on the stream
+			inStream.clear();
+			if (readBytes == 0)
+			{
+				return PcapReadHeaderStatus::NoData;
+			}
+			else if (readBytes < static_cast<std::streamsize>(sizeof(header)))
+			{
+				return PcapReadHeaderStatus::MalformedData;
+			}
+
+			switch (header.magic)
+			{
+			case TCPDUMP_MAGIC:
+			{
+				precision = FileTimestampPrecision::Microseconds;
+				needsSwap = false;
+				break;
+			}
+			case TCPDUMP_MAGIC_SWAPPED:
+			{
+				precision = FileTimestampPrecision::Microseconds;
+				needsSwap = true;
+				break;
+			}
+			case NSEC_TCPDUMP_MAGIC:
+			{
+				precision = FileTimestampPrecision::Nanoseconds;
+				needsSwap = false;
+				break;
+			}
+			case NSEC_TCPDUMP_MAGIC_SWAPPED:
+			{
+				needsSwap = true;
+				precision = FileTimestampPrecision::Nanoseconds;
+				break;
+			}
+			default:
+			{
+				return PcapReadHeaderStatus::UnsupportedFormat;
+			}
+			}
+
+			if (needsSwap)
+			{
+				header.magic = swap32(header.magic);
+				header.version_major = swap16(header.version_major);
+				header.version_minor = swap16(header.version_minor);
+				header.thiszone = swap32(header.thiszone);
+				header.sigfigs = swap32(header.sigfigs);
+				header.snaplen = swap32(header.snaplen);
+				header.linktype = swap32(header.linktype);
+			}
+
+			return PcapReadHeaderStatus::Ok;
+		}
+
+		bool writePcapHeader(std::ostream& outStream, FileTimestampPrecision precision, uint32_t snaplen,
+		                     LinkLayerType linkType)
+		{
+			pcap_file_header header{ precision == FileTimestampPrecision::Microseconds ? TCPDUMP_MAGIC
+				                                                                       : NSEC_TCPDUMP_MAGIC,
+				                     PCAP_MAJOR_VERSION,
+				                     PCAP_MINOR_VERSION,
+				                     0,
+				                     0,
+				                     snaplen,
+				                     static_cast<uint32_t>(linkType) };
+
+			outStream.write(reinterpret_cast<const char*>(&header), sizeof(header));
+
+			if (!outStream.good())
+			{
+				PCPP_LOG_ERROR("Error writing pcap header");
+				return false;
+			}
+
+			return true;
+		}
+	}  // namespace
 
 	bool PcapFileReaderDevice::open()
 	{
@@ -310,53 +418,24 @@ namespace pcpp
 		}
 
 		pcap_file_header pcapFileHeader{};
-		if (!pcapFile.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
+		auto status = readPcapHeader(pcapFile, pcapFileHeader, m_Precision, m_NeedsSwap);
+		switch (status)
+		{
+		case PcapReadHeaderStatus::Ok:
+			break;
+		case PcapReadHeaderStatus::NoData:
+		case PcapReadHeaderStatus::MalformedData:
 		{
 			PCPP_LOG_ERROR("Cannot read pcap file header");
 			return false;
 		}
-
-		switch (pcapFileHeader.magic)
-		{
-		case TCPDUMP_MAGIC:
-		{
-			m_Precision = FileTimestampPrecision::Microseconds;
-			break;
-		}
-
-		case TCPDUMP_MAGIC_SWAPPED:
-		{
-			m_NeedsSwap = true;
-			m_Precision = FileTimestampPrecision::Microseconds;
-			break;
-		}
-
-		case NSEC_TCPDUMP_MAGIC:
-		{
-			m_Precision = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-
-		case NSEC_TCPDUMP_MAGIC_SWAPPED:
-		{
-			m_NeedsSwap = true;
-			m_Precision = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-
-		default:
+		case PcapReadHeaderStatus::UnsupportedFormat:
 		{
 			PCPP_LOG_ERROR("Invalid magic number: 0x" << std::hex << pcapFileHeader.magic);
 			return false;
 		}
-		}
-
-		if (m_NeedsSwap)
-		{
-			pcapFileHeader.version_major = swap16(pcapFileHeader.version_major);
-			pcapFileHeader.version_minor = swap16(pcapFileHeader.version_minor);
-			pcapFileHeader.snaplen = swap32(pcapFileHeader.snaplen);
-			pcapFileHeader.linktype = swap32(pcapFileHeader.linktype);
+		default:
+			throw std::logic_error("Unhandled PcapReadHeaderStatus value");
 		}
 
 		if (pcapFileHeader.version_major != 2 && pcapFileHeader.version_major != 543)
@@ -552,21 +631,83 @@ namespace pcpp
 
 		if (appendMode)
 		{
-			auto checkHeaderResult = checkHeader(pcapFile, m_Precision, m_PcapLinkLayerType);
-
-			if (checkHeaderResult.result == CheckHeaderResult::Result::HeaderError)
+			// Using temporary to avoid modifying member variables in case of failure to read header
+			bool needsSwap = false;
+			FileTimestampPrecision precisionFromHeader;
+			pcap_file_header header;
+			auto status = readPcapHeader(pcapFile, header, precisionFromHeader, needsSwap);
+			switch (status)
 			{
-				PCPP_LOG_ERROR(checkHeaderResult.error);
+			case PcapReadHeaderStatus::Ok:
+			{
+				// We have a valid header
+				shouldWriteHeader = false;
+				break;
+			}
+			case PcapReadHeaderStatus::NoData:
+			{
+				// Empty file - preceed as if we are creating a new file
+				shouldWriteHeader = true;
+				break;
+			}
+			case PcapReadHeaderStatus::MalformedData:
+			{
+				PCPP_LOG_ERROR("Cannot read pcap file header. File may be malformed or not a pcap file");
 				return false;
 			}
+			case PcapReadHeaderStatus::UnsupportedFormat:
+			{
+				PCPP_LOG_ERROR("Cannot read pcap file header. Unsupported format or invalid magic number: 0x"
+				               << std::hex << header.magic);
+				return false;
+			}
+			default:
+				throw std::logic_error("Unexpected PcapReadHeaderStatus value");
+			}
 
-			m_NeedsSwap = checkHeaderResult.needsSwap;
-			shouldWriteHeader = checkHeaderResult.result == CheckHeaderResult::Result::HeaderNeeded;
+			m_NeedsSwap = needsSwap;
 
-			pcapFile.seekg(0, std::ios::end);
+			// If we have a header, validate that the file is compatible.
+			if (!shouldWriteHeader)
+			{
+				if (precisionFromHeader != m_Precision)
+				{
+					auto getPrecisionStr = [](const FileTimestampPrecision precision) -> std::string {
+						switch (precision)
+						{
+						case FileTimestampPrecision::Microseconds:
+							return "Microseconds";
+						case FileTimestampPrecision::Nanoseconds:
+							return "Nanoseconds";
+						default:
+							return "Unknown";
+						}
+					};
+
+					PCPP_LOG_ERROR("Existing file precision (" + getPrecisionStr(precisionFromHeader) +
+					               ") does not match the requested device precision (" + getPrecisionStr(m_Precision) +
+					               ")");
+					return false;
+				}
+
+				if (header.version_major != PCAP_MAJOR_VERSION || header.version_minor != PCAP_MINOR_VERSION)
+				{
+					PCPP_LOG_ERROR("Unsupported pcap file version");
+					return false;
+				}
+
+				if (header.linktype != static_cast<uint32_t>(m_PcapLinkLayerType))
+				{
+					PCPP_LOG_ERROR("Existing file link type does not match the requested device link type");
+					return false;
+				}
+
+				// Move the file pointer to the end of the file for appending new packets
+				pcapFile.seekg(0, std::ios::end);
+			}
 		}
 
-		if (shouldWriteHeader && !writeHeader(pcapFile, m_Precision, PCPP_MAX_PACKET_SIZE, m_PcapLinkLayerType))
+		if (shouldWriteHeader && !writePcapHeader(pcapFile, m_Precision, PCPP_MAX_PACKET_SIZE, m_PcapLinkLayerType))
 		{
 			return false;
 		}
@@ -668,129 +809,6 @@ namespace pcpp
 		}
 
 		m_PcapFile.close();
-	}
-
-	bool PcapFileWriterDevice::writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
-	                                       LinkLayerType linkType)
-	{
-		pcap_file_header header{ precision == FileTimestampPrecision::Microseconds ? TCPDUMP_MAGIC : NSEC_TCPDUMP_MAGIC,
-			                     PCAP_MAJOR_VERSION,
-			                     PCAP_MINOR_VERSION,
-			                     0,
-			                     0,
-			                     snaplen,
-			                     static_cast<uint32_t>(linkType) };
-
-		pcapFile.write(reinterpret_cast<const char*>(&header), sizeof(header));
-
-		if (!pcapFile.good())
-		{
-			PCPP_LOG_ERROR("Error writing pcap header");
-			return false;
-		}
-
-		return true;
-	}
-
-	PcapFileWriterDevice::CheckHeaderResult PcapFileWriterDevice::checkHeader(std::fstream& pcapFile,
-	                                                                          FileTimestampPrecision requestedPrecision,
-	                                                                          LinkLayerType requestedLinkType)
-	{
-		if (!pcapFile.is_open())
-		{
-			return CheckHeaderResult::fromError("Pcap file isn't open");
-		}
-
-		pcapFile.seekg(0, std::ios::end);
-		std::streamsize size = pcapFile.tellg();
-
-		if (size == 0)
-		{
-			return CheckHeaderResult::fromHeaderNeeded();
-		}
-
-		if (size < static_cast<std::streamsize>(sizeof(pcap_file_header)))
-		{
-			return CheckHeaderResult::fromError("Malformed file header or not a pcap file");
-		}
-
-		pcapFile.seekg(0, std::ios::beg);
-
-		pcap_file_header pcapFileHeader{};
-		if (!pcapFile.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
-		{
-			return CheckHeaderResult::fromError("Cannot read file header");
-		}
-
-		FileTimestampPrecision precisionFromHeader = FileTimestampPrecision::Microseconds;
-
-		bool needsSwap = false;
-		switch (pcapFileHeader.magic)
-		{
-		case TCPDUMP_MAGIC:
-		{
-			break;
-		}
-		case TCPDUMP_MAGIC_SWAPPED:
-		{
-			needsSwap = true;
-			break;
-		}
-		case NSEC_TCPDUMP_MAGIC:
-		{
-			precisionFromHeader = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-		case NSEC_TCPDUMP_MAGIC_SWAPPED:
-		{
-			needsSwap = true;
-			precisionFromHeader = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-		default:
-		{
-			return CheckHeaderResult::fromError("Unsupported pcap file format");
-		}
-		}
-
-		if (needsSwap)
-		{
-			pcapFileHeader.version_major = swap16(pcapFileHeader.version_major);
-			pcapFileHeader.version_minor = swap16(pcapFileHeader.version_minor);
-			pcapFileHeader.snaplen = swap32(pcapFileHeader.snaplen);
-			pcapFileHeader.linktype = swap32(pcapFileHeader.linktype);
-		}
-
-		if (precisionFromHeader != requestedPrecision)
-		{
-			auto getPrecisionStr = [](const FileTimestampPrecision precision) -> std::string {
-				switch (precision)
-				{
-				case FileTimestampPrecision::Microseconds:
-					return "Microseconds";
-				case FileTimestampPrecision::Nanoseconds:
-					return "Nanoseconds";
-				default:
-					return "Unknown";
-				}
-			};
-			return CheckHeaderResult::fromError("Existing file precision (" + getPrecisionStr(precisionFromHeader) +
-			                                    ") does not match the requested device precision (" +
-			                                    getPrecisionStr(requestedPrecision) + ")");
-		}
-
-		if (pcapFileHeader.version_major != PCAP_MAJOR_VERSION || pcapFileHeader.version_minor != PCAP_MINOR_VERSION)
-		{
-			return CheckHeaderResult::fromError("Unsupported pcap file version");
-		}
-
-		if (pcapFileHeader.linktype != static_cast<uint32_t>(requestedLinkType))
-		{
-			return CheckHeaderResult::fromError(
-			    "Existing file link type does not match the requested device link type");
-		}
-
-		return CheckHeaderResult::fromOk(needsSwap);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
