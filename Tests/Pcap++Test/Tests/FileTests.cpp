@@ -1074,7 +1074,7 @@ PTF_TEST_CASE(TestPcapFileAppend)
 		PTF_ASSERT_TRUE(reader.open());
 		pcpp::RawPacket rawPacket2;
 		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
-		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_BUF_COMPARE_S(rawPacket2.getRawData(), rawPacket2.getRawDataLen(), packetData.data(), packetData.size());
 		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
 	}
 
