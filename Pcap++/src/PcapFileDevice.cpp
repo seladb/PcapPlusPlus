@@ -369,8 +369,8 @@ namespace pcpp
 			}
 			case NSEC_TCPDUMP_MAGIC_SWAPPED:
 			{
-				needsSwap = true;
 				precision = FileTimestampPrecision::Nanoseconds;
+				needsSwap = true;
 				break;
 			}
 			default:
