@@ -656,6 +656,7 @@ namespace pcpp
 			case PcapReadHeaderStatus::Ok:
 			{
 				// We have a valid header
+				PCPP_LOG_DEBUG("Read existing pcap header file.");
 				shouldWriteHeader = false;
 				break;
 			}
@@ -669,6 +670,7 @@ namespace pcpp
 					return false;
 				}
 
+				PCPP_LOG_DEBUG("File is empty. A new pcap header will be written.");
 				pcapFile.clear();  // Clear EOF or failbit state to allow writing
 				shouldWriteHeader = true;
 				break;
