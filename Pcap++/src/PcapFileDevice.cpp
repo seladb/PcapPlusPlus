@@ -650,6 +650,10 @@ namespace pcpp
 			bool needsSwap = false;
 			FileTimestampPrecision precisionFromHeader;
 			pcap_file_header header;
+
+			// Position file pointer at the beginning of the file to read the header.
+			// Apparently there is no guarantee where the read file pointer will be initialized when opening in std::ios::app.
+			pcapFile.seekg(0, std::ios::beg);
 			auto status = readPcapHeader(pcapFile, header, precisionFromHeader, needsSwap);
 			switch (status)
 			{
