@@ -651,8 +651,8 @@ namespace pcpp
 			FileTimestampPrecision precisionFromHeader;
 			pcap_file_header header;
 
-			// Position file pointer at the beginning of the file to read the header.
-			// Apparently there is no guarantee where the read file pointer will be initialized when opening in std::ios::app.
+			// Position file pointer at the beginning of the file to read the header. Apparently there is no guarantee
+			// where the read file pointer will be initialized when opening in std::ios::app.
 			pcapFile.seekg(0, std::ios::beg);
 			auto status = readPcapHeader(pcapFile, header, precisionFromHeader, needsSwap);
 			switch (status)
@@ -667,7 +667,7 @@ namespace pcpp
 			case PcapReadHeaderStatus::NoData:
 			{
 				// Empty file - proceed as if we are creating a new file
-				if(pcapFile.bad())
+				if (pcapFile.bad())
 				{
 					// badbit errors are generally unrecoverable.
 					PCPP_LOG_ERROR("Error reading pcap file.");
