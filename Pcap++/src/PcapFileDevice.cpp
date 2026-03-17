@@ -337,9 +337,13 @@ namespace pcpp
 			inStream.seekg(pos);
 
 			auto remainingBytes = endPos - pos;
-			if(remainingBytes < static_cast<std::streamsize>(sizeof(header)))
+			if(remainingBytes == 0)
 			{
 				return PcapReadHeaderStatus::NoData;
+			}
+			else if (remainingBytes < static_cast<std::streamsize>(sizeof(header)))
+			{
+				return PcapReadHeaderStatus::MalformedData;
 			}
 
 			inStream.read(reinterpret_cast<char*>(&header), sizeof(header));
