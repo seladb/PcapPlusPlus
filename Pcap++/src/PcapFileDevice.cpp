@@ -332,26 +332,9 @@ namespace pcpp
 		PcapReadHeaderStatus readPcapHeader(std::istream& inStream, pcap_file_header& header,
 		                                    FileTimestampPrecision& precision, bool& needsSwap)
 		{
-			auto pos = inStream.tellg();
-			auto endPos = inStream.seekg(0, std::ios::end).tellg();
-			inStream.seekg(pos);
-
-			auto remainingBytes = endPos - pos;
-			if(remainingBytes == 0)
-			{
-				return PcapReadHeaderStatus::NoData;
-			}
-			else if (remainingBytes < static_cast<std::streamsize>(sizeof(header)))
-			{
-				return PcapReadHeaderStatus::MalformedData;
-			}
-
 			inStream.read(reinterpret_cast<char*>(&header), sizeof(header));
 
 			auto readBytes = inStream.gcount();
-
-			// Clear any error flags that may have been set by read() to allow further operations on the stream
-			inStream.clear();
 			if (readBytes == 0)
 			{
 				return PcapReadHeaderStatus::NoData;
@@ -679,6 +662,14 @@ namespace pcpp
 			case PcapReadHeaderStatus::NoData:
 			{
 				// Empty file - proceed as if we are creating a new file
+				if(pcapFile.bad())
+				{
+					// badbit errors are generally unrecoverable.
+					PCPP_LOG_ERROR("Error reading pcap file.");
+					return false;
+				}
+
+				pcapFile.clear();  // Clear EOF or failbit state to allow writing
 				shouldWriteHeader = true;
 				break;
 			}
