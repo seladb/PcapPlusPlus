@@ -332,6 +332,16 @@ namespace pcpp
 		PcapReadHeaderStatus readPcapHeader(std::istream& inStream, pcap_file_header& header,
 		                                    FileTimestampPrecision& precision, bool& needsSwap)
 		{
+			auto pos = inStream.tellg();
+			auto endPos = inStream.seekg(0, std::ios::end).tellg();
+			inStream.seekg(pos);
+
+			auto remainingBytes = endPos - pos;
+			if(remainingBytes < static_cast<std::streamsize>(sizeof(header)))
+			{
+				return PcapReadHeaderStatus::NoData;
+			}
+
 			inStream.read(reinterpret_cast<char*>(&header), sizeof(header));
 
 			auto readBytes = inStream.gcount();
