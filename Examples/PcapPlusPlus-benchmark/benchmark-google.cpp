@@ -332,7 +332,8 @@ BENCHMARK(BM_PacketCrafting);
 
 void printHelp()
 {
-	std::cout << "Usage: benchmark-google [--pcap-file <file.pcap>] [--pcapng-file <file.pcapng>] [--snoop-file <file.snoop>]\n\n";
+	std::cout
+	    << "Usage: benchmark-google [--pcap-file <file.pcap>] [--pcapng-file <file.pcapng>] [--snoop-file <file.snoop>]\n\n";
 
 	std::cout << "Google Benchmark options:\n";
 	benchmark::PrintDefaultHelp();
@@ -358,7 +359,7 @@ int main(int argc, char** argv)
 			if (startsWith(argValue, "-"))
 			{
 				std::cerr << "Please provide a file path after --pcap-file, but got another option: " << argValue
-						  << std::endl;
+				          << std::endl;
 				return 1;
 			}
 
