@@ -1,5 +1,5 @@
 #define LOG_MODULE PacketLogModuleArpLayer
-#include "../TestDefinition.h"
+#include "TestDefinition.h"
 #include <algorithm>
 #include <cctype>
 #include <random>
