@@ -190,9 +190,12 @@ PTF_TEST_CASE(TestLoggerMultiThread)
 
 	PrintCV cv;
 
+	int messagesPerThread = 25000;
+	int expectedTotalMessages = messagesPerThread * MultiThreadLogCounter::ThreadCount;
+
 	for (int i = 0; i < MultiThreadLogCounter::ThreadCount; i++)
 	{
-		threads[i] = std::thread(printLogThread, i, 1000, std::ref(cv));
+		threads[i] = std::thread(printLogThread, i, messagesPerThread, std::ref(cv));
 	}
 
 	{
@@ -214,7 +217,7 @@ PTF_TEST_CASE(TestLoggerMultiThread)
 		totalLogMessages += logMessagesCount;
 	}
 
-	PTF_ASSERT_EQUAL(totalLogMessages, 5000);
+	PTF_ASSERT_EQUAL(totalLogMessages, expectedTotalMessages);
 }  // TestLoggerMultiThread
 
 PTF_TEST_CASE(TestLogger)
