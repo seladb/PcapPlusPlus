@@ -1,6 +1,8 @@
 add_executable(Logger++Test main.cpp LoggerTests.cpp)
 
-target_link_libraries(Logger++Test PUBLIC memplumber Common++ PcppTestFramework)
+target_link_libraries(Logger++Test PUBLIC memplumber Common++ PcppTestFramework Threads::Threads)
+
+target_compile_features(Logger++Test PUBLIC cxx_std_14)
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio

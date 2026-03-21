@@ -79,9 +79,15 @@ int main(int argc, char* argv[])
 	          << "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 #endif
 
+	auto& logger = pcpp::Logger::getInstance();
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check.
 	// Disables context pooling to avoid false positives in the memory leak check, as the contexts persist in the pool.
-	pcpp::Logger::getInstance().useContextPooling(false);
+	logger.useContextPooling(false);
+
+	logger.suppressLogs();
+	logger.emit(pcpp::LogSource(pcpp::LogModule::UndefinedLogModule, "main.cpp", "main", __LINE__),
+	            pcpp::LogLevel::Error, "Needed log to initialize lastError string before memory snapshot.");
+	logger.enableLogs();
 
 	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
