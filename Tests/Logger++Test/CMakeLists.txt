@@ -1,8 +1,4 @@
-add_executable(
-  Logger++Test
-  main.cpp
-  LoggerTests.cpp
-)
+add_executable(Logger++Test main.cpp LoggerTests.cpp)
 
 target_link_libraries(Logger++Test PUBLIC memplumber Common++ PcppTestFramework)
 
