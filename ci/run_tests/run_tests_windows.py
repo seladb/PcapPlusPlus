@@ -121,6 +121,12 @@ def main():
         "--build-dir", type=str, default=os.getcwd(), help="Path to the build directory"
     )
     parser.add_argument(
+        "--logger-test-exe",
+        type=str,
+        default=os.path.join("Tests", "Logger++Test", "Logger++Test.exe"),
+        help="Custom path to Logger++ test executable. Can be relative to the build directory.",
+    )
+    parser.add_argument(
         "--packet-test-exe",
         type=str,
         default=os.path.join("Tests", "Packet++Test", "Packet++Test.exe"),
@@ -145,6 +151,35 @@ def main():
 
     build_dir = Path(args.build_dir)
     logging.debug("Using build directory: %s", build_dir)
+
+    logger_exec_path = build_dir / args.logger_test_exe
+    logger_exec_path = logger_exec_path.resolve()
+
+    if args.coverage:
+        logging.debug("Running Logger++ tests with coverage from: %s", logger_exec_path)
+        subprocess.run(
+            [
+                "OpenCppCoverage.exe",
+                "--verbose",
+                "--sources",
+                "Logger++",
+                "--export_type",
+                "cobertura:Logger++Coverage.xml",
+                "--working_dir",
+                str(logger_exec_path.parent),
+                "--",
+                str(logger_exec_path),
+            ],
+            cwd=logger_exec_path.parent,
+            check=True,
+        )
+    else:
+        logging.debug("Running Logger++ tests from: %s", logger_exec_path)
+        subprocess.run(
+            str(logger_exec_path),
+            cwd=logger_exec_path.parent,
+            check=True,
+        )
 
     packet_exec_path = build_dir / args.packet_test_exe
     packet_exec_path = packet_exec_path.resolve()
