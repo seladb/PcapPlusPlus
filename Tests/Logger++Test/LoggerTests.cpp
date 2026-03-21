@@ -311,7 +311,7 @@ PTF_TEST_CASE(TestLogger)
 
 	// invoke debug log - expect to see it
 	pcpp::invokeDebugLog();
-	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Debug);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::LogLevel::Debug);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeDebugLog");
