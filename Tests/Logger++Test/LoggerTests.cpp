@@ -2,18 +2,20 @@
 #include "TestDefinition.h"
 #include <algorithm>
 #include <cctype>
-#include <random>
+
 #include <string>
 #include <thread>
+#include <mutex>
+#include <condition_variable>
 
 #include "Logger.h"
 #include "SystemUtils.h"
 
 namespace pcpp
 {
-#define PCPP_TEST_EXPECTED_DEBUG_LOG_LINE 20
-#define PCPP_TEST_EXPECTED_WARN_LOG_LINE 25
-#define PCPP_TEST_EXPECTED_ERROR_LOG_LINE 30
+#define PCPP_TEST_EXPECTED_DEBUG_LOG_LINE 22
+#define PCPP_TEST_EXPECTED_WARN_LOG_LINE 27
+#define PCPP_TEST_EXPECTED_ERROR_LOG_LINE 32
 
 	void invokeDebugLog()
 	{
@@ -152,19 +154,28 @@ public:
 	}
 };
 
-void printLogThread(int threadId)
+struct PrintCV
 {
-	std::random_device rd;
-	std::mt19937 simpleRand(rd());
-	std::uniform_int_distribution<int> dist(1, 5);
+	std::mutex mutex;
+	std::condition_variable cv;
+	bool ready = false;
+};
+
+void printLogThread(int threadId, int numMessages, PrintCV& cv)
+{
 	std::ostringstream sstream;
 	sstream << threadId;
 	std::string threadIdAsString = sstream.str();
-	for (int i = 0; i < 1000; i++)
+
+	{
+		// Wait for start signal from main thread before starting to print logs
+		std::unique_lock<std::mutex> lock(cv.mutex);
+		cv.cv.wait(lock, [&cv] { return cv.ready; });
+	}
+
+	for (int i = 0; i < numMessages; i++)
 	{
 		pcpp::invokeErrorLog(threadIdAsString);
-		int sleepTime = dist(simpleRand);
-		std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 	}
 }
 
@@ -177,10 +188,19 @@ PTF_TEST_CASE(TestLoggerMultiThread)
 
 	pcpp::Logger::getInstance().setLogPrinter(&MultiThreadLogCounter::logPrinter);
 
+	PrintCV cv;
+
 	for (int i = 0; i < MultiThreadLogCounter::ThreadCount; i++)
 	{
-		threads[i] = std::thread(printLogThread, i);
+		threads[i] = std::thread(printLogThread, i, 1000, std::ref(cv));
 	}
+
+	{
+		std::lock_guard<std::mutex> lock(cv.mutex);
+		cv.ready = true;
+	}
+
+	cv.cv.notify_all();
 
 	for (auto& thread : threads)
 	{
