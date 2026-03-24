@@ -110,6 +110,9 @@ public:
 			return;
 
 		int threadId = logMessage.back() - '0';
+		if (threadId < 0 || threadId >= counters.size())
+			return;
+
 		counters[threadId].logMessagesCount++;
 	}
 };
