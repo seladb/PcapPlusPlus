@@ -418,7 +418,9 @@ namespace pcpp
 		/// @return DHCP option data as string
 		std::string getValueAsString(int valueOffset = 0) const
 		{
-			if (m_Data == nullptr || m_Data->recordLen - valueOffset < 1)
+			// TODO: This will burn if valueOffset is negative.
+			// Should negative offsets even be allowed? Potentially change it to size_t?
+			if (m_Data == nullptr || getDataSize() < static_cast<size_t>(valueOffset) + 1)
 				return "";
 
 			return std::string(reinterpret_cast<const char*>(m_Data->recordValue) + valueOffset,
@@ -588,6 +590,11 @@ namespace pcpp
 
 		/// A destructor for this layer
 		~DhcpLayer() override = default;
+
+		static bool isDataValid(uint8_t const* data, size_t dataLen)
+		{
+			return canReinterpretAs<dhcp_header>(data, dataLen);
+		}
 
 		/// Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the
 		/// actual packet data

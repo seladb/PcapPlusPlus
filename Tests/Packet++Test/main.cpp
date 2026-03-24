@@ -3,8 +3,8 @@
 #include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
 #include "Logger.h"
-#include "../../Tests/Packet++Test/Utils/TestUtils.h"
 #include "Resources.h"
+#include "Utils/TestUtils.h"
 
 static struct option PacketTestOptions[] = {
 	{ "include-tags",        required_argument, nullptr, 't' },
@@ -170,6 +170,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ProtocolFamilyMembershipTest, "packet");
 	PTF_RUN_TEST(PacketParseLayerLimitTest, "packet");
 	PTF_RUN_TEST(PacketParseMultiLayerTest, "packet");
+	PTF_RUN_TEST(PacketIncrementalParseTest, "packet");
+	PTF_RUN_TEST(PacketFullReparseTest, "packet");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
@@ -409,6 +411,10 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(CryptoKeyDecodingTest, "crypto");
 	PTF_RUN_TEST(CryptoKeyInvalidDataTest, "crypto");
+
+	PTF_RUN_TEST(PostgresLayerParsingTest, "postgres");
+	PTF_RUN_TEST(PostgresMessageParsingTest, "postgres");
+	PTF_RUN_TEST(PostgresInvalidDataTest, "postgres");
 
 	PTF_END_RUNNING_TESTS;
 }

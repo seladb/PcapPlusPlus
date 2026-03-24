@@ -9,7 +9,7 @@ on:
 
 env:
   BUILD_DIR: Dist
-  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
+  GCOVR_FLAGS: --gcov-ignore-errors all --gcov-ignore-parse-errors all --merge-mode-functions=separate --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
   CCACHE_DIR: ${{ github.workspace }}/.ccache
   CPPCHECK_VERSION: 2.19.0
 
@@ -26,7 +26,7 @@ jobs:
     container: seladb/alpine317
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -57,6 +57,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     container: seladb/${{ matrix.image }}
     strategy:
+      fail-fast: false
       matrix:
         include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
           - runner: ubuntu-latest
@@ -73,15 +74,19 @@ jobs:
           - runner: ubuntu-latest
             image: ubuntu2004
             config-zstd: OFF
+            gcovr-version: 8.2
           - runner: ubuntu-latest
             image: rhel94
             config-zstd: OFF
+            gcovr-version: 8.5
           - runner: ubuntu-latest
             image: ubuntu2004-zstd
             config-zstd: ON
+            gcovr-version: 8.2
           - runner: ubuntu-latest
             image: fedora42
             config-zstd: OFF
+            additional-gcov-flags: --gcov-ignore-errors
           - runner: ubuntu-latest
             image: alpine320
             config-zstd: OFF
@@ -91,7 +96,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -105,7 +110,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -130,7 +135,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.additional-test-flags }}
+          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.additional-test-flags }} --build-dir "$BUILD_DIR"
 
       - name: Test Examples
         run: |
@@ -156,7 +161,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==8.2
+          python3 -m pip install gcovr==${{ matrix.gcovr-version || '8.6' }}
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -170,7 +175,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -182,7 +187,7 @@ jobs:
       image: ubuntu2404
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -190,7 +195,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -215,7 +220,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 --test-suites "packet"
+          python3 ci/run_tests/run_tests.py --interface eth0 --test-suites "packet" --build-dir "$BUILD_DIR"
 
       - name: Check installation
         run: |
@@ -226,7 +231,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==8.2
+          python3 -m pip install gcovr==8.6
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -240,7 +245,68 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
+
+  libpcap-free:
+    runs-on: ubuntu-latest
+    container: seladb/ubuntu2404
+    env:
+      image: ubuntu2404
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: |
+            ${{ env.CCACHE_DIR }}
+            !*.gcda
+            !*.gcno
+          key: ${{ env.image }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ env.image }}-ccache
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_BUILD_COVERAGE=ON -DPCAPPP_USE_PCAP=OFF -S . -B "$BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build "$BUILD_DIR" -j
+
+      - name: Prepare environment for tests
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install -r ci/run_tests/requirements.txt
+
+      - name: Test PcapPlusPlus
+        run: |
+          . .venv/bin/activate
+          python3 ci/run_tests/run_tests.py --interface eth0 --build-dir "$BUILD_DIR"
+
+      - name: Check installation
+        run: |
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+          cmake --build "$BUILD_DIR" -j
+          cmake --install "$BUILD_DIR"
+
+      - name: Test Examples
+        run: |
+          . .venv/bin/activate
+          cd Tests/ExamplesTest
+          python3 -m pip install -r requirements.txt
+          python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin -m no_pcap
+
+      - name: Save Ccache
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -266,11 +332,11 @@ jobs:
           fi
 
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -285,9 +351,8 @@ jobs:
 
       - name: Test Packet++
         if: env.avx512 == 'true'
-        run: |
-          cd Tests/Packet++Test
-          Bin/Packet++Test
+        run: ./Packet++Test
+        working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Packet++Test
 
       - name: Tests skipped (no AVX-512 hardware support)
         if: env.avx512 == 'false'
@@ -308,7 +373,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -323,11 +388,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -341,14 +406,12 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Test Packet++
-        run: |
-          cd Tests/Packet++Test
-          Bin/Packet++Test
+        run: ./Packet++Test
+        working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Packet++Test
 
       - name: Test Pcap++
-        run: |
-          cd Tests/Pcap++Test
-          Bin/Pcap++Test -n
+        run: ./Pcap++Test -n
+        working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Pcap++Test
 
       - name: Check installation
         run: |
@@ -365,7 +428,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -399,10 +462,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
@@ -412,7 +475,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.os-version }}-${{ matrix.arch }}-ccache-${{ github.run_id }}
@@ -443,7 +506,7 @@ jobs:
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           . .venv/bin/activate
-          python ci/run_tests/run_tests.py --interface en0
+          python ci/run_tests/run_tests.py --interface en0 --build-dir "$BUILD_DIR"
 
       - name: Test Examples
         if: ${{ matrix.host-arch == matrix.arch }}
@@ -471,7 +534,7 @@ jobs:
       - name: Create Cobertura Report
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
-          python3 -m pip install gcovr==8.2
+          python3 -m pip install gcovr==8.6
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -486,7 +549,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -534,7 +597,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@4f806de0a5a7294ffabaff804b38a9b435a73bda # v2.30.0
@@ -547,7 +610,7 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.12"
 
@@ -583,7 +646,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py
+          python ci\run_tests\run_tests_windows.py --build-dir $env:BUILD_DIR
 
       - name: Test Examples
         run: |
@@ -592,7 +655,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Install Coverage Requirements
-        run: python3 -m pip install gcovr==8.2
+        run: python3 -m pip install gcovr==8.6
 
       - name: Process Coverage Files
         shell: msys2 {0}
@@ -632,10 +695,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.12"
 
@@ -668,6 +731,8 @@ jobs:
           echo "ZSTD_HOME_PARAM=-z C:\zstd" >> $env:GITHUB_ENV
         if: matrix.use_zstd == true
 
+        # The visual studio generator is a multi-config generator. This means that the executable will be in a configuration subfolder (e.g., Debug or Release),
+        # relative to the target folder. Example: $(BuildDir)/Test/Packet++Test/Debug/Packet++Test.exe
       - name: Configure PcapPlusPlus
         run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B "$env:BUILD_DIR"
 
@@ -680,7 +745,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --coverage
+          python ci\run_tests\run_tests_windows.py --coverage --build-dir $env:BUILD_DIR --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
       - name: Test Examples
         run: |
@@ -692,7 +757,7 @@ jobs:
       - name: Upload Coverage Results
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
-          files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
+          files: ./Dist/Tests/Pcap++Test/Debug/Pcap++Coverage.xml,./Dist/Tests/Packet++Test/Debug/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
           fail_ci_if_error: false
           verbose: true
@@ -703,7 +768,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
@@ -719,6 +784,8 @@ jobs:
         shell: pwsh
         run: .\ci\install_windivert.ps1 -Target "$env:WINDIVERT_DIR"
 
+        # The visual studio generator is a multi-config generator. This means that the executable will be in a configuration subfolder (e.g., Debug or Release),
+        # relative to the target folder. Example: $(BuildDir)/Test/Packet++Test/Debug/Packet++Test.exe
       - name: Configure PcapPlusPlus (WinDivert)
         run: cmake -A x64 -G "Visual Studio 17 2022" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DPCAPPP_USE_WINDIVERT=ON -DWinDivert_ROOT=${{ env.WINDIVERT_DIR }} -S . -B "$env:BUILD_DIR"
 
@@ -728,14 +795,17 @@ jobs:
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
 
+      - name: Copy WinDivert files to test folder
+        shell: pwsh
+        run: |
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "$env:BUILD_DIR\Tests\Pcap++Test\Debug\WinDivert.dll" -Force
+          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert64.sys" "$env:BUILD_DIR\Tests\Pcap++Test\Debug\WinDivert64.sys" -Force
+
       - name: Test PcapPlusPlus
         shell: pwsh
         run: |
-          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert.dll" "Tests\Pcap++Test\Bin\WinDivert.dll" -Force
-          Copy-Item "${{ env.WINDIVERT_DIR }}\x64\WinDivert64.sys" "Tests\Pcap++Test\Bin\WinDivert64.sys" -Force
-
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --include-tests windivert
+          python ci\run_tests\run_tests_windows.py --include-tests windivert --build-dir "$env:BUILD_DIR" --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
   freebsd:
     runs-on: ubuntu-latest
@@ -743,10 +813,10 @@ jobs:
       matrix:
         version: ["14.1", "13.4"]
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Test in FreeBSD
         id: test
-        uses: vmactions/freebsd-vm@a9c0dcaf5ed572d89ea1a59fe2217d3b3da4fd23 # v1.3.7
+        uses: vmactions/freebsd-vm@c9f815bc7aa0d34c9fdd0619b034a32d6ca7b57e # v1.4.2
         with:
           release: ${{ matrix.version }}
           usesh: true
@@ -769,7 +839,7 @@ jobs:
             echo "Testing PcapPlusPlus"
             python -m ensurepip
             python -m pip install -r ci/run_tests/requirements.txt
-            python ci/run_tests/run_tests.py --interface "$interface_name"
+            python ci/run_tests/run_tests.py --interface "$interface_name" --build-dir Dist
 
             echo "Testing PcapPlusPlus examples"
             cd Tests/ExamplesTest
@@ -797,10 +867,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -814,7 +884,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
@@ -872,7 +942,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Install dependencies
         run: |
@@ -880,7 +950,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -902,11 +972,11 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
+          python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp" --build-dir "$BUILD_DIR"
 
       - name: Create Cobertura Report
         run: |
-          python -m pip install gcovr==8.2
+          python -m pip install gcovr==8.6
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -920,7 +990,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -929,7 +999,7 @@ jobs:
     name: Run ${{ matrix.engine }}-${{ matrix.sanitizer }} fuzzer for regressions
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         sanitizer: [address, undefined, memory]
         engine: [libfuzzer]
@@ -937,7 +1007,7 @@ jobs:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Install prerequisites
         run: |
@@ -949,7 +1019,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.engine }}-${{ matrix.sanitizer }}-ccache-${{ github.run_id }}
@@ -971,7 +1041,7 @@ jobs:
           Tests/Fuzzers/RegressionTests/run_tests.sh
 
       - name: Save Ccache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}

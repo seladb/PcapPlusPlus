@@ -10,6 +10,20 @@
 #include <vector>
 
 #include "PacketFactory.h"
+#include "Logger.h"
+
+class SuppressLogs
+{
+public:
+	SuppressLogs()
+	{
+		pcpp::Logger::getInstance().suppressLogs();
+	}
+	~SuppressLogs()
+	{
+		pcpp::Logger::getInstance().enableLogs();
+	}
+};
 
 namespace pcpp_tests
 {

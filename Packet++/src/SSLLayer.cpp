@@ -41,6 +41,11 @@ namespace pcpp
 
 	SSLLayer* SSLLayer::createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
+		if (!canReinterpretAs<ssl_tls_record_layer>(data, dataLen))
+		{
+			return nullptr;
+		}
+
 		ssl_tls_record_layer* recordLayer = (ssl_tls_record_layer*)data;
 		switch (recordLayer->recordType)
 		{
@@ -95,8 +100,9 @@ namespace pcpp
 			return;
 
 		if (SSLLayer::IsSSLMessage(0, 0, m_Data + headerLen, m_DataLen - headerLen, true))
-			setNextLayer(
-			    SSLLayer::createSSLMessage(m_Data + headerLen, m_DataLen - headerLen, this, getAttachedPacket()));
+		{
+			constructNextLayerFromFactory(SSLLayer::createSSLMessage, m_Data + headerLen, m_DataLen - headerLen);
+		}
 	}
 
 	// -------------------------
@@ -120,10 +126,14 @@ namespace pcpp
 	SSLHandshakeLayer::SSLHandshakeLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	    : SSLLayer(data, dataLen, prevLayer, packet)
 	{
-		uint8_t* curPos = m_Data + sizeof(ssl_tls_record_layer);
+		constexpr size_t baseTLSRecordSize = sizeof(ssl_tls_record_layer);
+		uint8_t* curPos = m_Data + baseTLSRecordSize;
 		size_t recordDataLen = be16toh(getRecordLayer()->length);
-		if (recordDataLen > m_DataLen - sizeof(ssl_tls_record_layer))
-			recordDataLen = m_DataLen - sizeof(ssl_tls_record_layer);
+
+		if (m_DataLen < recordDataLen + baseTLSRecordSize)
+		{
+			recordDataLen = m_DataLen >= baseTLSRecordSize ? m_DataLen - baseTLSRecordSize : 0;
+		}
 
 		size_t curPosIndex = 0;
 		while (true)

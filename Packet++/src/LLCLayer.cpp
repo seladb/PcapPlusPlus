@@ -35,7 +35,7 @@ namespace pcpp
 
 		if (hdr->dsap == 0x42 && hdr->ssap == 0x42 && StpLayer::isDataValid(payload, payloadLen))
 		{
-			setNextLayer(StpLayer::parseStpLayer(payload, payloadLen, this, getAttachedPacket()));
+			constructNextLayerFromFactory(StpLayer::parseStpLayer, payload, payloadLen);
 		}
 
 		if (!hasNextLayer())

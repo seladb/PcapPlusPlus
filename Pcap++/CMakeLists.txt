@@ -1,26 +1,26 @@
 add_library(
   Pcap++
-  src/DeviceUtils.cpp
+  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/DeviceUtils.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:src/KniDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:src/KniDeviceList.cpp>
   $<$<BOOL:${LINUX}>:src/LinuxNicInformationSocket.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/MBufRawPacket.cpp>
-  src/PcapUtils.cpp
-  src/NetworkUtils.cpp
+  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapUtils.cpp>
+  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/NetworkUtils.cpp>
   src/PcapFileDevice.cpp
-  src/PcapDevice.cpp
+  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapDevice.cpp>
   src/PcapFilter.cpp
-  src/PcapLiveDevice.cpp
-  src/PcapLiveDeviceList.cpp
-  $<$<BOOL:${WIN32}>:src/PcapRemoteDevice.cpp>
-  $<$<BOOL:${WIN32}>:src/PcapRemoteDeviceList.cpp>
+  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapLiveDevice.cpp>
+  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapLiveDeviceList.cpp>
+  $<$<AND:$<BOOL:${WIN32}>,$<BOOL:${PCAPPP_USE_PCAP}>>:src/PcapRemoteDevice.cpp>
+  $<$<AND:$<BOOL:${WIN32}>,$<BOOL:${PCAPPP_USE_PCAP}>>:src/PcapRemoteDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_PF_RING}>:src/PfRingDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_PF_RING}>:src/PfRingDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_XDP}>:src/XdpDevice.cpp>
   src/RawSocketDevice.cpp
-  $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
+  $<$<AND:$<BOOL:${WIN32}>,$<BOOL:${PCAPPP_USE_PCAP}>>:src/WinPcapLiveDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_WINDIVERT}>:src/WinDivertDevice.cpp>
   # Force light pcapng to be link fully static
   $<TARGET_OBJECTS:light_pcapng>
@@ -63,7 +63,7 @@ if(LINUX)
   list(APPEND public_headers header/LinuxNicInformationSocket.h)
 endif()
 
-if(WIN32)
+if(WIN32 AND PCAPPP_USE_PCAP)
   list(APPEND public_headers header/PcapRemoteDevice.h header/PcapRemoteDeviceList.h header/WinPcapLiveDevice.h)
 endif()
 
@@ -76,10 +76,11 @@ target_compile_features(Pcap++ PUBLIC cxx_std_14)
 if(APPLE)
   target_link_libraries(Pcap++ PRIVATE "-framework CoreFoundation" "-framework SystemConfiguration")
 elseif(WIN32)
-  target_compile_definitions(Pcap++ PUBLIC -DHAVE_REMOTE)
-  target_compile_definitions(Pcap++ PUBLIC -DWPCAP)
   target_link_libraries(Pcap++ PRIVATE ws2_32 iphlpapi)
-  target_link_libraries(Pcap++ PUBLIC Packet::Packet)
+  if(PCAPPP_USE_PCAP)
+    target_compile_definitions(Pcap++ PUBLIC HAVE_REMOTE WPCAP)
+    target_link_libraries(Pcap++ PUBLIC Packet::Packet)
+  endif()
 endif()
 
 target_include_directories(
@@ -103,7 +104,7 @@ target_link_libraries(
     $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
     $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
     $<$<BOOL:${PCAPPP_USE_WINDIVERT}>:WinDivert::WinDivert>
-    PCAP::PCAP
+    $<$<BOOL:${PCAPPP_USE_PCAP}>:PCAP::PCAP>
     Threads::Threads
 )
 

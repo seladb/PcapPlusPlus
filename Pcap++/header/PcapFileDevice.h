@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Device.h"
 #include "PcapDevice.h"
 #include "RawPacket.h"
 #include <fstream>
@@ -209,6 +210,7 @@ namespace pcpp
 		std::ifstream m_PcapFile;
 		bool m_NeedsSwap = false;
 		uint32_t m_SnapshotLength = 0;
+		std::vector<uint8_t> m_ReadBuffer;
 
 		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
 		                    uint32_t& capturedLength, uint32_t& frameLength);
@@ -421,6 +423,9 @@ namespace pcpp
 
 		/// Close the pacp-ng file
 		void close() override;
+
+	private:
+		bool getNextPacketInternal(RawPacket& rawPacket, std::string* packetComment);
 	};
 
 	/// @class PcapNgFileWriterDevice

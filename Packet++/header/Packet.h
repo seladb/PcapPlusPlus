@@ -10,6 +10,32 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	/// @brief Options struct for configuring packet parsing behavior.
+	///
+	/// The parsing options are combined. If multiple stop conditions are specified, parsing stops
+	/// as soon as any condition is met.
+	struct PacketParseOptions
+	{
+		/// @brief Defines the protocol type up to and including which the packet should be parsed (inclusive).
+		///
+		/// For large packets where only the lower layers are of interest, this option can be used to limit the parsing
+		/// procedure to the desired protocol. The packet is parsed until the specified protocol is reached and
+		/// consumed. Layers beyond this protocol are not parsed, which can improve performance and reduce
+		/// memory usage.
+		///
+		/// @remarks If multiple consecutive layers of the same protocol type exist, parsing stops after exhausting the
+		/// first contiguous sequence of that protocol type. This matters for protocols that may appear multiple times
+		/// in succession within a packet (e.g. BgpLayer).
+		ProtocolTypeFamily parseUntilProtocol = UnknownProtocol;
+
+		/// @brief Defines an OSI model layer up to and including which the packet should be parsed (inclusive).
+		///
+		/// For large packets where only the lower layers are of interest, this option can be used to limit the parsing
+		/// procedure to the desired OSI layer. The packet is parsed until all layers belonging to the specified OSI
+		/// layer are consumed. Layers beyond that are ignored, which can improve performance and reduce memory usage.
+		OsiModelLayer parseUntilLayer = OsiModelLayerUnknown;
+	};
+
 	/// @class Packet
 	/// This class represents a parsed packet. It contains the raw data (RawPacket instance), and a linked list of
 	/// layers, each layer is a parsed protocol that this packet contains. The layers linked list is ordered where the
@@ -149,6 +175,21 @@ namespace pcpp
 		/// into account
 		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil = UnknownProtocol,
 		                  OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+
+		/// @brief Parse the packet according to the provided options.
+		///
+		/// The packet is parsed according to the specified options, constructing the layer hierarchy if it does not
+		/// exist. If the packet has already been parsed, it will be re-parsed based on the new options.
+		///
+		/// If @p incrementalParsing is true, the procedure will reuse existing layers where possible, only creating new
+		/// layers for previously unparsed data. Otherwise, all existing layers are discarded and the packet is parsed
+		/// from scratch.
+		///
+		/// @param[in] options Parsing options to configure the parsing behavior.
+		/// @param[in] incrementalParsing If 'true', incremental parsing is performed, reusing existing layers where
+		/// possible.
+		/// @throws std::runtime_error if there is no RawPacket associated with this Packet instance.
+		void parsePacket(PacketParseOptions options, bool incrementalParsing = true);
 
 		/// Get a pointer to the Packet's RawPacket in a read-only manner
 		/// @return A pointer to the Packet's RawPacket
@@ -321,6 +362,7 @@ namespace pcpp
 		void copyDataFrom(const Packet& other);
 
 		void destructPacketData();
+		void destroyAllLayers();
 
 		bool extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExtend);
 		bool shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToShorten);

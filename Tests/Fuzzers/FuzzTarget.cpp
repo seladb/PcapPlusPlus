@@ -30,7 +30,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 		return -1;
 	}
 
-	pcpp::IPcapDevice::PcapStats stats;
+	pcpp::PcapStats stats;
 	reader->getStatistics(stats);
 	std::cout << "Read " << stats.packetsRecv << " packets successfully and " << stats.packetsDrop
 	          << " packets could not be read" << std::endl;

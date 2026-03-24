@@ -573,7 +573,7 @@ int main(int argc, char* argv[])
 	std::vector<std::string> additionalStats;
 	if (pcapWriter)
 	{
-		pcpp::IPcapDevice::PcapStats stats;
+		pcpp::PcapStats stats;
 		pcapWriter->getStatistics(stats);
 		additionalStats.push_back("Wrote " + std::to_string(stats.packetsRecv) + " packets to '" +
 		                          pcapWriter->getFileName() + "'");
