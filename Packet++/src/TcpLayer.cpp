@@ -18,6 +18,7 @@
 #include "SomeIpLayer.h"
 #include "SmtpLayer.h"
 #include "LdapLayer.h"
+#include "PostgresLayer.h"
 #include "GtpLayer.h"
 #include "ModbusLayer.h"
 #include "PacketUtils.h"
@@ -453,6 +454,16 @@ namespace pcpp
 		{
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(LdapLayer::parseLdapMessage, payload,
 			                                                           payloadLen);
+		}
+		else if (PostgresLayer::isPostgresPort(portDst))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(PostgresLayer::parsePostgresFrontendMessages,
+			                                                           payload, payloadLen);
+		}
+		else if (PostgresLayer::isPostgresPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(PostgresLayer::parsePostgresBackendMessages,
+			                                                           payload, payloadLen);
 		}
 		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
 		         GtpV2Layer::isDataValid(payload, payloadLen))
