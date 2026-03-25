@@ -103,11 +103,6 @@ static void BM_FileWrite(benchmark::State& state, std::string const& filepath)
 	{
 		writer = std::make_unique<pcpp::PcapNgFileWriterDevice>(filepath);
 	}
-	else if (endsWith(filepath, ".snoop"))
-	{
-		state.SkipWithError("Snoop file writing is not supported");
-		return;
-	}
 	else
 	{
 		state.SkipWithError("Unsupported file extension for writing: " + filepath);
@@ -150,7 +145,6 @@ static void BM_FileWrite(benchmark::State& state, std::string const& filepath)
 
 BENCHMARK_CAPTURE(BM_FileWrite, Pcap, "benchmark-output.pcap");
 BENCHMARK_CAPTURE(BM_FileWrite, PcapNg, "benchmark-output.pcapng");
-// BENCHMARK_CAPTURE(BM_FileWrite, Snoop, "benchmark-output.snoop"); // Snoop file writing is not supported
 
 static void BM_PacketParsing(benchmark::State& state, std::string const& filename)
 {
