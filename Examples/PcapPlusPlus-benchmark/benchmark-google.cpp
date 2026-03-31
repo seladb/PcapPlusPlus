@@ -12,10 +12,6 @@
 
 #include <iostream>
 
-static std::string pcapFileName = "";
-static std::string pcapNgFileName = "";
-static std::string snoopFileName = "";
-
 static void BM_FileRead(benchmark::State& state, std::string const& filepath)
 {
 	if (filepath.empty())
@@ -67,10 +63,6 @@ static void BM_FileRead(benchmark::State& state, std::string const& filepath)
 	state.SetItemsProcessed(totalPackets);
 }
 
-BENCHMARK_CAPTURE(BM_FileRead, Pcap, pcapFileName);
-BENCHMARK_CAPTURE(BM_FileRead, PcapNg, pcapNgFileName);
-BENCHMARK_CAPTURE(BM_FileRead, Snoop, snoopFileName);
-
 static bool startsWith(std::string const& str, std::string const& prefix)
 {
 	if (str.length() < prefix.length())
@@ -83,6 +75,14 @@ static bool endsWith(std::string const& str, std::string const& suffix)
 	if (str.length() < suffix.length())
 		return false;
 	return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
+}
+
+static std::string getFileName(std::string const& filepath)
+{
+	size_t lastSlashPos = filepath.find_last_of("/\\");
+	if (lastSlashPos == std::string::npos)
+		return filepath;
+	return filepath.substr(lastSlashPos + 1);
 }
 
 static void BM_FileWrite(benchmark::State& state, std::string const& filepath)
@@ -205,9 +205,6 @@ static void BM_PacketParsing(benchmark::State& state, std::string const& filenam
 	state.SetBytesProcessed(totalBytes);
 	state.SetItemsProcessed(totalPackets);
 }
-BENCHMARK_CAPTURE(BM_PacketParsing, Pcap, pcapFileName);
-BENCHMARK_CAPTURE(BM_PacketParsing, PcapNg, pcapNgFileName);
-BENCHMARK_CAPTURE(BM_PacketParsing, Snoop, snoopFileName);
 
 static void BM_PacketPureParsing(benchmark::State& state, std::string const& filename)
 {
@@ -265,9 +262,6 @@ static void BM_PacketPureParsing(benchmark::State& state, std::string const& fil
 	state.SetBytesProcessed(totalProcessedBytes);
 	state.SetItemsProcessed(totalProcessedItems);
 }
-BENCHMARK_CAPTURE(BM_PacketPureParsing, Pcap, pcapFileName);
-BENCHMARK_CAPTURE(BM_PacketPureParsing, PcapNG, pcapNgFileName);
-BENCHMARK_CAPTURE(BM_PacketPureParsing, Snoop, snoopFileName);
 
 static void BM_PacketCrafting(benchmark::State& state)
 {
@@ -326,8 +320,8 @@ BENCHMARK(BM_PacketCrafting);
 
 void printHelp()
 {
-	std::cout
-	    << "Usage: benchmark-google [--pcap-file <file.pcap>] [--pcapng-file <file.pcapng>] [--snoop-file <file.snoop>]\n\n";
+	std::cout << "Usage: benchmark-google [--pcap-file <file.pcap>]... \n"
+	          << "  --pcap-file can be specified multiple times\n\n";
 
 	std::cout << "Google Benchmark options:\n";
 	benchmark::PrintDefaultHelp();
@@ -337,6 +331,8 @@ int main(int argc, char** argv)
 {
 	// Initialize the benchmark
 	benchmark::Initialize(&argc, argv, &printHelp);
+
+	std::vector<std::string> files;
 
 	// Parse command line arguments to find the pcap file name
 	for (int idx = 1; idx < argc; ++idx)
@@ -357,52 +353,29 @@ int main(int argc, char** argv)
 				return 1;
 			}
 
-			pcapFileName = argv[idx + 1];
-		}
-
-		if (strcmp(argv[idx], "--pcapng-file") == 0)
-		{
-			if (idx == argc - 1)
-			{
-				std::cerr << "Please provide a file path after --pcapng-file" << std::endl;
-				return 1;
-			}
-
-			std::string argValue = argv[idx + 1];
-			if (startsWith(argValue, "-"))
-			{
-				std::cerr << "Please provide a file path after --pcapng-file, but got another option: " << argValue
-				          << std::endl;
-				return 1;
-			}
-
-			pcapNgFileName = argv[idx + 1];
-		}
-
-		if (strcmp(argv[idx], "--snoop-file") == 0)
-		{
-			if (idx == argc - 1)
-			{
-				std::cerr << "Please provide a file path after --snoop-file" << std::endl;
-				return 1;
-			}
-
-			std::string argValue = argv[idx + 1];
-			if (startsWith(argValue, "-"))
-			{
-				std::cerr << "Please provide a file path after --snoop-file, but got another option: " << argValue
-				          << std::endl;
-				return 1;
-			}
-
-			snoopFileName = argv[idx + 1];
+			files.push_back(std::move(argValue));
 		}
 	}
 
 	benchmark::AddCustomContext("PcapPlusPlus version", pcpp::getPcapPlusPlusVersionFull());
 	benchmark::AddCustomContext("Build info", pcpp::getBuildDateTime());
 	benchmark::AddCustomContext("Git info", pcpp::getGitInfo());
-	benchmark::AddCustomContext("Pcap file", pcapFileName);
+
+	// Individual loops to register benchmarks in order.
+	for (const auto& file : files)
+	{
+		benchmark::RegisterBenchmark(("BM_FileRead/" + getFileName(file)), BM_FileRead, file);
+	}
+
+	for (const auto& file : files)
+	{
+		benchmark::RegisterBenchmark(("BM_PacketParsing/" + getFileName(file)), BM_PacketParsing, file);
+	}
+
+	for (const auto& file : files)
+	{
+		benchmark::RegisterBenchmark(("BM_PacketPureParsing/" + getFileName(file)), BM_PacketPureParsing, file);
+	}
 
 	// Run the benchmarks
 	benchmark::RunSpecifiedBenchmarks();
