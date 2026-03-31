@@ -13,13 +13,15 @@ Another application integrates with the Google Benchmark library and can be foun
 
 ### Benchmarks and their influencing factors
 
-Supported files denote the file formats that can be used as a data source for the benchmark.
+The supported files column indicates the file formats that can be used for the benchmark.
+For Read operations benchmarks that denotes the filetypes that can be used as a data source.
+For Write operation benchmarks that denotes the filetypes that will be generated as output.
 
 
 |     Benchmark        |   Supported files   |   Operation   |  Influencing factors |
 |:--------------------:|:-------------------:|:-------------:|:--------------------:|
 | BM_FileRead          | pcap, pcapng, snoop |     Read      |  CPU + Disk (Read)   |
-| BM_FileWrite         |       N/A           |     Write     |  CPU + Disk (Write)  |
+| BM_FileWrite         |     pcap, pcapng    |     Write     |  CPU + Disk (Write)  |
 | BM_PacketParsing     | pcap, pcapng, snoop | Read + Parse  |  CPU + Disk (Read)   |
 | BM_PacketPureParsing | pcap, pcapng, snoop |     Parse     |        CPU           |
 | BM_PacketCrafting    |       N/A           |     Craft     |        CPU           |
