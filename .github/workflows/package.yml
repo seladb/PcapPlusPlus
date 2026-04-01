@@ -88,7 +88,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -110,7 +110,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Test in FreeBSD
-        uses: vmactions/freebsd-vm@c9f815bc7aa0d34c9fdd0619b034a32d6ca7b57e # v1.4.2
+        uses: vmactions/freebsd-vm@7ca82f79fe3078fecded6d3a2bff094995447bbd # v1.4.4
         with:
           release: ${{ matrix.version }}
           envs: 'BUILD_DIR'
@@ -130,7 +130,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -160,7 +160,7 @@ jobs:
             arch: arm64
 
     steps:
-      - uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: "${{ matrix.xcode-version }}"
 
@@ -185,7 +185,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -211,7 +211,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@4f806de0a5a7294ffabaff804b38a9b435a73bda # v2.30.0
+        uses: msys2/setup-msys2@cafece8e6baf9247cf9b1bf95097b0b983cc558d # v2.31.0
         with:
           msystem: ${{matrix.sys}}
           update: true
@@ -256,7 +256,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -280,7 +280,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
+        uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
       - name: Install WinPcap
         run: |
@@ -306,7 +306,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -378,7 +378,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: android-package-*
           merge-multiple: true
@@ -397,7 +397,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
