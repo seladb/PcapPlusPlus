@@ -13,45 +13,43 @@
 static bool verboseMode = false;
 static bool showSkippedTests = false;
 
+static void __ptfSplitString(const std::string& input, std::vector<std::string>& result)
+{
+	std::istringstream ss(input);
+	std::string token;
+
+	while (std::getline(ss, token, ';'))
+	{
+		result.push_back(token);
+	}
+}
+
+static bool __ptfCheckTags(const std::string& tagSet, const std::string& tagSetToCompareWith, bool emptyTagSetMeansAll)
+{
+	std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
+
+	if (tagSetToCompareWith == "")
+	{
+		return emptyTagSetMeansAll;
+	}
+
+	__ptfSplitString(tagSet, tagSetVec);
+	__ptfSplitString(tagSetToCompareWith, tagSetToCompareWithVec);
+
+	for (const auto& tagSetToCompareWithIter : tagSetToCompareWithVec)
+	{
+		if (std::any_of(tagSetVec.begin(), tagSetVec.end(),
+		                [tagSetToCompareWithIter](const std::string& val) { return val == tagSetToCompareWithIter; }))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 namespace ptf
 {
-	static void ptfSplitString(const std::string& input, std::vector<std::string>& result)
-	{
-		std::istringstream ss(input);
-		std::string token;
-
-		while (std::getline(ss, token, ';'))
-		{
-			result.push_back(token);
-		}
-	}
-
-	static bool ptfCheckTags(const std::string& tagSet, const std::string& tagSetToCompareWith,
-	                         bool emptyTagSetMeansAll)
-	{
-		std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
-
-		if (tagSetToCompareWith == "")
-		{
-			return emptyTagSetMeansAll;
-		}
-
-		ptfSplitString(tagSet, tagSetVec);
-		ptfSplitString(tagSetToCompareWith, tagSetToCompareWithVec);
-
-		for (const auto& tagSetToCompareWithIter : tagSetToCompareWithVec)
-		{
-			if (std::any_of(tagSetVec.begin(), tagSetVec.end(), [tagSetToCompareWithIter](const std::string& val) {
-				    return val == tagSetToCompareWithIter;
-			    }))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	class TestRunner
 	{
 	public:
@@ -67,8 +65,8 @@ namespace ptf
 			std::string allTestTags = testName + ";" + additionalTestTags;
 			int result = PTF_RESULT_PASSED;
 
-			if (!ptfCheckTags(allTestTags, m_UserIncludeTags, true) ||
-			    ptfCheckTags(allTestTags, m_UserExcludeTags, false))
+			if (!__ptfCheckTags(allTestTags, m_UserIncludeTags, true) ||
+			    __ptfCheckTags(allTestTags, m_UserExcludeTags, false))
 			{
 				if (showSkippedTests)
 				{
@@ -78,11 +76,11 @@ namespace ptf
 			}
 			else
 			{
-				bool runMemLeakCheck = !ptfCheckTags("skip_mem_leak_check", m_ConfigTagsToRun, false) &&
-				                       !ptfCheckTags(allTestTags, "skip_mem_leak_check", false);
+				bool runMemLeakCheck = !__ptfCheckTags("skip_mem_leak_check", m_ConfigTagsToRun, false) &&
+				                       !__ptfCheckTags(allTestTags, "skip_mem_leak_check", false);
 				if (runMemLeakCheck)
 				{
-					bool memAllocVerbose = ptfCheckTags("mem_leak_check_verbose", m_ConfigTagsToRun, false);
+					bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", m_ConfigTagsToRun, false);
 					MemPlumber::start(memAllocVerbose);
 				}
 				try
