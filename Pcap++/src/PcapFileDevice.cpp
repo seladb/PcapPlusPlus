@@ -389,29 +389,6 @@ namespace pcpp
 
 			return PcapReadHeaderStatus::Ok;
 		}
-
-		bool writePcapHeader(std::ostream& outStream, FileTimestampPrecision precision, uint32_t snaplen,
-		                     LinkLayerType linkType)
-		{
-			pcap_file_header header{ precision == FileTimestampPrecision::Microseconds ? TCPDUMP_MAGIC
-				                                                                       : NSEC_TCPDUMP_MAGIC,
-				                     PCAP_MAJOR_VERSION,
-				                     PCAP_MINOR_VERSION,
-				                     0,
-				                     0,
-				                     snaplen,
-				                     static_cast<uint32_t>(linkType) };
-
-			outStream.write(reinterpret_cast<const char*>(&header), sizeof(header));
-
-			if (!outStream.good())
-			{
-				PCPP_LOG_ERROR("Error writing pcap header");
-				return false;
-			}
-
-			return true;
-		}
 	}  // namespace
 
 	bool PcapFileReaderDevice::open()
@@ -723,7 +700,7 @@ namespace pcpp
 			}
 		}
 
-		if (shouldWriteHeader && !writePcapHeader(pcapFile, m_Precision, PCPP_MAX_PACKET_SIZE, m_PcapLinkLayerType))
+		if (shouldWriteHeader && !writeHeader(pcapFile, m_Precision, PCPP_MAX_PACKET_SIZE, m_PcapLinkLayerType))
 		{
 			return false;
 		}
@@ -825,6 +802,28 @@ namespace pcpp
 		}
 
 		m_PcapFile.close();
+	}
+
+	bool PcapFileWriterDevice::writeHeader(std::ostream& outStream, FileTimestampPrecision precision, uint32_t snaplen,
+	                                       LinkLayerType linkType)
+	{
+		pcap_file_header header{ precision == FileTimestampPrecision::Microseconds ? TCPDUMP_MAGIC : NSEC_TCPDUMP_MAGIC,
+			                     PCAP_MAJOR_VERSION,
+			                     PCAP_MINOR_VERSION,
+			                     0,
+			                     0,
+			                     snaplen,
+			                     static_cast<uint32_t>(linkType) };
+
+		outStream.write(reinterpret_cast<const char*>(&header), sizeof(header));
+
+		if (!outStream.good())
+		{
+			PCPP_LOG_ERROR("Error writing pcap header");
+			return false;
+		}
+
+		return true;
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

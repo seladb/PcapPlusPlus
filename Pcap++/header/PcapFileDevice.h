@@ -306,6 +306,9 @@ namespace pcpp
 		void flush();
 
 	private:
+		static bool writeHeader(std::ostream& outStream, FileTimestampPrecision precision, uint32_t snaplen,
+		                        LinkLayerType linkType);
+
 		LinkLayerType m_PcapLinkLayerType = LINKTYPE_ETHERNET;
 		bool m_NeedsSwap = false;
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;
