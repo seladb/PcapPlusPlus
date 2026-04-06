@@ -339,7 +339,7 @@ namespace pcpp
 			{
 				return PcapReadHeaderStatus::NoData;
 			}
-			else if (readBytes < static_cast<std::streamsize>(sizeof(header)))
+			if (readBytes < static_cast<std::streamsize>(sizeof(header)))
 			{
 				return PcapReadHeaderStatus::MalformedData;
 			}
