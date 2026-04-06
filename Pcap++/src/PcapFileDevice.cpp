@@ -1228,6 +1228,9 @@ namespace pcpp
 		m_SnoopFile = std::move(snoopFile);
 		m_PcapLinkLayerType = snoop_encap[datalink_type];
 
+		constexpr uint32_t maxPacketLength = 15'000;
+		m_ReadBuffer.resize(maxPacketLength);
+
 		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
 		return true;
 	}
@@ -1278,15 +1281,16 @@ namespace pcpp
 			return false;
 		}
 
-		constexpr uint32_t maxPacketLength = 15'000;
 		timespec packetTimestamp{};
 		uint32_t capturedLength = 0, frameLength = 0;
-		auto packetData = std::make_unique<uint8_t[]>(maxPacketLength);
 
-		while (readNextPacket(packetTimestamp, packetData.get(), maxPacketLength, capturedLength, frameLength))
+		while (readNextPacket(packetTimestamp, m_ReadBuffer.data(), m_ReadBuffer.size(), capturedLength, frameLength))
 		{
-			if (m_BpfWrapper.matches(packetData.get(), capturedLength, packetTimestamp, m_PcapLinkLayerType))
+			if (m_BpfWrapper.matches(m_ReadBuffer.data(), capturedLength, packetTimestamp, m_PcapLinkLayerType))
 			{
+				auto packetData = std::make_unique<uint8_t[]>(capturedLength);
+				std::copy(m_ReadBuffer.begin(), m_ReadBuffer.begin() + capturedLength, packetData.get());
+
 				rawPacket.setRawData(capturedLength > 0 ? packetData.release() : nullptr, capturedLength, true,
 				                     packetTimestamp, m_PcapLinkLayerType, frameLength);
 				reportPacketProcessed();
