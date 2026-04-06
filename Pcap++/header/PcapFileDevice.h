@@ -577,6 +577,7 @@ namespace pcpp
 
 		LinkLayerType m_PcapLinkLayerType;
 		std::ifstream m_SnoopFile;
+		std::vector<uint8_t> m_ReadBuffer;
 
 		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
 		                    uint32_t& capturedLength, uint32_t& frameLength);
