@@ -50,9 +50,9 @@ namespace pcpp
 
 		// Magic numbers for different pcap formats
 		constexpr uint32_t TCPDUMP_MAGIC = 0xa1b2c3d4;
-		// constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
+		constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
 		constexpr uint32_t NSEC_TCPDUMP_MAGIC = 0xa1b23c4d;
-		// constexpr uint32_t NSEC_TCPDUMP_MAGIC_SWAPPED = 0x4d3cb2a1;
+		constexpr uint32_t NSEC_TCPDUMP_MAGIC_SWAPPED = 0x4d3cb2a1;
 
 		constexpr uint16_t PCAP_MAJOR_VERSION = 2;
 		constexpr uint16_t PCAP_MINOR_VERSION = 4;
@@ -244,7 +244,7 @@ namespace pcpp
 		}
 
 		/// @brief An enumeration representing different capture file formats.
-		enum class CaptureFileFormat
+		enum class FileFormat
 		{
 			Unknown,
 			Pcap,        // regular pcap with microsecond precision
@@ -256,151 +256,43 @@ namespace pcpp
 		};
 
 		/// @brief Specifies the byte order (endianness) of a capture file relative to the host system.
-		enum class CaptureFileByteOrder
+		enum class FileByteOrder
 		{
 			Unknown,  // Unknown format. Magic number is palindrome.
 			Native,   // Byte order is native to the host system.
 			Swapped   // Byte order is swapped to the host system.
 		};
 
-		/// @brief Heuristic file format detector that scans the magic number of the file format header.
-		class CaptureFileFormatDetector
-		{
-		public:
-			/// @brief Checks a content stream for the magic number and determines the type.
-			///
-			/// The function optionally detects the byte order of the file if it can be determined by the magic number.
-			/// The byte order is not updated if no supported format is detected.
-			///
-			/// @param[in] content A stream that contains the file content.
-			/// @param[out] byteOrder Optional location to store the detected byte order.
-			/// @return A CaptureFileFormat value with the detected content type.
-			CaptureFileFormat detectFormat(std::istream& content, CaptureFileByteOrder* byteOrder = nullptr) const;
-
-			/// @brief Checks a content stream for the magic number and determines if it is a Pcap file.
-			///
-			/// The function optionally detects the byte order of the file if it can be determined by the magic number.
-			/// The byte order is not updated if no supported format is detected.
-			///
-			/// @param[in] content A stream that contains the file content.
-			/// @param[out] byteOrder Optional location to store the detected byte order.
-			/// @return A CaptureFileFormat value with the detected Pcap format or Unknown if the file is not pcap.
-			CaptureFileFormat detectPcapFile(std::istream& content, CaptureFileByteOrder* byteOrder = nullptr) const;
-
-			/// @brief Checks a magic number and determines if it matches a Pcap format magic number.
-			///
-			/// The function optionally detects the byte order of the file if it can be determined by the magic number.
-			/// The byte order is not updated if no supported format is detected.
-			///
-			/// @param[in] magic The magic number to check.
-			/// @param[out] byteOrder Optional location to store the detected byte order.
-			/// @return A CaptureFileFormat value with the detected Pcap format or Unknown if the file is not pcap.
-			CaptureFileFormat detectPcapMagic(std::uint32_t magic, CaptureFileByteOrder* byteOrder = nullptr) const;
-
-			/// @brief Checks a content stream for the magic number and determines if it is a PcapNG file.
-			/// @param[in] content A stream that contains the file content.
-			/// @return True if the content stream is PcapNG file, false otherwise.
-			bool isPcapNgFile(std::istream& content) const;
-
-			/// @brief Checks a content stream for the magic number and determines if it is a Snoop file.
-			/// @param[in] content A stream that contains the file content.
-			/// @param[out] byteOrder Optional location to store the detected byte order.
-			/// @return True if the content stream is Snoop file, false otherwise.
-			bool isSnoopFile(std::istream& content, CaptureFileByteOrder* byteOrder = nullptr) const;
-
-			/// @brief Checks if a magic number matches the SNOOP magic numbers.
-			/// @param[in] magic The magic number to check.
-			/// @param[out] byteOrder Optional location to store the detected byte order.
-			/// @return True if the magic number matches the Snoop file number, false otherwise.
-			bool isSnoopMagic(std::uint64_t magic, CaptureFileByteOrder* byteOrder = nullptr) const;
-
-			/// @brief Checks a content stream for the magic number and determines if it is a Zstd archive.
-			///
-			/// The function optionally detects the byte order of the file if it can be determined by the magic number.
-			/// The byte order is not updated if no supported format is detected.
-			///
-			/// @param[in] content A stream that contains the file content.
-			/// @param[out] byteOrder Optional location to store the detected byte order.
-			/// @return True if the content stream is Snoop file, false otherwise.
-			bool isZstdArchive(std::istream& content, CaptureFileByteOrder* byteOrder = nullptr) const;
-		};
-
-		CaptureFileFormat CaptureFileFormatDetector::detectFormat(std::istream& content,
-		                                                          CaptureFileByteOrder* byteOrder) const
-		{
-			// Check if the stream supports seeking.
-			if (!isStreamSeekable(content))
-			{
-				throw std::runtime_error("Heuristic file format detection requires seekable stream");
-			}
-
-			CaptureFileFormat format = detectPcapFile(content, byteOrder);
-			if (format != CaptureFileFormat::Unknown)
-			{
-				return format;
-			}
-
-			if (isPcapNgFile(content))
-			{
-				if (byteOrder != nullptr)
-				{
-					*byteOrder = CaptureFileByteOrder::Unknown;
-				}
-
-				return CaptureFileFormat::PcapNG;
-			}
-
-			if (isZstdArchive(content, byteOrder))
-			{
-				return CaptureFileFormat::ZstArchive;
-			}
-
-			if (isSnoopFile(content, byteOrder))
-			{
-				return CaptureFileFormat::Snoop;
-			}
-
-			return CaptureFileFormat::Unknown;
-		}
-
-		CaptureFileFormat CaptureFileFormatDetector::detectPcapFile(std::istream& content,
-		                                                            CaptureFileByteOrder* byteOrder) const
-		{
-			StreamPositionCheckpoint checkpoint(content);
-
-			uint32_t magic = 0;
-			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
-			if (content.gcount() != sizeof(magic))
-			{
-				return CaptureFileFormat::Unknown;
-			}
-
-			return detectPcapMagic(magic, byteOrder);
-		}
-
-		CaptureFileFormat CaptureFileFormatDetector::detectPcapMagic(std::uint32_t magic,
-		                                                             CaptureFileByteOrder* byteOrder) const
+		/// @brief Checks a content stream for the magic number and determines if it is a Pcap file.
+		///
+		/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+		/// The byte order is not updated if no supported format is detected.
+		///
+		/// @param[in] content A stream that contains the file content.
+		/// @param[out] byteOrder Optional location to store the detected byte order.
+		/// @return A CaptureFileFormat value with the detected Pcap format or Unknown if the file is not pcap.
+		FileFormat detectPcapMagic(std::uint32_t magic, FileByteOrder* byteOrder = nullptr)
 		{
 			// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
 			// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
 			// The order of the magic numbers in the array is important for format detection. See switch statement
 			// below.
 			constexpr std::array<uint32_t, 6> pcapMagicNumbers = {
-				0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
-				0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
+				TCPDUMP_MAGIC,          // 0xa1'b2'c3'd4 - regular pcap, microsecond-precision
+				TCPDUMP_MAGIC_SWAPPED,  // 0xd4'c3'b2'a1 - regular pcap, microsecond-precision (byte-swapped)
 				// Libpcap 0.9.1 and later support reading a modified pcap format that contains an extended header.
 				// Format reference: https://wiki.wireshark.org/Development/LibpcapFileFormat#modified-pcap
 				0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
 				0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
 				// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
-				0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
-				0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
+				NSEC_TCPDUMP_MAGIC,          // 0xa1'b2'3c'4d - regular pcap, nanosecond-precision
+				NSEC_TCPDUMP_MAGIC_SWAPPED,  // 0x4d'3c'b2'a1 - regular pcap, nanosecond-precision (byte-swapped)
 			};
 
 			auto it = std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic);
 			if (it == pcapMagicNumbers.end())
 			{
-				return CaptureFileFormat::Unknown;
+				return FileFormat::Unknown;
 			}
 
 			// Indices 0-1 are regular microsecond-precision pcap files.
@@ -410,71 +302,35 @@ namespace pcpp
 
 			if (byteOrder != nullptr)
 			{
-				switch (selectedIdx % 2)
-				{
-				case 0:
-				{
-					*byteOrder = CaptureFileByteOrder::Native;
-					break;
-				}
-				case 1:
-				{
-					*byteOrder = CaptureFileByteOrder::Swapped;
-					break;
-				}
-				default:
-				{
-					*byteOrder = CaptureFileByteOrder::Unknown;
-					break;
-				}
-				}
+				*byteOrder = (selectedIdx % 2 == 0) ? FileByteOrder::Native : FileByteOrder::Swapped;
 			}
 
 			if (selectedIdx < 2)
 			{
-				return CaptureFileFormat::Pcap;
+				return FileFormat::Pcap;
 			}
 			if (selectedIdx < 4)
 			{
-				return CaptureFileFormat::PcapMod;
+				return FileFormat::PcapMod;
 			}
 
-			return CaptureFileFormat::PcapNano;
+			return FileFormat::PcapNano;
 		}
 
-		bool CaptureFileFormatDetector::isPcapNgFile(std::istream& content) const
+		/// @brief Checks if a magic number matches the PcapNG magic number.
+		/// @param magic The magic number to check.
+		/// @return True if the magic number matches the PcapNG file number, false otherwise.
+		bool isPcapNgMagic(uint32_t magic)
 		{
-			constexpr std::array<uint32_t, 1> pcapMagicNumbers = {
-				0x0A'0D'0D'0A,  // pcapng magic number (palindrome)
-			};
-
-			StreamPositionCheckpoint checkpoint(content);
-
-			uint32_t magic = 0;
-			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
-			if (content.gcount() != sizeof(magic))
-			{
-				return false;
-			}
-
-			return std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic) != pcapMagicNumbers.end();
+			constexpr uint32_t PCAPNG_MAGIC = 0x0A0D0D0A;  // pcapng magic number (palindrome)
+			return magic == PCAPNG_MAGIC;
 		}
 
-		bool CaptureFileFormatDetector::isSnoopFile(std::istream& content, CaptureFileByteOrder* byteOrder) const
-		{
-			StreamPositionCheckpoint checkpoint(content);
-
-			uint64_t magic = 0;
-			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
-			if (content.gcount() != sizeof(magic))
-			{
-				return false;
-			}
-
-			return isSnoopMagic(magic, byteOrder);
-		}
-
-		bool CaptureFileFormatDetector::isSnoopMagic(std::uint64_t magic, CaptureFileByteOrder* byteOrder) const
+		/// @brief Checks if a magic number matches the SNOOP magic numbers.
+		/// @param[in] magic The magic number to check.
+		/// @param[out] byteOrder Optional location to store the detected byte order.
+		/// @return True if the magic number matches the Snoop file number, false otherwise.
+		bool isSnoopMagic(std::uint64_t magic, FileByteOrder* byteOrder = nullptr)
 		{
 			constexpr std::array<uint64_t, 2> snoopMagicNumbers = {
 				0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
@@ -489,44 +345,27 @@ namespace pcpp
 
 			if (byteOrder != nullptr)
 			{
-				switch (std::distance(snoopMagicNumbers.begin(), it) % 2)
-				{
-				case 0:
-				{
-					*byteOrder = CaptureFileByteOrder::Native;
-					break;
-				}
-				case 1:
-				{
-					*byteOrder = CaptureFileByteOrder::Swapped;
-					break;
-				}
-				default:
-				{
-					*byteOrder = CaptureFileByteOrder::Unknown;
-					break;
-				}
-				}
+				*byteOrder = (std::distance(snoopMagicNumbers.begin(), it) % 2 == 0) ? FileByteOrder::Native
+				                                                                     : FileByteOrder::Swapped;
 			}
 
 			return true;
 		}
 
-		bool CaptureFileFormatDetector::isZstdArchive(std::istream& content, CaptureFileByteOrder* byteOrder) const
+		/// @brief Checks if a magic number matches the Zstd archive magic number.
+		///
+		/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+		/// The byte order is not updated if no supported format is detected.
+		///
+		/// @param[in] magic The magic number to check.
+		/// @param[out] byteOrder Optional location to store the detected byte order.
+		/// @return True if the content stream is Snoop file, false otherwise.
+		bool isZstdArchiveMagic(std::uint32_t magic, FileByteOrder* byteOrder = nullptr)
 		{
 			constexpr std::array<uint32_t, 2> zstdMagicNumbers = {
 				0x28'B5'2F'FD,  // zstd archive magic number
 				0xFD'2F'B5'28,  // zstd archive magic number (byte-swapped)
 			};
-
-			StreamPositionCheckpoint checkpoint(content);
-
-			uint32_t magic = 0;
-			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
-			if (content.gcount() != sizeof(magic))
-			{
-				return false;
-			}
 
 			auto it = std::find(zstdMagicNumbers.begin(), zstdMagicNumbers.end(), magic);
 			if (it == zstdMagicNumbers.end())
@@ -536,37 +375,85 @@ namespace pcpp
 
 			if (byteOrder != nullptr)
 			{
-				switch (std::distance(zstdMagicNumbers.begin(), it) % 2)
-				{
-				case 0:
-				{
-					*byteOrder = CaptureFileByteOrder::Native;
-					break;
-				}
-				case 1:
-				{
-					*byteOrder = CaptureFileByteOrder::Swapped;
-					break;
-				}
-				default:
-				{
-					*byteOrder = CaptureFileByteOrder::Unknown;
-					break;
-				}
-				}
+				*byteOrder = (std::distance(zstdMagicNumbers.begin(), it) % 2 == 0) ? FileByteOrder::Native
+				                                                                    : FileByteOrder::Swapped;
 			}
 
 			return true;
 		}
 
-		FileTimestampPrecision getPcapPrecision(CaptureFileFormat format)
+		/// @brief Checks a content stream for the magic number and determines the type.
+		///
+		/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+		/// The byte order is not updated if no supported format is detected.
+		///
+		/// @param[in] content A stream that contains the file content.
+		/// @param[out] byteOrder Optional location to store the detected byte order.
+		/// @return A CaptureFileFormat value with the detected content type.
+		FileFormat detectFileFormat(std::istream& content, FileByteOrder* byteOrder = nullptr)
 		{
-			switch(format)
+			// Check if the stream supports seeking.
+			if (!isStreamSeekable(content))
 			{
-			case CaptureFileFormat::Pcap:
-			case CaptureFileFormat::PcapMod:
+				throw std::runtime_error("Heuristic file format detection requires seekable stream");
+			}
+
+			StreamPositionCheckpoint checkpoint(content);
+
+			// Read first 4 bytes.
+			uint32_t magic;
+			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+			if (content.gcount() != sizeof(magic))
+			{
+				return FileFormat::Unknown;
+			}
+
+			FileFormat format = detectPcapMagic(magic, byteOrder);
+			if (format != FileFormat::Unknown)
+			{
+				return format;
+			}
+
+			if (isPcapNgMagic(magic))
+			{
+				if (byteOrder != nullptr)
+				{
+					*byteOrder = FileByteOrder::Unknown;
+				}
+
+				return FileFormat::PcapNG;
+			}
+
+			if (isZstdArchiveMagic(magic, byteOrder))
+			{
+				return FileFormat::ZstArchive;
+			}
+
+			// Read additional 4 bytes to complete the 8-byte Snoop magic number.
+			uint32_t magicLo = 0;
+			content.read(reinterpret_cast<char*>(&magicLo), sizeof(magicLo));
+			if (content.gcount() != sizeof(magicLo))
+			{
+				return FileFormat::Unknown;
+			}
+
+			uint64_t magic64 = static_cast<uint64_t>(magic) << 32 | magicLo;
+			if (isSnoopMagic(magic64, byteOrder))
+			{
+				return FileFormat::Snoop;
+			}
+
+			return FileFormat::Unknown;
+		}
+
+		FileTimestampPrecision getPcapPrecision(FileFormat format)
+		{
+			switch (format)
+			{
+			case FileFormat::Pcap:
+			case FileFormat::PcapMod:
 				return FileTimestampPrecision::Microseconds;
-			case CaptureFileFormat::PcapNano:
+			case FileFormat::PcapNano:
 				return FileTimestampPrecision::Nanoseconds;
 			default:
 				return FileTimestampPrecision::Unknown;
@@ -669,17 +556,16 @@ namespace pcpp
 				return TryCreateReaderResult::FileNotFound;
 			}
 
-			switch (CaptureFileFormatDetector().detectFormat(fileContent))
+			switch (detectFileFormat(fileContent))
 			{
-			case CaptureFileFormat::PcapNano:
-			case CaptureFileFormat::Pcap:
-			case CaptureFileFormat::PcapMod:
+			case FileFormat::PcapNano:
+			case FileFormat::Pcap:
 			{
 				// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
 				outDevice = std::make_unique<PcapFileReaderDevice>(fileName);
 				break;
 			}
-			case CaptureFileFormat::ZstArchive:
+			case FileFormat::ZstArchive:
 			{
 				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
 				if (!checkZstdSupport())
@@ -688,12 +574,12 @@ namespace pcpp
 				}
 				// fallthrough
 			}
-			case CaptureFileFormat::PcapNG:
+			case FileFormat::PcapNG:
 			{
 				outDevice = std::make_unique<PcapNgFileReaderDevice>(fileName);
 				break;
 			}
-			case CaptureFileFormat::Snoop:
+			case FileFormat::Snoop:
 			{
 				outDevice = std::make_unique<SnoopFileReaderDevice>(fileName);
 				break;
@@ -867,37 +753,10 @@ namespace pcpp
 				return PcapReadHeaderStatus::MalformedData;
 			}
 
-			switch (header.magic)
-			{
-			case TCPDUMP_MAGIC:
-			{
-				precision = FileTimestampPrecision::Microseconds;
-				needsSwap = false;
-				break;
-			}
-			case TCPDUMP_MAGIC_SWAPPED:
-			{
-				precision = FileTimestampPrecision::Microseconds;
-				needsSwap = true;
-				break;
-			}
-			case NSEC_TCPDUMP_MAGIC:
-			{
-				precision = FileTimestampPrecision::Nanoseconds;
-				needsSwap = false;
-				break;
-			}
-			case NSEC_TCPDUMP_MAGIC_SWAPPED:
-			{
-				precision = FileTimestampPrecision::Nanoseconds;
-				needsSwap = true;
-				break;
-			}
-			default:
-			{
-				return PcapReadHeaderStatus::UnsupportedFormat;
-			}
-			}
+			FileByteOrder byteOrder;
+			FileFormat pcapFormat = detectPcapMagic(header.magic, &byteOrder);
+			precision = getPcapPrecision(pcapFormat);
+			needsSwap = byteOrder == FileByteOrder::Swapped;
 
 			if (needsSwap)
 			{
@@ -1732,7 +1591,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (!CaptureFileFormatDetector().isSnoopMagic(snoop_file_header.identification_pattern))
+		if (!isSnoopMagic(snoop_file_header.identification_pattern))
 		{
 			PCPP_LOG_ERROR("File content does not match snoop magic number for file: \'" << m_FileName << '\'');
 			return false;
