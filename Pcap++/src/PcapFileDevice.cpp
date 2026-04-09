@@ -816,7 +816,8 @@ namespace pcpp
 		}
 		case PcapReadHeaderStatus::UnsupportedFormat:
 		{
-			PCPP_LOG_ERROR("File content is not pcap or byte order can't be determined. Detected magic number: 0x" << std::hex << pcapFileHeader.magic);
+			PCPP_LOG_ERROR("File content is not pcap or byte order can't be determined. Detected magic number: 0x"
+			               << std::hex << pcapFileHeader.magic);
 			return false;
 		}
 		default:
