@@ -51,8 +51,10 @@ PTF_TEST_CASE(TestFileFormatDetector)
 	std::vector<uint32_t> pcapTestCases = {
 		0xa1'b2'c3'd4,  // regular pcap, microsecond-precision
 		0xd4'c3'b2'a1,  // regular pcap, microsecond-precision (byte-swapped)
-		0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
-		0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+
+		// Modified pcaps are not supported by the pcpp internal parser.
+		// 0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
+		// 0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
 	};
 
 	for (const auto& testCase : pcapTestCases)
