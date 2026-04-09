@@ -1037,7 +1037,8 @@ PTF_TEST_CASE(TestPcapFileAppend)
 		PTF_ASSERT_TRUE(reader.open());
 		pcpp::RawPacket rawPacket2;
 		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
-		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_BUF_COMPARE_S(rawPacket2.getRawData(), rawPacket2.getRawDataLen(), packetData.data(),
+		                         packetData.size());
 		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
 	}
 
@@ -1055,7 +1056,8 @@ PTF_TEST_CASE(TestPcapFileAppend)
 		PTF_ASSERT_TRUE(reader.open());
 		pcpp::RawPacket rawPacket2;
 		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
-		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_BUF_COMPARE_S(rawPacket2.getRawData(), rawPacket2.getRawDataLen(), packetData.data(),
+		                         packetData.size());
 		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
 	}
 
@@ -1074,7 +1076,8 @@ PTF_TEST_CASE(TestPcapFileAppend)
 		PTF_ASSERT_TRUE(reader.open());
 		pcpp::RawPacket rawPacket2;
 		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
-		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_BUF_COMPARE_S(rawPacket2.getRawData(), rawPacket2.getRawDataLen(), packetData.data(),
+		                         packetData.size());
 		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
 	}
 
@@ -1098,9 +1101,11 @@ PTF_TEST_CASE(TestPcapFileAppend)
 		PTF_ASSERT_TRUE(reader.open());
 		pcpp::RawPacket rawPacket2;
 		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
-		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), anotherPacketData.data(), anotherPacketData.size());
+		PTF_ASSERT_BUF_COMPARE_S(rawPacket2.getRawData(), rawPacket2.getRawDataLen(), anotherPacketData.data(),
+		                         anotherPacketData.size());
 		PTF_ASSERT_TRUE(reader.getNextPacket(rawPacket2));
-		PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+		PTF_ASSERT_BUF_COMPARE_S(rawPacket2.getRawData(), rawPacket2.getRawDataLen(), packetData.data(),
+		                         packetData.size());
 		PTF_ASSERT_FALSE(reader.getNextPacket(rawPacket2));
 	}
 
@@ -1114,7 +1119,8 @@ PTF_TEST_CASE(TestPcapFileAppend)
 
 		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
-		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Malformed file header or not a pcap file");
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot read pcap file header. File may be malformed or not a pcap file");
 		PTF_ASSERT_FALSE(writer.isOpened());
 	}
 
@@ -1166,7 +1172,8 @@ PTF_TEST_CASE(TestPcapFileAppend)
 
 		SuppressLogs logSuppress;
 		PTF_ASSERT_FALSE(writer.open(true));
-		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "Unsupported pcap file format");
+		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(),
+		                 "Cannot read pcap file header. Unsupported format or invalid magic number: 0x4d2");
 	}
 
 	// Unsupported version
@@ -1216,7 +1223,8 @@ PTF_TEST_CASE(TestPcapFileAppend)
 			PTF_ASSERT_EQUAL(rawPacket2.getPacketTimeStamp().tv_sec, 1);
 			auto expectedNsec = std::get<1>(magicNumberVariation) ? 1234 : 1000;
 			PTF_ASSERT_EQUAL(rawPacket2.getPacketTimeStamp().tv_nsec, expectedNsec);
-			PTF_ASSERT_BUF_COMPARE(rawPacket2.getRawData(), packetData.data(), packetData.size());
+			PTF_ASSERT_BUF_COMPARE_S(rawPacket2.getRawData(), rawPacket2.getRawDataLen(), packetData.data(),
+			                         packetData.size());
 		}
 	}
 }  // TestPcapFileAppend

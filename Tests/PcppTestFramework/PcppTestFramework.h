@@ -176,15 +176,17 @@
 		}                                                                                                              \
 	}
 
-#define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size)                                                                       \
-	if (memcmp(buf1, buf2, size) != 0)                                                                                 \
+#define PTF_ASSERT_BUF_COMPARE_S(buf1, buf1_size, buf2, buf2_size)                                                     \
+	if (buf1_size != buf2_size || memcmp(buf1, buf2, buf1_size) != 0)                                                  \
 	{                                                                                                                  \
 		PTF_PRINT_ASSERTION("FAILED", "BUFFER COMPARE") << "   Actual   " << std::endl;                                \
-		BUFFER_PRINT(buf1, size) << "   Expected   " << std::endl;                                                     \
-		BUFFER_PRINT(buf2, size);                                                                                      \
+		BUFFER_PRINT(buf1, buf1_size) << "   Expected   " << std::endl;                                                \
+		BUFFER_PRINT(buf2, buf2_size);                                                                                 \
 		ptfResult = PTF_RESULT_FAILED;                                                                                 \
 		return;                                                                                                        \
 	}
+
+#define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) PTF_ASSERT_BUF_COMPARE_S(buf1, size, buf2, size)
 
 #define PTF_ASSERT_TRUE(exp)                                                                                           \
 	if (!(exp))                                                                                                        \
