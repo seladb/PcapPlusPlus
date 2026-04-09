@@ -210,10 +210,15 @@ namespace pcpp
 			    : m_Stream(stream), m_State(stream.rdstate()), m_Pos(stream.tellg())
 			{}
 
-			~StreamPositionCheckpoint()
+			void restore()
 			{
 				m_Stream.seekg(m_Pos);
 				m_Stream.clear(m_State);
+			}
+
+			~StreamPositionCheckpoint()
+			{
+				restore();
 			}
 
 		private:
@@ -429,15 +434,16 @@ namespace pcpp
 				return FileFormat::ZstArchive;
 			}
 
-			// Read additional 4 bytes to complete the 8-byte Snoop magic number.
-			uint32_t magicLo = 0;
-			content.read(reinterpret_cast<char*>(&magicLo), sizeof(magicLo));
-			if (content.gcount() != sizeof(magicLo))
+			// Read the first 8 bytes again because Snoop magic number is 8 bytes.
+			checkpoint.restore();
+
+			uint64_t magic64;
+			content.read(reinterpret_cast<char*>(&magic64), sizeof(magic64));
+			if (content.gcount() != sizeof(magic64))
 			{
 				return FileFormat::Unknown;
 			}
 
-			uint64_t magic64 = static_cast<uint64_t>(magic) << 32 | magicLo;
 			if (isSnoopMagic(magic64, byteOrder))
 			{
 				return FileFormat::Snoop;
@@ -755,6 +761,11 @@ namespace pcpp
 
 			FileByteOrder byteOrder;
 			FileFormat pcapFormat = detectPcapMagic(header.magic, &byteOrder);
+			if (pcapFormat == FileFormat::Unknown)
+			{
+				return PcapReadHeaderStatus::UnsupportedFormat;
+			}
+
 			precision = getPcapPrecision(pcapFormat);
 			needsSwap = byteOrder == FileByteOrder::Swapped;
 
@@ -805,7 +816,7 @@ namespace pcpp
 		}
 		case PcapReadHeaderStatus::UnsupportedFormat:
 		{
-			PCPP_LOG_ERROR("Invalid magic number: 0x" << std::hex << pcapFileHeader.magic);
+			PCPP_LOG_ERROR("File content is not pcap or byte order can't be determined. Detected magic number: 0x" << std::hex << pcapFileHeader.magic);
 			return false;
 		}
 		default:
