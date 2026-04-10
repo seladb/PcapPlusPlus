@@ -100,8 +100,8 @@ namespace pcpp
 			Server_Ok,
 			/// AuthSwitchRequest packet - server requests authentication method switch
 			Server_AuthSwitchRequest,
-			/// AuthContinue packet - server continues authentication (e.g., caching_sha2_password)
-			Server_AuthContinue,
+			/// EOF message
+			Server_EOF,
 			/// Error packet - error response from server
 			Server_Error,
 			/// Other server message

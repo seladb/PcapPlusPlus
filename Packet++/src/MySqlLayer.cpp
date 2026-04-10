@@ -150,10 +150,10 @@ namespace pcpp
 			return "OK";
 		case Server_AuthSwitchRequest:
 			return "AuthSwitchRequest";
-		case Server_AuthContinue:
-			return "AuthContinue";
 		case Server_Error:
 			return "Error";
+		case Server_EOF:
+			return "EOF";
 		case Server_Other:
 			return "Other";
 		default:
@@ -364,18 +364,18 @@ namespace pcpp
 			case 0xfe:
 			{
 				messageLength = dataLen - basicMessageLength;
-				if (messageLength == 1)
+				if (messageLength < 9)
 				{
-					messageType = MySqlMessageType::Server_AuthSwitchRequest;
+					messageType = MySqlMessageType::Server_EOF;
 				}
 				else
 				{
-					messageType = MySqlMessageType::Server_AuthContinue;
+					messageType = MySqlMessageType::Server_AuthSwitchRequest;
 				}
 				break;
 			}
 			default:
-				messageType = MySqlMessageType::Server_Other;
+				return std::unique_ptr<MySqlMessage>(new MySqlMessage(data, messageLength + basicMessageLength, MySqlMessageType::Server_Other, origin));
 			}
 		}
 
