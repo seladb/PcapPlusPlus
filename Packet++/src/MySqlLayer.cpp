@@ -53,24 +53,28 @@ namespace pcpp
 			return 0x14;
 		case Client_RegisterSlave:
 			return 0x15;
-		case Client_StmtExecute:
+		case Client_StmtPrepare:
 			return 0x16;
-		case Client_StmtFetch:
+		case Client_StmtExecute:
 			return 0x17;
-		case Client_StmtClose:
-			return 0x18;
-		case Client_StmtReset:
-			return 0x19;
-		case Client_SetOption:
-			return 0x1a;
 		case Client_StmtSendLongData:
+			return 0x18;
+		case Client_StmtClose:
+			return 0x19;
+		case Client_StmtReset:
+			return 0x1a;
+		case Client_SetOption:
 			return 0x1b;
+		case Client_StmtFetch:
+			return 0x1c;
 		case Client_Daemon:
 			return 0x1d;
 		case Client_BinlogDumpGtid:
 			return 0x1e;
 		case Client_ResetConnection:
 			return 0x1f;
+		case Client_Clone:
+			return 0x20;
 		default:
 			return '\0';
 		}
@@ -126,6 +130,8 @@ namespace pcpp
 			return "COM_CONNECT_OUT";
 		case Client_RegisterSlave:
 			return "COM_REGISTER_SLAVE";
+		case Client_StmtPrepare:
+			return "COM_STMT_PREPARE";
 		case Client_StmtExecute:
 			return "COM_STMT_EXECUTE";
 		case Client_StmtFetch:
@@ -144,6 +150,8 @@ namespace pcpp
 			return "COM_BINLOG_DUMP_GTID";
 		case Client_ResetConnection:
 			return "COM_RESET_CONNECTION";
+		case Client_Clone:
+			return "COM_CLONE";
 		case Server_Handshake:
 			return "Handshake";
 		case Server_Ok:
@@ -188,6 +196,7 @@ namespace pcpp
 		case Client_TableDump:
 		case Client_ConnectOut:
 		case Client_RegisterSlave:
+		case Client_StmtPrepare:
 		case Client_StmtExecute:
 		case Client_StmtFetch:
 		case Client_StmtClose:
@@ -197,6 +206,7 @@ namespace pcpp
 		case Client_Daemon:
 		case Client_BinlogDumpGtid:
 		case Client_ResetConnection:
+		case Client_Clone:
 			return MySqlMessageOrigin::Client;
 		default:
 			return MySqlMessageOrigin::Server;
@@ -316,22 +326,25 @@ namespace pcpp
 				messageType = MySqlMessageType::Client_RegisterSlave;
 				break;
 			case 0x16:
-				messageType = MySqlMessageType::Client_StmtExecute;
+				messageType = MySqlMessageType::Client_StmtPrepare;
 				break;
 			case 0x17:
-				messageType = MySqlMessageType::Client_StmtFetch;
+				messageType = MySqlMessageType::Client_StmtExecute;
 				break;
 			case 0x18:
-				messageType = MySqlMessageType::Client_StmtClose;
+				messageType = MySqlMessageType::Client_StmtSendLongData;
 				break;
 			case 0x19:
-				messageType = MySqlMessageType::Client_StmtReset;
+				messageType = MySqlMessageType::Client_StmtClose;
 				break;
 			case 0x1a:
-				messageType = MySqlMessageType::Client_SetOption;
+				messageType = MySqlMessageType::Client_StmtReset;
 				break;
 			case 0x1b:
-				messageType = MySqlMessageType::Client_StmtSendLongData;
+				messageType = MySqlMessageType::Client_SetOption;
+				break;
+			case 0x1c:
+				messageType = MySqlMessageType::Client_StmtFetch;
 				break;
 			case 0x1d:
 				messageType = MySqlMessageType::Client_Daemon;
@@ -341,6 +354,9 @@ namespace pcpp
 				break;
 			case 0x1f:
 				messageType = MySqlMessageType::Client_ResetConnection;
+				break;
+			case 0x20:
+				messageType = MySqlMessageType::Client_Clone;
 				break;
 			default:
 				break;

@@ -75,6 +75,8 @@ namespace pcpp
 			Client_ConnectOut,
 			/// COM_REGISTER_SLAVE command - register slave with master
 			Client_RegisterSlave,
+			/// COM_STMT_PREPARE command - prepare statement
+			Client_StmtPrepare,
 			/// COM_STMT_EXECUTE command - execute prepared statement
 			Client_StmtExecute,
 			/// COM_STMT_FETCH command - fetch rows from prepared statement
@@ -93,6 +95,8 @@ namespace pcpp
 			Client_BinlogDumpGtid,
 			/// COM_RESET_CONNECTION command - reset connection without re-authentication
 			Client_ResetConnection,
+			/// COM_CLONE command
+			Client_Clone,
 
 			/// Initial handshake
 			Server_Handshake,
