@@ -4,77 +4,114 @@
 
 namespace pcpp
 {
+	constexpr char ClientSleepCommand = 0x00;
+	constexpr char ClientQuitCommand = 0x01;
+	constexpr char ClientInitDbCommand = 0x02;
+	constexpr char ClientQueryCommand = 0x03;
+	constexpr char ClientFieldListCommand = 0x04;
+	constexpr char ClientCreateDbCommand = 0x05;
+	constexpr char ClientDropDbCommand = 0x06;
+	constexpr char ClientRefreshCommand = 0x07;
+	constexpr char ClientShutdownCommand = 0x08;
+	constexpr char ClientStatisticsCommand = 0x09;
+	constexpr char ClientProcessInfoCommand = 0x0a;
+	constexpr char ClientConnectCommand = 0x0b;
+	constexpr char ClientProcessKillCommand = 0x0c;
+	constexpr char ClientDebugCommand = 0x0d;
+	constexpr char ClientPingCommand = 0x0e;
+	constexpr char ClientTimeCommand = 0x0f;
+	constexpr char ClientDelayedInsertCommand = 0x10;
+	constexpr char ClientChangeUserCommand = 0x11;
+	constexpr char ClientBinlogDumpCommand = 0x12;
+	constexpr char ClientTableDumpCommand = 0x13;
+	constexpr char ClientConnectOutCommand = 0x14;
+	constexpr char ClientRegisterSlaveCommand = 0x15;
+	constexpr char ClientStmtPrepareCommand = 0x16;
+	constexpr char ClientStmtExecuteCommand = 0x17;
+	constexpr char ClientStmtSendLongDataCommand = 0x18;
+	constexpr char ClientStmtCloseCommand = 0x19;
+	constexpr char ClientStmtResetCommand = 0x1a;
+	constexpr char ClientSetOptionCommand = 0x1b;
+	constexpr char ClientStmtFetchCommand = 0x1c;
+	constexpr char ClientDaemonCommand = 0x1d;
+	constexpr char ClientBinlogDumpGtidCommand = 0x1e;
+	constexpr char ClientResetConnectionCommand = 0x1f;
+	constexpr char ClientCloneCommand = 0x20;
+
+	constexpr char ServerOk = 0x00;
+	constexpr char ServerError = 0xff;
+	constexpr char ServerEof_AuthSwitchRequest = 0xfe;
 
 	char MySqlMessageType::toChar() const
 	{
 		switch (m_Value)
 		{
 		case Client_Sleep:
-			return 0x00;
+			return ClientSleepCommand;
 		case Client_Quit:
-			return 0x01;
+			return ClientQuitCommand;
 		case Client_InitDb:
-			return 0x02;
+			return ClientInitDbCommand;
 		case Client_Query:
-			return 0x03;
+			return ClientQueryCommand;
 		case Client_FieldList:
-			return 0x04;
+			return ClientFieldListCommand;
 		case Client_CreateDb:
-			return 0x05;
+			return ClientCreateDbCommand;
 		case Client_DropDb:
-			return 0x06;
+			return ClientDropDbCommand;
 		case Client_Refresh:
-			return 0x07;
+			return ClientRefreshCommand;
 		case Client_Shutdown:
-			return 0x08;
+			return ClientShutdownCommand;
 		case Client_Statistics:
-			return 0x09;
+			return ClientStatisticsCommand;
 		case Client_ProcessInfo:
-			return 0x0a;
+			return ClientProcessInfoCommand;
 		case Client_Connect:
-			return 0x0b;
+			return ClientConnectCommand;
 		case Client_ProcessKill:
-			return 0x0c;
+			return ClientProcessKillCommand;
 		case Client_Debug:
-			return 0x0d;
+			return ClientDebugCommand;
 		case Client_Ping:
-			return 0x0e;
+			return ClientPingCommand;
 		case Client_Time:
-			return 0x0f;
+			return ClientTimeCommand;
 		case Client_DelayedInsert:
-			return 0x10;
+			return ClientDelayedInsertCommand;
 		case Client_ChangeUser:
-			return 0x11;
+			return ClientChangeUserCommand;
 		case Client_BinlogDump:
-			return 0x12;
+			return ClientBinlogDumpCommand;
 		case Client_TableDump:
-			return 0x13;
+			return ClientTableDumpCommand;
 		case Client_ConnectOut:
-			return 0x14;
+			return ClientConnectOutCommand;
 		case Client_RegisterSlave:
-			return 0x15;
+			return ClientRegisterSlaveCommand;
 		case Client_StmtPrepare:
-			return 0x16;
+			return ClientStmtPrepareCommand;
 		case Client_StmtExecute:
-			return 0x17;
+			return ClientStmtExecuteCommand;
 		case Client_StmtSendLongData:
-			return 0x18;
+			return ClientStmtSendLongDataCommand;
 		case Client_StmtClose:
-			return 0x19;
+			return ClientStmtCloseCommand;
 		case Client_StmtReset:
-			return 0x1a;
+			return ClientStmtResetCommand;
 		case Client_SetOption:
-			return 0x1b;
+			return ClientSetOptionCommand;
 		case Client_StmtFetch:
-			return 0x1c;
+			return ClientStmtFetchCommand;
 		case Client_Daemon:
-			return 0x1d;
+			return ClientDaemonCommand;
 		case Client_BinlogDumpGtid:
-			return 0x1e;
+			return ClientBinlogDumpGtidCommand;
 		case Client_ResetConnection:
-			return 0x1f;
+			return ClientResetConnectionCommand;
 		case Client_Clone:
-			return 0x20;
+			return ClientCloneCommand;
 		default:
 			return '\0';
 		}
@@ -253,109 +290,110 @@ namespace pcpp
 		{
 			if (data[packetNumberIndex] == 1)
 			{
-				return std::unique_ptr<MySqlMessage>(new MySqlMessage(data, messageLength + 4, MySqlMessageType::Client_HandshakeResponse, origin));
+				return std::unique_ptr<MySqlMessage>(
+				    new MySqlMessage(data, messageLength + 4, MySqlMessageType::Client_HandshakeResponse, origin));
 			}
 
 			auto command = data[commandIndex];
 			switch (command)
 			{
-			case 0x00:
+			case ClientSleepCommand:
 				messageType = MySqlMessageType::Client_Sleep;
 				break;
-			case 0x01:
+			case ClientQuitCommand:
 				messageType = MySqlMessageType::Client_Quit;
 				break;
-			case 0x02:
+			case ClientInitDbCommand:
 				messageType = MySqlMessageType::Client_InitDb;
 				break;
-			case 0x03:
+			case ClientQueryCommand:
 				messageType = MySqlMessageType::Client_Query;
 				break;
-			case 0x04:
+			case ClientFieldListCommand:
 				messageType = MySqlMessageType::Client_FieldList;
 				break;
-			case 0x05:
+			case ClientCreateDbCommand:
 				messageType = MySqlMessageType::Client_CreateDb;
 				break;
-			case 0x06:
+			case ClientDropDbCommand:
 				messageType = MySqlMessageType::Client_DropDb;
 				break;
-			case 0x07:
+			case ClientRefreshCommand:
 				messageType = MySqlMessageType::Client_Refresh;
 				break;
-			case 0x08:
+			case ClientShutdownCommand:
 				messageType = MySqlMessageType::Client_Shutdown;
 				break;
-			case 0x09:
+			case ClientStatisticsCommand:
 				messageType = MySqlMessageType::Client_Statistics;
 				break;
-			case 0x0a:
+			case ClientProcessInfoCommand:
 				messageType = MySqlMessageType::Client_ProcessInfo;
 				break;
-			case 0x0b:
+			case ClientConnectCommand:
 				messageType = MySqlMessageType::Client_Connect;
 				break;
-			case 0x0c:
+			case ClientProcessKillCommand:
 				messageType = MySqlMessageType::Client_ProcessKill;
 				break;
-			case 0x0d:
+			case ClientDebugCommand:
 				messageType = MySqlMessageType::Client_Debug;
 				break;
-			case 0x0e:
+			case ClientPingCommand:
 				messageType = MySqlMessageType::Client_Ping;
 				break;
-			case 0x0f:
+			case ClientTimeCommand:
 				messageType = MySqlMessageType::Client_Time;
 				break;
-			case 0x10:
+			case ClientDelayedInsertCommand:
 				messageType = MySqlMessageType::Client_DelayedInsert;
 				break;
-			case 0x11:
+			case ClientChangeUserCommand:
 				messageType = MySqlMessageType::Client_ChangeUser;
 				break;
-			case 0x12:
+			case ClientBinlogDumpCommand:
 				messageType = MySqlMessageType::Client_BinlogDump;
 				break;
-			case 0x13:
+			case ClientTableDumpCommand:
 				messageType = MySqlMessageType::Client_TableDump;
 				break;
-			case 0x14:
+			case ClientConnectOutCommand:
 				messageType = MySqlMessageType::Client_ConnectOut;
 				break;
-			case 0x15:
+			case ClientRegisterSlaveCommand:
 				messageType = MySqlMessageType::Client_RegisterSlave;
 				break;
-			case 0x16:
+			case ClientStmtPrepareCommand:
 				messageType = MySqlMessageType::Client_StmtPrepare;
 				break;
-			case 0x17:
+			case ClientStmtExecuteCommand:
 				messageType = MySqlMessageType::Client_StmtExecute;
 				break;
-			case 0x18:
+			case ClientStmtSendLongDataCommand:
 				messageType = MySqlMessageType::Client_StmtSendLongData;
 				break;
-			case 0x19:
+			case ClientStmtCloseCommand:
 				messageType = MySqlMessageType::Client_StmtClose;
 				break;
-			case 0x1a:
+			case ClientStmtResetCommand:
 				messageType = MySqlMessageType::Client_StmtReset;
 				break;
-			case 0x1b:
+			case ClientSetOptionCommand:
 				messageType = MySqlMessageType::Client_SetOption;
 				break;
-			case 0x1c:
+			case ClientStmtFetchCommand:
 				messageType = MySqlMessageType::Client_StmtFetch;
 				break;
-			case 0x1d:
+			case ClientDaemonCommand:
 				messageType = MySqlMessageType::Client_Daemon;
 				break;
-			case 0x1e:
+			case ClientBinlogDumpGtidCommand:
 				messageType = MySqlMessageType::Client_BinlogDumpGtid;
 				break;
-			case 0x1f:
+			case ClientResetConnectionCommand:
 				messageType = MySqlMessageType::Client_ResetConnection;
 				break;
-			case 0x20:
+			case ClientCloneCommand:
 				messageType = MySqlMessageType::Client_Clone;
 				break;
 			default:
@@ -366,18 +404,19 @@ namespace pcpp
 		{
 			if (data[packetNumberIndex] == 0)
 			{
-				return std::unique_ptr<MySqlMessage>(new MySqlMessage(data, messageLength + 4, MySqlMessageType::Server_Handshake, origin));
+				return std::unique_ptr<MySqlMessage>(
+				    new MySqlMessage(data, messageLength + 4, MySqlMessageType::Server_Handshake, origin));
 			}
 			auto firstByte = data[commandIndex];
 			switch (firstByte)
 			{
-			case 0x00:
+			case ServerOk:
 				messageType = MySqlMessageType::Server_Ok;
 				break;
-			case 0xff:
+			case ServerError:
 				messageType = MySqlMessageType::Server_Error;
 				break;
-			case 0xfe:
+			case ServerEof_AuthSwitchRequest:
 			{
 				messageLength = dataLen - basicMessageLength;
 				if (messageLength < 9)
@@ -391,7 +430,8 @@ namespace pcpp
 				break;
 			}
 			default:
-				return std::unique_ptr<MySqlMessage>(new MySqlMessage(data, messageLength + basicMessageLength, MySqlMessageType::Server_Other, origin));
+				return std::unique_ptr<MySqlMessage>(
+				    new MySqlMessage(data, messageLength + basicMessageLength, MySqlMessageType::Server_Other, origin));
 			}
 		}
 
@@ -400,7 +440,8 @@ namespace pcpp
 			return nullptr;
 		}
 
-		return std::unique_ptr<MySqlCommandMessage>(new MySqlCommandMessage(data, messageLength + basicMessageLength, messageType, origin));
+		return std::unique_ptr<MySqlCommandMessage>(
+		    new MySqlCommandMessage(data, messageLength + basicMessageLength, messageType, origin));
 	}
 
 	std::vector<uint8_t> MySqlMessage::getRawPayload() const
