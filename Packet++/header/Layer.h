@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "ProtocolType.h"
+#include <ostream>
 #include <string>
 #include <stdexcept>
 #include <utility>
