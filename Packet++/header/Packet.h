@@ -83,15 +83,16 @@ namespace pcpp
 		/// @param[in] rawPacket A pointer to the raw packet
 		/// @param[in] freeRawPacket Optional parameter. A flag indicating if the destructor should also call the raw
 		/// packet destructor or not. Default value is false
-		/// @param[in] parseUntil Optional parameter. Parse the packet until you reach a certain protocol (inclusive).
-		/// Can be useful for cases when you need to parse only up to a certain layer and want to avoid the performance
-		/// impact and memory consumption of parsing the whole packet. Default value is ::UnknownProtocol which means
-		/// don't take this parameter into account
+		/// @param[in] parseUntil Optional parameter. Parse the packet until you reach a certain protocol family
+		/// (inclusive). Can be useful for cases when you need to parse only up to a certain layer and want to avoid the
+		/// performance impact and memory consumption of parsing the whole packet. Default value is ::UnknownProtocol
+		/// which means don't take this parameter into account
 		/// @param[in] parseUntilLayer Optional parameter. Parse the packet until you reach a certain layer in the OSI
 		/// model (inclusive). Can be useful for cases when you need to parse only up to a certain OSI layer (for
 		/// example transport layer) and want to avoid the performance impact and memory consumption of parsing the
 		/// whole packet. Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
-		explicit Packet(RawPacket* rawPacket, bool freeRawPacket = false, ProtocolType parseUntil = UnknownProtocol,
+		explicit Packet(RawPacket* rawPacket, bool freeRawPacket = false,
+		                ProtocolTypeFamily parseUntil = UnknownProtocol,
 		                OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
