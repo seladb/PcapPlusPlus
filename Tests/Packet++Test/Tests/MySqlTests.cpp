@@ -606,4 +606,67 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 }
 
 PTF_TEST_CASE(MySqlInvalidDataTest)
-{}
+{
+	// Null data should return nullptr
+	{
+		auto message = pcpp::MySqlMessage::parseMySqlMessage(nullptr, 10, pcpp::MySqlMessageOrigin::Server);
+		PTF_ASSERT_NULL(message);
+	}
+
+	// Data too short (less than 4 bytes header)
+	{
+		std::vector<uint8_t> shortData = { 0x01, 0x02, 0x03 };
+		auto message =
+		    pcpp::MySqlMessage::parseMySqlMessage(shortData.data(), shortData.size(), pcpp::MySqlMessageOrigin::Server);
+		PTF_ASSERT_NULL(message);
+	}
+
+	// Message length mismatch - declared length > actual data
+	{
+		std::vector<uint8_t> mismatchData = {
+			0xFF, 0x00, 0x00,  // Declared length: 255
+			0x01,              // Packet number
+			0x00               // Only 1 byte of actual data
+		};
+		auto message = pcpp::MySqlMessage::parseMySqlMessage(mismatchData.data(), mismatchData.size(),
+		                                                     pcpp::MySqlMessageOrigin::Server);
+		PTF_ASSERT_NULL(message);
+	}
+
+	// Empty server payload with declared length 0
+	{
+		std::vector<uint8_t> emptyData = {
+			0x00, 0x00, 0x00,  // Length = 0
+			0x01,              // Packet number
+		};
+		auto message = pcpp::MySqlMessage::parseMySqlMessage(emptyData.data(), emptyData.size(),
+		                                                     pcpp::MySqlMessageOrigin::Server);
+		PTF_ASSERT_NOT_NULL(message);
+		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::MySqlMessageType::Unknown, enum);
+	}
+
+	// Empty client payload with declared length 0
+	{
+		std::vector<uint8_t> emptyData = {
+			0x00, 0x00, 0x00,  // Length = 0
+			0x05,              // Packet number
+		};
+		auto message = pcpp::MySqlMessage::parseMySqlMessage(emptyData.data(), emptyData.size(),
+															 pcpp::MySqlMessageOrigin::Client);
+		PTF_ASSERT_NOT_NULL(message);
+		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::MySqlMessageType::Unknown, enum);
+	}
+
+	// Client with unknown command byte
+	{
+		std::vector<uint8_t> unknownCmd = {
+			0x01, 0x00, 0x00,  // Length = 1
+			0x00,              // Packet number
+			0xFF               // Unknown command
+		};
+		auto message = pcpp::MySqlMessage::parseMySqlMessage(unknownCmd.data(), unknownCmd.size(),
+		                                                     pcpp::MySqlMessageOrigin::Client);
+		PTF_ASSERT_NOT_NULL(message);
+		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::MySqlMessageType::Unknown, enum);
+	}
+}

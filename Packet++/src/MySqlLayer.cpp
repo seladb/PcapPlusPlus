@@ -4,43 +4,43 @@
 
 namespace pcpp
 {
-	constexpr char ClientSleepCommand = 0x00;
-	constexpr char ClientQuitCommand = 0x01;
-	constexpr char ClientInitDbCommand = 0x02;
-	constexpr char ClientQueryCommand = 0x03;
-	constexpr char ClientFieldListCommand = 0x04;
-	constexpr char ClientCreateDbCommand = 0x05;
-	constexpr char ClientDropDbCommand = 0x06;
-	constexpr char ClientRefreshCommand = 0x07;
-	constexpr char ClientShutdownCommand = 0x08;
-	constexpr char ClientStatisticsCommand = 0x09;
-	constexpr char ClientProcessInfoCommand = 0x0a;
-	constexpr char ClientConnectCommand = 0x0b;
-	constexpr char ClientProcessKillCommand = 0x0c;
-	constexpr char ClientDebugCommand = 0x0d;
-	constexpr char ClientPingCommand = 0x0e;
-	constexpr char ClientTimeCommand = 0x0f;
-	constexpr char ClientDelayedInsertCommand = 0x10;
-	constexpr char ClientChangeUserCommand = 0x11;
-	constexpr char ClientBinlogDumpCommand = 0x12;
-	constexpr char ClientTableDumpCommand = 0x13;
-	constexpr char ClientConnectOutCommand = 0x14;
-	constexpr char ClientRegisterSlaveCommand = 0x15;
-	constexpr char ClientStmtPrepareCommand = 0x16;
-	constexpr char ClientStmtExecuteCommand = 0x17;
-	constexpr char ClientStmtSendLongDataCommand = 0x18;
-	constexpr char ClientStmtCloseCommand = 0x19;
-	constexpr char ClientStmtResetCommand = 0x1a;
-	constexpr char ClientSetOptionCommand = 0x1b;
-	constexpr char ClientStmtFetchCommand = 0x1c;
-	constexpr char ClientDaemonCommand = 0x1d;
-	constexpr char ClientBinlogDumpGtidCommand = 0x1e;
-	constexpr char ClientResetConnectionCommand = 0x1f;
-	constexpr char ClientCloneCommand = 0x20;
+	constexpr uint8_t ClientSleepCommand = 0x00;
+	constexpr uint8_t ClientQuitCommand = 0x01;
+	constexpr uint8_t ClientInitDbCommand = 0x02;
+	constexpr uint8_t ClientQueryCommand = 0x03;
+	constexpr uint8_t ClientFieldListCommand = 0x04;
+	constexpr uint8_t ClientCreateDbCommand = 0x05;
+	constexpr uint8_t ClientDropDbCommand = 0x06;
+	constexpr uint8_t ClientRefreshCommand = 0x07;
+	constexpr uint8_t ClientShutdownCommand = 0x08;
+	constexpr uint8_t ClientStatisticsCommand = 0x09;
+	constexpr uint8_t ClientProcessInfoCommand = 0x0a;
+	constexpr uint8_t ClientConnectCommand = 0x0b;
+	constexpr uint8_t ClientProcessKillCommand = 0x0c;
+	constexpr uint8_t ClientDebugCommand = 0x0d;
+	constexpr uint8_t ClientPingCommand = 0x0e;
+	constexpr uint8_t ClientTimeCommand = 0x0f;
+	constexpr uint8_t ClientDelayedInsertCommand = 0x10;
+	constexpr uint8_t ClientChangeUserCommand = 0x11;
+	constexpr uint8_t ClientBinlogDumpCommand = 0x12;
+	constexpr uint8_t ClientTableDumpCommand = 0x13;
+	constexpr uint8_t ClientConnectOutCommand = 0x14;
+	constexpr uint8_t ClientRegisterSlaveCommand = 0x15;
+	constexpr uint8_t ClientStmtPrepareCommand = 0x16;
+	constexpr uint8_t ClientStmtExecuteCommand = 0x17;
+	constexpr uint8_t ClientStmtSendLongDataCommand = 0x18;
+	constexpr uint8_t ClientStmtCloseCommand = 0x19;
+	constexpr uint8_t ClientStmtResetCommand = 0x1a;
+	constexpr uint8_t ClientSetOptionCommand = 0x1b;
+	constexpr uint8_t ClientStmtFetchCommand = 0x1c;
+	constexpr uint8_t ClientDaemonCommand = 0x1d;
+	constexpr uint8_t ClientBinlogDumpGtidCommand = 0x1e;
+	constexpr uint8_t ClientResetConnectionCommand = 0x1f;
+	constexpr uint8_t ClientCloneCommand = 0x20;
 
-	constexpr char ServerOk = 0x00;
-	constexpr char ServerError = 0xff;
-	constexpr char ServerEof_AuthSwitchRequest = 0xfe;
+	constexpr uint8_t ServerOk = 0x00;
+	constexpr uint8_t ServerError = 0xff;
+	constexpr uint8_t ServerEof_AuthSwitchRequest = 0xfe;
 
 	char MySqlMessageType::toChar() const
 	{
@@ -294,6 +294,12 @@ namespace pcpp
 				    new MySqlMessage(data, messageLength + 4, MySqlMessageType::Client_HandshakeResponse, origin));
 			}
 
+			if (dataLen < commandIndex + 1 || messageLength == 0)
+			{
+				return std::unique_ptr<MySqlMessage>(
+					new MySqlMessage(data, messageLength + 4, MySqlMessageType::Unknown, origin));
+			}
+
 			auto command = data[commandIndex];
 			switch (command)
 			{
@@ -407,6 +413,13 @@ namespace pcpp
 				return std::unique_ptr<MySqlMessage>(
 				    new MySqlMessage(data, messageLength + 4, MySqlMessageType::Server_Handshake, origin));
 			}
+
+			if (dataLen < commandIndex + 1 || messageLength == 0)
+			{
+				return std::unique_ptr<MySqlMessage>(
+					new MySqlMessage(data, messageLength + 4, MySqlMessageType::Unknown, origin));
+			}
+
 			auto firstByte = data[commandIndex];
 			switch (firstByte)
 			{
@@ -433,11 +446,6 @@ namespace pcpp
 				return std::unique_ptr<MySqlMessage>(
 				    new MySqlMessage(data, messageLength + basicMessageLength, MySqlMessageType::Server_Other, origin));
 			}
-		}
-
-		if (messageType == MySqlMessageType::Unknown)
-		{
-			return nullptr;
 		}
 
 		return std::unique_ptr<MySqlCommandMessage>(
