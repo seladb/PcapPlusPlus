@@ -34,11 +34,11 @@ PTF_TEST_CASE(MySqlLayerParsingTest)
 		PTF_ASSERT_EQUAL(messages.size(), 10);
 
 		std::vector<pcpp::MySqlMessageType::Value> expectedTypes = {
-			pcpp::MySqlMessageType::Server_Other, pcpp::MySqlMessageType::Server_Other,
-			pcpp::MySqlMessageType::Server_Other, pcpp::MySqlMessageType::Server_Other,
-			pcpp::MySqlMessageType::Server_Other, pcpp::MySqlMessageType::Server_Other,
-			pcpp::MySqlMessageType::Server_Other, pcpp::MySqlMessageType::Server_Other,
-			pcpp::MySqlMessageType::Server_Other, pcpp::MySqlMessageType::Server_EOF
+			pcpp::MySqlMessageType::Server_Data, pcpp::MySqlMessageType::Server_Data,
+			pcpp::MySqlMessageType::Server_Data, pcpp::MySqlMessageType::Server_Data,
+			pcpp::MySqlMessageType::Server_Data, pcpp::MySqlMessageType::Server_Data,
+			pcpp::MySqlMessageType::Server_Data, pcpp::MySqlMessageType::Server_Data,
+			pcpp::MySqlMessageType::Server_Data, pcpp::MySqlMessageType::Server_EOF
 		};
 
 		for (size_t i = 0; i < messages.size(); i++)
@@ -175,16 +175,16 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 		PTF_ASSERT_EQUAL(message->getRawPayload().size(), 73);
 	}
 
-	// Server - Other (unknown first byte)
+	// Server - data (unknown first byte)
 	{
-		std::vector<uint8_t> otherData = {
+		std::vector<uint8_t> data = {
 			0x01, 0x00, 0x00,  // Packet length (1)
 			0x01,              // Packet number (1)
 			0x01               // Data
 		};
 		auto message =
-		    pcpp::MySqlMessage::parseMySqlMessage(otherData.data(), otherData.size(), pcpp::MySqlMessageOrigin::Server);
-		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Server_Other, pcpp::MySqlMessageOrigin::Server, "Other");
+		    pcpp::MySqlMessage::parseMySqlMessage(data.data(), data.size(), pcpp::MySqlMessageOrigin::Server);
+		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Server_Data, pcpp::MySqlMessageOrigin::Server, "Data");
 		PTF_ASSERT_EQUAL(message->getPacketNumber(), 1);
 		PTF_ASSERT_EQUAL(message->getMessageLength(), 1);
 	}

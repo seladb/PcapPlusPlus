@@ -108,8 +108,8 @@ namespace pcpp
 			Server_EOF,
 			/// Error packet - error response from server
 			Server_Error,
-			/// Other server message
-			Server_Other,
+			/// Server message that contains data (could be column definition, row data, result set header, etc.)
+			Server_Data,
 
 			/// Unknown message
 			Unknown

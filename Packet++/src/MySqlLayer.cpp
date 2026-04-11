@@ -199,8 +199,8 @@ namespace pcpp
 			return "Error";
 		case Server_EOF:
 			return "EOF";
-		case Server_Other:
-			return "Other";
+		case Server_Data:
+			return "Data";
 		default:
 			return "Unknown";
 		}
@@ -444,7 +444,7 @@ namespace pcpp
 			}
 			default:
 				return std::unique_ptr<MySqlMessage>(
-				    new MySqlMessage(data, messageLength + basicMessageLength, MySqlMessageType::Server_Other, origin));
+				    new MySqlMessage(data, messageLength + basicMessageLength, MySqlMessageType::Server_Data, origin));
 			}
 		}
 
