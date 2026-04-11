@@ -297,7 +297,7 @@ namespace pcpp
 			if (dataLen < commandIndex + 1 || messageLength == 0)
 			{
 				return std::unique_ptr<MySqlMessage>(
-					new MySqlMessage(data, messageLength + 4, MySqlMessageType::Unknown, origin));
+				    new MySqlMessage(data, messageLength + 4, MySqlMessageType::Unknown, origin));
 			}
 
 			auto command = data[commandIndex];
@@ -417,7 +417,7 @@ namespace pcpp
 			if (dataLen < commandIndex + 1 || messageLength == 0)
 			{
 				return std::unique_ptr<MySqlMessage>(
-					new MySqlMessage(data, messageLength + 4, MySqlMessageType::Unknown, origin));
+				    new MySqlMessage(data, messageLength + 4, MySqlMessageType::Unknown, origin));
 			}
 
 			auto firstByte = data[commandIndex];

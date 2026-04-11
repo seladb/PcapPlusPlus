@@ -227,21 +227,21 @@ namespace pcpp
 		size_t m_DataLen;
 		MySqlMessageType m_MessageType;
 		MySqlMessageOrigin m_MessageOrigin;
-
 	};
 
 	class MySqlCommandMessage : public MySqlMessage
 	{
 		friend class MySqlMessage;
+
 	public:
 		uint32_t getMessageLength() const override;
 		std::vector<uint8_t> getRawPayload() const override;
 
 	protected:
 		MySqlCommandMessage(const uint8_t* data, size_t dataLen, const MySqlMessageType& messageType,
-					 MySqlMessageOrigin origin) : MySqlMessage(data, dataLen, messageType, origin)
+		                    MySqlMessageOrigin origin)
+		    : MySqlMessage(data, dataLen, messageType, origin)
 		{}
-
 	};
 
 	/// @class MySqlLayer
@@ -259,11 +259,9 @@ namespace pcpp
 			return port == 3306;
 		}
 
-		static MySqlLayer* parseMySqlClientMessage(uint8_t* data, size_t dataLen, Layer* prevLayer,
-												   Packet* packet);
+		static MySqlLayer* parseMySqlClientMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		static MySqlLayer* parseMySqlServerMessage(uint8_t* data, size_t dataLen, Layer* prevLayer,
-															Packet* packet);
+		static MySqlLayer* parseMySqlServerMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/// @return The message origin (client or server)
 		MySqlMessageOrigin getMySqlOrigin() const
@@ -328,7 +326,7 @@ namespace pcpp
 		mutable bool m_MessagesInitialized = false;
 
 		MySqlLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, MySqlMessageOrigin origin)
-			: Layer(data, dataLen, prevLayer, packet, MySQL), m_MessageOrigin(origin)
+		    : Layer(data, dataLen, prevLayer, packet, MySQL), m_MessageOrigin(origin)
 		{}
 	};
 

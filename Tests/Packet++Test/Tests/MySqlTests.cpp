@@ -508,9 +508,9 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 			0x18               // COM_STMT_SEND_LONG_DATA type
 		};
 		auto message = pcpp::MySqlMessage::parseMySqlMessage(stmtCloseData.data(), stmtCloseData.size(),
-															 pcpp::MySqlMessageOrigin::Client);
+		                                                     pcpp::MySqlMessageOrigin::Client);
 		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Client_StmtSendLongData, pcpp::MySqlMessageOrigin::Client,
-							 "COM_STMT_SEND_LONG_DATA");
+		                     "COM_STMT_SEND_LONG_DATA");
 	}
 
 	// Client - COM_STMT_CLOSE (0x19)
@@ -599,9 +599,9 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 			0x20               // COM_CLONE type
 		};
 		auto message = pcpp::MySqlMessage::parseMySqlMessage(resetConnectionData.data(), resetConnectionData.size(),
-															 pcpp::MySqlMessageOrigin::Client);
+		                                                     pcpp::MySqlMessageOrigin::Client);
 		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Client_Clone, pcpp::MySqlMessageOrigin::Client,
-							 "COM_CLONE");
+		                     "COM_CLONE");
 	}
 }
 
@@ -639,8 +639,8 @@ PTF_TEST_CASE(MySqlInvalidDataTest)
 			0x00, 0x00, 0x00,  // Length = 0
 			0x01,              // Packet number
 		};
-		auto message = pcpp::MySqlMessage::parseMySqlMessage(emptyData.data(), emptyData.size(),
-		                                                     pcpp::MySqlMessageOrigin::Server);
+		auto message =
+		    pcpp::MySqlMessage::parseMySqlMessage(emptyData.data(), emptyData.size(), pcpp::MySqlMessageOrigin::Server);
 		PTF_ASSERT_NOT_NULL(message);
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::MySqlMessageType::Unknown, enum);
 	}
@@ -651,8 +651,8 @@ PTF_TEST_CASE(MySqlInvalidDataTest)
 			0x00, 0x00, 0x00,  // Length = 0
 			0x05,              // Packet number
 		};
-		auto message = pcpp::MySqlMessage::parseMySqlMessage(emptyData.data(), emptyData.size(),
-															 pcpp::MySqlMessageOrigin::Client);
+		auto message =
+		    pcpp::MySqlMessage::parseMySqlMessage(emptyData.data(), emptyData.size(), pcpp::MySqlMessageOrigin::Client);
 		PTF_ASSERT_NOT_NULL(message);
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::MySqlMessageType::Unknown, enum);
 	}
