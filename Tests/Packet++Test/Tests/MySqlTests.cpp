@@ -45,6 +45,8 @@ PTF_TEST_CASE(MySqlLayerParsingTest)
 		{
 			PTF_ASSERT_EQUAL(messages.at(i)->getMessageType(), expectedTypes[i], enum);
 		}
+
+		PTF_ASSERT_EQUAL(mySqlLayer->toString(), "MySQL Server Layer, 10 message(s)");
 	}
 
 	// Client message
@@ -68,6 +70,8 @@ PTF_TEST_CASE(MySqlLayerParsingTest)
 		PTF_ASSERT_EQUAL(messages.size(), 1);
 
 		PTF_ASSERT_EQUAL(messages.at(0)->getMessageType(), pcpp::MySqlMessageType::Client_HandshakeResponse, enum);
+
+		PTF_ASSERT_EQUAL(mySqlLayer->toString(), "MySQL Client Layer, 1 message(s)");
 	}
 }
 
