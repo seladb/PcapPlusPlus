@@ -313,8 +313,7 @@ namespace pcpp
 				messageType = MySqlMessageType::Client_InitDb;
 				break;
 			case ClientQueryCommand:
-				messageType = MySqlMessageType::Client_Query;
-				break;
+				return std::unique_ptr<MySqlQueryMessage>(new MySqlQueryMessage(data, messageLength + 4));
 			case ClientFieldListCommand:
 				messageType = MySqlMessageType::Client_FieldList;
 				break;
@@ -479,6 +478,16 @@ namespace pcpp
 			return {};
 		}
 		return { m_Data + basicMessageLength + commandLength, m_Data + m_DataLen };
+	}
+
+	std::string MySqlQueryMessage::getQuery() const
+	{
+		if (!m_Data || m_DataLen < statementIndex + 1)
+		{
+			return {};
+		}
+
+		return { reinterpret_cast<const char*>(m_Data + statementIndex), m_DataLen - statementIndex };
 	}
 
 	MySqlLayer* MySqlLayer::parseMySqlClientMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)

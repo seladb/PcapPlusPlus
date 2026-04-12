@@ -244,6 +244,22 @@ namespace pcpp
 		{}
 	};
 
+	class MySqlQueryMessage : public MySqlCommandMessage
+	{
+		friend class MySqlMessage;
+
+	public:
+		std::string getQuery() const;
+
+	protected:
+		MySqlQueryMessage(const uint8_t* data, size_t dataLen)
+		    : MySqlCommandMessage(data, dataLen, MySqlMessageType::Client_Query, MySqlMessageOrigin::Client)
+		{}
+
+	private:
+		static constexpr int statementIndex = 7;
+	};
+
 	/// @class MySqlLayer
 	/// Represents a MySQL protocol layer
 	class MySqlLayer : public Layer

@@ -208,19 +208,24 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 	// Client - COM_QUERY (0x03)
 	{
 		std::vector<uint8_t> queryData = {
-			0x0A, 0x00, 0x00,                                // Packet length (10)
+			0x1B, 0x00, 0x00,                                // Packet length (10)
 			0x00,                                            // Packet number (0)
 			0x03,                                            // COM_QUERY type
-			'S',  'E',  'L',  'E', 'C', 'T', ' ', '1', 0x00  // Query string
+			0x00, 0x01,                                      // Num of params
+			0x73, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x20, 0x2a,  // Query statement
+			0x20, 0x66, 0x72, 0x6f, 0x6d, 0x20, 0x74, 0x6f, 0x75, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x6e, 0x74,
 		};
 		auto message =
 		    pcpp::MySqlMessage::parseMySqlMessage(queryData.data(), queryData.size(), pcpp::MySqlMessageOrigin::Client);
 		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Client_Query, pcpp::MySqlMessageOrigin::Client,
 		                     "COM_QUERY");
-		PTF_ASSERT_EQUAL(message->getMessageLength(), 9);
-		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), 14);
-		std::vector<uint8_t> expectedPayload = { 'S', 'E', 'L', 'E', 'C', 'T', ' ', '1', 0x00 };
+		PTF_ASSERT_EQUAL(message->getMessageLength(), 26);
+		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), 31);
+		std::vector<uint8_t> expectedPayload = { 0x00, 0x01, 's', 'e', 'l', 'e', 'c', 't', ' ', '*', ' ', 'f', 'r',
+			                                     'o',  'm',  ' ', 't', 'o', 'u', 'r', 'n', 'a', 'm', 'e', 'n', 't' };
 		PTF_ASSERT_VECTORS_EQUAL(message->getRawPayload(), expectedPayload);
+		auto queryMessage = dynamic_cast<pcpp::MySqlQueryMessage*>(message.get());
+		PTF_ASSERT_EQUAL(queryMessage->getQuery(), "select * from tournament");
 	}
 
 	// Client - COM_PING (0x0E)
@@ -672,5 +677,20 @@ PTF_TEST_CASE(MySqlInvalidDataTest)
 		                                                     pcpp::MySqlMessageOrigin::Client);
 		PTF_ASSERT_NOT_NULL(message);
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::MySqlMessageType::Unknown, enum);
+	}
+
+	// Query with not enough data
+	{
+		std::vector<uint8_t> invalidQueryData = {
+			0x02, 0x00, 0x00,  // Packet length (10)
+			0x00,              // Packet number (0)
+			0x03,              // COM_QUERY type
+			0x00,              // Num of params
+		};
+		auto message = pcpp::MySqlMessage::parseMySqlMessage(invalidQueryData.data(), invalidQueryData.size(),
+		                                                     pcpp::MySqlMessageOrigin::Client);
+		PTF_ASSERT_NOT_NULL(message);
+		auto queryMessage = dynamic_cast<pcpp::MySqlQueryMessage*>(message.get());
+		PTF_ASSERT_EQUAL(queryMessage->getQuery(), "");
 	}
 }
