@@ -105,14 +105,22 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 	// Server - Error packet (0xFF)
 	{
 		std::vector<uint8_t> errorData = {
-			0x03, 0x00, 0x00,  // Packet length (3)
-			0x01,              // Packet number (1)
-			0xFF,              // Error type
-			0x01, 0x04         // Error code
+			0x1D, 0x00, 0x00,                                // Packet length (29)
+			0x01,                                            // Packet number (1)
+			0xFF,                                            // Error type
+			0x16, 0x04,                                      // Error code (1046)
+			0x23,                                            // Marks protocol 4.1+
+			0x33, 0x44, 0x30, 0x30, 0x30,                    // SQL state ("3D000")
+			0x4e, 0x6f, 0x20, 0x64, 0x61, 0x74, 0x61, 0x62,  // Error message
+			0x61, 0x73, 0x65, 0x20, 0x73, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x65, 0x64,
 		};
 		auto message =
 		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
 		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Server_Error, pcpp::MySqlMessageOrigin::Server, "Error");
+		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
+		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 1046);
+		PTF_ASSERT_EQUAL(errorMessage->getSqlState(), "3D000");
+		PTF_ASSERT_EQUAL(errorMessage->getErrorMessage(), "No database selected");
 	}
 
 	// Server - AuthSwitchRequest packet (0xFE)
@@ -208,7 +216,7 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 	// Client - COM_QUERY (0x03)
 	{
 		std::vector<uint8_t> queryData = {
-			0x1B, 0x00, 0x00,                                // Packet length (10)
+			0x1B, 0x00, 0x00,                                // Packet length (27)
 			0x00,                                            // Packet number (0)
 			0x03,                                            // COM_QUERY type
 			0x00, 0x01,                                      // Num of params
@@ -692,5 +700,51 @@ PTF_TEST_CASE(MySqlInvalidDataTest)
 		PTF_ASSERT_NOT_NULL(message);
 		auto queryMessage = dynamic_cast<pcpp::MySqlQueryMessage*>(message.get());
 		PTF_ASSERT_EQUAL(queryMessage->getQuery(), "");
+	}
+
+	// Error message with not enough data for error code
+	{
+		std::vector<uint8_t> errorData = {
+			0x01, 0x00, 0x00,  // Packet length (1)
+			0x01,              // Packet number (1)
+			0xFF,              // Error type
+		};
+		auto message =
+		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
+		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
+		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 0);
+		PTF_ASSERT_EQUAL(errorMessage->getSqlState(), "");
+		PTF_ASSERT_EQUAL(errorMessage->getErrorMessage(), "");
+	}
+
+	// Error message with half data for error code
+	{
+		std::vector<uint8_t> errorData = {
+			0x01, 0x00, 0x00,  // Packet length (29)
+			0x01,              // Packet number (1)
+			0xFF,              // Error type
+			0x16,              // Error code - not sufficient data
+		};
+		auto message =
+		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
+		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
+		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 0);
+	}
+
+	// Error message with half data for SQL state
+	{
+		std::vector<uint8_t> errorData = {
+			0x06, 0x00, 0x00,  // Packet length (29)
+			0x01,              // Packet number (1)
+			0xFF,              // Error type
+			0x16, 0x04,        // Error code (1046)
+			0x23,              // Marks protocol 4.1+
+			0x33, 0x44,        // SQL state - not sufficient data
+		};
+		auto message =
+		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
+		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
+		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 1046);
+		PTF_ASSERT_EQUAL(errorMessage->getSqlState(), "");
 	}
 }

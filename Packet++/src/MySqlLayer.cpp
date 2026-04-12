@@ -313,7 +313,7 @@ namespace pcpp
 				messageType = MySqlMessageType::Client_InitDb;
 				break;
 			case ClientQueryCommand:
-				return std::unique_ptr<MySqlQueryMessage>(new MySqlQueryMessage(data, messageLength + 4));
+				return std::unique_ptr<MySqlMessage>(new MySqlQueryMessage(data, messageLength + 4));
 			case ClientFieldListCommand:
 				messageType = MySqlMessageType::Client_FieldList;
 				break;
@@ -426,8 +426,7 @@ namespace pcpp
 				messageType = MySqlMessageType::Server_Ok;
 				break;
 			case ServerError:
-				messageType = MySqlMessageType::Server_Error;
-				break;
+				return std::unique_ptr<MySqlMessage>(new MySqlErrorMessage(data, messageLength + 4));
 			case ServerEof_AuthSwitchRequest:
 			{
 				messageLength = dataLen - basicMessageLength;
@@ -488,6 +487,36 @@ namespace pcpp
 		}
 
 		return { reinterpret_cast<const char*>(m_Data + statementIndex), m_DataLen - statementIndex };
+	}
+
+	uint16_t MySqlErrorMessage::getErrorCode() const
+	{
+		if (!m_Data || m_DataLen < errorCodeIndex + sizeof(uint16_t))
+		{
+			return 0;
+		}
+
+		return *reinterpret_cast<const uint16_t*>(m_Data + errorCodeIndex);
+	}
+
+	std::string MySqlErrorMessage::getSqlState() const
+	{
+		if (!m_Data || m_DataLen < sqlStateIndex + sqlStateSize)
+		{
+			return {};
+		}
+
+		return { reinterpret_cast<const char*>(m_Data + sqlStateIndex), sqlStateSize };
+	}
+
+	std::string MySqlErrorMessage::getErrorMessage() const
+	{
+		if (!m_Data || m_DataLen < errorMessageIndex + 1)
+		{
+			return {};
+		}
+
+		return { reinterpret_cast<const char*>(m_Data + errorMessageIndex), m_DataLen - errorMessageIndex };
 	}
 
 	MySqlLayer* MySqlLayer::parseMySqlClientMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)

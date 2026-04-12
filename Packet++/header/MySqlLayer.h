@@ -221,7 +221,7 @@ namespace pcpp
 		static constexpr int basicMessageLength = 4;
 		static constexpr int commandLength = 1;
 		static constexpr int packetNumberIndex = 3;
-		static constexpr int commandIndex = 4;
+		static constexpr int commandIndex = packetNumberIndex + 1;
 
 		const uint8_t* m_Data;
 		size_t m_DataLen;
@@ -257,7 +257,28 @@ namespace pcpp
 		{}
 
 	private:
-		static constexpr int statementIndex = 7;
+		static constexpr int statementIndex = commandIndex + 3;
+	};
+
+	class MySqlErrorMessage : public MySqlCommandMessage
+	{
+		friend class MySqlMessage;
+
+	public:
+		uint16_t getErrorCode() const;
+		std::string getSqlState() const;
+		std::string getErrorMessage() const;
+
+	protected:
+		MySqlErrorMessage(const uint8_t* data, size_t dataLen)
+		    : MySqlCommandMessage(data, dataLen, MySqlMessageType::Server_Error, MySqlMessageOrigin::Server)
+		{}
+
+	private:
+		static constexpr int errorCodeIndex = commandIndex + 1;
+		static constexpr int sqlStateIndex = errorCodeIndex + sizeof(uint16_t) + 1;
+		static constexpr int sqlStateSize = 5;
+		static constexpr int errorMessageIndex = sqlStateIndex + sqlStateSize;
 	};
 
 	/// @class MySqlLayer
