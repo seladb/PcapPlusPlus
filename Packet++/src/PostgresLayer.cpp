@@ -1,7 +1,26 @@
 #include "PostgresLayer.h"
 #include "EndianPortable.h"
+#include "GeneralUtils.h"
 #include <algorithm>
 #include <cstring>
+#include <unordered_set>
+
+#pragma pack(push, 1)
+namespace internal
+{
+	struct PostgresColumnFixedData
+	{
+		uint32_t tableOID;
+		uint16_t columnIndex;
+		uint32_t typeOID;
+		int16_t typeSize;
+		int32_t typeModifier;
+		uint16_t formatCode;
+	};
+}  // namespace internal
+#pragma pack(pop)
+
+static_assert(sizeof(::internal::PostgresColumnFixedData) == 18, "PostgresColumnFixedData must be 18 bytes");
 
 namespace pcpp
 {
@@ -43,6 +62,9 @@ namespace pcpp
 	constexpr char PostgresFrontendMessage_c = 'c';
 	constexpr char PostgresFrontendMessage_f = 'f';
 	constexpr char PostgresFrontendMessage_X = 'X';
+
+	const std::unordered_set<uint8_t> validErrorFieldTypes = { 'S', 'V', 'C', 'M', 'D', 'H', 'P', 'p', 'q',
+		                                                       'W', 's', 't', 'c', 'd', 'n', 'F', 'L', 'R' };
 
 	constexpr uint32_t PostgresFrontendTag_SSLRequest = 80877103;
 	constexpr uint32_t PostgresFrontendTag_GSSENCRequest = 80877104;
@@ -431,8 +453,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_D:
 		{
-			messageType = PostgresMessageType::Backend_DataRow;
-			break;
+			return std::unique_ptr<PostgresMessage>(new PostgresDataRowMessage(data, messageLength + 1));
 		}
 		case PostgresBackendMessage_I:
 		{
@@ -441,8 +462,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_E:
 		{
-			messageType = PostgresMessageType::Backend_ErrorResponse;
-			break;
+			return std::unique_ptr<PostgresMessage>(new PostgresErrorResponseMessage(data, messageLength + 1));
 		}
 		case PostgresBackendMessage_V:
 		{
@@ -486,13 +506,11 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_T:
 		{
-			messageType = PostgresMessageType::Backend_RowDescription;
-			break;
+			return std::unique_ptr<PostgresMessage>(new PostgresRowDescriptionMessage(data, messageLength + 1));
 		}
 		default:
 		{
 			break;
-			;
 		}
 		}
 
@@ -573,8 +591,8 @@ namespace pcpp
 		{
 		case PostgresFrontendMessage_Q:
 		{
-			messageType = PostgresMessageType::Frontend_Query;
-			break;
+			return std::unique_ptr<PostgresMessage>(
+			    new PostgresQueryMessage(data, (std::min)(static_cast<size_t>(messageLength) + 1, dataLen)));
 		}
 		case PostgresFrontendMessage_P:
 		{
@@ -704,6 +722,200 @@ namespace pcpp
 		const char* valueEnd = std::find(valueStart, baseEnd, '\0');
 
 		return { valueStart, valueEnd };
+	}
+
+	std::string PostgresQueryMessage::getQuery() const
+	{
+		constexpr size_t headerLen = 5;
+
+		if (m_DataLen < headerLen + 1)
+		{
+			return "";
+		}
+
+		const char* queryStart = reinterpret_cast<const char*>(m_Data) + headerLen;
+		const char* queryEnd = queryStart + m_DataLen - headerLen;
+		queryEnd = std::find(queryStart, queryEnd, '\0');
+		return { queryStart, queryEnd };
+	}
+
+	std::vector<PostgresRowDescriptionMessage::PostgresColumnInfo> PostgresRowDescriptionMessage::getColumnInfos() const
+	{
+		std::vector<PostgresColumnInfo> columns;
+
+		constexpr size_t headerLen = 7;
+		if (m_DataLen < headerLen)
+			return columns;
+
+		uint16_t numFields = be16toh(*reinterpret_cast<const uint16_t*>(m_Data + 5));
+		if (numFields > 10000)
+			return columns;
+
+		const char* iter = reinterpret_cast<const char*>(m_Data) + headerLen;
+		const char* end = reinterpret_cast<const char*>(m_Data) + m_DataLen;
+
+		for (uint16_t i = 0; i < numFields; ++i)
+		{
+			if (iter >= end)
+				break;
+
+			PostgresColumnInfo column;
+
+			const char* nameEnd = std::find(iter, end, '\0');
+			if (nameEnd == end)
+			{
+				break;
+			}
+
+			column.name.assign(iter, nameEnd);
+
+			// +1 offset because the nameEnd is currently at the null terminator of column name.
+			if (end - nameEnd < static_cast<std::ptrdiff_t>(sizeof(::internal::PostgresColumnFixedData) + 1))
+			{
+				columns.push_back(column);
+				break;
+			}
+
+			iter = nameEnd + 1;
+
+			const auto* fixedData = reinterpret_cast<const ::internal::PostgresColumnFixedData*>(iter);
+			column.tableOID = be32toh(fixedData->tableOID);
+			column.columnIndex = be16toh(fixedData->columnIndex);
+			column.typeOID = be32toh(fixedData->typeOID);
+			column.typeSize = be16toh(fixedData->typeSize);
+			column.typeModifier = be32toh(fixedData->typeModifier);
+			auto formatCode = be16toh(fixedData->formatCode);
+			column.format =
+			    formatCode < 2 ? static_cast<PostgresColumnFormat>(formatCode) : PostgresColumnFormat::Unknown;
+
+			iter += sizeof(::internal::PostgresColumnFixedData);
+			columns.push_back(column);
+		}
+
+		return columns;
+	}
+
+	std::vector<PostgresDataRowMessage::ColumnData> PostgresDataRowMessage::getDataRow() const
+	{
+		constexpr size_t headerLen = 7;
+		if (m_DataLen < headerLen)
+		{
+			return {};
+		}
+
+		uint16_t numColumns = be16toh(*reinterpret_cast<const uint16_t*>(m_Data + 5));
+		if (numColumns > 10000)
+		{
+			return {};
+		}
+
+		std::vector<ColumnData> rowData;
+
+		size_t offset = headerLen;
+
+		for (uint16_t i = 0; i < numColumns; ++i)
+		{
+			if (offset + 4 > m_DataLen)
+			{
+				if (offset < m_DataLen)
+				{
+					rowData.emplace_back(nullptr, 0);
+				}
+				break;
+			}
+
+			const auto colLength = be32toh(*reinterpret_cast<const uint32_t*>(m_Data + offset));
+			offset += 4;
+
+			if (colLength == 0 || colLength == 0xffffffff)
+			{
+				rowData.emplace_back(nullptr, 0);
+				continue;
+			}
+
+			if (offset + colLength > m_DataLen)
+			{
+				break;
+			}
+
+			rowData.emplace_back(m_Data + offset, colLength);
+			offset += colLength;
+		}
+
+		return rowData;
+	}
+
+	std::string PostgresDataRowMessage::ColumnData::toHexString() const
+	{
+		return byteArrayToHexString(m_Data, m_DataLen);
+	}
+
+	std::string PostgresDataRowMessage::ColumnData::toString() const
+	{
+		if (m_Data == nullptr || m_DataLen == 0)
+		{
+			return "";
+		}
+
+		return { m_Data, m_Data + m_DataLen };
+	}
+
+	const PostgresErrorResponseMessage::FieldMap& PostgresErrorResponseMessage::getFields() const
+	{
+		if (m_FieldsParsed)
+		{
+			return m_Fields;
+		}
+
+		constexpr auto headerLen = static_cast<size_t>(5);
+		if (m_DataLen < headerLen)
+		{
+			m_FieldsParsed = true;
+			return m_Fields;
+		}
+
+		auto offset = headerLen;
+		while (offset < m_DataLen)
+		{
+			auto fieldTypeValue = m_Data[offset];
+			if (fieldTypeValue == 0)
+			{
+				break;
+			}
+
+			const bool isKnownField = validErrorFieldTypes.find(fieldTypeValue) != validErrorFieldTypes.end();
+
+			offset++;
+			if (offset >= m_DataLen)
+			{
+				break;
+			}
+
+			auto* valueStart = reinterpret_cast<const char*>(m_Data) + offset;
+			auto remaining = m_DataLen - offset;
+			auto* nullPos = static_cast<const char*>(memchr(valueStart, '\0', remaining));
+
+			std::string fieldValue;
+			if (nullPos != nullptr)
+			{
+				fieldValue.assign(valueStart, nullPos - valueStart);
+				offset = static_cast<size_t>(nullPos - reinterpret_cast<const char*>(m_Data)) + 1;
+			}
+			else
+			{
+				fieldValue.assign(valueStart, remaining);
+				break;
+			}
+
+			if (isKnownField)
+			{
+				const auto fieldType = static_cast<ErrorField>(fieldTypeValue);
+				m_Fields[fieldType] = std::move(fieldValue);
+			}
+		}
+
+		m_FieldsParsed = true;
+		return m_Fields;
 	}
 
 	uint32_t PostgresStartupMessage::getProtocolVersion() const

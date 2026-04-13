@@ -1,5 +1,7 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
+#define NOMINMAX
+
 #include "IpUtils.h"
 #include "DeviceUtils.h"
 #include "PcapUtils.h"
@@ -370,9 +372,16 @@ namespace pcpp
 
 			PCPP_LOG_DEBUG("Begin periodic statistics update procedure");
 
+			constexpr auto maxWakeupInterval = std::chrono::milliseconds(500);
+			const auto wakeupInterval = std::min(context.updateInterval, maxWakeupInterval);
+
+			auto nextActionTime = std::chrono::steady_clock::now();
+
 			PcapStats stats;
 			while (!stopFlag.load())
 			{
+				nextActionTime += context.updateInterval;
+
 				try
 				{
 					pcapDescriptor.getStatistics(stats);
@@ -388,7 +397,25 @@ namespace pcpp
 					PCPP_LOG_ERROR("Unknown exception occurred while invoking statistics update callback");
 					break;
 				}
-				std::this_thread::sleep_for(context.updateInterval);
+
+				auto currentTime = std::chrono::steady_clock::now();
+
+				if (currentTime >= nextActionTime)
+				{
+					PCPP_LOG_WARN("Statistics update callback execution is taking longer than the update interval!");
+					nextActionTime = currentTime + context.updateInterval;
+				}
+
+				while (!stopFlag.load())
+				{
+					currentTime = std::chrono::steady_clock::now();
+
+					if (currentTime >= nextActionTime)
+						break;
+
+					auto nextWakeupTime = std::min(nextActionTime, currentTime + wakeupInterval);
+					std::this_thread::sleep_until(nextWakeupTime);
+				}
 			}
 			PCPP_LOG_DEBUG("Ended periodic statistics update procedure");
 		}

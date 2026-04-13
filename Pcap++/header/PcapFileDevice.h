@@ -210,6 +210,7 @@ namespace pcpp
 		std::ifstream m_PcapFile;
 		bool m_NeedsSwap = false;
 		uint32_t m_SnapshotLength = 0;
+		std::vector<uint8_t> m_ReadBuffer;
 
 		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
 		                    uint32_t& capturedLength, uint32_t& frameLength);
@@ -305,44 +306,13 @@ namespace pcpp
 		void flush();
 
 	private:
+		static bool writeHeader(std::ostream& outStream, FileTimestampPrecision precision, uint32_t snaplen,
+		                        LinkLayerType linkType);
+
 		LinkLayerType m_PcapLinkLayerType = LINKTYPE_ETHERNET;
 		bool m_NeedsSwap = false;
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;
 		std::fstream m_PcapFile;
-
-		struct CheckHeaderResult
-		{
-			enum class Result
-			{
-				HeaderOk,
-				HeaderError,
-				HeaderNeeded
-			};
-
-			Result result;
-			std::string error;
-			bool needsSwap = false;
-
-			static CheckHeaderResult fromOk(bool needsSwap)
-			{
-				return { Result::HeaderOk, "", needsSwap };
-			}
-
-			static CheckHeaderResult fromError(const std::string& error)
-			{
-				return { Result::HeaderError, error };
-			}
-
-			static CheckHeaderResult fromHeaderNeeded()
-			{
-				return { Result::HeaderNeeded };
-			}
-		};
-
-		static bool writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
-		                        LinkLayerType linkType);
-		static CheckHeaderResult checkHeader(std::fstream& pcapFile, FileTimestampPrecision requestedPrecision,
-		                                     LinkLayerType requestedLinkType);
 	};
 
 	/// @class PcapNgFileReaderDevice
@@ -576,6 +546,7 @@ namespace pcpp
 
 		LinkLayerType m_PcapLinkLayerType;
 		std::ifstream m_SnoopFile;
+		std::vector<uint8_t> m_ReadBuffer;
 
 		bool readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
 		                    uint32_t& capturedLength, uint32_t& frameLength);

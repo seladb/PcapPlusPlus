@@ -92,7 +92,7 @@ namespace pcpp
 		}
 
 		// Get MAC address
-		uint8_t buffArray[6];
+		uint8_t buffArray[6] = { 0 };
 		addr.copyTo(buffArray);
 
 		const uint64_t macAddr = (((uint64_t)((buffArray)[5]) << 0) + ((uint64_t)((buffArray)[4]) << 8) +
