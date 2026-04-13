@@ -17,7 +17,9 @@ namespace pcpp
 	/// Indicates whether the message is from the client or server
 	enum class MySqlMessageOrigin
 	{
+		/// Message is from the MySQL client
 		Client,
+		/// Message is from the MySQL server
 		Server
 	};
 
@@ -124,8 +126,8 @@ namespace pcpp
 		constexpr MySqlMessageType(Value value) : m_Value(value)
 		{}
 
-		/// @brief Converts the message type to its character representation
-		/// @return The message type character
+		/// @brief Returns the character representation of the message type
+		/// @return The message type as a character
 		char toChar() const;
 
 		/// @brief Returns a string representation of the message type
@@ -229,6 +231,9 @@ namespace pcpp
 		MySqlMessageOrigin m_MessageOrigin;
 	};
 
+	/// @class MySqlCommandMessage
+	/// Represents a MySQL messages that are commands such as Query (3), StatementPrepare (22), etc.
+	/// Or that messages that have response code such as Ok (0), Error (0xFF)
 	class MySqlCommandMessage : public MySqlMessage
 	{
 		friend class MySqlMessage;
@@ -244,11 +249,14 @@ namespace pcpp
 		{}
 	};
 
+	/// @class MySqlQueryMessage
+	/// Represents a MySQL query command message
 	class MySqlQueryMessage : public MySqlCommandMessage
 	{
 		friend class MySqlMessage;
 
 	public:
+		/// @return The SQL query string
 		std::string getQuery() const;
 
 	protected:
@@ -260,13 +268,20 @@ namespace pcpp
 		static constexpr int statementIndex = commandIndex + 3;
 	};
 
+	/// @class MySqlErrorMessage
+	/// Represents a MySQL error message from the server
 	class MySqlErrorMessage : public MySqlCommandMessage
 	{
 		friend class MySqlMessage;
 
 	public:
+		/// @return The MySQL error code
 		uint16_t getErrorCode() const;
+
+		/// @return The SQL state string (5 characters)
 		std::string getSqlState() const;
+
+		/// @return The error message string
 		std::string getErrorMessage() const;
 
 	protected:
@@ -286,18 +301,31 @@ namespace pcpp
 	class MySqlLayer : public Layer
 	{
 	public:
-		/// A d'tor for this layer
+		/// @brief Destructor for this layer
 		~MySqlLayer() override = default;
 
-		/// A static method that checks whether the port is considered as MySQL
+		/// @brief Check whether the port is considered as MySQL
 		/// @param[in] port The port number to be checked
+		/// @return True if the port is 3306 (MySQL default port), false otherwise
 		static bool isMySqlPort(uint16_t port)
 		{
 			return port == 3306;
 		}
 
+		/// @brief Parse a MySQL client message
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer The previous layer
+		/// @param[in] packet The packet being parsed
+		/// @return A pointer to the parsed MySqlLayer, or nullptr if parsing fails
 		static MySqlLayer* parseMySqlClientMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
+		/// @brief Parse a MySQL server message
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer The previous layer
+		/// @param[in] packet The packet being parsed
+		/// @return A pointer to the parsed MySqlLayer, or nullptr if parsing fails
 		static MySqlLayer* parseMySqlServerMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/// @return The message origin (client or server)
@@ -334,7 +362,7 @@ namespace pcpp
 
 		// Overridden methods
 
-		/// @return The size of the MySQL layer header
+		/// @return The size of the MySQL layer header in bytes
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
