@@ -460,7 +460,7 @@ namespace pcpp
 		};
 
 		using ConnectionList = std::unordered_map<uint32_t, TcpReassemblyData>;
-		using CleanupList = std::map<time_t, std::list<uint32_t>>;
+		using CleanupList = std::multimap<time_t, uint32_t>;
 
 		OnTcpMessageReady m_OnMessageReadyCallback;
 		OnTcpConnectionStart m_OnConnStart;
