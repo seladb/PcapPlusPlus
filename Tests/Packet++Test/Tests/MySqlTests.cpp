@@ -2,10 +2,8 @@
 #include "../Utils/TestUtils.h"
 #include "Packet.h"
 #include "MySqlLayer.h"
-#include "NullLoopbackLayer.h"
 #include "TcpLayer.h"
 
-#include <algorithm>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -49,6 +47,10 @@ PTF_TEST_CASE(MySqlLayerParsingTest)
 		}
 
 		PTF_ASSERT_EQUAL(mySqlLayer->toString(), "MySQL Server Layer, 10 message(s)");
+
+		auto eofMessage = mySqlLayer->getMySqlMessage(pcpp::MySqlMessageType::Server_EOF);
+		PTF_ASSERT_EQUAL(eofMessage->getMessageType(), pcpp::MySqlMessageType::Server_EOF, enum);
+		PTF_ASSERT_NULL(mySqlLayer->getMySqlMessage(pcpp::MySqlMessageType::Server_Error));
 	}
 
 	// Client message
@@ -575,6 +577,23 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 		                     "COM_SET_OPTION");
 	}
 
+	// Client - COM_STMT_FETCH (0x1C)
+	{
+		std::vector<uint8_t> stmtFetchData = {
+			0x09, 0x00, 0x00,        // Packet length (9)
+			0x00,                    // Packet number (0)
+			0x1C,                    // COM_STMT_FETCH type
+			0x01, 0x00, 0x00, 0x00,  // Statement ID (1)
+			0x64, 0x00, 0x00, 0x00   // Cursor rows (100)
+		};
+		auto message = pcpp::MySqlMessage::parseMySqlMessage(stmtFetchData.data(), stmtFetchData.size(),
+		                                                     pcpp::MySqlMessageOrigin::Client);
+		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Client_StmtFetch, pcpp::MySqlMessageOrigin::Client,
+		                     "COM_STMT_FETCH");
+		PTF_ASSERT_EQUAL(message->getMessageLength(), 8);
+		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), 13);
+	}
+
 	// Client - COM_DAEMON (0x1D)
 	{
 		std::vector<uint8_t> daemonData = {
@@ -625,6 +644,38 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 		                                                     pcpp::MySqlMessageOrigin::Client);
 		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Client_Clone, pcpp::MySqlMessageOrigin::Client,
 		                     "COM_CLONE");
+	}
+
+	// Client - HandshakeResponse (packet number = 1)
+	{
+		std::vector<uint8_t> handshakeResponseData = {
+			0xb4, 0x00, 0x00,                                // Packet length (180)
+			0x01,                                            // Packet number (1) - indicates handshake response
+			0x85, 0xa6,                                      // Capability flags
+			0xff, 0x19,                                      // Extended client capabilities
+			0x00, 0x00, 0x00, 0x01,                          // MAX packet (16777216)
+			0xff,                                            // Collation
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // Unused
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x72,
+			0x6f, 0x6f, 0x74, 0x00,                          // Username ("root")
+			0x01, 0x00, 0x63, 0x61, 0x63, 0x68, 0x69, 0x6e,  // Client auth plugin ("caching_sha2_password")
+			0x67, 0x5f, 0x73, 0x68, 0x61, 0x32, 0x5f, 0x70,  // Connection attributes
+			0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x00, 0x76, 0x03, 0x5f, 0x6f, 0x73, 0x09, 0x6d, 0x61,
+			0x63, 0x6f, 0x73, 0x31, 0x34, 0x2e, 0x38, 0x09, 0x5f, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72,
+			0x6d, 0x06, 0x78, 0x38, 0x36, 0x5f, 0x36, 0x34, 0x0f, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74,
+			0x5f, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x05, 0x39, 0x2e, 0x36, 0x2e, 0x30, 0x0c, 0x5f,
+			0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x08, 0x6c, 0x69, 0x62, 0x6d,
+			0x79, 0x73, 0x71, 0x6c, 0x04, 0x5f, 0x70, 0x69, 0x64, 0x05, 0x36, 0x38, 0x32, 0x32, 0x36, 0x07,
+			0x6f, 0x73, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x04, 0x65, 0x6c, 0x61, 0x64, 0x0c, 0x70, 0x72, 0x6f,
+			0x67, 0x72, 0x61, 0x6d, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x05, 0x6d, 0x79, 0x73, 0x71, 0x6c
+		};
+		auto message = pcpp::MySqlMessage::parseMySqlMessage(handshakeResponseData.data(), handshakeResponseData.size(),
+		                                                     pcpp::MySqlMessageOrigin::Client);
+		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Client_HandshakeResponse,
+		                     pcpp::MySqlMessageOrigin::Client, "HandshakeResponse");
+		PTF_ASSERT_EQUAL(message->getMessageLength(), 180);
+		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), 184);
+		PTF_ASSERT_EQUAL(message->getPacketNumber(), 1);
 	}
 }
 
