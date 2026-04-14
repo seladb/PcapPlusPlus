@@ -126,10 +126,6 @@ namespace pcpp
 		constexpr MySqlMessageType(Value value) : m_Value(value)
 		{}
 
-		/// @brief Returns the character representation of the message type
-		/// @return The message type as a character
-		char toChar() const;
-
 		/// @brief Returns a string representation of the message type
 		/// @return A string representation of the message type
 		std::string toString() const;

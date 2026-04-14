@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -26,6 +27,7 @@ PTF_TEST_CASE(MySqlLayerParsingTest)
 		auto mySqlLayer = std::unique_ptr<pcpp::MySqlLayer>(pcpp::MySqlLayer::parseMySqlServerMessage(
 		    tcpLayer->getLayerPayload(), tcpLayer->getLayerPayloadSize(), tcpLayer, &packet));
 		PTF_ASSERT_NOT_NULL(mySqlLayer);
+		PTF_ASSERT_EQUAL(mySqlLayer->getHeaderLen(), 605);
 
 		PTF_ASSERT_EQUAL(mySqlLayer->getMySqlOrigin(), pcpp::MySqlMessageOrigin::Server, enumclass);
 		PTF_ASSERT_EQUAL(mySqlLayer->getOsiModelLayer(), pcpp::OsiModelApplicationLayer, enum);
@@ -65,6 +67,7 @@ PTF_TEST_CASE(MySqlLayerParsingTest)
 
 		PTF_ASSERT_EQUAL(mySqlLayer->getMySqlOrigin(), pcpp::MySqlMessageOrigin::Client, enumclass);
 		PTF_ASSERT_EQUAL(mySqlLayer->getOsiModelLayer(), pcpp::OsiModelApplicationLayer, enum);
+		PTF_ASSERT_EQUAL(mySqlLayer->getHeaderLen(), 190);
 
 		auto& messages = mySqlLayer->getMySqlMessages();
 		PTF_ASSERT_EQUAL(messages.size(), 1);
@@ -80,8 +83,11 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 #define ASSERT_MYSQL_MESSAGE(message, expectedMessageType, expectedOrigin, expectedMessageString)                      \
 	PTF_ASSERT_NOT_NULL(message.get());                                                                                \
 	PTF_ASSERT_EQUAL(message->getMessageType(), expectedMessageType, enum);                                            \
+	PTF_ASSERT_EQUAL(message->getMessageType().getOrigin(), expectedOrigin, enumclass);                                \
 	PTF_ASSERT_EQUAL(message->getMessageOrigin(), expectedOrigin, enumclass);                                          \
-	PTF_ASSERT_EQUAL(message->getMessageType().toString(), expectedMessageString);
+	std::ostringstream messageString;                                                                                  \
+	messageString << message->getMessageType();                                                                        \
+	PTF_ASSERT_EQUAL(messageString.str(), expectedMessageString);
 
 	// Server - Ok (0x00)
 	{
