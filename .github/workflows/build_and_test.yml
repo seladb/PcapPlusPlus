@@ -331,6 +331,7 @@ jobs:
           key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
 
       - name: Install DPDK
+        if: steps.cache-dpdk.outputs.cache-hit != 'true'
         run: |
           wget https://fast.dpdk.org/rel/dpdk-${{ matrix.dpdk_version }}.tar.gz \
             && tar xvzf dpdk-${{ matrix.dpdk_version }}.tar.gz \
@@ -341,6 +342,7 @@ jobs:
             && ninja -C build install
 
       - name: Cache DPDK
+        if: steps.cache-dpdk.outputs.cache-hit != 'true'
         uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: dpdk/install
