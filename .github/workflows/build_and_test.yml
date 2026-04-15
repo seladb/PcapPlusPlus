@@ -318,6 +318,10 @@ jobs:
         include:
           - dpdk_version: 24.11.1
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install meson libpcap-dev
+
       - name: Install DPDK
         run: |
           wget https://fast.dpdk.org/rel/dpdk-${{ matrix.dpdk_version }}.tar.gz \
