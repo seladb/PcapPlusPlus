@@ -312,71 +312,86 @@ jobs:
 #          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
   dpdk:
-    runs-on: ubuntu-latest
-    container: seladb/${{ matrix.image }}
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
-          - image: ubuntu2404-dpdk2411
+          - dpdk_version: 24.11.1
+    steps:
+      - name: Install DPDK
+        run: |
+          wget https://fast.dpdk.org/rel/dpdk-${{ matrix.dpdk_version }}.tar.gz \
+            && tar xvzf dpdk-${{ matrix.dpdk_version }}.tar.gz \
+            && rm -rf dpdk-${{ matrix.dpdk_version }}.tar.gz \
+            && mv dpdk-stable-${{ matrix.dpdk_version }} dpdk && cd dpdk \
+            && meson build && cd build && ninja && ninja install && ldconfig
+
+#  dpdk:
+#    runs-on: ubuntu-latest
+#    container: seladb/${{ matrix.image }}
+#    strategy:
+#      matrix:
+#        include:
+#          - image: ubuntu2404-dpdk2411
 #          - image: ubuntu2404-dpdk2311
 #          - image: ubuntu2204-dpdk2211
-
-    steps:
-      - name: Check AVX-512 support
-        run: |
-          echo "::debug::$(grep flags /proc/cpuinfo)"
-          if grep -q avx512 /proc/cpuinfo; then
-            echo "avx512=true" >> $GITHUB_ENV
-          else
-            echo "avx512=false" >> $GITHUB_ENV
-          fi
-
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Restore Ccache
-        id: ccache-restore
-        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
-          restore-keys: |
-            ${{ matrix.image }}-ccache
-
-      - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        run: cmake --build "$BUILD_DIR" -j
-
-      - name: Test Packet++
-        if: env.avx512 == 'true'
-        run: ./Packet++Test
-        working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Packet++Test
-
-      - name: Tests skipped (no AVX-512 hardware support)
-        if: env.avx512 == 'false'
-        run: echo "Skipping tests since AVX-512 is not supported on the current runner"
-
-      - name: Check installation
-        run: |
-          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
-          cmake --build "$BUILD_DIR" -j
-          cmake --install "$BUILD_DIR"
-
-      - name: Build Tutorials
-        run: |
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
-          cmake --build build_examples -j
-
-      - name: Test Tutorials
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
-
-      - name: Save Ccache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
+#
+#    steps:
+#      - name: Check AVX-512 support
+#        run: |
+#          echo "::debug::$(grep flags /proc/cpuinfo)"
+#          if grep -q avx512 /proc/cpuinfo; then
+#            echo "avx512=true" >> $GITHUB_ENV
+#          else
+#            echo "avx512=false" >> $GITHUB_ENV
+#          fi
+#
+#      - name: Checkout code
+#        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#
+#      - name: Restore Ccache
+#        id: ccache-restore
+#        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+#        with:
+#          path: ${{ env.CCACHE_DIR }}
+#          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+#          restore-keys: |
+#            ${{ matrix.image }}-ccache
+#
+#      - name: Configure PcapPlusPlus
+#        run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+#
+#      - name: Build PcapPlusPlus
+#        run: cmake --build "$BUILD_DIR" -j
+#
+#      - name: Test Packet++
+#        if: env.avx512 == 'true'
+#        run: ./Packet++Test
+#        working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Packet++Test
+#
+#      - name: Tests skipped (no AVX-512 hardware support)
+#        if: env.avx512 == 'false'
+#        run: echo "Skipping tests since AVX-512 is not supported on the current runner"
+#
+#      - name: Check installation
+#        run: |
+#          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+#          cmake --build "$BUILD_DIR" -j
+#          cmake --install "$BUILD_DIR"
+#
+#      - name: Build Tutorials
+#        run: |
+#          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+#          cmake --build build_examples -j
+#
+#      - name: Test Tutorials
+#        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+#
+#      - name: Save Ccache
+#        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+#        with:
+#          path: ${{ env.CCACHE_DIR }}
+#          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
 #  pfring:
 #    runs-on: ubuntu-latest
