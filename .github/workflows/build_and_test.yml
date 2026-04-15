@@ -320,7 +320,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install meson libpcap-dev
+          sudo apt update && sudo apt -y install meson libnuma-dev libpcap-dev
 
       - name: Install DPDK
         run: |
