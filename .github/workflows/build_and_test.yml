@@ -321,6 +321,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt -y install meson libnuma-dev libpcap-dev
+          pip install --break-system-packages pyelftools
 
       - name: Install DPDK
         run: |
