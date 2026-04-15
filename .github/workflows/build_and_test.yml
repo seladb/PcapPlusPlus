@@ -323,11 +323,12 @@ jobs:
           sudo apt update && sudo apt -y install meson libnuma-dev libpcap-dev
           pip install --break-system-packages pyelftools
 
-#      - name: Cache DPDK
-#        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-#        with:
-#          path: dpdk
-#          key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
+      - name: Restore DPDK cache
+        id: cache-dpdk
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: dpdk/install
+          key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
 
       - name: Install DPDK
         run: |
@@ -338,6 +339,12 @@ jobs:
             && meson setup build --prefix=$(pwd)/install \
             && ninja -C build \
             && ninja -C build install
+
+      - name: Cache DPDK
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: dpdk/install
+          key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
 
 #  dpdk:
 #    runs-on: ubuntu-latest
