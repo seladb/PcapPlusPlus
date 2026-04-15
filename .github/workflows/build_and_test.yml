@@ -346,6 +346,15 @@ jobs:
           path: dpdk/install
           key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
 
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_USE_DPDK=ON -DDPDK_ROOT=${{ github.workspace }}/dpdk/install -S . -B "$BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build "$BUILD_DIR" -j
+
 #  dpdk:
 #    runs-on: ubuntu-latest
 #    container: seladb/${{ matrix.image }}
