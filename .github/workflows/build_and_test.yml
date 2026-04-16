@@ -351,6 +351,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - name: Debug DPDK
+        run: |
+          echo "Workspace: ${{ github.workspace }}"
+          echo "DPDK_ROOT: ${{ github.workspace }}/dpdk/install"
+          ls -la ${{ github.workspace }}/dpdk/install/include/rte_version.h
+          find ${{ github.workspace }}/dpdk/install -name "rte_version.h"
+
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -DDPDK_ROOT=${{ github.workspace }}/dpdk/install -S . -B "$BUILD_DIR"
 
