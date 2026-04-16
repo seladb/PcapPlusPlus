@@ -751,7 +751,7 @@ namespace pcpp
 			m_OnConnEnd(tcpReassemblyData.connData, reason, m_UserCookie);
 
 		tcpReassemblyData.closed = true;  // mark the connection as closed
-		insertIntoCleanupList(flowKey);
+		scheduleCleanup(flowKey);
 
 		PCPP_LOG_DEBUG("Connection with flow key 0x" << std::hex << flowKey << " is closed");
 	}
@@ -781,7 +781,7 @@ namespace pcpp
 				m_OnConnEnd(tcpReassemblyData.connData, TcpReassemblyConnectionClosedManually, m_UserCookie);
 
 			tcpReassemblyData.closed = true;  // mark the connection as closed
-			insertIntoCleanupList(flowKey);
+			scheduleCleanup(flowKey);
 
 			PCPP_LOG_DEBUG("Connection with flow key 0x" << std::hex << flowKey << " is closed");
 		}
@@ -796,7 +796,7 @@ namespace pcpp
 		return -1;
 	}
 
-	void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
+	void TcpReassembly::scheduleCleanup(uint32_t flowKey)
 	{
 		// m_CleanupMultimap is a multimap with key of type time_t (expiration time) and a value type uint32_t (flow key).
 		// Due to being a multimap, multiple flow keys can have the same expiration time.

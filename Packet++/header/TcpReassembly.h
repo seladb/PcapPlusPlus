@@ -483,7 +483,7 @@ namespace pcpp
 
 		void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
 
-		void insertIntoCleanupList(uint32_t flowKey);
+		void scheduleCleanup(uint32_t flowKey);
 	};
 
 }  // namespace pcpp
