@@ -196,6 +196,11 @@ namespace pcpp
 	}
 
 	Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
+	    : Packet(rawPacket, freeRawPacket, static_cast<ProtocolTypeFamily>(parseUntil), parseUntilLayer)
+	{}
+
+	Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
+	               OsiModelLayer parseUntilLayer)
 	{
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
