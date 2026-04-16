@@ -337,7 +337,7 @@ jobs:
             && tar xvzf dpdk-${{ matrix.dpdk_version }}.tar.gz \
             && rm -rf dpdk-${{ matrix.dpdk_version }}.tar.gz \
             && mv dpdk-stable-${{ matrix.dpdk_version }} dpdk && cd dpdk \
-            && meson setup build --prefix=$(pwd)/install \
+            && meson setup build --prefix=${{ github.workspace }}/dpdk/install \
             && ninja -C build \
             && ninja -C build install
 
