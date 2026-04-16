@@ -103,7 +103,21 @@ void testSetUp()
 		{
 			coreMask |= pcpp::SystemCores::IdToSystemCore[i].Mask;
 		}
-		pcpp::DpdkDeviceList::initDpdk(coreMask, 16383);
+
+		std::vector<std::string> dpdkArgs = {
+			"--no-pci",
+			"--no-huge",
+			"--vdev=net_af_packet0,iface=veth0"
+		};
+		std::vector<char*> argv;
+		argv.reserve(dpdkArgs.size());
+		for (auto& arg : dpdkArgs)
+		{
+			argv.push_back(const_cast<char*>(arg.c_str()));
+		}
+		auto argc = argv.size();
+
+		pcpp::DpdkDeviceList::initDpdk(coreMask, 16383, 0, 0, argc, argv.data(), "pcapplusplusapp", false);
 	}
 #endif
 }
