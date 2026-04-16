@@ -805,7 +805,7 @@ namespace pcpp
 		// removed from storage.
 
 		auto expireTime = time(nullptr) + m_ClosedConnectionDelay;
-		m_CleanupMultimap.insert(std::make_pair(expireTime, flowKey));
+		m_CleanupMultimap.emplace(expireTime, flowKey);
 	}
 
 	uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
