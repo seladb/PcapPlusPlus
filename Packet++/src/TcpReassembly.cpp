@@ -798,8 +798,8 @@ namespace pcpp
 
 	void TcpReassembly::scheduleCleanup(uint32_t flowKey)
 	{
-		// m_CleanupMultimap is a multimap with key of type time_t (expiration time) and a value type uint32_t (flow key).
-		// Due to being a multimap, multiple flow keys can have the same expiration time.
+		// m_CleanupMultimap is a multimap with key of type time_t (expiration time) and a value type uint32_t (flow
+		// key). Due to being a multimap, multiple flow keys can have the same expiration time.
 		//
 		// During purge, up to 'maxNumToClean' entries with expiration time smaller than the current time will be
 		// removed from storage.
