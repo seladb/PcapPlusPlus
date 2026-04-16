@@ -798,14 +798,14 @@ namespace pcpp
 
 	void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
 	{
-		// m_CleanupList is a multimap with key of type time_t (expiration time) and a value type uint32_t (flow key).
+		// m_CleanupMultimap is a multimap with key of type time_t (expiration time) and a value type uint32_t (flow key).
 		// Due to being a multimap, multiple flow keys can have the same expiration time.
 		//
 		// During purge, up to 'maxNumToClean' entries with expiration time smaller than the current time will be
 		// removed from storage.
 
 		auto expireTime = time(nullptr) + m_ClosedConnectionDelay;
-		m_CleanupList.insert(std::make_pair(expireTime, flowKey));
+		m_CleanupMultimap.insert(std::make_pair(expireTime, flowKey));
 	}
 
 	uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
@@ -815,8 +815,8 @@ namespace pcpp
 		if (maxNumToClean == 0)
 			maxNumToClean = m_MaxNumToClean;
 
-		auto it = m_CleanupList.begin();
-		auto itEnd = m_CleanupList.upper_bound(time(nullptr));
+		auto it = m_CleanupMultimap.begin();
+		auto itEnd = m_CleanupMultimap.upper_bound(time(nullptr));
 
 		for (; it != itEnd && count < maxNumToClean; ++it, ++count)
 		{
@@ -825,7 +825,7 @@ namespace pcpp
 			m_ConnectionList.erase(flowKey);
 		}
 
-		m_CleanupList.erase(m_CleanupList.begin(), it);
+		m_CleanupMultimap.erase(m_CleanupMultimap.begin(), it);
 
 		return count;
 	}
