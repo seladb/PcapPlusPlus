@@ -61,6 +61,8 @@ class Runner:
             str(exe_path.absolute()),
             "-i",
             ip_address,
+            "-d",
+            "0",
             *args,
         ]
 
