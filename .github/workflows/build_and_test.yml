@@ -385,7 +385,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_dpdk_tests.py --interface eth0 --test-suites pcap --pcap-test-args "-t TestDpdkInitDevice" --build-dir "$BUILD_DIR"
+          python3 ci/run_tests/run_dpdk_tests.py --interface eth0 --use-sudo --test-suites pcap --pcap-test-args "-t TestDpdkInitDevice" --build-dir "$BUILD_DIR"
 
 #  dpdk:
 #    runs-on: ubuntu-latest
@@ -589,7 +589,7 @@ jobs:
 #        run: |
 #          cd Tests/ExamplesTest
 #          python -m pip install -r requirements.txt
-#          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
+#          python -m pytest --interface en0  --root-path=../../Dist/examples_bin
 #
 #      - name: Check installation
 #        run: |
@@ -1048,7 +1048,7 @@ jobs:
 #      - name: Test PcapPlusPlus
 #        run: |
 #          . .venv/bin/activate
-#          python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp" --build-dir "$BUILD_DIR"
+#          python ci/run_tests/run_tests.py --interface eth0  --pcap-test-args="-t xdp" --build-dir "$BUILD_DIR"
 #
 #      - name: Create Cobertura Report
 #        run: |
