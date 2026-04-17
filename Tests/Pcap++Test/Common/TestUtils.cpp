@@ -106,7 +106,6 @@ void testSetUp()
 
 		std::vector<std::string> dpdkArgs = {
 			"--no-pci",
-			"--no-huge",
 			"--vdev=net_af_packet0,iface=veth0"
 		};
 		std::vector<char*> argv;
