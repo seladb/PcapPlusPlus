@@ -376,6 +376,13 @@ jobs:
           echo "${{ github.workspace }}/dpdk/install/lib/x86_64-linux-gnu" | sudo tee /etc/ld.so.conf.d/dpdk.conf
           sudo ldconfig
 
+      - name: Setup hugepages
+        run: |
+          sudo mkdir -p /mnt/huge
+          sudo mount -t hugetlbfs nodev /mnt/huge
+          echo 64 | sudo tee /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+          grep HugePages /proc/meminfo
+
       - name: Prepare environment for tests
         run: |
           python3 -m venv .venv
