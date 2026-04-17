@@ -67,11 +67,12 @@ class Runner:
             *args,
         ]
 
-        completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
-        if completed_process.returncode != 0:
-            raise RuntimeError(
-                f"Error while executing Pcap++ tests: {completed_process}"
-            )
+        with tcp_replay_worker("veth1", tcpreplay_dir, self.use_sudo):
+            completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
+            if completed_process.returncode != 0:
+                raise RuntimeError(
+                    f"Error while executing Pcap++ tests: {completed_process}"
+                )
 
 
 def main():
