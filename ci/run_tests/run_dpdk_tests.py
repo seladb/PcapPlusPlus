@@ -63,6 +63,7 @@ class Runner:
             ip_address,
             "-d",
             "0",
+            "-v",
             *args,
         ]
 
