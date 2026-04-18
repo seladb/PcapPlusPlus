@@ -336,7 +336,7 @@ PTF_TEST_CASE(TestDpdkDevice)
 
 	DpdkPacketData packetData;
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(dpdkPacketsArrive, &packetData));
-	int totalSleepTime = incSleep(10, 0, packetData);
+	int totalSleepTime = incSleep(10, 10, packetData);
 	dev->stopCapture();
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
