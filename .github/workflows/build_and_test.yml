@@ -323,7 +323,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install meson libnuma-dev libpcap-dev
+          sudo apt update && sudo apt -y install meson libnuma-dev libpcap-dev tcpreplay
           pip install --break-system-packages pyelftools
 
       - name: Restore DPDK cache
