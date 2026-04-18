@@ -375,7 +375,7 @@ jobs:
       - name: Verify packet flow on veth0
         run: |
           # Start tcpdump in background
-          sudo timeout 5 tcpdump -i veth0 -c 10 &
+          sudo timeout 5 tcpdump -i veth0 -c 50 &
           TCPDUMP_PID=$!
           sleep 1
           # Inject traffic
