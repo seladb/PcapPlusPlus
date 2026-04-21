@@ -718,10 +718,8 @@ namespace pcpp
 
 		/// A copy c'tor for this class
 		/// @param other The instance to copy from
-		IPNetwork(const IPNetwork& other)
-		{
-			m_NetworkVariant = other.m_NetworkVariant;
-		}
+		IPNetwork(const IPNetwork& other) : m_NetworkVariant(other.m_NetworkVariant)
+		{}
 
 		/// Overload of an assignment operator.
 		/// @param[in] other An instance of IPNetwork to assign
@@ -911,9 +909,9 @@ namespace pcpp
 
 			NetworkVariant() : m_Type(Type::IPv4), m_IPv4Net(IPv4Address::Zero)
 			{}
-			NetworkVariant(IPv4Network net) : m_Type(Type::IPv4), m_IPv4Net(net)
+			NetworkVariant(IPv4Network const& net) : m_Type(Type::IPv4), m_IPv4Net(net)
 			{}
-			NetworkVariant(IPv6Network net) : m_Type(Type::IPv6), m_IPv6Net(net)
+			NetworkVariant(IPv6Network const& net) : m_Type(Type::IPv6), m_IPv6Net(net)
 			{}
 			~NetworkVariant()
 			{
