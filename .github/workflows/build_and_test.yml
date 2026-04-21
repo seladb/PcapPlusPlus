@@ -405,7 +405,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_dpdk_tests.py --interface eth0 --use-sudo --test-suites pcap --pcap-test-args "-t dpdk -a --no-pci -a --vdev=net_af_packet0,iface=veth0" --build-dir "$BUILD_DIR"
+          python3 ci/run_tests/run_tests.py --interface eth0 --tcpreplay-interface veth1 --use-sudo --test-suites pcap --pcap-test-args "-t dpdk -d 0 -a --no-pci -a --vdev=net_af_packet0,iface=veth0" --build-dir "$BUILD_DIR"
 
 #  dpdk:
 #    runs-on: ubuntu-latest
