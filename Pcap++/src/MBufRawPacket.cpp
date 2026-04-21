@@ -60,7 +60,7 @@ namespace pcpp
 		return true;
 	}
 
-	bool MBufRawPacket::init(DpdkDevice* device)
+	bool MBufRawPacket::init(const DpdkDevice* device)
 	{
 		m_MbufDataSize = device->m_MBufDataSize;
 		return init(device->m_MBufMempool);

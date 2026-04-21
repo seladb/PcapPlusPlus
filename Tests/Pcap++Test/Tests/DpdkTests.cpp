@@ -220,11 +220,11 @@ public:
 			lock.unlock();
 			m_PacketCount += packetReceived;
 			lock.lock();
-			uint16_t packetsSent = m_DpdkDevice->sendPackets(mBufArr, packetReceived, m_QueueId);
-			if (packetsSent != packetReceived)
-			{
-				return false;
-			}
+			//uint16_t packetsSent = m_DpdkDevice->sendPackets(mBufArr, packetReceived, m_QueueId);
+			//if (packetsSent != packetReceived)
+			//{
+			//	return false;
+			//}
 		}
 
 		for (int i = 0; i < 32; i++)
