@@ -895,13 +895,7 @@ namespace pcpp
 				return ip4->toString();
 			}
 
-			auto ip6 = m_NetworkVariant.tryGetIPv6();
-			if (ip6)
-			{
-				return ip6->toString();
-			}
-
-			return "";
+			return m_NetworkVariant.tryGetIPv6()->toString();
 		}
 
 	private:
