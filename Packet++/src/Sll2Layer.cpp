@@ -9,6 +9,7 @@
 #include "VlanLayer.h"
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
+#include "LLCLayer.h"
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -101,6 +102,11 @@ namespace pcpp
 		case PCPP_ETHERTYPE_MPLS:
 		{
 			constructNextLayer<MplsLayer>(payload, payloadLen);
+			break;
+		}
+		case 0x4:
+		{
+			tryConstructNextLayerWithFallback<LLCLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		default:
