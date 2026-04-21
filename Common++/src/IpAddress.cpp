@@ -634,4 +634,38 @@ namespace pcpp
 		return stream.str();
 	}
 
+	void IPNetwork::NetworkVariant::swapTo(IPNetwork::NetworkVariant::Type newType) noexcept
+	{
+		if (m_Type == newType)
+		{
+			return;
+		}
+
+		destroyActiveMem();
+
+		switch (newType)
+		{
+		case Type::IPv4:
+			new (&m_IPv4Net) IPv4Network(IPv4Address::Zero);
+			break;
+		case Type::IPv6:
+			new (&m_IPv6Net) IPv6Network(IPv6Address::Zero);
+			break;
+		}
+		m_Type = newType;
+	}
+
+	void IPNetwork::NetworkVariant::destroyActiveMem() noexcept
+	{
+		switch (m_Type)
+		{
+		case Type::IPv4:
+			m_IPv4Net.~IPv4Network();
+			break;
+		case Type::IPv6:
+			m_IPv6Net.~IPv6Network();
+			break;
+		}
+	}
+
 }  // namespace pcpp
