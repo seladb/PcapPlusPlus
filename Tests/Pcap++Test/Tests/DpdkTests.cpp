@@ -219,12 +219,6 @@ public:
 			uint16_t packetReceived = m_DpdkDevice->receivePackets(mBufArr, 32, m_QueueId);
 			lock.unlock();
 			m_PacketCount += packetReceived;
-			lock.lock();
-			//uint16_t packetsSent = m_DpdkDevice->sendPackets(mBufArr, packetReceived, m_QueueId);
-			//if (packetsSent != packetReceived)
-			//{
-			//	return false;
-			//}
 		}
 
 		for (int i = 0; i < 32; i++)
@@ -336,7 +330,7 @@ PTF_TEST_CASE(TestDpdkDevice)
 
 	DpdkPacketData packetData;
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(dpdkPacketsArrive, &packetData));
-	int totalSleepTime = incSleep(10, 10, packetData);
+	int totalSleepTime = incSleep(10, 0, packetData);
 	dev->stopCapture();
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
