@@ -1223,8 +1223,13 @@ namespace pcpp
 		std::vector<uint8_t> result;
 
 		uint16_t extensionLength = getLength();
+
+		if (extensionLength < 1)
+			return result;
+
 		uint8_t listLength = *getData();
-		if (listLength != static_cast<uint8_t>(extensionLength - 1))
+
+		if (extensionLength != static_cast<uint16_t>(listLength) + 1)
 			return result;  // bad extension data
 
 		uint8_t* dataPtr = getData() + sizeof(uint8_t);

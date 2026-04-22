@@ -168,6 +168,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing5Test);
 PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
+PTF_TEST_CASE(SSLECPointFormatExtensionZeroLengthTest);
 PTF_TEST_CASE(TLS1_3ParsingTest);
 PTF_TEST_CASE(TLSCipherSuiteTest);
 PTF_TEST_CASE(ClientHelloTLSFingerprintTest);
