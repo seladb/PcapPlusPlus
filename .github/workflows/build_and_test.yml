@@ -338,9 +338,9 @@ jobs:
       - name: Install DPDK
         if: steps.cache-dpdk.outputs.cache-hit != 'true'
         run: |
-          wget https://fast.dpdk.org/rel/dpdk-${{ matrix.dpdk_version }}.tar.gz \
-            && tar xvzf dpdk-${{ matrix.dpdk_version }}.tar.gz \
-            && rm -rf dpdk-${{ matrix.dpdk_version }}.tar.gz \
+          wget https://fast.dpdk.org/rel/dpdk-${{ matrix.dpdk_version }}.tar.xz \
+            && tar -xvf dpdk-${{ matrix.dpdk_version }}.tar.xz \
+            && rm -rf dpdk-${{ matrix.dpdk_version }}.tar.xz \
             && mv dpdk-stable-${{ matrix.dpdk_version }} dpdk && cd dpdk \
             && meson setup build --prefix=${{ github.workspace }}/dpdk/install \
             && ninja -C build \
