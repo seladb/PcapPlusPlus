@@ -106,11 +106,8 @@ void testSetUp()
 
 		std::vector<char*> dpdkArgv;
 		dpdkArgv.reserve(PcapTestGlobalArgs.dpdkArgs.size());
-		for (auto& arg : PcapTestGlobalArgs.dpdkArgs)
-		{
-			dpdkArgv.push_back(const_cast<char*>(arg.c_str()));
-		}
-
+		std::transform(PcapTestGlobalArgs.dpdkArgs.begin(), PcapTestGlobalArgs.dpdkArgs.end(),
+		               std::back_inserter(dpdkArgv), [](auto& arg) { return const_cast<char*>(arg.c_str()); });
 		int dpdkArgc = dpdkArgv.empty() ? 0 : static_cast<int>(dpdkArgv.size());
 		char** dpdkArgvPtr = dpdkArgv.empty() ? nullptr : dpdkArgv.data();
 

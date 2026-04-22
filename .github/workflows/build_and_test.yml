@@ -320,7 +320,7 @@ jobs:
           - dpdk_version: 23.11.6
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2    
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Install dependencies
         run: |
@@ -388,6 +388,22 @@ jobs:
         run: |
           . .venv/bin/activate
           python3 ci/run_tests/run_tests.py --interface eth0 --tcpreplay-interface veth1 --use-sudo --test-suites pcap --pcap-test-args "-t dpdk -d 0 -a --no-pci -a --vdev=net_af_packet0,iface=veth0" --build-dir "$BUILD_DIR"
+
+      - name: Create Cobertura Report
+        run: |
+          . .venv/bin/activate
+          python3 -m pip install gcovr==${{ matrix.gcovr-version || '8.6' }}
+          gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.image }},unittest
+          fail_ci_if_error: false
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   pfring:
     runs-on: ubuntu-latest
