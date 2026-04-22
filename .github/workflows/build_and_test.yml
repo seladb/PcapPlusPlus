@@ -366,15 +366,6 @@ jobs:
           sudo ip addr add 192.168.100.1/24 dev veth0
           sudo ip addr add 192.168.100.2/24 dev veth1
 
-#      - name: Setup veth pair
-#        run: |
-#          sudo ip link add veth0 type veth peer name veth1
-#          sudo ip link set veth0 up
-#          sudo ip link set veth1 up
-#          sudo ip link set veth0 promisc on
-#          sudo ip addr add 192.168.100.1/24 dev veth0
-#          sudo ip addr add 192.168.100.2/24 dev veth1
-
       - name: Register DPDK library path
         run: |
           echo "${{ github.workspace }}/dpdk/install/lib/x86_64-linux-gnu" | sudo tee /etc/ld.so.conf.d/dpdk.conf
@@ -533,7 +524,7 @@ jobs:
         run: |
           cd Tests/ExamplesTest
           python -m pip install -r requirements.txt
-          python -m pytest --interface en0  --root-path=../../Dist/examples_bin
+          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
 
       - name: Check installation
         run: |
@@ -992,7 +983,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python ci/run_tests/run_tests.py --interface eth0  --pcap-test-args="-t xdp" --build-dir "$BUILD_DIR"
+          python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp" --build-dir "$BUILD_DIR"
 
       - name: Create Cobertura Report
         run: |
