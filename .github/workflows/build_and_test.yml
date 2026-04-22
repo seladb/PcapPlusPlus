@@ -353,7 +353,7 @@ jobs:
           key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_DPDK=ON -DDPDK_ROOT=${{ github.workspace }}/dpdk/install -S . -B "$BUILD_DIR"
+        run: cmake -DPCAPPP_BUILD_COVERAGE=ON -DPCAPPP_USE_DPDK=ON -DDPDK_ROOT=${{ github.workspace }}/dpdk/install -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
