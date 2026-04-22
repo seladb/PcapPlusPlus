@@ -316,7 +316,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - dpdk_version: 25.11.1
           - dpdk_version: 24.11.5
           - dpdk_version: 23.11.6
     steps:
@@ -353,13 +352,6 @@ jobs:
           path: dpdk/install
           key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
 
-      - name: Debug DPDK
-        run: |
-          echo "Workspace: ${{ github.workspace }}"
-          echo "DPDK_ROOT: ${{ github.workspace }}/dpdk/install"
-          ls -la ${{ github.workspace }}/dpdk/install/include/rte_version.h
-          find ${{ github.workspace }}/dpdk/install -name "rte_version.h"
-
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -DDPDK_ROOT=${{ github.workspace }}/dpdk/install -S . -B "$BUILD_DIR"
 
@@ -371,20 +363,17 @@ jobs:
           sudo ip link add veth0 type veth peer name veth1
           sudo ip link set veth0 up
           sudo ip link set veth1 up
-          sudo ip link set veth0 promisc on
           sudo ip addr add 192.168.100.1/24 dev veth0
           sudo ip addr add 192.168.100.2/24 dev veth1
 
-      # - name: Verify packet flow on veth0
-      #   run: |
-      #     # Start tcpdump in background
-      #     sudo timeout 30 tcpdump -i veth0 -c 50 &
-      #     TCPDUMP_PID=$!
-      #     sleep 1
-      #     # Inject traffic
-      #     sudo tcpreplay -i veth1 --mbps=10 Tests/Pcap++Test/PcapExamples/example.pcap || true
-      #     wait $TCPDUMP_PID
-      #     echo "Exit code: $?"
+#      - name: Setup veth pair
+#        run: |
+#          sudo ip link add veth0 type veth peer name veth1
+#          sudo ip link set veth0 up
+#          sudo ip link set veth1 up
+#          sudo ip link set veth0 promisc on
+#          sudo ip addr add 192.168.100.1/24 dev veth0
+#          sudo ip addr add 192.168.100.2/24 dev veth1
 
       - name: Register DPDK library path
         run: |
