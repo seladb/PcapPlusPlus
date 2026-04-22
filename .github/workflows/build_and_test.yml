@@ -316,9 +316,9 @@ jobs:
     strategy:
       matrix:
         include:
+          - dpdk_version: 25.11.1
           - dpdk_version: 24.11.5
           - dpdk_version: 23.11.6
-          - dpdk_version: 22.11.11
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2    
