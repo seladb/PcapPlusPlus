@@ -336,9 +336,10 @@ namespace pcpp
 			return;
 		}
 
-		RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), rte_pktmbuf_pkt_len(mBuf), timestamp,
-		                      LINKTYPE_ETHERNET);
+		auto mBufLen = rte_pktmbuf_pkt_len(mBuf);
+		RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), mBufLen, timestamp, LINKTYPE_ETHERNET);
 		m_MBuf = mBuf;
+		m_MbufDataSize = mBufLen;
 	}
 
 }  // namespace pcpp
