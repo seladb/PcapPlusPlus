@@ -5,6 +5,7 @@ if(PCAPPP_BUILD_TESTS)
 
   if(PCAPPP_BUILD_PCAPPP)
     add_subdirectory(Pcap++Test)
+    add_subdirectory(Tools/ResourceDumper)
   endif()
 endif()
 
