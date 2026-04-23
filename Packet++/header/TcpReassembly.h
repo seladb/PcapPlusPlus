@@ -460,7 +460,7 @@ namespace pcpp
 		};
 
 		using ConnectionList = std::unordered_map<uint32_t, TcpReassemblyData>;
-		using CleanupList = std::map<time_t, std::list<uint32_t>>;
+		using CleanupMultiMap = std::multimap<time_t, uint32_t>;
 
 		OnTcpMessageReady m_OnMessageReadyCallback;
 		OnTcpConnectionStart m_OnConnStart;
@@ -468,7 +468,7 @@ namespace pcpp
 		void* m_UserCookie;
 		ConnectionList m_ConnectionList;
 		ConnectionInfoList m_ConnectionInfo;
-		CleanupList m_CleanupList;
+		CleanupMultiMap m_CleanupMultimap;
 		bool m_RemoveConnInfo;
 		uint32_t m_ClosedConnectionDelay;
 		uint32_t m_MaxNumToClean;
@@ -483,7 +483,7 @@ namespace pcpp
 
 		void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
 
-		void insertIntoCleanupList(uint32_t flowKey);
+		void scheduleCleanup(uint32_t flowKey);
 	};
 
 }  // namespace pcpp
