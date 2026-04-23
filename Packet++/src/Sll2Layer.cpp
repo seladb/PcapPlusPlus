@@ -20,9 +20,8 @@ namespace pcpp
 	{
 		/// @brief Protocol type values that are exclusive for SLL2 layer.
 		///
-		/// In addition to any Ethernet protocol type, an SLL2 header can also contain
-		/// several additional protocol type values that are specific to an SLL2 header and cannot be found in Ethernet
-		/// headers. This enum class defines those exclusive protocol type values for SLL2.
+		/// Defines protocol types exclusive to the SLL2 layer.
+		/// These values compliment the standard Ethernet protocol types that can be used in the SLL2 header.
 		enum class Sll2ExclusiveProtocolTypes : uint16_t
 		{
 			/// @brief 802.2 LLC header payload
