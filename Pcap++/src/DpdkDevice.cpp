@@ -802,7 +802,7 @@ namespace pcpp
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 				{
-					rawPackets[index].setMBuf(mBufArray[index], time, m_MBufDataSize);
+					rawPackets[index].setMBuf(mBufArray[index], time, pThis->m_MBufDataSize);
 				}
 
 				pThis->m_OnPacketsArriveCallback(rawPackets, numOfPktsReceived, coreId, pThis,
