@@ -45,7 +45,7 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 PTF_TEST_CASE(Sll2ParseLLCTest)
 {
 	pcpp_tests::utils::PacketFactory ssl2Factory(pcpp::LINKTYPE_LINUX_SLL2);
-	auto rawPacket1 = createPacketFromHexResource("PacketExample/Sll2PacketLLC.dat", ssl2Factory);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Sll2PacketLLC.dat", ssl2Factory);
 
 	pcpp::Packet sll2Packet(rawPacket1.get());
 
