@@ -131,7 +131,7 @@ namespace pcpp
 			return;
 		}
 
-		setMBuf(newMbuf, other.m_TimeStamp);
+		setMBuf(newMbuf, other.m_TimeStamp, m_MbufDataSize);
 
 		m_RawPacketSet = false;
 
@@ -328,7 +328,7 @@ namespace pcpp
 		return true;
 	}
 
-	void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp)
+	void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp, uint16_t mBufDataSize)
 	{
 		if (mBuf == nullptr)
 		{
@@ -336,10 +336,10 @@ namespace pcpp
 			return;
 		}
 
-		auto mBufLen = rte_pktmbuf_pkt_len(mBuf);
-		RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), mBufLen, timestamp, LINKTYPE_ETHERNET);
+		RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), rte_pktmbuf_pkt_len(mBuf), timestamp,
+								  LINKTYPE_ETHERNET);
 		m_MBuf = mBuf;
-		m_MbufDataSize = mBufLen;
+		m_MbufDataSize = mBufDataSize;
 	}
 
 }  // namespace pcpp

@@ -802,7 +802,7 @@ namespace pcpp
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 				{
-					rawPackets[index].setMBuf(mBufArray[index], time);
+					rawPackets[index].setMBuf(mBufArray[index], time, m_MbufDataSize);
 				}
 
 				pThis->m_OnPacketsArriveCallback(rawPackets, numOfPktsReceived, coreId, pThis,
@@ -925,7 +925,7 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
-			newRawPacket->setMBuf(mBuf, time);
+			newRawPacket->setMBuf(mBuf, time, m_MbufDataSize);
 			rawPacketsArr.pushBack(newRawPacket);
 		}
 
@@ -979,7 +979,7 @@ namespace pcpp
 				rawPacketsArr[index]->init(this);
 			}
 
-			rawPacketsArr[index]->setMBuf(mBuf, time);
+			rawPacketsArr[index]->setMBuf(mBuf, time, m_MbufDataSize);
 		}
 
 		return packetsReceived;
@@ -1020,7 +1020,7 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
-			newRawPacket->setMBuf(mBuf, time);
+			newRawPacket->setMBuf(mBuf, time, m_MbufDataSize);
 			if (packetsArr[index] == nullptr)
 				packetsArr[index] = new Packet();
 
