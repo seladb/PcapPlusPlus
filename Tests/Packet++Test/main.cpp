@@ -265,6 +265,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NullLoopbackTest, "null_loopback");
 
 	PTF_RUN_TEST(Sll2PacketParsingTest, "sll2");
+	PTF_RUN_TEST(Sll2ParseLLCTest, "sll2");
 	PTF_RUN_TEST(Sll2PacketCreationTest, "sll2");
 
 	PTF_RUN_TEST(NflogPacketParsingTest, "nflog");

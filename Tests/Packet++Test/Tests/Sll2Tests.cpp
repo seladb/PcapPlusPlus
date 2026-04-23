@@ -42,6 +42,17 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	PTF_ASSERT_EQUAL(macAddrRef, sll2Layer->getLinkLayerAsMacAddress());
 }  // Sll2PacketParsingTest
 
+PTF_TEST_CASE(Sll2ParseLLCTest)
+{
+	pcpp_tests::utils::PacketFactory ssl2Factory(pcpp::LINKTYPE_LINUX_SLL2);
+	auto rawPacket1 = createPacketFromHexResource("PacketExample/Sll2PacketLLC.dat", ssl2Factory);
+
+	pcpp::Packet sll2Packet(rawPacket1.get());
+
+	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::SLL2));
+	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::LLC));
+}
+
 PTF_TEST_CASE(Sll2PacketCreationTest)
 {
 	pcpp::Sll2Layer sll2Layer(20, 1, 4);
