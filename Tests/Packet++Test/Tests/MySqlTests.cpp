@@ -126,6 +126,7 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
 		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Server_Error, pcpp::MySqlMessageOrigin::Server, "Error");
 		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(errorMessage);
 		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 1046);
 		PTF_ASSERT_EQUAL(errorMessage->getSqlState(), "3D000");
 		PTF_ASSERT_EQUAL(errorMessage->getErrorMessage(), "No database selected");
@@ -241,6 +242,7 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 			                                     'o',  'm',  ' ', 't', 'o', 'u', 'r', 'n', 'a', 'm', 'e', 'n', 't' };
 		PTF_ASSERT_VECTORS_EQUAL(message->getRawPayload(), expectedPayload);
 		auto queryMessage = dynamic_cast<pcpp::MySqlQueryMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(queryMessage);
 		PTF_ASSERT_EQUAL(queryMessage->getQuery(), "select * from tournament");
 	}
 
@@ -756,6 +758,7 @@ PTF_TEST_CASE(MySqlInvalidDataTest)
 		                                                     pcpp::MySqlMessageOrigin::Client);
 		PTF_ASSERT_NOT_NULL(message);
 		auto queryMessage = dynamic_cast<pcpp::MySqlQueryMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(queryMessage);
 		PTF_ASSERT_EQUAL(queryMessage->getQuery(), "");
 	}
 
@@ -769,6 +772,7 @@ PTF_TEST_CASE(MySqlInvalidDataTest)
 		auto message =
 		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
 		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(errorMessage);
 		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 0);
 		PTF_ASSERT_EQUAL(errorMessage->getSqlState(), "");
 		PTF_ASSERT_EQUAL(errorMessage->getErrorMessage(), "");
@@ -785,6 +789,7 @@ PTF_TEST_CASE(MySqlInvalidDataTest)
 		auto message =
 		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
 		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(errorMessage);
 		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 0);
 	}
 
@@ -801,6 +806,7 @@ PTF_TEST_CASE(MySqlInvalidDataTest)
 		auto message =
 		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
 		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
+		PTF_ASSERT_NOT_NULL(errorMessage);
 		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 1046);
 		PTF_ASSERT_EQUAL(errorMessage->getSqlState(), "");
 	}

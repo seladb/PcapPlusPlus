@@ -4,43 +4,46 @@
 
 namespace pcpp
 {
-	constexpr uint8_t ClientSleepCommand = 0x00;
-	constexpr uint8_t ClientQuitCommand = 0x01;
-	constexpr uint8_t ClientInitDbCommand = 0x02;
-	constexpr uint8_t ClientQueryCommand = 0x03;
-	constexpr uint8_t ClientFieldListCommand = 0x04;
-	constexpr uint8_t ClientCreateDbCommand = 0x05;
-	constexpr uint8_t ClientDropDbCommand = 0x06;
-	constexpr uint8_t ClientRefreshCommand = 0x07;
-	constexpr uint8_t ClientShutdownCommand = 0x08;
-	constexpr uint8_t ClientStatisticsCommand = 0x09;
-	constexpr uint8_t ClientProcessInfoCommand = 0x0a;
-	constexpr uint8_t ClientConnectCommand = 0x0b;
-	constexpr uint8_t ClientProcessKillCommand = 0x0c;
-	constexpr uint8_t ClientDebugCommand = 0x0d;
-	constexpr uint8_t ClientPingCommand = 0x0e;
-	constexpr uint8_t ClientTimeCommand = 0x0f;
-	constexpr uint8_t ClientDelayedInsertCommand = 0x10;
-	constexpr uint8_t ClientChangeUserCommand = 0x11;
-	constexpr uint8_t ClientBinlogDumpCommand = 0x12;
-	constexpr uint8_t ClientTableDumpCommand = 0x13;
-	constexpr uint8_t ClientConnectOutCommand = 0x14;
-	constexpr uint8_t ClientRegisterSlaveCommand = 0x15;
-	constexpr uint8_t ClientStmtPrepareCommand = 0x16;
-	constexpr uint8_t ClientStmtExecuteCommand = 0x17;
-	constexpr uint8_t ClientStmtSendLongDataCommand = 0x18;
-	constexpr uint8_t ClientStmtCloseCommand = 0x19;
-	constexpr uint8_t ClientStmtResetCommand = 0x1a;
-	constexpr uint8_t ClientSetOptionCommand = 0x1b;
-	constexpr uint8_t ClientStmtFetchCommand = 0x1c;
-	constexpr uint8_t ClientDaemonCommand = 0x1d;
-	constexpr uint8_t ClientBinlogDumpGtidCommand = 0x1e;
-	constexpr uint8_t ClientResetConnectionCommand = 0x1f;
-	constexpr uint8_t ClientCloneCommand = 0x20;
+	namespace
+	{
+		constexpr uint8_t ClientSleepCommand = 0x00;
+		constexpr uint8_t ClientQuitCommand = 0x01;
+		constexpr uint8_t ClientInitDbCommand = 0x02;
+		constexpr uint8_t ClientQueryCommand = 0x03;
+		constexpr uint8_t ClientFieldListCommand = 0x04;
+		constexpr uint8_t ClientCreateDbCommand = 0x05;
+		constexpr uint8_t ClientDropDbCommand = 0x06;
+		constexpr uint8_t ClientRefreshCommand = 0x07;
+		constexpr uint8_t ClientShutdownCommand = 0x08;
+		constexpr uint8_t ClientStatisticsCommand = 0x09;
+		constexpr uint8_t ClientProcessInfoCommand = 0x0a;
+		constexpr uint8_t ClientConnectCommand = 0x0b;
+		constexpr uint8_t ClientProcessKillCommand = 0x0c;
+		constexpr uint8_t ClientDebugCommand = 0x0d;
+		constexpr uint8_t ClientPingCommand = 0x0e;
+		constexpr uint8_t ClientTimeCommand = 0x0f;
+		constexpr uint8_t ClientDelayedInsertCommand = 0x10;
+		constexpr uint8_t ClientChangeUserCommand = 0x11;
+		constexpr uint8_t ClientBinlogDumpCommand = 0x12;
+		constexpr uint8_t ClientTableDumpCommand = 0x13;
+		constexpr uint8_t ClientConnectOutCommand = 0x14;
+		constexpr uint8_t ClientRegisterSlaveCommand = 0x15;
+		constexpr uint8_t ClientStmtPrepareCommand = 0x16;
+		constexpr uint8_t ClientStmtExecuteCommand = 0x17;
+		constexpr uint8_t ClientStmtSendLongDataCommand = 0x18;
+		constexpr uint8_t ClientStmtCloseCommand = 0x19;
+		constexpr uint8_t ClientStmtResetCommand = 0x1a;
+		constexpr uint8_t ClientSetOptionCommand = 0x1b;
+		constexpr uint8_t ClientStmtFetchCommand = 0x1c;
+		constexpr uint8_t ClientDaemonCommand = 0x1d;
+		constexpr uint8_t ClientBinlogDumpGtidCommand = 0x1e;
+		constexpr uint8_t ClientResetConnectionCommand = 0x1f;
+		constexpr uint8_t ClientCloneCommand = 0x20;
 
-	constexpr uint8_t ServerOk = 0x00;
-	constexpr uint8_t ServerError = 0xff;
-	constexpr uint8_t ServerEof_AuthSwitchRequest = 0xfe;
+		constexpr uint8_t ServerOk = 0x00;
+		constexpr uint8_t ServerError = 0xff;
+		constexpr uint8_t ServerEof_AuthSwitchRequest = 0xfe;
+	}
 
 	std::string MySqlMessageType::toString() const
 	{
