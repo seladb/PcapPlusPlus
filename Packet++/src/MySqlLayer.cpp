@@ -43,7 +43,7 @@ namespace pcpp
 		constexpr uint8_t ServerOk = 0x00;
 		constexpr uint8_t ServerError = 0xff;
 		constexpr uint8_t ServerEof_AuthSwitchRequest = 0xfe;
-	}
+	}  // namespace
 
 	std::string MySqlMessageType::toString() const
 	{
