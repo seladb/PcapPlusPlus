@@ -1314,6 +1314,31 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 
 }  // TestPcapNgFileReadWrite
 
+PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)
+{
+	// If the compression level is silently ignored, low and high levels
+	// produce identical output sizes.
+	int sizes[2] = { 0, 0 };
+	const int levels[2] = { 1, 10 };
+	for (int i = 0; i < 2; i++)
+	{
+		pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_PATH);
+		PTF_ASSERT_TRUE(readerDev.open());
+
+		pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_ZSTD_LEVELS_WRITE_PATH, levels[i]);
+		PTF_ASSERT_TRUE(writerDev.open());
+
+		pcpp::RawPacket rawPacket;
+		while (readerDev.getNextPacket(rawPacket))
+			PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
+		readerDev.close();
+		writerDev.close();
+
+		sizes[i] = getFileLength(EXAMPLE_PCAPNG_ZSTD_LEVELS_WRITE_PATH);
+	}
+	PTF_ASSERT_GREATER_THAN(sizes[0], sizes[1]);
+}  // TestPcapNgZstdCompressionLevels
+
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 {
 	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE2_PCAPNG_PATH);
