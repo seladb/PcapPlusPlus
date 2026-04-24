@@ -18,28 +18,8 @@ namespace pcpp
 {
 	namespace
 	{
-		/// @brief Protocol type values that are exclusive for SLL2 layer.
-		///
-		/// Defines protocol types exclusive to the SLL2 layer.
-		/// These values compliment the standard Ethernet protocol types that can be used in the SLL2 header.
-		enum class Sll2ExclusiveProtocolTypes : uint16_t
-		{
-			/// @brief 802.2 LLC header payload
-			LLC = 0x4
-		};
-
-		// TODO: Consider moving this to Common++
-		/// @brief Converts an enum class value to its underlying type.
-		///
-		/// This function mimics the behavior of std::to_underlying from C++23.
-		///
-		/// @tparam E The enum class type.
-		/// @param e The value of the enum class to convert.
-		/// @return The underlying type value corresponding to the enum class value.
-		template <typename E> constexpr auto to_underlying(E e) noexcept
-		{
-			return static_cast<std::underlying_type_t<E>>(e);
-		}
+		/// @brief Exclusive Sll2 value indicating 802.2 LLC header payload.
+		constexpr uint16_t Sll2ProtoTypeLLC = 0x0004;
 	}  // namespace
 
 	Sll2Layer::Sll2Layer(uint32_t interfaceIndex, uint16_t ARPHRDType, uint8_t packetType)
@@ -132,7 +112,7 @@ namespace pcpp
 			constructNextLayer<MplsLayer>(payload, payloadLen);
 			break;
 		}
-		case to_underlying(Sll2ExclusiveProtocolTypes::LLC):
+		case Sll2ProtoTypeLLC:
 		{
 			tryConstructNextLayerWithFallback<LLCLayer, PayloadLayer>(payload, payloadLen);
 			break;
@@ -166,7 +146,7 @@ namespace pcpp
 			hdr->protocol_type = htobe16(PCPP_ETHERTYPE_VLAN);
 			break;
 		case LLC:
-			hdr->protocol_type = htobe16(to_underlying(Sll2ExclusiveProtocolTypes::LLC));
+			hdr->protocol_type = htobe16(Sll2ProtoTypeLLC);
 			break;
 		default:
 			return;
