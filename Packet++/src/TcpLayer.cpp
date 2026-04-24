@@ -19,6 +19,7 @@
 #include "SmtpLayer.h"
 #include "LdapLayer.h"
 #include "PostgresLayer.h"
+#include "MySqlLayer.h"
 #include "GtpLayer.h"
 #include "ModbusLayer.h"
 #include "PacketUtils.h"
@@ -465,6 +466,16 @@ namespace pcpp
 		{
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(PostgresLayer::parsePostgresBackendMessages,
 			                                                           payload, payloadLen);
+		}
+		else if (MySqlLayer::isMySqlPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(MySqlLayer::parseMySqlServerMessage, payload,
+			                                                           payloadLen);
+		}
+		else if (MySqlLayer::isMySqlPort(portDst))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(MySqlLayer::parseMySqlClientMessage, payload,
+			                                                           payloadLen);
 		}
 		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
 		         GtpV2Layer::isDataValid(payload, payloadLen))
