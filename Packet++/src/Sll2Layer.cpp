@@ -12,8 +12,6 @@
 #include "LLCLayer.h"
 #include "EndianPortable.h"
 
-#include <type_traits>
-
 namespace pcpp
 {
 	namespace
