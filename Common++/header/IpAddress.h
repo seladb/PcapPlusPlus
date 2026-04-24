@@ -758,7 +758,7 @@ namespace pcpp
 				return ip4->getPrefixLen();
 			}
 
-			return m_NetworkVariant.tryGetIPv6()->getPrefixLen();
+			return m_NetworkVariant.getIPv6().getPrefixLen();
 		}
 
 		/// @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is
@@ -771,7 +771,7 @@ namespace pcpp
 				return ip4->getNetmask();
 			}
 
-			return m_NetworkVariant.tryGetIPv6()->getNetmask();
+			return m_NetworkVariant.getIPv6().getNetmask();
 		}
 
 		/// @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::, the network prefix
@@ -784,7 +784,7 @@ namespace pcpp
 				return IPAddress(ip4->getNetworkPrefix());
 			}
 
-			return IPAddress(m_NetworkVariant.tryGetIPv6()->getNetworkPrefix());
+			return IPAddress(m_NetworkVariant.getIPv6().getNetworkPrefix());
 		}
 
 		/// @return The lowest non-reserved IP address in this network, for example: the lowest address in 3546::/16 is
@@ -796,7 +796,7 @@ namespace pcpp
 			{
 				return IPAddress(ip4->getLowestAddress());
 			}
-			return IPAddress(m_NetworkVariant.tryGetIPv6()->getLowestAddress());
+			return IPAddress(m_NetworkVariant.getIPv6().getLowestAddress());
 		}
 
 		/// @return The highest non-reserved IP address in this network, for example: the highest address in 3546::/16
@@ -809,7 +809,7 @@ namespace pcpp
 				return IPAddress(ip4->getHighestAddress());
 			}
 
-			return IPAddress(m_NetworkVariant.tryGetIPv6()->getHighestAddress());
+			return IPAddress(m_NetworkVariant.getIPv6().getHighestAddress());
 		}
 
 		/// @return The number of addresses in this network, for example: the number of addresses in 16ff::/120 is 256,
@@ -822,7 +822,7 @@ namespace pcpp
 			{
 				return ip4->getTotalAddressCount();
 			}
-			return m_NetworkVariant.tryGetIPv6()->getTotalAddressCount();
+			return m_NetworkVariant.getIPv6().getTotalAddressCount();
 		}
 
 		/// @return True if this is an IPv4 network, false otherwise
@@ -856,7 +856,7 @@ namespace pcpp
 				return false;
 			}
 
-			return m_NetworkVariant.tryGetIPv6()->includes(address.getIPv6());
+			return m_NetworkVariant.getIPv6().includes(address.getIPv6());
 		}
 
 		/// @param network An IP network
@@ -874,13 +874,13 @@ namespace pcpp
 				return ip4->includes(*otherIp4);
 			}
 
-			auto ip6 = m_NetworkVariant.tryGetIPv6();
+			auto& ip6 = m_NetworkVariant.getIPv6();
 			auto otherIp6 = network.m_NetworkVariant.tryGetIPv6();
 			if (otherIp6 == nullptr)
 			{
 				return false;
 			}
-			return ip6->includes(*otherIp6);
+			return ip6.includes(*otherIp6);
 		}
 
 		/// @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
@@ -893,7 +893,7 @@ namespace pcpp
 				return ip4->toString();
 			}
 
-			return m_NetworkVariant.tryGetIPv6()->toString();
+			return m_NetworkVariant.getIPv6().toString();
 		}
 
 	private:
@@ -950,6 +950,18 @@ namespace pcpp
 				return m_Type;
 			}
 
+			IPv4Network& getIPv4()
+			{
+				throwIfNot(Type::IPv4);
+				return m_IPv4Net;
+			}
+
+			IPv4Network const& getIPv4() const
+			{
+				throwIfNot(Type::IPv4);
+				return m_IPv4Net;
+			}
+
 			IPv4Network* tryGetIPv4() noexcept
 			{
 				return (m_Type == Type::IPv4) ? &m_IPv4Net : nullptr;
@@ -957,6 +969,18 @@ namespace pcpp
 			IPv4Network const* tryGetIPv4() const noexcept
 			{
 				return (m_Type == Type::IPv4) ? &m_IPv4Net : nullptr;
+			}
+
+			IPv6Network& getIPv6()
+			{
+				throwIfNot(Type::IPv6);
+				return m_IPv6Net;
+			}
+
+			IPv6Network const& getIPv6() const
+			{
+				throwIfNot(Type::IPv6);
+				return m_IPv6Net;
 			}
 
 			IPv6Network* tryGetIPv6() noexcept
@@ -969,6 +993,14 @@ namespace pcpp
 			}
 
 		private:
+			void throwIfNot(Type type) const
+			{
+				if (type != m_Type)
+				{
+					throw std::runtime_error("Bad variant access");
+				}
+			}
+
 			void swapTo(Type newType) noexcept;
 			void destroyActiveMem() noexcept;
 
