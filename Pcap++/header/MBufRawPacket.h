@@ -87,7 +87,7 @@ namespace pcpp
 		/// @param[in] device The DpdkDevice which has the pool to allocate the mbuf from
 		/// @return True if initialization succeeded and false if this method was already called for this instance (and
 		/// an mbuf is already attached) or if allocating an mbuf from the pool failed for some reason
-		bool init(const DpdkDevice* device);
+		bool init(DpdkDevice* device);
 
 #ifdef USE_DPDK_KNI
 		/// @brief Initialize an instance of this class from KniDevice.

@@ -976,7 +976,7 @@ namespace pcpp
 			if (rawPacketsArr[index] == nullptr)
 			{
 				rawPacketsArr[index] = new MBufRawPacket();
-				rawPacketsArr[index]->init(this);
+				rawPacketsArr[index]->init(const_cast<DpdkDevice*>(this));
 			}
 
 			rawPacketsArr[index]->setMBuf(mBuf, time, m_MBufDataSize);
