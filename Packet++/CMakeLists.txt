@@ -33,6 +33,7 @@ add_library(
   src/LLCLayer.cpp
   src/ModbusLayer.cpp
   src/MplsLayer.cpp
+  src/MySqlLayer.cpp
   src/NdpLayer.cpp
   src/NflogLayer.cpp
   src/NtpLayer.cpp
@@ -112,6 +113,7 @@ set(
   header/LdapLayer.h
   header/LLCLayer.h
   header/MplsLayer.h
+  header/MySqlLayer.h
   header/NullLoopbackLayer.h
   header/NdpLayer.h
   header/NflogLayer.h
