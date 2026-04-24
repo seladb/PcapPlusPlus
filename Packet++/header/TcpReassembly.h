@@ -8,6 +8,7 @@
 #include <map>
 #include <list>
 #include <time.h>
+#include <array>
 #include <functional>
 
 /// @file
@@ -401,13 +402,11 @@ namespace pcpp
 	private:
 		struct TcpFragment
 		{
-			uint32_t sequence;
-			size_t dataLength;
-			uint8_t* data;
+			uint32_t sequence = 0;
+			size_t dataLength = 0;
+			uint8_t* data = nullptr;
 			std::chrono::time_point<std::chrono::high_resolution_clock> timestamp;
 
-			TcpFragment() : sequence(0), dataLength(0), data(nullptr)
-			{}
 			~TcpFragment()
 			{
 				delete[] data;
@@ -416,26 +415,20 @@ namespace pcpp
 
 		struct TcpOneSideData
 		{
-			IPAddress srcIP;
-			uint16_t srcPort;
-			uint32_t sequence;
 			PointerVector<TcpFragment> tcpFragmentList;
-			bool gotFinOrRst;
-
-			TcpOneSideData() : srcPort(0), sequence(0), gotFinOrRst(false)
-			{}
+			uint32_t sequence = 0;
+			uint16_t srcPort = 0;
+			IPAddress srcIP;
+			bool gotFinOrRst = false;
 		};
 
 		struct TcpReassemblyData
 		{
-			bool closed;
-			int8_t numOfSides;
-			int8_t prevSide;
-			TcpOneSideData twoSides[2];
+			bool closed = false;
+			int8_t numOfSides = 0;
+			int8_t prevSide = -1;
+			std::array<TcpOneSideData, 2> twoSides;
 			ConnectionData connData;
-
-			TcpReassemblyData() : closed(false), numOfSides(0), prevSide(-1)
-			{}
 		};
 
 		class OutOfOrderProcessingGuard
@@ -460,7 +453,7 @@ namespace pcpp
 		};
 
 		using ConnectionList = std::unordered_map<uint32_t, TcpReassemblyData>;
-		using CleanupList = std::map<time_t, std::list<uint32_t>>;
+		using CleanupMultiMap = std::multimap<time_t, uint32_t>;
 
 		OnTcpMessageReady m_OnMessageReadyCallback;
 		OnTcpConnectionStart m_OnConnStart;
@@ -468,7 +461,7 @@ namespace pcpp
 		void* m_UserCookie;
 		ConnectionList m_ConnectionList;
 		ConnectionInfoList m_ConnectionInfo;
-		CleanupList m_CleanupList;
+		CleanupMultiMap m_CleanupMultimap;
 		bool m_RemoveConnInfo;
 		uint32_t m_ClosedConnectionDelay;
 		uint32_t m_MaxNumToClean;
@@ -483,7 +476,7 @@ namespace pcpp
 
 		void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
 
-		void insertIntoCleanupList(uint32_t flowKey);
+		void scheduleCleanup(uint32_t flowKey);
 	};
 
 }  // namespace pcpp
