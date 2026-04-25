@@ -56,7 +56,7 @@ namespace pcpp
 		uint16_t m_MbufDataSize;
 		bool m_FreeMbuf;
 
-		void setMBuf(struct rte_mbuf* mBuf, timespec timestamp);
+		void setMBuf(struct rte_mbuf* mBuf, timespec timestamp, uint16_t mBufDataSize);
 		bool init(struct rte_mempool* mempool);
 		bool initFromRawPacket(const RawPacket* rawPacket, struct rte_mempool* mempool);
 
