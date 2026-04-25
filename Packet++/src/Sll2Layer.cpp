@@ -9,10 +9,17 @@
 #include "VlanLayer.h"
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
+#include "LLCLayer.h"
 #include "EndianPortable.h"
 
 namespace pcpp
 {
+	namespace
+	{
+		/// @brief Exclusive Sll2 value indicating 802.2 LLC header payload.
+		constexpr uint16_t Sll2ProtoTypeLLC = 0x0004;
+	}  // namespace
+
 	Sll2Layer::Sll2Layer(uint32_t interfaceIndex, uint16_t ARPHRDType, uint8_t packetType)
 	{
 		const size_t headerLen = sizeof(sll2_header);
@@ -103,6 +110,11 @@ namespace pcpp
 			constructNextLayer<MplsLayer>(payload, payloadLen);
 			break;
 		}
+		case Sll2ProtoTypeLLC:
+		{
+			tryConstructNextLayerWithFallback<LLCLayer, PayloadLayer>(payload, payloadLen);
+			break;
+		}
 		default:
 		{
 			constructNextLayer<PayloadLayer>(payload, payloadLen);
@@ -130,6 +142,9 @@ namespace pcpp
 			break;
 		case VLAN:
 			hdr->protocol_type = htobe16(PCPP_ETHERTYPE_VLAN);
+			break;
+		case LLC:
+			hdr->protocol_type = htobe16(Sll2ProtoTypeLLC);
 			break;
 		default:
 			return;
