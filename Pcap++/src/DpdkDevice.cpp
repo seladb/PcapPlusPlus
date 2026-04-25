@@ -802,7 +802,7 @@ namespace pcpp
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 				{
-					rawPackets[index].setMBuf(mBufArray[index], time);
+					rawPackets[index].setMBuf(mBufArray[index], time, pThis->m_MBufDataSize);
 				}
 
 				pThis->m_OnPacketsArriveCallback(rawPackets, numOfPktsReceived, coreId, pThis,
@@ -925,7 +925,7 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
-			newRawPacket->setMBuf(mBuf, time);
+			newRawPacket->setMBuf(mBuf, time, m_MBufDataSize);
 			rawPacketsArr.pushBack(newRawPacket);
 		}
 
@@ -974,9 +974,12 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			if (rawPacketsArr[index] == nullptr)
+			{
 				rawPacketsArr[index] = new MBufRawPacket();
+				rawPacketsArr[index]->init(const_cast<DpdkDevice*>(this));
+			}
 
-			rawPacketsArr[index]->setMBuf(mBuf, time);
+			rawPacketsArr[index]->setMBuf(mBuf, time, m_MBufDataSize);
 		}
 
 		return packetsReceived;
@@ -1017,7 +1020,7 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
-			newRawPacket->setMBuf(mBuf, time);
+			newRawPacket->setMBuf(mBuf, time, m_MBufDataSize);
 			if (packetsArr[index] == nullptr)
 				packetsArr[index] = new Packet();
 

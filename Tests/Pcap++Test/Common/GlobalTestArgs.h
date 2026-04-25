@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <cstdint>
 
 struct PcapTestArgs
@@ -10,5 +11,6 @@ struct PcapTestArgs
 	std::string remoteIp;
 	uint16_t remotePort;
 	int dpdkPort;
+	std::vector<std::string> dpdkArgs;
 	std::string kniIp;
 };
