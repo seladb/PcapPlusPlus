@@ -13,6 +13,7 @@ static struct option PcapTestOptions[] = {
 	{ "remote-ip",           required_argument, nullptr, 'r' },
 	{ "remote-port",         required_argument, nullptr, 'p' },
 	{ "dpdk-port",           required_argument, nullptr, 'd' },
+	{ "dpdk-args",           required_argument, nullptr, 'a' },
 	{ "no-networking",       no_argument,       nullptr, 'n' },
 	{ "verbose",             no_argument,       nullptr, 'v' },
 	{ "mem-verbose",         no_argument,       nullptr, 'm' },
@@ -36,6 +37,7 @@ void printUsage()
 	          << "-r --remote-ip	          IP of remote machine running rpcapd to test remote capture\n"
 	          << "-p --remote-port         Port of remote machine running rpcapd to test remote capture\n"
 	          << "-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
+	          << "-a --dpdk-args           DPDK args to pass to tests\n"
 	          << "-n --no-networking       Do not run tests that requires networking\n"
 	          << "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
 	          << "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
@@ -66,7 +68,7 @@ int main(int argc, char* argv[])
 
 	int optionIndex = 0;
 	int opt = 0;
-	while ((opt = getopt_long(argc, argv, "k:i:br:p:d:nvt:x:smw", PcapTestOptions, &optionIndex)) != -1)
+	while ((opt = getopt_long(argc, argv, "k:i:br:p:d:a:nvt:x:smw", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -89,6 +91,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'd':
 			PcapTestGlobalArgs.dpdkPort = (int)atoi(optarg);
+			break;
+		case 'a':
+			PcapTestGlobalArgs.dpdkArgs.push_back(optarg);
 			break;
 		case 'n':
 			runWithNetworking = false;
