@@ -317,7 +317,7 @@ jobs:
       matrix:
         include:
           - dpdk_version: 25.11.1
-#          - dpdk_version: 24.11.5
+          - dpdk_version: 24.11.5
           - dpdk_version: 23.11.6
     steps:
       - name: Checkout code
