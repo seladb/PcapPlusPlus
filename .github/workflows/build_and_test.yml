@@ -772,7 +772,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --coverage --build-dir $env:BUILD_DIR --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
+          python ci\run_tests\run_tests_windows.py --coverage --build-dir $env:BUILD_DIR --logger-test-exe "Tests/Logger++Test/Debug/Logger++Test.exe" --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
       - name: Test Examples
         run: |
@@ -784,7 +784,7 @@ jobs:
       - name: Upload Coverage Results
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
-          files: ./Dist/Tests/Pcap++Test/Debug/Pcap++Coverage.xml,./Dist/Tests/Packet++Test/Debug/Packet++Coverage.xml
+          files: ./Dist/Tests/Pcap++Test/Debug/Pcap++Coverage.xml,./Dist/Tests/Packet++Test/Debug/Packet++Coverage.xml,./Dist/Tests/Packet++Test/Debug/Logger++Coverage.xml,
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
           fail_ci_if_error: false
           verbose: true
@@ -832,7 +832,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --include-tests windivert --build-dir "$env:BUILD_DIR" --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
+          python ci\run_tests\run_tests_windows.py --include-tests windivert --build-dir "$env:BUILD_DIR" --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe" --logger-test-exe "Tests/Logger++Test/Debug/Logger++Test.exe"
 
   freebsd:
     runs-on: ubuntu-latest
