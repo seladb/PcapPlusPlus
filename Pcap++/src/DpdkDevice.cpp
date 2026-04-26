@@ -1643,7 +1643,6 @@ namespace pcpp
 		{
 			stats.txStats[i - m_RxQueueCount].packets = statValues[i * m_StatsPerQueue + 0];
 			stats.txStats[i - m_RxQueueCount].bytes = statValues[i * m_StatsPerQueue + 1];
-
 		}
 	}
 
