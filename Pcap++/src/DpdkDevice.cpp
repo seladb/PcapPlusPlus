@@ -1606,6 +1606,9 @@ namespace pcpp
 
 	void DpdkDevice::QueueStatsCollector::collect(DpdkDeviceStats& stats) const
 	{
+		std::memset(stats.rxStats, 0, sizeof(stats.rxStats));
+		std::memset(stats.txStats, 0, sizeof(stats.txStats));
+
 		// Pack all IDs into a flat vector for a single API call
 		const size_t totalStatsCount = (m_RxQueueCount + m_TxQueueCount) * m_StatsPerQueue;
 		std::vector<uint64_t> statIds(totalStatsCount);
@@ -1619,8 +1622,8 @@ namespace pcpp
 
 		for (uint16_t i = m_RxQueueCount; i < m_RxQueueCount + m_TxQueueCount; ++i)
 		{
-			statIds[i * m_StatsPerQueue + 2] = m_TxPacketIds[i];
-			statIds[i * m_StatsPerQueue + 3] = m_TxByteIds[i];
+			statIds[i * m_StatsPerQueue + 0] = m_TxPacketIds[i - m_RxQueueCount];
+			statIds[i * m_StatsPerQueue + 1] = m_TxByteIds[i - m_RxQueueCount];
 		}
 
 		if (rte_eth_xstats_get_by_id(m_PortId, statIds.data(), statValues.data(), totalStatsCount) !=
@@ -1640,6 +1643,7 @@ namespace pcpp
 		{
 			stats.txStats[i - m_RxQueueCount].packets = statValues[i * m_StatsPerQueue + 0];
 			stats.txStats[i - m_RxQueueCount].bytes = statValues[i * m_StatsPerQueue + 1];
+
 		}
 	}
 
