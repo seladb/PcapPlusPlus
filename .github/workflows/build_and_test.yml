@@ -312,71 +312,98 @@ jobs:
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
   dpdk:
-    runs-on: ubuntu-latest
-    container: seladb/${{ matrix.image }}
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
-          - image: ubuntu2404-dpdk2411
-          - image: ubuntu2404-dpdk2311
-          - image: ubuntu2204-dpdk2211
-
+          - dpdk_version: 24.11.5
+          - dpdk_version: 23.11.6
     steps:
-      - name: Check AVX-512 support
-        run: |
-          echo "::debug::$(grep flags /proc/cpuinfo)"
-          if grep -q avx512 /proc/cpuinfo; then
-            echo "avx512=true" >> $GITHUB_ENV
-          else
-            echo "avx512=false" >> $GITHUB_ENV
-          fi
-
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Restore Ccache
-        id: ccache-restore
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install meson libnuma-dev libpcap-dev tcpreplay
+          pip install --break-system-packages pyelftools
+
+      - name: Restore DPDK cache
+        id: cache-dpdk
         uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
-          restore-keys: |
-            ${{ matrix.image }}-ccache
+          path: dpdk/install
+          key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
+
+      - name: Install DPDK
+        if: steps.cache-dpdk.outputs.cache-hit != 'true'
+        run: |
+          wget https://fast.dpdk.org/rel/dpdk-${{ matrix.dpdk_version }}.tar.xz \
+            && tar -xvf dpdk-${{ matrix.dpdk_version }}.tar.xz \
+            && rm -rf dpdk-${{ matrix.dpdk_version }}.tar.xz \
+            && mv dpdk-stable-${{ matrix.dpdk_version }} dpdk && cd dpdk \
+            && meson setup build --prefix=${{ github.workspace }}/dpdk/install \
+            && ninja -C build \
+            && ninja -C build install
+
+      - name: Cache DPDK
+        if: steps.cache-dpdk.outputs.cache-hit != 'true'
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: dpdk/install
+          key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+        run: cmake -DPCAPPP_BUILD_COVERAGE=ON -DPCAPPP_USE_DPDK=ON -DDPDK_ROOT=${{ github.workspace }}/dpdk/install -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
 
-      - name: Test Packet++
-        if: env.avx512 == 'true'
-        run: ./Packet++Test
-        working-directory: ${{ github.workspace }}/${{ env.BUILD_DIR }}/Tests/Packet++Test
-
-      - name: Tests skipped (no AVX-512 hardware support)
-        if: env.avx512 == 'false'
-        run: echo "Skipping tests since AVX-512 is not supported on the current runner"
-
-      - name: Check installation
+      - name: Setup veth pair
         run: |
-          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
-          cmake --build "$BUILD_DIR" -j
-          cmake --install "$BUILD_DIR"
+          sudo ip link add veth0 type veth peer name veth1
+          sudo ip link set veth0 up
+          sudo ip link set veth1 up
+          sudo ip addr add 192.168.100.1/24 dev veth0
+          sudo ip addr add 192.168.100.2/24 dev veth1
 
-      - name: Build Tutorials
+      - name: Register DPDK library path
         run: |
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
-          cmake --build build_examples -j
+          echo "${{ github.workspace }}/dpdk/install/lib/x86_64-linux-gnu" | sudo tee /etc/ld.so.conf.d/dpdk.conf
+          sudo ldconfig
 
-      - name: Test Tutorials
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+      - name: Setup hugepages
+        run: |
+          sudo mkdir -p /mnt/huge
+          sudo mount -t hugetlbfs nodev /mnt/huge
+          echo 512 | sudo tee /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+          grep HugePages /proc/meminfo
 
-      - name: Save Ccache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      - name: Prepare environment for tests
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install -r ci/run_tests/requirements.txt
+
+      - name: Test PcapPlusPlus
+        run: |
+          . .venv/bin/activate
+          python3 ci/run_tests/run_tests.py --interface eth0 --tcpreplay-interface veth1 --use-sudo --test-suites pcap --pcap-test-args "-t dpdk -d 0 -a --no-pci -a --vdev=net_af_packet0,iface=veth0" --build-dir "$BUILD_DIR"
+
+      - name: Create Cobertura Report
+        run: |
+          . .venv/bin/activate
+          python3 -m pip install gcovr==${{ matrix.gcovr-version || '8.6' }}
+          gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
+          files: ./coverage.xml
+          flags: ${{ matrix.dpdk_version }},unittest
+          fail_ci_if_error: false
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   pfring:
     runs-on: ubuntu-latest

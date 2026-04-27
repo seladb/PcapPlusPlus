@@ -563,6 +563,21 @@ PTF_TEST_CASE(SSLMalformedPacketParsing)
 	PTF_ASSERT_EQUAL(clientHelloMessage->getExtensionCount(), 1);
 }  // SSLMalformedPacketParsing
 
+PTF_TEST_CASE(SSLECPointFormatExtensionZeroLengthTest)
+{
+	// Malformed EC Point Formats extension data payload:
+	// Bytes 0-1: { 0x00, 0x0b } -> Extension Type = 11 (EC Point Formats)
+	// Bytes 2-3: { 0x00, 0x00 } -> Extension Length = 0
+	// (This is malformed because it lacks the mandatory 1-byte list length field.
+	// It intentionally triggers the integer underflow vulnerability.)
+	uint8_t malformedExtData[] = { 0x00, 0x0b, 0x00, 0x00 };
+
+	pcpp::TLSECPointFormatExtension ecPointExt(malformedExtData, sizeof(malformedExtData));
+	std::vector<uint8_t> ecPointFormatList = ecPointExt.getECPointFormatList();
+
+	PTF_ASSERT_TRUE(ecPointFormatList.empty());
+}  // SSLECPointFormatExtensionZeroLengthTest
+
 PTF_TEST_CASE(TLS1_3ParsingTest)
 {
 	timeval time;

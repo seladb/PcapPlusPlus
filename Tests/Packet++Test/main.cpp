@@ -253,6 +253,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLPartialCertificateParseTest, "ssl");
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
 	PTF_RUN_TEST(SSLMalformedPacketParsing, "ssl");
+	PTF_RUN_TEST(SSLECPointFormatExtensionZeroLengthTest, "ssl");
 	PTF_RUN_TEST(TLS1_3ParsingTest, "ssl");
 	PTF_RUN_TEST(TLSCipherSuiteTest, "ssl");
 	PTF_RUN_TEST(ClientHelloTLSFingerprintTest, "ssl");
@@ -264,6 +265,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NullLoopbackTest, "null_loopback");
 
 	PTF_RUN_TEST(Sll2PacketParsingTest, "sll2");
+	PTF_RUN_TEST(Sll2ParseLLCTest, "sll2");
 	PTF_RUN_TEST(Sll2PacketCreationTest, "sll2");
 
 	PTF_RUN_TEST(NflogPacketParsingTest, "nflog");
@@ -415,6 +417,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PostgresLayerParsingTest, "postgres");
 	PTF_RUN_TEST(PostgresMessageParsingTest, "postgres");
 	PTF_RUN_TEST(PostgresInvalidDataTest, "postgres");
+
+	PTF_RUN_TEST(MySqlLayerParsingTest, "mysql");
+	PTF_RUN_TEST(MySqlMessageParsingTest, "mysql");
+	PTF_RUN_TEST(MySqlInvalidDataTest, "mysql");
 
 	PTF_END_RUNNING_TESTS;
 }
