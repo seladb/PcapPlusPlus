@@ -1571,6 +1571,10 @@ namespace pcpp
 		m_PortId = portId;
 		m_RxQueueCount = rxQueueCount;
 		m_TxQueueCount = txQueueCount;
+		m_RxPacketIds.clear();
+		m_RxByteIds.clear();
+		m_TxPacketIds.clear();
+		m_TxByteIds.clear();
 
 		try
 		{
