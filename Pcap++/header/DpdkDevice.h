@@ -756,7 +756,7 @@ namespace pcpp
 		{
 		public:
 			bool init(uint16_t portId, uint16_t rxQueueCount, uint16_t txQueueCount);
-			void collect(DpdkDeviceStats& stats) const;
+			void collect(DpdkDeviceStats& stats, const DpdkDeviceStats& prevStats, double secsElapsed) const;
 
 		private:
 			void resolveStatId(const std::string& statName, uint64_t& idOut) const;

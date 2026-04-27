@@ -849,27 +849,8 @@ namespace pcpp
 		stats.aggregatedTxStats.bytesPerSec =
 		    (stats.aggregatedTxStats.bytes - m_PrevStats.aggregatedTxStats.bytes) / secsElapsed;
 
-		m_QueueStatsCollector.collect(stats);
-		// int numRxQs = std::min<int>(DPDK_MAX_RX_QUEUES, RTE_ETHDEV_QUEUE_STAT_CNTRS);
-		// int numTxQs = std::min<int>(DPDK_MAX_TX_QUEUES, RTE_ETHDEV_QUEUE_STAT_CNTRS);
-		//
-		// for (int i = 0; i < numRxQs; i++)
-		// {
-		// 	stats.rxStats[i].packets = rteStats.q_ipackets[i];
-		// 	stats.rxStats[i].bytes = rteStats.q_ibytes[i];
-		// 	stats.rxStats[i].packetsPerSec = (stats.rxStats[i].packets - m_PrevStats.rxStats[i].packets) / secsElapsed;
-		// 	stats.rxStats[i].bytesPerSec = (stats.rxStats[i].bytes - m_PrevStats.rxStats[i].bytes) / secsElapsed;
-		// }
-		//
-		// for (int i = 0; i < numTxQs; i++)
-		// {
-		// 	stats.txStats[i].packets = rteStats.q_opackets[i];
-		// 	stats.txStats[i].bytes = rteStats.q_obytes[i];
-		// 	stats.txStats[i].packetsPerSec = (stats.txStats[i].packets - m_PrevStats.txStats[i].packets) / secsElapsed;
-		// 	stats.txStats[i].bytesPerSec = (stats.txStats[i].bytes - m_PrevStats.txStats[i].bytes) / secsElapsed;
-		// }
+		m_QueueStatsCollector.collect(stats, m_PrevStats, secsElapsed);
 
-		// m_PrevStats = stats;
 		memcpy(&m_PrevStats, &stats, sizeof(m_PrevStats));
 	}
 
@@ -1604,7 +1585,8 @@ namespace pcpp
 		return true;
 	}
 
-	void DpdkDevice::QueueStatsCollector::collect(DpdkDeviceStats& stats) const
+	void DpdkDevice::QueueStatsCollector::collect(DpdkDeviceStats& stats, const DpdkDeviceStats& prevStats,
+	                                              double secsElapsed) const
 	{
 		std::memset(stats.rxStats, 0, sizeof(stats.rxStats));
 		std::memset(stats.txStats, 0, sizeof(stats.txStats));
@@ -1622,8 +1604,9 @@ namespace pcpp
 
 		for (uint16_t i = m_RxQueueCount; i < m_RxQueueCount + m_TxQueueCount; ++i)
 		{
-			statIds[i * m_StatsPerQueue + 0] = m_TxPacketIds[i - m_RxQueueCount];
-			statIds[i * m_StatsPerQueue + 1] = m_TxByteIds[i - m_RxQueueCount];
+			auto txQueueId = i - m_RxQueueCount;
+			statIds[i * m_StatsPerQueue + 0] = m_TxPacketIds[txQueueId];
+			statIds[i * m_StatsPerQueue + 1] = m_TxByteIds[txQueueId];
 		}
 
 		if (rte_eth_xstats_get_by_id(m_PortId, statIds.data(), statValues.data(), totalStatsCount) !=
@@ -1637,12 +1620,19 @@ namespace pcpp
 		{
 			stats.rxStats[i].packets = statValues[i * m_StatsPerQueue + 0];
 			stats.rxStats[i].bytes = statValues[i * m_StatsPerQueue + 1];
+			stats.rxStats[i].packetsPerSec = (stats.rxStats[i].packets - prevStats.rxStats[i].packets) / secsElapsed;
+			stats.rxStats[i].bytesPerSec = (stats.rxStats[i].bytes - prevStats.rxStats[i].bytes) / secsElapsed;
 		}
 
 		for (uint16_t i = m_RxQueueCount; i < m_RxQueueCount + m_TxQueueCount; ++i)
 		{
-			stats.txStats[i - m_RxQueueCount].packets = statValues[i * m_StatsPerQueue + 0];
-			stats.txStats[i - m_RxQueueCount].bytes = statValues[i * m_StatsPerQueue + 1];
+			auto txQueueId = i - m_RxQueueCount;
+			stats.txStats[txQueueId].packets = statValues[i * m_StatsPerQueue + 0];
+			stats.txStats[txQueueId].bytes = statValues[i * m_StatsPerQueue + 1];
+			stats.txStats[txQueueId].packetsPerSec =
+			    (stats.txStats[txQueueId].packets - prevStats.txStats[txQueueId].packets) / secsElapsed;
+			stats.txStats[txQueueId].bytesPerSec =
+			    (stats.txStats[txQueueId].bytes - prevStats.txStats[txQueueId].bytes) / secsElapsed;
 		}
 	}
 
