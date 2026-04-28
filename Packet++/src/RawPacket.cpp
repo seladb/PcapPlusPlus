@@ -139,7 +139,7 @@ namespace pcpp
 
 	void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 	{
-		if (atIndex > m_RawDataLen)
+		if (atIndex < 0 || atIndex > m_RawDataLen)
 		{
 			throw std::out_of_range("Insert index is out of raw packet bound. Inserts can only happen in range [0, " +
 			                        std::to_string(m_RawDataLen) + ']');
@@ -186,11 +186,15 @@ namespace pcpp
 
 	bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 	{
-		if ((atIndex + (int)numOfBytesToRemove) > m_RawDataLen)
+		if (atIndex < 0 || atIndex + (int)numOfBytesToRemove > m_RawDataLen)
 		{
-			PCPP_LOG_ERROR("Remove section is out of raw packet bound");
+			PCPP_LOG_ERROR("Remove section is out of raw packet bound. Removes can only happen in range [0, " +
+			               std::to_string(m_RawDataLen) + ')');
 			return false;
 		}
+
+		if (numOfBytesToRemove == 0)
+			return true;
 
 		// only move data if we are removing data somewhere in the layer, not at the end of the last layer
 		// this is so that resizing of the last layer can occur fast by just reducing the fictional length of the packet
