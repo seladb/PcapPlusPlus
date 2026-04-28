@@ -30,6 +30,7 @@ PTF_TEST_CASE(TestPcapFileReadAdv);
 PTF_TEST_CASE(TestPcapFileWriteAdv);
 PTF_TEST_CASE(TestPcapFileAppend);
 PTF_TEST_CASE(TestPcapNgFileReadWrite);
+PTF_TEST_CASE(TestPcapNgZstdCompressionLevels);
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv);
 PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces);
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6);

@@ -57,8 +57,13 @@ _compression_t * get_zstd_compression_context(int compression_level)
 	context->buffer_out_max_size = max(ZSTD_CStreamOutSize(), COMPRESSION_BUFFER_IN_MAX_SIZE);
 	context->buffer_in = malloc(context->buffer_in_max_size);
 	context->buffer_out = malloc(context->buffer_out_max_size);
-	context->compression_level = compression_level * 2; //Input is scale 0-10 but zstd goes 0 - 20!
-	assert(!ZSTD_isError(ZSTD_CCtx_setParameter(context->cctx, ZSTD_c_compressionLevel, compression_level)));
+	// Map 0-10 input scale onto zstd's 1-22 range; preserve 0 as the "default
+	// compression" sentinel. setParameter must run outside assert() so its
+	// side effect is not stripped under NDEBUG.
+	context->compression_level = compression_level > 0 ? (compression_level * 2) + 1 : 0;
+	size_t const set_param_result = ZSTD_CCtx_setParameter(context->cctx, ZSTD_c_compressionLevel, context->compression_level);
+	assert(!ZSTD_isError(set_param_result));
+	(void)set_param_result;
 
 	return context;
 }
