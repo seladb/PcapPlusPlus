@@ -235,6 +235,11 @@ namespace pcpp
 
 		rte_eth_stats_reset(m_Id);
 
+		if (!m_QueueStatsCollector.init(m_Id, m_NumOfRxQueuesOpened, m_NumOfTxQueuesOpened))
+		{
+			return false;
+		}
+
 		m_DeviceOpened = true;
 		return m_DeviceOpened;
 	}
@@ -844,26 +849,8 @@ namespace pcpp
 		stats.aggregatedTxStats.bytesPerSec =
 		    (stats.aggregatedTxStats.bytes - m_PrevStats.aggregatedTxStats.bytes) / secsElapsed;
 
-		int numRxQs = std::min<int>(DPDK_MAX_RX_QUEUES, RTE_ETHDEV_QUEUE_STAT_CNTRS);
-		int numTxQs = std::min<int>(DPDK_MAX_TX_QUEUES, RTE_ETHDEV_QUEUE_STAT_CNTRS);
+		m_QueueStatsCollector.collect(stats, m_PrevStats, secsElapsed);
 
-		for (int i = 0; i < numRxQs; i++)
-		{
-			stats.rxStats[i].packets = rteStats.q_ipackets[i];
-			stats.rxStats[i].bytes = rteStats.q_ibytes[i];
-			stats.rxStats[i].packetsPerSec = (stats.rxStats[i].packets - m_PrevStats.rxStats[i].packets) / secsElapsed;
-			stats.rxStats[i].bytesPerSec = (stats.rxStats[i].bytes - m_PrevStats.rxStats[i].bytes) / secsElapsed;
-		}
-
-		for (int i = 0; i < numTxQs; i++)
-		{
-			stats.txStats[i].packets = rteStats.q_opackets[i];
-			stats.txStats[i].bytes = rteStats.q_obytes[i];
-			stats.txStats[i].packetsPerSec = (stats.txStats[i].packets - m_PrevStats.txStats[i].packets) / secsElapsed;
-			stats.txStats[i].bytesPerSec = (stats.txStats[i].bytes - m_PrevStats.txStats[i].bytes) / secsElapsed;
-		}
-
-		// m_PrevStats = stats;
 		memcpy(&m_PrevStats, &stats, sizeof(m_PrevStats));
 	}
 
@@ -1579,6 +1566,112 @@ namespace pcpp
 		return result;
 	}
 
+	bool DpdkDevice::QueueStatsCollector::init(uint16_t portId, uint16_t rxQueueCount, uint16_t txQueueCount)
+	{
+		m_PortId = portId;
+		m_RxQueueCount = rxQueueCount;
+		m_TxQueueCount = txQueueCount;
+		m_RxPacketIds.clear();
+		m_RxByteIds.clear();
+		m_TxPacketIds.clear();
+		m_TxByteIds.clear();
+
+		try
+		{
+			resolveStatIds();
+		}
+		catch (const std::exception& e)
+		{
+			PCPP_LOG_ERROR("Could not initialize the queue stats collector: " << e.what());
+			return false;
+		}
+
+		return true;
+	}
+
+	void DpdkDevice::QueueStatsCollector::collect(DpdkDeviceStats& stats, const DpdkDeviceStats& prevStats,
+	                                              double secsElapsed) const
+	{
+		std::memset(stats.rxStats, 0, sizeof(stats.rxStats));
+		std::memset(stats.txStats, 0, sizeof(stats.txStats));
+
+		// Pack all IDs into a flat vector for a single API call
+		const size_t totalStatsCount = (m_RxQueueCount + m_TxQueueCount) * m_StatsPerQueue;
+		std::vector<uint64_t> statIds(totalStatsCount);
+		std::vector<uint64_t> statValues(totalStatsCount);
+
+		for (uint16_t i = 0; i < m_RxQueueCount; ++i)
+		{
+			statIds[i * m_StatsPerQueue + 0] = m_RxPacketIds[i];
+			statIds[i * m_StatsPerQueue + 1] = m_RxByteIds[i];
+		}
+
+		for (uint16_t i = m_RxQueueCount; i < m_RxQueueCount + m_TxQueueCount; ++i)
+		{
+			auto txQueueId = i - m_RxQueueCount;
+			statIds[i * m_StatsPerQueue + 0] = m_TxPacketIds[txQueueId];
+			statIds[i * m_StatsPerQueue + 1] = m_TxByteIds[txQueueId];
+		}
+
+		if (rte_eth_xstats_get_by_id(m_PortId, statIds.data(), statValues.data(), totalStatsCount) !=
+		    static_cast<int>(totalStatsCount))
+		{
+			PCPP_LOG_ERROR("Failed to get stats from DPDK");
+			return;
+		}
+
+		for (uint16_t i = 0; i < m_RxQueueCount; ++i)
+		{
+			stats.rxStats[i].packets = statValues[i * m_StatsPerQueue + 0];
+			stats.rxStats[i].bytes = statValues[i * m_StatsPerQueue + 1];
+			stats.rxStats[i].packetsPerSec = (stats.rxStats[i].packets - prevStats.rxStats[i].packets) / secsElapsed;
+			stats.rxStats[i].bytesPerSec = (stats.rxStats[i].bytes - prevStats.rxStats[i].bytes) / secsElapsed;
+		}
+
+		for (uint16_t i = m_RxQueueCount; i < m_RxQueueCount + m_TxQueueCount; ++i)
+		{
+			auto txQueueId = i - m_RxQueueCount;
+			stats.txStats[txQueueId].packets = statValues[i * m_StatsPerQueue + 0];
+			stats.txStats[txQueueId].bytes = statValues[i * m_StatsPerQueue + 1];
+			stats.txStats[txQueueId].packetsPerSec =
+			    (stats.txStats[txQueueId].packets - prevStats.txStats[txQueueId].packets) / secsElapsed;
+			stats.txStats[txQueueId].bytesPerSec =
+			    (stats.txStats[txQueueId].bytes - prevStats.txStats[txQueueId].bytes) / secsElapsed;
+		}
+	}
+
+	void DpdkDevice::QueueStatsCollector::resolveStatId(const std::string& statName, uint64_t& idOut) const
+	{
+		if (rte_eth_xstats_get_id_by_name(m_PortId, statName.c_str(), &idOut) != 0)
+		{
+			throw std::runtime_error("Failed to resolve xstat ID for: " + statName);
+		}
+	}
+
+	void DpdkDevice::QueueStatsCollector::resolveStatIds()
+	{
+		std::vector<uint64_t> rxPacketIds(m_RxQueueCount);
+		std::vector<uint64_t> rxByteIds(m_RxQueueCount);
+		std::vector<uint64_t> txPacketIds(m_TxQueueCount);
+		std::vector<uint64_t> txByteIds(m_TxQueueCount);
+
+		for (uint16_t qId = 0; qId < m_RxQueueCount; ++qId)
+		{
+			resolveStatId("rx_q" + std::to_string(qId) + "_packets", rxPacketIds[qId]);
+			resolveStatId("rx_q" + std::to_string(qId) + "_bytes", rxByteIds[qId]);
+		}
+
+		for (uint16_t qId = 0; qId < m_TxQueueCount; ++qId)
+		{
+			resolveStatId("tx_q" + std::to_string(qId) + "_packets", txPacketIds[qId]);
+			resolveStatId("tx_q" + std::to_string(qId) + "_bytes", txByteIds[qId]);
+		}
+
+		m_RxPacketIds = std::move(rxPacketIds);
+		m_RxByteIds = std::move(rxByteIds);
+		m_TxPacketIds = std::move(txPacketIds);
+		m_TxByteIds = std::move(txByteIds);
+	}
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP

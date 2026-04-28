@@ -351,8 +351,13 @@ PTF_TEST_CASE(TestDpdkDevice)
 	PTF_PRINT_VERBOSE("Bytes captured according to stats: " << stats.aggregatedRxStats.bytes);
 	PTF_PRINT_VERBOSE("Packets dropped according to stats: " << stats.rxPacketsDroppedByHW);
 	PTF_PRINT_VERBOSE("Erroneous packets according to stats: " << stats.rxErroneousPackets);
+	uint64_t rxQueuePackets = 0;
+	uint64_t rxQueueBytes = 0;
 	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 	{
+		rxQueuePackets += stats.rxStats[i].packets;
+		rxQueueBytes += stats.rxStats[i].bytes;
+
 		PTF_PRINT_VERBOSE("Packets captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].packets);
 		PTF_PRINT_VERBOSE("Bytes captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].bytes);
 	}
@@ -363,6 +368,8 @@ PTF_TEST_CASE(TestDpdkDevice)
 	                             ? stats.aggregatedRxStats.packets - (uint64_t)packetData.PacketCount
 	                             : (uint64_t)packetData.PacketCount - stats.aggregatedRxStats.packets;
 	PTF_ASSERT_LOWER_OR_EQUAL_THAN(statsVsPacketCount, 20);
+	PTF_ASSERT_EQUAL(stats.aggregatedRxStats.packets, rxQueuePackets);
+	PTF_ASSERT_EQUAL(stats.aggregatedRxStats.bytes, rxQueueBytes);
 
 	dev->close();
 
@@ -577,6 +584,21 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 	// send packets as parsed EthPacekt array
 	uint16_t packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead, 0, false);
 	PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead);
+
+	// check stats
+	pcpp::DpdkDevice::DpdkDeviceStats stats;
+	dev->getStatistics(stats);
+	PTF_ASSERT_EQUAL(stats.aggregatedTxStats.packets, packetsRead);
+	PTF_ASSERT_GREATER_THAN(stats.aggregatedTxStats.bytes, 0);
+	uint64_t txQueuePackets = 0;
+	uint64_t txQueueBytes = 0;
+	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
+	{
+		txQueuePackets += stats.txStats[i].packets;
+		txQueueBytes += stats.txStats[i].bytes;
+	}
+	PTF_ASSERT_EQUAL(stats.aggregatedTxStats.packets, txQueuePackets);
+	PTF_ASSERT_EQUAL(stats.aggregatedTxStats.bytes, txQueueBytes);
 
 	// send packets are RawPacketVector
 	uint16_t packetsSentAsRawVector = dev->sendPackets(rawPacketVec);

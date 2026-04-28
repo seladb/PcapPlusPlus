@@ -316,6 +316,7 @@ jobs:
     strategy:
       matrix:
         include:
+          - dpdk_version: 25.11.1
           - dpdk_version: 24.11.5
           - dpdk_version: 23.11.6
     steps:
@@ -341,7 +342,7 @@ jobs:
             && tar -xvf dpdk-${{ matrix.dpdk_version }}.tar.xz \
             && rm -rf dpdk-${{ matrix.dpdk_version }}.tar.xz \
             && mv dpdk-stable-${{ matrix.dpdk_version }} dpdk && cd dpdk \
-            && meson setup build --prefix=${{ github.workspace }}/dpdk/install \
+            && meson setup build -Dmachine=default --prefix=${{ github.workspace }}/dpdk/install \
             && ninja -C build \
             && ninja -C build install
 
