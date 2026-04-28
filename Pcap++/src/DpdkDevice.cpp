@@ -1667,10 +1667,10 @@ namespace pcpp
 			resolveStatId("tx_q" + std::to_string(qId) + "_bytes", txByteIds[qId]);
 		}
 
-		m_RxPacketIds = rxPacketIds;
-		m_RxByteIds = rxByteIds;
-		m_TxPacketIds = txPacketIds;
-		m_TxByteIds = txByteIds;
+		m_RxPacketIds = std::move(rxPacketIds);
+		m_RxByteIds = std::move(rxByteIds);
+		m_TxPacketIds = std::move(txPacketIds);
+		m_TxByteIds = std::move(txByteIds);
 	}
 }  // namespace pcpp
 
