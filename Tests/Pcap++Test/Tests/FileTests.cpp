@@ -1316,13 +1316,14 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 
 PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)
 {
+#ifdef USE_Z_STD
 	// If the compression level is silently ignored, low and high levels
 	// produce identical output sizes. PcapPlusPlus exposes levels 0-10,
 	// which the zstd wrapper maps to zstd's native 1-22 range. Test three
 	// points to verify the level scales monotonically, not just that the
 	// endpoints differ.
-	int sizes[3] = { 0, 0, 0 };
-	const int levels[3] = { 1, 5, 10 };
+	std::array<int, 3> sizes = { 0, 0, 0 };
+	const std::array<int, 3> levels = { 1, 5, 10 };
 	for (int i = 0; i < 3; i++)
 	{
 		pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE2_PCAPNG_PATH);
@@ -1343,6 +1344,9 @@ PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)
 	}
 	PTF_ASSERT_GREATER_THAN(sizes[0], sizes[1]);
 	PTF_ASSERT_GREATER_THAN(sizes[1], sizes[2]);
+#else
+	PTF_SKIP_TEST("Zstd is not configured");
+#endif
 }  // TestPcapNgZstdCompressionLevels
 
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
