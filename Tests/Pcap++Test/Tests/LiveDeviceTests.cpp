@@ -739,8 +739,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	// create a non-default configuration with a snapshot length of 10 bytes
 	int snaplen = 20;
-	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithSnaplen(pcpp::PcapLiveDevice::Promiscuous, 0, 0,
-	                                                               pcpp::PcapLiveDevice::PCPP_INOUT, snaplen);
+	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithSnaplen(
+	    pcpp::PcapLiveDevice::Promiscuous, 0, 0, pcpp::PcapLiveDevice::PcapDirection::PCPP_INOUT, snaplen);
 
 	liveDev->open(devConfigWithSnaplen);
 
