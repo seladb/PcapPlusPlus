@@ -6,7 +6,7 @@ import argparse
 import subprocess
 from pathlib import Path
 from contextlib import contextmanager
-from typing import Literal
+from typing import Iterable, Literal
 
 import scapy.arch.windows
 from ipaddress import IPv4Address
@@ -152,12 +152,12 @@ def main():
     build_dir = Path(args.build_dir)
     logging.debug("Using build directory: %s", build_dir)
 
-    common_exec_path = build_dir / args.common_test_exe
-    common_exec_path = common_exec_path.resolve()
+    def run_with_coverage(exec_path: Path, coverage_file: str, args: Iterable[str] = None):
+        if args is None:
+            args = []
 
-    if args.coverage:
-        logging.debug("Running Common++ tests with coverage from: %s", common_exec_path)
-        subprocess.run(
+        logging.debug("Running tests with coverage from: %s", exec_path)
+        return subprocess.run(
             [
                 "OpenCppCoverage.exe",
                 "--verbose",
@@ -170,15 +170,22 @@ def main():
                 "--excluded_sources",
                 "Tests",
                 "--export_type",
-                "cobertura:Common++Coverage.xml",
+                f"cobertura:{coverage_file}",
                 "--working_dir",
-                str(common_exec_path.parent),
+                str(exec_path.parent),
                 "--",
-                str(common_exec_path),
+                str(exec_path),
+                *args,
             ],
-            cwd=common_exec_path.parent,
+            cwd=exec_path.parent,
             check=True,
         )
+
+    common_exec_path = build_dir / args.common_test_exe
+    common_exec_path = common_exec_path.resolve()
+
+    if args.coverage:
+        run_with_coverage(common_exec_path, "Common++Coverage.xml")
     else:
         logging.debug("Running Common++ tests from: %s", common_exec_path)
         subprocess.run(
@@ -192,28 +199,7 @@ def main():
 
     if args.coverage:
         logging.debug("Running Packet++ tests with coverage from: %s", packet_exec_path)
-        subprocess.run(
-            [
-                "OpenCppCoverage.exe",
-                "--verbose",
-                "--sources",
-                "Packet++",
-                "--sources",
-                "Pcap++",
-                "--sources",
-                "Common++",
-                "--excluded_sources",
-                "Tests",
-                "--export_type",
-                "cobertura:Packet++Coverage.xml",
-                "--working_dir",
-                str(packet_exec_path.parent),
-                "--",
-                str(packet_exec_path),
-            ],
-            cwd=packet_exec_path.parent,
-            check=True,
-        )
+        run_with_coverage(packet_exec_path, "Packet++Coverage.xml")
     else:
         logging.debug("Running Packet++ tests from: %s", packet_exec_path)
         subprocess.run(
@@ -240,42 +226,22 @@ def main():
         skip_tests_opt = make_tests_list_option(
             "-x", ["TestRemoteCapture"] + args.skip_tests
         )
+        pcap_cmd_args = [
+            "-i",
+            str(ip_address),
+            *skip_tests_opt,
+            *include_tests_opt,
+        ]
 
         if args.coverage:
             logging.debug("Running Pcap++ tests with coverage from: %s", pcap_exec_path)
-            subprocess.run(
-                [
-                    "OpenCppCoverage.exe",
-                    "--verbose",
-                    "--sources",
-                    "Packet++",
-                    "--sources",
-                    "Pcap++",
-                    "--sources",
-                    "Common++",
-                    "--excluded_sources",
-                    "Tests",
-                    "--export_type",
-                    "cobertura:Pcap++Coverage.xml",
-                    "--",
-                    str(pcap_exec_path),
-                    "-i",
-                    str(ip_address),
-                    *skip_tests_opt,
-                    *include_tests_opt,
-                ],
-                cwd=pcap_exec_path.parent,
-                check=True,
-            )
+            run_with_coverage(pcap_exec_path, "Pcap++Coverage.xml", pcap_cmd_args)
         else:
             logging.debug("Running Pcap++ tests from: %s", pcap_exec_path)
             subprocess.run(
                 [
                     str(pcap_exec_path),
-                    "-i",
-                    str(ip_address),
-                    *skip_tests_opt,
-                    *include_tests_opt,
+                    *pcap_cmd_args,
                 ],
                 cwd=pcap_exec_path.parent,
                 check=True,
