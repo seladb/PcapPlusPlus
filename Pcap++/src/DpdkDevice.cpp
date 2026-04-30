@@ -203,7 +203,7 @@ namespace pcpp
 		// it's impossible to close it and open it again with a larger number of RX+TX queues. So for this
 		// PMD I made a patch to open the device in the first time with maximum RX & TX queue, close it
 		// immediately and open it again with number of queues the user wanted to
-		if (!m_WasOpened && m_PMDType == PMD_VMXNET3)
+		if (!m_WasOpened && m_PMDType == DpdkPMDType::PMD_VMXNET3)
 		{
 			m_WasOpened = true;
 			openMultiQueues(getTotalNumOfRxQueues(), getTotalNumOfTxQueues(), config);
@@ -533,41 +533,41 @@ namespace pcpp
 		m_PMDName = std::string(portInfo.driver_name);
 
 		if (m_PMDName == "eth_bond")
-			m_PMDType = PMD_BOND;
+			m_PMDType = DpdkPMDType::PMD_BOND;
 		else if (m_PMDName == "rte_em_pmd")
-			m_PMDType = PMD_E1000EM;
+			m_PMDType = DpdkPMDType::PMD_E1000EM;
 		else if (m_PMDName == "rte_igb_pmd")
-			m_PMDType = PMD_IGB;
+			m_PMDType = DpdkPMDType::PMD_IGB;
 		else if (m_PMDName == "rte_igbvf_pmd")
-			m_PMDType = PMD_IGBVF;
+			m_PMDType = DpdkPMDType::PMD_IGBVF;
 		else if (m_PMDName == "rte_enic_pmd")
-			m_PMDType = PMD_ENIC;
+			m_PMDType = DpdkPMDType::PMD_ENIC;
 		else if (m_PMDName == "rte_pmd_fm10k")
-			m_PMDType = PMD_FM10K;
+			m_PMDType = DpdkPMDType::PMD_FM10K;
 		else if (m_PMDName == "rte_i40e_pmd" || m_PMDName == "net_i40e")
-			m_PMDType = PMD_I40E;
+			m_PMDType = DpdkPMDType::PMD_I40E;
 		else if (m_PMDName == "rte_i40evf_pmd")
-			m_PMDType = PMD_I40EVF;
+			m_PMDType = DpdkPMDType::PMD_I40EVF;
 		else if (m_PMDName == "rte_ixgbe_pmd")
-			m_PMDType = PMD_IXGBE;
+			m_PMDType = DpdkPMDType::PMD_IXGBE;
 		else if (m_PMDName == "rte_ixgbevf_pmd")
-			m_PMDType = PMD_IXGBEVF;
+			m_PMDType = DpdkPMDType::PMD_IXGBEVF;
 		else if (m_PMDName == "librte_pmd_mlx4")
-			m_PMDType = PMD_MLX4;
+			m_PMDType = DpdkPMDType::PMD_MLX4;
 		else if (m_PMDName == "eth_null")
-			m_PMDType = PMD_NULL;
+			m_PMDType = DpdkPMDType::PMD_NULL;
 		else if (m_PMDName == "eth_pcap")
-			m_PMDType = PMD_PCAP;
+			m_PMDType = DpdkPMDType::PMD_PCAP;
 		else if (m_PMDName == "eth_ring")
-			m_PMDType = PMD_RING;
+			m_PMDType = DpdkPMDType::PMD_RING;
 		else if (m_PMDName == "rte_virtio_pmd")
-			m_PMDType = PMD_VIRTIO;
+			m_PMDType = DpdkPMDType::PMD_VIRTIO;
 		else if (m_PMDName == "rte_vmxnet3_pmd")
-			m_PMDType = PMD_VMXNET3;
+			m_PMDType = DpdkPMDType::PMD_VMXNET3;
 		else if (m_PMDName == "eth_xenvirt")
-			m_PMDType = PMD_XENVIRT;
+			m_PMDType = DpdkPMDType::PMD_XENVIRT;
 		else
-			m_PMDType = PMD_UNKNOWN;
+			m_PMDType = DpdkPMDType::PMD_UNKNOWN;
 
 #if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 5)  // before 18.05
 		char pciName[30];
@@ -594,14 +594,14 @@ namespace pcpp
 	{
 		switch (m_PMDType)
 		{
-		case PMD_IGBVF:
-		case PMD_I40EVF:
-		case PMD_IXGBEVF:
-		case PMD_PCAP:
-		case PMD_RING:
-		case PMD_VIRTIO:
-		case PMD_VMXNET3:
-		case PMD_XENVIRT:
+		case DpdkPMDType::PMD_IGBVF:
+		case DpdkPMDType::PMD_I40EVF:
+		case DpdkPMDType::PMD_IXGBEVF:
+		case DpdkPMDType::PMD_PCAP:
+		case DpdkPMDType::PMD_RING:
+		case DpdkPMDType::PMD_VIRTIO:
+		case DpdkPMDType::PMD_VMXNET3:
+		case DpdkPMDType::PMD_XENVIRT:
 			return true;
 		default:
 			return false;
@@ -1474,7 +1474,7 @@ namespace pcpp
 	{
 		if (m_Config.rssHashFunction == static_cast<uint64_t>(RSS_DEFAULT))
 		{
-			if (m_PMDType == PMD_I40E || m_PMDType == PMD_I40EVF)
+			if (m_PMDType == DpdkPMDType::PMD_I40E || m_PMDType == DpdkPMDType::PMD_I40EVF)
 			{
 				return RSS_NONFRAG_IPV4_TCP | RSS_NONFRAG_IPV4_UDP | RSS_NONFRAG_IPV4_OTHER | RSS_FRAG_IPV4 |
 				       RSS_NONFRAG_IPV6_TCP | RSS_NONFRAG_IPV6_UDP | RSS_NONFRAG_IPV6_OTHER | RSS_FRAG_IPV6;
