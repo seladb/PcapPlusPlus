@@ -989,6 +989,14 @@ jobs:
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
 
+      - name: Setup veth pair
+        run: |
+          sudo ip link add veth0 type veth peer name veth1
+          sudo ip link set veth0 up
+          sudo ip link set veth1 up
+          sudo ip addr add 192.168.100.1/24 dev veth0
+          sudo ip addr add 192.168.100.2/24 dev veth1
+
       - name: Prepare environment for tests
         run: |
           python -m venv .venv
@@ -998,7 +1006,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp" --build-dir "$BUILD_DIR"
+          python ci/run_tests/run_tests.py --interface eth0 --tcpreplay-interface veth1 --use-sudo --pcap-test-args "-e veth0 -t xdp" --build-dir "$BUILD_DIR"
 
       - name: Create Cobertura Report
         run: |

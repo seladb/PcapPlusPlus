@@ -14,6 +14,7 @@ static struct option PcapTestOptions[] = {
 	{ "remote-port",         required_argument, nullptr, 'p' },
 	{ "dpdk-port",           required_argument, nullptr, 'd' },
 	{ "dpdk-args",           required_argument, nullptr, 'a' },
+	{ "xdp-interface",       required_argument, nullptr, 'e' },
 	{ "no-networking",       no_argument,       nullptr, 'n' },
 	{ "verbose",             no_argument,       nullptr, 'v' },
 	{ "mem-verbose",         no_argument,       nullptr, 'm' },
@@ -30,7 +31,7 @@ static struct option PcapTestOptions[] = {
 void printUsage()
 {
 	std::cout << "Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d "
-	             "dpdk_port] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
+	             "dpdk_port] [-a dpdk_args] [-e xdp_interface] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
 	          << "Flags:\n"
 	          << "-i --use-ip              IP to use for sending and receiving packets\n"
 	          << "-b --debug-mode          Set log level to DEBUG\n"
@@ -38,6 +39,7 @@ void printUsage()
 	          << "-p --remote-port         Port of remote machine running rpcapd to test remote capture\n"
 	          << "-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
 	          << "-a --dpdk-args           DPDK args to pass to tests\n"
+	          << "-e --xdp-interface       The interface to use for AF_XDP tests. If not specified the IP address in --use-ip is used\n"
 	          << "-n --no-networking       Do not run tests that requires networking\n"
 	          << "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
 	          << "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
@@ -68,7 +70,7 @@ int main(int argc, char* argv[])
 
 	int optionIndex = 0;
 	int opt = 0;
-	while ((opt = getopt_long(argc, argv, "k:i:br:p:d:a:nvt:x:smw", PcapTestOptions, &optionIndex)) != -1)
+	while ((opt = getopt_long(argc, argv, "k:i:br:p:d:a:e:nvt:x:smw", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -94,6 +96,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'a':
 			PcapTestGlobalArgs.dpdkArgs.push_back(optarg);
+			break;
+		case 'e':
+			PcapTestGlobalArgs.xdpInterface = optarg;
 			break;
 		case 'n':
 			runWithNetworking = false;
