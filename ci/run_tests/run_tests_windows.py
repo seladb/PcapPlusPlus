@@ -121,6 +121,12 @@ def main():
         "--build-dir", type=str, default=os.getcwd(), help="Path to the build directory"
     )
     parser.add_argument(
+        "--common-test-exe",
+        type=str,
+        default=os.path.join("Tests", "Common++Test", "Common++Test.exe"),
+        help="Custom path to Common++ test executable. Can be relative to the build directory.",
+    )
+    parser.add_argument(
         "--packet-test-exe",
         type=str,
         default=os.path.join("Tests", "Packet++Test", "Packet++Test.exe"),
@@ -145,6 +151,41 @@ def main():
 
     build_dir = Path(args.build_dir)
     logging.debug("Using build directory: %s", build_dir)
+
+    common_exec_path = build_dir / args.common_test_exe
+    common_exec_path = common_exec_path.resolve()
+
+    if args.coverage:
+        logging.debug("Running Common++ tests with coverage from: %s", common_exec_path)
+        subprocess.run(
+            [
+                "OpenCppCoverage.exe",
+                "--verbose",
+                "--sources",
+                "Packet++",
+                "--sources",
+                "Pcap++",
+                "--sources",
+                "Common++",
+                "--excluded_sources",
+                "Tests",
+                "--export_type",
+                "cobertura:Common++Coverage.xml",
+                "--working_dir",
+                str(common_exec_path.parent),
+                "--",
+                str(common_exec_path),
+            ],
+            cwd=common_exec_path.parent,
+            check=True,
+        )
+    else:
+        logging.debug("Running Common++ tests from: %s", common_exec_path)
+        subprocess.run(
+            str(common_exec_path),
+            cwd=common_exec_path.parent,
+            check=True,
+        )
 
     packet_exec_path = build_dir / args.packet_test_exe
     packet_exec_path = packet_exec_path.resolve()
