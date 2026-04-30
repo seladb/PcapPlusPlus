@@ -57,7 +57,6 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 {
 #ifdef USE_XDP
 	std::string devName = getDeviceName();
-	std::cout << "devName is: " << devName << std::endl;
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
 
@@ -73,7 +72,6 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device,
 	                          void* userCookie) -> void {
 		auto packetData = static_cast<XdpPacketData*>(userCookie);
-		std::cout << "Received packets: " << packetCount << std::endl;
 
 		for (uint32_t i = 0; i < packetCount; i++)
 		{
