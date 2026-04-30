@@ -4,7 +4,7 @@
 
 namespace pcpp_test
 {
-	using namespace pcpp;	
+	using namespace pcpp;
 
 	TEST(CoreMaskTest, CreateCoreMaskFromCoreIdsMethod)
 	{
@@ -44,4 +44,4 @@ namespace pcpp_test
 
 		EXPECT_EQ(cores, expectedCores);
 	};
-}  // namespace pcpp
+}  // namespace pcpp_test

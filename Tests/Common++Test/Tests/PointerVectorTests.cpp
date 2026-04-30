@@ -169,4 +169,4 @@ namespace pcpp_test
 		TestObject* obj = nullptr;  // Using nullptr directly in pushBack is a compile time error.
 		EXPECT_THROW(vec.pushBack(obj), std::invalid_argument);
 	}
-}  // namespace pcpp
+}  // namespace pcpp_test

@@ -157,4 +157,4 @@ namespace pcpp_test
 		EXPECT_EQ(pcpp::MacAddress::Zero, pcpp::MacAddress(0, 0, 0, 0, 0, 0));
 		EXPECT_EQ(pcpp::MacAddress::Broadcast, pcpp::MacAddress(0xff, 0xff, 0xff, 0xff, 0xff, 0xff));
 	};
-}  // namespace pcpp
+}  // namespace pcpp_test

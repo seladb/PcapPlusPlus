@@ -51,4 +51,4 @@ namespace pcpp_test
 			EXPECT_EQ(tv.tv_usec, ts.tv_nsec / 1000);
 		}
 	}  // namespace internal
-}  // namespace pcpp
+}  // namespace pcpp_test

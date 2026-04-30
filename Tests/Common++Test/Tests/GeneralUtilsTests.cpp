@@ -24,7 +24,7 @@ namespace pcpp_test
 		const char haystack[] = "Hello, World!";
 		const char needle[] = "World";
 		EXPECT_EQ(pcpp::cross_platform_memmem(haystack, sizeof(haystack), needle,
-		                                sizeof(needle) - 1 /* ignore the null terminator */),
+		                                      sizeof(needle) - 1 /* ignore the null terminator */),
 		          haystack + 7);
 	};
 
@@ -34,4 +34,4 @@ namespace pcpp_test
 		EXPECT_EQ(pcpp::align<4>(4), 4);
 		EXPECT_EQ(pcpp::align<4>(5), 8);
 	};
-}  // namespace pcpp
+}  // namespace pcpp_test
