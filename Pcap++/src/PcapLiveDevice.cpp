@@ -700,7 +700,7 @@ namespace pcpp
 			throw std::runtime_error("Cannot activate the device, error was: " + std::string(pcap.getLastError()));
 		}
 
-		if (config.direction != PCPP_INOUT)
+		if (config.direction != PcapDirection::PCPP_INOUT)
 		{
 			pcap_direction_t directionToSet = directionTypeMap(config.direction);
 			ret = pcap_setdirection(pcap.get(), directionToSet);

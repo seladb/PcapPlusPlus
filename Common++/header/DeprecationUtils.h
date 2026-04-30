@@ -14,7 +14,7 @@
 //
 #define PCPP_ENUM_CLASS_UPGRADE_COMPAT(cls, val)                                                                       \
 	PCPP_DEPRECATED("Enum class upgrade: Use " #cls "::" #val " instead.")                                             \
-	const auto val = cls::val
+	const static auto val = cls::val
 
 #if !defined(DISABLE_WARNING_PUSH) || !defined(DISABLE_WARNING_POP)
 #	if defined(_MSC_VER)

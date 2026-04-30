@@ -233,7 +233,7 @@ namespace pcpp
 
 		/// Set direction for capturing packets (you can read more here:
 		/// <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>)
-		enum PcapDirection
+		enum class PcapDirection
 		{
 			/// Capture traffics both incoming and outgoing
 			PCPP_INOUT = 0,
@@ -242,6 +242,13 @@ namespace pcpp
 			/// Only capture outgoing traffics
 			PCPP_OUT
 		};
+
+		// const static auto PCPP_INOUT = PcapDirection::PCPP_INOUT;
+		// const static auto PCPP_IN = PcapDirection::PCPP_IN;
+		// const static auto PCPP_OUT = PcapDirection::PCPP_OUT;
+		PCPP_ENUM_CLASS_UPGRADE_COMPAT(PcapDirection, PCPP_INOUT);
+		PCPP_ENUM_CLASS_UPGRADE_COMPAT(PcapDirection, PCPP_IN);
+		PCPP_ENUM_CLASS_UPGRADE_COMPAT(PcapDirection, PCPP_OUT);
 
 		/// Set which source provides timestamps associated to each captured packet
 		/// (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
@@ -339,7 +346,7 @@ namespace pcpp
 			/// @param[in] timestampPrecision The timestamp precision (not all platforms support this).
 			/// Default precision is Microseconds.
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
-			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
+			                             int packetBufferSize = 0, PcapDirection direction = PcapDirection::PCPP_INOUT,
 			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false,
 			                             TimestampProvider timestampProvider = TimestampProvider::Host,
 			                             TimestampPrecision timestampPrecision = TimestampPrecision::Microseconds)
