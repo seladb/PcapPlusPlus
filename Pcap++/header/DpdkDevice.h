@@ -8,6 +8,7 @@
 #include "SystemUtils.h"
 #include "Device.h"
 #include "MBufRawPacket.h"
+#include "DeprecationUtils.h"
 
 /// @file
 /// This file and DpdkDeviceList.h provide PcapPlusPlus C++ wrapper for DPDK (stands for data-plan development kit).
@@ -74,7 +75,7 @@ namespace pcpp
 
 	/// An enum describing all PMD (poll mode driver) types supported by DPDK. For more info about these PMDs please
 	/// visit the DPDK web-site
-	enum DpdkPMDType
+	enum class DpdkPMDType
 	{
 		/// Unknown PMD type
 		PMD_UNKNOWN,
@@ -116,6 +117,26 @@ namespace pcpp
 		/// AF_PACKET PMD
 		PMD_AF_PACKET
 	};
+
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_UNKNOWN);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_BOND);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_E1000EM);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_IGB);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_IGBVF);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_ENIC);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_FM10K);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_I40E);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_I40EVF);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_IXGBE);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_IXGBEVF);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_MLX4);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_NULL);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_PCAP);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_RING);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_VIRTIO);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_VMXNET3);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_XENVIRT);
+	PCPP_ENUM_CLASS_UPGRADE_COMPAT(DpdkPMDType, PMD_AF_PACKET);
 
 	/// @typedef OnDpdkPacketsArriveCallback
 	/// A callback that is called when a burst of packets are captured by DpdkDevice
