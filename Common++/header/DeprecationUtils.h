@@ -6,7 +6,7 @@
 #	define PCPP_DEPRECATED(msg) [[deprecated(msg)]]
 #endif
 
-// Provides backwards compatibility for enum class types that have been upgraded..
+// Provides backwards compatibility for enum class types that have been upgraded.
 //
 // This macro should be once used in the header file of the upgraded enum class type with each enum value.
 // This will define the enum value as a const auto with the same name, mimicing the old enum value, but
