@@ -30,28 +30,29 @@ static struct option PcapTestOptions[] = {
 
 void printUsage()
 {
-	std::cout << "Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d "
-	             "dpdk_port] [-a dpdk_args] [-e xdp_interface] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
-	          << "Flags:\n"
-	          << "-i --use-ip              IP to use for sending and receiving packets\n"
-	          << "-b --debug-mode          Set log level to DEBUG\n"
-	          << "-r --remote-ip	          IP of remote machine running rpcapd to test remote capture\n"
-	          << "-p --remote-port         Port of remote machine running rpcapd to test remote capture\n"
-	          << "-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
-	          << "-a --dpdk-args           DPDK args to pass to tests\n"
-	          << "-e --xdp-interface       The interface to use for AF_XDP tests. If not specified the IP address in --use-ip is used\n"
-	          << "-n --no-networking       Do not run tests that requires networking\n"
-	          << "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
-	          << "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
-	          << "-s --skip-mem-leak-check Skip memory leak check\n"
-	          << "-k --kni-ip              IP address for KNI device tests to use must not be the same\n"
-	          << "                         as any of existing network interfaces in your system.\n"
-	          << "                         If this parameter is omitted KNI tests will be skipped. Must be an IPv4.\n"
-	          << "                         For Linux systems only\n"
-	          << "-t --include-tags        A list of semicolon separated tags for tests to run\n"
-	          << "-x --exclude-tags        A list of semicolon separated tags for tests to exclude\n"
-	          << "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
-	          << "-h --help                Display this help message and exit\n";
+	std::cout
+	    << "Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d "
+	       "dpdk_port] [-a dpdk_args] [-e xdp_interface] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
+	    << "Flags:\n"
+	    << "-i --use-ip              IP to use for sending and receiving packets\n"
+	    << "-b --debug-mode          Set log level to DEBUG\n"
+	    << "-r --remote-ip	          IP of remote machine running rpcapd to test remote capture\n"
+	    << "-p --remote-port         Port of remote machine running rpcapd to test remote capture\n"
+	    << "-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
+	    << "-a --dpdk-args           DPDK args to pass to tests\n"
+	    << "-e --xdp-interface       The interface to use for AF_XDP tests. If not specified the IP address in --use-ip is used\n"
+	    << "-n --no-networking       Do not run tests that requires networking\n"
+	    << "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
+	    << "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
+	    << "-s --skip-mem-leak-check Skip memory leak check\n"
+	    << "-k --kni-ip              IP address for KNI device tests to use must not be the same\n"
+	    << "                         as any of existing network interfaces in your system.\n"
+	    << "                         If this parameter is omitted KNI tests will be skipped. Must be an IPv4.\n"
+	    << "                         For Linux systems only\n"
+	    << "-t --include-tags        A list of semicolon separated tags for tests to run\n"
+	    << "-x --exclude-tags        A list of semicolon separated tags for tests to exclude\n"
+	    << "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
+	    << "-h --help                Display this help message and exit\n";
 }
 
 PcapTestArgs PcapTestGlobalArgs;
