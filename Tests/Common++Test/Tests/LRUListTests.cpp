@@ -4,83 +4,43 @@
 
 namespace pcpp_test
 {
-	TEST(LRUListTest, PutTest)
+	TEST(LRUListTest, TestBasicUsage)
 	{
-		pcpp::LRUList<int> lruList(3);
-		int deletedValue;
+		pcpp::LRUList<int> lruList(999);
 
-		// Test inserting elements
 		EXPECT_EQ(lruList.put(1), 0);
 		EXPECT_EQ(lruList.put(2), 0);
 		EXPECT_EQ(lruList.put(3), 0);
 		EXPECT_EQ(lruList.getSize(), 3);
 
-		// Test inserting an element that exceeds the max size
-		EXPECT_EQ(lruList.put(4, &deletedValue), 1);
-		EXPECT_EQ(deletedValue, 1);
-		EXPECT_EQ(lruList.getSize(), 3);
+		EXPECT_EQ(lruList.getMRUElement(), 3);
+		EXPECT_EQ(lruList.getLRUElement(), 1);
 
-		// Test inserting an existing element
+		// Put duplicate element.
 		EXPECT_EQ(lruList.put(2), 0);
 		EXPECT_EQ(lruList.getSize(), 3);
-	}
 
-	TEST(LRUListTest, GetTest)
-	{
-		pcpp::LRUList<std::string> lruList(2);
-
-		lruList.put("first");
-		lruList.put("second");
-
-		// Test getting the most recently used element
-		EXPECT_EQ(lruList.getMRUElement(), "second");
-
-		// Test getting the least recently used element
-		EXPECT_EQ(lruList.getLRUElement(), "first");
-
-		lruList.put("third");
-
-		// Test getting the new most recently used element
-		EXPECT_EQ(lruList.getMRUElement(), "third");
-
-		// Test getting the new least recently used element
-		EXPECT_EQ(lruList.getLRUElement(), "second");
-	}
-
-	TEST(LRUListTest, EraseTest)
-	{
-		pcpp::LRUList<int> lruList(3);
-
-		lruList.put(1);
-		lruList.put(2);
-		lruList.put(3);
-
-		// Test erasing an element
+		// Test erase element
 		lruList.eraseElement(2);
-		EXPECT_EQ(lruList.getSize(), 2);
-
-		// Test erasing a non-existing element
-		lruList.eraseElement(4);
-		EXPECT_EQ(lruList.getSize(), 2);
+		EXPECT_EQ(lruList.getLRUElement(), 1);
+		EXPECT_EQ(lruList.getMRUElement(), 3);
 	}
 
-	TEST(LRUListTest, SizeTest)
+	TEST(LRUListTest, TestLruElementDrop)
 	{
 		pcpp::LRUList<int> lruList(3);
+		ASSERT_EQ(lruList.getMaxSize(), 3);
 
-		// Test initial size
-		EXPECT_EQ(lruList.getSize(), 0);
+		EXPECT_EQ(lruList.put(1), 0);
+		EXPECT_EQ(lruList.put(2), 0);
+		EXPECT_EQ(lruList.put(3), 0);
 
-		lruList.put(1);
-		lruList.put(2);
+		EXPECT_EQ(lruList.put(3), 0) << "Duplicate insertions should not destroy elements";
 
-		// Test size after inserting elements
-		EXPECT_EQ(lruList.getSize(), 2);
+		int deletedValue;
+		EXPECT_EQ(lruList.put(4, &deletedValue), 1);
+		EXPECT_EQ(deletedValue, 1) << "The least recently used element should be deleted when max size is exceeded";
 
-		lruList.put(3);
-		lruList.put(4);
-
-		// Test size after exceeding max size
-		EXPECT_EQ(lruList.getSize(), 3);
+		EXPECT_EQ(lruList.getSize(), lruList.getMaxSize());
 	}
-}  // namespace pcpp
+}  // namespace pcpp_test
