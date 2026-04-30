@@ -2,10 +2,11 @@
 
 #include "ObjectPool.h"
 
-namespace pcpp
+namespace pcpp_test
 {
 	namespace internal
 	{
+		using pcpp::internal::DynamicObjectPool;
 
 		TEST(DynamicObjectPoolTest, BasicUsage)
 		{

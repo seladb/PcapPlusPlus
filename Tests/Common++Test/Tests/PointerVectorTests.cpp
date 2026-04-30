@@ -5,7 +5,7 @@
 
 #include "PointerVector.h"
 
-namespace pcpp
+namespace pcpp_test
 {
 	class TestObject
 	{

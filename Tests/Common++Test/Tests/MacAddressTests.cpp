@@ -5,7 +5,7 @@
 
 #include "MacAddress.h"
 
-namespace pcpp
+namespace pcpp_test
 {
 	TEST(MacAddressTest, DefaultConstructor)
 	{
@@ -146,7 +146,7 @@ namespace pcpp
 
 	TEST(MacAddressTest, OutputStreamOperator)
 	{
-		MacAddress macAddr(1, 2, 3, 4, 5, 6);
+		pcpp::MacAddress macAddr(1, 2, 3, 4, 5, 6);
 		std::stringstream stream;
 		stream << macAddr;
 		EXPECT_EQ(stream.str(), "01:02:03:04:05:06");
@@ -154,7 +154,7 @@ namespace pcpp
 
 	TEST(MacAddressTest, ConstantHelpers)
 	{
-		EXPECT_EQ(MacAddress::Zero, MacAddress(0, 0, 0, 0, 0, 0));
-		EXPECT_EQ(MacAddress::Broadcast, MacAddress(0xff, 0xff, 0xff, 0xff, 0xff, 0xff));
+		EXPECT_EQ(pcpp::MacAddress::Zero, pcpp::MacAddress(0, 0, 0, 0, 0, 0));
+		EXPECT_EQ(pcpp::MacAddress::Broadcast, pcpp::MacAddress(0xff, 0xff, 0xff, 0xff, 0xff, 0xff));
 	};
 }  // namespace pcpp

@@ -5,8 +5,15 @@
 
 #include "IpAddress.h"
 
-namespace pcpp
+namespace pcpp_test
 {
+	using pcpp::IPv4Address;
+	using pcpp::IPv6Address;
+	using pcpp::IPAddress;
+	using pcpp::IPv4Network;
+	using pcpp::IPv6Network;
+	using pcpp::IPNetwork;
+
 	TEST(IPv4AddressTest, DefaultConstructor)
 	{
 		IPv4Address addr1;

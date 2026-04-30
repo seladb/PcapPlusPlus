@@ -2,11 +2,11 @@
 
 #include "LRUList.h"
 
-namespace pcpp
+namespace pcpp_test
 {
 	TEST(LRUListTest, PutTest)
 	{
-		LRUList<int> lruList(3);
+		pcpp::LRUList<int> lruList(3);
 		int deletedValue;
 
 		// Test inserting elements
@@ -27,7 +27,7 @@ namespace pcpp
 
 	TEST(LRUListTest, GetTest)
 	{
-		LRUList<std::string> lruList(2);
+		pcpp::LRUList<std::string> lruList(2);
 
 		lruList.put("first");
 		lruList.put("second");
@@ -49,7 +49,7 @@ namespace pcpp
 
 	TEST(LRUListTest, EraseTest)
 	{
-		LRUList<int> lruList(3);
+		pcpp::LRUList<int> lruList(3);
 
 		lruList.put(1);
 		lruList.put(2);
@@ -66,7 +66,7 @@ namespace pcpp
 
 	TEST(LRUListTest, SizeTest)
 	{
-		LRUList<int> lruList(3);
+		pcpp::LRUList<int> lruList(3);
 
 		// Test initial size
 		EXPECT_EQ(lruList.getSize(), 0);

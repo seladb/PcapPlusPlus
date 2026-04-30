@@ -2,10 +2,13 @@
 
 #include "TimespecTimeval.h"
 
-namespace pcpp
+namespace pcpp_test
 {
 	namespace internal
 	{
+		using pcpp::internal::toTimespec;
+		using pcpp::internal::toTimeval;
+
 		TEST(TimespecTimevalConversion, TimevalToTimespecMacro)
 		{
 			timeval tv;

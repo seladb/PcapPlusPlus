@@ -4,7 +4,7 @@
 #include <functional>
 #include "Logger.h"
 
-namespace pcpp
+namespace pcpp_test
 {
 	constexpr char getPathSeparator()
 	{
@@ -14,6 +14,11 @@ namespace pcpp
 		return '/';
 #endif  // _WIN32
 	}
+
+	using pcpp::Logger;
+	using pcpp::LogLevel;
+	using pcpp::LogModule;
+	using pcpp::NumOfLogModules;
 
 	class LogCallbackMock
 	{

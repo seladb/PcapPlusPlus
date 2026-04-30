@@ -2,8 +2,9 @@
 
 #include "SystemUtils.h"
 
-namespace pcpp
+namespace pcpp_test
 {
+	using namespace pcpp;	
 
 	TEST(CoreMaskTest, CreateCoreMaskFromCoreIdsMethod)
 	{
