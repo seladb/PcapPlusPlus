@@ -19,14 +19,11 @@
 #endif
 
 #if defined(_WIN32)
+#	include <Windows.h>
 #	define POPEN _popen
-#else
-#	define POPEN popen
-#endif
-
-#if defined(_WIN32)
 #	define PCLOSE _pclose
 #else
+#	define POPEN popen
 #	define PCLOSE pclose
 #endif
 

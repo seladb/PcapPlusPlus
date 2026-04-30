@@ -476,7 +476,7 @@ namespace pcpp
 
 	uint16_t VrrpV3Layer::calculateChecksum() const
 	{
-		auto* ipLayer = m_Packet->getLayerOfType<pcpp::IPLayer>();
+		auto* ipLayer = getAttachedPacket()->getLayerOfType<pcpp::IPLayer>();
 		if (ipLayer == nullptr)
 		{
 			PCPP_LOG_ERROR("Calculate checksum failed, for can not get IPLayer" << "");

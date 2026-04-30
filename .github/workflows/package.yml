@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -82,13 +82,13 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -107,10 +107,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Test in FreeBSD
-        uses: vmactions/freebsd-vm@8873d98fd1413b5977cb2f7348fe329775159892 # v1.1.9
+        uses: vmactions/freebsd-vm@7ca82f79fe3078fecded6d3a2bff094995447bbd # v1.4.4
         with:
           release: ${{ matrix.version }}
           envs: 'BUILD_DIR'
@@ -124,13 +124,13 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -160,12 +160,12 @@ jobs:
             arch: arm64
 
     steps:
-      - uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: "${{ matrix.xcode-version }}"
 
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Configure PcapPlusPlus
         run: |
@@ -179,13 +179,13 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -208,10 +208,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@fb197b72ce45fb24f17bf3f807a388985654d1f2 # v2.29.0
+        uses: msys2/setup-msys2@cafece8e6baf9247cf9b1bf95097b0b983cc558d # v2.31.0
         with:
           msystem: ${{matrix.sys}}
           update: true
@@ -250,13 +250,13 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -277,10 +277,10 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
+        uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
       - name: Install WinPcap
         run: |
@@ -300,13 +300,13 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -330,10 +330,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -363,7 +363,7 @@ jobs:
           mkdir -p "android-package"
           mv "${COMBINED_PACKAGE_DIR}" "android-package"
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           path: android-package
           name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
@@ -378,7 +378,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: android-package-*
           merge-multiple: true
@@ -391,13 +391,13 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true

@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <fstream>
 #include "RawPacket.h"
 #include "Device.h"
+#include "Logger.h"
 
 class DeviceTeardown
 {
@@ -33,6 +35,20 @@ public:
 	void cancelTeardown()
 	{
 		m_CancelTeardown = true;
+	}
+};
+
+class SuppressLogs
+{
+public:
+	SuppressLogs()
+	{
+		pcpp::Logger::getInstance().suppressLogs();
+	}
+
+	~SuppressLogs()
+	{
+		pcpp::Logger::getInstance().enableLogs();
 	}
 };
 
@@ -68,3 +84,50 @@ void intersectMaps(const std::unordered_map<KeyType, LeftValue>& left,
 }
 
 void testSetUp();
+
+class TempFile
+{
+public:
+	explicit TempFile(const std::string& extension, const std::string& name = "", bool open = true);
+	~TempFile();
+
+	TempFile(const TempFile&) = delete;
+	TempFile& operator=(const TempFile&) = delete;
+
+	template <typename T> TempFile& operator<<(const T& data)
+	{
+		m_File << data;
+		m_File.flush();
+		return *this;
+	}
+
+	TempFile& operator<<(const std::vector<uint8_t>& data)
+	{
+		m_File.write(reinterpret_cast<const char*>(data.data()), data.size());
+		m_File.flush();
+		return *this;
+	}
+
+	template <std::size_t N> TempFile& operator<<(const std::array<uint8_t, N>& data)
+	{
+		m_File.write(reinterpret_cast<const char*>(data.data()), N);
+		m_File.flush();
+		return *this;
+	}
+
+	std::string getFileName() const
+	{
+		return m_Filename;
+	}
+
+	void close()
+	{
+		m_File.close();
+	}
+
+private:
+	std::string m_Filename;
+	std::ofstream m_File;
+
+	static std::string generateRandomName();
+};

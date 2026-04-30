@@ -109,7 +109,7 @@ namespace pcpp
 
 	MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 	{
-		m_DeleteRawDataAtDestructor = false;
+		m_OwnsRawData = false;
 		m_MBuf = nullptr;
 		m_RawDataLen = 0;
 		m_RawPacketSet = false;
@@ -131,7 +131,7 @@ namespace pcpp
 			return;
 		}
 
-		setMBuf(newMbuf, other.m_TimeStamp);
+		setMBuf(newMbuf, other.m_TimeStamp, m_MbufDataSize);
 
 		m_RawPacketSet = false;
 
@@ -176,8 +176,8 @@ namespace pcpp
 		return new MBufRawPacket(*this);
 	}
 
-	bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
-	                               int frameLength)
+	bool MBufRawPacket::doSetRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timespec timestamp,
+	                                 LinkLayerType layerType, int frameLength)
 	{
 		if (rawDataLen > m_MbufDataSize)
 		{
@@ -216,7 +216,13 @@ namespace pcpp
 		m_RawData = rte_pktmbuf_mtod(m_MBuf, uint8_t*);
 		m_RawDataLen = rte_pktmbuf_pkt_len(m_MBuf);
 		memcpy(m_RawData, pRawData, m_RawDataLen);
-		delete[] pRawData;
+
+		// Free the original data if needed
+		if (takeOwnership)
+		{
+			delete[] pRawData;
+		}
+
 		m_TimeStamp = timestamp;
 		m_RawPacketSet = true;
 		m_FrameLength = frameLength;
@@ -322,7 +328,7 @@ namespace pcpp
 		return true;
 	}
 
-	void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp)
+	void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp, uint16_t mBufDataSize)
 	{
 		if (mBuf == nullptr)
 		{
@@ -330,9 +336,11 @@ namespace pcpp
 			return;
 		}
 
-		RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), rte_pktmbuf_pkt_len(mBuf), timestamp,
-		                      LINKTYPE_ETHERNET);
 		m_MBuf = mBuf;
+		m_MbufDataSize = mBufDataSize;
+		auto mBufDataLen = rte_pktmbuf_pkt_len(mBuf);
+		m_RawDataLen = mBufDataLen;
+		RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), mBufDataLen, timestamp, LINKTYPE_ETHERNET);
 	}
 
 }  // namespace pcpp

@@ -166,6 +166,39 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 
 }  // SipRequestLayerParsingTest
 
+PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	// Load SIP Request packet with non-standard ports: UDP src=53309, dst=52380
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/sip_non_default_port1.dat");
+	pcpp::Packet sipReqNonStandardPort(rawPacket1.get());
+
+	PTF_ASSERT_TRUE(sipReqNonStandardPort.isPacketOfType(pcpp::SIPRequest));
+
+	auto sipReqLayer = sipReqNonStandardPort.getLayerOfType<pcpp::SipRequestLayer>();
+	PTF_ASSERT_NOT_NULL(sipReqLayer);
+
+	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getMethod(), pcpp::SipRequestLayer::SipINVITE, enum);
+	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getUri(), "sip:1006@192.168.21.83:52380");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getVersion(), "SIP/2.0");
+
+	// Load SIP Response packet with non-standard ports: UDP src=53309, dst=52380
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/sip_non_default_port2.dat");
+	pcpp::Packet sipResNonStandardPort(rawPacket2.get());
+
+	PTF_ASSERT_TRUE(sipResNonStandardPort.isPacketOfType(pcpp::SIPResponse));
+
+	auto sipRespLayer = sipResNonStandardPort.getLayerOfType<pcpp::SipResponseLayer>();
+	PTF_ASSERT_NOT_NULL(sipRespLayer);
+
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip200OK, enum);
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeAsInt(), 200);
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeString(), "OK");
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getVersion(), "SIP/2.0");
+}  // SipDetectionByContentOnNonStandardPort
+
 PTF_TEST_CASE(SipRequestLayerCreationTest)
 {
 	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/sip_req1.dat");
@@ -246,9 +279,10 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 	PTF_ASSERT_TRUE(sipReqLayer->getFirstLine()->setUri("sip:francisco@bestel.com:55060"));
 	PTF_ASSERT_TRUE(sipReqLayer->getFirstLine()->setUri("sip:echo@iptel.org"));
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(sipReqLayer->getFirstLine()->setUri(""));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(sipReqLayer->getFirstLine()->setUri(""));
+	}
 
 	PTF_ASSERT_TRUE(
 	    sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)
@@ -583,9 +617,10 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip401Unauthorized, enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 26);
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::SipStatusCodeUnknown));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::SipStatusCodeUnknown));
+	}
 
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_VIA_FIELD, 1));
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_CONTACT_FIELD));

@@ -42,6 +42,17 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	PTF_ASSERT_EQUAL(macAddrRef, sll2Layer->getLinkLayerAsMacAddress());
 }  // Sll2PacketParsingTest
 
+PTF_TEST_CASE(Sll2ParseLLCTest)
+{
+	pcpp_tests::utils::PacketFactory ssl2Factory(pcpp::LINKTYPE_LINUX_SLL2);
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/Sll2PacketLLC.dat", ssl2Factory);
+
+	pcpp::Packet sll2Packet(rawPacket1.get());
+
+	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::SLL2));
+	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::LLC));
+}
+
 PTF_TEST_CASE(Sll2PacketCreationTest)
 {
 	pcpp::Sll2Layer sll2Layer(20, 1, 4);
@@ -69,9 +80,10 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), 60);
 	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), resource1.data(), 52);
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(nullptr, 0));
-	uint8_t tempBuf[] = { 0x0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
-	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(tempBuf, 9));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(nullptr, 0));
+		uint8_t tempBuf[] = { 0x0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+		PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(tempBuf, 9));
+	}
 }  // Sll2PacketCreationTest

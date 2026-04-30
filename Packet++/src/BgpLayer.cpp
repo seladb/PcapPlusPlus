@@ -87,7 +87,7 @@ namespace pcpp
 		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
+		constructNextLayerFromFactory(BgpLayer::parseBgpLayer, payload, payloadLen);
 	}
 
 	std::string BgpLayer::toString() const
@@ -120,10 +120,10 @@ namespace pcpp
 
 	bool BgpLayer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
 	{
-		if (m_Packet != nullptr)
+		if (getAttachedPacket() != nullptr)
 		{
-			int rawPacketLen = m_Packet->getRawPacket()->getRawDataLen();
-			const uint8_t* rawPacketPtr = m_Packet->getRawPacket()->getRawData();
+			int rawPacketLen = getAttachedPacket()->getRawPacket()->getRawDataLen();
+			const uint8_t* rawPacketPtr = getAttachedPacket()->getRawPacket()->getRawData();
 
 			if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) > static_cast<ptrdiff_t>(rawPacketLen))
 			{
@@ -143,10 +143,10 @@ namespace pcpp
 
 	bool BgpLayer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
 	{
-		if (m_Packet != nullptr)
+		if (getAttachedPacket() != nullptr)
 		{
-			int rawPacketLen = m_Packet->getRawPacket()->getRawDataLen();
-			const uint8_t* rawPacketPtr = m_Packet->getRawPacket()->getRawData();
+			int rawPacketLen = getAttachedPacket()->getRawPacket()->getRawDataLen();
+			const uint8_t* rawPacketPtr = getAttachedPacket()->getRawPacket()->getRawData();
 
 			if (m_Data - rawPacketPtr + static_cast<ptrdiff_t>(offsetInLayer) +
 			        static_cast<ptrdiff_t>(numOfBytesToShorten) >
@@ -263,8 +263,7 @@ namespace pcpp
 			return;
 		}
 
-		size_t optionalParamsLen = (size_t)be16toh(msgHdr->optionalParameterLength);
-
+		size_t optionalParamsLen = msgHdr->optionalParameterLength;
 		if (optionalParamsLen > getHeaderLen() - sizeof(bgp_open_message))
 		{
 			optionalParamsLen = getHeaderLen() - sizeof(bgp_open_message);
@@ -301,7 +300,18 @@ namespace pcpp
 		bgp_open_message* msgHdr = getOpenMsgHeader();
 		if (msgHdr != nullptr)
 		{
-			return (size_t)(msgHdr->optionalParameterLength);
+			auto optParamLen = static_cast<size_t>(msgHdr->optionalParameterLength);
+
+			constexpr size_t bgpOpenMsgHeaderSize = sizeof(bgp_open_message);
+			size_t headerLen = getHeaderLen();
+			if (headerLen < optParamLen + bgpOpenMsgHeaderSize)
+			{
+				PCPP_LOG_WARN("BGP Layer optional param length exceeds total BGP message. "
+				              "This packet might be malformed! Trimming to maximum allowed by BGP message length.");
+				optParamLen = headerLen >= bgpOpenMsgHeaderSize ? headerLen - bgpOpenMsgHeaderSize : 0;
+			}
+
+			return optParamLen;
 		}
 
 		return 0;

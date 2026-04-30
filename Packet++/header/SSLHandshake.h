@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+#include <type_traits>
 #include "SSLCommon.h"
 #include "PointerVector.h"
 #include "Asn1Codec.h"
@@ -99,7 +100,25 @@ namespace pcpp
 	public:
 		/// C'tor for this class
 		/// @param[in] data The raw data for the extension
+		/// @deprecated This constructor is deprecated because it uses an unbound memory span. Use the constructor with
+		/// bounded span.
+		PCPP_DEPRECATED("Unbound memory span. Use the constructor with bounded span.")
 		explicit SSLExtension(uint8_t* data);
+
+		/// @brief Constructs an SSLExtension that interprets the provided data as the raw bytes of the extension.
+		///
+		/// The memory span defined by data and dataLen can be larger than the actual extension data.
+		/// If so, only the bytes corresponding to the extension header (type and length fields) + [length] bytes of
+		/// extension data will be parsed. The rest of the span will be ignored.
+		///
+		/// The above behaviour allows variable length extensions to be parsed, as SSL extensions are laid out
+		/// sequentially in memory on a payload.
+		///
+		/// @param[in] data The raw data for the extension.
+		/// @param[in] dataLen The length of the data in bytes.
+		/// @throws std::invalid_argument if data is nullptr or if dataLen is smaller than the size of the extension
+		/// header (type and length fields).
+		SSLExtension(uint8_t* data, size_t dataLen);
 
 		virtual ~SSLExtension() = default;
 
@@ -118,6 +137,33 @@ namespace pcpp
 		/// @return A pointer to the raw data of the extension
 		uint8_t* getData() const;
 
+		/// @brief A static method that tries to create an instance of a specific extension type.
+		///
+		/// The factory method handles potential buffer overflows by validating that the data length of the span
+		/// is sufficient to contain the extension header (type and length fields) and the extension data as specified
+		/// in the length field.
+		///
+		/// @tparam T The type of the extension to create. This type must be a class that inherits from SSLExtension.
+		/// @param data Pointer to the raw data of the extension.
+		/// @param dataLen Max length of the span to be parsed.
+		/// @return The extension instance if the data buffer is valid, nullptr otherwise.
+		template <typename T, typename std::enable_if_t<std::is_base_of<SSLExtension, T>::value, bool> = true>
+		static std::unique_ptr<T> tryCreateExtension(uint8_t* data, size_t dataLen)
+		{
+			if (data == nullptr || dataLen < sizeof(SSLExtensionStruct))
+			{
+				return nullptr;
+			}
+
+			auto* extStruct = reinterpret_cast<SSLExtensionStruct*>(data);
+			if (dataLen < sizeof(SSLExtensionStruct) + extStruct->getDataLength())
+			{
+				return nullptr;
+			}
+
+			return std::make_unique<T>(data, dataLen);
+		}
+
 	protected:
 		/// @struct SSLExtensionStruct
 		/// Represents the common fields of the extension
@@ -129,9 +175,13 @@ namespace pcpp
 			uint16_t extensionDataLength;
 			/// Extension data as raw (byte array)
 			uint8_t extensionData[];
+
+			/// @brief Gets the extension length in host byte order
+			uint16_t getDataLength() const;
 		};
 
 		uint8_t* m_RawData;
+		size_t m_RawDataLen;
 
 		SSLExtensionStruct* getExtensionStruct() const
 		{
@@ -145,10 +195,7 @@ namespace pcpp
 	class SSLServerNameIndicationExtension : public SSLExtension
 	{
 	public:
-		/// C'tor for this class
-		/// @param[in] data The raw data for the extension
-		explicit SSLServerNameIndicationExtension(uint8_t* data) : SSLExtension(data)
-		{}
+		using SSLExtension::SSLExtension;
 
 		/// @return The hostname written in the extension data
 		std::string getHostName() const;
@@ -160,10 +207,7 @@ namespace pcpp
 	class SSLSupportedVersionsExtension : public SSLExtension
 	{
 	public:
-		/// C'tor for this class
-		/// @param[in] data The raw data for the extension
-		explicit SSLSupportedVersionsExtension(uint8_t* data) : SSLExtension(data)
-		{}
+		using SSLExtension::SSLExtension;
 
 		/// @return The list of supported versions mentioned in the extension data
 		std::vector<SSLVersion> getSupportedVersions() const;
@@ -175,10 +219,7 @@ namespace pcpp
 	class TLSSupportedGroupsExtension : public SSLExtension
 	{
 	public:
-		/// C'tor for this class
-		/// @param[in] data The raw data for the extension
-		explicit TLSSupportedGroupsExtension(uint8_t* data) : SSLExtension(data)
-		{}
+		using SSLExtension::SSLExtension;
 
 		/// @return A vector of the supported groups (also known as "Elliptic Curves")
 		std::vector<uint16_t> getSupportedGroups() const;
@@ -190,10 +231,7 @@ namespace pcpp
 	class TLSECPointFormatExtension : public SSLExtension
 	{
 	public:
-		/// C'tor for this class
-		/// @param[in] data The raw data for the extension
-		explicit TLSECPointFormatExtension(uint8_t* data) : SSLExtension(data)
-		{}
+		using SSLExtension::SSLExtension;
 
 		/// @return A vector of the elliptic curves point formats
 		std::vector<uint8_t> getECPointFormatList() const;

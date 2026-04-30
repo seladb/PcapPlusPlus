@@ -61,6 +61,8 @@ PTF_TEST_CASE(PrintPacketAndLayersTest);
 PTF_TEST_CASE(ProtocolFamilyMembershipTest);
 PTF_TEST_CASE(PacketParseLayerLimitTest);
 PTF_TEST_CASE(PacketParseMultiLayerTest);
+PTF_TEST_CASE(PacketIncrementalParseTest);
+PTF_TEST_CASE(PacketFullReparseTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
@@ -138,6 +140,7 @@ PTF_TEST_CASE(NullLoopbackTest);
 
 // Implemented in Sll2Tests.cpp
 PTF_TEST_CASE(Sll2PacketParsingTest);
+PTF_TEST_CASE(Sll2ParseLLCTest);
 PTF_TEST_CASE(Sll2PacketCreationTest);
 
 // Implemented in NflogTests.cpp
@@ -166,6 +169,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing5Test);
 PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
+PTF_TEST_CASE(SSLECPointFormatExtensionZeroLengthTest);
 PTF_TEST_CASE(TLS1_3ParsingTest);
 PTF_TEST_CASE(TLSCipherSuiteTest);
 PTF_TEST_CASE(ClientHelloTLSFingerprintTest);
@@ -181,6 +185,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest);
 // Implemented in SipSdpTests.cpp
 PTF_TEST_CASE(SipRequestParseMethodTest);
 PTF_TEST_CASE(SipRequestLayerParsingTest);
+PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort);
 PTF_TEST_CASE(SipRequestLayerCreationTest);
 PTF_TEST_CASE(SipRequestLayerEditTest);
 PTF_TEST_CASE(SipResponseParseStatusCodeTest);
@@ -340,3 +345,13 @@ PTF_TEST_CASE(PemDecodingTest);
 // Implemented in CryptoKeyTests.cpp
 PTF_TEST_CASE(CryptoKeyDecodingTest);
 PTF_TEST_CASE(CryptoKeyInvalidDataTest);
+
+// Implemented in PostgresTests.cpp
+PTF_TEST_CASE(PostgresLayerParsingTest);
+PTF_TEST_CASE(PostgresMessageParsingTest);
+PTF_TEST_CASE(PostgresInvalidDataTest);
+
+// Implemented in MySqlTests.cpp
+PTF_TEST_CASE(MySqlLayerParsingTest);
+PTF_TEST_CASE(MySqlMessageParsingTest);
+PTF_TEST_CASE(MySqlInvalidDataTest);

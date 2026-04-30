@@ -134,17 +134,19 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	PTF_ASSERT_EQUAL(vrrpv2Layer.getIPAddressesCount(), 0)
 	auto ipAddresses = vrrpv2Layer.getIPAddresses();
 	PTF_ASSERT_TRUE(ipAddresses.empty());
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(vrrpv2Layer.removeIPAddressAtIndex(1))
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(vrrpv2Layer.removeIPAddressAtIndex(1))
+	}
 
 	PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address1))
 	PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address2))
 	PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address3))
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(vrrpv2Layer.addIPAddress(ipv6Address1))
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(vrrpv2Layer.addIPAddress(ipv6Address1))
+	}
 
 	vrrpv2Layer.removeIPAddressAtIndex(1);
 	PTF_ASSERT_EQUAL(vrrpv2Layer.getIPAddressesCount(), 2)
@@ -166,9 +168,10 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	{
 		PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address1))
 	}
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(vrrpv2Layer.addIPAddress(ipv4Address1))
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(vrrpv2Layer.addIPAddress(ipv4Address1))
+	}
 
 	vrrpv2Layer.setAuthType(1);
 	PTF_ASSERT_EQUAL(vrrpv2Layer.getAuthTypeAsEnum(), pcpp::VrrpV2Layer::VrrpAuthType::SimpleTextPassword, enumclass)
@@ -200,9 +203,10 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Owner)
 	vrrpv3IPv4Layer.setPriority(54);
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Other)
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(vrrpv3IPv4Layer.addIPAddress(ipv6Address1))
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(vrrpv3IPv4Layer.addIPAddress(ipv6Address1))
+	}
 
 	vrrpv3IPv4Layer.getData()[0] = 0x55;
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getType(), pcpp::VrrpLayer::VrrpType::VrrpType_Unknown)

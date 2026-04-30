@@ -366,7 +366,7 @@ namespace pcpp
 		return SystemCores::IdToSystemCore[sched_getcpu()];
 	}
 
-	bool PfRingDevice::setFilter(std::string filterAsString)
+	bool PfRingDevice::doUpdateFilter(std::string const* filterAsString)
 	{
 		if (!m_DeviceOpened)
 		{
@@ -374,6 +374,18 @@ namespace pcpp
 			return false;
 		}
 
+		if (filterAsString == nullptr || filterAsString->empty())
+		{
+			return removeFilterForAllChannels();
+		}
+		else
+		{
+			return setFilterForAllChannels(*filterAsString);
+		}
+	}
+
+	bool PfRingDevice::setFilterForAllChannels(std::string const& filterAsString)
+	{
 		for (pfring* rxChannel : m_PfRingDescriptors)
 		{
 			int res = pfring_set_bpf_filter(rxChannel, (char*)filterAsString.c_str());
@@ -394,7 +406,7 @@ namespace pcpp
 		return true;
 	}
 
-	bool PfRingDevice::clearFilter()
+	bool PfRingDevice::removeFilterForAllChannels()
 	{
 		if (!m_IsFilterCurrentlySet)
 			return true;

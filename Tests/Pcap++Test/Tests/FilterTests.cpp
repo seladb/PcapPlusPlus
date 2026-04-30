@@ -36,6 +36,7 @@ static int incSleep(const pcpp::RawPacketVector& capturedPackets, size_t expecte
 
 PTF_TEST_CASE(TestPcapFiltersLive)
 {
+#ifdef USE_PCAP
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ipToSearch);
@@ -106,9 +107,9 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	andFilter.parseToString(filterAsString);
 	PTF_ASSERT_TRUE(liveDev->setFilter(andFilter));
 	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
-	PTF_ASSERT_TRUE(sendURLRequest("www.walla.co.il"));
+	PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
 	// let the capture work for couple of seconds
-	totalSleepTime = incSleep(capturedPackets, 2, 7);
+	totalSleepTime = incSleep(capturedPackets, 2, 20);
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
@@ -193,11 +194,14 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	capturedPackets.clear();
 
 	liveDev->close();
-
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestPcapFiltersLive
 
 PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 {
+#ifdef USE_PCAP
 	pcpp::RawPacketVector rawPacketVec;
 	std::string filterAsString;
 
@@ -209,9 +213,10 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	// Try to make an invalid filter
 	pcpp::BPFStringFilter badFilter("This is not a valid filter");
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(badFilter.verifyFilter());
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(badFilter.verifyFilter());
+	}
 
 	// Test stolen from MacAddress test below
 	pcpp::MacAddress macAddr("00:13:c3:df:ae:18");
@@ -239,10 +244,14 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 	PTF_ASSERT_EQUAL(validCounter, 5);
 
 	rawPacketVec.clear();
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestPcapFilters_General_BPFStr
 
 PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 {
+#ifdef USE_PCAP
 	pcpp::RawPacketVector rawPacketVec;
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
@@ -255,16 +264,21 @@ PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 		pcpp::BPFStringFilter emptyFilter("");
 		PTF_ASSERT_TRUE(emptyFilter.matches(*rawPacketPtr));
 		pcpp::BPFStringFilter wrongFilter("-");
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(wrongFilter.matches(*rawPacketPtr));
-		pcpp::Logger::getInstance().enableLogs();
+		{
+			SuppressLogs suppressLogs;
+			PTF_ASSERT_FALSE(wrongFilter.matches(*rawPacketPtr));
+		}
 	}
 
 	rawPacketVec.clear();
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestPcapFilters_MatchStatic
 
 PTF_TEST_CASE(TestPcapFiltersOffline)
 {
+#ifdef USE_PCAP
 	pcpp::RawPacketVector rawPacketVec;
 	std::string filterAsString;
 
@@ -811,14 +825,18 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		}
 	}
 	rawPacketVec.clear();
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }
 
 PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 {
+#ifdef USE_PCAP
 	// check if GeneralFilter::matches(...) work properly for packets with different LinkLayerType
 
-	// pcpp::LINKTYPE_DLT_RAW1 layer
-	pcpp::PcapFileReaderDevice fileReaderDev1(RAW_IP_PCAP_PATH);
+	// pcpp::LINKTYPE_NULL layer
+	pcpp::PcapFileReaderDevice fileReaderDev1(NULL_LOOPBACK_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev1.open());
 	pcpp::RawPacketVector rawPacketVec;
 	fileReaderDev1.getNextPackets(rawPacketVec);
@@ -827,21 +845,15 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	int validCounter = 0;
 	for (auto* rawPacketPtr : rawPacketVec)
 	{
-		pcpp::Packet packet(rawPacketPtr);
-		if (pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
+		pcpp::BPFStringFilter bpfStringFilter(
+		    "len = " +
+		    std::to_string(rawPacketPtr->getRawDataLen()));  // checking against real filter, not the "" filter
+		if (bpfStringFilter.matches(*rawPacketPtr) && rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_NULL)
 		{
-			pcpp::BPFStringFilter bpfStringFilter(
-			    "host " + ip4layer->getDstIPAddress().toString());  // checking against real filter, not the "" filter
-			if (bpfStringFilter.matches(*rawPacketPtr))
-			{
-				if (rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_DLT_RAW1)
-				{
-					++validCounter;
-				}
-			}
+			++validCounter;
 		}
 	}
-	PTF_ASSERT_EQUAL(validCounter, 50);
+	PTF_ASSERT_EQUAL(validCounter, 3);
 	rawPacketVec.clear();
 
 	// pcpp::LINKTYPE_LINUX_SLL layer
@@ -895,4 +907,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	}
 	PTF_ASSERT_EQUAL(validCounter, 62);
 	rawPacketVec.clear();
+#else
+	PTF_SKIP_TEST("pcap not configured");
+#endif
 }  // TestPcapFilters_LinkLayer

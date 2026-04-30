@@ -6,6 +6,7 @@ from .test_utils import text_file_contains, ExampleTest
 class TestPcapPrinter(ExampleTest):
     pytestmark = [pytest.mark.pcapprinter, pytest.mark.no_network]
 
+    @pytest.mark.no_pcap
     def test_sanity(self, tmpdir):
         args = {
             "": path.join("pcap_examples", "many-protocols.pcap"),
@@ -17,11 +18,13 @@ class TestPcapPrinter(ExampleTest):
             expected_content="Finished. Printed 4709 packets",
         )
 
+    @pytest.mark.no_pcap
     def test_input_file_missing(self):
         args = {}
         completed_process = self.run_example(args=args, expected_return_code=1)
         assert "ERROR: Input file name was not given" in completed_process.stdout
 
+    @pytest.mark.no_pcap
     def test_print_count_packets(self, tmpdir):
         args = {
             "": path.join("pcap_examples", "many-protocols.pcap"),
@@ -46,6 +49,7 @@ class TestPcapPrinter(ExampleTest):
             expected_content="Finished. Printed 4666 packets",
         )
 
+    @pytest.mark.no_pcap
     def test_snoop(self, tmpdir):
         args = {
             "": path.join("pcap_examples", "solaris.snoop"),
