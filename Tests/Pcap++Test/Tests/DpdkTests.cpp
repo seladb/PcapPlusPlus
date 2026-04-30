@@ -306,7 +306,7 @@ PTF_TEST_CASE(TestDpdkDevice)
 	}
 
 	uint64_t configuredRssHF = pcpp::DpdkDevice::RSS_IPV4 | pcpp::DpdkDevice::RSS_IPV6;
-	if (dev->getPMDType() == pcpp::PMD_I40E || dev->getPMDType() == pcpp::PMD_I40EVF)
+	if (dev->getPMDType() == pcpp::DpdkPMDType::PMD_I40E || dev->getPMDType() == pcpp::DpdkPMDType::PMD_I40EVF)
 	{
 		configuredRssHF = pcpp::DpdkDevice::RSS_NONFRAG_IPV4_TCP | pcpp::DpdkDevice::RSS_NONFRAG_IPV4_UDP |
 		                  pcpp::DpdkDevice::RSS_NONFRAG_IPV4_OTHER | pcpp::DpdkDevice::RSS_FRAG_IPV4 |
