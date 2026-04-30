@@ -9,7 +9,7 @@
 // Provides backwards compatibility for enum class types that have been upgraded.
 //
 // This macro should be once used in the header file of the upgraded enum class type with each enum value.
-// This will define the enum value as a const auto with the same name, mimicing the old enum value, but
+// This will define the enum value as a const auto with the same name, mimicking the old enum value, but
 // with a deprecation warning to encourage users to switch to the new enum class value.
 //
 #define PCPP_ENUM_CLASS_UPGRADE_COMPAT(cls, val)                                                                       \
