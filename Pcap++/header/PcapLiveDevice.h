@@ -243,9 +243,6 @@ namespace pcpp
 			PCPP_OUT
 		};
 
-		// const static auto PCPP_INOUT = PcapDirection::PCPP_INOUT;
-		// const static auto PCPP_IN = PcapDirection::PCPP_IN;
-		// const static auto PCPP_OUT = PcapDirection::PCPP_OUT;
 		PCPP_ENUM_CLASS_UPGRADE_COMPAT(PcapDirection, PCPP_INOUT);
 		PCPP_ENUM_CLASS_UPGRADE_COMPAT(PcapDirection, PCPP_IN);
 		PCPP_ENUM_CLASS_UPGRADE_COMPAT(PcapDirection, PCPP_OUT);
