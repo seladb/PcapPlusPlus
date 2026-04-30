@@ -61,6 +61,9 @@ jobs:
       matrix:
         include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
           - runner: ubuntu-latest
+            image: ubuntu2604
+            config-zstd: OFF
+          - runner: ubuntu-latest
             image: ubuntu2404
             config-zstd: OFF
           - runner: ubuntu-latest
@@ -72,17 +75,12 @@ jobs:
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
             additional-gcov-flags: --gcov-executable "llvm-cov gcov"
           - runner: ubuntu-latest
-            image: ubuntu2004
-            config-zstd: OFF
-            gcovr-version: 8.2
-          - runner: ubuntu-latest
             image: rhel94
             config-zstd: OFF
             gcovr-version: 8.5
           - runner: ubuntu-latest
-            image: ubuntu2004-zstd
+            image: ubuntu2604
             config-zstd: ON
-            gcovr-version: 8.2
           - runner: ubuntu-latest
             image: fedora42
             config-zstd: OFF
@@ -408,7 +406,7 @@ jobs:
 
   pfring:
     runs-on: ubuntu-latest
-    container: seladb/ubuntu2004-pfring
+    container: seladb/ubuntu2604-pfring
     strategy:
       matrix:
         include:
