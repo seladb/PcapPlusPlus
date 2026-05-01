@@ -199,11 +199,11 @@ namespace pcpp
 	{
 		switch (direction)
 		{
-		case PcapLiveDevice::PCPP_IN:
+		case PcapLiveDevice::PcapDirection::PCPP_IN:
 			return PCAP_D_IN;
-		case PcapLiveDevice::PCPP_OUT:
+		case PcapLiveDevice::PcapDirection::PCPP_OUT:
 			return PCAP_D_OUT;
-		case PcapLiveDevice::PCPP_INOUT:
+		case PcapLiveDevice::PcapDirection::PCPP_INOUT:
 			return PCAP_D_INOUT;
 		default:
 			throw std::invalid_argument("Unknown direction type");
@@ -713,12 +713,12 @@ namespace pcpp
 
 		switch (config.direction)
 		{
-		case PCPP_IN:
+		case PcapDirection::PCPP_IN:
 		{
 			PCPP_LOG_DEBUG("Only incoming traffics will be captured");
 			break;
 		}
-		case PCPP_OUT:
+		case PcapDirection::PCPP_OUT:
 		{
 			PCPP_LOG_DEBUG("Only outgoing traffics will be captured");
 			break;
