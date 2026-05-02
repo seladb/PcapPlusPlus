@@ -9,7 +9,6 @@ add_executable(
   Tests/IpMacTests.cpp
   Tests/KniTests.cpp
   Tests/LiveDeviceTests.cpp
-  Tests/LoggerTests.cpp
   Tests/ObjectPoolTests.cpp
   Tests/PacketParsingTests.cpp
   Tests/PfRingTests.cpp

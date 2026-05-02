@@ -33,8 +33,23 @@ def tcp_replay_worker(interface: str, tcpreplay_dir: str, use_sudo: bool):
 class Runner:
     build_dir: Path
     use_sudo: bool = False
+    logger_test_path = Path("Tests", "Logger++Test", "Logger++Test")
     packet_test_path = Path("Tests", "Packet++Test", "Packet++Test")
     pcap_test_path = Path("Tests", "Pcap++Test", "Pcap++Test")
+
+    def run_logger_test(self, args: list[str]):
+        exe_path = self.build_dir / self.logger_test_path
+        work_dir = exe_path.parent
+
+        cmd_line = ["sudo"] if self.use_sudo else []
+        cmd_line += [str(exe_path.absolute()), *args]
+
+        completed_process = subprocess.run(cmd_line, cwd=str(work_dir))
+
+        if completed_process.returncode != 0:
+            raise RuntimeError(
+                f"Error while executing Logger++ tests: {completed_process}"
+            )
 
     def run_packet_tests(self, args: list[str]):
         exe_path = self.build_dir / self.packet_test_path
@@ -90,8 +105,8 @@ def main():
         "--test-suites",
         nargs="+",
         type=str,
-        default=["packet", "pcap"],
-        choices=["packet", "pcap"],
+        default=["packet", "pcap", "common"],
+        choices=["packet", "pcap", "common"],
         help="test suites to use",
     )
     parser.add_argument(
@@ -124,6 +139,9 @@ def main():
     args = parser.parse_args()
 
     runner = Runner(build_dir=Path(args.build_dir), use_sudo=args.use_sudo)
+
+    if "common" in args.test_suites:
+        runner.run_logger_test([])
 
     if "packet" in args.test_suites:
         runner.run_packet_tests(args.packet_test_args.split())

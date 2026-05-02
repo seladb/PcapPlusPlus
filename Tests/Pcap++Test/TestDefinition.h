@@ -15,10 +15,6 @@ PTF_TEST_CASE(TestIPNetwork);
 // Implemented in ObjectPoolTests.cpp
 PTF_TEST_CASE(TestObjectPool);
 
-// Implemented in LoggerTests.cpp
-PTF_TEST_CASE(TestLogger);
-PTF_TEST_CASE(TestLoggerMultiThread);
-
 // Implemented in FileTests.cpp
 PTF_TEST_CASE(TestPcapFileReadWrite);
 PTF_TEST_CASE(TestPcapFileMicroPrecision);
