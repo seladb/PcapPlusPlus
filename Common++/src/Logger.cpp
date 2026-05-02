@@ -115,9 +115,8 @@ namespace pcpp
 			              "Last error buffer size must be at least 1 to hold a null terminator");
 
 			// Copy the message to the last error buffer, leaving space for null terminator
-			message.copy(m_LastError.data(), m_LastError.size() - 1);
-			auto termPos = std::min(message.size(), m_LastError.size() - 1);
-			m_LastError[termPos] = '\0';
+			auto const copied = message.copy(m_LastError.data(), m_LastError.size() - 1);
+			m_LastError[copied] = '\0';
 		}
 		if (m_LogsEnabled)
 		{
