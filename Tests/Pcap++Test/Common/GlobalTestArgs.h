@@ -13,4 +13,5 @@ struct PcapTestArgs
 	int dpdkPort;
 	std::vector<std::string> dpdkArgs;
 	std::string kniIp;
+	std::string xdpInterface;
 };

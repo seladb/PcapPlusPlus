@@ -50,11 +50,7 @@ namespace pcpp
 #endif
 	}
 
-	thread_local std::string Logger::m_LastError = [] {
-		std::string str;
-		str.reserve(200);
-		return str;
-	}();
+	thread_local std::array<char, 255> Logger::m_LastError = { 0 };
 
 	Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&printToCerr)
 	{
@@ -115,7 +111,12 @@ namespace pcpp
 		// If the log level is an error, save the error to the last error message variable.
 		if (logLevel == LogLevel::Error)
 		{
-			m_LastError = message;
+			static_assert(m_LastError.size() >= 1,
+			              "Last error buffer size must be at least 1 to hold a null terminator");
+
+			// Copy the message to the last error buffer, leaving space for null terminator
+			auto const copied = message.copy(m_LastError.data(), m_LastError.size() - 1);
+			m_LastError[copied] = '\0';
 		}
 		if (m_LogsEnabled)
 		{
