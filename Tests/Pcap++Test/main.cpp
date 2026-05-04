@@ -331,6 +331,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestWinDivertNetworkInterfaces, "windivert");
 
 	// Ordered last since they mutate the logger configuration and do not restore it perfectly.
+	// See issue: https://github.com/seladb/PcapPlusPlus/issues/2083
 	PTF_RUN_TEST(TestLogger, "no_network;logger");
 	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");
 
