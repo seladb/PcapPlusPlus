@@ -149,11 +149,12 @@ namespace pcpp
 		SystemCore getDpdkMasterCore() const;
 
 		/// Change the log level of all modules of DPDK
-		/// @param[in] logLevel The log level to set. LogLevel#Info is RTE_LOG_NOTICE and LogLevel#Debug is RTE_LOG_DEBUG
+		/// @param[in] logLevel The log level to set. LogLevel#Info is RTE_LOG_NOTICE and LogLevel#Debug is
+		/// RTE_LOG_DEBUG
 		void setDpdkLogLevel(LogLevel logLevel);
 
-		/// @return The current DPDK log level. RTE_LOG_NOTICE and lower are considered as LogLevel#Info. RTE_LOG_INFO or
-		/// RTE_LOG_DEBUG are considered as LogLevel#Debug
+		/// @return The current DPDK log level. RTE_LOG_NOTICE and lower are considered as LogLevel#Info. RTE_LOG_INFO
+		/// or RTE_LOG_DEBUG are considered as LogLevel#Debug
 		LogLevel getDpdkLogLevel() const;
 
 		/// Order DPDK to write all its logs to a file
