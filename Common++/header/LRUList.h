@@ -59,7 +59,7 @@ namespace pcpp
 
 			if (m_CacheItemsMap.size() > m_MaxSize)
 			{
-				auto const& item = m_CacheItemsList.back();
+				auto& item = m_CacheItemsList.back();
 
 				if (deletedValue != nullptr)
 				{
