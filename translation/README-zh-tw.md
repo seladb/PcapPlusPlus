@@ -17,7 +17,7 @@
 
 [PcapPlusPlus](https://pcapplusplus.github.io/) 是一個跨平台的 C++ 函式庫，提供高效、強大且易於使用的功能，來進行網路封包的擷取、解析和生成。
 
-PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的封包處理函式庫（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）提供 C++ 的封裝函式。
+PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的封包處理函式庫（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html)、[WinDivert](https://reqrypt.org/windivert.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）提供 C++ 的封裝函式。
 
 翻譯: [English](../README.md) · 正體中文 · [한국어](./README-kor.md)
 
@@ -116,7 +116,7 @@ gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
 
 ## 功能概述
 
-- __封包捕獲__：提供簡單易用的 C++ 封裝函式來使用常見的封包捕獲引擎，如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[Intel DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html)、[ntop 的 PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 以及 [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-capture)]
+- __封包捕獲__：提供簡單易用的 C++ 封裝函式來使用常見的封包捕獲引擎，如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[Intel DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html)、[WinDivert](https://reqrypt.org/windivert.html)、[ntop 的 PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 以及 [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-capture)]
 - __解析與建構__：包含網路協定解析、網路封包建構與編輯，支援各種類型的 [網路協定](https://pcapplusplus.github.io/docs/features#supported-network-protocols) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)]
 - __從檔案讀寫封包__：支援 __PCAP__ 和 __PCAPNG__ 格式 [[了解更多](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
 - __封包處理__：以線性速度提供高效且易用的 C++ 封裝函式來使用 [DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) [[了解更多](https://pcapplusplus.github.io/docs/features#dpdk-support)]
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
 PcapPlusPlus 包含三個函式庫：
 
 1. __Packet++__ - 用於解析、創建和編輯網路封包的函式庫
-2. __Pcap++__ - 用於攔截和發送封包、提供網路和網卡資訊、統計等功能的函式庫。實際上是對封包擷取引擎（如 libpcap、WinPcap、Npcap、DPDK 和 PF_RING）的 C++ 封裝
+2. __Pcap++__ - 用於攔截和發送封包、提供網路和網卡資訊、統計等功能的函式庫。實際上是對封包擷取引擎（如 libpcap、WinPcap、Npcap、DPDK、AF_XDP、WinDivert 和 PF_RING）的 C++ 封裝
 3. __Common++__ - 包含 Packet++ 和 Pcap++ 共用的一些通用程式碼工具函式庫
 
 您可以在 PcapPlusPlus 網站的 [API 文件區](https://pcapplusplus.github.io/docs/api) 找到詳細的 API 文件。如果您發現有任何遺漏的資料，請[聯繫我們](#提供回饋)。
@@ -278,16 +278,18 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 44. HTTP 標頭（請求和響應）
 45. LDAP
 46. Modbus
-47. NTP (v3, v4)
-48. PEM 編碼器與解碼器
-49. Radius
-50. S7 通訊（S7comm）
-51. SMTP
-52. SOME/IP
-53. SSH - 僅支援解析（不支援編輯）
-54. Telnet - 僅支援解析（不支援編輯）
-55. X509 憑證 - 僅支援解析（不支援編輯）
-56. 通用酬載（Generic Payload）
+47. MySQL - 僅支援解析（不支援編輯）
+48. NTP (v3, v4)
+49. PEM 編碼器與解碼器
+50. PostgreSQL Wire Protocol (PGWire) - 僅支援解析（不支援編輯）
+51. Radius
+52. S7 通訊（S7comm）
+53. SMTP
+54. SOME/IP
+55. SSH - 僅支援解析（不支援編輯）
+56. Telnet - 僅支援解析（不支援編輯）
+57. X509 憑證 - 僅支援解析（不支援編輯）
+58. 通用酬載（Generic Payload）
 
 ## DPDK 和 PF_RING 支援
 
