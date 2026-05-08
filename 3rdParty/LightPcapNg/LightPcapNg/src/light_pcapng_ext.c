@@ -461,6 +461,8 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 		packet_header->timestamp.tv_nsec = 0;
 		if (pcapng->file_info->interface_block_count > 0)
 			packet_header->data_link = pcapng->file_info->link_types[0];
+		else
+			packet_header->data_link = 0xFFFF;
 
 		*packet_data = (uint8_t*)spb->packet_data;
 	}

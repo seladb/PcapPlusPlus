@@ -874,7 +874,7 @@ namespace pcpp
 			return false;
 		}
 
-		light_packet_header pktHeader;
+		light_packet_header pktHeader{};
 		const uint8_t* pktData = nullptr;
 
 		if (!light_get_next_packet(toLightPcapNgT(m_LightPcapNg), &pktHeader, &pktData))
