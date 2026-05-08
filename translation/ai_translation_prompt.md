@@ -23,8 +23,8 @@ Treat this file as a contract: follow every step, do not skip any verification, 
 Every translated file under `translation/` (every `README-*.md`) **must** begin with a localized caution stating the file is maintained and synchronized using AI. This notice does **not** appear in the English `README.md` — it is intentionally only present in the translations.
 
 - **Placement:** the notice is the **very first content** in the file, before the `<div align="center">` badges block, separated from the rest of the file by a blank line.
-- **Format:** a single Markdown blockquote line beginning with `> ⚠️` (warning emoji), followed by **bold** text containing the literal phrase "using AI" (or its faithful translation), and a short instruction telling readers where to report inaccuracies (open a GitHub issue / PR).
-- **Language:** localized into the language of the file. The phrase "using AI" itself may be rendered in the target language (e.g. `AI 協助`, `AI를 사용하여`, `mediante IA`) as long as the meaning is preserved and "AI" remains uppercase Latin.
+- **Format:** a single Markdown blockquote line beginning with `> ⚠️` (warning emoji), followed by a **bold** localized lead-in label (e.g. `**注意：**`, `**참고:**`, `**Note:**`), then plain prose that explicitly states the file is maintained / synchronized using AI and points readers at GitHub for corrections. The literal token `AI` must appear in the prose (uppercase Latin), but does not need to be inside the bold lead-in.
+- **Language:** localized into the language of the file. The phrase that conveys "using AI" may be rendered in the target language (e.g. `AI 協助`, `AI를 사용하여`, `mediante IA`) as long as the meaning is preserved and the token `AI` remains uppercase Latin.
 - **Update on every sync run:** if the notice is missing, malformed, or has drifted from the canonical wording in any sibling translation, restore it as part of Step 5.
 
 Reference snippets (canonical at the time of writing — match tone, do not reword unless the existing translation already uses different phrasing):
@@ -101,17 +101,33 @@ If any check fails, the translation is **out of sync** and must be updated.
 
 #### Anchor handling
 
-GitHub renders Markdown anchors using a deterministic slug algorithm. A translated heading produces a different slug than its English counterpart, so TOC anchors **must be regenerated per file**:
+GitHub renders Markdown anchors using the [github-slugger](https://github.com/Flet/github-slugger) algorithm. A translated heading produces a different slug than its English counterpart, so TOC anchors **must be regenerated per file**.
 
-- Lowercase all ASCII letters; non-ASCII characters (CJK, Hangul, Hiragana, accented Latin) are kept as-is, **not** transliterated.
-- Strip punctuation that GitHub strips: `` ` ``, `'`, `"`, `,`, `.`, `:`, `;`, `!`, `?`, `(`, `)`, `[`, `]`, `{`, `}`, `<`, `>`, `/`, `\`, `|`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `~`. Keep `-` and `_`.
-- Replace each run of whitespace with a single `-`.
-- If the same heading text appears more than once in a file, append `-1`, `-2`, ... to the second and subsequent occurrences (matching GitHub's duplicate-suffix rule).
-- Do **not** percent-encode Unicode in the anchor source — write the raw Unicode (e.g. `#資料連接層-l2`); GitHub does the encoding at render time.
+The algorithm, in order:
 
-Concretely: an English `## Download` heading becomes `#download`, but the Traditional Chinese `## 下載` heading becomes `#下載`, and the Korean `## 다운로드` heading becomes `#다운로드`. The TOC in each translated file must use the localized slug.
+1. **Lowercase via `String.prototype.toLowerCase()`** — this lowercases ASCII Latin **and** accented Latin (so `É` → `é`). CJK, Hangul, Hiragana, Katakana, Cyrillic without case, etc. are preserved unchanged.
+2. **Strip punctuation** — remove ASCII punctuation that has no semantic role in URLs, including: `` ` ``, `'`, `"`, `,`, `.`, `:`, `;`, `!`, `?`, `(`, `)`, `[`, `]`, `{`, `}`, `<`, `>`, `/`, `\`, `|`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `~`. **Keep** `-` and `_` and word characters. CJK / Hangul punctuation (`、`, `。`, `「」`, `（）`, etc.) is **also stripped** by github-slugger when it falls outside the kept-character set — when in doubt, drop it.
+3. **Replace each whitespace character with a single `-`** — this is per-character, not per-run, so `A   B` (3 spaces) becomes `a---b` (3 hyphens). Existing `-` sequences are **not** collapsed.
+4. **Duplicate suffix** — if the resulting slug already appears earlier in the same file, append `-1`, `-2`, ... in order of occurrence.
+5. **No percent-encoding in the source** — write the raw Unicode (e.g. `#資料連接層-l2`); GitHub does the encoding at render time.
 
-Anchors that target a heading in another file (`../README.md#feature-overview`) are external references and keep the English slug — do not localize them.
+Worked examples:
+
+| Heading | Slug |
+|---------|------|
+| `## Download` | `#download` |
+| `## 下載` | `#下載` |
+| `## 다운로드` | `#다운로드` |
+| `### Homebrew` | `#homebrew` |
+| `## DPDK And PF_RING Support` | `#dpdk-and-pf_ring-support` |
+| `### 資料連接層 (L2)` | `#資料連接層-l2` |
+| `## Q&A` | `#qa` |
+| `## A & B` | `#a--b` (note the **double** hyphen — `&` is stripped, the two surrounding spaces each become `-`) |
+| `## Café` | `#café` (`É` is lowercased; the diacritic is preserved) |
+
+Anchors that target a heading in another file (`../README.md#feature-overview`) are external references and keep the **English** slug — do not localize them.
+
+If a heading contains characters not covered by the table above (e.g. emoji, unusual punctuation), reproduce github-slugger's output rather than guessing — when uncertain, run it through the library or simplify the heading.
 
 #### Badge alt text
 
