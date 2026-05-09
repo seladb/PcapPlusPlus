@@ -340,7 +340,7 @@ namespace pcpp
 		m_MbufDataSize = mBufDataSize;
 		auto mBufDataLen = rte_pktmbuf_pkt_len(mBuf);
 		m_RawDataLen = mBufDataLen;
-		RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), mBufDataLen, timestamp, LINKTYPE_ETHERNET);
+		RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), mBufDataLen, false, timestamp, LINKTYPE_ETHERNET);
 	}
 
 }  // namespace pcpp
