@@ -223,9 +223,6 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TestObjectPool, "no_network");
 
-	PTF_RUN_TEST(TestLogger, "no_network;logger");
-	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");
-
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileMicroPrecision, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileNanoPrecision, "no_network;pcap");
@@ -331,6 +328,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestWinDivertSendPackets, "windivert");
 	PTF_RUN_TEST(TestWinDivertParams, "windivert");
 	PTF_RUN_TEST(TestWinDivertNetworkInterfaces, "windivert");
+
+	// Ordered last since they mutate the logger configuration and do not restore it perfectly.
+	// See issue: https://github.com/seladb/PcapPlusPlus/issues/2083
+	PTF_RUN_TEST(TestLogger, "no_network;logger");
+	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");
 
 	PTF_END_RUNNING_TESTS;
 }
