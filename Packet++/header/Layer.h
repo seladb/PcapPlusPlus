@@ -184,9 +184,6 @@ namespace pcpp
 
 		/// @brief Copy the raw data of this layer to another array
 		///
-		/// The method copies the layer's raw data into the provided destination array.
-		/// The caller must ensure that the destination array has sufficient space to hold the layer's data.
-		///
 		/// @warning The method does not perform any bounds checking on the destination array. The caller MUST ensure
 		/// that the destination array has enough space to hold the getDataLen() bytes.
 		///
