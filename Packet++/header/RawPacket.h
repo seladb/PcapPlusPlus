@@ -9,6 +9,8 @@
 #endif
 #include <stddef.h>
 
+#include "DeprecationUtils.h"
+
 /// @file
 
 /// @namespace pcpp
@@ -251,18 +253,49 @@ namespace pcpp
 	/// Max packet size supported
 #define PCPP_MAX_PACKET_SIZE 65536
 
+	class RawPacket;
+
+	namespace internal
+	{
+		/// @brief Type of RawPacket implementation
+		///
+		/// This is mainly used internally to distinguish between different implementations without using RTTI.
+		///
+		/// Only the standard RawPacket implementation is defined in Packet++ library.
+		/// Other device specific implementations are defined in their respective parts of Pcap++.
+		enum class RawPacketImplType : uint8_t
+		{
+			/// @brief Unknown type
+			Unknown = 0,
+			/// @brief Standard RawPacket
+			Standard = 1,
+			/// @brief DPDK MBuf based RawPacket
+			DpdkMBuf = 2,
+			/// @brief WinDivert based RawPacket
+			WinDivert = 3
+		};
+
+		/// @brief Get the concrete implementation type of a RawPacket instance
+		/// @param rawPacket The RawPacket instance
+		/// @return A value of RawPacketImplType enum representing the concrete implementation type of the given
+		/// RawPacket instance.
+		RawPacketImplType getRawPacketImplementationType(RawPacket const& rawPacket);
+	}  // namespace internal
+
 	/// @class RawPacket
 	/// This class holds the packet as raw (not parsed) data. The data is held as byte array. In addition to the data
 	/// itself every instance also holds a timestamp representing the time the packet was received by the NIC. RawPacket
 	/// instance isn't read only. The user can change the packet data, add or remove data, etc.
 	class RawPacket
 	{
+		friend internal::RawPacketImplType internal::getRawPacketImplementationType(RawPacket const& rawPacket);
+
 	protected:
 		uint8_t* m_RawData = nullptr;
 		int m_RawDataLen = 0;
 		int m_FrameLength = 0;
 		timespec m_TimeStamp{};  // Zero initialized
-		bool m_DeleteRawDataAtDestructor = true;
+		bool m_OwnsRawData = false;
 		bool m_RawPacketSet = false;
 		LinkLayerType m_LinkLayerType = LinkLayerType::LINKTYPE_ETHERNET;
 
@@ -273,7 +306,7 @@ namespace pcpp
 		/// - data pointer is set to nullptr
 		/// - data length is set to 0
 		/// - frame length is set to 0
-		/// - deleteRawDataAtDestructor is set to 'true'
+		/// - takeOwnership is set to 'false'
 		/// - timestamp is set to 0
 		/// - layer type is set to Ethernet
 		RawPacket() = default;
@@ -285,10 +318,10 @@ namespace pcpp
 		/// @param[in] pRawData A pointer to the raw data
 		/// @param[in] rawDataLen The raw data length in bytes
 		/// @param[in] timestamp The timestamp packet was received by the NIC (in usec precision)
-		/// @param[in] deleteRawDataAtDestructor An indicator whether raw data pointer should be freed when the instance
-		/// is freed or not. If set to 'true' than pRawData will be freed when instanced is being freed
+		/// @param[in] takeOwnership If 'true' the RawPacket will take ownership of the pRawData pointer and will
+		/// free it when the RawPacket instance is destroyed or the buffer is replaced.
 		/// @param[in] layerType The link layer type of this raw packet. The default is Ethernet
-		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
+		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool takeOwnership,
 		          LinkLayerType layerType = LINKTYPE_ETHERNET);
 
 		/// A constructor that receives a pointer to the raw data (allocated elsewhere). This constructor is usually
@@ -298,13 +331,13 @@ namespace pcpp
 		/// @param[in] pRawData A pointer to the raw data
 		/// @param[in] rawDataLen The raw data length in bytes
 		/// @param[in] timestamp The timestamp packet was received by the NIC (in nsec precision)
-		/// @param[in] deleteRawDataAtDestructor An indicator whether raw data pointer should be freed when the instance
-		/// is freed or not. If set to 'true' than pRawData will be freed when instanced is being freed
+		/// @param[in] takeOwnership If 'true' the RawPacket will take ownership of the pRawData pointer and will
+		/// free it when the RawPacket instance is destroyed or the buffer is replaced.
 		/// @param[in] layerType The link layer type of this raw packet. The default is Ethernet
-		RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor,
+		RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool takeOwnership,
 		          LinkLayerType layerType = LINKTYPE_ETHERNET);
 
-		/// A destructor for this class. Frees the raw data if deleteRawDataAtDestructor was set to 'true'
+		/// A destructor for this class. Frees the raw data if takeOwnership was set to 'true'
 		virtual ~RawPacket();
 
 		/// A copy constructor that copies all data from another instance. Notice all raw data is copied (using memcpy),
@@ -313,7 +346,7 @@ namespace pcpp
 		RawPacket(const RawPacket& other);
 
 		/// Assignment operator overload for this class. When using this operator on an already initialized RawPacket
-		/// instance, the original raw data is freed first if deleteRawDataAtDestructor was set to 'true'.
+		/// instance, the original raw data is freed first if takeOwnership was set to 'true'.
 		/// Then the other instance is copied to this instance, the same way the copy constructor works
 		/// @param[in] other The instance to copy from
 		RawPacket& operator=(const RawPacket& other);
@@ -323,12 +356,16 @@ namespace pcpp
 		virtual RawPacket* clone() const;
 
 		/// @return RawPacket object type. Each derived class should return a different value
+		/// @deprecated Deprecated due to unclear semantics and type safety.
+		/// The functionality has been moved to the unstable internal API in as
+		/// internal::getRawPacketImplementationType(RawPacket const& rawPacket).
+		PCPP_DEPRECATED("Deprecated due to unclear semantics.")
 		virtual uint8_t getObjectType() const
 		{
 			return 0;
 		}
 
-		/// Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be
+		/// Set a raw data. If data was already set and takeOwnership was set to 'true' the old data will be
 		/// freed first
 		/// @param[in] pRawData A pointer to the new raw data
 		/// @param[in] rawDataLen The new raw data length in bytes
@@ -338,10 +375,36 @@ namespace pcpp
 		/// actual packet length. This parameter represents the packet length. This parameter is optional, if not set or
 		/// set to -1 it is assumed both lengths are equal
 		/// @return True if raw data was set successfully, false otherwise
-		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp,
-		                        LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+		/// @deprecated This method does not update ownership of the pRawData pointer, inheriting the previous buffer's
+		/// ownership. Use the overload that takes bool takeOwnership parameter for explicit control.
+		/// @remarks Derived classes may not support using the raw data buffer directly.
+		/// Users should not rely on the RawPacket always writing to the provided pointer location,
+		/// and instead get the raw data pointer using getRawData().
+		PCPP_DEPRECATED("Use the overload that takes bool takeOwnership parameter for explicit control.")
+		bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp,
+		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
-		/// Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be
+		/// @brief Assign a buffer to use as raw data.
+		///
+		/// If the RawPacket already had raw data, it will be disposed of accordingly.
+		///
+		/// @param pRawData A pointer to the new raw data buffer.
+		/// @param rawDataLen The length of the new raw data buffer in bytes.
+		/// @param takeOwnership If true, the RawPacket will take ownership of the buffer and will be responsible for
+		/// freeing it.
+		/// @param timestamp The timestamp packet was received by the NIC (in usec precision).
+		/// @param layerType The link layer type for this raw data.
+		/// @param frameLength When reading from pcap files, sometimes the captured length is different from the
+		/// actual packet length. This parameter represents the packet length. This parameter is optional, if not set or
+		/// set to -1 it is assumed both lengths are equal
+		/// @return True if raw data was set successfully, false otherwise.
+		/// @remarks Derived classes may not support using the raw data buffer directly.
+		/// Users should not rely on the RawPacket always writing to the provided pointer location,
+		/// and instead get the raw data pointer using getRawData().
+		bool setRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timeval timestamp,
+		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+
+		/// Set a raw data. If data was already set and takeOwnership was set to 'true' the old data will be
 		/// freed first
 		/// @param[in] pRawData A pointer to the new raw data
 		/// @param[in] rawDataLen The new raw data length in bytes
@@ -351,8 +414,34 @@ namespace pcpp
 		/// actual packet length. This parameter represents the packet length. This parameter is optional, if not set or
 		/// set to -1 it is assumed both lengths are equal
 		/// @return True if raw data was set successfully, false otherwise
-		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
-		                        LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+		/// @deprecated This method does not update ownership of the pRawData pointer, inheriting the previous buffer's
+		/// ownership. Use the overload that takes bool takeOwnership parameter for explicit control.
+		/// @remarks Derived classes may not support using the raw data buffer directly.
+		/// Users should not rely on the RawPacket always writing to the provided pointer location,
+		/// and instead get the raw data pointer using getRawData().
+		PCPP_DEPRECATED("Use the overload that takes bool takeOwnership parameter for explicit control.")
+		bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
+		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+
+		/// @brief Assign a buffer to use as raw data.
+		///
+		/// If the RawPacket already had raw data, it will be disposed of accordingly.
+		///
+		/// @param pRawData A pointer to the new raw data buffer.
+		/// @param rawDataLen The length of the new raw data buffer in bytes.
+		/// @param takeOwnership If true, the RawPacket will take ownership of the buffer and will be responsible for
+		/// freeing it.
+		/// @param timestamp The timestamp packet was received by the NIC (in nsec precision).
+		/// @param layerType The link layer type for this raw data.
+		/// @param frameLength When reading from pcap files, sometimes the captured length is different from the
+		/// actual packet length. This parameter represents the packet length. This parameter is optional, if not set or
+		/// set to -1 it is assumed both lengths are equal
+		/// @return True if raw data was set successfully, false otherwise.
+		/// @remarks Derived classes may not support using the raw data buffer directly.
+		/// Users should not rely on the RawPacket always writing to the provided pointer location,
+		/// and instead get the raw data pointer using getRawData().
+		bool setRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timespec timestamp,
+		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
 		/// Initialize a raw packet with data. The main difference between this method and setRawData() is that
 		/// setRawData() is meant for replacing the data in an existing raw packet, whereas this method is meant to be
@@ -362,6 +451,8 @@ namespace pcpp
 		/// @param timestamp The timestamp packet was received by the NIC (in nsec precision)
 		/// @param layerType The link layer type for this raw data
 		/// @return True if raw data was set successfully, false otherwise
+		/// @deprecated Prefer using setRawData() with takeOwnership `false`.
+		PCPP_DEPRECATED("Prefer using setRawData() with takeOwnership `false`.")
 		bool initWithRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
 		                     LinkLayerType layerType = LINKTYPE_ETHERNET);
 
@@ -424,7 +515,7 @@ namespace pcpp
 		}
 
 		/// Clears all members of this instance, meaning setting raw data to nullptr, raw data length to 0, etc.
-		/// Frees the raw data if deleteRawDataAtDestructor was set to 'true'
+		/// Frees the raw data if takeOwnership was set to 'true'
 		/// @todo set timestamp to a default value as well
 		virtual void clear();
 
@@ -461,6 +552,24 @@ namespace pcpp
 		/// allocate the memory
 		/// @return True if data was reallocated successfully, false otherwise
 		virtual bool reallocateData(size_t newBufferLength);
+
+	protected:
+		/// @brief Get the type of RawPacket implementation.
+		virtual internal::RawPacketImplType getImplType() const
+		{
+			return internal::RawPacketImplType::Standard;
+		}
+
+		// Updates the raw data buffer and related members. Used by setRawData() methods.
+		virtual bool doSetRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timespec timestamp,
+		                          LinkLayerType layerType, int frameLength);
 	};
 
+	namespace internal
+	{
+		inline RawPacketImplType getRawPacketImplementationType(RawPacket const& rawPacket)
+		{
+			return rawPacket.getImplType();
+		}
+	}  // namespace internal
 }  // namespace pcpp

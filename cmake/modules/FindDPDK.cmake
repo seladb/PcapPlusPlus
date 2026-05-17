@@ -68,7 +68,7 @@ else()
   if(DPDK_VERSION STREQUAL "..")
     find_file(DPDK_BUILD_CONFIG_INCLUDE rte_build_config.h PATHS ${DPDK_INCLUDE_DIRS})
     if(DPDK_BUILD_CONFIG_INCLUDE)
-      dpdk_read_version(DPDK_VERSION "${DPDK_BUILD_CONFIG_INCLUDE_DIR}/rte_build_config.h")
+      dpdk_read_version(DPDK_VERSION "${DPDK_CONFIG_INCLUDE_DIR}/rte_build_config.h")
     endif()
     if(DPDK_VERSION STREQUAL "..")
       message(WARN "Can't parse DPDK version!")
@@ -79,7 +79,7 @@ else()
   list(
     APPEND _DPDK_LOOK_FOR_LIBS
     net
-    kni
+    log
     ethdev
     mbuf
     eal

@@ -68,31 +68,58 @@ namespace pcpp
 		{
 			return getTelnetSequenceType(first, maxCount) == TelnetSequenceType::Command;
 		}
+
+		/// @brief Finds the next IAC symbol in a data stream ignoring the first byte.
+		/// @param[in] first Iterator to the start of the data stream to check.
+		/// @param[in] last Iterator one past the end of the data stream to check.
+		/// @return The next encountered IAC symbol after the first.
+		uint8_t* findNextIAC(uint8_t* first, uint8_t* last)
+		{
+			// FF FF pattern is FF literal
+			// FF non-FF pattern is IAC op code
+			// Sample seq: FF AB CD 0F FF FF A4 B5 [FF] 2D DA
+
+			// Requires at least 2 elements.
+			if (first + 1 >= last)
+				return last;
+
+			constexpr int IAC = static_cast<int>(TelnetLayer::TelnetCommand::InterpretAsCommand);
+
+			// Start the search from the second byte.
+			auto it = first + 1;
+			while (it != last)
+			{
+				// Find the next IAC symbol.
+				it = std::find(it, last, IAC);
+
+				// Reached the end of the sequence.
+				if (it == last)
+					return last;
+
+				auto itNext = std::next(it);
+				// Reached the end of the sequence.
+				// IAC at the end of the sequence is invalid.
+				if (itNext == last)
+					return last;
+
+				// If the next symbol is not IAC, this isn't an escaped sequence.
+				if (*itNext != IAC)
+					return it;
+
+				// Escaped sequence "FF FF", move it to 1 past the second FF, to skip the view "FF [[FF XX]]".
+				it = std::next(itNext);
+			}
+
+			return last;
+		}
 	}  // namespace
 
 	size_t TelnetLayer::distanceToNextIAC(uint8_t* startPos, size_t maxLength)
 	{
-		uint8_t* pos = nullptr;
-		size_t addition = 0;
-		size_t currentOffset = 0;
-		do
-		{
-			// If it is second turn position should be adjusted to after second FF
-			if (addition)
-				addition += 2;
-
-			pos = (uint8_t*)memchr(startPos + currentOffset + 1, static_cast<int>(TelnetCommand::InterpretAsCommand),
-			                       maxLength - currentOffset);
-			if (pos)
-				addition += pos - (startPos + currentOffset);
-			else
-				addition += maxLength - currentOffset;
-			currentOffset = currentOffset + addition;
-			// "FF FF" means data continue
-		} while (pos && ((pos + 1) < (startPos + maxLength)) &&
-		         (pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (currentOffset < maxLength));
-
-		return addition;
+		auto beginIt = startPos;
+		auto endIt = startPos + maxLength;
+		auto nextIacIt = findNextIAC(beginIt, endIt);
+		return std::distance(beginIt, nextIacIt);
 	}
 
 	size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength)

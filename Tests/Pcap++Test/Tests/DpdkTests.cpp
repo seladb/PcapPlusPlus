@@ -219,12 +219,6 @@ public:
 			uint16_t packetReceived = m_DpdkDevice->receivePackets(mBufArr, 32, m_QueueId);
 			lock.unlock();
 			m_PacketCount += packetReceived;
-			lock.lock();
-			uint16_t packetsSent = m_DpdkDevice->sendPackets(mBufArr, packetReceived, m_QueueId);
-			if (packetsSent != packetReceived)
-			{
-				return false;
-			}
 		}
 
 		for (int i = 0; i < 32; i++)
@@ -323,9 +317,10 @@ PTF_TEST_CASE(TestDpdkDevice)
 
 	PTF_ASSERT_TRUE(dev->open());
 	DeviceTeardown devTeardown(dev);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(dev->open());
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(dev->open());
+	}
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxQueues(), 1);
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedTxQueues(), 1);
 	pcpp::DpdkDevice::LinkStatus linkStatus;
@@ -356,8 +351,13 @@ PTF_TEST_CASE(TestDpdkDevice)
 	PTF_PRINT_VERBOSE("Bytes captured according to stats: " << stats.aggregatedRxStats.bytes);
 	PTF_PRINT_VERBOSE("Packets dropped according to stats: " << stats.rxPacketsDroppedByHW);
 	PTF_PRINT_VERBOSE("Erroneous packets according to stats: " << stats.rxErroneousPackets);
+	uint64_t rxQueuePackets = 0;
+	uint64_t rxQueueBytes = 0;
 	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 	{
+		rxQueuePackets += stats.rxStats[i].packets;
+		rxQueueBytes += stats.rxStats[i].bytes;
+
 		PTF_PRINT_VERBOSE("Packets captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].packets);
 		PTF_PRINT_VERBOSE("Bytes captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].bytes);
 	}
@@ -368,6 +368,8 @@ PTF_TEST_CASE(TestDpdkDevice)
 	                             ? stats.aggregatedRxStats.packets - (uint64_t)packetData.PacketCount
 	                             : (uint64_t)packetData.PacketCount - stats.aggregatedRxStats.packets;
 	PTF_ASSERT_LOWER_OR_EQUAL_THAN(statsVsPacketCount, 20);
+	PTF_ASSERT_EQUAL(stats.aggregatedRxStats.packets, rxQueuePackets);
+	PTF_ASSERT_EQUAL(stats.aggregatedRxStats.bytes, rxQueueBytes);
 
 	dev->close();
 
@@ -401,19 +403,17 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 	if (dev->getTotalNumOfRxQueues() > 1)
 	{
-		pcpp::Logger::getInstance().suppressLogs();
+		SuppressLogs suppressLogs;
 		PTF_ASSERT_FALSE(dev->openMultiQueues(numOfRxQueuesToOpen + 1, 1));
-		pcpp::Logger::getInstance().enableLogs();
 	}
 
 	PTF_ASSERT_TRUE(dev->openMultiQueues(numOfRxQueuesToOpen, 1));
 
 	if (numOfRxQueuesToOpen > 1)
 	{
-		pcpp::Logger::getInstance().suppressLogs();
+		SuppressLogs suppressLogs;
 		DpdkPacketData dummyPacketData;
 		PTF_ASSERT_FALSE(dev->startCaptureSingleThread(dpdkPacketsArrive, &dummyPacketData));
-		pcpp::Logger::getInstance().enableLogs();
 	}
 
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxQueues(), (uint16_t)numOfRxQueuesToOpen);
@@ -549,9 +549,10 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 	PTF_ASSERT_NOT_NULL(dev);
 	DeviceTeardown devTeardown(dev);
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(dev->openMultiQueues(1, 255));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(dev->openMultiQueues(1, 255));
+	}
 
 	uint16_t txQueues = (dev->getTotalNumOfTxQueues() > 64 ? 64 : dev->getTotalNumOfTxQueues());
 
@@ -584,6 +585,21 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 	uint16_t packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead, 0, false);
 	PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead);
 
+	// check stats
+	pcpp::DpdkDevice::DpdkDeviceStats stats;
+	dev->getStatistics(stats);
+	PTF_ASSERT_EQUAL(stats.aggregatedTxStats.packets, packetsRead);
+	PTF_ASSERT_GREATER_THAN(stats.aggregatedTxStats.bytes, 0);
+	uint64_t txQueuePackets = 0;
+	uint64_t txQueueBytes = 0;
+	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
+	{
+		txQueuePackets += stats.txStats[i].packets;
+		txQueueBytes += stats.txStats[i].bytes;
+	}
+	PTF_ASSERT_EQUAL(stats.aggregatedTxStats.packets, txQueuePackets);
+	PTF_ASSERT_EQUAL(stats.aggregatedTxStats.bytes, txQueueBytes);
+
 	// send packets are RawPacketVector
 	uint16_t packetsSentAsRawVector = dev->sendPackets(rawPacketVec);
 	PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead);
@@ -596,9 +612,10 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 		PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead);
 	}
 
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_EQUAL(dev->sendPackets(rawPacketVec, txQueues + 1), 0);
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_EQUAL(dev->sendPackets(rawPacketVec, txQueues + 1), 0);
+	}
 
 	PTF_ASSERT_TRUE(dev->sendPacket(*(rawPacketVec.at(packetsRead / 3)), 0));
 	PTF_ASSERT_TRUE(dev->sendPacket(*(packetArr[packetsRead / 2]), 0));
@@ -628,24 +645,26 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 	// negative tests
 	// --------------
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_EQUAL(dev->receivePackets(rawPacketVec, 0), 0);
-	PTF_ASSERT_EQUAL(dev->receivePackets(packetArr, packetArrLen, 0), 0);
-	PTF_ASSERT_EQUAL(dev->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen, 0), 0);
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_EQUAL(dev->receivePackets(rawPacketVec, 0), 0);
+		PTF_ASSERT_EQUAL(dev->receivePackets(packetArr, packetArrLen, 0), 0);
+		PTF_ASSERT_EQUAL(dev->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen, 0), 0);
 
-	PTF_ASSERT_TRUE(dev->open());
-	PTF_ASSERT_EQUAL(dev->receivePackets(rawPacketVec, dev->getTotalNumOfRxQueues() + 1), 0);
-	PTF_ASSERT_EQUAL(dev->receivePackets(packetArr, packetArrLen, dev->getTotalNumOfRxQueues() + 1), 0);
-	PTF_ASSERT_EQUAL(dev->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen, dev->getTotalNumOfRxQueues() + 1), 0);
+		PTF_ASSERT_TRUE(dev->open());
+		PTF_ASSERT_EQUAL(dev->receivePackets(rawPacketVec, dev->getTotalNumOfRxQueues() + 1), 0);
+		PTF_ASSERT_EQUAL(dev->receivePackets(packetArr, packetArrLen, dev->getTotalNumOfRxQueues() + 1), 0);
+		PTF_ASSERT_EQUAL(dev->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen, dev->getTotalNumOfRxQueues() + 1),
+		                 0);
 
-	DpdkPacketData packetData;
-	mBufRawPacketArrLen = 32;
-	packetArrLen = 32;
-	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(dpdkPacketsArrive, &packetData));
-	PTF_ASSERT_EQUAL(dev->receivePackets(rawPacketVec, 0), 0);
-	PTF_ASSERT_EQUAL(dev->receivePackets(packetArr, packetArrLen, 0), 0);
-	PTF_ASSERT_EQUAL(dev->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen, 0), 0);
-	pcpp::Logger::getInstance().enableLogs();
+		DpdkPacketData packetData;
+		mBufRawPacketArrLen = 32;
+		packetArrLen = 32;
+		PTF_ASSERT_TRUE(dev->startCaptureSingleThread(dpdkPacketsArrive, &packetData));
+		PTF_ASSERT_EQUAL(dev->receivePackets(rawPacketVec, 0), 0);
+		PTF_ASSERT_EQUAL(dev->receivePackets(packetArr, packetArrLen, 0), 0);
+		PTF_ASSERT_EQUAL(dev->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen, 0), 0);
+	}
 	dev->stopCapture();
 	dev->close();
 
@@ -766,10 +785,11 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	}
 	PTF_PRINT_VERBOSE("Initiating " << workerThreadVec.size() << " worker threads");
 
-	pcpp::Logger::getInstance().suppressLogs();
-	// negative test - start worker thread with core mask 0
-	PTF_ASSERT_FALSE(pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(0, workerThreadVec));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		// negative test - start worker thread with core mask 0
+		PTF_ASSERT_FALSE(pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(0, workerThreadVec));
+	}
 
 	PTF_ASSERT_TRUE(pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec));
 	PTF_PRINT_VERBOSE("Worker threads started");

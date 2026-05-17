@@ -20,7 +20,7 @@ namespace pcpp
 
 	uint64_t StpLayer::macAddressToID(const pcpp::MacAddress& addr)
 	{
-		uint8_t value[6];
+		uint8_t value[6] = { 0 };
 		addr.copyTo(value);
 		return ((uint64_t(value[0]) << 40) | (uint64_t(value[1]) << 32) | (uint64_t(value[2]) << 24) |
 		        (uint64_t(value[3]) << 16) | (uint64_t(value[4]) << 8) | (uint64_t(value[5])));
@@ -82,7 +82,9 @@ namespace pcpp
 	void StpTopologyChangeBPDULayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(stp_tcn_bpdu))
-			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_tcn_bpdu), this, m_Packet);
+		{
+			constructNextLayer<PayloadLayer>(m_Data, m_DataLen - sizeof(stp_tcn_bpdu));
+		}
 	}
 
 	// ---------------------- Class StpConfigurationBPDULayer ----------------------
@@ -227,7 +229,9 @@ namespace pcpp
 	void StpConfigurationBPDULayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(stp_conf_bpdu))
-			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_conf_bpdu), this, m_Packet);
+		{
+			constructNextLayer<PayloadLayer>(m_Data, m_DataLen - sizeof(stp_conf_bpdu));
+		}
 	}
 
 	// ---------------------- Class RapidStpLayer ----------------------
@@ -242,7 +246,9 @@ namespace pcpp
 	void RapidStpLayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(rstp_conf_bpdu))
-			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(rstp_conf_bpdu), this, m_Packet);
+		{
+			constructNextLayer<PayloadLayer>(m_Data, m_DataLen - sizeof(rstp_conf_bpdu));
+		}
 	}
 
 	// ---------------------- Class MultipleStpLayer ----------------------

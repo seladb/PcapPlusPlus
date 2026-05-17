@@ -480,7 +480,7 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
-			newRawPacket->setMBuf(mBuf, time);
+			newRawPacket->setMBuf(mBuf, time, RTE_MBUF_DEFAULT_BUF_SIZE);
 			rawPacketsArr.pushBack(newRawPacket);
 		}
 
@@ -524,7 +524,7 @@ namespace pcpp
 			if (rawPacketsArr[index] == nullptr)
 				rawPacketsArr[index] = new MBufRawPacket();
 
-			rawPacketsArr[index]->setMBuf(mBuf, time);
+			rawPacketsArr[index]->setMBuf(mBuf, time, RTE_MBUF_DEFAULT_BUF_SIZE);
 		}
 
 		return packetsReceived;
@@ -560,7 +560,7 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
-			newRawPacket->setMBuf(mBuf, time);
+			newRawPacket->setMBuf(mBuf, time, RTE_MBUF_DEFAULT_BUF_SIZE);
 			if (packetsArr[index] == nullptr)
 				packetsArr[index] = new Packet();
 
@@ -610,8 +610,8 @@ namespace pcpp
 		for (uint16_t i = 0; i < arrLength; ++i)
 		{
 			const auto* raw_pkt = packetsArr[i]->getRawPacketReadOnly();
-			uint8_t raw_type = raw_pkt->getObjectType();
-			if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
+			auto raw_type = internal::getRawPacketImplementationType(*raw_pkt);
+			if (raw_type != internal::RawPacketImplType::DpdkMBuf)
 			{
 				MBufRawPacket* pkt = new MBufRawPacket();
 				if (unlikely(!pkt->initFromRawPacket(raw_pkt, this)))
@@ -686,8 +686,8 @@ namespace pcpp
 
 		for (RawPacketVector::VectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); ++iter)
 		{
-			uint8_t raw_type = (*iter)->getObjectType();
-			if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
+			auto raw_type = internal::getRawPacketImplementationType(**iter);
+			if (raw_type != internal::RawPacketImplType::DpdkMBuf)
 			{
 				MBufRawPacket* pkt = new MBufRawPacket();
 				if (unlikely(!pkt->initFromRawPacket(*iter, this)))
@@ -731,7 +731,7 @@ namespace pcpp
 		bool sent = false;
 		bool wasAllocated = false;
 
-		if (rawPacket.getObjectType() != MBUFRAWPACKET_OBJECT_TYPE)
+		if (internal::getRawPacketImplementationType(rawPacket) != internal::RawPacketImplType::DpdkMBuf)
 		{
 			mbufRawPacket = new MBufRawPacket();
 			if (unlikely(!mbufRawPacket->initFromRawPacket(&rawPacket, this)))
@@ -808,7 +808,7 @@ namespace pcpp
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 				{
-					rawPackets[index].setMBuf(mBufArray[index], time);
+					rawPackets[index].setMBuf(mBufArray[index], time, RTE_MBUF_DEFAULT_BUF_SIZE);
 				}
 
 				if (!callback(rawPackets, numOfPktsReceived, device, userCookie))
@@ -905,7 +905,7 @@ namespace pcpp
 
 					for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 					{
-						rawPackets[index].setMBuf(mBufArray[index], time);
+						rawPackets[index].setMBuf(mBufArray[index], time, RTE_MBUF_DEFAULT_BUF_SIZE);
 					}
 
 					if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))
@@ -932,7 +932,7 @@ namespace pcpp
 
 					for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 					{
-						rawPackets[index].setMBuf(mBufArray[index], time);
+						rawPackets[index].setMBuf(mBufArray[index], time, RTE_MBUF_DEFAULT_BUF_SIZE);
 					}
 
 					if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))

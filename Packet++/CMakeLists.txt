@@ -33,6 +33,7 @@ add_library(
   src/LLCLayer.cpp
   src/ModbusLayer.cpp
   src/MplsLayer.cpp
+  src/MySqlLayer.cpp
   src/NdpLayer.cpp
   src/NflogLayer.cpp
   src/NtpLayer.cpp
@@ -42,6 +43,7 @@ add_library(
   src/PacketUtils.cpp
   src/PayloadLayer.cpp
   src/PemCodec.cpp
+  src/PostgresLayer.cpp
   src/PPPoELayer.cpp
   src/RadiusLayer.cpp
   src/RawPacket.cpp
@@ -111,6 +113,7 @@ set(
   header/LdapLayer.h
   header/LLCLayer.h
   header/MplsLayer.h
+  header/MySqlLayer.h
   header/NullLoopbackLayer.h
   header/NdpLayer.h
   header/NflogLayer.h
@@ -120,6 +123,7 @@ set(
   header/PacketUtils.h
   header/PayloadLayer.h
   header/PemCodec.h
+  header/PostgresLayer.h
   header/PPPoELayer.h
   header/ProtocolType.h
   header/RadiusLayer.h

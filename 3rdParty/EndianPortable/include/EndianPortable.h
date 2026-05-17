@@ -64,8 +64,9 @@
 #elif defined __CYGWIN__
  #include <endian.h>
 #elif defined(_WIN32) && !defined(_MSC_VER)
-  // MinGW32
- #include <winsock2.h>
+// MinGW32
+// TODO: Windows does not actually provide BYTE_ORDER...
+// This works because both are undefined, and Windows is predominantly little-endian.
  #if(BYTE_ORDER == LITTLE_ENDIAN)
   #define htobe16(x) __builtin_bswap16(x)
   #define htole16(x) (x)
@@ -99,7 +100,8 @@
  #endif
 #elif defined(_WIN32) && defined(_MSC_VER)
 // Visual Studio
- #include <winsock2.h>
+// TODO: Windows does not actually provide BYTE_ORDER...
+// This works because both are undefined, and Windows is predominantly little-endian.
  #if(BYTE_ORDER == LITTLE_ENDIAN)
   #define htobe16(x) _byteswap_ushort(x)
   #define htole16(x) (x)

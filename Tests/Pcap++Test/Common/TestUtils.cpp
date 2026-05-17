@@ -1,5 +1,5 @@
+#include <random>
 #include "TestUtils.h"
-#include <fstream>
 #include "GlobalTestArgs.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
@@ -87,7 +87,9 @@ uint8_t* readFileIntoBuffer(const std::string& filename, int& bufferLength)
 
 void testSetUp()
 {
+#ifdef USE_PCAP
 	pcpp::PcapLiveDeviceList::getInstance();
+#endif
 
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList::getInstance();
@@ -101,7 +103,57 @@ void testSetUp()
 		{
 			coreMask |= pcpp::SystemCores::IdToSystemCore[i].Mask;
 		}
-		pcpp::DpdkDeviceList::initDpdk(coreMask, 16383);
+
+		std::vector<char*> dpdkArgv;
+		dpdkArgv.reserve(PcapTestGlobalArgs.dpdkArgs.size());
+		std::transform(PcapTestGlobalArgs.dpdkArgs.begin(), PcapTestGlobalArgs.dpdkArgs.end(),
+		               std::back_inserter(dpdkArgv), [](auto& arg) { return const_cast<char*>(arg.c_str()); });
+		int dpdkArgc = dpdkArgv.empty() ? 0 : static_cast<int>(dpdkArgv.size());
+		char** dpdkArgvPtr = dpdkArgv.empty() ? nullptr : dpdkArgv.data();
+
+		pcpp::DpdkDeviceList::initDpdk(coreMask, 16383, 0, 0, dpdkArgc, dpdkArgvPtr, "pcapplusplusapp", false);
 	}
 #endif
+}
+
+TempFile::TempFile(const std::string& extension, const std::string& name, bool open)
+    : m_Filename((name.empty() ? generateRandomName() : name) + "." + extension)
+{
+	if (!open)
+	{
+		return;
+	}
+
+	m_File.open(m_Filename, std::ios::binary);
+	if (!m_File)
+	{
+		throw std::runtime_error("Failed to create file: " + m_Filename);
+	}
+}
+
+TempFile::~TempFile()
+{
+	if (m_File.is_open())
+	{
+		m_File.close();
+	}
+	std::remove(m_Filename.c_str());
+}
+
+std::string TempFile::generateRandomName()
+{
+	static const char chars[] = "0123456789"
+	                            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	                            "abcdefghijklmnopqrstuvwxyz";
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, sizeof(chars) - 2);
+
+	std::string name = "temp_";
+	for (int i = 0; i < 16; ++i)
+	{
+		name += chars[dis(gen)];
+	}
+	return name;
 }

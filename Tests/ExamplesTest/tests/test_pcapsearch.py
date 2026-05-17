@@ -52,11 +52,13 @@ class TestPcapSearch(ExampleTest):
         assert ".pcapng'" in completed_process.stdout
         assert ".pcap'" not in completed_process.stdout
 
+    @pytest.mark.no_pcap
     def test_no_args(self):
         args = {}
         completed_process = self.run_example(args=args, expected_return_code=1)
         assert "ERROR: Input directory was not given" in completed_process.stdout
 
+    @pytest.mark.no_pcap
     def test_invalid_dir(self):
         args = {"-d": "dir_that_doesnt_exist", "-s": "udp"}
         completed_process = self.run_example(args=args, expected_return_code=1)

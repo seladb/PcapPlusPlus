@@ -124,14 +124,16 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 	PTF_ASSERT_NOT_NULL(httpLayer.addField(PCPP_HTTP_ACCEPT_LANGUAGE_FIELD, "en-US,en;q=0.8"));
 	PTF_ASSERT_NOT_NULL(httpLayer.addField("Dummy-Field2", "Dummy Value2"));
 	PTF_ASSERT_TRUE(httpLayer.removeField("Dummy-Field"));
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(httpLayer.removeField("Kuku"));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(httpLayer.removeField("Kuku"));
+	}
 	PTF_ASSERT_NOT_NULL(httpLayer.addEndOfHeader());
 	PTF_ASSERT_TRUE(httpLayer.insertField(userAgentField, PCPP_HTTP_ACCEPT_ENCODING_FIELD, "gzip,deflate,sdch"));
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(httpLayer.addField("Kuku", "Muku"));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_NULL(httpLayer.addField("Kuku", "Muku"));
+	}
 	hostField->setFieldValue("www.walla.co.il");
 
 	pcpp::Packet httpPacket(10);
@@ -417,9 +419,10 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 
 	pcpp::HttpResponseLayer httpResponse(pcpp::OneDotOne, pcpp::HttpResponseStatusCode::Http200OK);
 	PTF_ASSERT_NOT_NULL(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/5.0"));
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/6.0"));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_NULL(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/6.0"));
+	}
 	PTF_ASSERT_NOT_NULL(httpResponse.addField(PCPP_HTTP_CONTENT_ENCODING_FIELD, "gzip"));
 	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName(PCPP_HTTP_SERVER_FIELD),
 	                                             PCPP_HTTP_CONTENT_TYPE_FIELD, "application/x-javascript"));
@@ -449,14 +452,16 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 	PTF_ASSERT_NOT_NULL(httpResponse.addEndOfHeader());
 	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("Cache-Control"), "Expires",
 	                                             "Mon, 20 Oct 2014 13:34:26 GMT"));
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(httpResponse.addField("kuku3", "kuka"));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_NULL(httpResponse.addField("kuku3", "kuka"));
+	}
 	PTF_ASSERT_NOT_NULL(
 	    httpResponse.insertField(httpResponse.getFieldByName("ExpIRes"), "Date", "Sun, 19 Oct 2014 19:12:09 GMT"));
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(httpResponse.removeField("kuku5"));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(httpResponse.removeField("kuku5"));
+	}
 	PTF_ASSERT_TRUE(httpResponse.removeField("kuku2"));
 
 	httpPacket.computeCalculateFields();

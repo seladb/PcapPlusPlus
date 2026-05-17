@@ -41,6 +41,8 @@ namespace pcpp
 	///      create a linked list of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support
 	///      this capability so there is no way to access the mbufs linked to the mbuf wrapped by MBufRawPacket
 	///      instance. I hope I'll be able to add this support in the future
+	///    - Currently class methods like MBufRawPacket::setRawData() always copy the data into the mbuf data area.
+	///      The class does not support referencing and modifying data in an external buffer like RawPacket does.
 	class MBufRawPacket : public RawPacket
 	{
 		friend class DpdkDevice;
@@ -54,7 +56,7 @@ namespace pcpp
 		uint16_t m_MbufDataSize;
 		bool m_FreeMbuf;
 
-		void setMBuf(struct rte_mbuf* mBuf, timespec timestamp);
+		void setMBuf(struct rte_mbuf* mBuf, timespec timestamp, uint16_t mBufDataSize);
 		bool init(struct rte_mempool* mempool);
 		bool initFromRawPacket(const RawPacket* rawPacket, struct rte_mempool* mempool);
 
@@ -65,7 +67,7 @@ namespace pcpp
 		/// an empty c'tor)
 		MBufRawPacket() : RawPacket(), m_MBuf(nullptr), m_Mempool(nullptr), m_MbufDataSize(0), m_FreeMbuf(true)
 		{
-			m_DeleteRawDataAtDestructor = false;
+			m_OwnsRawData = false;
 		}
 
 		/// A d'tor for this class. Once called it frees the mbuf attached to it (returning it back to the mbuf pool it
@@ -131,6 +133,10 @@ namespace pcpp
 		// overridden methods
 
 		/// @return MBufRawPacket object type
+		/// @deprecated Deprecated due to unclear semantics.
+		/// This functionality has been moved to the unstable internal API as
+		/// internal::getRawPacketImplementationType(RawPacket const& rawPacket).
+		PCPP_DEPRECATED("Deprecated due to unclear semantics.")
 		inline uint8_t getObjectType() const override
 		{
 			return MBUFRAWPACKET_OBJECT_TYPE;
@@ -146,24 +152,6 @@ namespace pcpp
 		/// The caller is responsible for the deallocation of the returned pointer.
 		/// @return A pointer to the new MBufRawPacket object which is a clone of this object
 		MBufRawPacket* clone() const override;
-
-		/// Set raw data to the mbuf by copying the data to it. In order to stay compatible with the ancestor method
-		/// which takes control of the data pointer and frees it when RawPacket is destroyed, this method frees this
-		/// pointer right away after data is copied to the mbuf. So when using this method please notice that after it's
-		/// called pRawData memory is free, don't use this pointer again. In addition, if raw packet isn't initialized
-		/// (mbuf is nullptr), this method will call the init() method
-		/// @param[in] pRawData A pointer to the new raw data
-		/// @param[in] rawDataLen The new raw data length in bytes
-		/// @param[in] timestamp The timestamp packet was received by the NIC
-		/// @param[in] layerType The link layer type for this raw data. Default is Ethernet
-		/// @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the
-		/// actual packet length. This parameter represents the packet length. This parameter is optional, if not set or
-		/// set to -1 it is assumed both lengths are equal
-		/// @return True if raw data was copied to the mbuf successfully, false if rawDataLen is larger than mbuf max
-		/// size, if initialization failed or if copying the data to the mbuf failed. In all of these cases an error
-		/// will be printed to log
-		bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp,
-		                LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1) override;
 
 		/// Clears the object and frees the mbuf
 		void clear() override;
@@ -207,6 +195,32 @@ namespace pcpp
 		{
 			m_FreeMbuf = val;
 		}
+
+	protected:
+		internal::RawPacketImplType getImplType() const override
+		{
+			return internal::RawPacketImplType::DpdkMBuf;
+		}
+
+		/// Set raw data to the mbuf by copying the data to it. In order to stay compatible with the ancestor method
+		/// which takes control of the data pointer and frees it when RawPacket is destroyed, this method frees this
+		/// pointer right away after data is copied to the mbuf. So when using this method please notice that after it's
+		/// called pRawData memory is free, don't use this pointer again. In addition, if raw packet isn't initialized
+		/// (mbuf is nullptr), this method will call the init() method
+		///
+		/// @param[in] pRawData A pointer to the new raw data
+		/// @param[in] rawDataLen The new raw data length in bytes
+		/// @param[in] takeOwnership Indicates whether the method should take ownership of pRawData pointer.
+		/// @param[in] timestamp The timestamp packet was received by the NIC
+		/// @param[in] layerType The link layer type for this raw data. Default is Ethernet
+		/// @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the
+		/// actual packet length. This parameter represents the packet length. This parameter is optional, if not set or
+		/// set to -1 it is assumed both lengths are equal
+		/// @return True if raw data was copied to the mbuf successfully, false if rawDataLen is larger than mbuf max
+		/// size, if initialization failed or if copying the data to the mbuf failed. In all of these cases an error
+		/// will be printed to log
+		bool doSetRawData(const uint8_t* pRawData, int rawDataLen, bool takeOwnership, timespec timestamp,
+		                  LinkLayerType layerType, int frameLength) override;
 	};
 
 	/// @typedef MBufRawPacketVector

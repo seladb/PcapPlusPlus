@@ -160,7 +160,7 @@ namespace pcpp
 		/// @return The record data as type T
 		template <typename T> T getValueAs(size_t offset = 0) const
 		{
-			if (getDataSize() - offset < sizeof(T))
+			if (getDataSize() < sizeof(T) + offset)
 				return 0;
 
 			T result;

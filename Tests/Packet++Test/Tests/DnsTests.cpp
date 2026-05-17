@@ -211,9 +211,10 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	// a corner case of malformed packet where the total number of resources overflow uint16
 	// by less than 300. This fixes the bug: https://github.com/seladb/PcapPlusPlus/issues/441
 	auto rawPacket6 = createPacketFromHexResource("PacketExamples/DnsTooManyResources.dat");
-	pcpp::Logger::getInstance().suppressLogs();
-	pcpp::Packet dnsPacket6(rawPacket6.get());
-	pcpp::Logger::getInstance().enableLogs();
+	pcpp::Packet dnsPacket6 = [&]() {
+		SuppressLogs suppressLogs;
+		return pcpp::Packet(rawPacket6.get());
+	}();
 	dnsLayer = dnsPacket6.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NULL(dnsLayer->getFirstQuery());
 	PTF_ASSERT_NULL(dnsLayer->getFirstAnswer());
@@ -341,9 +342,10 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	pcpp::DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
 	PTF_ASSERT_NOT_NULL(thirdAnswer);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(thirdAnswer->setData(nullptr));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(thirdAnswer->setData(nullptr));
+	}
 	ipv4DnsData = pcpp::IPv4DnsResourceData(std::string("151.249.90.238"));
 	PTF_ASSERT_TRUE(thirdAnswer->setData(&ipv4DnsData));
 
@@ -392,9 +394,10 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	                  "Not a valid IPv6 address: ##80::5a1f:aaff:fe4f:3f9d");
 
 	authority = dnsLayer6.addAuthority(authority);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(authority->setData(nullptr));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_FALSE(authority->setData(nullptr));
+	}
 	authority->setDnsType(pcpp::DNS_TYPE_AAAA);
 	auto ipv6DnsData = pcpp::IPv6DnsResourceData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
 	PTF_ASSERT_TRUE(authority->setData(&ipv6DnsData));
@@ -410,12 +413,13 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	pcpp::GenericDnsResourceData genericData("0004000800df581faa4f3f9d");
 	pcpp::DnsResource* additional = dnsLayer6.addAdditionalRecord("", pcpp::DNS_TYPE_OPT, 0xa005, 0x1194, &genericData);
 	PTF_ASSERT_NOT_NULL(additional);
-	pcpp::Logger::getInstance().suppressLogs();
-	genericData = pcpp::GenericDnsResourceData("a0123");
-	PTF_ASSERT_FALSE(additional->setData(&genericData));
-	genericData = pcpp::GenericDnsResourceData("a01j34");
-	PTF_ASSERT_FALSE(additional->setData(&genericData));
-	pcpp::Logger::getInstance().enableLogs();
+	{
+		SuppressLogs suppressLogs;
+		genericData = pcpp::GenericDnsResourceData("a0123");
+		PTF_ASSERT_FALSE(additional->setData(&genericData));
+		genericData = pcpp::GenericDnsResourceData("a01j34");
+		PTF_ASSERT_FALSE(additional->setData(&genericData));
+	}
 
 	dnsEdit6Packet.computeCalculateFields();
 

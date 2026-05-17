@@ -12,15 +12,24 @@
 
 #include <iostream>
 
-static std::string pcapFileName = "";
-
-static void BM_PcapFileRead(benchmark::State& state)
+static void BM_FileRead(benchmark::State& state, std::string const& filepath)
 {
-	// Open the pcap file for reading
-	pcpp::PcapFileReaderDevice reader(pcapFileName);
-	if (!reader.open())
+	if (filepath.empty())
 	{
-		state.SkipWithError("Cannot open pcap file for reading");
+		state.SkipWithMessage("File path is not set");
+		return;
+	}
+
+	auto reader = std::unique_ptr<pcpp::IFileReaderDevice>(pcpp::IFileReaderDevice::getReader(filepath));
+	if (reader == nullptr)
+	{
+		state.SkipWithError("Cannot create file reader for file: " + filepath);
+		return;
+	}
+
+	if (!reader->open())
+	{
+		state.SkipWithError("Cannot open file for reading: " + filepath);
 		return;
 	}
 
@@ -29,7 +38,7 @@ static void BM_PcapFileRead(benchmark::State& state)
 	pcpp::RawPacket rawPacket;
 	for (auto _ : state)
 	{
-		if (!reader.getNextPacket(rawPacket))
+		if (!reader->getNextPacket(rawPacket))
 		{
 			// If the rawPacket is empty there should be an error
 			if (totalBytes == 0)
@@ -40,8 +49,8 @@ static void BM_PcapFileRead(benchmark::State& state)
 
 			// Rewind the file if it reached the end
 			state.PauseTiming();
-			reader.close();
-			reader.open();
+			reader->close();
+			reader->open();
 			state.ResumeTiming();
 			continue;
 		}
@@ -53,18 +62,60 @@ static void BM_PcapFileRead(benchmark::State& state)
 	state.SetBytesProcessed(totalBytes);
 	state.SetItemsProcessed(totalPackets);
 }
-BENCHMARK(BM_PcapFileRead);
 
-static void BM_PcapFileWrite(benchmark::State& state)
+static bool startsWith(std::string const& str, std::string const& prefix)
 {
-	// Open the pcap file for writing
-	pcpp::PcapFileWriterDevice writer("benchmark-output.pcap");
-	if (!writer.open())
+	if (str.length() < prefix.length())
+		return false;
+	return str.compare(0, prefix.length(), prefix) == 0;
+}
+
+static bool endsWith(std::string const& str, std::string const& suffix)
+{
+	if (str.length() < suffix.length())
+		return false;
+	return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
+}
+
+static std::string getFileName(std::string const& filepath)
+{
+	size_t lastSlashPos = filepath.find_last_of("/\\");
+	if (lastSlashPos == std::string::npos)
+		return filepath;
+	return filepath.substr(lastSlashPos + 1);
+}
+
+static void BM_FileWrite(benchmark::State& state, std::string const& filepath)
+{
+	if (filepath.empty())
 	{
-		state.SkipWithError("Cannot open pcap file for writing");
+		state.SkipWithMessage("File path is not set");
 		return;
 	}
 
+	// Select device type based on file extension
+	std::unique_ptr<pcpp::IFileWriterDevice> writer;
+	if (endsWith(filepath, ".pcap"))
+	{
+		writer = std::make_unique<pcpp::PcapFileWriterDevice>(filepath);
+	}
+	else if (endsWith(filepath, ".pcapng"))
+	{
+		writer = std::make_unique<pcpp::PcapNgFileWriterDevice>(filepath);
+	}
+	else
+	{
+		state.SkipWithError("Unsupported file extension for writing: " + filepath);
+		return;
+	}
+
+	if (!writer->open())
+	{
+		state.SkipWithError("Cannot open file device for writing");
+		return;
+	}
+
+	// Setup a sample packet to write
 	pcpp::Packet packet;
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:00:00:00:00:00"), pcpp::MacAddress("00:00:00:00:00:00"));
 	pcpp::IPv4Layer ip4Layer(pcpp::IPv4Address("192.168.0.1"), pcpp::IPv4Address("192.168.0.2"));
@@ -80,7 +131,7 @@ static void BM_PcapFileWrite(benchmark::State& state)
 	for (auto _ : state)
 	{
 		// Write packet to file
-		writer.writePacket(*(packet.getRawPacket()));
+		writer->writePacket(*(packet.getRawPacket()));
 
 		// Count total bytes and packets
 		++totalPackets;
@@ -91,24 +142,38 @@ static void BM_PcapFileWrite(benchmark::State& state)
 	state.SetBytesProcessed(totalBytes);
 	state.SetItemsProcessed(totalPackets);
 }
-BENCHMARK(BM_PcapFileWrite);
 
-static void BM_PacketParsing(benchmark::State& state)
+BENCHMARK_CAPTURE(BM_FileWrite, Pcap, "benchmark-output.pcap");
+BENCHMARK_CAPTURE(BM_FileWrite, PcapNg, "benchmark-output.pcapng");
+
+static void BM_PacketParsing(benchmark::State& state, std::string const& filename)
 {
-	// Open the pcap file for reading
-	size_t totalBytes = 0;
-	size_t totalPackets = 0;
-	pcpp::PcapFileReaderDevice reader(pcapFileName);
-	if (!reader.open())
+	if (filename.empty())
 	{
-		state.SkipWithError("Cannot open pcap file for reading");
+		state.SkipWithMessage("File name is not set");
 		return;
 	}
 
+	// Open the pcap file for reading
+	auto reader = std::unique_ptr<pcpp::IFileReaderDevice>(pcpp::IFileReaderDevice::getReader(filename));
+	if (reader == nullptr)
+	{
+		state.SkipWithError("Cannot create file reader for file: " + filename);
+		return;
+	}
+
+	if (!reader->open())
+	{
+		state.SkipWithError("Cannot open file for reading");
+		return;
+	}
+
+	size_t totalBytes = 0;
+	size_t totalPackets = 0;
 	pcpp::RawPacket rawPacket;
 	for (auto _ : state)
 	{
-		if (!reader.getNextPacket(rawPacket))
+		if (!reader->getNextPacket(rawPacket))
 		{
 			// If the rawPacket is empty there should be an error
 			if (totalBytes == 0)
@@ -119,8 +184,8 @@ static void BM_PacketParsing(benchmark::State& state)
 
 			// Rewind the file if it reached the end
 			state.PauseTiming();
-			reader.close();
-			reader.open();
+			reader->close();
+			reader->open();
 			state.ResumeTiming();
 			continue;
 		}
@@ -129,7 +194,7 @@ static void BM_PacketParsing(benchmark::State& state)
 		pcpp::Packet parsedPacket(&rawPacket);
 
 		// Use parsedPacket to prevent compiler optimizations
-		assert(parsedPacket.getFirstLayer());
+		benchmark::DoNotOptimize(parsedPacket.getFirstLayer());
 
 		// Count total bytes and packets
 		++totalPackets;
@@ -140,20 +205,32 @@ static void BM_PacketParsing(benchmark::State& state)
 	state.SetBytesProcessed(totalBytes);
 	state.SetItemsProcessed(totalPackets);
 }
-BENCHMARK(BM_PacketParsing);
 
-static void BM_PacketPureParsing(benchmark::State& state)
+static void BM_PacketPureParsing(benchmark::State& state, std::string const& filename)
 {
-	pcpp::PcapFileReaderDevice reader(pcapFileName);
-	if (!reader.open())
+	if (filename.empty())
 	{
-		state.SkipWithError("Cannot open pcap file for reading");
+		state.SkipWithMessage("File name is not set");
+		return;
+	}
+
+	// Open the pcap file for reading
+	auto reader = std::unique_ptr<pcpp::IFileReaderDevice>(pcpp::IFileReaderDevice::getReader(filename));
+	if (reader == nullptr)
+	{
+		state.SkipWithError("Cannot create file reader for file: " + filename);
+		return;
+	}
+
+	if (!reader->open())
+	{
+		state.SkipWithError("Cannot open file for reading");
 		return;
 	}
 
 	// Preloads all packets into memory
 	pcpp::RawPacketVector rawPackets;
-	reader.getNextPackets(rawPackets);
+	reader->getNextPackets(rawPackets);
 
 	if (rawPackets.size() == 0)
 	{
@@ -185,7 +262,6 @@ static void BM_PacketPureParsing(benchmark::State& state)
 	state.SetBytesProcessed(totalProcessedBytes);
 	state.SetItemsProcessed(totalProcessedItems);
 }
-BENCHMARK(BM_PacketPureParsing);
 
 static void BM_PacketCrafting(benchmark::State& state)
 {
@@ -242,10 +318,21 @@ static void BM_PacketCrafting(benchmark::State& state)
 }
 BENCHMARK(BM_PacketCrafting);
 
+void printHelp()
+{
+	std::cout << "Usage: benchmark-google [--pcap-file <file.pcap>]... \n"
+	          << "  --pcap-file can be specified multiple times\n\n";
+
+	std::cout << "Google Benchmark options:\n";
+	benchmark::PrintDefaultHelp();
+}
+
 int main(int argc, char** argv)
 {
 	// Initialize the benchmark
-	benchmark::Initialize(&argc, argv);
+	benchmark::Initialize(&argc, argv, &printHelp);
+
+	std::vector<std::string> files;
 
 	// Parse command line arguments to find the pcap file name
 	for (int idx = 1; idx < argc; ++idx)
@@ -254,25 +341,41 @@ int main(int argc, char** argv)
 		{
 			if (idx == argc - 1)
 			{
-				std::cerr << "Please provide a pcap file name after --pcap-file" << std::endl;
+				std::cerr << "Please provide a file path after --pcap-file" << std::endl;
 				return 1;
 			}
 
-			pcapFileName = argv[idx + 1];
-			break;
-		}
-	}
+			std::string argValue = argv[idx + 1];
+			if (startsWith(argValue, "-"))
+			{
+				std::cerr << "Please provide a file path after --pcap-file, but got another option: " << argValue
+				          << std::endl;
+				return 1;
+			}
 
-	if (pcapFileName.empty())
-	{
-		std::cerr << "Please provide a pcap file name using --pcap-file" << std::endl;
-		return 1;
+			files.push_back(std::move(argValue));
+		}
 	}
 
 	benchmark::AddCustomContext("PcapPlusPlus version", pcpp::getPcapPlusPlusVersionFull());
 	benchmark::AddCustomContext("Build info", pcpp::getBuildDateTime());
 	benchmark::AddCustomContext("Git info", pcpp::getGitInfo());
-	benchmark::AddCustomContext("Pcap file", pcapFileName);
+
+	// Individual loops to register benchmarks in order.
+	for (const auto& file : files)
+	{
+		benchmark::RegisterBenchmark(("BM_FileRead/" + getFileName(file)), BM_FileRead, file);
+	}
+
+	for (const auto& file : files)
+	{
+		benchmark::RegisterBenchmark(("BM_PacketParsing/" + getFileName(file)), BM_PacketParsing, file);
+	}
+
+	for (const auto& file : files)
+	{
+		benchmark::RegisterBenchmark(("BM_PacketPureParsing/" + getFileName(file)), BM_PacketPureParsing, file);
+	}
 
 	// Run the benchmarks
 	benchmark::RunSpecifiedBenchmarks();

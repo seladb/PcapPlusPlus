@@ -26,8 +26,11 @@ PTF_TEST_CASE(TestPcapFileNanoPrecision);
 PTF_TEST_CASE(TestPcapSllFileReadWrite);
 PTF_TEST_CASE(TestPcapSll2FileReadWrite);
 PTF_TEST_CASE(TestPcapRawIPFileReadWrite);
+PTF_TEST_CASE(TestPcapFileReadAdv);
+PTF_TEST_CASE(TestPcapFileWriteAdv);
 PTF_TEST_CASE(TestPcapFileAppend);
 PTF_TEST_CASE(TestPcapNgFileReadWrite);
+PTF_TEST_CASE(TestPcapNgZstdCompressionLevels);
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv);
 PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces);
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6);
@@ -128,3 +131,9 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets);
 PTF_TEST_CASE(TestXdpDeviceSendPackets);
 PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig);
 PTF_TEST_CASE(TestXdpDeviceInvalidConfig);
+
+// Implemented in WinDivertTests.cpp
+PTF_TEST_CASE(TestWinDivertReceivePackets);
+PTF_TEST_CASE(TestWinDivertSendPackets);
+PTF_TEST_CASE(TestWinDivertParams);
+PTF_TEST_CASE(TestWinDivertNetworkInterfaces);
