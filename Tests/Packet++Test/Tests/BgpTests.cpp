@@ -587,3 +587,96 @@ PTF_TEST_CASE(BgpLayerEditTest)
 	                       bgpUpdateMessage4Packet2->getHeaderLen());
 
 }  // BgpLayerEditTest
+
+PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
+{
+	// Suppress expected error/warning logs from malformed packet parsing
+	SuppressLogs suppress;
+
+	// Test 1: BGP OPEN with header too short for bgp_open_message (headerLen < sizeof(bgp_open_message))
+	// BGP message length = 25 bytes, which is less than sizeof(bgp_open_message) = 29
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open_too_short_header.dat");
+		pcpp::Packet packet(rawPacket.get());
+
+		pcpp::BgpOpenMessageLayer* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		PTF_ASSERT_NOT_NULL(bgpOpenLayer);
+		PTF_ASSERT_EQUAL(bgpOpenLayer->getHeaderLen(), 25);
+
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams;
+		bgpOpenLayer->getOptionalParameters(optionalParams);
+		PTF_ASSERT_EQUAL(optionalParams.size(), 0);
+
+		PTF_ASSERT_EQUAL(bgpOpenLayer->getOptionalParametersLength(), 0);
+		PTF_ASSERT_FALSE(bgpOpenLayer->setOptionalParameters(optionalParams));
+	}
+
+	// Test 2: BGP OPEN with truncated optional parameter header
+	// optionalParameterLength=5 but only 1 byte of actual data remains (headerLen - sizeof(bgp_open_message) = 1)
+	// The loop should break because remaining(1) < optParamHdrSize(2)
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open_truncated_opt_param_hdr.dat");
+		pcpp::Packet packet(rawPacket.get());
+
+		pcpp::BgpOpenMessageLayer* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		PTF_ASSERT_NOT_NULL(bgpOpenLayer);
+		PTF_ASSERT_EQUAL(bgpOpenLayer->getHeaderLen(), 30);
+
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams;
+		bgpOpenLayer->getOptionalParameters(optionalParams);
+		PTF_ASSERT_EQUAL(optionalParams.size(), 0);
+
+		PTF_ASSERT_EQUAL(bgpOpenLayer->getOptionalParametersLength(), 1);
+	}
+
+	// Test 3: BGP OPEN with individual optional parameter length exceeding remaining data
+	// optionalParameterLength=5, first param claims length=16 but only 3 value bytes available
+	// The loop should break because totalLen(18) > remaining(5)
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open_malformed_opt_param_len.dat");
+		pcpp::Packet packet(rawPacket.get());
+
+		pcpp::BgpOpenMessageLayer* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		PTF_ASSERT_NOT_NULL(bgpOpenLayer);
+		PTF_ASSERT_EQUAL(bgpOpenLayer->getHeaderLen(), 34);
+
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams;
+		bgpOpenLayer->getOptionalParameters(optionalParams);
+		PTF_ASSERT_EQUAL(optionalParams.size(), 0);
+
+		PTF_ASSERT_EQUAL(bgpOpenLayer->getOptionalParametersLength(), 5);
+	}
+
+	// Test 4: BGP OPEN with one valid optional parameter followed by a truncated one
+	// optionalParameterLength=4, first param: type=2 length=0 (valid, 2 bytes), second param: type=2 length=5 (OOB)
+	// Should parse exactly 1 valid parameter
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open_partial_valid_opt_params.dat");
+		pcpp::Packet packet(rawPacket.get());
+
+		pcpp::BgpOpenMessageLayer* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		PTF_ASSERT_NOT_NULL(bgpOpenLayer);
+		PTF_ASSERT_EQUAL(bgpOpenLayer->getHeaderLen(), 33);
+
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams;
+		bgpOpenLayer->getOptionalParameters(optionalParams);
+		PTF_ASSERT_EQUAL(optionalParams.size(), 1);
+
+		PTF_ASSERT_EQUAL(optionalParams[0].type, 2);
+		PTF_ASSERT_EQUAL(optionalParams[0].length, 0);
+
+		PTF_ASSERT_EQUAL(bgpOpenLayer->getOptionalParametersLength(), 4);
+	}
+
+	// Test 5: Verify optional_parameter default constructor zeroes all fields
+	{
+		pcpp::BgpOpenMessageLayer::optional_parameter op;
+		PTF_ASSERT_EQUAL(op.type, 0);
+		PTF_ASSERT_EQUAL(op.length, 0);
+		for (int i = 0; i < 32; i++)
+		{
+			PTF_ASSERT_EQUAL(op.value[i], 0);
+		}
+	}
+
+}  // BgpOpenMalformedOptionalParamsTest

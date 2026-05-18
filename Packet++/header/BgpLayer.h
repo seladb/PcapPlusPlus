@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <vector>
 #include "Layer.h"
 #include "IpAddress.h"
@@ -153,10 +154,10 @@ namespace pcpp
 			/// Parameter data
 			uint8_t value[32];
 
-			// FIXME: This does not actually zero the data.
-			/// A default c'tor that zeroes all data
 			optional_parameter()
-			{}
+			{
+				std::memset(this, 0, sizeof(*this));
+			}
 
 			/// A c'tor that initializes the values of the struct
 			/// @param[in] typeVal Parameter type value
