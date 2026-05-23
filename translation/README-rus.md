@@ -19,34 +19,34 @@
 
 PcapPlusPlus поддерживает возможности декодирования и создания для большого количества сетевых протоколов. Она также предоставляет удобные C++ обертки для самых популярных движков обработки пакетов, таких как [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html) и [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
 
-Переводы: [English](../README.md) · [正體中文](./translation/README-zh-tw.md) · [한국어](./translation/README-kor.md) · Русский
+Переводы: [English](../README.md) · [正體中文](./README-zh-tw.md) · [한국어](./README-kor.md) · Русский
 
 ## Содержание
 
-- [Содержание](#table-of-contents)
-- [Установка](#download)
-  - [Страница релизов GitHub](#github-release-page)
+- [Содержание](#содержание)
+- [Установка](#установка)
+  - [Страница релизов GitHub](#страница-релизов-GitHub)
   - [Homebrew](#homebrew)
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
-  - [Самостоятельная сборка](#build-it-yourself)
-  - [Проверка пакетов](#verify-your-packages)
-- [Обзор возможностей](#feature-overview)
-- [Начало работы](#getting-started)
-- [Документация API](#api-documentation)
-- [Поддержка платформ](#multi-platform-support)
-- [Поддерживаемые сетевые протоколы](#supported-network-protocols)
-  - [Канальный уровень (L2)](#data-link-layer-l2)
-  - [Сетевой уровень (L3)](#network-layer-l3)
-  - [Транспортный уровень (L4)](#transport-layer-l4)
-  - [Сеансовый уровень (L5)](#session-layer-l5)
-  - [Уровень представления (L6)](#presentation-layer-l6)
-  - [Прикладной уровень (L7)](#application-layer-l7)
-- [Поддержка DPDK и PF_RING](#dpdk-and-pf_ring-support)
-- [Бенчмарки](#benchmarks)
-- [Обратная связь](#provide-feedback)
-- [Участие в разработке](#contributing)
-- [Лицензия](#license)
+  - [Самостоятельная сборка](#самостоятельная-сборка)
+  - [Проверка пакетов](#проверка-пакетов)
+- [Обзор возможностей](#обзор-возможностей)
+- [Начало работы](#начало-работы)
+- [Документация API](#документация-API)
+- [Поддержка платформ](#поддержка-платформ)
+- [Поддерживаемые сетевые протоколы](#поддерживаемые-сетевые-протоколы)
+  - [Канальный уровень (L2)](#канальный-уровень-L2)
+  - [Сетевой уровень (L3)](#сетевой-уровень-L3)
+  - [Транспортный уровень (L4)](#транспортный-уровень-L4)
+  - [Сеансовый уровень (L5)](#сеансовый-уровень-L5)
+  - [Уровень представления (L6)](#уровень-представления-L6)
+  - [Прикладной уровень (L7)](#Прикладной-уровень-L7)
+- [Поддержка DPDK и PF_RING](#поддержка-DPDK-и-PF_RING)
+- [Бенчмарки](#бенчмарки)
+- [Обратная связь](#обратная-связь)
+- [Участие в разработке](#участие-в-разработке)
+- [Лицензия](#лицензия)
 
 ## Установка
 
@@ -320,7 +320,7 @@ PcapPlusPlus предоставляет уровень абстракции C++ 
 
 Если вам нравится этот проект, пожалуйста, __поставьте нам звезду — это помогает!__ :star: :star:
 
-Пожалуйста, посетите [PcapPlusPlus веб-сайт](https://pcapplusplus.github.io/community) чтобы узнать больше.
+Пожалуйста, посетите [веб-сайт PcapPlusPlus](https://pcapplusplus.github.io/community) чтобы узнать больше.
 
 ## Участие в разработке
 
