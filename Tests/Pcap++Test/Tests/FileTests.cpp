@@ -212,6 +212,11 @@ PTF_TEST_CASE(TestPcapFileReadWrite)
 			PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
 		}
 
+		// TODO: Fix defect where getStatistics() is shawoded in derived classes.
+		auto rs = static_cast<pcpp::IPcapStatisticsProvider&>(readerDev).getStatistics();
+		PTF_ASSERT_EQUAL((uint32_t)rs.packetsRecv, 4631);
+		PTF_ASSERT_EQUAL((uint32_t)rs.packetsDrop, 0);
+
 		pcpp::PcapStats readerStatistics;
 		pcpp::PcapStats writerStatistics;
 
