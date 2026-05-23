@@ -114,7 +114,6 @@ endif()
 
 # Pcap++ Feature sets:
 # - PCPP_HAS_PCAPNG_ZSTD_SUPPORT - Whether Pcap++ was built with support for zstd-compressed pcapng files using the light_pcapng library
-# - PCPP_HAS_PCAP_FILE_SUPPORT - Whether Pcap++ was built with support for reading/writing pcap files (Pcap++ always has pcap file support)
 # - PCPP_HAS_PCAP_LIVE_SUPPORT - Whether Pcap++ was built with support for live packet capture using libpcap
 # - PCPP_HAS_PCAP_REMOTE_SUPPORT - Whether Pcap++ was built with support for remote packet capture using libpcap (only supported on Windows)
 # - PCPP_HAS_DPDK_SUPPORT - Whether Pcap++ was built with support for DPDK-based packet capture
@@ -133,8 +132,6 @@ set_target_properties(
   Pcap++
   PROPERTIES
     PCPP_HAS_PCAPNG_ZSTD_SUPPORT ${LIGHT_PCAPNG_ZSTD}
-    # Pcpp always has pcap file support
-    PCPP_HAS_PCAP_FILE_SUPPORT ON
     PCPP_HAS_PCAP_LIVE_SUPPORT ${PCAPPP_USE_PCAP}
     PCPP_HAS_PCAP_REMOTE_SUPPORT ${PCPP_HAS_PCAP_REMOTE_SUPPORT}
     PCPP_HAS_DPDK_SUPPORT ${PCAPPP_USE_DPDK}
@@ -148,7 +145,6 @@ target_compile_definitions(
   Pcap++
   PUBLIC
     $<$<BOOL:${LIGHT_PCAPNG_ZSTD}>:PCPP_HAS_PCAPNG_ZSTD_SUPPORT>
-    PCPP_HAS_PCAP_FILE_SUPPORT # Pcpp always has pcap file support
     $<$<BOOL:${PCAPPP_USE_PCAP}>:PCPP_HAS_PCAP_LIVE_SUPPORT>
     $<$<BOOL:${PCPP_HAS_PCAP_REMOTE_SUPPORT}>:PCPP_HAS_PCAP_REMOTE_SUPPORT>
     $<$<BOOL:${PCAPPP_USE_DPDK}>:PCPP_HAS_DPDK_SUPPORT>
@@ -165,7 +161,6 @@ set_property(
   PROPERTY
     EXPORT_PROPERTIES
       PCPP_HAS_PCAPNG_ZSTD_SUPPORT
-      PCPP_HAS_PCAP_FILE_SUPPORT
       PCPP_HAS_PCAP_LIVE_SUPPORT
       PCPP_HAS_PCAP_REMOTE_SUPPORT
       PCPP_HAS_DPDK_SUPPORT
