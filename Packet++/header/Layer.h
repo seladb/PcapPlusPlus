@@ -200,7 +200,7 @@ namespace pcpp
 		/// To ensure sufficient space is available in the destination array, use getDataLen() to determine the actual
 		/// length of the layer's data before calling this method.
 		///
-		/// @param[in] dest The destination byte array
+		/// @param[out] dest The destination byte array
 		/// @param[in] destSize The maximum number of bytes to copy
 		/// @return The number of bytes copied to the destination array.
 		size_t copyData(uint8_t* dest, size_t destSize) const;
