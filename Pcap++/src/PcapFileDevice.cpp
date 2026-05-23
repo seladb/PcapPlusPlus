@@ -14,7 +14,7 @@ namespace pcpp
 	{
 		constexpr bool checkZstdSupport()
 		{
-#ifdef PCPP_PCAPNG_ZSTD_SUPPORT
+#ifdef PCPP_HAS_PCAPNG_ZSTD_SUPPORT
 			return true;
 #else
 			return false;
