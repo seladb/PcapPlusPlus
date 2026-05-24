@@ -19,7 +19,7 @@
 
 PcapPlusPlus поддерживает возможности декодирования и создания для большого количества сетевых протоколов. Она также предоставляет удобные C++ обертки для самых популярных движков обработки пакетов, таких как [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html) и [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
 
-Переводы: [English](../README.md) · [正體中文](./README-zh-tw.md) · [한국어](./README-kor.md) · Русский
+Переводы: [English](../README.md) · [正體中文](./README-zh-tw.md) · [한국어](./README-kor.md) · [日本語](./README-ja.md) · Русский
 
 ## Содержание
 
