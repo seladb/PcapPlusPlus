@@ -18,7 +18,8 @@ BUILD_DIR=${2:-build}
 if [ "$MODE" = "changed" ]; then
     # Get the list of changed files from origin/dev
     git fetch origin dev
-    files=$(git diff --name-only origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/' || true)
+    # --diff-filter excludes deleted files (D) as they no longer exist.
+    files=$(git diff --name-only --diff-filter=ACMRTUXB origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/' || true)
 else
     # Find all relevant files
     files=$(find "${ROOTPATH}" -type f \( -name '*.cpp' -o -name '*.h' \) -not -path "*/3rdParty/*")
