@@ -112,6 +112,7 @@ set(
   header/Layer.h
   header/LdapLayer.h
   header/LLCLayer.h
+  header/ModbusLayer.h
   header/MplsLayer.h
   header/MySqlLayer.h
   header/NullLoopbackLayer.h
