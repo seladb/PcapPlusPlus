@@ -28,43 +28,55 @@ add_library(
 
 set(
   public_headers
-  header/Device.h
-  header/DeviceListBase.h
-  header/NetworkUtils.h
-  header/PcapDevice.h
-  header/PcapFileDevice.h
-  header/PcapFilter.h
-  header/PcapLiveDevice.h
-  header/PcapLiveDeviceList.h
-  header/RawSocketDevice.h
+  "header/pcapplusplus/Device.h"
+  "header/pcapplusplus/DeviceListBase.h"
+  "header/pcapplusplus/NetworkUtils.h"
+  "header/pcapplusplus/PcapDevice.h"
+  "header/pcapplusplus/PcapFileDevice.h"
+  "header/pcapplusplus/PcapFilter.h"
+  "header/pcapplusplus/PcapLiveDevice.h"
+  "header/pcapplusplus/PcapLiveDeviceList.h"
+  "header/pcapplusplus/RawSocketDevice.h"
 )
 
 if(PCAPPP_USE_DPDK)
-  list(APPEND public_headers header/DpdkDevice.h header/DpdkDeviceList.h header/MBufRawPacket.h)
+  list(
+    APPEND
+    public_headers
+    "header/pcapplusplus/DpdkDevice.h"
+    "header/pcapplusplus/DpdkDeviceList.h"
+    "header/pcapplusplus/MBufRawPacket.h"
+  )
 endif()
 
 if(PCAPPP_USE_DPDK_KNI)
-  list(APPEND public_headers header/KniDevice.h header/KniDeviceList.h)
+  list(APPEND public_headers "header/pcapplusplus/KniDevice.h" "header/pcapplusplus/KniDeviceList.h")
 endif()
 
 if(PCAPPP_USE_PF_RING)
-  list(APPEND public_headers header/PfRingDevice.h header/PfRingDeviceList.h)
+  list(APPEND public_headers "header/pcapplusplus/PfRingDevice.h" "header/pcapplusplus/PfRingDeviceList.h")
 endif()
 
 if(PCAPPP_USE_XDP)
-  list(APPEND public_headers header/XdpDevice.h)
+  list(APPEND public_headers "header/pcapplusplus/XdpDevice.h")
 endif()
 
 if(PCAPPP_USE_WINDIVERT)
-  list(APPEND public_headers header/WinDivertDevice.h)
+  list(APPEND public_headers "header/pcapplusplus/WinDivertDevice.h")
 endif()
 
 if(LINUX)
-  list(APPEND public_headers header/LinuxNicInformationSocket.h)
+  list(APPEND public_headers "header/pcapplusplus/LinuxNicInformationSocket.h")
 endif()
 
 if(WIN32 AND PCAPPP_USE_PCAP)
-  list(APPEND public_headers header/PcapRemoteDevice.h header/PcapRemoteDeviceList.h header/WinPcapLiveDevice.h)
+  list(
+    APPEND
+    public_headers
+    "header/pcapplusplus/PcapRemoteDevice.h"
+    "header/pcapplusplus/PcapRemoteDeviceList.h"
+    "header/pcapplusplus/WinPcapLiveDevice.h"
+  )
 endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
@@ -87,8 +99,10 @@ target_include_directories(
   Pcap++
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
-    $<INSTALL_INTERFACE:include/pcapplusplus>
     $<INSTALL_INTERFACE:include>
+    # Legacy compatibility with old versions of PcapPlusPlus. (deprecated)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header/pcapplusplus>
+    $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
   PRIVATE
     $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
