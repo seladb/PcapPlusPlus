@@ -148,16 +148,13 @@ namespace pcpp
 		struct optional_parameter
 		{
 			/// Parameter type
-			uint8_t type;
+			uint8_t type = 0;
 			/// Parameter length
-			uint8_t length;
+			uint8_t length = 0;
 			/// Parameter data
-			uint8_t value[32];
+			uint8_t value[32] = {};
 
-			optional_parameter()
-			{
-				std::memset(this, 0, sizeof(*this));
-			}
+			optional_parameter() = default;
 
 			/// A c'tor that initializes the values of the struct
 			/// @param[in] typeVal Parameter type value
