@@ -31,7 +31,7 @@ PTF_TEST_CASE(IPv4LayerCopyDataTest)
 	dataCopy.fill(0xFF);
 	ip4layer.copyData(dataCopy.data());
 	PTF_ASSERT_BUF_COMPARE_S(dataCopy.data(), ip4layer.getDataLen(), ip4layer.getData(), ip4layer.getDataLen());
-	
+
 	// Assert that the rest of the buffer is unchanged (filled with 0xFF).
 	for (size_t i = ip4layer.getDataLen(); i < dataCopy.size(); ++i)
 	{
@@ -43,7 +43,7 @@ PTF_TEST_CASE(IPv4LayerCopyDataTest)
 	auto copied = ip4layer.copyData(dataCopy.data(), dataCopy.size());
 	PTF_ASSERT_EQUAL(copied, dataLen);
 	PTF_ASSERT_BUF_COMPARE_S(dataCopy.data(), copied, ip4layer.getData(), dataLen);
-	
+
 	// Assert that the rest of the buffer is unchanged (filled with 0xFF).
 	for (size_t i = copied; i < dataCopy.size(); ++i)
 	{
