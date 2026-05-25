@@ -19,7 +19,7 @@ if [ "$MODE" = "changed" ]; then
     # Get the list of changed files from origin/dev
     git fetch origin dev
     # --diff-filter excludes deleted files (D) as they no longer exist.
-    files=$(git diff --name-only --diff-filter=ACMRTUXB origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/' || true)
+    files=$(git diff --name-only --diff-filter=d origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/' || true)
 else
     # Find all relevant files
     files=$(find "${ROOTPATH}" -type f \( -name '*.cpp' -o -name '*.h' \) -not -path "*/3rdParty/*")
