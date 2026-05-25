@@ -70,3 +70,6 @@ endif()
 set_property(TARGET Common++ PROPERTY OUTPUT_NAME "Common++")
 set_property(TARGET Common++ PROPERTY VERSION ${PCAPPP_VERSION})
 set_property(TARGET Common++ PROPERTY COMPILE_WARNING_AS_ERROR ON)
+
+# Alias the library to make source build and installed build compatible with each other.
+add_library(Common++::Common++ ALIAS Common++)

@@ -198,3 +198,6 @@ endif()
 set_property(TARGET Pcap++ PROPERTY OUTPUT_NAME "Pcap++")
 set_property(TARGET Pcap++ PROPERTY VERSION ${PCAPPP_VERSION})
 set_property(TARGET Pcap++ PROPERTY COMPILE_WARNING_AS_ERROR ON)
+
+# Alias the library to make source build and installed build compatible with each other.
+add_library(PcapPlusPlus::Pcap++ ALIAS Pcap++)
