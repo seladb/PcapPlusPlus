@@ -19,7 +19,7 @@
 
 PcapPlusPlus는 다양한 네트워크 프로토콜을 디코딩하고 생성할 수 있는 기능을 제공하며, [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html), [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 등과 같은 유용한 패킷 처리 엔진을 위한 손쉬운 C++ 래퍼를 지원합니다.
 
-번역: [English](../README.md) · [正體中文](./README-zh-tw.md) · 한국어
+번역: [English](../README.md) · [正體中文](./README-zh-tw.md) · 한국어 · [日本語](./README-ja.md) · [Русский](./README-rus.md)
 
 ## 목차
 
@@ -102,7 +102,7 @@ PcapPlusPlus 웹사이트의 [소스에서 빌드](https://pcapplusplus.github.i
 
 ### 패키지 검증
 
-v23.09 이상의 PcapPlusPlus 릴리스는 GitHub 증명을 통해 서명됩니다. 모든 증명은 [여기](https://github.com/seladb/PcapPlusPlus/attestations)에서 확인할 수 있습니다. GitHub CLI를 통해 이러한 패키지의 증명을 검증할 수 있습니다. 패키지 검증을 위해 다음 명령어를 사용할 수 있습니다:
+v23.09 이상의 PcapPlusPlus 릴리스는 GitHub 증명을 통해 서명됩니다. 모든 증명은 [여기](https://github.com/seladb/PcapPlusPlus/attestations)에서 확인할 수 있습니다. GitHub CLI를 통해 이러한 패키지의 증명을 검증할 수 있습니다. 패키지를 검증하려면 [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify)의 최신 지침을 따르세요. 간단한 지침으로는 다음 명령어를 사용할 수 있습니다:
 
 ```shell
 gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
