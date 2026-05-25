@@ -198,4 +198,4 @@ set_property(TARGET Packet++ PROPERTY VERSION ${PCAPPP_VERSION})
 set_property(TARGET Packet++ PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
 # Alias the library to make source build and installed build compatible with each other.
-add_library(Packet++::Packet++ ALIAS Packet++)
+add_library(PcapPlusPlus::Packet++ ALIAS Packet++)
