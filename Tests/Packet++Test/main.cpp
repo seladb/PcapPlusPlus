@@ -131,6 +131,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
 	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
 
+	PTF_RUN_TEST(IPv4LayerCopyDataTest, "ipv4");
 	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");
 	PTF_RUN_TEST(IPv4PacketParsing, "ipv4");
 	PTF_RUN_TEST(IPv4FragmentationTest, "ipv4");

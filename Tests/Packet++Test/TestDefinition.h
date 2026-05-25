@@ -18,6 +18,7 @@ PTF_TEST_CASE(MplsLayerTest);
 PTF_TEST_CASE(VxlanParsingAndCreationTest);
 
 // Implemented in IPv4Tests.cpp
+PTF_TEST_CASE(IPv4LayerCopyDataTest);
 PTF_TEST_CASE(IPv4PacketCreation);
 PTF_TEST_CASE(IPv4PacketParsing);
 PTF_TEST_CASE(IPv4FragmentationTest);
