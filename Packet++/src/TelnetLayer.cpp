@@ -370,7 +370,10 @@ namespace pcpp
 			pos = getNextCommandField(pos, m_DataLen - offset);
 
 			if (pos && pos[1] == static_cast<int>(command))
-				return static_cast<TelnetOption>(getSubCommand(pos, getFieldLen(pos, m_DataLen - offset)));
+			{
+				size_t newOffset = pos - m_Data;
+				return static_cast<TelnetOption>(getSubCommand(pos, getFieldLen(pos, m_DataLen - newOffset)));
+			}
 		}
 
 		PCPP_LOG_DEBUG("Can't find requested command");
@@ -417,8 +420,9 @@ namespace pcpp
 
 			if (pos && pos[1] == static_cast<int>(command))
 			{
-				size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
-				uint8_t* posBuffer = getCommandData(m_Data, lenBuffer);
+				size_t newOffset = pos - m_Data;
+				size_t lenBuffer = getFieldLen(pos, m_DataLen - newOffset);
+				uint8_t* posBuffer = getCommandData(pos, lenBuffer);
 
 				length = lenBuffer;
 				return posBuffer;
