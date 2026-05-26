@@ -599,16 +599,8 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open_too_short_header.dat");
 		pcpp::Packet packet(rawPacket.get());
 
-		pcpp::BgpOpenMessageLayer* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
-		PTF_ASSERT_NOT_NULL(bgpOpenLayer);
-		PTF_ASSERT_EQUAL(bgpOpenLayer->getHeaderLen(), 25);
-
-		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams;
-		bgpOpenLayer->getOptionalParameters(optionalParams);
-		PTF_ASSERT_EQUAL(optionalParams.size(), 0);
-
-		PTF_ASSERT_EQUAL(bgpOpenLayer->getOptionalParametersLength(), 0);
-		PTF_ASSERT_FALSE(bgpOpenLayer->setOptionalParameters(optionalParams));
+		auto* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		PTF_ASSERT_NULL(bgpOpenLayer);
 	}
 
 	// Test 2: BGP OPEN with truncated optional parameter header
@@ -618,7 +610,7 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open_truncated_opt_param_hdr.dat");
 		pcpp::Packet packet(rawPacket.get());
 
-		pcpp::BgpOpenMessageLayer* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		auto* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
 		PTF_ASSERT_NOT_NULL(bgpOpenLayer);
 		PTF_ASSERT_EQUAL(bgpOpenLayer->getHeaderLen(), 30);
 
@@ -636,7 +628,7 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open_malformed_opt_param_len.dat");
 		pcpp::Packet packet(rawPacket.get());
 
-		pcpp::BgpOpenMessageLayer* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		auto* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
 		PTF_ASSERT_NOT_NULL(bgpOpenLayer);
 		PTF_ASSERT_EQUAL(bgpOpenLayer->getHeaderLen(), 34);
 
@@ -654,7 +646,7 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open_partial_valid_opt_params.dat");
 		pcpp::Packet packet(rawPacket.get());
 
-		pcpp::BgpOpenMessageLayer* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		auto* bgpOpenLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
 		PTF_ASSERT_NOT_NULL(bgpOpenLayer);
 		PTF_ASSERT_EQUAL(bgpOpenLayer->getHeaderLen(), 33);
 

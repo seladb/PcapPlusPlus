@@ -44,7 +44,9 @@ namespace pcpp
 		switch (bgpHeader->messageType)
 		{
 		case 1:  // OPEN
-			return new BgpOpenMessageLayer(data, dataLen, prevLayer, packet);
+			return BgpOpenMessageLayer::isDataValid(data, dataLen)
+			           ? new BgpOpenMessageLayer(data, dataLen, prevLayer, packet)
+			           : nullptr;
 		case 2:  // UPDATE
 			return BgpUpdateMessageLayer::isDataValid(data, dataLen)
 			           ? new BgpUpdateMessageLayer(data, dataLen, prevLayer, packet)
@@ -179,6 +181,16 @@ namespace pcpp
 		length = hexStringToByteArray(valueAsHexString, value, 32);
 	}
 
+	bool BgpOpenMessageLayer::isDataValid(const uint8_t* data, size_t dataSize)
+	{
+		if (data == nullptr || dataSize < sizeof(bgp_common_header))
+			return false;
+
+		const auto* bgpHeader = reinterpret_cast<const bgp_common_header*>(data);
+		uint16_t messageLen = be16toh(bgpHeader->length);
+		return messageLen >= sizeof(bgp_open_message) && dataSize >= messageLen;
+	}
+
 	BgpOpenMessageLayer::BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
 	                                         const std::vector<optional_parameter>& optionalParams)
 	{
@@ -258,18 +270,19 @@ namespace pcpp
 
 	void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>& optionalParameters)
 	{
-		size_t headerLen = getHeaderLen();
-		if (headerLen < sizeof(bgp_open_message))
+		if (!isDataValid(m_Data, m_DataLen))
 		{
 			return;
 		}
 
+		size_t headerLen = getHeaderLen();
 		bgp_open_message* msgHdr = getOpenMsgHeader();
 		if (msgHdr->optionalParameterLength == 0)
 		{
 			return;
 		}
 
+		// Parentheses around std::min avoid clashes with platform min macros (for example on Windows)
 		size_t optionalParamsLen =
 		    (std::min)(static_cast<size_t>(msgHdr->optionalParameterLength), headerLen - sizeof(bgp_open_message));
 
@@ -311,12 +324,12 @@ namespace pcpp
 
 	size_t BgpOpenMessageLayer::getOptionalParametersLength()
 	{
-		size_t headerLen = getHeaderLen();
-		if (headerLen < sizeof(bgp_open_message))
+		if (!isDataValid(m_Data, m_DataLen))
 		{
 			return 0;
 		}
 
+		size_t headerLen = getHeaderLen();
 		bgp_open_message* msgHdr = getOpenMsgHeader();
 		auto optParamLen = static_cast<size_t>(msgHdr->optionalParameterLength);
 
@@ -333,7 +346,7 @@ namespace pcpp
 
 	bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_parameter>& optionalParameters)
 	{
-		if (getHeaderLen() < sizeof(bgp_open_message))
+		if (!isDataValid(m_Data, m_DataLen))
 		{
 			return false;
 		}

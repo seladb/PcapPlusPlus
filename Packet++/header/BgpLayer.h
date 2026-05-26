@@ -154,6 +154,7 @@ namespace pcpp
 			/// Parameter data
 			uint8_t value[32] = {};
 
+			/// A default c'tor that zeroes all data
 			optional_parameter() = default;
 
 			/// A c'tor that initializes the values of the struct
@@ -171,6 +172,12 @@ namespace pcpp
 		BgpOpenMessageLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : BgpLayer(data, dataLen, prevLayer, packet)
 		{}
+
+		/// A static method that takes a byte array and detects whether it is a BgpOpenMessage
+		/// @param[in] data A byte array
+		/// @param[in] dataSize The byte array size (in bytes)
+		/// @return True if the data looks like a valid BgpOpenMessage layer
+		static bool isDataValid(const uint8_t* data, size_t dataSize);
 
 		/// A c'tor that creates a new BGP OPEN message
 		/// @param[in] myAutonomousSystem The Autonomous System number of the sender
