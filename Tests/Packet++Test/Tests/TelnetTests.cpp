@@ -255,7 +255,7 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	}
 }
 
-PTF_TEST_CASE(TelnetCommandAfterDataParsingTests)
+PTF_TEST_CASE(TelentCommandInvalidDataTests)
 {
 	// Regression test for heap-buffer-overflow in getOption(TelnetCommand) / getOptionData(TelnetCommand, size_t&)
 	// when user data (escaped IAC) precedes a command. The stale offset bug caused reads past the buffer end.
@@ -263,7 +263,7 @@ PTF_TEST_CASE(TelnetCommandAfterDataParsingTests)
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/telnetCommandAfterData.dat");
 
 	pcpp::Packet telnetPacket(rawPacket1.get());
-	pcpp::TelnetLayer* telnetLayer = telnetPacket.getLayerOfType<pcpp::TelnetLayer>();
+	auto* telnetLayer = telnetPacket.getLayerOfType<pcpp::TelnetLayer>();
 
 	PTF_ASSERT_NOT_NULL(telnetLayer);
 
@@ -279,7 +279,7 @@ PTF_TEST_CASE(TelnetCommandAfterDataParsingTests)
 
 	// getOptionData(Subnegotiation) should return the subneg data without crashing
 	size_t length = 0;
-	uint8_t* optData = telnetLayer->getOptionData(pcpp::TelnetLayer::TelnetCommand::Subnegotiation, length);
+	auto* optData = telnetLayer->getOptionData(pcpp::TelnetLayer::TelnetCommand::Subnegotiation, length);
 	PTF_ASSERT_NOT_NULL(optData);
 	PTF_ASSERT_EQUAL(length, 1);
 	PTF_ASSERT_EQUAL(optData[0], 0x00);

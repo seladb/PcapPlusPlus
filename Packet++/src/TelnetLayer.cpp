@@ -371,8 +371,8 @@ namespace pcpp
 
 			if (pos && pos[1] == static_cast<int>(command))
 			{
-				size_t newOffset = pos - m_Data;
-				return static_cast<TelnetOption>(getSubCommand(pos, getFieldLen(pos, m_DataLen - newOffset)));
+				offset = pos - m_Data;
+				return static_cast<TelnetOption>(getSubCommand(pos, getFieldLen(pos, m_DataLen - offset)));
 			}
 		}
 
@@ -420,8 +420,8 @@ namespace pcpp
 
 			if (pos && pos[1] == static_cast<int>(command))
 			{
-				size_t newOffset = pos - m_Data;
-				size_t lenBuffer = getFieldLen(pos, m_DataLen - newOffset);
+				offset = pos - m_Data;
+				size_t lenBuffer = getFieldLen(pos, m_DataLen - offset);
 				uint8_t* posBuffer = getCommandData(pos, lenBuffer);
 
 				length = lenBuffer;
