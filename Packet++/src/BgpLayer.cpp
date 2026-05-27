@@ -3,9 +3,9 @@
 #include "Logger.h"
 #include "BgpLayer.h"
 #include "Packet.h"
-#include <algorithm>
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
+#include <algorithm>
 
 namespace pcpp
 {
@@ -184,7 +184,9 @@ namespace pcpp
 	bool BgpOpenMessageLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		if (data == nullptr || dataSize < sizeof(bgp_common_header))
+		{
 			return false;
+		}
 
 		const auto* bgpHeader = reinterpret_cast<const bgp_common_header*>(data);
 		uint16_t messageLen = be16toh(bgpHeader->length);
