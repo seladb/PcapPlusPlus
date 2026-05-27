@@ -272,10 +272,6 @@ namespace pcpp
 	{
 		size_t headerLen = getHeaderLen();
 		bgp_open_message* msgHdr = getOpenMsgHeader();
-		if (msgHdr->optionalParameterLength == 0)
-		{
-			return;
-		}
 
 		// Parentheses around std::min avoid clashes with platform min macros (for example on Windows)
 		size_t optionalParamsLen =
