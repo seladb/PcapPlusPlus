@@ -237,6 +237,7 @@ PTF_TEST_CASE(NtpCreationTests);
 
 // Implemented in TelnetTests.cpp
 PTF_TEST_CASE(TelnetCommandParsingTests);
+PTF_TEST_CASE(TelentCommandInvalidDataTests);
 PTF_TEST_CASE(TelnetDataParsingTests);
 
 // Implemented in IcmpV6Tests.cpp

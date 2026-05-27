@@ -326,6 +326,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NtpCreationTests, "ntp");
 
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
+	PTF_RUN_TEST(TelentCommandInvalidDataTests, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
 	PTF_RUN_TEST(TpktLayerTest, "tpkt");
