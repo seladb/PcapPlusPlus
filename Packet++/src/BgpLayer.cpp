@@ -1,9 +1,9 @@
-#include <algorithm>
 #define LOG_MODULE PacketLogModuleBgpLayer
 
 #include "Logger.h"
 #include "BgpLayer.h"
 #include "Packet.h"
+#include <algorithm>
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
 
@@ -270,11 +270,6 @@ namespace pcpp
 
 	void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>& optionalParameters)
 	{
-		if (!isDataValid(m_Data, m_DataLen))
-		{
-			return;
-		}
-
 		size_t headerLen = getHeaderLen();
 		bgp_open_message* msgHdr = getOpenMsgHeader();
 		if (msgHdr->optionalParameterLength == 0)
@@ -324,11 +319,6 @@ namespace pcpp
 
 	size_t BgpOpenMessageLayer::getOptionalParametersLength()
 	{
-		if (!isDataValid(m_Data, m_DataLen))
-		{
-			return 0;
-		}
-
 		size_t headerLen = getHeaderLen();
 		bgp_open_message* msgHdr = getOpenMsgHeader();
 		auto optParamLen = static_cast<size_t>(msgHdr->optionalParameterLength);
@@ -346,11 +336,6 @@ namespace pcpp
 
 	bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_parameter>& optionalParameters)
 	{
-		if (!isDataValid(m_Data, m_DataLen))
-		{
-			return false;
-		}
-
 		uint8_t newOptionalParamsData[1500];
 		size_t newOptionalParamsDataLen = optionalParamsToByteArray(optionalParameters, newOptionalParamsData, 1500);
 		size_t curOptionalParamsDataLen = getOptionalParametersLength();

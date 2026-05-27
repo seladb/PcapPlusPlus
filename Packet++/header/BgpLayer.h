@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstring>
 #include <vector>
 #include "Layer.h"
 #include "IpAddress.h"
