@@ -5,6 +5,7 @@
 #include "Packet.h"
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
+#include <algorithm>
 
 namespace pcpp
 {
@@ -43,7 +44,9 @@ namespace pcpp
 		switch (bgpHeader->messageType)
 		{
 		case 1:  // OPEN
-			return new BgpOpenMessageLayer(data, dataLen, prevLayer, packet);
+			return BgpOpenMessageLayer::isDataValid(data, dataLen)
+			           ? new BgpOpenMessageLayer(data, dataLen, prevLayer, packet)
+			           : nullptr;
 		case 2:  // UPDATE
 			return BgpUpdateMessageLayer::isDataValid(data, dataLen)
 			           ? new BgpUpdateMessageLayer(data, dataLen, prevLayer, packet)
@@ -178,6 +181,18 @@ namespace pcpp
 		length = hexStringToByteArray(valueAsHexString, value, 32);
 	}
 
+	bool BgpOpenMessageLayer::isDataValid(const uint8_t* data, size_t dataSize)
+	{
+		if (data == nullptr || dataSize < sizeof(bgp_common_header))
+		{
+			return false;
+		}
+
+		const auto* bgpHeader = reinterpret_cast<const bgp_common_header*>(data);
+		uint16_t messageLen = be16toh(bgpHeader->length);
+		return messageLen >= sizeof(bgp_open_message) && dataSize >= messageLen;
+	}
+
 	BgpOpenMessageLayer::BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
 	                                         const std::vector<optional_parameter>& optionalParams)
 	{
@@ -257,39 +272,44 @@ namespace pcpp
 
 	void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>& optionalParameters)
 	{
+		size_t headerLen = getHeaderLen();
 		bgp_open_message* msgHdr = getOpenMsgHeader();
-		if (msgHdr == nullptr || msgHdr->optionalParameterLength == 0)
-		{
-			return;
-		}
 
-		size_t optionalParamsLen = msgHdr->optionalParameterLength;
-		if (optionalParamsLen > getHeaderLen() - sizeof(bgp_open_message))
-		{
-			optionalParamsLen = getHeaderLen() - sizeof(bgp_open_message);
-		}
+		// Parentheses around std::min avoid clashes with platform min macros (for example on Windows)
+		size_t optionalParamsLen =
+		    (std::min)(static_cast<size_t>(msgHdr->optionalParameterLength), headerLen - sizeof(bgp_open_message));
 
 		uint8_t* dataPtr = m_Data + sizeof(bgp_open_message);
 		size_t byteCount = 0;
 		while (byteCount < optionalParamsLen)
 		{
+			size_t remaining = optionalParamsLen - byteCount;
+			constexpr size_t optParamHdrSize = sizeof(optional_parameter::type) + sizeof(optional_parameter::length);
+			if (remaining < optParamHdrSize)
+			{
+				PCPP_LOG_ERROR("Truncated optional parameter header");
+				break;
+			}
+
 			optional_parameter op;
 			op.type = dataPtr[0];
 			op.length = dataPtr[1];
 
-			if (op.length > optionalParamsLen - byteCount)
+			size_t totalLen = optParamHdrSize + static_cast<size_t>(op.length);
+			if (totalLen > remaining)
 			{
-				PCPP_LOG_ERROR("Optional parameter length is out of bounds: " << (int)op.length);
+				PCPP_LOG_ERROR("Optional parameter length is out of bounds: " << static_cast<int>(op.length));
 				break;
 			}
 
 			if (op.length > 0)
 			{
-				memcpy(op.value, dataPtr + 2 * sizeof(uint8_t), (op.length > 32 ? 32 : op.length));
+				memcpy(op.value, dataPtr + optParamHdrSize,
+				       (std::min)(static_cast<size_t>(op.length), sizeof(op.value)));
 			}
 
 			optionalParameters.push_back(op);
-			size_t totalLen = 2 + (size_t)op.length;
+
 			byteCount += totalLen;
 			dataPtr += totalLen;
 		}
@@ -297,24 +317,19 @@ namespace pcpp
 
 	size_t BgpOpenMessageLayer::getOptionalParametersLength()
 	{
+		size_t headerLen = getHeaderLen();
 		bgp_open_message* msgHdr = getOpenMsgHeader();
-		if (msgHdr != nullptr)
+		auto optParamLen = static_cast<size_t>(msgHdr->optionalParameterLength);
+
+		constexpr size_t bgpOpenMsgHeaderSize = sizeof(bgp_open_message);
+		if (headerLen < optParamLen + bgpOpenMsgHeaderSize)
 		{
-			auto optParamLen = static_cast<size_t>(msgHdr->optionalParameterLength);
-
-			constexpr size_t bgpOpenMsgHeaderSize = sizeof(bgp_open_message);
-			size_t headerLen = getHeaderLen();
-			if (headerLen < optParamLen + bgpOpenMsgHeaderSize)
-			{
-				PCPP_LOG_WARN("BGP Layer optional param length exceeds total BGP message. "
-				              "This packet might be malformed! Trimming to maximum allowed by BGP message length.");
-				optParamLen = headerLen >= bgpOpenMsgHeaderSize ? headerLen - bgpOpenMsgHeaderSize : 0;
-			}
-
-			return optParamLen;
+			PCPP_LOG_WARN("BGP Layer optional param length exceeds total BGP message. "
+			              "This packet might be malformed! Trimming to maximum allowed by BGP message length.");
+			optParamLen = headerLen >= bgpOpenMsgHeaderSize ? headerLen - bgpOpenMsgHeaderSize : 0;
 		}
 
-		return 0;
+		return optParamLen;
 	}
 
 	bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_parameter>& optionalParameters)
@@ -322,7 +337,7 @@ namespace pcpp
 		uint8_t newOptionalParamsData[1500];
 		size_t newOptionalParamsDataLen = optionalParamsToByteArray(optionalParameters, newOptionalParamsData, 1500);
 		size_t curOptionalParamsDataLen = getOptionalParametersLength();
-		int offsetInLayer = sizeof(bgp_open_message);
+		constexpr int offsetInLayer = sizeof(bgp_open_message);
 
 		if (newOptionalParamsDataLen > curOptionalParamsDataLen)
 		{
@@ -350,7 +365,7 @@ namespace pcpp
 			memcpy(m_Data + offsetInLayer, newOptionalParamsData, newOptionalParamsDataLen);
 		}
 
-		getOpenMsgHeader()->optionalParameterLength = (uint8_t)newOptionalParamsDataLen;
+		getOpenMsgHeader()->optionalParameterLength = static_cast<uint8_t>(newOptionalParamsDataLen);
 		getOpenMsgHeader()->length = htobe16(sizeof(bgp_open_message) + newOptionalParamsDataLen);
 
 		return true;

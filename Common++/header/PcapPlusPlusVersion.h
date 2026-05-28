@@ -125,7 +125,7 @@ namespace pcpp
 #else
 	inline std::string getBuildDateTime()
 	{
-		return std::string(__DATE__) + " " + std::string(__TIME__);
+		return __DATE__ " " __TIME__;
 	}
 #endif
 

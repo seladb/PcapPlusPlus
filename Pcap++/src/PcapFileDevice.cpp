@@ -12,6 +12,15 @@ namespace pcpp
 {
 	namespace
 	{
+		constexpr bool checkZstdSupport()
+		{
+#ifdef PCPP_HAS_PCAPNG_ZSTD_SUPPORT
+			return true;
+#else
+			return false;
+#endif
+		}
+
 		/// @brief Converts a light_pcapng_t* to an opaque LightPcapNgHandle*.
 		/// @param pcapngHandle The light_pcapng_t* to convert.
 		/// @return An pointer to the opaque handle.
@@ -830,6 +839,11 @@ namespace pcpp
 	// PcapNgFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+	bool PcapNgFileReaderDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
+
 	PcapNgFileReaderDevice::PcapNgFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName)
 	{
 		m_LightPcapNg = nullptr;
@@ -997,6 +1011,11 @@ namespace pcpp
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapNgFileWriterDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	bool PcapNgFileWriterDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
 
 	PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel)
 	    : IFileWriterDevice(fileName)

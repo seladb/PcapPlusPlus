@@ -43,33 +43,34 @@ namespace pcpp
 		/// points to.
 		int put(const T& element, T* deletedValue = nullptr)
 		{
-			m_CacheItemsList.push_front(element);
-
-			// Inserting a new element. If an element with an equivalent key already exists the method returns an
-			// iterator to the element that prevented the insertion
-			std::pair<MapIterator, bool> pair =
-			    m_CacheItemsMap.insert(std::make_pair(element, m_CacheItemsList.begin()));
-			if (!pair.second)  // already exists
+			// Try to insert a mapping to the new element.
+			// TODO: C++17: use try_emplace instead of emplace when we switch to C++17
+			auto pair = m_CacheItemsMap.emplace(element, m_CacheItemsList.end());
+			if (!pair.second)
 			{
-				m_CacheItemsList.erase(pair.first->second);
-				pair.first->second = m_CacheItemsList.begin();
+				// The element already exists. Move it to the head of the list.
+				m_CacheItemsList.splice(m_CacheItemsList.begin(), m_CacheItemsList, pair.first->second);
+				return 0;
 			}
+
+			// The element is new.
+			m_CacheItemsList.push_front(element);
+			pair.first->second = m_CacheItemsList.begin();
 
 			if (m_CacheItemsMap.size() > m_MaxSize)
 			{
-				ListIterator lruIter = m_CacheItemsList.end();
-				--lruIter;
+				auto& item = m_CacheItemsList.back();
 
 				if (deletedValue != nullptr)
 				{
 #if __cplusplus > 199711L || _MSC_VER >= 1800
-					*deletedValue = std::move(*lruIter);
+					*deletedValue = std::move(item);
 #else
-					*deletedValue = *lruIter;
+					*deletedValue = item;
 #endif
 				}
-				m_CacheItemsMap.erase(*lruIter);
-				m_CacheItemsList.erase(lruIter);
+				m_CacheItemsMap.erase(item);
+				m_CacheItemsList.pop_back();
 				return 1;
 			}
 
