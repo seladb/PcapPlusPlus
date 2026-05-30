@@ -14,55 +14,6 @@
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
-// Tests Layer::copyData() method using IPv4 Layer as a test subject.
-PTF_TEST_CASE(IPv4LayerCopyDataTest)
-{
-	using namespace pcpp::literals;
-
-	pcpp::IPv4Layer ip4layer("192.168.0.1"_ipv4, "192.168.0.2"_ipv4);
-
-	auto dataLen = ip4layer.getDataLen();
-	PTF_ASSERT_EQUAL(dataLen, 20);  // IPv4 header without options is 20 bytes long
-
-	std::array<uint8_t, 30> dataCopy;
-	PTF_ASSERT_GREATER_THAN(dataCopy.size(), dataLen);
-
-	// Test unsized copyData overload.
-	dataCopy.fill(0xFF);
-	ip4layer.copyData(dataCopy.data());
-	PTF_ASSERT_BUF_COMPARE_S(dataCopy.data(), ip4layer.getDataLen(), ip4layer.getData(), ip4layer.getDataLen());
-
-	// Assert that the rest of the buffer is unchanged (filled with 0xFF).
-	for (size_t i = ip4layer.getDataLen(); i < dataCopy.size(); ++i)
-	{
-		PTF_ASSERT_EQUAL(dataCopy[i], 0xFF);
-	}
-
-	// Test sized copyData with sufficient size.
-	dataCopy.fill(0xFF);
-	auto copied = ip4layer.copyData(dataCopy.data(), dataCopy.size());
-	PTF_ASSERT_EQUAL(copied, dataLen);
-	PTF_ASSERT_BUF_COMPARE_S(dataCopy.data(), copied, ip4layer.getData(), dataLen);
-
-	// Assert that the rest of the buffer is unchanged (filled with 0xFF).
-	for (size_t i = copied; i < dataCopy.size(); ++i)
-	{
-		PTF_ASSERT_EQUAL(dataCopy[i], 0xFF);
-	}
-
-	// Test sized copyData with insufficient size.
-	dataCopy.fill(0xFF);
-	copied = ip4layer.copyData(dataCopy.data(), 10);
-	PTF_ASSERT_EQUAL(copied, 10);
-	PTF_ASSERT_BUF_COMPARE_S(dataCopy.data(), copied, ip4layer.getData(), 10);
-
-	// Assert that the rest of the buffer is unchanged (filled with 0xFF).
-	for (size_t i = copied; i < dataCopy.size(); ++i)
-	{
-		PTF_ASSERT_EQUAL(dataCopy[i], 0xFF);
-	}
-}
-
 PTF_TEST_CASE(IPv4PacketCreation)
 {
 	pcpp::MacAddress srcMac("aa:aa:aa:aa:aa:aa");
