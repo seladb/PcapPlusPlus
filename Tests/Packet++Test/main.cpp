@@ -309,6 +309,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
+	PTF_RUN_TEST(BgpOpenMalformedOptionalParamsTest, "bgp");
 
 	PTF_RUN_TEST(SSHParsingTest, "ssh");
 	PTF_RUN_TEST(SSHMalformedParsingTest, "ssh");
@@ -325,6 +326,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NtpCreationTests, "ntp");
 
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
+	PTF_RUN_TEST(TelentCommandInvalidDataTests, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
 	PTF_RUN_TEST(TpktLayerTest, "tpkt");
