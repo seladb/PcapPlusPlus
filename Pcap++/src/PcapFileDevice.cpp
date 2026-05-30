@@ -49,8 +49,13 @@ namespace pcpp
 		}
 
 		// Magic numbers for different pcap formats
+		// Regular pcap format. Microsecond precision.
 		constexpr uint32_t TCPDUMP_MAGIC = 0xa1b2c3d4;
 		constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
+		// Alexey Kuznetzov's modified pcap format.
+		constexpr uint32_t KUZNETZOV_TCPDUMP_MAGIC = 0xa1'b2'cd'34;
+		constexpr uint32_t KUZNETZOV_TCPDUMP_MAGIC_SWAPPED = 0x34'cd'b2'a1;
+		// Regular pcap format. Nanosecond precision.
 		constexpr uint32_t NSEC_TCPDUMP_MAGIC = 0xa1b23c4d;
 		constexpr uint32_t NSEC_TCPDUMP_MAGIC_SWAPPED = 0x4d3cb2a1;
 
@@ -287,8 +292,8 @@ namespace pcpp
 				TCPDUMP_MAGIC_SWAPPED,  // 0xd4'c3'b2'a1 - regular pcap, microsecond-precision (byte-swapped)
 				// Libpcap 0.9.1 and later support reading a modified pcap format that contains an extended header.
 				// Format reference: https://wiki.wireshark.org/Development/LibpcapFileFormat#modified-pcap
-				0xa1'b2'cd'34,  // Alexey Kuznetzov's modified libpcap format
-				0x34'cd'b2'a1,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+				KUZNETZOV_TCPDUMP_MAGIC,          // Alexey Kuznetzov's modified libpcap format
+				KUZNETZOV_TCPDUMP_MAGIC_SWAPPED,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
 				// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
 				NSEC_TCPDUMP_MAGIC,          // 0xa1'b2'3c'4d - regular pcap, nanosecond-precision
 				NSEC_TCPDUMP_MAGIC_SWAPPED,  // 0x4d'3c'b2'a1 - regular pcap, nanosecond-precision (byte-swapped)
