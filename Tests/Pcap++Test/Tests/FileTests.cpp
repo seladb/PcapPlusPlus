@@ -59,10 +59,10 @@ PTF_TEST_CASE(TestFileFormatDetector)
 
 	for (const auto& testCase : pcapTestCases)
 	{
-		writeContents("PcapExamples/file_heuristics/temp/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
+		writeContents("PcapExamples/file_heuristics/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
 		              sizeof(testCase));
 
-		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp");
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/pcap_test.tmp");
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 	}
 
@@ -75,10 +75,10 @@ PTF_TEST_CASE(TestFileFormatDetector)
 
 		for (const auto& testCase : pcapNanoTestCases)
 		{
-			writeContents("PcapExamples/file_heuristics/temp/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
+			writeContents("PcapExamples/file_heuristics/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
 			              sizeof(testCase));
 
-			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcap_test.tmp");
+			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/pcap_test.tmp");
 			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 		}
 	}
@@ -89,10 +89,10 @@ PTF_TEST_CASE(TestFileFormatDetector)
 
 	for (const auto& testCase : pcapngTestCases)
 	{
-		writeContents("PcapExamples/file_heuristics/temp/pcapng_test.tmp", reinterpret_cast<const char*>(&testCase),
+		writeContents("PcapExamples/file_heuristics/pcapng_test.tmp", reinterpret_cast<const char*>(&testCase),
 		              sizeof(testCase));
 
-		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/pcapng_test.tmp");
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/pcapng_test.tmp");
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 	}
 
@@ -105,9 +105,9 @@ PTF_TEST_CASE(TestFileFormatDetector)
 
 		for (const auto& testCase : zstdTestCases)
 		{
-			writeContents("PcapExamples/file_heuristics/temp/zstd_test.tmp", reinterpret_cast<const char*>(&testCase),
+			writeContents("PcapExamples/file_heuristics/zstd_test.tmp", reinterpret_cast<const char*>(&testCase),
 			              sizeof(testCase));
-			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/zstd_test.tmp");
+			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/zstd_test.tmp");
 			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(dev.get()));
 		}
 	}
@@ -120,14 +120,14 @@ PTF_TEST_CASE(TestFileFormatDetector)
 
 	for (const auto& testCase : unknownTestCases)
 	{
-		writeContents("PcapExamples/file_heuristics/temp/unknown_test.tmp", reinterpret_cast<const char*>(&testCase),
+		writeContents("PcapExamples/file_heuristics/unknown_test.tmp", reinterpret_cast<const char*>(&testCase),
 		              sizeof(testCase));
 
-		PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/unknown_test.tmp"),
+		PTF_ASSERT_RAISES(pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/unknown_test.tmp"),
 		                  std::runtime_error,
-		                  "File format of PcapExamples/file_heuristics/temp/unknown_test.tmp is not supported");
+		                  "File format of PcapExamples/file_heuristics/unknown_test.tmp is not supported");
 
-		auto dev = pcpp::IFileReaderDevice::tryCreateReader("PcapExamples/file_heuristics/temp/unknown_test.tmp");
+		auto dev = pcpp::IFileReaderDevice::tryCreateReader("PcapExamples/file_heuristics/unknown_test.tmp");
 		PTF_ASSERT_NULL(dev);
 	}
 
@@ -139,10 +139,10 @@ PTF_TEST_CASE(TestFileFormatDetector)
 
 	for (const auto& testCase : snoopTestCases)
 	{
-		writeContents("PcapExamples/file_heuristics/temp/snoop_test.tmp", reinterpret_cast<const char*>(&testCase),
+		writeContents("PcapExamples/file_heuristics/snoop_test.tmp", reinterpret_cast<const char*>(&testCase),
 		              sizeof(testCase));
 
-		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/temp/snoop_test.tmp");
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/snoop_test.tmp");
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::SnoopFileReaderDevice*>(dev.get()));
 	}
 }
@@ -153,7 +153,7 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
 	constexpr const char* PCAP_MICROSEC_FILE_PATH = "PcapExamples/file_heuristics/microsecs.pcap";
 
 	// Correct format, wrong extension, microsecond precision
-	constexpr const char* PCAP_AS_DAT_FILE_PATH = "PcapExamples/file_heuristics/temp/microsecs.pcap.dat";
+	constexpr const char* PCAP_AS_DAT_FILE_PATH = "PcapExamples/file_heuristics/microsecs.pcap.tmp";
 
 	copyContents(PCAP_MICROSEC_FILE_PATH, PCAP_AS_DAT_FILE_PATH);
 
@@ -215,7 +215,7 @@ PTF_TEST_CASE(TestReaderFactory_PcapNG)
 	constexpr const char* PCAPNG_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng";
 
 	// Correct format, wrong extension
-	constexpr const char* PCAPNG_AS_PCAP_FILE_PATH = "PcapExamples/file_heuristics/temp/pcapng-example.pcapng.pcap";
+	constexpr const char* PCAPNG_AS_PCAP_FILE_PATH = "PcapExamples/file_heuristics/pcapng-example.pcapng.pcap";
 
 	copyContents(PCAPNG_FILE_PATH, PCAPNG_AS_PCAP_FILE_PATH);
 
