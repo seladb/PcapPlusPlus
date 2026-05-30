@@ -268,12 +268,12 @@ namespace pcpp
 			Swapped   // Byte order is swapped to the host system.
 		};
 
-		/// @brief Checks a content stream for the magic number and determines if it is a Pcap file.
+		/// @brief Checks a magic number and determines if it is a Pcap file.
 		///
 		/// The function optionally detects the byte order of the file if it can be determined by the magic number.
 		/// The byte order is not updated if no supported format is detected.
 		///
-		/// @param[in] content A stream that contains the file content.
+		/// @param[in] magic The magic number to check.
 		/// @param[out] byteOrder Optional location to store the detected byte order.
 		/// @return A CaptureFileFormat value with the detected Pcap format or Unknown if the file is not pcap.
 		FileFormat detectPcapMagic(std::uint32_t magic, FileByteOrder* byteOrder = nullptr)
