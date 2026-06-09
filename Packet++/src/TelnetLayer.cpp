@@ -116,6 +116,9 @@ namespace pcpp
 
 	size_t TelnetLayer::distanceToNextIAC(uint8_t* startPos, size_t maxLength)
 	{
+		if (startPos == nullptr || maxLength == 0)
+			return 0;
+
 		auto beginIt = startPos;
 		auto endIt = startPos + maxLength;
 		auto nextIacIt = findNextIAC(beginIt, endIt);
@@ -124,8 +127,11 @@ namespace pcpp
 
 	size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength)
 	{
+		if (startPos == nullptr || maxLength == 0)
+			return 0;
+
 		// Check first byte is IAC
-		if (startPos && (startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (maxLength >= 2))
+		if ((startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (maxLength >= 2))
 		{
 			// If subnegotiation parse until next IAC
 			if (startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
@@ -133,7 +139,7 @@ namespace pcpp
 			// Only WILL, WONT, DO, DONT have option. Ref http://pcmicro.com/netfoss/telnet.html
 			else if (startPos[1] >= static_cast<int>(TelnetCommand::WillPerform) &&
 			         startPos[1] <= static_cast<int>(TelnetCommand::DontPerform))
-				return 3;
+				return std::min<size_t>(3, maxLength);
 			return 2;
 		}
 		return distanceToNextIAC(startPos, maxLength);
@@ -205,13 +211,19 @@ namespace pcpp
 
 	int16_t TelnetLayer::getSubCommand(uint8_t* pos, size_t len)
 	{
-		if (len < 3 || pos[1] < static_cast<int>(TelnetCommand::Subnegotiation))
+		if (pos == nullptr || len < 3 || pos[1] < static_cast<int>(TelnetCommand::Subnegotiation))
 			return static_cast<int>(TelnetOption::TelnetOptionNoOption);
 		return pos[2];
 	}
 
 	uint8_t* TelnetLayer::getCommandData(uint8_t* pos, size_t& len)
 	{
+		if (pos == nullptr || len < 2)
+		{
+			len = 0;
+			return nullptr;
+		}
+
 		if (pos[1] == static_cast<int>(TelnetCommand::Subnegotiation) && len > 3)
 		{
 			len -= 3;
