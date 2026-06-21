@@ -115,10 +115,10 @@ namespace pcpp
 		}
 
 		/// A static factory method that attempts to create a SIP layer from existing packet raw data
-		/// 
+		///
 		/// The method uses heuristics to determine whether the data contains a SIP request or response message and
 		/// creates the relevant layer type. If no message type can be identified, the method returns nullptr.
-		/// 
+		///
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
 		/// @param[in] prevLayer A pointer to the previous layer
