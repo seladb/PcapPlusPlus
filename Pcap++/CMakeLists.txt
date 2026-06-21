@@ -41,8 +41,7 @@ set(
 
 if(PCAPPP_USE_DPDK)
   list(
-    APPEND
-    public_headers
+    APPEND public_headers
     "header/pcapplusplus/DpdkDevice.h"
     "header/pcapplusplus/DpdkDeviceList.h"
     "header/pcapplusplus/MBufRawPacket.h"
@@ -71,8 +70,7 @@ endif()
 
 if(WIN32 AND PCAPPP_USE_PCAP)
   list(
-    APPEND
-    public_headers
+    APPEND public_headers
     "header/pcapplusplus/PcapRemoteDevice.h"
     "header/pcapplusplus/PcapRemoteDeviceList.h"
     "header/pcapplusplus/WinPcapLiveDevice.h"
