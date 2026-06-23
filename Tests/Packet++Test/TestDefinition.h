@@ -215,6 +215,7 @@ PTF_TEST_CASE(GtpV2LayerEditTest);
 PTF_TEST_CASE(BgpLayerParsingTest);
 PTF_TEST_CASE(BgpLayerCreationTest);
 PTF_TEST_CASE(BgpLayerEditTest);
+PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest);
 
 // Implemented in SSHTests.cpp
 PTF_TEST_CASE(SSHParsingTest);
