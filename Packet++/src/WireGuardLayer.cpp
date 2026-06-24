@@ -94,10 +94,8 @@ namespace pcpp
 	                                                                     const uint8_t encryptedTimestamp[28],
 	                                                                     const uint8_t mac1[16], const uint8_t mac2[16])
 	{
-		const size_t messageLen = sizeof(wg_handshake_initiation);
-		m_DataLen = messageLen;
-		m_Data = new uint8_t[messageLen];
-		memset(m_Data, 0, messageLen);
+		constexpr size_t messageLen = sizeof(wg_handshake_initiation);
+		allocData(messageLen);
 
 		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
 
@@ -200,9 +198,9 @@ namespace pcpp
 	                                                                 const uint8_t encryptedEmpty[16],
 	                                                                 const uint8_t mac1[16], const uint8_t mac2[16])
 	{
-		const size_t messageLen = sizeof(wg_handshake_response);
-		m_DataLen = messageLen;
-		m_Data = new uint8_t[messageLen];
+		constexpr size_t messageLen = sizeof(wg_handshake_response);
+		allocData(messageLen, false);
+
 		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
 
 		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::HandshakeResponse);
@@ -299,10 +297,8 @@ namespace pcpp
 	WireGuardCookieReplyLayer::WireGuardCookieReplyLayer(uint32_t receiverIndex, const uint8_t nonce[24],
 	                                                     const uint8_t encryptedCookie[32])
 	{
-		const size_t messageLen = sizeof(wg_cookie_reply);
-		m_DataLen = messageLen;
-		m_Data = new uint8_t[messageLen];
-		memset(m_Data, 0, messageLen);
+		constexpr size_t messageLen = sizeof(wg_cookie_reply);
+		allocData(messageLen);
 
 		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
 
@@ -360,9 +356,7 @@ namespace pcpp
 	                                                         const uint8_t* encryptedData, size_t encryptedDataLen)
 	{
 		const size_t messageLen = sizeof(wg_transport_data) + encryptedDataLen;
-		m_DataLen = messageLen;
-		m_Data = new uint8_t[messageLen];
-		memset(m_Data, 0, messageLen);
+		allocData(messageLen);
 
 		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
 

@@ -14,10 +14,8 @@ namespace pcpp
 
 	NullLoopbackLayer::NullLoopbackLayer(uint32_t family)
 	{
-		const size_t dataLen = sizeof(uint32_t);
-		m_DataLen = dataLen;
-		m_Data = new uint8_t[dataLen];
-		memset(m_Data, 0, dataLen);
+		constexpr size_t dataLen = sizeof(uint32_t);
+		allocData(dataLen);
 		m_Protocol = NULL_LOOPBACK;
 
 		setFamily(family);

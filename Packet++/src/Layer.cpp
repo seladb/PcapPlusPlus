@@ -56,12 +56,13 @@ namespace pcpp
 
 	void Layer::allocData(size_t dataLen, bool zeroInit)
 	{
-		if(m_Data != nullptr)
+		if (m_Data != nullptr)
 		{
-			throw std::logic_error("Layer already has allocated data. Use extendLayer or shortenLayer to modify the data length.");
+			throw std::logic_error(
+			    "Layer already has allocated data. Use extendLayer or shortenLayer to modify the data length.");
 		}
 
-		if(m_AllocationInfo.attachedPacket != nullptr)
+		if (m_AllocationInfo.attachedPacket != nullptr)
 		{
 			// Allocate the layer data through the attached packet
 			throw std::logic_error("not implemented");
@@ -70,7 +71,7 @@ namespace pcpp
 
 		m_Data = new uint8_t[dataLen];
 		m_DataLen = dataLen;
-		if(zeroInit)
+		if (zeroInit)
 		{
 			std::fill_n(m_Data, m_DataLen, 0);
 		}

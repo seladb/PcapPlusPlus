@@ -25,10 +25,9 @@ namespace pcpp
 
 	VrrpLayer::VrrpLayer(ProtocolType subProtocol, uint8_t virtualRouterId, uint8_t priority)
 	{
-		m_DataLen = VRRP_PACKET_FIX_LEN;
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(VRRP_PACKET_FIX_LEN);
 		m_Protocol = subProtocol;
+
 		m_AddressType = IPAddress::IPv4AddressType;
 		auto vrrpHeader = getVrrpHeader();
 		if (subProtocol == VRRPv2)
