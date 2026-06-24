@@ -10,7 +10,6 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapUtils.cpp>
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/NetworkUtils.cpp>
   src/PcapFileDevice.cpp
-  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapDevice.cpp>
   src/PcapFilter.cpp
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapLiveDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapLiveDeviceList.cpp>
