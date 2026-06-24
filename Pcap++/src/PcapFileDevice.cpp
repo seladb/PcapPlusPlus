@@ -543,140 +543,55 @@ namespace pcpp
 		return new PcapFileReaderDevice(fileName);
 	}
 
-	namespace
-	{
-		enum class TryCreateReaderResult
-		{
-			Success,
-			Failure,
-			FileNotFound,
-			UnsupportedFileFormat,
-			NoPlatformZstdSupport,
-		};
-
-		/// @brief Tries to create a file reader device for the given file name.
-		/// @param fileName The file name to create the reader for.
-		/// @param outDevice A pointer to store the created device.
-		/// @return A TryCreateReaderResult value indicating the result of the operation.
-		TryCreateReaderResult tryCreateReaderInternal(const std::string& fileName,
-		                                              std::unique_ptr<IFileReaderDevice>& outDevice)
-		{
-			std::ifstream fileContent(fileName, std::ios_base::binary);
-			if (fileContent.fail())
-			{
-				return TryCreateReaderResult::FileNotFound;
-			}
-
-			switch (detectFileFormat(fileContent))
-			{
-			case FileFormat::PcapNano:
-			case FileFormat::Pcap:
-			{
-				// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
-				outDevice = std::make_unique<PcapFileReaderDevice>(fileName);
-				break;
-			}
-			case FileFormat::ZstArchive:
-			{
-				// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
-				if (!checkZstdSupport())
-				{
-					return TryCreateReaderResult::NoPlatformZstdSupport;
-				}
-				// fallthrough
-			}
-			case FileFormat::PcapNG:
-			{
-				outDevice = std::make_unique<PcapNgFileReaderDevice>(fileName);
-				break;
-			}
-			case FileFormat::Snoop:
-			{
-				outDevice = std::make_unique<SnoopFileReaderDevice>(fileName);
-				break;
-			}
-			default:
-				return TryCreateReaderResult::UnsupportedFileFormat;
-			}
-
-			return TryCreateReaderResult::Success;
-		}
-	}  // namespace
-
 	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName)
 	{
-		std::unique_ptr<IFileReaderDevice> readerDev;
-		TryCreateReaderResult result = tryCreateReaderInternal(fileName, readerDev);
-
-		switch (result)
-		{
-		case TryCreateReaderResult::Success:
-		{
-			PCPP_ASSERT(readerDev != nullptr, "Reader device should not be null upon success");
-			return readerDev;
-		}
-		case TryCreateReaderResult::Failure:
-		{
-			// Generic failure
-			throw std::runtime_error("Could not create reader for file: " + fileName);
-		}
-		case TryCreateReaderResult::FileNotFound:
+		std::ifstream fileContent(fileName, std::ios_base::binary);
+		if (fileContent.fail())
 		{
 			throw std::runtime_error("Could not open file: " + fileName);
 		}
-		case TryCreateReaderResult::UnsupportedFileFormat:
+
+		switch (detectFileFormat(fileContent))
 		{
-			throw std::runtime_error("File format of " + fileName + " is not supported");
+		case FileFormat::PcapNano:
+		case FileFormat::Pcap:
+		{
+			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
+			return std::make_unique<PcapFileReaderDevice>(fileName);
 		}
-		case TryCreateReaderResult::NoPlatformZstdSupport:
+		case FileFormat::ZstArchive:
 		{
-			throw std::runtime_error("PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+			// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
+			if (!checkZstdSupport())
+			{
+				throw std::runtime_error(
+				    "PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+			}
+			// fallthrough
+		}
+		case FileFormat::PcapNG:
+		{
+			return std::make_unique<PcapNgFileReaderDevice>(fileName);
+		}
+		case FileFormat::Snoop:
+		{
+			return std::make_unique<SnoopFileReaderDevice>(fileName);
 		}
 		default:
-			// Should never happen
-			throw std::logic_error("Internal error: Unexpected result type: TryCreateReaderResult");
+			throw std::runtime_error("File format of " + fileName + " is not supported");
 		}
 	}
 
 	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::tryCreateReader(const std::string& fileName)
 	{
-		std::unique_ptr<IFileReaderDevice> readerDev;
-		TryCreateReaderResult result = tryCreateReaderInternal(fileName, readerDev);
-
-		switch (result)
+		try
 		{
-		case TryCreateReaderResult::Success:
-		{
-			PCPP_ASSERT(readerDev != nullptr, "Reader device should not be null upon success");
-			return readerDev;
+			return createReader(fileName);
 		}
-		case TryCreateReaderResult::Failure:
+		catch (const std::runtime_error& e)
 		{
-			// Generic failure
-			PCPP_LOG_ERROR("Could not create reader for file: " << fileName);
+			PCPP_LOG_ERROR(e.what());
 			return nullptr;
-		}
-		case TryCreateReaderResult::FileNotFound:
-		{
-			PCPP_LOG_ERROR("Could not open file: " << fileName);
-			return nullptr;
-		}
-		case TryCreateReaderResult::UnsupportedFileFormat:
-		{
-			PCPP_LOG_ERROR("File format of " << fileName << " is not supported");
-			return nullptr;
-		}
-		case TryCreateReaderResult::NoPlatformZstdSupport:
-		{
-			PCPP_LOG_ERROR("PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
-			return nullptr;
-		}
-		default:
-		{
-			// Should never happen
-			PCPP_ASSERT(false, "Internal error: Unexpected result type: TryCreateReaderResult");
-			return nullptr;
-		}
 		}
 	}
 
