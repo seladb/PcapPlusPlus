@@ -214,6 +214,8 @@ namespace pcpp
 	protected:
 		uint8_t* m_Data;
 		size_t m_DataLen;
+
+	protected:
 		ProtocolType m_Protocol;
 		Layer* m_NextLayer;
 		Layer* m_PrevLayer;
@@ -256,6 +258,20 @@ namespace pcpp
 		{
 			m_PrevLayer = prevLayer;
 		}
+
+		// ------ Memory Control Methods -----
+		// Used by derived classes to request buffer size changes.
+
+		/// @brief Requests the layer to allocate a new data buffer of the specified length.
+		/// 
+		/// If the layer is attached to a Packet, the request is forwarded to the packet instance.
+		/// If the layer is not attached, it will allocate a new buffer of the specified length.
+		/// 
+		/// The primary use case for this method is initial allocation of the data buffer in derived classes.
+		/// 
+		/// @param[in] dataLen The length of the new data buffer.
+		/// @param[in] zeroInit If true, the new buffer will be zero-initialized.
+		void allocData(size_t dataLen, bool zeroInit = true);
 
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
