@@ -74,7 +74,7 @@ PTF_TEST_CASE(TestFileFormatDetector)
 	for (const auto& testCase : pcapNanoTestCases)
 	{
 		writeContents("PcapExamples/file_heuristics/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
-			            sizeof(testCase));
+		              sizeof(testCase));
 
 		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/pcap_test.tmp");
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
