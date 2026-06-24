@@ -66,21 +66,18 @@ PTF_TEST_CASE(TestFileFormatDetector)
 		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 	}
 
-	if (pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
+	std::vector<uint32_t> pcapNanoTestCases = {
+		0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
+		0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
+	};
+
+	for (const auto& testCase : pcapNanoTestCases)
 	{
-		std::vector<uint32_t> pcapNanoTestCases = {
-			0xa1'b2'3c'4d,  // regular pcap, nanosecond-precision
-			0x4d'3c'b2'a1,  // regular pcap, nanosecond-precision (byte-swapped)
-		};
+		writeContents("PcapExamples/file_heuristics/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
+			            sizeof(testCase));
 
-		for (const auto& testCase : pcapNanoTestCases)
-		{
-			writeContents("PcapExamples/file_heuristics/pcap_test.tmp", reinterpret_cast<const char*>(&testCase),
-			              sizeof(testCase));
-
-			auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/pcap_test.tmp");
-			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
-		}
+		auto dev = pcpp::IFileReaderDevice::createReader("PcapExamples/file_heuristics/pcap_test.tmp");
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(dev.get()));
 	}
 
 	std::vector<uint32_t> pcapngTestCases = {
