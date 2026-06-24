@@ -28,7 +28,12 @@ namespace pcpp
 
 		/// @brief Get statistics from the device
 		/// @return An object containing the stats
-		PcapStats getStatistics() const;
+		PcapStats getStatistics() const
+		{
+			PcapStats stats;
+			getStatistics(stats);
+			return stats;
+		}
 
 		/// Get statistics from the device
 		/// @param[out] stats An object containing the stats
