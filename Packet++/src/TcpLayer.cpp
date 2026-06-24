@@ -482,7 +482,7 @@ namespace pcpp
 		{
 			constructNextLayer<GtpV2Layer>(payload, payloadLen, getAttachedPacket());
 		}
-		else if (ModbusLayer::isModbusPort(portDst))
+		else if (ModbusLayer::isModbusPort(portDst) && ModbusLayer::isDataValid(payload, payloadLen))
 		{
 			constructNextLayer<ModbusLayer>(payload, payloadLen, getAttachedPacket());
 		}
