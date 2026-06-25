@@ -414,7 +414,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_S:
 		{
-			return std::unique_ptr<PostgresMessage>(new PostgresParameterStatus(data, messageLength + 1));
+			return std::make_unique<PostgresParameterStatus>(data, messageLength + 1);
 		}
 		case PostgresBackendMessage_Z:
 		{
@@ -453,7 +453,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_D:
 		{
-			return std::unique_ptr<PostgresMessage>(new PostgresDataRowMessage(data, messageLength + 1));
+			return std::make_unique<PostgresDataRowMessage>(data, messageLength + 1);
 		}
 		case PostgresBackendMessage_I:
 		{
@@ -462,7 +462,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_E:
 		{
-			return std::unique_ptr<PostgresMessage>(new PostgresErrorResponseMessage(data, messageLength + 1));
+			return std::make_unique<PostgresErrorResponseMessage>(data, messageLength + 1);
 		}
 		case PostgresBackendMessage_V:
 		{
@@ -506,7 +506,7 @@ namespace pcpp
 		}
 		case PostgresBackendMessage_T:
 		{
-			return std::unique_ptr<PostgresMessage>(new PostgresRowDescriptionMessage(data, messageLength + 1));
+			return std::make_unique<PostgresRowDescriptionMessage>(data, messageLength + 1);
 		}
 		default:
 		{
@@ -547,7 +547,7 @@ namespace pcpp
 			{
 			case PostgresFrontendTag_StartupMessage:
 			{
-				return std::unique_ptr<PostgresMessage>(new PostgresStartupMessage(data, messageLength));
+				return std::make_unique<PostgresStartupMessage>(data, messageLength);
 			}
 			case PostgresFrontendTag_SSLRequest:
 			{
@@ -591,8 +591,8 @@ namespace pcpp
 		{
 		case PostgresFrontendMessage_Q:
 		{
-			return std::unique_ptr<PostgresMessage>(
-			    new PostgresQueryMessage(data, (std::min)(static_cast<size_t>(messageLength) + 1, dataLen)));
+			return std::make_unique<PostgresQueryMessage>(data,
+			                                              (std::min)(static_cast<size_t>(messageLength) + 1, dataLen));
 		}
 		case PostgresFrontendMessage_P:
 		{
