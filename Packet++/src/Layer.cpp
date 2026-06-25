@@ -66,7 +66,6 @@ namespace pcpp
 		{
 			// Allocate the layer data through the attached packet
 			throw std::logic_error("not implemented");
-			//return;
 		}
 
 		m_Data = new uint8_t[dataLen];
