@@ -38,6 +38,11 @@ struct _light_pcapng_t
 	light_pcapng pcapng;
 	light_pcapng_file_info *file_info;
 	light_file file;
+	// PCPP patch: reusable scratch buffer for building packet blocks, avoids a per-packet
+	// calloc/free in light_write_packet (grows on demand, freed in light_pcapng_close)
+	uint8_t *write_block_scratch;
+	size_t write_block_scratch_size;
+	// PCPP patch end
 };
 
 static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
@@ -519,8 +524,22 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 
 	size_t option_size = sizeof(struct _light_enhanced_packet_block) + packet_header->captured_length;
 	PADD32(option_size, &option_size);
-	uint8_t *epb_memory = calloc(1, option_size);
-	//memset(epb_memory, 0, option_size); should be redundant with calloc
+
+	// PCPP patch: reuse a handle-owned scratch buffer instead of calloc/free per packet
+	if (pcapng->write_block_scratch_size < option_size)
+	{
+		uint8_t *grown = realloc(pcapng->write_block_scratch, option_size);
+		DCHECK_NULLP(grown, return);
+		pcapng->write_block_scratch = grown;
+		pcapng->write_block_scratch_size = option_size;
+	}
+	uint8_t *epb_memory = pcapng->write_block_scratch;
+	// zero only the PADD32 tail; the EPB fields and packet data are fully overwritten below
+	size_t epb_used = sizeof(struct _light_enhanced_packet_block) + packet_header->captured_length;
+	if (option_size > epb_used)
+		memset(epb_memory + epb_used, 0, option_size - epb_used);
+	// PCPP patch end
+
 	struct _light_enhanced_packet_block *epb = (struct _light_enhanced_packet_block *)epb_memory;
 	epb->interface_id = iface_id;
 
@@ -541,7 +560,7 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	memcpy(epb->packet_data, packet_data, packet_header->captured_length);
 
 	light_pcapng packet_block_pcapng = light_alloc_block(LIGHT_ENHANCED_PACKET_BLOCK, (const uint32_t*)epb_memory, option_size+3*sizeof(uint32_t));
-	free(epb_memory);
+	// PCPP patch: epb_memory is the handle-owned scratch buffer, not freed here
 
 	if (packet_header->comment_length > 0)
 	{
@@ -572,6 +591,11 @@ void light_pcapng_close(light_pcapng_t *pcapng)
 	}
 	if (pcapng->file_info != NULL)
 		light_free_file_info(pcapng->file_info);
+	// PCPP patch
+	free(pcapng->write_block_scratch);
+	pcapng->write_block_scratch = NULL;
+	pcapng->write_block_scratch_size = 0;
+	// PCPP patch end
 	free(pcapng);
 }
 
