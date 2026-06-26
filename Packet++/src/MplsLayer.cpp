@@ -13,8 +13,7 @@ namespace pcpp
 
 	MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t experimentalUseValue, bool bottomOfStack)
 	{
-		constexpr size_t headerLen = sizeof(mpls_header);
-		allocData(headerLen);
+		allocData(sizeof(mpls_header));
 		m_Protocol = MPLS;
 
 		setMplsLabel(mplsLabel);

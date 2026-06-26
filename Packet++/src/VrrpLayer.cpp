@@ -27,7 +27,6 @@ namespace pcpp
 	{
 		allocData(VRRP_PACKET_FIX_LEN);
 		m_Protocol = subProtocol;
-
 		m_AddressType = IPAddress::IPv4AddressType;
 		auto vrrpHeader = getVrrpHeader();
 		if (subProtocol == VRRPv2)

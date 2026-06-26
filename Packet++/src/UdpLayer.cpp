@@ -26,8 +26,7 @@ namespace pcpp
 
 	UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst)
 	{
-		constexpr size_t headerLen = sizeof(udphdr);
-		allocData(headerLen);
+		allocData(sizeof(udphdr));
 
 		udphdr* udpHdr = reinterpret_cast<udphdr*>(m_Data);
 		udpHdr->portDst = htobe16(portDst);

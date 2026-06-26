@@ -94,8 +94,7 @@ namespace pcpp
 	                                                                     const uint8_t encryptedTimestamp[28],
 	                                                                     const uint8_t mac1[16], const uint8_t mac2[16])
 	{
-		constexpr size_t messageLen = sizeof(wg_handshake_initiation);
-		allocData(messageLen);
+		allocData(sizeof(wg_handshake_initiation));
 
 		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
 
@@ -198,8 +197,7 @@ namespace pcpp
 	                                                                 const uint8_t encryptedEmpty[16],
 	                                                                 const uint8_t mac1[16], const uint8_t mac2[16])
 	{
-		constexpr size_t messageLen = sizeof(wg_handshake_response);
-		allocData(messageLen, false);
+		allocData(sizeof(wg_handshake_response), false);
 
 		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
 
@@ -297,8 +295,7 @@ namespace pcpp
 	WireGuardCookieReplyLayer::WireGuardCookieReplyLayer(uint32_t receiverIndex, const uint8_t nonce[24],
 	                                                     const uint8_t encryptedCookie[32])
 	{
-		constexpr size_t messageLen = sizeof(wg_cookie_reply);
-		allocData(messageLen);
+		allocData(sizeof(wg_cookie_reply));
 
 		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
 

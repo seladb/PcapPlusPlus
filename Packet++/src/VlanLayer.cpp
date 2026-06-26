@@ -16,8 +16,7 @@ namespace pcpp
 
 	VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t etherType)
 	{
-		constexpr size_t headerLen = sizeof(vlan_header);
-		allocData(headerLen);
+		allocData(sizeof(vlan_header));
 		m_Protocol = VLAN;
 
 		vlan_header* vlanHeader = getVlanHeader();

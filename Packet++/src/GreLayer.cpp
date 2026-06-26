@@ -448,8 +448,7 @@ namespace pcpp
 
 	GREv1Layer::GREv1Layer(uint16_t callID)
 	{
-		constexpr size_t headerLen = sizeof(gre1_header);
-		allocData(headerLen);
+		allocData(sizeof(gre1_header));
 		m_Protocol = GREv1;
 
 		gre1_header* header = getGreHeader();
@@ -537,8 +536,7 @@ namespace pcpp
 
 	PPP_PPTPLayer::PPP_PPTPLayer(uint8_t address, uint8_t control)
 	{
-		constexpr size_t headerLen = sizeof(ppp_pptp_header);
-		allocData(headerLen);
+		allocData(sizeof(ppp_pptp_header));
 		m_Protocol = PPP_PPTP;
 
 		ppp_pptp_header* header = getPPP_PPTPHeader();

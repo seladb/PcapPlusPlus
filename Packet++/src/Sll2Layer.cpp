@@ -22,8 +22,7 @@ namespace pcpp
 
 	Sll2Layer::Sll2Layer(uint32_t interfaceIndex, uint16_t ARPHRDType, uint8_t packetType)
 	{
-		constexpr size_t headerLen = sizeof(sll2_header);
-		allocData(headerLen);
+		allocData(sizeof(sll2_header));
 		setPacketType(packetType);
 		setArphrdType(ARPHRDType);
 		setInterfaceIndex(interfaceIndex);
