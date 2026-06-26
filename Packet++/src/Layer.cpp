@@ -58,13 +58,13 @@ namespace pcpp
 	{
 		if (m_Data != nullptr)
 		{
-			throw std::logic_error(
+			throw std::runtime_error(
 			    "Layer already has allocated data. Use extendLayer or shortenLayer to modify the data length.");
 		}
 
 		if (m_AllocationInfo.attachedPacket != nullptr)
 		{
-			// Allocate the layer data through the attached packet
+			// TODO: Allocate the layer data through the attached packet
 			throw std::logic_error("not implemented");
 		}
 
