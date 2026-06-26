@@ -214,8 +214,6 @@ namespace pcpp
 	protected:
 		uint8_t* m_Data;
 		size_t m_DataLen;
-
-	protected:
 		ProtocolType m_Protocol;
 		Layer* m_NextLayer;
 		Layer* m_PrevLayer;
