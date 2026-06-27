@@ -423,6 +423,26 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 	}
 }  // GtpV2LayerParsingTest
 
+PTF_TEST_CASE(GtpV2LayerInvalidDataTest)
+{
+	// A GTPv2 packet whose TEID-present (T) bit is set must carry, in its fixed header,
+	// the 4-byte TEID *and* the 4-byte sequence-number/spare word that follows it.
+	// A buffer that only holds the basic header + TEID (8 bytes) must be rejected,
+	// otherwise getSequenceNumber()/getMessagePriority() read out of bounds (issue #2171).
+	// byte 0 = 0x48 -> version 2, T bit set.
+	const uint8_t shortTeidPresent[] = { 0x48, 0x20, 0x00, 0x08, 0xde, 0xad, 0xbe, 0xef };
+	PTF_ASSERT_FALSE(pcpp::GtpV2Layer::isDataValid(shortTeidPresent, sizeof(shortTeidPresent)));
+
+	// The full TEID-present fixed header (basic header + TEID + sequence/spare = 12 bytes) is valid.
+	const uint8_t fullTeidPresent[] = { 0x48, 0x20, 0x00, 0x0c, 0xde, 0xad, 0xbe, 0xef, 0x00, 0x12, 0x34, 0x00 };
+	PTF_ASSERT_TRUE(pcpp::GtpV2Layer::isDataValid(fullTeidPresent, sizeof(fullTeidPresent)));
+
+	// When the TEID-present bit is clear, the sequence/spare word directly follows the basic
+	// header, so 8 bytes is the valid minimum (byte 0 = 0x40 -> version 2, T bit clear).
+	const uint8_t noTeid[] = { 0x40, 0x20, 0x00, 0x08, 0x00, 0x12, 0x34, 0x00 };
+	PTF_ASSERT_TRUE(pcpp::GtpV2Layer::isDataValid(noTeid, sizeof(noTeid)));
+}  // GtpV2LayerInvalidDataTest
+
 PTF_TEST_CASE(GtpV2LayerCreationTest)
 {
 	timeval time{};

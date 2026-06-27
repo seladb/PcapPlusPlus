@@ -1031,6 +1031,16 @@ namespace pcpp
 			return false;
 		}
 
+		// The mandatory fixed header always contains the sequence-number/spare word
+		// (sizeof(uint32_t), already required above). When the TEID-present bit is set
+		// the 4-byte TEID precedes that word, so an additional uint32_t must be present.
+		// Without this check accessors such as getSequenceNumber()/getMessagePriority()
+		// would read past the end of the supplied buffer (out-of-bounds read).
+		if (header->teidPresent && dataSize < sizeof(gtpv2_basic_header) + 2 * sizeof(uint32_t))
+		{
+			return false;
+		}
+
 		return true;
 	}
 

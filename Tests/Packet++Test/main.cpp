@@ -304,6 +304,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(GtpV1LayerCreationTest, "gtp");
 	PTF_RUN_TEST(GtpV1LayerEditTest, "gtp");
 	PTF_RUN_TEST(GtpV2LayerParsingTest, "gtp");
+	PTF_RUN_TEST(GtpV2LayerInvalidDataTest, "gtp");
 	PTF_RUN_TEST(GtpV2LayerCreationTest, "gtp");
 	PTF_RUN_TEST(GtpV2LayerEditTest, "gtp");
 

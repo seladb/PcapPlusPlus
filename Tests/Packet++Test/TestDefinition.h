@@ -209,6 +209,7 @@ PTF_TEST_CASE(GtpV1LayerParsingTest);
 PTF_TEST_CASE(GtpV1LayerCreationTest);
 PTF_TEST_CASE(GtpV1LayerEditTest);
 PTF_TEST_CASE(GtpV2LayerParsingTest);
+PTF_TEST_CASE(GtpV2LayerInvalidDataTest);
 PTF_TEST_CASE(GtpV2LayerCreationTest);
 PTF_TEST_CASE(GtpV2LayerEditTest);
 
