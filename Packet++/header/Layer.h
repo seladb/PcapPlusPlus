@@ -182,9 +182,28 @@ namespace pcpp
 			return m_AllocationInfo.attachedPacket != nullptr;
 		}
 
-		/// Copy the raw data of this layer to another array
+		/// @brief Copy the raw data of this layer to another array
+		///
+		/// @warning The method does not perform any bounds checking on the destination array. The caller MUST ensure
+		/// that the destination array has enough space to hold the getDataLen() bytes.
+		///
+		/// @warning Prefer the overload of copyData() that accepts a destination size to ensure safe copying of data.
+		///
 		/// @param[out] toArr The destination byte array
 		void copyData(uint8_t* toArr) const;
+
+		/// @brief Copy the raw data of this layer to another array, with a specified maximum size.
+		///
+		/// The method copies up to 'destSize' bytes of the layer's raw data into the provided destination array.
+		/// If the layer's data length is greater than 'destSize', only the first 'destSize' bytes will be copied.
+		///
+		/// To ensure sufficient space is available in the destination array, use getDataLen() to determine the actual
+		/// length of the layer's data before calling this method.
+		///
+		/// @param[out] dest The destination byte array
+		/// @param[in] destSize The maximum number of bytes to copy
+		/// @return The number of bytes copied to the destination array.
+		size_t copyData(uint8_t* dest, size_t destSize) const;
 
 		// implement abstract methods
 

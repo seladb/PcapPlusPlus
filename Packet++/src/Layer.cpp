@@ -54,6 +54,13 @@ namespace pcpp
 		memcpy(toArr, m_Data, m_DataLen);
 	}
 
+	size_t Layer::copyData(uint8_t* dest, size_t destSize) const
+	{
+		size_t bytesToCopy = (std::min)(destSize, m_DataLen);
+		memcpy(dest, m_Data, bytesToCopy);
+		return bytesToCopy;
+	}
+
 	void Layer::allocData(size_t dataLen, bool zeroInit)
 	{
 		if (m_Data != nullptr)
