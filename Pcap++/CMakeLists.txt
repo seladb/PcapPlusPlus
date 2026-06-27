@@ -10,7 +10,6 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapUtils.cpp>
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/NetworkUtils.cpp>
   src/PcapFileDevice.cpp
-  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapDevice.cpp>
   src/PcapFilter.cpp
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapLiveDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapLiveDeviceList.cpp>
@@ -109,6 +108,7 @@ target_link_libraries(
 )
 
 if(LIGHT_PCAPNG_ZSTD)
+  target_compile_definitions(Pcap++ PRIVATE -DPCPP_PCAPNG_ZSTD_SUPPORT)
   target_link_libraries(Pcap++ PRIVATE light_pcapng)
 endif()
 

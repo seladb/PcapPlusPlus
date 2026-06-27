@@ -168,11 +168,8 @@ namespace pcpp
 
 	void IPv4Layer::initLayer()
 	{
-		const size_t headerLen = sizeof(iphdr);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
+		allocData(sizeof(iphdr));
 		m_Protocol = IPv4;
-		memset(m_Data, 0, headerLen);
 		iphdr* ipHdr = getIPv4Header();
 		ipHdr->internetHeaderLength = (5 & 0xf);
 		m_NumOfTrailingBytes = 0;

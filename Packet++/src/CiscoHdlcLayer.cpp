@@ -15,8 +15,7 @@ namespace pcpp
 
 	CiscoHdlcLayer::CiscoHdlcLayer(AddressType address)
 	{
-		m_DataLen = sizeof(cisco_hdlc_header);
-		m_Data = new uint8_t[m_DataLen]{};
+		allocData(sizeof(cisco_hdlc_header));
 
 		cisco_hdlc_header* hdlcHdr = getCiscoHdlcHeader();
 		hdlcHdr->address = static_cast<uint8_t>(address == AddressType::Unknown ? AddressType::Unicast : address);

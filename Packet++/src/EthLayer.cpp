@@ -16,9 +16,7 @@ namespace pcpp
 	EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t etherType) : Layer()
 	{
 		const size_t headerLen = sizeof(ether_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		ether_header* ethHdr = getEthHeader();
 		destMac.copyTo(ethHdr->dstMac);

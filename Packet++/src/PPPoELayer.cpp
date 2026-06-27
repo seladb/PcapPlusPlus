@@ -19,9 +19,7 @@ namespace pcpp
 	                       size_t additionalBytesToAllocate)
 	{
 		const size_t dataLen = sizeof(pppoe_header) + additionalBytesToAllocate;
-		m_DataLen = dataLen;
-		m_Data = new uint8_t[dataLen];
-		memset(m_Data, 0, dataLen);
+		allocData(dataLen);
 
 		pppoe_header* pppoeHdr = getPPPoEHeader();
 		pppoeHdr->version = (version & 0xf);

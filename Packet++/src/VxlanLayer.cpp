@@ -10,10 +10,7 @@ namespace pcpp
 	VxlanLayer::VxlanLayer(uint32_t vni, uint16_t groupPolicyID, bool setGbpFlag, bool setPolicyAppliedFlag,
 	                       bool setDontLearnFlag)
 	{
-		const size_t headerLen = sizeof(vxlan_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(sizeof(vxlan_header));
 		m_Protocol = VXLAN;
 
 		if (vni != 0)
