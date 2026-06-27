@@ -312,9 +312,8 @@ namespace pcpp
 
 	void TcpLayer::initLayer()
 	{
-		m_DataLen = sizeof(tcphdr);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(tcphdr));
+
 		m_Protocol = TCP;
 		m_NumOfTrailingBytes = 0;
 		getTcpHeader()->dataOffset = sizeof(tcphdr) / 4;

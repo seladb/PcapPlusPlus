@@ -9,12 +9,10 @@ namespace pcpp
 {
 	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId)
 	{
-		const int16_t pduSize = sizeof(ModbusReadInputRegisters);  // Currently only supporting Read Input Registers
-		const size_t headerLen = sizeof(modbus_header);
+		constexpr int16_t pduSize = sizeof(ModbusReadInputRegisters);  // Currently only supporting Read Input Registers
+		constexpr size_t headerLen = sizeof(modbus_header);
 
-		m_DataLen = headerLen + pduSize;
-		m_Data = new uint8_t[m_DataLen]{};
-		memset(m_Data, 0, m_DataLen);
+		allocData(headerLen + pduSize);
 
 		// Initialize the header fields to default values
 		modbus_header* header = getModbusHeader();
