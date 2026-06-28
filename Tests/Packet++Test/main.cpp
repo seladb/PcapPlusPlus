@@ -161,6 +161,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(InsertVlanToPacket, "packet;vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "packet;remove_layer");
 	PTF_RUN_TEST(CopyLayerAndPacketTest, "packet;copy_layer");
+	PTF_RUN_TEST(CopyLayerDataTest, "packet;copy_layer");
 	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
 	PTF_RUN_TEST(RawPacketTimeStampSetterTest, "packet");
 	PTF_RUN_TEST(ParsePartialPacketTest, "packet;partial_packet");
@@ -242,6 +243,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(GreEditTest, "gre");
 
 	PTF_RUN_TEST(SSLClientHelloParsingTest, "ssl");
+	PTF_RUN_TEST(SSLHelloTruncatedVersionTest, "ssl");
 	PTF_RUN_TEST(SSLExtensionWithZeroSizeTest, "ssl");
 	PTF_RUN_TEST(SSLAppDataParsingTest, "ssl");
 	PTF_RUN_TEST(SSLAlertParsingTest, "ssl");
@@ -327,6 +329,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
 	PTF_RUN_TEST(TelentCommandInvalidDataTests, "telnet");
+	PTF_RUN_TEST(TelnetCommandTruncatedOptionTest, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
 	PTF_RUN_TEST(TpktLayerTest, "tpkt");
@@ -401,6 +404,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
+	PTF_RUN_TEST(ModbusLayerTruncatedTest, "modbus");
 
 	PTF_RUN_TEST(X509ParsingTest, "x509");
 	PTF_RUN_TEST(X509VariantsParsingTest, "x509");

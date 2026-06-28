@@ -289,6 +289,23 @@ PTF_TEST_CASE(TelentCommandInvalidDataTests)
 	                 pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
 }
 
+PTF_TEST_CASE(TelnetCommandTruncatedOptionTest)
+{
+	auto* truncatedWill = new uint8_t[2]{ static_cast<uint8_t>(pcpp::TelnetLayer::TelnetCommand::InterpretAsCommand),
+		                                  static_cast<uint8_t>(pcpp::TelnetLayer::TelnetCommand::WillPerform) };
+	pcpp::TelnetLayer telnetLayer(truncatedWill, 2, nullptr, nullptr);
+
+	PTF_ASSERT_EQUAL(telnetLayer.getTotalNumberOfCommands(), 1);
+	PTF_ASSERT_EQUAL(telnetLayer.getNextCommand(), pcpp::TelnetLayer::TelnetCommand::WillPerform, enumclass);
+	PTF_ASSERT_EQUAL(telnetLayer.getOption(), pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
+
+	size_t length = 42;
+	PTF_ASSERT_NULL(telnetLayer.getOptionData(length));
+	PTF_ASSERT_EQUAL(length, 0);
+	PTF_ASSERT_EQUAL(telnetLayer.getOption(pcpp::TelnetLayer::TelnetCommand::WillPerform),
+	                 pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
+}
+
 PTF_TEST_CASE(TelnetDataParsingTests)
 {
 

@@ -49,6 +49,7 @@ PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
 PTF_TEST_CASE(CreatePacketFromBuffer);
+PTF_TEST_CASE(CopyLayerDataTest);
 PTF_TEST_CASE(InsertVlanToPacket);
 PTF_TEST_CASE(RemoveLayerTest);
 PTF_TEST_CASE(CopyLayerAndPacketTest);
@@ -158,6 +159,7 @@ PTF_TEST_CASE(DhcpEditTest);
 
 // Implemented in SSLTests.cpp
 PTF_TEST_CASE(SSLClientHelloParsingTest);
+PTF_TEST_CASE(SSLHelloTruncatedVersionTest);
 PTF_TEST_CASE(SSLExtensionWithZeroSizeTest);
 PTF_TEST_CASE(SSLAppDataParsingTest);
 PTF_TEST_CASE(SSLAlertParsingTest);
@@ -238,6 +240,7 @@ PTF_TEST_CASE(NtpCreationTests);
 // Implemented in TelnetTests.cpp
 PTF_TEST_CASE(TelnetCommandParsingTests);
 PTF_TEST_CASE(TelentCommandInvalidDataTests);
+PTF_TEST_CASE(TelnetCommandTruncatedOptionTest);
 PTF_TEST_CASE(TelnetDataParsingTests);
 
 // Implemented in IcmpV6Tests.cpp
@@ -329,6 +332,7 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest);
 // Implemented in ModbusTests.cpp
 PTF_TEST_CASE(ModbusLayerCreationTest);
 PTF_TEST_CASE(ModbusLayerParsingTest);
+PTF_TEST_CASE(ModbusLayerTruncatedTest);
 
 // Implemented in X509Tests.cpp
 PTF_TEST_CASE(X509ParsingTest);

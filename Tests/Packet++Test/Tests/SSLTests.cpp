@@ -141,6 +141,25 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 	}
 }  // SSLClientHelloParsingTest
 
+PTF_TEST_CASE(SSLHelloTruncatedVersionTest)
+{
+	uint8_t clientHelloData[sizeof(pcpp::ssl_tls_handshake_layer)] = {};
+	clientHelloData[0] = pcpp::SSL_CLIENT_HELLO;
+	pcpp::SSLClientHelloMessage clientHelloMessage(clientHelloData, sizeof(clientHelloData), nullptr);
+
+	PTF_ASSERT_EQUAL(clientHelloMessage.getHandshakeVersion().asUInt(), 0);
+	auto clientFingerprint = clientHelloMessage.generateTLSFingerprint();
+	PTF_ASSERT_EQUAL(clientFingerprint.tlsVersion, 0);
+
+	uint8_t serverHelloData[sizeof(pcpp::ssl_tls_handshake_layer)] = {};
+	serverHelloData[0] = pcpp::SSL_SERVER_HELLO;
+	pcpp::SSLServerHelloMessage serverHelloMessage(serverHelloData, sizeof(serverHelloData), nullptr);
+
+	PTF_ASSERT_EQUAL(serverHelloMessage.getHandshakeVersion().asUInt(), 0);
+	auto serverFingerprint = serverHelloMessage.generateTLSFingerprint();
+	PTF_ASSERT_EQUAL(serverFingerprint.tlsVersion, 0);
+}  // SSLHelloTruncatedVersionTest
+
 PTF_TEST_CASE(SSLExtensionWithZeroSizeTest)
 {
 	timeval time;

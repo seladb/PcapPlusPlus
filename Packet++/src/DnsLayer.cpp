@@ -86,9 +86,7 @@ namespace pcpp
 	{
 		m_OffsetAdjustment = offsetAdjustment;
 		const size_t headerLen = getBasicHeaderSize();
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		init(m_OffsetAdjustment, false);
 	}

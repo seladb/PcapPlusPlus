@@ -13,9 +13,7 @@ namespace pcpp
 	{
 		size_t basicHeaderLen = msgType == 0x03 ? sizeof(s7comm_ack_data_hdr) : sizeof(s7commhdr);
 		size_t headerLen = basicHeaderLen + paramLength + dataLength;
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		if (msgType == 0x03)
 		{

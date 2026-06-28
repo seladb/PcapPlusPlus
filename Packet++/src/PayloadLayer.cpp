@@ -10,7 +10,7 @@ namespace pcpp
 
 	PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen) : Layer()
 	{
-		m_Data = new uint8_t[dataLen];
+		allocData(dataLen, false);
 		memcpy(m_Data, data, dataLen);
 		m_DataLen = dataLen;
 		m_Protocol = GenericPayload;
@@ -18,14 +18,18 @@ namespace pcpp
 
 	PayloadLayer::PayloadLayer(const std::string& payloadAsHexStream)
 	{
-		m_DataLen = payloadAsHexStream.length() / 2;
-		m_Data = new uint8_t[m_DataLen];
 		m_Protocol = GenericPayload;
-		if (hexStringToByteArray(payloadAsHexStream, m_Data, m_DataLen) == 0)
+		auto const dataLen = payloadAsHexStream.size() / 2;
+		if (dataLen > 0)
 		{
-			delete[] m_Data;
-			m_Data = nullptr;
-			m_DataLen = 0;
+			allocData(dataLen, false);
+			if (hexStringToByteArray(payloadAsHexStream, m_Data, m_DataLen) == 0)
+			{
+				// TODO: Move to base Layer class.
+				delete[] m_Data;
+				m_Data = nullptr;
+				m_DataLen = 0;
+			}
 		}
 	}
 

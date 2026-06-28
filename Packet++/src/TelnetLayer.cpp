@@ -133,7 +133,7 @@ namespace pcpp
 			// Only WILL, WONT, DO, DONT have option. Ref http://pcmicro.com/netfoss/telnet.html
 			else if (startPos[1] >= static_cast<int>(TelnetCommand::WillPerform) &&
 			         startPos[1] <= static_cast<int>(TelnetCommand::DontPerform))
-				return 3;
+				return std::min<size_t>(3, maxLength);
 			return 2;
 		}
 		return distanceToNextIAC(startPos, maxLength);

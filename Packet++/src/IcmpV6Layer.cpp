@@ -40,9 +40,7 @@ namespace pcpp
 
 	IcmpV6Layer::IcmpV6Layer(ICMPv6MessageType msgType, uint8_t code, const uint8_t* data, size_t dataLen)
 	{
-		m_DataLen = sizeof(icmpv6hdr) + dataLen;
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(icmpv6hdr) + dataLen);
 		m_Protocol = ICMPv6;
 
 		icmpv6hdr* hdr = (icmpv6hdr*)m_Data;
@@ -121,9 +119,7 @@ namespace pcpp
 	ICMPv6EchoLayer::ICMPv6EchoLayer(ICMPv6EchoType echoType, uint16_t id, uint16_t sequence, const uint8_t* data,
 	                                 size_t dataLen)
 	{
-		m_DataLen = sizeof(icmpv6_echo_hdr) + dataLen;
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(icmpv6_echo_hdr) + dataLen);
 		m_Protocol = ICMPv6;
 
 		icmpv6_echo_hdr* header = getEchoHeader();
