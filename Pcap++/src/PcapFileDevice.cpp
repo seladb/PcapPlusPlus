@@ -1,17 +1,32 @@
+#include "PcapFileDevice.h"
 #define LOG_MODULE PcapLogModuleFileDevice
 
+#include <cerrno>
+#include <stdexcept>
+#include <array>
 #include <algorithm>
-#include <iterator>
-
-#include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
 #include "EndianPortable.h"
+#include <cstdint>
+#include <istream>
+#include <iterator>
+
+#include "AssertionUtils.h"
 
 namespace pcpp
 {
 	namespace
 	{
+		constexpr bool checkZstdSupport()
+		{
+#ifdef PCPP_HAS_PCAPNG_ZSTD_SUPPORT
+			return true;
+#else
+			return false;
+#endif
+		}
+
 		/// @brief Converts a light_pcapng_t* to an opaque LightPcapNgHandle*.
 		/// @param pcapngHandle The light_pcapng_t* to convert.
 		/// @return An pointer to the opaque handle.
@@ -27,162 +42,448 @@ namespace pcpp
 		{
 			return reinterpret_cast<light_pcapng_t*>(pcapngHandle);
 		}
+
+		template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
+		{
+			return N;
+		}
+
+		// Magic numbers for different pcap formats
+		// Regular pcap format. Microsecond precision.
+		constexpr uint32_t TCPDUMP_MAGIC = 0xa1b2c3d4;
+		constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
+		// Alexey Kuznetzov's modified pcap format.
+		constexpr uint32_t KUZNETZOV_TCPDUMP_MAGIC = 0xa1'b2'cd'34;
+		constexpr uint32_t KUZNETZOV_TCPDUMP_MAGIC_SWAPPED = 0x34'cd'b2'a1;
+		// Regular pcap format. Nanosecond precision.
+		constexpr uint32_t NSEC_TCPDUMP_MAGIC = 0xa1b23c4d;
+		constexpr uint32_t NSEC_TCPDUMP_MAGIC_SWAPPED = 0x4d3cb2a1;
+
+		constexpr uint16_t PCAP_MAJOR_VERSION = 2;
+		constexpr uint16_t PCAP_MINOR_VERSION = 4;
+
+#pragma pack(push, 1)
+		struct pcap_file_header
+		{
+			uint32_t magic;
+			uint16_t version_major;
+			uint16_t version_minor;
+			int32_t thiszone;
+			uint32_t sigfigs;
+			uint32_t snaplen;
+			uint32_t linktype;
+		};
+
+		static_assert(sizeof(pcap_file_header) == 24, "pcap_file_header must be 24 bytes long");
+
+		struct packet_header
+		{
+			uint32_t tv_sec;
+			uint32_t tv_usec;
+			uint32_t caplen;
+			uint32_t len;
+		};
+		static_assert(sizeof(packet_header) == 16, "packet_header must be 16 bytes long");
+#pragma pack(pop)
+
+		LinkLayerType toLinkLayerType(uint32_t value)
+		{
+			switch (value)
+			{
+			case LINKTYPE_NULL:
+			case LINKTYPE_ETHERNET:
+			case LINKTYPE_AX25:
+			case LINKTYPE_IEEE802_5:
+			case LINKTYPE_ARCNET_BSD:
+			case LINKTYPE_SLIP:
+			case LINKTYPE_PPP:
+			case LINKTYPE_FDDI:
+			case LINKTYPE_DLT_RAW1:
+			case LINKTYPE_DLT_RAW2:
+			case LINKTYPE_PPP_HDLC:
+			case LINKTYPE_PPP_ETHER:
+			case LINKTYPE_ATM_RFC1483:
+			case LINKTYPE_RAW:
+			case LINKTYPE_C_HDLC:
+			case LINKTYPE_IEEE802_11:
+			case LINKTYPE_FRELAY:
+			case LINKTYPE_LOOP:
+			case LINKTYPE_LINUX_SLL:
+			case LINKTYPE_LTALK:
+			case LINKTYPE_PFLOG:
+			case LINKTYPE_IEEE802_11_PRISM:
+			case LINKTYPE_IP_OVER_FC:
+			case LINKTYPE_SUNATM:
+			case LINKTYPE_IEEE802_11_RADIOTAP:
+			case LINKTYPE_ARCNET_LINUX:
+			case LINKTYPE_APPLE_IP_OVER_IEEE1394:
+			case LINKTYPE_MTP2_WITH_PHDR:
+			case LINKTYPE_MTP2:
+			case LINKTYPE_MTP3:
+			case LINKTYPE_SCCP:
+			case LINKTYPE_DOCSIS:
+			case LINKTYPE_LINUX_IRDA:
+			case LINKTYPE_USER0:
+			case LINKTYPE_USER1:
+			case LINKTYPE_USER2:
+			case LINKTYPE_USER3:
+			case LINKTYPE_USER4:
+			case LINKTYPE_USER5:
+			case LINKTYPE_USER6:
+			case LINKTYPE_USER7:
+			case LINKTYPE_USER8:
+			case LINKTYPE_USER9:
+			case LINKTYPE_USER10:
+			case LINKTYPE_USER11:
+			case LINKTYPE_USER12:
+			case LINKTYPE_USER13:
+			case LINKTYPE_USER14:
+			case LINKTYPE_USER15:
+			case LINKTYPE_IEEE802_11_AVS:
+			case LINKTYPE_BACNET_MS_TP:
+			case LINKTYPE_PPP_PPPD:
+			case LINKTYPE_GPRS_LLC:
+			case LINKTYPE_GPF_T:
+			case LINKTYPE_GPF_F:
+			case LINKTYPE_LINUX_LAPD:
+			case LINKTYPE_BLUETOOTH_HCI_H4:
+			case LINKTYPE_USB_LINUX:
+			case LINKTYPE_PPI:
+			case LINKTYPE_IEEE802_15_4:
+			case LINKTYPE_SITA:
+			case LINKTYPE_ERF:
+			case LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR:
+			case LINKTYPE_AX25_KISS:
+			case LINKTYPE_LAPD:
+			case LINKTYPE_PPP_WITH_DIR:
+			case LINKTYPE_C_HDLC_WITH_DIR:
+			case LINKTYPE_FRELAY_WITH_DIR:
+			case LINKTYPE_IPMB_LINUX:
+			case LINKTYPE_IEEE802_15_4_NONASK_PHY:
+			case LINKTYPE_USB_LINUX_MMAPPED:
+			case LINKTYPE_FC_2:
+			case LINKTYPE_FC_2_WITH_FRAME_DELIMS:
+			case LINKTYPE_IPNET:
+			case LINKTYPE_CAN_SOCKETCAN:
+			case LINKTYPE_IPV4:
+			case LINKTYPE_IPV6:
+			case LINKTYPE_IEEE802_15_4_NOFCS:
+			case LINKTYPE_DBUS:
+			case LINKTYPE_DVB_CI:
+			case LINKTYPE_MUX27010:
+			case LINKTYPE_STANAG_5066_D_PDU:
+			case LINKTYPE_NFLOG:
+			case LINKTYPE_NETANALYZER:
+			case LINKTYPE_NETANALYZER_TRANSPARENT:
+			case LINKTYPE_IPOIB:
+			case LINKTYPE_MPEG_2_TS:
+			case LINKTYPE_NG40:
+			case LINKTYPE_NFC_LLCP:
+			case LINKTYPE_INFINIBAND:
+			case LINKTYPE_SCTP:
+			case LINKTYPE_USBPCAP:
+			case LINKTYPE_RTAC_SERIAL:
+			case LINKTYPE_BLUETOOTH_LE_LL:
+			case LINKTYPE_NETLINK:
+			case LINKTYPE_BLUETOOTH_LINUX_MONITOR:
+			case LINKTYPE_BLUETOOTH_BREDR_BB:
+			case LINKTYPE_BLUETOOTH_LE_LL_WITH_PHDR:
+			case LINKTYPE_PROFIBUS_DL:
+			case LINKTYPE_PKTAP:
+			case LINKTYPE_EPON:
+			case LINKTYPE_IPMI_HPM_2:
+			case LINKTYPE_ZWAVE_R1_R2:
+			case LINKTYPE_ZWAVE_R3:
+			case LINKTYPE_WATTSTOPPER_DLM:
+			case LINKTYPE_ISO_14443:
+			case LINKTYPE_LINUX_SLL2:
+			{
+				return static_cast<LinkLayerType>(value);
+			}
+
+			default:
+			{
+				return LINKTYPE_INVALID;
+			}
+			}
+		}
+
+		class StreamPositionCheckpoint
+		{
+		public:
+			explicit StreamPositionCheckpoint(std::istream& stream)
+			    : m_Stream(stream), m_State(stream.rdstate()), m_Pos(stream.tellg())
+			{}
+
+			void restore()
+			{
+				m_Stream.seekg(m_Pos);
+				m_Stream.clear(m_State);
+			}
+
+			~StreamPositionCheckpoint()
+			{
+				restore();
+			}
+
+		private:
+			std::istream& m_Stream;
+			std::ios_base::iostate m_State;
+			std::streampos m_Pos;
+		};
+
+		/// @brief Check if a stream is seekable.
+		/// @param stream The stream to check.
+		/// @return True if the stream supports seek operations, false otherwise.
+		bool isStreamSeekable(std::istream& stream)
+		{
+			auto pos = stream.tellg();
+			if (stream.fail())
+			{
+				stream.clear();
+				return false;
+			}
+
+			if (stream.seekg(pos).fail())
+			{
+				stream.clear();
+				return false;
+			}
+
+			return true;
+		}
+
+		/// @brief An enumeration representing different capture file formats.
+		enum class FileFormat
+		{
+			Unknown,
+			Pcap,        // regular pcap with microsecond precision
+			PcapMod,     // Alexey Kuznetzov's "modified" pcap format
+			PcapNano,    // regular pcap with nanosecond precision
+			PcapNG,      // uncompressed pcapng
+			Snoop,       // solaris snoop
+			ZstArchive,  // zstd compressed archive
+		};
+
+		/// @brief Specifies the byte order (endianness) of a capture file relative to the host system.
+		enum class FileByteOrder
+		{
+			Unknown,  // Unknown format. Magic number is palindrome.
+			Native,   // Byte order is native to the host system.
+			Swapped   // Byte order is swapped to the host system.
+		};
+
+		/// @brief Checks a magic number and determines if it is a Pcap file.
+		///
+		/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+		/// The byte order is not updated if no supported format is detected.
+		///
+		/// @param[in] magic The magic number to check.
+		/// @param[out] byteOrder Optional location to store the detected byte order.
+		/// @return A CaptureFileFormat value with the detected Pcap format or Unknown if the file is not pcap.
+		FileFormat detectPcapMagic(std::uint32_t magic, FileByteOrder* byteOrder = nullptr)
+		{
+			// Pcap magic numbers are taken from: https://github.com/the-tcpdump-group/libpcap/blob/master/sf-pcap.c
+			// There are some other reserved magic numbers but they are not supported by libpcap so we ignore them.
+			// The order of the magic numbers in the array is important for format detection. See switch statement
+			// below.
+			constexpr std::array<uint32_t, 6> pcapMagicNumbers = {
+				TCPDUMP_MAGIC,          // 0xa1'b2'c3'd4 - regular pcap, microsecond-precision
+				TCPDUMP_MAGIC_SWAPPED,  // 0xd4'c3'b2'a1 - regular pcap, microsecond-precision (byte-swapped)
+				// Libpcap 0.9.1 and later support reading a modified pcap format that contains an extended header.
+				// Format reference: https://wiki.wireshark.org/Development/LibpcapFileFormat#modified-pcap
+				KUZNETZOV_TCPDUMP_MAGIC,          // Alexey Kuznetzov's modified libpcap format
+				KUZNETZOV_TCPDUMP_MAGIC_SWAPPED,  // Alexey Kuznetzov's modified libpcap format (byte-swapped)
+				// Libpcap 1.5.0 and later support reading nanosecond-precision pcap files.
+				NSEC_TCPDUMP_MAGIC,          // 0xa1'b2'3c'4d - regular pcap, nanosecond-precision
+				NSEC_TCPDUMP_MAGIC_SWAPPED,  // 0x4d'3c'b2'a1 - regular pcap, nanosecond-precision (byte-swapped)
+			};
+
+			auto it = std::find(pcapMagicNumbers.begin(), pcapMagicNumbers.end(), magic);
+			if (it == pcapMagicNumbers.end())
+			{
+				return FileFormat::Unknown;
+			}
+
+			// Indices 0-1 are regular microsecond-precision pcap files.
+			// Indices 2-3 are "modified" pcap files
+			// Indices 4-5 are nanosecond-precision pcap files.
+			auto const selectedIdx = std::distance(pcapMagicNumbers.begin(), it);
+
+			if (byteOrder != nullptr)
+			{
+				*byteOrder = (selectedIdx % 2 == 0) ? FileByteOrder::Native : FileByteOrder::Swapped;
+			}
+
+			if (selectedIdx < 2)
+			{
+				return FileFormat::Pcap;
+			}
+			if (selectedIdx < 4)
+			{
+				return FileFormat::PcapMod;
+			}
+
+			return FileFormat::PcapNano;
+		}
+
+		/// @brief Checks if a magic number matches the PcapNG magic number.
+		/// @param magic The magic number to check.
+		/// @return True if the magic number matches the PcapNG file number, false otherwise.
+		bool isPcapNgMagic(uint32_t magic)
+		{
+			constexpr uint32_t PCAPNG_MAGIC = 0x0A0D0D0A;  // pcapng magic number (palindrome)
+			return magic == PCAPNG_MAGIC;
+		}
+
+		/// @brief Checks if a magic number matches the SNOOP magic numbers.
+		/// @param[in] magic The magic number to check.
+		/// @param[out] byteOrder Optional location to store the detected byte order.
+		/// @return True if the magic number matches the Snoop file number, false otherwise.
+		bool isSnoopMagic(std::uint64_t magic, FileByteOrder* byteOrder = nullptr)
+		{
+			constexpr std::array<uint64_t, 2> snoopMagicNumbers = {
+				0x73'6E'6F'6F'70'00'00'00,  // snoop magic number, "snoop" in ASCII
+				0x00'00'00'70'6F'6F'6E'73   // snoop magic number, "snoop" in ASCII (byte-swapped)
+			};
+
+			auto it = std::find(snoopMagicNumbers.begin(), snoopMagicNumbers.end(), magic);
+			if (it == snoopMagicNumbers.end())
+			{
+				return false;
+			}
+
+			if (byteOrder != nullptr)
+			{
+				*byteOrder = (std::distance(snoopMagicNumbers.begin(), it) % 2 == 0) ? FileByteOrder::Native
+				                                                                     : FileByteOrder::Swapped;
+			}
+
+			return true;
+		}
+
+		/// @brief Checks if a magic number matches the Zstd archive magic number.
+		///
+		/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+		/// The byte order is not updated if no supported format is detected.
+		///
+		/// @param[in] magic The magic number to check.
+		/// @param[out] byteOrder Optional location to store the detected byte order.
+		/// @return True if the content stream is Snoop file, false otherwise.
+		bool isZstdArchiveMagic(std::uint32_t magic, FileByteOrder* byteOrder = nullptr)
+		{
+			constexpr std::array<uint32_t, 2> zstdMagicNumbers = {
+				0x28'B5'2F'FD,  // zstd archive magic number
+				0xFD'2F'B5'28,  // zstd archive magic number (byte-swapped)
+			};
+
+			auto it = std::find(zstdMagicNumbers.begin(), zstdMagicNumbers.end(), magic);
+			if (it == zstdMagicNumbers.end())
+			{
+				return false;
+			}
+
+			if (byteOrder != nullptr)
+			{
+				*byteOrder = (std::distance(zstdMagicNumbers.begin(), it) % 2 == 0) ? FileByteOrder::Native
+				                                                                    : FileByteOrder::Swapped;
+			}
+
+			return true;
+		}
+
+		/// @brief Checks a content stream for the magic number and determines the type.
+		///
+		/// The function optionally detects the byte order of the file if it can be determined by the magic number.
+		/// The byte order is not updated if no supported format is detected.
+		///
+		/// @param[in] content A stream that contains the file content.
+		/// @param[out] byteOrder Optional location to store the detected byte order.
+		/// @return A CaptureFileFormat value with the detected content type.
+		FileFormat detectFileFormat(std::istream& content, FileByteOrder* byteOrder = nullptr)
+		{
+			// Check if the stream supports seeking.
+			if (!isStreamSeekable(content))
+			{
+				throw std::runtime_error("Heuristic file format detection requires seekable stream");
+			}
+
+			StreamPositionCheckpoint checkpoint(content);
+
+			// Read first 4 bytes.
+			uint32_t magic;
+			content.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+			if (content.gcount() != sizeof(magic))
+			{
+				return FileFormat::Unknown;
+			}
+
+			FileFormat format = detectPcapMagic(magic, byteOrder);
+			if (format != FileFormat::Unknown)
+			{
+				return format;
+			}
+
+			if (isPcapNgMagic(magic))
+			{
+				if (byteOrder != nullptr)
+				{
+					*byteOrder = FileByteOrder::Unknown;
+				}
+
+				return FileFormat::PcapNG;
+			}
+
+			if (isZstdArchiveMagic(magic, byteOrder))
+			{
+				return FileFormat::ZstArchive;
+			}
+
+			// Read the first 8 bytes again because Snoop magic number is 8 bytes.
+			checkpoint.restore();
+
+			uint64_t magic64;
+			content.read(reinterpret_cast<char*>(&magic64), sizeof(magic64));
+			if (content.gcount() != sizeof(magic64))
+			{
+				return FileFormat::Unknown;
+			}
+
+			if (isSnoopMagic(magic64, byteOrder))
+			{
+				return FileFormat::Snoop;
+			}
+
+			return FileFormat::Unknown;
+		}
+
+		FileTimestampPrecision getPcapPrecision(FileFormat format)
+		{
+			switch (format)
+			{
+			case FileFormat::Pcap:
+			case FileFormat::PcapMod:
+				return FileTimestampPrecision::Microseconds;
+			case FileFormat::PcapNano:
+				return FileTimestampPrecision::Nanoseconds;
+			default:
+				return FileTimestampPrecision::Unknown;
+			}
+		}
+
+		std::string toString(FileTimestampPrecision precision)
+		{
+			switch (precision)
+			{
+			case FileTimestampPrecision::Microseconds:
+				return "Microseconds";
+			case FileTimestampPrecision::Nanoseconds:
+				return "Nanoseconds";
+			default:
+				return "Unknown";
+			}
+		}
 	}  // namespace
-
-	template <typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N])
-	{
-		return N;
-	}
-
-	// Magic numbers for different pcap formats
-	constexpr uint32_t TCPDUMP_MAGIC = 0xa1b2c3d4;
-	constexpr uint32_t TCPDUMP_MAGIC_SWAPPED = 0xd4c3b2a1;
-	constexpr uint32_t NSEC_TCPDUMP_MAGIC = 0xa1b23c4d;
-	constexpr uint32_t NSEC_TCPDUMP_MAGIC_SWAPPED = 0x4d3cb2a1;
-
-	constexpr uint16_t PCAP_MAJOR_VERSION = 2;
-	constexpr uint16_t PCAP_MINOR_VERSION = 4;
-
-	struct pcap_file_header
-	{
-		uint32_t magic;
-		uint16_t version_major;
-		uint16_t version_minor;
-		int32_t thiszone;
-		uint32_t sigfigs;
-		uint32_t snaplen;
-		uint32_t linktype;
-	};
-
-	struct packet_header
-	{
-		uint32_t tv_sec;
-		uint32_t tv_usec;
-		uint32_t caplen;
-		uint32_t len;
-	};
-
-	LinkLayerType toLinkLayerType(uint32_t value)
-	{
-		switch (value)
-		{
-		case LINKTYPE_NULL:
-		case LINKTYPE_ETHERNET:
-		case LINKTYPE_AX25:
-		case LINKTYPE_IEEE802_5:
-		case LINKTYPE_ARCNET_BSD:
-		case LINKTYPE_SLIP:
-		case LINKTYPE_PPP:
-		case LINKTYPE_FDDI:
-		case LINKTYPE_DLT_RAW1:
-		case LINKTYPE_DLT_RAW2:
-		case LINKTYPE_PPP_HDLC:
-		case LINKTYPE_PPP_ETHER:
-		case LINKTYPE_ATM_RFC1483:
-		case LINKTYPE_RAW:
-		case LINKTYPE_C_HDLC:
-		case LINKTYPE_IEEE802_11:
-		case LINKTYPE_FRELAY:
-		case LINKTYPE_LOOP:
-		case LINKTYPE_LINUX_SLL:
-		case LINKTYPE_LTALK:
-		case LINKTYPE_PFLOG:
-		case LINKTYPE_IEEE802_11_PRISM:
-		case LINKTYPE_IP_OVER_FC:
-		case LINKTYPE_SUNATM:
-		case LINKTYPE_IEEE802_11_RADIOTAP:
-		case LINKTYPE_ARCNET_LINUX:
-		case LINKTYPE_APPLE_IP_OVER_IEEE1394:
-		case LINKTYPE_MTP2_WITH_PHDR:
-		case LINKTYPE_MTP2:
-		case LINKTYPE_MTP3:
-		case LINKTYPE_SCCP:
-		case LINKTYPE_DOCSIS:
-		case LINKTYPE_LINUX_IRDA:
-		case LINKTYPE_USER0:
-		case LINKTYPE_USER1:
-		case LINKTYPE_USER2:
-		case LINKTYPE_USER3:
-		case LINKTYPE_USER4:
-		case LINKTYPE_USER5:
-		case LINKTYPE_USER6:
-		case LINKTYPE_USER7:
-		case LINKTYPE_USER8:
-		case LINKTYPE_USER9:
-		case LINKTYPE_USER10:
-		case LINKTYPE_USER11:
-		case LINKTYPE_USER12:
-		case LINKTYPE_USER13:
-		case LINKTYPE_USER14:
-		case LINKTYPE_USER15:
-		case LINKTYPE_IEEE802_11_AVS:
-		case LINKTYPE_BACNET_MS_TP:
-		case LINKTYPE_PPP_PPPD:
-		case LINKTYPE_GPRS_LLC:
-		case LINKTYPE_GPF_T:
-		case LINKTYPE_GPF_F:
-		case LINKTYPE_LINUX_LAPD:
-		case LINKTYPE_BLUETOOTH_HCI_H4:
-		case LINKTYPE_USB_LINUX:
-		case LINKTYPE_PPI:
-		case LINKTYPE_IEEE802_15_4:
-		case LINKTYPE_SITA:
-		case LINKTYPE_ERF:
-		case LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR:
-		case LINKTYPE_AX25_KISS:
-		case LINKTYPE_LAPD:
-		case LINKTYPE_PPP_WITH_DIR:
-		case LINKTYPE_C_HDLC_WITH_DIR:
-		case LINKTYPE_FRELAY_WITH_DIR:
-		case LINKTYPE_IPMB_LINUX:
-		case LINKTYPE_IEEE802_15_4_NONASK_PHY:
-		case LINKTYPE_USB_LINUX_MMAPPED:
-		case LINKTYPE_FC_2:
-		case LINKTYPE_FC_2_WITH_FRAME_DELIMS:
-		case LINKTYPE_IPNET:
-		case LINKTYPE_CAN_SOCKETCAN:
-		case LINKTYPE_IPV4:
-		case LINKTYPE_IPV6:
-		case LINKTYPE_IEEE802_15_4_NOFCS:
-		case LINKTYPE_DBUS:
-		case LINKTYPE_DVB_CI:
-		case LINKTYPE_MUX27010:
-		case LINKTYPE_STANAG_5066_D_PDU:
-		case LINKTYPE_NFLOG:
-		case LINKTYPE_NETANALYZER:
-		case LINKTYPE_NETANALYZER_TRANSPARENT:
-		case LINKTYPE_IPOIB:
-		case LINKTYPE_MPEG_2_TS:
-		case LINKTYPE_NG40:
-		case LINKTYPE_NFC_LLCP:
-		case LINKTYPE_INFINIBAND:
-		case LINKTYPE_SCTP:
-		case LINKTYPE_USBPCAP:
-		case LINKTYPE_RTAC_SERIAL:
-		case LINKTYPE_BLUETOOTH_LE_LL:
-		case LINKTYPE_NETLINK:
-		case LINKTYPE_BLUETOOTH_LINUX_MONITOR:
-		case LINKTYPE_BLUETOOTH_BREDR_BB:
-		case LINKTYPE_BLUETOOTH_LE_LL_WITH_PHDR:
-		case LINKTYPE_PROFIBUS_DL:
-		case LINKTYPE_PKTAP:
-		case LINKTYPE_EPON:
-		case LINKTYPE_IPMI_HPM_2:
-		case LINKTYPE_ZWAVE_R1_R2:
-		case LINKTYPE_ZWAVE_R3:
-		case LINKTYPE_WATTSTOPPER_DLM:
-		case LINKTYPE_ISO_14443:
-		case LINKTYPE_LINUX_SLL2:
-		{
-			return static_cast<LinkLayerType>(value);
-		}
-
-		default:
-		{
-			return LINKTYPE_INVALID;
-		}
-		}
-	}
 
 	// ~~~~~~~~~~~~~~~~~~~
 	// IFileDevice members
@@ -242,6 +543,58 @@ namespace pcpp
 		return new PcapFileReaderDevice(fileName);
 	}
 
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::createReader(const std::string& fileName)
+	{
+		std::ifstream fileContent(fileName, std::ios_base::binary);
+		if (fileContent.fail())
+		{
+			throw std::runtime_error("Could not open file: " + fileName);
+		}
+
+		switch (detectFileFormat(fileContent))
+		{
+		case FileFormat::PcapNano:
+		case FileFormat::Pcap:
+		{
+			// Modified pcap files are treated as regular pcap files by libpcap so they are folded.
+			return std::make_unique<PcapFileReaderDevice>(fileName);
+		}
+		case FileFormat::ZstArchive:
+		{
+			// PcapNG backend can support ZstdCompressed Pcap files, so we assume an archive is compressed PcapNG.
+			if (!checkZstdSupport())
+			{
+				throw std::runtime_error(
+				    "PcapNG Zstd compressed files are not supported in this build of PcapPlusPlus");
+			}
+			// fallthrough
+		}
+		case FileFormat::PcapNG:
+		{
+			return std::make_unique<PcapNgFileReaderDevice>(fileName);
+		}
+		case FileFormat::Snoop:
+		{
+			return std::make_unique<SnoopFileReaderDevice>(fileName);
+		}
+		default:
+			throw std::runtime_error("File format of " + fileName + " is not supported");
+		}
+	}
+
+	std::unique_ptr<IFileReaderDevice> IFileReaderDevice::tryCreateReader(const std::string& fileName)
+	{
+		try
+		{
+			return createReader(fileName);
+		}
+		catch (const std::runtime_error& e)
+		{
+			PCPP_LOG_ERROR(e.what());
+			return nullptr;
+		}
+	}
+
 	uint64_t IFileReaderDevice::getFileSize() const
 	{
 		std::ifstream fileStream(m_FileName.c_str(), std::ifstream::ate | std::ifstream::binary);
@@ -281,15 +634,75 @@ namespace pcpp
 	// PcapFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	static uint16_t swap16(uint16_t value)
+	namespace
 	{
-		return static_cast<uint16_t>((value >> 8) | (value << 8));
-	}
+		uint16_t swap16(uint16_t value)
+		{
+			return static_cast<uint16_t>((value >> 8) | (value << 8));
+		}
 
-	static uint32_t swap32(uint32_t value)
-	{
-		return (value >> 24) | ((value >> 8) & 0x0000FF00) | ((value << 8) & 0x00FF0000) | (value << 24);
-	}
+		uint32_t swap32(uint32_t value)
+		{
+			return (value >> 24) | ((value >> 8) & 0x0000FF00) | ((value << 8) & 0x00FF0000) | (value << 24);
+		}
+
+		enum class PcapReadHeaderStatus
+		{
+			Ok,
+			NoData,
+			MalformedData,
+			UnsupportedFormat
+		};
+
+		/// @brief Reads a pcap file header from the given input stream and fills the provided header structure,
+		/// timestamp precision, and byte swap flag.
+		///
+		/// The function will populate the file header structure and convert it to host byte order.
+		///
+		/// @param inStream The input stream to read from.
+		/// @param header A pcap_file_header structure that will be filled with the header data read from the stream.
+		/// @param precision The precision of the timestamps in the pcap file.
+		/// @param needsSwap If the file contents need to be byte-swapped to match the host's endianness.
+		/// @return The status of the reading operation.
+		PcapReadHeaderStatus readPcapHeader(std::istream& inStream, pcap_file_header& header,
+		                                    FileTimestampPrecision& precision, bool& needsSwap)
+		{
+			inStream.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+			auto readBytes = inStream.gcount();
+			if (readBytes == 0)
+			{
+				return PcapReadHeaderStatus::NoData;
+			}
+			if (readBytes < static_cast<std::streamsize>(sizeof(header)))
+			{
+				return PcapReadHeaderStatus::MalformedData;
+			}
+
+			FileByteOrder byteOrder;
+			FileFormat pcapFormat = detectPcapMagic(header.magic, &byteOrder);
+			if (pcapFormat == FileFormat::Unknown)
+			{
+				return PcapReadHeaderStatus::UnsupportedFormat;
+			}
+
+			precision = getPcapPrecision(pcapFormat);
+			needsSwap = byteOrder == FileByteOrder::Swapped;
+
+			if (needsSwap)
+			{
+				header.magic = swap32(header.magic);
+				header.version_major = swap16(header.version_major);
+				header.version_minor = swap16(header.version_minor);
+				header.thiszone = swap32(header.thiszone);
+				header.sigfigs = swap32(header.sigfigs);
+				header.snaplen = swap32(header.snaplen);
+				header.linktype = swap32(header.linktype);
+			}
+
+			return PcapReadHeaderStatus::Ok;
+		}
+	}  // namespace
 
 	bool PcapFileReaderDevice::open()
 	{
@@ -310,53 +723,25 @@ namespace pcpp
 		}
 
 		pcap_file_header pcapFileHeader{};
-		if (!pcapFile.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
+		auto status = readPcapHeader(pcapFile, pcapFileHeader, m_Precision, m_NeedsSwap);
+		switch (status)
+		{
+		case PcapReadHeaderStatus::Ok:
+			break;
+		case PcapReadHeaderStatus::NoData:
+		case PcapReadHeaderStatus::MalformedData:
 		{
 			PCPP_LOG_ERROR("Cannot read pcap file header");
 			return false;
 		}
-
-		switch (pcapFileHeader.magic)
+		case PcapReadHeaderStatus::UnsupportedFormat:
 		{
-		case TCPDUMP_MAGIC:
-		{
-			m_Precision = FileTimestampPrecision::Microseconds;
-			break;
-		}
-
-		case TCPDUMP_MAGIC_SWAPPED:
-		{
-			m_NeedsSwap = true;
-			m_Precision = FileTimestampPrecision::Microseconds;
-			break;
-		}
-
-		case NSEC_TCPDUMP_MAGIC:
-		{
-			m_Precision = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-
-		case NSEC_TCPDUMP_MAGIC_SWAPPED:
-		{
-			m_NeedsSwap = true;
-			m_Precision = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-
-		default:
-		{
-			PCPP_LOG_ERROR("Invalid magic number: 0x" << std::hex << pcapFileHeader.magic);
+			PCPP_LOG_ERROR("File content is not pcap or byte order can't be determined. Detected magic number: 0x"
+			               << std::hex << pcapFileHeader.magic);
 			return false;
 		}
-		}
-
-		if (m_NeedsSwap)
-		{
-			pcapFileHeader.version_major = swap16(pcapFileHeader.version_major);
-			pcapFileHeader.version_minor = swap16(pcapFileHeader.version_minor);
-			pcapFileHeader.snaplen = swap32(pcapFileHeader.snaplen);
-			pcapFileHeader.linktype = swap32(pcapFileHeader.linktype);
+		default:
+			throw std::logic_error("Unhandled PcapReadHeaderStatus value");
 		}
 
 		if (pcapFileHeader.version_major != 2 && pcapFileHeader.version_major != 543)
@@ -552,18 +937,81 @@ namespace pcpp
 
 		if (appendMode)
 		{
-			auto checkHeaderResult = checkHeader(pcapFile, m_Precision, m_PcapLinkLayerType);
+			// Using temporary to avoid modifying member variables in case of failure to read header
+			bool needsSwap = false;
+			FileTimestampPrecision precisionFromHeader;
+			pcap_file_header header;
 
-			if (checkHeaderResult.result == CheckHeaderResult::Result::HeaderError)
+			// Position file pointer at the beginning of the file to read the header. Apparently there is no guarantee
+			// where the read file pointer will be initialized when opening in std::ios::app.
+			pcapFile.seekg(0, std::ios::beg);
+			auto status = readPcapHeader(pcapFile, header, precisionFromHeader, needsSwap);
+			switch (status)
 			{
-				PCPP_LOG_ERROR(checkHeaderResult.error);
+			case PcapReadHeaderStatus::Ok:
+			{
+				// We have a valid header
+				PCPP_LOG_DEBUG("Read existing pcap header file.");
+				shouldWriteHeader = false;
+				break;
+			}
+			case PcapReadHeaderStatus::NoData:
+			{
+				// Empty file - proceed as if we are creating a new file
+				if (pcapFile.bad())
+				{
+					// badbit errors are generally unrecoverable.
+					PCPP_LOG_ERROR("Error reading pcap file.");
+					return false;
+				}
+
+				PCPP_LOG_DEBUG("File is empty. A new pcap header will be written.");
+				pcapFile.clear();  // Clear EOF or failbit state to allow writing
+				shouldWriteHeader = true;
+				break;
+			}
+			case PcapReadHeaderStatus::MalformedData:
+			{
+				PCPP_LOG_ERROR("Cannot read pcap file header. File may be malformed or not a pcap file");
 				return false;
 			}
+			case PcapReadHeaderStatus::UnsupportedFormat:
+			{
+				PCPP_LOG_ERROR("Cannot read pcap file header. Unsupported format or invalid magic number: 0x"
+				               << std::hex << header.magic);
+				return false;
+			}
+			default:
+				throw std::logic_error("Unexpected PcapReadHeaderStatus value");
+			}
 
-			m_NeedsSwap = checkHeaderResult.needsSwap;
-			shouldWriteHeader = checkHeaderResult.result == CheckHeaderResult::Result::HeaderNeeded;
+			// If we have a header, validate that the file is compatible.
+			if (!shouldWriteHeader)
+			{
+				m_NeedsSwap = needsSwap;
 
-			pcapFile.seekg(0, std::ios::end);
+				if (precisionFromHeader != m_Precision)
+				{
+					PCPP_LOG_ERROR("Existing file precision (" + toString(precisionFromHeader) +
+					               ") does not match the requested device precision (" + toString(m_Precision) + ")");
+					return false;
+				}
+
+				if (header.version_major != PCAP_MAJOR_VERSION || header.version_minor != PCAP_MINOR_VERSION)
+				{
+					PCPP_LOG_ERROR("Unsupported pcap file version");
+					return false;
+				}
+
+				if (header.linktype != static_cast<uint32_t>(m_PcapLinkLayerType))
+				{
+					PCPP_LOG_ERROR("Existing file link type does not match the requested device link type");
+					return false;
+				}
+
+				// Move the file pointer to the end of the file for appending new packets
+				pcapFile.seekg(0, std::ios::end);
+			}
 		}
 
 		if (shouldWriteHeader && !writeHeader(pcapFile, m_Precision, PCPP_MAX_PACKET_SIZE, m_PcapLinkLayerType))
@@ -670,7 +1118,7 @@ namespace pcpp
 		m_PcapFile.close();
 	}
 
-	bool PcapFileWriterDevice::writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
+	bool PcapFileWriterDevice::writeHeader(std::ostream& outStream, FileTimestampPrecision precision, uint32_t snaplen,
 	                                       LinkLayerType linkType)
 	{
 		pcap_file_header header{ precision == FileTimestampPrecision::Microseconds ? TCPDUMP_MAGIC : NSEC_TCPDUMP_MAGIC,
@@ -681,9 +1129,9 @@ namespace pcpp
 			                     snaplen,
 			                     static_cast<uint32_t>(linkType) };
 
-		pcapFile.write(reinterpret_cast<const char*>(&header), sizeof(header));
+		outStream.write(reinterpret_cast<const char*>(&header), sizeof(header));
 
-		if (!pcapFile.good())
+		if (!outStream.good())
 		{
 			PCPP_LOG_ERROR("Error writing pcap header");
 			return false;
@@ -692,110 +1140,14 @@ namespace pcpp
 		return true;
 	}
 
-	PcapFileWriterDevice::CheckHeaderResult PcapFileWriterDevice::checkHeader(std::fstream& pcapFile,
-	                                                                          FileTimestampPrecision requestedPrecision,
-	                                                                          LinkLayerType requestedLinkType)
-	{
-		if (!pcapFile.is_open())
-		{
-			return CheckHeaderResult::fromError("Pcap file isn't open");
-		}
-
-		pcapFile.seekg(0, std::ios::end);
-		std::streamsize size = pcapFile.tellg();
-
-		if (size == 0)
-		{
-			return CheckHeaderResult::fromHeaderNeeded();
-		}
-
-		if (size < static_cast<std::streamsize>(sizeof(pcap_file_header)))
-		{
-			return CheckHeaderResult::fromError("Malformed file header or not a pcap file");
-		}
-
-		pcapFile.seekg(0, std::ios::beg);
-
-		pcap_file_header pcapFileHeader{};
-		if (!pcapFile.read(reinterpret_cast<char*>(&pcapFileHeader), sizeof(pcapFileHeader)))
-		{
-			return CheckHeaderResult::fromError("Cannot read file header");
-		}
-
-		FileTimestampPrecision precisionFromHeader = FileTimestampPrecision::Microseconds;
-
-		bool needsSwap = false;
-		switch (pcapFileHeader.magic)
-		{
-		case TCPDUMP_MAGIC:
-		{
-			break;
-		}
-		case TCPDUMP_MAGIC_SWAPPED:
-		{
-			needsSwap = true;
-			break;
-		}
-		case NSEC_TCPDUMP_MAGIC:
-		{
-			precisionFromHeader = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-		case NSEC_TCPDUMP_MAGIC_SWAPPED:
-		{
-			needsSwap = true;
-			precisionFromHeader = FileTimestampPrecision::Nanoseconds;
-			break;
-		}
-		default:
-		{
-			return CheckHeaderResult::fromError("Unsupported pcap file format");
-		}
-		}
-
-		if (needsSwap)
-		{
-			pcapFileHeader.version_major = swap16(pcapFileHeader.version_major);
-			pcapFileHeader.version_minor = swap16(pcapFileHeader.version_minor);
-			pcapFileHeader.snaplen = swap32(pcapFileHeader.snaplen);
-			pcapFileHeader.linktype = swap32(pcapFileHeader.linktype);
-		}
-
-		if (precisionFromHeader != requestedPrecision)
-		{
-			auto getPrecisionStr = [](const FileTimestampPrecision precision) -> std::string {
-				switch (precision)
-				{
-				case FileTimestampPrecision::Microseconds:
-					return "Microseconds";
-				case FileTimestampPrecision::Nanoseconds:
-					return "Nanoseconds";
-				default:
-					return "Unknown";
-				}
-			};
-			return CheckHeaderResult::fromError("Existing file precision (" + getPrecisionStr(precisionFromHeader) +
-			                                    ") does not match the requested device precision (" +
-			                                    getPrecisionStr(requestedPrecision) + ")");
-		}
-
-		if (pcapFileHeader.version_major != PCAP_MAJOR_VERSION || pcapFileHeader.version_minor != PCAP_MINOR_VERSION)
-		{
-			return CheckHeaderResult::fromError("Unsupported pcap file version");
-		}
-
-		if (pcapFileHeader.linktype != static_cast<uint32_t>(requestedLinkType))
-		{
-			return CheckHeaderResult::fromError(
-			    "Existing file link type does not match the requested device link type");
-		}
-
-		return CheckHeaderResult::fromOk(needsSwap);
-	}
-
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapNgFileReaderDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	bool PcapNgFileReaderDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
 
 	PcapNgFileReaderDevice::PcapNgFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName)
 	{
@@ -964,6 +1316,11 @@ namespace pcpp
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// PcapNgFileWriterDevice members
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	bool PcapNgFileWriterDevice::isZstdSupported()
+	{
+		return checkZstdSupport();
+	}
 
 	PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel)
 	    : IFileWriterDevice(fileName)
@@ -1166,10 +1523,15 @@ namespace pcpp
 			return false;
 		}
 
-		if (be64toh(snoop_file_header.identification_pattern) != 0x736e6f6f70000000 ||
-		    be32toh(snoop_file_header.version_number) != 2)
+		if (!isSnoopMagic(snoop_file_header.identification_pattern))
 		{
-			PCPP_LOG_ERROR("Malformed snoop file header for '" << m_FileName << "'");
+			PCPP_LOG_ERROR("File content does not match snoop magic number for file: \'" << m_FileName << '\'');
+			return false;
+		}
+
+		if (be32toh(snoop_file_header.version_number) != 2)
+		{
+			PCPP_LOG_ERROR("Malformed snoop file header version number for '" << m_FileName << "'");
 			return false;
 		}
 

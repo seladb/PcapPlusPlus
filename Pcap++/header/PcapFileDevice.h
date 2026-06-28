@@ -114,7 +114,32 @@ namespace pcpp
 		/// it returns an instance of PcapFileReaderDevice
 		/// @param[in] fileName The file name to open
 		/// @return An instance of the reader to read the file. Notice you should free this instance when done using it
+		/// @deprecated Prefer `createReader` or `tryCreateReader` due to selection of reader based on file content
+		/// instead of extension.
+		PCPP_DEPRECATED("Prefer `tryCreateReader` due to selection of reader based on file content.")
 		static IFileReaderDevice* getReader(const std::string& fileName);
+
+		/// @brief Creates an instance of the reader best fit to read the file.
+		///
+		/// The factory function uses heuristics based on the file content to decide the reader.
+		/// If the file type is known at compile time, it is better to construct a concrete reader instance directly.
+		///
+		/// @param[in] fileName The path to the file to open.
+		/// @return A unique pointer to a reader instance
+		/// @throws std::runtime_error If the file could not be opened or is of unsupported format.
+		/// @remarks The device is not opened automatically. Call `open()` on the returned device before using it.
+		static std::unique_ptr<IFileReaderDevice> createReader(const std::string& fileName);
+
+		/// @brief Tries to create an instance of the reader best fit to read the file.
+		///
+		/// The factory function uses heuristics based on the file content to decide the reader.
+		/// If the file type is known at compile time, it is better to construct a concrete reader instance directly.
+		///
+		/// @param fileName The path to the file to open.
+		/// @return A unique pointer to a reader instance, or nullptr if the file could not be opened or is of
+		/// unsupported format.
+		/// @remarks The device is not opened automatically. Call `open()` on the returned device before using it.
+		static std::unique_ptr<IFileReaderDevice> tryCreateReader(const std::string& fileName);
 	};
 
 	/// @class IFileWriterDevice
@@ -306,44 +331,13 @@ namespace pcpp
 		void flush();
 
 	private:
+		static bool writeHeader(std::ostream& outStream, FileTimestampPrecision precision, uint32_t snaplen,
+		                        LinkLayerType linkType);
+
 		LinkLayerType m_PcapLinkLayerType = LINKTYPE_ETHERNET;
 		bool m_NeedsSwap = false;
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;
 		std::fstream m_PcapFile;
-
-		struct CheckHeaderResult
-		{
-			enum class Result
-			{
-				HeaderOk,
-				HeaderError,
-				HeaderNeeded
-			};
-
-			Result result;
-			std::string error;
-			bool needsSwap = false;
-
-			static CheckHeaderResult fromOk(bool needsSwap)
-			{
-				return { Result::HeaderOk, "", needsSwap };
-			}
-
-			static CheckHeaderResult fromError(const std::string& error)
-			{
-				return { Result::HeaderError, error };
-			}
-
-			static CheckHeaderResult fromHeaderNeeded()
-			{
-				return { Result::HeaderNeeded };
-			}
-		};
-
-		static bool writeHeader(std::fstream& pcapFile, FileTimestampPrecision precision, uint32_t snaplen,
-		                        LinkLayerType linkType);
-		static CheckHeaderResult checkHeader(std::fstream& pcapFile, FileTimestampPrecision requestedPrecision,
-		                                     LinkLayerType requestedLinkType);
 	};
 
 	/// @class PcapNgFileReaderDevice
@@ -355,6 +349,10 @@ namespace pcpp
 		internal::LightPcapNgHandle* m_LightPcapNg;
 
 	public:
+		/// @brief A static method that checks if the device was built with zstd compression support
+		/// @return True if zstd compression is supported, false otherwise.
+		static bool isZstdSupported();
+
 		/// A constructor for this class that gets the pcap-ng full path file name to open. Notice that after calling
 		/// this constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
 		/// @param[in] fileName The full path of the file to read
@@ -440,6 +438,10 @@ namespace pcpp
 		int m_CompressionLevel;
 
 	public:
+		/// @brief A static method that checks if the device was built with zstd compression support
+		/// @return True if zstd compression is supported, false otherwise.
+		static bool isZstdSupported();
+
 		/// A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice
 		/// that after calling this constructor the file isn't opened yet, so writing packets will fail. For opening the
 		/// file call open()

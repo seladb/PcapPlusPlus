@@ -70,7 +70,8 @@ namespace ptf
 			{
 				if (showSkippedTests)
 				{
-					std::cout << std::left << std::setw(35) << testName << ": SKIPPED (tags don't match)" << std::endl;
+					std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << testName
+					          << ": SKIPPED (tags don't match)" << std::endl;
 				}
 				result = PTF_RESULT_SKIPPED;
 			}
@@ -90,7 +91,8 @@ namespace ptf
 				catch (std::exception const& e)
 				{
 					result = PTF_RESULT_FAILED;
-					std::cout << std::left << std::setw(35) << testName << ": FAILED. Unhandled exception occurred! "
+					std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << testName
+					          << ": FAILED. Unhandled exception occurred! "
 					          << "Exception: " << e.what() << std::endl;
 				}
 				if (runMemLeakCheck)
@@ -108,15 +110,15 @@ namespace ptf
 						if (memLeakCount > 0 || memLeakSize > 0)
 						{
 							result = PTF_RESULT_FAILED;
-							std::cout << std::left << std::setw(35) << testName << ": FAILED. Memory leak found! "
-							          << memLeakCount << " objects and " << memLeakSize << "[bytes] leaked"
-							          << std::endl;
+							std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << testName
+							          << ": FAILED. Memory leak found! " << memLeakCount << " objects and "
+							          << memLeakSize << "[bytes] leaked" << std::endl;
 						}
 					}
 				}
 				if (result == PTF_RESULT_PASSED)
 				{
-					std::cout << std::left << std::setw(35) << testName << ": PASSED" << std::endl;
+					std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << testName << ": PASSED" << std::endl;
 				}
 			}
 			if (result == PTF_RESULT_PASSED)

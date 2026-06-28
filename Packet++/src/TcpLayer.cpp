@@ -19,6 +19,7 @@
 #include "SmtpLayer.h"
 #include "LdapLayer.h"
 #include "PostgresLayer.h"
+#include "MySqlLayer.h"
 #include "GtpLayer.h"
 #include "ModbusLayer.h"
 #include "PacketUtils.h"
@@ -311,9 +312,8 @@ namespace pcpp
 
 	void TcpLayer::initLayer()
 	{
-		m_DataLen = sizeof(tcphdr);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(tcphdr));
+
 		m_Protocol = TCP;
 		m_NumOfTrailingBytes = 0;
 		getTcpHeader()->dataOffset = sizeof(tcphdr) / 4;
@@ -466,12 +466,22 @@ namespace pcpp
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(PostgresLayer::parsePostgresBackendMessages,
 			                                                           payload, payloadLen);
 		}
+		else if (MySqlLayer::isMySqlPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(MySqlLayer::parseMySqlServerMessage, payload,
+			                                                           payloadLen);
+		}
+		else if (MySqlLayer::isMySqlPort(portDst))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(MySqlLayer::parseMySqlClientMessage, payload,
+			                                                           payloadLen);
+		}
 		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
 		         GtpV2Layer::isDataValid(payload, payloadLen))
 		{
 			constructNextLayer<GtpV2Layer>(payload, payloadLen, getAttachedPacket());
 		}
-		else if (ModbusLayer::isModbusPort(portDst))
+		else if (ModbusLayer::isModbusPort(portDst) && ModbusLayer::isDataValid(payload, payloadLen))
 		{
 			constructNextLayer<ModbusLayer>(payload, payloadLen, getAttachedPacket());
 		}

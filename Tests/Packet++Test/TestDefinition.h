@@ -49,6 +49,7 @@ PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
 PTF_TEST_CASE(CreatePacketFromBuffer);
+PTF_TEST_CASE(CopyLayerDataTest);
 PTF_TEST_CASE(InsertVlanToPacket);
 PTF_TEST_CASE(RemoveLayerTest);
 PTF_TEST_CASE(CopyLayerAndPacketTest);
@@ -140,6 +141,7 @@ PTF_TEST_CASE(NullLoopbackTest);
 
 // Implemented in Sll2Tests.cpp
 PTF_TEST_CASE(Sll2PacketParsingTest);
+PTF_TEST_CASE(Sll2ParseLLCTest);
 PTF_TEST_CASE(Sll2PacketCreationTest);
 
 // Implemented in NflogTests.cpp
@@ -157,6 +159,7 @@ PTF_TEST_CASE(DhcpEditTest);
 
 // Implemented in SSLTests.cpp
 PTF_TEST_CASE(SSLClientHelloParsingTest);
+PTF_TEST_CASE(SSLHelloTruncatedVersionTest);
 PTF_TEST_CASE(SSLExtensionWithZeroSizeTest);
 PTF_TEST_CASE(SSLAppDataParsingTest);
 PTF_TEST_CASE(SSLAlertParsingTest);
@@ -168,6 +171,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing5Test);
 PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
+PTF_TEST_CASE(SSLECPointFormatExtensionZeroLengthTest);
 PTF_TEST_CASE(TLS1_3ParsingTest);
 PTF_TEST_CASE(TLSCipherSuiteTest);
 PTF_TEST_CASE(ClientHelloTLSFingerprintTest);
@@ -213,6 +217,7 @@ PTF_TEST_CASE(GtpV2LayerEditTest);
 PTF_TEST_CASE(BgpLayerParsingTest);
 PTF_TEST_CASE(BgpLayerCreationTest);
 PTF_TEST_CASE(BgpLayerEditTest);
+PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest);
 
 // Implemented in SSHTests.cpp
 PTF_TEST_CASE(SSHParsingTest);
@@ -234,6 +239,8 @@ PTF_TEST_CASE(NtpCreationTests);
 
 // Implemented in TelnetTests.cpp
 PTF_TEST_CASE(TelnetCommandParsingTests);
+PTF_TEST_CASE(TelentCommandInvalidDataTests);
+PTF_TEST_CASE(TelnetCommandTruncatedOptionTest);
 PTF_TEST_CASE(TelnetDataParsingTests);
 
 // Implemented in IcmpV6Tests.cpp
@@ -325,6 +332,7 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest);
 // Implemented in ModbusTests.cpp
 PTF_TEST_CASE(ModbusLayerCreationTest);
 PTF_TEST_CASE(ModbusLayerParsingTest);
+PTF_TEST_CASE(ModbusLayerTruncatedTest);
 
 // Implemented in X509Tests.cpp
 PTF_TEST_CASE(X509ParsingTest);
@@ -348,3 +356,8 @@ PTF_TEST_CASE(CryptoKeyInvalidDataTest);
 PTF_TEST_CASE(PostgresLayerParsingTest);
 PTF_TEST_CASE(PostgresMessageParsingTest);
 PTF_TEST_CASE(PostgresInvalidDataTest);
+
+// Implemented in MySqlTests.cpp
+PTF_TEST_CASE(MySqlLayerParsingTest);
+PTF_TEST_CASE(MySqlMessageParsingTest);
+PTF_TEST_CASE(MySqlInvalidDataTest);

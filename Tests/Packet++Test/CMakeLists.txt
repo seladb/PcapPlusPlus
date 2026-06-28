@@ -25,6 +25,7 @@ add_executable(
   Tests/LdapTests.cpp
   Tests/LLCTests.cpp
   Tests/ModbusTests.cpp
+  Tests/MySqlTests.cpp
   Tests/NflogTests.cpp
   Tests/NtpTests.cpp
   Tests/PacketTests.cpp

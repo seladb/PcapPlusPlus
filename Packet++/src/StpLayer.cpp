@@ -20,7 +20,7 @@ namespace pcpp
 
 	uint64_t StpLayer::macAddressToID(const pcpp::MacAddress& addr)
 	{
-		uint8_t value[6];
+		uint8_t value[6] = { 0 };
 		addr.copyTo(value);
 		return ((uint64_t(value[0]) << 40) | (uint64_t(value[1]) << 32) | (uint64_t(value[2]) << 24) |
 		        (uint64_t(value[3]) << 16) | (uint64_t(value[4]) << 8) | (uint64_t(value[5])));

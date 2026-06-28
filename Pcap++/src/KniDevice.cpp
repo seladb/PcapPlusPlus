@@ -480,7 +480,7 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
-			newRawPacket->setMBuf(mBuf, time);
+			newRawPacket->setMBuf(mBuf, time, RTE_MBUF_DEFAULT_BUF_SIZE);
 			rawPacketsArr.pushBack(newRawPacket);
 		}
 
@@ -524,7 +524,7 @@ namespace pcpp
 			if (rawPacketsArr[index] == nullptr)
 				rawPacketsArr[index] = new MBufRawPacket();
 
-			rawPacketsArr[index]->setMBuf(mBuf, time);
+			rawPacketsArr[index]->setMBuf(mBuf, time, RTE_MBUF_DEFAULT_BUF_SIZE);
 		}
 
 		return packetsReceived;
@@ -560,7 +560,7 @@ namespace pcpp
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
-			newRawPacket->setMBuf(mBuf, time);
+			newRawPacket->setMBuf(mBuf, time, RTE_MBUF_DEFAULT_BUF_SIZE);
 			if (packetsArr[index] == nullptr)
 				packetsArr[index] = new Packet();
 
@@ -808,7 +808,7 @@ namespace pcpp
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 				{
-					rawPackets[index].setMBuf(mBufArray[index], time);
+					rawPackets[index].setMBuf(mBufArray[index], time, RTE_MBUF_DEFAULT_BUF_SIZE);
 				}
 
 				if (!callback(rawPackets, numOfPktsReceived, device, userCookie))
@@ -905,7 +905,7 @@ namespace pcpp
 
 					for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 					{
-						rawPackets[index].setMBuf(mBufArray[index], time);
+						rawPackets[index].setMBuf(mBufArray[index], time, RTE_MBUF_DEFAULT_BUF_SIZE);
 					}
 
 					if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))
@@ -932,7 +932,7 @@ namespace pcpp
 
 					for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 					{
-						rawPackets[index].setMBuf(mBufArray[index], time);
+						rawPackets[index].setMBuf(mBufArray[index], time, RTE_MBUF_DEFAULT_BUF_SIZE);
 					}
 
 					if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))

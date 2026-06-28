@@ -751,7 +751,7 @@ namespace pcpp
 			m_OnConnEnd(tcpReassemblyData.connData, reason, m_UserCookie);
 
 		tcpReassemblyData.closed = true;  // mark the connection as closed
-		insertIntoCleanupList(flowKey);
+		scheduleCleanup(flowKey);
 
 		PCPP_LOG_DEBUG("Connection with flow key 0x" << std::hex << flowKey << " is closed");
 	}
@@ -781,7 +781,7 @@ namespace pcpp
 				m_OnConnEnd(tcpReassemblyData.connData, TcpReassemblyConnectionClosedManually, m_UserCookie);
 
 			tcpReassemblyData.closed = true;  // mark the connection as closed
-			insertIntoCleanupList(flowKey);
+			scheduleCleanup(flowKey);
 
 			PCPP_LOG_DEBUG("Connection with flow key 0x" << std::hex << flowKey << " is closed");
 		}
@@ -796,18 +796,16 @@ namespace pcpp
 		return -1;
 	}
 
-	void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
+	void TcpReassembly::scheduleCleanup(uint32_t flowKey)
 	{
-		// m_CleanupList is a map with key of type time_t (expiration time). The mapped type is a list that stores the
-		// flow keys to be cleared in certain point of time. m_CleanupList.insert inserts an empty list if the container
-		// does not already contain an element with an equivalent key, otherwise this method returns an iterator to the
-		// element that prevents insertion.
-		std::pair<CleanupList::iterator, bool> pair =
-		    m_CleanupList.insert(std::make_pair(time(nullptr) + m_ClosedConnectionDelay, CleanupList::mapped_type()));
+		// m_CleanupMultimap is a multimap with key of type time_t (expiration time) and a value type uint32_t (flow
+		// key). Due to being a multimap, multiple flow keys can have the same expiration time.
+		//
+		// During purge, up to 'maxNumToClean' entries with expiration time smaller than the current time will be
+		// removed from storage.
 
-		// getting the reference to list
-		CleanupList::mapped_type& keysList = pair.first->second;
-		keysList.push_front(flowKey);
+		auto expireTime = time(nullptr) + m_ClosedConnectionDelay;
+		m_CleanupMultimap.emplace(expireTime, flowKey);
 	}
 
 	uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
@@ -817,24 +815,17 @@ namespace pcpp
 		if (maxNumToClean == 0)
 			maxNumToClean = m_MaxNumToClean;
 
-		CleanupList::iterator iterTime = m_CleanupList.begin(), iterTimeEnd = m_CleanupList.upper_bound(time(nullptr));
-		while (iterTime != iterTimeEnd && count < maxNumToClean)
+		auto it = m_CleanupMultimap.begin();
+		auto itEnd = m_CleanupMultimap.upper_bound(time(nullptr));
+
+		for (; it != itEnd && count < maxNumToClean; ++it, ++count)
 		{
-			CleanupList::mapped_type& keysList = iterTime->second;
-
-			for (; !keysList.empty() && count < maxNumToClean; ++count)
-			{
-				CleanupList::mapped_type::const_reference key = keysList.front();
-				m_ConnectionInfo.erase(key);
-				m_ConnectionList.erase(key);
-				keysList.pop_front();
-			}
-
-			if (keysList.empty())
-				m_CleanupList.erase(iterTime++);
-			else
-				++iterTime;
+			auto flowKey = it->second;
+			m_ConnectionInfo.erase(flowKey);
+			m_ConnectionList.erase(flowKey);
 		}
+
+		m_CleanupMultimap.erase(m_CleanupMultimap.begin(), it);
 
 		return count;
 	}

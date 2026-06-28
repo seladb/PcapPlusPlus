@@ -161,6 +161,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(InsertVlanToPacket, "packet;vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "packet;remove_layer");
 	PTF_RUN_TEST(CopyLayerAndPacketTest, "packet;copy_layer");
+	PTF_RUN_TEST(CopyLayerDataTest, "packet;copy_layer");
 	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
 	PTF_RUN_TEST(RawPacketTimeStampSetterTest, "packet");
 	PTF_RUN_TEST(ParsePartialPacketTest, "packet;partial_packet");
@@ -242,6 +243,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(GreEditTest, "gre");
 
 	PTF_RUN_TEST(SSLClientHelloParsingTest, "ssl");
+	PTF_RUN_TEST(SSLHelloTruncatedVersionTest, "ssl");
 	PTF_RUN_TEST(SSLExtensionWithZeroSizeTest, "ssl");
 	PTF_RUN_TEST(SSLAppDataParsingTest, "ssl");
 	PTF_RUN_TEST(SSLAlertParsingTest, "ssl");
@@ -253,6 +255,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLPartialCertificateParseTest, "ssl");
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
 	PTF_RUN_TEST(SSLMalformedPacketParsing, "ssl");
+	PTF_RUN_TEST(SSLECPointFormatExtensionZeroLengthTest, "ssl");
 	PTF_RUN_TEST(TLS1_3ParsingTest, "ssl");
 	PTF_RUN_TEST(TLSCipherSuiteTest, "ssl");
 	PTF_RUN_TEST(ClientHelloTLSFingerprintTest, "ssl");
@@ -264,6 +267,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NullLoopbackTest, "null_loopback");
 
 	PTF_RUN_TEST(Sll2PacketParsingTest, "sll2");
+	PTF_RUN_TEST(Sll2ParseLLCTest, "sll2");
 	PTF_RUN_TEST(Sll2PacketCreationTest, "sll2");
 
 	PTF_RUN_TEST(NflogPacketParsingTest, "nflog");
@@ -307,6 +311,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
+	PTF_RUN_TEST(BgpOpenMalformedOptionalParamsTest, "bgp");
 
 	PTF_RUN_TEST(SSHParsingTest, "ssh");
 	PTF_RUN_TEST(SSHMalformedParsingTest, "ssh");
@@ -323,6 +328,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NtpCreationTests, "ntp");
 
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
+	PTF_RUN_TEST(TelentCommandInvalidDataTests, "telnet");
+	PTF_RUN_TEST(TelnetCommandTruncatedOptionTest, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
 	PTF_RUN_TEST(TpktLayerTest, "tpkt");
@@ -397,6 +404,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
+	PTF_RUN_TEST(ModbusLayerTruncatedTest, "modbus");
 
 	PTF_RUN_TEST(X509ParsingTest, "x509");
 	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
@@ -415,6 +423,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PostgresLayerParsingTest, "postgres");
 	PTF_RUN_TEST(PostgresMessageParsingTest, "postgres");
 	PTF_RUN_TEST(PostgresInvalidDataTest, "postgres");
+
+	PTF_RUN_TEST(MySqlLayerParsingTest, "mysql");
+	PTF_RUN_TEST(MySqlMessageParsingTest, "mysql");
+	PTF_RUN_TEST(MySqlInvalidDataTest, "mysql");
 
 	PTF_END_RUNNING_TESTS;
 }

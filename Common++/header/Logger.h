@@ -311,7 +311,7 @@ namespace pcpp
 		/// @return Get the last error message
 		std::string getLastError() const
 		{
-			return m_LastError;
+			return { m_LastError.data() };
 		}
 
 		/// Suppress logs in all PcapPlusPlus modules
@@ -394,7 +394,9 @@ namespace pcpp
 		std::array<LogLevel, NumOfLogModules> m_LogModulesArray{};
 		LogPrinter m_LogPrinter;
 
-		static thread_local std::string m_LastError;
+		// Using an array instead of std::string because MinGW has issues with TLS destruction.
+		// The array should be large enough to hold most PCPP errors without cutoffs.
+		static thread_local std::array<char, 255> m_LastError;
 
 		bool m_UseContextPooling = true;
 		// Keep a maximum of 10 LogContext objects in the pool.

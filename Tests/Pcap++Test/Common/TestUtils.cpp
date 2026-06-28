@@ -103,7 +103,15 @@ void testSetUp()
 		{
 			coreMask |= pcpp::SystemCores::IdToSystemCore[i].Mask;
 		}
-		pcpp::DpdkDeviceList::initDpdk(coreMask, 16383);
+
+		std::vector<char*> dpdkArgv;
+		dpdkArgv.reserve(PcapTestGlobalArgs.dpdkArgs.size());
+		std::transform(PcapTestGlobalArgs.dpdkArgs.begin(), PcapTestGlobalArgs.dpdkArgs.end(),
+		               std::back_inserter(dpdkArgv), [](auto& arg) { return const_cast<char*>(arg.c_str()); });
+		int dpdkArgc = dpdkArgv.empty() ? 0 : static_cast<int>(dpdkArgv.size());
+		char** dpdkArgvPtr = dpdkArgv.empty() ? nullptr : dpdkArgv.data();
+
+		pcpp::DpdkDeviceList::initDpdk(coreMask, 16383, 0, 0, dpdkArgc, dpdkArgvPtr, "pcapplusplusapp", false);
 	}
 #endif
 }

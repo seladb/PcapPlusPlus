@@ -255,6 +255,57 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	}
 }
 
+PTF_TEST_CASE(TelentCommandInvalidDataTests)
+{
+	// Regression test for heap-buffer-overflow in getOption(TelnetCommand) / getOptionData(TelnetCommand, size_t&)
+	// when user data (escaped IAC) precedes a command. The stale offset bug caused reads past the buffer end.
+	// Payload: FF FF (escaped IAC = user data) + FF FA 17 00 (IAC SB SendLocation 0x00)
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/telnetCommandAfterData.dat");
+
+	pcpp::Packet telnetPacket(rawPacket1.get());
+	auto* telnetLayer = telnetPacket.getLayerOfType<pcpp::TelnetLayer>();
+
+	PTF_ASSERT_NOT_NULL(telnetLayer);
+
+	// Total commands: 1 (the subnegotiation)
+	PTF_ASSERT_EQUAL(telnetLayer->getTotalNumberOfCommands(), 1);
+
+	// getFirstCommand should find the subnegotiation
+	PTF_ASSERT_EQUAL(telnetLayer->getFirstCommand(), pcpp::TelnetLayer::TelnetCommand::Subnegotiation, enumclass);
+
+	// getOption(Subnegotiation) should return SendLocation without crashing
+	PTF_ASSERT_EQUAL(telnetLayer->getOption(pcpp::TelnetLayer::TelnetCommand::Subnegotiation),
+	                 pcpp::TelnetLayer::TelnetOption::SendLocation, enumclass);
+
+	// getOptionData(Subnegotiation) should return the subneg data without crashing
+	size_t length = 0;
+	auto* optData = telnetLayer->getOptionData(pcpp::TelnetLayer::TelnetCommand::Subnegotiation, length);
+	PTF_ASSERT_NOT_NULL(optData);
+	PTF_ASSERT_EQUAL(length, 1);
+	PTF_ASSERT_EQUAL(optData[0], 0x00);
+
+	// getOption for a command that doesn't exist should return NoOption without crashing
+	PTF_ASSERT_EQUAL(telnetLayer->getOption(pcpp::TelnetLayer::TelnetCommand::WillPerform),
+	                 pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
+}
+
+PTF_TEST_CASE(TelnetCommandTruncatedOptionTest)
+{
+	auto* truncatedWill = new uint8_t[2]{ static_cast<uint8_t>(pcpp::TelnetLayer::TelnetCommand::InterpretAsCommand),
+		                                  static_cast<uint8_t>(pcpp::TelnetLayer::TelnetCommand::WillPerform) };
+	pcpp::TelnetLayer telnetLayer(truncatedWill, 2, nullptr, nullptr);
+
+	PTF_ASSERT_EQUAL(telnetLayer.getTotalNumberOfCommands(), 1);
+	PTF_ASSERT_EQUAL(telnetLayer.getNextCommand(), pcpp::TelnetLayer::TelnetCommand::WillPerform, enumclass);
+	PTF_ASSERT_EQUAL(telnetLayer.getOption(), pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
+
+	size_t length = 42;
+	PTF_ASSERT_NULL(telnetLayer.getOptionData(length));
+	PTF_ASSERT_EQUAL(length, 0);
+	PTF_ASSERT_EQUAL(telnetLayer.getOption(pcpp::TelnetLayer::TelnetCommand::WillPerform),
+	                 pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
+}
+
 PTF_TEST_CASE(TelnetDataParsingTests)
 {
 

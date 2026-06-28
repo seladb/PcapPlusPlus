@@ -449,7 +449,7 @@ namespace pcpp
 		/// written into. The array is expected to be allocated by the user and its length should be provided in
 		/// rawPacketArrLength. Number of packets received will be returned. Notice it's the user responsibility to free
 		/// the array and its content when done using it
-		/// @param[out] rawPacketArrLength The length of MBufRawPacket pointers array
+		/// @param[in] rawPacketArrLength The length of MBufRawPacket pointers array
 		/// @param[in] rxQueueId The RX queue to receive packets from
 		/// @return The number of packets received. If an error occurred 0 will be returned and the error will be
 		/// printed to log
@@ -460,7 +460,7 @@ namespace pcpp
 		/// written into. The array is expected to be allocated by the user and its length should be provided in
 		/// packetsArrLength. Number of packets received will be returned. Notice it's the user responsibility to free
 		/// the array and its content when done using it
-		/// @param[out] packetsArrLength The length of Packet pointers array
+		/// @param[in] packetsArrLength The length of Packet pointers array
 		/// @param[in] rxQueueId The RX queue to receive packets from
 		/// @return The number of packets received. If an error occurred 0 will be returned and the error will be
 		/// printed to log
@@ -752,6 +752,27 @@ namespace pcpp
 			{}
 		};
 
+		class QueueStatsCollector
+		{
+		public:
+			bool init(uint16_t portId, uint16_t rxQueueCount, uint16_t txQueueCount);
+			void collect(DpdkDeviceStats& stats, const DpdkDeviceStats& prevStats, double secsElapsed) const;
+
+		private:
+			void resolveStatId(const std::string& statName, uint64_t& idOut) const;
+			void resolveStatIds();
+
+			static constexpr size_t m_StatsPerQueue = 2;
+
+			uint16_t m_PortId = 0;
+			uint16_t m_RxQueueCount = 0;
+			uint16_t m_TxQueueCount = 0;
+			std::vector<uint64_t> m_RxPacketIds;
+			std::vector<uint64_t> m_RxByteIds;
+			std::vector<uint64_t> m_TxPacketIds;
+			std::vector<uint64_t> m_TxByteIds;
+		};
+
 		DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mMbufDataSize);
 		bool initMemPool(struct rte_mempool*& memPool, const char* mempoolName, uint32_t mBufPoolSize);
 
@@ -807,6 +828,7 @@ namespace pcpp
 		static uint8_t m_RSSKey[40];
 
 		mutable DpdkDeviceStats m_PrevStats;
+		QueueStatsCollector m_QueueStatsCollector;
 	};
 
 }  // namespace pcpp

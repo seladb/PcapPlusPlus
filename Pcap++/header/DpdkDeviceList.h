@@ -55,7 +55,7 @@ namespace pcpp
 	///      once in every application at its startup process
 	///    - it contains the list of DpdkDevice instances and enables access to them
 	///    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
-	class DpdkDeviceList : internal::DeviceListBase<DpdkDevice>
+	class DpdkDeviceList : public internal::DeviceListBase<DpdkDevice>
 	{
 		friend class KniDeviceList;
 
@@ -149,12 +149,13 @@ namespace pcpp
 		SystemCore getDpdkMasterCore() const;
 
 		/// Change the log level of all modules of DPDK
-		/// @param[in] logLevel The log level to set. Logger#Info is RTE_LOG_NOTICE and Logger#Debug is RTE_LOG_DEBUG
-		void setDpdkLogLevel(Logger::LogLevel logLevel);
+		/// @param[in] logLevel The log level to set. LogLevel#Info is RTE_LOG_NOTICE and LogLevel#Debug is
+		/// RTE_LOG_DEBUG
+		void setDpdkLogLevel(LogLevel logLevel);
 
-		/// @return The current DPDK log level. RTE_LOG_NOTICE and lower are considered as Logger#Info. RTE_LOG_INFO or
-		/// RTE_LOG_DEBUG are considered as Logger#Debug
-		Logger::LogLevel getDpdkLogLevel() const;
+		/// @return The current DPDK log level. RTE_LOG_NOTICE and lower are considered as LogLevel#Info. RTE_LOG_INFO
+		/// or RTE_LOG_DEBUG are considered as LogLevel#Debug
+		LogLevel getDpdkLogLevel() const;
 
 		/// Order DPDK to write all its logs to a file
 		/// @param[in] logFile The file to write to

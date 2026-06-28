@@ -20,6 +20,15 @@ PTF_TEST_CASE(TestLogger);
 PTF_TEST_CASE(TestLoggerMultiThread);
 
 // Implemented in FileTests.cpp
+PTF_TEST_CASE(TestFileFormatDetector);
+PTF_TEST_CASE(TestReaderFactory_Pcap_Micro);
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano);
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano_Unsupported);
+PTF_TEST_CASE(TestReaderFactory_PcapNG);
+PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST);
+PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported);
+PTF_TEST_CASE(TestReaderFactory_Snoop);
+PTF_TEST_CASE(TestReaderFactory_InvalidFile);
 PTF_TEST_CASE(TestPcapFileReadWrite);
 PTF_TEST_CASE(TestPcapFileMicroPrecision);
 PTF_TEST_CASE(TestPcapFileNanoPrecision);
@@ -30,6 +39,7 @@ PTF_TEST_CASE(TestPcapFileReadAdv);
 PTF_TEST_CASE(TestPcapFileWriteAdv);
 PTF_TEST_CASE(TestPcapFileAppend);
 PTF_TEST_CASE(TestPcapNgFileReadWrite);
+PTF_TEST_CASE(TestPcapNgZstdCompressionLevels);
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv);
 PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces);
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6);
