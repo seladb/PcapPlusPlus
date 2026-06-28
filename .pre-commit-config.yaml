@@ -42,7 +42,7 @@ repos:
     rev: 0.26.1
     hooks:
     - id: gersemi
-      args: ["-c"]
+      args: ["-c", "--diff"]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.2
     hooks:
