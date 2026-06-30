@@ -527,7 +527,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			// if they are not the same, open another AF_XDP socket for the send device
-			sendDevOwner = make_unique<pcpp::XdpDevice>(sendInterfaceName);
+			sendDevOwner = std::make_unique<pcpp::XdpDevice>(sendInterfaceName);
 			sendDev = sendDevOwner.get();
 
 			if (!sendDev->open())
