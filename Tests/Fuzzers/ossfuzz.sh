@@ -20,7 +20,8 @@ FUZZERS="FuzzTarget \
     FuzzTargetNg \
     FuzzTargetSnoop \
     FuzzWriter \
-    FuzzWriterNg"
+    FuzzWriterNg \
+    FuzzX509"
 
 for fuzzer in $FUZZERS; do
     cp $TARGETS_DIR/Tests/Fuzzers/${fuzzer} $OUT
@@ -34,3 +35,4 @@ find $SRC/ -iname "*.pcapng" | xargs zip $OUT/FuzzTargetNg_seed_corpus.zip
 find $SRC/ -iname "*.snoop"  | xargs zip $OUT/FuzzTargetSnoop_seed_corpus.zip
 find $SRC/ -iname "*.pcap"   | xargs zip $OUT/FuzzWriter_seed_corpus.zip
 find $SRC/ -iname "*.pcapng" | xargs zip $OUT/FuzzWriterNg_seed_corpus.zip
+find $SRC/ -iname "*.der"    | xargs zip $OUT/FuzzX509_seed_corpus.zip
