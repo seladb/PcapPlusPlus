@@ -272,6 +272,7 @@ namespace pcpp
 		m_FirstLineEndOffset = firstLine.length();
 		m_VersionOffset = m_UriOffset + uri.length() + 6;
 
+		// TODO: AllocData.
 		m_SipRequest->m_DataLen = firstLine.length();
 		m_SipRequest->m_Data = new uint8_t[m_SipRequest->m_DataLen];
 		memcpy(m_SipRequest->m_Data, firstLine.c_str(), m_SipRequest->m_DataLen);
@@ -1118,6 +1119,7 @@ namespace pcpp
 
 		m_FirstLineEndOffset = firstLine.length();
 
+		// TODO: Alloc Data.
 		m_SipResponse->m_DataLen = firstLine.length();
 		m_SipResponse->m_Data = new uint8_t[m_SipResponse->m_DataLen];
 		memcpy(m_SipResponse->m_Data, firstLine.c_str(), m_SipResponse->m_DataLen);

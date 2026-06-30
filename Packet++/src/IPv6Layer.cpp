@@ -18,13 +18,11 @@ namespace pcpp
 
 	void IPv6Layer::initLayer()
 	{
-		m_DataLen = sizeof(ip6_hdr);
-		m_Data = new uint8_t[m_DataLen];
+		allocData(sizeof(ip6_hdr));
 		m_Protocol = IPv6;
 		m_FirstExtension = nullptr;
 		m_LastExtension = nullptr;
 		m_ExtensionsLen = 0;
-		memset(m_Data, 0, sizeof(ip6_hdr));
 	}
 
 	IPv6Layer::IPv6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
