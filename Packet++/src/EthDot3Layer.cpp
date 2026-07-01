@@ -10,9 +10,7 @@ namespace pcpp
 	EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length) : Layer()
 	{
 		const size_t headerLen = sizeof(ether_dot3_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		ether_dot3_header* ethHdr = getEthHeader();
 		destMac.copyTo(ethHdr->dstMac);

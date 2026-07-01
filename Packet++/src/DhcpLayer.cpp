@@ -47,9 +47,7 @@ namespace pcpp
 
 	void DhcpLayer::initDhcpLayer(size_t numOfBytesToAllocate)
 	{
-		m_DataLen = numOfBytesToAllocate;
-		m_Data = new uint8_t[numOfBytesToAllocate];
-		memset(m_Data, 0, numOfBytesToAllocate);
+		allocData(numOfBytesToAllocate);
 		m_Protocol = DHCP;
 	}
 

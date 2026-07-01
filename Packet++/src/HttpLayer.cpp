@@ -241,6 +241,7 @@ namespace pcpp
 			m_FirstLineEndOffset = firstLine.length();
 			m_VersionOffset = m_UriOffset + uri.length() + 6;
 
+			// TODO: Alloc Data.
 			m_HttpRequest->m_DataLen = firstLine.length();
 			m_HttpRequest->m_Data = new uint8_t[m_HttpRequest->m_DataLen];
 			memcpy(m_HttpRequest->m_Data, firstLine.c_str(), m_HttpRequest->m_DataLen);
@@ -952,6 +953,7 @@ namespace pcpp
 
 		m_FirstLineEndOffset = firstLine.length();
 
+		// TODO: Alloc Data.
 		m_HttpResponse->m_DataLen = firstLine.length();
 		m_HttpResponse->m_Data = new uint8_t[m_HttpResponse->m_DataLen];
 		memcpy(m_HttpResponse->m_Data, firstLine.c_str(), m_HttpResponse->m_DataLen);

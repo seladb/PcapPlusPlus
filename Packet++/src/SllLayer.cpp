@@ -16,10 +16,8 @@ namespace pcpp
 
 	SllLayer::SllLayer(uint16_t packetType, uint16_t ARPHRDType)
 	{
-		const size_t headerLen = sizeof(sll_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(sizeof(sll_header));
+
 		auto* sllHdr = reinterpret_cast<sll_header*>(m_Data);
 		sllHdr->packet_type = htobe16(packetType);
 		sllHdr->ARPHRD_type = htobe16(ARPHRDType);
