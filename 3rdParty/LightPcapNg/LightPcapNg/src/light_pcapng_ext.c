@@ -568,8 +568,8 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 
 	light_pcapng packet_block_pcapng = light_alloc_block(LIGHT_ENHANCED_PACKET_BLOCK, (const uint32_t*)epb_memory, option_size+3*sizeof(uint32_t));
 	// PCPP patch
-	// epb_memory is no longer freed here: ownership stays with the handle so the same buffer
-	// can be reused on the next call, instead of being torn down right after use.
+	// epb_memory is owned by the handle (write_block_scratch above), not this call, so it
+	// must not be freed here: light_pcapng_close() releases it once the handle is done.
 	// PCPP patch end
 
 	if (packet_header->comment_length > 0)
