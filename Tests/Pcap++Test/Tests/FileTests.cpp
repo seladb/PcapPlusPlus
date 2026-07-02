@@ -10,9 +10,7 @@
 #include "../Common/TestUtils.h"
 #include "EndianPortable.h"
 #include <array>
-#include <cstdio>
 #include <fstream>
-#include <memory>
 #include <chrono>
 
 class FileReaderTeardown
@@ -1611,15 +1609,13 @@ PTF_TEST_CASE(TestPcapNgFileWriteScratchReuse)
 	// byte-for-byte along with their comments. This guards the buffer grow/reuse logic against
 	// corrupting captured data or comments when a smaller packet reuses a buffer previously
 	// sized for a larger one.
-	const std::string writePath = "PcapExamples/pcapng_scratch_reuse_write.pcapng";
-
 	const std::vector<size_t> payloadSizes = { 0, 4, 1, 1000, 3, 9000, 2, 500, 1, 1500, 5, 2, 7, 63, 1 };
 
 	std::vector<std::vector<uint8_t>> expectedData;
 	std::vector<std::string> expectedComments;
 
 	{
-		pcpp::PcapNgFileWriterDevice writerDev(writePath);
+		pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_SCRATCH_REUSE_WRITE_PATH);
 		PTF_ASSERT_TRUE(writerDev.open());
 
 		for (size_t i = 0; i < payloadSizes.size(); i++)
@@ -1669,7 +1665,7 @@ PTF_TEST_CASE(TestPcapNgFileWriteScratchReuse)
 		writerDev.close();
 	}
 
-	pcpp::PcapNgFileReaderDevice readerDev(writePath);
+	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_SCRATCH_REUSE_WRITE_PATH);
 	PTF_ASSERT_TRUE(readerDev.open());
 
 	pcpp::RawPacket readPacket;
@@ -1686,8 +1682,6 @@ PTF_TEST_CASE(TestPcapNgFileWriteScratchReuse)
 	PTF_ASSERT_EQUAL(index, expectedData.size());
 
 	readerDev.close();
-
-	std::remove(writePath.c_str());
 }  // TestPcapNgFileWriteScratchReuse
 
 PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)
