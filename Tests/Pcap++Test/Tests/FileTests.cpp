@@ -1639,11 +1639,13 @@ PTF_TEST_CASE(TestPcapNgFileWriteScratchReuse)
 			PTF_ASSERT_TRUE(packet.addLayer(&ipLayer));
 			PTF_ASSERT_TRUE(packet.addLayer(&tcpLayer));
 
-			std::unique_ptr<pcpp::PayloadLayer> payloadLayer;
+			// Let the packet own the payload layer (ownInPacket=true) so its lifetime is tied to
+			// the packet's; a locally-scoped smart pointer destroyed before the packet would leave
+			// the packet's internal layer chain pointing at freed memory.
 			if (payloadLen > 0)
 			{
-				payloadLayer.reset(new pcpp::PayloadLayer(payload.data(), payload.size()));
-				PTF_ASSERT_TRUE(packet.addLayer(payloadLayer.get()));
+				PTF_ASSERT_TRUE(
+				    packet.addLayer(new pcpp::PayloadLayer(payload.data(), payload.size()), true /* ownInPacket */));
 			}
 			packet.computeCalculateFields();
 
