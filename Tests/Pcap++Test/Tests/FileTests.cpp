@@ -1,6 +1,9 @@
 #include "../TestDefinition.h"
 #include "Logger.h"
+#include "EthLayer.h"
 #include "IPv4Layer.h"
+#include "TcpLayer.h"
+#include "PayloadLayer.h"
 #include "Packet.h"
 #include "PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
@@ -1597,6 +1600,89 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 	writerCompressDev.close();
 
 }  // TestPcapNgFileReadWrite
+
+PTF_TEST_CASE(TestPcapNgFileWriteScratchReuse)
+{
+	// Exercises the reusable scratch buffer in light_write_packet: many packets of varying
+	// sizes are written through a single writer, deliberately mixing small-then-large (buffer
+	// grow) and large-then-small (buffer reuse) transitions, then read back and verified
+	// byte-for-byte along with their comments. This guards the buffer grow/reuse logic against
+	// corrupting captured data or comments when a smaller packet reuses a buffer previously
+	// sized for a larger one.
+	const std::vector<size_t> payloadSizes = { 0, 4, 1, 1000, 3, 9000, 2, 500, 1, 1500, 5, 2, 7, 63, 1 };
+
+	std::vector<std::vector<uint8_t>> expectedData;
+	std::vector<std::string> expectedComments;
+
+	{
+		pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_SCRATCH_REUSE_WRITE_PATH);
+		PTF_ASSERT_TRUE(writerDev.open());
+
+		for (size_t i = 0; i < payloadSizes.size(); i++)
+		{
+			const size_t payloadLen = payloadSizes[i];
+
+			pcpp::EthLayer ethLayer(pcpp::MacAddress("00:11:22:33:44:55"), pcpp::MacAddress("66:77:88:99:aa:bb"));
+			pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("10.0.0.1"), pcpp::IPv4Address("10.0.0.2"));
+			pcpp::TcpLayer tcpLayer(12345, 80);
+
+			std::vector<uint8_t> payload(payloadLen);
+			for (size_t j = 0; j < payloadLen; j++)
+				payload[j] = static_cast<uint8_t>((i * 31 + j) & 0xFF);
+
+			pcpp::Packet packet;
+			PTF_ASSERT_TRUE(packet.addLayer(&ethLayer));
+			PTF_ASSERT_TRUE(packet.addLayer(&ipLayer));
+			PTF_ASSERT_TRUE(packet.addLayer(&tcpLayer));
+
+			// Let the packet own the payload layer (ownInPacket=true) so its lifetime is tied to
+			// the packet's; a locally-scoped smart pointer destroyed before the packet would leave
+			// the packet's internal layer chain pointing at freed memory.
+			if (payloadLen > 0)
+			{
+				PTF_ASSERT_TRUE(
+				    packet.addLayer(new pcpp::PayloadLayer(payload.data(), payload.size()), true /* ownInPacket */));
+			}
+			packet.computeCalculateFields();
+
+			const pcpp::RawPacket* rawPacket = packet.getRawPacket();
+			expectedData.emplace_back(rawPacket->getRawData(), rawPacket->getRawData() + rawPacket->getRawDataLen());
+
+			// alternate between commented and comment-less packets to exercise both paths
+			std::string comment = (i % 2 == 0) ? ("scratch-reuse packet #" + std::to_string(i)) : std::string();
+			expectedComments.push_back(comment);
+
+			if (comment.empty())
+			{
+				PTF_ASSERT_TRUE(writerDev.writePacket(*rawPacket));
+			}
+			else
+			{
+				PTF_ASSERT_TRUE(writerDev.writePacket(*rawPacket, comment));
+			}
+		}
+
+		writerDev.close();
+	}
+
+	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_SCRATCH_REUSE_WRITE_PATH);
+	PTF_ASSERT_TRUE(readerDev.open());
+
+	pcpp::RawPacket readPacket;
+	std::string readComment;
+	size_t index = 0;
+	while (readerDev.getNextPacket(readPacket, readComment))
+	{
+		PTF_ASSERT_TRUE(index < expectedData.size());
+		PTF_ASSERT_EQUAL(static_cast<size_t>(readPacket.getRawDataLen()), expectedData[index].size());
+		PTF_ASSERT_BUF_COMPARE(readPacket.getRawData(), expectedData[index].data(), expectedData[index].size());
+		PTF_ASSERT_EQUAL(readComment, expectedComments[index]);
+		index++;
+	}
+	PTF_ASSERT_EQUAL(index, expectedData.size());
+
+	readerDev.close();
+}  // TestPcapNgFileWriteScratchReuse
 
 PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)
 {
