@@ -191,7 +191,7 @@ namespace pcpp
 			{
 				auto headerLen = (std::min)(getHeaderLen(), m_DataLen);
 				// Make sure totalLen is larger than header len, otherwise it's a malformed packet
-				m_DataLen = totalLen > headerLen ? totalLen : headerLen;
+				m_DataLen = (std::max)(totalLen, headerLen);
 			}
 		}
 	}
@@ -371,7 +371,7 @@ namespace pcpp
 
 	void IPv4Layer::computeCalculateFields()
 	{
-		iphdr* ipHdr = getIPv4Header();
+		auto* ipHdr = getIPv4Header();
 		ipHdr->ipVersion = (4 & 0x0f);
 		ipHdr->totalLength = htobe16(m_DataLen);
 		ipHdr->headerChecksum = 0;
