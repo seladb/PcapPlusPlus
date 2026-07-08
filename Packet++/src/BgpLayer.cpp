@@ -200,9 +200,7 @@ namespace pcpp
 		size_t optionalParamsDataLen = optionalParamsToByteArray(optionalParams, optionalParamsData, 1500);
 
 		const size_t headerLen = sizeof(bgp_open_message) + optionalParamsDataLen;
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 		setBgpFields(headerLen);
 
 		bgp_open_message* msgHdr = getOpenMsgHeader();
@@ -401,9 +399,7 @@ namespace pcpp
 
 		size_t headerLen = sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + withdrawnRoutesDataLen +
 		                   pathAttributesDataLen + nlriDataLen;
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 		setBgpFields(headerLen);
 
 		uint8_t* dataPtr = m_Data + sizeof(bgp_common_header);
@@ -891,9 +887,7 @@ namespace pcpp
 		{
 			headerLen += notificationDataLen;
 		}
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 		setBgpFields(headerLen);
 		bgp_notification_message* msgHdr = getNotificationMsgHeader();
 		msgHdr->errorCode = errorCode;
@@ -1003,9 +997,7 @@ namespace pcpp
 	BgpKeepaliveMessageLayer::BgpKeepaliveMessageLayer() : BgpLayer()
 	{
 		const size_t headerLen = sizeof(bgp_common_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 		setBgpFields(headerLen);
 		m_Protocol = BGP;
 	}
@@ -1017,9 +1009,7 @@ namespace pcpp
 	BgpRouteRefreshMessageLayer::BgpRouteRefreshMessageLayer(uint16_t afi, uint8_t safi)
 	{
 		const size_t headerLen = sizeof(bgp_route_refresh_message);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 		setBgpFields(headerLen);
 		bgp_route_refresh_message* msgHdr = getRouteRefreshHeader();
 		msgHdr->afi = htobe16(afi);
