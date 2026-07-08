@@ -11,9 +11,10 @@
 #include "IPSecLayer.h"
 #include "VrrpLayer.h"
 #include "PacketUtils.h"
-#include <sstream>
 #include "Logger.h"
 #include "EndianPortable.h"
+#include <sstream>
+#include <algorithm>
 
 namespace pcpp
 {
@@ -191,7 +192,7 @@ namespace pcpp
 			// value of totalLen and look at the data captured on the wire
 			if ((totalLen < m_DataLen) && (totalLen != 0))
 			{
-				auto headerLen = getHeaderLen();
+				auto headerLen = (std::min)(getHeaderLen(), m_DataLen);
 				// Make sure totalLen is larger than header len, otherwise it's a malformed packet
 				m_DataLen = totalLen > headerLen ? totalLen : headerLen;
 			}
@@ -409,7 +410,8 @@ namespace pcpp
 			}
 		}
 
-		ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength * 4) };
+		auto headerLen = (std::min)(static_cast<size_t>(ipHdr->internetHeaderLength * 4), m_DataLen);
+		ScalarBuffer<uint16_t> scalar = { reinterpret_cast<uint16_t*>(ipHdr), headerLen };
 		ipHdr->headerChecksum = htobe16(computeChecksum(&scalar, 1));
 	}
 
