@@ -421,6 +421,18 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		PTF_ASSERT_EQUAL(infoElement.getCRFlag(), 7);
 		PTF_ASSERT_EQUAL(infoElement.getInstance(), 12);
 	}
+
+	// GH #2171: a TEID-present header that is long enough for the basic header + TEID but not
+	// for the sequence-number word must be rejected, otherwise getSequenceNumber() reads OOB.
+	{
+		// version 2, TEID-present flag set, only 8 bytes (basic header + TEID, missing seq word)
+		const uint8_t truncatedTeidPresent[] = { 0x48, 0x20, 0x00, 0x08, 0xde, 0xad, 0xbe, 0xef };
+		PTF_ASSERT_FALSE(pcpp::GtpV2Layer::isDataValid(truncatedTeidPresent, sizeof(truncatedTeidPresent)));
+
+		// the same header with the 4-byte sequence word present (12 bytes) is accepted
+		const uint8_t fullTeidPresent[] = { 0x48, 0x20, 0x00, 0x0c, 0xde, 0xad, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00 };
+		PTF_ASSERT_TRUE(pcpp::GtpV2Layer::isDataValid(fullTeidPresent, sizeof(fullTeidPresent)));
+	}
 }  // GtpV2LayerParsingTest
 
 PTF_TEST_CASE(GtpV2LayerCreationTest)

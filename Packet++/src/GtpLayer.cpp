@@ -1027,6 +1027,14 @@ namespace pcpp
 			return false;
 		}
 
+		// When the TEID-present flag is set, the fixed header carries the 4-byte TEID before
+		// the sequence-number word, so the minimum length grows accordingly. Without this
+		// check accessors such as getSequenceNumber() would read past the buffer (GH #2171).
+		if (header->teidPresent && dataSize < sizeof(gtpv2_basic_header) + 2 * sizeof(uint32_t))
+		{
+			return false;
+		}
+
 		return true;
 	}
 
