@@ -29,6 +29,9 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-latest
+            image: ubuntu2604
+            config-zstd: OFF
+          - runner: ubuntu-latest
             image: ubuntu2404
             config-zstd: OFF
           - runner: ubuntu-24.04-arm
@@ -41,9 +44,6 @@ jobs:
             image: ubuntu2204-icpx
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-          - runner: ubuntu-latest
-            image: ubuntu2004
-            config-zstd: OFF
           - runner: ubuntu-latest
             image: rhel94
             config-zstd: OFF
@@ -170,7 +170,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          cmake -DPCAPPP_PACKAGE=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
+          cmake -DPCAPPP_PACKAGE=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
