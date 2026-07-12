@@ -29,6 +29,9 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-latest
+            image: ubuntu2604
+            config-zstd: OFF
+          - runner: ubuntu-latest
             image: ubuntu2404
             config-zstd: OFF
           - runner: ubuntu-24.04-arm
@@ -41,9 +44,6 @@ jobs:
             image: ubuntu2204-icpx
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-          - runner: ubuntu-latest
-            image: ubuntu2004
-            config-zstd: OFF
           - runner: ubuntu-latest
             image: rhel94
             config-zstd: OFF
@@ -116,7 +116,7 @@ jobs:
           envs: 'BUILD_DIR'
           usesh: true
           prepare: |
-            pkg install -y bash cmake git-tiny gmake gsed libpcap py311-pip
+            pkg install -y bash cmake git-tiny gmake gsed libpcap python
           run: |
             cmake -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
             cmake --build "$BUILD_DIR" -j 4
@@ -146,9 +146,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os-version: macos-14
-            xcode-version: 15.4
-            arch: x86_64
+          # TODO: see https://github.com/seladb/PcapPlusPlus/issues/1989
+          # - os-version: macos-14
+          #   xcode-version: 15.4
+          #   arch: x86_64
           - os-version: macos-14
             xcode-version: 15.4
             arch: arm64
@@ -169,7 +170,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          cmake -DPCAPPP_PACKAGE=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
+          cmake -DPCAPPP_PACKAGE=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
@@ -288,7 +289,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          $platform = "Visual Studio 17 2022"
+          $platform = "Visual Studio 18 2026"
           cmake -A ${{ matrix.arch }} -G "$platform" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DPCAPPP_PACKAGE=ON -S . -B "$env:BUILD_DIR"
 
       - name: Build PcapPlusPlus
