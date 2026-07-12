@@ -146,18 +146,17 @@ jobs:
     strategy:
       matrix:
         include:
-          # TODO: see https://github.com/seladb/PcapPlusPlus/issues/1989
-          # - os-version: macos-14
-          #   xcode-version: 15.4
-          #   arch: x86_64
-          - os-version: macos-14
-            xcode-version: 15.4
+          - os-version: macos-26
+            xcode-version: 26.6.0
             arch: arm64
-          - os-version: macos-15
-            xcode-version: 16.0.0
+          - os-version: macos-26-intel
+            xcode-version: 26.6.0
             arch: x86_64
           - os-version: macos-15
-            xcode-version: 16.0.0
+            xcode-version: 16.4.0
+            arch: x86_64
+          - os-version: macos-15
+            xcode-version: 16.4.0
             arch: arm64
 
     steps:
