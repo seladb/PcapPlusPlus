@@ -116,7 +116,7 @@ jobs:
           envs: 'BUILD_DIR'
           usesh: true
           prepare: |
-            pkg install -y bash cmake git-tiny gmake gsed libpcap py311-pip
+            pkg install -y bash cmake git-tiny gmake gsed libpcap python
           run: |
             cmake -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
             cmake --build "$BUILD_DIR" -j 4
@@ -146,9 +146,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os-version: macos-14
-            xcode-version: 15.4
-            arch: x86_64
+          # TODO: see https://github.com/seladb/PcapPlusPlus/issues/1989
+          # - os-version: macos-14
+          #   xcode-version: 15.4
+          #   arch: x86_64
           - os-version: macos-14
             xcode-version: 15.4
             arch: arm64
@@ -288,7 +289,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          $platform = "Visual Studio 17 2022"
+          $platform = "Visual Studio 18 2026"
           cmake -A ${{ matrix.arch }} -G "$platform" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DPCAPPP_PACKAGE=ON -S . -B "$env:BUILD_DIR"
 
       - name: Build PcapPlusPlus
