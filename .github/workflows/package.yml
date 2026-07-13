@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - '*'
+    branches: ["bump-version-to-26-07"]
   pull_request:
     paths:
       # Also run this workflow when this package.yml is update by a PR
@@ -81,18 +82,19 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Generate artifact attestation
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
       - name: Upload binaries to release
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v26.07-test
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
   freebsd:
@@ -123,18 +125,19 @@ jobs:
             cmake --build "$BUILD_DIR" --target package
 
       - name: Generate artifact attestation
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
 
       - name: Upload binaries to release
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v26.07-test
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz"
 
   macos:
@@ -178,18 +181,19 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Generate artifact attestation
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
       - name: Upload binaries to release
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v26.07-test
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
   mingw-w64:
@@ -248,18 +252,19 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Generate artifact attestation
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
       - name: Upload binaries to release
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v26.07-test
           artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   visual-studio:
@@ -298,18 +303,19 @@ jobs:
         run: cmake --build "$env:BUILD_DIR" --config ${{ matrix.configuration }} --target package
 
       - name: Generate artifact attestation
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
       - name: Upload binaries to release
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v26.07-test
           artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   android-build:
@@ -389,16 +395,17 @@ jobs:
           tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
 
       - name: Generate artifact attestation
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
 
       - name: Upload binaries to release
-        if: github.ref_type == 'tag'
+        # if: github.ref_type == 'tag'
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
+          tag: v26.07-test
           artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
