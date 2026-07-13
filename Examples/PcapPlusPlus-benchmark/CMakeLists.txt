@@ -22,6 +22,8 @@ if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
 
     add_executable(BenchmarkExampleGoogle benchmark-google.cpp)
 
+    target_compile_definitions(BenchmarkExampleGoogle PRIVATE NOMINMAX)
+
     target_link_libraries(BenchmarkExampleGoogle PUBLIC PcapPlusPlus::Pcap++ benchmark::benchmark)
 
     set_target_properties(BenchmarkExampleGoogle PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
