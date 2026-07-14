@@ -20,7 +20,7 @@ Release notes (changes from v25.05)
   * A new `X509Toolkit` example application
   * Expanded ASN.1 codec support: `BitString`, `UTCTime`/`GeneralizedTime`, `ObjectIdentifier` and string records, plus arbitrary-size integer support (thanks @Dimi1010 for internal Asn1Codec/Asn1Record improvements along the way!)
 - Added support for WinDivert as a packet capture engine on Windows
-- Added support for DPDK 25.11, plus new dedicated DPDK CI tests (thanks @minhnhatnoe for an `rte_eal_cleanup` fix on device destructure!)
+- Added support for DPDK 25.11, plus new dedicated DPDK CI tests (thanks @minhnhatnoe for an `rte_eal_cleanup` fix on device destruction!)
 - `IFileReaderDevice::createReader()` and `IFileReaderDevice::tryCreateReader()` use file-content heuristics to automatically pick the right reader (pcap/pcapng/snoop) instead of relying solely on the file extension (thanks @Dimi1010 !)
 - Add incremental packet parsing support with `Packet::parsePacket()` (thanks @Dimi1010 !)
 - Added multi-language README support: Japanese (thanks @tigercosmos !) and Russian (thanks @camelsayswhat !) - in addition to the existing Traditional Chinese and Korean translations
@@ -60,7 +60,7 @@ Release notes (changes from v25.05)
 - `PcapFileWriterDevice::isNanoSecondPrecisionSupported()` has been deprecated, nanosecond precision is now natively supported by the internal parser and always returns true
 - `BpfFilterWrapper::matchPacketWithFilter()` has been deprecated, please use `BpfFilterWrapper::matches()` instead
 - `GeneralFilter::matchPacketWithFilter()` has been deprecated, please use `GeneralFilter::matches()` instead
-- `PcapLiveDevice::matchPacketWithFilter()` has been deprecated, please use `PcapLiveDevice::matches()` instead
+- `PcapLiveDevice::matchPacketWithFilter()` has been deprecated, please use `GeneralFilter::matches()` directly
 - `PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu = true)` has been deprecated, please use `PcapLiveDevice::sendPacket(Packet const& packet, bool checkMtu)` instead
 - `PcapRemoteDeviceList::getRemoteDeviceByIP()` has been deprecated, please use `PcapRemoteDeviceList::getDeviceByIP()` instead
 - `PfRingDeviceList::getPfRingDeviceByName()` has been deprecated, please use `PfRingDeviceList::getDeviceByIP()` instead
