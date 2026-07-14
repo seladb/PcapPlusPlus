@@ -360,15 +360,36 @@ namespace pcpp
 		return (m_LastField->getFieldName() == PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER);
 	}
 
+	void TextBasedProtocolMessage::setFieldsOffset(int fieldsOffset)
+	{
+		validateFieldsOffset(fieldsOffset);
+		m_FieldsOffset = fieldsOffset;
+	}
+
+	void TextBasedProtocolMessage::shiftFieldsOffset(int numOfBytesToShift)
+	{
+		int newFieldsOffset = m_FieldsOffset + numOfBytesToShift;
+		validateFieldsOffset(newFieldsOffset);
+
+		m_FieldsOffset = newFieldsOffset;
+		shiftFieldsOffset(m_FieldList, numOfBytesToShift);
+	}
+
 	void TextBasedProtocolMessage::shiftFieldsOffset(HeaderField* fromField, int numOfBytesToShift)
 	{
-		while (fromField != nullptr)
+		for (; fromField != nullptr; fromField = fromField->getNextField())
 		{
 			fromField->m_NameOffsetInMessage += numOfBytesToShift;
 			if (fromField->m_ValueOffsetInMessage != -1)
 				fromField->m_ValueOffsetInMessage += numOfBytesToShift;
-			fromField = fromField->getNextField();
 		}
+	}
+
+	void TextBasedProtocolMessage::validateFieldsOffset(int offset) const
+	{
+		if (offset < 0 || offset > m_DataLen)
+			throw std::invalid_argument(
+			    "Field offset must be greater or equal to zero and less than or equal to the data length");
 	}
 
 	HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName, int index) const

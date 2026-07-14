@@ -461,8 +461,7 @@ namespace pcpp
 
 		if (lengthDifference != 0)
 		{
-			m_SipRequest->shiftFieldsOffset(m_SipRequest->getFirstField(), lengthDifference);
-			m_SipRequest->m_FieldsOffset += lengthDifference;
+			m_SipRequest->shiftFieldsOffset(lengthDifference);
 		}
 
 		memcpy(m_SipRequest->m_Data, SipMethodEnumToString[newMethod].c_str(),
@@ -519,8 +518,7 @@ namespace pcpp
 
 		if (lengthDifference != 0)
 		{
-			m_SipRequest->shiftFieldsOffset(m_SipRequest->getFirstField(), lengthDifference);
-			m_SipRequest->m_FieldsOffset += lengthDifference;
+			m_SipRequest->shiftFieldsOffset(lengthDifference);
 		}
 
 		memcpy(m_SipRequest->m_Data + m_UriOffset, newUri.c_str(), newUri.length());
@@ -537,7 +535,7 @@ namespace pcpp
 	    : SipLayer(data, dataLen, prevLayer, packet, SIPRequest)
 	{
 		m_FirstLine = new SipRequestFirstLine(this);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 		parseFields();
 	}
 
@@ -545,7 +543,7 @@ namespace pcpp
 	{
 		m_Protocol = SIPRequest;
 		m_FirstLine = new SipRequestFirstLine(this, method, version, requestUri);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 	}
 
 	SipRequestLayer::SipRequestLayer(const SipRequestLayer& other) : SipLayer(other)
@@ -878,7 +876,7 @@ namespace pcpp
 	    : SipLayer(data, dataLen, prevLayer, packet, SIPResponse)
 	{
 		m_FirstLine = new SipResponseFirstLine(this);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 		parseFields();
 	}
 
@@ -887,7 +885,7 @@ namespace pcpp
 	{
 		m_Protocol = SIPResponse;
 		m_FirstLine = new SipResponseFirstLine(this, sipVersion, statusCode, std::move(statusCodeString));
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 	}
 
 	SipResponseLayer::~SipResponseLayer()
@@ -1004,8 +1002,7 @@ namespace pcpp
 
 		if (lengthDifference != 0)
 		{
-			m_SipResponse->shiftFieldsOffset(m_SipResponse->getFirstField(), lengthDifference);
-			m_SipResponse->m_FieldsOffset += lengthDifference;
+			m_SipResponse->shiftFieldsOffset(lengthDifference);
 		}
 
 		// copy status string
