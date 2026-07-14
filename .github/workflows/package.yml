@@ -32,19 +32,19 @@ jobs:
           - runner: ubuntu-latest
             image: ubuntu2604
             config-zstd: OFF
+          - runner: ubuntu-26.04-arm
+            image: ubuntu2604-arm64
+            config-zstd: OFF
+          - runner: ubuntu-latest
+            image: ubuntu2604-icpx
+            config-zstd: OFF
+            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
           - runner: ubuntu-latest
             image: ubuntu2404
-            config-zstd: OFF
-          - runner: ubuntu-24.04-arm
-            image: ubuntu2404-arm64
             config-zstd: OFF
           - runner: ubuntu-latest
             image: ubuntu2204
             config-zstd: OFF
-          - runner: ubuntu-latest
-            image: ubuntu2204-icpx
-            config-zstd: OFF
-            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
           - runner: ubuntu-latest
             image: rhel94
             config-zstd: OFF
