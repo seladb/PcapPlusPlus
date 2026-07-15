@@ -39,5 +39,7 @@ Using PcapPlusPlus in your project:
 Running the examples:
 ---------------------
 
- - Make sure you have libpcap installed (it should come built-in with most Linux distributions)
+ - Make sure you have libpcap installed (it should come built-in with most Linux distributions). It's not needed by
+   every example individually, but the examples are built with libpcap support by default, so it's required for the
+   standard build
  - You may need to run the executables as sudo

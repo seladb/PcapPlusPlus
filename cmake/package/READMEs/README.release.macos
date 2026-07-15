@@ -21,7 +21,8 @@ This package contains:
 Using PcapPlusPlus in your project:
 -----------------------------------
 
- - Make sure you have libpcap developer pack installed (it should come with Xcode)
+ - Make sure you have libpcap developer pack installed (it should come with Xcode). It's not needed by every example
+   individually, but the examples are built with libpcap support by default, so it's required for the standard build
  - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>` when running CMake, for example:
    `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR>`
  - If your application uses Makefiles, you can use pkg-config with `PcapPlusPlus.pc`:
