@@ -1,4 +1,4 @@
-#include "../header/CotpLayer.h"
+#include "CotpLayer.h"
 #include "S7CommLayer.h"
 #include <PayloadLayer.h>
 

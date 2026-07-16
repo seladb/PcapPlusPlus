@@ -12,8 +12,6 @@ set(CMAKE_CXX_EXTENSIONS ON)
 if(TARGET Pcap++)
   # Are we building from the PcapPlusPlus project ??
   message(STATUS "Building Example from PcapPlusPlus project")
-  # Alias the project to make it compatible with imported package
-  add_library(PcapPlusPlus::Pcap++ ALIAS Pcap++)
 else()
   find_package(PcapPlusPlus CONFIG REQUIRED)
   message(STATUS "Using Pcap++ ${PcapPlusPlus_VERSION}")
