@@ -21,8 +21,7 @@ This package contains:
 Using PcapPlusPlus in your project:
 -----------------------------------
 
- - Make sure you have libpcap developer pack installed (it should come with Xcode). It's not needed by every example
-   individually, but the examples are built with libpcap support by default, so it's required for the standard build
+ - Make sure you have libpcap developer pack installed (it should come with Xcode)
  - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>` when running CMake, for example:
    `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR>`
  - If your application uses Makefiles, you can use pkg-config with `PcapPlusPlus.pc`:
@@ -42,5 +41,7 @@ Using PcapPlusPlus in your project:
 Running the examples:
 ---------------------
 
- - Make sure you have libpcap installed (or install it with Homebrew: https://formulae.brew.sh/formula/libpcap)
+ - Make sure you have libpcap installed (or install it with Homebrew: https://formulae.brew.sh/formula/libpcap). It's
+   not needed by every example individually, but the examples are built with libpcap support by default, so it's
+   required for the standard build
  - You may need to run the executables as sudo
