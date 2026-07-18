@@ -137,6 +137,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IPv4OptionsParsingTest, "ipv4");
 	PTF_RUN_TEST(IPv4OptionsEditTest, "ipv4");
 	PTF_RUN_TEST(IPv4UdpChecksum, "ipv4");
+	PTF_RUN_TEST(IPv4ComputeFieldsInvalidIhl, "ipv4");
 
 	PTF_RUN_TEST(IPv6UdpPacketParseAndCreate, "ipv6");
 	PTF_RUN_TEST(IPv6FragmentationTest, "ipv6");
