@@ -400,7 +400,8 @@ int main(int argc, char* argv[])
 
 	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get()) != nullptr)
 	{
-		writer = std::make_unique<pcpp::PcapFileWriterDevice>(outputFile, ((pcpp::PcapFileReaderDevice*)reader.get())->getLinkLayerType());
+		writer = std::make_unique<pcpp::PcapFileWriterDevice>(
+		    outputFile, ((pcpp::PcapFileReaderDevice*)reader.get())->getLinkLayerType());
 	}
 	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr)
 	{
@@ -418,8 +419,8 @@ int main(int argc, char* argv[])
 
 	// run the de-fragmentation process
 	DefragStats stats;
-	processPackets(reader.get(), writer.get(), filterByBpfFilter, bpfFilter, filterByFragID, fragIDMap, copyAllPacketsToOutputFile,
-	               stats);
+	processPackets(reader.get(), writer.get(), filterByBpfFilter, bpfFilter, filterByFragID, fragIDMap,
+	               copyAllPacketsToOutputFile, stats);
 
 	// close files
 	reader->close();

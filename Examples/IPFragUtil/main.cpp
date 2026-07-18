@@ -510,7 +510,8 @@ int main(int argc, char* argv[])
 
 	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get()) != nullptr)
 	{
-		writer = std::make_unique<pcpp::PcapFileWriterDevice>(outputFile, ((pcpp::PcapFileReaderDevice*)reader.get())->getLinkLayerType());
+		writer = std::make_unique<pcpp::PcapFileWriterDevice>(
+		    outputFile, ((pcpp::PcapFileReaderDevice*)reader.get())->getLinkLayerType());
 	}
 	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr)
 	{
