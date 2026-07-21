@@ -1,7 +1,7 @@
 Release notes (changes from v25.05)
 -----------------------------------
 
-- libpcap / WinPcap / Npcap is now optional. You can build `Common++` and `Packet++` on their own, without `Pcap++` and without any dependency on a packet-capture engine. As part of this, PcapPlusPlus can now read and write `.pcap` files entirely without libpcap (thanks @Dimi1010 for the follow-up performance fixes and keeping this working across build configs!)
+- libpcap / WinPcap / Npcap is now optional. `Pcap++` no longer has a hard dependency on a packet-capture engine. Separately, `Common++`/`Packet++` can now be built entirely on their own, without `Pcap++`. As part of this work, PcapPlusPlus can now read and write `.pcap` files without libpcap (thanks @Dimi1010 for the follow-up performance fixes and keeping this working across build configs!)
 - Bumped the minimum required C++ standard to C++14 (thanks @Dimi1010 !)
 - Protocol support:
   * Added Modbus protocol (thanks @yahyayozo !)
