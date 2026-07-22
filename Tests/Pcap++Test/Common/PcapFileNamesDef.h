@@ -40,3 +40,4 @@
 #define EXAMPLE_PCAP_NANO_WRITE_PATH "PcapExamples/nanosecs_copy.pcap"
 #define EXAMPLE_PCAP_NANO_BIG_ENDIAN_PATH "PcapExamples/nanosecs_big_endian.pcap"
 #define EXAMPLE_PCAPNG_NANO_PATH "PcapExamples/nanosecs.pcapng"
+#define EXAMPLE_PCAPNG_SCRATCH_REUSE_WRITE_PATH "PcapExamples/pcapng_scratch_reuse_write.pcapng"
