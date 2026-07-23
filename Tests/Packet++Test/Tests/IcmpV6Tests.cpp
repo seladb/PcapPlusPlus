@@ -156,6 +156,29 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	    "0000000204000000ff05000000000000000000000001000304000000ff020000000000000000000000010002";
 	PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(icmpV6Layer->getDataPtr(4), icmpV6Layer->getDataLen() - 4),
 	                 expectedPayloadString);
+
+	// A neighbor solicitation/advertisement message shorter than its 24-byte header must be rejected.
+	// Otherwise getTargetIP() reads the 16-byte target address past the buffer, and the NDP option walk
+	// computes getHeaderLen() - getNdpHeaderLen() which underflows below the header size.
+	{
+		// type 135 (neighbor solicitation), only 8 bytes: icmpv6 header + reserved, missing the 16-byte target IP
+		const uint8_t truncatedNeighborSolicitation[] = { 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		PTF_ASSERT_FALSE(pcpp::NDPNeighborSolicitationLayer::isDataValid(truncatedNeighborSolicitation,
+		                                                                 sizeof(truncatedNeighborSolicitation)));
+
+		// type 136 (neighbor advertisement), same truncation
+		const uint8_t truncatedNeighborAdvertisement[] = { 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		PTF_ASSERT_FALSE(pcpp::NDPNeighborAdvertisementLayer::isDataValid(truncatedNeighborAdvertisement,
+		                                                                  sizeof(truncatedNeighborAdvertisement)));
+
+		// a full 24-byte header (icmpv6 header + reserved/flags + 16-byte target IP) is accepted
+		const uint8_t fullNeighborSolicitation[24] = { 0x87, 0x00, 0x00, 0x00 };
+		PTF_ASSERT_TRUE(pcpp::NDPNeighborSolicitationLayer::isDataValid(fullNeighborSolicitation,
+		                                                                sizeof(fullNeighborSolicitation)));
+		const uint8_t fullNeighborAdvertisement[24] = { 0x88, 0x00, 0x00, 0x00 };
+		PTF_ASSERT_TRUE(pcpp::NDPNeighborAdvertisementLayer::isDataValid(fullNeighborAdvertisement,
+		                                                                 sizeof(fullNeighborAdvertisement)));
+	}
 }
 
 PTF_TEST_CASE(IcmpV6CreationTest)

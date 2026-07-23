@@ -28,8 +28,12 @@ namespace pcpp
 		case ICMPv6MessageType::ICMPv6_ECHO_REPLY:
 			return new ICMPv6EchoLayer(data, dataLen, prevLayer, packet);
 		case ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION:
+			if (!NDPNeighborSolicitationLayer::isDataValid(data, dataLen))
+				return new IcmpV6Layer(data, dataLen, prevLayer, packet);
 			return new NDPNeighborSolicitationLayer(data, dataLen, prevLayer, packet);
 		case ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT:
+			if (!NDPNeighborAdvertisementLayer::isDataValid(data, dataLen))
+				return new IcmpV6Layer(data, dataLen, prevLayer, packet);
 			return new NDPNeighborAdvertisementLayer(data, dataLen, prevLayer, packet);
 		case ICMPv6MessageType::ICMPv6_UNKNOWN_MESSAGE:
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
