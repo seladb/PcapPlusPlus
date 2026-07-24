@@ -100,11 +100,28 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
 /// <param name="block_start">Pointer to the start of the block data</param>
 void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_data, const uint32_t *block_start)
 {
+   // PCPP patch: body_size mirrors the calloc(bytesToRead, 1) in
+   // light_read_record (block_total_length - block_type - 2*block_total_length = total - 12).
+   // Each known block type below has a mandatory fixed header that must fit within
+   // the body buffer; without this check, a crafted .pcapng with an undersized
+   // block_total_length triggers an out-of-bounds read in the field reads below.
+   const uint32_t body_size = current->block_total_length > 12
+                                  ? current->block_total_length - 12
+                                  : 0;
+
    switch (current->block_type)
    {
       case LIGHT_SECTION_HEADER_BLOCK:
       { // PCPP patch
          DPRINT_HERE(LIGHT_SECTION_HEADER_BLOCK);
+         // PCPP patch: byteorder_magic(4) + version(4) + section_length(8).
+         // On undersized body, leave a zero-initialised SHB and empty options
+         // so callers (e.g. light_pcapng_ext::__create_file_info) don't NPE.
+         if (body_size < 16) {
+            current->block_body = (uint32_t*)calloc(1, sizeof(struct _light_section_header));
+            current->options = calloc(1, sizeof(struct _light_option));
+            return;
+         }
          struct _light_section_header *shb = calloc(1, sizeof(struct _light_section_header));
          struct _light_option *opt = NULL;
          uint32_t version = 0;
@@ -130,6 +147,12 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       case LIGHT_INTERFACE_BLOCK:
       { // PCPP patch
          DPRINT_HERE(LIGHT_INTERFACE_BLOCK);
+         // PCPP patch: link_reserved(4) + snapshot_length(4)
+         if (body_size < 8) {
+            current->block_body = (uint32_t*)calloc(1, sizeof(struct _light_interface_description_block));
+            current->options = calloc(1, sizeof(struct _light_option));
+            return;
+         }
          struct _light_interface_description_block *idb = calloc(1, sizeof(struct _light_interface_description_block));
          struct _light_option *opt = NULL;
          uint32_t link_reserved = *local_data++;
@@ -150,6 +173,13 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       case LIGHT_ENHANCED_PACKET_BLOCK:
       { // PCPP Patch
          DPRINT_HERE(LIGHT_ENHANCED_PACKET_BLOCK);
+         // PCPP patch: interface_id + ts_high + ts_low +
+         // captured_packet_length + original_packet_length = 5*4 = 20 bytes
+         if (body_size < 20) {
+            current->block_body = (uint32_t*)calloc(1, sizeof(struct _light_enhanced_packet_block));
+            current->options = calloc(1, sizeof(struct _light_option));
+            return;
+         }
          struct _light_enhanced_packet_block *epb = NULL;
          struct _light_option *opt = NULL;
          uint32_t interface_id = *local_data++;
@@ -183,6 +213,12 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       case LIGHT_SIMPLE_PACKET_BLOCK:
       {
          DPRINT_HERE(LIGHT_SIMPLE_PACKET_BLOCK);
+         // PCPP patch: original_packet_length(4)
+         if (body_size < 4) {
+            current->block_body = (uint32_t*)calloc(1, sizeof(struct _light_simple_packet_block));
+            current->options = NULL;
+            return;
+         }
          struct _light_simple_packet_block *spb = NULL;
          uint32_t original_packet_length = *local_data++;
          uint32_t actual_len = current->block_total_length - 2 * sizeof(current->block_total_length) - sizeof(current->block_type) - sizeof(original_packet_length);
@@ -200,6 +236,12 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       case LIGHT_CUSTOM_DATA_BLOCK:
       {
          DPRINT_HERE(LIGHT_CUSTOM_DATA_BLOCK);
+         // PCPP patch: len(4) + reserved0(4) + reserved1(4)
+         if (body_size < 12) {
+            current->block_body = (uint32_t*)calloc(1, sizeof(struct _light_custom_nonstandard_block));
+            current->options = calloc(1, sizeof(struct _light_option));
+            return;
+         }
          struct _light_custom_nonstandard_block *cnb = NULL;
          struct _light_option *opt = NULL;
          uint32_t len = *local_data++;
