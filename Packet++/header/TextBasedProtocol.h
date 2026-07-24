@@ -221,12 +221,44 @@ namespace pcpp
 
 		void copyDataFrom(const TextBasedProtocolMessage& other);
 
+		/// @brief Sets the base offset of the fields in the message.
+		///
+		/// This offset is used to determine where in the message to begin parsing the header fields.
+		///
+		/// @param[in] fieldsOffset A non-negative integer representing the offset in bytes from the start of the
+		/// message to the first header field.
+		void setFieldsOffset(int fieldsOffset);
 		void parseFields();
+
+		/// @brief Shifts the fields offset by a specified number of bytes.
+		///
+		/// The operation adjusts the main offset and all header fields' offsets accordingly.
+		///
+		/// This can be used when adding or removing data that is located before the header fields,
+		/// ensuring that the offsets remain accurate.
+		///
+		/// @param[in] numOfBytesToShift The number of bytes to shift the offsets.
+		void shiftFieldsOffset(int numOfBytesToShift);
+
+		/// @brief Shifts the fields offset of all headers after a specified header field by a specified number of
+		/// bytes.
+		///
+		/// @warning This method does not adjust the main fields offset.
+		///
+		/// @param[in] fromField The header field from which to start shifting the offsets.
+		/// @param[in] numOfBytesToShift The number of bytes to shift the offsets.
 		void shiftFieldsOffset(HeaderField* fromField, int numOfBytesToShift);
 
 		// abstract methods
 		virtual char getHeaderFieldNameValueSeparator() const = 0;
 		virtual bool spacesAllowedBetweenHeaderFieldNameAndValue() const = 0;
+
+	private:
+		/// @brief Validates that the provided offset is within the valid range for the message's data.
+		/// @param offset The offset to validate, which must be greater than or equal to zero and less than or equal to
+		/// the data length.
+		/// @throw std::invalid_argument if the offset is out of range.
+		void validateFieldsOffset(int offset) const;
 
 		HeaderField* m_FieldList;
 		HeaderField* m_LastField;
