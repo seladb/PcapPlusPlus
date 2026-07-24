@@ -403,9 +403,9 @@ void onApplicationInterrupted(void* cookie)
 void analyzeHttpFromPcapFile(const std::string& pcapFileName, uint16_t dstPort)
 {
 	// open input file (pcap or pcapng file)
-	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(pcapFileName));
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(pcapFileName);
 
-	if (!reader->open())
+	if (!reader || !reader->open())
 		EXIT_WITH_ERROR("Could not open input pcap file");
 
 	// set a port  filter on the reader device to process only HTTP packets

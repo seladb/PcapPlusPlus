@@ -360,9 +360,9 @@ void onApplicationInterrupted(void* cookie)
 void analyzeSSLFromPcapFile(const std::string& pcapFileName)
 {
 	// open input file (pcap or pcapng file)
-	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(pcapFileName));
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(pcapFileName);
 
-	if (!reader->open())
+	if (!reader || !reader->open())
 		EXIT_WITH_ERROR("Could not open input pcap file");
 
 	// read the input file packet by packet and give it to the SSLStatsCollector for collecting stats

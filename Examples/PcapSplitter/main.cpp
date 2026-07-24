@@ -364,13 +364,13 @@ int main(int argc, char* argv[])
 	    outputPcapDir + std::string(1, SEPARATOR) + getFileNameWithoutExtension(inputPcapFileName) + "-";
 
 	// open a pcap file for reading
-	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(inputPcapFileName));
-	bool isReaderPcapng = (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr);
-
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(inputPcapFileName);
 	if (reader == nullptr || !reader->open())
 	{
 		EXIT_WITH_ERROR("Error opening input pcap file");
 	}
+
+	bool isReaderPcapng = (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr);
 
 	// set a filter if provided
 	if (filter != "")
