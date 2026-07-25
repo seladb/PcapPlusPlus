@@ -30,7 +30,7 @@
 namespace pcpp
 {
 
-#define TCPOPT_DUMMY 0xff
+constexpr uint8_t TcpOptionDummy = 0xff;
 
 	/// ~~~~~~~~~~~~~~~~
 	/// TcpOptionBuilder
@@ -125,7 +125,7 @@ namespace pcpp
 	{
 		TcpOption nextOpt =
 		    m_OptionReader.getNextTLVRecord(tcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
-		if (nextOpt.isNotNull() && nextOpt.getType() == TCPOPT_DUMMY)
+		if (nextOpt.isNotNull() && nextOpt.getType() == TcpOptionDummy)
 			return TcpOption(nullptr);
 
 		return nextOpt;
@@ -263,7 +263,7 @@ namespace pcpp
 		m_NumOfTrailingBytes = newNumberOfTrailingBytes;
 
 		for (int i = 0; i < m_NumOfTrailingBytes; i++)
-			m_Data[sizeof(tcphdr) + totalOptSize + i] = TCPOPT_DUMMY;
+			m_Data[sizeof(tcphdr) + totalOptSize + i] = TcpOptionDummy;
 
 		getTcpHeader()->dataOffset = (sizeof(tcphdr) + totalOptSize + m_NumOfTrailingBytes) / 4;
 	}

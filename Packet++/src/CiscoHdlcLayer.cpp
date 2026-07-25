@@ -10,8 +10,8 @@ namespace pcpp
 {
 
 // Protocol types for Cisco HDLC
-#define CISCO_HDLC_TYPE_IP 0x0800
-#define CISCO_HDLC_TYPE_IPV6 0x86DD
+constexpr uint16_t CiscoHdlcTypeIp = 0x0800;
+constexpr uint16_t CiscoHdlcTypeIpv6 = 0x86DD;
 
 	CiscoHdlcLayer::CiscoHdlcLayer(AddressType address)
 	{
@@ -30,12 +30,12 @@ namespace pcpp
 			{
 			case IPv4:
 			{
-				setNextProtocol(CISCO_HDLC_TYPE_IP);
+				setNextProtocol(CiscoHdlcTypeIp);
 				break;
 			}
 			case IPv6:
 			{
-				setNextProtocol(CISCO_HDLC_TYPE_IPV6);
+				setNextProtocol(CiscoHdlcTypeIpv6);
 				break;
 			}
 			}
@@ -51,12 +51,12 @@ namespace pcpp
 
 		switch (nextProtocol)
 		{
-		case CISCO_HDLC_TYPE_IP:
+		case CiscoHdlcTypeIp:
 		{
 			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
-		case CISCO_HDLC_TYPE_IPV6:
+		case CiscoHdlcTypeIpv6:
 		{
 			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
 			break;

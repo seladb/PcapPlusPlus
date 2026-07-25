@@ -685,17 +685,17 @@ namespace pcpp
 		return result;
 	}
 
-#define A 54059        ///< a prime
-#define B 76963        ///< another prime
-#define C 86969        ///< yet another prime
-#define FIRST_HASH 37  ///< also prime
+constexpr unsigned SslHashMultiplierA = 54059;  ///< a prime
+constexpr unsigned SslHashMultiplierB = 76963;  ///< another prime
+constexpr unsigned SslHashMultiplierC = 86969;  ///< yet another prime
+constexpr unsigned SslHashInitialValue = 37;    ///< also prime
 
 	static uint32_t hashString(std::string str)
 	{
-		unsigned h = FIRST_HASH;
+		unsigned h = SslHashInitialValue;
 		for (auto i = 0u; i < str.size(); ++i)
 		{
-			h = (h * A) ^ (str[i] * B);
+			h = (h * SslHashMultiplierA) ^ (str[i] * SslHashMultiplierB);
 		}
 		return h;
 	}

@@ -11,31 +11,31 @@
 namespace pcpp
 {
 
-#define VRRP_PRIO_STOP 0     ///< priority to stop
-#define VRRP_PRIO_DEF 100    ///< default priority
-#define VRRP_PRIO_OWNER 255  ///< priority of the ip owner
+constexpr uint8_t VrrpPriorityStop = 0;       ///< priority to stop
+constexpr uint8_t VrrpPriorityDefault = 100;  ///< default priority
+constexpr uint8_t VrrpPriorityOwner = 255;    ///< priority of the IP owner
 
-#define VRRP_PACKET_FIX_LEN 8
-#define VRRP_PACKET_MAX_IP_ADDRESS_NUM 255
+constexpr uint8_t VrrpPacketFixedLength = 8;
+constexpr uint8_t VrrpPacketMaxIpAddressCount = 255;
 
-#define VRRP_V2_VERSION 2
-#define VRRP_V3_VERSION 3
+constexpr uint8_t VrrpVersion2 = 2;
+constexpr uint8_t VrrpVersion3 = 3;
 
 	// -------- Class VrrpLayer -----------------
 
 	VrrpLayer::VrrpLayer(ProtocolType subProtocol, uint8_t virtualRouterId, uint8_t priority)
 	{
-		allocData(VRRP_PACKET_FIX_LEN);
+		allocData(VrrpPacketFixedLength);
 		m_Protocol = subProtocol;
 		m_AddressType = IPAddress::IPv4AddressType;
 		auto vrrpHeader = getVrrpHeader();
 		if (subProtocol == VRRPv2)
 		{
-			vrrpHeader->version = VRRP_V2_VERSION;
+			vrrpHeader->version = VrrpVersion2;
 		}
 		else if (subProtocol == VRRPv3)
 		{
-			vrrpHeader->version = VRRP_V3_VERSION;
+			vrrpHeader->version = VrrpVersion3;
 		}
 		vrrpHeader->type = static_cast<uint8_t>(VrrpType::VrrpType_Advertisement);
 		setVirtualRouterID(virtualRouterId);
@@ -44,7 +44,7 @@ namespace pcpp
 
 	ProtocolType VrrpLayer::getVersionFromData(uint8_t* data, size_t dataLen)
 	{
-		if (!data || dataLen <= VRRP_PACKET_FIX_LEN)
+		if (!data || dataLen <= VrrpPacketFixedLength)
 		{
 			return UnknownProtocol;
 		}
@@ -53,9 +53,9 @@ namespace pcpp
 		uint8_t version = vrrpPacketCommon->version;
 		switch (version)
 		{
-		case VRRP_V2_VERSION:
+		case VrrpVersion2:
 			return VRRPv2;
-		case VRRP_V3_VERSION:
+		case VrrpVersion3:
 			return VRRPv3;
 		default:
 			return UnknownProtocol;
@@ -93,13 +93,13 @@ namespace pcpp
 	{
 		switch (getVrrpHeader()->priority)
 		{
-		case VRRP_PRIO_DEF:
+		case VrrpPriorityDefault:
 			return VrrpLayer::VrrpPriority::Default;
 
-		case VRRP_PRIO_STOP:
+		case VrrpPriorityStop:
 			return VrrpLayer::VrrpPriority::Stop;
 
-		case VRRP_PRIO_OWNER:
+		case VrrpPriorityOwner:
 			return VrrpLayer::VrrpPriority::Owner;
 
 		default:
@@ -183,12 +183,12 @@ namespace pcpp
 		size_t ipAddressLen = getIPAddressLen();
 
 		// check if there are virtual IP address at all
-		if (getHeaderLen() <= VRRP_PACKET_FIX_LEN + ipAddressLen)
+		if (getHeaderLen() <= VrrpPacketFixedLength + ipAddressLen)
 		{
 			return nullptr;
 		}
 
-		return (m_Data + VRRP_PACKET_FIX_LEN);
+		return (m_Data + VrrpPacketFixedLength);
 	}
 
 	uint8_t* VrrpLayer::getNextIPAddressPtr(uint8_t* ipAddressPtr) const
@@ -226,7 +226,7 @@ namespace pcpp
 			}
 		}
 
-		if (getIPAddressesCount() + ipAddresses.size() > VRRP_PACKET_MAX_IP_ADDRESS_NUM)
+		if (getIPAddressesCount() + ipAddresses.size() > VrrpPacketMaxIpAddressCount)
 		{
 			PCPP_LOG_ERROR("Cannot add virtual IP address, for virtual IP address has already exceed maximum.");
 			return false;
@@ -283,7 +283,7 @@ namespace pcpp
 
 		size_t ipAddressLen = getIPAddressLen();
 
-		size_t offset = VRRP_PACKET_FIX_LEN;
+		size_t offset = VrrpPacketFixedLength;
 		auto curIpAddressPtr = getFirstIPAddressPtr();
 		for (int i = 0; i < index; i++)
 		{
@@ -311,7 +311,7 @@ namespace pcpp
 
 	bool VrrpLayer::removeAllIPAddresses()
 	{
-		size_t offset = VRRP_PACKET_FIX_LEN;
+		size_t offset = VrrpPacketFixedLength;
 		size_t packetLen = getHeaderLen();
 		if (packetLen <= offset)
 		{

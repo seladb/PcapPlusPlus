@@ -10,9 +10,9 @@
 namespace pcpp
 {
 /// IPv4 protocol
-#define PCPP_WS_NFPROTO_IPV4 2
+constexpr uint8_t NflogFamilyIpv4 = 2;
 /// IPv6 protocol
-#define PCPP_WS_NFPROTO_IPV6 10
+constexpr uint8_t NflogFamilyIpv6 = 10;
 
 	uint8_t NflogLayer::getFamily()
 	{
@@ -56,12 +56,12 @@ namespace pcpp
 
 		switch (family)
 		{
-		case PCPP_WS_NFPROTO_IPV4:
+		case NflogFamilyIpv4:
 		{
 			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
-		case PCPP_WS_NFPROTO_IPV6:
+		case NflogFamilyIpv6:
 		{
 			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
 			break;

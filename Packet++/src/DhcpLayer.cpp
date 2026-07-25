@@ -6,7 +6,7 @@
 namespace pcpp
 {
 
-#define DHCP_MAGIC_NUMBER 0x63538263
+constexpr uint32_t DhcpMagicNumber = 0x63538263;
 
 	DhcpOption DhcpOptionBuilder::build() const
 	{
@@ -93,7 +93,7 @@ namespace pcpp
 	{
 		dhcp_header* hdr = getDhcpHeader();
 
-		hdr->magicNumber = DHCP_MAGIC_NUMBER;
+		hdr->magicNumber = DhcpMagicNumber;
 
 		DhcpMessageType msgType = getMessageType();
 		switch (msgType)
