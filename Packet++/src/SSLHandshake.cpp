@@ -685,10 +685,10 @@ namespace pcpp
 		return result;
 	}
 
-constexpr unsigned SslHashMultiplierA = 54059;  ///< a prime
-constexpr unsigned SslHashMultiplierB = 76963;  ///< another prime
-constexpr unsigned SslHashInitialValue = 37;    ///< also prime
-//constexpr unsigned SslHashMultiplierC = 86969;  ///< comment this out for now, as it is not used
+	constexpr unsigned SslHashMultiplierA = 54059;  ///< a prime
+	constexpr unsigned SslHashMultiplierB = 76963;  ///< another prime
+	constexpr unsigned SslHashInitialValue = 37;    ///< also prime
+	// constexpr unsigned SslHashMultiplierC = 86969;  ///< comment this prime out for now, as it is not used
 
 	static uint32_t hashString(std::string str)
 	{
