@@ -9,7 +9,7 @@
 namespace pcpp
 {
 
-constexpr char SshLayerBaseString[] = "SSH Layer";
+	constexpr char SshLayerBaseString[] = "SSH Layer";
 
 	// ----------------
 	// SSHLayer methods

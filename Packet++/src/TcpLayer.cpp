@@ -30,7 +30,7 @@
 namespace pcpp
 {
 
-constexpr uint8_t TcpOptionDummy = 0xff;
+	constexpr uint8_t TcpOptionDummy = 0xff;
 
 	/// ~~~~~~~~~~~~~~~~
 	/// TcpOptionBuilder

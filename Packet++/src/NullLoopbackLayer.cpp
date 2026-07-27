@@ -10,7 +10,7 @@ namespace pcpp
 #define BSWAP16(x) (((x) >> 8) | ((x) << 8))
 #define BSWAP32(x) (((x) >> 24) | (((x) & 0x00FF'0000) >> 8) | (((x) & 0x0000'FF00) << 8) | ((x) << 24))
 
-constexpr uint32_t Ieee8023MaxLength = 0x5dc;
+	constexpr uint32_t Ieee8023MaxLength = 0x5dc;
 
 	NullLoopbackLayer::NullLoopbackLayer(uint32_t family)
 	{

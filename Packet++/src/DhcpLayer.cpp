@@ -6,7 +6,7 @@
 namespace pcpp
 {
 
-constexpr uint32_t DhcpMagicNumber = 0x63538263;
+	constexpr uint32_t DhcpMagicNumber = 0x63538263;
 
 	DhcpOption DhcpOptionBuilder::build() const
 	{

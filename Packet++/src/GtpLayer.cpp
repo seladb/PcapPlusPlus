@@ -12,7 +12,7 @@
 namespace pcpp
 {
 
-constexpr uint8_t GtpV1GpduMessageType = 0xff;
+	constexpr uint8_t GtpV1GpduMessageType = 0xff;
 
 	/// ==================
 	/// GtpExtension class

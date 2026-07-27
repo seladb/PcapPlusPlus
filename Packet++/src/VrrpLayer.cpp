@@ -11,15 +11,15 @@
 namespace pcpp
 {
 
-constexpr uint8_t VrrpPriorityStop = 0;       ///< priority to stop
-constexpr uint8_t VrrpPriorityDefault = 100;  ///< default priority
-constexpr uint8_t VrrpPriorityOwner = 255;    ///< priority of the IP owner
+	constexpr uint8_t VrrpPriorityStop = 0;       ///< priority to stop
+	constexpr uint8_t VrrpPriorityDefault = 100;  ///< default priority
+	constexpr uint8_t VrrpPriorityOwner = 255;    ///< priority of the IP owner
 
-constexpr uint8_t VrrpPacketFixedLength = 8;
-constexpr uint8_t VrrpPacketMaxIpAddressCount = 255;
+	constexpr uint8_t VrrpPacketFixedLength = 8;
+	constexpr uint8_t VrrpPacketMaxIpAddressCount = 255;
 
-constexpr uint8_t VrrpVersion2 = 2;
-constexpr uint8_t VrrpVersion3 = 3;
+	constexpr uint8_t VrrpVersion2 = 2;
+	constexpr uint8_t VrrpVersion3 = 3;
 
 	// -------- Class VrrpLayer -----------------
 
