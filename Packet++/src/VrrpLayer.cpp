@@ -199,14 +199,17 @@ namespace pcpp
 		}
 
 		size_t ipAddressLen = getIPAddressLen();
+		size_t nextOffset = static_cast<size_t>(ipAddressPtr - m_Data) + ipAddressLen;
 
-		// prev virtual IP address was the last virtual IP address
-		if (ipAddressPtr + ipAddressLen - m_Data >= (int)getHeaderLen())
+		// The next virtual IP address must fit entirely inside the layer. Checking only that the current
+		// address ends inside it leaves a trailing partial address reachable, which the caller then reads
+		// in full and runs past the end of the buffer.
+		if (nextOffset + ipAddressLen > getHeaderLen())
 		{
 			return nullptr;
 		}
 
-		return (ipAddressPtr + ipAddressLen);
+		return (m_Data + nextOffset);
 	}
 
 	bool VrrpLayer::addIPAddressesAt(const std::vector<IPAddress>& ipAddresses, int offset)
