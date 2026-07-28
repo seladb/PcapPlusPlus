@@ -10,11 +10,11 @@ namespace pcpp
 {
 /// @def PCAPPLUSPLUS_VERSION_YEAR
 /// @brief The year component of the PcapPlusPlus version (e.g., 25 for 2025)
-#define PCAPPLUSPLUS_VERSION_YEAR 25
+#define PCAPPLUSPLUS_VERSION_YEAR 26
 
 /// @def PCAPPLUSPLUS_VERSION_MONTH
 /// @brief The month component of the PcapPlusPlus version (e.g., 5 for May)
-#define PCAPPLUSPLUS_VERSION_MONTH 5
+#define PCAPPLUSPLUS_VERSION_MONTH 7
 
 /// @def PCAPPLUSPLUS_VERSION_PATCH
 /// @brief The patch number component of the PcapPlusPlus version
@@ -26,7 +26,7 @@ namespace pcpp
 
 /// @def PCAPPLUSPLUS_VERSION
 /// @brief Short version string (e.g., "25.05" for official release or "25.05+" for development)
-#define PCAPPLUSPLUS_VERSION "25.05+"
+#define PCAPPLUSPLUS_VERSION "26.07-dev"
 
 /// @def PCAPPLUSPLUS_VERSION_OFFICIAL
 /// @brief String indicating whether this is an official or non-official release

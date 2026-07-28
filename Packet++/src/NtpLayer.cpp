@@ -17,9 +17,7 @@ namespace pcpp
 {
 	NtpLayer::NtpLayer()
 	{
-		m_DataLen = sizeof(ntp_header);
-		m_Data = new uint8_t[sizeof(ntp_header)];
-		memset(m_Data, 0, sizeof(ntp_header));
+		allocData(sizeof(ntp_header));
 		m_Protocol = NTP;
 	}
 

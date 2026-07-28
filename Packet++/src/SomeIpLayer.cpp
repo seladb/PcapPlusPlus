@@ -25,10 +25,9 @@ namespace pcpp
 	                         uint8_t interfaceVersion, MsgType type, uint8_t returnCode, const uint8_t* const data,
 	                         size_t dataLen)
 	{
-		const size_t headerLen = sizeof(someiphdr);
-		m_DataLen = headerLen + dataLen;
-		m_Data = new uint8_t[m_DataLen];
 		m_Protocol = SomeIP;
+		constexpr size_t headerLen = sizeof(someiphdr);
+		allocData(headerLen + dataLen);
 		memset(m_Data, 0, headerLen);
 		memcpy(m_Data + headerLen, data, dataLen);
 
@@ -283,11 +282,10 @@ namespace pcpp
 	                             uint8_t interfaceVersion, MsgType type, uint8_t returnCode, uint32_t offset,
 	                             bool moreSegmentsFlag, const uint8_t* const data, size_t dataLen)
 	{
-		const size_t headerLen = sizeof(someiptphdr);
-
-		m_DataLen = headerLen + dataLen;
-		m_Data = new uint8_t[m_DataLen];
+		constexpr size_t headerLen = sizeof(someiptphdr);
 		m_Protocol = SomeIP;
+
+		allocData(headerLen + dataLen);
 		memset(m_Data, 0, headerLen);
 		memcpy(m_Data + headerLen, data, dataLen);
 

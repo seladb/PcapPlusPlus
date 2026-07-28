@@ -449,7 +449,7 @@ namespace pcpp
 		/// written into. The array is expected to be allocated by the user and its length should be provided in
 		/// rawPacketArrLength. Number of packets received will be returned. Notice it's the user responsibility to free
 		/// the array and its content when done using it
-		/// @param[out] rawPacketArrLength The length of MBufRawPacket pointers array
+		/// @param[in] rawPacketArrLength The length of MBufRawPacket pointers array
 		/// @param[in] rxQueueId The RX queue to receive packets from
 		/// @return The number of packets received. If an error occurred 0 will be returned and the error will be
 		/// printed to log
@@ -460,7 +460,7 @@ namespace pcpp
 		/// written into. The array is expected to be allocated by the user and its length should be provided in
 		/// packetsArrLength. Number of packets received will be returned. Notice it's the user responsibility to free
 		/// the array and its content when done using it
-		/// @param[out] packetsArrLength The length of Packet pointers array
+		/// @param[in] packetsArrLength The length of Packet pointers array
 		/// @param[in] rxQueueId The RX queue to receive packets from
 		/// @return The number of packets received. If an error occurred 0 will be returned and the error will be
 		/// printed to log

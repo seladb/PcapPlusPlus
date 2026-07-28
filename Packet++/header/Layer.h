@@ -182,9 +182,28 @@ namespace pcpp
 			return m_AllocationInfo.attachedPacket != nullptr;
 		}
 
-		/// Copy the raw data of this layer to another array
+		/// @brief Copy the raw data of this layer to another array
+		///
+		/// @warning The method does not perform any bounds checking on the destination array. The caller MUST ensure
+		/// that the destination array has enough space to hold the getDataLen() bytes.
+		///
+		/// @warning Prefer the overload of copyData() that accepts a destination size to ensure safe copying of data.
+		///
 		/// @param[out] toArr The destination byte array
 		void copyData(uint8_t* toArr) const;
+
+		/// @brief Copy the raw data of this layer to another array, with a specified maximum size.
+		///
+		/// The method copies up to 'destSize' bytes of the layer's raw data into the provided destination array.
+		/// If the layer's data length is greater than 'destSize', only the first 'destSize' bytes will be copied.
+		///
+		/// To ensure sufficient space is available in the destination array, use getDataLen() to determine the actual
+		/// length of the layer's data before calling this method.
+		///
+		/// @param[out] dest The destination byte array
+		/// @param[in] destSize The maximum number of bytes to copy
+		/// @return The number of bytes copied to the destination array.
+		size_t copyData(uint8_t* dest, size_t destSize) const;
 
 		// implement abstract methods
 
@@ -256,6 +275,22 @@ namespace pcpp
 		{
 			m_PrevLayer = prevLayer;
 		}
+
+		// ------ Memory Control Methods -----
+		// Used by derived classes to request buffer size changes.
+
+		/// @brief Requests the layer to allocate a new data buffer of the specified length.
+		///
+		/// If the layer is not attached to a Packet, it will allocate a new buffer of the specified length.
+		/// If the layer is attached to a Packet, it will throw a std::logic_error, as that case is not yet supported.
+		///
+		/// The primary use case for this method is initial allocation of the data buffer in derived classes.
+		///
+		/// @param[in] dataLen The length of the new data buffer.
+		/// @param[in] zeroInit If true, the new buffer will be zero-initialized.
+		/// @throws std::runtime_error if the layer already has allocated data.
+		/// @throws std::logic_error if the layer is attached to a Packet (not yet supported).
+		void allocData(size_t dataLen, bool zeroInit = true);
 
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);

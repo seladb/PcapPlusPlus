@@ -37,6 +37,7 @@ namespace pcpp
 		m_Protocol = SDP;
 		m_FieldsOffset = 0;
 
+		// TODO: Fix this to work with allocData.
 		// must initialize m_Data otherwise addField() will fail while trying to extend the layer
 		// initializing in length of 1 but keeping m_DataLen with value of 0.
 		// when extending the field m_Data is purged so there isn't a memory leak here

@@ -101,6 +101,15 @@ namespace pcpp
 			return port == 502;
 		}
 
+		/// A static method that checks whether the data is large enough to hold a MODBUS header
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataSize The size of the data in bytes
+		/// @return True if the data is large enough to be parsed as a MODBUS layer, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataSize)
+		{
+			return data != nullptr && dataSize >= sizeof(modbus_header);
+		}
+
 		/// @return MODBUS message type
 		uint16_t getTransactionId() const;
 

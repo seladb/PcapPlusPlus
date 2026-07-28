@@ -272,13 +272,15 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
 		auto rxStats = dev->getStatistics();
 
 		pcpp::XdpDevice::XdpDeviceStats* txStats = nullptr;
+		pcpp::XdpDevice::XdpDeviceStats txStatsValue;
 
 		if (sendDev)
 		{
 			// if send socket is different from receive socket, collect stats from the send socket
 			if (sendDev != dev)
 			{
-				txStats = new pcpp::XdpDevice::XdpDeviceStats(sendDev->getStatistics());
+				txStatsValue = sendDev->getStatistics();
+				txStats = &txStatsValue;
 			}
 			else  // send and receive sockets are the same
 			{
@@ -288,11 +290,6 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
 
 		// print RX and (maybe) TX stats in a table
 		printStats(packetStats, &rxStats, txStats);
-
-		if (txStats != &rxStats)
-		{
-			delete txStats;
-		}
 	}
 }
 
@@ -518,6 +515,8 @@ int main(int argc, char* argv[])
 
 	// open the XDP device to send packets if needed
 	pcpp::XdpDevice* sendDev = nullptr;
+	std::unique_ptr<pcpp::XdpDevice> sendDevOwner;
+
 	if (!sendInterfaceName.empty())
 	{
 		// send and receive devices might be the same
@@ -528,7 +527,9 @@ int main(int argc, char* argv[])
 		else
 		{
 			// if they are not the same, open another AF_XDP socket for the send device
-			sendDev = new pcpp::XdpDevice(sendInterfaceName);
+			sendDevOwner = std::make_unique<pcpp::XdpDevice>(sendInterfaceName);
+			sendDev = sendDevOwner.get();
+
 			if (!sendDev->open())
 			{
 				dev.close();
@@ -582,18 +583,19 @@ int main(int argc, char* argv[])
 	}
 
 	pcpp::XdpDevice::XdpDeviceStats* txStats = nullptr;
+	pcpp::XdpDevice::XdpDeviceStats txStatsValue;
 
 	// close the send XDP device if needed
 	if (sendDev != nullptr)
 	{
 		// collect final TX stats
-		txStats = new pcpp::XdpDevice::XdpDeviceStats(sendDev->getStatistics());
+		txStatsValue = sendDev->getStatistics();
+		txStats = &txStatsValue;
 
 		// if the send and receive devices are the same - no need to close the device again
 		if (sendInterfaceName != interfaceName)
 		{
 			sendDev->close();
-			delete sendDev;
 		}
 	}
 
@@ -605,7 +607,6 @@ int main(int argc, char* argv[])
 
 	// print final stats
 	printStats(&packetStats, &rxStats, txStats);
-	delete txStats;
 
 	for (const auto& additionalStat : additionalStats)
 	{

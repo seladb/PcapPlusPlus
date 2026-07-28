@@ -1450,6 +1450,9 @@ namespace pcpp
 
 	SSLVersion SSLClientHelloMessage::getHandshakeVersion() const
 	{
+		if (m_DataLen < sizeof(ssl_tls_handshake_layer) + sizeof(uint16_t))
+			return SSLVersion(0);
+
 		uint16_t handshakeVersion = be16toh(getClientHelloHeader()->handshakeVersion);
 		return SSLVersion(handshakeVersion);
 	}
@@ -1778,6 +1781,9 @@ namespace pcpp
 			if (supportedVersions.size() == 1)
 				return supportedVersions[0];
 		}
+
+		if (m_DataLen < sizeof(ssl_tls_handshake_layer) + sizeof(uint16_t))
+			return SSLVersion(0);
 
 		uint16_t handshakeVersion = be16toh(getServerHelloHeader()->handshakeVersion);
 		return SSLVersion(handshakeVersion);

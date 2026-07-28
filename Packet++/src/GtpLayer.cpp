@@ -169,9 +169,7 @@ namespace pcpp
 			dataLen += sizeof(gtpv1_header_extra);
 		}
 
-		m_DataLen = dataLen;
-		m_Data = new uint8_t[dataLen];
-		memset(m_Data, 0, dataLen);
+		allocData(dataLen);
 		m_Protocol = GTPv1;
 
 		gtpv1_header* hdr = getHeader();
@@ -985,9 +983,7 @@ namespace pcpp
 	{
 		size_t messageLength = sizeof(uint32_t) + (setTeid ? sizeof(uint32_t) : 0);
 		size_t headerLen = sizeof(gtpv2_basic_header) + messageLength;
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		auto* hdr = getHeader();
 		hdr->version = 2;

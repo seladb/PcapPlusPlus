@@ -73,9 +73,7 @@ namespace pcpp
 
 	DhcpV6Layer::DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId)
 	{
-		m_DataLen = sizeof(dhcpv6_header);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(dhcpv6_header));
 		m_Protocol = DHCPv6;
 
 		setMessageType(messageType);

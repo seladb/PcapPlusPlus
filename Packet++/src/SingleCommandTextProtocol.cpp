@@ -61,8 +61,7 @@ namespace pcpp
 	                                                     ProtocolType protocol)
 	{
 		m_Protocol = protocol;
-		m_Data = new uint8_t[MIN_PACKET_LENGTH];
-		m_DataLen = MIN_PACKET_LENGTH;
+		allocData(MIN_PACKET_LENGTH);
 		if (!command.empty())
 			setCommandInternal(command);
 		if (!option.empty())

@@ -10,8 +10,7 @@ namespace pcpp
 	                   const MacAddress& targetMacAddr, const IPv4Address& targetIpAddr)
 	{
 		constexpr size_t headerLen = sizeof(arphdr);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen]{};  // zero-initialized
+		allocData(headerLen);
 		m_Protocol = ARP;
 
 		arphdr* arpHeader = getArpHeader();
