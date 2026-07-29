@@ -133,10 +133,11 @@ namespace pcpp
 
 	LongCoreMask LongCoreMask::fromAllCores()
 	{
-		const int numOfCores = getNumOfCores() < MaxCoreCount ? getNumOfCores() : MaxCoreCount;
-		
+		const size_t numOfCores =
+		    static_cast<size_t>(getNumOfCores()) < MaxCoreCount ? static_cast<size_t>(getNumOfCores()) : MaxCoreCount;
+
 		LongCoreMask mask;
-		for (int i = 0; i < numOfCores; i++)
+		for (size_t i = 0; i < numOfCores; i++)
 		{
 			mask.Mask.set(i);
 		}
@@ -180,7 +181,7 @@ namespace pcpp
 				    "Core ID is out of range for CoreMask. Use LongCoreMask for more than 32 cores.");
 			}
 		}
-	}
+	}  // namespace
 
 	CoreMask getCoreMaskForAllMachineCores()
 	{
