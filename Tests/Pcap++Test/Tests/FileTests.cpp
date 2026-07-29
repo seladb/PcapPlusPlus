@@ -1617,7 +1617,9 @@ PTF_TEST_CASE(TestPcapNgFileWriteIOBufferSize)
 
 		pcpp::RawPacket rawPacket;
 		while (readerDev.getNextPacket(rawPacket))
+		{
 			PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
+		}
 		readerDev.close();
 		writerDev.close();
 
@@ -1625,7 +1627,9 @@ PTF_TEST_CASE(TestPcapNgFileWriteIOBufferSize)
 		PTF_ASSERT_TRUE(verifyReaderDev.open());
 		int packetCount = 0;
 		while (verifyReaderDev.getNextPacket(rawPacket))
+		{
 			packetCount++;
+		}
 		verifyReaderDev.close();
 
 		PTF_ASSERT_EQUAL(packetCount, 64);

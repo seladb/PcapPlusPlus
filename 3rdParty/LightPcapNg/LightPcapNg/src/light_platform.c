@@ -55,11 +55,15 @@ size_t light_get_io_buffer_size(void)
 static void __install_io_buffer(light_file fd)
 {
 	if (fd == NULL || fd->file == NULL || g_light_io_buffer_size == 0)
+	{
 		return;
+	}
 
 	fd->io_buffer = malloc(g_light_io_buffer_size);
 	if (fd->io_buffer == NULL)
+	{
 		return; // fall back to the default buffering rather than failing the open
+	}
 
 	if (setvbuf(fd->file, fd->io_buffer, _IOFBF, g_light_io_buffer_size) != 0)
 	{
@@ -125,7 +129,9 @@ light_file light_open(const char *file_name, const __read_mode_t mode)
 	}
 
 	if (fd->file && mode != LIGHT_OREAD)  // PCPP patch
+	{
 		__install_io_buffer(fd);
+	}
 
 	if (fd->file)
 	{
@@ -163,7 +169,9 @@ light_file light_open_compression(const char *file_name, const __read_mode_t mod
 	}
 
 	if (fd->file)  // PCPP patch
+	{
 		__install_io_buffer(fd);
+	}
 
 	if (fd->file)
 	{
