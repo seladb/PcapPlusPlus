@@ -8,6 +8,7 @@
 #include <memory>
 #include <array>
 #include <iostream>
+#include <algorithm>
 #include <mutex>
 #include <cstring>
 #include <csignal>
@@ -107,6 +108,8 @@ namespace pcpp
 		SystemCores::Core25, SystemCores::Core26, SystemCores::Core27, SystemCores::Core28, SystemCores::Core29,
 		SystemCores::Core30, SystemCores::Core31
 	};
+
+	const size_t LongCoreMask::MaxCoreCount;
 
 	LongCoreMask::LongCoreMask(SystemCore core)
 	{

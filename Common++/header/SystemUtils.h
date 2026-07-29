@@ -180,7 +180,7 @@ namespace pcpp
 	struct LongCoreMask
 	{
 		/// @brief The maximum number of cores supported by LongCoreMask.
-		static constexpr size_t MaxCoreCount = 256;
+		static const size_t MaxCoreCount = 256;
 
 		/// @brief A bitset representing the core mask.
 		/// Each bit corresponds to a core, where a set bit indicates that the core is included in the mask.
