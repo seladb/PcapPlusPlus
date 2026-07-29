@@ -170,13 +170,25 @@ namespace pcpp
 #endif
 	}
 
+	namespace
+	{
+		void checkCoreIdRangeForCoreMask(int coreId)
+		{
+			if (coreId >= 32 || coreId < 0)
+			{
+				throw std::out_of_range(
+				    "Core ID is out of range for CoreMask. Use LongCoreMask for more than 32 cores.");
+			}
+		}
+	}
+
 	CoreMask getCoreMaskForAllMachineCores()
 	{
 		const int numOfCores = getNumOfCores() < 32 ? getNumOfCores() : 32;
 		CoreMask result = 0;
 		for (int i = 0; i < numOfCores; i++)
 		{
-			result = result | SystemCores::IdToSystemCore[i].Mask;
+			result = result | SystemCore(i).getShortCoreMask();
 		}
 
 		return result;
@@ -187,8 +199,9 @@ namespace pcpp
 		CoreMask result = 0;
 		for (const auto& core : cores)
 		{
+			checkCoreIdRangeForCoreMask(core.Id);
 			// cppcheck-suppress useStlAlgorithm
-			result |= core.Mask;
+			result |= core.getShortCoreMask();
 		}
 
 		return result;
@@ -199,8 +212,10 @@ namespace pcpp
 		CoreMask result = 0;
 		for (const auto& coreId : coreIds)
 		{
+			checkCoreIdRangeForCoreMask(coreId);
+
 			// cppcheck-suppress useStlAlgorithm
-			result |= SystemCores::IdToSystemCore[coreId].Mask;
+			result |= SystemCore(coreId).getShortCoreMask();
 		}
 
 		return result;
@@ -213,7 +228,7 @@ namespace pcpp
 		{
 			if ((1 & coreMask) != 0U)
 			{
-				resultVec.push_back(SystemCores::IdToSystemCore[idx]);
+				resultVec.push_back(SystemCore(idx));
 			}
 
 			coreMask = coreMask >> 1;

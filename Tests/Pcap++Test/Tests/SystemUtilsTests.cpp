@@ -17,8 +17,7 @@ PTF_TEST_CASE(TestSystemCoreUtils)
 	auto coreIdVector = std::vector<int>{ 1, 3, 5 };
 	PTF_ASSERT_EQUAL(pcpp::createCoreMaskFromCoreIds(coreIdVector), 0b101010);
 
-	std::vector<pcpp::SystemCore> coreVector2;
-	pcpp::createCoreVectorFromCoreMask(0b10101, coreVector2);
+	auto coreVector2 = pcpp::createCoreVectorFromCoreMask(0b10101);
 	PTF_ASSERT_TRUE(coreVector == coreVector2);
 }
 
