@@ -57,6 +57,8 @@ namespace pcpp
 		/// - In core #0 the right-most bit will be set (meaning the number 0x01);
 		/// - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
 		///
+		/// @warning For core IDs >= 32, this attribute will be set to 0, as it cannot be represented in a 32-bit mask.
+		/// 
 		/// @deprecated This mask field is deprecated as it is limited to 32 cores.
 		/// Prefer to use getShortCoreMask() instead, which returns a 32-bit mask for cores with ID < 32.
 		PCPP_DEPRECATED("Use getShortCoreMask() instead to get a 32-bit mask for cores with ID < 32.")
