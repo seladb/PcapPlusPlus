@@ -108,6 +108,59 @@ namespace pcpp
 		SystemCores::Core30, SystemCores::Core31
 	};
 
+	LongCoreMask::LongCoreMask(SystemCore core)
+	{
+		if (core.Id < 0 || core.Id >= MaxCoreCount)
+		{
+			throw std::out_of_range("Core ID is out of range");
+		}
+
+		Mask.set(core.Id);
+	}
+
+	LongCoreMask::LongCoreMask(std::vector<SystemCore> const& cores)
+	{
+		for (auto const& core : cores)
+		{
+			if (core.Id < 0 || core.Id >= MaxCoreCount)
+			{
+				throw std::out_of_range("Core ID is out of range");
+			}
+
+			Mask.set(core.Id);
+		}
+	}
+
+	LongCoreMask LongCoreMask::fromAllCores()
+	{
+		const int numOfCores = getNumOfCores() < MaxCoreCount ? getNumOfCores() : MaxCoreCount;
+		
+		LongCoreMask mask;
+		for (int i = 0; i < numOfCores; i++)
+		{
+			mask.Mask.set(i);
+		}
+		return mask;
+	}
+
+	std::vector<SystemCore> LongCoreMask::toCoreVector() const
+	{
+		static_assert(static_cast<size_t>((std::numeric_limits<decltype(SystemCore::Id)>::max)()) + 1 >= MaxCoreCount,
+		              "SystemCore::Id type is too small to represent all cores in LongCoreMask");
+
+		std::vector<SystemCore> result;
+		for (size_t i = 0; i < MaxCoreCount; ++i)
+		{
+			if (Mask.test(i))
+			{
+				// System cores over 32 do not support short masks.
+				uint32_t shortMask = (i < 32) ? (1U << i) : 0;
+				result.push_back(SystemCore{ shortMask, static_cast<uint8_t>(i) });
+			}
+		}
+		return result;
+	}
+
 	int getNumOfCores()
 	{
 #if defined(_WIN32)
@@ -168,6 +221,13 @@ namespace pcpp
 			coreMask = coreMask >> 1;
 			++idx;
 		}
+	}
+
+	std::vector<SystemCore> createCoreVectorFromCoreMask(CoreMask coreMask)
+	{
+		std::vector<SystemCore> resultVec;
+		createCoreVectorFromCoreMask(coreMask, resultVec);
+		return resultVec;
 	}
 
 	std::string executeShellCommand(const std::string& command)
