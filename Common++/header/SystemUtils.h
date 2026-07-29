@@ -43,10 +43,10 @@ namespace pcpp
 		{}
 
 		/// @brief Create a SystemCore object with a given mask and core ID
-		/// 
-		/// This constructor is provided for backward compatibility with brace initialization.
-		/// It is recommended to use the constructor that takes only a core ID, as the mask can be derived from the core ID.
-		/// 
+		///
+		/// This constructor is provided for backward compatibility with brace initialization. It is recommended to use
+		/// the constructor that takes only a core ID, as the mask can be derived from the core ID.
+		///
 		/// @param[in] mask The mask to create the SystemCore object for.
 		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
 		/// @deprecated This constructor is deprecated and provided for backwards compatibility only.
@@ -56,13 +56,15 @@ namespace pcpp
 		constexpr SystemCore(uint32_t mask, uint8_t coreId) : Mask(mask), Id(coreId)
 		{}
 
-		/// @brief Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set,
-		/// according to the core ID. For example:
+		/// @brief Core position in a 32-bit mask.
+		///
+		/// For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID. For
+		/// example:
 		/// - In core #0 the right-most bit will be set (meaning the number 0x01);
 		/// - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
 		///
 		/// @warning For core IDs >= 32, this attribute will be set to 0, as it cannot be represented in a 32-bit mask.
-		/// 
+		///
 		/// @deprecated This mask field is deprecated and will be removed in the future.
 		/// Prefer to use getShortCoreMask() instead, which returns a 32-bit mask for cores with ID < 32.
 		PCPP_DEPRECATED("Use getShortCoreMask() instead to get a 32-bit mask for cores with ID < 32.")
@@ -72,7 +74,7 @@ namespace pcpp
 		uint8_t Id;
 
 		/// @brief Gets the core position in a 32-bit mask.
-		/// 
+		///
 		/// For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID.
 		///
 		/// For example:
@@ -99,8 +101,8 @@ namespace pcpp
 	};
 
 	/// @struct SystemCores
-	/// @brief Contains static representation to all 32 cores and a static array to map core ID (integer) to a SystemCore
-	/// struct
+	/// @brief Contains static representation to all 32 cores and a static array to map core ID (integer) to a
+	/// SystemCore struct
 	struct SystemCores
 	{
 		/// Static representation of core #0
@@ -218,12 +220,12 @@ namespace pcpp
 	int getNumOfCores();
 
 	/// @brief Create a core mask for all cores available on machine
-	/// 
+	///
 	/// The core mask is limited to the first 32 cores on the machine, as CoreMask is a 32-bit integer.
 	/// If the machine has more than 32 cores, only the first 32 cores will be included in the mask.
-	/// 
+	///
 	/// If a larger core mask is needed, consider using LongCoreMask instead, which can support up to 256 cores.
-	/// 
+	///
 	/// @return A core mask for all cores available on machine
 	CoreMask getCoreMaskForAllMachineCores();
 
