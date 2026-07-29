@@ -78,10 +78,13 @@ typedef struct _light_pcapng_file_info {
 
 light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read_all_interfaces);
 
+// PCPP patch: io_buffer_size is the size (in bytes) of the write buffer to use for this file; pass 0 for the
+// platform's default stdio buffering, or e.g. 1 MiB to reduce write() syscalls for high packet-rate writers.
 //Set compression level to 0 to disable compression!
-light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file_info *file_info, int compression_level);
+light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file_info *file_info, int compression_level,
+                                         size_t io_buffer_size);
 
-light_pcapng_t *light_pcapng_open_append(const char* file_path);
+light_pcapng_t *light_pcapng_open_append(const char* file_path, size_t io_buffer_size);
 
 light_pcapng_file_info *light_create_default_file_info();
 
@@ -98,14 +101,6 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 void light_pcapng_close(light_pcapng_t *pcapng);
 
 void light_pcapng_flush(light_pcapng_t *pcapng);
-
-// PCPP patch begin
-// Size (in bytes) of the write buffer used for pcap-ng files opened for writing/appending. 0 (the
-// default) preserves the original behavior; pass a larger size (e.g. 1 MiB) to reduce write()
-// syscalls for high packet-rate captures. Only affects files opened after this call.
-void light_pcapng_set_io_buffer_size(size_t size_in_bytes);
-size_t light_pcapng_get_io_buffer_size(void);
-// PCPP patch end
 
 #ifdef __cplusplus
 }

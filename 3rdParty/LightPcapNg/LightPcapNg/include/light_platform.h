@@ -50,15 +50,12 @@ typedef long light_file_pos_t;
 #endif
 
 // PCPP patch begin
-// Size (in bytes) of the setvbuf() buffer used for file streams opened for writing/appending.
-// 0 (the default) keeps the C library's default stdio buffering. Only affects files opened after
-// this call; not safe to call concurrently with light_open()/light_open_compression().
-void light_set_io_buffer_size(size_t size_in_bytes);
-size_t light_get_io_buffer_size(void);
+// io_buffer_size: size (in bytes) of the setvbuf() buffer to install on the returned stream when
+// opened for writing/appending. Pass 0 to keep the C library's default stdio buffering.
 // PCPP patch end
-
-light_file light_open(const char *file_name, const __read_mode_t mode);
-light_file light_open_compression(const char *file_name, const __read_mode_t mode, int compression_level);
+light_file light_open(const char *file_name, const __read_mode_t mode, size_t io_buffer_size);
+light_file light_open_compression(const char *file_name, const __read_mode_t mode, int compression_level,
+                                   size_t io_buffer_size);
 size_t light_read(light_file fd, void *buf, size_t count);
 size_t light_write(light_file fd, const void *buf, size_t count);
 size_t light_size(light_file fd);

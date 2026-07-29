@@ -436,22 +436,12 @@ namespace pcpp
 	private:
 		internal::LightPcapNgHandle* m_LightPcapNg;
 		int m_CompressionLevel;
+		size_t m_IOBufferSize;
 
 	public:
 		/// @brief A static method that checks if the device was built with zstd compression support
 		/// @return True if zstd compression is supported, false otherwise.
 		static bool isZstdSupported();
-
-		/// @brief Sets the size (in bytes) of the write buffer used by the underlying pcap-ng library. A larger
-		/// buffer reduces the number of write() syscalls for high packet-rate captures (e.g. try 1 MiB). This is
-		/// a global, opt-in setting: the default is 0 (platform's default stdio buffering, i.e. no change in
-		/// behavior), and it only affects files opened after this call
-		/// @param[in] sizeInBytes The buffer size in bytes, or 0 (the default) for the platform's default
-		static void setIOBufferSize(size_t sizeInBytes);
-
-		/// @brief Returns the I/O buffer size currently configured via setIOBufferSize()
-		/// @return The buffer size in bytes
-		static size_t getIOBufferSize();
 
 		/// A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice
 		/// that after calling this constructor the file isn't opened yet, so writing packets will fail. For opening the
@@ -459,7 +449,11 @@ namespace pcpp
 		/// @param[in] fileName The full path of the file
 		/// @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression
 		/// or 10 for max compression. Default is 0
-		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
+		/// @param[in] ioBufferSize The size (in bytes) of the write buffer to use for this file, or 0 (the default)
+		/// for the platform's default stdio buffering. A larger buffer (e.g. 1 MiB) reduces the number of write()
+		/// syscalls for high packet-rate captures. Only takes effect when the file is opened, i.e. after this
+		/// constructor is called
+		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0, size_t ioBufferSize = 0);
 
 		/// A destructor for this class
 		~PcapNgFileWriterDevice() override

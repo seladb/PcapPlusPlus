@@ -1600,18 +1600,11 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 
 PTF_TEST_CASE(TestPcapNgFileWriteIOBufferSize)
 {
-	// This is a process-wide setting - save/restore it so this test doesn't affect others.
-	size_t originalIOBufferSize = pcpp::PcapNgFileWriterDevice::getIOBufferSize();
-	PTF_ASSERT_EQUAL(originalIOBufferSize, 0);  // default must be 0 (opt-in, no behavior change)
-
 	// Disabled (0, the default) and an opt-in buffer should both produce a valid, round-trippable file.
 	for (size_t ioBufferSize : { static_cast<size_t>(0), static_cast<size_t>(1024 * 1024) })
 	{
-		pcpp::PcapNgFileWriterDevice::setIOBufferSize(ioBufferSize);
-		PTF_ASSERT_EQUAL(pcpp::PcapNgFileWriterDevice::getIOBufferSize(), ioBufferSize);
-
 		pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_PATH);
-		pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH);
+		pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH, 0, ioBufferSize);
 		PTF_ASSERT_TRUE(readerDev.open());
 		PTF_ASSERT_TRUE(writerDev.open());
 
@@ -1635,7 +1628,38 @@ PTF_TEST_CASE(TestPcapNgFileWriteIOBufferSize)
 		PTF_ASSERT_EQUAL(packetCount, 64);
 	}
 
-	pcpp::PcapNgFileWriterDevice::setIOBufferSize(originalIOBufferSize);
+	// The buffer size is a per-instance setting - two writers with different sizes open at the same
+	// time shouldn't affect each other.
+	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_PATH);
+	pcpp::PcapNgFileWriterDevice unbufferedWriterDev(EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH, 0, 0);
+	pcpp::PcapNgFileWriterDevice bufferedWriterDev(EXAMPLE2_PCAPNG_IO_BUFFER_WRITE_PATH, 0, 1024 * 1024);
+	PTF_ASSERT_TRUE(readerDev.open());
+	PTF_ASSERT_TRUE(unbufferedWriterDev.open());
+	PTF_ASSERT_TRUE(bufferedWriterDev.open());
+
+	pcpp::RawPacket rawPacket;
+	while (readerDev.getNextPacket(rawPacket))
+	{
+		PTF_ASSERT_TRUE(unbufferedWriterDev.writePacket(rawPacket));
+		PTF_ASSERT_TRUE(bufferedWriterDev.writePacket(rawPacket));
+	}
+	readerDev.close();
+	unbufferedWriterDev.close();
+	bufferedWriterDev.close();
+
+	for (auto path : { EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH, EXAMPLE2_PCAPNG_IO_BUFFER_WRITE_PATH })
+	{
+		pcpp::PcapNgFileReaderDevice verifyReaderDev(path);
+		PTF_ASSERT_TRUE(verifyReaderDev.open());
+		int packetCount = 0;
+		while (verifyReaderDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+		}
+		verifyReaderDev.close();
+
+		PTF_ASSERT_EQUAL(packetCount, 64);
+	}
 }  // TestPcapNgFileWriteIOBufferSize
 
 PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)
