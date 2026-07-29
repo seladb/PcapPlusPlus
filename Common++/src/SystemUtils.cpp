@@ -133,8 +133,7 @@ namespace pcpp
 
 	LongCoreMask LongCoreMask::fromAllCores()
 	{
-		const size_t numOfCores =
-		    static_cast<size_t>(getNumOfCores()) < MaxCoreCount ? static_cast<size_t>(getNumOfCores()) : MaxCoreCount;
+		const size_t numOfCores = (std::min)(static_cast<size_t>(getNumOfCores()), MaxCoreCount);
 
 		LongCoreMask mask;
 		for (size_t i = 0; i < numOfCores; i++)
