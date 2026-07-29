@@ -1322,6 +1322,16 @@ namespace pcpp
 		return checkZstdSupport();
 	}
 
+	void PcapNgFileWriterDevice::setIOBufferSize(size_t sizeInBytes)
+	{
+		light_pcapng_set_io_buffer_size(sizeInBytes);
+	}
+
+	size_t PcapNgFileWriterDevice::getIOBufferSize()
+	{
+		return light_pcapng_get_io_buffer_size();
+	}
+
 	PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel)
 	    : IFileWriterDevice(fileName)
 	{

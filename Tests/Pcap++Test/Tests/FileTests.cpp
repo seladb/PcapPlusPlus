@@ -1598,6 +1598,61 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 
 }  // TestPcapNgFileReadWrite
 
+PTF_TEST_CASE(TestPcapNgFileWriteIOBufferSize)
+{
+	// The I/O buffer size is a process-wide (not per-instance) setting - save/restore it so this
+	// test doesn't affect any test that runs after it.
+	size_t originalIOBufferSize = pcpp::PcapNgFileWriterDevice::getIOBufferSize();
+
+	// The default must be 0 (i.e. the platform's own stdio buffering), so the optimization is
+	// opt-in and existing callers see no behavior change unless they call setIOBufferSize().
+	PTF_ASSERT_EQUAL(originalIOBufferSize, 0);
+
+	// A custom, non-default size should be reflected by the getter immediately, even before any
+	// file is opened.
+	pcpp::PcapNgFileWriterDevice::setIOBufferSize(4096);
+	PTF_ASSERT_EQUAL(pcpp::PcapNgFileWriterDevice::getIOBufferSize(), 4096);
+
+	// Writing should produce a valid, fully round-trippable file regardless of the buffer size:
+	// disabled (0, the default), a small custom buffer, and a large opt-in buffer (1 MiB).
+	for (size_t ioBufferSize : { static_cast<size_t>(0), static_cast<size_t>(4096), static_cast<size_t>(1024 * 1024) })
+	{
+		pcpp::PcapNgFileWriterDevice::setIOBufferSize(ioBufferSize);
+		PTF_ASSERT_EQUAL(pcpp::PcapNgFileWriterDevice::getIOBufferSize(), ioBufferSize);
+
+		pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_PATH);
+		pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH);
+		PTF_ASSERT_TRUE(readerDev.open());
+		PTF_ASSERT_TRUE(writerDev.open());
+
+		int packetCount = 0;
+		pcpp::RawPacket rawPacket;
+		while (readerDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+			PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
+		}
+		readerDev.close();
+		writerDev.close();
+
+		PTF_ASSERT_EQUAL(packetCount, 64);
+
+		// Round-trip: read back what was just written and make sure the packet count matches,
+		// regardless of the buffer size that was used to write it.
+		pcpp::PcapNgFileReaderDevice verifyReaderDev(EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH);
+		PTF_ASSERT_TRUE(verifyReaderDev.open());
+		int verifyPacketCount = 0;
+		while (verifyReaderDev.getNextPacket(rawPacket))
+			verifyPacketCount++;
+		verifyReaderDev.close();
+
+		PTF_ASSERT_EQUAL(verifyPacketCount, packetCount);
+	}
+
+	pcpp::PcapNgFileWriterDevice::setIOBufferSize(originalIOBufferSize);
+	PTF_ASSERT_EQUAL(pcpp::PcapNgFileWriterDevice::getIOBufferSize(), originalIOBufferSize);
+}  // TestPcapNgFileWriteIOBufferSize
+
 PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)
 {
 #ifdef USE_Z_STD

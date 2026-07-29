@@ -579,3 +579,15 @@ void light_pcapng_flush(light_pcapng_t *pcapng)
 {
 	light_flush(pcapng->file);
 }
+
+// PCPP patch begin
+void light_pcapng_set_io_buffer_size(size_t size_in_bytes)
+{
+	light_set_io_buffer_size(size_in_bytes);
+}
+
+size_t light_pcapng_get_io_buffer_size(void)
+{
+	return light_get_io_buffer_size();
+}
+// PCPP patch end

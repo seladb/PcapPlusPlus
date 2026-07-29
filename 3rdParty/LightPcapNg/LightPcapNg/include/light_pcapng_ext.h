@@ -99,6 +99,20 @@ void light_pcapng_close(light_pcapng_t *pcapng);
 
 void light_pcapng_flush(light_pcapng_t *pcapng);
 
+// PCPP patch begin
+// Configures the size (in bytes) of the internal buffer used when writing/appending pcap-ng
+// files, to reduce the number of write() syscalls issued for small/frequent packet writes (see
+// light_write_packet()). Default is 0, which keeps the platform's default (typically much
+// smaller) stdio buffering, preserving the library's original behavior unless a caller opts in
+// by passing a larger size (e.g. 1 MiB). Only affects files opened after this call - already-open
+// files keep whatever buffering they were opened with. This is a global setting, so avoid calling
+// it concurrently with light_pcapng_open_write()/light_pcapng_open_append() on another thread.
+void light_pcapng_set_io_buffer_size(size_t size_in_bytes);
+
+// Returns the I/O buffer size (in bytes) currently configured via light_pcapng_set_io_buffer_size().
+size_t light_pcapng_get_io_buffer_size(void);
+// PCPP patch end
+
 #ifdef __cplusplus
 }
 #endif
