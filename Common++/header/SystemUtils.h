@@ -59,7 +59,7 @@ namespace pcpp
 		///
 		/// @warning For core IDs >= 32, this attribute will be set to 0, as it cannot be represented in a 32-bit mask.
 		/// 
-		/// @deprecated This mask field is deprecated as it is limited to 32 cores.
+		/// @deprecated This mask field is deprecated and will be removed in the future.
 		/// Prefer to use getShortCoreMask() instead, which returns a 32-bit mask for cores with ID < 32.
 		PCPP_DEPRECATED("Use getShortCoreMask() instead to get a 32-bit mask for cores with ID < 32.")
 		uint32_t Mask;
