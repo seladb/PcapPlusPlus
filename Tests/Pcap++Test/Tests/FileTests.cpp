@@ -1660,6 +1660,35 @@ PTF_TEST_CASE(TestPcapNgFileWriteIOBufferSize)
 
 		PTF_ASSERT_EQUAL(packetCount, 64);
 	}
+
+	// Append mode goes through a different underlying open path than write mode (light_open()
+	// rather than light_open_compression()) - verify a non-default buffer size works there too.
+	pcpp::PcapNgFileReaderDevice sampleReaderDev(EXAMPLE_PCAPNG_PATH);
+	PTF_ASSERT_TRUE(sampleReaderDev.open());
+	pcpp::RawPacket samplePacket;
+	PTF_ASSERT_TRUE(sampleReaderDev.getNextPacket(samplePacket));
+	sampleReaderDev.close();
+
+	pcpp::PcapNgFileWriterDevice appendWriterDev(EXAMPLE_PCAPNG_IO_BUFFER_APPEND_PATH, 0, 1024 * 1024);
+	PTF_ASSERT_TRUE(appendWriterDev.open());
+	PTF_ASSERT_TRUE(appendWriterDev.writePacket(samplePacket));
+	appendWriterDev.close();
+
+	pcpp::PcapNgFileWriterDevice appendWriterDev2(EXAMPLE_PCAPNG_IO_BUFFER_APPEND_PATH, 0, 1024 * 1024);
+	PTF_ASSERT_TRUE(appendWriterDev2.open(true));
+	PTF_ASSERT_TRUE(appendWriterDev2.writePacket(samplePacket));
+	appendWriterDev2.close();
+
+	pcpp::PcapNgFileReaderDevice verifyAppendReaderDev(EXAMPLE_PCAPNG_IO_BUFFER_APPEND_PATH);
+	PTF_ASSERT_TRUE(verifyAppendReaderDev.open());
+	int appendedPacketCount = 0;
+	while (verifyAppendReaderDev.getNextPacket(rawPacket))
+	{
+		appendedPacketCount++;
+	}
+	verifyAppendReaderDev.close();
+
+	PTF_ASSERT_EQUAL(appendedPacketCount, 2);
 }  // TestPcapNgFileWriteIOBufferSize
 
 PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)

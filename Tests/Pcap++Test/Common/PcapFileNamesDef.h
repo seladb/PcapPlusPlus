@@ -26,6 +26,7 @@
 #define EXAMPLE_PCAPNG_INTERFACES_PATH "PcapExamples/too_many_interfaces.pcapng"
 #define EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH "PcapExamples/many_interfaces_io_buffer.pcapng"
 #define EXAMPLE2_PCAPNG_IO_BUFFER_WRITE_PATH "PcapExamples/many_interfaces_io_buffer2.pcapng"
+#define EXAMPLE_PCAPNG_IO_BUFFER_APPEND_PATH "PcapExamples/many_interfaces_io_buffer_append.pcapng"
 #define EXAMPLE_PCAP_GRE "PcapExamples/GrePackets.cap"
 #define EXAMPLE_PCAP_IGMP "PcapExamples/IgmpPackets.pcap"
 #define EXAMPLE_LINKTYPE_IPV6 "PcapExamples/linktype_ipv6.pcap"
