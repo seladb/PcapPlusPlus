@@ -43,6 +43,10 @@ namespace pcpp
 		{}
 
 		/// @brief Create a SystemCore object with a given mask and core ID
+		/// 
+		/// This constructor is provided for backward compatibility with brace initialization.
+		/// It is recommended to use the constructor that takes only a core ID, as the mask can be derived from the core ID.
+		/// 
 		/// @param[in] mask The mask to create the SystemCore object for.
 		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
 		/// @deprecated This constructor is deprecated and provided for backwards compatiblility only.
