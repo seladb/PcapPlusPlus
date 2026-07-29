@@ -30,12 +30,33 @@ namespace pcpp
 	/// Represents data of 1 CPU core. Current implementation supports up to 32 cores
 	struct SystemCore
 	{
+		/// @brief Create a SystemCore object with a given core ID
+		///
+		/// Backward compatibility:
+		/// - For cores with ID < 32, the Mask attribute will be set to a 32-bit integer where only 1 bit is set,
+		/// according to the core ID.
+		/// - For cores with ID >= 32, the Mask attribute will be set to 0, as it cannot be represented in a 32-bit
+		/// mask.
+		///
+		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
+		explicit SystemCore(uint8_t coreId) : Mask(coreId < 32 ? 1U << coreId : 0), Id(coreId)
+		{}
+
+		/// @brief Create a SystemCore object with a given mask and core ID
+		/// @param[in] mask The mask to create the SystemCore object for.
+		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
+		/// @deprecated This constructor is deprecated and provided for backwards compatiblility only.
+		/// Prefer to use the constructor that takes only a core ID.
+		PCPP_DEPRECATED(
+		    "This constructor is deprecated and provided for backwards compatiblility only. Prefer to use the constructor that takes only a core ID.")
+		SystemCore(uint32_t mask, uint8_t coreId) : Mask(mask), Id(coreId)
+		{}
 
 		/// Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set,
 		/// according to the core ID. For example:
 		/// - In core #0 the right-most bit will be set (meaning the number 0x01);
 		/// - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
-		/// 
+		///
 		/// @deprecated This mask field is deprecated as it is limited to 32 cores.
 		/// Prefer to use getShortCoreMask() instead, which returns a 32-bit mask for cores with ID < 32.
 		PCPP_DEPRECATED("Use getShortCoreMask() instead to get a 32-bit mask for cores with ID < 32.")
@@ -44,13 +65,13 @@ namespace pcpp
 		/// Core ID - a value between 0 and 255
 		uint8_t Id;
 
-		/// @brief Gets the core position in a 32-bit mask. 
+		/// @brief Gets the core position in a 32-bit mask.
 		/// For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID.
-		/// 
+		///
 		/// For example:
 		/// - In core #0 the right-most bit will be set (meaning the number 0x01);
 		/// - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
-		/// 
+		///
 		/// @return The short core mask representing only this core.
 		/// @throw std::out_of_range if the core ID is greater than 31, as it cannot be represented in a 32-bit mask.
 		constexpr uint32_t getShortCoreMask() const
@@ -145,8 +166,8 @@ namespace pcpp
 
 	using CoreMask = uint32_t;
 
-	/// @brief An extended core mask which can support up to 256 cores. 
-	/// 
+	/// @brief An extended core mask which can support up to 256 cores.
+	///
 	/// Intended to be used in cases where the system has more than 32 cores, as CoreMask is limited to 32 bits.
 	struct LongCoreMask
 	{
@@ -160,7 +181,7 @@ namespace pcpp
 		/// @brief Creates a LongCoreMask with all bits set to 0.
 		LongCoreMask() = default;
 
-		/// @brief Creates a LongCoreMask from a given CoreMask. 
+		/// @brief Creates a LongCoreMask from a given CoreMask.
 		/// The lower 32 bits of the LongCoreMask will be set according to the provided CoreMask.
 		/// @param[in] mask The CoreMask to initialize the LongCoreMask with.
 		LongCoreMask(CoreMask mask) : Mask(mask)
