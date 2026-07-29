@@ -244,13 +244,11 @@ namespace pcpp
 	/// @brief Convert a core mask into a vector of its appropriate system cores
 	/// @param[in] coreMask The input core mask
 	/// @param[out] resultVec The vector that will contain the system cores
-	/// @throws std::out_of_range if any core ID in the core mask is out of the valid range (0 to 31).
 	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& resultVec);
 
 	/// @brief Convert a core mask into a vector of its appropriate system cores
 	/// @param[in] coreMask The input core mask
 	/// @return A vector containing the system cores represented by the core mask
-	/// @throws std::out_of_range if any core ID in the core mask is out of the valid range (0 to 31).
 	std::vector<SystemCore> createCoreVectorFromCoreMask(CoreMask coreMask);
 
 	/// Execute a shell command and return its output
