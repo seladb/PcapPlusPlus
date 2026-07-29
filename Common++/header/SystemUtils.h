@@ -49,10 +49,10 @@ namespace pcpp
 		/// 
 		/// @param[in] mask The mask to create the SystemCore object for.
 		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
-		/// @deprecated This constructor is deprecated and provided for backwards compatiblility only.
+		/// @deprecated This constructor is deprecated and provided for backwards compatibility only.
 		/// Prefer to use the constructor that takes only a core ID.
 		PCPP_DEPRECATED(
-		    "This constructor is deprecated and provided for backwards compatiblility only. Prefer to use the constructor that takes only a core ID.")
+		    "This constructor is deprecated and provided for backwards compatibility only. Prefer to use the constructor that takes only a core ID.")
 		constexpr SystemCore(uint32_t mask, uint8_t coreId) : Mask(mask), Id(coreId)
 		{}
 
