@@ -27,7 +27,7 @@ namespace pcpp
 {
 
 	/// @struct SystemCore
-	/// Represents data of 1 CPU core. Current implementation supports up to 32 cores
+	/// @brief Represents data of 1 CPU core. Current implementation supports up to 32 cores
 	struct SystemCore
 	{
 		/// @brief Create a SystemCore object with a given core ID
@@ -99,7 +99,7 @@ namespace pcpp
 	};
 
 	/// @struct SystemCores
-	/// Contains static representation to all 32 cores and a static array to map core ID (integer) to a SystemCore
+	/// @brief Contains static representation to all 32 cores and a static array to map core ID (integer) to a SystemCore
 	/// struct
 	struct SystemCores
 	{
@@ -171,6 +171,7 @@ namespace pcpp
 		static const SystemCore IdToSystemCore[MAX_NUM_OF_CORES];
 	};
 
+	/// @brief A core mask which can support up to 32 cores.
 	using CoreMask = uint32_t;
 
 	/// @brief An extended core mask which can support up to 256 cores.
@@ -212,11 +213,11 @@ namespace pcpp
 		std::vector<SystemCore> toCoreVector() const;
 	};
 
-	/// Get total number of cores on device
+	/// @brief Get total number of cores on device
 	/// @return Total number of CPU cores on device
 	int getNumOfCores();
 
-	/// Create a core mask for all cores available on machine
+	/// @brief Create a core mask for all cores available on machine
 	/// 
 	/// The core mask is limited to the first 32 cores on the machine, as CoreMask is a 32-bit integer.
 	/// If the machine has more than 32 cores, only the first 32 cores will be included in the mask.
@@ -226,19 +227,19 @@ namespace pcpp
 	/// @return A core mask for all cores available on machine
 	CoreMask getCoreMaskForAllMachineCores();
 
-	/// Create a core mask from a vector of system cores
+	/// @brief Create a core mask from a vector of system cores
 	/// @param[in] cores A vector of SystemCore instances
 	/// @return A core mask representing these cores
 	/// @throws std::out_of_range if any core ID in the vector is out of the valid range (0 to 31).
 	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore>& cores);
 
-	/// Create a core mask from a vector of core IDs
+	/// @brief Create a core mask from a vector of core IDs
 	/// @param[in] coreIds A vector of core IDs
 	/// @return A core mask representing these cores
 	/// @throws std::out_of_range if any core ID in the vector is out of the valid range (0 to 31).
 	CoreMask createCoreMaskFromCoreIds(const std::vector<int>& coreIds);
 
-	/// Convert a core mask into a vector of its appropriate system cores
+	/// @brief Convert a core mask into a vector of its appropriate system cores
 	/// @param[in] coreMask The input core mask
 	/// @param[out] resultVec The vector that will contain the system cores
 	/// @throws std::out_of_range if any core ID in the core mask is out of the valid range (0 to 31).
