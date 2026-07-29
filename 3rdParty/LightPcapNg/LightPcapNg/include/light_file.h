@@ -35,7 +35,7 @@ typedef struct light_file_t
 	FILE* file;
 	light_compression compression_context;
 	light_decompression decompression_context;
-	char* io_buffer; // PCPP patch: backing storage for the stdio buffer installed via setvbuf(), released on close
+	char* io_buffer; // PCPP patch: backing storage for the setvbuf() buffer, freed on close
 
 } light_file_t;
 

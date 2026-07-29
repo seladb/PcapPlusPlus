@@ -442,19 +442,14 @@ namespace pcpp
 		/// @return True if zstd compression is supported, false otherwise.
 		static bool isZstdSupported();
 
-		/// @brief Sets the size (in bytes) of the internal buffer used by the underlying pcap-ng library when
-		/// writing/appending files. A large buffer reduces the number of write() syscalls needed to stream many
-		/// small packets, which can meaningfully improve throughput for high packet-rate captures (e.g. try 1 MiB
-		/// or more). The default is 0, which preserves the library's original behavior by keeping the platform's
-		/// default (typically much smaller) stdio buffering; this setting is opt-in. This setting is global: it
-		/// only affects files opened (via open()) after this call is made, and has no effect on files that are
-		/// already open. This method is not thread-safe with respect to concurrently opening pcap-ng files on
-		/// other threads.
-		/// @param[in] sizeInBytes The buffer size in bytes, or 0 (the default) to use the platform's default
-		/// stdio buffering
+		/// @brief Sets the size (in bytes) of the write buffer used by the underlying pcap-ng library. A larger
+		/// buffer reduces the number of write() syscalls for high packet-rate captures (e.g. try 1 MiB). This is
+		/// a global, opt-in setting: the default is 0 (platform's default stdio buffering, i.e. no change in
+		/// behavior), and it only affects files opened after this call
+		/// @param[in] sizeInBytes The buffer size in bytes, or 0 (the default) for the platform's default
 		static void setIOBufferSize(size_t sizeInBytes);
 
-		/// @brief A static method that returns the I/O buffer size currently configured via setIOBufferSize()
+		/// @brief Returns the I/O buffer size currently configured via setIOBufferSize()
 		/// @return The buffer size in bytes
 		static size_t getIOBufferSize();
 

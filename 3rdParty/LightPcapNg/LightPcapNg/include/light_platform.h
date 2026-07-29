@@ -50,16 +50,10 @@ typedef long light_file_pos_t;
 #endif
 
 // PCPP patch begin
-// Configures the size (in bytes) of the buffer installed via setvbuf() on file streams opened
-// for writing/appending, used to reduce the number of write() syscalls issued when streaming many
-// small writes (e.g. individual packets). Pass 0 (the default) to keep the C library's default
-// stdio buffering, preserving the library's original behavior unless a caller opts in. Takes
-// effect for files opened after this call; already-open files are unaffected. This is a global
-// setting - it is not safe to call concurrently with light_open()/light_open_compression() from
-// another thread.
+// Size (in bytes) of the setvbuf() buffer used for file streams opened for writing/appending.
+// 0 (the default) keeps the C library's default stdio buffering. Only affects files opened after
+// this call; not safe to call concurrently with light_open()/light_open_compression().
 void light_set_io_buffer_size(size_t size_in_bytes);
-
-// Returns the I/O buffer size (in bytes) currently configured via light_set_io_buffer_size().
 size_t light_get_io_buffer_size(void);
 // PCPP patch end
 

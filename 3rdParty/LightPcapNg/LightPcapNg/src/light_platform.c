@@ -37,14 +37,9 @@
 #endif
 
 // PCPP patch begin
-// glibc's default stdio buffer is ~4KB (BUFSIZ), so streaming ~1400-byte packets through
-// an unbuffered-by-default FILE* triggers a write() syscall roughly every 3 packets. Installing
-// a large fully-buffered stdio buffer amortizes that syscall cost across many packets, which
-// matters a lot for high packet-rate captures written at compression level 0 (no other buffering
-// stage exists in that path). The default is 0 (disabled) to preserve the library's original
-// behavior for existing callers; opt in via light_set_io_buffer_size(), e.g. with a 1 MiB buffer,
-// which is large enough to hold hundreds of typical packets while staying small relative to
-// typical page-cache/RAM budgets.
+// Optional larger stdio buffer for write/append streams, to reduce write() syscalls when
+// streaming many small writes. Disabled (0) by default to preserve original behavior; opt in
+// via light_set_io_buffer_size(), e.g. with a 1 MiB buffer.
 #define LIGHT_IO_BUFFER_SIZE_DEFAULT 0
 
 static size_t g_light_io_buffer_size = LIGHT_IO_BUFFER_SIZE_DEFAULT;
@@ -62,16 +57,14 @@ size_t light_get_io_buffer_size(void)
 static void __install_io_buffer(light_file fd)
 {
 	if (fd == NULL || fd->file == NULL || g_light_io_buffer_size == 0)
-		return; // a size of 0 means the caller opted out - keep the platform's default buffering
+		return;
 
 	fd->io_buffer = malloc(g_light_io_buffer_size);
 	if (fd->io_buffer == NULL)
-		return; // fall back to the libc default buffering rather than failing the open
+		return; // fall back to the default buffering rather than failing the open
 
 	if (setvbuf(fd->file, fd->io_buffer, _IOFBF, g_light_io_buffer_size) != 0)
 	{
-		// setvbuf failed (e.g. stream already had I/O performed on it) - the FILE* still
-		// works fine with its default buffer, we just don't own/need the extra memory.
 		free(fd->io_buffer);
 		fd->io_buffer = NULL;
 	}
@@ -133,9 +126,7 @@ light_file light_open(const char *file_name, const __read_mode_t mode)
 		break;
 	}
 
-	// PCPP patch: give write/append streams a large buffer so writes don't hit write() on
-	// every fwrite() call - see __install_io_buffer() for details.
-	if (fd->file && mode != LIGHT_OREAD)
+	if (fd->file && mode != LIGHT_OREAD)  // PCPP patch
 		__install_io_buffer(fd);
 
 	if (fd->file)
@@ -173,9 +164,7 @@ light_file light_open_compression(const char *file_name, const __read_mode_t mod
 			break;
 	}
 
-	// PCPP patch: same rationale as light_open() above - amortize write() syscalls, this time
-	// for the (possibly compressed) pcapng output stream.
-	if (fd->file)
+	if (fd->file)  // PCPP patch
 		__install_io_buffer(fd);
 
 	if (fd->file)
@@ -233,7 +222,7 @@ int light_close(light_file fd)
 	light_close_compressed(fd);
 	int rc = fclose(fd->file);
 
-	free(fd->io_buffer); // PCPP patch: release the buffer installed via __install_io_buffer(), if any
+	free(fd->io_buffer);  // PCPP patch
 	free(fd);
 
 	return rc;
