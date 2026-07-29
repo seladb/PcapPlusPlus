@@ -39,8 +39,11 @@ namespace pcpp
 		/// mask.
 		///
 		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
+		DISABLE_WARNING_PUSH
+		DISABLE_WARNING_DEPRECATED
 		constexpr explicit SystemCore(uint8_t coreId) : Mask(coreId < 32 ? 1U << coreId : 0), Id(coreId)
 		{}
+		DISABLE_WARNING_POP
 
 		/// @brief Create a SystemCore object with a given mask and core ID
 		///
@@ -51,10 +54,13 @@ namespace pcpp
 		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
 		/// @deprecated This constructor is deprecated and provided for backwards compatibility only.
 		/// Prefer to use the constructor that takes only a core ID.
+		DISABLE_WARNING_PUSH
+		DISABLE_WARNING_DEPRECATED
 		PCPP_DEPRECATED(
 		    "This constructor is deprecated and provided for backwards compatibility only. Prefer to use the constructor that takes only a core ID.")
 		constexpr SystemCore(uint32_t mask, uint8_t coreId) : Mask(mask), Id(coreId)
 		{}
+		DISABLE_WARNING_POP
 
 		/// @brief Core position in a 32-bit mask.
 		///
