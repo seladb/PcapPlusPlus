@@ -52,7 +52,7 @@ namespace pcpp
 		SystemCore(uint32_t mask, uint8_t coreId) : Mask(mask), Id(coreId)
 		{}
 
-		/// Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set,
+		/// @brief Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set,
 		/// according to the core ID. For example:
 		/// - In core #0 the right-most bit will be set (meaning the number 0x01);
 		/// - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
@@ -68,6 +68,7 @@ namespace pcpp
 		uint8_t Id;
 
 		/// @brief Gets the core position in a 32-bit mask.
+		/// 
 		/// For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID.
 		///
 		/// For example:
@@ -85,7 +86,7 @@ namespace pcpp
 			return 1U << Id;
 		}
 
-		/// Overload of the comparison operator
+		/// @brief Overload of the comparison operator
 		/// @return true if 2 addresses are equal. False otherwise
 		bool operator==(const SystemCore& other) const
 		{
