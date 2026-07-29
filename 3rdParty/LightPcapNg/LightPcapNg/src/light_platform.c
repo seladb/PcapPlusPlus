@@ -40,9 +40,7 @@
 // Optional larger stdio buffer for write/append streams, to reduce write() syscalls when
 // streaming many small writes. Disabled (0) by default to preserve original behavior; opt in
 // via light_set_io_buffer_size(), e.g. with a 1 MiB buffer.
-#define LIGHT_IO_BUFFER_SIZE_DEFAULT 0
-
-static size_t g_light_io_buffer_size = LIGHT_IO_BUFFER_SIZE_DEFAULT;
+static size_t g_light_io_buffer_size = 0;
 
 void light_set_io_buffer_size(size_t size_in_bytes)
 {
