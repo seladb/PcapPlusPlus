@@ -39,7 +39,7 @@ namespace pcpp
 		/// mask.
 		///
 		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
-		explicit SystemCore(uint8_t coreId) : Mask(coreId < 32 ? 1U << coreId : 0), Id(coreId)
+		constexpr explicit SystemCore(uint8_t coreId) : Mask(coreId < 32 ? 1U << coreId : 0), Id(coreId)
 		{}
 
 		/// @brief Create a SystemCore object with a given mask and core ID
@@ -53,7 +53,7 @@ namespace pcpp
 		/// Prefer to use the constructor that takes only a core ID.
 		PCPP_DEPRECATED(
 		    "This constructor is deprecated and provided for backwards compatiblility only. Prefer to use the constructor that takes only a core ID.")
-		SystemCore(uint32_t mask, uint8_t coreId) : Mask(mask), Id(coreId)
+		constexpr SystemCore(uint32_t mask, uint8_t coreId) : Mask(mask), Id(coreId)
 		{}
 
 		/// @brief Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set,
