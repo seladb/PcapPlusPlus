@@ -9,11 +9,11 @@
 namespace pcpp
 {
 /// @def PCAPPLUSPLUS_VERSION_YEAR
-/// @brief The year component of the PcapPlusPlus version (e.g., 25 for 2025)
+/// @brief The year component of the PcapPlusPlus version (e.g., 26 for 2026)
 #define PCAPPLUSPLUS_VERSION_YEAR 26
 
 /// @def PCAPPLUSPLUS_VERSION_MONTH
-/// @brief The month component of the PcapPlusPlus version (e.g., 5 for May)
+/// @brief The month component of the PcapPlusPlus version (e.g., 7 for July)
 #define PCAPPLUSPLUS_VERSION_MONTH 7
 
 /// @def PCAPPLUSPLUS_VERSION_PATCH
@@ -25,20 +25,20 @@ namespace pcpp
 #define PCAPPLUSPLUS_VERSION_DEV 1
 
 /// @def PCAPPLUSPLUS_VERSION
-/// @brief Short version string (e.g., "25.05" for official release or "25.05+" for development)
+/// @brief Short version string (e.g., "26.07" for official release or "26.07-dev" for development build)
 #define PCAPPLUSPLUS_VERSION "26.07-dev"
 
 /// @def PCAPPLUSPLUS_VERSION_OFFICIAL
-/// @brief String indicating whether this is an official or non-official release
+/// @brief String indicating whether this is an official or development build
 #if PCAPPLUSPLUS_VERSION_DEV
-#	define PCAPPLUSPLUS_VERSION_OFFICIAL "non-official release"
+#	define PCAPPLUSPLUS_VERSION_OFFICIAL "development build"
 #else
 #	define PCAPPLUSPLUS_VERSION_OFFICIAL "official release"
 #endif
 
 /// @def PCAPPLUSPLUS_MAKE_VERSION_FULL(year, month, patch, dev)
 /// @brief Create a comparable numeric version from year, month, patch, and dev components
-/// @param year The year component (e.g., 25 for 2025)
+/// @param year The year component (e.g., 26 for 2026)
 /// @param month The month component (1-12)
 /// @param patch The patch number
 /// @param dev The development flag (0 for official, 1 for dev)
@@ -98,11 +98,11 @@ namespace pcpp
 	PCAPPLUSPLUS_VERSION_NUM >= PCAPPLUSPLUS_MAKE_VERSION(year, month, patch)
 
 /// @def PCAPPLUSPLUS_VERSION_FULL
-/// @brief Full version string including version and release type (e.g., "v25.05+ (non-official release)")
+/// @brief Full version string including version and release type (e.g., "v26.07-dev (development build)")
 #define PCAPPLUSPLUS_VERSION_FULL "v" PCAPPLUSPLUS_VERSION " (" PCAPPLUSPLUS_VERSION_OFFICIAL ")"
 
-	/// @return PcapPlusPlus current version, e.g: 23.09. Notice that for non-official releases (which were pulled from
-	/// GitHub) the version will end with a '+'. For example: '23.09+' means non-official release but '23.09' means
+	/// @return PcapPlusPlus current version, e.g: 26.07. Notice that for development builds (which were pulled from
+	/// GitHub) the version will end with a 'dev'. For example: '26.07-dev' means development build but '26.07' means
 	/// official release
 	inline std::string getPcapPlusPlusVersion()
 	{
@@ -110,7 +110,7 @@ namespace pcpp
 	}
 
 	/// @return PcapPlusPlus long version string which includes the version and info whether it's an official or
-	/// non-official release. For example: "v23.09+ (non-official release)" or "v23.09 (official release)"
+	/// development build. For example: "v26.07-dev (development build)" or "v26.07 (official release)"
 	inline std::string getPcapPlusPlusVersionFull()
 	{
 		return PCAPPLUSPLUS_VERSION_FULL;
