@@ -23,6 +23,10 @@ PTF_TEST_CASE(TestSystemCoreUtils)
 
 PTF_TEST_CASE(TestSystemCore)
 {
+	pcpp::SystemCore core1(1);
+	PTF_ASSERT_EQUAL(core1.Id, 1);
+	PTF_ASSERT_EQUAL(core1.getShortCoreMask(), 0x02);
+
 	pcpp::SystemCore core = { 0x01, 0 };
 	PTF_ASSERT_EQUAL(core.getShortCoreMask(), 0x01);
 
