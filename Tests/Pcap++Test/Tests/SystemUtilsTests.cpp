@@ -74,7 +74,7 @@ PTF_TEST_CASE(TestLongCoreMask)
 	PTF_ASSERT_TRUE(LongCoreMask(0b1010) != LongCoreMask(0b0101));
 
 	// Test comparisons with a single SystemCore
-	// TODO: Optimization oppotunity:
+	// TODO: Optimization opportunity:
 	//   Forward equality of LongCoreMask a and SystemCore b to a.test(b) instead of creating a new LongCoreMask for b.
 	PTF_ASSERT_TRUE(LongCoreMask(0b1) == SystemCores::Core0);
 	PTF_ASSERT_FALSE(LongCoreMask(0b11) == SystemCores::Core0);
