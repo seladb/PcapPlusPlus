@@ -677,10 +677,14 @@ namespace pcpp
 		}
 
 #ifdef HAS_PCAP_IMMEDIATE_MODE
-		ret = pcap_set_immediate_mode(pcap.get(), 1);
-		if (ret != 0)
+		if (!config.disableImmediateMode)
 		{
-			throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap.getLastError()));
+			ret = pcap_set_immediate_mode(pcap.get(), 1);
+			if (ret != 0)
+			{
+				throw std::runtime_error("Cannot set immediate mode, error was: " +
+				                          std::string(pcap.getLastError()));
+			}
 		}
 #endif
 

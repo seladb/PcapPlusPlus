@@ -510,6 +510,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	configs[1].usePoll = true;
 #	endif
 
+	configs.emplace_back();  // the config with immediate mode disabled (allows TPACKET_V3 on Linux)
+	configs.back().disableImmediateMode = true;
+
 	// test the common behaviour for all configs
 	for (const auto& config : configs)
 	{
