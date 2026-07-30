@@ -113,22 +113,39 @@ namespace pcpp
 
 	LongCoreMask::LongCoreMask(SystemCore core)
 	{
+		// TODO: Cpp17 convert this to an if constexpr expression.
+		// Static assert to ensure that SystemCore::Id can represent all possible core IDs within the range of
+		// LongCoreMask If this check fails, the commented out runtime check can be used to validate the core ID at
+		// runtime.
+		static_assert(static_cast<size_t>((std::numeric_limits<decltype(SystemCore::Id)>::max)()) < MaxCoreCount,
+		              "SystemCore::Id can provide a Id that is out of range for LongCoreMask");
+		/*
 		if (core.Id < 0 || core.Id >= MaxCoreCount)
 		{
-			throw std::out_of_range("Core ID is out of range");
+		    throw std::out_of_range("Core ID is out of range");
 		}
+		*/
 
 		Mask.set(core.Id);
 	}
 
 	LongCoreMask::LongCoreMask(std::vector<SystemCore> const& cores)
 	{
+		// TODO: Cpp17 convert this to an if constexpr expression.
+		// Static assert to ensure that SystemCore::Id can represent all possible core IDs within the range of
+		// LongCoreMask If this check fails, the commented out runtime check can be used to validate the core ID at
+		// runtime.
+		static_assert(static_cast<size_t>((std::numeric_limits<decltype(SystemCore::Id)>::max)()) < MaxCoreCount,
+		              "SystemCore::Id can provide a Id that is out of range for LongCoreMask");
+
 		for (auto const& core : cores)
 		{
+			/*
 			if (core.Id < 0 || core.Id >= MaxCoreCount)
 			{
-				throw std::out_of_range("Core ID is out of range");
+			    throw std::out_of_range("Core ID is out of range");
 			}
+			*/
 
 			Mask.set(core.Id);
 		}
