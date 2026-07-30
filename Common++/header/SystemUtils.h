@@ -35,8 +35,6 @@ namespace pcpp
 	/// @brief Represents data of 1 CPU core. Current implementation supports up to 32 cores
 	struct SystemCore
 	{
-		// False positive warning from cppcheck.
-		// cppcheck-suppress missingReturn
 		/// @brief Create a SystemCore object with a given core ID
 		///
 		/// Backward compatibility:
@@ -46,6 +44,7 @@ namespace pcpp
 		/// mask.
 		///
 		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
+		// cppcheck-suppress missingReturn
 		constexpr explicit SystemCore(uint8_t coreId) : Mask(coreId < 32 ? 1U << coreId : 0), Id(coreId)
 		{}
 
