@@ -35,6 +35,8 @@ namespace pcpp
 	/// @brief Represents data of 1 CPU core. Current implementation supports up to 32 cores
 	struct SystemCore
 	{
+		// False positive warning from cppcheck.
+		// cppcheck-suppress missingReturn
 		/// @brief Create a SystemCore object with a given core ID
 		///
 		/// Backward compatibility:
