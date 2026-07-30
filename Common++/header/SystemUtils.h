@@ -196,12 +196,14 @@ namespace pcpp
 		/// @brief Creates a LongCoreMask with all bits set to 0.
 		LongCoreMask() = default;
 
+		// cppcheck-suppress noExplicitConstructor
 		/// @brief Creates a LongCoreMask from a given CoreMask.
 		/// The lower 32 bits of the LongCoreMask will be set according to the provided CoreMask.
 		/// @param[in] mask The CoreMask to initialize the LongCoreMask with.
 		LongCoreMask(CoreMask mask) : Mask(mask)
 		{}
 
+		// cppcheck-suppress noExplicitConstructor
 		/// @brief Creates a LongCoreMask from a single SystemCore instance.
 		/// @param[in] core The SystemCore instance to initialize the LongCoreMask with.
 		LongCoreMask(SystemCore core);
