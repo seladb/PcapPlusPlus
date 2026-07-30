@@ -510,7 +510,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	configs[1].usePoll = true;
 #	endif
 
-	configs.emplace_back();  // the config with immediate mode disabled (allows TPACKET_V3 on Linux)
+	configs.emplace_back();  // disables immediate mode so libpcap can use TPACKET_V3 batching on Linux
 	configs.back().disableImmediateMode = true;
 
 	// test the common behaviour for all configs

@@ -318,18 +318,12 @@ namespace pcpp
 			/// Depending on the capture device and the software on the host, different precision can be used
 			TimestampPrecision timestampPrecision;
 
-			/// If set to true, libpcap's "immediate mode" is not enabled on this device, even if it's supported on
-			/// the platform. By default PcapPlusPlus enables immediate mode (when the underlying libpcap supports
-			/// it) so that packets are delivered to the application as soon as they arrive instead of being
-			/// buffered until the kernel buffer fills up or the buffer timeout expires. However, on Linux this
-			/// comes at a cost: enabling immediate mode makes libpcap fall back from the newer TPACKET_V3 ring
-			/// buffer format to TPACKET_V2, which lacks block-level batching, and it also forces libpcap to poll
-			/// the socket in a non-blocking fashion, resulting in a busy-poll loop instead of an efficient
-			/// blocking wait. Setting this flag to true keeps immediate mode disabled, which allows libpcap to
-			/// use TPACKET_V3 (where available) and blocking reads with batched wakeups, at the cost of adding up
-			/// to packetBufferTimeoutMs of latency to packet delivery. This can significantly improve throughput
-			/// and reduce CPU usage for high packet-rate capture on Linux. Default value is false, meaning
-			/// immediate mode is enabled (the historical PcapPlusPlus behavior).
+			/// PcapPlusPlus enables libpcap's immediate mode by default (where supported) for minimal packet
+			/// delivery latency. On Linux, though, immediate mode forces libpcap onto the older TPACKET_V2 ring
+			/// format (instead of TPACKET_V3) and onto a non-blocking poll loop (instead of an efficient blocking
+			/// wait), which hurts throughput and CPU usage under high packet rates. Set this to true to keep
+			/// immediate mode off, trading up to packetBufferTimeoutMs of added latency for TPACKET_V3 support and
+			/// blocking, batched reads. Default value is false (immediate mode enabled).
 			bool disableImmediateMode;
 
 			/// A c'tor for this struct
@@ -352,9 +346,8 @@ namespace pcpp
 			/// for each packet (not all platforms support this). Default provider is Host.
 			/// @param[in] timestampPrecision The timestamp precision (not all platforms support this).
 			/// Default precision is Microseconds.
-			/// @param[in] disableImmediateMode Keep libpcap's immediate mode disabled, allowing the use of
-			/// TPACKET_V3 and blocking batched reads on Linux, at the cost of up to packetBufferTimeoutMs of
-			/// added latency. Default value is false (immediate mode enabled).
+			/// @param[in] disableImmediateMode Trade added latency (up to packetBufferTimeoutMs) for TPACKET_V3
+			/// and blocking batched reads on Linux. Default value is false (immediate mode enabled).
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
 			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
 			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false,
