@@ -25,6 +25,9 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp);
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	/// @brief A core mask which can support up to 32 cores.
+	using CoreMask = uint32_t;
+
 	DISABLE_WARNING_PUSH
 	DISABLE_WARNING_DEPRECATED
 
@@ -85,7 +88,7 @@ namespace pcpp
 		///
 		/// @return The short core mask representing only this core.
 		/// @throw std::out_of_range if the core ID is greater than 31, as it cannot be represented in a 32-bit mask.
-		constexpr uint32_t getShortCoreMask() const
+		constexpr CoreMask getShortCoreMask() const
 		{
 			if (Id >= 32)
 			{
@@ -176,9 +179,6 @@ namespace pcpp
 		/// A static array for mapping core ID (integer) to the corresponding static SystemCore representation
 		static const SystemCore IdToSystemCore[MAX_NUM_OF_CORES];
 	};
-
-	/// @brief A core mask which can support up to 32 cores.
-	using CoreMask = uint32_t;
 
 	/// @brief An extended core mask which can support up to 256 cores.
 	///
