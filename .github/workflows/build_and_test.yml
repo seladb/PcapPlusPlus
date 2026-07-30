@@ -11,7 +11,7 @@ env:
   BUILD_DIR: Dist
   GCOVR_FLAGS: --gcov-ignore-errors all --gcov-ignore-parse-errors all --merge-mode-functions=separate --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
   CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CPPCHECK_VERSION: 2.19.0
+  CPPCHECK_VERSION: 2.19.1
 
 permissions:
   contents: read
@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update && apk add python3-dev
-          git clone --branch $CPPCHECK_VERSION --single-branch https://github.com/danmar/cppcheck.git
+          git clone --branch $CPPCHECK_VERSION --single-branch https://github.com/cppcheck-opensource/cppcheck.git
           cd cppcheck && mkdir build && cd build && cmake .. && cmake --build . && cmake --install . && cd ../../ && rm -rf cppcheck
           python3 -m venv .venv
           . .venv/bin/activate
