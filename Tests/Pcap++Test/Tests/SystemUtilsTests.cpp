@@ -37,6 +37,10 @@ PTF_TEST_CASE(TestSystemCore)
 
 PTF_TEST_CASE(TestLongCoreMask)
 {
+	using pcpp::SystemCore;
+	using pcpp::SystemCores;
+	using pcpp::LongCoreMask;
+
 	auto numOfCores = pcpp::getNumOfCores();
 
 	auto allCoresMask = pcpp::LongCoreMask::fromAllCores();
@@ -53,6 +57,7 @@ PTF_TEST_CASE(TestLongCoreMask)
 	auto fromSystemCore = pcpp::LongCoreMask(pcpp::SystemCores::Core5);
 	PTF_ASSERT_EQUAL(fromSystemCore.Mask.count(), 1);
 	PTF_ASSERT_TRUE(fromSystemCore.Mask.test(5));
+	PTF_ASSERT_TRUE(fromSystemCore.test(pcpp::SystemCores::Core5));
 
 	auto fromCoreVector = pcpp::LongCoreMask(
 	    std::vector<pcpp::SystemCore>{ pcpp::SystemCores::Core0, pcpp::SystemCores::Core2, pcpp::SystemCores::Core4 });
@@ -60,4 +65,42 @@ PTF_TEST_CASE(TestLongCoreMask)
 	PTF_ASSERT_TRUE(fromCoreVector.Mask.test(0));
 	PTF_ASSERT_TRUE(fromCoreVector.Mask.test(2));
 	PTF_ASSERT_TRUE(fromCoreVector.Mask.test(4));
+	PTF_ASSERT_TRUE(fromCoreVector.test(pcpp::SystemCores::Core0));
+	PTF_ASSERT_TRUE(fromCoreVector.test(pcpp::SystemCores::Core2));
+	PTF_ASSERT_TRUE(fromCoreVector.test(pcpp::SystemCores::Core4));
+
+	// Test equality operators
+	PTF_ASSERT_TRUE(LongCoreMask(0b1010) == LongCoreMask(0b1010));
+	PTF_ASSERT_TRUE(LongCoreMask(0b1010) != LongCoreMask(0b0101));
+	
+	// Test comparisons with a single SystemCore
+	// TODO: Optimization oppotunity:
+	//   Forward equality of LongCoreMask a and SystemCore b to a.test(b) instead of creating a new LongCoreMask for b.
+	PTF_ASSERT_TRUE(LongCoreMask(0b1) == SystemCores::Core0);
+	PTF_ASSERT_FALSE(LongCoreMask(0b11) == SystemCores::Core0);
+
+	PTF_ASSERT_TRUE(LongCoreMask(0b1) == 0b1);
+	PTF_ASSERT_TRUE(0b11 == LongCoreMask(0b11));
+	PTF_ASSERT_FALSE(LongCoreMask(0b1) == 0b10);
+
+	// Test bitwise operations on LongCoreMask
+	auto lmask1 = pcpp::LongCoreMask(0b1100);
+	auto lmask2 = pcpp::LongCoreMask(0b0011);
+	
+	PTF_ASSERT_TRUE(pcpp::LongCoreMask(0b1111) == (lmask1 | lmask2));
+	PTF_ASSERT_TRUE(pcpp::LongCoreMask(0b0000) == (lmask1 & lmask2));
+
+	auto lmask1plusCores01 = lmask1 | pcpp::SystemCores::Core0 | pcpp::SystemCores::Core1;
+	PTF_ASSERT_TRUE(lmask1plusCores01 == (lmask1 | lmask2));
+
+	pcpp::LongCoreMask lmaskCores1 = lmask2 & pcpp::SystemCores::Core1;
+	PTF_ASSERT_TRUE(lmaskCores1 == pcpp::SystemCores::Core1);
+	PTF_ASSERT_TRUE(pcpp::SystemCores::Core1 == lmaskCores1);
+
+	auto lmaskXor = lmask1 ^ pcpp::LongCoreMask(0b1011);
+	PTF_ASSERT_TRUE(lmaskXor == pcpp::LongCoreMask(0b0111));
+
+	// Toggle Core0 On and Core2 Off
+	lmaskXor = lmask1 ^ pcpp::SystemCores::Core0 ^ pcpp::SystemCores::Core2;
+	PTF_ASSERT_TRUE(lmaskXor == pcpp::LongCoreMask(0b1001));
 }

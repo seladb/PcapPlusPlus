@@ -219,7 +219,64 @@ namespace pcpp
 		/// @brief Converts the LongCoreMask to a vector of SystemCore instances.
 		/// @return A vector containing the SystemCore instances represented by the LongCoreMask.
 		std::vector<SystemCore> toCoreVector() const;
+
+		/// @brief Tests if a given SystemCore is included in the LongCoreMask.
+		/// @param core The SystemCore instance to test.
+		/// @return True if the core is included in the LongCoreMask, false otherwise.
+		bool test(SystemCore core) const
+		{
+			return Mask.test(core.Id);
+		}
+
+		LongCoreMask& operator|=(const LongCoreMask& other)
+		{
+			Mask |= other.Mask;
+			return *this;
+		}
+
+		LongCoreMask& operator&=(const LongCoreMask& other)
+		{
+			Mask &= other.Mask;
+			return *this;
+		}
+
+		LongCoreMask& operator^=(const LongCoreMask& other)
+		{
+			Mask ^= other.Mask;
+			return *this;
+		}
 	};
+
+	inline bool operator==(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		return lhs.Mask == rhs.Mask;
+	}
+
+	inline bool operator!=(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	inline LongCoreMask operator|(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		LongCoreMask result = lhs;
+		result.Mask |= rhs.Mask;
+		return result;
+	}
+
+	inline LongCoreMask operator&(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		LongCoreMask result = lhs;
+		result.Mask &= rhs.Mask;
+		return result;
+	}
+
+	inline LongCoreMask operator^(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		LongCoreMask result = lhs;
+		result.Mask ^= rhs.Mask;
+		return result;
+	}
 
 	/// @brief Get total number of cores on device
 	/// @return Total number of CPU cores on device
