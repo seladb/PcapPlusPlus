@@ -41,7 +41,7 @@ namespace pcpp
 		/// mask.
 		///
 		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
-		
+
 		constexpr explicit SystemCore(uint8_t coreId) : Mask(coreId < 32 ? 1U << coreId : 0), Id(coreId)
 		{}
 
