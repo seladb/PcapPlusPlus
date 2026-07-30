@@ -37,9 +37,9 @@ PTF_TEST_CASE(TestSystemCore)
 
 PTF_TEST_CASE(TestLongCoreMask)
 {
+	using pcpp::LongCoreMask;
 	using pcpp::SystemCore;
 	using pcpp::SystemCores;
-	using pcpp::LongCoreMask;
 
 	auto numOfCores = pcpp::getNumOfCores();
 
@@ -72,7 +72,7 @@ PTF_TEST_CASE(TestLongCoreMask)
 	// Test equality operators
 	PTF_ASSERT_TRUE(LongCoreMask(0b1010) == LongCoreMask(0b1010));
 	PTF_ASSERT_TRUE(LongCoreMask(0b1010) != LongCoreMask(0b0101));
-	
+
 	// Test comparisons with a single SystemCore
 	// TODO: Optimization oppotunity:
 	//   Forward equality of LongCoreMask a and SystemCore b to a.test(b) instead of creating a new LongCoreMask for b.
@@ -86,7 +86,7 @@ PTF_TEST_CASE(TestLongCoreMask)
 	// Test bitwise operations on LongCoreMask
 	auto lmask1 = pcpp::LongCoreMask(0b1100);
 	auto lmask2 = pcpp::LongCoreMask(0b0011);
-	
+
 	PTF_ASSERT_TRUE(pcpp::LongCoreMask(0b1111) == (lmask1 | lmask2));
 	PTF_ASSERT_TRUE(pcpp::LongCoreMask(0b0000) == (lmask1 & lmask2));
 
