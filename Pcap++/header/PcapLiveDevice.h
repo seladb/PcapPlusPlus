@@ -318,12 +318,13 @@ namespace pcpp
 			/// Depending on the capture device and the software on the host, different precision can be used
 			TimestampPrecision timestampPrecision;
 
-			/// PcapPlusPlus enables libpcap's immediate mode by default (where supported) for minimal packet
-			/// delivery latency. On Linux, though, immediate mode forces libpcap onto the older TPACKET_V2 ring
-			/// format (instead of TPACKET_V3) and onto a non-blocking poll loop (instead of an efficient blocking
-			/// wait), which hurts throughput and CPU usage under high packet rates. Set this to true to keep
-			/// immediate mode off, trading up to packetBufferTimeoutMs of added latency for TPACKET_V3 support and
-			/// blocking, batched reads. Default value is false (immediate mode enabled).
+			/// Disable libpcap's "immediate mode", which PcapPlusPlus enables by default (where supported) for
+			/// minimal packet delivery latency. On Linux, immediate mode also forces a less efficient capture
+			/// path (TPACKET_V2 with non-blocking polling, instead of TPACKET_V3 with blocking, batched reads),
+			/// which can hurt throughput and CPU usage at high packet rates. Setting this to true trades up to
+			/// packetBufferTimeoutMs of added latency for better throughput and lower CPU usage on Linux. You can
+			/// read more here: https://www.tcpdump.org/manpages/pcap_set_immediate_mode.3pcap.html .
+			/// Default value is false.
 			bool disableImmediateMode;
 
 			/// A c'tor for this struct
@@ -346,8 +347,9 @@ namespace pcpp
 			/// for each packet (not all platforms support this). Default provider is Host.
 			/// @param[in] timestampPrecision The timestamp precision (not all platforms support this).
 			/// Default precision is Microseconds.
-			/// @param[in] disableImmediateMode Trade added latency (up to packetBufferTimeoutMs) for TPACKET_V3
-			/// and blocking batched reads on Linux. Default value is false (immediate mode enabled).
+			/// @param[in] disableImmediateMode Disable libpcap's immediate mode, trading up to
+			/// packetBufferTimeoutMs of added latency for better throughput and lower CPU usage on Linux.
+			/// Default value is false (immediate mode enabled).
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
 			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
 			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false,
