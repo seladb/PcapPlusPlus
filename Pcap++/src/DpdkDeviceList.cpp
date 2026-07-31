@@ -165,7 +165,7 @@ namespace pcpp
 
 		m_MBufPoolSizePerDevice = mBufPoolSizePerDevice;
 		m_MBufDataSize = mBufDataSize;
-		DpdkDeviceList::getInstance().setDpdkLogLevel(Logger::Info);
+		DpdkDeviceList::getInstance().setDpdkLogLevel(LogLevel::Info);
 		return DpdkDeviceList::getInstance().initDpdkDevices(m_MBufPoolSizePerDevice, m_MBufDataSize);
 	}
 
@@ -307,28 +307,28 @@ namespace pcpp
 	void DpdkDeviceList::setDpdkLogLevel(Logger::LogLevel logLevel)
 	{
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
-		if (logLevel == Logger::Info)
+		if (logLevel == LogLevel::Info)
 			rte_log_set_global_level(RTE_LOG_NOTICE);
-		else  // logLevel == Logger::Debug
+		else  // logLevel == LogLevel::Debug
 			rte_log_set_global_level(RTE_LOG_DEBUG);
 #else
-		if (logLevel == Logger::Info)
+		if (logLevel == LogLevel::Info)
 			rte_set_log_level(RTE_LOG_NOTICE);
-		else  // logLevel == Logger::Debug
+		else  // logLevel == LogLevel::Debug
 			rte_set_log_level(RTE_LOG_DEBUG);
 #endif
 	}
 
-	Logger::LogLevel DpdkDeviceList::getDpdkLogLevel() const
+	LogLevel DpdkDeviceList::getDpdkLogLevel() const
 	{
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 		if (rte_log_get_global_level() <= RTE_LOG_NOTICE)
 #else
 		if (rte_get_log_level() <= RTE_LOG_NOTICE)
 #endif
-			return Logger::Info;
+			return LogLevel::Info;
 		else
-			return Logger::Debug;
+			return LogLevel::Debug;
 	}
 
 	bool DpdkDeviceList::writeDpdkLogToFile(FILE* logFile)

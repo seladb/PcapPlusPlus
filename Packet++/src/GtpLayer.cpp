@@ -169,9 +169,7 @@ namespace pcpp
 			dataLen += sizeof(gtpv1_header_extra);
 		}
 
-		m_DataLen = dataLen;
-		m_Data = new uint8_t[dataLen];
-		memset(m_Data, 0, dataLen);
+		allocData(dataLen);
 		m_Protocol = GTPv1;
 
 		gtpv1_header* hdr = getHeader();
@@ -985,9 +983,7 @@ namespace pcpp
 	{
 		size_t messageLength = sizeof(uint32_t) + (setTeid ? sizeof(uint32_t) : 0);
 		size_t headerLen = sizeof(gtpv2_basic_header) + messageLength;
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		auto* hdr = getHeader();
 		hdr->version = 2;
@@ -1027,6 +1023,14 @@ namespace pcpp
 		auto* header = reinterpret_cast<const gtpv2_basic_header*>(data);
 
 		if (header->version != 2)
+		{
+			return false;
+		}
+
+		// When the TEID-present flag is set, the fixed header carries the 4-byte TEID before
+		// the sequence-number word, so the minimum length grows accordingly. Without this
+		// check accessors such as getSequenceNumber() would read past the buffer (GH #2171).
+		if (header->teidPresent && dataSize < sizeof(gtpv2_basic_header) + 2 * sizeof(uint32_t))
 		{
 			return false;
 		}

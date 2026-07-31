@@ -34,8 +34,8 @@
 	std::cout << std::endl
 
 #define PTF_PRINT_ASSERTION(severity, op)                                                                              \
-	std::cout << std::left << std::setw(35) << __FUNCTION__ << ": " << severity << " (" << __FILE__ << ":" << __LINE__ \
-	          << "). "                                                                                                 \
+	std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": " << severity << " (" << __FILE__    \
+	          << ":" << __LINE__ << "). "                                                                              \
 	          << "Assert " << op << " failed:" << std::endl
 
 #define PTF_PRINT_COMPARE_ASSERTION(severity, op, actualExp, actualVal, expectedExp, expectedVal, objType)             \
@@ -176,15 +176,17 @@
 		}                                                                                                              \
 	}
 
-#define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size)                                                                       \
-	if (memcmp(buf1, buf2, size) != 0)                                                                                 \
+#define PTF_ASSERT_BUF_COMPARE_S(buf1, buf1_size, buf2, buf2_size)                                                     \
+	if (buf1_size != buf2_size || memcmp(buf1, buf2, buf1_size) != 0)                                                  \
 	{                                                                                                                  \
 		PTF_PRINT_ASSERTION("FAILED", "BUFFER COMPARE") << "   Actual   " << std::endl;                                \
-		BUFFER_PRINT(buf1, size) << "   Expected   " << std::endl;                                                     \
-		BUFFER_PRINT(buf2, size);                                                                                      \
+		BUFFER_PRINT(buf1, buf1_size) << "   Expected   " << std::endl;                                                \
+		BUFFER_PRINT(buf2, buf2_size);                                                                                 \
 		ptfResult = PTF_RESULT_FAILED;                                                                                 \
 		return;                                                                                                        \
 	}
+
+#define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) PTF_ASSERT_BUF_COMPARE_S(buf1, size, buf2, size)
 
 #define PTF_ASSERT_TRUE(exp)                                                                                           \
 	if (!(exp))                                                                                                        \
@@ -274,7 +276,7 @@
 #define PTF_PRINT_VERBOSE(data)                                                                                        \
 	if (printVerbose)                                                                                                  \
 	{                                                                                                                  \
-		std::cout << std::left << std::setw(35) << __FUNCTION__ << ": "                                                \
+		std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": "                                \
 		          << "[VERBOSE] " << data << std::endl;                                                                \
 	}
 
@@ -282,7 +284,7 @@
 	{                                                                                                                  \
 		if (showSkipped)                                                                                               \
 		{                                                                                                              \
-			std::cout << std::left << std::setw(35) << __FUNCTION__ << ": "                                            \
+			std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << __FUNCTION__ << ": "                            \
 			          << "SKIPPED (" << why << ")" << std::endl;                                                       \
 		}                                                                                                              \
 		ptfResult = PTF_RESULT_SKIPPED;                                                                                \

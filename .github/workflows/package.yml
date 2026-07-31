@@ -29,20 +29,20 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-latest
-            image: ubuntu2404
+            image: ubuntu2604
             config-zstd: OFF
-          - runner: ubuntu-24.04-arm
-            image: ubuntu2404-arm64
-            config-zstd: OFF
-          - runner: ubuntu-latest
-            image: ubuntu2204
+          - runner: ubuntu-26.04-arm
+            image: ubuntu2604-arm64
             config-zstd: OFF
           - runner: ubuntu-latest
-            image: ubuntu2204-icpx
+            image: ubuntu2604-icpx
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
           - runner: ubuntu-latest
-            image: ubuntu2004
+            image: ubuntu2404
+            config-zstd: OFF
+          - runner: ubuntu-latest
+            image: ubuntu2204
             config-zstd: OFF
           - runner: ubuntu-latest
             image: rhel94
@@ -88,7 +88,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -110,13 +110,13 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Test in FreeBSD
-        uses: vmactions/freebsd-vm@c9f815bc7aa0d34c9fdd0619b034a32d6ca7b57e # v1.4.2
+        uses: vmactions/freebsd-vm@d1e65811565151536c0c894fff74f06351ed26e6 # v1.4.5
         with:
           release: ${{ matrix.version }}
           envs: 'BUILD_DIR'
           usesh: true
           prepare: |
-            pkg install -y bash cmake git-tiny gmake gsed libpcap py311-pip
+            pkg install -y bash cmake git-tiny gmake gsed libpcap python
           run: |
             cmake -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
             cmake --build "$BUILD_DIR" -j 4
@@ -130,7 +130,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -146,21 +146,21 @@ jobs:
     strategy:
       matrix:
         include:
-          - os-version: macos-14
-            xcode-version: 15.4
-            arch: x86_64
-          - os-version: macos-14
-            xcode-version: 15.4
+          - os-version: macos-26
+            xcode-version: 26.6.0
             arch: arm64
-          - os-version: macos-15
-            xcode-version: 16.0.0
+          - os-version: macos-26-intel
+            xcode-version: 26.6.0
             arch: x86_64
           - os-version: macos-15
-            xcode-version: 16.0.0
+            xcode-version: 16.4.0
+            arch: x86_64
+          - os-version: macos-15
+            xcode-version: 16.4.0
             arch: arm64
 
     steps:
-      - uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: "${{ matrix.xcode-version }}"
 
@@ -169,7 +169,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          cmake -DPCAPPP_PACKAGE=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
+          cmake -DPCAPPP_PACKAGE=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
@@ -185,7 +185,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -211,10 +211,9 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@4f806de0a5a7294ffabaff804b38a9b435a73bda # v2.30.0
+        uses: msys2/setup-msys2@e9898307ac31d1a803454791be09ab9973336e1c # v2.31.1
         with:
           msystem: ${{matrix.sys}}
-          update: true
           install: >-
             git
             mingw-w64-${{matrix.env}}-cmake
@@ -256,7 +255,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -280,7 +279,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
+        uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
       - name: Install WinPcap
         run: |
@@ -289,7 +288,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          $platform = "Visual Studio 17 2022"
+          $platform = "Visual Studio 18 2026"
           cmake -A ${{ matrix.arch }} -G "$platform" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DPCAPPP_PACKAGE=ON -S . -B "$env:BUILD_DIR"
 
       - name: Build PcapPlusPlus
@@ -306,7 +305,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true
@@ -363,7 +362,7 @@ jobs:
           mkdir -p "android-package"
           mv "${COMBINED_PACKAGE_DIR}" "android-package"
 
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           path: android-package
           name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
@@ -378,7 +377,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: android-package-*
           merge-multiple: true
@@ -397,7 +396,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           draft: true
           allowUpdates: true

@@ -108,9 +108,7 @@ namespace pcpp
 
 	void NDPNeighborSolicitationLayer::initLayer(uint8_t code, const IPv6Address& targetIP)
 	{
-		m_DataLen = sizeof(ndpneighborsolicitationhdr);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(ndpneighborsolicitationhdr));
 		m_Protocol = ICMPv6;
 
 		ndpneighborsolicitationhdr* pHdr = getNdpHeader();
@@ -167,9 +165,7 @@ namespace pcpp
 	void NDPNeighborAdvertisementLayer::initLayer(uint8_t code, const IPv6Address& targetIP, bool routerFlag,
 	                                              bool unicastFlag, bool overrideFlag)
 	{
-		m_DataLen = sizeof(ndpneighboradvertisementhdr);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(ndpneighboradvertisementhdr));
 		m_Protocol = ICMPv6;
 
 		ndpneighboradvertisementhdr* pHdr = getNdpHeader();

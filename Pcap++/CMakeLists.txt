@@ -10,7 +10,6 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapUtils.cpp>
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/NetworkUtils.cpp>
   src/PcapFileDevice.cpp
-  $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapDevice.cpp>
   src/PcapFilter.cpp
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapLiveDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_PCAP}>:src/PcapLiveDeviceList.cpp>
@@ -109,8 +108,67 @@ target_link_libraries(
 )
 
 if(LIGHT_PCAPNG_ZSTD)
+  target_compile_definitions(Pcap++ PRIVATE -DPCPP_PCAPNG_ZSTD_SUPPORT)
   target_link_libraries(Pcap++ PRIVATE light_pcapng)
 endif()
+
+# Pcap++ Feature sets:
+# - PCPP_HAS_PCAPNG_ZSTD_SUPPORT - Whether Pcap++ was built with support for zstd-compressed pcapng files using the light_pcapng library
+# - PCPP_HAS_PCAP_LIVE_SUPPORT - Whether Pcap++ was built with support for live packet capture using libpcap
+# - PCPP_HAS_PCAP_REMOTE_SUPPORT - Whether Pcap++ was built with support for remote packet capture using libpcap (only supported on Windows)
+# - PCPP_HAS_DPDK_SUPPORT - Whether Pcap++ was built with support for DPDK-based packet capture
+# - PCPP_HAS_DPDK_KNI_SUPPORT - Whether Pcap++ was built with support for DPDK KNI-based packet capture
+# - PCPP_HAS_PF_RING_SUPPORT - Whether Pcap++ was built with support for PF_RING-based packet capture
+# - PCPP_HAS_XDP_SUPPORT - Whether Pcap++ was built with support for XDP-based packet capture
+# - PCPP_HAS_WINDIVERT_SUPPORT - Whether Pcap++ was built with support for WinDivert-based packet capture
+
+if(WIN32 AND PCAPPP_USE_PCAP)
+  set(PCPP_HAS_PCAP_REMOTE_SUPPORT ON)
+else()
+  set(PCPP_HAS_PCAP_REMOTE_SUPPORT OFF)
+endif()
+
+set_target_properties(
+  Pcap++
+  PROPERTIES
+    PCPP_HAS_PCAPNG_ZSTD_SUPPORT ${LIGHT_PCAPNG_ZSTD}
+    PCPP_HAS_PCAP_LIVE_SUPPORT ${PCAPPP_USE_PCAP}
+    PCPP_HAS_PCAP_REMOTE_SUPPORT ${PCPP_HAS_PCAP_REMOTE_SUPPORT}
+    PCPP_HAS_DPDK_SUPPORT ${PCAPPP_USE_DPDK}
+    PCPP_HAS_DPDK_KNI_SUPPORT ${PCAPPP_USE_DPDK_KNI}
+    PCPP_HAS_PF_RING_SUPPORT ${PCAPPP_USE_PF_RING}
+    PCPP_HAS_XDP_SUPPORT ${PCAPPP_USE_XDP}
+    PCPP_HAS_WINDIVERT_SUPPORT ${PCAPPP_USE_WINDIVERT}
+)
+
+target_compile_definitions(
+  Pcap++
+  PUBLIC
+    $<$<BOOL:${LIGHT_PCAPNG_ZSTD}>:PCPP_HAS_PCAPNG_ZSTD_SUPPORT>
+    $<$<BOOL:${PCAPPP_USE_PCAP}>:PCPP_HAS_PCAP_LIVE_SUPPORT>
+    $<$<BOOL:${PCPP_HAS_PCAP_REMOTE_SUPPORT}>:PCPP_HAS_PCAP_REMOTE_SUPPORT>
+    $<$<BOOL:${PCAPPP_USE_DPDK}>:PCPP_HAS_DPDK_SUPPORT>
+    $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:PCPP_HAS_DPDK_KNI_SUPPORT>
+    $<$<BOOL:${PCAPPP_USE_PF_RING}>:PCPP_HAS_PF_RING_SUPPORT>
+    $<$<BOOL:${PCAPPP_USE_XDP}>:PCPP_HAS_XDP_SUPPORT>
+    $<$<BOOL:${PCAPPP_USE_WINDIVERT}>:PCPP_HAS_WINDIVERT_SUPPORT>
+)
+
+# Export the feature set properties along with the target so they can be used by downstream consumers of the Pcap++ target.
+set_property(
+  TARGET Pcap++
+  APPEND
+  PROPERTY
+    EXPORT_PROPERTIES
+      PCPP_HAS_PCAPNG_ZSTD_SUPPORT
+      PCPP_HAS_PCAP_LIVE_SUPPORT
+      PCPP_HAS_PCAP_REMOTE_SUPPORT
+      PCPP_HAS_DPDK_SUPPORT
+      PCPP_HAS_DPDK_KNI_SUPPORT
+      PCPP_HAS_PF_RING_SUPPORT
+      PCPP_HAS_XDP_SUPPORT
+      PCPP_HAS_WINDIVERT_SUPPORT
+)
 
 if(PCAPPP_INSTALL)
   install(

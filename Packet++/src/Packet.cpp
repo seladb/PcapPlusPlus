@@ -196,6 +196,11 @@ namespace pcpp
 	}
 
 	Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
+	    : Packet(rawPacket, freeRawPacket, static_cast<ProtocolTypeFamily>(parseUntil), parseUntilLayer)
+	{}
+
+	Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
+	               OsiModelLayer parseUntilLayer)
 	{
 		m_FreeRawPacket = false;
 		m_RawPacket = nullptr;
@@ -734,9 +739,8 @@ namespace pcpp
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
 
 		// go over all layers from the first layer to the last layer and set the data ptr and data length for each layer
-		Layer* curLayer = m_FirstLayer;
 		bool passedExtendedLayer = false;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			if (dataPtr > m_RawPacket->getRawData() + m_RawPacket->getRawDataLen())
 			{
@@ -761,7 +765,6 @@ namespace pcpp
 			// assuming header length of the layer that requested to be extended hasn't been enlarged yet
 			headerLen -= (curLayer == layer ? numOfBytesToShorten : 0);
 			dataPtr += headerLen;
-			curLayer = curLayer->getNextLayer();
 		}
 
 		return true;

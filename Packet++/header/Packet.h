@@ -94,6 +94,10 @@ namespace pcpp
 		explicit Packet(RawPacket* rawPacket, bool freeRawPacket = false, ProtocolType parseUntil = UnknownProtocol,
 		                OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
+		/// @copydoc Packet(RawPacket*, bool, ProtocolType, OsiModelLayer)
+		explicit Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil,
+		                OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+
 		/// A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets
 		/// that came from the network. When using this constructor a pointer to the RawPacket is saved (data isn't
 		/// copied) and the RawPacket is parsed, meaning all layers are created and linked to each other in the right

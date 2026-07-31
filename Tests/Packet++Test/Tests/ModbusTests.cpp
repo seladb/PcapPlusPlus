@@ -51,3 +51,14 @@ PTF_TEST_CASE(ModbusLayerParsingTest)
 	PTF_ASSERT_EQUAL(modbusLayer->toString(),
 	                 "Modbus Layer, Transaction ID: 17, Protocol ID: 0, Length: 6, Unit ID: 255, Function Code: 4");
 }  // ModbusLayerParsingTest
+
+PTF_TEST_CASE(ModbusLayerTruncatedTest)
+{
+	// A packet to port 502 whose payload is shorter than a full modbus_header (8 bytes).
+	// It must not be parsed as a Modbus layer, otherwise the header getters read out of bounds.
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ModbusTruncated.dat");
+
+	pcpp::Packet packet(rawPacket1.get());
+	PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::Modbus));
+	PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::ModbusLayer>());
+}  // ModbusLayerTruncatedTest

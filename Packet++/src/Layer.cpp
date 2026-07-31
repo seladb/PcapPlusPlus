@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "Packet.h"
 #include <cstring>
+#include <stdexcept>
 
 namespace pcpp
 {
@@ -51,6 +52,35 @@ namespace pcpp
 	void Layer::copyData(uint8_t* toArr) const
 	{
 		memcpy(toArr, m_Data, m_DataLen);
+	}
+
+	size_t Layer::copyData(uint8_t* dest, size_t destSize) const
+	{
+		size_t bytesToCopy = (std::min)(destSize, m_DataLen);
+		memcpy(dest, m_Data, bytesToCopy);
+		return bytesToCopy;
+	}
+
+	void Layer::allocData(size_t dataLen, bool zeroInit)
+	{
+		if (m_Data != nullptr)
+		{
+			throw std::runtime_error(
+			    "Layer already has allocated data. Use extendLayer or shortenLayer to modify the data length.");
+		}
+
+		if (m_AllocationInfo.attachedPacket != nullptr)
+		{
+			// TODO: Allocate the layer data through the attached packet
+			throw std::logic_error("not implemented");
+		}
+
+		m_Data = new uint8_t[dataLen];
+		m_DataLen = dataLen;
+		if (zeroInit)
+		{
+			std::fill_n(m_Data, m_DataLen, 0);
+		}
 	}
 
 	bool Layer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)

@@ -13,7 +13,7 @@ if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
     include(FetchContent)
 
     # Fetch Google Benchmark
-    FetchContent_Declare(benchmark GIT_REPOSITORY https://github.com/google/benchmark.git GIT_TAG v1.9.0)
+    FetchContent_Declare(benchmark GIT_REPOSITORY https://github.com/google/benchmark.git GIT_TAG v1.9.5)
 
     # Disable testing and installation for Google Benchmark
     set(BENCHMARK_ENABLE_TESTING OFF)
@@ -21,6 +21,8 @@ if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
     FetchContent_MakeAvailable(benchmark)
 
     add_executable(BenchmarkExampleGoogle benchmark-google.cpp)
+
+    target_compile_definitions(BenchmarkExampleGoogle PRIVATE NOMINMAX)
 
     target_link_libraries(BenchmarkExampleGoogle PUBLIC PcapPlusPlus::Pcap++ benchmark::benchmark)
 

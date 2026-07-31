@@ -23,9 +23,7 @@ namespace pcpp
 
 	RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator, uint8_t authenticatorArrSize)
 	{
-		m_DataLen = sizeof(radius_header);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(radius_header));
 		m_Protocol = Radius;
 
 		radius_header* hdr = getRadiusHeader();
@@ -41,9 +39,7 @@ namespace pcpp
 
 	RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const std::string& authenticator)
 	{
-		m_DataLen = sizeof(radius_header);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(radius_header));
 		m_Protocol = Radius;
 
 		radius_header* hdr = getRadiusHeader();

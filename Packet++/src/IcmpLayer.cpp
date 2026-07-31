@@ -29,9 +29,7 @@ namespace pcpp
 
 	IcmpLayer::IcmpLayer() : Layer()
 	{
-		m_DataLen = sizeof(icmphdr);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(icmphdr));
 		m_Protocol = ICMP;
 	}
 

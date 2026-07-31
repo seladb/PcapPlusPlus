@@ -191,9 +191,8 @@ namespace pcpp
 
 	DoIpLayer::DoIpLayer(size_t length)
 	{
-		m_DataLen = length;
 		m_Protocol = DOIP;
-		m_Data = new uint8_t[m_DataLen]{};
+		allocData(length);
 	}
 
 	DoIpLayer::DoIpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)

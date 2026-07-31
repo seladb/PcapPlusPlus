@@ -667,11 +667,11 @@ namespace pcpp
 		{
 			if (address.isIPv4())
 			{
-				m_IPv4Network = std::make_unique<IPv4Network>(address.getIPv4(), prefixLen);
+				m_NetworkVariant = IPv4Network(address.getIPv4(), prefixLen);
 			}
 			else
 			{
-				m_IPv6Network = std::make_unique<IPv6Network>(address.getIPv6(), prefixLen);
+				m_NetworkVariant = IPv6Network(address.getIPv6(), prefixLen);
 			}
 		}
 
@@ -688,11 +688,11 @@ namespace pcpp
 		{
 			if (address.isIPv4())
 			{
-				m_IPv4Network = std::make_unique<IPv4Network>(address.getIPv4(), netmask);
+				m_NetworkVariant = IPv4Network(address.getIPv4(), netmask);
 			}
 			else
 			{
-				m_IPv6Network = std::make_unique<IPv6Network>(address.getIPv6(), netmask);
+				m_NetworkVariant = IPv6Network(address.getIPv6(), netmask);
 			}
 		}
 
@@ -708,42 +708,26 @@ namespace pcpp
 		{
 			try
 			{
-				m_IPv4Network = std::make_unique<IPv4Network>(addressAndNetmask);
+				m_NetworkVariant = IPv4Network(addressAndNetmask);
 			}
 			catch (const std::invalid_argument&)
 			{
-				m_IPv6Network = std::make_unique<IPv6Network>(addressAndNetmask);
+				m_NetworkVariant = IPv6Network(addressAndNetmask);
 			}
 		}
 
 		/// A copy c'tor for this class
 		/// @param other The instance to copy from
-		IPNetwork(const IPNetwork& other)
-		{
-			if (other.m_IPv4Network)
-			{
-				m_IPv4Network = std::make_unique<IPv4Network>(*other.m_IPv4Network);
-			}
-
-			if (other.m_IPv6Network)
-			{
-				m_IPv6Network = std::make_unique<IPv6Network>(*other.m_IPv6Network);
-			}
-		}
+		IPNetwork(const IPNetwork& other) : m_NetworkVariant(other.m_NetworkVariant)
+		{}
 
 		/// Overload of an assignment operator.
 		/// @param[in] other An instance of IPNetwork to assign
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPNetwork& other)
 		{
-			// NOLINTBEGIN(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
-			if (other.isIPv4Network())
-			{
-				return this->operator=(*other.m_IPv4Network);
-			}
-
-			return this->operator=(*other.m_IPv6Network);
-			// NOLINTEND(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
+			m_NetworkVariant = other.m_NetworkVariant;
+			return *this;
 		}
 
 		/// Overload of an assignment operator.
@@ -751,9 +735,7 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPv4Network& other)
 		{
-			// Create the new instance first to maintain strong exception guarantee.
-			m_IPv4Network = std::make_unique<IPv4Network>(other);
-			m_IPv6Network = nullptr;
+			m_NetworkVariant = other;
 			return *this;
 		}
 
@@ -762,9 +744,7 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPv6Network& other)
 		{
-			// Create the new instance first to maintain strong exception guarantee.
-			m_IPv6Network = std::make_unique<IPv6Network>(other);
-			m_IPv4Network = nullptr;
+			m_NetworkVariant = other;
 			return *this;
 		}
 
@@ -772,38 +752,64 @@ namespace pcpp
 		/// 10.10.10.10/255.0.0.0 is 8
 		uint8_t getPrefixLen() const
 		{
-			return (m_IPv4Network != nullptr ? m_IPv4Network->getPrefixLen() : m_IPv6Network->getPrefixLen());
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4 != nullptr)
+			{
+				return ip4->getPrefixLen();
+			}
+
+			return m_NetworkVariant.getIPv6().getPrefixLen();
 		}
 
 		/// @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is
 		/// 255.0.0.0
 		std::string getNetmask() const
 		{
-			return (m_IPv4Network != nullptr ? m_IPv4Network->getNetmask() : m_IPv6Network->getNetmask());
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4 != nullptr)
+			{
+				return ip4->getNetmask();
+			}
+
+			return m_NetworkVariant.getIPv6().getNetmask();
 		}
 
 		/// @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::, the network prefix
 		/// of 10.10.10.10/16 is 10.10.0.0
 		IPAddress getNetworkPrefix() const
 		{
-			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getNetworkPrefix())
-			                                 : IPAddress(m_IPv6Network->getNetworkPrefix()));
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4 != nullptr)
+			{
+				return IPAddress(ip4->getNetworkPrefix());
+			}
+
+			return IPAddress(m_NetworkVariant.getIPv6().getNetworkPrefix());
 		}
 
 		/// @return The lowest non-reserved IP address in this network, for example: the lowest address in 3546::/16 is
 		/// 3546::1, the lowest address in 10.10.10.10/16 is 10.10.0.1
 		IPAddress getLowestAddress() const
 		{
-			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getLowestAddress())
-			                                 : IPAddress(m_IPv6Network->getLowestAddress()));
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4 != nullptr)
+			{
+				return IPAddress(ip4->getLowestAddress());
+			}
+			return IPAddress(m_NetworkVariant.getIPv6().getLowestAddress());
 		}
 
 		/// @return The highest non-reserved IP address in this network, for example: the highest address in 3546::/16
 		/// is 3546:ffff:ffff:ffff:ffff:ffff:ffff:ffff, the highest address in 10.10.10.10/16 is 10.10.255.254
 		IPAddress getHighestAddress() const
 		{
-			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getHighestAddress())
-			                                 : IPAddress(m_IPv6Network->getHighestAddress()));
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4 != nullptr)
+			{
+				return IPAddress(ip4->getHighestAddress());
+			}
+
+			return IPAddress(m_NetworkVariant.getIPv6().getHighestAddress());
 		}
 
 		/// @return The number of addresses in this network, for example: the number of addresses in 16ff::/120 is 256,
@@ -811,34 +817,38 @@ namespace pcpp
 		/// a std::out_of_range exception is thrown
 		uint64_t getTotalAddressCount() const
 		{
-			return (m_IPv4Network != nullptr ? m_IPv4Network->getTotalAddressCount()
-			                                 : m_IPv6Network->getTotalAddressCount());
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4 != nullptr)
+			{
+				return ip4->getTotalAddressCount();
+			}
+			return m_NetworkVariant.getIPv6().getTotalAddressCount();
 		}
 
 		/// @return True if this is an IPv4 network, false otherwise
 		bool isIPv4Network() const
 		{
-			return m_IPv4Network != nullptr;
+			return m_NetworkVariant.getType() == NetworkVariant::Type::IPv4;
 		}
 
 		/// @return True if this is an IPv6 network, false otherwise
 		bool isIPv6Network() const
 		{
-			return m_IPv6Network != nullptr;
+			return m_NetworkVariant.getType() == NetworkVariant::Type::IPv6;
 		}
 
 		/// @param address An IP address
 		/// @return True is the address belongs to the network, false otherwise or if the address isn't valid
 		bool includes(const IPAddress& address) const
 		{
-			if (m_IPv4Network != nullptr)
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4 != nullptr)
 			{
 				if (address.isIPv6())
 				{
 					return false;
 				}
-
-				return m_IPv4Network->includes(address.getIPv4());
+				return ip4->includes(address.getIPv4());
 			}
 
 			if (address.isIPv4())
@@ -846,41 +856,162 @@ namespace pcpp
 				return false;
 			}
 
-			return m_IPv6Network->includes(address.getIPv6());
+			return m_NetworkVariant.getIPv6().includes(address.getIPv6());
 		}
 
 		/// @param network An IP network
 		/// @return True is the input network is completely included within this network, false otherwise
 		bool includes(const IPNetwork& network) const
 		{
-			if (m_IPv4Network != nullptr)
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4 != nullptr)
 			{
-				if (network.isIPv6Network())
+				auto otherIp4 = network.m_NetworkVariant.tryGetIPv4();
+				if (otherIp4 == nullptr)
 				{
 					return false;
 				}
-
-				return m_IPv4Network->includes(*network.m_IPv4Network);
+				return ip4->includes(*otherIp4);
 			}
 
-			if (network.isIPv4Network())
+			auto& ip6 = m_NetworkVariant.getIPv6();
+			auto otherIp6 = network.m_NetworkVariant.tryGetIPv6();
+			if (otherIp6 == nullptr)
 			{
 				return false;
 			}
-
-			return m_IPv6Network->includes(*network.m_IPv6Network);
+			return ip6.includes(*otherIp6);
 		}
 
 		/// @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
 		/// fda7:9f81:6c23:275::/64 or 192.168.0.0/16
 		std::string toString() const
 		{
-			return (m_IPv4Network != nullptr ? m_IPv4Network->toString() : m_IPv6Network->toString());
+			auto ip4 = m_NetworkVariant.tryGetIPv4();
+			if (ip4)
+			{
+				return ip4->toString();
+			}
+
+			return m_NetworkVariant.getIPv6().toString();
 		}
 
 	private:
-		std::unique_ptr<IPv4Network> m_IPv4Network;
-		std::unique_ptr<IPv6Network> m_IPv6Network;
+		// TODO: C++17 Replace with std::variant.
+		class NetworkVariant
+		{
+		public:
+			enum class Type
+			{
+				IPv4,
+				IPv6
+			};
+
+			NetworkVariant() : m_Type(Type::IPv4), m_IPv4Net(IPv4Address::Zero)
+			{}
+			NetworkVariant(IPv4Network const& net) : m_Type(Type::IPv4), m_IPv4Net(net)
+			{}
+			NetworkVariant(IPv6Network const& net) : m_Type(Type::IPv6), m_IPv6Net(net)
+			{}
+			~NetworkVariant()
+			{
+				destroyActiveMem();
+			}
+
+			NetworkVariant& operator=(IPv4Network const& other)
+			{
+				swapTo(Type::IPv4);
+				m_IPv4Net = other;
+				return *this;
+			}
+			NetworkVariant& operator=(IPv6Network const& other)
+			{
+				swapTo(Type::IPv6);
+				m_IPv6Net = other;
+				return *this;
+			}
+			NetworkVariant& operator=(NetworkVariant const& other)
+			{
+				swapTo(other.m_Type);
+				switch (other.m_Type)
+				{
+				case Type::IPv4:
+					m_IPv4Net = other.m_IPv4Net;
+					break;
+				case Type::IPv6:
+					m_IPv6Net = other.m_IPv6Net;
+					break;
+				}
+				return *this;
+			}
+
+			Type getType() const noexcept
+			{
+				return m_Type;
+			}
+
+			IPv4Network& getIPv4()
+			{
+				throwIfNot(Type::IPv4);
+				return m_IPv4Net;
+			}
+
+			IPv4Network const& getIPv4() const
+			{
+				throwIfNot(Type::IPv4);
+				return m_IPv4Net;
+			}
+
+			IPv4Network* tryGetIPv4() noexcept
+			{
+				return (m_Type == Type::IPv4) ? &m_IPv4Net : nullptr;
+			}
+			IPv4Network const* tryGetIPv4() const noexcept
+			{
+				return (m_Type == Type::IPv4) ? &m_IPv4Net : nullptr;
+			}
+
+			IPv6Network& getIPv6()
+			{
+				throwIfNot(Type::IPv6);
+				return m_IPv6Net;
+			}
+
+			IPv6Network const& getIPv6() const
+			{
+				throwIfNot(Type::IPv6);
+				return m_IPv6Net;
+			}
+
+			IPv6Network* tryGetIPv6() noexcept
+			{
+				return (m_Type == Type::IPv6) ? &m_IPv6Net : nullptr;
+			}
+			IPv6Network const* tryGetIPv6() const noexcept
+			{
+				return (m_Type == Type::IPv6) ? &m_IPv6Net : nullptr;
+			}
+
+		private:
+			void throwIfNot(Type type) const
+			{
+				if (type != m_Type)
+				{
+					throw std::runtime_error("Bad variant access");
+				}
+			}
+
+			void swapTo(Type newType) noexcept;
+			void destroyActiveMem() noexcept;
+
+			Type m_Type;
+			union {
+				IPv4Network m_IPv4Net;
+				IPv6Network m_IPv6Net;
+			};
+		};
+
+		NetworkVariant m_NetworkVariant;
 	};
 
 	namespace literals

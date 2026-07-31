@@ -1223,8 +1223,13 @@ namespace pcpp
 		std::vector<uint8_t> result;
 
 		uint16_t extensionLength = getLength();
+
+		if (extensionLength < 1)
+			return result;
+
 		uint8_t listLength = *getData();
-		if (listLength != static_cast<uint8_t>(extensionLength - 1))
+
+		if (extensionLength != static_cast<uint16_t>(listLength) + 1)
 			return result;  // bad extension data
 
 		uint8_t* dataPtr = getData() + sizeof(uint8_t);
@@ -1445,6 +1450,9 @@ namespace pcpp
 
 	SSLVersion SSLClientHelloMessage::getHandshakeVersion() const
 	{
+		if (m_DataLen < sizeof(ssl_tls_handshake_layer) + sizeof(uint16_t))
+			return SSLVersion(0);
+
 		uint16_t handshakeVersion = be16toh(getClientHelloHeader()->handshakeVersion);
 		return SSLVersion(handshakeVersion);
 	}
@@ -1773,6 +1781,9 @@ namespace pcpp
 			if (supportedVersions.size() == 1)
 				return supportedVersions[0];
 		}
+
+		if (m_DataLen < sizeof(ssl_tls_handshake_layer) + sizeof(uint16_t))
+			return SSLVersion(0);
 
 		uint16_t handshakeVersion = be16toh(getServerHelloHeader()->handshakeVersion);
 		return SSLVersion(handshakeVersion);

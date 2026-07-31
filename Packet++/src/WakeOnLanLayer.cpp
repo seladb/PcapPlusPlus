@@ -9,8 +9,7 @@ namespace pcpp
 
 	void WakeOnLanLayer::init(uint16_t len)
 	{
-		m_Data = new uint8_t[len];
-		m_DataLen = len;
+		allocData(len);
 		m_Protocol = WakeOnLan;
 
 		memset(getWakeOnLanHeader()->sync, 0xFF, 6);

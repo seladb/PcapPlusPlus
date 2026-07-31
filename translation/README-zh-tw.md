@@ -1,3 +1,5 @@
+> ⚠️ **注意：** 本翻譯由 AI 協助維護與同步，可能與最新的英文版本存在差異。若您發現任何錯誤，歡迎開立 GitHub issue 或提交 PR。
+
 <div align="center">
 
 [![PcapPlusPlus 標誌](https://pcapplusplus.github.io/img/logo/logo_color.png)](https://pcapplusplus.github.io)
@@ -15,32 +17,32 @@
 
 [PcapPlusPlus](https://pcapplusplus.github.io/) 是一個跨平台的 C++ 函式庫，提供高效、強大且易於使用的功能，來進行網路封包的擷取、解析和生成。
 
-PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的封包處理函式庫（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）提供 C++ 的封裝函式。
+PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的封包處理函式庫（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html)、[WinDivert](https://reqrypt.org/windivert.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）提供 C++ 的封裝函式。
 
-翻譯: [English](../README.md) · 正體中文 · [한국어](./README-kor.md)
+翻譯: [English](../README.md) · 正體中文 · [한국어](./README-kor.md) · [日本語](./README-ja.md) · [Русский](./README-rus.md)
 
 ## 目錄
 
 - [目錄](#目錄)
 - [下載](#下載)
   - [GitHub 發佈頁面](#github-發佈頁面)
-  - [Homebrew](#Homebrew)
+  - [Homebrew](#homebrew)
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
-  - [自行建置](#自行建置])
+  - [自行建置](#自行建置)
   - [驗證您的套件](#驗證您的套件)
 - [功能概述](#功能概述)
 - [快速入門](#快速入門)
 - [API 文件](#api-文件)
 - [跨平台支援](#跨平台支援)
 - [支援的網路協定](#支援的網路協定)
-  - [資料連接層 (L2)](#資料鏈路層-l2)
+  - [資料連接層 (L2)](#資料連接層-l2)
   - [網路層 (L3)](#網路層-l3)
   - [傳輸層 (L4)](#傳輸層-l4)
   - [對話層 (L5)](#對話層-l5)
-  - [表現層 (L6)](#表現層-l6)
+  - [表示層 (L6)](#表示層-l6)
   - [應用層 (L7)](#應用層-l7)
-- [DPDK 與 PF_RING 支援](#dpdk-和-pf_ring-支援)
+- [DPDK 和 PF_RING 支援](#dpdk-和-pf_ring-支援)
 - [基準測試](#基準測試)
 - [提供回饋](#提供回饋)
 - [貢獻](#貢獻)
@@ -68,22 +70,21 @@ Homebrew 套件頁面: <https://formulae.brew.sh/formula/pcapplusplus>
 
 Windows:
 
-```shell
+```text
 .\vcpkg install pcapplusplus
 ```
 
 MacOS/Linux:
 
-```shell
+```text
 vcpkg install pcapplusplus
 ```
 
 Vcpkg 套件頁面: <https://github.com/microsoft/vcpkg/tree/master/ports/pcapplusplus>
 
-
 ### Conan
 
-```shell
+```text
 conan install "pcapplusplus/[>0]@" -u
 ```
 
@@ -115,7 +116,7 @@ gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
 
 ## 功能概述
 
-- __封包捕獲__：提供簡單易用的 C++ 封裝函式來使用常見的封包捕獲引擎，如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[Intel DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html)、[ntop 的 PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 以及 [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-capture)]
+- __封包捕獲__：提供簡單易用的 C++ 封裝函式來使用常見的封包捕獲引擎，如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[Intel DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html)、[WinDivert](https://reqrypt.org/windivert.html)、[ntop 的 PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 以及 [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-capture)]
 - __解析與建構__：包含網路協定解析、網路封包建構與編輯，支援各種類型的 [網路協定](https://pcapplusplus.github.io/docs/features#supported-network-protocols) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)]
 - __從檔案讀寫封包__：支援 __PCAP__ 和 __PCAPNG__ 格式 [[了解更多](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
 - __封包處理__：以線性速度提供高效且易用的 C++ 封裝函式來使用 [DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) [[了解更多](https://pcapplusplus.github.io/docs/features#dpdk-support)]
@@ -180,10 +181,10 @@ int main(int argc, char* argv[])
 PcapPlusPlus 包含三個函式庫：
 
 1. __Packet++__ - 用於解析、創建和編輯網路封包的函式庫
-2. __Pcap++__ - 用於攔截和發送封包、提供網路和網卡資訊、統計等功能的函式庫。實際上是對封包擷取引擎（如 libpcap、WinPcap、Npcap、DPDK 和 PF_RING）的 C++ 封裝
+2. __Pcap++__ - 用於攔截和發送封包、提供網路和網卡資訊、統計等功能的函式庫。實際上是對封包擷取引擎（如 libpcap、WinPcap、Npcap、DPDK、AF_XDP、WinDivert 和 PF_RING）的 C++ 封裝
 3. __Common++__ - 包含 Packet++ 和 Pcap++ 共用的一些通用程式碼工具函式庫
 
-您可以在 PcapPlusPlus 網站的 [API 文件區](https://pcapplusplus.github.io/docs/api) 找到詳細的 API 文件。如果您發現有任何遺漏的資料，請[聯繫我們](#provide-feedback)。
+您可以在 PcapPlusPlus 網站的 [API 文件區](https://pcapplusplus.github.io/docs/api) 找到詳細的 API 文件。如果您發現有任何遺漏的資料，請[聯繫我們](#提供回饋)。
 
 ## 跨平台支援
 
@@ -208,7 +209,7 @@ __FreeBSD__
 <picture>
   <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd.png" alt="" width="16" height="16"/>
 </picture>。
-請訪問 PcapPlusPlus 網站查看所有[支援的平台](https://pcapplusplus.github.io/docs/platforms)，並參考[下載](#download)區開始在您的平台上使用 PcapPlusPlus。
+請訪問 PcapPlusPlus 網站查看所有[支援的平台](https://pcapplusplus.github.io/docs/platforms)，並參考[下載](#下載)區開始在您的平台上使用 PcapPlusPlus。
 
 ## 支援的網路協定
 
@@ -216,71 +217,79 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 
 ### 資料連接層 (L2)
 
-1. Ethernet II
-2. IEEE 802.3 Ethernet
-3. LLC（僅支援 BPDU）
-4. Null/Loopback
-5. Packet trailer（又稱 footer 或 padding）
-6. PPPoE
-7. SLL（Linux 擷取協定）
-8. SLL2（Linux 擷取協定 v2）
-9. STP
-10. VLAN
-11. VXLAN
-12. Wake on LAN (WoL)
-13. NFLOG（Linux Netfilter NFLOG）- 僅支援解析（不支援編輯）
+1. Cisco HDLC
+2. Ethernet II
+3. IEEE 802.3 Ethernet
+4. LLC（僅支援 BPDU）
+5. Null/Loopback
+6. Packet trailer（又稱 footer 或 padding）
+7. PPPoE
+8. SLL（Linux 擷取協定）
+9. SLL2（Linux 擷取協定 v2）
+10. STP
+11. VLAN
+12. VXLAN
+13. Wake on LAN (WoL)
+14. NFLOG（Linux Netfilter NFLOG）- 僅支援解析（不支援編輯）
 
 ### 網路層 (L3)
 
-14. ARP
-15. GRE
-16. ICMP
-17. ICMPv6
-18. IGMP（支援 IGMPv1、IGMPv2 和 IGMPv3）
-19. IPv4
-20. IPv6
-21. MPLS
-22. NDP
-23. Raw IP（IPv4 和 IPv6）
-24. VRRP（IPv4 和 IPv6）
-25. WireGuard
+15. ARP
+16. GRE
+17. ICMP
+18. ICMPv6
+19. IGMP（支援 IGMPv1、IGMPv2 和 IGMPv3）
+20. IPv4
+21. IPv6
+22. MPLS
+23. NDP
+24. Raw IP（IPv4 和 IPv6）
+25. VRRP（IPv4 和 IPv6）
+26. WireGuard
 
 ### 傳輸層 (L4)
 
-26. COTP
-27. GTP (v1 & v2)
-28. IPSec AH 和 ESP - 僅支援解析（不支援編輯）
-29. TCP
-30. TPKT
-31. UDP
+27. COTP
+28. GTP (v1 & v2)
+29. IPSec AH 和 ESP - 僅支援解析（不支援編輯）
+30. TCP
+31. TPKT
+32. UDP
 
 ### 對話層 (L5)
 
-32. SDP
-33. SIP
+33. SDP
+34. SIP
 
 ### 表示層 (L6)
 
-34. SSL/TLS - 僅支援解析（不支援編輯）
+35. SSL/TLS - 僅支援解析（不支援編輯）
 
 ### 應用層 (L7)
 
-35. ASN.1 編碼器與解碼器
-36. BGP (v4)
-37. DHCP
-38. DHCPv6
-39. DNS
-40. FTP
-41. HTTP 標頭（請求和響應）
-42. LDAP
-43. NTP (v3, v4)
-44. Radius
-45. S7 通訊（S7comm）
-46. SMTP
-47. SOME/IP
-48. SSH - 僅支援解析（不支援編輯）
-49. Telnet - 僅支援解析（不支援編輯）
-50. 通用酬載（Generic Payload）
+36. ASN.1 編碼器與解碼器
+37. BGP (v4)
+38. 加密金鑰解碼器
+39. DHCP
+40. DHCPv6
+41. DNS
+42. DoIP
+43. FTP
+44. HTTP 標頭（請求和響應）
+45. LDAP
+46. Modbus
+47. MySQL - 僅支援解析（不支援編輯）
+48. NTP (v3, v4)
+49. PEM 編碼器與解碼器
+50. PostgreSQL Wire Protocol (PGWire) - 僅支援解析（不支援編輯）
+51. Radius
+52. S7 通訊（S7comm）
+53. SMTP
+54. SOME/IP
+55. SSH - 僅支援解析（不支援編輯）
+56. Telnet - 僅支援解析（不支援編輯）
+57. X509 憑證 - 僅支援解析（不支援編輯）
+58. 通用酬載（Generic Payload）
 
 ## DPDK 和 PF_RING 支援
 

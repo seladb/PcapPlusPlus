@@ -11,9 +11,7 @@ namespace pcpp
 
 	IgmpLayer::IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer)
 	{
-		m_DataLen = getHeaderSizeByVerAndType(igmpVer, type);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(getHeaderSizeByVerAndType(igmpVer, type));
 		m_Protocol = igmpVer;
 
 		setType(type);

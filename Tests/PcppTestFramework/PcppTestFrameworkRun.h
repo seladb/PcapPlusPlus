@@ -62,7 +62,8 @@ static bool __ptfCheckTags(const std::string& tagSet, const std::string& tagSetT
 	{                                                                                                                  \
 		if (showSkippedTests)                                                                                          \
 		{                                                                                                              \
-			std::cout << std::left << std::setw(35) << #TestName << ": SKIPPED (tags don't match)" << std::endl;       \
+			std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << #TestName << ": SKIPPED (tags don't match)"     \
+			          << std::endl;                                                                                    \
 		}                                                                                                              \
 		TestName##_result = PTF_RESULT_SKIPPED;                                                                        \
 	}                                                                                                                  \
@@ -82,7 +83,8 @@ static bool __ptfCheckTags(const std::string& tagSet, const std::string& tagSetT
 		catch (std::exception const& e)                                                                                \
 		{                                                                                                              \
 			TestName##_result = PTF_RESULT_FAILED;                                                                     \
-			std::cout << std::left << std::setw(35) << #TestName << ": FAILED. Unhandled exception occurred! "         \
+			std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << #TestName                                       \
+			          << ": FAILED. Unhandled exception occurred! "                                                    \
 			          << "Exception: " << e.what() << std::endl;                                                       \
 		}                                                                                                              \
 		if (runMemLeakCheck)                                                                                           \
@@ -100,14 +102,15 @@ static bool __ptfCheckTags(const std::string& tagSet, const std::string& tagSetT
 				if (memLeakCount > 0 || memLeakSize > 0)                                                               \
 				{                                                                                                      \
 					TestName##_result = PTF_RESULT_FAILED;                                                             \
-					std::cout << std::left << std::setw(35) << #TestName << ": FAILED. Memory leak found! "            \
-					          << memLeakCount << " objects and " << memLeakSize << "[bytes] leaked" << std::endl;      \
+					std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << #TestName                               \
+					          << ": FAILED. Memory leak found! " << memLeakCount << " objects and " << memLeakSize     \
+					          << "[bytes] leaked" << std::endl;                                                        \
 				}                                                                                                      \
 			}                                                                                                          \
 		}                                                                                                              \
 		if (TestName##_result == PTF_RESULT_PASSED)                                                                    \
 		{                                                                                                              \
-			std::cout << std::left << std::setw(35) << #TestName << ": PASSED" << std::endl;                           \
+			std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << #TestName << ": PASSED" << std::endl;           \
 		}                                                                                                              \
 	}                                                                                                                  \
 	if (TestName##_result == PTF_RESULT_PASSED)                                                                        \

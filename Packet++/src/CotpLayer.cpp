@@ -10,9 +10,7 @@ namespace pcpp
 	pcpp::CotpLayer::CotpLayer(uint8_t tpduNumber)
 	{
 		const size_t headerLen = sizeof(cotphdr);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 		cotphdr* cotpHdr = getCotpHeader();
 		cotpHdr->length = 0x02;
 		cotpHdr->pduType = 0x0f;

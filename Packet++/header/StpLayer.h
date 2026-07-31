@@ -125,9 +125,7 @@ namespace pcpp
 
 		explicit StpLayer(size_t dataLen)
 		{
-			m_DataLen = dataLen;
-			m_Data = new uint8_t[dataLen];
-			memset(m_Data, 0, dataLen);
+			allocData(dataLen);
 			m_Protocol = STP;
 		}
 

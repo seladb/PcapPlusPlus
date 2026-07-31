@@ -439,9 +439,7 @@ namespace pcpp
 	                             uint8_t interfaceVersion, MsgType type, uint8_t returnCode, uint8_t flags)
 	{
 		m_Protocol = SomeIP;
-		m_DataLen = sizeof(someipsdhdr) + 2 * sizeof(uint32_t);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(someipsdhdr) + 2 * sizeof(uint32_t));
 
 		m_NumOptions = 0;
 
