@@ -35,11 +35,11 @@ jobs:
       - name: Install dependencies
         run: |
           apk update && apk add python3-dev
-          
+
       - name: Install cppcheck ${{ env.CPPCHECK_VERSION }}
         run: |
           git clone --branch $CPPCHECK_VERSION --single-branch https://github.com/cppcheck-opensource/cppcheck.git
-          cd cppcheck && mkdir build && cd build && cmake .. && cmake --build . && cmake --install . && cd ../../ && rm -rf cppcheck  
+          cd cppcheck && mkdir build && cd build && cmake .. && cmake --build . && cmake --install . && cd ../../ && rm -rf cppcheck
 
       - name: Setup pre-commit environment
         run: |
