@@ -22,14 +22,14 @@ namespace pcpp
 	{
 		struct xsk_ring_prod fq;
 		struct xsk_ring_cons cq;
-		struct xsk_umem* umem;
+		struct xsk_umem* umem = nullptr;
 	};
 
 	struct xsk_socket_info
 	{
 		struct xsk_ring_cons rx;
 		struct xsk_ring_prod tx;
-		struct xsk_socket* xsk;
+		struct xsk_socket* xsk = nullptr;
 	};
 
 #define DEFAULT_UMEM_NUM_FRAMES (XSK_RING_PROD__DEFAULT_NUM_DESCS * 2)
