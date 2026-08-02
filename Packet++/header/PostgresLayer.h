@@ -349,17 +349,17 @@ namespace pcpp
 			/// Column name
 			std::string name;
 			/// Table OID (0 if not from a table column)
-			uint32_t tableOID;
+			uint32_t tableOID = 0;
 			/// Column index within the table
-			uint16_t columnIndex;
+			uint16_t columnIndex = 0;
 			/// Data type OID
-			uint32_t typeOID;
+			uint32_t typeOID = 0;
 			/// Type size (-1 for variable length)
-			int16_t typeSize;
+			int16_t typeSize = 0;
 			/// Type modifier (-1 if none)
-			int32_t typeModifier;
+			int32_t typeModifier = -1;
 			/// Format
-			PostgresColumnFormat format;
+			PostgresColumnFormat format = PostgresColumnFormat::Unknown;
 		};
 
 		/// A constructor that creates the layer from an existing packet raw data
