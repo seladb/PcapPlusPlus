@@ -18,6 +18,10 @@
 namespace pcpp
 {
 
+	// xsk_*_info are currently initialized via memset.
+	// Adding a default member initializer causes compile error. This should probably be fixed eventually.
+	// cppcheck-suppress-begin uninitMemberVarNoCtor
+
 	struct xsk_umem_info
 	{
 		struct xsk_ring_prod fq;
@@ -31,6 +35,8 @@ namespace pcpp
 		struct xsk_ring_prod tx;
 		struct xsk_socket* xsk;
 	};
+
+	// cppcheck-suppress-end uninitMemberVarNoCtor
 
 #define DEFAULT_UMEM_NUM_FRAMES (XSK_RING_PROD__DEFAULT_NUM_DESCS * 2)
 #define DEFAULT_FILL_RING_SIZE (XSK_RING_PROD__DEFAULT_NUM_DESCS * 2)
