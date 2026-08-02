@@ -388,7 +388,7 @@ namespace pcpp
 	void TextBasedProtocolMessage::validateFieldsOffset(int offset) const
 	{
 		if (offset < 0 || static_cast<size_t>(offset) > m_DataLen)
-			throw std::invalid_argument(
+			throw std::out_of_range(
 			    "Field offset must be greater or equal to zero and less than or equal to the data length");
 	}
 
