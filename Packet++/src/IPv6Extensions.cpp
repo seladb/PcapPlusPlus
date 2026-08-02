@@ -96,20 +96,26 @@ namespace pcpp
 
 	IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::IPv6TLVOptionBuilder::build() const
 	{
-		size_t optionTotalSize = sizeof(uint8_t);
-		uint8_t recType = static_cast<uint8_t>(m_RecType);
-		if (recType != IPv6TLVOptionHeader::IPv6Option::Pad0OptionType)
-			optionTotalSize += sizeof(uint8_t) + m_RecValueLen;
+		auto recType = static_cast<uint8_t>(m_RecType);
+		bool isPad0 = (recType == IPv6Option::Pad0OptionType);
 
-		uint8_t* recordBuffer = new uint8_t[optionTotalSize];
+		size_t optionTotalSize = sizeof(uint8_t);
+		if (!isPad0)
+		{
+			optionTotalSize += sizeof(uint8_t) + m_RecValueLen;
+		}
+
+		auto* recordBuffer = new uint8_t[optionTotalSize];
 		memset(recordBuffer, 0, optionTotalSize);
 
-		if (m_RecType != IPv6TLVOptionHeader::IPv6Option::Pad0OptionType)
+		if (!isPad0)
 		{
 			recordBuffer[0] = recType;
 			recordBuffer[1] = static_cast<uint8_t>(m_RecValueLen);
 			if (m_RecValueLen > 0)
+			{
 				memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
+			}
 		}
 
 		return IPv6Option(recordBuffer);
