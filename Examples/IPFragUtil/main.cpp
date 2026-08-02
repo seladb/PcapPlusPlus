@@ -514,8 +514,7 @@ int main(int argc, char* argv[])
 
 	if (auto pcapReader = dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get()))
 	{
-		writer = std::make_unique<pcpp::PcapFileWriterDevice>(
-		    outputFile, pcapReader->getLinkLayerType());
+		writer = std::make_unique<pcpp::PcapFileWriterDevice>(outputFile, pcapReader->getLinkLayerType());
 	}
 	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr)
 	{
