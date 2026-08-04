@@ -18,4 +18,6 @@ missingOverride:Pcap++/*
 missingOverride:Examples/*
 cstyleCast:*
 
-uninitMemberVarNoConstructor:Examples/*
+uninitMemberVarNoCtor:Examples/*
+functionStatic:Examples/*
+constParameterReference:Examples/*
