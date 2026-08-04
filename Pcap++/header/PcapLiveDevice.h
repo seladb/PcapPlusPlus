@@ -322,8 +322,8 @@ namespace pcpp
 			/// minimal packet delivery latency. On Linux, immediate mode also forces a less efficient capture
 			/// path (TPACKET_V2 with non-blocking polling, instead of TPACKET_V3 with blocking, batched reads),
 			/// which can hurt throughput and CPU usage at high packet rates. Setting this to true trades some
-			/// added latency, up to packetBufferTimeoutMs (or 100 ms on Linux/Windows if not set), for better
-			/// throughput and lower CPU usage on Linux.
+			/// added latency (up to packetBufferTimeoutMs, or 100 ms on Linux/Windows if not set) for those
+			/// throughput and CPU benefits.
 			/// Default value is false.
 			bool disableImmediateMode;
 
@@ -347,9 +347,9 @@ namespace pcpp
 			/// for each packet (not all platforms support this). Default provider is Host.
 			/// @param[in] timestampPrecision The timestamp precision (not all platforms support this).
 			/// Default precision is Microseconds.
-			/// @param[in] disableImmediateMode Disable libpcap's immediate mode, trading some added latency, up
-			/// to packetBufferTimeoutMs (or 100 ms on Linux/Windows if not set), for better throughput and
-			/// lower CPU usage on Linux. Default value is false (immediate mode enabled).
+			/// @param[in] disableImmediateMode Disable libpcap's immediate mode, trading some added latency (up
+			/// to packetBufferTimeoutMs, or 100 ms on Linux/Windows if not set) for the throughput and CPU
+			/// benefits described above. Default value is false (immediate mode enabled).
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
 			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
 			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false,
