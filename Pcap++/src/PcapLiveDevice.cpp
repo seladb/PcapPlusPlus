@@ -65,6 +65,11 @@
 #	define LIBPCAP_OPEN_LIVE_TIMEOUT -1
 #endif
 
+// With immediate mode disabled the packet buffer timeout governs delivery latency, and libpcap documents
+// non-positive timeouts as having unpredictable, platform-dependent behavior (on Linux the -1 default above
+// can delay delivery until a ring block fills), so a positive fallback is required in that case
+static const int NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT = 100;
+
 static const char* NFLOG_IFACE = "nflog";
 static const int DEFAULT_SNAPLEN = 9000;
 
@@ -660,7 +665,11 @@ namespace pcpp
 			throw std::runtime_error("Cannot set promiscuous mode, error was: " + std::string(pcap.getLastError()));
 		}
 
-		int timeout = (config.packetBufferTimeoutMs <= 0 ? LIBPCAP_OPEN_LIVE_TIMEOUT : config.packetBufferTimeoutMs);
+		int timeout = config.packetBufferTimeoutMs;
+		if (timeout <= 0)
+		{
+			timeout = config.disableImmediateMode ? NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT : LIBPCAP_OPEN_LIVE_TIMEOUT;
+		}
 		ret = pcap_set_timeout(pcap.get(), timeout);
 		if (ret != 0)
 		{
@@ -683,7 +692,7 @@ namespace pcpp
 			if (ret != 0)
 			{
 				throw std::runtime_error("Cannot set immediate mode, error was: " +
-				                          std::string(pcap.getLastError()));
+				                         std::string(pcap.getLastError()));
 			}
 		}
 #endif
