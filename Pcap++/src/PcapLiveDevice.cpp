@@ -667,12 +667,9 @@ namespace pcpp
 		int timeout = config.packetBufferTimeoutMs;
 		if (timeout <= 0)
 		{
-			timeout = LIBPCAP_OPEN_LIVE_TIMEOUT;
-			// FreeBSD/macOS already have a positive timeout above for the pcap_breakloop() workaround
-			if (config.disableImmediateMode && timeout <= 0)
-			{
-				timeout = NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT;
-			}
+			// FreeBSD/macOS already have a positive LIBPCAP_OPEN_LIVE_TIMEOUT for the pcap_breakloop() workaround
+			bool useNonImmediateModeDefault = config.disableImmediateMode && LIBPCAP_OPEN_LIVE_TIMEOUT <= 0;
+			timeout = useNonImmediateModeDefault ? NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT : LIBPCAP_OPEN_LIVE_TIMEOUT;
 		}
 		ret = pcap_set_timeout(pcap.get(), timeout);
 		if (ret != 0)
