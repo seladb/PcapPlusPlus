@@ -231,7 +231,7 @@ namespace pcpp
 		}
 
 		/// @brief Reserve storage for the vector.
-		/// @param[in] size The number of elements to reserve space for.
+		/// @param[in] newSize The number of elements to reserve space for.
 		/// @remarks This method ensures that the vector can hold at least the specified number of elements
 		/// without requiring a reallocation.
 		void reserve(size_t newSize)
