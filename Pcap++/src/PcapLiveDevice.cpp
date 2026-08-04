@@ -65,9 +65,8 @@
 #	define LIBPCAP_OPEN_LIVE_TIMEOUT -1
 #endif
 
-// With immediate mode disabled the packet buffer timeout governs delivery latency, and libpcap documents
-// non-positive timeouts as having unpredictable, platform-dependent behavior (on Linux the -1 default above
-// can delay delivery until a ring block fills), so a positive fallback is required in that case
+// Fallback used on Linux/Windows (where LIBPCAP_OPEN_LIVE_TIMEOUT is -1) when immediate mode is disabled and
+// packetBufferTimeoutMs isn't set, since libpcap's timeout behavior is unpredictable without immediate mode
 static const int NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT = 100;
 
 static const char* NFLOG_IFACE = "nflog";
@@ -669,8 +668,7 @@ namespace pcpp
 		if (timeout <= 0)
 		{
 			timeout = LIBPCAP_OPEN_LIVE_TIMEOUT;
-			// LIBPCAP_OPEN_LIVE_TIMEOUT is only non-positive on Linux/Windows; FreeBSD/macOS already use a small
-			// positive value to work around the pcap_breakloop() issue noted above, so leave those untouched
+			// FreeBSD/macOS already have a positive timeout above for the pcap_breakloop() workaround
 			if (config.disableImmediateMode && timeout <= 0)
 			{
 				timeout = NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT;
