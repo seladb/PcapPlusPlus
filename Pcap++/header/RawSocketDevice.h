@@ -2,6 +2,7 @@
 
 /// @file
 
+#include <memory>
 #include "IpAddress.h"
 #include "Device.h"
 
@@ -130,6 +131,8 @@ namespace pcpp
 		}
 
 	private:
+		struct SocketContainer;
+
 		enum SocketFamily
 		{
 			Ethernet = 0,
@@ -140,7 +143,7 @@ namespace pcpp
 		bool m_DeviceOpened = false;
 
 		SocketFamily m_SockFamily;
-		void* m_Socket;
+		std::unique_ptr<SocketContainer> m_Socket;
 		IPAddress m_InterfaceIP;
 
 		RecvPacketResult getError(int& errorCode) const;
