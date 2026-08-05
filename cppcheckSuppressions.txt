@@ -22,3 +22,6 @@ cstyleCast:*
 uninitMemberVarNoCtor:Examples/*
 functionStatic:Examples/*
 constParameterReference:Examples/*
+
+noOperatorEq:Tests/
+noCopyConstructor:Tests/
