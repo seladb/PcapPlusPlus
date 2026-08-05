@@ -31,7 +31,7 @@ namespace pcpp
 
 	SomeIpSdOption::someipsdhdroptionsbase* SomeIpSdOption::getSomeIpSdOptionHeader() const
 	{
-		return (someipsdhdroptionsbase*)getDataPtr();
+		return reinterpret_cast<someipsdhdroptionsbase*>(getDataPtr());
 	}
 
 	void SomeIpSdOption::initStdFields(OptionType type)
@@ -65,7 +65,7 @@ namespace pcpp
 			break;
 		}
 
-		someipsdhdroptionsipv4* hdr = (someipsdhdroptionsipv4*)getDataPtr();
+		someipsdhdroptionsipv4* hdr = reinterpret_cast<someipsdhdroptionsipv4*>(getDataPtr());
 		hdr->ipv4Address = ipAddress.toInt();
 		hdr->portNumber = htobe16(port);
 		hdr->l4Protocol = l4Protocol;
@@ -79,7 +79,7 @@ namespace pcpp
 
 	IPv4Address SomeIpSdIPv4Option::getIpAddress() const
 	{
-		someipsdhdroptionsipv4* hdr = (someipsdhdroptionsipv4*)getDataPtr();
+		someipsdhdroptionsipv4* hdr = reinterpret_cast<someipsdhdroptionsipv4*>(getDataPtr());
 		IPv4Address ipAddr(hdr->ipv4Address);
 
 		return ipAddr;
@@ -87,13 +87,13 @@ namespace pcpp
 
 	uint16_t SomeIpSdIPv4Option::getPort() const
 	{
-		someipsdhdroptionsipv4* hdr = (someipsdhdroptionsipv4*)getDataPtr();
+		someipsdhdroptionsipv4* hdr = reinterpret_cast<someipsdhdroptionsipv4*>(getDataPtr());
 		return be16toh(hdr->portNumber);
 	}
 
 	SomeIpSdProtocolType SomeIpSdIPv4Option::getProtocol() const
 	{
-		someipsdhdroptionsipv4* hdr = (someipsdhdroptionsipv4*)getDataPtr();
+		someipsdhdroptionsipv4* hdr = reinterpret_cast<someipsdhdroptionsipv4*>(getDataPtr());
 		return hdr->l4Protocol;
 	}
 
@@ -119,7 +119,7 @@ namespace pcpp
 			break;
 		}
 
-		someipsdhdroptionsipv6* hdr = (someipsdhdroptionsipv6*)getDataPtr();
+		someipsdhdroptionsipv6* hdr = reinterpret_cast<someipsdhdroptionsipv6*>(getDataPtr());
 		std::memcpy(hdr->ipv6Address, ipAddress.toBytes(), 16);
 		hdr->portNumber = htobe16(port);
 		hdr->l4Protocol = l4Protocol;
@@ -133,7 +133,7 @@ namespace pcpp
 
 	IPv6Address SomeIpSdIPv6Option::getIpAddress() const
 	{
-		someipsdhdroptionsipv6* hdr = (someipsdhdroptionsipv6*)getDataPtr();
+		someipsdhdroptionsipv6* hdr = reinterpret_cast<someipsdhdroptionsipv6*>(getDataPtr());
 		IPv6Address ipAddr(hdr->ipv6Address);
 
 		return ipAddr;
@@ -141,13 +141,13 @@ namespace pcpp
 
 	uint16_t SomeIpSdIPv6Option::getPort() const
 	{
-		someipsdhdroptionsipv6* hdr = (someipsdhdroptionsipv6*)getDataPtr();
+		someipsdhdroptionsipv6* hdr = reinterpret_cast<someipsdhdroptionsipv6*>(getDataPtr());
 		return be16toh(hdr->portNumber);
 	}
 
 	SomeIpSdProtocolType SomeIpSdIPv6Option::getProtocol() const
 	{
-		someipsdhdroptionsipv6* hdr = (someipsdhdroptionsipv6*)getDataPtr();
+		someipsdhdroptionsipv6* hdr = reinterpret_cast<someipsdhdroptionsipv6*>(getDataPtr());
 		return hdr->l4Protocol;
 	}
 
@@ -186,7 +186,7 @@ namespace pcpp
 
 		initStdFields(OptionType::LoadBalancing);
 
-		someipsdhdroptionsload* hdr = (someipsdhdroptionsload*)getDataPtr();
+		someipsdhdroptionsload* hdr = reinterpret_cast<someipsdhdroptionsload*>(getDataPtr());
 		hdr->priority = htobe16(priority);
 		hdr->weight = htobe16(weight);
 	}
@@ -199,13 +199,13 @@ namespace pcpp
 
 	uint16_t SomeIpSdLoadBalancingOption::getPriority() const
 	{
-		someipsdhdroptionsload* hdr = (someipsdhdroptionsload*)getDataPtr();
+		someipsdhdroptionsload* hdr = reinterpret_cast<someipsdhdroptionsload*>(getDataPtr());
 		return be16toh(hdr->priority);
 	}
 
 	uint16_t SomeIpSdLoadBalancingOption::getWeight() const
 	{
-		someipsdhdroptionsload* hdr = (someipsdhdroptionsload*)getDataPtr();
+		someipsdhdroptionsload* hdr = reinterpret_cast<someipsdhdroptionsload*>(getDataPtr());
 		return be16toh(hdr->weight);
 	}
 
@@ -294,7 +294,7 @@ namespace pcpp
 
 	SomeIpSdEntry::someipsdhdrentry* SomeIpSdEntry::getSomeIpSdEntryHeader() const
 	{
-		return (someipsdhdrentry*)getDataPtr();
+		return reinterpret_cast<someipsdhdrentry*>(getDataPtr());
 	}
 
 	uint32_t SomeIpSdEntry::getNumOptions() const
@@ -360,7 +360,7 @@ namespace pcpp
 
 	uint8_t SomeIpSdEntry::getCounter() const
 	{
-		return (uint8_t)((be32toh(getSomeIpSdEntryHeader()->data) >> 16) & 0x0F);
+		return static_cast<uint8_t>((be32toh(getSomeIpSdEntryHeader()->data) >> 16) & 0x0F);
 	}
 
 	void SomeIpSdEntry::setCounter(uint8_t counter)
@@ -371,7 +371,7 @@ namespace pcpp
 
 	uint16_t SomeIpSdEntry::getEventgroupId() const
 	{
-		return (uint16_t)(be32toh(getSomeIpSdEntryHeader()->data) & 0x0000FFFF);
+		return static_cast<uint16_t>(be32toh(getSomeIpSdEntryHeader()->data) & 0x0000FFFF);
 	}
 
 	void SomeIpSdEntry::setEventgroupId(uint16_t eventgroupID)
@@ -457,19 +457,19 @@ namespace pcpp
 
 	uint8_t SomeIpSdLayer::getFlags() const
 	{
-		someipsdhdr* hdr = (someipsdhdr*)m_Data;
+		someipsdhdr* hdr = reinterpret_cast<someipsdhdr*>(m_Data);
 		return hdr->flags;
 	}
 
 	void SomeIpSdLayer::setFlags(uint8_t flags)
 	{
-		someipsdhdr* hdr = (someipsdhdr*)m_Data;
+		someipsdhdr* hdr = reinterpret_cast<someipsdhdr*>(m_Data);
 		hdr->flags = flags;
 	}
 
 	uint32_t SomeIpSdLayer::getNumEntries() const
 	{
-		return (uint32_t)(getLenEntries() / sizeof(SomeIpSdEntry::someipsdhdrentry));
+		return static_cast<uint32_t>(getLenEntries() / sizeof(SomeIpSdEntry::someipsdhdrentry));
 	}
 
 	uint32_t SomeIpSdLayer::getNumOptions() const
@@ -514,7 +514,8 @@ namespace pcpp
 
 		while (remainingLen > 0)
 		{
-			SomeIpSdOption::someipsdhdroptionsbase* hdr = (SomeIpSdOption::someipsdhdroptionsbase*)(m_Data + offset);
+			SomeIpSdOption::someipsdhdroptionsbase* hdr =
+			    reinterpret_cast<SomeIpSdOption::someipsdhdroptionsbase*>(m_Data + offset);
 			SomeIpSdOption::OptionType optionType = static_cast<SomeIpSdOption::OptionType>(hdr->type);
 
 			option = parseOption(optionType, offset, remainingLen);
@@ -544,7 +545,8 @@ namespace pcpp
 		size_t offset = sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries() + sizeof(uint32_t);
 
 		size_t offsetToEntry = sizeof(someipsdhdr) + sizeof(uint32_t) + index * sizeof(SomeIpSdEntry::someipsdhdrentry);
-		SomeIpSdEntry::someipsdhdrentry* hdrEntry = (SomeIpSdEntry::someipsdhdrentry*)(m_Data + offsetToEntry);
+		SomeIpSdEntry::someipsdhdrentry* hdrEntry =
+		    reinterpret_cast<SomeIpSdEntry::someipsdhdrentry*>(m_Data + offsetToEntry);
 		uint8_t startIdxRun1 = hdrEntry->indexFirstOption;
 		uint8_t lenRun1 = hdrEntry->nrOpt1;
 		uint8_t startIdxRun2 = hdrEntry->indexSecondOption;
@@ -555,7 +557,7 @@ namespace pcpp
 		while (remainingLen > 0)
 		{
 			SomeIpSdOption::someipsdhdroptionsbase* hdrOption =
-			    (SomeIpSdOption::someipsdhdroptionsbase*)(m_Data + offset);
+			    reinterpret_cast<SomeIpSdOption::someipsdhdroptionsbase*>(m_Data + offset);
 
 			if (((idx >= startIdxRun1) && (idx < (startIdxRun1 + lenRun1))) ||
 			    ((idx >= startIdxRun2) && (idx < (startIdxRun2 + lenRun2))))
@@ -655,7 +657,8 @@ namespace pcpp
 			if (len + sizeof(uint16_t) + 3 * sizeof(uint8_t) > lenOptions)
 				return false;
 
-			uint32_t lenOption = be16toh(*((uint16_t*)(data + offsetOption + len))) + 3 * sizeof(uint8_t);
+			uint32_t lenOption =
+			    be16toh(*(reinterpret_cast<uint16_t const*>(data + offsetOption + len))) + 3 * sizeof(uint8_t);
 			len += lenOption;
 			if (len > lenOptions)  // the last one must be equal to lenOptions
 				return false;
@@ -672,7 +675,7 @@ namespace pcpp
 		uint32_t i = 0;
 		while (i < m_NumOptions)
 		{
-			uint32_t lenOption = be16toh(*((uint16_t*)(m_Data + offsetOption))) + 3 * sizeof(uint8_t);
+			uint32_t lenOption = be16toh(*(reinterpret_cast<uint16_t*>(m_Data + offsetOption))) + 3 * sizeof(uint8_t);
 
 			if (option.getLength() == lenOption)
 			{
@@ -717,7 +720,7 @@ namespace pcpp
 
 		const size_t someipsdhdrentrySize = sizeof(SomeIpSdEntry::someipsdhdrentry);
 		size_t offsetToAddAt = sizeof(someipsdhdr) + sizeof(uint32_t) + indexEntry * someipsdhdrentrySize;
-		auto hdrEntry = (SomeIpSdEntry::someipsdhdrentry*)(m_Data + offsetToAddAt);
+		auto hdrEntry = reinterpret_cast<SomeIpSdEntry::someipsdhdrentry*>(m_Data + offsetToAddAt);
 
 		uint8_t indexFirstOption = hdrEntry->indexFirstOption;
 		uint8_t lenFirstOption = hdrEntry->nrOpt1;
@@ -808,7 +811,7 @@ namespace pcpp
 
 	size_t SomeIpSdLayer::getLenEntries(const uint8_t* data)
 	{
-		return be32toh(*((uint32_t*)(data + sizeof(someipsdhdr))));
+		return be32toh(*(reinterpret_cast<const uint32_t*>(data + sizeof(someipsdhdr))));
 	}
 
 	size_t SomeIpSdLayer::getLenOptions() const
@@ -818,16 +821,18 @@ namespace pcpp
 
 	size_t SomeIpSdLayer::getLenOptions(const uint8_t* data)
 	{
-		return be32toh(*((uint32_t*)(data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data))));
+		return be32toh(
+		    *(reinterpret_cast<const uint32_t*>(data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data))));
 	}
 
 	void SomeIpSdLayer::setLenEntries(uint32_t length)
 	{
-		*((uint32_t*)(m_Data + sizeof(someipsdhdr))) = htobe32(length);
+		*(reinterpret_cast<uint32_t*>(m_Data + sizeof(someipsdhdr))) = htobe32(length);
 	}
 
 	void SomeIpSdLayer::setLenOptions(uint32_t length)
 	{
-		*((uint32_t*)(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries())) = htobe32(length);
+		*(reinterpret_cast<uint32_t*>(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries())) =
+		    htobe32(length);
 	}
 }  // namespace pcpp
