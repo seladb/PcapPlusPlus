@@ -22,6 +22,7 @@
  * For more details about modes of operation and parameters run TcpReassembly -h
  */
 
+#include <memory>
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
@@ -85,7 +86,7 @@ private:
 	// A least-recently-used (LRU) list of all connections seen so far. Each connection is represented by its flow key.
 	// This LRU list is used to decide which connection was seen least recently in case we reached max number of open
 	// file descriptors and we need to decide which files to close
-	pcpp::LRUList<uint32_t>* m_RecentConnsWithActivity;
+	std::unique_ptr<pcpp::LRUList<uint32_t>> m_RecentConnsWithActivity;
 
 public:
 	// a flag indicating whether to write a metadata file for each connection (containing several stats)
@@ -160,7 +161,7 @@ public:
 		if (!writeToConsole)
 		{
 			// close the file stream
-			auto fstream = (std::ofstream*)fileStream;
+			auto fstream = dynamic_cast<std::ofstream*>(fileStream);
 			fstream->close();
 
 			// free the memory of the file stream
@@ -177,10 +178,10 @@ public:
 		// the side of the LRU list is determined by the max number of allowed open files at any point in time. Default
 		// is DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES but the user can choose another number
 		if (m_RecentConnsWithActivity == nullptr)
-			m_RecentConnsWithActivity = new pcpp::LRUList<uint32_t>(maxOpenFiles);
+			m_RecentConnsWithActivity = std::make_unique<pcpp::LRUList<uint32_t>>(maxOpenFiles);
 
 		// return the pointer
-		return m_RecentConnsWithActivity;
+		return m_RecentConnsWithActivity.get();
 	}
 
 	/**
@@ -190,14 +191,6 @@ public:
 	{
 		static GlobalConfig instance;
 		return instance;
-	}
-
-	/**
-	 * d'tor
-	 */
-	~GlobalConfig()
-	{
-		delete m_RecentConnsWithActivity;
 	}
 };
 
