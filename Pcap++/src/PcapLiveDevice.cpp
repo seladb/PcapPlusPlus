@@ -1654,7 +1654,7 @@ namespace pcpp
 		struct BSDRoutingMessage
 		{
 			struct rt_msghdr header;
-			char messageSpace[512];
+			char messageSpace[512];  // cppcheck-suppress uninitMemberVarNoCtor
 		};
 
 		struct BSDRoutingMessage routingMessage;
