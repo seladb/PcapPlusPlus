@@ -11,7 +11,6 @@ env:
   BUILD_DIR: Dist
   GCOVR_FLAGS: --gcov-ignore-errors all --gcov-ignore-parse-errors all --merge-mode-functions=separate --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
   CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CPPCHECK_VERSION: 2.9.3
 
 permissions:
   contents: read
@@ -23,7 +22,7 @@ concurrency:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
-    container: ghcr.io/dimi1010/alpine320-cppcheck:${{ env.CPPCHECK_VERSION }}
+    container: ghcr.io/dimi1010/alpine320-cppcheck:2.9.3
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
