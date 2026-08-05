@@ -26,8 +26,10 @@ namespace pcpp
 			TRecType recordType;
 			/// Record length in bytes
 			TRecLen recordLen;
+
+			// NOTE: Flexible array members are not part of the C++ standard and require compiler extension.
 			/// Record value (variable size)
-			uint8_t recordValue[];
+			uint8_t recordValue[];  // cppcheck-suppress uninitMemberVarNoCtor
 		};
 #pragma pack(pop)
 
