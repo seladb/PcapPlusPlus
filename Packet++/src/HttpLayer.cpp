@@ -206,7 +206,8 @@ namespace pcpp
 		{
 			std::string method =
 			    m_Method == HttpRequestLayer::HttpMethodUnknown ? "Unknown" : MethodEnumToString[m_Method];
-			PCPP_LOG_DEBUG("Method='" << method << "'; " << "HTTP version='" << VersionEnumToString[m_Version] << "'; "
+			PCPP_LOG_DEBUG("Method='" << method << "'; "
+			                          << "HTTP version='" << VersionEnumToString[m_Version] << "'; "
 			                          << "URI='" << getUri() << "'");
 		}
 	}

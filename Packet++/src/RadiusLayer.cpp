@@ -149,7 +149,8 @@ namespace pcpp
 		    << (int)getRadiusHeader()->code
 		    << "), "
 		       "Id="
-		    << (int)getRadiusHeader()->id << ", " << "Length=" << be16toh(getRadiusHeader()->length);
+		    << (int)getRadiusHeader()->id << ", "
+		    << "Length=" << be16toh(getRadiusHeader()->length);
 
 		return str.str();
 	}

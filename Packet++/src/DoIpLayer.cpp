@@ -1036,8 +1036,8 @@ namespace pcpp
 		oss << "Currently Opened Socket: " << static_cast<unsigned>(getCurrentlyOpenSockets()) << "\n";
 		if (hasMaxDataSize())
 		{
-			oss << "Max Data Size: " << "0x"
-			    << pcpp::byteArrayToHexString((m_Data + MAX_DATA_SIZE_OFFSET), MAX_DATA_SIZE_LEN) << "\n";
+			oss << "Max Data Size: "
+			    << "0x" << pcpp::byteArrayToHexString((m_Data + MAX_DATA_SIZE_OFFSET), MAX_DATA_SIZE_LEN) << "\n";
 		}
 		return oss.str();
 	}
