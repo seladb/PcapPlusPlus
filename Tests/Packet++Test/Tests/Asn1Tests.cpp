@@ -468,6 +468,44 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->toString(), "BitString, Length: 2+3, Value: 1011001011");
 	}
 
+	// Empty BitString
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030100", data, 20);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::BitString, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 3);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 1);
+		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getValue(), "");
+		PTF_ASSERT_VECTORS_EQUAL(record->castAs<pcpp::Asn1BitStringRecord>()->getVecValue(), std::vector<uint8_t>());
+		PTF_ASSERT_EQUAL(record->toString(), "BitString, Length: 2+1, Value: ");
+	}
+
+	// BitString with no value
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("0300", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen, false), std::invalid_argument,
+		                  "Cannot decode ASN.1 BitString record, value is empty");
+	}
+
+	// BitString with more than 7 unused bits
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030308a3b5", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen, false), std::invalid_argument,
+		                  "Cannot decode ASN.1 BitString record, invalid number of unused bits");
+	}
+
+	// Empty BitString with a non-zero number of unused bits
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("030101", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen, false), std::invalid_argument,
+		                  "Cannot decode ASN.1 BitString record, invalid number of unused bits");
+	}
+
 	// Sequence
 	{
 		uint8_t data[20];

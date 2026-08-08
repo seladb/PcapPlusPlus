@@ -12,7 +12,7 @@
 namespace pcpp
 {
 
-#define PCPP_GTP_V1_GPDU_MESSAGE_TYPE 0xff
+	constexpr uint8_t GtpV1GpduMessageType = 0xff;
 
 	/// ==================
 	/// GtpExtension class
@@ -543,7 +543,7 @@ namespace pcpp
 			return false;
 		}
 
-		return header->messageType == PCPP_GTP_V1_GPDU_MESSAGE_TYPE;
+		return header->messageType == GtpV1GpduMessageType;
 	}
 
 	bool GtpV1Layer::isGTPCMessage() const
@@ -554,7 +554,7 @@ namespace pcpp
 			return false;
 		}
 
-		return header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE;
+		return header->messageType != GtpV1GpduMessageType;
 	}
 
 	void GtpV1Layer::parseNextLayer()
@@ -567,7 +567,7 @@ namespace pcpp
 		}
 
 		gtpv1_header* header = getHeader();
-		if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+		if (header->messageType != GtpV1GpduMessageType)
 		{
 			// this is a GTP-C message, hence it is the last layer
 			return;
@@ -609,7 +609,7 @@ namespace pcpp
 
 		size_t res = sizeof(gtpv1_header);
 
-		if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+		if (header->messageType != GtpV1GpduMessageType)
 		{
 			size_t msgLen = be16toh(header->messageLength);
 			res += (msgLen > m_DataLen - sizeof(gtpv1_header) ? m_DataLen - sizeof(gtpv1_header) : msgLen);
@@ -644,7 +644,7 @@ namespace pcpp
 			teidStream << be32toh(header->teid);
 
 			std::string gtpu_gtpc;
-			if (header->messageType == PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+			if (header->messageType == GtpV1GpduMessageType)
 			{
 				gtpu_gtpc = "GTP-U message";
 			}
@@ -1023,6 +1023,14 @@ namespace pcpp
 		auto* header = reinterpret_cast<const gtpv2_basic_header*>(data);
 
 		if (header->version != 2)
+		{
+			return false;
+		}
+
+		// When the TEID-present flag is set, the fixed header carries the 4-byte TEID before
+		// the sequence-number word, so the minimum length grows accordingly. Without this
+		// check accessors such as getSequenceNumber() would read past the buffer (GH #2171).
+		if (header->teidPresent && dataSize < sizeof(gtpv2_basic_header) + 2 * sizeof(uint32_t))
 		{
 			return false;
 		}
