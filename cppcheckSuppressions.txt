@@ -15,6 +15,9 @@ useStlAlgorithm:Packet++/src/Asn1Codec.cpp
 noExplicitConstructor:Pcap++/header/PcapFileDevice.h
 uninitMemberVarNoCtor:Pcap++/src/NetworkUtils.cpp
 
+// duplicated inherited function is used for static function like `DerivedLayer::isDataValid`
+duplInheritedMember:Packet++/header/StpLayer.h
+
 missingOverride:Pcap++/*
 missingOverride:Examples/*
 cstyleCast:*
