@@ -6,15 +6,14 @@
 #include "GeneralUtils.h"
 #include <cmath>
 
-/// 2^16 as a double
-#define NTP_FRIC 65536.
-/// 2^32 as a double
-#define NTP_FRAC 4294967296.
-/// Epoch offset between Unix time and NTP
-#define EPOCH_OFFSET 2208988800ULL
-
 namespace pcpp
 {
+	/// 2^16 as a double
+	constexpr double NtpFraction16Scale = 65536.;
+	/// 2^32 as a double
+	constexpr double NtpFraction32Scale = 4294967296.;
+	/// Epoch offset between Unix time and NTP
+	constexpr uint64_t NtpEpochOffset = 2208988800ULL;
 	NtpLayer::NtpLayer()
 	{
 		allocData(sizeof(ntp_header));
@@ -539,7 +538,7 @@ namespace pcpp
 	double NtpLayer::convertFromShortFormat(const uint32_t val)
 	{
 		double integerPart = netToHost16(val & 0xFFFF);
-		double fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NTP_FRIC;
+		double fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NtpFraction16Scale;
 
 		return integerPart + fractionPart;
 	}
@@ -547,11 +546,11 @@ namespace pcpp
 	double NtpLayer::convertFromTimestampFormat(const uint64_t val)
 	{
 		double integerPart = netToHost32(val & 0xFFFFFFFF);
-		double fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
+		double fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NtpFraction32Scale;
 
 		// TODO: Return integer and fraction parts as struct to increase precision
 		// Offset change should be done here because of overflow
-		return integerPart + fractionPart - EPOCH_OFFSET;
+		return integerPart + fractionPart - NtpEpochOffset;
 	}
 
 	uint32_t NtpLayer::convertToShortFormat(const double val)
@@ -561,7 +560,7 @@ namespace pcpp
 
 		// Cast values to 16bit
 		uint32_t integerPartInt = hostToNet16(integerPart);
-		uint32_t fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
+		uint32_t fractionPartInt = hostToNet16(fractionPart * NtpFraction16Scale);
 
 		return integerPartInt | (fractionPartInt << 16);
 	}
@@ -572,8 +571,8 @@ namespace pcpp
 		double fractionPart = modf(val, &integerPart);
 
 		// Cast values to 32bit
-		uint64_t integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
-		uint64_t fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
+		uint64_t integerPartInt = hostToNet32(integerPart + NtpEpochOffset);
+		uint64_t fractionPartInt = hostToNet32(fractionPart * NtpFraction32Scale);
 
 		return integerPartInt | (fractionPartInt << 32);
 	}
