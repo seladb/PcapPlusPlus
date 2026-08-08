@@ -1,5 +1,6 @@
 #include "VxlanLayer.h"
 #include "EthLayer.h"
+#include "PayloadLayer.h"
 #include "EndianPortable.h"
 
 #include <cstring>
