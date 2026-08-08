@@ -53,7 +53,7 @@ namespace pcpp
 
 		auto payload = m_Data + sizeof(vxlan_header);
 		auto payloadLen = m_DataLen - sizeof(vxlan_header);
-		constructNextLayer<EthLayer>(payload, payloadLen);
+		tryConstructNextLayerWithFallback<EthLayer, PayloadLayer>(payload, payloadLen);
 	}
 
 }  // namespace pcpp
