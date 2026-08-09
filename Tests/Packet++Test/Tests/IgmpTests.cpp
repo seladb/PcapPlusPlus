@@ -148,6 +148,29 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	curGroup = igmpv3ReportLayer->getNextGroupRecord(curGroup);
 	PTF_ASSERT_NULL(curGroup);
 	PTF_ASSERT_EQUAL(igmpv3ReportLayer->toString(), "IGMPv3 Layer, Membership Report message");
+
+	// A report layer that ends in the middle of a group record must not hand that record out.
+	// Only the start of a record was checked against the layer, so a truncated one was returned
+	// and its fields were then read past the end of the buffer.
+	{
+		uint8_t truncated[] = { // Ethernet
+			                    0x01, 0x00, 0x5e, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x08, 0x00,
+			                    // IPv4, total length 32, protocol 2 (IGMP)
+			                    0x45, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x0a, 0x00,
+			                    0x00, 0x01, 0xe0, 0x00, 0x00, 0x16,
+			                    // IGMPv3 report: 8 byte header claiming one group record, then only 4 bytes of it
+			                    0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01
+		};
+
+		timeval truncatedTime = {};
+		pcpp::RawPacket truncatedRawPacket(truncated, sizeof(truncated), truncatedTime, false, pcpp::LINKTYPE_ETHERNET);
+		pcpp::Packet truncatedPacket(&truncatedRawPacket);
+
+		auto truncatedReportLayer = truncatedPacket.getLayerOfType<pcpp::IgmpV3ReportLayer>();
+		PTF_ASSERT_NOT_NULL(truncatedReportLayer);
+		PTF_ASSERT_EQUAL(truncatedReportLayer->getGroupRecordCount(), 1);
+		PTF_ASSERT_NULL(truncatedReportLayer->getFirstGroupRecord());
+	}
 }  // Igmpv3ParsingTest
 
 PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
