@@ -171,11 +171,11 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 
 		auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u-1ext.dat");
 		auto& resource2 = rawPacketAndBuf2.resourceBuffer;
-		auto& rawPacket2 = rawPacketAndBuf2.packet;
+		// auto& rawPacket2 = rawPacketAndBuf2.packet;
 
 		auto rawPacketAndBuf3 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u-2ext.dat");
 		auto& resource3 = rawPacketAndBuf3.resourceBuffer;
-		auto& rawPacket3 = rawPacketAndBuf3.packet;
+		// auto& rawPacket3 = rawPacketAndBuf3.packet;
 
 		pcpp::Packet gtpPacket1(rawPacket1.get());
 

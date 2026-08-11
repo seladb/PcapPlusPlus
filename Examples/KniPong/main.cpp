@@ -339,7 +339,7 @@ namespace
 		egress.sin_family = AF_INET;
 		egress.sin_addr.s_addr = inet_addr(args.kniIp.c_str());
 		egress.sin_port = pcpp::hostToNet16(args.kniPort);
-		if (bind(sock, (struct sockaddr*)&egress, sizeof(egress)) == -1)
+		if (bind(sock, reinterpret_cast<struct sockaddr*>(&egress), sizeof(egress)) == -1)
 		{
 			int old_errno = errno;
 			close(sock);
@@ -484,7 +484,7 @@ namespace
 		ingress.sin_family = AF_INET;
 		ingress.sin_addr.s_addr = inet_addr(args.outIp.c_str());
 		ingress.sin_port = pcpp::hostToNet16(args.kniPort);
-		if (connect(sock, (struct sockaddr*)&ingress, sizeof(ingress)) == -1)
+		if (connect(sock, reinterpret_cast<struct sockaddr*>(&ingress), sizeof(ingress)) == -1)
 		{
 			int old_errno = errno;
 			close(sock);

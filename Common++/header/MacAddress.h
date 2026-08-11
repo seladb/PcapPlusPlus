@@ -128,6 +128,7 @@ namespace pcpp
 		/// @return A string representation of the address
 		std::string toString() const;
 
+		// cppcheck-suppress returnByReference
 		/// @return A 6-byte integer representing the MAC address
 		std::array<uint8_t, 6> toByteArray() const
 		{

@@ -177,10 +177,14 @@ namespace pcpp
 
 			// Release is called after the raw pointer is already inserted into the vector to prevent
 			// a memory leak if push_back throws.
-			// cppcheck-suppress danglingLifetime
+
+			// cppcheck-suppress-begin [danglingLifetime, ignoredReturnValue]
 			m_Vector.push_back(element.get());
 			element.release();
+			// cppcheck-suppress-end [danglingLifetime, ignoredReturnValue]
 		}
+
+		// cppcheck-suppress-begin danglingLifetime
 
 		/// Get the first element of the vector
 		/// @return An iterator object pointing to the first element of the vector
@@ -210,6 +214,8 @@ namespace pcpp
 			return m_Vector.end();
 		}
 
+		// cppcheck-suppress-end danglingLifetime
+
 		/// Get number of elements in the vector
 		/// @return The number of elements in the vector
 		size_t size() const
@@ -225,12 +231,12 @@ namespace pcpp
 		}
 
 		/// @brief Reserve storage for the vector.
-		/// @param[in] size The number of elements to reserve space for.
+		/// @param[in] newSize The number of elements to reserve space for.
 		/// @remarks This method ensures that the vector can hold at least the specified number of elements
 		/// without requiring a reallocation.
-		void reserve(size_t size)
+		void reserve(size_t newSize)
 		{
-			m_Vector.reserve(size);
+			m_Vector.reserve(newSize);
 		}
 
 		/// @return A pointer of the first element in the vector

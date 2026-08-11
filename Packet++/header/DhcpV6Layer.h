@@ -195,6 +195,8 @@ namespace pcpp
 		/// A d'tor for this class, currently does nothing
 		~DhcpV6Option() override = default;
 
+		// TODO: Unduplicate getType() eventually.
+		// cppcheck-suppress duplInheritedMember
 		/// @return The option type converted to ::DhcpV6OptionType enum
 		DhcpV6OptionType getType() const;
 

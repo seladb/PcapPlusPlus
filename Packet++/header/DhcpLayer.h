@@ -445,6 +445,7 @@ namespace pcpp
 			memcpy(m_Data->recordValue + valueOffset, stringValue.data(), len);
 		}
 
+		// cppcheck-suppress duplInheritedMember
 		/// Check if a pointer can be assigned to the TLV record data
 		/// @param[in] recordRawData A pointer to the TLV record raw data
 		/// @param[in] tlvDataLen The size of the TLV record raw data

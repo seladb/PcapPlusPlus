@@ -398,10 +398,9 @@ int main(int argc, char* argv[])
 	// create a writer device for output file in the same file type as input file
 	std::unique_ptr<pcpp::IFileWriterDevice> writer = nullptr;
 
-	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get()) != nullptr)
+	if (auto pcapReader = dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get()))
 	{
-		writer = std::make_unique<pcpp::PcapFileWriterDevice>(
-		    outputFile, ((pcpp::PcapFileReaderDevice*)reader.get())->getLinkLayerType());
+		writer = std::make_unique<pcpp::PcapFileWriterDevice>(outputFile, pcapReader->getLinkLayerType());
 	}
 	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr)
 	{

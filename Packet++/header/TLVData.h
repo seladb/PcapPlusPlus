@@ -26,8 +26,10 @@ namespace pcpp
 			TRecType recordType;
 			/// Record length in bytes
 			TRecLen recordLen;
+
+			// NOTE: Flexible array members are not part of the C++ standard and require compiler extension.
 			/// Record value (variable size)
-			uint8_t recordValue[];
+			uint8_t recordValue[];  // cppcheck-suppress uninitMemberVarNoCtor
 		};
 #pragma pack(pop)
 
@@ -229,6 +231,7 @@ namespace pcpp
 			return *this;
 		}
 
+		// cppcheck-suppress functionStatic
 		/// Get the first TLV record out of a byte stream
 		/// @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
 		/// @param[in] tlvDataLen The TLV data byte stream length
@@ -253,6 +256,7 @@ namespace pcpp
 			return resRec;
 		}
 
+		// cppcheck-suppress [constParameterReference, functionStatic]
 		/// Get a TLV record that follows a given TLV record in a byte stream
 		/// @param[in] record A given TLV record
 		/// @param[in] tlvDataBasePtr A pointer to the TLV data byte stream

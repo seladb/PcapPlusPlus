@@ -16,7 +16,7 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread
 {
 private:
 	AppWorkerConfig& m_WorkerConfig;
-	bool m_Stop;
+	volatile bool m_Stop;
 	uint32_t m_CoreId;
 
 public:
