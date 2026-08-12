@@ -1,7 +1,6 @@
 #pragma once
 #include "Layer.h"
 #include "Packet.h"
-
 #include <vector>
 #include <string>
 
@@ -261,8 +260,8 @@ namespace pcpp
 			{}
 		};
 
-		std::unique_ptr<OffsetAndLength> getDestConIdOffsetAndLength() const;
-		std::unique_ptr<OffsetAndLength> getSrcConIdOffsetAndLength() const;
+		OffsetAndLength getDestConIdOffsetAndLength() const;
+		OffsetAndLength getSrcConIdOffsetAndLength() const;
 
 	private:
 		static constexpr int destinationConnectionIdOffset = sizeof(quic_long_header);
@@ -296,8 +295,8 @@ namespace pcpp
 			{}
 		};
 
-		virtual std::unique_ptr<size_t> getLengthOffset() const;
-		std::unique_ptr<VarintValueAndSize> getVarintValueAndSize(size_t offset) const;
+		virtual size_t getLengthOffset() const;
+		VarintValueAndSize getVarintValueAndSize(size_t offset) const;
 
 	private:
 		using QuicLongHeaderLayer::QuicLongHeaderLayer;
@@ -311,9 +310,8 @@ namespace pcpp
 	private:
 		using QuicEstablishmentLayer::QuicEstablishmentLayer;
 
-		std::unique_ptr<size_t> getLengthOffset() const override;
-
-		std::unique_ptr<size_t> getTokenLengthOffset() const;
+		size_t getLengthOffset() const override;
+		size_t getTokenLengthOffset() const;
 
 		friend class QuicLayer;
 	};
