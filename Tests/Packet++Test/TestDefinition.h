@@ -362,3 +362,6 @@ PTF_TEST_CASE(PostgresInvalidDataTest);
 PTF_TEST_CASE(MySqlLayerParsingTest);
 PTF_TEST_CASE(MySqlMessageParsingTest);
 PTF_TEST_CASE(MySqlInvalidDataTest);
+
+// Implement in QuicTests.cpp
+PTF_TEST_CASE(QuicParsingTest);

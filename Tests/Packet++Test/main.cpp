@@ -429,5 +429,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(MySqlMessageParsingTest, "mysql");
 	PTF_RUN_TEST(MySqlInvalidDataTest, "mysql");
 
+	PTF_RUN_TEST(QuicParsingTest, "quic");
+
 	PTF_END_RUNNING_TESTS;
 }
