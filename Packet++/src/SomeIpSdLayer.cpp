@@ -517,7 +517,7 @@ namespace pcpp
 			SomeIpSdOption::someipsdhdroptionsbase* hdr = (SomeIpSdOption::someipsdhdroptionsbase*)(m_Data + offset);
 			SomeIpSdOption::OptionType optionType = static_cast<SomeIpSdOption::OptionType>(hdr->type);
 
-			option = parseOption(optionType, offset);
+			option = parseOption(optionType, offset, remainingLen);
 
 			if (option != nullptr)
 			{
@@ -562,7 +562,7 @@ namespace pcpp
 			{
 				SomeIpSdOption::OptionType optionType = static_cast<SomeIpSdOption::OptionType>(hdrOption->type);
 
-				option = parseOption(optionType, offset);
+				option = parseOption(optionType, offset, remainingLen);
 
 				if (option != nullptr)
 				{
@@ -754,7 +754,8 @@ namespace pcpp
 		return false;
 	}
 
-	SomeIpSdLayer::OptionPtr SomeIpSdLayer::parseOption(SomeIpSdOption::OptionType type, size_t offset) const
+	SomeIpSdLayer::OptionPtr SomeIpSdLayer::parseOption(SomeIpSdOption::OptionType type, size_t offset,
+	                                                    size_t remainingLength) const
 	{
 		switch (type)
 		{
@@ -762,21 +763,37 @@ namespace pcpp
 		case SomeIpSdOption::OptionType::IPv4Multicast:
 		case SomeIpSdOption::OptionType::IPv4SdEndpoint:
 		{
-			return new SomeIpSdIPv4Option(this, offset);
+			if (SomeIpSdIPv4Option::isDataValid(this, remainingLength))
+			{
+				return new SomeIpSdIPv4Option(this, offset);
+			}
+			return nullptr;
 		}
 		case SomeIpSdOption::OptionType::IPv6Endpoint:
 		case SomeIpSdOption::OptionType::IPv6Multicast:
 		case SomeIpSdOption::OptionType::IPv6SdEndpoint:
 		{
-			return new SomeIpSdIPv6Option(this, offset);
+			if (SomeIpSdIPv6Option::isDataValid(this, remainingLength))
+			{
+				return new SomeIpSdIPv6Option(this, offset);
+			}
+			return nullptr;
 		}
 		case SomeIpSdOption::OptionType::ConfigurationString:
 		{
-			return new SomeIpSdConfigurationOption(this, offset);
+			if (SomeIpSdConfigurationOption::isDataValid(this, remainingLength))
+			{
+				return new SomeIpSdConfigurationOption(this, offset);
+			}
+			return nullptr;
 		}
 		case SomeIpSdOption::OptionType::LoadBalancing:
 		{
-			return new SomeIpSdLoadBalancingOption(this, offset);
+			if (SomeIpSdLoadBalancingOption::isDataValid(this, remainingLength))
+			{
+				return new SomeIpSdLoadBalancingOption(this, offset);
+			}
+			return nullptr;
 		}
 		default:
 			break;
