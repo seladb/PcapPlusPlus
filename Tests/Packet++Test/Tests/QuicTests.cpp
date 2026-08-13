@@ -11,10 +11,10 @@ PTF_TEST_CASE(QuicParsingTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_initial.dat");
 		pcpp::Packet quicPacket(rawPacket.get());
 
-		auto quicInitialLayer = quicPacket.getLayerOfType<pcpp::QuicInitialLayer>();
+		auto quicInitialLayer = quicPacket.getLayerOfType<pcpp::QuicV1InitialLayer>();
 		PTF_ASSERT_NOT_NULL(quicInitialLayer);
-		PTF_ASSERT_EQUAL(quicInitialLayer->getPacketType(), pcpp::QuicLayer::QuicPacketType::Initial, enumclass);
-		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderForm(), pcpp::QuicLayer::QuicHeaderForm::LongHeader, enumclass);
+		PTF_ASSERT_EQUAL(quicInitialLayer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::Initial, enumclass);
+		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::LongHeader, enumclass);
 		PTF_ASSERT_TRUE(quicInitialLayer->getFixedBit());
 		PTF_ASSERT_EQUAL(quicInitialLayer->getVersion(), 1);
 		PTF_ASSERT_EQUAL(quicInitialLayer->getDestinationConnectionId().toString(), "c5fc34");
@@ -27,10 +27,10 @@ PTF_TEST_CASE(QuicParsingTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_initial_0rtt.dat");
 		pcpp::Packet quicPacket(rawPacket.get());
 
-		auto quicInitialLayer = quicPacket.getLayerOfType<pcpp::QuicInitialLayer>();
+		auto quicInitialLayer = quicPacket.getLayerOfType<pcpp::QuicV1InitialLayer>();
 		PTF_ASSERT_NOT_NULL(quicInitialLayer);
-		PTF_ASSERT_EQUAL(quicInitialLayer->getPacketType(), pcpp::QuicLayer::QuicPacketType::Initial, enumclass);
-		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderForm(), pcpp::QuicLayer::QuicHeaderForm::LongHeader, enumclass);
+		PTF_ASSERT_EQUAL(quicInitialLayer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::Initial, enumclass);
+		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::LongHeader, enumclass);
 		PTF_ASSERT_TRUE(quicInitialLayer->getFixedBit());
 		PTF_ASSERT_EQUAL(quicInitialLayer->getVersion(), 1);
 		PTF_ASSERT_EQUAL(quicInitialLayer->getDestinationConnectionId().toString(), "3c548c2db5aa5e4f64702c3961");
@@ -43,9 +43,9 @@ PTF_TEST_CASE(QuicParsingTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_handshake_1rtt.dat");
 		pcpp::Packet quicPacket(rawPacket.get());
 
-		auto quicHandshakeLayer = quicPacket.getLayerOfType<pcpp::QuicHandshakeLayer>();
-		PTF_ASSERT_EQUAL(quicHandshakeLayer->getPacketType(), pcpp::QuicLayer::QuicPacketType::Handshake, enumclass);
-		PTF_ASSERT_EQUAL(quicHandshakeLayer->getHeaderForm(), pcpp::QuicLayer::QuicHeaderForm::LongHeader, enumclass);
+		auto quicHandshakeLayer = quicPacket.getLayerOfType<pcpp::QuicV1HandshakeLayer>();
+		PTF_ASSERT_EQUAL(quicHandshakeLayer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::Handshake, enumclass);
+		PTF_ASSERT_EQUAL(quicHandshakeLayer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::LongHeader, enumclass);
 		PTF_ASSERT_TRUE(quicHandshakeLayer->getFixedBit());
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getVersion(), 1);
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getDestinationConnectionId().toString(), "f147b631d2ec8eb3");
@@ -57,10 +57,10 @@ PTF_TEST_CASE(QuicParsingTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_initial_0rtt.dat");
 		pcpp::Packet quicPacket(rawPacket.get());
 
-		auto quicZeroRttLayer = quicPacket.getLayerOfType<pcpp::QuicZeroRttLayer>();
+		auto quicZeroRttLayer = quicPacket.getLayerOfType<pcpp::QuicV1ZeroRttLayer>();
 		PTF_ASSERT_NOT_NULL(quicZeroRttLayer);
-		PTF_ASSERT_EQUAL(quicZeroRttLayer->getPacketType(), pcpp::QuicLayer::QuicPacketType::ZeroRTT, enumclass);
-		PTF_ASSERT_EQUAL(quicZeroRttLayer->getHeaderForm(), pcpp::QuicLayer::QuicHeaderForm::LongHeader, enumclass);
+		PTF_ASSERT_EQUAL(quicZeroRttLayer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::ZeroRTT, enumclass);
+		PTF_ASSERT_EQUAL(quicZeroRttLayer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::LongHeader, enumclass);
 		PTF_ASSERT_TRUE(quicZeroRttLayer->getFixedBit());
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getVersion(), 1);
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getDestinationConnectionId().toString(), "3c548c2db5aa5e4f64702c3961");
@@ -72,10 +72,10 @@ PTF_TEST_CASE(QuicParsingTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_retry.dat");
 		pcpp::Packet quicPacket(rawPacket.get());
 
-		auto quicRetryLayer = quicPacket.getLayerOfType<pcpp::QuicRetryLayer>();
+		auto quicRetryLayer = quicPacket.getLayerOfType<pcpp::QuicV1RetryLayer>();
 		PTF_ASSERT_NOT_NULL(quicRetryLayer);
-		PTF_ASSERT_EQUAL(quicRetryLayer->getPacketType(), pcpp::QuicLayer::QuicPacketType::Retry, enumclass);
-		PTF_ASSERT_EQUAL(quicRetryLayer->getHeaderForm(), pcpp::QuicLayer::QuicHeaderForm::LongHeader, enumclass);
+		PTF_ASSERT_EQUAL(quicRetryLayer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::Retry, enumclass);
+		PTF_ASSERT_EQUAL(quicRetryLayer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::LongHeader, enumclass);
 		PTF_ASSERT_TRUE(quicRetryLayer->getFixedBit());
 		PTF_ASSERT_EQUAL(quicRetryLayer->getVersion(), 1);
 		PTF_ASSERT_EQUAL(quicRetryLayer->getDestinationConnectionId().toString(), "");
@@ -90,8 +90,8 @@ PTF_TEST_CASE(QuicParsingTest)
 
 		auto quicOneRttLayer = quicPacket.getLayerOfType<pcpp::QuicOneRttLayer>();
 		PTF_ASSERT_NOT_NULL(quicOneRttLayer);
-		PTF_ASSERT_EQUAL(quicOneRttLayer->getPacketType(), pcpp::QuicLayer::QuicPacketType::OneRtt, enumclass);
-		PTF_ASSERT_EQUAL(quicOneRttLayer->getHeaderForm(), pcpp::QuicLayer::QuicHeaderForm::ShortHeader, enumclass);
+		PTF_ASSERT_EQUAL(quicOneRttLayer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::OneRtt, enumclass);
+		PTF_ASSERT_EQUAL(quicOneRttLayer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::ShortHeader, enumclass);
 		PTF_ASSERT_TRUE(quicOneRttLayer->getFixedBit());
 		PTF_ASSERT_FALSE(quicOneRttLayer->getSpinBit());
 		PTF_ASSERT_FALSE(quicOneRttLayer->getKeyPhaseBit());

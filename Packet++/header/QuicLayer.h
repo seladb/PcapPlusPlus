@@ -8,79 +8,7 @@
 
 namespace pcpp
 {
-	struct quic_common_header
-	{
-	#if (BYTE_ORDER == LITTLE_ENDIAN)
-		uint8_t : 6,
-			fixedBit : 1,
-			headerForm : 1;
-	#else
-		uint8_t headerForm : 1,
-			fixedBit : 1,
-			: 6;
-	#endif
-	};
-
-	/// @struct quic_long_header
-	/// Fixed-size prefix of a QUIC long header (RFC 9000 17.2): the first byte's bitfields,
-	/// the 4-byte Version, and the 1-byte DCID Length. Everything after this (DCID, SCID
-	/// Length, SCID, and - depending on packet type - Token Length/Token/Length/Packet
-	/// Number) is variable-length and follows immediately after this struct in the raw
-	/// buffer; QuicLayer's getters compute pointers into that region on demand rather than
-	/// copying it.
-	#pragma pack(push, 1)
-	struct quic_long_header
-	{
-	#if (BYTE_ORDER == LITTLE_ENDIAN)
-		uint8_t packetNumberLength : 2,
-			reserved : 2,
-			longPacketType : 2,
-			fixedBit : 1,
-			headerForm : 1;
-	#else
-		uint8_t headerForm : 1,
-			fixedBit : 1,
-			longPacketType : 2,
-			reserved : 2,
-			packetNumberLength : 2;
-	#endif
-		/// Network (big-endian) byte order on the wire - use QuicLayer::getVersion() for the
-		/// host-order value rather than reading this field directly.
-		uint32_t version;
-		/// Destination Connection ID Length, in bytes
-		uint8_t destinationConnectionIdLength;
-	};
-	#pragma pack(pop)
-	static_assert(sizeof(quic_long_header) == 6, "quic_long_header size is not 6 bytes");
-
-	/// @struct quic_short_header
-	/// The entire fixed portion of a QUIC short header (RFC 9000 17.3.1) is a single byte -
-	/// the Destination Connection ID (whose length is NOT encoded in the packet; the caller
-	/// must already know it from earlier connection state) and the Packet Number follow
-	/// immediately after this struct in the raw buffer.
-	#pragma pack(push, 1)
-	struct quic_short_header
-	{
-	#if (BYTE_ORDER == LITTLE_ENDIAN)
-		uint8_t packetNumberLength : 2,
-			keyPhase : 1,
-			reserved : 2,
-			spinBit : 1,
-			fixedBit : 1,
-			headerForm : 1;
-	#else
-		uint8_t headerForm : 1,
-			fixedBit : 1,
-			spinBit : 1,
-			reserved : 2,
-			keyPhase : 1,
-			packetNumberLength : 2;
-	#endif
-	};
-	#pragma pack(pop)
-	static_assert(sizeof(quic_short_header) == 1, "quic_short_header size is not 1 byte");
-
-	/// @class QuicLayer
+	/// @class QuicV1Layer
 	/// Represents a QUIC v1 (RFC 9000/9001) protocol layer. Parses both long-header and
 	/// short-header packet forms by casting directly onto the raw packet buffer (see
 	/// quic_long_header / quic_short_header) rather than copying header fields into owned
@@ -94,7 +22,7 @@ namespace pcpp
 	/// CRYPTO/CONNECTION_CLOSE) once decrypted payload bytes are supplied via
 	/// setDecryptedInitialPayload() - see the note on that method for why this step can't
 	/// happen automatically yet.
-	class QuicLayer : public Layer
+	class QuicV1Layer : public Layer
 	{
 	public:
 		enum class QuicPacketType : uint8_t
@@ -120,7 +48,7 @@ namespace pcpp
 		/// @param[in] prevLayer A pointer to the previous layer
 		/// @param[in] packet A pointer to the Packet instance where layer will be stored
 		/// @return The newly allocated layer ot nullptr if the data isn't valid
-		static QuicLayer* parseQuicLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		static QuicV1Layer* parseQuicLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		virtual QuicPacketType getPacketType() const = 0;
 
@@ -156,9 +84,69 @@ namespace pcpp
 		}
 
 	protected:
-		QuicLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		QuicV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 			: Layer(data, dataLen, prevLayer, packet, QUIC)
 		{}
+
+		struct quic_common_header
+		{
+#if (BYTE_ORDER == LITTLE_ENDIAN)
+			uint8_t : 6,
+				fixedBit : 1,
+				headerForm : 1;
+#else
+			uint8_t headerForm : 1,
+				fixedBit : 1,
+				: 6;
+#endif
+		};
+
+#pragma pack(push, 1)
+		struct quic_long_header
+		{
+#if (BYTE_ORDER == LITTLE_ENDIAN)
+			uint8_t packetNumberLength : 2,
+				reserved : 2,
+				longPacketType : 2,
+				fixedBit : 1,
+				headerForm : 1;
+#else
+			uint8_t headerForm : 1,
+				fixedBit : 1,
+				longPacketType : 2,
+				reserved : 2,
+				packetNumberLength : 2;
+#endif
+			/// Network (big-endian) byte order on the wire - use QuicV1Layer::getVersion() for the
+			/// host-order value rather than reading this field directly.
+			uint32_t version;
+			/// Destination Connection ID Length, in bytes
+			uint8_t destinationConnectionIdLength;
+		};
+#pragma pack(pop)
+		static_assert(sizeof(quic_long_header) == 6, "quic_long_header size is not 6 bytes");
+
+#pragma pack(push, 1)
+		struct quic_short_header
+		{
+#if (BYTE_ORDER == LITTLE_ENDIAN)
+			uint8_t packetNumberLength : 2,
+				keyPhase : 1,
+				reserved : 2,
+				spinBit : 1,
+				fixedBit : 1,
+				headerForm : 1;
+#else
+			uint8_t headerForm : 1,
+				fixedBit : 1,
+				spinBit : 1,
+				reserved : 2,
+				keyPhase : 1,
+				packetNumberLength : 2;
+#endif
+		};
+#pragma pack(pop)
+		static_assert(sizeof(quic_short_header) == 1, "quic_short_header size is not 1 byte");
 
 	private:
 		quic_common_header* getCommonHeader() const
@@ -167,7 +155,7 @@ namespace pcpp
 		}
 	};
 
-	class QuicLongHeaderLayer : public QuicLayer
+	class QuicV1LongHeaderLayer : public QuicV1Layer
 	{
 	public:
 		class ByteArray : public std::vector<uint8_t>
@@ -191,7 +179,7 @@ namespace pcpp
 		ByteArray getDestinationConnectionId() const;
 		ByteArray getSourceConnectionId() const;
 	protected:
-		using QuicLayer::QuicLayer;
+		using QuicV1Layer::QuicV1Layer;
 
 		struct OffsetAndLength
 		{
@@ -215,10 +203,10 @@ namespace pcpp
 			return reinterpret_cast<quic_long_header*>(m_Data);
 		}
 
-		friend class QuicLayer;
+		friend class QuicV1Layer;
 	};
 
-	class QuicEstablishmentLayer : public QuicLongHeaderLayer
+	class QuicV1EstablishmentLayer : public QuicV1LongHeaderLayer
 	{
 	public:
 		uint64_t getLength() const;
@@ -241,38 +229,38 @@ namespace pcpp
 		VarintValueAndSize getVarintValueAndSize(size_t offset) const;
 
 	private:
-		using QuicLongHeaderLayer::QuicLongHeaderLayer;
+		using QuicV1LongHeaderLayer::QuicV1LongHeaderLayer;
 	};
 
-	class QuicInitialLayer : public QuicEstablishmentLayer
+	class QuicV1InitialLayer : public QuicV1EstablishmentLayer
 	{
 	public:
 		ByteArray getToken() const;
 
 	private:
-		using QuicEstablishmentLayer::QuicEstablishmentLayer;
+		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
 
 		size_t getLengthOffset() const override;
 		size_t getTokenLengthOffset() const;
 
-		friend class QuicLayer;
+		friend class QuicV1Layer;
 	};
 
-	class QuicZeroRttLayer : public QuicEstablishmentLayer
+	class QuicV1ZeroRttLayer : public QuicV1EstablishmentLayer
 	{
-		using QuicEstablishmentLayer::QuicEstablishmentLayer;
+		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
 
-		friend class QuicLayer;
+		friend class QuicV1Layer;
 	};	;
 
-	class QuicHandshakeLayer : public QuicEstablishmentLayer
+	class QuicV1HandshakeLayer : public QuicV1EstablishmentLayer
 	{
-		using QuicEstablishmentLayer::QuicEstablishmentLayer;
+		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
 
-		friend class QuicLayer;
+		friend class QuicV1Layer;
 	};
 
-	class QuicRetryLayer : public QuicLongHeaderLayer
+	class QuicV1RetryLayer : public QuicV1LongHeaderLayer
 	{
 	public:
 		ByteArray getRetryToken() const;
@@ -285,16 +273,16 @@ namespace pcpp
 			return m_DataLen;
 		}
 	private:
-		using QuicLongHeaderLayer::QuicLongHeaderLayer;
+		using QuicV1LongHeaderLayer::QuicV1LongHeaderLayer;
 
 		static constexpr size_t retryIntegritySize = 16;
 
 		size_t getRetryTokenOffset() const;
 
-		friend class QuicLayer;
+		friend class QuicV1Layer;
 	};
 
-	class QuicOneRttLayer : public QuicLayer
+	class QuicOneRttLayer : public QuicV1Layer
 	{
 	public:
 		QuicPacketType getPacketType() const override
@@ -319,7 +307,7 @@ namespace pcpp
 			return m_DataLen;
 		}
 	private:
-		using QuicLayer::QuicLayer;
+		using QuicV1Layer::QuicV1Layer;
 
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
@@ -328,6 +316,6 @@ namespace pcpp
 			return reinterpret_cast<quic_short_header*>(m_Data);
 		}
 
-		friend class QuicLayer;
+		friend class QuicV1Layer;
 	};
 }  // namespace pcpp

@@ -6,7 +6,7 @@
 
 namespace pcpp
 {
-	QuicLayer* QuicLayer::parseQuicLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	QuicV1Layer* QuicV1Layer::parseQuicLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		if (data == nullptr || dataLen <= sizeof(quic_common_header))
 		{
@@ -20,26 +20,26 @@ namespace pcpp
 			return new QuicOneRttLayer(data, dataLen, prevLayer, packet);
 		}
 
-		if (headerForm == QuicHeaderForm::LongHeader && QuicLongHeaderLayer::isDataValid(data, dataLen))
+		if (headerForm == QuicHeaderForm::LongHeader && QuicV1LongHeaderLayer::isDataValid(data, dataLen))
 		{
 			auto header = reinterpret_cast<quic_long_header*>(data);
 			switch (header->longPacketType)
 			{
 			case static_cast<uint8_t>(QuicPacketType::Initial):
 			{
-				return new QuicInitialLayer(data, dataLen, prevLayer, packet);
+				return new QuicV1InitialLayer(data, dataLen, prevLayer, packet);
 			}
 			case static_cast<uint8_t>(QuicPacketType::Handshake):
 			{
-				return new QuicHandshakeLayer(data, dataLen, prevLayer, packet);
+				return new QuicV1HandshakeLayer(data, dataLen, prevLayer, packet);
 			}
 			case static_cast<uint8_t>(QuicPacketType::ZeroRTT):
 			{
-				return new QuicZeroRttLayer(data, dataLen, prevLayer, packet);
+				return new QuicV1ZeroRttLayer(data, dataLen, prevLayer, packet);
 			}
 			case static_cast<uint8_t>(QuicPacketType::Retry):
 			{
-				return new QuicRetryLayer(data, dataLen, prevLayer, packet);
+				return new QuicV1RetryLayer(data, dataLen, prevLayer, packet);
 			}
 			default:
 			{
@@ -51,7 +51,7 @@ namespace pcpp
 		return nullptr;
 	}
 
-	void QuicLayer::parseNextLayer()
+	void QuicV1Layer::parseNextLayer()
 	{
 		auto headerLen = getHeaderLen();
 
@@ -61,27 +61,27 @@ namespace pcpp
 		}
 	}
 
-	QuicLayer::QuicHeaderForm QuicLayer::getHeaderForm() const
+	QuicV1Layer::QuicHeaderForm QuicV1Layer::getHeaderForm() const
 	{
 		return static_cast<QuicHeaderForm>(getCommonHeader()->headerForm);
 	}
 
-	uint8_t QuicLayer::getFixedBit() const
+	uint8_t QuicV1Layer::getFixedBit() const
 	{
 		return getCommonHeader()->fixedBit;
 	}
 
-	std::string QuicLongHeaderLayer::ByteArray::toString() const
+	std::string QuicV1LongHeaderLayer::ByteArray::toString() const
 	{
 		return byteArrayToHexString(this->data(), this->size());
 	}
 
-	bool QuicLongHeaderLayer::isDataValid(const uint8_t* data, size_t dataLen)
+	bool QuicV1LongHeaderLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		return data != nullptr && dataLen >= sizeof(quic_long_header);
 	}
 
-	QuicLayer::QuicPacketType QuicLongHeaderLayer::getPacketType() const
+	QuicV1Layer::QuicPacketType QuicV1LongHeaderLayer::getPacketType() const
 	{
 		auto packetType = getLongHeader()->longPacketType;
 		if (packetType <= static_cast<uint8_t>(QuicPacketType::Retry))
@@ -92,14 +92,14 @@ namespace pcpp
 		return QuicPacketType::Unknown;
 	}
 
-	uint32_t QuicLongHeaderLayer::getVersion() const
+	uint32_t QuicV1LongHeaderLayer::getVersion() const
 	{
 		return netToHost32(getLongHeader()->version);
 	}
 
-	constexpr int QuicLongHeaderLayer::destinationConnectionIdOffset;
+	constexpr int QuicV1LongHeaderLayer::destinationConnectionIdOffset;
 
-	QuicLongHeaderLayer::OffsetAndLength QuicLongHeaderLayer::getDestConIdOffsetAndLength() const
+	QuicV1LongHeaderLayer::OffsetAndLength QuicV1LongHeaderLayer::getDestConIdOffsetAndLength() const
 	{
 		if (m_DataLen <= destinationConnectionIdOffset)
 		{
@@ -110,7 +110,7 @@ namespace pcpp
 		return {length, destinationConnectionIdOffset};
 	}
 
-	QuicLongHeaderLayer::ByteArray QuicLongHeaderLayer::getDestinationConnectionId() const
+	QuicV1LongHeaderLayer::ByteArray QuicV1LongHeaderLayer::getDestinationConnectionId() const
 	{
 		try
 		{
@@ -123,7 +123,7 @@ namespace pcpp
 		}
 	}
 
-	QuicLongHeaderLayer::OffsetAndLength QuicLongHeaderLayer::getSrcConIdOffsetAndLength() const
+	QuicV1LongHeaderLayer::OffsetAndLength QuicV1LongHeaderLayer::getSrcConIdOffsetAndLength() const
 	{
 		auto destOffsetAndLength = getDestConIdOffsetAndLength();
 		auto sourceConnectionIdLengthOffset = destOffsetAndLength.offset + destOffsetAndLength.length;
@@ -138,7 +138,7 @@ namespace pcpp
 		return {length, offset};
 	}
 
-	QuicLongHeaderLayer::ByteArray QuicLongHeaderLayer::getSourceConnectionId() const
+	QuicV1LongHeaderLayer::ByteArray QuicV1LongHeaderLayer::getSourceConnectionId() const
 	{
 		try
 		{
@@ -151,7 +151,7 @@ namespace pcpp
 		}
 	}
 
-	size_t QuicEstablishmentLayer::getLengthOffset() const
+	size_t QuicV1EstablishmentLayer::getLengthOffset() const
 	{
 		auto srcConOffsetAndLength = getSrcConIdOffsetAndLength();
 		if (srcConOffsetAndLength.offset + srcConOffsetAndLength.length + sizeof(uint8_t) > m_DataLen)
@@ -162,7 +162,7 @@ namespace pcpp
 		return srcConOffsetAndLength.offset + srcConOffsetAndLength.length;
 	}
 
-	QuicEstablishmentLayer::VarintValueAndSize QuicEstablishmentLayer::getVarintValueAndSize(size_t offset) const
+	QuicV1EstablishmentLayer::VarintValueAndSize QuicV1EstablishmentLayer::getVarintValueAndSize(size_t offset) const
 	{
 		uint8_t prefix = (m_Data[offset] & 0xc0) >> 6;
 		auto size = static_cast<size_t>(1) << prefix;
@@ -181,7 +181,7 @@ namespace pcpp
 		return {value, size};
 	}
 
-	uint64_t QuicEstablishmentLayer::getLength() const
+	uint64_t QuicV1EstablishmentLayer::getLength() const
 	{
 		try
 		{
@@ -195,7 +195,7 @@ namespace pcpp
 		}
 	}
 
-	size_t QuicEstablishmentLayer::getHeaderLen() const
+	size_t QuicV1EstablishmentLayer::getHeaderLen() const
 	{
 		try
 		{
@@ -209,7 +209,7 @@ namespace pcpp
 		}
 	}
 
-	QuicLongHeaderLayer::ByteArray QuicInitialLayer::getToken() const
+	QuicV1LongHeaderLayer::ByteArray QuicV1InitialLayer::getToken() const
 	{
 		try
 		{
@@ -228,7 +228,7 @@ namespace pcpp
 		}
 	}
 
-	size_t QuicInitialLayer::getLengthOffset() const
+	size_t QuicV1InitialLayer::getLengthOffset() const
 	{
 		auto tokenLengthOffset = getTokenLengthOffset();
 		auto tokenLengthValueAndSize = getVarintValueAndSize(tokenLengthOffset);
@@ -239,7 +239,7 @@ namespace pcpp
 		return tokenLengthOffset + tokenLengthValueAndSize.size + tokenLengthValueAndSize.value;
 	}
 
-	size_t QuicInitialLayer::getTokenLengthOffset() const
+	size_t QuicV1InitialLayer::getTokenLengthOffset() const
 	{
 		auto srcConOffsetAndLength = getSrcConIdOffsetAndLength();
 		if (srcConOffsetAndLength.offset + srcConOffsetAndLength.length + sizeof(uint8_t) > m_DataLen)
@@ -249,7 +249,7 @@ namespace pcpp
 		return srcConOffsetAndLength.offset + srcConOffsetAndLength.length;
 	}
 
-	size_t QuicRetryLayer::getRetryTokenOffset() const
+	size_t QuicV1RetryLayer::getRetryTokenOffset() const
 	{
 		try
 		{
@@ -262,7 +262,7 @@ namespace pcpp
 		}
 	}
 
-	QuicLongHeaderLayer::ByteArray QuicRetryLayer::getRetryToken() const
+	QuicV1LongHeaderLayer::ByteArray QuicV1RetryLayer::getRetryToken() const
 	{
 		auto retryTokenOffset = getRetryTokenOffset();
 		if (m_DataLen - retryTokenOffset < retryIntegritySize)
@@ -273,7 +273,7 @@ namespace pcpp
 		return {m_Data + retryTokenOffset, m_Data + m_DataLen - retryIntegritySize};
 	}
 
-	QuicLongHeaderLayer::ByteArray QuicRetryLayer::getRetryIntegrityTag() const
+	QuicV1LongHeaderLayer::ByteArray QuicV1RetryLayer::getRetryIntegrityTag() const
 	{
 		auto retryTokenOffset = getRetryTokenOffset();
 		if (m_DataLen - retryTokenOffset < retryIntegritySize)
