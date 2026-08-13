@@ -80,64 +80,6 @@ namespace pcpp
 	#pragma pack(pop)
 	static_assert(sizeof(quic_short_header) == 1, "quic_short_header size is not 1 byte");
 
-	enum class QuicFrameType : uint8_t
-	{
-		Padding = 0x00,
-		Ping = 0x01,
-		Ack = 0x02,
-		AckEcn = 0x03,
-		Crypto = 0x06,
-		ConnectionClose = 0x1c,
-		Unknown = 0xff
-	};
-
-	struct QuicAckRange
-	{
-		uint64_t gap;
-		uint64_t ackRangeLength;
-	};
-
-	struct QuicAckFrame
-	{
-		uint64_t largestAcknowledged = 0;
-		uint64_t ackDelay = 0;
-		uint64_t ackRangeCount = 0;
-		uint64_t firstAckRange = 0;
-		std::vector<QuicAckRange> ackRanges;
-		bool hasEcnCounts = false;
-		uint64_t ect0Count = 0, ect1Count = 0, ecnCeCount = 0;
-	};
-
-	struct QuicCryptoFrame
-	{
-		uint64_t offset = 0;
-		uint64_t length = 0;
-		const uint8_t* data = nullptr;  // points into the layer's own m_Data buffer - not owned/copied
-	};
-
-	struct QuicConnectionCloseFrame
-	{
-		uint64_t errorCode = 0;
-		uint64_t triggeringFrameType = 0;
-		std::string reasonPhrase;
-	};
-
-	struct QuicFrame
-	{
-		QuicFrameType type = QuicFrameType::Unknown;
-		size_t frameLength = 0;
-
-		// C++11-compatible alternative to std::optional<T> (not available in C++14, which
-		// PcapPlusPlus targets): a bool flag alongside a plain member. Only the member(s)
-		// matching `type` are meaningful - e.g. check hasCrypto before reading `crypto`.
-		bool hasAck = false;
-		QuicAckFrame ack;
-		bool hasCrypto = false;
-		QuicCryptoFrame crypto;
-		bool hasConnectionClose = false;
-		QuicConnectionCloseFrame connectionClose;
-	};
-
 	/// @class QuicLayer
 	/// Represents a QUIC v1 (RFC 9000/9001) protocol layer. Parses both long-header and
 	/// short-header packet forms by casting directly onto the raw packet buffer (see
@@ -326,6 +268,28 @@ namespace pcpp
 	class QuicHandshakeLayer : public QuicEstablishmentLayer
 	{
 		using QuicEstablishmentLayer::QuicEstablishmentLayer;
+
+		friend class QuicLayer;
+	};
+
+	class QuicRetryLayer : public QuicLongHeaderLayer
+	{
+	public:
+		ByteArray getRetryToken() const;
+		ByteArray getRetryIntegrityTag() const;
+
+		// implement abstract methods
+
+		size_t getHeaderLen() const override
+		{
+			return m_DataLen;
+		}
+	private:
+		using QuicLongHeaderLayer::QuicLongHeaderLayer;
+
+		static constexpr size_t retryIntegritySize = 16;
+
+		size_t getRetryTokenOffset() const;
 
 		friend class QuicLayer;
 	};

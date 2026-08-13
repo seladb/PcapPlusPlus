@@ -37,6 +37,10 @@ namespace pcpp
 			{
 				return new QuicZeroRttLayer(data, dataLen, prevLayer, packet);
 			}
+			case static_cast<uint8_t>(QuicPacketType::Retry):
+			{
+				return new QuicRetryLayer(data, dataLen, prevLayer, packet);
+			}
 			default:
 			{
 				return nullptr;
@@ -243,6 +247,41 @@ namespace pcpp
 			throw std::out_of_range("Not enough data to read token length offset");
 		}
 		return srcConOffsetAndLength.offset + srcConOffsetAndLength.length;
+	}
+
+	size_t QuicRetryLayer::getRetryTokenOffset() const
+	{
+		try
+		{
+			auto offsetAndLength = getSrcConIdOffsetAndLength();
+			return offsetAndLength.offset + offsetAndLength.length;
+		}
+		catch (std::out_of_range&)
+		{
+			return m_DataLen;
+		}
+	}
+
+	QuicLongHeaderLayer::ByteArray QuicRetryLayer::getRetryToken() const
+	{
+		auto retryTokenOffset = getRetryTokenOffset();
+		if (m_DataLen - retryTokenOffset < retryIntegritySize)
+		{
+			return {};
+		}
+
+		return {m_Data + retryTokenOffset, m_Data + m_DataLen - retryIntegritySize};
+	}
+
+	QuicLongHeaderLayer::ByteArray QuicRetryLayer::getRetryIntegrityTag() const
+	{
+		auto retryTokenOffset = getRetryTokenOffset();
+		if (m_DataLen - retryTokenOffset < retryIntegritySize)
+		{
+			return {};
+		}
+
+		return {m_Data + m_DataLen - retryIntegritySize, m_Data + m_DataLen};
 	}
 
 	bool QuicOneRttLayer::isDataValid(const uint8_t* data, size_t dataLen)

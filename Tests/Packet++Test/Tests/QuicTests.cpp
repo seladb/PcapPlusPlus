@@ -67,6 +67,22 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getSourceConnectionId().toString(), "4c8342");
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getLength(), 439);
 	}
+	// Retry
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_retry.dat");
+		pcpp::Packet quicPacket(rawPacket.get());
+
+		auto quicRetryLayer = quicPacket.getLayerOfType<pcpp::QuicRetryLayer>();
+		PTF_ASSERT_NOT_NULL(quicRetryLayer);
+		PTF_ASSERT_EQUAL(quicRetryLayer->getPacketType(), pcpp::QuicLayer::QuicPacketType::Retry, enumclass);
+		PTF_ASSERT_EQUAL(quicRetryLayer->getHeaderForm(), pcpp::QuicLayer::QuicHeaderForm::LongHeader, enumclass);
+		PTF_ASSERT_TRUE(quicRetryLayer->getFixedBit());
+		PTF_ASSERT_EQUAL(quicRetryLayer->getVersion(), 1);
+		PTF_ASSERT_EQUAL(quicRetryLayer->getDestinationConnectionId().toString(), "");
+		PTF_ASSERT_EQUAL(quicRetryLayer->getSourceConnectionId().toString(), "f067a5502a4262b5");
+		PTF_ASSERT_EQUAL(quicRetryLayer->getRetryToken().toString(), "746f6b656e");
+		PTF_ASSERT_EQUAL(quicRetryLayer->getRetryIntegrityTag().toString(), "04a265ba2eff4d829058fb3f0f2496ba");
+	}
 	// 1-RTT
 	{
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_handshake_1rtt.dat");
