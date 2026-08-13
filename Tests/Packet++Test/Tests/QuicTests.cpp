@@ -83,6 +83,21 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_EQUAL(quicRetryLayer->getRetryToken().toString(), "746f6b656e");
 		PTF_ASSERT_EQUAL(quicRetryLayer->getRetryIntegrityTag().toString(), "04a265ba2eff4d829058fb3f0f2496ba");
 	}
+	// Version negotiation
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_version_negotiation.dat");
+		pcpp::Packet quicPacket(rawPacket.get());
+
+		auto quicVersionNegotiationLayer = quicPacket.getLayerOfType<pcpp::QuicV1VersionNegotiationLayer>();
+		PTF_ASSERT_NOT_NULL(quicVersionNegotiationLayer);
+		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::VersionNegotiation, enumclass);
+		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::LongHeader, enumclass);
+		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getVersion(), 0);
+		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getDestinationConnectionId().toString(), "9aac5a49ba87a849");
+		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getSourceConnectionId().toString(), "f92f4336fa951ba1");
+		std::vector<uint32_t> expectedSupportedVersions = {0x45474716, 1};
+		PTF_ASSERT_VECTORS_EQUAL(quicVersionNegotiationLayer->getSupportedVersions(), expectedSupportedVersions);
+	}
 	// 1-RTT
 	{
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_handshake_1rtt.dat");

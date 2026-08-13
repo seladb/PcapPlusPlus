@@ -23,6 +23,10 @@ namespace pcpp
 		if (headerForm == QuicHeaderForm::LongHeader && QuicV1LongHeaderLayer::isDataValid(data, dataLen))
 		{
 			auto header = reinterpret_cast<quic_long_header*>(data);
+			if (header->version == 0x00000000)
+			{
+				return new QuicV1VersionNegotiationLayer(data, dataLen, prevLayer, packet);
+			}
 			switch (header->longPacketType)
 			{
 			case static_cast<uint8_t>(QuicPacketType::Initial):
@@ -282,6 +286,33 @@ namespace pcpp
 		}
 
 		return {m_Data + m_DataLen - retryIntegritySize, m_Data + m_DataLen};
+	}
+
+	std::vector<uint32_t> QuicV1VersionNegotiationLayer::getSupportedVersions() const
+	{
+		try
+		{
+			auto offsetAndLength = getSrcConIdOffsetAndLength();
+			auto supportedVersionsOffset = offsetAndLength.offset + offsetAndLength.length;
+			std::vector<uint32_t> supportedVersions;
+			while (supportedVersionsOffset < m_DataLen)
+			{
+				if (m_DataLen - supportedVersionsOffset < sizeof(uint32_t))
+				{
+					break;
+				}
+				uint32_t version;
+				memcpy(&version, m_Data + supportedVersionsOffset, sizeof(uint32_t));
+				supportedVersions.push_back(netToHost32(version));
+				supportedVersionsOffset += sizeof(uint32_t);
+			}
+			return supportedVersions;
+		}
+		catch (std::out_of_range&)
+		{
+			return {};
+		}
+
 	}
 
 	bool QuicOneRttLayer::isDataValid(const uint8_t* data, size_t dataLen)

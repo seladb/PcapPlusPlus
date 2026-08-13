@@ -31,6 +31,7 @@ namespace pcpp
 			ZeroRTT = 1,
 			Handshake = 2,
 			Retry = 3,
+			VersionNegotiation = 253,
 			OneRtt = 254,
 			Unknown = 255
 		};
@@ -278,6 +279,28 @@ namespace pcpp
 		static constexpr size_t retryIntegritySize = 16;
 
 		size_t getRetryTokenOffset() const;
+
+		friend class QuicV1Layer;
+	};
+
+	class QuicV1VersionNegotiationLayer : public QuicV1LongHeaderLayer
+	{
+	public:
+		QuicPacketType getPacketType() const override
+		{
+			return QuicPacketType::VersionNegotiation;
+		}
+
+		std::vector<uint32_t> getSupportedVersions() const;
+
+		// implement abstract methods
+
+		size_t getHeaderLen() const override
+		{
+			return m_DataLen;
+		}
+	private:
+		using QuicV1LongHeaderLayer::QuicV1LongHeaderLayer;
 
 		friend class QuicV1Layer;
 	};
