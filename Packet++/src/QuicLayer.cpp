@@ -75,6 +75,52 @@ namespace pcpp
 		return getCommonHeader()->fixedBit;
 	}
 
+	std::string QuicV1Layer::toString() const
+	{
+		std::string packetType;
+
+		switch (getPacketType())
+		{
+		case QuicPacketType::Initial:
+		{
+			packetType = "Initial";
+			break;
+		}
+		case QuicPacketType::Handshake:
+		{
+			packetType = "Handshake";
+			break;
+		}
+		case QuicPacketType::ZeroRTT:
+		{
+			packetType = "0-RTT";
+			break;
+		}
+		case QuicPacketType::Retry:
+		{
+			packetType = "Retry";
+			break;
+		}
+		case QuicPacketType::OneRtt:
+		{
+			packetType = "1-RTT";
+			break;
+		}
+		case QuicPacketType::VersionNegotiation:
+		{
+			packetType = "Version Negotiation";
+			break;
+		}
+		default:
+		{
+			packetType = "Unknown";
+			break;
+		}
+		}
+
+		return "QUIC v1 Layer, " + packetType + " message";
+	}
+
 	std::string QuicV1LongHeaderLayer::ByteArray::toString() const
 	{
 		return byteArrayToHexString(this->data(), this->size());

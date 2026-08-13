@@ -21,6 +21,8 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_EQUAL(quicInitialLayer->getSourceConnectionId().toString(), "2e05f87969a4940b");
 		PTF_ASSERT_EQUAL(quicInitialLayer->getLength(), 1231);
 		PTF_ASSERT_EQUAL(quicInitialLayer->getToken().toString(), "");
+		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderLen(), 1252);
+		PTF_ASSERT_EQUAL(quicInitialLayer->toString(), "QUIC v1 Layer, Initial message");
 	}
 	// Initial packet with non-empty token
 	{
@@ -37,6 +39,7 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_EQUAL(quicInitialLayer->getSourceConnectionId().toString(), "4c8342");
 		PTF_ASSERT_EQUAL(quicInitialLayer->getLength(), 553);
 		PTF_ASSERT_EQUAL(quicInitialLayer->getToken().toString(), "005ea37af85124745e1e7fb3d92a3a17301eeb117b050f57d46eeac87ca3900689e621300e73cbb68ce705c6ea8df47d61d89af11c00db114c51f16bcc871f6f440f8aabe701");
+		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderLen(), 650);
 	}
 	// Handshake
 	{
@@ -51,6 +54,7 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getDestinationConnectionId().toString(), "f147b631d2ec8eb3");
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getSourceConnectionId().toString(), "3bccd4");
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getLength(), 72);
+		PTF_ASSERT_EQUAL(quicHandshakeLayer->getHeaderLen(), 92);
 	}
 	// 0-RTT packet
 	{
@@ -66,6 +70,7 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getDestinationConnectionId().toString(), "3c548c2db5aa5e4f64702c3961");
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getSourceConnectionId().toString(), "4c8342");
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getLength(), 439);
+		PTF_ASSERT_EQUAL(quicZeroRttLayer->getHeaderLen(), 464);
 	}
 	// Retry
 	{
@@ -82,6 +87,7 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_EQUAL(quicRetryLayer->getSourceConnectionId().toString(), "f067a5502a4262b5");
 		PTF_ASSERT_EQUAL(quicRetryLayer->getRetryToken().toString(), "746f6b656e");
 		PTF_ASSERT_EQUAL(quicRetryLayer->getRetryIntegrityTag().toString(), "04a265ba2eff4d829058fb3f0f2496ba");
+		PTF_ASSERT_EQUAL(quicRetryLayer->getHeaderLen(), 36);
 	}
 	// Version negotiation
 	{
@@ -97,6 +103,7 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getSourceConnectionId().toString(), "f92f4336fa951ba1");
 		std::vector<uint32_t> expectedSupportedVersions = {0x45474716, 1};
 		PTF_ASSERT_VECTORS_EQUAL(quicVersionNegotiationLayer->getSupportedVersions(), expectedSupportedVersions);
+		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getHeaderLen(), 31);
 	}
 	// 1-RTT
 	{
@@ -110,5 +117,6 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_TRUE(quicOneRttLayer->getFixedBit());
 		PTF_ASSERT_FALSE(quicOneRttLayer->getSpinBit());
 		PTF_ASSERT_FALSE(quicOneRttLayer->getKeyPhaseBit());
+		PTF_ASSERT_EQUAL(quicOneRttLayer->getHeaderLen(), 55);
 	}
 }

@@ -73,11 +73,7 @@ namespace pcpp
 		void computeCalculateFields() override
 		{}
 
-		std::string toString() const override
-		{
-			// TODO
-			return "QUIC layer";
-		}
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
