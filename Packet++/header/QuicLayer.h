@@ -82,19 +82,15 @@ namespace pcpp
 
 	protected:
 		QuicV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: Layer(data, dataLen, prevLayer, packet, QUIC)
+		    : Layer(data, dataLen, prevLayer, packet, QUIC)
 		{}
 
 		struct quic_common_header
 		{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-			uint8_t : 6,
-				fixedBit : 1,
-				headerForm : 1;
+			uint8_t : 6, fixedBit : 1, headerForm : 1;
 #else
-			uint8_t headerForm : 1,
-				fixedBit : 1,
-				: 6;
+			uint8_t headerForm : 1, fixedBit : 1, : 6;
 #endif
 		};
 
@@ -102,17 +98,9 @@ namespace pcpp
 		struct quic_long_header
 		{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-			uint8_t packetNumberLength : 2,
-				reserved : 2,
-				longPacketType : 2,
-				fixedBit : 1,
-				headerForm : 1;
+			uint8_t packetNumberLength : 2, reserved : 2, longPacketType : 2, fixedBit : 1, headerForm : 1;
 #else
-			uint8_t headerForm : 1,
-				fixedBit : 1,
-				longPacketType : 2,
-				reserved : 2,
-				packetNumberLength : 2;
+			uint8_t headerForm : 1, fixedBit : 1, longPacketType : 2, reserved : 2, packetNumberLength : 2;
 #endif
 			/// Network (big-endian) byte order on the wire - use QuicV1Layer::getVersion() for the
 			/// host-order value rather than reading this field directly.
@@ -127,19 +115,9 @@ namespace pcpp
 		struct quic_short_header
 		{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-			uint8_t packetNumberLength : 2,
-				keyPhase : 1,
-				reserved : 2,
-				spinBit : 1,
-				fixedBit : 1,
-				headerForm : 1;
+			uint8_t packetNumberLength : 2, keyPhase : 1, reserved : 2, spinBit : 1, fixedBit : 1, headerForm : 1;
 #else
-			uint8_t headerForm : 1,
-				fixedBit : 1,
-				spinBit : 1,
-				reserved : 2,
-				keyPhase : 1,
-				packetNumberLength : 2;
+			uint8_t headerForm : 1, fixedBit : 1, spinBit : 1, reserved : 2, keyPhase : 1, packetNumberLength : 2;
 #endif
 		};
 #pragma pack(pop)
@@ -175,6 +153,7 @@ namespace pcpp
 
 		ByteArray getDestinationConnectionId() const;
 		ByteArray getSourceConnectionId() const;
+
 	protected:
 		using QuicV1Layer::QuicV1Layer;
 
@@ -183,7 +162,7 @@ namespace pcpp
 			size_t length;
 			size_t offset;
 
-			OffsetAndLength(size_t length, size_t offset): length(length), offset(offset)
+			OffsetAndLength(size_t length, size_t offset) : length(length), offset(offset)
 			{}
 		};
 
@@ -218,7 +197,7 @@ namespace pcpp
 			uint64_t value;
 			size_t size;
 
-			VarintValueAndSize(uint64_t value, size_t size): value(value), size(size)
+			VarintValueAndSize(uint64_t value, size_t size) : value(value), size(size)
 			{}
 		};
 
@@ -248,7 +227,8 @@ namespace pcpp
 		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
 
 		friend class QuicV1Layer;
-	};	;
+	};
+	;
 
 	class QuicV1HandshakeLayer : public QuicV1EstablishmentLayer
 	{
@@ -269,6 +249,7 @@ namespace pcpp
 		{
 			return m_DataLen;
 		}
+
 	private:
 		using QuicV1LongHeaderLayer::QuicV1LongHeaderLayer;
 
@@ -295,6 +276,7 @@ namespace pcpp
 		{
 			return m_DataLen;
 		}
+
 	private:
 		using QuicV1LongHeaderLayer::QuicV1LongHeaderLayer;
 
@@ -325,6 +307,7 @@ namespace pcpp
 		{
 			return m_DataLen;
 		}
+
 	private:
 		using QuicV1Layer::QuicV1Layer;
 

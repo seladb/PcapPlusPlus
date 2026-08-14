@@ -27,6 +27,11 @@ namespace pcpp
 			{
 				return new QuicV1VersionNegotiationLayer(data, dataLen, prevLayer, packet);
 			}
+			if (netToHost32(header->version) != 0x00000001)
+			{
+				return nullptr;
+			}
+
 			switch (header->longPacketType)
 			{
 			case static_cast<uint8_t>(QuicPacketType::Initial):
@@ -61,7 +66,8 @@ namespace pcpp
 
 		if (headerLen < m_DataLen)
 		{
-			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(parseQuicLayer, m_Data + headerLen, m_DataLen - headerLen);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(parseQuicLayer, m_Data + headerLen,
+			                                                           m_DataLen - headerLen);
 		}
 	}
 
@@ -162,7 +168,7 @@ namespace pcpp
 			throw std::out_of_range("Not enough data to read destination connection ID");
 		}
 
-		return {length, destinationConnectionIdOffset};
+		return { length, destinationConnectionIdOffset };
 	}
 
 	QuicV1LongHeaderLayer::ByteArray QuicV1LongHeaderLayer::getDestinationConnectionId() const
@@ -170,7 +176,7 @@ namespace pcpp
 		try
 		{
 			auto offsetAndLength = getDestConIdOffsetAndLength();
-			return {m_Data + offsetAndLength.offset, m_Data + offsetAndLength.offset + offsetAndLength.length};
+			return { m_Data + offsetAndLength.offset, m_Data + offsetAndLength.offset + offsetAndLength.length };
 		}
 		catch (std::out_of_range&)
 		{
@@ -194,7 +200,7 @@ namespace pcpp
 			throw std::out_of_range("Not enough data to read source connection ID");
 		}
 
-		return {length, offset};
+		return { length, offset };
 	}
 
 	QuicV1LongHeaderLayer::ByteArray QuicV1LongHeaderLayer::getSourceConnectionId() const
@@ -202,7 +208,7 @@ namespace pcpp
 		try
 		{
 			auto offsetAndLength = getSrcConIdOffsetAndLength();
-			return {m_Data + offsetAndLength.offset, m_Data + offsetAndLength.offset + offsetAndLength.length};
+			return { m_Data + offsetAndLength.offset, m_Data + offsetAndLength.offset + offsetAndLength.length };
 		}
 		catch (std::out_of_range&)
 		{
@@ -237,7 +243,7 @@ namespace pcpp
 			value = (value << 8) | m_Data[offset + i];
 		}
 
-		return {value, size};
+		return { value, size };
 	}
 
 	uint64_t QuicV1EstablishmentLayer::getLength() const
@@ -260,7 +266,8 @@ namespace pcpp
 		{
 			auto offset = getLengthOffset();
 			auto lengthValueAndSize = getVarintValueAndSize(offset);
-			return (std::min)(static_cast<size_t>(offset + lengthValueAndSize.size + lengthValueAndSize.value), m_DataLen);
+			return (std::min)(static_cast<size_t>(offset + lengthValueAndSize.size + lengthValueAndSize.value),
+			                  m_DataLen);
 		}
 		catch (std::out_of_range&)
 		{
@@ -274,12 +281,13 @@ namespace pcpp
 		{
 			auto tokenLengthOffset = getTokenLengthOffset();
 			auto tokenLengthValueAndSize = getVarintValueAndSize(tokenLengthOffset);
-			if (tokenLengthValueAndSize.value == 0 || tokenLengthOffset + tokenLengthValueAndSize.size + tokenLengthValueAndSize.value > m_DataLen)
+			if (tokenLengthValueAndSize.value == 0 ||
+			    tokenLengthOffset + tokenLengthValueAndSize.size + tokenLengthValueAndSize.value > m_DataLen)
 			{
 				return {};
 			}
 			auto tokenOffset = m_Data + tokenLengthOffset + tokenLengthValueAndSize.size;
-			return {tokenOffset, tokenOffset + tokenLengthValueAndSize.value};
+			return { tokenOffset, tokenOffset + tokenLengthValueAndSize.value };
 		}
 		catch (std::out_of_range&)
 		{
@@ -329,7 +337,7 @@ namespace pcpp
 			return {};
 		}
 
-		return {m_Data + retryTokenOffset, m_Data + m_DataLen - retryIntegritySize};
+		return { m_Data + retryTokenOffset, m_Data + m_DataLen - retryIntegritySize };
 	}
 
 	QuicV1LongHeaderLayer::ByteArray QuicV1RetryLayer::getRetryIntegrityTag() const
@@ -340,7 +348,7 @@ namespace pcpp
 			return {};
 		}
 
-		return {m_Data + m_DataLen - retryIntegritySize, m_Data + m_DataLen};
+		return { m_Data + m_DataLen - retryIntegritySize, m_Data + m_DataLen };
 	}
 
 	std::vector<uint32_t> QuicV1VersionNegotiationLayer::getSupportedVersions() const
@@ -367,11 +375,10 @@ namespace pcpp
 		{
 			return {};
 		}
-
 	}
 
 	bool QuicV1OneRttLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		return data != nullptr && dataLen >= sizeof(quic_short_header);
 	}
-}
+}  // namespace pcpp

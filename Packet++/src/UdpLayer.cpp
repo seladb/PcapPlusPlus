@@ -116,7 +116,8 @@ namespace pcpp
 		}
 		else if (QuicV1Layer::isQuicPort(portDst) || QuicV1Layer::isQuicPort(portSrc))
 		{
-			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(QuicV1Layer::parseQuicLayer, udpData, udpDataLen);
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(QuicV1Layer::parseQuicLayer, udpData,
+			                                                           udpDataLen);
 		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
