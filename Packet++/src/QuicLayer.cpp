@@ -15,9 +15,9 @@ namespace pcpp
 
 		auto headerForm = static_cast<QuicHeaderForm>(reinterpret_cast<quic_common_header*>(data)->headerForm);
 
-		if (headerForm == QuicHeaderForm::ShortHeader && QuicOneRttLayer::isDataValid(data, dataLen))
+		if (headerForm == QuicHeaderForm::ShortHeader && QuicV1OneRttLayer::isDataValid(data, dataLen))
 		{
-			return new QuicOneRttLayer(data, dataLen, prevLayer, packet);
+			return new QuicV1OneRttLayer(data, dataLen, prevLayer, packet);
 		}
 
 		if (headerForm == QuicHeaderForm::LongHeader && QuicV1LongHeaderLayer::isDataValid(data, dataLen))
@@ -156,7 +156,12 @@ namespace pcpp
 			throw std::out_of_range("Not enough data to read destination connection ID length");
 		}
 
-		auto length = (std::min)(static_cast<size_t>(getLongHeader()->destinationConnectionIdLength), m_DataLen - destinationConnectionIdOffset);
+		auto length = static_cast<size_t>(getLongHeader()->destinationConnectionIdLength);
+		if (destinationConnectionIdOffset + length > m_DataLen)
+		{
+			throw std::out_of_range("Not enough data to read destination connection ID");
+		}
+
 		return {length, destinationConnectionIdOffset};
 	}
 
@@ -183,7 +188,11 @@ namespace pcpp
 		}
 
 		auto offset = sourceConnectionIdLengthOffset + sizeof(uint8_t);
-		auto length = (std::min)(static_cast<size_t>(m_Data[sourceConnectionIdLengthOffset]), m_DataLen - offset);
+		auto length = static_cast<size_t>(m_Data[sourceConnectionIdLengthOffset]);
+		if (offset + length > m_DataLen)
+		{
+			throw std::out_of_range("Not enough data to read source connection ID");
+		}
 
 		return {length, offset};
 	}
@@ -361,7 +370,7 @@ namespace pcpp
 
 	}
 
-	bool QuicOneRttLayer::isDataValid(const uint8_t* data, size_t dataLen)
+	bool QuicV1OneRttLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		return data != nullptr && dataLen >= sizeof(quic_short_header);
 	}

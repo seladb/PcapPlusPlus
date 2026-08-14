@@ -4,7 +4,7 @@
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
-PTF_TEST_CASE(QuicParsingTest)
+PTF_TEST_CASE(QuicV1ParsingTest)
 {
 	// Initial packet with empty token
 	{
@@ -110,7 +110,7 @@ PTF_TEST_CASE(QuicParsingTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_handshake_1rtt.dat");
 		pcpp::Packet quicPacket(rawPacket.get());
 
-		auto quicOneRttLayer = quicPacket.getLayerOfType<pcpp::QuicOneRttLayer>();
+		auto quicOneRttLayer = quicPacket.getLayerOfType<pcpp::QuicV1OneRttLayer>();
 		PTF_ASSERT_NOT_NULL(quicOneRttLayer);
 		PTF_ASSERT_EQUAL(quicOneRttLayer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::OneRtt, enumclass);
 		PTF_ASSERT_EQUAL(quicOneRttLayer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::ShortHeader, enumclass);
@@ -119,4 +119,197 @@ PTF_TEST_CASE(QuicParsingTest)
 		PTF_ASSERT_FALSE(quicOneRttLayer->getKeyPhaseBit());
 		PTF_ASSERT_EQUAL(quicOneRttLayer->getHeaderLen(), 55);
 	}
-}
+}  // QuicV1ParsingTest
+
+namespace
+{
+	std::unique_ptr<uint8_t[]> makeBuffer(std::initializer_list<uint8_t> bytes)
+	{
+		auto buffer = std::make_unique<uint8_t[]>(bytes.size());
+		std::copy(bytes.begin(), bytes.end(), buffer.get());
+		return buffer;
+	}
+}  // namespace
+
+PTF_TEST_CASE(QuicV1MalformedPacketsTest)
+{
+	// nullptr / too-short buffers
+	{
+		PTF_ASSERT_NULL(pcpp::QuicV1Layer::parseQuicLayer(nullptr, 10, nullptr, nullptr));
+
+		auto oneByte = makeBuffer({ 0x80 });
+		PTF_ASSERT_NULL(pcpp::QuicV1Layer::parseQuicLayer(oneByte.get(), 0, nullptr, nullptr));
+		PTF_ASSERT_NULL(pcpp::QuicV1Layer::parseQuicLayer(oneByte.get(), 1, nullptr, nullptr));
+
+		auto tooShortLongHeader = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01 });
+		PTF_ASSERT_NULL(pcpp::QuicV1Layer::parseQuicLayer(tooShortLongHeader.get(), 5, nullptr, nullptr));
+	}
+
+	// Smallest possible valid short-header (1-RTT) packet
+	{
+		// headerForm=0 (short header), fixedBit=1, spinBit=0, keyPhase=0, pnLength=0
+		auto buffer = makeBuffer({ 0x40, 0x01 });
+		size_t dataLen = 2;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		PTF_ASSERT_EQUAL(layer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::OneRtt, enumclass);
+		PTF_ASSERT_EQUAL(layer->getHeaderForm(), pcpp::QuicV1Layer::QuicHeaderForm::ShortHeader, enumclass);
+		PTF_ASSERT_EQUAL(layer->getHeaderLen(), dataLen);
+
+		auto oneRttLayer = dynamic_cast<pcpp::QuicV1OneRttLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(oneRttLayer);
+		PTF_ASSERT_TRUE(oneRttLayer->getFixedBit());
+		PTF_ASSERT_FALSE(oneRttLayer->getSpinBit());
+		PTF_ASSERT_FALSE(oneRttLayer->getKeyPhaseBit());
+	}
+
+	// Long-header packet with DCID length but no data
+	{
+		// Initial (longPacketType=0), version=1, destinationConnectionIdLength=8 (but none present)
+		auto buffer = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0x08 });
+		size_t dataLen = 6;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer);
+		PTF_ASSERT_EQUAL(initialLayer->getDestinationConnectionId().toString(), "");
+		PTF_ASSERT_EQUAL(initialLayer->getSourceConnectionId().toString(), "");
+		PTF_ASSERT_EQUAL(initialLayer->getToken().toString(), "");
+		PTF_ASSERT_EQUAL(initialLayer->getLength(), 0);
+		PTF_ASSERT_EQUAL(initialLayer->getHeaderLen(), 6);
+	}
+
+	// DCID claims more than is captured
+	{
+		// Initial (longPacketType=0), version=1, destinationConnectionIdLength=255 (but DCID is 1 byte long)
+		auto buffer = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0xFF, 0xAA });
+		size_t dataLen = 7;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer);
+		PTF_ASSERT_EQUAL(initialLayer->getDestinationConnectionId().toString(), "");
+		PTF_ASSERT_EQUAL(initialLayer->getSourceConnectionId().toString(), "");
+	}
+
+	// SCID length present but no data
+	{
+		// DCID length=1 ("aa"), then SCID length byte = 5, then nothing
+		auto bufferAtBoundary = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0x01, 0xAA, 0x05 });
+		size_t dataLenAtBoundary = 8;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+			pcpp::QuicV1Layer::parseQuicLayer(bufferAtBoundary.release(), dataLenAtBoundary, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer);
+		PTF_ASSERT_EQUAL(initialLayer->getDestinationConnectionId().toString(), "aa");
+		PTF_ASSERT_EQUAL(initialLayer->getSourceConnectionId().toString(), "");
+	}
+
+	// SCID claims more than is captured
+	{
+		// same as above, plus one trailing byte -> SCID clamped to what's available
+		auto bufferOneMore = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0x01, 0xAA, 0x05, 0xBB });
+		size_t dataLenOneMore = 9;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+			pcpp::QuicV1Layer::parseQuicLayer(bufferOneMore.release(), dataLenOneMore, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer2 = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer2);
+		PTF_ASSERT_EQUAL(initialLayer2->getSourceConnectionId().toString(), "");
+	}
+
+	// Token length claims more than is captured
+	{
+		// DCIDLen=0, SCIDLen=0, tokenLength varint (2-byte form) = 10, but no bytes follow
+		auto buffer = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x40, 0x0A });
+		size_t dataLen = 9;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer);
+		PTF_ASSERT_EQUAL(initialLayer->getToken().toString(), "");
+		// Length can't be located either, since it sits right after the (unreadable) token
+		PTF_ASSERT_EQUAL(initialLayer->getLength(), 0);
+		PTF_ASSERT_EQUAL(initialLayer->getHeaderLen(), dataLen);
+	}
+
+	// Length field reports the protocol-declared value verbatim even when it exceeds the captured bytes
+	{
+		// DCIDLen=0, SCIDLen=0, tokenLength=0 (1 byte), Length varint (2-byte) = 1000,
+		// followed by only 3 more bytes (simulating a truncated capture)
+		auto buffer = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x43, 0xE8, 0x01, 0x02, 0x03 });
+		size_t dataLen = 13;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer);
+		PTF_ASSERT_EQUAL(initialLayer->getLength(), 1000);
+		PTF_ASSERT_EQUAL(initialLayer->getHeaderLen(), dataLen);
+	}
+
+	// Version Negotiation takes priority over longPacketType when version == 0
+	{
+		auto buffer = makeBuffer({
+		    0x80,                    // headerForm=1, fixedBit=0, longPacketType bits read as 0 ("Initial")
+		    0x00, 0x00, 0x00, 0x00,  // version = 0 -> Version Negotiation
+		    0x02, 0x11, 0x22,        // DCIDLen=2, DCID
+		    0x02, 0x33, 0x44,        // SCIDLen=2, SCID
+		    0x00, 0x00, 0x00, 0x01,  // one full supported version = 1
+		    0xAA, 0xBB               // trailing partial version (< 4 bytes) - must be ignored
+		});
+		size_t dataLen = 17;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		PTF_ASSERT_EQUAL(layer->getPacketType(), pcpp::QuicV1Layer::QuicPacketType::VersionNegotiation, enumclass);
+		auto vnLayer = dynamic_cast<pcpp::QuicV1VersionNegotiationLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(vnLayer);
+		PTF_ASSERT_EQUAL(vnLayer->getVersion(), 0);
+		PTF_ASSERT_EQUAL(vnLayer->getDestinationConnectionId().toString(), "1122");
+		PTF_ASSERT_EQUAL(vnLayer->getSourceConnectionId().toString(), "3344");
+		std::vector<uint32_t> expectedVersions = { 1 };
+		PTF_ASSERT_VECTORS_EQUAL(vnLayer->getSupportedVersions(), expectedVersions);
+		PTF_ASSERT_EQUAL(vnLayer->getHeaderLen(), 17);
+	}
+
+	// Retry packet truncated before the 16-byte integrity tag
+	{
+		auto buffer = makeBuffer({
+		    0xF0,                    // headerForm=1, fixedBit=1, longPacketType=3 (Retry)
+		    0x00, 0x00, 0x00, 0x01,  // version = 1
+		    0x00,                    // DCIDLen = 0
+		    0x02, 0x55, 0x66,        // SCIDLen=2, SCID
+		    0x01, 0x02, 0x03, 0x04, 0x05  // only 5 bytes left - not enough for a 16-byte tag
+		});
+		size_t dataLen = 14;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto retryLayer = dynamic_cast<pcpp::QuicV1RetryLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(retryLayer);
+		PTF_ASSERT_EQUAL(retryLayer->getSourceConnectionId().toString(), "5566");
+		PTF_ASSERT_EQUAL(retryLayer->getRetryToken().toString(), "");
+		PTF_ASSERT_EQUAL(retryLayer->getRetryIntegrityTag().toString(), "");
+		PTF_ASSERT_EQUAL(retryLayer->getHeaderLen(), 14);
+	}
+
+	// Retry packet with exactly 16 bytes left after the SCID
+	{
+		auto buffer = makeBuffer({
+			0xF0,                    // headerForm=1, fixedBit=1, longPacketType=3 (Retry)
+			0x00, 0x00, 0x00, 0x01,  // version = 1
+			0x00,                    // DCIDLen = 0
+			0x02, 0x77, 0x88,        // SCIDLen=2, SCID
+			0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+			0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10  // exactly 16 bytes: the integrity tag, no token
+		});
+		size_t dataLen = 25;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto retryLayer = dynamic_cast<pcpp::QuicV1RetryLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(retryLayer);
+		PTF_ASSERT_EQUAL(retryLayer->getSourceConnectionId().toString(), "7788");
+		PTF_ASSERT_EQUAL(retryLayer->getRetryToken().toString(), "");
+		PTF_ASSERT_EQUAL(retryLayer->getRetryIntegrityTag().toString(), "0102030405060708090a0b0c0d0e0f10");
+		PTF_ASSERT_EQUAL(retryLayer->getHeaderLen(), dataLen);
+	}
+}  // QuicV1MalformedPacketsTest

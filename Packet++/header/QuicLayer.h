@@ -301,7 +301,7 @@ namespace pcpp
 		friend class QuicV1Layer;
 	};
 
-	class QuicOneRttLayer : public QuicV1Layer
+	class QuicV1OneRttLayer : public QuicV1Layer
 	{
 	public:
 		QuicPacketType getPacketType() const override

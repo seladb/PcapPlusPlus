@@ -364,4 +364,5 @@ PTF_TEST_CASE(MySqlMessageParsingTest);
 PTF_TEST_CASE(MySqlInvalidDataTest);
 
 // Implement in QuicTests.cpp
-PTF_TEST_CASE(QuicParsingTest);
+PTF_TEST_CASE(QuicV1ParsingTest);
+PTF_TEST_CASE(QuicV1MalformedPacketsTest);
