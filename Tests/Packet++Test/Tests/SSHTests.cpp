@@ -126,29 +126,6 @@ PTF_TEST_CASE(SSHMalformedParsingTest)
 	PTF_ASSERT_NULL(sshMessageMalformedLenPacket.getLayerOfType<pcpp::SSHHandshakeMessage>());
 	PTF_ASSERT_NOT_NULL(sshMessageMalformedLenPacket.getLayerOfType<pcpp::SSHEncryptedMessage>());
 
-	// SSH message whose padding leaves no room for the message type, which used to underflow
-	// getSSHHandshakeMessageLength() and report a message of SIZE_MAX bytes
-	{
-		uint8_t underflow[] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x08, 0x00,
-			                    // IPv4, protocol 6 (TCP)
-			                    0x45, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x40, 0x06, 0x00, 0x00, 0x0a, 0x00,
-			                    0x00, 0x01, 0x0a, 0x00, 0x00, 0x02,
-			                    // TCP, destination port 22
-			                    0x30, 0x39, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x10,
-			                    0x20, 0x00, 0x00, 0x00, 0x00, 0x00,
-			                    // SSH: packet length 12, padding length 11, message type 21 (New Keys)
-			                    0x00, 0x00, 0x00, 0x0c, 0x0b, 0x15, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			                    0x00, 0x00 };
-
-		pcpp::RawPacket underflowRawPacket(underflow, sizeof(underflow), time, false, pcpp::LINKTYPE_ETHERNET);
-		pcpp::Packet underflowPacket(&underflowRawPacket);
-
-		auto underflowMessage = underflowPacket.getLayerOfType<pcpp::SSHHandshakeMessage>();
-		PTF_ASSERT_NOT_NULL(underflowMessage);
-		PTF_ASSERT_EQUAL(underflowMessage->getPaddingLength(), 11);
-		PTF_ASSERT_EQUAL(underflowMessage->getSSHHandshakeMessageLength(), 0);
-	}
-
 	// SSH message which its padding len is larger than message len
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/SSHMessage_MalformedPaddingLen.dat");
 	pcpp::Packet sshMessageMalformedPadLenPacket(rawPacket3.get());
@@ -195,4 +172,13 @@ PTF_TEST_CASE(SSHMalformedParsingTest)
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getLanguagesClientToServer(), "");
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getLanguagesServerToClient(), "");
 	PTF_ASSERT_FALSE(sshKexInitLayer->isFirstKexPacketFollows());
+
+	// SSH message whose padding leaves no room for the message type, which used to underflow
+	// getSSHHandshakeMessageLength() and report a message of SIZE_MAX bytes
+	auto rawPacket6 = createPacketFromHexResource("PacketExamples/SSHMessage_MalformedPaddingUnderflow.dat");
+	pcpp::Packet sshMessagePaddingUnderflowPacket(rawPacket6.get());
+	auto sshPaddingUnderflowMessage = sshMessagePaddingUnderflowPacket.getLayerOfType<pcpp::SSHHandshakeMessage>();
+	PTF_ASSERT_NOT_NULL(sshPaddingUnderflowMessage);
+	PTF_ASSERT_EQUAL(sshPaddingUnderflowMessage->getPaddingLength(), 11);
+	PTF_ASSERT_EQUAL(sshPaddingUnderflowMessage->getSSHHandshakeMessageLength(), 0);
 }
