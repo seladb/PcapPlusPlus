@@ -836,25 +836,69 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	// check if GeneralFilter::matches(...) work properly for packets with different LinkLayerType
 
 	// pcpp::LINKTYPE_NULL layer
-	pcpp::PcapFileReaderDevice fileReaderDev1(NULL_LOOPBACK_PCAP_PATH);
-	PTF_ASSERT_TRUE(fileReaderDev1.open());
-	pcpp::RawPacketVector rawPacketVec;
-	fileReaderDev1.getNextPackets(rawPacketVec);
-	fileReaderDev1.close();
-
-	int validCounter = 0;
-	for (auto* rawPacketPtr : rawPacketVec)
 	{
-		pcpp::BPFStringFilter bpfStringFilter(
-		    "len = " +
-		    std::to_string(rawPacketPtr->getRawDataLen()));  // checking against real filter, not the "" filter
-		if (bpfStringFilter.matches(*rawPacketPtr) && rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_NULL)
+		pcpp::PcapFileReaderDevice fileReaderDev1(NULL_LOOPBACK_PCAP_PATH);
+		PTF_ASSERT_TRUE(fileReaderDev1.open());
+		pcpp::RawPacketVector rawPacketVec;
+		fileReaderDev1.getNextPackets(rawPacketVec);
+		fileReaderDev1.close();
+
+		int validCounter = 0;
+		for (auto* rawPacketPtr : rawPacketVec)
 		{
-			++validCounter;
+			pcpp::BPFStringFilter bpfStringFilter(
+			    "len = " +
+			    std::to_string(rawPacketPtr->getRawDataLen()));  // checking against real filter, not the "" filter
+			if (bpfStringFilter.matches(*rawPacketPtr) && rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_NULL)
+			{
+				++validCounter;
+			}
 		}
+		PTF_ASSERT_EQUAL(validCounter, 3);
+		rawPacketVec.clear();
 	}
-	PTF_ASSERT_EQUAL(validCounter, 3);
+
+	pcpp::RawPacketVector rawPacketVec;
+	int validCounter = 0;
+	// pcpp::LINKTYPE_RAW layer
+	{
+		pcpp::PcapFileReaderDevice fileReaderDev1(RAW_IP_PCAP_PATH);
+		PTF_ASSERT_TRUE(fileReaderDev1.open());
+		fileReaderDev1.getNextPackets(rawPacketVec);
+		for (auto* rawPacketPtr : rawPacketVec)
+		{
+			pcpp::Packet packet(rawPacketPtr);
+			if (pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
+			{
+				pcpp::BPFStringFilter bpfStringFilter(
+				    "host " +
+				    ip4layer->getDstIPAddress().toString());  // checking against real filter, not the "" filter
+				if (bpfStringFilter.matches(*rawPacketPtr))
+				{
+					if (rawPacketPtr->getLinkLayerType() == pcpp::LINKTYPE_RAW)
+					{
+						++validCounter;
+					}
+				}
+			}
+		}
+		PTF_ASSERT_EQUAL(validCounter, 50);
+		rawPacketVec.clear();
+	}
+
+	// pcpp::LINKTYPE_RAW layer with live capture
+	{
+		pcpp::PcapFileReaderDevice dev(RAW_IP_PCAP_PATH);
+		PTF_ASSERT_TRUE(dev.open());
+
+		PTF_ASSERT_TRUE(dev.setFilter("ip"));
+
+		dev.getNextPackets(rawPacketVec);
+		PTF_ASSERT_EQUAL(validCounter, rawPacketVec.size());
+	}
+
 	rawPacketVec.clear();
+	validCounter = 0;
 
 	// pcpp::LINKTYPE_LINUX_SLL layer
 	pcpp::PcapFileReaderDevice fileReaderDev2(SLL_PCAP_PATH);
