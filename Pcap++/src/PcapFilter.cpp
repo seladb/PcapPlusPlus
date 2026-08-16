@@ -133,7 +133,6 @@ namespace pcpp
 
 	namespace
 	{
-		// cppcheck-su
 		/// @brief Applies linktype patches to ensure compatibility with BPF filters.
 		/// @param linktype The original link layer type.
 		/// @return The patched link layer type suitable for BPF filters.
