@@ -14,10 +14,10 @@
 #endif
 #include "RawPacket.h"
 #include "TimespecTimeval.h"
+#include "DeprecationUtils.h"
 
 namespace pcpp
 {
-
 	static const int DEFAULT_SNAPLEN = 9000;
 
 	namespace internal
@@ -133,10 +133,11 @@ namespace pcpp
 
 	namespace
 	{
+		// cppcheck-su
 		/// @brief Applies linktype patches to ensure compatibility with BPF filters.
 		/// @param linktype The original link layer type.
 		/// @return The patched link layer type suitable for BPF filters.
-		LinkLayerType patchLinktype2dlt(LinkLayerType linktype)
+		PCPP_MAYBE_UNUSED LinkLayerType patchLinktype2dlt(LinkLayerType linktype)
 		{
 			switch (linktype)
 			{
