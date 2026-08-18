@@ -174,57 +174,29 @@ PTF_TEST_CASE(MplsLayerTest)
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
 
 	// Protocol identifiers alone must not create an MPLS layer when its four-byte header is truncated.
+	const struct
 	{
-		uint8_t vlanData[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			                   0x00, 0x81, 0x00, 0x00, 0x01, 0x88, 0x47, 0xaa, 0xbb, 0xcc };
-		timeval timestamp = {};
-		pcpp::RawPacket rawPacket(vlanData, sizeof(vlanData), timestamp, false, pcpp::LINKTYPE_ETHERNET);
-		pcpp::Packet packet(&rawPacket);
+		const char* resourceName;
+		pcpp::LinkLayerType linkType;
+	} truncatedMplsPackets[] = {
+		{ "PacketExamples/TruncatedMplsVlan.dat", pcpp::LINKTYPE_ETHERNET   },
+		{ "PacketExamples/TruncatedMplsSll.dat",  pcpp::LINKTYPE_LINUX_SLL  },
+		{ "PacketExamples/TruncatedMplsSll2.dat", pcpp::LINKTYPE_LINUX_SLL2 },
+		{ "PacketExamples/TruncatedMplsGre.dat",  pcpp::LINKTYPE_ETHERNET   },
+	};
+	for (const auto& testCase : truncatedMplsPackets)
+	{
+		auto rawPacket =
+		    createPacketFromHexResource(testCase.resourceName, pcpp_tests::utils::PacketFactory(testCase.linkType));
+		pcpp::Packet packet(rawPacket.get());
 		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::MplsLayer>());
 		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
 		packet.toString();
 	}
 
 	{
-		uint8_t sllData[] = { 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			                  0x00, 0x00, 0x00, 0x00, 0x88, 0x47, 0xaa, 0xbb, 0xcc };
-		timeval timestamp = {};
-		pcpp::RawPacket rawPacket(sllData, sizeof(sllData), timestamp, false, pcpp::LINKTYPE_LINUX_SLL);
-		pcpp::Packet packet(&rawPacket);
-		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::MplsLayer>());
-		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
-		packet.toString();
-	}
-
-	{
-		uint8_t sll2Data[] = { 0x88, 0x47, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
-			                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xaa, 0xbb, 0xcc };
-		timeval timestamp = {};
-		pcpp::RawPacket rawPacket(sll2Data, sizeof(sll2Data), timestamp, false, pcpp::LINKTYPE_LINUX_SLL2);
-		pcpp::Packet packet(&rawPacket);
-		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::MplsLayer>());
-		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
-		packet.toString();
-	}
-
-	{
-		uint8_t greData[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00,
-			                  0x45, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x00, 0x40, 0x2f, 0x00, 0x00, 0x01, 0x01,
-			                  0x01, 0x01, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x88, 0x47, 0xaa, 0xbb, 0xcc };
-		timeval timestamp = {};
-		pcpp::RawPacket rawPacket(greData, sizeof(greData), timestamp, false, pcpp::LINKTYPE_ETHERNET);
-		pcpp::Packet packet(&rawPacket);
-		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::MplsLayer>());
-		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
-		packet.toString();
-	}
-
-	{
-		uint8_t stackedData[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			                      0x00, 0x88, 0x47, 0x00, 0x00, 0x00, 0x40, 0xaa, 0xbb, 0xcc };
-		timeval timestamp = {};
-		pcpp::RawPacket rawPacket(stackedData, sizeof(stackedData), timestamp, false, pcpp::LINKTYPE_ETHERNET);
-		pcpp::Packet packet(&rawPacket);
+		auto rawPacket = createPacketFromHexResource("PacketExamples/TruncatedMplsStacked.dat");
+		pcpp::Packet packet(rawPacket.get());
 		auto* firstMpls = packet.getLayerOfType<pcpp::MplsLayer>();
 		PTF_ASSERT_NOT_NULL(firstMpls);
 		PTF_ASSERT_NULL(packet.getNextLayerOfType<pcpp::MplsLayer>(firstMpls));
