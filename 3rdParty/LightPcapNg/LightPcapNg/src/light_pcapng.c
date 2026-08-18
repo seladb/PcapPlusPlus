@@ -40,6 +40,7 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
    }
    else {
       struct _light_option *opt = calloc(1, sizeof(struct _light_option));
+	   DCHECK_NULLP(opt, return NULL); // ---> PCPP patch
       uint16_t actual_length;
       uint16_t alignment = sizeof(uint32_t);
 
@@ -131,6 +132,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       { // PCPP patch
          DPRINT_HERE(LIGHT_INTERFACE_BLOCK);
          struct _light_interface_description_block *idb = calloc(1, sizeof(struct _light_interface_description_block));
+	      DCHECK_NULLP(idb, return); // ---> PCPP patch
          struct _light_option *opt = NULL;
          uint32_t link_reserved = *local_data++;
          int32_t local_offset = 0;
@@ -176,6 +178,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          PADD32(captured_packet_length, &actual_len);
 
          epb = calloc(1, sizeof(struct _light_enhanced_packet_block) + actual_len);
+	      DCHECK_NULLP(epb, return); // ---> PCPP patch
          epb->interface_id = interface_id;
          epb->timestamp_high = timestamp_high;
          epb->timestamp_low = timestamp_low;
@@ -236,6 +239,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
 
          PADD32(len, &actual_len);
          cnb = calloc(1, sizeof(struct _light_custom_nonstandard_block) + actual_len);
+	      DCHECK_NULLP(cnb, return NULL); // ---> PCPP patch
          cnb->data_length = len;
          cnb->reserved0 = reserved0;
          cnb->reserved1 = reserved1;
@@ -258,6 +262,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          if (raw_size > 0)
          {
             current->block_body = calloc(raw_size, 1);
+	         DCHECK_NULLP(current->block_body, return); // ---> PCPP patch
             memcpy(current->block_body, local_data, raw_size);
             local_data += raw_size / (sizeof(*local_data));
          }
@@ -392,6 +397,7 @@ void light_read_record(light_file fd, light_pcapng *record)
    //Pull out the block contents from the file
    const uint32_t bytesToRead = current->block_total_length - 2 * sizeof(blockSize) - sizeof(blockType);
    uint32_t *local_data = calloc(bytesToRead, 1);
+	DCHECK_NULLP(local_data, return); // ---> PCPP patch
    bytesRead = light_read(fd, local_data, bytesToRead);
    if (bytesRead != bytesToRead || (bytesRead == EOF && feof(fd->file)))
    {

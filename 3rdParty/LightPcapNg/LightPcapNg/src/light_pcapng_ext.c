@@ -55,6 +55,8 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 		return NULL;
 
 	light_pcapng_file_info *file_info = calloc(1, sizeof(light_pcapng_file_info));
+	DCHECK_NULLP(file_info, return); // ---> PCPP patch
+
 
 	struct _light_section_header* section_header;
 
@@ -81,6 +83,15 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 	{
 		file_info->os_desc_size = light_get_option_length(opt);
 		file_info->os_desc = calloc(file_info->os_desc_size+1, sizeof(char));
+
+		// ---> PCPP patch
+		// If calloc fails it returns NULL pointer. Without early return it will cause Undefined Behaviour in memcpy
+		if (file_info->os_desc == NULL) {
+			file_info->os_desc_size = 0;
+			return NULL;
+		}
+		// <--- end of PCPP patch
+
 		memcpy(file_info->os_desc, (char*)light_get_option_data(opt), file_info->os_desc_size);
 		file_info->os_desc[file_info->os_desc_size] = '\0';
 	}
@@ -95,6 +106,15 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 	{
 		file_info->user_app_desc_size = light_get_option_length(opt);
 		file_info->user_app_desc = calloc(file_info->user_app_desc_size+1, sizeof(char));
+		
+		// ---> PCPP patch
+		// If calloc fails it returns NULL pointer. Without early return it will cause Undefined Behaviour in memcpy
+		if (file_info->user_app_desc == NULL) {
+			file_info->user_app_desc_size = 0;
+			return NULL;
+		}
+		// <--- end of PCPP patch
+		
 		memcpy(file_info->user_app_desc, (char*)light_get_option_data(opt), file_info->user_app_desc_size);
 		file_info->user_app_desc[file_info->user_app_desc_size] = '\0';
 	}
@@ -109,6 +129,15 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 	{
 		file_info->file_comment_size = light_get_option_length(opt);
 		file_info->file_comment = calloc(file_info->file_comment_size+1, sizeof(char));
+	
+		// ---> PCPP patch
+		// If calloc fails it returns NULL pointer. Without early return it will cause Undefined Behaviour in memcpy
+		if (file_info->file_comment == NULL) {
+			file_info->file_comment_size = 0;
+			return NULL;
+		}
+		// <--- end of PCPP patch
+		
 		memcpy(file_info->file_comment, (char*)light_get_option_data(opt), file_info->file_comment_size);
 		file_info->file_comment[file_info->file_comment_size] = '\0';
 	}
@@ -156,7 +185,11 @@ static void __append_interface_block_to_file_info(const light_pcapng interface_b
 	else
 	{
 		uint8_t* raw_ts_data = (uint8_t*)light_get_option_data(ts_resolution_option);
-		if (*raw_ts_data < 128)
+		// ---> PCPP patch
+		if (raw_ts_data == NULL)
+			ticks_per_sec = int_pow(10, 6);
+		// <--- end of PCPP patch
+		else if (*raw_ts_data < 128)
 			ticks_per_sec = int_pow(10, (*raw_ts_data));
 		else
 			ticks_per_sec = int_pow(2, ((*raw_ts_data)-128));
@@ -185,6 +218,7 @@ light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read
 	DCHECK_NULLP(file_path, return NULL);
 
 	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
+	DCHECK_NULLP(pcapng, return NULL); // ---> PCPP patch
 	pcapng->file = light_open(file_path, LIGHT_OREAD);
 	DCHECK_ASSERT_EXP(pcapng->file != NULL, "could not open file", return NULL);
 
@@ -229,6 +263,7 @@ light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file
 	DCHECK_NULLP(file_path, return NULL);
 
 	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
+	DCHECK_NULLP(pcapng, return); // ---> PCPP patch
 
 	pcapng->file = light_open_compression(file_path, LIGHT_OWRITE, compression_level);
 	pcapng->file_info = file_info;
@@ -310,6 +345,7 @@ light_pcapng_t *light_pcapng_open_append(const char* file_path)
 light_pcapng_file_info *light_create_default_file_info()
 {
 	light_pcapng_file_info *default_file_info = calloc(1, sizeof(light_pcapng_file_info));
+	DCHECK_NULLP(default_file_info, return NULL); // ---> PCPP patch
 	memset(default_file_info, 0, sizeof(light_pcapng_file_info));
 	default_file_info->major_version = 1;
 	return default_file_info;
@@ -318,11 +354,13 @@ light_pcapng_file_info *light_create_default_file_info()
 light_pcapng_file_info *light_create_file_info(const char *os_desc, const char *hardware_desc, const char *user_app_desc, const char *file_comment)
 {
 	light_pcapng_file_info *info = light_create_default_file_info();
+	DCHECK_NULLP(info, return NULL); // ---> PCPP patch
 
 	if (os_desc != NULL && strlen(os_desc) > 0)
 	{
 		size_t os_len = strlen(os_desc);
 		info->os_desc = calloc(os_len, sizeof(char));
+		DCHECK_NULLP(info->os_desc, return NULL); // ---> PCPP patch
 		memcpy(info->os_desc, os_desc, os_len);
 		info->os_desc_size = os_len;
 	}
@@ -331,6 +369,7 @@ light_pcapng_file_info *light_create_file_info(const char *os_desc, const char *
 	{
 		size_t hw_len = strlen(hardware_desc);
 		info->hardware_desc = calloc(hw_len, sizeof(char));
+		DCHECK_NULLP(info->hardware_desc, return NULL); // ---> PCPP patch
 		memcpy(info->hardware_desc, hardware_desc, hw_len);
 		info->hardware_desc_size = hw_len;
 	}
@@ -339,6 +378,7 @@ light_pcapng_file_info *light_create_file_info(const char *os_desc, const char *
 	{
 		size_t app_len = strlen(user_app_desc);
 		info->user_app_desc = calloc(app_len, sizeof(char));
+		DCHECK_NULLP(info->user_app_desc, return NULL); // ---> PCPP patch
 		memcpy(info->user_app_desc, user_app_desc, app_len);
 		info->user_app_desc_size = app_len;
 	}
@@ -347,6 +387,7 @@ light_pcapng_file_info *light_create_file_info(const char *os_desc, const char *
 	{
 		size_t comment_len = strlen(file_comment);
 		info->file_comment = calloc(comment_len, sizeof(char));
+		DCHECK_NULLP(info->file_comment, return NULL); // ---> PCPP patch
 		memcpy(info->file_comment, file_comment, comment_len);
 		info->file_comment_size = comment_len;
 	}
@@ -521,6 +562,7 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	PADD32(option_size, &option_size);
 	uint8_t *epb_memory = calloc(1, option_size);
 	//memset(epb_memory, 0, option_size); should be redundant with calloc
+	DCHECK_NULLP(epb_memory, return); // ---> PCPP patch
 	struct _light_enhanced_packet_block *epb = (struct _light_enhanced_packet_block *)epb_memory;
 	epb->interface_id = iface_id;
 
@@ -577,5 +619,6 @@ void light_pcapng_close(light_pcapng_t *pcapng)
 
 void light_pcapng_flush(light_pcapng_t *pcapng)
 {
+	DCHECK_NULLP(pcapng, return);
 	light_flush(pcapng->file);
 }
