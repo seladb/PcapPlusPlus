@@ -886,7 +886,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 		rawPacketVec.clear();
 	}
 
-	// pcpp::LINKTYPE_RAW layer with live capture
+	// pcpp::LINKTYPE_RAW layer with device integrated filter
 	{
 		pcpp::PcapFileReaderDevice dev(RAW_IP_PCAP_PATH);
 		PTF_ASSERT_TRUE(dev.open());
