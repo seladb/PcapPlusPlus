@@ -61,6 +61,7 @@ light_option light_create_option(const uint16_t option_code, const uint16_t opti
 {
 	uint16_t size = 0;
 	light_option option = calloc(1, sizeof(struct _light_option));
+	DCHECK_NULLP(option, return NULL); // ---> PCPP patch
 
 	PADD32(option_length, &size);
 	option->custom_option_code = option_code;
@@ -163,6 +164,7 @@ int light_update_option(light_pcapng section, light_pcapng pcapng, light_option 
 		iterator->data = calloc(new_data_size, sizeof(uint8_t));
 	}
 
+	DCHECK_NULLP(iterator->data, return LIGHT_OUT_OF_MEMORY); // ---> PCPP patch
 	memcpy(iterator->data, option->data, iterator->option_length);
 
 	return LIGHT_SUCCESS;
@@ -294,6 +296,7 @@ static light_boolean __get_ip_address(const uint8_t *payload, flow_address_t *ad
 
 static light_boolean __get_address(const light_pcapng pcapng, flow_address_t *address, uint8_t *protocol_version)
 {
+	DCHECK_NULLP(pcapng, return LIGHT_FALSE); // ---> PCPP patch
 	uint32_t type = pcapng->block_type;
 
 	if (type == LIGHT_ENHANCED_PACKET_BLOCK) {
@@ -313,6 +316,7 @@ static light_boolean __get_address(const light_pcapng pcapng, flow_address_t *ad
 static flow_information_t *__create_flow(const light_pcapng section, const light_pcapng interface, const flow_address_t *key, const uint8_t protocol_version)
 {
 	flow_information_t *flow = calloc(1, sizeof(flow_information_t));
+	DCHECK_NULLP(flow, return NULL); // ---> PCPP patch
 
 	flow->version = protocol_version;
 	memcpy(&flow->address, key, sizeof(flow->address));
@@ -328,6 +332,8 @@ static flow_information_t *__create_flow(const light_pcapng section, const light
 // Could be better.
 static flow_information_t *__find_flow(flow_information_t *start, const flow_address_t *key, const uint8_t protocol_version)
 {
+	DCHECK_NULLP(key, return NULL); // ---> PCPP patch
+
 	while (start != NULL) {
 		if (start->version == protocol_version) {
 			if (start->address.source.ipv6.raw[0] == key->source.ipv6.raw[0] && start->address.source.ipv6.raw[1] == key->source.ipv6.raw[1] &&
@@ -352,6 +358,7 @@ static void __append_address_information(light_pcapng section, const flow_inform
 	uint8_t *option_data;
 	uint16_t option_length = 1;
 
+	DCHECK_NULLP(info, return NULL); // ---> PCPP patch
 	if (info->version == 4) {
 		option_length += 2 * sizeof(info->address.source.ipv4);
 	}
@@ -361,6 +368,8 @@ static void __append_address_information(light_pcapng section, const flow_inform
 
 	// Maybe I could use light_create_option instead of light_alloc_option.
 	flow_option = light_alloc_option(option_length);
+	DCHECK_NULLP(flow_option, return NULL); // ---> PCPP patch
+
 	flow_option->custom_option_code = LIGHT_CUSTOM_OPTION_ADDRESS_INFO;
 	option_data = (uint8_t *)flow_option->data;
 
@@ -450,7 +459,9 @@ int light_ip_flow(light_pcapng *sectionp, light_pcapng **flows, size_t *flow_cou
 					match = __create_flow(current_section, interface_list[epb->interface_id], &flow_key, protocol_version);
 				}
 
-				last_flow->next = match;
+				if (last_flow != NULL) { // ---> PCPP patch
+					last_flow->next = match;
+				}
 				last_flow = match;
 				*flow_count += 1;
 			}
@@ -483,6 +494,7 @@ iterate:
 	*flows = calloc(*flow_count, sizeof(light_pcapng));
 	uint32_t index = 0;
 	flow_information_t *iterator = current_flow;
+	DCHECK_NULLP(*flows, return LIGHT_FAILURE); // ---> PCPP patch
 
 	while (iterator != NULL) {
 		(*flows)[index] = iterator->section;
