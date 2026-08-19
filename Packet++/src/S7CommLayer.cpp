@@ -136,10 +136,10 @@ namespace pcpp
 		if (!m_Parameter)
 		{
 			uint8_t* payload = m_Data + getS7commHeaderLength();
-			m_Parameter = new S7CommParameter(payload, getParamLength());
+			m_Parameter = std::unique_ptr<S7CommParameter>(new S7CommParameter(payload, getParamLength()));
 		}
 
-		return m_Parameter;
+		return m_Parameter.get();
 	}
 
 	size_t S7CommLayer::getS7commHeaderLength() const
