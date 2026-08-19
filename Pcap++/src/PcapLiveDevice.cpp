@@ -664,11 +664,13 @@ namespace pcpp
 			throw std::runtime_error("Cannot set promiscuous mode, error was: " + std::string(pcap.getLastError()));
 		}
 
+		bool useBufferedMode = config.bufferingMode == BufferingMode::Buffered;
+
 		int timeout = config.packetBufferTimeoutMs;
 		if (timeout <= 0)
 		{
 			// FreeBSD/macOS already have a positive LIBPCAP_OPEN_LIVE_TIMEOUT for the pcap_breakloop() workaround
-			bool useNonImmediateModeDefault = config.disableImmediateMode && LIBPCAP_OPEN_LIVE_TIMEOUT <= 0;
+			bool useNonImmediateModeDefault = useBufferedMode && LIBPCAP_OPEN_LIVE_TIMEOUT <= 0;
 			timeout = useNonImmediateModeDefault ? NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT : LIBPCAP_OPEN_LIVE_TIMEOUT;
 		}
 		ret = pcap_set_timeout(pcap.get(), timeout);
@@ -687,7 +689,7 @@ namespace pcpp
 		}
 
 #ifdef HAS_PCAP_IMMEDIATE_MODE
-		if (!config.disableImmediateMode)
+		if (!useBufferedMode)
 		{
 			ret = pcap_set_immediate_mode(pcap.get(), 1);
 			if (ret != 0)
