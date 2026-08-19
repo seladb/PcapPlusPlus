@@ -315,7 +315,7 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 - 發送電子郵件至: <pcapplusplus@gmail.com>
 - 在 X 平台關注我們: <https://x.com/seladb>
 
-如果您喜歡這個專案，請在 GitHub 上為我們按下星星 — 這對我們非常有幫助！ :star: :star:
+如果您喜歡這個專案，請 __在 GitHub 上為我們按下星星 — 這對我們非常有幫助！__ :star: :star:
 
 請訪問 [PcapPlusPlus 網站](https://pcapplusplus.github.io/community) 瞭解更多資訊。
 

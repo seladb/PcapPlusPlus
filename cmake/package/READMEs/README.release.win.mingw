@@ -47,5 +47,4 @@ Using PcapPlusPlus in your project:
 Running the examples:
 ---------------------
 
- - Make sure you have WinPcap, Npcap or Wireshark installed. It's not needed by every example individually, but the
-   examples are built with WinPcap/Npcap support by default, so it's required for the standard build
+ - Make sure you have WinPcap, Npcap or Wireshark installed. It's not needed by every example individually, but the examples are built with WinPcap/Npcap support by default, so it's required for the standard build
