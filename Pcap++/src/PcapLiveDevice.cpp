@@ -670,6 +670,7 @@ namespace pcpp
 		if (timeout <= 0)
 		{
 			// FreeBSD/macOS already have a positive LIBPCAP_OPEN_LIVE_TIMEOUT for the pcap_breakloop() workaround
+			// cppcheck-suppress knownConditionTrueFalse
 			bool useNonImmediateModeDefault = useBufferedMode && LIBPCAP_OPEN_LIVE_TIMEOUT <= 0;
 			timeout = useNonImmediateModeDefault ? NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT : LIBPCAP_OPEN_LIVE_TIMEOUT;
 		}
@@ -694,8 +695,7 @@ namespace pcpp
 			ret = pcap_set_immediate_mode(pcap.get(), 1);
 			if (ret != 0)
 			{
-				throw std::runtime_error("Cannot set immediate mode, error was: " +
-				                         std::string(pcap.getLastError()));
+				throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap.getLastError()));
 			}
 		}
 #endif
