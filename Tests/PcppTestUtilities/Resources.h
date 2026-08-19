@@ -62,8 +62,7 @@ namespace pcpp_tests
 			/// @param data Pointer to the data to be saved.
 			/// @param length The length of the data in bytes.
 			/// @throw std::runtime_error if the provider is frozen and does not allow saving.
-			void saveResource(ResourceType resourceType, const char* filename, const uint8_t* data,
-			                  size_t length);
+			void saveResource(ResourceType resourceType, const char* filename, const uint8_t* data, size_t length);
 
 		private:
 			std::string m_DataRoot;  ///< The root directory for test data files
