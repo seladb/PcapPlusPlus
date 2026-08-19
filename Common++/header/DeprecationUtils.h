@@ -2,14 +2,6 @@
 
 /// @file
 
-#ifndef PCPP_MAYBE_UNUSED
-#	if defined(__GNUC__) || defined(__clang__)
-#		define PCPP_MAYBE_UNUSED [[gnu::unused]]  // TODO: Move to [[maybe_unused]] when C++17 is the minimum standard
-#	else
-#		define PCPP_MAYBE_UNUSED
-#	endif
-#endif  // !PCPP_MAYBE_UNUSED
-
 #ifndef PCPP_DEPRECATED
 #	define PCPP_DEPRECATED(msg) [[deprecated(msg)]]
 #endif
