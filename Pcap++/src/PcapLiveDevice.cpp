@@ -670,8 +670,8 @@ namespace pcpp
 		if (timeout <= 0)
 		{
 			// FreeBSD/macOS already have a positive LIBPCAP_OPEN_LIVE_TIMEOUT for the pcap_breakloop() workaround
-			// cppcheck-suppress knownConditionTrueFalse
 			bool useNonImmediateModeDefault = useBufferedMode && LIBPCAP_OPEN_LIVE_TIMEOUT <= 0;
+			// cppcheck-suppress knownConditionTrueFalse
 			timeout = useNonImmediateModeDefault ? NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT : LIBPCAP_OPEN_LIVE_TIMEOUT;
 		}
 		ret = pcap_set_timeout(pcap.get(), timeout);
