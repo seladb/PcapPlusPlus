@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
         pcpp::IPv4Address destIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address();
 
         // 소스 및 대상 IP 출력
-        std::cout << "Source IP is '" << srcIP << "'; Dest IP is '" << destIP << "'" << std::endl;
+        std::cout << "소스 IP: '" << srcIP << "'; 대상 IP: '" << destIP << "'" << std::endl;
     }
 
     // 파일 닫기
