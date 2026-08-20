@@ -959,7 +959,7 @@ jobs:
 #            gradle -is connectedCheck
 
   xdp:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -967,7 +967,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install ccache libpcap-dev libbpf-dev tcpreplay
+          sudo apt update && sudo apt -y install ccache libpcap-dev libbpf-dev libxdp-dev tcpreplay
 
       - name: Restore Ccache
         id: ccache-restore
