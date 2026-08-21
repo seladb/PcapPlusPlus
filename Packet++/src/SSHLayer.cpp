@@ -109,7 +109,7 @@ namespace pcpp
 
 	size_t SSHHandshakeMessage::getSSHHandshakeMessageLength() const
 	{
-		size_t length = be32toh(getMsgBaseHeader()->packetLength);
+		size_t length = static_cast<size_t>(be32toh(getMsgBaseHeader()->packetLength));
 		// the padding length and the message type come from the packet, so the subtraction
 		// underflows and reports a huge message when they do not fit inside the packet length
 		size_t overhead = getMsgBaseHeader()->paddingLength + sizeof(uint8_t) * 2;
