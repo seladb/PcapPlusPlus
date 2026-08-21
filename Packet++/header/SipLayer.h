@@ -95,7 +95,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
-			return OsiModelSesionLayer;
+			return OsiModelSessionLayer;
 		}
 
 		/// Currently identifies only SDP if content-length field exists and set to a value greater than zero.
