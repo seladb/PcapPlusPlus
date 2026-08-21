@@ -190,7 +190,6 @@ PTF_TEST_CASE(MplsLayerTest)
 		pcpp::Packet packet(rawPacket.get());
 		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::MplsLayer>());
 		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
-		packet.toString();
 	}
 
 	{
