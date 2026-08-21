@@ -36,7 +36,7 @@ namespace pcpp
 			Unknown = 255
 		};
 
-		enum class QuicHeaderForm : u_int8_t
+		enum class QuicHeaderForm : uint8_t
 		{
 			ShortHeader = 0,
 			LongHeader = 1
