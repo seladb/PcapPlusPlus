@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include "DeprecationUtils.h"
+
 /// @file
 
 /// @namespace pcpp
@@ -274,7 +276,9 @@ namespace pcpp
 		/// Transport layer (layer 4)
 		OsiModelTransportLayer = 4,
 		/// Session layer (layer 5)
-		OsiModelSesionLayer = 5,
+		OsiModelSessionLayer = 5,
+		/// Deprecated typo, use OsiModelSessionLayer instead.
+	    OsiModelSesionLayer PCPP_DEPRECATED("Use OsiModelSessionLayer instead") = OsiModelSessionLayer,
 		/// Presentation layer (layer 6)
 		OsiModelPresentationLayer = 6,
 		/// Application layer (layer 7)
