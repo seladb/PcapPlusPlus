@@ -431,7 +431,8 @@ namespace pcpp
 		SSL_SYM_Unknown
 	};
 	/// Deprecated typo, use SSLSymmetricEncryptionAlgorithm instead
-	using SSLSymetricEncryptionAlgorithm PCPP_DEPRECATED("Use SSLSymmetricEncryptionAlgorithm instead") = SSLSymmetricEncryptionAlgorithm;
+	using SSLSymetricEncryptionAlgorithm PCPP_DEPRECATED("Use SSLSymmetricEncryptionAlgorithm instead") =
+	    SSLSymmetricEncryptionAlgorithm;
 
 	/// SSL/TLS hashing algorithms
 	enum SSLHashingAlgorithm
