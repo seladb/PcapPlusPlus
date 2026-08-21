@@ -32,7 +32,7 @@ namespace pcpp
 		/// @param[in] MACAlg MAC algorithm used in this cipher-suite
 		/// @param[in] name String representation of this cipher-suite
 		SSLCipherSuite(uint16_t id, SSLKeyExchangeAlgorithm keyExAlg, SSLAuthenticationAlgorithm authAlg,
-		               SSLSymetricEncryptionAlgorithm symKeyAlg, SSLHashingAlgorithm MACAlg, const char* name)
+		               SSLSymmetricEncryptionAlgorithm symKeyAlg, SSLHashingAlgorithm MACAlg, const char* name)
 		    : m_Id(id), m_KeyExAlg(keyExAlg), m_AuthAlg(authAlg), m_SymKeyAlg(symKeyAlg), m_MACAlg(MACAlg), m_Name(name)
 		{}
 
@@ -61,7 +61,7 @@ namespace pcpp
 		}
 
 		/// @return Symmetric key algorithm used in this cipher-suite
-		SSLSymetricEncryptionAlgorithm getSymKeyAlg() const
+		SSLSymmetricEncryptionAlgorithm getSymKeyAlg() const
 		{
 			return m_SymKeyAlg;
 		}
@@ -86,7 +86,7 @@ namespace pcpp
 		uint16_t m_Id;
 		SSLKeyExchangeAlgorithm m_KeyExAlg;
 		SSLAuthenticationAlgorithm m_AuthAlg;
-		SSLSymetricEncryptionAlgorithm m_SymKeyAlg;
+		SSLSymmetricEncryptionAlgorithm m_SymKeyAlg;
 		SSLHashingAlgorithm m_MACAlg;
 		std::string m_Name;
 	};
