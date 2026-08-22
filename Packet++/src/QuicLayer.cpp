@@ -113,14 +113,9 @@ namespace pcpp
 			packetType = "1-RTT";
 			break;
 		}
-		case QuicPacketType::VersionNegotiation:
+		default: // QuicPacketType::VersionNegotiation
 		{
 			packetType = "Version Negotiation";
-			break;
-		}
-		default:
-		{
-			packetType = "Unknown";
 			break;
 		}
 		}
@@ -140,13 +135,7 @@ namespace pcpp
 
 	QuicV1Layer::QuicPacketType QuicV1LongHeaderLayer::getPacketType() const
 	{
-		auto packetType = getLongHeader()->longPacketType;
-		if (packetType <= static_cast<uint8_t>(QuicPacketType::Retry))
-		{
-			return static_cast<QuicPacketType>(packetType);
-		}
-
-		return QuicPacketType::Unknown;
+		return static_cast<QuicPacketType>(getLongHeader()->longPacketType);
 	}
 
 	uint32_t QuicV1LongHeaderLayer::getVersion() const

@@ -33,7 +33,6 @@ namespace pcpp
 			Retry = 3,
 			VersionNegotiation = 253,
 			OneRtt = 254,
-			Unknown = 255
 		};
 
 		enum class QuicHeaderForm : uint8_t
@@ -48,7 +47,7 @@ namespace pcpp
 		/// @param[in] dataLen Size of the data in bytes
 		/// @param[in] prevLayer A pointer to the previous layer
 		/// @param[in] packet A pointer to the Packet instance where layer will be stored
-		/// @return The newly allocated layer ot nullptr if the data isn't valid
+		/// @return The newly allocated layer or nullptr if the data isn't valid
 		static QuicV1Layer* parseQuicLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		virtual QuicPacketType getPacketType() const = 0;
