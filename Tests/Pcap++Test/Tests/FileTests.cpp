@@ -1598,6 +1598,99 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 
 }  // TestPcapNgFileReadWrite
 
+PTF_TEST_CASE(TestPcapNgFileWriteIOBufferSize)
+{
+	// Disabled (0, the default) and an opt-in buffer should both produce a valid, round-trippable file.
+	for (size_t ioBufferSize : { static_cast<size_t>(0), static_cast<size_t>(1024 * 1024) })
+	{
+		pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_PATH);
+		pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH, 0, ioBufferSize);
+		PTF_ASSERT_TRUE(readerDev.open());
+		PTF_ASSERT_TRUE(writerDev.open());
+
+		pcpp::RawPacket rawPacket;
+		while (readerDev.getNextPacket(rawPacket))
+		{
+			PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
+		}
+		readerDev.close();
+		writerDev.close();
+
+		pcpp::PcapNgFileReaderDevice verifyReaderDev(EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH);
+		PTF_ASSERT_TRUE(verifyReaderDev.open());
+		int packetCount = 0;
+		while (verifyReaderDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+		}
+		verifyReaderDev.close();
+
+		PTF_ASSERT_EQUAL(packetCount, 64);
+	}
+
+	// The buffer size is a per-instance setting - two writers with different sizes open at the same
+	// time shouldn't affect each other.
+	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_PATH);
+	pcpp::PcapNgFileWriterDevice unbufferedWriterDev(EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH, 0, 0);
+	pcpp::PcapNgFileWriterDevice bufferedWriterDev(EXAMPLE2_PCAPNG_IO_BUFFER_WRITE_PATH, 0, 1024 * 1024);
+	PTF_ASSERT_TRUE(readerDev.open());
+	PTF_ASSERT_TRUE(unbufferedWriterDev.open());
+	PTF_ASSERT_TRUE(bufferedWriterDev.open());
+
+	pcpp::RawPacket rawPacket;
+	while (readerDev.getNextPacket(rawPacket))
+	{
+		PTF_ASSERT_TRUE(unbufferedWriterDev.writePacket(rawPacket));
+		PTF_ASSERT_TRUE(bufferedWriterDev.writePacket(rawPacket));
+	}
+	readerDev.close();
+	unbufferedWriterDev.close();
+	bufferedWriterDev.close();
+
+	for (auto path : { EXAMPLE_PCAPNG_IO_BUFFER_WRITE_PATH, EXAMPLE2_PCAPNG_IO_BUFFER_WRITE_PATH })
+	{
+		pcpp::PcapNgFileReaderDevice verifyReaderDev(path);
+		PTF_ASSERT_TRUE(verifyReaderDev.open());
+		int packetCount = 0;
+		while (verifyReaderDev.getNextPacket(rawPacket))
+		{
+			packetCount++;
+		}
+		verifyReaderDev.close();
+
+		PTF_ASSERT_EQUAL(packetCount, 64);
+	}
+
+	// Append mode goes through a different underlying open path than write mode (light_open()
+	// rather than light_open_compression()) - verify a non-default buffer size works there too.
+	pcpp::PcapNgFileReaderDevice sampleReaderDev(EXAMPLE_PCAPNG_PATH);
+	PTF_ASSERT_TRUE(sampleReaderDev.open());
+	pcpp::RawPacket samplePacket;
+	PTF_ASSERT_TRUE(sampleReaderDev.getNextPacket(samplePacket));
+	sampleReaderDev.close();
+
+	pcpp::PcapNgFileWriterDevice appendWriterDev(EXAMPLE_PCAPNG_IO_BUFFER_APPEND_PATH, 0, 1024 * 1024);
+	PTF_ASSERT_TRUE(appendWriterDev.open());
+	PTF_ASSERT_TRUE(appendWriterDev.writePacket(samplePacket));
+	appendWriterDev.close();
+
+	pcpp::PcapNgFileWriterDevice appendWriterDev2(EXAMPLE_PCAPNG_IO_BUFFER_APPEND_PATH, 0, 1024 * 1024);
+	PTF_ASSERT_TRUE(appendWriterDev2.open(true));
+	PTF_ASSERT_TRUE(appendWriterDev2.writePacket(samplePacket));
+	appendWriterDev2.close();
+
+	pcpp::PcapNgFileReaderDevice verifyAppendReaderDev(EXAMPLE_PCAPNG_IO_BUFFER_APPEND_PATH);
+	PTF_ASSERT_TRUE(verifyAppendReaderDev.open());
+	int appendedPacketCount = 0;
+	while (verifyAppendReaderDev.getNextPacket(rawPacket))
+	{
+		appendedPacketCount++;
+	}
+	verifyAppendReaderDev.close();
+
+	PTF_ASSERT_EQUAL(appendedPacketCount, 2);
+}  // TestPcapNgFileWriteIOBufferSize
+
 PTF_TEST_CASE(TestPcapNgZstdCompressionLevels)
 {
 #ifdef USE_Z_STD
