@@ -79,7 +79,7 @@ int incSleepMultiThread(int maxSleepTime, DpdkPacketData packetData[], int total
 		int coresWithPacketCountNotZero = 0;
 		for (int i = 0; i < totalNumOfCores; i++)
 		{
-			if ((pcpp::SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
+			if ((pcpp::SystemCores::IdToSystemCore[i].getShortCoreMask() & coreMask) == 0)
 				continue;
 
 			if (packetData[i].PacketCount > 0)
@@ -435,7 +435,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 		if (coreId != masterCore.Id)
 		{
-			coreMask |= pcpp::SystemCores::IdToSystemCore[coreId].Mask;
+			coreMask |= pcpp::SystemCores::IdToSystemCore[coreId].getShortCoreMask();
 			numOfCoresInUse++;
 		}
 	}
@@ -449,7 +449,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 	for (int i = 0; i < pcpp::getNumOfCores(); i++)
 	{
-		if ((pcpp::SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
+		if ((pcpp::SystemCores::IdToSystemCore[i].getShortCoreMask() & coreMask) == 0)
 			continue;
 
 		PTF_PRINT_VERBOSE("Thread ID: " << packetDataMultiThread[i].ThreadId);
@@ -481,12 +481,12 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 	for (int firstCoreId = 0; firstCoreId < pcpp::getNumOfCores(); firstCoreId++)
 	{
-		if ((pcpp::SystemCores::IdToSystemCore[firstCoreId].Mask & coreMask) == 0)
+		if ((pcpp::SystemCores::IdToSystemCore[firstCoreId].getShortCoreMask() & coreMask) == 0)
 			continue;
 
 		for (int secondCoreId = firstCoreId + 1; secondCoreId < pcpp::getNumOfCores(); secondCoreId++)
 		{
-			if ((pcpp::SystemCores::IdToSystemCore[secondCoreId].Mask & coreMask) == 0)
+			if ((pcpp::SystemCores::IdToSystemCore[secondCoreId].getShortCoreMask() & coreMask) == 0)
 				continue;
 
 			std::unordered_map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector>> res;
@@ -781,7 +781,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		PTF_PRINT_VERBOSE("Assigning queue #" << queueId << " to core " << core.Id);
 		newWorkerThread->init(dev, queueId, &queueMutexArr[queueId]);
 		workerThreadVec.push_back(newWorkerThread);
-		workerThreadCoreMask |= core.Mask;
+		workerThreadCoreMask |= core.getShortCoreMask();
 	}
 	PTF_PRINT_VERBOSE("Initiating " << workerThreadVec.size() << " worker threads");
 

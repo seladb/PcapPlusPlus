@@ -304,7 +304,7 @@ int main(int argc, char* argv[])
 	}
 
 	// removing DPDK master core from core mask because DPDK worker threads cannot run on master core
-	coreMaskToUse = coreMaskToUse & ~(pcpp::DpdkDeviceList::getInstance().getDpdkMasterCore().Mask);
+	coreMaskToUse = coreMaskToUse & ~(pcpp::DpdkDeviceList::getInstance().getDpdkMasterCore().getShortCoreMask());
 
 	// re-calculate cores to use after removing master core
 	coresToUse.clear();
