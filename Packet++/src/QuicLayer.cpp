@@ -3,6 +3,7 @@
 #include "GeneralUtils.h"
 #include "SystemUtils.h"
 #include <algorithm>
+#include <cstring>
 
 namespace pcpp
 {
