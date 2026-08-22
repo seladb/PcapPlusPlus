@@ -32,6 +32,18 @@ namespace pcpp_tests
 			/// @param frozen If true, the provider is read-only and does not allow saving resources.
 			explicit ResourceProvider(std::string dataRoot, bool frozen = true);
 
+			/// @brief Freezes the provider, preventing any modifications or saving of resources.
+			void freeze()
+			{
+				m_Frozen = true;
+			}
+
+			/// @brief Allows the provider to be modified, enabling saving of resources.
+			void unfreeze()
+			{
+				m_Frozen = false;
+			}
+
 			/// @brief Loads a resource from resource provider.
 			/// @param filename The name of the resource file to load.
 			/// @param resourceType The type of the loaded resource. Determines how the resource is processed.
@@ -50,8 +62,7 @@ namespace pcpp_tests
 			/// @param data Pointer to the data to be saved.
 			/// @param length The length of the data in bytes.
 			/// @throw std::runtime_error if the provider is frozen and does not allow saving.
-			void saveResource(ResourceType resourceType, const char* filename, const uint8_t* data,
-			                  size_t length) const;
+			void saveResource(ResourceType resourceType, const char* filename, const uint8_t* data, size_t length);
 
 		private:
 			std::string m_DataRoot;  ///< The root directory for test data files
