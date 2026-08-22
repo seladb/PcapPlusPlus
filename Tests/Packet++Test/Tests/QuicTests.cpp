@@ -139,7 +139,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 
 	// Varint length (1/2/4/8 bytes)
 	{
-		std::vector<std::tuple<std::initializer_list<uint8_t>, uint64_t>> lengthBytesAndExpectedLengths = {
+		std::vector<std::tuple<std::vector<uint8_t>, uint64_t>> lengthBytesAndExpectedLengths = {
 			{ { 0x25 },			                               37            }, // 1 byte length
 			{ { 0x41, 0x2C },			                         300           }, // 2 byte length
 			{ { 0x80, 0x01, 0x86, 0xA0 },                         100'000       }, // 4 byte length
@@ -154,8 +154,9 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 				0x00,                          // SCIDLen = 0
 				0x00                           // TokenLength varint (1-byte form), value = 0
 			};
-			bytes.insert(bytes.end(), std::get<0>(lengthBytesAndExpectedLength));  // Length varint
-			bytes.insert(bytes.end(), { 0x01, 0x02, 0x03 });                       // truncated trailing payload
+			const auto& lengthBytes = std::get<0>(lengthBytesAndExpectedLength);
+			bytes.insert(bytes.end(), lengthBytes.begin(), lengthBytes.end());  // Length varint
+			bytes.insert(bytes.end(), { 0x01, 0x02, 0x03 });  // truncated trailing payload
 			auto buffer = std::make_unique<uint8_t[]>(bytes.size());
 			std::copy(bytes.begin(), bytes.end(), buffer.get());
 			std::unique_ptr<pcpp::QuicV1Layer> layer(
