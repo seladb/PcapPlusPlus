@@ -366,7 +366,7 @@ namespace pcpp
 					break;
 				}
 				uint32_t version;
-				memcpy(&version, m_Data + supportedVersionsOffset, sizeof(uint32_t));
+				std::memcpy(&version, m_Data + supportedVersionsOffset, sizeof(uint32_t));
 				supportedVersions.push_back(netToHost32(version));
 				supportedVersionsOffset += sizeof(uint32_t);
 			}
