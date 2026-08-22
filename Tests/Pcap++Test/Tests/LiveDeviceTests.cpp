@@ -510,6 +510,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	configs[1].usePoll = true;
 #	endif
 
+	configs.emplace_back();  // disables immediate mode so libpcap can use TPACKET_V3 batching on Linux
+	configs.back().bufferingMode = pcpp::PcapLiveDevice::BufferingMode::Buffered;
+
 	// test the common behaviour for all configs
 	for (const auto& config : configs)
 	{
