@@ -10,9 +10,11 @@
 #include <net/if.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include <regex>
 #include <poll.h>
 
 namespace pcpp
@@ -36,10 +38,12 @@ namespace pcpp
 #define DEFAULT_FILL_RING_SIZE (XSK_RING_PROD__DEFAULT_NUM_DESCS * 2)
 #define DEFAULT_COMPLETION_RING_SIZE XSK_RING_PROD__DEFAULT_NUM_DESCS
 #define DEFAULT_BATCH_SIZE 64
+#define DEFAULT_NUM_QUEUES 1
+#define DEFAULT_FRAME_HEADROOM_SIZE XSK_UMEM__DEFAULT_FRAME_HEADROOM
 #define IS_POWER_OF_TWO(num) (num && ((num & (num - 1)) == 0))
 
-	XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize, uint32_t fillRingSize,
-	                            uint32_t completionRingSize)
+	XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize, uint16_t frameHeadroomSize,
+	                            uint32_t fillRingSize, uint32_t completionRingSize)
 	{
 		size_t bufferSize = numFrames * frameSize;
 
@@ -51,7 +55,7 @@ namespace pcpp
 		struct xsk_umem_config cfg = { .fill_size = fillRingSize,
 			                           .comp_size = completionRingSize,
 			                           .frame_size = frameSize,
-			                           .frame_headroom = XSK_UMEM__DEFAULT_FRAME_HEADROOM,
+			                           .frame_headroom = frameHeadroomSize,
 			                           .flags = 0 };
 
 		struct xsk_umem_info* umem = new xsk_umem_info;
@@ -419,8 +423,8 @@ namespace pcpp
 			xskConfig.xdp_flags = XDP_FLAGS_DRV_MODE;
 		}
 
-		int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), 0, umemInfo->umem, &socketInfo->rx,
-		                             &socketInfo->tx, &xskConfig);
+		int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), m_Config->queueId, umemInfo->umem,
+		                             &socketInfo->rx, &socketInfo->tx, &xskConfig);
 		if (ret)
 		{
 			PCPP_LOG_ERROR("xsk_socket__create returned an error: " << ret);
@@ -429,13 +433,14 @@ namespace pcpp
 		}
 
 		m_SocketInfo = socketInfo;
+
 		return true;
 	}
 
 	bool XdpDevice::initUmem()
 	{
-		m_Umem = new XdpUmem(m_Config->umemNumFrames, m_Config->umemFrameSize, m_Config->fillRingSize,
-		                     m_Config->completionRingSize);
+		m_Umem = new XdpUmem(m_Config->umemNumFrames, m_Config->umemFrameSize, m_Config->frameHeadroomSize,
+		                     m_Config->fillRingSize, m_Config->completionRingSize);
 		return true;
 	}
 
@@ -443,12 +448,14 @@ namespace pcpp
 	{
 		uint16_t numFrames = config.umemNumFrames ? config.umemNumFrames : DEFAULT_UMEM_NUM_FRAMES;
 		uint16_t frameSize = config.umemFrameSize ? config.umemFrameSize : getpagesize();
+		uint16_t frameHeadroomSize = config.frameHeadroomSize ? config.frameHeadroomSize : DEFAULT_FRAME_HEADROOM_SIZE;
 		uint32_t fillRingSize = config.fillRingSize ? config.fillRingSize : DEFAULT_FILL_RING_SIZE;
 		uint32_t completionRingSize =
 		    config.completionRingSize ? config.completionRingSize : DEFAULT_COMPLETION_RING_SIZE;
 		uint32_t rxSize = config.rxSize ? config.rxSize : XSK_RING_CONS__DEFAULT_NUM_DESCS;
 		uint32_t txSize = config.txSize ? config.txSize : XSK_RING_PROD__DEFAULT_NUM_DESCS;
 		uint32_t batchSize = config.rxTxBatchSize ? config.rxTxBatchSize : DEFAULT_BATCH_SIZE;
+		uint32_t qId = config.queueId;  // default is zero
 
 		if (frameSize != getpagesize())
 		{
@@ -460,6 +467,12 @@ namespace pcpp
 		      IS_POWER_OF_TWO(txSize)))
 		{
 			PCPP_LOG_ERROR("All ring sizes (fill ring, completion ring, rx ring, tx ring) should be a power of two");
+			return false;
+		}
+
+		if (frameHeadroomSize > frameSize)
+		{
+			PCPP_LOG_ERROR("Frame headroom size must be less than the frame size");
 			return false;
 		}
 
@@ -499,13 +512,23 @@ namespace pcpp
 			return false;
 		}
 
+		unsigned int nhwqueues = numOfHardwareQueues(m_InterfaceName);
+		if (qId >= nhwqueues)
+		{
+			PCPP_LOG_ERROR("Queue Id (" << qId << ") must be less than the number hardware queues (" << nhwqueues
+			                            << ") of device");
+			return false;
+		}
+
 		config.umemNumFrames = numFrames;
 		config.umemFrameSize = frameSize;
+		config.frameHeadroomSize = frameHeadroomSize;
 		config.fillRingSize = fillRingSize;
 		config.completionRingSize = completionRingSize;
 		config.rxSize = rxSize;
 		config.txSize = txSize;
 		config.rxTxBatchSize = batchSize;
+		config.queueId = qId;
 
 		return true;
 	}
@@ -634,6 +657,38 @@ namespace pcpp
 		m_PrevStats.txCompletedPackets = m_Stats.txCompletedPackets;
 
 		return m_Stats;
+	}
+
+	uint32_t XdpDevice::numOfHardwareQueues(const std::string& iface, bool tx)
+	{
+		// returns number of hardware queues associated with the device
+		uint32_t rxtxqueues = DEFAULT_NUM_QUEUES;
+		std::string prefix = tx ? "tx-" : "rx-";
+		std::string path = "/sys/class/net/" + iface + "/queues/";
+		DIR* dir = opendir(path.c_str());
+
+		if (dir)
+		{
+			std::regex rxtx_regex("^" + prefix + "[0-9]+$");
+
+			struct dirent* entry;
+			while ((entry = readdir(dir)) != nullptr)
+			{
+				if (std::regex_match(entry->d_name, rxtx_regex))
+				{
+					rxtxqueues++;
+				}
+			}
+
+			closedir(dir);
+		}
+
+		else
+		{
+			PCPP_LOG_ERROR("Error getting number of hardware queues from " << iface);
+		}
+
+		return rxtxqueues;
 	}
 
 }  // namespace pcpp
