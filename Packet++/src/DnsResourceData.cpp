@@ -102,7 +102,7 @@ namespace pcpp
 			PCPP_LOG_ERROR("Cannot decode name, dataPtr is nullptr or length is 0");
 	}
 
-	MxDnsResourceData::MxDnsResourceData(const uint16_t& preference, const std::string& mailExchange)
+	MxDnsResourceData::MxDnsResourceData(uint16_t preference, const std::string& mailExchange)
 	{
 		m_Data.preference = preference;
 		m_Data.mailExchange = mailExchange;
