@@ -1,6 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "QuicLayer.h"
+#include <algorithm>
+#include <vector>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -24,6 +26,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderLen(), 1252);
 		PTF_ASSERT_EQUAL(quicInitialLayer->toString(), "QUIC v1 Layer, Initial message");
 	}
+
 	// Initial packet with non-empty token
 	{
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_initial_0rtt.dat");
@@ -43,6 +46,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		    "005ea37af85124745e1e7fb3d92a3a17301eeb117b050f57d46eeac87ca3900689e621300e73cbb68ce705c6ea8df47d61d89af11c00db114c51f16bcc871f6f440f8aabe701");
 		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderLen(), 650);
 	}
+
 	// Handshake
 	{
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_handshake_1rtt.dat");
@@ -58,6 +62,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getLength(), 72);
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getHeaderLen(), 92);
 	}
+
 	// 0-RTT packet
 	{
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_initial_0rtt.dat");
@@ -74,6 +79,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getLength(), 439);
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getHeaderLen(), 464);
 	}
+
 	// Retry
 	{
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_retry.dat");
@@ -91,6 +97,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicRetryLayer->getRetryIntegrityTag().toString(), "04a265ba2eff4d829058fb3f0f2496ba");
 		PTF_ASSERT_EQUAL(quicRetryLayer->getHeaderLen(), 36);
 	}
+
 	// Version negotiation
 	{
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_version_negotiation.dat");
@@ -109,6 +116,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_VECTORS_EQUAL(quicVersionNegotiationLayer->getSupportedVersions(), expectedSupportedVersions);
 		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getHeaderLen(), 31);
 	}
+
 	// 1-RTT
 	{
 		auto rawPacket = createPacketFromHexResource("PacketExamples/quic_handshake_1rtt.dat");
@@ -122,6 +130,37 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_FALSE(quicOneRttLayer->getSpinBit());
 		PTF_ASSERT_FALSE(quicOneRttLayer->getKeyPhaseBit());
 		PTF_ASSERT_EQUAL(quicOneRttLayer->getHeaderLen(), 55);
+	}
+
+	// Varint length (1/2/4/8 bytes)
+	{
+		std::vector<std::tuple<std::initializer_list<uint8_t>, uint64_t>> lengthBytesAndExpectedLengths = {
+			{{ 0x25 }, 37},  // 1 byte length
+			{{ 0x41, 0x2C }, 300},  // 2 byte length
+			{{ 0x80, 0x01, 0x86, 0xA0 }, 100'000},  // 4 byte length
+			{{ 0xC0, 0x00, 0x00, 0x01, 0x2A, 0x05, 0xF2, 0x00 }, 5000000000ULL}  // 8 byte length
+		};
+
+		for (const auto& lengthBytesAndExpectedLength : lengthBytesAndExpectedLengths)
+		{
+			auto bytes = std::vector<uint8_t>{
+				0xC0, 0x00, 0x00, 0x00, 0x01,  // long header, Initial packet type, version = 1
+				0x00,                          // DCIDLen = 0
+				0x00,                          // SCIDLen = 0
+				0x00                           // TokenLength varint (1-byte form), value = 0
+			};
+			bytes.insert(bytes.end(), std::get<0>(lengthBytesAndExpectedLength));  // Length varint
+			bytes.insert(bytes.end(), { 0x01, 0x02, 0x03 });  // truncated trailing payload
+			auto buffer = std::make_unique<uint8_t[]>(bytes.size());
+			std::copy(bytes.begin(), bytes.end(), buffer.get());
+			std::unique_ptr<pcpp::QuicV1Layer> layer(
+			pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), bytes.size(), nullptr, nullptr));
+			PTF_ASSERT_NOT_NULL(layer.get());
+			auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+			PTF_ASSERT_NOT_NULL(initialLayer);
+			PTF_ASSERT_EQUAL(initialLayer->getLength(), std::get<1>(lengthBytesAndExpectedLength));
+			PTF_ASSERT_EQUAL(initialLayer->getHeaderLen(), bytes.size());
+		}
 	}
 }  // QuicV1ParsingTest
 
