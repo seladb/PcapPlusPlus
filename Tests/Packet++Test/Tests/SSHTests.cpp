@@ -135,7 +135,7 @@ PTF_TEST_CASE(SSHMalformedParsingTest)
 
 	// SSH message with unknown message type
 	auto rawPacket4 = createPacketFromHexResource("PacketExamples/SSHMessage_MalformedType.dat");
-	pcpp::Packet sshMessageMalformedTypePacket(rawPacket3.get());
+	pcpp::Packet sshMessageMalformedTypePacket(rawPacket4.get());
 	PTF_ASSERT_TRUE(sshMessageMalformedTypePacket.isPacketOfType(pcpp::SSH));
 	PTF_ASSERT_NULL(sshMessageMalformedTypePacket.getLayerOfType<pcpp::SSHHandshakeMessage>());
 	PTF_ASSERT_NOT_NULL(sshMessageMalformedTypePacket.getLayerOfType<pcpp::SSHEncryptedMessage>());
