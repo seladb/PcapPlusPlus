@@ -382,7 +382,11 @@ if(PCAPPP_INSTALL)
       "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
       @ONLY
     )
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    install(
+      FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
+      DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+      COMPONENT devel
+    )
   endif()
 
   # CMake helpers to compile Pcap++ with CMake (only if PCAP is used)
@@ -406,7 +410,7 @@ if(PCAPPP_INSTALL)
     pcapp_install_cmake_module(ZSTD)
   endif()
 
-  install(EXPORT PcapPlusPlusTargets DESTINATION ${PCAPPP_INSTALL_CMAKEDIR} NAMESPACE PcapPlusPlus::)
+  install(EXPORT PcapPlusPlusTargets DESTINATION ${PCAPPP_INSTALL_CMAKEDIR} NAMESPACE PcapPlusPlus:: COMPONENT devel)
 
   configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in"
@@ -438,6 +442,12 @@ if(PCAPPP_PACKAGE)
   set(CPACK_PACKAGE_NAME "pcapplusplus")
   set(CPACK_PACKAGE_VERSION "${PCAPPP_VERSION}")
   set(CPACK_PACKAGE_MAINTAINER "seladb")
+  set(CPACK_COMPONENTS_ALL runtime devel examples)
+  set(CPACK_COMPONENT_RUNTIME_DESCRIPTION "Shared libraries and runtime files required to run PcapPlusPlus-based applications.")
+  set(CPACK_COMPONENT_DEVEL_DESCRIPTION "Header files, CMake configuration, and other resources needed for developing with PcapPlusPlus.")
+  set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION "A collection of example applications demonstrating how to use PcapPlusPlus features and APIs.")
+  set(CPACK_COMPONENT_STATIC_DESCRIPTION "Static library files for linking PcapPlusPlus directly into your applications.")
+
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_MAINTAINER}")
   set(
     CPACK_PACKAGE_DESCRIPTION_SUMMARY
@@ -446,6 +456,10 @@ if(PCAPPP_PACKAGE)
 
   # Default output a .tar.gz
   set(CPACK_GENERATOR "TGZ")
+  # Archive will include all components (Runtime, Development, Examples, Static, etc.)
+  set(CPACK_ARCHIVE_COMPONENT_INSTALL OFF)
+  # Enable component-based packaging for DEB generator
+  set(CPACK_DEB_COMPONENT_INSTALL ON)
 
   # Remove the tweak for Compiler Version
   string(REPLACE "." ";" VERSION_LIST ${CMAKE_CXX_COMPILER_VERSION})
@@ -472,7 +486,7 @@ if(PCAPPP_PACKAGE)
     cmake_host_system_information(RESULT DISTRO_VERSION_ID QUERY DISTRIB_VERSION_ID)
     set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.linux")
     if("${DISTRO_ID}" STREQUAL "ubuntu")
-      # set(CPACK_GENERATOR ${CPACK_GENERATOR};DEB)
+      set(CPACK_GENERATOR ${CPACK_GENERATOR};DEB)
     elseif("${DISTRO_ID}" STREQUAL "centos" OR "${DISTRO_ID}" STREQUAL "rhel")
       # set(CPACK_GENERATOR ${CPACK_GENERATOR};RPM)
     elseif("${DISTRO_ID}" STREQUAL "freebsd")
