@@ -113,7 +113,7 @@ namespace pcpp
 			packetType = "1-RTT";
 			break;
 		}
-		default: // QuicPacketType::VersionNegotiation
+		default:  // QuicPacketType::VersionNegotiation
 		{
 			packetType = "Version Negotiation";
 			break;

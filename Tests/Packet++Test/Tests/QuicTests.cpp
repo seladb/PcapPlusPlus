@@ -156,7 +156,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 			};
 			const auto& lengthBytes = std::get<0>(lengthBytesAndExpectedLength);
 			bytes.insert(bytes.end(), lengthBytes.begin(), lengthBytes.end());  // Length varint
-			bytes.insert(bytes.end(), { 0x01, 0x02, 0x03 });  // truncated trailing payload
+			bytes.insert(bytes.end(), { 0x01, 0x02, 0x03 });                    // truncated trailing payload
 			auto buffer = std::make_unique<uint8_t[]>(bytes.size());
 			std::copy(bytes.begin(), bytes.end(), buffer.get());
 			std::unique_ptr<pcpp::QuicV1Layer> layer(
