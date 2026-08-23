@@ -261,7 +261,7 @@ namespace pcpp
 	const ProtocolTypeFamily FTP = 0x3c29;
 
 	/// QUIC v1 protocol
-	const ProtocolType QUIC = 64;
+	const ProtocolType QUICv1 = 64;
 
 	/// @}
 

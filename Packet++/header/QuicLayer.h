@@ -101,7 +101,7 @@ namespace pcpp
 
 	protected:
 		QuicV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet, QUIC)
+		    : Layer(data, dataLen, prevLayer, packet, QUICv1)
 		{}
 
 		/// @struct quic_common_header
