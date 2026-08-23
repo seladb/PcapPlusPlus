@@ -6,42 +6,52 @@
 
 /// @file
 
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
 	/// @class QuicV1Layer
-	/// Represents a QUIC v1 (RFC 9000/9001) protocol layer. Parses both long-header and
-	/// short-header packet forms by casting directly onto the raw packet buffer (see
-	/// quic_long_header / quic_short_header) rather than copying header fields into owned
-	/// storage - the same approach PcapPlusPlus uses for fixed-size headers like iphdr and
-	/// udphdr, extended here to also cover QUIC's variable-length fields (DCID, SCID, Token)
-	/// via pointer+length accessors instead of copies. Only a handful of scalar offsets that
-	/// require walking the variable-length prefix to compute (Token/Length/Packet Number
-	/// positions) are cached; everything else is read from the struct on each call.
-	///
-	/// For Initial packets, additionally exposes frame-level parsing (PADDING/PING/ACK/
-	/// CRYPTO/CONNECTION_CLOSE) once decrypted payload bytes are supplied via
-	/// setDecryptedInitialPayload() - see the note on that method for why this step can't
-	/// happen automatically yet.
+	/// Represents a QUIC v1 (RFC 9000/9001) protocol layer.
 	class QuicV1Layer : public Layer
 	{
 	public:
+		/// @enum QuicPacketType
+		/// Identifies the kind of QUIC v1 packet, as carried by the Long Packet Type field for
+		/// long-header packets (RFC 9000 Section 17.2), or inferred for short-header (1-RTT) and
+		/// Version Negotiation packets, which don't carry this field on the wire
 		enum class QuicPacketType : uint8_t
 		{
+			/// Initial packet - carries the start of the cryptographic handshake, plus an
+			/// optional address-validation Token
 			Initial = 0,
+			/// 0-RTT packet - carries application data sent before the handshake completes
 			ZeroRTT = 1,
+			/// Handshake packet - carries the remainder of the cryptographic handshake
 			Handshake = 2,
+			/// Retry packet - sent by a server to perform address validation before committing
+			/// state to a connection
 			Retry = 3,
+			/// Version Negotiation packet - sent by a server that doesn't support the client's
+			/// requested QUIC version
 			VersionNegotiation = 253,
+			/// 1-RTT packet - a short-header packet carrying post-handshake application data
 			OneRtt = 254,
 		};
 
+		/// @enum QuicHeaderForm
+		/// Identifies whether a QUIC packet uses the long or short header form (RFC 9000 Section
+		/// 17.2 vs. 17.3)
 		enum class QuicHeaderForm : uint8_t
 		{
+			/// Short header - used for 1-RTT packets once the connection ID length is known out
+			/// of band
 			ShortHeader = 0,
+			/// Long header - used for Initial, 0-RTT, Handshake, Retry and Version Negotiation
+			/// packets, all of which are exchanged before that connection ID length is known
 			LongHeader = 1
 		};
 
-		/// A static method that creates a QUIV layer from packet raw data. Returns nullptr if
+		/// A static method that creates a QUIC v11 layer from packet raw data. Returns nullptr if
 		/// data is not valid.
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
@@ -50,14 +60,19 @@ namespace pcpp
 		/// @return The newly allocated layer or nullptr if the data isn't valid
 		static QuicV1Layer* parseQuicLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
+		/// @return The type of this QUIC packet
 		virtual QuicPacketType getPacketType() const = 0;
 
+		/// @return The header form (long or short) of this QUIC packet, as read straight off the
+		/// wire
 		QuicHeaderForm getHeaderForm() const;
 
+		/// @return The value of the Fixed Bit field. Per RFC 9000 this is always 1
 		uint8_t getFixedBit() const;
 
 		/// A static method that checks whether the port is considered as QUIC
 		/// @param[in] port The port number to be checked
+		/// @return True if the port is considered as QUIC, false otherwise
 		static bool isQuicPort(uint16_t port)
 		{
 			return port == 443;
@@ -65,15 +80,20 @@ namespace pcpp
 
 		// implement abstract methods
 
+		/// Wraps any bytes remaining after this packet's header/payload as a subsequent
+		/// QuicV1Layer if getHeaderLen() leaves data unconsumed - QUIC
+		/// datagrams commonly coalesce multiple packets back to back - falling back to a
+		/// PayloadLayer if what follows can't be parsed as QUIC
 		void parseNextLayer() override;
 
-		/// QUIC header fields (Length, packet number, checksums) are not independently
-		/// recomputable without a full AEAD re-encryption pass, so this is currently a no-op.
+		/// Does nothing for this layer
 		void computeCalculateFields() override
 		{}
 
+		/// @return A string representation of the packet, e.g. "QUIC v1 Layer, Initial message"
 		std::string toString() const override;
 
+		/// @return @ref OsiModelTransportLayer
 		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelTransportLayer;
@@ -84,6 +104,10 @@ namespace pcpp
 		    : Layer(data, dataLen, prevLayer, packet, QUIC)
 		{}
 
+		/// @struct quic_common_header
+		/// The one-byte prefix shared by every QUIC v1 packet form, holding just the Header Form
+		/// and Fixed Bit - enough to tell long-header and short-header packets apart before
+		/// committing to either layout
 		struct quic_common_header
 		{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -94,6 +118,12 @@ namespace pcpp
 		};
 
 #pragma pack(push, 1)
+		/// @struct quic_long_header
+		/// The fixed-size prefix of every long-header QUIC v1 packet (Initial, 0-RTT, Handshake,
+		/// Retry and Version Negotiation): the common header byte, the 4-byte version, and the
+		/// Destination Connection ID length. The variable-length fields that follow (DCID, SCID,
+		/// Token, Length) are not part of this struct - they're read via pointer+length accessors
+		/// on QuicV1LongHeaderLayer and its subclasses instead
 		struct quic_long_header
 		{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -101,16 +131,18 @@ namespace pcpp
 #else
 			uint8_t headerForm : 1, fixedBit : 1, longPacketType : 2, reserved : 2, packetNumberLength : 2;
 #endif
-			/// Network (big-endian) byte order on the wire - use QuicV1Layer::getVersion() for the
-			/// host-order value rather than reading this field directly.
 			uint32_t version;
-			/// Destination Connection ID Length, in bytes
 			uint8_t destinationConnectionIdLength;
 		};
 #pragma pack(pop)
 		static_assert(sizeof(quic_long_header) == 6, "quic_long_header size is not 6 bytes");
 
 #pragma pack(push, 1)
+		/// @struct quic_short_header
+		/// The single-byte header of a 1-RTT (short-header) QUIC v1 packet. There is no
+		/// Destination Connection ID length field here - a 1-RTT packet's connection ID has a
+		/// length that's negotiated out of band during the handshake, so it can't be recovered
+		/// from the packet alone
 		struct quic_short_header
 		{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -129,28 +161,49 @@ namespace pcpp
 		}
 	};
 
+	/// @class QuicV1LongHeaderLayer
+	/// Base class for all QUIC v1 packet forms that use the long header (Initial, 0-RTT,
+	/// Handshake, Retry and Version Negotiation). Provides parsing shared by all of them: the
+	/// QUIC version and the Destination/Source Connection IDs, which sit at a fixed offset
+	/// (Destination) or immediately after it (Source) in every long-header packet
 	class QuicV1LongHeaderLayer : public QuicV1Layer
 	{
 	public:
+		/// @class ByteArray
+		/// A byte buffer used to return copies of QUIC's variable-length fields (Connection IDs,
+		/// Token, Retry Token, integrity tag). A thin wrapper around std::vector<uint8_t>
+		/// that adds a hex-string toString() and stream-insertion operator for convenient
+		/// printing/logging
 		class ByteArray : public std::vector<uint8_t>
 		{
 		public:
 			using std::vector<uint8_t>::vector;
 
+			/// @return The bytes as a lowercase hex string, e.g. "a1b2c3"
 			std::string toString() const;
 
+			/// Writes the ByteArray's hex-string representation (see @ref toString) to a stream
+			/// @param[in] os The output stream to write to
+			/// @param[in] byteArray The ByteArray to write
+			/// @return The same output stream, for chaining
 			friend std::ostream& operator<<(std::ostream& os, const ByteArray& byteArray)
 			{
 				return os << byteArray.toString();
 			}
 		};
 
+		/// @return The packet type, read from the Long Packet Type field of the long header
 		QuicPacketType getPacketType() const override;
 
 		/// @return The QUIC version
 		uint32_t getVersion() const;
 
+		/// @return The Destination Connection ID, or an empty ByteArray if the packet doesn't
+		/// contain enough data to read it
 		ByteArray getDestinationConnectionId() const;
+
+		/// @return The Source Connection ID, or an empty ByteArray if the packet doesn't contain
+		/// enough data to read it
 		ByteArray getSourceConnectionId() const;
 
 	protected:
@@ -166,6 +219,7 @@ namespace pcpp
 		};
 
 		OffsetAndLength getDestConIdOffsetAndLength() const;
+
 		OffsetAndLength getSrcConIdOffsetAndLength() const;
 
 	private:
@@ -181,13 +235,23 @@ namespace pcpp
 		friend class QuicV1Layer;
 	};
 
+	/// @class QuicV1EstablishmentLayer
+	/// Base class for the long-header packet forms that carry cryptographic handshake data and a
+	/// Length field (Initial, 0-RTT and Handshake). Adds parsing of the QUIC variable-length
+	/// integer ("varint") encoding (RFC 9000 Section 16) used for the Length field and, in
+	/// QuicV1InitialLayer, the Token Length field as well
 	class QuicV1EstablishmentLayer : public QuicV1LongHeaderLayer
 	{
 	public:
+		/// @return The value of the Length field: the number of bytes in the Packet Number and
+		/// Payload fields combined, or 0 if the packet doesn't contain enough data to read it
 		uint64_t getLength() const;
 
 		// implement abstract methods
 
+		/// @return The header length, computed as the offset of the Length field plus the
+		/// varint's own encoded size plus the value of the Length field itself, clamped to the
+		/// amount of data actually captured
 		size_t getHeaderLen() const override;
 
 	protected:
@@ -201,34 +265,49 @@ namespace pcpp
 		};
 
 		virtual size_t getLengthOffset() const;
+
 		VarintValueAndSize getVarintValueAndSize(size_t offset) const;
 
 	private:
 		using QuicV1LongHeaderLayer::QuicV1LongHeaderLayer;
 	};
 
+	/// @class QuicV1InitialLayer
+	/// Represents a QUIC v1 Initial packet - the first packet of a connection, carrying the
+	/// start of the cryptographic handshake and, optionally, an address-validation Token
+	/// (RFC 9000 Section 17.2.2)
 	class QuicV1InitialLayer : public QuicV1EstablishmentLayer
 	{
 	public:
+		/// @return The address-validation Token, or an empty ByteArray if the packet carries no
+		/// token or doesn't contain enough data to read it
 		ByteArray getToken() const;
 
 	private:
 		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
 
 		size_t getLengthOffset() const override;
+
 		size_t getTokenLengthOffset() const;
 
 		friend class QuicV1Layer;
 	};
 
+	/// @class QuicV1ZeroRttLayer
+	/// Represents a QUIC v1 0-RTT packet - carries application data sent before the
+	/// cryptographic handshake completes (RFC 9000 Section 17.2.3). Adds no parsing beyond what
+	/// QuicV1EstablishmentLayer already provides
 	class QuicV1ZeroRttLayer : public QuicV1EstablishmentLayer
 	{
 		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
 
 		friend class QuicV1Layer;
 	};
-	;
 
+	/// @class QuicV1HandshakeLayer
+	/// Represents a QUIC v1 Handshake packet - carries the remainder of the cryptographic
+	/// handshake after the Initial packet (RFC 9000 Section 17.2.4). Adds no parsing beyond what
+	/// QuicV1EstablishmentLayer already provides
 	class QuicV1HandshakeLayer : public QuicV1EstablishmentLayer
 	{
 		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
@@ -236,14 +315,26 @@ namespace pcpp
 		friend class QuicV1Layer;
 	};
 
+	/// @class QuicV1RetryLayer
+	/// Represents a QUIC v1 Retry packet - sent by a server to perform address validation before
+	/// committing state to a connection (RFC 9000 Section 17.2.5). Carries a Retry Token and,
+	/// unlike the other long-header forms, a fixed-size 16-byte integrity tag rather than a
+	/// varint-prefixed Length field
 	class QuicV1RetryLayer : public QuicV1LongHeaderLayer
 	{
 	public:
+		/// @return The Retry Token, or an empty ByteArray if the packet doesn't contain enough
+		/// data - beyond the Source Connection ID - to also hold the 16-byte integrity tag
 		ByteArray getRetryToken() const;
+
+		/// @return The 16-byte Retry Integrity Tag, or an empty ByteArray if the packet doesn't
+		/// contain enough data - beyond the Source Connection ID - to hold it
 		ByteArray getRetryIntegrityTag() const;
 
 		// implement abstract methods
 
+		/// @return sizeof(m_DataLen) - a Retry packet has no Length field, so its header is
+		/// considered to span the entire packet
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
@@ -259,18 +350,28 @@ namespace pcpp
 		friend class QuicV1Layer;
 	};
 
+	/// @class QuicV1VersionNegotiationLayer
+	/// Represents a QUIC Version Negotiation packet - sent by a server that doesn't support the
+	/// QUIC version a client requested, listing the versions it does support (RFC 9000 Section
+	/// 17.2.1). Identified by a version field of 0 rather than a Long Packet Type value, so
+	/// getPacketType() always returns QuicPacketType::VersionNegotiation
 	class QuicV1VersionNegotiationLayer : public QuicV1LongHeaderLayer
 	{
 	public:
+		/// @return QuicPacketType::VersionNegotiation
 		QuicPacketType getPacketType() const override
 		{
 			return QuicPacketType::VersionNegotiation;
 		}
 
+		/// @return The list of QUIC versions the server supports, in host byte order. Returns
+		/// an empty list if a trailing partial version is encountered
 		std::vector<uint32_t> getSupportedVersions() const;
 
 		// implement abstract methods
 
+		/// @return sizeof(m_DataLen) - a Version Negotiation packet has no further layers beyond
+		/// the list of supported versions, so its header is considered to span the entire packet
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
@@ -282,19 +383,28 @@ namespace pcpp
 		friend class QuicV1Layer;
 	};
 
+	/// @class QuicV1OneRttLayer
+	/// Represents a QUIC v1 1-RTT packet - a short-header packet carrying post-handshake
+	/// application data (RFC 9000 Section 17.3.1). Since the short header carries no explicit
+	/// Length field, getHeaderLen() treats the header as spanning the entire packet
 	class QuicV1OneRttLayer : public QuicV1Layer
 	{
 	public:
+		/// @return QuicPacketType::OneRtt
 		QuicPacketType getPacketType() const override
 		{
 			return QuicPacketType::OneRtt;
 		}
 
+		/// @return The value of the Spin Bit, used for passive latency measurement along the
+		/// connection's path
 		bool getSpinBit() const
 		{
 			return getShortHeader()->spinBit;
 		}
 
+		/// @return The value of the Key Phase bit, used to identify which packet protection keys
+		/// were used to protect this packet
 		bool getKeyPhaseBit() const
 		{
 			return getShortHeader()->keyPhase;
@@ -302,6 +412,8 @@ namespace pcpp
 
 		// implement abstract methods
 
+		/// @return sizeof(m_DataLen) - a 1-RTT packet's short header carries no Length field, so
+		/// its header is considered to span the entire packet
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
