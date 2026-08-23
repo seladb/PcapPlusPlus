@@ -334,6 +334,28 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest)
 		PTF_ASSERT_EQUAL(vnLayer->getHeaderLen(), 17);
 	}
 
+	// Version Negotiation packet where the DCID is valid but there isn't enough data left to
+	// safely read the SCID length - getSrcConIdOffsetAndLength() throws, and
+	// getSupportedVersions() must catch it and return an empty list rather than propagate
+	{
+		auto buffer = makeBuffer({
+		    0x80,                    // headerForm=1, fixedBit=0, longPacketType bits ignored
+		    0x00, 0x00, 0x00, 0x00,  // version = 0 -> Version Negotiation
+		    0x00,                    // DCIDLen = 0 (valid, empty DCID)
+		    0xAA                     // one trailing byte - not enough to safely read a SCID length
+		});
+		size_t dataLen = 7;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+		    pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto vnLayer = dynamic_cast<pcpp::QuicV1VersionNegotiationLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(vnLayer);
+		PTF_ASSERT_EQUAL(vnLayer->getDestinationConnectionId().toString(), "");
+		PTF_ASSERT_EQUAL(vnLayer->getSourceConnectionId().toString(), "");
+		std::vector<uint32_t> expectedVersions = {};
+		PTF_ASSERT_VECTORS_EQUAL(vnLayer->getSupportedVersions(), expectedVersions);
+	}
+
 	// Retry packet truncated before the 16-byte integrity tag
 	{
 		auto buffer = makeBuffer({
@@ -375,5 +397,27 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest)
 		PTF_ASSERT_EQUAL(retryLayer->getRetryToken().toString(), "");
 		PTF_ASSERT_EQUAL(retryLayer->getRetryIntegrityTag().toString(), "0102030405060708090a0b0c0d0e0f10");
 		PTF_ASSERT_EQUAL(retryLayer->getHeaderLen(), dataLen);
+	}
+
+	// Retry packet where the DCID is valid but there isn't enough data left to safely read the
+	// SCID length - getSrcConIdOffsetAndLength() throws, and getRetryTokenOffset() must catch
+	// it and fall back to m_DataLen rather than propagate the exception
+	{
+		auto buffer = makeBuffer({
+		    0xF0,                    // headerForm=1, fixedBit=1, longPacketType=3 (Retry)
+		    0x00, 0x00, 0x00, 0x01,  // version = 1
+		    0x00,                    // DCIDLen = 0 (valid, empty DCID)
+		    0xAA                     // one trailing byte - not enough to safely read a SCID length
+		});
+		size_t dataLen = 7;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+		    pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto retryLayer = dynamic_cast<pcpp::QuicV1RetryLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(retryLayer);
+		PTF_ASSERT_EQUAL(retryLayer->getDestinationConnectionId().toString(), "");
+		PTF_ASSERT_EQUAL(retryLayer->getSourceConnectionId().toString(), "");
+		PTF_ASSERT_EQUAL(retryLayer->getRetryToken().toString(), "");
+		PTF_ASSERT_EQUAL(retryLayer->getRetryIntegrityTag().toString(), "");
 	}
 }  // QuicV1MalformedPacketsTest

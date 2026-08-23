@@ -47,13 +47,9 @@ namespace pcpp
 			{
 				return new QuicV1ZeroRttLayer(data, dataLen, prevLayer, packet);
 			}
-			case static_cast<uint8_t>(QuicPacketType::Retry):
+			default:  // QuicPacketType::Retry
 			{
 				return new QuicV1RetryLayer(data, dataLen, prevLayer, packet);
-			}
-			default:
-			{
-				return nullptr;
 			}
 			}
 		}

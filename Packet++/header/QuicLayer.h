@@ -267,7 +267,7 @@ namespace pcpp
 		/// @struct VarintValueAndSize
 		/// The decoded value of a QUIC variable-length integer, together with the number of
 		/// bytes it occupied on the wire (1, 2, 4 or 8, per RFC 9000 Section 16) - returned by
-		/// @ref getVarintValueAndSize so callers can advance past the field without re-decoding
+		/// getVarintValueAndSize so callers can advance past the field without re-decoding
 		/// its length
 		struct VarintValueAndSize
 		{
