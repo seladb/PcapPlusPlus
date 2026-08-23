@@ -209,11 +209,20 @@ namespace pcpp
 	protected:
 		using QuicV1Layer::QuicV1Layer;
 
+		/// @struct OffsetAndLength
+		/// The offset (from the start of the packet) and length, in bytes, of a variable-length
+		/// field - used internally while walking the packet to locate the Source Connection ID,
+		/// Token, and Length fields that follow the Destination Connection ID
 		struct OffsetAndLength
 		{
+			/// The field's length, in bytes
 			size_t length;
+			/// The field's offset from the start of the packet, in bytes
 			size_t offset;
 
+			/// A constructor that creates an instance from a length and offset
+			/// @param[in] length The field's length, in bytes
+			/// @param[in] offset The field's offset from the start of the packet, in bytes
 			OffsetAndLength(size_t length, size_t offset) : length(length), offset(offset)
 			{}
 		};
@@ -255,11 +264,21 @@ namespace pcpp
 		size_t getHeaderLen() const override;
 
 	protected:
+		/// @struct VarintValueAndSize
+		/// The decoded value of a QUIC variable-length integer, together with the number of
+		/// bytes it occupied on the wire (1, 2, 4 or 8, per RFC 9000 Section 16) - returned by
+		/// @ref getVarintValueAndSize so callers can advance past the field without re-decoding
+		/// its length
 		struct VarintValueAndSize
 		{
+			/// The varint's decoded value
 			uint64_t value;
+			/// The varint's encoded size on the wire, in bytes (1, 2, 4 or 8)
 			size_t size;
 
+			/// A constructor that creates an instance from a decoded value and its encoded size
+			/// @param[in] value The varint's decoded value
+			/// @param[in] size The varint's encoded size on the wire, in bytes
 			VarintValueAndSize(uint64_t value, size_t size) : value(value), size(size)
 			{}
 		};
