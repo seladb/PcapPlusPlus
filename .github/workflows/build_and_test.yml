@@ -717,6 +717,8 @@ jobs:
             arch: "arm64"
             pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
 
+    # WinPcap has no arm64 build, so only run the arm64 job when NPcap is available
+    if: ${{ matrix.os != 'windows-11-arm' || matrix.pcap_lib == 'npcap' }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
