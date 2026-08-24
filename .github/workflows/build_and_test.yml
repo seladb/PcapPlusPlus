@@ -712,6 +712,10 @@ jobs:
             platform: "Visual Studio 17 2022"
             arch: "x64"
             pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
+          - os: windows-11-arm
+            platform: "Visual Studio 17 2022"
+            arch: "arm64"
+            pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
 
     runs-on: ${{ matrix.os }}
     steps:
