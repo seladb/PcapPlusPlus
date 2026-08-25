@@ -51,6 +51,16 @@ namespace pcpp
 			LongHeader = 1
 		};
 
+		/// @struct ProtectedPayload
+		/// A non-owning view of the protected portion of a QUIC packet
+		struct ProtectedPayload
+		{
+			/// Pointer to the beginning of the protected data
+			const uint8_t* data;
+			/// Length of the protected data in bytes
+			size_t length;
+		};
+
 		/// A static method that creates a QUIC v11 layer from packet raw data. Returns nullptr if
 		/// data is not valid.
 		/// @param[in] data A pointer to the raw data
@@ -263,6 +273,12 @@ namespace pcpp
 		/// amount of data actually captured
 		size_t getHeaderLen() const override;
 
+		/// Get the protected portion of the QUIC packet.
+		/// The returned data points directly into the packet buffer and is not copied.
+		/// This includes the Packet Number and the protected payload (including the AEAD authentication tag).
+		/// @return A non-owning view of the protected portion of the packet
+		ProtectedPayload getProtectedPayload() const;
+
 	protected:
 		/// @struct VarintValueAndSize
 		/// The decoded value of a QUIC variable-length integer, together with the number of
@@ -428,6 +444,11 @@ namespace pcpp
 		{
 			return getShortHeader()->keyPhase;
 		}
+
+		/// Get the protected portion of the QUIC packet.
+		/// The returned data points directly into the packet buffer and is not copied.
+		/// @return A non-owning view of the protected portion of the packet
+		ProtectedPayload getProtectedPayload() const;
 
 		// implement abstract methods
 

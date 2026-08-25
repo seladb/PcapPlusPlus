@@ -23,6 +23,12 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicInitialLayer->getSourceConnectionId().toString(), "2e05f87969a4940b");
 		PTF_ASSERT_EQUAL(quicInitialLayer->getLength(), 1231);
 		PTF_ASSERT_EQUAL(quicInitialLayer->getToken().toString(), "");
+		auto protectedPayload = quicInitialLayer->getProtectedPayload();
+		PTF_ASSERT_EQUAL(protectedPayload.length, 1231);
+		std::array<uint8_t, 5> expectedFirstBytes = { 0x87, 0x3e, 0x73, 0xbf, 0xb2 };
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data, expectedFirstBytes.data(), 5);
+		std::array<uint8_t, 5> expectedLastBytes = { 0x4a, 0x48, 0xdd, 0xba, 0xab };
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data + protectedPayload.length - 5, expectedLastBytes.data(), 5);
 		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderLen(), 1252);
 		PTF_ASSERT_EQUAL(quicInitialLayer->toString(), "QUIC v1 Layer, Initial message");
 	}
@@ -44,6 +50,12 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(
 		    quicInitialLayer->getToken().toString(),
 		    "005ea37af85124745e1e7fb3d92a3a17301eeb117b050f57d46eeac87ca3900689e621300e73cbb68ce705c6ea8df47d61d89af11c00db114c51f16bcc871f6f440f8aabe701");
+		auto protectedPayload = quicInitialLayer->getProtectedPayload();
+		PTF_ASSERT_EQUAL(protectedPayload.length, 553);
+		std::array<uint8_t, 5> expectedFirstBytes = { 0x69, 0x45, 0xbf, 0xf0, 0xad };
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data, expectedFirstBytes.data(), 5);
+		std::array<uint8_t, 5> expectedLastBytes = { 0x2a, 0x09, 0x1f, 0xc1, 0x65 };
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data + protectedPayload.length - 5, expectedLastBytes.data(), 5);
 		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderLen(), 650);
 	}
 
@@ -62,6 +74,15 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getLength(), 72);
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getHeaderLen(), 92);
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->toString(), "QUIC v1 Layer, Handshake message");
+		std::array<uint8_t, 72> expectedProtectedPayload = {
+			0xf0, 0x2f, 0xcf, 0xe6, 0x46, 0xd7, 0x05, 0x6d, 0x15, 0xfc, 0x2e, 0x2e, 0xc4, 0xf2, 0x08, 0x8c, 0xd8, 0xdc,
+			0x3b, 0xe6, 0x06, 0x1b, 0xb4, 0xd9, 0xea, 0x51, 0xc7, 0xc0, 0xaf, 0x42, 0x21, 0xe8, 0x71, 0x0c, 0xfc, 0x3c,
+			0xa4, 0x4f, 0x92, 0x91, 0x61, 0x4a, 0xfe, 0xc9, 0xbf, 0xcb, 0x87, 0x27, 0x69, 0x91, 0x6b, 0xcd, 0x0a, 0x04,
+			0xdb, 0x18, 0xaa, 0x1f, 0x82, 0xe8, 0xbe, 0x09, 0x29, 0xc4, 0xe2, 0x6f, 0xf4, 0x3f, 0xad, 0x45, 0x69, 0x03
+		};
+		auto protectedPayload = quicHandshakeLayer->getProtectedPayload();
+		PTF_ASSERT_EQUAL(protectedPayload.length, expectedProtectedPayload.size());
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data, expectedProtectedPayload.data(), expectedProtectedPayload.size());
 	}
 
 	// 0-RTT packet
@@ -78,6 +99,12 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getDestinationConnectionId().toString(), "3c548c2db5aa5e4f64702c3961");
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getSourceConnectionId().toString(), "4c8342");
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getLength(), 439);
+		auto protectedPayload = quicZeroRttLayer->getProtectedPayload();
+		PTF_ASSERT_EQUAL(protectedPayload.length, 439);
+		std::array<uint8_t, 5> expectedFirstBytes = { 0xda, 0xd9, 0x53, 0x89, 0x4e };
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data, expectedFirstBytes.data(), 5);
+		std::array<uint8_t, 5> expectedLastBytes = { 0x26, 0xd0, 0x09, 0xc3, 0x31 };
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data + protectedPayload.length - 5, expectedLastBytes.data(), 5);
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getHeaderLen(), 464);
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->toString(), "QUIC v1 Layer, 0-RTT message");
 	}
@@ -135,6 +162,14 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_FALSE(quicOneRttLayer->getKeyPhaseBit());
 		PTF_ASSERT_EQUAL(quicOneRttLayer->getHeaderLen(), 55);
 		PTF_ASSERT_EQUAL(quicOneRttLayer->toString(), "QUIC v1 Layer, 1-RTT message");
+		auto protectedPayload = quicOneRttLayer->getProtectedPayload();
+		PTF_ASSERT_EQUAL(protectedPayload.length, 54);
+		std::array<uint8_t, 54> expectedProtectedPayload = {
+			0xf1, 0x47, 0xb6, 0x31, 0xd2, 0xec, 0x8e, 0xb3, 0xd1, 0x2a, 0x62, 0x4d, 0xc8, 0x01, 0x39, 0xce, 0x72, 0xc5,
+			0xec, 0x28, 0x11, 0x19, 0x01, 0x7f, 0x6c, 0xe6, 0xea, 0x0a, 0xfc, 0x23, 0xf1, 0x88, 0x69, 0x49, 0xb7, 0xad,
+			0x65, 0xfb, 0xe8, 0x43, 0x67, 0x04, 0x06, 0xd9, 0xdc, 0xa4, 0x21, 0xa6, 0x00, 0x29, 0x1a, 0x6d, 0xe9, 0xe4
+		};
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data, expectedProtectedPayload.data(), expectedProtectedPayload.size());
 	}
 
 	// Varint length (1/2/4/8 bytes)
