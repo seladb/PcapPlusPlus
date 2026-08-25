@@ -412,6 +412,9 @@ if(PCAPPP_INSTALL)
 
   if(PCAPPP_USE_XDP)
     pcapp_install_cmake_module(BPF)
+    if(XDP_FOUND)
+      pcapp_install_cmake_module(XDP)
+    endif()
   endif()
 
   if(PCAPPP_USE_WINDIVERT)
