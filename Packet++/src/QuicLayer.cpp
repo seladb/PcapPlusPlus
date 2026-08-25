@@ -271,11 +271,6 @@ namespace pcpp
 			auto payloadOffset = lengthOffset + lengthValueAndSize.size;
 			auto payloadLength = static_cast<size_t>(lengthValueAndSize.value);
 
-			if (payloadOffset > m_DataLen)
-			{
-				return { nullptr, 0 };
-			}
-
 			payloadLength = (std::min)(payloadLength, m_DataLen - payloadOffset);
 
 			return { m_Data + payloadOffset, payloadLength };
@@ -390,11 +385,6 @@ namespace pcpp
 
 	QuicV1Layer::ProtectedPayload QuicV1OneRttLayer::getProtectedPayload() const
 	{
-		if (m_DataLen <= sizeof(quic_short_header))
-		{
-			return { nullptr, 0 };
-		}
-
 		return { m_Data + sizeof(quic_short_header), m_DataLen - sizeof(quic_short_header) };
 	}
 

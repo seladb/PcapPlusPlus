@@ -455,4 +455,80 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest)
 		PTF_ASSERT_EQUAL(retryLayer->getRetryToken().toString(), "");
 		PTF_ASSERT_EQUAL(retryLayer->getRetryIntegrityTag().toString(), "");
 	}
+
+	// Protected payload cannot be located when the length offset itself is unreadable (not
+	// enough data left to even read the Length varint) - EstablishmentLayer::getLengthOffset()
+	// throws, and getProtectedPayload() must catch it and return a null, empty view
+	{
+		// Handshake, DCIDLen=0, SCIDLen=1 (SCID="aa"), nothing left for the Length field
+		auto buffer = makeBuffer({ 0xE0, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0xAA });
+		size_t dataLen = 8;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+		    pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto handshakeLayer = dynamic_cast<pcpp::QuicV1HandshakeLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(handshakeLayer);
+		auto protectedPayload = handshakeLayer->getProtectedPayload();
+		PTF_ASSERT_NULL(protectedPayload.data);
+		PTF_ASSERT_EQUAL(protectedPayload.length, 0);
+	}
+
+	// Protected payload sits exactly at the end of the captured data: Length declares 5
+	// bytes of payload, but the capture ends right where that payload would begin. The
+	// result should be a non-null, zero-length view (not a null one)
+	{
+		// Initial, DCIDLen=0, SCIDLen=0, TokenLength=0, Length=5 - but no payload bytes follow
+		auto buffer = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05 });
+		auto rawData = buffer.get();
+		size_t dataLen = 9;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+		    pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer);
+		auto protectedPayload = initialLayer->getProtectedPayload();
+		PTF_ASSERT_NOT_NULL(protectedPayload.data);
+		PTF_ASSERT_TRUE(protectedPayload.data == rawData + 9);
+		PTF_ASSERT_EQUAL(protectedPayload.length, 0);
+	}
+
+	// Length declares more payload than was actually captured (a truncated capture) - the
+	// returned view must be clamped to what's available rather than reporting the
+	// protocol-declared length and pointing past the end of the buffer
+	{
+		// Handshake, DCIDLen=0, SCIDLen=0, Length=1000 (2-byte varint), but only 3 payload
+		// bytes are actually present
+		auto buffer = makeBuffer({ 0xE0, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x43, 0xE8, 0x01, 0x02, 0x03 });
+		size_t dataLen = 12;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+		    pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto handshakeLayer = dynamic_cast<pcpp::QuicV1HandshakeLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(handshakeLayer);
+		auto protectedPayload = handshakeLayer->getProtectedPayload();
+		PTF_ASSERT_NOT_NULL(protectedPayload.data);
+		PTF_ASSERT_EQUAL(protectedPayload.length, 3);
+		std::array<uint8_t, 3> expectedPayload = { 0x01, 0x02, 0x03 };
+		PTF_ASSERT_BUF_COMPARE(protectedPayload.data, expectedPayload.data(), expectedPayload.size());
+	}
+
+	// Length == 0 yields a valid, empty protected payload - distinct from the "end of
+	// capture" case above because extra captured bytes remain after it, which the Length
+	// field correctly says belong to something else, not this packet's protected payload
+	{
+		// 0-RTT, DCIDLen=0, SCIDLen=0, Length=0, followed by 2 bytes that belong to whatever
+		// comes next in the capture
+		auto buffer = makeBuffer({ 0xD0, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0xEE });
+		auto rawData = buffer.get();
+		size_t dataLen = 10;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+		    pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto zeroRttLayer = dynamic_cast<pcpp::QuicV1ZeroRttLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(zeroRttLayer);
+		auto protectedPayload = zeroRttLayer->getProtectedPayload();
+		PTF_ASSERT_NOT_NULL(protectedPayload.data);
+		PTF_ASSERT_TRUE(protectedPayload.data == rawData + 8);
+		PTF_ASSERT_EQUAL(protectedPayload.length, 0);
+	}
 }  // QuicV1MalformedPacketsTest
