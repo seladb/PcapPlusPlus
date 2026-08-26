@@ -402,6 +402,14 @@ if(PCAPPP_INSTALL)
     pcapp_install_cmake_module(NUMA)
   endif()
 
+  if(PCAPPP_USE_XDP)
+    pcapp_install_cmake_module(BPF)
+  endif()
+
+  if(PCAPPP_USE_WINDIVERT)
+    pcapp_install_cmake_module(WinDivert)
+  endif()
+
   if(LIGHT_PCAPNG_ZSTD)
     pcapp_install_cmake_module(ZSTD)
   endif()
