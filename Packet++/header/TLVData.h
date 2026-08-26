@@ -229,6 +229,7 @@ namespace pcpp
 			return *this;
 		}
 
+		// cppcheck-suppress functionStatic
 		/// Get the first TLV record out of a byte stream
 		/// @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
 		/// @param[in] tlvDataLen The TLV data byte stream length
@@ -253,6 +254,7 @@ namespace pcpp
 			return resRec;
 		}
 
+		// cppcheck-suppress [constParameterReference, functionStatic]
 		/// Get a TLV record that follows a given TLV record in a byte stream
 		/// @param[in] record A given TLV record
 		/// @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
