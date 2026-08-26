@@ -653,7 +653,7 @@ namespace pcpp
 			/// @brief The SIP protocol version (e.g., SIP/2.0)
 			std::string version;
 			/// @brief The response status code number (e.g., 200, 100)
-			SipResponseLayer::SipResponseStatusCode statusCode;
+			SipResponseLayer::SipResponseStatusCode statusCode = SipResponseLayer::SipStatusCodeUnknown;
 		};
 
 		/// @return The status code as SipResponseLayer#SipResponseStatusCode enum

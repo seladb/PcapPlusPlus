@@ -6,4 +6,4 @@ pytest==8.4.2
 scapy==2.7.0
 toml==0.10.2
 pytest-rerunfailures==15.1
-cryptography==46.0.7
+cryptography==50.0.0
