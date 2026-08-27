@@ -988,8 +988,7 @@ jobs:
             && tar -xvf v${{ matrix.bpf_version }}.tar.gz \
             && rm -rf v${{ matrix.bpf_version }}.tar.gz \
             && mv libbpf-${{ matrix.bpf_version }} bpf && cd bpf/src \
-            && make \
-            && sudo make install PREFIX=${{ github.workspace }}/bpf/install
+            && make install PREFIX="${{ github.workspace }}/bpf/install"
 
       - name: Cache BPF
         if: steps.cache-bpf.outputs.cache-hit != 'true'
@@ -1021,9 +1020,8 @@ jobs:
             && tar -xvf xdp-tools-1.6.3.tar.gz \
             && rm -rf xdp-tools-1.6.3.tar.gz \
             && mv xdp-tools-1.6.3 xdp && cd xdp \
-            && PKG_CONFIG_PATH=${{ github.workspace }}/bpf/install/lib64/pkgconfig/ ./configure
-            && make
-            && sudo make install PREFIX=${{ github.workspace }}/xdp/install
+            && PKG_CONFIG_PATH="${{ github.workspace }}/bpf/install/lib64/pkgconfig/" ./configure
+            && make install PREFIX="${{ github.workspace }}/xdp/install"
 
       - name: Cache XDP
         if: steps.bpf-compare.outputs.satisfies == 'true' && steps.cache-xdp.outputs.cache-hit != 'true'
@@ -1046,7 +1044,7 @@ jobs:
           if [[ "true" == "${{ steps.bpf-compare.outputs.satisfies }}" ]]; then
             export PKG_CONFIG_PATH="${{ github.workspace }}/xdp/install/lib/pkgconfig"
           fi
-          export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${{ github.workspace }}/bpf/install/lib64/pkgconfig"
+          export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}${{ github.workspace }}/bpf/install/lib64/pkgconfig"
           cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
