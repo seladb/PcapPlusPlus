@@ -975,7 +975,6 @@ jobs:
           sudo apt update && sudo apt -y install ccache libpcap-dev libelf-dev tcpreplay
 
       - name: Restore BPF cache
-        if: false
         id: cache-bpf
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -1021,7 +1020,7 @@ jobs:
             && tar -xvf xdp-tools-1.6.3.tar.gz \
             && rm -rf xdp-tools-1.6.3.tar.gz \
             && mv xdp-tools-1.6.3 xdp && cd xdp \
-            && PKG_CONFIG_PATH="${{ github.workspace }}/bpf/install/lib64/pkgconfig/" ./configure
+            && PKG_CONFIG_PATH="${{ github.workspace }}/bpf/install/lib64/pkgconfig" ./configure \
             && make install PREFIX="${{ github.workspace }}/xdp/install"
 
       - name: Cache XDP
