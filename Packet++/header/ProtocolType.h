@@ -257,6 +257,9 @@ namespace pcpp
 	/// MySQL protocol
 	const ProtocolType MySQL = 63;
 
+	/// GENEVE protocol
+	const ProtocolType Geneve = 65;
+
 	/// FTP protocol family (FTPControl and FtpData protocols)
 	const ProtocolTypeFamily FTP = 0x3c29;
 
