@@ -7,6 +7,9 @@
 #include "Packet.h"
 #include "Logger.h"
 
+#include <chrono>
+#include <thread>
+
 extern PcapTestArgs PcapTestGlobalArgs;
 
 #ifdef USE_XDP
@@ -51,6 +54,19 @@ std::string getDeviceName()
 	return "";
 }
 
+// The kernel's unbind of the umem from the network device happens asynchronously after xsk_socket__delete()
+// returns, so this function is needed to avoid a race condition where the device is not ready to be opened
+// after being closed in a previous test case.
+bool waitOpenDevice(pcpp::XdpDevice& device, int timeoutSeconds)
+{
+	const auto startTime = std::chrono::steady_clock::now();
+	while (!device.open() && (startTime + std::chrono::seconds(timeoutSeconds)) > std::chrono::steady_clock::now())
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	return device.isOpened();
+}
+
 #endif  // USE_XDP
 
 PTF_TEST_CASE(TestXdpDeviceReceivePackets)
@@ -62,7 +78,7 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 
 	PTF_ASSERT_NULL(device.getConfig());
 
-	PTF_ASSERT_TRUE(device.open());
+	PTF_ASSERT_TRUE(waitOpenDevice(device, 2));
 
 	PTF_ASSERT_TRUE(assertConfig(device.getConfig(), pcpp::XdpDevice::XdpDeviceConfiguration::AutoMode, 4096, 4096,
 	                             4096, 2048, 2048, 2048, 64));
@@ -146,7 +162,7 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 	pcpp::RawPacketVector packets;
 	reader.getNextPackets(packets);
 
-	PTF_ASSERT_TRUE(device.open());
+	PTF_ASSERT_TRUE(waitOpenDevice(device, 2));
 
 	PTF_ASSERT_TRUE(device.sendPackets(packets, true));
 
@@ -190,7 +206,7 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 
 	auto config = pcpp::XdpDevice::XdpDeviceConfiguration(pcpp::XdpDevice::XdpDeviceConfiguration::SkbMode, 1000, 4096,
 	                                                      512, 512, 512, 512, 20);
-	PTF_ASSERT_TRUE(device.open(config));
+	PTF_ASSERT_TRUE(waitOpenDevice(device, 2));
 
 	PTF_ASSERT_TRUE(assertConfig(device.getConfig(), pcpp::XdpDevice::XdpDeviceConfiguration::SkbMode, 1000, 4096, 512,
 	                             512, 512, 512, 20));
