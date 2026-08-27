@@ -13,6 +13,7 @@ add_executable(
   Tests/DoIpTests.cpp
   Tests/EthAndArpTests.cpp
   Tests/FtpTests.cpp
+  Tests/GeneveTests.cpp
   Tests/GreTests.cpp
   Tests/GtpTests.cpp
   Tests/HttpTests.cpp

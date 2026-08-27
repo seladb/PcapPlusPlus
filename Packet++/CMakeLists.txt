@@ -16,6 +16,7 @@ add_library(
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
+  src/GeneveLayer.cpp
   src/GreLayer.cpp
   src/GtpLayer.cpp
   src/HttpLayer.cpp
@@ -97,6 +98,7 @@ set(
   header/EthDot3Layer.h
   header/EthLayer.h
   header/FtpLayer.h
+  header/GeneveLayer.h
   header/GreLayer.h
   header/GtpLayer.h
   header/HttpLayer.h
