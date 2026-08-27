@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleGeneveLayer
 
 #include "GeneveLayer.h"
+#include "EndianPortable.h"
 #include "EthDot3Layer.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
