@@ -1003,11 +1003,11 @@ jobs:
         uses: madhead/semver-utils@4cf918affe9106ea59f86c6250e5ec4570ac4389 # v5.0.0
         with:
           version: ${{ matrix.bpf_version }}
-          compare-to: 1.0.0
+          satisfies: 1.x
 
       # libxdp was split out from libbpf at v1.0.0, so it only needs to be installed if >= 1.0.0.
       - name: Restore XDP cache
-        if: steps.bpf-compare.outputs.comparison-result == '>='
+        if: steps.bpf-compare.outputs.satisfies == 'true'
         id: cache-xdp
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -1015,7 +1015,7 @@ jobs:
           key: xdp-${{ runner.os }}
 
       - name: Install XDP
-        if: steps.bpf-compare.outputs.comparison-result == '>=' && steps.cache-xdp.outputs.cache-hit != 'true'
+        if: steps.bpf-compare.outputs.satisfies == 'true' && steps.cache-xdp.outputs.cache-hit != 'true'
         run: |
           wget https://github.com/xdp-project/xdp-tools/releases/download/v1.6.3/xdp-tools-1.6.3.tar.gz \
             && tar -xvf xdp-tools-1.6.3.tar.gz \
@@ -1026,7 +1026,7 @@ jobs:
             && sudo make install PREFIX=${{ github.workspace }}/xdp/install
 
       - name: Cache XDP
-        if: steps.bpf-compare.outputs.comparison-result == '>=' && steps.cache-xdp.outputs.cache-hit != 'true'
+        if: steps.bpf-compare.outputs.satisfies == 'true' && steps.cache-xdp.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: xdp/install
@@ -1043,7 +1043,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          if [[ ">=" == "${{ steps.bpf-compare.outputs.comparison-result }}" ]]; then
+          if [[ "true" == "${{ steps.bpf-compare.outputs.satisfies }}" ]]; then
             export PKG_CONFIG_PATH="${{ github.workspace }}/xdp/install/lib/pkgconfig"
           fi
           export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${{ github.workspace }}/bpf/install/lib64/pkgconfig"
