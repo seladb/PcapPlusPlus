@@ -972,7 +972,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install ccache libpcap-dev tcpreplay
+          sudo apt update && sudo apt -y install ccache libpcap-dev libelf-dev tcpreplay
 
       - name: Restore BPF cache
         id: cache-bpf
