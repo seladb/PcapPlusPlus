@@ -118,11 +118,16 @@ namespace pcpp
 		uint16_t id;
 		/// the echo (ping) request sequence number
 		uint16_t sequence;
-		/// a timestamp of when the message was sent
+		/// a timestamp of when the message was sent. Not part of the RFC 792 echo header, these are the first 8
+		/// bytes of the echo payload, and they are absent from a message shorter than sizeof(icmp_echo_hdr)
 		uint64_t timestamp;
 	} icmp_echo_hdr;
 #pragma pack(pop)
 	static_assert(sizeof(icmp_echo_hdr) == 16, "icmp_echo_hdr size is not 16 bytes");
+
+	/// The smallest valid ICMP echo request/reply message, i.e. the RFC 792 echo header. Smaller than
+	/// sizeof(icmp_echo_hdr), which also covers the first 8 payload bytes
+	static const size_t ICMP_ECHO_MIN_LEN = sizeof(icmphdr) + 2 * sizeof(uint16_t);
 
 	/// @struct icmp_echo_request
 	/// ICMP echo (ping) request/reply message structure
@@ -274,12 +279,15 @@ namespace pcpp
 	{
 		/// a pointer to the header data on the packet
 		icmp_router_advertisement_hdr* header;
+		/// the number of bytes available on the packet from icmp_router_advertisement#header onwards, used to bound
+		/// the wire-controlled advertisementCount
+		size_t dataLength;
 
 		/// Extract router advertisement at a given index
 		/// @param[in] index The index of the router advertisement
 		/// @return A pointer to the router advertisement on the packet or null if index is out of range (less than zero
 		/// or greater than the number of router advertisement records on this message, determined by advertisementCount
-		/// field)
+		/// field), or if the record is not fully present in the packet data
 		icmp_router_address_structure* getRouterAddress(int index) const;
 	};
 
@@ -327,6 +335,18 @@ namespace pcpp
 	private:
 		icmp_echo_request m_EchoData;
 		mutable icmp_router_advertisement m_RouterAdvData;
+
+		/// Cast the layer data to a fixed-size ICMP message structure, or nullptr if the message is of a different
+		/// type or the layer is too short to hold the whole structure (a truncated packet)
+		template <typename T> T* castMessageData(IcmpMessageType type) const
+		{
+			if (!isMessageOfType(type) || m_DataLen < sizeof(T))
+				return nullptr;
+
+			return reinterpret_cast<T*>(m_Data);
+		}
+
+		icmp_echo_request* getEchoData(IcmpMessageType echoType);
 
 		bool cleanIcmpLayer();
 
@@ -623,9 +643,18 @@ namespace pcpp
 
 		uint8_t type = data[0];
 
-		// ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, ICMP_ROUTER_SOL, ICMP_INFO_REQUEST, ICMP_INFO_REPLY
-		if (type == 8 || type == 0 || type == 10 || type == 15 || type == 16)
+		// ICMP_ROUTER_SOL, which is just the base header
+		if (type == 10)
 			return true;
+
+		// ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY. An echo message carries a variable-length payload, so only the RFC 792
+		// echo header can be required here
+		if (type == 8 || type == 0)
+			return dataLen >= ICMP_ECHO_MIN_LEN;
+
+		// ICMP_INFO_REQUEST, ICMP_INFO_REPLY
+		if (type == 15 || type == 16)
+			return dataLen >= sizeof(icmp_info_request);
 
 		// ICMP_TIMESTAMP_REQUEST, ICMP_TIMESTAMP_REPLY
 		if (type == 13 || type == 14)
