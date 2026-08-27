@@ -960,6 +960,11 @@ jobs:
 
   xdp:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - bpf_version: 1.7.0 # The latest version available as of 8/2026
+          - bpf_version: 0.5.0 # The version available from apt for Ubuntu 22.04
 
     steps:
       - name: Checkout code
@@ -967,7 +972,65 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install ccache libpcap-dev libbpf-dev libxdp-dev tcpreplay
+          sudo apt update && sudo apt -y install ccache libpcap-dev tcpreplay
+
+      - name: Restore BPF cache
+        id: cache-bpf
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: bpf/install
+          key: bpf-${{ runner.os }}-${{ matrix.bpf_version }}
+
+      - name: Install BPF
+        if: steps.cache-bpf.outputs.cache-hit != 'true'
+        run: |
+          wget https://github.com/libbpf/libbpf/archive/refs/tags/v${{ matrix.bpf_version }}.tar.gz \
+            && tar -xvf v${{ matrix.bpf_version }}.tar.gz \
+            && rm -rf v${{ matrix.bpf_version }}.tar.gz \
+            && mv libbpf-${{ matrix.bpf_version }} bpf && cd bpf/src \
+            && make \
+            && sudo make install PREFIX=${{ github.workspace }}/bpf/install
+
+      - name: Cache BPF
+        if: steps.cache-bpf.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: bpf/install
+          key: bpf-${{ runner.os }}-${{ matrix.bpf_version }}
+
+      - name: Compare BPF Versions
+        id: bpf-compare
+        uses: madhead/semver-utils@4cf918affe9106ea59f86c6250e5ec4570ac4389 # v5.0.0
+        with:
+          version: ${{ matrix.bpf_version }}
+          compare-to: 1.0.0
+
+      # libxdp was split out from libbpf at v1.0.0, so it only needs to be installed if >= 1.0.0.
+      - name: Restore XDP cache
+        if: steps.bpf-compare.outputs.comparison-result == '>='
+        id: cache-xdp
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: xdp/install
+          key: xdp-${{ runner.os }}
+
+      - name: Install XDP
+        if: steps.bpf-compare.outputs.comparison-result == '>=' && steps.cache-xdp.outputs.cache-hit != 'true'
+        run: |
+          wget https://github.com/xdp-project/xdp-tools/releases/download/v1.6.3/xdp-tools-1.6.3.tar.gz \
+            && tar -xvf xdp-tools-1.6.3.tar.gz \
+            && rm -rf xdp-tools-1.6.3.tar.gz \
+            && mv xdp-tools-1.6.3 xdp && cd xdp \
+            && PKG_CONFIG_PATH=${{ github.workspace }}/bpf/install/lib64/pkgconfig/ ./configure
+            && make
+            && sudo make install PREFIX=${{ github.workspace }}/xdp/install
+
+      - name: Cache XDP
+        if: steps.bpf-compare.outputs.comparison-result == '>=' && steps.cache-xdp.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: xdp/install
+          key: xdp-${{ runner.os }}
 
       - name: Restore Ccache
         id: ccache-restore
@@ -979,7 +1042,12 @@ jobs:
             ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
+        run: |
+          if [[ ">=" == "${{ steps.bpf-compare.outputs.comparison-result }}" ]]; then
+            export PKG_CONFIG_PATH="${{ github.workspace }}/xdp/install/lib/pkgconfig"
+          fi
+          export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${{ github.workspace }}/bpf/install/lib64/pkgconfig"
+          cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
