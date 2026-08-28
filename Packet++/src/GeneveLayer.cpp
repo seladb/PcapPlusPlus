@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleGeneveLayer
 
 #include "GeneveLayer.h"
+#include "ArpLayer.h"
 #include "EndianPortable.h"
 #include "EthDot3Layer.h"
 #include "EthLayer.h"
@@ -180,8 +181,12 @@ namespace pcpp
 		auto* header = reinterpret_cast<const geneve_header*>(data);
 		if (header->version != GeneveSupportedVersion)
 			return false;
+		// RFC 8926 Section 3.4 requires Protocol Type to follow the EtherType convention,
+		// whose valid encodings start at 0x0600.
+		if (be16toh(header->protocolType) < 0x0600)
+			return false;
 
-		size_t optionsLength = static_cast<size_t>(header->optionsLength) * GeneveOptionAlignment;
+		auto optionsLength = static_cast<size_t>(header->optionsLength) * GeneveOptionAlignment;
 		if (optionsLength > dataLen - sizeof(geneve_header))
 			return false;
 
@@ -190,6 +195,9 @@ namespace pcpp
 		while (remaining > 0)
 		{
 			if (!GeneveOption::canAssign(option, remaining))
+				return false;
+			if ((reinterpret_cast<const geneve_option_header*>(option)->type & GeneveOptionCriticalBitMask) != 0 &&
+			    header->criticalFlag == 0)
 				return false;
 
 			size_t optionLength = getGeneveOptionTotalSize(option);
@@ -351,6 +359,9 @@ namespace pcpp
 		case PCPP_ETHERTYPE_IP:
 			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLength);
 			break;
+		case PCPP_ETHERTYPE_ARP:
+			tryConstructNextLayerWithFallback<ArpLayer, PayloadLayer>(payload, payloadLength);
+			break;
 		case PCPP_ETHERTYPE_IPV6:
 			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLength);
 			break;
@@ -381,6 +392,9 @@ namespace pcpp
 		{
 		case IPv4:
 			setProtocolType(PCPP_ETHERTYPE_IP);
+			break;
+		case ARP:
+			setProtocolType(PCPP_ETHERTYPE_ARP);
 			break;
 		case IPv6:
 			setProtocolType(PCPP_ETHERTYPE_IPV6);
