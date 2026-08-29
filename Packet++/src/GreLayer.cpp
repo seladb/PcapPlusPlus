@@ -84,7 +84,7 @@ namespace pcpp
 			}
 
 			// If the packet is truncated/malformed it might be overflow packet length
-			if ((ptr - m_Data) >= m_DataLen)
+			if (static_cast<size_t>(std::abs(ptr - m_Data)) >= m_DataLen)
 			{
 				return nullptr;
 			}
