@@ -84,7 +84,7 @@ namespace pcpp
 			}
 
 			// If the packet is truncated/malformed it might be overflow packet length
-			if (std::distance(m_Data, ptr) >= m_DataLen)
+			if ((ptr - m_Data) >= m_DataLen)
 			{
 				return nullptr;
 			}
