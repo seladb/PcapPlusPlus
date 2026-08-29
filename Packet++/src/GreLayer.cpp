@@ -83,6 +83,12 @@ namespace pcpp
 				return nullptr;
 			}
 
+			// If the packet is truncated/malformed it might be overflow packet length
+			if (std::distance(m_Data, ptr) >= m_DataLen)
+			{
+				return nullptr;
+			}
+
 			if (field == curField)
 			{
 				if (curFieldExists || returnOffsetEvenIfFieldMissing)
