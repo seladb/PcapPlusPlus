@@ -276,6 +276,10 @@ namespace pcpp
 				Failed      ///< Receive failed due to an error (see error and errorCode)
 			};
 
+			explicit ReceiveResult(Status status, std::string const& error = "", uint32_t errorCode = 0)
+			    : status(status), error(error), errorCode(errorCode)
+			{}
+
 			Status status;           ///< Operation status (Completed/Timeout/Failed)
 			std::string error;       ///< Error message when status is Failed; empty otherwise
 			uint32_t errorCode = 0;  ///< Platform-specific error code associated with the failure (0 if none)
@@ -365,7 +369,7 @@ namespace pcpp
 		/// @param[in] driver Optional WinDivert driver implementation.
 		/// Ownership is transferred to WinDivertDevice. Pass nullptr (the default)
 		/// to use the built-in default driver implementation.
-		WinDivertDevice(std::unique_ptr<internal::IWinDivertDriver> driver = nullptr);
+		explicit WinDivertDevice(std::unique_ptr<internal::IWinDivertDriver> driver = nullptr);
 
 		/// @brief Open the device with a default filter capturing both directions.
 		/// @return true on success, false on failure (see logs for details).
@@ -463,7 +467,7 @@ namespace pcpp
 			uint32_t capturedDataLength = 0;
 			std::vector<internal::WinDivertAddress> addresses;
 
-			ReceiveResultInternal(Status status, const std::string& error = "", uint32_t errorCode = 0)
+			explicit ReceiveResultInternal(Status status, const std::string& error = "", uint32_t errorCode = 0)
 			    : ReceiveResult{ status, error, errorCode }
 			{}
 
