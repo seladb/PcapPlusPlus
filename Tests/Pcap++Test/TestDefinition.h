@@ -77,6 +77,7 @@ PTF_TEST_CASE(TestHttpRequestParsing);
 PTF_TEST_CASE(TestHttpResponseParsing);
 PTF_TEST_CASE(TestPrintPacketAndLayers);
 PTF_TEST_CASE(TestDnsParsing);
+PTF_TEST_CASE(TestPacketSerialize);
 
 // Implemented in TcpReassemblyTests.cpp
 PTF_TEST_CASE(TestTcpReassemblySanity);

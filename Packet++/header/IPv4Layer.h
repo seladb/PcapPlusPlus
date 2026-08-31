@@ -605,6 +605,9 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an IPv4 packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
+	protected:
+		void internalSerialize(ISerializer& serializer) const override;
+
 	private:
 		int m_NumOfTrailingBytes;
 		int m_TempHeaderExtension;

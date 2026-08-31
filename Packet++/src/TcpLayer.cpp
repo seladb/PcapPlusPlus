@@ -25,6 +25,8 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "DeprecationUtils.h"
+
+#include <SystemUtils.h>
 #include <sstream>
 
 namespace pcpp
@@ -598,4 +600,13 @@ namespace pcpp
 	}
 	DISABLE_WARNING_POP
 
+	void TcpLayer::internalSerialize(ISerializer& serializer) const
+	{
+		auto* header = getTcpHeader();
+		std::string protocolName = "TCP";
+		serializer.writeField(0, "protocolName", protocolName);
+		serializer.writeField(1, "srcPort", netToHost16(header->portSrc));
+		serializer.writeField(2, "dstPort", netToHost16(header->portDst));
+		serializer.writeField(3, "sequenceNumber", netToHost32(header->sequenceNumber));
+	}
 }  // namespace pcpp

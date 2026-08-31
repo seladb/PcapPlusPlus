@@ -13,6 +13,8 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
+
+#include <SystemUtils.h>
 #include <sstream>
 #include <algorithm>
 
@@ -620,6 +622,18 @@ namespace pcpp
 		m_NumOfTrailingBytes = 0;
 		m_OptionReader.changeTLVRecordCount(0 - getOptionCount());
 		return true;
+	}
+
+	void IPv4Layer::internalSerialize(ISerializer& serializer) const
+	{
+		std::string protocolName = "IPv4";
+		serializer.writeField(0, "protocolName", protocolName);
+		serializer.writeField(1, "srcIP", getSrcIPAddress().toString());
+		serializer.writeField(2, "dstIP", getDstIPAddress().toString());
+		auto* header = getIPv4Header();
+		serializer.writeField(3, "ipID", netToHost16(header->ipId));
+		serializer.writeField(4, "ipProtocol", header->protocol);
+		serializer.writeField(5, "totalLength", netToHost16(header->totalLength));
 	}
 
 }  // namespace pcpp

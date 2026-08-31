@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "ProtocolType.h"
+#include "Serializers.h"
 #include <ostream>
 #include <string>
 #include <stdexcept>
@@ -204,6 +205,8 @@ namespace pcpp
 		/// @param[in] destSize The maximum number of bytes to copy
 		/// @return The number of bytes copied to the destination array.
 		size_t copyData(uint8_t* dest, size_t destSize) const;
+
+		void serialize(ISerializer& serializer) const;
 
 		// implement abstract methods
 
@@ -559,6 +562,9 @@ namespace pcpp
 		{
 			return data != nullptr && dataLen >= sizeof(T);
 		}
+
+		virtual void internalSerialize(ISerializer& serializer) const
+		{}
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)

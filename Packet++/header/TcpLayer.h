@@ -577,6 +577,9 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 
+	protected:
+		void internalSerialize(ISerializer& serializer) const override;
+
 	private:
 		TLVRecordReader<TcpOption> m_OptionReader;
 		int m_NumOfTrailingBytes;

@@ -941,4 +941,31 @@ namespace pcpp
 		}
 	}
 
+	void Packet::serialize(ISerializer& serializer) const
+	{
+		auto rawPacket = getRawPacket();
+		timespec ts = rawPacket->getPacketTimeStamp();
+
+		// Root object for the whole packet. id=0 / name="packet": most formats
+		// (JSON) ignore the root name; a format like XML could use it as the
+		// root tag.
+		serializer.startObject(/*id*/ 0, "packet");
+
+		serializer.writeField(1, "timestampSec", static_cast<uint64_t>(ts.tv_sec));
+		serializer.writeField(2, "timestampNsec", static_cast<uint64_t>(ts.tv_nsec));
+		serializer.writeField(3, "frameLength", rawPacket->getFrameLength());
+		serializer.writeField(4, "linkLayer", static_cast<uint16_t>(rawPacket->getLinkLayerType()));
+
+		serializer.startArray(4, "layers");
+		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
+		{
+			serializer.startObject(curLayer->getProtocol(), "TBD");
+			curLayer->serialize(serializer);
+			serializer.endObject();
+		}
+		serializer.endArray();
+
+		serializer.endObject();
+	}
+
 }  // namespace pcpp

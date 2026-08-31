@@ -61,6 +61,13 @@ namespace pcpp
 		return bytesToCopy;
 	}
 
+	void Layer::serialize(ISerializer& serializer) const
+	{
+		serializer.writeField(/*id*/ 0, "protocol", m_Protocol);
+		// serializer.writeField(/*id*/ 0, "summary", toString());
+		internalSerialize(serializer);
+	}
+
 	void Layer::allocData(size_t dataLen, bool zeroInit)
 	{
 		if (m_Data != nullptr)

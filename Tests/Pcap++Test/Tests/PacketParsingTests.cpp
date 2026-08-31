@@ -2,6 +2,7 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 #include <fstream>
+#include "Serializers.h"
 #include "Packet.h"
 #include "HttpLayer.h"
 #include "DnsLayer.h"
@@ -473,3 +474,94 @@ PTF_TEST_CASE(TestDnsParsing)
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.type == 47
 	PTF_ASSERT_EQUAL(additionalWithTypeNSEC, 14);
 }  // TestDnsParsing
+
+class MeasureTime {
+public:
+    explicit MeasureTime(const char* name)
+        : name_(name),
+          start_(std::chrono::steady_clock::now()) {}
+
+    ~MeasureTime() {
+        const auto end = std::chrono::steady_clock::now();
+        const auto elapsed =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                end - start_);
+
+        std::cout << name_ << ": "
+                  << elapsed.count() << " ms\n";
+    }
+
+private:
+    const char* name_;
+    std::chrono::steady_clock::time_point start_;
+};
+
+PTF_TEST_CASE(TestPacketSerialize)
+{
+	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
+	PTF_ASSERT_TRUE(readerDev.open());
+
+	pcpp::RawPacket rawPacket;
+	pcpp::RawPacketVector rawPacketPtrVec;
+
+	{
+		MeasureTime timer("read 3000 packets");
+		readerDev.getNextPackets(rawPacketPtrVec, 3000);
+	}
+
+
+	//while (readerDev.getNextPacket(rawPacket))
+	//{
+	//	pcpp::Packet packet(&rawPacket);
+	//	packet.serialize(serializer);
+	//	index++;
+	//	if (index == 1500)
+	//	{
+	//		break;
+	//	}
+	//}
+
+	pcpp::PointerVector<pcpp::Packet> packetPtrVec;
+	{
+		MeasureTime timer("Parse packets");
+		for (const auto& rawPacket : rawPacketPtrVec)
+		{
+			packetPtrVec.pushBack(new pcpp::Packet(rawPacket, false, pcpp::TCP));
+		}
+	}
+
+	{
+		MeasureTime timer("Serialize packets - json 1");
+		std::ofstream file("packets.json");
+		pcpp::JsonSerializer serializer(file);
+		serializer.startArray(0, "packets");
+
+		for (const auto* packet : packetPtrVec)
+		{
+			packet->serialize(serializer);
+		}
+
+		serializer.endArray();
+	}
+
+	{
+		MeasureTime timer("Serialize packets - json 2");
+		std::ofstream file("packets2.json");
+		pcpp::JsonSerializer2 serializer(file);
+		serializer.startArray(0, "packets");
+
+		{
+			MeasureTime innerTimer("json 2 - tree building loop");
+			for (const auto* packet : packetPtrVec)
+			{
+				packet->serialize(serializer);
+			}
+		}
+
+		{
+			MeasureTime innerTimer("json 2 - endArray (dump)");
+			serializer.endArray();
+		}
+	}
+} // TestPacketSerialize
+
