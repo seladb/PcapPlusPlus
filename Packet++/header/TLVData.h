@@ -155,20 +155,24 @@ namespace pcpp
 		/// A templated method to retrieve the record data as a certain type T. For example, if record data is 4B long
 		/// (integer) then this method should be used as getValueAs<int>() and it will return the record data as an
 		/// integer.<BR> Notice this return value is a copy of the data, not a pointer to the actual data
-		/// @tparam T A non-pointer, trivially copyable type
+		/// @tparam T A non-pointer, default-constructible, trivially copyable type
 		/// @param[in] offset The offset in the record data to start reading the value from. Useful for cases when you
 		/// want to read some of the data that doesn't start at offset 0. This is an optional parameter and the default
 		/// value is 0, meaning start reading the value at the beginning of the record data
 		/// @return The record data as type T
 		template <typename T> T getValueAs(size_t offset = 0) const
 		{
-			static_assert(std::is_trivially_copyable<T>::value && !std::is_pointer<T>::value,
-			              "TLVRecord::getValueAs<T>() requires T to be a non-pointer, trivially copyable type");
+			static_assert(std::is_trivially_copyable<T>::value && std::is_default_constructible<T>::value &&
+			                  !std::is_pointer<T>::value,
+			              "TLVRecord::getValueAs<T>() requires T to be a non-pointer, "
+			              "default-constructible, trivially copyable type");
 
 			if (getDataSize() < sizeof(T) + offset)
+			{
 				return T{};
+			}
 
-			T result{};
+			T result;
 			memcpy(&result, m_Data->recordValue + getValueOffset() + offset, sizeof(T));
 			return result;
 		}
@@ -187,7 +191,9 @@ namespace pcpp
 			              "TLVRecord::setValue<T>() requires T to be a non-pointer, trivially copyable type");
 
 			if (getDataSize() < sizeof(T))
+			{
 				return false;
+			}
 
 			memcpy(m_Data->recordValue + getValueOffset() + valueOffset, &newValue, sizeof(T));
 			return true;
