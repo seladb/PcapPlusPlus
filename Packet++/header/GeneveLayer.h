@@ -20,6 +20,9 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct geneve_header
 	{
+		static constexpr size_t OptionsLengthUnit = 4;
+		static constexpr size_t MaxOptionsLength = ((1 << 6) - 1) * OptionsLengthUnit;
+
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		/// Options length in 4-byte units
 		uint8_t optionsLength : 6;
@@ -49,6 +52,33 @@ namespace pcpp
 		uint8_t vni[3];
 		/// Reserved byte
 		uint8_t reserved2;
+
+		/// @return Options length in bytes
+		size_t getOptionsLength() const
+		{
+			return static_cast<size_t>(optionsLength) * OptionsLengthUnit;
+		}
+
+		/// @param[in] value Options length in bytes
+		/// @pre value must be divisible by 4 and no greater than MaxOptionsLength
+		void setOptionsLength(size_t value)
+		{
+			optionsLength = static_cast<uint8_t>(value / OptionsLengthUnit);
+		}
+
+		/// @return The 24-bit virtual network identifier
+		uint32_t getVNI() const
+		{
+			return (static_cast<uint32_t>(vni[0]) << 16) | (static_cast<uint32_t>(vni[1]) << 8) | vni[2];
+		}
+
+		/// @param[in] value The 24-bit virtual network identifier
+		void setVNI(uint32_t value)
+		{
+			vni[0] = static_cast<uint8_t>((value >> 16) & 0xff);
+			vni[1] = static_cast<uint8_t>((value >> 8) & 0xff);
+			vni[2] = static_cast<uint8_t>(value & 0xff);
+		}
 	};
 #pragma pack(pop)
 	static_assert(sizeof(geneve_header) == 8, "geneve_header size is not 8 bytes");
@@ -58,8 +88,19 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct geneve_option_header
 	{
+		static constexpr size_t DataLengthUnit = 4;
+		static constexpr size_t MaxDataLength = ((1 << 5) - 1) * DataLengthUnit;
+		static constexpr uint8_t TypeMask = 0x7f;
+		static constexpr uint8_t CriticalBitMask = 0x80;
+
 		/// Option namespace assigned by IANA
 		uint16_t optionClass;
+		/// @return Option class in host byte order
+		uint16_t getOptionClass() const;
+
+		/// @param[in] value Option class in host byte order
+		void setOptionClass(uint16_t value);
+
 		/// Option type. The most significant bit is the critical bit
 		uint8_t type;
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -73,6 +114,60 @@ namespace pcpp
 		/// Option data length in 4-byte units
 		uint8_t length : 5;
 #endif
+
+		/// @return The 7-bit option type without the critical bit
+		uint8_t getType() const
+		{
+			return extractType(type);
+		}
+
+		/// @param[in] value A raw option type, optionally including the critical bit
+		/// @return The 7-bit option type without the critical bit
+		static uint8_t extractType(uint8_t value)
+		{
+			return static_cast<uint8_t>(value & TypeMask);
+		}
+
+		/// Round an option data length up to the next 4-byte boundary
+		/// @param[in] value Unpadded option data length in bytes
+		/// @return Option data length rounded up to a multiple of 4
+		static size_t alignDataSize(size_t value)
+		{
+			constexpr size_t AlignmentMask = DataLengthUnit - 1;
+			return (value + AlignmentMask) & ~AlignmentMask;
+		}
+
+		/// @return True if the critical bit is set
+		bool isCritical() const
+		{
+			return (type & CriticalBitMask) != 0;
+		}
+
+		/// @return Option data length in bytes
+		size_t getDataSize() const
+		{
+			return static_cast<size_t>(length) * DataLengthUnit;
+		}
+
+		/// @param[in] value Option data length in bytes
+		/// @pre value must be divisible by 4 and no greater than MaxDataLength
+		void setDataSize(size_t value)
+		{
+			length = static_cast<uint8_t>(value / DataLengthUnit);
+		}
+
+		/// @return Total option size including its 4-byte header
+		size_t getTotalSize() const
+		{
+			return sizeof(geneve_option_header) + getDataSize();
+		}
+
+		/// @param[in] value The 7-bit option type
+		/// @param[in] critical Whether to set the critical bit
+		void setType(uint8_t value, bool critical)
+		{
+			type = static_cast<uint8_t>(extractType(value) | (critical ? CriticalBitMask : 0));
+		}
 	};
 #pragma pack(pop)
 	static_assert(sizeof(geneve_option_header) == 4, "geneve_option_header size is not 4 bytes");
@@ -207,6 +302,7 @@ namespace pcpp
 		GeneveOptionIterator find(uint16_t optionClass, uint8_t optionType) const;
 
 		/// @return The number of structurally valid options in this range
+		/// @note This operation has O(n) time complexity, where n is the number of options.
 		size_t size() const;
 
 		/// @return True if this range contains no options
@@ -254,6 +350,8 @@ namespace pcpp
 		/// @param[in] dataLen Size of the data in bytes
 		/// @param[in] prevLayer A pointer to the previous layer
 		/// @param[in] packet A pointer to the Packet instance where the layer is stored
+		/// @note This constructor does not validate the input. Use isDataValid() before constructing a standalone
+		/// parsed layer.
 		GeneveLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, Geneve)
 		{}
@@ -281,32 +379,38 @@ namespace pcpp
 		}
 
 		/// @return A pointer to the fixed GENEVE header
+		/// @pre The layer must contain a complete fixed GENEVE header
 		geneve_header* getGeneveHeader() const
 		{
 			return reinterpret_cast<geneve_header*>(m_Data);
 		}
 
 		/// @return The VNI in host byte order
+		/// @pre The layer must contain a complete fixed GENEVE header
 		uint32_t getVNI() const;
 
 		/// Set the VNI. Only the least significant 24 bits are used
 		/// @param[in] vni The VNI to set
+		/// @pre The layer must contain a complete fixed GENEVE header
 		void setVNI(uint32_t vni);
 
 		/// @return Encapsulated protocol EtherType in host byte order
+		/// @pre The layer must contain a complete fixed GENEVE header
 		uint16_t getProtocolType() const;
 
 		/// Set the encapsulated protocol EtherType
 		/// @param[in] protocolType EtherType in host byte order
+		/// @pre The layer must contain a complete fixed GENEVE header
 		void setProtocolType(uint16_t protocolType);
 
-		/// @return Total options length in bytes
+		/// @return Total options length in bytes, or zero if the fixed GENEVE header is unavailable or truncated
 		size_t getOptionsLength() const;
 
-		/// @return Number of structurally valid options in this layer
+		/// @return Number of structurally valid options in this layer, or zero if no valid option range is available
 		size_t getOptionCount() const;
 
-		/// @return A non-owning range over the options in this layer
+		/// @return A non-owning range over the options in this layer, or an empty range if the fixed GENEVE header is
+		/// unavailable or truncated
 		GeneveOptionRange getOptions() const;
 
 		/// Add an option after all existing options
@@ -327,7 +431,8 @@ namespace pcpp
 		/// Parse the encapsulated protocol according to the Protocol Type field
 		void parseNextLayer() override;
 
-		/// @return Fixed header plus the declared options length
+		/// @return Zero if no data is available; the available data length if the fixed header is truncated; otherwise,
+		/// the fixed header plus the declared options length, capped at the available data length
 		size_t getHeaderLen() const override;
 
 		/// Update the Protocol Type and Critical flag from the following layer and options
