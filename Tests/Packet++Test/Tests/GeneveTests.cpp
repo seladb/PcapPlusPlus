@@ -12,6 +12,10 @@
 
 PTF_TEST_CASE(GeneveParsingAndCreationTest)
 {
+	pcpp::geneve_option_header optionHeader = {};
+	optionHeader.setOptionClass(0x1234);
+	PTF_ASSERT_EQUAL(optionHeader.getOptionClass(), 0x1234);
+
 	pcpp::GeneveLayer geneveLayer(0xabcdef, PCPP_ETHERTYPE_ETHBRIDGE, true);
 	const uint8_t optionData[] = { 1, 2, 3, 4, 5 };
 	PTF_ASSERT_TRUE(geneveLayer.addOption(pcpp::GeneveOptionBuilder(0x0102, 3, optionData, sizeof(optionData))));
