@@ -11,7 +11,6 @@ env:
   BUILD_DIR: Dist
   GCOVR_FLAGS: --gcov-ignore-errors all --gcov-ignore-parse-errors all --merge-mode-functions=separate --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
   CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CPPCHECK_VERSION: 2.9
 
 permissions:
   contents: read
@@ -23,7 +22,7 @@ concurrency:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
-    container: seladb/alpine317
+    container: ghcr.io/dimi1010/alpine320-cppcheck:2.9.3-rc3
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -35,8 +34,9 @@ jobs:
       - name: Install dependencies
         run: |
           apk update && apk add python3-dev
-          git clone --branch $CPPCHECK_VERSION --single-branch https://github.com/danmar/cppcheck.git
-          cd cppcheck && mkdir build && cd build && cmake .. && cmake --build . && cmake --install . && cd ../../ && rm -rf cppcheck
+
+      - name: Setup pre-commit environment
+        run: |
           python3 -m venv .venv
           . .venv/bin/activate
           python3 -m pip install pre-commit setuptools clang-format==19.1.6 clang-tidy==18.1.8
