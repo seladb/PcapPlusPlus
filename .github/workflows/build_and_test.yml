@@ -837,7 +837,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Test in FreeBSD
         id: test
-        uses: vmactions/freebsd-vm@77ed28d336d03fe19a3f4f7266c1d2c4714dd79d # v1.5.2
+        uses: vmactions/freebsd-vm@f0552d3b69211736abd97f02ff3d4674c56b73b1 # v1.5.5
         with:
           release: ${{ matrix.version }}
           usesh: true
@@ -925,7 +925,7 @@ jobs:
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
       - name: Set up JDK
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v6.0.0
         with:
           java-version: "17"
           distribution: "zulu"
@@ -959,7 +959,12 @@ jobs:
 #            gradle -is connectedCheck
 
   xdp:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - bpf_version: 1.7.0 # The latest version available as of 8/2026
+          - bpf_version: 0.5.0 # The version available from apt for Ubuntu 22.04
 
     steps:
       - name: Checkout code
@@ -967,7 +972,63 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install ccache libpcap-dev libbpf-dev tcpreplay
+          sudo apt update && sudo apt -y install ccache libpcap-dev libelf-dev tcpreplay
+
+      - name: Restore BPF cache
+        id: cache-bpf
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: bpf/install
+          key: bpf-${{ runner.os }}-${{ matrix.bpf_version }}
+
+      - name: Install BPF
+        if: steps.cache-bpf.outputs.cache-hit != 'true'
+        run: |
+          wget https://github.com/libbpf/libbpf/archive/refs/tags/v${{ matrix.bpf_version }}.tar.gz \
+            && tar -xvf v${{ matrix.bpf_version }}.tar.gz \
+            && rm -rf v${{ matrix.bpf_version }}.tar.gz \
+            && mv libbpf-${{ matrix.bpf_version }} bpf && cd bpf/src \
+            && make install PREFIX="${{ github.workspace }}/bpf/install"
+
+      - name: Cache BPF
+        if: steps.cache-bpf.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: bpf/install
+          key: bpf-${{ runner.os }}-${{ matrix.bpf_version }}
+
+      - name: Compare BPF Versions
+        id: bpf-compare
+        uses: madhead/semver-utils@4cf918affe9106ea59f86c6250e5ec4570ac4389 # v5.0.0
+        with:
+          version: ${{ matrix.bpf_version }}
+          satisfies: 1.x
+
+      # libxdp was split out from libbpf at v1.0.0, so it only needs to be installed if >= 1.0.0.
+      - name: Restore XDP cache
+        if: steps.bpf-compare.outputs.satisfies == 'true'
+        id: cache-xdp
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: xdp/install
+          key: xdp-${{ runner.os }}
+
+      - name: Install XDP
+        if: steps.bpf-compare.outputs.satisfies == 'true' && steps.cache-xdp.outputs.cache-hit != 'true'
+        run: |
+          wget https://github.com/xdp-project/xdp-tools/releases/download/v1.6.3/xdp-tools-1.6.3.tar.gz \
+            && tar -xvf xdp-tools-1.6.3.tar.gz \
+            && rm -rf xdp-tools-1.6.3.tar.gz \
+            && mv xdp-tools-1.6.3 xdp && cd xdp \
+            && PKG_CONFIG_PATH="${{ github.workspace }}/bpf/install/lib64/pkgconfig" ./configure \
+            && make install PREFIX="${{ github.workspace }}/xdp/install"
+
+      - name: Cache XDP
+        if: steps.bpf-compare.outputs.satisfies == 'true' && steps.cache-xdp.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: xdp/install
+          key: xdp-${{ runner.os }}
 
       - name: Restore Ccache
         id: ccache-restore
@@ -979,7 +1040,12 @@ jobs:
             ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
+        run: |
+          if [[ "true" == "${{ steps.bpf-compare.outputs.satisfies }}" ]]; then
+            export PKG_CONFIG_PATH="${{ github.workspace }}/xdp/install/lib/pkgconfig"
+          fi
+          export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}${{ github.workspace }}/bpf/install/lib64/pkgconfig"
+          cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
