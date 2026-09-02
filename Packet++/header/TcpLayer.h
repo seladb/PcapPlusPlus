@@ -577,6 +577,14 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 
+		struct SerializedFields
+		{
+			static const FieldDescriptor ProtocolName;
+			static const FieldDescriptor SrcPort;
+			static const FieldDescriptor DstPort;
+			static const FieldDescriptor SequenceNumber;
+		};
+
 	protected:
 		void internalSerialize(ISerializer& serializer) const override;
 

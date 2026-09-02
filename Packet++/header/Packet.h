@@ -363,6 +363,15 @@ namespace pcpp
 		/// to false
 		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true) const;
 
+		struct SerializedFields
+		{
+			static const FieldDescriptor TimestampSec;
+			static const FieldDescriptor TimestampNSec;
+			static const FieldDescriptor FrameLength;
+			static const FieldDescriptor LinkLayer;
+			static const FieldDescriptor Layers;
+		};
+
 		void serialize(ISerializer& serializer) const;
 
 	private:

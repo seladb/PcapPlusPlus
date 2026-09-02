@@ -262,6 +262,78 @@ namespace pcpp
 
 	/// @}
 
+	inline const char* protocolTypeToString(ProtocolType protocolType)
+	{
+	    switch (protocolType)
+	    {
+	        case UnknownProtocol:       return "UnknownProtocol";
+	        case Ethernet:              return "Ethernet";
+	        case IPv4:                  return "IPv4";
+	        case IPv6:                  return "IPv6";
+	        case TCP:                   return "TCP";
+	        case UDP:                   return "UDP";
+	        case HTTPRequest:            return "HTTPRequest";
+	        case HTTPResponse:           return "HTTPResponse";
+	        case ARP:                   return "ARP";
+	        case VLAN:                  return "VLAN";
+	        case ICMP:                  return "ICMP";
+	        case PPPoESession:          return "PPPoESession";
+	        case PPPoEDiscovery:        return "PPPoEDiscovery";
+	        case DNS:                   return "DNS";
+	        case MPLS:                  return "MPLS";
+	        case GREv0:                 return "GREv0";
+	        case GREv1:                 return "GREv1";
+	        case PPP_PPTP:              return "PPP_PPTP";
+	        case SSL:                   return "SSL";
+	        case SLL:                   return "SLL";
+	        case DHCP:                  return "DHCP";
+	        case NULL_LOOPBACK:         return "NULL_LOOPBACK";
+	        case IGMPv1:                return "IGMPv1";
+	        case IGMPv2:                return "IGMPv2";
+	        case IGMPv3:                return "IGMPv3";
+	        case GenericPayload:        return "GenericPayload";
+	        case VXLAN:                 return "VXLAN";
+	        case SIPRequest:            return "SIPRequest";
+	        case SIPResponse:           return "SIPResponse";
+	        case SDP:                   return "SDP";
+	        case PacketTrailer:         return "PacketTrailer";
+	        case Radius:                return "Radius";
+	        case GTPv1:                 return "GTPv1";
+	        case EthernetDot3:          return "EthernetDot3";
+	        case BGP:                   return "BGP";
+	        case SSH:                   return "SSH";
+	        case AuthenticationHeader:  return "AuthenticationHeader";
+	        case ESP:                   return "ESP";
+	        case DHCPv6:                return "DHCPv6";
+	        case NTP:                   return "NTP";
+	        case Telnet:                return "Telnet";
+	        case FTPControl:            return "FTPControl";
+	        case ICMPv6:                return "ICMPv6";
+	        case STP:                   return "STP";
+	        case LLC:                   return "LLC";
+	        case SomeIP:                return "SomeIP";
+	        case WakeOnLan:             return "WakeOnLan";
+	        case NFLOG:                 return "NFLOG";
+	        case TPKT:                  return "TPKT";
+	        case VRRPv2:                return "VRRPv2";
+	        case VRRPv3:                return "VRRPv3";
+	        case COTP:                  return "COTP";
+	        case SLL2:                 return "SLL2";
+	        case S7COMM:               return "S7COMM";
+	        case SMTP:                 return "SMTP";
+	        case LDAP:                 return "LDAP";
+	        case WireGuard:            return "WireGuard";
+	        case GTPv2:                return "GTPv2";
+	        case CiscoHDLC:            return "CiscoHDLC";
+	        case DOIP:                 return "DOIP";
+	        case FTPData:              return "FTPData";
+	        case Modbus:               return "Modbus";
+	        case Postgres:             return "Postgres";
+	        case MySQL:                return "MySQL";
+	        default:                   return "Unknown";
+	    }
+	}
+
 	/// An enum representing OSI model layers
 	enum OsiModelLayer
 	{

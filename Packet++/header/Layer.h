@@ -206,6 +206,13 @@ namespace pcpp
 		/// @return The number of bytes copied to the destination array.
 		size_t copyData(uint8_t* dest, size_t destSize) const;
 
+		struct SerializedFields
+		{
+			static const FieldDescriptor ProtocolId;
+			static const FieldDescriptor ProtocolName;
+			static constexpr uint16_t MaxID = 1;
+		};
+
 		void serialize(ISerializer& serializer) const;
 
 		// implement abstract methods

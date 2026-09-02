@@ -941,6 +941,13 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor Packet::SerializedFields::TimestampSec{ 0, "timestampSec"};
+	const FieldDescriptor Packet::SerializedFields::TimestampNSec{ 1, "timestampNsec"};
+	const FieldDescriptor Packet::SerializedFields::FrameLength{ 2, "frameLength"};
+	const FieldDescriptor Packet::SerializedFields::LinkLayer{ 3, "linkLayer"};
+	const FieldDescriptor Packet::SerializedFields::Layers{ 4, "layers"};
+	const FieldDescriptor PacketObject{ 0, "packet"};
+
 	void Packet::serialize(ISerializer& serializer) const
 	{
 		auto rawPacket = getRawPacket();
@@ -949,19 +956,17 @@ namespace pcpp
 		// Root object for the whole packet. id=0 / name="packet": most formats
 		// (JSON) ignore the root name; a format like XML could use it as the
 		// root tag.
-		serializer.startObject(/*id*/ 0, "packet");
+		serializer.startObject(PacketObject);
 
-		serializer.writeField(1, "timestampSec", static_cast<uint64_t>(ts.tv_sec));
-		serializer.writeField(2, "timestampNsec", static_cast<uint64_t>(ts.tv_nsec));
-		serializer.writeField(3, "frameLength", rawPacket->getFrameLength());
-		serializer.writeField(4, "linkLayer", static_cast<uint16_t>(rawPacket->getLinkLayerType()));
+		serializer.writeField(SerializedFields::TimestampSec, static_cast<uint64_t>(ts.tv_sec));
+		serializer.writeField(SerializedFields::TimestampNSec, static_cast<uint64_t>(ts.tv_nsec));
+		serializer.writeField(SerializedFields::FrameLength, rawPacket->getFrameLength());
+		serializer.writeField(SerializedFields::LinkLayer, static_cast<uint16_t>(rawPacket->getLinkLayerType()));
 
-		serializer.startArray(4, "layers");
+		serializer.startArray(SerializedFields::Layers);
 		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
-			serializer.startObject(curLayer->getProtocol(), "TBD");
 			curLayer->serialize(serializer);
-			serializer.endObject();
 		}
 		serializer.endArray();
 

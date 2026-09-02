@@ -9,6 +9,24 @@
 
 namespace pcpp
 {
+	/// @struct FieldDescriptor
+	/// Documents ONE field a layer serializes — id/name/semanticType are
+	/// the same values internalSerialize() actually writes, because
+	/// writeField() below REQUIRES a FieldDescriptor rather than accepting
+	/// raw (id, name) — so there is exactly one place each field's identity
+	/// is ever written down, referenced both by internalSerialize() and by
+	/// getFieldCatalog(). What this does NOT do: statically stop one
+	/// layer's internalSerialize() from using another layer's
+	/// FieldDescriptor constant (that would need FieldDescriptor<LayerT> +
+	/// a CRTP base requiring every call go through a layer-bound method —
+	/// evaluated and deliberately not used here, in favor of this simpler,
+	/// non-templated version).
+	struct FieldDescriptor
+	{
+		uint16_t id;
+		std::string name;
+	};
+
 	/// @class ISerializer
 	/// Abstract interface for serializing structured data into a
 	/// machine-readable format (JSON, YAML, XML, ...). Deliberately knows
@@ -48,23 +66,18 @@ namespace pcpp
 		virtual ~ISerializer() = default;
 
 		// --- Generic containers ---
-		virtual void startObject(int id, const std::string& name) = 0;
+		virtual void startObject(const FieldDescriptor& field) = 0;
 		virtual void endObject() = 0;
-		virtual void startArray(int id, const std::string& name) = 0;
+		virtual void startArray(const FieldDescriptor& field) = 0;
 		virtual void endArray() = 0;
 
 		// --- Scalar field writes (canonical virtuals) ---
-		virtual void writeField(int id, const std::string& name, const std::string& value,
-		                         const std::string& semanticType = "") = 0;
-		virtual void writeField(int id, const std::string& name, int64_t value,
-		                         const std::string& semanticType = "") = 0;
-		virtual void writeField(int id, const std::string& name, uint64_t value,
-		                         const std::string& semanticType = "") = 0;
-		virtual void writeField(int id, const std::string& name, double value,
-		                         const std::string& semanticType = "") = 0;
-		virtual void writeField(int id, const std::string& name, bool value,
-		                         const std::string& semanticType = "") = 0;
-		virtual void writeNullField(int id, const std::string& name) = 0;
+		virtual void writeField(const FieldDescriptor& field, const std::string& value) = 0;
+		virtual void writeField(const FieldDescriptor& field, int64_t value) = 0;
+		virtual void writeField(const FieldDescriptor& field, uint64_t value) = 0;
+		virtual void writeField(const FieldDescriptor& field, double value) = 0;
+		virtual void writeField(const FieldDescriptor& field, bool value) = 0;
+		virtual void writeNullField(const FieldDescriptor& field) = 0;
 
 		// --- Scalar field writes: any int/uint width (non-virtual) ---
 		// SFINAE'd on is_integral + is_signed/is_unsigned, explicitly
@@ -73,30 +86,30 @@ namespace pcpp
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
 		                                                    !std::is_same<T, bool>::value,
 		                                                int>::type = 0>
-		void writeField(int id, const std::string& name, T value, const std::string& semanticType = "")
+		void writeField(const FieldDescriptor& field, T value)
 		{
-			writeField(id, name, static_cast<int64_t>(value), semanticType);
+			writeField(field, static_cast<int64_t>(value));
 		}
 
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value &&
 		                                                    !std::is_same<T, bool>::value,
 		                                                int>::type = 0>
-		void writeField(int id, const std::string& name, T value, const std::string& semanticType = "")
+		void writeField(const FieldDescriptor& field, T value)
 		{
-			writeField(id, name, static_cast<uint64_t>(value), semanticType);
+			writeField(field, static_cast<uint64_t>(value));
 		}
 
 		// --- Hex-formatted integer field ---
 		// Always unsigned: hex notation represents a bit pattern, not a
 		// signed magnitude. Cast a signed value to its matching unsigned
 		// type first if you need to hex-format it.
-		virtual void writeHexField(int id, const std::string& name, uint64_t value, int widthBytes) = 0;
+		virtual void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) = 0;
 
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value,
 		                                                int>::type = 0>
-		void writeHexField(int id, const std::string& name, T value)
+		void writeHexField(const FieldDescriptor& field, T value)
 		{
-			writeHexField(id, name, static_cast<uint64_t>(value), static_cast<int>(sizeof(T)));
+			writeHexField(field, static_cast<uint64_t>(value), static_cast<int>(sizeof(T)));
 		}
 	};
 
@@ -114,23 +127,18 @@ namespace pcpp
 
 		explicit JsonSerializer(std::ostream& out);
 
-		void startObject(int id, const std::string& name) override;
+		void startObject(const FieldDescriptor& field) override;
 		void endObject() override;
-		void startArray(int id, const std::string& name) override;
+		void startArray(const FieldDescriptor& field) override;
 		void endArray() override;
 
-		void writeField(int id, const std::string& name, const std::string& value,
-		                 const std::string& semanticType = "") override;
-		void writeField(int id, const std::string& name, int64_t value,
-		                 const std::string& semanticType = "") override;
-		void writeField(int id, const std::string& name, uint64_t value,
-		                 const std::string& semanticType = "") override;
-		void writeField(int id, const std::string& name, double value,
-		                 const std::string& semanticType = "") override;
-		void writeField(int id, const std::string& name, bool value,
-		                 const std::string& semanticType = "") override;
-		void writeNullField(int id, const std::string& name) override;
-		void writeHexField(int id, const std::string& name, uint64_t value, int widthBytes) override;
+		void writeField(const FieldDescriptor& field, const std::string& value) override;
+		void writeField(const FieldDescriptor& field, int64_t value) override;
+		void writeField(const FieldDescriptor& field, uint64_t value) override;
+		void writeField(const FieldDescriptor& field, double value) override;
+		void writeField(const FieldDescriptor& field, bool value) override;
+		void writeNullField(const FieldDescriptor& field) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
 
 	private:
 		enum class Context
@@ -140,7 +148,7 @@ namespace pcpp
 		};
 
 		void writeSeparatorIfNeeded();
-		void writeKey(const std::string& name, const std::string& semanticType = "");
+		void writeKey(const std::string& name);
 		static std::string escape(const std::string& s);
 
 		std::ostream& m_Out;
@@ -184,23 +192,18 @@ namespace pcpp
 		JsonSerializer2(const JsonSerializer2&) = delete;
 		JsonSerializer2& operator=(const JsonSerializer2&) = delete;
 
-		void startObject(int id, const std::string& name) override;
+		void startObject(const FieldDescriptor& field) override;
 		void endObject() override;
-		void startArray(int id, const std::string& name) override;
+		void startArray(const FieldDescriptor& field) override;
 		void endArray() override;
 
-		void writeField(int id, const std::string& name, const std::string& value,
-		                 const std::string& semanticType = "") override;
-		void writeField(int id, const std::string& name, int64_t value,
-		                 const std::string& semanticType = "") override;
-		void writeField(int id, const std::string& name, uint64_t value,
-		                 const std::string& semanticType = "") override;
-		void writeField(int id, const std::string& name, double value,
-		                 const std::string& semanticType = "") override;
-		void writeField(int id, const std::string& name, bool value,
-		                 const std::string& semanticType = "") override;
-		void writeNullField(int id, const std::string& name) override;
-		void writeHexField(int id, const std::string& name, uint64_t value, int widthBytes) override;
+		void writeField(const FieldDescriptor& field, const std::string& value) override;
+		void writeField(const FieldDescriptor& field, int64_t value) override;
+		void writeField(const FieldDescriptor& field, uint64_t value) override;
+		void writeField(const FieldDescriptor& field, double value) override;
+		void writeField(const FieldDescriptor& field, bool value) override;
+		void writeNullField(const FieldDescriptor& field) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
 
 	private:
 		struct Impl;

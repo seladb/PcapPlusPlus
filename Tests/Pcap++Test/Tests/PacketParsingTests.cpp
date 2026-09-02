@@ -8,6 +8,8 @@
 #include "DnsLayer.h"
 #include "PcapFileDevice.h"
 
+#include <IPv4Layer.h>
+
 PTF_TEST_CASE(TestHttpRequestParsing)
 {
 	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_HTTP_REQUEST);
@@ -498,15 +500,15 @@ private:
 
 PTF_TEST_CASE(TestPacketSerialize)
 {
-	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
+	pcpp::PcapFileReaderDevice readerDev(EXAMPLE2_PCAP_PATH);
 	PTF_ASSERT_TRUE(readerDev.open());
 
 	pcpp::RawPacket rawPacket;
 	pcpp::RawPacketVector rawPacketPtrVec;
 
 	{
-		MeasureTime timer("read 3000 packets");
-		readerDev.getNextPackets(rawPacketPtrVec, 3000);
+		MeasureTime timer("read 4700 packets");
+		readerDev.getNextPackets(rawPacketPtrVec, 4700);
 	}
 
 
@@ -530,11 +532,13 @@ PTF_TEST_CASE(TestPacketSerialize)
 		}
 	}
 
+	pcpp::FieldDescriptor packets{0, "packets"};
+
 	{
 		MeasureTime timer("Serialize packets - json 1");
 		std::ofstream file("packets.json");
 		pcpp::JsonSerializer serializer(file);
-		serializer.startArray(0, "packets");
+		serializer.startArray(packets);
 
 		for (const auto* packet : packetPtrVec)
 		{
@@ -548,7 +552,7 @@ PTF_TEST_CASE(TestPacketSerialize)
 		MeasureTime timer("Serialize packets - json 2");
 		std::ofstream file("packets2.json");
 		pcpp::JsonSerializer2 serializer(file);
-		serializer.startArray(0, "packets");
+		serializer.startArray(packets);
 
 		{
 			MeasureTime innerTimer("json 2 - tree building loop");

@@ -600,13 +600,18 @@ namespace pcpp
 	}
 	DISABLE_WARNING_POP
 
+	const FieldDescriptor TcpLayer::SerializedFields::ProtocolName{ Layer::SerializedFields::MaxID + 1, "protocolName"};
+	const FieldDescriptor TcpLayer::SerializedFields::SrcPort{ Layer::SerializedFields::MaxID + 2, "srcPort"};
+	const FieldDescriptor TcpLayer::SerializedFields::DstPort{ Layer::SerializedFields::MaxID + 3, "dstPort"};
+	const FieldDescriptor TcpLayer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 4, "sequenceNumber"};
+
 	void TcpLayer::internalSerialize(ISerializer& serializer) const
 	{
 		auto* header = getTcpHeader();
 		std::string protocolName = "TCP";
-		serializer.writeField(0, "protocolName", protocolName);
-		serializer.writeField(1, "srcPort", netToHost16(header->portSrc));
-		serializer.writeField(2, "dstPort", netToHost16(header->portDst));
-		serializer.writeField(3, "sequenceNumber", netToHost32(header->sequenceNumber));
+		serializer.writeField(SerializedFields::ProtocolName, protocolName);
+		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));
+		serializer.writeField(SerializedFields::DstPort, netToHost16(header->portDst));
+		serializer.writeField(SerializedFields::SequenceNumber, netToHost32(header->sequenceNumber));
 	}
 }  // namespace pcpp

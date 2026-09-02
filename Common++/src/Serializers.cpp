@@ -65,9 +65,9 @@ namespace pcpp
 
 	JsonSerializer::JsonSerializer(std::ostream& out) : m_Out(out) {}
 
-	void JsonSerializer::startObject(int /*id*/, const std::string& name)
+	void JsonSerializer::startObject(const FieldDescriptor& field)
 	{
-		writeKey(name);
+		writeKey(field.name);
 		m_Out << '{';
 		m_ContextStack.push_back(Context::Object);
 		m_FirstAtLevel.push_back(true);
@@ -80,9 +80,9 @@ namespace pcpp
 		m_FirstAtLevel.pop_back();
 	}
 
-	void JsonSerializer::startArray(int /*id*/, const std::string& name)
+	void JsonSerializer::startArray(const FieldDescriptor& field)
 	{
-		writeKey(name);
+		writeKey(field.name);
 		m_Out << '[';
 		m_ContextStack.push_back(Context::Array);
 		m_FirstAtLevel.push_back(true);
@@ -95,24 +95,21 @@ namespace pcpp
 		m_FirstAtLevel.pop_back();
 	}
 
-	void JsonSerializer::writeField(int /*id*/, const std::string& name, const std::string& value,
-	                                 const std::string& semanticType)
+	void JsonSerializer::writeField(const FieldDescriptor& field, const std::string& value)
 	{
-		writeKey(name, semanticType);
+		writeKey(field.name);
 		m_Out << '"' << escape(value) << '"';
 	}
 
-	void JsonSerializer::writeField(int /*id*/, const std::string& name, int64_t value,
-	                                 const std::string& semanticType)
+	void JsonSerializer::writeField(const FieldDescriptor& field, int64_t value)
 	{
-		writeKey(name, semanticType);
+		writeKey(field.name);
 		m_Out << value;
 	}
 
-	void JsonSerializer::writeField(int /*id*/, const std::string& name, uint64_t value,
-	                                 const std::string& semanticType)
+	void JsonSerializer::writeField(const FieldDescriptor& field, uint64_t value)
 	{
-		writeKey(name, semanticType);
+		writeKey(field.name);
 		// Only quote when the value could actually lose precision in a
 		// JS-based JSON parser — not unconditionally for every uint64_t
 		// caller, since narrower widths (uint8_t/16_t/32_t) also arrive
@@ -123,29 +120,27 @@ namespace pcpp
 			m_Out << value;
 	}
 
-	void JsonSerializer::writeField(int /*id*/, const std::string& name, double value,
-	                                 const std::string& semanticType)
+	void JsonSerializer::writeField(const FieldDescriptor& field, double value)
 	{
-		writeKey(name, semanticType);
+		writeKey(field.name);
 		m_Out << value;
 	}
 
-	void JsonSerializer::writeField(int /*id*/, const std::string& name, bool value,
-	                                 const std::string& semanticType)
+	void JsonSerializer::writeField(const FieldDescriptor& field, bool value)
 	{
-		writeKey(name, semanticType);
+		writeKey(field.name);
 		m_Out << (value ? "true" : "false");
 	}
 
-	void JsonSerializer::writeNullField(int /*id*/, const std::string& name)
+	void JsonSerializer::writeNullField(const FieldDescriptor& field)
 	{
-		writeKey(name);
+		writeKey(field.name);
 		m_Out << "null";
 	}
 
-	void JsonSerializer::writeHexField(int /*id*/, const std::string& name, uint64_t value, int widthBytes)
+	void JsonSerializer::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
 	{
-		writeKey(name);
+		writeKey(field.name);
 		// Writes directly to m_Out (no intermediate std::string) — safe
 		// only because StreamStateGuard restores m_Out's flags/fill on
 		// scope exit, so std::hex/setfill('0') here can never leak into
@@ -168,7 +163,7 @@ namespace pcpp
 		m_FirstAtLevel.back() = false;
 	}
 
-	void JsonSerializer::writeKey(const std::string& name, const std::string& semanticType)
+	void JsonSerializer::writeKey(const std::string& name)
 	{
 		writeSeparatorIfNeeded();
 		if (m_ContextStack.empty())
@@ -176,7 +171,6 @@ namespace pcpp
 		if (m_ContextStack.back() == Context::Array)
 			return;
 		m_Out << '"' << escape(name) << "\":";
-		(void)semanticType;  // reserved: could emit sibling "<name>_type" key if desired
 	}
 
 	std::string JsonSerializer::escape(const std::string& s)
@@ -272,58 +266,53 @@ namespace pcpp
 	JsonSerializer2::JsonSerializer2(std::ostream& out) : m_Impl(new Impl(out)) {}
 	JsonSerializer2::~JsonSerializer2() = default;
 
-	void JsonSerializer2::startObject(int /*id*/, const std::string& name)
+	void JsonSerializer2::startObject(const FieldDescriptor& field)
 	{
-		m_Impl->stack.push_back(Impl::Frame{ name, nlohmann::json::object() });
+		m_Impl->stack.push_back(Impl::Frame{ field.name, nlohmann::json::object() });
 	}
 
 	void JsonSerializer2::endObject() { m_Impl->popContainer(); }
 
-	void JsonSerializer2::startArray(int /*id*/, const std::string& name)
+	void JsonSerializer2::startArray(const FieldDescriptor& field)
 	{
-		m_Impl->stack.push_back(Impl::Frame{ name, nlohmann::json::array() });
+		m_Impl->stack.push_back(Impl::Frame{ field.name, nlohmann::json::array() });
 	}
 
 	void JsonSerializer2::endArray() { m_Impl->popContainer(); }
 
-	void JsonSerializer2::writeField(int /*id*/, const std::string& name, const std::string& value,
-	                                  const std::string& /*semanticType*/)
+	void JsonSerializer2::writeField(const FieldDescriptor& field, const std::string& value)
 	{
-		m_Impl->assign(name, value);
+		m_Impl->assign(field.name, value);
 	}
 
-	void JsonSerializer2::writeField(int /*id*/, const std::string& name, int64_t value,
-	                                  const std::string& /*semanticType*/)
+	void JsonSerializer2::writeField(const FieldDescriptor& field, int64_t value)
 	{
-		m_Impl->assign(name, value);
+		m_Impl->assign(field.name, value);
 	}
 
-	void JsonSerializer2::writeField(int /*id*/, const std::string& name, uint64_t value,
-	                                  const std::string& /*semanticType*/)
+	void JsonSerializer2::writeField(const FieldDescriptor& field, uint64_t value)
 	{
 		if (value > kMaxSafeJsonInteger)
-			m_Impl->assign(name, std::to_string(value));
+			m_Impl->assign(field.name, std::to_string(value));
 		else
-			m_Impl->assign(name, value);
+			m_Impl->assign(field.name, value);
 	}
 
-	void JsonSerializer2::writeField(int /*id*/, const std::string& name, double value,
-	                                  const std::string& /*semanticType*/)
+	void JsonSerializer2::writeField(const FieldDescriptor& field, double value)
 	{
-		m_Impl->assign(name, value);
+		m_Impl->assign(field.name, value);
 	}
 
-	void JsonSerializer2::writeField(int /*id*/, const std::string& name, bool value,
-	                                  const std::string& /*semanticType*/)
+	void JsonSerializer2::writeField(const FieldDescriptor& field, bool value)
 	{
-		m_Impl->assign(name, value);
+		m_Impl->assign(field.name, value);
 	}
 
-	void JsonSerializer2::writeNullField(int /*id*/, const std::string& name) { m_Impl->assign(name, nullptr); }
+	void JsonSerializer2::writeNullField(const FieldDescriptor& field) { m_Impl->assign(field.name, nullptr); }
 
-	void JsonSerializer2::writeHexField(int /*id*/, const std::string& name, uint64_t value, int widthBytes)
+	void JsonSerializer2::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
 	{
-		m_Impl->assign(name, formatHex(value, widthBytes));
+		m_Impl->assign(field.name, formatHex(value, widthBytes));
 	}
 
 }  // namespace pcpp
