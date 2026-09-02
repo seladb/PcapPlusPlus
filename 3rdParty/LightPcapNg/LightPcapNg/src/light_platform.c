@@ -36,6 +36,31 @@
 #define UNDEF_MAX_MIN
 #endif
 
+// PCPP patch begin
+// Optional larger stdio buffer for write/append streams, to reduce write() syscalls when
+// streaming many small writes. Disabled (0) by default to preserve original behavior; opt in
+// by passing a non-zero io_buffer_size to light_open()/light_open_compression(), e.g. 1 MiB.
+static void __install_io_buffer(light_file fd, size_t io_buffer_size)
+{
+	if (fd == NULL || fd->file == NULL || io_buffer_size == 0)
+	{
+		return;
+	}
+
+	fd->io_buffer = malloc(io_buffer_size);
+	if (fd->io_buffer == NULL)
+	{
+		return; // fall back to the default buffering rather than failing the open
+	}
+
+	if (setvbuf(fd->file, fd->io_buffer, _IOFBF, io_buffer_size) != 0)
+	{
+		free(fd->io_buffer);
+		fd->io_buffer = NULL;
+	}
+}
+// PCPP patch end
+
 
 #ifdef UNIVERSAL
 
@@ -65,7 +90,7 @@ light_file light_open_decompression(const char *file_name, const __read_mode_t m
 	}
 }
 
-light_file light_open(const char *file_name, const __read_mode_t mode)
+light_file light_open(const char *file_name, const __read_mode_t mode, size_t io_buffer_size)
 {
 	light_file fd = calloc(1,sizeof(light_file_t));
 	fd->file = INVALID_FILE;
@@ -91,6 +116,11 @@ light_file light_open(const char *file_name, const __read_mode_t mode)
 		break;
 	}
 
+	if (fd->file && mode != LIGHT_OREAD)  // PCPP patch
+	{
+		__install_io_buffer(fd, io_buffer_size);
+	}
+
 	if (fd->file)
 	{
 		return fd;
@@ -101,7 +131,8 @@ light_file light_open(const char *file_name, const __read_mode_t mode)
 	}
 }
 
-light_file light_open_compression(const char *file_name, const __read_mode_t mode, int compression_level)
+light_file light_open_compression(const char *file_name, const __read_mode_t mode, int compression_level,
+                                   size_t io_buffer_size)
 {
 	light_file fd = calloc(1, sizeof(light_file_t));
 	fd->file = INVALID_FILE;
@@ -124,6 +155,11 @@ light_file light_open_compression(const char *file_name, const __read_mode_t mod
 			break;*/
 		default:
 			break;
+	}
+
+	if (fd->file)  // PCPP patch
+	{
+		__install_io_buffer(fd, io_buffer_size);
 	}
 
 	if (fd->file)
@@ -181,6 +217,7 @@ int light_close(light_file fd)
 	light_close_compressed(fd);
 	int rc = fclose(fd->file);
 
+	free(fd->io_buffer);  // PCPP patch
 	free(fd);
 
 	return rc;
