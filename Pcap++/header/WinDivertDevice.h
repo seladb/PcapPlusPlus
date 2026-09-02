@@ -276,7 +276,8 @@ namespace pcpp
 				Failed      ///< Receive failed due to an error (see error and errorCode)
 			};
 
-			explicit ReceiveResult(Status status, std::string const& error = "", uint32_t errorCode = 0)
+			// cppcheck-suppress noExplicitConstructor
+			ReceiveResult(Status status, std::string const& error = "", uint32_t errorCode = 0)
 			    : status(status), error(error), errorCode(errorCode)
 			{}
 
@@ -467,13 +468,13 @@ namespace pcpp
 			uint32_t capturedDataLength = 0;
 			std::vector<internal::WinDivertAddress> addresses;
 
-			explicit ReceiveResultInternal(Status status, const std::string& error = "", uint32_t errorCode = 0)
-			    : ReceiveResult{ status, error, errorCode }
+			// cppcheck-suppress noExplicitConstructor
+			ReceiveResultInternal(Status status, const std::string& error = "", uint32_t errorCode = 0)
+			    : ReceiveResult(status, error, errorCode)
 			{}
 
 			ReceiveResultInternal(uint32_t capturedDataLength, const std::vector<internal::WinDivertAddress>& addresses)
-			    : ReceiveResult{ Status::Completed, "", 0 }, capturedDataLength(capturedDataLength),
-			      addresses(addresses)
+			    : ReceiveResult(Status::Completed, "", 0), capturedDataLength(capturedDataLength), addresses(addresses)
 			{}
 		};
 
