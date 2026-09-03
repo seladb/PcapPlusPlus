@@ -579,10 +579,11 @@ namespace pcpp
 
 		struct SerializedFields
 		{
-			static const FieldDescriptor ProtocolName;
 			static const FieldDescriptor SrcPort;
 			static const FieldDescriptor DstPort;
 			static const FieldDescriptor SequenceNumber;
+			static const FieldDescriptor TcpFlags;
+			static const FieldDescriptor TcpFlag;
 		};
 
 	protected:

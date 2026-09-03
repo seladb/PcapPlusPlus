@@ -69,8 +69,7 @@ namespace pcpp
 	{
 		serializer.startObject(LayerObject);
 		serializer.writeField(SerializedFields::ProtocolId, m_Protocol);
-		serializer.writeField(SerializedFields::ProtocolName, std::string(protocolTypeToString(m_Protocol)));
-		// serializer.writeField(/*id*/ 0, "summary", toString());
+		serializer.writeField(SerializedFields::ProtocolName, protocolTypeToString(m_Protocol));
 		internalSerialize(serializer);
 		serializer.endObject();
 	}

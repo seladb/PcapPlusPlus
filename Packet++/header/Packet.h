@@ -369,6 +369,7 @@ namespace pcpp
 			static const FieldDescriptor TimestampNSec;
 			static const FieldDescriptor FrameLength;
 			static const FieldDescriptor LinkLayer;
+			static const FieldDescriptor LinkLayerName;
 			static const FieldDescriptor Layers;
 		};
 

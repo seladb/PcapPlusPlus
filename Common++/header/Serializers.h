@@ -79,6 +79,11 @@ namespace pcpp
 		virtual void writeField(const FieldDescriptor& field, bool value) = 0;
 		virtual void writeNullField(const FieldDescriptor& field) = 0;
 
+		virtual void writeField(const FieldDescriptor& field, const char* value)
+		{
+			writeField(field, std::string(value));
+		}
+
 		// --- Scalar field writes: any int/uint width (non-virtual) ---
 		// SFINAE'd on is_integral + is_signed/is_unsigned, explicitly
 		// excluding bool (which has its own exact overload above and must
@@ -210,4 +215,140 @@ namespace pcpp
 		std::unique_ptr<Impl> m_Impl;
 	};
 
+	/// @class YamlSerializer
+	/// Streams a field tree out as YAML (block style), writing directly to
+	/// a std::ostream — same hand-rolled, no-third-party-dependency design
+	/// as JsonSerializer. YAML's block style needs no comma/separator
+	/// bookkeeping (unlike JSON) — every field or sequence item just starts
+	/// on its own line at the current indent depth, so this is actually
+	/// simpler than JsonSerializer in that one respect.
+	///
+	/// Every string value is written double-quoted rather than in YAML's
+	/// bare "plain scalar" style, deliberately: plain scalars have a long
+	/// list of characters/values that require quoting to avoid ambiguity
+	/// (a value starting with '-', ':', '#'; strings that look like
+	/// "true"/"false"/"null"/a number; leading/trailing whitespace; and
+	/// more) — always double-quoting sidesteps that whole class of
+	/// correctness issues, at the cost of slightly less idiomatic-looking
+	/// output. Field NAMES (mapping keys) are written unquoted, on the
+	/// assumption they're always simple identifiers, as they are
+	/// everywhere in this codebase today — not arbitrary/untrusted data.
+	class YamlSerializer : public ISerializer
+	{
+	public:
+		using ISerializer::writeField;
+		using ISerializer::writeHexField;
+
+		explicit YamlSerializer(std::ostream& out);
+
+		void startObject(const FieldDescriptor& field) override;
+		void endObject() override;
+		void startArray(const FieldDescriptor& field) override;
+		void endArray() override;
+
+		void writeField(const FieldDescriptor& field, const std::string& value) override;
+		void writeField(const FieldDescriptor& field, int64_t value) override;
+		void writeField(const FieldDescriptor& field, uint64_t value) override;
+		void writeField(const FieldDescriptor& field, double value) override;
+		void writeField(const FieldDescriptor& field, bool value) override;
+		void writeNullField(const FieldDescriptor& field) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+
+	private:
+		enum class Context
+		{
+			Array,
+			Object
+		};
+
+		void writeIndent();
+		void writeNewlineIfNeeded();
+		// Called by startObject()/startArray(), BEFORE pushing the new
+		// context: writes the line introducing the container (a bare "-"
+		// for an array element, "name:" for an object member, or nothing
+		// at the document root) — content follows on subsequent, more
+		// deeply indented lines.
+		void writeContainerHeader(const std::string& name);
+		// Called by writeField()/writeNullField()/writeHexField(): writes
+		// everything on the current line up to (not including) the value
+		// itself — "- " inside an array, "name: " inside an object or at
+		// the root. Caller writes the actual value immediately after.
+		void writeFieldPrefix(const std::string& name);
+		static std::string escape(const std::string& s);
+
+		std::ostream& m_Out;
+		std::vector<Context> m_ContextStack;
+		bool m_WriteNewLine = false;
+		bool m_WriteIdent = true;
+	};
+
+	/// @class XmlSerializer
+	/// Streaming XML serializer that writes directly to a std::ostream.
+	/// No external dependencies - hand-rolled XML 1.0 compliant output.
+	///
+	/// Produces pretty-printed XML with proper escaping, self-closing tags,
+	/// and consistent array representation. Follows these conventions:
+	/// - Objects become elements with nested children
+	/// - Arrays become container elements with <item> children
+	/// - Null values become empty elements with xsi:nil="true"
+	/// - Binary/hex values are represented as strings with "0x" prefix
+	///
+	/// Memory usage: O(depth) - only tracks the current nesting level,
+	/// not the entire document. Writes incrementally to the stream.
+	class XmlSerializer : public ISerializer
+	{
+	public:
+	    using ISerializer::writeField;
+	    using ISerializer::writeHexField;
+
+	    explicit XmlSerializer(std::ostream& out, bool prettyPrint = true, const std::string& indentStr = "  ");
+	    ~XmlSerializer() override = default;
+
+	    // Non-copyable to avoid stream ownership issues
+	    XmlSerializer(const XmlSerializer&) = delete;
+	    XmlSerializer& operator=(const XmlSerializer&) = delete;
+
+	    void startObject(const FieldDescriptor& field) override;
+	    void endObject() override;
+	    void startArray(const FieldDescriptor& field) override;
+	    void endArray() override;
+
+	    void writeField(const FieldDescriptor& field, const std::string& value) override;
+	    void writeField(const FieldDescriptor& field, int64_t value) override;
+	    void writeField(const FieldDescriptor& field, uint64_t value) override;
+	    void writeField(const FieldDescriptor& field, double value) override;
+	    void writeField(const FieldDescriptor& field, bool value) override;
+	    void writeNullField(const FieldDescriptor& field) override;
+	    void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+
+	private:
+	    struct Context {
+	        std::string name;      // Element name
+	        bool isArray;          // True if this is an array container
+	        bool hasChildren;      // True if we've written any child to this element
+	        bool isRoot;           // True for the outermost element (no indentation)
+	    };
+
+	    // Core writing methods
+	    void writeOpenTag(const std::string& name, bool selfClosing = false);
+	    void writeCloseTag(const std::string& name);
+	    void writeValueElement(const std::string& name, const std::string& value, bool isNull = false);
+	    void writeIndent();
+	    void writeRaw(const std::string& str);
+
+	    // XML escaping (handles &, <, >, ", ')
+	    static std::string escapeXML(const std::string& s);
+
+	    // Checks if a string is safe to use as an XML name
+	    static bool isValidXMLName(const std::string& name);
+
+	    // State
+	    std::ostream& m_Out;
+	    std::vector<Context> m_ContextStack;
+	    bool m_PrettyPrint;
+	    std::string m_IndentStr;
+
+	    // Optimization: pre-allocate indentation strings
+	    mutable std::vector<std::string> m_IndentCache;
+	};
 }  // namespace pcpp

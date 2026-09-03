@@ -528,7 +528,7 @@ PTF_TEST_CASE(TestPacketSerialize)
 		MeasureTime timer("Parse packets");
 		for (const auto& rawPacket : rawPacketPtrVec)
 		{
-			packetPtrVec.pushBack(new pcpp::Packet(rawPacket, false, pcpp::TCP));
+			packetPtrVec.pushBack(new pcpp::Packet(rawPacket, false));
 		}
 	}
 
@@ -549,23 +549,51 @@ PTF_TEST_CASE(TestPacketSerialize)
 	}
 
 	{
-		MeasureTime timer("Serialize packets - json 2");
-		std::ofstream file("packets2.json");
-		pcpp::JsonSerializer2 serializer(file);
+		MeasureTime timer("Serialize packets - xml");
+		std::ofstream file("packets.xml");
+		pcpp::XmlSerializer serializer(file);
 		serializer.startArray(packets);
 
+		for (const auto* packet : packetPtrVec)
 		{
-			MeasureTime innerTimer("json 2 - tree building loop");
-			for (const auto* packet : packetPtrVec)
-			{
-				packet->serialize(serializer);
-			}
+			packet->serialize(serializer);
 		}
 
-		{
-			MeasureTime innerTimer("json 2 - endArray (dump)");
-			serializer.endArray();
-		}
+		serializer.endArray();
 	}
+
+	{
+		MeasureTime timer("Serialize packets - yaml");
+		std::ofstream file("packets.yaml");
+		pcpp::YamlSerializer serializer(file);
+		serializer.startArray(packets);
+
+		for (const auto* packet : packetPtrVec)
+		{
+			packet->serialize(serializer);
+		}
+
+		serializer.endArray();
+	}
+
+	// {
+	// 	MeasureTime timer("Serialize packets - json 2");
+	// 	std::ofstream file("packets2.json");
+	// 	pcpp::JsonSerializer2 serializer(file);
+	// 	serializer.startArray(packets);
+	//
+	// 	{
+	// 		MeasureTime innerTimer("json 2 - tree building loop");
+	// 		for (const auto* packet : packetPtrVec)
+	// 		{
+	// 			packet->serialize(serializer);
+	// 		}
+	// 	}
+	//
+	// 	{
+	// 		MeasureTime innerTimer("json 2 - endArray (dump)");
+	// 		serializer.endArray();
+	// 	}
+	// }
 } // TestPacketSerialize
 

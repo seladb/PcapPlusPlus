@@ -945,7 +945,8 @@ namespace pcpp
 	const FieldDescriptor Packet::SerializedFields::TimestampNSec{ 1, "timestampNsec"};
 	const FieldDescriptor Packet::SerializedFields::FrameLength{ 2, "frameLength"};
 	const FieldDescriptor Packet::SerializedFields::LinkLayer{ 3, "linkLayer"};
-	const FieldDescriptor Packet::SerializedFields::Layers{ 4, "layers"};
+	const FieldDescriptor Packet::SerializedFields::LinkLayerName{ 4, "linkLayerName"};
+	const FieldDescriptor Packet::SerializedFields::Layers{ 5, "layers"};
 	const FieldDescriptor PacketObject{ 0, "packet"};
 
 	void Packet::serialize(ISerializer& serializer) const
@@ -961,7 +962,9 @@ namespace pcpp
 		serializer.writeField(SerializedFields::TimestampSec, static_cast<uint64_t>(ts.tv_sec));
 		serializer.writeField(SerializedFields::TimestampNSec, static_cast<uint64_t>(ts.tv_nsec));
 		serializer.writeField(SerializedFields::FrameLength, rawPacket->getFrameLength());
-		serializer.writeField(SerializedFields::LinkLayer, static_cast<uint16_t>(rawPacket->getLinkLayerType()));
+		auto linkLayer = rawPacket->getLinkLayerType();
+		serializer.writeField(SerializedFields::LinkLayer, static_cast<uint16_t>(linkLayer));
+		serializer.writeField(SerializedFields::LinkLayerName, linkLayerToString(linkLayer));
 
 		serializer.startArray(SerializedFields::Layers);
 		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())

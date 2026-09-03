@@ -250,6 +250,126 @@ namespace pcpp
 		LINKTYPE_INVALID = 0xFFFF
 	};
 
+	inline const char* linkLayerToString(LinkLayerType linkLayer)
+	{
+	    switch (linkLayer)
+	    {
+	        case LINKTYPE_NULL:                         return "NULL";
+	        case LINKTYPE_ETHERNET:                     return "Ethernet";
+	        case LINKTYPE_AX25:                         return "AX.25";
+	        case LINKTYPE_IEEE802_5:                    return "IEEE 802.5";
+	        case LINKTYPE_ARCNET_BSD:                   return "ARCNET BSD";
+	        case LINKTYPE_SLIP:                         return "SLIP";
+	        case LINKTYPE_PPP:                          return "PPP";
+	        case LINKTYPE_FDDI:                         return "FDDI";
+	        case LINKTYPE_DLT_RAW1:                     return "DLT_RAW1";
+	        case LINKTYPE_DLT_RAW2:                     return "DLT_RAW2";
+	        case LINKTYPE_PPP_HDLC:                     return "PPP HDLC";
+	        case LINKTYPE_PPP_ETHER:                    return "PPPoE";
+	        case LINKTYPE_ATM_RFC1483:                  return "ATM RFC1483";
+	        case LINKTYPE_RAW:                          return "Raw";
+	        case LINKTYPE_C_HDLC:                       return "Cisco HDLC";
+	        case LINKTYPE_IEEE802_11:                   return "IEEE 802.11";
+	        case LINKTYPE_FRELAY:                       return "Frame Relay";
+	        case LINKTYPE_LOOP:                         return "OpenBSD Loopback";
+	        case LINKTYPE_LINUX_SLL:                    return "Linux SLL";
+	        case LINKTYPE_LTALK:                        return "LocalTalk";
+	        case LINKTYPE_PFLOG:                        return "PFLOG";
+	        case LINKTYPE_IEEE802_11_PRISM:             return "IEEE 802.11 Prism";
+	        case LINKTYPE_IP_OVER_FC:                   return "IP over Fibre Channel";
+	        case LINKTYPE_SUNATM:                       return "SunATM";
+	        case LINKTYPE_IEEE802_11_RADIOTAP:          return "IEEE 802.11 Radiotap";
+	        case LINKTYPE_ARCNET_LINUX:                 return "ARCNET Linux";
+	        case LINKTYPE_APPLE_IP_OVER_IEEE1394:       return "Apple IP over IEEE 1394";
+	        case LINKTYPE_MTP2_WITH_PHDR:               return "MTP2 with PHDR";
+	        case LINKTYPE_MTP2:                         return "MTP2";
+	        case LINKTYPE_MTP3:                         return "MTP3";
+	        case LINKTYPE_SCCP:                         return "SCCP";
+	        case LINKTYPE_DOCSIS:                       return "DOCSIS";
+	        case LINKTYPE_LINUX_IRDA:                   return "Linux IrDA";
+
+	        case LINKTYPE_USER0:                        return "USER0";
+	        case LINKTYPE_USER1:                        return "USER1";
+	        case LINKTYPE_USER2:                        return "USER2";
+	        case LINKTYPE_USER3:                        return "USER3";
+	        case LINKTYPE_USER4:                        return "USER4";
+	        case LINKTYPE_USER5:                        return "USER5";
+	        case LINKTYPE_USER6:                        return "USER6";
+	        case LINKTYPE_USER7:                        return "USER7";
+	        case LINKTYPE_USER8:                        return "USER8";
+	        case LINKTYPE_USER9:                        return "USER9";
+	        case LINKTYPE_USER10:                       return "USER10";
+	        case LINKTYPE_USER11:                       return "USER11";
+	        case LINKTYPE_USER12:                       return "USER12";
+	        case LINKTYPE_USER13:                       return "USER13";
+	        case LINKTYPE_USER14:                       return "USER14";
+	        case LINKTYPE_USER15:                       return "USER15";
+
+	        case LINKTYPE_IEEE802_11_AVS:               return "IEEE 802.11 AVS";
+	        case LINKTYPE_BACNET_MS_TP:                 return "BACnet MS/TP";
+	        case LINKTYPE_PPP_PPPD:                     return "PPP PPPD";
+	        case LINKTYPE_GPRS_LLC:                     return "GPRS LLC";
+	        case LINKTYPE_GPF_T:                        return "GPF-T";
+	        case LINKTYPE_GPF_F:                        return "GPF-F";
+	        case LINKTYPE_LINUX_LAPD:                   return "Linux LAPD";
+	        case LINKTYPE_BLUETOOTH_HCI_H4:             return "Bluetooth HCI H4";
+	        case LINKTYPE_USB_LINUX:                    return "USB Linux";
+	        case LINKTYPE_PPI:                          return "PPI";
+	        case LINKTYPE_IEEE802_15_4:                 return "IEEE 802.15.4";
+	        case LINKTYPE_SITA:                         return "SITA";
+	        case LINKTYPE_ERF:                          return "ERF";
+	        case LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR:   return "Bluetooth HCI H4 with PHDR";
+	        case LINKTYPE_AX25_KISS:                    return "AX.25 KISS";
+	        case LINKTYPE_LAPD:                         return "LAPD";
+	        case LINKTYPE_PPP_WITH_DIR:                return "PPP with Direction";
+	        case LINKTYPE_C_HDLC_WITH_DIR:             return "Cisco HDLC with Direction";
+	        case LINKTYPE_FRELAY_WITH_DIR:             return "Frame Relay with Direction";
+	        case LINKTYPE_IPMB_LINUX:                  return "IPMB Linux";
+	        case LINKTYPE_IEEE802_15_4_NONASK_PHY:     return "IEEE 802.15.4 NONASK PHY";
+	        case LINKTYPE_USB_LINUX_MMAPPED:           return "USB Linux MMAPPED";
+	        case LINKTYPE_FC_2:                         return "Fibre Channel FC-2";
+	        case LINKTYPE_FC_2_WITH_FRAME_DELIMS:      return "Fibre Channel FC-2 with Frame Delimiters";
+	        case LINKTYPE_IPNET:                        return "Solaris IPNET";
+	        case LINKTYPE_CAN_SOCKETCAN:               return "CAN SocketCAN";
+	        case LINKTYPE_IPV4:                         return "IPv4";
+	        case LINKTYPE_IPV6:                         return "IPv6";
+	        case LINKTYPE_IEEE802_15_4_NOFCS:          return "IEEE 802.15.4 without FCS";
+	        case LINKTYPE_DBUS:                         return "D-Bus";
+	        case LINKTYPE_DVB_CI:                      return "DVB-CI";
+	        case LINKTYPE_MUX27010:                    return "MUX27010";
+	        case LINKTYPE_STANAG_5066_D_PDU:           return "STANAG 5066 D-PDU";
+	        case LINKTYPE_NFLOG:                       return "NFLOG";
+	        case LINKTYPE_NETANALYZER:                 return "netANALYZER";
+	        case LINKTYPE_NETANALYZER_TRANSPARENT:     return "netANALYZER Transparent";
+	        case LINKTYPE_IPOIB:                       return "IP over InfiniBand";
+	        case LINKTYPE_MPEG_2_TS:                   return "MPEG-2 Transport Stream";
+	        case LINKTYPE_NG40:                        return "NG40";
+	        case LINKTYPE_NFC_LLCP:                    return "NFC LLCP";
+	        case LINKTYPE_INFINIBAND:                  return "InfiniBand";
+	        case LINKTYPE_SCTP:                       return "SCTP";
+	        case LINKTYPE_USBPCAP:                    return "USBPcap";
+	        case LINKTYPE_RTAC_SERIAL:                return "RTAC Serial";
+	        case LINKTYPE_BLUETOOTH_LE_LL:            return "Bluetooth LE LL";
+	        case LINKTYPE_NETLINK:                    return "Netlink";
+	        case LINKTYPE_BLUETOOTH_LINUX_MONITOR:    return "Bluetooth Linux Monitor";
+	        case LINKTYPE_BLUETOOTH_BREDR_BB:         return "Bluetooth BR/EDR Baseband";
+	        case LINKTYPE_BLUETOOTH_LE_LL_WITH_PHDR:  return "Bluetooth LE LL with PHDR";
+	        case LINKTYPE_PROFIBUS_DL:                return "PROFIBUS DL";
+	        case LINKTYPE_PKTAP:                      return "PKTAP";
+	        case LINKTYPE_EPON:                       return "EPON";
+	        case LINKTYPE_IPMI_HPM_2:                 return "IPMI HPM.2";
+	        case LINKTYPE_ZWAVE_R1_R2:                return "Z-Wave R1/R2";
+	        case LINKTYPE_ZWAVE_R3:                   return "Z-Wave R3";
+	        case LINKTYPE_WATTSTOPPER_DLM:            return "WattStopper DLM";
+	        case LINKTYPE_ISO_14443:                  return "ISO 14443";
+	        case LINKTYPE_LINUX_SLL2:                 return "Linux SLL2";
+	        case LINKTYPE_INVALID:                    return "Invalid";
+
+	        default:
+	            return "Unknown";
+	    }
+	}
+
 	/// Max packet size supported
 #define PCPP_MAX_PACKET_SIZE 65536
 
