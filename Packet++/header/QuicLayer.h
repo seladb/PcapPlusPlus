@@ -179,42 +179,27 @@ namespace pcpp
 	class QuicV1LongHeaderLayer : public QuicV1Layer
 	{
 	public:
-		/// @class ByteArray
-		/// A byte buffer used to return copies of QUIC's variable-length fields (Connection IDs,
-		/// Token, Retry Token, integrity tag). A thin wrapper around std::vector<uint8_t>
-		/// that adds a hex-string toString() and stream-insertion operator for convenient
-		/// printing/logging
-		class ByteArray : public std::vector<uint8_t>
-		{
-		public:
-			using std::vector<uint8_t>::vector;
-
-			/// @return The bytes as a lowercase hex string, e.g. "a1b2c3"
-			std::string toString() const;
-
-			/// Writes the ByteArray's hex-string representation (see @ref toString) to a stream
-			/// @param[in] os The output stream to write to
-			/// @param[in] byteArray The ByteArray to write
-			/// @return The same output stream, for chaining
-			friend std::ostream& operator<<(std::ostream& os, const ByteArray& byteArray)
-			{
-				return os << byteArray.toString();
-			}
-		};
-
 		/// @return The packet type, read from the Long Packet Type field of the long header
 		QuicPacketType getPacketType() const override;
 
 		/// @return The QUIC version
 		uint32_t getVersion() const;
 
-		/// @return The Destination Connection ID, or an empty ByteArray if the packet doesn't
+		/// @return The Destination Connection ID, or an empty vector if the packet doesn't
 		/// contain enough data to read it
-		ByteArray getDestinationConnectionId() const;
+		std::vector<uint8_t> getDestinationConnectionId() const;
 
-		/// @return The Source Connection ID, or an empty ByteArray if the packet doesn't contain
+		/// @return The Destination Connection ID as hex string, or an empty string if the packet doesn't
+		/// contain enough data to read it
+		std::string getDestinationConnectionIdAsString() const;
+
+		/// @return The Source Connection ID, or an empty vector if the packet doesn't contain
 		/// enough data to read it
-		ByteArray getSourceConnectionId() const;
+		std::vector<uint8_t> getSourceConnectionId() const;
+
+		/// @return The Source Connection ID as hex string, or an empty string if the packet doesn't contain
+		/// enough data to read it
+		std::string getSourceConnectionIdAsString() const;
 
 	protected:
 		using QuicV1Layer::QuicV1Layer;
@@ -314,9 +299,13 @@ namespace pcpp
 	class QuicV1InitialLayer : public QuicV1EstablishmentLayer
 	{
 	public:
-		/// @return The address-validation Token, or an empty ByteArray if the packet carries no
+		/// @return The address-validation Token, or an empty vector if the packet carries no
 		/// token or doesn't contain enough data to read it
-		ByteArray getToken() const;
+		std::vector<uint8_t> getToken() const;
+
+		/// @return The address-validation Token as hex string, or an empty string if the packet carries no
+		/// token or doesn't contain enough data to read it
+		std::string getTokenAsString() const;
 
 	private:
 		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
@@ -358,13 +347,21 @@ namespace pcpp
 	class QuicV1RetryLayer : public QuicV1LongHeaderLayer
 	{
 	public:
-		/// @return The Retry Token, or an empty ByteArray if the packet doesn't contain enough
+		/// @return The Retry Token, or an empty vector if the packet doesn't contain enough
 		/// data - beyond the Source Connection ID - to also hold the 16-byte integrity tag
-		ByteArray getRetryToken() const;
+		std::vector<uint8_t> getRetryToken() const;
 
-		/// @return The 16-byte Retry Integrity Tag, or an empty ByteArray if the packet doesn't
+		/// @return The Retry Token as hex string, or an empty string if the packet doesn't contain enough
+		/// data - beyond the Source Connection ID - to also hold the 16-byte integrity tag
+		std::string getRetryTokenAsString() const;
+
+		/// @return The 16-byte Retry Integrity Tag, or an empty vector if the packet doesn't
 		/// contain enough data - beyond the Source Connection ID - to hold it
-		ByteArray getRetryIntegrityTag() const;
+		std::vector<uint8_t> getRetryIntegrityTag() const;
+
+		/// @return The 16-byte Retry Integrity Tag as hex string, or an empty string if the packet doesn't
+		/// contain enough data - beyond the Source Connection ID - to hold it
+		std::string getRetryIntegrityTagAsString() const;
 
 		// implement abstract methods
 

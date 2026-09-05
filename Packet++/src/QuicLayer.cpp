@@ -119,11 +119,6 @@ namespace pcpp
 		return "QUIC v1 Layer, " + packetType + " message";
 	}
 
-	std::string QuicV1LongHeaderLayer::ByteArray::toString() const
-	{
-		return byteArrayToHexString(this->data(), this->size());
-	}
-
 	bool QuicV1LongHeaderLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		return data != nullptr && dataLen >= sizeof(quic_long_header);
@@ -157,7 +152,7 @@ namespace pcpp
 		return { length, destinationConnectionIdOffset };
 	}
 
-	QuicV1LongHeaderLayer::ByteArray QuicV1LongHeaderLayer::getDestinationConnectionId() const
+	std::vector<uint8_t> QuicV1LongHeaderLayer::getDestinationConnectionId() const
 	{
 		try
 		{
@@ -168,6 +163,12 @@ namespace pcpp
 		{
 			return {};
 		}
+	}
+
+	std::string QuicV1LongHeaderLayer::getDestinationConnectionIdAsString() const
+	{
+		auto connectionId = getDestinationConnectionId();
+		return byteArrayToHexString(connectionId.data(), connectionId.size());
 	}
 
 	QuicV1LongHeaderLayer::OffsetAndLength QuicV1LongHeaderLayer::getSrcConIdOffsetAndLength() const
@@ -189,7 +190,7 @@ namespace pcpp
 		return { length, offset };
 	}
 
-	QuicV1LongHeaderLayer::ByteArray QuicV1LongHeaderLayer::getSourceConnectionId() const
+	std::vector<uint8_t> QuicV1LongHeaderLayer::getSourceConnectionId() const
 	{
 		try
 		{
@@ -200,6 +201,12 @@ namespace pcpp
 		{
 			return {};
 		}
+	}
+
+	std::string QuicV1LongHeaderLayer::getSourceConnectionIdAsString() const
+	{
+		auto connectionId = getSourceConnectionId();
+		return byteArrayToHexString(connectionId.data(), connectionId.size());
 	}
 
 	size_t QuicV1EstablishmentLayer::getLengthOffset() const
@@ -281,7 +288,7 @@ namespace pcpp
 		}
 	}
 
-	QuicV1LongHeaderLayer::ByteArray QuicV1InitialLayer::getToken() const
+	std::vector<uint8_t> QuicV1InitialLayer::getToken() const
 	{
 		try
 		{
@@ -299,6 +306,12 @@ namespace pcpp
 		{
 			return {};
 		}
+	}
+
+	std::string QuicV1InitialLayer::getTokenAsString() const
+	{
+		auto token = getToken();
+		return byteArrayToHexString(token.data(), token.size());
 	}
 
 	size_t QuicV1InitialLayer::getLengthOffset() const
@@ -335,7 +348,7 @@ namespace pcpp
 		}
 	}
 
-	QuicV1LongHeaderLayer::ByteArray QuicV1RetryLayer::getRetryToken() const
+	std::vector<uint8_t> QuicV1RetryLayer::getRetryToken() const
 	{
 		auto retryTokenOffset = getRetryTokenOffset();
 		if (m_DataLen - retryTokenOffset < retryIntegritySize)
@@ -346,7 +359,13 @@ namespace pcpp
 		return { m_Data + retryTokenOffset, m_Data + m_DataLen - retryIntegritySize };
 	}
 
-	QuicV1LongHeaderLayer::ByteArray QuicV1RetryLayer::getRetryIntegrityTag() const
+	std::string QuicV1RetryLayer::getRetryTokenAsString() const
+	{
+		auto retryToken = getRetryToken();
+		return byteArrayToHexString(retryToken.data(), retryToken.size());
+	}
+
+	std::vector<uint8_t> QuicV1RetryLayer::getRetryIntegrityTag() const
 	{
 		auto retryTokenOffset = getRetryTokenOffset();
 		if (m_DataLen - retryTokenOffset < retryIntegritySize)
@@ -355,6 +374,12 @@ namespace pcpp
 		}
 
 		return { m_Data + m_DataLen - retryIntegritySize, m_Data + m_DataLen };
+	}
+
+	std::string QuicV1RetryLayer::getRetryIntegrityTagAsString() const
+	{
+		auto retryIntegrityTag = getRetryIntegrityTag();
+		return byteArrayToHexString(retryIntegrityTag.data(), retryIntegrityTag.size());
 	}
 
 	std::vector<uint32_t> QuicV1VersionNegotiationLayer::getSupportedVersions() const
