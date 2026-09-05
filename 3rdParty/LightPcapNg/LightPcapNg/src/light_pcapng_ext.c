@@ -69,6 +69,13 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 	{
 		file_info->hardware_desc_size = light_get_option_length(opt);
 		file_info->hardware_desc = calloc(file_info->hardware_desc_size+1, sizeof(char));
+		// ---> PCPP patch
+		// If calloc fails it returns NULL pointer. Without early return it will cause Undefined Behaviour in memcpy
+		if (file_info->os_desc == NULL) {
+			free(file_info);
+			return NULL;
+		}
+		// <--- end of PCPP patch
 		memcpy(file_info->hardware_desc, (char*)light_get_option_data(opt), file_info->hardware_desc_size);
 		file_info->hardware_desc[file_info->hardware_desc_size] = '\0';
 	}
@@ -87,7 +94,8 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 		// ---> PCPP patch
 		// If calloc fails it returns NULL pointer. Without early return it will cause Undefined Behaviour in memcpy
 		if (file_info->os_desc == NULL) {
-			file_info->os_desc_size = 0;
+			free(file_info->hardware_desc);
+			free(file_info);
 			return NULL;
 		}
 		// <--- end of PCPP patch
@@ -110,7 +118,9 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 		// ---> PCPP patch
 		// If calloc fails it returns NULL pointer. Without early return it will cause Undefined Behaviour in memcpy
 		if (file_info->user_app_desc == NULL) {
-			file_info->user_app_desc_size = 0;
+			free(file_info->hardware_desc);
+			free(file_info->os_desc);
+			free(file_info);
 			return NULL;
 		}
 		// <--- end of PCPP patch
@@ -133,7 +143,10 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 		// ---> PCPP patch
 		// If calloc fails it returns NULL pointer. Without early return it will cause Undefined Behaviour in memcpy
 		if (file_info->file_comment == NULL) {
-			file_info->file_comment_size = 0;
+			free(file_info->user_app_desc);
+			free(file_info->hardware_desc);
+			free(file_info->os_desc);
+			free(file_info);
 			return NULL;
 		}
 		// <--- end of PCPP patch

@@ -229,6 +229,11 @@ typedef struct _flow_information {
 
 static void __extract_ipv4_address(const uint8_t *payload, flow_address_t *address)
 {
+	// ---> PCPP patch
+	DCHECK_NULLP(payload, return LIGHT_FALSE);
+	DCHECK_NULLP(address, return LIGHT_FALSE);
+	// <--- end of PCPP patch
+
 	const uint8_t *address_offset = payload + 12;
 	int i;
 
@@ -244,6 +249,11 @@ static void __extract_ipv4_address(const uint8_t *payload, flow_address_t *addre
 
 static void __extract_ipv6_address(const uint8_t *payload, flow_address_t *address)
 {
+	// ---> PCPP patch
+	DCHECK_NULLP(payload, return LIGHT_FALSE);
+	DCHECK_NULLP(address, return LIGHT_FALSE);
+	// <--- end of PCPP patch
+
 	const uint8_t *address_offset = payload + 8;
 	int i;
 
@@ -259,6 +269,12 @@ static void __extract_ipv6_address(const uint8_t *payload, flow_address_t *addre
 
 static light_boolean __get_ip_address(const uint8_t *payload, flow_address_t *address, uint8_t *protocol_version)
 {
+	// ---> PCPP patch
+	DCHECK_NULLP(payload, return LIGHT_FALSE);
+	DCHECK_NULLP(address, return LIGHT_FALSE);
+	DCHECK_NULLP(protocol_version, return LIGHT_FALSE);
+	// <--- end of PCPP patch
+
 	uint16_t ethernet_type = LIGHT_NTOHS(*(uint16_t*)(payload + 12));
 	payload += 14; // MAC address is 6 bytes long. ==> 2 x 6 + 2
 
@@ -296,7 +312,12 @@ static light_boolean __get_ip_address(const uint8_t *payload, flow_address_t *ad
 
 static light_boolean __get_address(const light_pcapng pcapng, flow_address_t *address, uint8_t *protocol_version)
 {
-	DCHECK_NULLP(pcapng, return LIGHT_FALSE); // ---> PCPP patch
+	// ---> PCPP patch
+	DCHECK_NULLP(pcapng, return LIGHT_FALSE);
+	DCHECK_NULLP(address, return LIGHT_FALSE);
+	DCHECK_NULLP(protocol_version, return LIGHT_FALSE);
+	// <--- end of PCPP patch
+
 	uint32_t type = pcapng->block_type;
 
 	if (type == LIGHT_ENHANCED_PACKET_BLOCK) {
@@ -315,9 +336,10 @@ static light_boolean __get_address(const light_pcapng pcapng, flow_address_t *ad
 
 static flow_information_t *__create_flow(const light_pcapng section, const light_pcapng interface, const flow_address_t *key, const uint8_t protocol_version)
 {
+	DCHECK_NULLP(key, return NULL); // ---> PCPP patch
+
 	flow_information_t *flow = calloc(1, sizeof(flow_information_t));
 	DCHECK_NULLP(flow, return NULL); // ---> PCPP patch
-
 	flow->version = protocol_version;
 	memcpy(&flow->address, key, sizeof(flow->address));
 	flow->section = __copy_block(section, LIGHT_FALSE);
@@ -491,10 +513,11 @@ iterate:
 		*sectionp = NULL;
 	}
 
+	// ---> PCPP TODO: There is clearly possible nullptr dereference but to prevent memory leak it should
+	// done carefully.
 	*flows = calloc(*flow_count, sizeof(light_pcapng));
 	uint32_t index = 0;
 	flow_information_t *iterator = current_flow;
-	DCHECK_NULLP(*flows, return LIGHT_FAILURE); // ---> PCPP patch
 
 	while (iterator != NULL) {
 		(*flows)[index] = iterator->section;

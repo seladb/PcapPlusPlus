@@ -32,8 +32,9 @@
 light_option light_alloc_option(uint16_t option_length)
 {
 	struct _light_option *option = calloc(1, sizeof(struct _light_option));
-	uint16_t actual_size = 0;
 	DCHECK_NULLP(option, return NULL); // ---> PCPP patch
+
+	uint16_t actual_size = 0;
 	option->option_length = option_length;
 
 	PADD32(option_length, &actual_size);
@@ -48,6 +49,7 @@ light_pcapng light_alloc_block(uint32_t block_type, const uint32_t *block_body, 
 {
 	struct _light_pcapng *pcapng_block = calloc(1, sizeof(struct _light_pcapng));
 	DCHECK_NULLP(pcapng_block, return NULL); // ---> PCPP patch
+
 	uint32_t actual_size = 0;
 	int32_t block_body_size;
 
@@ -79,7 +81,7 @@ light_pcapng light_alloc_block(uint32_t block_type, const uint32_t *block_body, 
 
 void light_free_option(light_option option)
 {
-	DCHECK_NULLP(option, return NULL); // ---> PCPP patch
+	DCHECK_NULLP(option, return); // ---> PCPP patch
 	free(option);
 }
 

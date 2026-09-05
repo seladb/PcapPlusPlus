@@ -58,6 +58,11 @@ _compression_t * get_zstd_compression_context(int compression_level)
 	context->buffer_out_max_size = max(ZSTD_CStreamOutSize(), COMPRESSION_BUFFER_IN_MAX_SIZE);
 	context->buffer_in = malloc(context->buffer_in_max_size);
 	context->buffer_out = malloc(context->buffer_out_max_size);
+	if (context->buffer_in == NULL || context->buffer_out == NULL)
+	{
+		free_zstd_compression_context(context);
+		return NULL;
+	}
 	// Map 0-10 input scale onto zstd's 1-22 range; preserve 0 as the "default
 	// compression" sentinel. setParameter must run outside assert() so its
 	// side effect is not stripped under NDEBUG.
@@ -93,6 +98,11 @@ _decompression_t * get_zstd_decompression_context()
 	context->buffer_out_max_size = max(ZSTD_DStreamOutSize(), COMPRESSION_BUFFER_IN_MAX_SIZE);
 	context->buffer_in = malloc(context->buffer_in_max_size);
 	context->buffer_out = malloc(context->buffer_out_max_size);
+	if (context->buffer_in == NULL || context->buffer_out == NULL)
+	{
+		free_zstd_decompression_context(context);
+		return NULL;
+	}
 
 	context->output.dst = context->buffer_out;
 	context->output.size = context->buffer_out_max_size;
