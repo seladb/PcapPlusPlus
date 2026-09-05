@@ -2,6 +2,7 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 #include <fstream>
+#include <chrono>
 #include "Serializers.h"
 #include "Packet.h"
 #include "HttpLayer.h"
