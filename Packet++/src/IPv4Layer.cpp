@@ -13,6 +13,9 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
+
+#include <Layer.h>
+#include <SystemUtils.h>
 #include <sstream>
 #include <algorithm>
 
@@ -620,6 +623,22 @@ namespace pcpp
 		m_NumOfTrailingBytes = 0;
 		m_OptionReader.changeTLVRecordCount(0 - getOptionCount());
 		return true;
+	}
+
+	const FieldDescriptor IPv4Layer::SerializedFields::SrcIp{ Layer::SerializedFields::MaxID + 1, "srcIP"};
+	const FieldDescriptor IPv4Layer::SerializedFields::DstIp{ Layer::SerializedFields::MaxID + 2, "dstIP"};
+	const FieldDescriptor IPv4Layer::SerializedFields::IpId{ Layer::SerializedFields::MaxID + 3, "ipID"};
+	const FieldDescriptor IPv4Layer::SerializedFields::IpProtocol{ Layer::SerializedFields::MaxID + 4, "ipProtocol"};
+	const FieldDescriptor IPv4Layer::SerializedFields::TotalLength{ Layer::SerializedFields::MaxID + 5, "totalLength"};
+
+	void IPv4Layer::internalSerialize(ISerializer& serializer) const
+	{
+		serializer.writeField(SerializedFields::SrcIp, getSrcIPAddress().toString());
+		serializer.writeField(SerializedFields::DstIp, getDstIPAddress().toString());
+		auto* header = getIPv4Header();
+		serializer.writeField(SerializedFields::IpId, netToHost16(header->ipId));
+		serializer.writeField(SerializedFields::IpProtocol, header->protocol);
+		serializer.writeField(SerializedFields::TotalLength, netToHost16(header->totalLength));
 	}
 
 }  // namespace pcpp

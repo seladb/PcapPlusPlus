@@ -2,10 +2,14 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 #include <fstream>
+#include <chrono>
+#include "Serializers.h"
 #include "Packet.h"
 #include "HttpLayer.h"
 #include "DnsLayer.h"
 #include "PcapFileDevice.h"
+
+#include <IPv4Layer.h>
 
 PTF_TEST_CASE(TestHttpRequestParsing)
 {
@@ -473,3 +477,124 @@ PTF_TEST_CASE(TestDnsParsing)
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.type == 47
 	PTF_ASSERT_EQUAL(additionalWithTypeNSEC, 14);
 }  // TestDnsParsing
+
+class MeasureTime {
+public:
+    explicit MeasureTime(const char* name)
+        : name_(name),
+          start_(std::chrono::steady_clock::now()) {}
+
+    ~MeasureTime() {
+        const auto end = std::chrono::steady_clock::now();
+        const auto elapsed =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                end - start_);
+
+        std::cout << name_ << ": "
+                  << elapsed.count() << " ms\n";
+    }
+
+private:
+    const char* name_;
+    std::chrono::steady_clock::time_point start_;
+};
+
+PTF_TEST_CASE(TestPacketSerialize)
+{
+	pcpp::PcapFileReaderDevice readerDev(EXAMPLE2_PCAP_PATH);
+	PTF_ASSERT_TRUE(readerDev.open());
+
+	pcpp::RawPacket rawPacket;
+	pcpp::RawPacketVector rawPacketPtrVec;
+
+	{
+		MeasureTime timer("read 4700 packets");
+		readerDev.getNextPackets(rawPacketPtrVec, 4700);
+	}
+
+
+	//while (readerDev.getNextPacket(rawPacket))
+	//{
+	//	pcpp::Packet packet(&rawPacket);
+	//	packet.serialize(serializer);
+	//	index++;
+	//	if (index == 1500)
+	//	{
+	//		break;
+	//	}
+	//}
+
+	pcpp::PointerVector<pcpp::Packet> packetPtrVec;
+	{
+		MeasureTime timer("Parse packets");
+		for (const auto& rawPacket : rawPacketPtrVec)
+		{
+			packetPtrVec.pushBack(new pcpp::Packet(rawPacket, false));
+		}
+	}
+
+	pcpp::FieldDescriptor packets{0, "packets"};
+
+	{
+		MeasureTime timer("Serialize packets - json 1");
+		std::ofstream file("packets.json");
+		pcpp::JsonSerializer serializer(file);
+		serializer.startArray(packets);
+
+		for (const auto* packet : packetPtrVec)
+		{
+			packet->serialize(serializer);
+		}
+
+		serializer.endArray();
+	}
+
+	{
+		MeasureTime timer("Serialize packets - xml");
+		std::ofstream file("packets.xml");
+		pcpp::XmlSerializer serializer(file);
+		serializer.startArray(packets);
+
+		for (const auto* packet : packetPtrVec)
+		{
+			packet->serialize(serializer);
+		}
+
+		serializer.endArray();
+	}
+
+	{
+		MeasureTime timer("Serialize packets - yaml");
+		std::ofstream file("packets.yaml");
+		pcpp::YamlSerializer serializer(file);
+		serializer.startArray(packets);
+
+		for (const auto* packet : packetPtrVec)
+		{
+			packet->serialize(serializer);
+		}
+
+		serializer.endArray();
+	}
+
+	// {
+	// 	MeasureTime timer("Serialize packets - json 2");
+	// 	std::ofstream file("packets2.json");
+	// 	pcpp::JsonSerializer2 serializer(file);
+	// 	serializer.startArray(packets);
+	//
+	// 	{
+	// 		MeasureTime innerTimer("json 2 - tree building loop");
+	// 		for (const auto* packet : packetPtrVec)
+	// 		{
+	// 			packet->serialize(serializer);
+	// 		}
+	// 	}
+	//
+	// 	{
+	// 		MeasureTime innerTimer("json 2 - endArray (dump)");
+	// 		serializer.endArray();
+	// 	}
+	// }
+} // TestPacketSerialize
+

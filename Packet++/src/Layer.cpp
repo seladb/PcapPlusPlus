@@ -61,6 +61,19 @@ namespace pcpp
 		return bytesToCopy;
 	}
 
+	const FieldDescriptor Layer::SerializedFields::ProtocolId{ MaxID - 1, "protocolId"};
+	const FieldDescriptor Layer::SerializedFields::ProtocolName{ MaxID, "protocolName"};
+	const FieldDescriptor LayerObject{ 0, "layer"};
+
+	void Layer::serialize(ISerializer& serializer) const
+	{
+		serializer.startObject(LayerObject);
+		serializer.writeField(SerializedFields::ProtocolId, m_Protocol);
+		serializer.writeField(SerializedFields::ProtocolName, protocolTypeToString(m_Protocol));
+		internalSerialize(serializer);
+		serializer.endObject();
+	}
+
 	void Layer::allocData(size_t dataLen, bool zeroInit)
 	{
 		if (m_Data != nullptr)

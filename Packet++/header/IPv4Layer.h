@@ -605,6 +605,18 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an IPv4 packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
+		struct SerializedFields
+		{
+			static const FieldDescriptor SrcIp;
+			static const FieldDescriptor DstIp;
+			static const FieldDescriptor IpId;
+			static const FieldDescriptor IpProtocol;
+			static const FieldDescriptor TotalLength;
+		};
+
+	protected:
+		void internalSerialize(ISerializer& serializer) const override;
+
 	private:
 		int m_NumOfTrailingBytes;
 		int m_TempHeaderExtension;

@@ -577,6 +577,18 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 
+		struct SerializedFields
+		{
+			static const FieldDescriptor SrcPort;
+			static const FieldDescriptor DstPort;
+			static const FieldDescriptor SequenceNumber;
+			static const FieldDescriptor TcpFlags;
+			static const FieldDescriptor TcpFlag;
+		};
+
+	protected:
+		void internalSerialize(ISerializer& serializer) const override;
+
 	private:
 		TLVRecordReader<TcpOption> m_OptionReader;
 		int m_NumOfTrailingBytes;

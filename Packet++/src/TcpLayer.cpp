@@ -25,6 +25,8 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "DeprecationUtils.h"
+
+#include <SystemUtils.h>
 #include <sstream>
 
 namespace pcpp
@@ -598,4 +600,51 @@ namespace pcpp
 	}
 	DISABLE_WARNING_POP
 
+	const FieldDescriptor TcpLayer::SerializedFields::SrcPort{ Layer::SerializedFields::MaxID + 1, "srcPort"};
+	const FieldDescriptor TcpLayer::SerializedFields::DstPort{ Layer::SerializedFields::MaxID + 2, "dstPort"};
+	const FieldDescriptor TcpLayer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 3, "sequenceNumber"};
+	const FieldDescriptor TcpLayer::SerializedFields::TcpFlags{ Layer::SerializedFields::MaxID + 4, "tcpFlags"};
+	const FieldDescriptor TcpLayer::SerializedFields::TcpFlag{ 0, "tcpFlag"};
+
+	void TcpLayer::internalSerialize(ISerializer& serializer) const
+	{
+		auto* header = getTcpHeader();
+		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));
+		serializer.writeField(SerializedFields::DstPort, netToHost16(header->portDst));
+		serializer.writeField(SerializedFields::SequenceNumber, netToHost32(header->sequenceNumber));
+		serializer.startArray(SerializedFields::TcpFlags);
+		if (header->finFlag)
+		{
+			serializer.writeField(SerializedFields::TcpFlag, "FIN");
+		}
+		if (header->synFlag)
+		{
+			serializer.writeField(SerializedFields::TcpFlag, "SYN");
+		}
+		if (header->rstFlag)
+		{
+			serializer.writeField(SerializedFields::TcpFlag, "RST");
+		}
+		if (header->pshFlag)
+		{
+			serializer.writeField(SerializedFields::TcpFlag, "PSH");
+		}
+		if (header->ackFlag)
+		{
+			serializer.writeField(SerializedFields::TcpFlag, "ACK");
+		}
+		if (header->urgFlag)
+		{
+			serializer.writeField(SerializedFields::TcpFlag, "URG");
+		}
+		if (header->eceFlag)
+		{
+			serializer.writeField(SerializedFields::TcpFlag, "ECE");
+		}
+		if (header->cwrFlag)
+		{
+			serializer.writeField(SerializedFields::TcpFlag, "CWR");
+		}
+		serializer.endArray();
+	}
 }  // namespace pcpp

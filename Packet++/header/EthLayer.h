@@ -155,6 +155,16 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an Ethernet II packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		struct SerializedFields
+		{
+			static const FieldDescriptor SrcMacAddress;
+			static const FieldDescriptor DstMacAddress;
+			static const FieldDescriptor EtherType;
+		};
+
+	protected:
+		void internalSerialize(ISerializer& serializer) const override;
 	};
 
 }  // namespace pcpp

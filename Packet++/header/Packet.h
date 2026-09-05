@@ -2,6 +2,7 @@
 
 #include "RawPacket.h"
 #include "Layer.h"
+#include "Serializers.h"
 #include <vector>
 
 /// @file
@@ -361,6 +362,18 @@ namespace pcpp
 		/// @param[in] timeAsLocalTime Print time as local time or GMT. Default (true value) is local time, for GMT set
 		/// to false
 		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true) const;
+
+		struct SerializedFields
+		{
+			static const FieldDescriptor TimestampSec;
+			static const FieldDescriptor TimestampNSec;
+			static const FieldDescriptor FrameLength;
+			static const FieldDescriptor LinkLayer;
+			static const FieldDescriptor LinkLayerName;
+			static const FieldDescriptor Layers;
+		};
+
+		void serialize(ISerializer& serializer) const;
 
 	private:
 		void copyDataFrom(const Packet& other);
