@@ -349,17 +349,26 @@ static void readParsedPacket(pcpp::Packet parsedPacket, pcpp::Layer* layer)
 			else if (icmpLayer->isMessageOfType(pcpp::ICMP_INFO_REPLY))
 			{
 				auto layerData = icmpLayer->getInfoReplyData();
-				icmpLayer2.setInfoReplyData(layerData->id, layerData->sequence);
+				if (layerData != nullptr)
+				{
+					icmpLayer2.setInfoReplyData(layerData->id, layerData->sequence);
+				}
 			}
 			else if (icmpLayer->isMessageOfType(pcpp::ICMP_INFO_REQUEST))
 			{
 				auto layerData = icmpLayer->getInfoRequestData();
-				icmpLayer2.setInfoRequestData(layerData->id, layerData->sequence);
+				if (layerData != nullptr)
+				{
+					icmpLayer2.setInfoRequestData(layerData->id, layerData->sequence);
+				}
 			}
 			else if (icmpLayer->isMessageOfType(pcpp::ICMP_PARAM_PROBLEM))
 			{
 				auto layerData = icmpLayer->getParamProblemData();
-				icmpLayer2.setParamProblemData(layerData->code, layerData->pointer, nullptr, nullptr);
+				if (layerData != nullptr)
+				{
+					icmpLayer2.setParamProblemData(layerData->code, layerData->pointer, nullptr, nullptr);
+				}
 			}
 			else if (icmpLayer->isMessageOfType(pcpp::ICMP_TIME_EXCEEDED))
 			{
