@@ -50,7 +50,8 @@ int(*close_compressed)(struct light_file_t *) = &close_zstd_compressed;
 _compression_t * get_zstd_compression_context(int compression_level)
 {
 	struct zstd_compression_t *context = calloc(1, sizeof(struct zstd_compression_t));
-	DCHECK_NULLP(context, return NULL); // ---> PCPP patch
+	if (context == NULL) // ---> PCPP patch
+		return NULL;
 	context->cctx = ZSTD_createCCtx();
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
@@ -90,7 +91,8 @@ void free_zstd_compression_context(_compression_t* context)
 _decompression_t * get_zstd_decompression_context()
 {
 	struct zstd_decompression_t *context = calloc(1, sizeof(struct zstd_decompression_t));
-	DCHECK_NULLP(context, return NULL); // ---> PCPP patch
+	if (context == NULL) // ---> PCPP patch
+		return NULL;
 	context->dctx = ZSTD_createDCtx();
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = ZSTD_DStreamInSize();;
@@ -237,7 +239,8 @@ size_t write_zstd_compressed(light_file fd, const void *buf, size_t count)
 
 int close_zstd_compressed(light_file fd)
 {
-	DCHECK_NULLP(fd, return 0); // ---> PCPP patch
+	if (fd == NULL) // ---> PCPP patch
+		return NULL;
 
 	//Wrap up the compression here
 	if (fd->compression_context)
