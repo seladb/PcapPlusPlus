@@ -189,7 +189,20 @@ public:
 				{
 					updateStringStream(sstream, getSrcIPString(packet), srcPort, getDstIPString(packet), dstPort);
 				}
-				return outputPcapBasePath + sstream.str();
+
+				// Append the file number so a reused 5-tuple (a new SYN on the same
+				// ports as an earlier, already-tracked session) can't collide with the
+				// previous session's output file. getFileNumber() above deliberately
+				// allocates a new fileNumber to isolate the new session, but this
+				// method previously ignored that parameter entirely, so both sessions
+				// produced the exact same path string. main.cpp's writer cache is
+				// keyed by fileNumber, not by path, so on collision it would open the
+				// second session's file fresh (no append flag) against a path the
+				// first session's writer might still be using -- truncating or
+				// corrupting it. See seladb/PcapPlusPlus#2248.
+				std::ostringstream numStream;
+				numStream << "-" << std::setw(4) << std::setfill('0') << fileNumber;
+				return outputPcapBasePath + sstream.str() + numStream.str();
 			}
 		}
 		else if (packet.isPacketOfType(pcpp::UDP))
@@ -210,7 +223,15 @@ public:
 				std::string secondIP = (srcPort < dstPort) ? getSrcIPString(packet) : getDstIPString(packet);
 
 				updateStringStream(sstream, firstIP, firstPort, secondIP, secondPort);
-				return outputPcapBasePath + sstream.str();
+
+				// getFileNumber() never reallocates a new fileNumber for a UDP flow
+				// that reuses an existing hash (only the TCP/SYN path above does), so
+				// this isn't reachable as a collision today -- fileNumber is folded in
+				// here anyway to keep naming consistent with the TCP branch and to
+				// stay correct if that ever changes.
+				std::ostringstream numStream;
+				numStream << "-" << std::setw(4) << std::setfill('0') << fileNumber;
+				return outputPcapBasePath + sstream.str() + numStream.str();
 			}
 		}
 
