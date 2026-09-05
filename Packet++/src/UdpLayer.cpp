@@ -10,6 +10,7 @@
 #include "DhcpV6Layer.h"
 #include "DoIpLayer.h"
 #include "VxlanLayer.h"
+#include "GeneveLayer.h"
 #include "SipLayer.h"
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
@@ -107,6 +108,10 @@ namespace pcpp
 		else if (VxlanLayer::isVxlanPort(portDst))
 		{
 			tryConstructNextLayerWithFallback<VxlanLayer, PayloadLayer>(udpData, udpDataLen);
+		}
+		else if (GeneveLayer::isGenevePort(portDst))
+		{
+			tryConstructNextLayerWithFallback<GeneveLayer, PayloadLayer>(udpData, udpDataLen);
 		}
 		else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
