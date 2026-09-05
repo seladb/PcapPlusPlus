@@ -55,7 +55,7 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 		return NULL;
 
 	light_pcapng_file_info *file_info = calloc(1, sizeof(light_pcapng_file_info));
-	DCHECK_NULLP(file_info, return); // ---> PCPP patch
+	DCHECK_NULLP(file_info, return NULL); // ---> PCPP patch
 
 
 	struct _light_section_header* section_header;
@@ -276,7 +276,7 @@ light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file
 	DCHECK_NULLP(file_path, return NULL);
 
 	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
-	DCHECK_NULLP(pcapng, return); // ---> PCPP patch
+	DCHECK_NULLP(pcapng, return NULL); // ---> PCPP patch
 
 	pcapng->file = light_open_compression(file_path, LIGHT_OWRITE, compression_level);
 	pcapng->file_info = file_info;

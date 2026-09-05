@@ -230,8 +230,8 @@ typedef struct _flow_information {
 static void __extract_ipv4_address(const uint8_t *payload, flow_address_t *address)
 {
 	// ---> PCPP patch
-	DCHECK_NULLP(payload, return LIGHT_FALSE);
-	DCHECK_NULLP(address, return LIGHT_FALSE);
+	DCHECK_NULLP(payload, return);
+	DCHECK_NULLP(address, return);
 	// <--- end of PCPP patch
 
 	const uint8_t *address_offset = payload + 12;
@@ -250,8 +250,8 @@ static void __extract_ipv4_address(const uint8_t *payload, flow_address_t *addre
 static void __extract_ipv6_address(const uint8_t *payload, flow_address_t *address)
 {
 	// ---> PCPP patch
-	DCHECK_NULLP(payload, return LIGHT_FALSE);
-	DCHECK_NULLP(address, return LIGHT_FALSE);
+	DCHECK_NULLP(payload, return);
+	DCHECK_NULLP(address, return);
 	// <--- end of PCPP patch
 
 	const uint8_t *address_offset = payload + 8;
@@ -380,7 +380,7 @@ static void __append_address_information(light_pcapng section, const flow_inform
 	uint8_t *option_data;
 	uint16_t option_length = 1;
 
-	DCHECK_NULLP(info, return NULL); // ---> PCPP patch
+	DCHECK_NULLP(info, return); // ---> PCPP patch
 	if (info->version == 4) {
 		option_length += 2 * sizeof(info->address.source.ipv4);
 	}
@@ -390,7 +390,7 @@ static void __append_address_information(light_pcapng section, const flow_inform
 
 	// Maybe I could use light_create_option instead of light_alloc_option.
 	flow_option = light_alloc_option(option_length);
-	DCHECK_NULLP(flow_option, return NULL); // ---> PCPP patch
+	DCHECK_NULLP(flow_option, return); // ---> PCPP patch
 
 	flow_option->custom_option_code = LIGHT_CUSTOM_OPTION_ADDRESS_INFO;
 	option_data = (uint8_t *)flow_option->data;
