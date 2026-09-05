@@ -255,44 +255,45 @@ PcapPlusPlus は現在、以下のプロトコルのパケットの解析、編�
 27. COTP
 28. GTP (v1 と v2)
 29. IPSec AH と ESP - 解析のみ (編集機能なし)
-30. TCP
-31. TPKT
-32. UDP
+30. QUIC v1 - 解析のみ (編集機能なし)
+31. TCP
+32. TPKT
+33. UDP
 
 ### セッション層 (L5)
 
-33. SDP
-34. SIP
+34. SDP
+35. SIP
 
 ### プレゼンテーション層 (L6)
 
-35. SSL/TLS - 解析のみ (編集機能なし)
+36. SSL/TLS - 解析のみ (編集機能なし)
 
 ### アプリケーション層 (L7)
 
-36. ASN.1 デコーダおよびエンコーダ
-37. BGP (v4)
-38. 暗号鍵デコーダ
-39. DHCP
-40. DHCPv6
-41. DNS
-42. DoIP
-43. FTP
-44. HTTP ヘッダ (リクエストとレスポンス)
-45. LDAP
-46. Modbus
-47. MySQL - 解析のみ (編集機能なし)
-48. NTP (v3, v4)
-49. PEM デコーダおよびエンコーダ
-50. PostgreSQL Wire Protocol (PGWire) - 解析のみ (編集機能なし)
-51. Radius
-52. S7 Communication (S7comm)
-53. SMTP
-54. SOME/IP
-55. SSH - 解析のみ (編集機能なし)
-56. Telnet - 解析のみ (編集機能なし)
-57. X509 証明書 - 解析のみ (編集機能なし)
-58. 汎用ペイロード
+37. ASN.1 デコーダおよびエンコーダ
+38. BGP (v4)
+39. 暗号鍵デコーダ
+40. DHCP
+41. DHCPv6
+42. DNS
+43. DoIP
+44. FTP
+45. HTTP ヘッダ (リクエストとレスポンス)
+46. LDAP
+47. Modbus
+48. MySQL - 解析のみ (編集機能なし)
+49. NTP (v3, v4)
+50. PEM デコーダおよびエンコーダ
+51. PostgreSQL Wire Protocol (PGWire) - 解析のみ (編集機能なし)
+52. Radius
+53. S7 Communication (S7comm)
+54. SMTP
+55. SOME/IP
+56. SSH - 解析のみ (編集機能なし)
+57. Telnet - 解析のみ (編集機能なし)
+58. X509 証明書 - 解析のみ (編集機能なし)
+59. 汎用ペイロード
 
 ## DPDK と PF_RING のサポート
 
