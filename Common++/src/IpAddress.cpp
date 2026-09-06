@@ -141,6 +141,7 @@ namespace pcpp
 	{
 		const size_t addrLen = m_Bytes.size() * sizeof(uint8_t);
 		length = addrLen;
+		// cppcheck-suppress ctunullpointer
 		*arr = new uint8_t[addrLen];
 		memcpy(*arr, m_Bytes.data(), addrLen);
 	}
