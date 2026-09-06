@@ -5,7 +5,11 @@
 #include "Logger.h"
 #include "Packet.h"
 #include <bpf/libbpf.h>
-#include <bpf/xsk.h>
+#if LIBBPF_MAJOR_VERSION < 1
+#	include <bpf/xsk.h>
+#else
+#	include <xdp/xsk.h>
+#endif
 #include <linux/if_link.h>
 #include <net/if.h>
 #include <sys/mman.h>

@@ -508,6 +508,17 @@ PTF_TEST_CASE(X509ExtensionDataTest)
 		                  "Invalid X509 certificate Subject Key Identifier extension data: Key Identifier");
 	}
 
+	// Invalid extension - ASN.1 record length exceeds the extension data
+	{
+		std::string dataWithOverflowingSubjectKeyIdentifierData =
+		    "3082010e3081c1a0030201020214283c4642303a207d3252acc93fde28a3be53d2c1300506032b657030163114301206035504030c0b6578616d706c652e636f6d301e170d3235303731363036353735345a170d3236303731363036353735345a30163114301206035504030c0b6578616d706c652e636f6d302a300506032b6570032100929aa980b434df25d72a989042b527f7ad34a40f221be06c6adb1c19c5950b7ca321301f301d0603551d0e041604286af318be2f8cc3a402d01b9802208dd9bf071f27300506032b6570034100ec2612468af716fae16cefaa2c42ce1f544c535f5b0033cbdcbbf7e0bdae213c53c027be9a63c59bd53003cd78174ece077b3f69fcbe5d34f64471dc25a54f08";
+		auto x509Certificate = pcpp::X509Certificate::fromDER(dataWithOverflowingSubjectKeyIdentifierData);
+		auto extension = x509Certificate->getExtension(pcpp::X509ExtensionType::SubjectKeyIdentifier);
+		PTF_ASSERT_NOT_NULL(extension);
+		PTF_ASSERT_RAISES(extension->getData(), std::invalid_argument,
+		                  "Cannot decode ASN.1 record, data doesn't contain the entire record");
+	}
+
 	// Invalid extension - wrong ASN.1 type in a sequence
 	{
 		std::string dataWithInvalidBasicConstraintsData =

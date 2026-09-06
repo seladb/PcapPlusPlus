@@ -153,18 +153,12 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	// Only the start of a record was checked against the layer, so a truncated one was returned
 	// and its fields were then read past the end of the buffer.
 	{
-		uint8_t truncated[] = { // Ethernet
-			                    0x01, 0x00, 0x5e, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x08, 0x00,
-			                    // IPv4, total length 32, protocol 2 (IGMP)
-			                    0x45, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x0a, 0x00,
-			                    0x00, 0x01, 0xe0, 0x00, 0x00, 0x16,
-			                    // IGMPv3 report: 8 byte header claiming one group record, then only 4 bytes of it
-			                    0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01
-		};
-
-		timeval truncatedTime = {};
-		pcpp::RawPacket truncatedRawPacket(truncated, sizeof(truncated), truncatedTime, false, pcpp::LINKTYPE_ETHERNET);
-		pcpp::Packet truncatedPacket(&truncatedRawPacket);
+		// Packet contents
+		// Ethernet
+		// IPv4, total length 32, protocol 2 (IGMP)
+		// IGMPv3 report: 8 byte header claiming one group record, then only 4 bytes of it
+		auto truncatedRawPacket = createPacketFromHexResource("PacketExamples/igmpv3_report_truncated.dat");
+		pcpp::Packet truncatedPacket(truncatedRawPacket.get());
 
 		auto truncatedReportLayer = truncatedPacket.getLayerOfType<pcpp::IgmpV3ReportLayer>();
 		PTF_ASSERT_NOT_NULL(truncatedReportLayer);

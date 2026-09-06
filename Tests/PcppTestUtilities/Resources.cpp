@@ -104,7 +104,7 @@ namespace pcpp_tests
 		}
 
 		void ResourceProvider::saveResource(ResourceType resourceType, const char* filename, const uint8_t* data,
-		                                    size_t length) const
+		                                    size_t length)
 		{
 			if (m_Frozen)
 			{

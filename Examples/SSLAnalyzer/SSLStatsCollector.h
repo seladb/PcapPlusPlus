@@ -15,9 +15,9 @@
 struct Rate
 {
 	// periodic rate
-	double currentRate;
+	double currentRate = 0;
 	// overall rate
-	double totalRate;
+	double totalRate = 0;
 };
 
 /**
@@ -26,27 +26,27 @@ struct Rate
 struct SSLGeneralStats
 {
 	// total number of SSL flows
-	int numOfSSLFlows;
+	int numOfSSLFlows = 0;
 	// rate of SSL flows
 	Rate sslFlowRate;
 	// total number of SSL packets
-	int numOfSSLPackets;
+	int numOfSSLPackets = 0;
 	// rate of SSL packets
 	Rate sslPacketRate;
 	// average number of SSL packets per flow
-	double averageNumOfPacketsPerFlow;
+	double averageNumOfPacketsPerFlow = 0;
 	// total SSL traffic in bytes
-	int amountOfSSLTraffic;
+	int amountOfSSLTraffic = 0;
 	// average number of SSL traffic per flow
-	double averageAmountOfDataPerFlow;
+	double averageAmountOfDataPerFlow = 0;
 	// rate of SSL traffic
 	Rate sslTrafficRate;
 	// total stats collection time
-	double sampleTime;
+	double sampleTime = 0;
 	// number of flows which handshake was complete
-	int numOfHandshakeCompleteFlows;
+	int numOfHandshakeCompleteFlows = 0;
 	// number of flows that were terminated because of SSL/TLS alert
-	int numOfFlowsWithAlerts;
+	int numOfFlowsWithAlerts = 0;
 	// number of flows per SSL/TLS version
 	std::unordered_map<uint16_t, int> sslVersionCount;
 	// number of flows per TCP port
@@ -79,7 +79,7 @@ struct SSLGeneralStats
 struct ClientHelloStats
 {
 	// total number of client-hello messages
-	int numOfMessages;
+	int numOfMessages = 0;
 	// rate of client-hello messages
 	Rate messageRate;
 	// a map for counting the server names seen in traffic
@@ -103,7 +103,7 @@ struct ClientHelloStats
 struct ServerHelloStats
 {
 	// total number of server-hello messages
-	int numOfMessages;
+	int numOfMessages = 0;
 	// rate of server-hello messages
 	Rate messageRate;
 	// count of the different chosen cipher-suites

@@ -137,8 +137,9 @@ namespace pcpp
 		                                                                     std::vector<uint8_t>& rawDataBytes)
 		{
 			rawDataBytes.resize(rawData.length() / 2);
-			hexStringToByteArray(rawData, rawDataBytes.data(), rawData.length() / 2);
-			return Asn1Record::decode(rawDataBytes.data(), rawData.size());
+			// A malformed hex string may decode into fewer bytes than the buffer size
+			rawDataBytes.resize(hexStringToByteArray(rawData, rawDataBytes.data(), rawDataBytes.size()));
+			return Asn1Record::decode(rawDataBytes.data(), rawDataBytes.size());
 		}
 
 		std::unique_ptr<X509BasicConstraintsDataDecoder> X509BasicConstraintsDataDecoder::create(
