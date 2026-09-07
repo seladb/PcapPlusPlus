@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "ArpLayer.h"
 #include "RawPacket.h"
+#include "DeprecationUtils.h"
 
 // Forward Declaration - used in GeneralFilter
 struct bpf_program;
@@ -583,14 +584,14 @@ namespace pcpp
 		/// A constructor that gets the MAC address and the direction and creates the filter with them
 		/// @param[in] address The MAC address to use for filtering
 		/// @param[in] dir The MAC address direction to filter (source or destination)
-		MacAddressFilter(MacAddress address, Direction dir) : IFilterWithDirection(dir), m_MacAddress(address)
+		MacAddressFilter(MacAddress const& address, Direction dir) : IFilterWithDirection(dir), m_MacAddress(address)
 		{}
 
 		void parseToString(std::string& result) const override;
 
 		/// Set the MAC address
 		/// @param[in] address The MAC address to use for filtering
-		void setMacAddress(MacAddress address)
+		void setMacAddress(MacAddress const& address)
 		{
 			m_MacAddress = address;
 			invalidateCache();
