@@ -568,23 +568,15 @@ PTF_TEST_CASE(TestPacketSerialize)
 		}
 	}
 
-	// {
-	// 	MeasureTime timer("Serialize packets - json 2");
-	// 	std::ofstream file("packets2.json");
-	// 	pcpp::JsonSerializer2 serializer(file);
-	// 	serializer.startArray(packets);
-	//
-	// 	{
-	// 		MeasureTime innerTimer("json 2 - tree building loop");
-	// 		for (const auto* packet : packetPtrVec)
-	// 		{
-	// 			packet->serialize(serializer);
-	// 		}
-	// 	}
-	//
-	// 	{
-	// 		MeasureTime innerTimer("json 2 - endArray (dump)");
-	// 		serializer.endArray();
-	// 	}
-	// }
+	{
+		MeasureTime timer("Serialize packets - json 2");
+		std::ofstream file("packets2.json");
+		pcpp::JsonSerializer2 serializer(file);
+		auto packetArray = serializer.writeArray(packets);
+
+		for (const auto* packet : packetPtrVec)
+		{
+			packet->serialize(packetArray);
+		}
+	}
 }  // TestPacketSerialize
