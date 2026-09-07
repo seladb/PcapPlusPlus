@@ -61,9 +61,9 @@ namespace pcpp
 		return bytesToCopy;
 	}
 
-	const FieldDescriptor Layer::SerializedFields::ProtocolId{ MaxID - 1, "protocolId"};
-	const FieldDescriptor Layer::SerializedFields::ProtocolName{ MaxID, "protocolName"};
-	const FieldDescriptor LayerObject{ 0, "layer"};
+	const FieldDescriptor Layer::SerializedFields::ProtocolId{ MaxID - 1, "protocolId" };
+	const FieldDescriptor Layer::SerializedFields::ProtocolName{ MaxID, "protocolName" };
+	const FieldDescriptor LayerObject{ 0, "layer" };
 
 	void Layer::serialize(ISerializer& serializer) const
 	{

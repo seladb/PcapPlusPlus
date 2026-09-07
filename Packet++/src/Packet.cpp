@@ -941,20 +941,20 @@ namespace pcpp
 		}
 	}
 
-	const FieldDescriptor Packet::SerializedFields::TimestampSec{ 0, "timestampSec"};
-	const FieldDescriptor Packet::SerializedFields::TimestampNSec{ 1, "timestampNsec"};
-	const FieldDescriptor Packet::SerializedFields::FrameLength{ 2, "frameLength"};
-	const FieldDescriptor Packet::SerializedFields::LinkLayer{ 3, "linkLayer"};
-	const FieldDescriptor Packet::SerializedFields::LinkLayerName{ 4, "linkLayerName"};
-	const FieldDescriptor Packet::SerializedFields::Layers{ 5, "layers"};
-	const FieldDescriptor PacketObject{ 0, "packet"};
+	const FieldDescriptor Packet::SerializedFields::TimestampSec{ 0, "timestampSec" };
+	const FieldDescriptor Packet::SerializedFields::TimestampNSec{ 1, "timestampNsec" };
+	const FieldDescriptor Packet::SerializedFields::FrameLength{ 2, "frameLength" };
+	const FieldDescriptor Packet::SerializedFields::LinkLayer{ 3, "linkLayer" };
+	const FieldDescriptor Packet::SerializedFields::LinkLayerName{ 4, "linkLayerName" };
+	const FieldDescriptor Packet::SerializedFields::Layers{ 5, "layers" };
+	const FieldDescriptor PacketObject{ 0, "packet" };
 
 	void Packet::serialize(ISerializer& serializer) const
 	{
 		auto rawPacket = getRawPacket();
 		timespec ts = rawPacket->getPacketTimeStamp();
 
-        auto packetObject = serializer.writeObject(PacketObject);
+		auto packetObject = serializer.writeObject(PacketObject);
 		packetObject.writeField(SerializedFields::TimestampSec, static_cast<uint64_t>(ts.tv_sec));
 		packetObject.writeField(SerializedFields::TimestampNSec, static_cast<uint64_t>(ts.tv_nsec));
 		packetObject.writeField(SerializedFields::FrameLength, rawPacket->getFrameLength());

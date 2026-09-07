@@ -600,11 +600,12 @@ namespace pcpp
 	}
 	DISABLE_WARNING_POP
 
-	const FieldDescriptor TcpLayer::SerializedFields::SrcPort{ Layer::SerializedFields::MaxID + 1, "srcPort"};
-	const FieldDescriptor TcpLayer::SerializedFields::DstPort{ Layer::SerializedFields::MaxID + 2, "dstPort"};
-	const FieldDescriptor TcpLayer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 3, "sequenceNumber"};
-	const FieldDescriptor TcpLayer::SerializedFields::TcpFlags{ Layer::SerializedFields::MaxID + 4, "tcpFlags"};
-	const FieldDescriptor TcpLayer::SerializedFields::TcpFlag{ 0, "tcpFlag"};
+	const FieldDescriptor TcpLayer::SerializedFields::SrcPort{ Layer::SerializedFields::MaxID + 1, "srcPort" };
+	const FieldDescriptor TcpLayer::SerializedFields::DstPort{ Layer::SerializedFields::MaxID + 2, "dstPort" };
+	const FieldDescriptor TcpLayer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 3,
+		                                                              "sequenceNumber" };
+	const FieldDescriptor TcpLayer::SerializedFields::TcpFlags{ Layer::SerializedFields::MaxID + 4, "tcpFlags" };
+	const FieldDescriptor TcpLayer::SerializedFields::TcpFlag{ 0, "tcpFlag" };
 
 	void TcpLayer::internalSerialize(ISerializer& serializer) const
 	{

@@ -478,25 +478,23 @@ PTF_TEST_CASE(TestDnsParsing)
 	PTF_ASSERT_EQUAL(additionalWithTypeNSEC, 14);
 }  // TestDnsParsing
 
-class MeasureTime {
+class MeasureTime
+{
 public:
-    explicit MeasureTime(const char* name)
-        : name_(name),
-          start_(std::chrono::steady_clock::now()) {}
+	explicit MeasureTime(const char* name) : name_(name), start_(std::chrono::steady_clock::now())
+	{}
 
-    ~MeasureTime() {
-        const auto end = std::chrono::steady_clock::now();
-        const auto elapsed =
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                end - start_);
+	~MeasureTime()
+	{
+		const auto end = std::chrono::steady_clock::now();
+		const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start_);
 
-        std::cout << name_ << ": "
-                  << elapsed.count() << " ms\n";
-    }
+		std::cout << name_ << ": " << elapsed.count() << " ms\n";
+	}
 
 private:
-    const char* name_;
-    std::chrono::steady_clock::time_point start_;
+	const char* name_;
+	std::chrono::steady_clock::time_point start_;
 };
 
 PTF_TEST_CASE(TestPacketSerialize)
@@ -512,8 +510,7 @@ PTF_TEST_CASE(TestPacketSerialize)
 		readerDev.getNextPackets(rawPacketPtrVec, 4700);
 	}
 
-
-	//while (readerDev.getNextPacket(rawPacket))
+	// while (readerDev.getNextPacket(rawPacket))
 	//{
 	//	pcpp::Packet packet(&rawPacket);
 	//	packet.serialize(serializer);
@@ -522,7 +519,7 @@ PTF_TEST_CASE(TestPacketSerialize)
 	//	{
 	//		break;
 	//	}
-	//}
+	// }
 
 	pcpp::PointerVector<pcpp::Packet> packetPtrVec;
 	{
@@ -533,7 +530,7 @@ PTF_TEST_CASE(TestPacketSerialize)
 		}
 	}
 
-	pcpp::FieldDescriptor packets{0, "packets"};
+	pcpp::FieldDescriptor packets{ 0, "packets" };
 
 	{
 		MeasureTime timer("Serialize packets - json 1");
@@ -590,5 +587,4 @@ PTF_TEST_CASE(TestPacketSerialize)
 	// 		serializer.endArray();
 	// 	}
 	// }
-} // TestPacketSerialize
-
+}  // TestPacketSerialize

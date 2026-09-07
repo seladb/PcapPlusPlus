@@ -116,9 +116,11 @@ namespace pcpp
 		}
 	}
 
-	const FieldDescriptor EthLayer::SerializedFields::SrcMacAddress{ Layer::SerializedFields::MaxID + 1, "srcMacAddress"};
-	const FieldDescriptor EthLayer::SerializedFields::DstMacAddress{ Layer::SerializedFields::MaxID + 2, "dstMacAddress"};
-	const FieldDescriptor EthLayer::SerializedFields::EtherType{ Layer::SerializedFields::MaxID + 3, "etherType"};
+	const FieldDescriptor EthLayer::SerializedFields::SrcMacAddress{ Layer::SerializedFields::MaxID + 1,
+		                                                             "srcMacAddress" };
+	const FieldDescriptor EthLayer::SerializedFields::DstMacAddress{ Layer::SerializedFields::MaxID + 2,
+		                                                             "dstMacAddress" };
+	const FieldDescriptor EthLayer::SerializedFields::EtherType{ Layer::SerializedFields::MaxID + 3, "etherType" };
 
 	void EthLayer::internalSerialize(ISerializer& serializer) const
 	{

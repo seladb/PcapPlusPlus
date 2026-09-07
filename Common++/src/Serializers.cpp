@@ -27,7 +27,8 @@ namespace pcpp
 		class StreamStateGuard
 		{
 		public:
-			explicit StreamStateGuard(std::ostream& out) : m_Out(out), m_Flags(out.flags()), m_Fill(out.fill()) {}
+			explicit StreamStateGuard(std::ostream& out) : m_Out(out), m_Flags(out.flags()), m_Fill(out.fill())
+			{}
 			~StreamStateGuard()
 			{
 				m_Out.flags(m_Flags);
@@ -59,58 +60,58 @@ namespace pcpp
 
 	}  // namespace
 
-    // ============================================================
-    // ISerializer
-    // ============================================================
+	// ============================================================
+	// ISerializer
+	// ============================================================
 
-    ArrayScope ISerializer::writeArray(const FieldDescriptor& field)
-    {
-        return { this, field };
-    }
+	ArrayScope ISerializer::writeArray(const FieldDescriptor& field)
+	{
+		return { this, field };
+	}
 
-    ObjectScope ISerializer::writeObject(const FieldDescriptor& field)
-    {
-        return { this, field };
-    }
+	ObjectScope ISerializer::writeObject(const FieldDescriptor& field)
+	{
+		return { this, field };
+	}
 
 	// ============================================================
 	// ScopeBase
 	// ============================================================
 
-    void ScopeBase::writeField(const FieldDescriptor& field, const std::string& value)
-    {
-        m_Serializer->writeField(field, value);
-    }
+	void ScopeBase::writeField(const FieldDescriptor& field, const std::string& value)
+	{
+		m_Serializer->writeField(field, value);
+	}
 
-    void ScopeBase::writeField(const FieldDescriptor& field, int64_t value)
-    {
-        m_Serializer->writeField(field, value);
-    }
+	void ScopeBase::writeField(const FieldDescriptor& field, int64_t value)
+	{
+		m_Serializer->writeField(field, value);
+	}
 
-    void ScopeBase::writeField(const FieldDescriptor& field, uint64_t value)
-    {
-        m_Serializer->writeField(field, value);
-    }
+	void ScopeBase::writeField(const FieldDescriptor& field, uint64_t value)
+	{
+		m_Serializer->writeField(field, value);
+	}
 
-    void ScopeBase::writeField(const FieldDescriptor& field, double value)
-    {
-        m_Serializer->writeField(field, value);
-    }
+	void ScopeBase::writeField(const FieldDescriptor& field, double value)
+	{
+		m_Serializer->writeField(field, value);
+	}
 
-    void ScopeBase::writeField(const FieldDescriptor& field, bool value)
-    {
-        m_Serializer->writeField(field, value);
-    }
+	void ScopeBase::writeField(const FieldDescriptor& field, bool value)
+	{
+		m_Serializer->writeField(field, value);
+	}
 
-    void ScopeBase::writeNullField(const FieldDescriptor& field)
-    {
-        m_Serializer->writeNullField(field);
-    }
+	void ScopeBase::writeNullField(const FieldDescriptor& field)
+	{
+		m_Serializer->writeNullField(field);
+	}
 
-    void ScopeBase::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
-    {
-        m_Serializer->writeHexField(field, value, widthBytes);
-    }
+	void ScopeBase::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
+	{
+		m_Serializer->writeHexField(field, value, widthBytes);
+	}
 
 	void ScopeBase::startObject(const FieldDescriptor& field)
 	{
@@ -133,38 +134,39 @@ namespace pcpp
 	}
 
 	// ============================================================
-    // ArrayScope
+	// ArrayScope
 	// ============================================================
 
 	ArrayScope::ArrayScope(ISerializer* serializer, const FieldDescriptor& field) : ScopeBase(serializer)
 	{
-	    m_Serializer->startArray(field);
+		m_Serializer->startArray(field);
 	}
 
-    ArrayScope::~ArrayScope()
-    {
-        m_Serializer->endArray();
-    }
+	ArrayScope::~ArrayScope()
+	{
+		m_Serializer->endArray();
+	}
 
 	// ============================================================
-    // ObjectScope
+	// ObjectScope
 	// ============================================================
 
 	ObjectScope::ObjectScope(ISerializer* serializer, const FieldDescriptor& field) : ScopeBase(serializer)
 	{
-	    m_Serializer->startObject(field);
+		m_Serializer->startObject(field);
 	}
 
-    ObjectScope::~ObjectScope()
-    {
-        m_Serializer->endObject();
-    }
+	ObjectScope::~ObjectScope()
+	{
+		m_Serializer->endObject();
+	}
 
 	// ============================================================
 	// JsonSerializer
 	// ============================================================
 
-	JsonSerializer::JsonSerializer(std::ostream& out) : m_Out(out) {}
+	JsonSerializer::JsonSerializer(std::ostream& out) : m_Out(out)
+	{}
 
 	void JsonSerializer::startObject(const FieldDescriptor& field)
 	{
@@ -315,10 +317,10 @@ namespace pcpp
 			nlohmann::json value;
 		};
 
-		explicit Impl(std::ostream& outStream) : out(outStream) {}
+		explicit Impl(std::ostream& outStream) : out(outStream)
+		{}
 
-		template <typename T>
-		void assign(const std::string& name, T&& value)
+		template <typename T> void assign(const std::string& name, T&& value)
 		{
 			if (stack.empty())
 				return;  // scalar field written with nothing open — caller bug
@@ -364,7 +366,8 @@ namespace pcpp
 		std::vector<Frame> stack;
 	};
 
-	JsonSerializer2::JsonSerializer2(std::ostream& out) : m_Impl(new Impl(out)) {}
+	JsonSerializer2::JsonSerializer2(std::ostream& out) : m_Impl(new Impl(out))
+	{}
 	JsonSerializer2::~JsonSerializer2() = default;
 
 	void JsonSerializer2::startObject(const FieldDescriptor& field)
@@ -372,14 +375,20 @@ namespace pcpp
 		m_Impl->stack.push_back(Impl::Frame{ field.name, nlohmann::json::object() });
 	}
 
-	void JsonSerializer2::endObject() { m_Impl->popContainer(); }
+	void JsonSerializer2::endObject()
+	{
+		m_Impl->popContainer();
+	}
 
 	void JsonSerializer2::startArray(const FieldDescriptor& field)
 	{
 		m_Impl->stack.push_back(Impl::Frame{ field.name, nlohmann::json::array() });
 	}
 
-	void JsonSerializer2::endArray() { m_Impl->popContainer(); }
+	void JsonSerializer2::endArray()
+	{
+		m_Impl->popContainer();
+	}
 
 	void JsonSerializer2::writeField(const FieldDescriptor& field, const std::string& value)
 	{
@@ -409,7 +418,10 @@ namespace pcpp
 		m_Impl->assign(field.name, value);
 	}
 
-	void JsonSerializer2::writeNullField(const FieldDescriptor& field) { m_Impl->assign(field.name, nullptr); }
+	void JsonSerializer2::writeNullField(const FieldDescriptor& field)
+	{
+		m_Impl->assign(field.name, nullptr);
+	}
 
 	void JsonSerializer2::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
 	{
@@ -420,7 +432,8 @@ namespace pcpp
 	// YamlSerializer
 	// ============================================================
 
-	YamlSerializer::YamlSerializer(std::ostream& out) : m_Out(out) {}
+	YamlSerializer::YamlSerializer(std::ostream& out) : m_Out(out)
+	{}
 
 	void YamlSerializer::writeIndent()
 	{
@@ -476,7 +489,10 @@ namespace pcpp
 		m_WriteIdent = false;
 	}
 
-	void YamlSerializer::endObject() { m_ContextStack.pop_back(); }
+	void YamlSerializer::endObject()
+	{
+		m_ContextStack.pop_back();
+	}
 
 	void YamlSerializer::startArray(const FieldDescriptor& field)
 	{
@@ -484,7 +500,10 @@ namespace pcpp
 		m_ContextStack.push_back(Context::Array);
 	}
 
-	void YamlSerializer::endArray() { m_ContextStack.pop_back(); }
+	void YamlSerializer::endArray()
+	{
+		m_ContextStack.pop_back();
+	}
 
 	void YamlSerializer::writeField(const FieldDescriptor& field, const std::string& value)
 	{
@@ -577,255 +596,295 @@ namespace pcpp
 	// XmlSerializer
 	// ============================================================
 
-	namespace {
-	    // XML 1.0 reserved characters that need escaping
-	    const std::string XML_ESCAPE_TABLE[128] = {
-	        // Control characters 0x00-0x1F are invalid except \t, \n, \r
-	        // They're filtered out in escapeXML
-	    };
+	namespace
+	{
+		// XML 1.0 reserved characters that need escaping
+		const std::string XML_ESCAPE_TABLE[128] = {
+			// Control characters 0x00-0x1F are invalid except \t, \n, \r
+			// They're filtered out in escapeXML
+		};
 
-	    bool isXmlControlChar(char c) {
-	        return (c >= 0x00 && c <= 0x1F) && c != '\t' && c != '\n' && c != '\r';
-	    }
-	}
+		bool isXmlControlChar(char c)
+		{
+			return (c >= 0x00 && c <= 0x1F) && c != '\t' && c != '\n' && c != '\r';
+		}
+	}  // namespace
 
 	XmlSerializer::XmlSerializer(std::ostream& out, bool prettyPrint, const std::string& indentStr)
 	    : m_Out(out), m_PrettyPrint(prettyPrint), m_IndentStr(indentStr)
 	{
-	    // Write XML declaration
-	    m_Out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+		// Write XML declaration
+		m_Out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	}
 
 	void XmlSerializer::startObject(const FieldDescriptor& field)
 	{
-	    Context ctx;
-	    ctx.name = isValidXMLName(field.name) ? field.name : "object";
-	    ctx.isArray = false;
-	    ctx.hasChildren = false;
-	    ctx.isRoot = m_ContextStack.empty();
+		Context ctx;
+		ctx.name = isValidXMLName(field.name) ? field.name : "object";
+		ctx.isArray = false;
+		ctx.hasChildren = false;
+		ctx.isRoot = m_ContextStack.empty();
 
-	    if (!ctx.isRoot) {
-	        // Check if we need to close a previous value tag
-	        if (!m_ContextStack.empty() && !m_ContextStack.back().isArray) {
-	            // We're in an object context - write as a nested element
-	            if (m_ContextStack.back().hasChildren) {
-	                // We already have children, but we're adding a new object
-	                // This happens when an object has multiple children
-	            }
-	        }
-	    }
+		if (!ctx.isRoot)
+		{
+			// Check if we need to close a previous value tag
+			if (!m_ContextStack.empty() && !m_ContextStack.back().isArray)
+			{
+				// We're in an object context - write as a nested element
+				if (m_ContextStack.back().hasChildren)
+				{
+					// We already have children, but we're adding a new object
+					// This happens when an object has multiple children
+				}
+			}
+		}
 
-	    writeIndent();
-	    writeOpenTag(ctx.name, false);
-	    m_ContextStack.push_back(ctx);
+		writeIndent();
+		writeOpenTag(ctx.name, false);
+		m_ContextStack.push_back(ctx);
 	}
 
 	void XmlSerializer::endObject()
 	{
-	    if (m_ContextStack.empty()) return; // Unbalanced call - ignore
+		if (m_ContextStack.empty())
+			return;  // Unbalanced call - ignore
 
-	    Context ctx = m_ContextStack.back();
-	    m_ContextStack.pop_back();
+		Context ctx = m_ContextStack.back();
+		m_ContextStack.pop_back();
 
-	    writeIndent();
-	    writeCloseTag(ctx.name);
+		writeIndent();
+		writeCloseTag(ctx.name);
 
-	    if (m_ContextStack.empty()) {
-	        // Root object closed - all done
-	        m_Out << "\n";
-	    }
+		if (m_ContextStack.empty())
+		{
+			// Root object closed - all done
+			m_Out << "\n";
+		}
 	}
 
 	void XmlSerializer::startArray(const FieldDescriptor& field)
 	{
-	    Context ctx;
-	    ctx.name = isValidXMLName(field.name) ? field.name : "array";
-	    ctx.isArray = true;
-	    ctx.hasChildren = false;
-	    ctx.isRoot = m_ContextStack.empty();
+		Context ctx;
+		ctx.name = isValidXMLName(field.name) ? field.name : "array";
+		ctx.isArray = true;
+		ctx.hasChildren = false;
+		ctx.isRoot = m_ContextStack.empty();
 
-	    writeIndent();
-	    writeOpenTag(ctx.name, false);
-	    m_ContextStack.push_back(ctx);
+		writeIndent();
+		writeOpenTag(ctx.name, false);
+		m_ContextStack.push_back(ctx);
 	}
 
 	void XmlSerializer::endArray()
 	{
-	    if (m_ContextStack.empty()) return;
+		if (m_ContextStack.empty())
+			return;
 
-	    Context ctx = m_ContextStack.back();
-	    m_ContextStack.pop_back();
+		Context ctx = m_ContextStack.back();
+		m_ContextStack.pop_back();
 
-	    writeIndent();
-	    writeCloseTag(ctx.name);
+		writeIndent();
+		writeCloseTag(ctx.name);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, const std::string& value)
 	{
-	    std::string name = isValidXMLName(field.name) ? field.name : "field";
-	    writeValueElement(name, escapeXML(value), false);
+		std::string name = isValidXMLName(field.name) ? field.name : "field";
+		writeValueElement(name, escapeXML(value), false);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, int64_t value)
 	{
-	    std::string name = isValidXMLName(field.name) ? field.name : "field";
-	    writeValueElement(name, std::to_string(value), false);
+		std::string name = isValidXMLName(field.name) ? field.name : "field";
+		writeValueElement(name, std::to_string(value), false);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, uint64_t value)
 	{
-	    std::string name = isValidXMLName(field.name) ? field.name : "field";
-	    writeValueElement(name, std::to_string(value), false);
+		std::string name = isValidXMLName(field.name) ? field.name : "field";
+		writeValueElement(name, std::to_string(value), false);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, double value)
 	{
-	    std::string name = isValidXMLName(field.name) ? field.name : "field";
-	    std::string strVal = std::to_string(value);
-	    // Remove trailing zeros for cleaner output
-	    size_t pos = strVal.find_last_not_of('0');
-	    if (pos != std::string::npos && strVal[pos] == '.') {
-	        strVal.erase(pos);
-	    }
-	    writeValueElement(name, strVal, false);
+		std::string name = isValidXMLName(field.name) ? field.name : "field";
+		std::string strVal = std::to_string(value);
+		// Remove trailing zeros for cleaner output
+		size_t pos = strVal.find_last_not_of('0');
+		if (pos != std::string::npos && strVal[pos] == '.')
+		{
+			strVal.erase(pos);
+		}
+		writeValueElement(name, strVal, false);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, bool value)
 	{
-	    std::string name = isValidXMLName(field.name) ? field.name : "field";
-	    writeValueElement(name, value ? "true" : "false", false);
+		std::string name = isValidXMLName(field.name) ? field.name : "field";
+		writeValueElement(name, value ? "true" : "false", false);
 	}
 
 	void XmlSerializer::writeNullField(const FieldDescriptor& field)
 	{
-	    std::string name = isValidXMLName(field.name) ? field.name : "field";
-	    // Create an empty element with xsi:nil attribute to represent null
-	    if (!m_ContextStack.empty() && m_ContextStack.back().isArray) {
-	        // In an array: <item xsi:nil="true"/>
-	        writeIndent();
-	        m_Out << "<item xsi:nil=\"true\"/>\n";
-	    } else {
-	        writeValueElement(name, "", true);
-	    }
+		std::string name = isValidXMLName(field.name) ? field.name : "field";
+		// Create an empty element with xsi:nil attribute to represent null
+		if (!m_ContextStack.empty() && m_ContextStack.back().isArray)
+		{
+			// In an array: <item xsi:nil="true"/>
+			writeIndent();
+			m_Out << "<item xsi:nil=\"true\"/>\n";
+		}
+		else
+		{
+			writeValueElement(name, "", true);
+		}
 	}
 
 	void XmlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
 	{
-	    std::string name = isValidXMLName(field.name) ? field.name : "field";
-	    std::string hexStr = formatHex(value, widthBytes); // Reuse existing formatHex
-	    writeValueElement(name, hexStr, false);
+		std::string name = isValidXMLName(field.name) ? field.name : "field";
+		std::string hexStr = formatHex(value, widthBytes);  // Reuse existing formatHex
+		writeValueElement(name, hexStr, false);
 	}
 
 	// --- Private helper methods ---
 
 	void XmlSerializer::writeOpenTag(const std::string& name, bool selfClosing)
 	{
-	    m_Out << '<' << name;
-	    if (selfClosing) {
-	        m_Out << "/>";
-	    } else {
-	        m_Out << '>';
-	    }
-	    if (m_PrettyPrint) {
-	        m_Out << '\n';
-	    }
+		m_Out << '<' << name;
+		if (selfClosing)
+		{
+			m_Out << "/>";
+		}
+		else
+		{
+			m_Out << '>';
+		}
+		if (m_PrettyPrint)
+		{
+			m_Out << '\n';
+		}
 	}
 
 	void XmlSerializer::writeCloseTag(const std::string& name)
 	{
-	    m_Out << "</" << name << '>';
-	    if (m_PrettyPrint) {
-	        m_Out << '\n';
-	    }
+		m_Out << "</" << name << '>';
+		if (m_PrettyPrint)
+		{
+			m_Out << '\n';
+		}
 	}
 
 	void XmlSerializer::writeValueElement(const std::string& name, const std::string& value, bool isNull)
 	{
-	    writeIndent();
-	    m_Out << '<' << name;
+		writeIndent();
+		m_Out << '<' << name;
 
-	    if (isNull) {
-	        m_Out << " xsi:nil=\"true\"";
-	    }
+		if (isNull)
+		{
+			m_Out << " xsi:nil=\"true\"";
+		}
 
-	    if (value.empty() && !isNull) {
-	        // Empty value - self-closing tag
-	        m_Out << "/>\n";
-	    } else {
-	        m_Out << '>' << value << "</" << name << ">\n";
-	    }
+		if (value.empty() && !isNull)
+		{
+			// Empty value - self-closing tag
+			m_Out << "/>\n";
+		}
+		else
+		{
+			m_Out << '>' << value << "</" << name << ">\n";
+		}
 
-	    // Mark parent as having children
-	    if (!m_ContextStack.empty()) {
-	        m_ContextStack.back().hasChildren = true;
-	    }
+		// Mark parent as having children
+		if (!m_ContextStack.empty())
+		{
+			m_ContextStack.back().hasChildren = true;
+		}
 	}
 
 	void XmlSerializer::writeIndent()
 	{
-	    if (!m_PrettyPrint || m_ContextStack.empty()) return;
+		if (!m_PrettyPrint || m_ContextStack.empty())
+			return;
 
-	    size_t depth = m_ContextStack.size();
-	    // Cache indentation strings for performance
-	    if (m_IndentCache.size() <= depth) {
-	        m_IndentCache.resize(depth + 1);
-	        std::string indent;
-	        for (size_t i = 0; i < depth; ++i) {
-	            indent += m_IndentStr;
-	        }
-	        m_IndentCache[depth] = indent;
-	    }
-	    m_Out << m_IndentCache[depth];
+		size_t depth = m_ContextStack.size();
+		// Cache indentation strings for performance
+		if (m_IndentCache.size() <= depth)
+		{
+			m_IndentCache.resize(depth + 1);
+			std::string indent;
+			for (size_t i = 0; i < depth; ++i)
+			{
+				indent += m_IndentStr;
+			}
+			m_IndentCache[depth] = indent;
+		}
+		m_Out << m_IndentCache[depth];
 	}
 
 	void XmlSerializer::writeRaw(const std::string& str)
 	{
-	    m_Out << str;
+		m_Out << str;
 	}
 
 	std::string XmlSerializer::escapeXML(const std::string& s)
 	{
-	    std::string result;
-	    result.reserve(s.size() * 1.2); // Pre-allocate for typical expansion
+		std::string result;
+		result.reserve(s.size() * 1.2);  // Pre-allocate for typical expansion
 
-	    for (char c : s) {
-	        // Filter out invalid XML control characters
-	        if (isXmlControlChar(c)) continue;
+		for (char c : s)
+		{
+			// Filter out invalid XML control characters
+			if (isXmlControlChar(c))
+				continue;
 
-	        switch (c) {
-	            case '&':  result += "&amp;"; break;
-	            case '<':  result += "&lt;"; break;
-	            case '>':  result += "&gt;"; break;
-	            case '"':  result += "&quot;"; break;
-	            case '\'': result += "&apos;"; break;
-	            default:   result += c; break;
-	        }
-	    }
-	    return result;
+			switch (c)
+			{
+			case '&':
+				result += "&amp;";
+				break;
+			case '<':
+				result += "&lt;";
+				break;
+			case '>':
+				result += "&gt;";
+				break;
+			case '"':
+				result += "&quot;";
+				break;
+			case '\'':
+				result += "&apos;";
+				break;
+			default:
+				result += c;
+				break;
+			}
+		}
+		return result;
 	}
 
 	bool XmlSerializer::isValidXMLName(const std::string& name)
 	{
-	    if (name.empty()) return false;
+		if (name.empty())
+			return false;
 
-	    // XML names must start with a letter or underscore
-	    char first = name[0];
-	    if (!((first >= 'a' && first <= 'z') ||
-	          (first >= 'A' && first <= 'Z') ||
-	          first == '_' || first == ':')) {
-	        return false;
-	    }
+		// XML names must start with a letter or underscore
+		char first = name[0];
+		if (!((first >= 'a' && first <= 'z') || (first >= 'A' && first <= 'Z') || first == '_' || first == ':'))
+		{
+			return false;
+		}
 
-	    // Subsequent characters can be letters, digits, or certain punctuation
-	    for (size_t i = 1; i < name.length(); ++i) {
-	        char c = name[i];
-	        if (!((c >= 'a' && c <= 'z') ||
-	              (c >= 'A' && c <= 'Z') ||
-	              (c >= '0' && c <= '9') ||
-	              c == '_' || c == '-' || c == '.' || c == ':')) {
-	            return false;
-	        }
-	    }
-	    return true;
+		// Subsequent characters can be letters, digits, or certain punctuation
+		for (size_t i = 1; i < name.length(); ++i)
+		{
+			char c = name[i];
+			if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-' ||
+			      c == '.' || c == ':'))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }  // namespace pcpp

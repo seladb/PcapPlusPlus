@@ -27,9 +27,9 @@ namespace pcpp
 		std::string name;
 	};
 
-        class ScopeBase;
-        class ArrayScope;
-        class ObjectScope;
+	class ScopeBase;
+	class ArrayScope;
+	class ObjectScope;
 
 	/// @class ISerializer
 	/// Abstract interface for serializing structured data into a
@@ -69,6 +69,7 @@ namespace pcpp
 		friend class ScopeBase;
 		friend class ArrayScope;
 		friend class ObjectScope;
+
 	public:
 		virtual ~ISerializer() = default;
 
@@ -90,16 +91,16 @@ namespace pcpp
 		// excluding bool (which has its own exact overload above and must
 		// never fall through to these).
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
-		                                                    !std::is_same<T, bool>::value,
-		                                                int>::type = 0>
+		                                                  !std::is_same<T, bool>::value,
+		                                              int>::type = 0>
 		void writeField(const FieldDescriptor& field, T value)
 		{
 			writeField(field, static_cast<int64_t>(value));
 		}
 
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value &&
-		                                                    !std::is_same<T, bool>::value,
-		                                                int>::type = 0>
+		                                                  !std::is_same<T, bool>::value,
+		                                              int>::type = 0>
 		void writeField(const FieldDescriptor& field, T value)
 		{
 			writeField(field, static_cast<uint64_t>(value));
@@ -111,8 +112,8 @@ namespace pcpp
 		// type first if you need to hex-format it.
 		virtual void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) = 0;
 
-		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value,
-		                                                int>::type = 0>
+		template <typename T,
+		          typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, int>::type = 0>
 		void writeHexField(const FieldDescriptor& field, T value)
 		{
 			writeHexField(field, static_cast<uint64_t>(value), static_cast<int>(sizeof(T)));
@@ -141,34 +142,30 @@ namespace pcpp
 		void writeNullField(const FieldDescriptor& field) override;
 		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
 
-		template <typename T,
-			  typename std::enable_if<
-			      std::is_integral<T>::value &&
-			      std::is_signed<T>::value &&
-			      !std::is_same<T, bool>::value,
-			      int>::type = 0>
+		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
+		                                                  !std::is_same<T, bool>::value,
+		                                              int>::type = 0>
 		void writeField(const FieldDescriptor& field, T value)
 		{
-		    writeField(field, static_cast<int64_t>(value));
+			writeField(field, static_cast<int64_t>(value));
 		}
 
-		template <typename T,
-			  typename std::enable_if<
-			      std::is_integral<T>::value &&
-			      std::is_unsigned<T>::value &&
-			      !std::is_same<T, bool>::value,
-			      int>::type = 0>
+		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value &&
+		                                                  !std::is_same<T, bool>::value,
+		                                              int>::type = 0>
 		void writeField(const FieldDescriptor& field, T value)
 		{
-		    writeField(field, static_cast<uint64_t>(value));
+			writeField(field, static_cast<uint64_t>(value));
 		}
+
 	protected:
 		void startObject(const FieldDescriptor& field) override;
 		void endObject() override;
 		void startArray(const FieldDescriptor& field) override;
 		void endArray() override;
 
-		explicit ScopeBase(ISerializer* serializer) : m_Serializer(serializer) {}
+		explicit ScopeBase(ISerializer* serializer) : m_Serializer(serializer)
+		{}
 		ISerializer* m_Serializer;
 	};
 
@@ -373,23 +370,23 @@ namespace pcpp
 	class XmlSerializer : public ISerializer
 	{
 	public:
-	    using ISerializer::writeField;
-	    using ISerializer::writeHexField;
+		using ISerializer::writeField;
+		using ISerializer::writeHexField;
 
-	    explicit XmlSerializer(std::ostream& out, bool prettyPrint = true, const std::string& indentStr = "  ");
-	    ~XmlSerializer() override = default;
+		explicit XmlSerializer(std::ostream& out, bool prettyPrint = true, const std::string& indentStr = "  ");
+		~XmlSerializer() override = default;
 
-	    // Non-copyable to avoid stream ownership issues
-	    XmlSerializer(const XmlSerializer&) = delete;
-	    XmlSerializer& operator=(const XmlSerializer&) = delete;
+		// Non-copyable to avoid stream ownership issues
+		XmlSerializer(const XmlSerializer&) = delete;
+		XmlSerializer& operator=(const XmlSerializer&) = delete;
 
-	    void writeField(const FieldDescriptor& field, const std::string& value) override;
-	    void writeField(const FieldDescriptor& field, int64_t value) override;
-	    void writeField(const FieldDescriptor& field, uint64_t value) override;
-	    void writeField(const FieldDescriptor& field, double value) override;
-	    void writeField(const FieldDescriptor& field, bool value) override;
-	    void writeNullField(const FieldDescriptor& field) override;
-	    void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+		void writeField(const FieldDescriptor& field, const std::string& value) override;
+		void writeField(const FieldDescriptor& field, int64_t value) override;
+		void writeField(const FieldDescriptor& field, uint64_t value) override;
+		void writeField(const FieldDescriptor& field, double value) override;
+		void writeField(const FieldDescriptor& field, bool value) override;
+		void writeNullField(const FieldDescriptor& field) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
 
 	protected:
 		void startObject(const FieldDescriptor& field) override;
@@ -398,33 +395,34 @@ namespace pcpp
 		void endArray() override;
 
 	private:
-	    struct Context {
-	        std::string name;      // Element name
-	        bool isArray;          // True if this is an array container
-	        bool hasChildren;      // True if we've written any child to this element
-	        bool isRoot;           // True for the outermost element (no indentation)
-	    };
+		struct Context
+		{
+			std::string name;  // Element name
+			bool isArray;      // True if this is an array container
+			bool hasChildren;  // True if we've written any child to this element
+			bool isRoot;       // True for the outermost element (no indentation)
+		};
 
-	    // Core writing methods
-	    void writeOpenTag(const std::string& name, bool selfClosing = false);
-	    void writeCloseTag(const std::string& name);
-	    void writeValueElement(const std::string& name, const std::string& value, bool isNull = false);
-	    void writeIndent();
-	    void writeRaw(const std::string& str);
+		// Core writing methods
+		void writeOpenTag(const std::string& name, bool selfClosing = false);
+		void writeCloseTag(const std::string& name);
+		void writeValueElement(const std::string& name, const std::string& value, bool isNull = false);
+		void writeIndent();
+		void writeRaw(const std::string& str);
 
-	    // XML escaping (handles &, <, >, ", ')
-	    static std::string escapeXML(const std::string& s);
+		// XML escaping (handles &, <, >, ", ')
+		static std::string escapeXML(const std::string& s);
 
-	    // Checks if a string is safe to use as an XML name
-	    static bool isValidXMLName(const std::string& name);
+		// Checks if a string is safe to use as an XML name
+		static bool isValidXMLName(const std::string& name);
 
-	    // State
-	    std::ostream& m_Out;
-	    std::vector<Context> m_ContextStack;
-	    bool m_PrettyPrint;
-	    std::string m_IndentStr;
+		// State
+		std::ostream& m_Out;
+		std::vector<Context> m_ContextStack;
+		bool m_PrettyPrint;
+		std::string m_IndentStr;
 
-	    // Optimization: pre-allocate indentation strings
-	    mutable std::vector<std::string> m_IndentCache;
+		// Optimization: pre-allocate indentation strings
+		mutable std::vector<std::string> m_IndentCache;
 	};
 }  // namespace pcpp

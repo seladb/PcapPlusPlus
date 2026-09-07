@@ -625,11 +625,11 @@ namespace pcpp
 		return true;
 	}
 
-	const FieldDescriptor IPv4Layer::SerializedFields::SrcIp{ Layer::SerializedFields::MaxID + 1, "srcIP"};
-	const FieldDescriptor IPv4Layer::SerializedFields::DstIp{ Layer::SerializedFields::MaxID + 2, "dstIP"};
-	const FieldDescriptor IPv4Layer::SerializedFields::IpId{ Layer::SerializedFields::MaxID + 3, "ipID"};
-	const FieldDescriptor IPv4Layer::SerializedFields::IpProtocol{ Layer::SerializedFields::MaxID + 4, "ipProtocol"};
-	const FieldDescriptor IPv4Layer::SerializedFields::TotalLength{ Layer::SerializedFields::MaxID + 5, "totalLength"};
+	const FieldDescriptor IPv4Layer::SerializedFields::SrcIp{ Layer::SerializedFields::MaxID + 1, "srcIP" };
+	const FieldDescriptor IPv4Layer::SerializedFields::DstIp{ Layer::SerializedFields::MaxID + 2, "dstIP" };
+	const FieldDescriptor IPv4Layer::SerializedFields::IpId{ Layer::SerializedFields::MaxID + 3, "ipID" };
+	const FieldDescriptor IPv4Layer::SerializedFields::IpProtocol{ Layer::SerializedFields::MaxID + 4, "ipProtocol" };
+	const FieldDescriptor IPv4Layer::SerializedFields::TotalLength{ Layer::SerializedFields::MaxID + 5, "totalLength" };
 
 	void IPv4Layer::internalSerialize(ISerializer& serializer) const
 	{

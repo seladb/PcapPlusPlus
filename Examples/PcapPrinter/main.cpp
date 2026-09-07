@@ -72,7 +72,6 @@ void printAppVersion()
 	exit(0);
 }
 
-
 /**
  * print file summary based on the reader type
  */
