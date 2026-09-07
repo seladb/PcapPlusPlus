@@ -539,42 +539,36 @@ PTF_TEST_CASE(TestPacketSerialize)
 		MeasureTime timer("Serialize packets - json 1");
 		std::ofstream file("packets.json");
 		pcpp::JsonSerializer serializer(file);
-		serializer.startArray(packets);
+		auto packetArray = serializer.writeArray(packets);
 
 		for (const auto* packet : packetPtrVec)
 		{
-			packet->serialize(serializer);
+			packet->serialize(packetArray);
 		}
-
-		serializer.endArray();
 	}
 
 	{
 		MeasureTime timer("Serialize packets - xml");
 		std::ofstream file("packets.xml");
 		pcpp::XmlSerializer serializer(file);
-		serializer.startArray(packets);
+		auto packetArray = serializer.writeArray(packets);
 
 		for (const auto* packet : packetPtrVec)
 		{
-			packet->serialize(serializer);
+			packet->serialize(packetArray);
 		}
-
-		serializer.endArray();
 	}
 
 	{
 		MeasureTime timer("Serialize packets - yaml");
 		std::ofstream file("packets.yaml");
 		pcpp::YamlSerializer serializer(file);
-		serializer.startArray(packets);
+		auto packetArray = serializer.writeArray(packets);
 
 		for (const auto* packet : packetPtrVec)
 		{
-			packet->serialize(serializer);
+			packet->serialize(packetArray);
 		}
-
-		serializer.endArray();
 	}
 
 	// {

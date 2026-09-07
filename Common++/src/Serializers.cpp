@@ -59,6 +59,107 @@ namespace pcpp
 
 	}  // namespace
 
+    // ============================================================
+    // ISerializer
+    // ============================================================
+
+    ArrayScope ISerializer::writeArray(const FieldDescriptor& field)
+    {
+        return { this, field };
+    }
+
+    ObjectScope ISerializer::writeObject(const FieldDescriptor& field)
+    {
+        return { this, field };
+    }
+
+	// ============================================================
+	// ScopeBase
+	// ============================================================
+
+    void ScopeBase::writeField(const FieldDescriptor& field, const std::string& value)
+    {
+        m_Serializer->writeField(field, value);
+    }
+
+    void ScopeBase::writeField(const FieldDescriptor& field, int64_t value)
+    {
+        m_Serializer->writeField(field, value);
+    }
+
+    void ScopeBase::writeField(const FieldDescriptor& field, uint64_t value)
+    {
+        m_Serializer->writeField(field, value);
+    }
+
+    void ScopeBase::writeField(const FieldDescriptor& field, double value)
+    {
+        m_Serializer->writeField(field, value);
+    }
+
+    void ScopeBase::writeField(const FieldDescriptor& field, bool value)
+    {
+        m_Serializer->writeField(field, value);
+    }
+
+    void ScopeBase::writeNullField(const FieldDescriptor& field)
+    {
+        m_Serializer->writeNullField(field);
+    }
+
+    void ScopeBase::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
+    {
+        m_Serializer->writeHexField(field, value, widthBytes);
+    }
+
+	void ScopeBase::startObject(const FieldDescriptor& field)
+	{
+		m_Serializer->startObject(field);
+	}
+
+	void ScopeBase::endObject()
+	{
+		m_Serializer->endObject();
+	}
+
+	void ScopeBase::startArray(const FieldDescriptor& field)
+	{
+		m_Serializer->startArray(field);
+	}
+
+	void ScopeBase::endArray()
+	{
+		m_Serializer->endArray();
+	}
+
+	// ============================================================
+    // ArrayScope
+	// ============================================================
+
+	ArrayScope::ArrayScope(ISerializer* serializer, const FieldDescriptor& field) : ScopeBase(serializer)
+	{
+	    m_Serializer->startArray(field);
+	}
+
+    ArrayScope::~ArrayScope()
+    {
+        m_Serializer->endArray();
+    }
+
+	// ============================================================
+    // ObjectScope
+	// ============================================================
+
+	ObjectScope::ObjectScope(ISerializer* serializer, const FieldDescriptor& field) : ScopeBase(serializer)
+	{
+	    m_Serializer->startObject(field);
+	}
+
+    ObjectScope::~ObjectScope()
+    {
+        m_Serializer->endObject();
+    }
+
 	// ============================================================
 	// JsonSerializer
 	// ============================================================

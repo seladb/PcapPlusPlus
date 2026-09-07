@@ -612,39 +612,38 @@ namespace pcpp
 		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));
 		serializer.writeField(SerializedFields::DstPort, netToHost16(header->portDst));
 		serializer.writeField(SerializedFields::SequenceNumber, netToHost32(header->sequenceNumber));
-		serializer.startArray(SerializedFields::TcpFlags);
+		auto tcpFlagsArray = serializer.writeArray(SerializedFields::TcpFlags);
 		if (header->finFlag)
 		{
-			serializer.writeField(SerializedFields::TcpFlag, "FIN");
+			tcpFlagsArray.writeField(SerializedFields::TcpFlag, "FIN");
 		}
 		if (header->synFlag)
 		{
-			serializer.writeField(SerializedFields::TcpFlag, "SYN");
+			tcpFlagsArray.writeField(SerializedFields::TcpFlag, "SYN");
 		}
 		if (header->rstFlag)
 		{
-			serializer.writeField(SerializedFields::TcpFlag, "RST");
+			tcpFlagsArray.writeField(SerializedFields::TcpFlag, "RST");
 		}
 		if (header->pshFlag)
 		{
-			serializer.writeField(SerializedFields::TcpFlag, "PSH");
+			tcpFlagsArray.writeField(SerializedFields::TcpFlag, "PSH");
 		}
 		if (header->ackFlag)
 		{
-			serializer.writeField(SerializedFields::TcpFlag, "ACK");
+			tcpFlagsArray.writeField(SerializedFields::TcpFlag, "ACK");
 		}
 		if (header->urgFlag)
 		{
-			serializer.writeField(SerializedFields::TcpFlag, "URG");
+			tcpFlagsArray.writeField(SerializedFields::TcpFlag, "URG");
 		}
 		if (header->eceFlag)
 		{
-			serializer.writeField(SerializedFields::TcpFlag, "ECE");
+			tcpFlagsArray.writeField(SerializedFields::TcpFlag, "ECE");
 		}
 		if (header->cwrFlag)
 		{
-			serializer.writeField(SerializedFields::TcpFlag, "CWR");
+			tcpFlagsArray.writeField(SerializedFields::TcpFlag, "CWR");
 		}
-		serializer.endArray();
 	}
 }  // namespace pcpp

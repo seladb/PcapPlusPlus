@@ -27,6 +27,10 @@ namespace pcpp
 		std::string name;
 	};
 
+        class ScopeBase;
+        class ArrayScope;
+        class ObjectScope;
+
 	/// @class ISerializer
 	/// Abstract interface for serializing structured data into a
 	/// machine-readable format (JSON, YAML, XML, ...). Deliberately knows
@@ -62,14 +66,11 @@ namespace pcpp
 	/// can't move to Serializers.cpp.
 	class ISerializer
 	{
+		friend class ScopeBase;
+		friend class ArrayScope;
+		friend class ObjectScope;
 	public:
 		virtual ~ISerializer() = default;
-
-		// --- Generic containers ---
-		virtual void startObject(const FieldDescriptor& field) = 0;
-		virtual void endObject() = 0;
-		virtual void startArray(const FieldDescriptor& field) = 0;
-		virtual void endArray() = 0;
 
 		// --- Scalar field writes (canonical virtuals) ---
 		virtual void writeField(const FieldDescriptor& field, const std::string& value) = 0;
@@ -116,6 +117,77 @@ namespace pcpp
 		{
 			writeHexField(field, static_cast<uint64_t>(value), static_cast<int>(sizeof(T)));
 		}
+
+		ArrayScope writeArray(const FieldDescriptor& field);
+		ObjectScope writeObject(const FieldDescriptor& field);
+
+	protected:
+		virtual void startObject(const FieldDescriptor& field) = 0;
+		virtual void endObject() = 0;
+		virtual void startArray(const FieldDescriptor& field) = 0;
+		virtual void endArray() = 0;
+	};
+
+	class ScopeBase : public ISerializer
+	{
+	public:
+		using ISerializer::writeField;
+
+		void writeField(const FieldDescriptor& field, const std::string& value) override;
+		void writeField(const FieldDescriptor& field, int64_t value) override;
+		void writeField(const FieldDescriptor& field, uint64_t value) override;
+		void writeField(const FieldDescriptor& field, double value) override;
+		void writeField(const FieldDescriptor& field, bool value) override;
+		void writeNullField(const FieldDescriptor& field) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+
+		template <typename T,
+			  typename std::enable_if<
+			      std::is_integral<T>::value &&
+			      std::is_signed<T>::value &&
+			      !std::is_same<T, bool>::value,
+			      int>::type = 0>
+		void writeField(const FieldDescriptor& field, T value)
+		{
+		    writeField(field, static_cast<int64_t>(value));
+		}
+
+		template <typename T,
+			  typename std::enable_if<
+			      std::is_integral<T>::value &&
+			      std::is_unsigned<T>::value &&
+			      !std::is_same<T, bool>::value,
+			      int>::type = 0>
+		void writeField(const FieldDescriptor& field, T value)
+		{
+		    writeField(field, static_cast<uint64_t>(value));
+		}
+	protected:
+		void startObject(const FieldDescriptor& field) override;
+		void endObject() override;
+		void startArray(const FieldDescriptor& field) override;
+		void endArray() override;
+
+		explicit ScopeBase(ISerializer* serializer) : m_Serializer(serializer) {}
+		ISerializer* m_Serializer;
+	};
+
+	class ArrayScope : public ScopeBase
+	{
+	public:
+		using ScopeBase::writeField;
+
+		ArrayScope(ISerializer* serializer, const FieldDescriptor& field);
+		~ArrayScope() override;
+	};
+
+	class ObjectScope : public ScopeBase
+	{
+	public:
+		using ScopeBase::writeField;
+
+		ObjectScope(ISerializer* serializer, const FieldDescriptor& field);
+		~ObjectScope() override;
 	};
 
 	/// @class JsonSerializer
@@ -132,11 +204,6 @@ namespace pcpp
 
 		explicit JsonSerializer(std::ostream& out);
 
-		void startObject(const FieldDescriptor& field) override;
-		void endObject() override;
-		void startArray(const FieldDescriptor& field) override;
-		void endArray() override;
-
 		void writeField(const FieldDescriptor& field, const std::string& value) override;
 		void writeField(const FieldDescriptor& field, int64_t value) override;
 		void writeField(const FieldDescriptor& field, uint64_t value) override;
@@ -144,6 +211,12 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
 		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+
+	protected:
+		void startObject(const FieldDescriptor& field) override;
+		void endObject() override;
+		void startArray(const FieldDescriptor& field) override;
+		void endArray() override;
 
 	private:
 		enum class Context
@@ -197,11 +270,6 @@ namespace pcpp
 		JsonSerializer2(const JsonSerializer2&) = delete;
 		JsonSerializer2& operator=(const JsonSerializer2&) = delete;
 
-		void startObject(const FieldDescriptor& field) override;
-		void endObject() override;
-		void startArray(const FieldDescriptor& field) override;
-		void endArray() override;
-
 		void writeField(const FieldDescriptor& field, const std::string& value) override;
 		void writeField(const FieldDescriptor& field, int64_t value) override;
 		void writeField(const FieldDescriptor& field, uint64_t value) override;
@@ -209,6 +277,12 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
 		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+
+	protected:
+		void startObject(const FieldDescriptor& field) override;
+		void endObject() override;
+		void startArray(const FieldDescriptor& field) override;
+		void endArray() override;
 
 	private:
 		struct Impl;
@@ -241,11 +315,6 @@ namespace pcpp
 
 		explicit YamlSerializer(std::ostream& out);
 
-		void startObject(const FieldDescriptor& field) override;
-		void endObject() override;
-		void startArray(const FieldDescriptor& field) override;
-		void endArray() override;
-
 		void writeField(const FieldDescriptor& field, const std::string& value) override;
 		void writeField(const FieldDescriptor& field, int64_t value) override;
 		void writeField(const FieldDescriptor& field, uint64_t value) override;
@@ -253,6 +322,12 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
 		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+
+	protected:
+		void startObject(const FieldDescriptor& field) override;
+		void endObject() override;
+		void startArray(const FieldDescriptor& field) override;
+		void endArray() override;
 
 	private:
 		enum class Context
@@ -308,11 +383,6 @@ namespace pcpp
 	    XmlSerializer(const XmlSerializer&) = delete;
 	    XmlSerializer& operator=(const XmlSerializer&) = delete;
 
-	    void startObject(const FieldDescriptor& field) override;
-	    void endObject() override;
-	    void startArray(const FieldDescriptor& field) override;
-	    void endArray() override;
-
 	    void writeField(const FieldDescriptor& field, const std::string& value) override;
 	    void writeField(const FieldDescriptor& field, int64_t value) override;
 	    void writeField(const FieldDescriptor& field, uint64_t value) override;
@@ -320,6 +390,12 @@ namespace pcpp
 	    void writeField(const FieldDescriptor& field, bool value) override;
 	    void writeNullField(const FieldDescriptor& field) override;
 	    void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+
+	protected:
+		void startObject(const FieldDescriptor& field) override;
+		void endObject() override;
+		void startArray(const FieldDescriptor& field) override;
+		void endArray() override;
 
 	private:
 	    struct Context {
