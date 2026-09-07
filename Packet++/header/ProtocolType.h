@@ -260,6 +260,9 @@ namespace pcpp
 	/// FTP protocol family (FTPControl and FtpData protocols)
 	const ProtocolTypeFamily FTP = 0x3c29;
 
+	/// QUIC v1 protocol
+	const ProtocolType QUICv1 = 64;
+
 	/// @}
 
 	/// An enum representing OSI model layers
