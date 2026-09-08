@@ -70,7 +70,7 @@ namespace pcpp
 		auto layerObject = serializer.writeObject(LayerObject);
 		layerObject.writeField(SerializedFields::ProtocolId, m_Protocol);
 		layerObject.writeField(SerializedFields::ProtocolName, protocolTypeToString(m_Protocol));
-		internalSerialize(layerObject);
+		serializeLayer(layerObject);
 	}
 
 	void Layer::allocData(size_t dataLen, bool zeroInit)

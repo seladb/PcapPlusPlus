@@ -158,13 +158,19 @@ namespace pcpp
 
 		struct SerializedFields
 		{
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				result.insert(result.end(), { SrcMacAddress, DstMacAddress, EtherType });
+				return result;
+			}
 			static const FieldDescriptor SrcMacAddress;
 			static const FieldDescriptor DstMacAddress;
 			static const FieldDescriptor EtherType;
 		};
 
 	protected:
-		void internalSerialize(ISerializer& serializer) const override;
+		void serializeLayer(ISerializer& serializer) const override;
 	};
 
 }  // namespace pcpp

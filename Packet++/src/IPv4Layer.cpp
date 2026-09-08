@@ -631,7 +631,7 @@ namespace pcpp
 	const FieldDescriptor IPv4Layer::SerializedFields::IpProtocol{ Layer::SerializedFields::MaxID + 4, "ipProtocol" };
 	const FieldDescriptor IPv4Layer::SerializedFields::TotalLength{ Layer::SerializedFields::MaxID + 5, "totalLength" };
 
-	void IPv4Layer::internalSerialize(ISerializer& serializer) const
+	void IPv4Layer::serializeLayer(ISerializer& serializer) const
 	{
 		serializer.writeField(SerializedFields::SrcIp, getSrcIPAddress().toString());
 		serializer.writeField(SerializedFields::DstIp, getDstIPAddress().toString());

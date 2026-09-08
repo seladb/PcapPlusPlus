@@ -607,7 +607,7 @@ namespace pcpp
 	const FieldDescriptor TcpLayer::SerializedFields::TcpFlags{ Layer::SerializedFields::MaxID + 4, "tcpFlags" };
 	const FieldDescriptor TcpLayer::SerializedFields::TcpFlag{ 0, "tcpFlag" };
 
-	void TcpLayer::internalSerialize(ISerializer& serializer) const
+	void TcpLayer::serializeLayer(ISerializer& serializer) const
 	{
 		auto* header = getTcpHeader();
 		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));

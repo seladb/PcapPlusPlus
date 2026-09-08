@@ -579,6 +579,12 @@ namespace pcpp
 
 		struct SerializedFields
 		{
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				result.insert(result.end(), { SrcPort, DstPort, SequenceNumber, TcpFlags });
+				return result;
+			}
 			static const FieldDescriptor SrcPort;
 			static const FieldDescriptor DstPort;
 			static const FieldDescriptor SequenceNumber;
@@ -587,7 +593,7 @@ namespace pcpp
 		};
 
 	protected:
-		void internalSerialize(ISerializer& serializer) const override;
+		void serializeLayer(ISerializer& serializer) const override;
 
 	private:
 		TLVRecordReader<TcpOption> m_OptionReader;

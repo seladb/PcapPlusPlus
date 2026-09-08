@@ -607,6 +607,12 @@ namespace pcpp
 
 		struct SerializedFields
 		{
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				result.insert(result.end(), { SrcIp, DstIp, IpId, IpProtocol, TotalLength });
+				return result;
+			}
 			static const FieldDescriptor SrcIp;
 			static const FieldDescriptor DstIp;
 			static const FieldDescriptor IpId;
@@ -615,7 +621,7 @@ namespace pcpp
 		};
 
 	protected:
-		void internalSerialize(ISerializer& serializer) const override;
+		void serializeLayer(ISerializer& serializer) const override;
 
 	private:
 		int m_NumOfTrailingBytes;

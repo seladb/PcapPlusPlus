@@ -208,6 +208,10 @@ namespace pcpp
 
 		struct SerializedFields
 		{
+			static std::vector<FieldDescriptor> all()
+			{
+				return { ProtocolId, ProtocolName };
+			}
 			static const FieldDescriptor ProtocolId;
 			static const FieldDescriptor ProtocolName;
 			static constexpr uint16_t MaxID = 1;
@@ -570,7 +574,7 @@ namespace pcpp
 			return data != nullptr && dataLen >= sizeof(T);
 		}
 
-		virtual void internalSerialize(ISerializer& serializer) const
+		virtual void serializeLayer(ISerializer& serializer) const
 		{}
 	};
 
