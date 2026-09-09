@@ -365,13 +365,24 @@ namespace pcpp
 
 		struct SerializedFields
 		{
+			struct TimestampObject : ObjectFieldDescriptor<TimestampObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Sec, NSec };
+				}
+				static const FieldDescriptor Sec;
+				static const FieldDescriptor NSec;
+			};
+
 			static std::vector<FieldDescriptor> all()
 			{
-				return { TimestampSec, TimestampNSec, FrameLength, LinkLayer, LinkLayerName, Layers };
+				return { Timestamp, FrameLength, LinkLayer, LinkLayerName, Layers };
 			}
 
-			static const FieldDescriptor TimestampSec;
-			static const FieldDescriptor TimestampNSec;
+			static const TimestampObject Timestamp;
 			static const FieldDescriptor FrameLength;
 			static const FieldDescriptor LinkLayer;
 			static const FieldDescriptor LinkLayerName;

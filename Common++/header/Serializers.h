@@ -25,6 +25,19 @@ namespace pcpp
 	{
 		uint16_t id;
 		std::string name;
+		std::vector<FieldDescriptor> (*children)() = nullptr;
+
+		bool hasChildren() const
+		{
+			return children != nullptr;
+		}
+	};
+
+	template <typename Derived> struct ObjectFieldDescriptor : FieldDescriptor
+	{
+		ObjectFieldDescriptor(uint16_t fieldId, std::string fieldName)
+		    : FieldDescriptor{ fieldId, std::move(fieldName), &Derived::all }
+		{}
 	};
 
 	class ScopeBase;

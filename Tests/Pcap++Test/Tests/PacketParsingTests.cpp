@@ -580,9 +580,22 @@ PTF_TEST_CASE(TestPacketSerialize)
 	// 	}
 	// }
 
-	pcpp::Packet::SerializedFields::Timestamp::TimestampSec for (const auto& field :
-	                                                             pcpp::IPv4Layer::SerializedFields::all())
+	std::cout << "IPv4:" << std::endl << "============" << std::endl;
+	for (const auto& field : pcpp::IPv4Layer::SerializedFields::all())
 	{
-		std::cout << "Name: " << field.name << "; ID: " << field.id << std::endl;
+		std::cout << field.name << " (ID: " << field.id << ")" << std::endl;
+	}
+
+	std::cout << "Packet:" << std::endl << "============" << std::endl;
+	for (const auto& field : pcpp::Packet::SerializedFields::all())
+	{
+		std::cout << field.name << " (ID: " << field.id << ")" << std::endl;
+		if (field.hasChildren())
+		{
+			for (const auto& subField : field.children())
+			{
+				std::cout << "    " << subField.name << " (ID: " << subField.id << ")" << std::endl;
+			}
+		}
 	}
 }  // TestPacketSerialize

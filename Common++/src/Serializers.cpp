@@ -484,9 +484,12 @@ namespace pcpp
 	void YamlSerializer::startObject(const FieldDescriptor& field)
 	{
 		writeContainerHeader(field.name);
+		if (!m_ContextStack.empty() && m_ContextStack.back() == Context::Array)
+		{
+			m_WriteIdent = false;
+			m_WriteNewLine = false;
+		}
 		m_ContextStack.push_back(Context::Object);
-		m_WriteNewLine = false;
-		m_WriteIdent = false;
 	}
 
 	void YamlSerializer::endObject()
