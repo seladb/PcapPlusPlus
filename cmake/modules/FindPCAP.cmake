@@ -33,16 +33,28 @@
 
 find_path(PCAP_INCLUDE_DIR NAMES pcap/pcap.h pcap.h PATH_SUFFIXES include Include)
 
-# The 64-bit Wpcap.lib is located under /x64
-if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+# This logic only applies to the WinPcap/Npcap SDK's Lib directory layout.
+if(WIN32 AND NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
+  # Platform other than 32-bit x86.
   #
-  # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level directory contains 32-bit libraries. The
-  # 64-bit libraries are in the Lib/x64 directory.
+  # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level
+  # directory contains 32-bit x86 libraries; the libraries for other
+  # platforms are in subdirectories of the Lib directory whose names
+  # are the names of the supported platforms.
   #
-  # The only way to *FORCE* CMake to look in the Lib/x64 directory without searching in the Lib directory first appears
-  # to be to set CMAKE_LIBRARY_ARCHITECTURE to "x64".
+  # The only way to *FORCE* CMake to look in the appropriate
+  # subdirectory of Lib for libraries without searching in the
+  # Lib directory first appears to be to set
+  # CMAKE_LIBRARY_ARCHITECTURE to the name of the subdirectory.
   #
-  set(CMAKE_LIBRARY_ARCHITECTURE "x64")
+  if(CMAKE_GENERATOR_PLATFORM)
+    set(CMAKE_LIBRARY_ARCHITECTURE "${CMAKE_GENERATOR_PLATFORM}")
+  elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64|ARM64)$")
+    # Single-config generators like "MinGW Makefiles" don't set CMAKE_GENERATOR_PLATFORM
+    set(CMAKE_LIBRARY_ARCHITECTURE "ARM64")
+  else()
+    set(CMAKE_LIBRARY_ARCHITECTURE "x64")
+  endif()
 endif()
 
 find_library(PCAP_LIBRARY NAMES pcap wpcap)
