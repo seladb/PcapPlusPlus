@@ -663,7 +663,9 @@ namespace pcpp
 		                                                              "sequenceNumber" };
 	const FieldDescriptor TcpLayer::SerializedFields::TcpFlags{ Layer::SerializedFields::MaxID + 4, "tcpFlags" };
 	const FieldDescriptor TcpLayer::SerializedFields::TcpFlag{ 0, "tcpFlag" };
-	const FieldDescriptor TcpLayer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 5, "options" };
+	const FieldDescriptor TcpLayer::SerializedFields::WindowSize{ Layer::SerializedFields::MaxID + 5, "windowSize" };
+	const FieldDescriptor TcpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 6, "checksum" };
+	const FieldDescriptor TcpLayer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 7, "options" };
 	const FieldDescriptor TcpLayer::SerializedFields::Option{ 0, "option" };
 
 	void TcpLayer::serializeLayer(ISerializer& serializer) const
@@ -707,6 +709,8 @@ namespace pcpp
 				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "CWR");
 			}
 		}
+		serializer.writeField(SerializedFields::WindowSize, netToHost16(header->windowSize));
+		serializer.writeHexField(SerializedFields::Checksum, header->headerChecksum);
 		{
 			auto options = serializer.writeArray(SerializedFields::Options);
 			for (auto option = getFirstTcpOption(); option.isNotNull(); option = getNextTcpOption(option))

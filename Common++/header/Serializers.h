@@ -123,13 +123,13 @@ namespace pcpp
 		// Always unsigned: hex notation represents a bit pattern, not a
 		// signed magnitude. Cast a signed value to its matching unsigned
 		// type first if you need to hex-format it.
-		virtual void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) = 0;
+		virtual void writeHexField(const FieldDescriptor& field, uint64_t value) = 0;
 
 		template <typename T,
 		          typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, int>::type = 0>
 		void writeHexField(const FieldDescriptor& field, T value)
 		{
-			writeHexField(field, static_cast<uint64_t>(value), static_cast<int>(sizeof(T)));
+			writeHexField(field, static_cast<uint64_t>(value));
 		}
 
 		ArrayScope writeArray(const FieldDescriptor& field);
@@ -153,7 +153,7 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, double value) override;
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
-		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
 
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
 		                                                  !std::is_same<T, bool>::value,
@@ -220,7 +220,7 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, double value) override;
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
-		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
 
 	protected:
 		void startObject(const FieldDescriptor& field) override;
@@ -286,7 +286,7 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, double value) override;
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
-		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
 
 	protected:
 		void startObject(const FieldDescriptor& field) override;
@@ -331,7 +331,7 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, double value) override;
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
-		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
 
 	protected:
 		void startObject(const FieldDescriptor& field) override;
@@ -402,7 +402,7 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, double value) override;
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
-		void writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
 
 	protected:
 		void startObject(const FieldDescriptor& field) override;

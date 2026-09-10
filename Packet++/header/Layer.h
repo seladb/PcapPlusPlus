@@ -214,6 +214,7 @@ namespace pcpp
 			}
 			static const FieldDescriptor ProtocolId;
 			static const FieldDescriptor ProtocolName;
+			static const FieldDescriptor Length;
 			static constexpr uint16_t MaxID = 1;
 		};
 

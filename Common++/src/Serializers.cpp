@@ -6,6 +6,8 @@
 #include <sstream>
 #include "json.hpp"
 
+#include <GeneralUtils.h>
+
 namespace pcpp
 {
 	namespace
@@ -15,49 +17,19 @@ namespace pcpp
 		// by JsonSerializer and JsonSerializer2's uint64_t handling.
 		constexpr uint64_t kMaxSafeJsonInteger = 9007199254740991ULL;
 
-		/// RAII guard that saves an ostream's format flags and fill
-		/// character on construction and restores them on destruction —
-		/// including on exception unwinding. Needed because std::hex/
-		/// std::setfill are "sticky": unlike std::setw (which resets
-		/// itself after one formatted output), they persist on the stream
-		/// until explicitly changed again. Without this guard, a
-		/// hex-formatting write can leave e.g. setfill('0') active,
-		/// silently corrupting the padding of any *unrelated* later write
-		/// on the same stream.
-		class StreamStateGuard
+		void hexNumToStream(std::ostream& out, uint64_t number)
 		{
-		public:
-			explicit StreamStateGuard(std::ostream& out) : m_Out(out), m_Flags(out.flags()), m_Fill(out.fill())
-			{}
-			~StreamStateGuard()
-			{
-				m_Out.flags(m_Flags);
-				m_Out.fill(m_Fill);
-			}
-			StreamStateGuard(const StreamStateGuard&) = delete;
-			StreamStateGuard& operator=(const StreamStateGuard&) = delete;
-
-		private:
-			std::ostream& m_Out;
-			std::ios_base::fmtflags m_Flags;
-			char m_Fill;
-		};
-
-		/// Formats `value` as "0x" followed by `widthBytes * 2` zero-padded
-		/// lowercase hex digits, masking off any bits beyond widthBytes.
-		/// Used by JsonSerializer2, which needs an actual std::string to
-		/// hand to nlohmann::json — JsonSerializer itself writes hex
-		/// directly to its ostream instead (see JsonSerializer::writeHexField).
-		std::string formatHex(uint64_t value, int widthBytes)
-		{
-			const uint64_t mask =
-			    (widthBytes >= 8) ? std::numeric_limits<uint64_t>::max() : ((uint64_t(1) << (widthBytes * 8)) - 1);
-			std::ostringstream oss;
-			oss << "0x" << std::hex << std::nouppercase << std::setfill('0') << std::setw(widthBytes * 2)
-			    << (value & mask);
-			return oss.str();
+			const std::ios_base::fmtflags flags = out.flags();
+			out << "0x" << std::hex << number;
+			out.flags(flags);
 		}
 
+		std::string hexNumToString(uint64_t number)
+		{
+			std::ostringstream oss;
+			hexNumToStream(oss, number);
+			return oss.str();
+		}
 	}  // namespace
 
 	// ============================================================
@@ -108,9 +80,9 @@ namespace pcpp
 		m_Serializer->writeNullField(field);
 	}
 
-	void ScopeBase::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
+	void ScopeBase::writeHexField(const FieldDescriptor& field, uint64_t value)
 	{
-		m_Serializer->writeHexField(field, value, widthBytes);
+		m_Serializer->writeHexField(field, value);
 	}
 
 	void ScopeBase::startObject(const FieldDescriptor& field)
@@ -241,20 +213,10 @@ namespace pcpp
 		m_Out << "null";
 	}
 
-	void JsonSerializer::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
+	void JsonSerializer::writeHexField(const FieldDescriptor& field, uint64_t value)
 	{
 		writeKey(field.name);
-		// Writes directly to m_Out (no intermediate std::string) — safe
-		// only because StreamStateGuard restores m_Out's flags/fill on
-		// scope exit, so std::hex/setfill('0') here can never leak into
-		// later, unrelated writes on the same stream.
-		const uint64_t mask =
-		    (widthBytes >= 8) ? std::numeric_limits<uint64_t>::max() : ((uint64_t(1) << (widthBytes * 8)) - 1);
-		{
-			StreamStateGuard guard(m_Out);
-			m_Out << '"' << "0x" << std::hex << std::nouppercase << std::setfill('0') << std::setw(widthBytes * 2)
-			      << (value & mask) << '"';
-		}
+		m_Out << '"' << hexNumToString(value) << '"';
 	}
 
 	void JsonSerializer::writeSeparatorIfNeeded()
@@ -423,9 +385,9 @@ namespace pcpp
 		m_Impl->assign(field.name, nullptr);
 	}
 
-	void JsonSerializer2::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
+	void JsonSerializer2::writeHexField(const FieldDescriptor& field, uint64_t value)
 	{
-		m_Impl->assign(field.name, formatHex(value, widthBytes));
+		m_Impl->assign(field.name, hexNumToString(value));
 	}
 
 	// ============================================================
@@ -564,19 +526,10 @@ namespace pcpp
 		m_Out << "null";
 	}
 
-	void YamlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
+	void YamlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value)
 	{
 		writeFieldPrefix(field.name);
-		// Same direct-to-stream approach as JsonSerializer::writeHexField
-		// (see StreamStateGuard's doc comment for why the guard is
-		// required for this to be safe).
-		const uint64_t mask =
-		    (widthBytes >= 8) ? std::numeric_limits<uint64_t>::max() : ((uint64_t(1) << (widthBytes * 8)) - 1);
-		{
-			StreamStateGuard guard(m_Out);
-			m_Out << '"' << "0x" << std::hex << std::nouppercase << std::setfill('0') << std::setw(widthBytes * 2)
-			      << (value & mask) << '"';
-		}
+		hexNumToStream(m_Out, value);
 	}
 
 	std::string YamlSerializer::escape(const std::string& s)
@@ -763,10 +716,10 @@ namespace pcpp
 		}
 	}
 
-	void XmlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value, int widthBytes)
+	void XmlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value)
 	{
 		std::string name = isValidXMLName(field.name) ? field.name : "field";
-		std::string hexStr = formatHex(value, widthBytes);  // Reuse existing formatHex
+		auto hexStr = hexNumToString(value);
 		writeValueElement(name, hexStr, false);
 	}
 
