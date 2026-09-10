@@ -463,8 +463,14 @@ namespace pcpp
 			         // indent(0)/newline here would leave a spurious leading blank line
 		writeNewlineIfNeeded();
 		writeIndent();
-		if (m_ContextStack.back() == Context::Array)
+		if (isArrayContext())
+		{
 			m_Out << "- ";
+			if (m_ContextStack.back() == Context::EmptyArray)
+			{
+				m_ContextStack.back() = Context::Array;
+			}
+		}
 		else
 			m_Out << name << ':';
 	}
@@ -473,9 +479,13 @@ namespace pcpp
 	{
 		writeNewlineIfNeeded();
 		writeIndent();
-		if (!m_ContextStack.empty() && m_ContextStack.back() == Context::Array)
+		if (isArrayContext())
 		{
 			m_Out << "- ";
+			if (m_ContextStack.back() == Context::EmptyArray)
+			{
+				m_ContextStack.back() = Context::Array;
+			}
 			return;
 		}
 		m_Out << name << ": ";  // also covers the (degenerate) root-scalar case
@@ -484,7 +494,7 @@ namespace pcpp
 	void YamlSerializer::startObject(const FieldDescriptor& field)
 	{
 		writeContainerHeader(field.name);
-		if (!m_ContextStack.empty() && m_ContextStack.back() == Context::Array)
+		if (isArrayContext())
 		{
 			m_WriteIdent = false;
 			m_WriteNewLine = false;
@@ -500,11 +510,15 @@ namespace pcpp
 	void YamlSerializer::startArray(const FieldDescriptor& field)
 	{
 		writeContainerHeader(field.name);
-		m_ContextStack.push_back(Context::Array);
+		m_ContextStack.push_back(Context::EmptyArray);
 	}
 
 	void YamlSerializer::endArray()
 	{
+		if (m_ContextStack.back() == Context::EmptyArray)
+		{
+			m_Out << " []";
+		}
 		m_ContextStack.pop_back();
 	}
 
@@ -593,6 +607,12 @@ namespace pcpp
 			}
 		}
 		return oss.str();
+	}
+
+	bool YamlSerializer::isArrayContext() const
+	{
+		return !m_ContextStack.empty() &&
+		       (m_ContextStack.back() == Context::EmptyArray || m_ContextStack.back() == Context::Array);
 	}
 
 	// ============================================================

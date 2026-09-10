@@ -342,6 +342,7 @@ namespace pcpp
 	private:
 		enum class Context
 		{
+			EmptyArray,
 			Array,
 			Object
 		};
@@ -360,6 +361,8 @@ namespace pcpp
 		// the root. Caller writes the actual value immediately after.
 		void writeFieldPrefix(const std::string& name);
 		static std::string escape(const std::string& s);
+
+		bool isArrayContext() const;
 
 		std::ostream& m_Out;
 		std::vector<Context> m_ContextStack;

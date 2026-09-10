@@ -610,7 +610,7 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				result.insert(result.end(), { SrcIp, DstIp, IpId, IpProtocol, TotalLength });
+				result.insert(result.end(), { SrcIp, DstIp, IpId, IpProtocol, TotalLength, Options });
 				return result;
 			}
 			static const FieldDescriptor SrcIp;
@@ -618,6 +618,8 @@ namespace pcpp
 			static const FieldDescriptor IpId;
 			static const FieldDescriptor IpProtocol;
 			static const FieldDescriptor TotalLength;
+			static const FieldDescriptor Options;
+			static const FieldDescriptor Option;
 		};
 
 	protected:

@@ -582,7 +582,7 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				result.insert(result.end(), { SrcPort, DstPort, SequenceNumber, TcpFlags });
+				result.insert(result.end(), { SrcPort, DstPort, SequenceNumber, TcpFlags, Options });
 				return result;
 			}
 			static const FieldDescriptor SrcPort;
@@ -590,6 +590,8 @@ namespace pcpp
 			static const FieldDescriptor SequenceNumber;
 			static const FieldDescriptor TcpFlags;
 			static const FieldDescriptor TcpFlag;
+			static const FieldDescriptor Options;
+			static const FieldDescriptor Option;
 		};
 
 	protected:
