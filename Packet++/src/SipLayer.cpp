@@ -553,6 +553,11 @@ namespace pcpp
 
 	SipRequestLayer& SipRequestLayer::operator=(const SipRequestLayer& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		SipLayer::operator=(other);
 
 		if (m_FirstLine != nullptr)
@@ -900,6 +905,11 @@ namespace pcpp
 
 	SipResponseLayer& SipResponseLayer::operator=(const SipResponseLayer& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		SipLayer::operator=(other);
 
 		if (m_FirstLine != nullptr)
