@@ -130,7 +130,7 @@ namespace pcpp
 
 	XdpDevice::~XdpDevice()
 	{
-		close();
+		XdpDevice::close();
 	}
 
 	bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS)
