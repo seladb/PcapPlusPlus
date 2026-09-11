@@ -244,4 +244,31 @@ namespace pcpp
 		return pcpp::fnvHash(vec, 2);
 	}
 
+	const FieldDescriptor PacketSerializer::Packets{ 0, "packets" };
+
+	void PacketSerializer::addPacket(const Packet& packet)
+	{
+		packet.serialize(m_Packets);
+	}
+
+	void PacketSerializer::addPacket(const Packet* packet)
+	{
+		packet->serialize(m_Packets);
+	}
+
+	void PacketSerializer::addPackets(const PointerVector<Packet>& packets)
+	{
+		for (const auto* packet : packets)
+		{
+			addPacket(packet);
+		}
+	}
+
+	void PacketSerializer::addPackets(const std::vector<Packet>& packets)
+	{
+		for (const auto& packet : packets)
+		{
+			addPacket(packet);
+		}
+	}
 }  // namespace pcpp

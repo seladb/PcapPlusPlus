@@ -10,6 +10,7 @@
 #include "PcapFileDevice.h"
 
 #include <IPv4Layer.h>
+#include <PacketUtils.h>
 
 PTF_TEST_CASE(TestHttpRequestParsing)
 {
@@ -505,9 +506,10 @@ PTF_TEST_CASE(TestPacketSerialize)
 	pcpp::RawPacket rawPacket;
 	pcpp::RawPacketVector rawPacketPtrVec;
 
+	size_t packetCount = 4709;
 	{
-		MeasureTime timer("read 4700 packets");
-		readerDev.getNextPackets(rawPacketPtrVec, 4700);
+		MeasureTime timer("Read packets");
+		readerDev.getNextPackets(rawPacketPtrVec, packetCount);
 	}
 
 	// while (readerDev.getNextPacket(rawPacket))
@@ -530,42 +532,60 @@ PTF_TEST_CASE(TestPacketSerialize)
 		}
 	}
 
-	pcpp::FieldDescriptor packets{ 0, "packets" };
-
 	{
 		MeasureTime timer("Serialize packets - json 1");
 		std::ofstream file("packets.json");
 		pcpp::JsonSerializer serializer(file);
-		auto packetArray = serializer.writeArray(packets);
+		pcpp::PacketSerializer packetSerializer(serializer);
+		packetSerializer.addPackets(packetPtrVec);
+	}
 
+	{
+		MeasureTime timer("Serialize packets - json - packet by packet");
+		std::ofstream file("packets2.json");
+		pcpp::JsonSerializer serializer(file);
+		pcpp::PacketSerializer packetSerializer(serializer);
 		for (const auto* packet : packetPtrVec)
 		{
-			packet->serialize(packetArray);
+			packetSerializer.addPacket(packet);
 		}
+	}
+
+	{
+		MeasureTime timer("Serialize packets - json - parsing and serializing");
+		std::ofstream file("packets3.json");
+		pcpp::JsonSerializer serializer(file);
+		pcpp::PacketSerializer packetSerializer(serializer);
+		for (const auto& rawPacketPtr : rawPacketPtrVec)
+		{
+			pcpp::Packet packet(rawPacketPtr, false);
+			packetSerializer.addPacket(packet);
+		}
+	}
+
+	{
+		MeasureTime timer("Serialize packets - json - parse pcap file");
+		std::ofstream file("packets4.json");
+		pcpp::JsonSerializer serializer(file);
+		pcpp::PcapFileReaderDevice readerDev2(EXAMPLE2_PCAP_PATH);
+		PTF_ASSERT_TRUE(readerDev2.open());
+		PTF_ASSERT_EQUAL(pcpp::serializePackets(readerDev2, serializer), packetCount);
 	}
 
 	{
 		MeasureTime timer("Serialize packets - xml");
 		std::ofstream file("packets.xml");
 		pcpp::XmlSerializer serializer(file);
-		auto packetArray = serializer.writeArray(packets);
-
-		for (const auto* packet : packetPtrVec)
-		{
-			packet->serialize(packetArray);
-		}
+		pcpp::PacketSerializer packetSerializer(serializer);
+		packetSerializer.addPackets(packetPtrVec);
 	}
 
 	{
 		MeasureTime timer("Serialize packets - yaml");
 		std::ofstream file("packets.yaml");
 		pcpp::YamlSerializer serializer(file);
-		auto packetArray = serializer.writeArray(packets);
-
-		for (const auto* packet : packetPtrVec)
-		{
-			packet->serialize(packetArray);
-		}
+		pcpp::PacketSerializer packetSerializer(serializer);
+		packetSerializer.addPackets(packetPtrVec);
 	}
 
 	// {

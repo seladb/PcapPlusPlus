@@ -2,6 +2,7 @@
 
 #include "Packet.h"
 #include "IpAddress.h"
+#include "PointerVector.h"
 
 /// @file
 
@@ -62,4 +63,24 @@ namespace pcpp
 	/// @param[in] packet The packet to calculate hash for
 	/// @return The hash value calculated for this packet or 0 if the packet isn't IPv4/6
 	uint32_t hash2Tuple(Packet* packet);
+
+	class PacketSerializer
+	{
+	public:
+		explicit PacketSerializer(ISerializer& serializer) : m_Packets(serializer.writeArray(Packets))
+		{}
+
+		PacketSerializer(const PacketSerializer&) = delete;
+		PacketSerializer& operator=(const PacketSerializer&) = delete;
+
+		void addPacket(const Packet& packet);
+		void addPacket(const Packet* packet);
+		void addPackets(const PointerVector<Packet>& packets);
+		void addPackets(const std::vector<Packet>& packets);
+
+	private:
+		static const FieldDescriptor Packets;
+
+		ArrayScope m_Packets;
+	};
 }  // namespace pcpp
