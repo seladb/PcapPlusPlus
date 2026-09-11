@@ -1,12 +1,6 @@
 exclude: '.*\.(pcap|pcapng|dat)|(PacketExamples|PcapExamples|expected_output|pcap_examples).*\.(txt|zst|zstd)'
 fail_fast: false
 repos:
-  - repo: local
-    hooks:
-      - id: check-clang-format-version
-        name: Check clang-format version
-        entry: python ./ci/check-clang-format-version.py
-        language: python
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -35,10 +29,12 @@ repos:
       - id: clang-format
         args: ["--style=file", "-i"]  # Use the .clang-format file for configuration and apply all fixes
         files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
+        additional_dependencies: [clang-format==19.1.6]
       - id: cppcheck
         # TODO: Add -I for each directory that contains header files that are included by the source files, for more thorough checking.
         args: ["--std=c++14", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force", "-ICommon++/header"]
         exclude: ^3rdParty/json
+        additional_dependencies: [cppcheck-py==2.9]
   - repo: https://github.com/BlankSpruce/gersemi
     rev: 0.26.1
     hooks:
