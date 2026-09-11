@@ -717,7 +717,7 @@ namespace pcpp
 		/// @return True if raw packet matches the filter or false otherwise
 		/// @deprecated This method is deprecated, use GeneralFilter::matches(...) method directly.
 		PCPP_DEPRECATED("Prefer GeneralFilter::matches(...) method directly.")
-		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
+		static bool matchPacketWithFilter(const GeneralFilter& filter, RawPacket* rawPacket);
 
 	protected:
 		/// @brief Called before starting a capture to prepare the device for capturing packets.

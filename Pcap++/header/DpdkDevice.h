@@ -600,7 +600,7 @@ namespace pcpp
 		/// @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened, or if
 		/// the packet wasn't sent for any other reason. Please notice that when using TX buffers the packet may be
 		/// buffered and not sent immediately, which may also result in returning false
-		bool sendPacket(Packet& packet, uint16_t txQueueId = 0, bool useTxBuffer = false);
+		bool sendPacket(const Packet& packet, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/// Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
 		/// @param[in] filter Not used in this method
