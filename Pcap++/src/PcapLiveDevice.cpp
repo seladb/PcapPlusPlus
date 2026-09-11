@@ -283,7 +283,7 @@ namespace pcpp
 #endif
 	}
 
-	static void setTimestampProvider(internal::PcapHandle& pcap,
+	static void setTimestampProvider(const internal::PcapHandle& pcap,
 	                                 const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
 #ifdef HAS_TIMESTAMP_TYPES_ENABLED
@@ -1157,7 +1157,7 @@ namespace pcpp
 		}
 	}
 
-	bool PcapLiveDevice::matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket)
+	bool PcapLiveDevice::matchPacketWithFilter(const GeneralFilter& filter, RawPacket* rawPacket)
 	{
 		if (rawPacket == nullptr)
 		{
