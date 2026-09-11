@@ -1,12 +1,9 @@
 #include "Serializers.h"
 
 #include <iomanip>
-#include <limits>
 #include <ostream>
 #include <sstream>
 #include "json.hpp"
-
-#include <GeneralUtils.h>
 
 namespace pcpp
 {
@@ -28,6 +25,36 @@ namespace pcpp
 		{
 			std::ostringstream oss;
 			hexNumToStream(oss, number);
+			return oss.str();
+		}
+
+		// Backslash-escapes a string for embedding in a double-quoted JSON
+		// or YAML scalar — both formats use the same escape set for the
+		// characters we care about here. Shared by JsonSerializer and
+		// YamlSerializer.
+		std::string escapeQuotedString(const std::string& s)
+		{
+			std::ostringstream oss;
+			for (char c : s)
+			{
+				switch (c)
+				{
+				case '"':
+					oss << "\\\"";
+					break;
+				case '\\':
+					oss << "\\\\";
+					break;
+				case '\n':
+					oss << "\\n";
+					break;
+				case '\t':
+					oss << "\\t";
+					break;
+				default:
+					oss << c;
+				}
+			}
 			return oss.str();
 		}
 	}  // namespace
@@ -173,7 +200,7 @@ namespace pcpp
 	void JsonSerializer::writeField(const FieldDescriptor& field, const std::string& value)
 	{
 		writeKey(field.name);
-		m_Out << '"' << escape(value) << '"';
+		m_Out << '"' << escapeQuotedString(value) << '"';
 	}
 
 	void JsonSerializer::writeField(const FieldDescriptor& field, int64_t value)
@@ -235,33 +262,7 @@ namespace pcpp
 			return;
 		if (m_ContextStack.back() == Context::Array)
 			return;
-		m_Out << '"' << escape(name) << "\":";
-	}
-
-	std::string JsonSerializer::escape(const std::string& s)
-	{
-		std::ostringstream oss;
-		for (char c : s)
-		{
-			switch (c)
-			{
-			case '"':
-				oss << "\\\"";
-				break;
-			case '\\':
-				oss << "\\\\";
-				break;
-			case '\n':
-				oss << "\\n";
-				break;
-			case '\t':
-				oss << "\\t";
-				break;
-			default:
-				oss << c;
-			}
-		}
-		return oss.str();
+		m_Out << '"' << escapeQuotedString(name) << "\":";
 	}
 
 	// ============================================================
@@ -487,7 +488,7 @@ namespace pcpp
 	void YamlSerializer::writeField(const FieldDescriptor& field, const std::string& value)
 	{
 		writeFieldPrefix(field.name);
-		m_Out << '"' << escape(value) << '"';
+		m_Out << '"' << escapeQuotedString(value) << '"';
 	}
 
 	void YamlSerializer::writeField(const FieldDescriptor& field, int64_t value)
@@ -532,36 +533,6 @@ namespace pcpp
 		hexNumToStream(m_Out, value);
 	}
 
-	std::string YamlSerializer::escape(const std::string& s)
-	{
-		// Same escape set as JsonSerializer::escape() — YAML double-quoted
-		// scalars use identical backslash escapes for these characters.
-		// Duplicated rather than shared to avoid an unrelated change to
-		// JsonSerializer's existing, already-pushed code.
-		std::ostringstream oss;
-		for (char c : s)
-		{
-			switch (c)
-			{
-			case '"':
-				oss << "\\\"";
-				break;
-			case '\\':
-				oss << "\\\\";
-				break;
-			case '\n':
-				oss << "\\n";
-				break;
-			case '\t':
-				oss << "\\t";
-				break;
-			default:
-				oss << c;
-			}
-		}
-		return oss.str();
-	}
-
 	bool YamlSerializer::isArrayContext() const
 	{
 		return !m_ContextStack.empty() &&
@@ -574,12 +545,6 @@ namespace pcpp
 
 	namespace
 	{
-		// XML 1.0 reserved characters that need escaping
-		const std::string XML_ESCAPE_TABLE[128] = {
-			// Control characters 0x00-0x1F are invalid except \t, \n, \r
-			// They're filtered out in escapeXML
-		};
-
 		bool isXmlControlChar(char c)
 		{
 			return (c >= 0x00 && c <= 0x1F) && c != '\t' && c != '\n' && c != '\r';
@@ -596,27 +561,11 @@ namespace pcpp
 	void XmlSerializer::startObject(const FieldDescriptor& field)
 	{
 		Context ctx;
-		ctx.name = isValidXMLName(field.name) ? field.name : "object";
+		ctx.name = resolveElementName(field.name, "object");
 		ctx.isArray = false;
-		ctx.hasChildren = false;
-		ctx.isRoot = m_ContextStack.empty();
-
-		if (!ctx.isRoot)
-		{
-			// Check if we need to close a previous value tag
-			if (!m_ContextStack.empty() && !m_ContextStack.back().isArray)
-			{
-				// We're in an object context - write as a nested element
-				if (m_ContextStack.back().hasChildren)
-				{
-					// We already have children, but we're adding a new object
-					// This happens when an object has multiple children
-				}
-			}
-		}
 
 		writeIndent();
-		writeOpenTag(ctx.name, false);
+		writeOpenTag(ctx.name);
 		m_ContextStack.push_back(ctx);
 	}
 
@@ -641,13 +590,11 @@ namespace pcpp
 	void XmlSerializer::startArray(const FieldDescriptor& field)
 	{
 		Context ctx;
-		ctx.name = isValidXMLName(field.name) ? field.name : "array";
+		ctx.name = resolveElementName(field.name, "array");
 		ctx.isArray = true;
-		ctx.hasChildren = false;
-		ctx.isRoot = m_ContextStack.empty();
 
 		writeIndent();
-		writeOpenTag(ctx.name, false);
+		writeOpenTag(ctx.name);
 		m_ContextStack.push_back(ctx);
 	}
 
@@ -665,44 +612,45 @@ namespace pcpp
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, const std::string& value)
 	{
-		std::string name = isValidXMLName(field.name) ? field.name : "field";
-		writeValueElement(name, escapeXML(value), false);
+		writeValueElement(resolveElementName(field.name, "field"), escapeXML(value), false);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, int64_t value)
 	{
-		std::string name = isValidXMLName(field.name) ? field.name : "field";
-		writeValueElement(name, std::to_string(value), false);
+		writeValueElement(resolveElementName(field.name, "field"), std::to_string(value), false);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, uint64_t value)
 	{
-		std::string name = isValidXMLName(field.name) ? field.name : "field";
-		writeValueElement(name, std::to_string(value), false);
+		writeValueElement(resolveElementName(field.name, "field"), std::to_string(value), false);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, double value)
 	{
-		std::string name = isValidXMLName(field.name) ? field.name : "field";
 		std::string strVal = std::to_string(value);
-		// Remove trailing zeros for cleaner output
+		// Remove trailing zeros for cleaner output (and the decimal point
+		// itself if nothing remains after it). find_last_not_of('0') lands
+		// on the last significant digit — e.g. for "1.500000" that's the
+		// '5', not the '.' — so we must erase everything AFTER it, not
+		// just the "whole fraction is zero" case where it happens to land
+		// on the decimal point.
 		size_t pos = strVal.find_last_not_of('0');
-		if (pos != std::string::npos && strVal[pos] == '.')
+		if (pos != std::string::npos)
 		{
-			strVal.erase(pos);
+			if (strVal[pos] == '.')
+				--pos;
+			strVal.erase(pos + 1);
 		}
-		writeValueElement(name, strVal, false);
+		writeValueElement(resolveElementName(field.name, "field"), strVal, false);
 	}
 
 	void XmlSerializer::writeField(const FieldDescriptor& field, bool value)
 	{
-		std::string name = isValidXMLName(field.name) ? field.name : "field";
-		writeValueElement(name, value ? "true" : "false", false);
+		writeValueElement(resolveElementName(field.name, "field"), value ? "true" : "false", false);
 	}
 
 	void XmlSerializer::writeNullField(const FieldDescriptor& field)
 	{
-		std::string name = isValidXMLName(field.name) ? field.name : "field";
 		// Create an empty element with xsi:nil attribute to represent null
 		if (!m_ContextStack.empty() && m_ContextStack.back().isArray)
 		{
@@ -712,30 +660,20 @@ namespace pcpp
 		}
 		else
 		{
-			writeValueElement(name, "", true);
+			writeValueElement(resolveElementName(field.name, "field"), "", true);
 		}
 	}
 
 	void XmlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value)
 	{
-		std::string name = isValidXMLName(field.name) ? field.name : "field";
-		auto hexStr = hexNumToString(value);
-		writeValueElement(name, hexStr, false);
+		writeValueElement(resolveElementName(field.name, "field"), hexNumToString(value), false);
 	}
 
 	// --- Private helper methods ---
 
-	void XmlSerializer::writeOpenTag(const std::string& name, bool selfClosing)
+	void XmlSerializer::writeOpenTag(const std::string& name)
 	{
-		m_Out << '<' << name;
-		if (selfClosing)
-		{
-			m_Out << "/>";
-		}
-		else
-		{
-			m_Out << '>';
-		}
+		m_Out << '<' << name << '>';
 		if (m_PrettyPrint)
 		{
 			m_Out << '\n';
@@ -770,12 +708,6 @@ namespace pcpp
 		{
 			m_Out << '>' << value << "</" << name << ">\n";
 		}
-
-		// Mark parent as having children
-		if (!m_ContextStack.empty())
-		{
-			m_ContextStack.back().hasChildren = true;
-		}
 	}
 
 	void XmlSerializer::writeIndent()
@@ -798,15 +730,10 @@ namespace pcpp
 		m_Out << m_IndentCache[depth];
 	}
 
-	void XmlSerializer::writeRaw(const std::string& str)
-	{
-		m_Out << str;
-	}
-
 	std::string XmlSerializer::escapeXML(const std::string& s)
 	{
 		std::string result;
-		result.reserve(s.size() * 1.2);  // Pre-allocate for typical expansion
+		result.reserve(s.size() + s.size() / 5);  // Pre-allocate for typical ~20% expansion
 
 		for (char c : s)
 		{
@@ -862,5 +789,10 @@ namespace pcpp
 			}
 		}
 		return true;
+	}
+
+	std::string XmlSerializer::resolveElementName(const std::string& name, const char* fallback)
+	{
+		return isValidXMLName(name) ? name : std::string(fallback);
 	}
 }  // namespace pcpp

@@ -237,7 +237,6 @@ namespace pcpp
 
 		void writeSeparatorIfNeeded();
 		void writeKey(const std::string& name);
-		static std::string escape(const std::string& s);
 
 		std::ostream& m_Out;
 		std::vector<Context> m_ContextStack;
@@ -360,7 +359,6 @@ namespace pcpp
 		// itself — "- " inside an array, "name: " inside an object or at
 		// the root. Caller writes the actual value immediately after.
 		void writeFieldPrefix(const std::string& name);
-		static std::string escape(const std::string& s);
 
 		bool isArrayContext() const;
 
@@ -415,22 +413,25 @@ namespace pcpp
 		{
 			std::string name;  // Element name
 			bool isArray;      // True if this is an array container
-			bool hasChildren;  // True if we've written any child to this element
-			bool isRoot;       // True for the outermost element (no indentation)
 		};
 
 		// Core writing methods
-		void writeOpenTag(const std::string& name, bool selfClosing = false);
+		void writeOpenTag(const std::string& name);
 		void writeCloseTag(const std::string& name);
 		void writeValueElement(const std::string& name, const std::string& value, bool isNull = false);
 		void writeIndent();
-		void writeRaw(const std::string& str);
 
 		// XML escaping (handles &, <, >, ", ')
 		static std::string escapeXML(const std::string& s);
 
 		// Checks if a string is safe to use as an XML name
 		static bool isValidXMLName(const std::string& name);
+
+		// Returns `name` if it's a valid XML element name, otherwise
+		// `fallback`. Centralizes the isValidXMLName()-check-plus-fallback
+		// pattern that every writeField()/startObject()/startArray()
+		// overload below needs.
+		static std::string resolveElementName(const std::string& name, const char* fallback);
 
 		// State
 		std::ostream& m_Out;
