@@ -173,6 +173,11 @@ namespace pcpp
 
 	GenericDnsResourceData& GenericDnsResourceData::operator=(const GenericDnsResourceData& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		if (m_Data != nullptr)
 			delete[] m_Data;
 

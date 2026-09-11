@@ -81,6 +81,11 @@ namespace pcpp
 
 	HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		HttpMessage::operator=(other);
 
 		if (m_FirstLine != nullptr)
@@ -698,6 +703,11 @@ namespace pcpp
 
 	HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		HttpMessage::operator=(other);
 
 		if (m_FirstLine != nullptr)
