@@ -210,10 +210,10 @@ namespace pcpp
 		{
 			static std::vector<FieldDescriptor> all()
 			{
-				return { ProtocolId, ProtocolName };
+				return { ProtocolName, ProtocolId, Length };
 			}
-			static const FieldDescriptor ProtocolId;
 			static const FieldDescriptor ProtocolName;
+			static const FieldDescriptor ProtocolId;
 			static const FieldDescriptor Length;
 			static constexpr uint16_t MaxID = 1;
 		};
