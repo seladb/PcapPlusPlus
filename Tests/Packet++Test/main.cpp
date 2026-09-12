@@ -236,6 +236,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpInvalidPackets, "doip");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
+	PTF_RUN_TEST(IcmpTruncatedPacketTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	PTF_RUN_TEST(IcmpEditTest, "icmp");
 

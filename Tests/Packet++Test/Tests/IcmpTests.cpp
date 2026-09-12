@@ -6,8 +6,10 @@
 #include "EthLayer.h"
 #include "IcmpLayer.h"
 #include "IPv4Layer.h"
+#include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
+#include <memory>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -254,6 +256,79 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("14.80.84.66"));
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0);
 }  // IcmpParsingTest
+
+PTF_TEST_CASE(IcmpTruncatedPacketTest)
+{
+	// The get*Data() methods only checked the ICMP message type before casting the layer to the fixed-size structure
+	// that type implies, so a truncated message let callers read fields past the end of the layer
+
+	// an information request/reply is 8 bytes, but isDataValid() accepted one carrying only the 4-byte base header
+	const uint8_t infoRequest[] = { 0x0f, 0x00, 0x00, 0x00, 0x12, 0x34, 0x56, 0x78 };
+	PTF_ASSERT_FALSE(pcpp::IcmpLayer::isDataValid(infoRequest, 7));
+	PTF_ASSERT_TRUE(pcpp::IcmpLayer::isDataValid(infoRequest, 8));
+
+	// an echo message folds the first 8 payload bytes into icmp_echo_hdr as a timestamp, so it can be valid and still
+	// be shorter than that structure - the 8-byte copy quoted inside an ICMP error message is the common case
+	const uint8_t echoRequest[] = { 0x08, 0x00, 0x00, 0x00, 0x12, 0x34, 0x56, 0x78 };
+	PTF_ASSERT_FALSE(pcpp::IcmpLayer::isDataValid(echoRequest, 7));
+	PTF_ASSERT_TRUE(pcpp::IcmpLayer::isDataValid(echoRequest, 8));
+
+	// the getters bounds-check the layer themselves too, since an IcmpLayer can be built over any buffer
+	auto icmpLayer = [](uint8_t type, size_t dataLen) {
+		auto* data = new uint8_t[dataLen]();  // the layer takes ownership of the buffer and frees it
+		data[0] = type;
+		return std::unique_ptr<pcpp::IcmpLayer>(new pcpp::IcmpLayer(data, dataLen, nullptr, nullptr));
+	};
+
+	// one byte short of icmp_echo_hdr's 8-byte minimum, of the 20-byte timestamp and 12-byte address mask
+	// structures, and of the 8-byte structures behind the remaining types
+	PTF_ASSERT_NULL(icmpLayer(8, 7)->getEchoRequestData());
+	PTF_ASSERT_NULL(icmpLayer(0, 7)->getEchoReplyData());
+	PTF_ASSERT_NULL(icmpLayer(13, 19)->getTimestampRequestData());
+	PTF_ASSERT_NULL(icmpLayer(14, 19)->getTimestampReplyData());
+	PTF_ASSERT_NULL(icmpLayer(17, 11)->getAddressMaskRequestData());
+	PTF_ASSERT_NULL(icmpLayer(18, 11)->getAddressMaskReplyData());
+	PTF_ASSERT_NULL(icmpLayer(3, 7)->getDestUnreachableData());
+	PTF_ASSERT_NULL(icmpLayer(4, 7)->getSourceQuenchdata());
+	PTF_ASSERT_NULL(icmpLayer(5, 7)->getRedirectData());
+	PTF_ASSERT_NULL(icmpLayer(9, 7)->getRouterAdvertisementData());
+	PTF_ASSERT_NULL(icmpLayer(11, 7)->getTimeExceededData());
+	PTF_ASSERT_NULL(icmpLayer(12, 7)->getParamProblemData());
+	PTF_ASSERT_NULL(icmpLayer(15, 7)->getInfoRequestData());
+	PTF_ASSERT_NULL(icmpLayer(16, 7)->getInfoReplyData());
+
+	// a router solicitation is just the base header, so it is complete at the minimum layer size
+	PTF_ASSERT_NOT_NULL(icmpLayer(10, 4)->getRouterSolicitationData());
+
+	// getHeaderLen() used to dereference getRouterAdvertisementData() without a null check
+	PTF_ASSERT_EQUAL(icmpLayer(9, 7)->getHeaderLen(), 7);
+
+	// an echo message between the RFC 792 header and icmp_echo_hdr has no payload, and the length of that payload
+	// used to underflow into a huge value
+	auto shortEchoLayer = icmpLayer(8, 15);
+	auto* echoData = shortEchoLayer->getEchoRequestData();
+	PTF_ASSERT_NOT_NULL(echoData);
+	PTF_ASSERT_NULL(echoData->data);
+	PTF_ASSERT_EQUAL(echoData->dataLength, 0);
+
+	// advertisementCount can claim more router records than the message carries
+	auto routerAdvLayer = icmpLayer(9, 16);
+	auto* routerAdvData = routerAdvLayer->getRouterAdvertisementData();
+	PTF_ASSERT_NOT_NULL(routerAdvData);
+	routerAdvData->header->advertisementCount = 5;  // only one 8-byte record follows the 8-byte header
+	PTF_ASSERT_NOT_NULL(routerAdvData->getRouterAddress(0));
+	PTF_ASSERT_NULL(routerAdvData->getRouterAddress(1));
+
+	// end to end: an IPv4 packet whose ICMP information request (type 15) carries 7 bytes instead of 8 falls back
+	// to a payload layer
+	auto truncatedRawPacket = createPacketFromHexResource("PacketExamples/IcmpInfoRequestTruncated.dat");
+	pcpp::Packet truncatedPacket(truncatedRawPacket.get());
+
+	PTF_ASSERT_FALSE(truncatedPacket.isPacketOfType(pcpp::ICMP));
+	auto* payloadLayer = truncatedPacket.getLayerOfType<pcpp::PayloadLayer>();
+	PTF_ASSERT_NOT_NULL(payloadLayer);
+	PTF_ASSERT_EQUAL(payloadLayer->getPayloadLen(), 7);
+}  // IcmpTruncatedPacketTest
 
 PTF_TEST_CASE(IcmpCreationTest)
 {
