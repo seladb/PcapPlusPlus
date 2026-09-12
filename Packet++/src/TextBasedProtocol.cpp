@@ -664,11 +664,11 @@ namespace pcpp
 		}
 
 		std::string curValue = getFieldValue();
-		int lengthDifference = newValue.length() - curValue.length();
+		int lengthDifference = static_cast<int>(newValue.length()) - static_cast<int>(curValue.length());
 		// new value is longer than current value
 		if (lengthDifference > 0)
 		{
-			if (!m_TextBasedProtocolMessage->extendLayer(m_ValueOffsetInMessage, lengthDifference))
+			if (!m_TextBasedProtocolMessage->extendLayer(m_ValueOffsetInMessage, static_cast<size_t>(lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Could not extend layer");
 				return false;
@@ -677,7 +677,8 @@ namespace pcpp
 		// new value is shorter than current value
 		else if (lengthDifference < 0)
 		{
-			if (!m_TextBasedProtocolMessage->shortenLayer(m_ValueOffsetInMessage, 0 - lengthDifference))
+			if (!m_TextBasedProtocolMessage->shortenLayer(m_ValueOffsetInMessage,
+			                                              static_cast<size_t>(-lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Could not shorten layer");
 				return false;

@@ -61,7 +61,7 @@ namespace pcpp
 		uint16_t optionLength = htobe16(static_cast<uint16_t>(m_RecValueLen));
 		memcpy(recordBuffer, &optionTypeVal, sizeof(uint16_t));
 		memcpy(recordBuffer + sizeof(uint16_t), &optionLength, sizeof(uint16_t));
-		if (optionSize > 0 && m_RecValue != nullptr)
+		if (m_RecValue != nullptr)
 			memcpy(recordBuffer + 2 * sizeof(uint16_t), m_RecValue, m_RecValueLen);
 
 		return DhcpV6Option(recordBuffer);
