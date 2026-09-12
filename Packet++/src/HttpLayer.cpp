@@ -382,10 +382,10 @@ namespace pcpp
 
 		// extend or shorten layer
 		std::string currentUri = getUri();
-		int lengthDifference = newUri.length() - currentUri.length();
+		int lengthDifference = static_cast<int>(newUri.length()) - static_cast<int>(currentUri.length());
 		if (lengthDifference > 0)
 		{
-			if (!m_HttpRequest->extendLayer(m_UriOffset, lengthDifference))
+			if (!m_HttpRequest->extendLayer(m_UriOffset, static_cast<size_t>(lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -393,7 +393,7 @@ namespace pcpp
 		}
 		else if (lengthDifference < 0)
 		{
-			if (!m_HttpRequest->shortenLayer(m_UriOffset, 0 - lengthDifference))
+			if (!m_HttpRequest->shortenLayer(m_UriOffset, static_cast<size_t>(-lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -811,10 +811,11 @@ namespace pcpp
 		size_t statusStringOffset = 13;
 		auto newStatusCodeMessage = newStatusCode.getMessage();
 
-		int lengthDifference = newStatusCodeMessage.length() - getStatusCodeString().length();
+		int lengthDifference =
+		    static_cast<int>(newStatusCodeMessage.length()) - static_cast<int>(getStatusCodeString().length());
 		if (lengthDifference > 0)
 		{
-			if (!m_HttpResponse->extendLayer(statusStringOffset, lengthDifference))
+			if (!m_HttpResponse->extendLayer(statusStringOffset, static_cast<size_t>(lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -822,7 +823,7 @@ namespace pcpp
 		}
 		else if (lengthDifference < 0)
 		{
-			if (!m_HttpResponse->shortenLayer(statusStringOffset, 0 - lengthDifference))
+			if (!m_HttpResponse->shortenLayer(statusStringOffset, static_cast<size_t>(-lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
