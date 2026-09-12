@@ -328,6 +328,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
 
 	PTF_RUN_TEST(TestSystemCoreUtils, "no_network;system_utils");
+	PTF_RUN_TEST(TestSystemCore, "no_network;system_utils");
+	PTF_RUN_TEST(TestLongCoreMask, "no_network;system_utils");
 
 	PTF_RUN_TEST(TestXdpDeviceReceivePackets, "xdp");
 	PTF_RUN_TEST(TestXdpDeviceSendPackets, "xdp");

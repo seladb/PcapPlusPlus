@@ -363,7 +363,7 @@ namespace pcpp
 
 	SystemCore PfRingDevice::getCurrentCoreId() const
 	{
-		return SystemCores::IdToSystemCore[sched_getcpu()];
+		return SystemCore(sched_getcpu());
 	}
 
 	bool PfRingDevice::doUpdateFilter(std::string const* filterAsString)
@@ -696,6 +696,14 @@ namespace pcpp
 	{
 		pfring* ring = nullptr;
 		uint8_t coreId = core.Id;
+
+		if (coreId >= MAX_NUM_OF_CORES)
+		{
+			// TODO: Static assert to flag if max num of cores is changed, to correct the message.
+			static_assert(MAX_NUM_OF_CORES == 32, "Core Ids over 31 are not currently supported");
+			PCPP_LOG_ERROR("Core Ids over 31 are not currently supported");
+			return;
+		}
 
 		ring = m_CoreConfiguration[coreId].Channel;
 

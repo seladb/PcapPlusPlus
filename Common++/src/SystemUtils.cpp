@@ -8,6 +8,7 @@
 #include <memory>
 #include <array>
 #include <iostream>
+#include <algorithm>
 #include <mutex>
 #include <cstring>
 #include <csignal>
@@ -65,38 +66,38 @@ namespace
 namespace pcpp
 {
 
-	const SystemCore SystemCores::Core0 = { 0x01, 0 };
-	const SystemCore SystemCores::Core1 = { 0x02, 1 };
-	const SystemCore SystemCores::Core2 = { 0x04, 2 };
-	const SystemCore SystemCores::Core3 = { 0x08, 3 };
-	const SystemCore SystemCores::Core4 = { 0x10, 4 };
-	const SystemCore SystemCores::Core5 = { 0x20, 5 };
-	const SystemCore SystemCores::Core6 = { 0x40, 6 };
-	const SystemCore SystemCores::Core7 = { 0x80, 7 };
-	const SystemCore SystemCores::Core8 = { 0x100, 8 };
-	const SystemCore SystemCores::Core9 = { 0x200, 9 };
-	const SystemCore SystemCores::Core10 = { 0x400, 10 };
-	const SystemCore SystemCores::Core11 = { 0x800, 11 };
-	const SystemCore SystemCores::Core12 = { 0x1000, 12 };
-	const SystemCore SystemCores::Core13 = { 0x2000, 13 };
-	const SystemCore SystemCores::Core14 = { 0x4000, 14 };
-	const SystemCore SystemCores::Core15 = { 0x8000, 15 };
-	const SystemCore SystemCores::Core16 = { 0x10000, 16 };
-	const SystemCore SystemCores::Core17 = { 0x20000, 17 };
-	const SystemCore SystemCores::Core18 = { 0x40000, 18 };
-	const SystemCore SystemCores::Core19 = { 0x80000, 19 };
-	const SystemCore SystemCores::Core20 = { 0x100000, 20 };
-	const SystemCore SystemCores::Core21 = { 0x200000, 21 };
-	const SystemCore SystemCores::Core22 = { 0x400000, 22 };
-	const SystemCore SystemCores::Core23 = { 0x800000, 23 };
-	const SystemCore SystemCores::Core24 = { 0x1000000, 24 };
-	const SystemCore SystemCores::Core25 = { 0x2000000, 25 };
-	const SystemCore SystemCores::Core26 = { 0x4000000, 26 };
-	const SystemCore SystemCores::Core27 = { 0x8000000, 27 };
-	const SystemCore SystemCores::Core28 = { 0x10000000, 28 };
-	const SystemCore SystemCores::Core29 = { 0x20000000, 29 };
-	const SystemCore SystemCores::Core30 = { 0x40000000, 30 };
-	const SystemCore SystemCores::Core31 = { 0x80000000, 31 };
+	const SystemCore SystemCores::Core0(0);
+	const SystemCore SystemCores::Core1(1);
+	const SystemCore SystemCores::Core2(2);
+	const SystemCore SystemCores::Core3(3);
+	const SystemCore SystemCores::Core4(4);
+	const SystemCore SystemCores::Core5(5);
+	const SystemCore SystemCores::Core6(6);
+	const SystemCore SystemCores::Core7(7);
+	const SystemCore SystemCores::Core8(8);
+	const SystemCore SystemCores::Core9(9);
+	const SystemCore SystemCores::Core10(10);
+	const SystemCore SystemCores::Core11(11);
+	const SystemCore SystemCores::Core12(12);
+	const SystemCore SystemCores::Core13(13);
+	const SystemCore SystemCores::Core14(14);
+	const SystemCore SystemCores::Core15(15);
+	const SystemCore SystemCores::Core16(16);
+	const SystemCore SystemCores::Core17(17);
+	const SystemCore SystemCores::Core18(18);
+	const SystemCore SystemCores::Core19(19);
+	const SystemCore SystemCores::Core20(20);
+	const SystemCore SystemCores::Core21(21);
+	const SystemCore SystemCores::Core22(22);
+	const SystemCore SystemCores::Core23(23);
+	const SystemCore SystemCores::Core24(24);
+	const SystemCore SystemCores::Core25(25);
+	const SystemCore SystemCores::Core26(26);
+	const SystemCore SystemCores::Core27(27);
+	const SystemCore SystemCores::Core28(28);
+	const SystemCore SystemCores::Core29(29);
+	const SystemCore SystemCores::Core30(30);
+	const SystemCore SystemCores::Core31(31);
 
 	const SystemCore SystemCores::IdToSystemCore[MAX_NUM_OF_CORES] = {
 		SystemCores::Core0,  SystemCores::Core1,  SystemCores::Core2,  SystemCores::Core3,  SystemCores::Core4,
@@ -107,6 +108,76 @@ namespace pcpp
 		SystemCores::Core25, SystemCores::Core26, SystemCores::Core27, SystemCores::Core28, SystemCores::Core29,
 		SystemCores::Core30, SystemCores::Core31
 	};
+
+	const size_t LongCoreMask::MaxCoreCount;
+
+	LongCoreMask::LongCoreMask(SystemCore core)
+	{
+		// TODO: Cpp17 convert this to an if constexpr expression.
+		// Static assert to ensure that SystemCore::Id can represent all possible core IDs within the range of
+		// LongCoreMask If this check fails, the commented out runtime check can be used to validate the core ID at
+		// runtime.
+		static_assert(static_cast<size_t>((std::numeric_limits<decltype(SystemCore::Id)>::max)()) < MaxCoreCount,
+		              "SystemCore::Id can provide a Id that is out of range for LongCoreMask");
+		/*
+		if (core.Id < 0 || core.Id >= MaxCoreCount)
+		{
+		    throw std::out_of_range("Core ID is out of range");
+		}
+		*/
+
+		Mask.set(core.Id);
+	}
+
+	LongCoreMask::LongCoreMask(std::vector<SystemCore> const& cores)
+	{
+		// TODO: Cpp17 convert this to an if constexpr expression.
+		// Static assert to ensure that SystemCore::Id can represent all possible core IDs within the range of
+		// LongCoreMask If this check fails, the commented out runtime check can be used to validate the core ID at
+		// runtime.
+		static_assert(static_cast<size_t>((std::numeric_limits<decltype(SystemCore::Id)>::max)()) < MaxCoreCount,
+		              "SystemCore::Id can provide a Id that is out of range for LongCoreMask");
+
+		for (auto const& core : cores)
+		{
+			/*
+			if (core.Id < 0 || core.Id >= MaxCoreCount)
+			{
+			    throw std::out_of_range("Core ID is out of range");
+			}
+			*/
+
+			Mask.set(core.Id);
+		}
+	}
+
+	LongCoreMask LongCoreMask::fromAllCores()
+	{
+		const size_t numOfCores = (std::min)(static_cast<size_t>(getNumOfCores()), MaxCoreCount);
+
+		LongCoreMask mask;
+		for (size_t i = 0; i < numOfCores; i++)
+		{
+			mask.Mask.set(i);
+		}
+		return mask;
+	}
+
+	std::vector<SystemCore> LongCoreMask::toCoreVector() const
+	{
+		static_assert(static_cast<size_t>((std::numeric_limits<decltype(SystemCore::Id)>::max)()) + 1 >= MaxCoreCount,
+		              "SystemCore::Id type is too small to represent all cores in LongCoreMask");
+
+		std::vector<SystemCore> result;
+		for (size_t i = 0; i < MaxCoreCount; ++i)
+		{
+			if (Mask.test(i))
+			{
+				result.push_back(SystemCore(static_cast<uint8_t>(i)));
+			}
+		}
+		return result;
+	}
 
 	int getNumOfCores()
 	{
@@ -119,13 +190,25 @@ namespace pcpp
 #endif
 	}
 
+	namespace
+	{
+		void checkCoreIdRangeForCoreMask(int coreId)
+		{
+			if (coreId >= 32 || coreId < 0)
+			{
+				throw std::out_of_range(
+				    "Core ID is out of range for CoreMask. Use LongCoreMask for more than 32 cores.");
+			}
+		}
+	}  // namespace
+
 	CoreMask getCoreMaskForAllMachineCores()
 	{
 		const int numOfCores = getNumOfCores() < 32 ? getNumOfCores() : 32;
 		CoreMask result = 0;
 		for (int i = 0; i < numOfCores; i++)
 		{
-			result = result | SystemCores::IdToSystemCore[i].Mask;
+			result = result | SystemCore(i).getShortCoreMask();
 		}
 
 		return result;
@@ -136,8 +219,9 @@ namespace pcpp
 		CoreMask result = 0;
 		for (const auto& core : cores)
 		{
+			checkCoreIdRangeForCoreMask(core.Id);
 			// cppcheck-suppress useStlAlgorithm
-			result |= core.Mask;
+			result |= core.getShortCoreMask();
 		}
 
 		return result;
@@ -148,8 +232,10 @@ namespace pcpp
 		CoreMask result = 0;
 		for (const auto& coreId : coreIds)
 		{
+			checkCoreIdRangeForCoreMask(coreId);
+
 			// cppcheck-suppress useStlAlgorithm
-			result |= SystemCores::IdToSystemCore[coreId].Mask;
+			result |= SystemCore(coreId).getShortCoreMask();
 		}
 
 		return result;
@@ -162,12 +248,19 @@ namespace pcpp
 		{
 			if ((1 & coreMask) != 0U)
 			{
-				resultVec.push_back(SystemCores::IdToSystemCore[idx]);
+				resultVec.push_back(SystemCore(idx));
 			}
 
 			coreMask = coreMask >> 1;
 			++idx;
 		}
+	}
+
+	std::vector<SystemCore> createCoreVectorFromCoreMask(CoreMask coreMask)
+	{
+		std::vector<SystemCore> resultVec;
+		createCoreVectorFromCoreMask(coreMask, resultVec);
+		return resultVec;
 	}
 
 	std::string executeShellCommand(const std::string& command)
