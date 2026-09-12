@@ -115,20 +115,10 @@ namespace pcpp
 		}
 
 		/// A static factory method that attempts to create a SIP layer from existing packet raw data
-		/// The method first checks whether the source or destination port matches the SIP protocol.
-		/// @param[in] data A pointer to the raw data
-		/// @param[in] dataLen Size of the data in bytes
-		/// @param[in] prevLayer A pointer to the previous layer
-		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
-		/// @param[in] srcPort Source port number to check
-		/// @param[in] dstPort Dest port number to check
-		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
-		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
-		                               uint16_t srcPort, uint16_t dstPort);
-
-		/// A static factory method that attempts to create a SIP layer from existing packet raw data
-		/// This method does not check source or destination ports. Instead, it uses heuristics
-		/// to determine whether the data represents a SIP request or response.
+		///
+		/// The method uses heuristics to determine whether the data contains a SIP request or response message and
+		/// creates the relevant layer type. If no message type can be identified, the method returns nullptr.
+		///
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
 		/// @param[in] prevLayer A pointer to the previous layer
