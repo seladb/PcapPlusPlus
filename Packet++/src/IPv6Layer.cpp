@@ -12,6 +12,7 @@
 #include "VrrpLayer.h"
 #include "Packet.h"
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 
 namespace pcpp
 {
@@ -397,4 +398,18 @@ namespace pcpp
 		return result;
 	}
 
+	const FieldDescriptor IPv6Layer::SerializedFields::SrcIp{ Layer::SerializedFields::MaxID + 1, "srcIP" };
+	const FieldDescriptor IPv6Layer::SerializedFields::DstIp{ Layer::SerializedFields::MaxID + 2, "dstIP" };
+	const FieldDescriptor IPv6Layer::SerializedFields::PayloadLength{ Layer::SerializedFields::MaxID + 3,
+		                                                              "payloadLength" };
+	const FieldDescriptor IPv6Layer::SerializedFields::NextHeader{ Layer::SerializedFields::MaxID + 4, "nextHeader" };
+
+	void IPv6Layer::serializeLayer(ISerializer& serializer) const
+	{
+		serializer.writeField(SerializedFields::SrcIp, getSrcIPAddress().toString());
+		serializer.writeField(SerializedFields::DstIp, getDstIPAddress().toString());
+		auto header = getIPv6Header();
+		serializer.writeField(SerializedFields::PayloadLength, netToHost16(header->payloadLength));
+		serializer.writeField(SerializedFields::NextHeader, header->nextHeader);
+	}
 }  // namespace pcpp

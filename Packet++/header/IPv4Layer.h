@@ -605,6 +605,26 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an IPv4 packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
+		struct SerializedFields
+		{
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				result.insert(result.end(), { SrcIp, DstIp, IpId, IpProtocol, TotalLength, Options });
+				return result;
+			}
+			static const FieldDescriptor SrcIp;
+			static const FieldDescriptor DstIp;
+			static const FieldDescriptor IpId;
+			static const FieldDescriptor IpProtocol;
+			static const FieldDescriptor TotalLength;
+			static const FieldDescriptor Options;
+			static const FieldDescriptor Option;
+		};
+
+	protected:
+		void serializeLayer(ISerializer& serializer) const override;
+
 	private:
 		int m_NumOfTrailingBytes;
 		int m_TempHeaderExtension;

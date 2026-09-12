@@ -13,14 +13,66 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
+
+#include <Layer.h>
+#include <SystemUtils.h>
 #include <sstream>
 #include <algorithm>
 
 namespace pcpp
 {
-
 	constexpr uint8_t IPv4OptionDummy = 0xff;
 	constexpr size_t IPv4MaxOptionSize = 40;
+
+	const char* ipv4OptionTypeToString(IPv4OptionTypes type)
+	{
+		switch (type)
+		{
+		case IPV4OPT_EndOfOptionsList:
+			return "EndOfOptionsList";
+		case IPV4OPT_NOP:
+			return "NOP";
+		case IPV4OPT_RecordRoute:
+			return "RecordRoute";
+		case IPV4OPT_MTUProbe:
+			return "MTUProbe";
+		case IPV4OPT_MTUReply:
+			return "MTUReply";
+		case IPV4OPT_QuickStart:
+			return "QuickStart";
+		case IPV4OPT_Timestamp:
+			return "Timestamp";
+		case IPV4OPT_Traceroute:
+			return "Traceroute";
+		case IPV4OPT_Security:
+			return "Security";
+		case IPV4OPT_LooseSourceRoute:
+			return "LooseSourceRoute";
+		case IPV4OPT_ExtendedSecurity:
+			return "ExtendedSecurity";
+		case IPV4OPT_CommercialSecurity:
+			return "CommercialSecurity";
+		case IPV4OPT_StreamID:
+			return "StreamID";
+		case IPV4OPT_StrictSourceRoute:
+			return "StrictSourceRoute";
+		case IPV4OPT_ExtendedInternetProtocol:
+			return "ExtendedInternetProtocol";
+		case IPV4OPT_AddressExtension:
+			return "AddressExtension";
+		case IPV4OPT_RouterAlert:
+			return "RouterAlert";
+		case IPV4OPT_SelectiveDirectedBroadcast:
+			return "SelectiveDirectedBroadcast";
+		case IPV4OPT_DynamicPacketState:
+			return "DynamicPacketState";
+		case IPV4OPT_UpstreamMulticastPkt:
+			return "UpstreamMulticastPkt";
+		case IPV4OPT_Unknown:
+		default:
+			return "Unknown";
+		}
+	}
 
 	/// ~~~~~~~~~~~~~~~~~
 	/// IPv4OptionBuilder
@@ -622,4 +674,26 @@ namespace pcpp
 		return true;
 	}
 
+	const FieldDescriptor IPv4Layer::SerializedFields::SrcIp{ Layer::SerializedFields::MaxID + 1, "srcIP" };
+	const FieldDescriptor IPv4Layer::SerializedFields::DstIp{ Layer::SerializedFields::MaxID + 2, "dstIP" };
+	const FieldDescriptor IPv4Layer::SerializedFields::IpId{ Layer::SerializedFields::MaxID + 3, "ipID" };
+	const FieldDescriptor IPv4Layer::SerializedFields::IpProtocol{ Layer::SerializedFields::MaxID + 4, "ipProtocol" };
+	const FieldDescriptor IPv4Layer::SerializedFields::TotalLength{ Layer::SerializedFields::MaxID + 5, "totalLength" };
+	const FieldDescriptor IPv4Layer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 6, "options" };
+	const FieldDescriptor IPv4Layer::SerializedFields::Option{ 0, "option" };
+
+	void IPv4Layer::serializeLayer(ISerializer& serializer) const
+	{
+		serializer.writeField(SerializedFields::SrcIp, getSrcIPAddress().toString());
+		serializer.writeField(SerializedFields::DstIp, getDstIPAddress().toString());
+		auto* header = getIPv4Header();
+		serializer.writeField(SerializedFields::IpId, netToHost16(header->ipId));
+		serializer.writeField(SerializedFields::IpProtocol, header->protocol);
+		serializer.writeField(SerializedFields::TotalLength, netToHost16(header->totalLength));
+		auto options = serializer.writeArray(SerializedFields::Options);
+		for (auto option = getFirstOption(); option.isNotNull(); option = getNextOption(option))
+		{
+			options.writeField(SerializedFields::Option, ipv4OptionTypeToString(option.getIPv4OptionType()));
+		}
+	}
 }  // namespace pcpp

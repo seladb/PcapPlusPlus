@@ -25,12 +25,71 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "DeprecationUtils.h"
+
+#include <SystemUtils.h>
 #include <sstream>
 
 namespace pcpp
 {
-
 	constexpr uint8_t TcpOptionDummy = 0xff;
+
+	const char* tcpOptionTypeToString(TcpOptionEnumType type)
+	{
+		switch (type)
+		{
+		case TcpOptionEnumType::Eol:
+			return "Eol";
+		case TcpOptionEnumType::Nop:
+			return "Nop";
+		case TcpOptionEnumType::Mss:
+			return "Mss";
+		case TcpOptionEnumType::Window:
+			return "Window";
+		case TcpOptionEnumType::SackPerm:
+			return "SackPerm";
+		case TcpOptionEnumType::Sack:
+			return "Sack";
+		case TcpOptionEnumType::Echo:
+			return "Echo";
+		case TcpOptionEnumType::EchoReply:
+			return "EchoReply";
+		case TcpOptionEnumType::Timestamp:
+			return "Timestamp";
+		case TcpOptionEnumType::Cc:
+			return "Cc";
+		case TcpOptionEnumType::CcNew:
+			return "CcNew";
+		case TcpOptionEnumType::CcEcho:
+			return "CcEcho";
+		case TcpOptionEnumType::Md5:
+			return "Md5";
+		case TcpOptionEnumType::MpTcp:
+			return "MpTcp";
+		case TcpOptionEnumType::Scps:
+			return "Scps";
+		case TcpOptionEnumType::Snack:
+			return "Snack";
+		case TcpOptionEnumType::RecBound:
+			return "RecBound";
+		case TcpOptionEnumType::CorrExp:
+			return "CorrExp";
+		case TcpOptionEnumType::Qs:
+			return "Qs";
+		case TcpOptionEnumType::UserTo:
+			return "UserTo";
+		case TcpOptionEnumType::ExpFd:
+			return "ExpFd";
+		case TcpOptionEnumType::ExpFe:
+			return "ExpFe";
+		case TcpOptionEnumType::RvbdProbe:
+			return "RvbdProbe";
+		case TcpOptionEnumType::RvbdTrpy:
+			return "RvbdTrpy";
+		case TcpOptionEnumType::Unknown:
+		default:
+			return "Unknown";
+		}
+	}
 
 	/// ~~~~~~~~~~~~~~~~
 	/// TcpOptionBuilder
@@ -598,4 +657,66 @@ namespace pcpp
 	}
 	DISABLE_WARNING_POP
 
+	const FieldDescriptor TcpLayer::SerializedFields::SrcPort{ Layer::SerializedFields::MaxID + 1, "srcPort" };
+	const FieldDescriptor TcpLayer::SerializedFields::DstPort{ Layer::SerializedFields::MaxID + 2, "dstPort" };
+	const FieldDescriptor TcpLayer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 3,
+		                                                              "sequenceNumber" };
+	const FieldDescriptor TcpLayer::SerializedFields::TcpFlags{ Layer::SerializedFields::MaxID + 4, "tcpFlags" };
+	const FieldDescriptor TcpLayer::SerializedFields::TcpFlag{ 0, "tcpFlag" };
+	const FieldDescriptor TcpLayer::SerializedFields::WindowSize{ Layer::SerializedFields::MaxID + 5, "windowSize" };
+	const FieldDescriptor TcpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 6, "checksum" };
+	const FieldDescriptor TcpLayer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 7, "options" };
+	const FieldDescriptor TcpLayer::SerializedFields::Option{ 0, "option" };
+
+	void TcpLayer::serializeLayer(ISerializer& serializer) const
+	{
+		auto* header = getTcpHeader();
+		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));
+		serializer.writeField(SerializedFields::DstPort, netToHost16(header->portDst));
+		serializer.writeField(SerializedFields::SequenceNumber, netToHost32(header->sequenceNumber));
+		{
+			auto tcpFlagsArray = serializer.writeArray(SerializedFields::TcpFlags);
+			if (header->finFlag)
+			{
+				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "FIN");
+			}
+			if (header->synFlag)
+			{
+				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "SYN");
+			}
+			if (header->rstFlag)
+			{
+				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "RST");
+			}
+			if (header->pshFlag)
+			{
+				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "PSH");
+			}
+			if (header->ackFlag)
+			{
+				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "ACK");
+			}
+			if (header->urgFlag)
+			{
+				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "URG");
+			}
+			if (header->eceFlag)
+			{
+				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "ECE");
+			}
+			if (header->cwrFlag)
+			{
+				tcpFlagsArray.writeField(SerializedFields::TcpFlag, "CWR");
+			}
+		}
+		serializer.writeField(SerializedFields::WindowSize, netToHost16(header->windowSize));
+		serializer.writeHexField(SerializedFields::Checksum, header->headerChecksum);
+		{
+			auto options = serializer.writeArray(SerializedFields::Options);
+			for (auto option = getFirstTcpOption(); option.isNotNull(); option = getNextTcpOption(option))
+			{
+				options.writeField(SerializedFields::Option, tcpOptionTypeToString(option.getTcpOptionEnumType()));
+			}
+		}
+	}
 }  // namespace pcpp

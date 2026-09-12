@@ -278,6 +278,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestHttpResponseParsing, "no_network;http");
 	PTF_RUN_TEST(TestPrintPacketAndLayers, "no_network;print");
 	PTF_RUN_TEST(TestDnsParsing, "no_network;dns");
+	PTF_RUN_TEST(TestPacketSerialize, "no_network;serializera");
 
 	PTF_RUN_TEST(TestPfRingDevice, "pf_ring");
 	PTF_RUN_TEST(TestPfRingDeviceSingleChannel, "pf_ring");

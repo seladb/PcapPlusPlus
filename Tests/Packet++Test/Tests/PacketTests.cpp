@@ -1,6 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
+#include "Serializers.h"
 #include "Logger.h"
 #include "Packet.h"
 #include "EthLayer.h"
@@ -1231,3 +1232,12 @@ PTF_TEST_CASE(PacketFullReparseTest)
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
 }
+
+PTF_TEST_CASE(PacketSerializeTest)
+{
+	auto rawPacket = createPacketFromHexResource("PacketExamples/radius_1.dat");
+	pcpp::Packet packet(rawPacket.get(), false);
+	std::ofstream file("packet.json");
+	pcpp::JsonSerializer serializer(file);
+	packet.serialize(serializer);
+}  // PacketSerializeTest

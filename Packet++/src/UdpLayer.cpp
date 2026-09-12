@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleUdpLayer
 
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
 #include "IPv4Layer.h"
@@ -205,6 +206,18 @@ namespace pcpp
 		dstPortStream << getDstPort();
 
 		return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
+	}
+
+	const FieldDescriptor UdpLayer::SerializedFields::SrcPort{ Layer::SerializedFields::MaxID + 1, "srcPort" };
+	const FieldDescriptor UdpLayer::SerializedFields::DstPort{ Layer::SerializedFields::MaxID + 2, "dstPort" };
+	const FieldDescriptor UdpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3, "checksum" };
+
+	void UdpLayer::serializeLayer(ISerializer& serializer) const
+	{
+		auto* header = getUdpHeader();
+		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));
+		serializer.writeField(SerializedFields::DstPort, netToHost16(header->portDst));
+		serializer.writeHexField(SerializedFields::Checksum, header->headerChecksum);
 	}
 
 }  // namespace pcpp

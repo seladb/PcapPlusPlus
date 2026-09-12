@@ -65,6 +65,7 @@ PTF_TEST_CASE(PacketParseLayerLimitTest);
 PTF_TEST_CASE(PacketParseMultiLayerTest);
 PTF_TEST_CASE(PacketIncrementalParseTest);
 PTF_TEST_CASE(PacketFullReparseTest);
+PTF_TEST_CASE(PacketSerializeTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
