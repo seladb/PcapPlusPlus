@@ -646,7 +646,7 @@ namespace pcpp
 		};
 
 	private:
-		HttpRequestFirstLine(HttpRequestLayer* httpRequest);
+		explicit HttpRequestFirstLine(HttpRequestLayer* httpRequest);
 		HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version,
 		                     const std::string& uri = "/");
 
@@ -767,7 +767,7 @@ namespace pcpp
 		};
 
 	private:
-		HttpResponseFirstLine(HttpResponseLayer* httpResponse);
+		explicit HttpResponseFirstLine(HttpResponseLayer* httpResponse);
 		HttpResponseFirstLine(HttpResponseLayer* httpResponse, HttpVersion version,
 		                      const HttpResponseStatusCode& statusCode);
 
