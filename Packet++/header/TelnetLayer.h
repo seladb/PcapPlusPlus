@@ -24,7 +24,7 @@ namespace pcpp
 		// Get position of next command field
 		uint8_t* getNextCommandField(uint8_t* pos, size_t len);
 		// Get options of provided field
-		int16_t getSubCommand(uint8_t* pos, size_t len);
+		int16_t getSubCommand(const uint8_t* pos, size_t len);
 		// Get data of provided field
 		uint8_t* getCommandData(uint8_t* pos, size_t& slen);
 
