@@ -1,0 +1,94 @@
+name: Lint
+on:
+  push:
+    branches: ["master", "dev"]
+  pull_request:
+    branches: ["dev"]
+
+env:
+  BUILD_DIR: Dist
+  CPPCHECK_VERSION: 2.9
+  CPPCHECK_CACHE_PATHS: |
+    /usr/local/bin/cppcheck
+    /usr/local/share/Cppcheck
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ !(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev') }}
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    container: seladb/alpine317@sha256:d6b95ae66733358db3f5632b11c51fb0c2202898db6c4b350f099237c0fe8ad5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Install node for cache support
+        run : apk update && apk add nodejs
+
+      - name: Restore cppcheck
+        id: cppcheck-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+            path: ${{ env.CPPCHECK_CACHE_PATHS }}
+            key: cppcheck-${{ env.CPPCHECK_VERSION }}-${{ hashFiles('.github/workflows/lint.yml') }}
+
+      - name: Install cppcheck
+        if: steps.cppcheck-restore.outputs.cache-hit != 'true'
+        run: |
+          apk update && apk add pcre-dev
+          git clone --branch $CPPCHECK_VERSION --depth 1 https://github.com/cppcheck-opensource/cppcheck.git
+          cmake -S cppcheck -B cppcheck/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build cppcheck/build --parallel $(nproc)
+          cmake --install cppcheck/build
+          rm -rf cppcheck
+
+      - name: Save cppcheck
+        id: cppcheck-save
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+            path: ${{ env.CPPCHECK_CACHE_PATHS }}
+            key: ${{ steps.cppcheck-restore.outputs.cache-primary-key }}
+
+      - name: Install pre-commit
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install pre-commit
+
+      - name: Run pre-commit
+        run: |
+          . .venv/bin/activate
+          pre-commit run --all-files
+
+  clang-tidy:
+    runs-on: ubuntu-latest
+    container: seladb/alpine317@sha256:d6b95ae66733358db3f5632b11c51fb0c2202898db6c4b350f099237c0fe8ad5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Configure PcapPlusPlus for Static analysis
+        run: cmake -S . -B "$BUILD_DIR"
+
+      - name: Install clang-tidy
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install clang-tidy==18.1.8
+
+      - name: Run clang-tidy on changed files
+        run: |
+          ./ci/clang-tidy-all.sh changed "$BUILD_DIR"
