@@ -34,7 +34,6 @@ repos:
         # TODO: Add -I for each directory that contains header files that are included by the source files, for more thorough checking.
         args: ["--std=c++14", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force", "-ICommon++/header"]
         exclude: ^3rdParty/json
-        additional_dependencies: [cppcheck-py==2.9]
   - repo: https://github.com/BlankSpruce/gersemi
     rev: 0.26.1
     hooks:

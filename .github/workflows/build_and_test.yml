@@ -34,6 +34,12 @@ jobs:
 
       - name: Install dependencies
         run: |
+          apk update && apk add pcre-dev
+          git clone --branch $CPPCHECK_VERSION --depth 1 https://github.com/cppcheck-opensource/cppcheck.git
+          cmake -S cppcheck -B cppcheck/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build cppcheck/build --parallel $(nproc)
+          cmake --install cppcheck/build
+          rm -rf cppcheck
           python3 -m venv .venv
           . .venv/bin/activate
           python3 -m pip install pre-commit clang-tidy==18.1.8
