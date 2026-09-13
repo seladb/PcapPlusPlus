@@ -22,8 +22,13 @@ Every code contribution to this project is highly valued and appreciated. I enco
    - PcapPlusPlus compiles successfully on your machine, including all unit-tests and examples
    - Unit-tests pass successfully on your machine (both `Tests/Packet++Test` and `Tests/Pcap++Test`)
    - All new APIs are well documented using Doxygen (please use @ for keywords)
-   - Make sure that pre-commit hooks are passing by using `pre-commit run --all-files`. Install with:
+   - Make sure that pre-commit hooks are passing by using `pre-commit run --all-files`. For pre-commit hooks you need to install `cppcheck` on your system. You can install it using the following commands:
       - `pre-commit`: `pip install pre-commit`
+      - `cppcheck` (version 2.9 is recommended):
+         - For Linux (apt) `sudo apt install cppcheck`
+         - For Windows (using `choco`) `choco install cppcheck --version=2.9`
+         - For Windows (MSI install): https://github.com/cppcheck-opensource/cppcheck/releases/download/2.9/cppcheck-2.9-x64-Setup.msi
+         - Build from source: https://github.com/cppcheck-opensource/cppcheck/releases/tag/2.9
 - After you commit the code and push it to GitHub, before creating the pull request please make sure that:
    - You merge all new code from **dev** to your fork
    - CI passes on all platforms
