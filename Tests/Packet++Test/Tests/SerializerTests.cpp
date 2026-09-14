@@ -319,7 +319,11 @@ PTF_TEST_CASE(XmlSerializerTest)
 		{
 			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 		}
-		PTF_ASSERT_EQUAL(oss.str(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+</root>
+)");
 	}
 	{
 		std::ostringstream oss;
@@ -327,7 +331,11 @@ PTF_TEST_CASE(XmlSerializerTest)
 		{
 			auto arr = serializer.writeArray(pcpp::FieldDescriptor{ 1, "root" });
 		}
-		PTF_ASSERT_EQUAL(oss.str(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+</root>
+)");
 	}
 
 	// A single string field inside an object: the key forms the tag name,
@@ -340,7 +348,11 @@ PTF_TEST_CASE(XmlSerializerTest)
 			obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("value"));
 		}
 		PTF_ASSERT_EQUAL(oss.str(),
-		                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <name>value</name>\n</root>\n");
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <name>value</name>
+</root>
+)");
 	}
 
 	// String VALUE escaping: XML special characters ('&', '<', '>', '"', '\'')
@@ -352,9 +364,12 @@ PTF_TEST_CASE(XmlSerializerTest)
 			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 			obj.writeField(pcpp::FieldDescriptor{ 2, "value" }, std::string("a&b<c>d\"e'f"));
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <value>a&amp;b&lt;c&gt;d&quot;e&apos;f</value>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <value>a&amp;b&lt;c&gt;d&quot;e&apos;f</value>
+</root>
+)");
 	}
 
 	// Field NAME normalization / escaping: element tag names sanitize
@@ -366,9 +381,12 @@ PTF_TEST_CASE(XmlSerializerTest)
 			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 			obj.writeField(pcpp::FieldDescriptor{ 2, "weird_name_here" }, std::string("ok"));
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <weird_name_here>ok</weird_name_here>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <weird_name_here>ok</weird_name_here>
+</root>
+)");
 	}
 
 	// Non-ASCII / UTF-8 characters pass through verbatim into text nodes.
@@ -392,7 +410,12 @@ PTF_TEST_CASE(XmlSerializerTest)
 			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 			obj.writeField(pcpp::FieldDescriptor{ 2, "empty" }, std::string(""));
 		}
-		PTF_ASSERT_EQUAL(oss.str(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <empty/>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <empty/>
+</root>
+)");
 	}
 
 	// writeField(const char*) forwards to the std::string overload, so a
@@ -404,9 +427,12 @@ PTF_TEST_CASE(XmlSerializerTest)
 			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 			obj.writeField(pcpp::FieldDescriptor{ 2, "greeting" }, "hi & <there>");
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <greeting>hi &amp; &lt;there&gt;</greeting>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <greeting>hi &amp; &lt;there&gt;</greeting>
+</root>
+)");
 	}
 
 	// Multiple sibling fields in an object: consecutive child elements
@@ -420,9 +446,14 @@ PTF_TEST_CASE(XmlSerializerTest)
 			obj.writeField(pcpp::FieldDescriptor{ 3, "b" }, std::string("x"));
 			obj.writeField(pcpp::FieldDescriptor{ 4, "c" }, true);
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <a>1</a>\n  <b>x</b>\n  <c>true</c>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <a>1</a>
+  <b>x</b>
+  <c>true</c>
+</root>
+)");
 	}
 
 	// Array elements repeat child elements under the parent wrapper.
@@ -435,9 +466,14 @@ PTF_TEST_CASE(XmlSerializerTest)
 			arr.writeField(pcpp::FieldDescriptor{ 3, "item" }, std::string("b"));
 			arr.writeField(pcpp::FieldDescriptor{ 4, "item" }, std::string("c"));
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<items>\n  <item>a</item>\n  <item>b</item>\n  <item>c</item>\n</items>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<items>
+  <item>a</item>
+  <item>b</item>
+  <item>c</item>
+</items>
+)");
 	}
 
 	// Array with null elements
@@ -448,9 +484,12 @@ PTF_TEST_CASE(XmlSerializerTest)
 			auto arr = serializer.writeArray(pcpp::FieldDescriptor{ 1, "array" });
 			arr.writeNullField(pcpp::FieldDescriptor{ 2, "element" });
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<array>\n  <element xsi:nil=\"true\"/>\n</array>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<array>
+  <element xsi:nil="true"/>
+</array>
+)");
 	}
 
 	// Nested object inside an object: creates nested XML tags cleanly and
@@ -468,9 +507,17 @@ PTF_TEST_CASE(XmlSerializerTest)
 			}
 			obj.writeField(pcpp::FieldDescriptor{ 6, "after" }, static_cast<int64_t>(4));
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <before>1</before>\n  <nested>\n    <x>2</x>\n    <y>3</y>\n  </nested>\n  <after>4</after>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <before>1</before>
+  <nested>
+    <x>2</x>
+    <y>3</y>
+  </nested>
+  <after>4</after>
+</root>
+)");
 	}
 
 	// Array of objects: array elements containing nested objects render
@@ -489,9 +536,17 @@ PTF_TEST_CASE(XmlSerializerTest)
 				item2.writeField(pcpp::FieldDescriptor{ 5, "id" }, static_cast<int64_t>(2));
 			}
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <item>\n    <id>1</id>\n  </item>\n  <item>\n    <id>2</id>\n  </item>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <item>
+    <id>1</id>
+  </item>
+  <item>
+    <id>2</id>
+  </item>
+</root>
+)");
 	}
 
 	// Object containing an array-valued field: verifies context management
@@ -508,9 +563,16 @@ PTF_TEST_CASE(XmlSerializerTest)
 				tags.writeField(pcpp::FieldDescriptor{ 5, "t" }, std::string("b"));
 			}
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <name>pkt</name>\n  <tags>\n    <t>a</t>\n    <t>b</t>\n  </tags>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <name>pkt</name>
+  <tags>
+    <t>a</t>
+    <t>b</t>
+  </tags>
+</root>
+)");
 	}
 
 	// Signed integer fields: negative, zero, positive, plus a narrower
@@ -525,9 +587,15 @@ PTF_TEST_CASE(XmlSerializerTest)
 			obj.writeField(pcpp::FieldDescriptor{ 4, "pos" }, static_cast<int64_t>(42));
 			obj.writeField(pcpp::FieldDescriptor{ 5, "shortNeg" }, static_cast<int16_t>(-7));
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <neg>-42</neg>\n  <zero>0</zero>\n  <pos>42</pos>\n  <shortNeg>-7</shortNeg>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <neg>-42</neg>
+  <zero>0</zero>
+  <pos>42</pos>
+  <shortNeg>-7</shortNeg>
+</root>
+)");
 	}
 
 	// Unsigned integer fields: zero, small, and 64-bit maximum values are
@@ -541,9 +609,14 @@ PTF_TEST_CASE(XmlSerializerTest)
 			obj.writeField(pcpp::FieldDescriptor{ 3, "small" }, static_cast<uint32_t>(65535));
 			obj.writeField(pcpp::FieldDescriptor{ 4, "max" }, std::numeric_limits<uint64_t>::max());
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <zero>0</zero>\n  <small>65535</small>\n  <max>18446744073709551615</max>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <zero>0</zero>
+  <small>65535</small>
+  <max>18446744073709551615</max>
+</root>
+)");
 	}
 
 	// Double fields use standard floating-point text formatting.
@@ -556,9 +629,14 @@ PTF_TEST_CASE(XmlSerializerTest)
 			obj.writeField(pcpp::FieldDescriptor{ 3, "neg" }, -2.25);
 			obj.writeField(pcpp::FieldDescriptor{ 4, "whole" }, 0.0);
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <frac>3.5</frac>\n  <neg>-2.25</neg>\n  <whole>0</whole>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <frac>3.5</frac>
+  <neg>-2.25</neg>
+  <whole>0</whole>
+</root>
+)");
 	}
 
 	// Bool fields write literal `true`/`false` text inside elements.
@@ -570,9 +648,13 @@ PTF_TEST_CASE(XmlSerializerTest)
 			obj.writeField(pcpp::FieldDescriptor{ 2, "yes" }, true);
 			obj.writeField(pcpp::FieldDescriptor{ 3, "no" }, false);
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <yes>true</yes>\n  <no>false</no>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <yes>true</yes>
+  <no>false</no>
+</root>
+)");
 	}
 
 	// Null fields emit self-closing elements.
@@ -583,8 +665,12 @@ PTF_TEST_CASE(XmlSerializerTest)
 			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 			obj.writeNullField(pcpp::FieldDescriptor{ 2, "missing" });
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <missing xsi:nil=\"true\"/>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <missing xsi:nil="true"/>
+</root>
+)");
 	}
 
 	// Hex fields are always written as a "0x..."-prefixed string inside text elements.
@@ -597,9 +683,14 @@ PTF_TEST_CASE(XmlSerializerTest)
 			obj.writeHexField(pcpp::FieldDescriptor{ 3, "byte" }, 0xFF);
 			obj.writeHexField(pcpp::FieldDescriptor{ 4, "big" }, static_cast<uint64_t>(0xDEADBEEFULL));
 		}
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <zero>0x0</zero>\n  <byte>0xff</byte>\n  <big>0xdeadbeef</big>\n</root>\n");
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"(<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <zero>0x0</zero>
+  <byte>0xff</byte>
+  <big>0xdeadbeef</big>
+</root>
+)");
 	}
 
 	// Multiple root elements are not allowed
