@@ -35,9 +35,17 @@ else()
 endif()
 
 if(PCAPPP_INSTALL)
-  install(TARGETS BenchmarkExample EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+  install(
+    TARGETS BenchmarkExample
+    EXPORT PcapPlusPlusTargets
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR} COMPONENT examples
+  )
 
   if(TARGET BenchmarkExampleGoogle)
-    install(TARGETS BenchmarkExampleGoogle EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+    install(
+      TARGETS BenchmarkExampleGoogle
+      EXPORT PcapPlusPlusTargets
+      RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR} COMPONENT examples
+    )
   endif()
 endif()
