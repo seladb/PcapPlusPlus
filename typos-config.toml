@@ -12,9 +12,11 @@ extend-exclude = [  "*.toml",
                  ]
 
 [default.extend-identifiers]
+Sip181CallisBeingForwarded = "Sip181CallisBeingForwarded"
+# These identifiers below are from deprecated enums.
+# They can be removed when the release notes no longer need to mention them.
 SSLSymetricEncryptionAlgorithm = "SSLSymetricEncryptionAlgorithm"
 OsiModelSesionLayer = "OsiModelSesionLayer"
-Sip181CallisBeingForwarded = "Sip181CallisBeingForwarded"
 
 [default.extend-words]
 ue = "ue"

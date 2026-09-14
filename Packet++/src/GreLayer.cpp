@@ -85,7 +85,9 @@ namespace pcpp
 
 			if (field == curField)
 			{
-				if (curFieldExists || returnOffsetEvenIfFieldMissing)
+				// If the packet is truncated/malformed it might be overflow packet length
+				if ((curFieldExists && static_cast<size_t>(std::abs(ptr - m_Data)) <= m_DataLen) ||
+				    returnOffsetEvenIfFieldMissing)
 					return origPtr;
 
 				return nullptr;

@@ -53,7 +53,7 @@ namespace pcpp
 		/// received
 		/// @param[in] filter The filter to be set in PcapPlusPlus' GeneralFilter format
 		/// @return True if filter set successfully, false otherwise
-		bool setFilter(GeneralFilter& filter)
+		bool setFilter(GeneralFilter const& filter)
 		{
 			std::string filterAsString;
 			filter.parseToString(filterAsString);

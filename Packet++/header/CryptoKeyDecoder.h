@@ -76,7 +76,7 @@ namespace pcpp
 			std::string getCoefficient() const;
 
 		protected:
-			explicit RSAPrivateKeyDataView(Asn1SequenceRecord* root, std::string decoderType)
+			explicit RSAPrivateKeyDataView(Asn1SequenceRecord* root, std::string const& decoderType)
 			    : PrivateKeyDataView(root, decoderType)
 			{}
 
@@ -149,8 +149,8 @@ namespace pcpp
 			{}
 
 			CryptographicKey(uint8_t* derData, size_t derDataLen, bool ownDerData)
+			    : m_Root(Asn1Record::decode(derData, derDataLen))
 			{
-				m_Root = Asn1Record::decode(derData, derDataLen);
 				if (ownDerData)
 				{
 					m_DerData.reset(derData);
