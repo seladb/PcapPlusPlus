@@ -65,6 +65,10 @@
 #	define LIBPCAP_OPEN_LIVE_TIMEOUT -1
 #endif
 
+// Fallback used on Linux/Windows (where LIBPCAP_OPEN_LIVE_TIMEOUT is -1) when immediate mode is disabled and
+// packetBufferTimeoutMs isn't set, since libpcap's timeout behavior is unpredictable without immediate mode
+static const int NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT = 100;
+
 static const char* NFLOG_IFACE = "nflog";
 static const int DEFAULT_SNAPLEN = 9000;
 
@@ -660,7 +664,16 @@ namespace pcpp
 			throw std::runtime_error("Cannot set promiscuous mode, error was: " + std::string(pcap.getLastError()));
 		}
 
-		int timeout = (config.packetBufferTimeoutMs <= 0 ? LIBPCAP_OPEN_LIVE_TIMEOUT : config.packetBufferTimeoutMs);
+		bool useBufferedMode = config.bufferingMode == BufferingMode::Buffered;
+
+		int timeout = config.packetBufferTimeoutMs;
+		if (timeout <= 0)
+		{
+			// FreeBSD/macOS already have a positive LIBPCAP_OPEN_LIVE_TIMEOUT for the pcap_breakloop() workaround
+			bool useNonImmediateModeDefault = useBufferedMode && LIBPCAP_OPEN_LIVE_TIMEOUT <= 0;
+			// cppcheck-suppress knownConditionTrueFalse
+			timeout = useNonImmediateModeDefault ? NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT : LIBPCAP_OPEN_LIVE_TIMEOUT;
+		}
 		ret = pcap_set_timeout(pcap.get(), timeout);
 		if (ret != 0)
 		{
@@ -677,10 +690,13 @@ namespace pcpp
 		}
 
 #ifdef HAS_PCAP_IMMEDIATE_MODE
-		ret = pcap_set_immediate_mode(pcap.get(), 1);
-		if (ret != 0)
+		if (!useBufferedMode)
 		{
-			throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap.getLastError()));
+			ret = pcap_set_immediate_mode(pcap.get(), 1);
+			if (ret != 0)
+			{
+				throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap.getLastError()));
+			}
 		}
 #endif
 
