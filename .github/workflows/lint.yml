@@ -51,8 +51,8 @@ jobs:
           cmake --install cppcheck/build
           rm -rf cppcheck
 
-      - name: Save cppcheck
-        id: cppcheck-save
+      - name: Cache cppcheck
+        if: steps.cppcheck-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
             path: ${{ env.CPPCHECK_CACHE_PATHS }}
