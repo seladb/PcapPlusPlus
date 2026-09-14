@@ -6,13 +6,15 @@
 #include <string>
 #include <vector>
 #include <ctime>
+#include <bitset>
+#include <stdexcept>
 
 /// @file
 
 // @todo Change to constexpr when C++17 is minimum supported version
 enum : uint8_t
 {
-	MAX_NUM_OF_CORES = 32
+	MAX_NUM_OF_CORES = 32,
 };
 
 #ifdef _MSC_VER
@@ -23,22 +25,79 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp);
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	/// @brief A core mask which can support up to 32 cores.
+	using CoreMask = uint32_t;
+
+	DISABLE_WARNING_PUSH
+	DISABLE_WARNING_DEPRECATED
 
 	/// @struct SystemCore
-	/// Represents data of 1 CPU core. Current implementation supports up to 32 cores
+	/// @brief Represents data of 1 CPU core. Current implementation supports up to 32 cores
 	struct SystemCore
 	{
+		/// @brief Create a SystemCore object with a given core ID
+		///
+		/// Backward compatibility:
+		/// - For cores with ID < 32, the Mask attribute will be set to a 32-bit integer where only 1 bit is set,
+		/// according to the core ID.
+		/// - For cores with ID >= 32, the Mask attribute will be set to 0, as it cannot be represented in a 32-bit
+		/// mask.
+		///
+		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
+		constexpr explicit SystemCore(uint8_t coreId) : Mask(coreId < 32 ? 1U << coreId : 0), Id(coreId)
+		{}
 
-		/// Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set,
-		/// according to the core ID. For example:
+		/// @brief Create a SystemCore object with a given mask and core ID
+		///
+		/// This constructor is provided for backward compatibility with brace initialization. It is recommended to use
+		/// the constructor that takes only a core ID, as the mask can be derived from the core ID.
+		///
+		/// @param[in] mask The mask to create the SystemCore object for.
+		/// @param[in] coreId The core ID to create the SystemCore object for. Must be between 0 and 255.
+		/// @deprecated This constructor is deprecated and provided for backwards compatibility only.
+		/// Prefer to use the constructor that takes only a core ID.
+		PCPP_DEPRECATED(
+		    "This constructor is deprecated and provided for backwards compatibility only. Prefer to use the constructor that takes only a core ID.")
+		constexpr SystemCore(uint32_t mask, uint8_t coreId) : Mask(mask), Id(coreId)
+		{}
+
+		/// @brief Core position in a 32-bit mask.
+		///
+		/// For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID. For
+		/// example:
 		/// - In core #0 the right-most bit will be set (meaning the number 0x01);
 		/// - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
+		///
+		/// @warning For core IDs >= 32, this attribute will be set to 0, as it cannot be represented in a 32-bit mask.
+		///
+		/// @deprecated This mask field is deprecated and will be removed in the future.
+		/// Prefer to use getShortCoreMask() instead, which returns a 32-bit mask for cores with ID < 32.
+		PCPP_DEPRECATED("Use getShortCoreMask() instead to get a 32-bit mask for cores with ID < 32.")
 		uint32_t Mask;
 
-		/// Core ID - a value between 0 and 31
+		/// Core ID - a value between 0 and 255
 		uint8_t Id;
 
-		/// Overload of the comparison operator
+		/// @brief Gets the core position in a 32-bit mask.
+		///
+		/// For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID.
+		///
+		/// For example:
+		/// - In core #0 the right-most bit will be set (meaning the number 0x01);
+		/// - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
+		///
+		/// @return The short core mask representing only this core.
+		/// @throw std::out_of_range if the core ID is greater than 31, as it cannot be represented in a 32-bit mask.
+		constexpr CoreMask getShortCoreMask() const
+		{
+			if (Id >= 32)
+			{
+				throw std::out_of_range("Core ID is out of range for a short core mask");
+			}
+			return 1U << Id;
+		}
+
+		/// @brief Overload of the comparison operator
 		/// @return true if 2 addresses are equal. False otherwise
 		bool operator==(const SystemCore& other) const
 		{
@@ -46,9 +105,11 @@ namespace pcpp
 		}
 	};
 
+	DISABLE_WARNING_POP
+
 	/// @struct SystemCores
-	/// Contains static representation to all 32 cores and a static array to map core ID (integer) to a SystemCore
-	/// struct
+	/// @brief Contains static representation to all 32 cores and a static array to map core ID (integer) to a
+	/// SystemCore struct
 	struct SystemCores
 	{
 		/// Static representation of core #0
@@ -119,32 +180,139 @@ namespace pcpp
 		static const SystemCore IdToSystemCore[MAX_NUM_OF_CORES];
 	};
 
-	using CoreMask = uint32_t;
+	/// @brief An extended core mask which can support up to 256 cores.
+	///
+	/// Intended to be used in cases where the system has more than 32 cores, as CoreMask is limited to 32 bits.
+	struct LongCoreMask
+	{
+		/// @brief The maximum number of cores supported by LongCoreMask.
+		static const size_t MaxCoreCount = 256;
 
-	/// Get total number of cores on device
+		/// @brief A bitset representing the core mask.
+		/// Each bit corresponds to a core, where a set bit indicates that the core is included in the mask.
+		std::bitset<MaxCoreCount> Mask;
+
+		/// @brief Creates a LongCoreMask with all bits set to 0.
+		LongCoreMask() = default;
+
+		// cppcheck-suppress noExplicitConstructor
+		/// @brief Creates a LongCoreMask from a given CoreMask.
+		/// The lower 32 bits of the LongCoreMask will be set according to the provided CoreMask.
+		/// @param[in] mask The CoreMask to initialize the LongCoreMask with.
+		LongCoreMask(CoreMask mask) : Mask(mask)
+		{}
+
+		// cppcheck-suppress noExplicitConstructor
+		/// @brief Creates a LongCoreMask from a single SystemCore instance.
+		/// @param[in] core The SystemCore instance to initialize the LongCoreMask with.
+		LongCoreMask(SystemCore core);
+
+		/// @brief Creates a LongCoreMask from a vector of SystemCore instances.
+		/// @param[in] cores A vector of SystemCore instances to initialize the LongCoreMask with.
+		/// @throws std::out_of_range if any core ID in the vector is out of the valid range (0 to MaxCoreCount - 1).
+		explicit LongCoreMask(std::vector<SystemCore> const& cores);
+
+		/// @brief Creates a LongCoreMask representing all cores available on the machine.
+		/// @return The LongCoreMask with all bits set for the available cores.
+		static LongCoreMask fromAllCores();
+
+		/// @brief Converts the LongCoreMask to a vector of SystemCore instances.
+		/// @return A vector containing the SystemCore instances represented by the LongCoreMask.
+		std::vector<SystemCore> toCoreVector() const;
+
+		/// @brief Tests if a given SystemCore is included in the LongCoreMask.
+		/// @param core The SystemCore instance to test.
+		/// @return True if the core is included in the LongCoreMask, false otherwise.
+		bool test(SystemCore core) const
+		{
+			return Mask.test(core.Id);
+		}
+
+		LongCoreMask& operator|=(const LongCoreMask& other)
+		{
+			Mask |= other.Mask;
+			return *this;
+		}
+
+		LongCoreMask& operator&=(const LongCoreMask& other)
+		{
+			Mask &= other.Mask;
+			return *this;
+		}
+
+		LongCoreMask& operator^=(const LongCoreMask& other)
+		{
+			Mask ^= other.Mask;
+			return *this;
+		}
+	};
+
+	inline bool operator==(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		return lhs.Mask == rhs.Mask;
+	}
+
+	inline bool operator!=(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	inline LongCoreMask operator|(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		LongCoreMask result = lhs;
+		result.Mask |= rhs.Mask;
+		return result;
+	}
+
+	inline LongCoreMask operator&(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		LongCoreMask result = lhs;
+		result.Mask &= rhs.Mask;
+		return result;
+	}
+
+	inline LongCoreMask operator^(const LongCoreMask& lhs, const LongCoreMask& rhs)
+	{
+		LongCoreMask result = lhs;
+		result.Mask ^= rhs.Mask;
+		return result;
+	}
+
+	/// @brief Get total number of cores on device
 	/// @return Total number of CPU cores on device
 	int getNumOfCores();
 
-	/// Create a core mask for all cores available on machine. Since CoreMask is a 32-bit
-	/// value, on machines with more than MAX_NUM_OF_CORES (32) cores only the first 32
-	/// cores are represented in the returned mask
-	/// @return A core mask for all cores available on machine, capped at MAX_NUM_OF_CORES
+	/// @brief Create a core mask for all cores available on machine
+	///
+	/// The core mask is limited to the first 32 cores on the machine, as CoreMask is a 32-bit integer.
+	/// If the machine has more than 32 cores, only the first 32 cores will be included in the mask.
+	///
+	/// If a larger core mask is needed, consider using LongCoreMask instead, which can support up to 256 cores.
+	///
+	/// @return A core mask for all cores available on machine
 	CoreMask getCoreMaskForAllMachineCores();
 
-	/// Create a core mask from a vector of system cores
+	/// @brief Create a core mask from a vector of system cores
 	/// @param[in] cores A vector of SystemCore instances
 	/// @return A core mask representing these cores
+	/// @throws std::out_of_range if any core ID in the vector is out of the valid range (0 to 31).
 	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore>& cores);
 
-	/// Create a core mask from a vector of core IDs
+	/// @brief Create a core mask from a vector of core IDs
 	/// @param[in] coreIds A vector of core IDs
 	/// @return A core mask representing these cores
+	/// @throws std::out_of_range if any core ID in the vector is out of the valid range (0 to 31).
 	CoreMask createCoreMaskFromCoreIds(const std::vector<int>& coreIds);
 
-	/// Convert a core mask into a vector of its appropriate system cores
+	/// @brief Convert a core mask into a vector of its appropriate system cores
 	/// @param[in] coreMask The input core mask
 	/// @param[out] resultVec The vector that will contain the system cores
 	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& resultVec);
+
+	/// @brief Convert a core mask into a vector of its appropriate system cores
+	/// @param[in] coreMask The input core mask
+	/// @return A vector containing the system cores represented by the core mask
+	std::vector<SystemCore> createCoreVectorFromCoreMask(CoreMask coreMask);
 
 	/// Execute a shell command and return its output
 	/// @param[in] command The command to run
