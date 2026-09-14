@@ -308,3 +308,321 @@ PTF_TEST_CASE(JsonSerializerTest)
 		}
 	}
 }  // JsonSerializerTest
+
+PTF_TEST_CASE(XmlSerializerTest)
+{
+	// An empty object / empty array emits the XML declaration header followed by
+	// a self-closing element with the root tag name.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n</root>\n");
+	}
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto arr = serializer.writeArray(pcpp::FieldDescriptor{ 1, "root" });
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n</root>\n");
+	}
+
+	// A single string field inside an object: the key forms the tag name,
+	// and the value is wrapped inside opening and closing tags.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("value"));
+		}
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <name>value</name>\n</root>\n");
+	}
+
+	// String VALUE escaping: XML special characters ('&', '<', '>', '"', '\'')
+	// are escaped into entity references (&amp;, &lt;, &gt;, &quot;, &apos;).
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "value" }, std::string("a&b<c>d\"e'f"));
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <value>a&amp;b&lt;c&gt;d&quot;e&apos;f</value>\n</root>\n");
+	}
+
+	// Field NAME normalization / escaping: element tag names sanitize
+	// invalid XML tag characters or convert them to valid identifiers.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "weird_name_here" }, std::string("ok"));
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <weird_name_here>ok</weird_name_here>\n</root>\n");
+	}
+
+	// Non-ASCII / UTF-8 characters pass through verbatim into text nodes.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "field" }, std::string("h\xc3\xa9llo/w\xc3\xb6rld"));
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <field>h\xc3\xa9llo/w\xc3\xb6rld</field>\n</root>\n");
+	}
+
+	// An empty string value emits a self-closing child element.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "empty" }, std::string(""));
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <empty/>\n</root>\n");
+	}
+
+	// writeField(const char*) forwards to the std::string overload, so a
+	// C-string value is escaped in text nodes the same way.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "greeting" }, "hi & <there>");
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <greeting>hi &amp; &lt;there&gt;</greeting>\n</root>\n");
+	}
+
+	// Multiple sibling fields in an object: consecutive child elements
+	// are appended sequentially within the container tag.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "a" }, static_cast<int64_t>(1));
+			obj.writeField(pcpp::FieldDescriptor{ 3, "b" }, std::string("x"));
+			obj.writeField(pcpp::FieldDescriptor{ 4, "c" }, true);
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <a>1</a>\n  <b>x</b>\n  <c>true</c>\n</root>\n");
+	}
+
+	// Array elements repeat child elements under the parent wrapper.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto arr = serializer.writeArray(pcpp::FieldDescriptor{ 1, "items" });
+			arr.writeField(pcpp::FieldDescriptor{ 2, "item" }, std::string("a"));
+			arr.writeField(pcpp::FieldDescriptor{ 3, "item" }, std::string("b"));
+			arr.writeField(pcpp::FieldDescriptor{ 4, "item" }, std::string("c"));
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<items>\n  <item>a</item>\n  <item>b</item>\n  <item>c</item>\n</items>\n");
+	}
+
+	// Array with null elements
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto arr = serializer.writeArray(pcpp::FieldDescriptor{ 1, "array" });
+			arr.writeNullField(pcpp::FieldDescriptor{ 2, "element" });
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<array>\n  <element xsi:nil=\"true\"/>\n</array>\n");
+	}
+
+	// Nested object inside an object: creates nested XML tags cleanly and
+	// closes tags in LIFO scope order.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "before" }, static_cast<int64_t>(1));
+			{
+				auto inner = obj.writeObject(pcpp::FieldDescriptor{ 3, "nested" });
+				inner.writeField(pcpp::FieldDescriptor{ 4, "x" }, static_cast<int64_t>(2));
+				inner.writeField(pcpp::FieldDescriptor{ 5, "y" }, static_cast<int64_t>(3));
+			}
+			obj.writeField(pcpp::FieldDescriptor{ 6, "after" }, static_cast<int64_t>(4));
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <before>1</before>\n  <nested>\n    <x>2</x>\n    <y>3</y>\n  </nested>\n  <after>4</after>\n</root>\n");
+	}
+
+	// Array of objects: array elements containing nested objects render
+	// repeated child tags.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto arr = serializer.writeArray(pcpp::FieldDescriptor{ 1, "root" });
+			{
+				auto item1 = arr.writeObject(pcpp::FieldDescriptor{ 2, "item" });
+				item1.writeField(pcpp::FieldDescriptor{ 3, "id" }, static_cast<int64_t>(1));
+			}
+			{
+				auto item2 = arr.writeObject(pcpp::FieldDescriptor{ 4, "item" });
+				item2.writeField(pcpp::FieldDescriptor{ 5, "id" }, static_cast<int64_t>(2));
+			}
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <item>\n    <id>1</id>\n  </item>\n  <item>\n    <id>2</id>\n  </item>\n</root>\n");
+	}
+
+	// Object containing an array-valued field: verifies context management
+	// across mixed object/array nesting.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("pkt"));
+			{
+				auto tags = obj.writeArray(pcpp::FieldDescriptor{ 3, "tags" });
+				tags.writeField(pcpp::FieldDescriptor{ 4, "t" }, std::string("a"));
+				tags.writeField(pcpp::FieldDescriptor{ 5, "t" }, std::string("b"));
+			}
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <name>pkt</name>\n  <tags>\n    <t>a</t>\n    <t>b</t>\n  </tags>\n</root>\n");
+	}
+
+	// Signed integer fields: negative, zero, positive, plus a narrower
+	// signed width funneled into the int64_t overload.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "neg" }, static_cast<int64_t>(-42));
+			obj.writeField(pcpp::FieldDescriptor{ 3, "zero" }, static_cast<int64_t>(0));
+			obj.writeField(pcpp::FieldDescriptor{ 4, "pos" }, static_cast<int64_t>(42));
+			obj.writeField(pcpp::FieldDescriptor{ 5, "shortNeg" }, static_cast<int16_t>(-7));
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <neg>-42</neg>\n  <zero>0</zero>\n  <pos>42</pos>\n  <shortNeg>-7</shortNeg>\n</root>\n");
+	}
+
+	// Unsigned integer fields: zero, small, and 64-bit maximum values are
+	// serialized directly into element text content.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "zero" }, static_cast<uint64_t>(0));
+			obj.writeField(pcpp::FieldDescriptor{ 3, "small" }, static_cast<uint32_t>(65535));
+			obj.writeField(pcpp::FieldDescriptor{ 4, "max" }, std::numeric_limits<uint64_t>::max());
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <zero>0</zero>\n  <small>65535</small>\n  <max>18446744073709551615</max>\n</root>\n");
+	}
+
+	// Double fields use standard floating-point text formatting.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "frac" }, 3.5);
+			obj.writeField(pcpp::FieldDescriptor{ 3, "neg" }, -2.25);
+			obj.writeField(pcpp::FieldDescriptor{ 4, "whole" }, 0.0);
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <frac>3.5</frac>\n  <neg>-2.25</neg>\n  <whole>0</whole>\n</root>\n");
+	}
+
+	// Bool fields write literal `true`/`false` text inside elements.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "yes" }, true);
+			obj.writeField(pcpp::FieldDescriptor{ 3, "no" }, false);
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <yes>true</yes>\n  <no>false</no>\n</root>\n");
+	}
+
+	// Null fields emit self-closing elements.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeNullField(pcpp::FieldDescriptor{ 2, "missing" });
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <missing xsi:nil=\"true\"/>\n</root>\n");
+	}
+
+	// Hex fields are always written as a "0x..."-prefixed string inside text elements.
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeHexField(pcpp::FieldDescriptor{ 2, "zero" }, static_cast<uint64_t>(0));
+			obj.writeHexField(pcpp::FieldDescriptor{ 3, "byte" }, 0xFF);
+			obj.writeHexField(pcpp::FieldDescriptor{ 4, "big" }, static_cast<uint64_t>(0xDEADBEEFULL));
+		}
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <zero>0x0</zero>\n  <byte>0xff</byte>\n  <big>0xdeadbeef</big>\n</root>\n");
+	}
+
+	// Multiple root elements are not allowed
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			PTF_ASSERT_RAISES(serializer.writeArray(pcpp::FieldDescriptor{ 1, "anotherRoot" }), std::logic_error,
+			                  "Only one root value may be written per instance");
+			PTF_ASSERT_RAISES(serializer.writeObject(pcpp::FieldDescriptor{ 1, "anotherRoot" }), std::logic_error,
+			                  "Only one root value may be written per instance");
+		}
+	}
+	{
+		std::ostringstream oss;
+		pcpp::XmlSerializer serializer(oss);
+		{
+			auto arr = serializer.writeArray(pcpp::FieldDescriptor{ 1, "root" });
+			PTF_ASSERT_RAISES(serializer.writeArray(pcpp::FieldDescriptor{ 1, "anotherRoot" }), std::logic_error,
+			                  "Only one root value may be written per instance");
+			PTF_ASSERT_RAISES(serializer.writeObject(pcpp::FieldDescriptor{ 1, "anotherRoot" }), std::logic_error,
+			                  "Only one root value may be written per instance");
+		}
+	}
+}  // XmlSerializerTest

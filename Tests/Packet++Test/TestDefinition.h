@@ -370,3 +370,4 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest);
 
 // Implemented in SerializerTests.cpp
 PTF_TEST_CASE(JsonSerializerTest);
+PTF_TEST_CASE(XmlSerializerTest);

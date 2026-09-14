@@ -596,12 +596,6 @@ namespace pcpp
 
 		writeIndent();
 		writeCloseTag(ctx.name);
-
-		if (m_ContextStack.empty())
-		{
-			// Root object closed - all done
-			m_Out << "\n";
-		}
 	}
 
 	void XmlSerializer::startArray(const FieldDescriptor& field)
@@ -668,17 +662,7 @@ namespace pcpp
 
 	void XmlSerializer::writeNullField(const FieldDescriptor& field)
 	{
-		// Create an empty element with xsi:nil attribute to represent null
-		if (!m_ContextStack.empty() && m_ContextStack.back().isArray)
-		{
-			// In an array: <item xsi:nil="true"/>
-			writeIndent();
-			m_Out << "<item xsi:nil=\"true\"/>\n";
-		}
-		else
-		{
-			writeValueElement(resolveElementName(field.name, "field"), "", true);
-		}
+		writeValueElement(resolveElementName(field.name, "field"), "", true);
 	}
 
 	void XmlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value)
@@ -716,7 +700,7 @@ namespace pcpp
 			m_Out << " xsi:nil=\"true\"";
 		}
 
-		if (value.empty() && !isNull)
+		if (value.empty() || isNull)
 		{
 			// Empty value - self-closing tag
 			m_Out << "/>\n";
