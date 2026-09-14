@@ -50,6 +50,8 @@ int(*close_compressed)(struct light_file_t *) = &close_zstd_compressed;
 _compression_t * get_zstd_compression_context(int compression_level)
 {
 	struct zstd_compression_t *context = calloc(1, sizeof(struct zstd_compression_t));
+	if (context == NULL) // ---> PCPP patch
+		return NULL;
 	context->cctx = ZSTD_createCCtx();
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
@@ -57,6 +59,11 @@ _compression_t * get_zstd_compression_context(int compression_level)
 	context->buffer_out_max_size = max(ZSTD_CStreamOutSize(), COMPRESSION_BUFFER_IN_MAX_SIZE);
 	context->buffer_in = malloc(context->buffer_in_max_size);
 	context->buffer_out = malloc(context->buffer_out_max_size);
+	if (context->buffer_in == NULL || context->buffer_out == NULL)
+	{
+		free_zstd_compression_context(context);
+		return NULL;
+	}
 	// Map 0-10 input scale onto zstd's 1-22 range; preserve 0 as the "default
 	// compression" sentinel. setParameter must run outside assert() so its
 	// side effect is not stripped under NDEBUG.
@@ -84,6 +91,8 @@ void free_zstd_compression_context(_compression_t* context)
 _decompression_t * get_zstd_decompression_context()
 {
 	struct zstd_decompression_t *context = calloc(1, sizeof(struct zstd_decompression_t));
+	if (context == NULL) // ---> PCPP patch
+		return NULL;
 	context->dctx = ZSTD_createDCtx();
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = ZSTD_DStreamInSize();;
@@ -91,6 +100,11 @@ _decompression_t * get_zstd_decompression_context()
 	context->buffer_out_max_size = max(ZSTD_DStreamOutSize(), COMPRESSION_BUFFER_IN_MAX_SIZE);
 	context->buffer_in = malloc(context->buffer_in_max_size);
 	context->buffer_out = malloc(context->buffer_out_max_size);
+	if (context->buffer_in == NULL || context->buffer_out == NULL)
+	{
+		free_zstd_decompression_context(context);
+		return NULL;
+	}
 
 	context->output.dst = context->buffer_out;
 	context->output.size = context->buffer_out_max_size;
@@ -225,6 +239,9 @@ size_t write_zstd_compressed(light_file fd, const void *buf, size_t count)
 
 int close_zstd_compressed(light_file fd)
 {
+	if (fd == NULL) // ---> PCPP patch
+		return NULL;
+
 	//Wrap up the compression here
 	if (fd->compression_context)
 	{

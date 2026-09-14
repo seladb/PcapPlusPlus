@@ -49,6 +49,7 @@ static void __parse_mem_inplace(struct _light_pcapng_mem *head, uint32_t *memory
 	}
 
 	head->mem_blocks = calloc(head->block_count, sizeof(uint32_t *));
+	DCHECK_NULLP(head->mem_blocks, return); // ---> PCPP patch
 	iterator = memory;
 	for (i = 0; i < head->block_count; ++i) {
 		head->mem_blocks[i] = iterator;
