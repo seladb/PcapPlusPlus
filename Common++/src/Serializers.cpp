@@ -63,13 +63,30 @@ namespace pcpp
 	// ISerializer
 	// ============================================================
 
+	void ISerializer::enforceOneRoot()
+	{
+		if (!m_ShouldEnforceOneRoot)
+		{
+			return;
+		}
+
+		if (m_RootWritten)
+		{
+			throw std::logic_error("Only one root value may be written per instance");
+		}
+
+		m_RootWritten = true;
+	}
+
 	ArrayScope ISerializer::writeArray(const FieldDescriptor& field)
 	{
+		enforceOneRoot();
 		return { this, field };
 	}
 
 	ObjectScope ISerializer::writeObject(const FieldDescriptor& field)
 	{
+		enforceOneRoot();
 		return { this, field };
 	}
 

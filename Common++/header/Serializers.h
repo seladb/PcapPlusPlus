@@ -140,6 +140,13 @@ namespace pcpp
 		virtual void endObject() = 0;
 		virtual void startArray(const FieldDescriptor& field) = 0;
 		virtual void endArray() = 0;
+
+		void enforceOneRoot();
+
+		bool m_ShouldEnforceOneRoot = true;
+
+	private:
+		bool m_RootWritten = false;
 	};
 
 	class ScopeBase : public ISerializer
@@ -178,7 +185,10 @@ namespace pcpp
 		void endArray() override;
 
 		explicit ScopeBase(ISerializer* serializer) : m_Serializer(serializer)
-		{}
+		{
+			m_ShouldEnforceOneRoot = false;
+		}
+
 		ISerializer* m_Serializer;
 	};
 
