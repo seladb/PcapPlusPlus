@@ -598,7 +598,7 @@ namespace pcpp
 		};
 
 	protected:
-		void serializeLayer(ISerializer& serializer) const override;
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		TLVRecordReader<TcpOption> m_OptionReader;

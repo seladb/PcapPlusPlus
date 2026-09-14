@@ -668,7 +668,7 @@ namespace pcpp
 	const FieldDescriptor TcpLayer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 7, "options" };
 	const FieldDescriptor TcpLayer::SerializedFields::Option{ 0, "option" };
 
-	void TcpLayer::serializeLayer(ISerializer& serializer) const
+	void TcpLayer::serializeLayer(ObjectScope& serializer) const
 	{
 		auto* header = getTcpHeader();
 		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));

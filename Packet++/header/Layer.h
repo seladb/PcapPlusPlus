@@ -575,7 +575,7 @@ namespace pcpp
 			return data != nullptr && dataLen >= sizeof(T);
 		}
 
-		virtual void serializeLayer(ISerializer& serializer) const
+		virtual void serializeLayer(ObjectScope& serializer) const
 		{}
 	};
 

@@ -212,7 +212,7 @@ namespace pcpp
 	const FieldDescriptor UdpLayer::SerializedFields::DstPort{ Layer::SerializedFields::MaxID + 2, "dstPort" };
 	const FieldDescriptor UdpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3, "checksum" };
 
-	void UdpLayer::serializeLayer(ISerializer& serializer) const
+	void UdpLayer::serializeLayer(ObjectScope& serializer) const
 	{
 		auto* header = getUdpHeader();
 		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));

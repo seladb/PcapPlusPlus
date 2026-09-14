@@ -122,7 +122,7 @@ namespace pcpp
 		                                                             "dstMacAddress" };
 	const FieldDescriptor EthLayer::SerializedFields::EtherType{ Layer::SerializedFields::MaxID + 3, "etherType" };
 
-	void EthLayer::serializeLayer(ISerializer& serializer) const
+	void EthLayer::serializeLayer(ObjectScope& serializer) const
 	{
 		auto* header = getEthHeader();
 		serializer.writeField(SerializedFields::SrcMacAddress, getSourceMac().toString());

@@ -682,7 +682,7 @@ namespace pcpp
 	const FieldDescriptor IPv4Layer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 6, "options" };
 	const FieldDescriptor IPv4Layer::SerializedFields::Option{ 0, "option" };
 
-	void IPv4Layer::serializeLayer(ISerializer& serializer) const
+	void IPv4Layer::serializeLayer(ObjectScope& serializer) const
 	{
 		serializer.writeField(SerializedFields::SrcIp, getSrcIPAddress().toString());
 		serializer.writeField(SerializedFields::DstIp, getDstIPAddress().toString());

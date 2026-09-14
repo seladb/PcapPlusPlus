@@ -623,7 +623,7 @@ namespace pcpp
 		};
 
 	protected:
-		void serializeLayer(ISerializer& serializer) const override;
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		int m_NumOfTrailingBytes;

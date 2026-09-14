@@ -106,7 +106,7 @@ namespace pcpp
 		};
 
 	protected:
-		void serializeLayer(ISerializer& serializer) const override;
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	bool UdpLayer::isDataValid(const uint8_t* data, size_t dataLen)

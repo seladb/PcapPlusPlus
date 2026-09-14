@@ -404,7 +404,7 @@ namespace pcpp
 		                                                              "payloadLength" };
 	const FieldDescriptor IPv6Layer::SerializedFields::NextHeader{ Layer::SerializedFields::MaxID + 4, "nextHeader" };
 
-	void IPv6Layer::serializeLayer(ISerializer& serializer) const
+	void IPv6Layer::serializeLayer(ObjectScope& serializer) const
 	{
 		serializer.writeField(SerializedFields::SrcIp, getSrcIPAddress().toString());
 		serializer.writeField(SerializedFields::DstIp, getDstIPAddress().toString());
