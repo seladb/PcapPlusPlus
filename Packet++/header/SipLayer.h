@@ -95,7 +95,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
-			return OsiModelSesionLayer;
+			return OsiModelSessionLayer;
 		}
 
 		/// Currently identifies only SDP if content-length field exists and set to a value greater than zero.
@@ -617,7 +617,7 @@ namespace pcpp
 		};
 
 	private:
-		SipRequestFirstLine(SipRequestLayer* sipRequest);
+		explicit SipRequestFirstLine(SipRequestLayer* sipRequest);
 		SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, const std::string& version,
 		                    const std::string& uri);
 
@@ -742,7 +742,7 @@ namespace pcpp
 		};
 
 	private:
-		SipResponseFirstLine(SipResponseLayer* sipResponse);
+		explicit SipResponseFirstLine(SipResponseLayer* sipResponse);
 		SipResponseFirstLine(SipResponseLayer* sipResponse, const std::string& version,
 		                     SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "");
 

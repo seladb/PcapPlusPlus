@@ -185,6 +185,7 @@ namespace pcpp
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen);
 		}
 
+		// cppcheck-suppress knownConditionTrueFalse
 		if (!hasNextLayer())
 		{
 			constructNextLayer<PayloadLayer>(udpData, udpDataLen);
