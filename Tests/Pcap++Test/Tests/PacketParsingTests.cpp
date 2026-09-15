@@ -2,10 +2,15 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 #include <fstream>
+#include <chrono>
+#include "Serializers.h"
 #include "Packet.h"
 #include "HttpLayer.h"
 #include "DnsLayer.h"
 #include "PcapFileDevice.h"
+
+#include <IPv4Layer.h>
+#include <PacketUtils.h>
 
 PTF_TEST_CASE(TestHttpRequestParsing)
 {
@@ -473,3 +478,144 @@ PTF_TEST_CASE(TestDnsParsing)
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.type == 47
 	PTF_ASSERT_EQUAL(additionalWithTypeNSEC, 14);
 }  // TestDnsParsing
+
+class MeasureTime
+{
+public:
+	explicit MeasureTime(const char* name) : name_(name), start_(std::chrono::steady_clock::now())
+	{}
+
+	~MeasureTime()
+	{
+		const auto end = std::chrono::steady_clock::now();
+		const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start_);
+
+		std::cout << name_ << ": " << elapsed.count() << " ms\n";
+	}
+
+private:
+	const char* name_;
+	std::chrono::steady_clock::time_point start_;
+};
+
+PTF_TEST_CASE(TestPacketSerialize)
+{
+	pcpp::PcapFileReaderDevice readerDev(EXAMPLE2_PCAP_PATH);
+	PTF_ASSERT_TRUE(readerDev.open());
+
+	pcpp::RawPacket rawPacket;
+	pcpp::RawPacketVector rawPacketPtrVec;
+
+	size_t packetCount = 4709;
+	{
+		MeasureTime timer("Read packets");
+		readerDev.getNextPackets(rawPacketPtrVec, packetCount);
+	}
+
+	// while (readerDev.getNextPacket(rawPacket))
+	//{
+	//	pcpp::Packet packet(&rawPacket);
+	//	packet.serialize(serializer);
+	//	index++;
+	//	if (index == 1500)
+	//	{
+	//		break;
+	//	}
+	// }
+
+	pcpp::PointerVector<pcpp::Packet> packetPtrVec;
+	{
+		MeasureTime timer("Parse packets");
+		for (const auto& rawPacketPtr : rawPacketPtrVec)
+		{
+			packetPtrVec.pushBack(new pcpp::Packet(rawPacketPtr, false));
+		}
+	}
+
+	{
+		MeasureTime timer("Serialize packets - json 1");
+		std::ofstream file("packets.json");
+		pcpp::JsonSerializer serializer(file);
+		pcpp::PacketSerializer packetSerializer(serializer);
+		packetSerializer.addPackets(packetPtrVec);
+	}
+
+	{
+		MeasureTime timer("Serialize packets - json - packet by packet");
+		std::ofstream file("packets2.json");
+		pcpp::JsonSerializer serializer(file);
+		pcpp::PacketSerializer packetSerializer(serializer);
+		for (const auto* packet : packetPtrVec)
+		{
+			packetSerializer.addPacket(packet);
+		}
+	}
+
+	{
+		MeasureTime timer("Serialize packets - json - parsing and serializing");
+		std::ofstream file("packets3.json");
+		pcpp::JsonSerializer serializer(file);
+		pcpp::PacketSerializer packetSerializer(serializer);
+		for (const auto& rawPacketPtr : rawPacketPtrVec)
+		{
+			pcpp::Packet packet(rawPacketPtr, false);
+			packetSerializer.addPacket(packet);
+		}
+	}
+
+	{
+		MeasureTime timer("Serialize packets - json - parse pcap file");
+		std::ofstream file("packets4.json");
+		pcpp::JsonSerializer serializer(file);
+		pcpp::PcapFileReaderDevice readerDev2(EXAMPLE2_PCAP_PATH);
+		PTF_ASSERT_TRUE(readerDev2.open());
+		PTF_ASSERT_EQUAL(pcpp::serializePackets(readerDev2, serializer), packetCount);
+	}
+
+	{
+		MeasureTime timer("Serialize packets - xml");
+		std::ofstream file("packets.xml");
+		pcpp::XmlSerializer serializer(file);
+		pcpp::PacketSerializer packetSerializer(serializer);
+		packetSerializer.addPackets(packetPtrVec);
+	}
+
+	{
+		MeasureTime timer("Serialize packets - yaml");
+		std::ofstream file("packets.yaml");
+		pcpp::YamlSerializer serializer(file);
+		pcpp::PacketSerializer packetSerializer(serializer);
+		packetSerializer.addPackets(packetPtrVec);
+	}
+
+	// {
+	// 	MeasureTime timer("Serialize packets - json 2");
+	// 	std::ofstream file("packets2.json");
+	// 	pcpp::JsonSerializer2 serializer(file);
+	// 	auto packetArray = serializer.writeArray(packets);
+	//
+	// 	for (const auto* packet : packetPtrVec)
+	// 	{
+	// 		packet->serialize(packetArray);
+	// 	}
+	// }
+
+	std::cout << "IPv4:" << std::endl << "============" << std::endl;
+	for (const auto& field : pcpp::IPv4Layer::SerializedFields::all())
+	{
+		std::cout << field.name << " (ID: " << field.id << ")" << std::endl;
+	}
+
+	std::cout << "Packet:" << std::endl << "============" << std::endl;
+	for (const auto& field : pcpp::Packet::SerializedFields::all())
+	{
+		std::cout << field.name << " (ID: " << field.id << ")" << std::endl;
+		if (field.hasChildren())
+		{
+			for (const auto& subField : field.children())
+			{
+				std::cout << "    " << subField.name << " (ID: " << subField.id << ")" << std::endl;
+			}
+		}
+	}
+}  // TestPacketSerialize

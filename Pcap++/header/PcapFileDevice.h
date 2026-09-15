@@ -626,4 +626,6 @@ namespace pcpp
 		/// Close the snoop file
 		void close() override;
 	};
+
+	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer);
 }  // namespace pcpp
