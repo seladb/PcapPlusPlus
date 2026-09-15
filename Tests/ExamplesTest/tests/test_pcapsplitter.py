@@ -268,6 +268,48 @@ class TestPcapSplitter(ExampleTest):
 
                 assert packet_conn == conn
 
+    @pytest.mark.no_pcap
+    def test_split_by_connection_with_reused_five_tuple(self, tmpdir):
+        # reused-five-tuple.pcap: 12 TCP sessions, 4 packets (SYN/SYN-ACK/ACK/FIN)
+        # each = 48 packets total. Session 1 and session 12 share the exact same
+        # 5-tuple (10 unrelated sessions in between), so getFileNumber() assigns
+        # them different file numbers but they'd produce the same filename -- the
+        # collision from seladb/PcapPlusPlus#2248.
+        args = {
+            "-f": os.path.join("pcap_examples", "reused-five-tuple.pcap"),
+            "-o": tmpdir,
+            "-m": "connection",
+        }
+        self.run_example(args=args)
+
+        filenames = os.listdir(tmpdir)
+        # one file per session, not one per unique 5-tuple: the reused 5-tuple
+        # must produce two files, not collide into one
+        assert len(filenames) == 12
+
+        total_packets = 0
+        base_names = []
+        for filename in filenames:
+            packets = rdpcap(os.path.join(tmpdir, filename))
+            total_packets += len(packets)
+            base_names.append(os.path.splitext(filename)[0])
+        # no packets lost to a silent write collision
+        assert total_packets == 48
+
+        # exactly one base name repeats: the first session keeps it unsuffixed,
+        # the second (colliding) session gets a "-<fileNumber>" suffix
+        reused_base = [n for n in base_names if "40001" in n]
+        assert len(reused_base) == 2
+        unsuffixed = [n for n in reused_base if not n.split("-")[-1].isdigit()]
+        suffixed = [n for n in reused_base if n.split("-")[-1].isdigit()]
+        assert len(unsuffixed) == 1
+        assert len(suffixed) == 1
+        assert suffixed[0] == unsuffixed[0] + "-" + suffixed[0].split("-")[-1]
+
+        # every other (non-colliding) session's filename is untouched by the fix
+        other_bases = [n for n in base_names if "40001" not in n]
+        assert all(not n.split("-")[-1].isdigit() for n in other_bases)
+
     def test_split_by_bpf_filter(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),
