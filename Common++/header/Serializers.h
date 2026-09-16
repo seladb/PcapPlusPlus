@@ -9,36 +9,43 @@
 namespace pcpp
 {
 	/// @struct FieldDescriptor
-	/// Documents ONE field a layer serializes — id/name/semanticType are
-	/// the same values internalSerialize() actually writes, because
-	/// writeField() below REQUIRES a FieldDescriptor rather than accepting
-	/// raw (id, name) — so there is exactly one place each field's identity
-	/// is ever written down, referenced both by internalSerialize() and by
-	/// getFieldCatalog(). What this does NOT do: statically stop one
-	/// layer's internalSerialize() from using another layer's
-	/// FieldDescriptor constant (that would need FieldDescriptor<LayerT> +
-	/// a CRTP base requiring every call go through a layer-bound method —
-	/// evaluated and deliberately not used here, in favor of this simpler,
-	/// non-templated version).
+	/// Describes a serializable field.
 	struct FieldDescriptor
 	{
+		/// Stable numeric identifier of the field.
 		const uint16_t id;
+
+		/// Name of the field.
 		const std::string name;
+
+		/// Function returning the descriptors of the field's children, or nullptr if the field has no children.
 		std::vector<FieldDescriptor> (*const children)();
 
+		/// Create a field descriptor.
+		/// @param[in] fieldId The stable numeric identifier of the field
+		/// @param[in] fieldName The name of the field
+		/// @param[in] fieldChildren A function returning the field's child descriptors, or nullptr if the field has no
+		/// children
 		FieldDescriptor(uint16_t fieldId, std::string fieldName,
 		                std::vector<FieldDescriptor> (*fieldChildren)() = nullptr)
 		    : id(fieldId), name(std::move(fieldName)), children(fieldChildren)
 		{}
 
+		/// Check whether the field has child fields.
+		/// @return True if the field has child fields, false otherwise
 		bool hasChildren() const
 		{
 			return children != nullptr;
 		}
 	};
 
+	/// @struct ObjectFieldDescriptor
+	/// Describes a serializable object field and its child fields.
 	template <typename Derived> struct ObjectFieldDescriptor : FieldDescriptor
 	{
+		/// Create an object field descriptor.
+		/// @param[in] fieldId The stable numeric identifier of the field
+		/// @param[in] fieldName The name of the field
 		ObjectFieldDescriptor(uint16_t fieldId, std::string fieldName)
 		    : FieldDescriptor(fieldId, std::move(fieldName), &Derived::all)
 		{}
@@ -49,38 +56,7 @@ namespace pcpp
 	class ObjectScope;
 
 	/// @class ISerializer
-	/// Abstract interface for serializing structured data into a
-	/// machine-readable format (JSON, YAML, XML, ...). Deliberately knows
-	/// nothing about Packet or Layer — it only exposes generic containers
-	/// (object/array) and scalar field writes. Packet::serialize() and
-	/// Layer::serialize() decide entirely on their own what containers to
-	/// open, what to name them, and what fields to write inside them; this
-	/// interface has no "packet" or "layer" concept baked in at all.
-	///
-	/// This is a streaming *sink*: callers push data in as they walk their
-	/// own structures, rather than building an intermediate tree first.
-	///
-	/// Field identity: every field/container is identified by both a name
-	/// (string, human-readable, e.g. "srcIp") and an id (int, stable across
-	/// renames, supplied by the caller — analogous to a protobuf field
-	/// number). Concrete serializers may use either, both, or neither.
-	///
-	/// Lifecycle contract (enforced by convention, not by the type system):
-	/// every startObject()/startArray() call must be matched by exactly one
-	/// corresponding endObject()/endArray() call before the next sibling is
-	/// written. Nesting is arbitrary. A top-level startObject()/startArray()
-	/// call (no enclosing container yet) is valid and is how a caller opens
-	/// its outermost structure — e.g. Packet::serialize() opens one root
-	/// object for the whole packet.
-	///
-	/// Integer width: the *virtual* surface only ever deals in int64_t/
-	/// uint64_t — deliberately, to keep the vtable (and every concrete
-	/// serializer's override list) small. Every narrower int/uint type is
-	/// accepted too, via the non-virtual template overloads below, which
-	/// widen and forward to the canonical virtual. These templates must
-	/// stay inline here (a template's definition has to be visible at
-	/// every call site) — they're the one part of this interface that
-	/// can't move to Serializers.cpp.
+	/// Interface for streaming structured data to a serializer.
 	class ISerializer
 	{
 		friend class ScopeBase;
@@ -88,9 +64,17 @@ namespace pcpp
 		friend class ObjectScope;
 
 	public:
+		/// Destroy the serializer.
 		virtual ~ISerializer() = default;
 
+		/// Open an array field.
+		/// @param[in] field The descriptor of the array field
+		/// @return A scope representing the newly opened array
 		ArrayScope writeArray(const FieldDescriptor& field);
+
+		/// Open an object field.
+		/// @param[in] field The descriptor of the object field
+		/// @return A scope representing the newly opened object
 		ObjectScope writeObject(const FieldDescriptor& field);
 
 	protected:
@@ -107,10 +91,6 @@ namespace pcpp
 			writeField(field, std::string(value));
 		}
 
-		// --- Scalar field writes: any int/uint width (non-virtual) ---
-		// SFINAE'd on is_integral + is_signed/is_unsigned, explicitly
-		// excluding bool (which has its own exact overload above and must
-		// never fall through to these).
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
 		                                                  !std::is_same<T, bool>::value,
 		                                              int>::type = 0>
@@ -127,10 +107,6 @@ namespace pcpp
 			writeField(field, static_cast<uint64_t>(value));
 		}
 
-		// --- Hex-formatted integer field ---
-		// Always unsigned: hex notation represents a bit pattern, not a
-		// signed magnitude. Cast a signed value to its matching unsigned
-		// type first if you need to hex-format it.
 		virtual void writeHexField(const FieldDescriptor& field, uint64_t value) = 0;
 
 		template <typename T,
@@ -153,19 +129,51 @@ namespace pcpp
 		bool m_RootWritten = false;
 	};
 
+	/// @class ScopeBase
+	/// Base class for serializer scopes.
 	class ScopeBase : public ISerializer
 	{
 	public:
 		using ISerializer::writeField;
 
+		/// Write a string field.
+		/// @param[in] field The descriptor of the field
+		/// @param[in] value The string value to write
 		void writeField(const FieldDescriptor& field, const std::string& value) override;
+
+		/// Write a signed int64 field.
+		/// @param[in] field The descriptor of the field
+		/// @param[in] value The signed integer value to write
 		void writeField(const FieldDescriptor& field, int64_t value) override;
+
+		/// Write an unsigned int64 field.
+		/// @param[in] field The descriptor of the field
+		/// @param[in] value The unsigned integer value to write
 		void writeField(const FieldDescriptor& field, uint64_t value) override;
+
+		/// Write a floating-point field.
+		/// @param[in] field The descriptor of the field
+		/// @param[in] value The floating-point value to write
 		void writeField(const FieldDescriptor& field, double value) override;
+
+		/// Write a boolean field.
+		/// @param[in] field The descriptor of the field
+		/// @param[in] value The boolean value to write
 		void writeField(const FieldDescriptor& field, bool value) override;
+
+		/// Write a null field.
+		/// @param[in] field The descriptor of the field
 		void writeNullField(const FieldDescriptor& field) override;
+
+		/// Write an unsigned integer field in hexadecimal notation.
+		/// @param[in] field The descriptor of the field
+		/// @param[in] value The unsigned integer value to write
 		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
 
+		/// Write a signed integral field.
+		/// @tparam T The signed integral type
+		/// @param[in] field The descriptor of the field
+		/// @param[in] value The integral value to write
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
 		                                                  !std::is_same<T, bool>::value,
 		                                              int>::type = 0>
@@ -174,6 +182,10 @@ namespace pcpp
 			writeField(field, static_cast<int64_t>(value));
 		}
 
+		/// Write an unsigned integral field.
+		/// @tparam T The unsigned integral type
+		/// @param[in] field The descriptor of the field
+		/// @param[in] value The integral value to write
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value &&
 		                                                  !std::is_same<T, bool>::value,
 		                                              int>::type = 0>
@@ -196,36 +208,48 @@ namespace pcpp
 		ISerializer* m_Serializer;
 	};
 
+	/// @class ArrayScope
+	/// RAII scope for a serialized array.
 	class ArrayScope : public ScopeBase
 	{
 	public:
 		using ScopeBase::writeField;
 
+		/// Create an array scope.
+		/// @param[in] serializer The serializer owning the array
+		/// @param[in] field The descriptor of the array field
 		ArrayScope(ISerializer* serializer, const FieldDescriptor& field);
+
+		/// Close the array.
 		~ArrayScope() override;
 	};
 
+	/// @class ObjectScope
+	/// RAII scope for a serialized object.
 	class ObjectScope : public ScopeBase
 	{
 	public:
 		using ScopeBase::writeField;
 
+		/// Create an object scope.
+		/// @param[in] serializer The serializer owning the object
+		/// @param[in] field The descriptor of the object field
 		ObjectScope(ISerializer* serializer, const FieldDescriptor& field);
+
+		/// Close the object.
 		~ObjectScope() override;
 	};
 
 	/// @class JsonSerializer
-	/// Streams a field tree out as JSON, writing directly to a std::ostream
-	/// — no intermediate string/DOM is built, so exporting a large pcap to
-	/// NDJSON never holds more than one packet's worth of output in memory
-	/// at a time. Hand-rolled (no JSON library dependency); see
-	/// JsonSerializer2 for the nlohmann::json-based alternative.
+	/// Serializer that writes JSON.
 	class JsonSerializer : public ISerializer
 	{
 	public:
 		using ISerializer::writeField;
 		using ISerializer::writeHexField;
 
+		/// Create a JSON serializer.
+		/// @param[in] out The output stream to which JSON is written
 		explicit JsonSerializer(std::ostream& out);
 
 	protected:
@@ -236,7 +260,6 @@ namespace pcpp
 		void writeField(const FieldDescriptor& field, bool value) override;
 		void writeNullField(const FieldDescriptor& field) override;
 		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
-
 		void startObject(const FieldDescriptor& field) override;
 		void endObject() override;
 		void startArray(const FieldDescriptor& field) override;

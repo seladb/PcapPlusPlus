@@ -206,18 +206,31 @@ namespace pcpp
 		/// @return The number of bytes copied to the destination array.
 		size_t copyData(uint8_t* dest, size_t destSize) const;
 
+		/// @struct SerializedFields
+		/// Field descriptors for the fields serialized by Layer::serialize().
 		struct SerializedFields
 		{
+			/// @return A vector containing all layer field descriptors.
 			static std::vector<FieldDescriptor> all()
 			{
 				return { ProtocolName, ProtocolId, Length };
 			}
+
+			/// Field descriptor for the layer protocol name.
 			static const FieldDescriptor ProtocolName;
+
+			/// Field descriptor for the layer protocol ID.
 			static const FieldDescriptor ProtocolId;
+
+			/// Field descriptor for the layer length.
 			static const FieldDescriptor Length;
+
+			/// Maximum field ID used by the layer.
 			static constexpr uint16_t MaxID = 1;
 		};
 
+		/// Serialize the layer using the provided serializer.
+		/// @param[in] serializer The serializer to use.
 		void serialize(ISerializer& serializer) const;
 
 		// implement abstract methods
