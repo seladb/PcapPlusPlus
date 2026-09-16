@@ -160,21 +160,44 @@ namespace pcpp
 			return m_DeviceName;
 		}
 
-		/// Start single-threaded capturing with callback. Works with open() or openSingleRxChannel().
+		/// @brief Start single-threaded capturing with callback. Works with open() or openSingleRxChannel().
 		/// @param[in] onPacketsArrive A callback to call whenever a packet arrives
 		/// @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every
 		/// packet
 		/// @return True if this action succeeds, false otherwise
 		bool startCaptureSingleThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie);
 
-		/// Start multi-threaded (multi-core) capturing with callback. Works with openMultiRxChannels().
-		/// This method will return an error if the number of opened channels is different than the number of
-		/// threads/cores requested
+		/// @brief Start multi-threaded (multi-core) capture with callback. Works with openMultiRxChannels().
+		///
+		/// A capture thread will be started for each RX channel opened on this device. Thread afinity will be assigned
+		/// to each thread automatically, prioritizing cores with lower IDs first.
+		///
+		/// The callback must be callable from multiple threads simultaneously, as the device implementation
+		/// does not provide any synchronization mechanisms.
+		///
+		/// @param[in] onPacketsArrive A callback to call whenever a packet arrives.
+		/// @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every
+		/// packet.
+		/// @return True if the action succeeds, false otherwise.
+		bool startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie);
+
+		/// @brief Start multi-threaded (multi-core) capturing with callback. Works with openMultiRxChannels().
+		///
+		/// A capture thread will be started on each core specified in the coreMask.
+		///
+		/// The total number of cores specified must match the number of Rx channels previously opened on this device.
+		/// For example, if 4 channels were opened with openMultiRxChannels(), the coreMask must specify 4 cores to run
+		/// the capture. Otherwise, the method will fail and return false.
+		/// 
+		/// The callback must be callable from multiple threads simultaneously, as the device implementation
+		/// does not provide any synchronization mechanisms.
+		/// 
 		/// @param[in] onPacketsArrive A callback to call whenever a packet arrives
 		/// @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every
 		/// packet
 		/// @param[in] coreMask The cores to be used as mask. For example:
 		/// @return True if this action succeeds, false otherwise
+		/// @remarks If the machine does not have enough cores for all RX channels, the method will fail.
 		bool startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie,
 		                             CoreMask coreMask);
 

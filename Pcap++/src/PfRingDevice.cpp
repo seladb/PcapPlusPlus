@@ -469,6 +469,22 @@ namespace pcpp
 	}
 
 	bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive,
+	                                           void* onPacketsArriveUserCookie)
+	{
+		if(m_PfRingDescriptors.size() == 0)
+		{
+			PCPP_LOG_ERROR("No RX channels opened. Cannot start capturing");
+			return false;
+		}
+
+		// use only the number of cores that equals the number of RX channels
+		CoreMask mask = getCoreMaskForAllMachineCores();
+		mask &= (1 << m_PfRingDescriptors.size()) - 1;
+
+		return startCaptureMultiThread(onPacketsArrive, onPacketsArriveUserCookie, mask);
+	}
+
+	bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive,
 	                                           void* onPacketsArriveUserCookie, CoreMask coreMask)
 	{
 		if (!m_StopThread)
