@@ -32,7 +32,9 @@ namespace pcpp
 	DISABLE_WARNING_DEPRECATED
 
 	/// @struct SystemCore
-	/// @brief Represents data of 1 CPU core. Current implementation supports up to 32 cores
+	/// @brief Represents data of 1 CPU core. Current implementation supports up to 256 cores.
+	/// 
+	/// Cores above 31 do not support the Mask attribute and require usage of LongCoreMask instead of CoreMask.
 	struct SystemCore
 	{
 		/// @brief Create a SystemCore object with a given core ID
