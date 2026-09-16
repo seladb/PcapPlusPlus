@@ -248,6 +248,26 @@ namespace pcpp
 			Mask ^= other.Mask;
 			return *this;
 		}
+
+		LongCoreMask& operator|=(const SystemCore& core)
+		{
+			Mask.set(core.Id);
+			return *this;
+		}
+
+		LongCoreMask& operator&=(const SystemCore& core)
+		{
+			bool isCoreSet = Mask.test(core.Id);
+			Mask.reset();
+			Mask.set(core.Id, isCoreSet);
+			return *this;
+		}
+
+		LongCoreMask& operator^=(const SystemCore& core)
+		{
+			Mask.flip(core.Id);
+			return *this;
+		}
 	};
 
 	inline bool operator==(const LongCoreMask& lhs, const LongCoreMask& rhs)
@@ -278,6 +298,27 @@ namespace pcpp
 	{
 		LongCoreMask result = lhs;
 		result.Mask ^= rhs.Mask;
+		return result;
+	}
+
+	inline LongCoreMask operator|(const LongCoreMask& lhs, const SystemCore& rhs)
+	{
+		LongCoreMask result = lhs;
+		result.Mask.set(rhs.Id);
+		return result;
+	}
+
+	inline LongCoreMask operator&(const LongCoreMask& lhs, const SystemCore& rhs)
+	{
+		LongCoreMask result;
+		result.Mask.set(rhs.Id, lhs.Mask.test(rhs.Id));
+		return result;
+	}
+
+	inline LongCoreMask operator^(const LongCoreMask& lhs, const SystemCore& rhs)
+	{
+		LongCoreMask result = lhs;
+		result.Mask.flip(rhs.Id);
 		return result;
 	}
 
