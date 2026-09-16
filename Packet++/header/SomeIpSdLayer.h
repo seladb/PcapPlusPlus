@@ -155,6 +155,13 @@ namespace pcpp
 		/// @return SomeIpSdProtocolType
 		SomeIpSdProtocolType getProtocol() const;
 
+		/// Checks whether data is valid or not
+		/// @return True if data is valid
+		static bool isDataValid(const IDataContainer* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(someipsdhdroptionsipv4);
+		}
+
 	private:
 		/// @struct someipsdhdroptionsipv4
 		/// Represents the IPv4 option types for the SOME/IP-SD header
@@ -217,6 +224,13 @@ namespace pcpp
 		/// @return SomeIpSdProtocolType
 		SomeIpSdProtocolType getProtocol() const;
 
+		/// Checks whether data is valid or not
+		/// @return True if data is valid
+		static bool isDataValid(const IDataContainer* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(someipsdhdroptionsipv6);
+		}
+
 	private:
 		/// @struct someipsdhdroptionsipv6
 		/// Represents the IPv6 option types for the SOME/IP-SD header
@@ -256,6 +270,13 @@ namespace pcpp
 		/// Get the configuration string
 		/// @return std::string
 		std::string getConfigurationString() const;
+
+		/// Checks whether data is valid or not
+		/// @return True if data is valid
+		static bool isDataValid(const IDataContainer* data, size_t dataLen)
+		{
+			return data && dataLen >= (sizeof(someipsdhdroptionsbase) - 1);
+		}
 	};
 
 	/// @class SomeIpSdLoadBalancingOption
@@ -282,6 +303,13 @@ namespace pcpp
 		/// Get the weight field
 		/// @return uint16_t
 		uint16_t getWeight() const;
+
+		/// Checks whether data is valid or not
+		/// @return True if data is valid
+		static bool isDataValid(const IDataContainer* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(someipsdhdroptionsload);
+		}
 
 	private:
 		/// @struct someipsdhdroptionsload
@@ -621,7 +649,7 @@ namespace pcpp
 		uint32_t findOption(const SomeIpSdOption& option);
 		void addOption(const SomeIpSdOption& option);
 		bool addOptionIndex(uint32_t indexEntry, uint32_t indexOffset);
-		OptionPtr parseOption(SomeIpSdOption::OptionType type, size_t offset) const;
+		OptionPtr parseOption(SomeIpSdOption::OptionType type, size_t offset, size_t remainingLength) const;
 
 		static size_t getLenEntries(const uint8_t* data);
 		size_t getLenEntries() const;

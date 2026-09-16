@@ -57,11 +57,18 @@ namespace pcpp
 
 #endif  // defined(_WIN32)
 
-	struct SocketContainer
+	struct RawSocketDevice::SocketContainer
 	{
 #if defined(_WIN32)
+		explicit SocketContainer(SOCKET socket) : fd(socket)
+		{}
+
 		SOCKET fd;
 #elif defined(__linux__)
+		explicit SocketContainer(int socket, int index, std::string name)
+		    : fd(socket), interfaceIndex(index), interfaceName(std::move(name))
+		{}
+
 		int fd;
 		int interfaceIndex;
 		std::string interfaceName;
@@ -104,7 +111,7 @@ namespace pcpp
 			return RecvError;
 		}
 
-		SOCKET fd = ((SocketContainer*)m_Socket)->fd;
+		SOCKET fd = m_Socket->fd;
 		char* buffer = new char[RAW_SOCKET_BUFFER_LEN];
 		memset(buffer, 0, RAW_SOCKET_BUFFER_LEN);
 
@@ -152,7 +159,7 @@ namespace pcpp
 			return RecvError;
 		}
 
-		int fd = ((SocketContainer*)m_Socket)->fd;
+		int fd = m_Socket->fd;
 		char* buffer = new char[RAW_SOCKET_BUFFER_LEN];
 		memset(buffer, 0, RAW_SOCKET_BUFFER_LEN);
 
@@ -180,7 +187,7 @@ namespace pcpp
 		struct timeval timeoutVal;
 		timeoutVal.tv_sec = static_cast<int>(timeout);
 		timeoutVal.tv_usec = static_cast<long int>((timeout - timeoutVal.tv_sec) * 1'000'000);
-		setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
+		setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeoutVal), sizeof(timeoutVal));
 
 		int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);
 		if (bufferLen < 0)
@@ -279,14 +286,14 @@ namespace pcpp
 			return false;
 		}
 
-		int fd = ((SocketContainer*)m_Socket)->fd;
+		int fd = m_Socket->fd;
 
 		sockaddr_ll addr;
 		memset(&addr, 0, sizeof(struct sockaddr_ll));
 		addr.sll_family = htobe16(PF_PACKET);
 		addr.sll_protocol = htobe16(ETH_P_ALL);
 		addr.sll_halen = 6;
-		addr.sll_ifindex = ((SocketContainer*)m_Socket)->interfaceIndex;
+		addr.sll_ifindex = m_Socket->interfaceIndex;
 
 		EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
 		MacAddress dstMac = ethLayer->getDestMac();
@@ -324,15 +331,14 @@ namespace pcpp
 			return 0;
 		}
 
-		auto* socketContainer = static_cast<SocketContainer*>(m_Socket);
-		int fd = socketContainer->fd;
+		int fd = m_Socket->fd;
 
 		sockaddr_ll addr;
 		memset(&addr, 0, sizeof(struct sockaddr_ll));
 		addr.sll_family = htobe16(PF_PACKET);
 		addr.sll_protocol = htobe16(ETH_P_ALL);
 		addr.sll_halen = 6;
-		addr.sll_ifindex = socketContainer->interfaceIndex;
+		addr.sll_ifindex = m_Socket->interfaceIndex;
 
 		int sendCount = 0;
 
@@ -440,9 +446,7 @@ namespace pcpp
 			return false;
 		}
 
-		m_Socket = new SocketContainer();
-		static_cast<SocketContainer*>(m_Socket)->fd = fd;
-
+		m_Socket = std::make_unique<SocketContainer>(fd);
 		m_DeviceOpened = true;
 
 		return true;
@@ -519,11 +523,7 @@ namespace pcpp
 			return false;
 		}
 
-		m_Socket = new SocketContainer();
-		((SocketContainer*)m_Socket)->fd = fd;
-		((SocketContainer*)m_Socket)->interfaceIndex = ifaceIndex;
-		((SocketContainer*)m_Socket)->interfaceName = ifaceName;
-
+		m_Socket = std::make_unique<SocketContainer>(fd, ifaceIndex, ifaceName);
 		m_DeviceOpened = true;
 
 		return true;
@@ -541,13 +541,11 @@ namespace pcpp
 	{
 		if (m_Socket != nullptr && isOpened())
 		{
-			SocketContainer* sockContainer = static_cast<SocketContainer*>(m_Socket);
 #if defined(_WIN32)
-			closesocket(sockContainer->fd);
+			closesocket(m_Socket->fd);
 #elif defined(__linux__)
-			::close(sockContainer->fd);
+			::close(m_Socket->fd);
 #endif
-			delete sockContainer;
 			m_Socket = nullptr;
 			m_DeviceOpened = false;
 		}

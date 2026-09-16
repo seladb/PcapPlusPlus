@@ -218,9 +218,13 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 
 		// set fragment parameters in IPv4/6 layer
 		if (ipProto == pcpp::IPv4)
-			setIPv4FragmentParams((pcpp::IPv4Layer*)fragIpLayer, curOffset, lastFrag);
+		{
+			setIPv4FragmentParams(static_cast<pcpp::IPv4Layer*>(fragIpLayer), curOffset, lastFrag);
+		}
 		else  // ipProto == IPv6
-			setIPv6FragmentParams((pcpp::IPv6Layer*)fragIpLayer, curOffset, lastFrag, randomNum);
+		{
+			setIPv6FragmentParams(static_cast<pcpp::IPv6Layer*>(fragIpLayer), curOffset, lastFrag, randomNum);
+		}
 
 		// compute all calculated fields of the new fragment
 		newFrag.computeCalculateFields();
@@ -498,23 +502,24 @@ int main(int argc, char* argv[])
 	}
 
 	// create a reader device from input file
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputFile);
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(inputFile);
 
-	if (!reader->open())
+	if (reader == nullptr || !reader->open())
 	{
 		EXIT_WITH_ERROR("Error opening input file");
 	}
 
 	// create a writer device for output file in the same file type as input file
-	pcpp::IFileWriterDevice* writer = nullptr;
+	std::unique_ptr<pcpp::IFileWriterDevice> writer = nullptr;
 
-	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
+	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get()) != nullptr)
 	{
-		writer = new pcpp::PcapFileWriterDevice(outputFile, ((pcpp::PcapFileReaderDevice*)reader)->getLinkLayerType());
+		writer = std::make_unique<pcpp::PcapFileWriterDevice>(
+		    outputFile, ((pcpp::PcapFileReaderDevice*)reader.get())->getLinkLayerType());
 	}
-	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
+	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr)
 	{
-		writer = new pcpp::PcapNgFileWriterDevice(outputFile);
+		writer = std::make_unique<pcpp::PcapNgFileWriterDevice>((outputFile));
 	}
 	else
 	{
@@ -528,7 +533,7 @@ int main(int argc, char* argv[])
 
 	// run the fragmentation process
 	FragStats stats;
-	processPackets(reader, writer, fragSize, filterByBpfFilter, bpfFilter, filterByIpID, ipIDMap,
+	processPackets(reader.get(), writer.get(), fragSize, filterByBpfFilter, bpfFilter, filterByIpID, ipIDMap,
 	               copyAllPacketsToOutputFile, stats);
 
 	// close files
@@ -537,7 +542,4 @@ int main(int argc, char* argv[])
 
 	// print summary stats to console
 	printStats(stats, filterByIpID, filterByBpfFilter);
-
-	delete reader;
-	delete writer;
 }

@@ -13,8 +13,6 @@
 #	include <time.h>
 #endif
 
-#define PURGE_FREQ_SECS 1
-
 #define SEQ_LT(a, b) ((int32_t)((a) - (b)) < 0)
 #define SEQ_LEQ(a, b) ((int32_t)((a) - (b)) <= 0)
 #define SEQ_GT(a, b) ((int32_t)((a) - (b)) > 0)
@@ -22,6 +20,7 @@
 
 namespace pcpp
 {
+	constexpr int PurgeFrequencySeconds = 1;
 
 	static timeval timePointToTimeval(const std::chrono::time_point<std::chrono::high_resolution_clock>& in)
 	{
@@ -75,7 +74,7 @@ namespace pcpp
 		m_RemoveConnInfo = config.removeConnInfo;
 		m_MaxNumToClean = (config.removeConnInfo == true && config.maxNumToClean == 0) ? 30 : config.maxNumToClean;
 		m_MaxOutOfOrderFragments = config.maxOutOfOrderFragments;
-		m_PurgeTimepoint = time(nullptr) + PURGE_FREQ_SECS;
+		m_PurgeTimepoint = time(nullptr) + PurgeFrequencySeconds;
 		m_EnableBaseBufferClearCondition = config.enableBaseBufferClearCondition;
 	}
 
@@ -87,7 +86,7 @@ namespace pcpp
 			if (time(nullptr) >= m_PurgeTimepoint)
 			{
 				purgeClosedConnections();
-				m_PurgeTimepoint = time(nullptr) + PURGE_FREQ_SECS;
+				m_PurgeTimepoint = time(nullptr) + PurgeFrequencySeconds;
 			}
 		}
 

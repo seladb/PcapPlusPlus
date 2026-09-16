@@ -129,10 +129,10 @@ std::string getExtension(const std::string& fileName)
 int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std::ofstream* detailedReportFile)
 {
 	// create the pcap/pcap-ng reader
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(pcapFilePath);
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(pcapFilePath);
 
 	// if the reader fails to open
-	if (!reader->open())
+	if (!reader || !reader->open())
 	{
 		if (detailedReportFile != nullptr)
 		{
@@ -142,16 +142,12 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 			(*detailedReportFile) << pcpp::Logger::getInstance().getLastError() << std::endl;
 		}
 
-		// free the reader memory and return
-		delete reader;
 		return 0;
 	}
 
 	// set the filter for the file so only packets that match the search criteria will be read
 	if (!reader->setFilter(std::move(searchCriteria)))
 	{
-		// free the reader memory and return
-		delete reader;
 		return 0;
 	}
 
@@ -195,9 +191,6 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 
 		(*detailedReportFile) << "    ----> Found " << packetCount << " packets" << std::endl << std::endl;
 	}
-
-	// free the reader memory
-	delete reader;
 
 	// return how many packets matched the search criteria
 	return packetCount;

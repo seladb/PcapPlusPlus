@@ -685,17 +685,17 @@ namespace pcpp
 		return result;
 	}
 
-#define A 54059        ///< a prime
-#define B 76963        ///< another prime
-#define C 86969        ///< yet another prime
-#define FIRST_HASH 37  ///< also prime
+	constexpr unsigned SslHashMultiplierA = 54059;  ///< a prime
+	constexpr unsigned SslHashMultiplierB = 76963;  ///< another prime
+	constexpr unsigned SslHashInitialValue = 37;    ///< also prime
+	// constexpr unsigned SslHashMultiplierC = 86969;
 
 	static uint32_t hashString(std::string str)
 	{
-		unsigned h = FIRST_HASH;
+		unsigned h = SslHashInitialValue;
 		for (auto i = 0u; i < str.size(); ++i)
 		{
-			h = (h * A) ^ (str[i] * B);
+			h = (h * SslHashMultiplierA) ^ (str[i] * SslHashMultiplierB);
 		}
 		return h;
 	}
@@ -1207,7 +1207,7 @@ namespace pcpp
 		uint8_t* dataPtr = getData() + sizeof(uint16_t);
 		for (int i = 0; i < listLength / 2; i++)
 		{
-			result.push_back(be16toh(*(uint16_t*)dataPtr));
+			result.push_back(be16toh(*reinterpret_cast<uint16_t*>(dataPtr)));
 			dataPtr += sizeof(uint16_t);
 		}
 
@@ -1540,7 +1540,7 @@ namespace pcpp
 			return 0;
 
 		uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
-		return be16toh(*(uint16_t*)extensionLengthPos);
+		return be16toh(*reinterpret_cast<uint16_t*>(extensionLengthPos));
 	}
 
 	SSLExtension* SSLClientHelloMessage::getExtension(int index) const
@@ -1965,7 +1965,7 @@ namespace pcpp
 		// read certificates length
 		// TODO: certificates length is 3B. Currently assuming the MSB is 0 and reading only 2 LSBs
 		uint8_t* curPos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
-		uint16_t certificatesLength = be16toh(*(uint16_t*)(curPos));
+		uint16_t certificatesLength = be16toh(*reinterpret_cast<uint16_t*>(curPos));
 		if (certificatesLength == 0)
 			return;
 
@@ -1981,7 +1981,7 @@ namespace pcpp
 
 			// read certificate length
 			curPos += sizeof(uint8_t);
-			uint16_t certificateLength = be16toh(*(uint16_t*)(curPos));
+			uint16_t certificateLength = be16toh(*reinterpret_cast<uint16_t*>(curPos));
 
 			// advance to start position of certificate
 			curPos += sizeof(uint16_t);

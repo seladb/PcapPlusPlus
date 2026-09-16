@@ -177,6 +177,15 @@ namespace pcpp
 		    : NDPLayerBase(data, dataLen, prevLayer, packet)
 		{}
 
+		/// Checks whether the data is large enough to be parsed as a neighbor solicitation message
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @return True if the data is at least the size of the neighbor solicitation header
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(ndpneighborsolicitationhdr);
+		}
+
 		/// A constructor for a new NDPNeighborSolicitationLayer object
 		/// @param[in] code Code field
 		/// @param[in] targetIP Target IP address for which the solicitation shall be created
@@ -266,6 +275,15 @@ namespace pcpp
 		NDPNeighborAdvertisementLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : NDPLayerBase(data, dataLen, prevLayer, packet)
 		{}
+
+		/// Checks whether the data is large enough to be parsed as a neighbor advertisement message
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @return True if the data is at least the size of the neighbor advertisement header
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(ndpneighboradvertisementhdr);
+		}
 
 		/// A constructor that allocates a new NDP Advertisement Layer with target link-layer address option
 		/// @param[in] code Code field

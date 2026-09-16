@@ -1282,7 +1282,27 @@ namespace pcpp
 
 	void Asn1BitStringRecord::decodeValue(uint8_t const* data) const
 	{
-		auto numBits = (m_ValueLength - 1) * 8 - static_cast<size_t>(data[0]);
+		// A BitString value must contain at least the initial octet holding the number of unused bits
+		if (m_ValueLength == 0)
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 BitString record, value is empty");
+		}
+
+		auto unusedBits = static_cast<size_t>(data[0]);
+
+		// The number of unused bits must be in the range 0-7, and must be 0 if the bit string is empty
+		if (unusedBits > 7 || (m_ValueLength == 1 && unusedBits != 0))
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 BitString record, invalid number of unused bits");
+		}
+
+		auto numBits = (m_ValueLength - 1) * 8 - unusedBits;
+		if (numBits == 0)
+		{
+			m_Value = BitSet();
+			return;
+		}
+
 		m_Value = BitSet(data + 1, numBits);
 	}
 

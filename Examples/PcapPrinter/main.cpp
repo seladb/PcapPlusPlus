@@ -266,11 +266,9 @@ int main(int argc, char* argv[])
 	}
 
 	// open a pcap/pcapng file for reading
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputPcapFileName);
-
-	if (!reader->open())
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(inputPcapFileName);
+	if (reader == nullptr || !reader->open())
 	{
-		delete reader;
 		EXIT_WITH_ERROR("Error opening input pcap file\n");
 	}
 
@@ -279,41 +277,39 @@ int main(int argc, char* argv[])
 	{
 		if (!reader->setFilter(filter))
 		{
-			delete reader;
 			EXIT_WITH_ERROR("Couldn't set filter '" << filter << "'");
 		}
 	}
 
 	// print file summary
-	(*out) << printFileSummary(reader);
+	(*out) << printFileSummary(reader.get());
 
 	// if requested to print only file summary - exit
 	if (printOnlySummary)
 	{
-		delete reader;
 		exit(0);
 	}
 
 	int printedPacketCount = 0;
 
 	// if the file is a pcap file
-	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
+	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get()) != nullptr)
 	{
 		// print all requested packets in the pcap file
-		pcpp::PcapFileReaderDevice* pcapReader = dynamic_cast<pcpp::PcapFileReaderDevice*>(reader);
+		pcpp::PcapFileReaderDevice* pcapReader = dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get());
 		printedPacketCount = printPcapPackets(pcapReader, out, packetCount);
 	}
-	else if (dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader) != nullptr)
+	else if (dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader.get()) != nullptr)
 	{
 		// print all requested packets in the pcap file
-		pcpp::SnoopFileReaderDevice* snoopReader = dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader);
+		pcpp::SnoopFileReaderDevice* snoopReader = dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader.get());
 		printedPacketCount = printPcapPackets(snoopReader, out, packetCount);
 	}
 	// if the file is a pcap-ng file
-	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
+	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr)
 	{
 		// print all requested packets in the pcap-ng file
-		pcpp::PcapNgFileReaderDevice* pcapNgReader = dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader);
+		pcpp::PcapNgFileReaderDevice* pcapNgReader = dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get());
 		printedPacketCount = printPcapNgPackets(pcapNgReader, out, packetCount);
 	}
 
@@ -321,9 +317,6 @@ int main(int argc, char* argv[])
 
 	// close the file
 	reader->close();
-
-	// free reader memory
-	delete reader;
 
 	return 0;
 }

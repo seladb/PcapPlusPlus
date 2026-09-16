@@ -139,10 +139,10 @@ namespace pcpp
 			}
 
 			/// @brief Sets the maximum number of objects in the pool.
-			void setMaxSize(std::size_t maxSize)
+			void setMaxSize(std::size_t newMaxSize)
 			{
 				std::lock_guard<std::mutex> lock(m_Mutex);
-				m_MaxPoolSize = maxSize;
+				m_MaxPoolSize = newMaxSize;
 
 				// If the new max size is less than the current size, we need to remove some objects from the pool.
 				while (m_Pool.size() > m_MaxPoolSize)

@@ -225,12 +225,12 @@ namespace pcpp
 		}
 
 		/// @brief Reserve storage for the vector.
-		/// @param[in] size The number of elements to reserve space for.
+		/// @param[in] newSize The number of elements to reserve space for.
 		/// @remarks This method ensures that the vector can hold at least the specified number of elements
 		/// without requiring a reallocation.
-		void reserve(size_t size)
+		void reserve(size_t newSize)
 		{
-			m_Vector.reserve(size);
+			m_Vector.reserve(newSize);
 		}
 
 		/// @return A pointer of the first element in the vector

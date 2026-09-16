@@ -47,7 +47,8 @@ public:
 			throw std::runtime_error("Task already ran");
 		}
 
-		std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(m_PcapFileName));
+		// createReader throws if the file cannot be opened or is of unsupported format
+		std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::createReader(m_PcapFileName);
 
 		if (!reader->open())
 		{

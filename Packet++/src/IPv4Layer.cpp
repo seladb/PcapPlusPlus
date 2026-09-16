@@ -19,8 +19,8 @@
 namespace pcpp
 {
 
-#define IPV4OPT_DUMMY 0xff
-#define IPV4_MAX_OPT_SIZE 40
+	constexpr uint8_t IPv4OptionDummy = 0xff;
+	constexpr size_t IPv4MaxOptionSize = 40;
 
 	/// ~~~~~~~~~~~~~~~~~
 	/// IPv4OptionBuilder
@@ -494,7 +494,7 @@ namespace pcpp
 		m_NumOfTrailingBytes = newNumberOfTrailingBytes;
 
 		for (int i = 0; i < m_NumOfTrailingBytes; i++)
-			m_Data[ipHdrSize + totalOptSize + i] = IPV4OPT_DUMMY;
+			m_Data[ipHdrSize + totalOptSize + i] = IPv4OptionDummy;
 
 		m_TempHeaderExtension = 0;
 		getIPv4Header()->internetHeaderLength = ((ipHdrSize + totalOptSize + m_NumOfTrailingBytes) / 4 & 0x0f);
@@ -510,10 +510,10 @@ namespace pcpp
 
 		size_t totalOptSize = getHeaderLen() - sizeof(iphdr) - m_NumOfTrailingBytes + sizeToExtend;
 
-		if (totalOptSize > IPV4_MAX_OPT_SIZE)
+		if (totalOptSize > IPv4MaxOptionSize)
 		{
 			PCPP_LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is "
-			               << IPV4_MAX_OPT_SIZE);
+			               << IPv4MaxOptionSize);
 			newOption.purgeRecordData();
 			return IPv4Option(nullptr);
 		}

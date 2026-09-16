@@ -20,8 +20,42 @@ public:
 	    : m_Device(device), m_CancelTeardown(false), m_DeleteDevice(deleteDevice)
 	{}
 
+	DeviceTeardown(DeviceTeardown const&) = delete;
+	DeviceTeardown(DeviceTeardown&& other) noexcept
+	    : m_Device(other.m_Device), m_CancelTeardown(other.m_CancelTeardown), m_DeleteDevice(other.m_DeleteDevice)
+	{
+		other.m_Device = nullptr;
+	}
+	DeviceTeardown& operator=(DeviceTeardown const&) = delete;
+	DeviceTeardown& operator=(DeviceTeardown&& other) noexcept
+	{
+		if (this != &other)
+		{
+			doTeardown();
+			m_Device = other.m_Device;
+			m_CancelTeardown = other.m_CancelTeardown;
+			m_DeleteDevice = other.m_DeleteDevice;
+			other.m_Device = nullptr;
+		}
+		return *this;
+	}
+
 	~DeviceTeardown()
 	{
+		doTeardown();
+	}
+
+	void cancelTeardown()
+	{
+		m_CancelTeardown = true;
+	}
+
+private:
+	void doTeardown() noexcept
+	{
+		if (m_Device == nullptr)
+			return;
+
 		if (!m_CancelTeardown && m_Device != nullptr && m_Device->isOpened())
 		{
 			m_Device->close();
@@ -30,11 +64,6 @@ public:
 		{
 			delete m_Device;
 		}
-	}
-
-	void cancelTeardown()
-	{
-		m_CancelTeardown = true;
 	}
 };
 
@@ -115,7 +144,7 @@ public:
 		return *this;
 	}
 
-	std::string getFileName() const
+	std::string const& getFileName() const
 	{
 		return m_Filename;
 	}

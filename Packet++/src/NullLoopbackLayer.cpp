@@ -10,7 +10,7 @@ namespace pcpp
 #define BSWAP16(x) (((x) >> 8) | ((x) << 8))
 #define BSWAP32(x) (((x) >> 24) | (((x) & 0x00FF'0000) >> 8) | (((x) & 0x0000'FF00) << 8) | ((x) << 24))
 
-#define IEEE_802_3_MAX_LEN 0x5dc
+	constexpr uint32_t Ieee8023MaxLength = 0x5dc;
 
 	NullLoopbackLayer::NullLoopbackLayer(uint32_t family)
 	{
@@ -53,7 +53,7 @@ namespace pcpp
 		size_t payloadLen = m_DataLen - sizeof(uint32_t);
 
 		uint32_t family = getFamily();
-		if (family > IEEE_802_3_MAX_LEN)
+		if (family > Ieee8023MaxLength)
 		{
 			uint16_t ethType = static_cast<uint16_t>(family);
 			switch (ethType)

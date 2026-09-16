@@ -63,7 +63,7 @@ namespace pcpp
 	    : HttpMessage(data, dataLen, prevLayer, packet, HTTPRequest)
 	{
 		m_FirstLine = new HttpRequestFirstLine(this);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 		parseFields();
 	}
 
@@ -71,7 +71,7 @@ namespace pcpp
 	{
 		m_Protocol = HTTPRequest;
 		m_FirstLine = new HttpRequestFirstLine(this, method, version, uri);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 	}
 
 	HttpRequestLayer::HttpRequestLayer(const HttpRequestLayer& other) : HttpMessage(other)
@@ -667,7 +667,7 @@ namespace pcpp
 	    : HttpMessage(data, dataLen, prevLayer, packet, HTTPResponse)
 	{
 		m_FirstLine = new HttpResponseFirstLine(this);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 		parseFields();
 	}
 
@@ -676,14 +676,14 @@ namespace pcpp
 	{
 		m_Protocol = HTTPResponse;
 		m_FirstLine = new HttpResponseFirstLine(this, version, HttpResponseStatusCode(statusCode, statusCodeString));
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 	}
 
 	HttpResponseLayer::HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode)
 	{
 		m_Protocol = HTTPResponse;
 		m_FirstLine = new HttpResponseFirstLine(this, version, statusCode);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 	}
 
 	HttpResponseLayer::~HttpResponseLayer()
