@@ -308,6 +308,11 @@ namespace pcpp
 		return result;
 	}
 
+	inline LongCoreMask operator|(const SystemCore& lhs, const LongCoreMask& rhs)
+	{
+		return rhs | lhs;
+	}
+
 	inline LongCoreMask operator&(const LongCoreMask& lhs, const SystemCore& rhs)
 	{
 		LongCoreMask result;
@@ -315,11 +320,21 @@ namespace pcpp
 		return result;
 	}
 
+	inline LongCoreMask operator&(const SystemCore& lhs, const LongCoreMask& rhs)
+	{
+		return rhs & lhs;
+	}
+
 	inline LongCoreMask operator^(const LongCoreMask& lhs, const SystemCore& rhs)
 	{
 		LongCoreMask result = lhs;
 		result.Mask.flip(rhs.Id);
 		return result;
+	}
+
+	inline LongCoreMask operator^(const SystemCore& lhs, const LongCoreMask& rhs)
+	{
+		return rhs ^ lhs;
 	}
 
 	/// @brief Get total number of cores on device
