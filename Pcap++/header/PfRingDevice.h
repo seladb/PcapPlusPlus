@@ -77,7 +77,7 @@ namespace pcpp
 		explicit PfRingDevice(const char* deviceName);
 
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
-		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
+		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock, uint8_t coreIdCheck);
 
 		int openSingleRxChannel(const char* deviceName, pfring*& ring);
 		/// Closes all opened RX channels and clears the opened channels list (m_PfRingDescriptors)
