@@ -109,7 +109,7 @@ namespace pcpp
 
 		if (!isBottomOfStack())
 		{
-			constructNextLayer<MplsLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen);
 			return;
 		}
 

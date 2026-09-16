@@ -168,6 +168,7 @@ namespace pcpp
 
 		X520DistinguishedName() = default;
 
+		// cppcheck-suppress noExplicitConstructor
 		constexpr X520DistinguishedName(Value value) : m_Value(value)
 		{}
 

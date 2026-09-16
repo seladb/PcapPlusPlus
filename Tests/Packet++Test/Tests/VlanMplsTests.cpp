@@ -10,6 +10,9 @@
 #include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
+#include <string>
+#include <tuple>
+#include <vector>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -172,6 +175,32 @@ PTF_TEST_CASE(MplsLayerTest)
 	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 18);
 	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
+
+	// Protocol identifiers alone must not create an MPLS layer when its four-byte header is truncated.
+	const std::vector<std::tuple<std::string, pcpp::LinkLayerType>> truncatedMplsPackets = {
+		{ "PacketExamples/TruncatedMplsVlan.dat", pcpp::LINKTYPE_ETHERNET   },
+		{ "PacketExamples/TruncatedMplsSll.dat",  pcpp::LINKTYPE_LINUX_SLL  },
+		{ "PacketExamples/TruncatedMplsSll2.dat", pcpp::LINKTYPE_LINUX_SLL2 },
+		{ "PacketExamples/TruncatedMplsGre.dat",  pcpp::LINKTYPE_ETHERNET   },
+	};
+	for (const auto& testCase : truncatedMplsPackets)
+	{
+		auto rawPacket =
+		    createPacketFromHexResource(std::get<0>(testCase), pcpp_tests::utils::PacketFactory(std::get<1>(testCase)));
+		pcpp::Packet packet(rawPacket.get());
+		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::MplsLayer>());
+		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
+	}
+
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/TruncatedMplsStacked.dat");
+		pcpp::Packet packet(rawPacket.get());
+		auto* firstMpls = packet.getLayerOfType<pcpp::MplsLayer>();
+		PTF_ASSERT_NOT_NULL(firstMpls);
+		auto* nextLayer = firstMpls->getNextLayer();
+		PTF_ASSERT_NOT_NULL(nextLayer);
+		PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::GenericPayload, enum);
+	}
 }  // MplsLayerTest
 
 PTF_TEST_CASE(VxlanParsingAndCreationTest)

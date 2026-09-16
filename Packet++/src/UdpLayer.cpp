@@ -19,6 +19,8 @@
 #include "WireGuardLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
+#include "QuicLayer.h"
+
 #include <sstream>
 
 namespace pcpp
@@ -112,6 +114,11 @@ namespace pcpp
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		{
 			constructNextLayer<DnsLayer>(udpData, udpDataLen);
+		}
+		else if (QuicV1Layer::isQuicPort(portDst) || QuicV1Layer::isQuicPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(QuicV1Layer::parseQuicLayer, udpData,
+			                                                           udpDataLen);
 		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{

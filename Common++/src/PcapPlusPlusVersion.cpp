@@ -7,16 +7,18 @@ namespace pcpp
 	{
 #ifdef GIT_COMMIT
 		return GIT_COMMIT;
-#endif
+#else
 		return "unavailable";
+#endif
 	}
 
 	std::string getGitBranch()
 	{
 #ifdef GIT_BRANCH
 		return GIT_BRANCH;
-#endif
+#else
 		return "unavailable";
+#endif
 	}
 
 	std::string getGitInfo()

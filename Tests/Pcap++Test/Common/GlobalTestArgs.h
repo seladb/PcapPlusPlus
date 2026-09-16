@@ -7,10 +7,10 @@
 struct PcapTestArgs
 {
 	std::string ipToSendReceivePackets;
-	bool debugMode;
+	bool debugMode = false;
 	std::string remoteIp;
-	uint16_t remotePort;
-	int dpdkPort;
+	uint16_t remotePort = 0;
+	int dpdkPort = 0;
 	std::vector<std::string> dpdkArgs;
 	std::string kniIp;
 	std::string xdpInterface;

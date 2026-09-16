@@ -45,6 +45,7 @@ namespace pcpp
 
 		X509ExtendedKeyUsagePurpose() = default;
 
+		// cppcheck-suppress noExplicitConstructor
 		constexpr X509ExtendedKeyUsagePurpose(Value value) : m_Value(value)
 		{}
 
@@ -135,7 +136,8 @@ namespace pcpp
 			}
 
 		private:
-			X509SubjectKeyIdentifierDataDecoder(const std::string& keyIdentifier) : m_KeyIdentifier(keyIdentifier)
+			explicit X509SubjectKeyIdentifierDataDecoder(const std::string& keyIdentifier)
+			    : m_KeyIdentifier(keyIdentifier)
 			{}
 			std::string m_KeyIdentifier;
 		};
@@ -157,7 +159,7 @@ namespace pcpp
 			}
 
 		private:
-			X509KeyUsageDataDecoder(const std::string& keyUsage) : m_KeyUsage(keyUsage)
+			explicit X509KeyUsageDataDecoder(const std::string& keyUsage) : m_KeyUsage(keyUsage)
 			{}
 			std::string m_KeyUsage;
 		};

@@ -90,7 +90,7 @@ namespace pcpp
 		}
 		case PCPP_ETHERTYPE_MPLS:
 		{
-			constructNextLayer<MplsLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		default:
