@@ -188,10 +188,10 @@ namespace pcpp
 		/// The total number of cores specified must match the number of Rx channels previously opened on this device.
 		/// For example, if 4 channels were opened with openMultiRxChannels(), the coreMask must specify 4 cores to run
 		/// the capture. Otherwise, the method will fail and return false.
-		/// 
+		///
 		/// The callback must be callable from multiple threads simultaneously, as the device implementation
 		/// does not provide any synchronization mechanisms.
-		/// 
+		///
 		/// @param[in] onPacketsArrive A callback to call whenever a packet arrives
 		/// @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every
 		/// packet

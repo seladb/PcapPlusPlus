@@ -471,7 +471,7 @@ namespace pcpp
 	bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive,
 	                                           void* onPacketsArriveUserCookie)
 	{
-		if(m_PfRingDescriptors.size() == 0)
+		if (m_PfRingDescriptors.size() == 0)
 		{
 			PCPP_LOG_ERROR("No RX channels opened. Cannot start capturing");
 			return false;
