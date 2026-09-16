@@ -283,6 +283,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPfRingDeviceSingleChannel, "pf_ring");
 	PTF_RUN_TEST(TestPfRingMultiThreadAllCores, "pf_ring");
 	PTF_RUN_TEST(TestPfRingMultiThreadSomeCores, "pf_ring");
+	PTF_RUN_TEST(TestPfRingMultiThreadAutoTune, "pf_ring");
 	PTF_RUN_TEST(TestPfRingSendPacket, "pf_ring");
 	PTF_RUN_TEST(TestPfRingSendPackets, "pf_ring");
 	PTF_RUN_TEST(TestPfRingFilters, "pf_ring");
