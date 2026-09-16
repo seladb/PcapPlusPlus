@@ -174,6 +174,7 @@ namespace pcpp
 		/// @tparam T The signed integral type
 		/// @param[in] field The descriptor of the field
 		/// @param[in] value The integral value to write
+		/// @fn void writeField(const FieldDescriptor& field, T value)
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
 		                                                  !std::is_same<T, bool>::value,
 		                                              int>::type = 0>
@@ -186,6 +187,7 @@ namespace pcpp
 		/// @tparam T The unsigned integral type
 		/// @param[in] field The descriptor of the field
 		/// @param[in] value The integral value to write
+		/// @fn void writeField(const FieldDescriptor& field, T value)
 		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value &&
 		                                                  !std::is_same<T, bool>::value,
 		                                              int>::type = 0>
