@@ -6,6 +6,10 @@
 #include <type_traits>
 #include <vector>
 
+/// @file
+
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
 	/// @struct FieldDescriptor
@@ -55,6 +59,16 @@ namespace pcpp
 	class ArrayScope;
 	class ObjectScope;
 
+	namespace internal
+	{
+		template <typename T>
+		using EnableIfSignedIntegral = typename std::enable_if<
+		    std::is_integral<T>::value && std::is_signed<T>::value && !std::is_same<T, bool>::value, int>::type;
+		template <typename T>
+		using EnableIfUnsignedIntegral = typename std::enable_if<
+		    std::is_integral<T>::value && std::is_unsigned<T>::value && !std::is_same<T, bool>::value, int>::type;
+	}  // namespace internal
+
 	/// @class ISerializer
 	/// Interface for streaming structured data to a serializer.
 	class ISerializer
@@ -91,17 +105,13 @@ namespace pcpp
 			writeField(field, std::string(value));
 		}
 
-		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
-		                                                  !std::is_same<T, bool>::value,
-		                                              int>::type = 0>
+		template <typename T, internal::EnableIfSignedIntegral<T> = 0>
 		void writeField(const FieldDescriptor& field, T value)
 		{
 			writeField(field, static_cast<int64_t>(value));
 		}
 
-		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value &&
-		                                                  !std::is_same<T, bool>::value,
-		                                              int>::type = 0>
+		template <typename T, internal::EnableIfUnsignedIntegral<T> = 0>
 		void writeField(const FieldDescriptor& field, T value)
 		{
 			writeField(field, static_cast<uint64_t>(value));
@@ -170,27 +180,13 @@ namespace pcpp
 		/// @param[in] value The unsigned integer value to write
 		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
 
-		/// Write a signed integral field.
-		/// @tparam T The signed integral type
-		/// @param[in] field The descriptor of the field
-		/// @param[in] value The integral value to write
-		/// @fn void writeField(const FieldDescriptor& field, T value)
-		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value &&
-		                                                  !std::is_same<T, bool>::value,
-		                                              int>::type = 0>
+		template <typename T, internal::EnableIfSignedIntegral<T> = 0>
 		void writeField(const FieldDescriptor& field, T value)
 		{
 			writeField(field, static_cast<int64_t>(value));
 		}
 
-		/// Write an unsigned integral field.
-		/// @tparam T The unsigned integral type
-		/// @param[in] field The descriptor of the field
-		/// @param[in] value The integral value to write
-		/// @fn void writeField(const FieldDescriptor& field, T value)
-		template <typename T, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value &&
-		                                                  !std::is_same<T, bool>::value,
-		                                              int>::type = 0>
+		template <typename T, internal::EnableIfUnsignedIntegral<T> = 0>
 		void writeField(const FieldDescriptor& field, T value)
 		{
 			writeField(field, static_cast<uint64_t>(value));
