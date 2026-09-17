@@ -265,6 +265,9 @@ namespace pcpp
 	/// QUIC v1 protocol
 	const ProtocolType QUICv1 = 64;
 
+	/// GigE Vision Control Protocol (GVCP)
+	const ProtocolType GVCP = 65;
+
 	/// @}
 
 	/// An enum representing OSI model layers

@@ -407,6 +407,13 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerTruncatedTest, "modbus");
 
+	PTF_RUN_TEST(GvcpDiscoveryParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpForceIpParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpRegisterAccessParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpMalformedParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpLayerCreationTest, "gvcp");
+	PTF_RUN_TEST(GvcpLayerEditTest, "gvcp");
+
 	PTF_RUN_TEST(X509ParsingTest, "x509");
 	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
 	PTF_RUN_TEST(X509InvalidDataTest, "x509");
