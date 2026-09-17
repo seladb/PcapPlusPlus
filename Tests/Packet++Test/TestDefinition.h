@@ -335,6 +335,14 @@ PTF_TEST_CASE(ModbusLayerCreationTest);
 PTF_TEST_CASE(ModbusLayerParsingTest);
 PTF_TEST_CASE(ModbusLayerTruncatedTest);
 
+// Implemented in GvcpTests.cpp
+PTF_TEST_CASE(GvcpDiscoveryParsingTest);
+PTF_TEST_CASE(GvcpForceIpParsingTest);
+PTF_TEST_CASE(GvcpRegisterAccessParsingTest);
+PTF_TEST_CASE(GvcpMalformedParsingTest);
+PTF_TEST_CASE(GvcpLayerCreationTest);
+PTF_TEST_CASE(GvcpLayerEditTest);
+
 // Implemented in X509Tests.cpp
 PTF_TEST_CASE(X509ParsingTest);
 PTF_TEST_CASE(X509VariantsParsingTest);
