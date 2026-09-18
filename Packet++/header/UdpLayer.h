@@ -92,8 +92,12 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by UdpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
 		struct SerializedFields
 		{
+			/// @return All field descriptors for UdpLayer
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
@@ -103,8 +107,14 @@ namespace pcpp
 				}
 				return result;
 			}
+
+			/// Source port, in host byte order
 			static const FieldDescriptor SrcPort;
+
+			/// Destination port, in host byte order
 			static const FieldDescriptor DstPort;
+
+			/// Checksum, as a hex string
 			static const FieldDescriptor Checksum;
 		};
 

@@ -156,8 +156,12 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an Ethernet II packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
+		/// @struct SerializedFields
+		/// Fields written by EthLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
 		struct SerializedFields
 		{
+			/// @return All field descriptors for EthLayer
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
@@ -167,8 +171,14 @@ namespace pcpp
 				}
 				return result;
 			}
+
+			/// Source MAC address, as a string
 			static const FieldDescriptor SrcMacAddress;
+
+			/// Destination MAC address, as a string
 			static const FieldDescriptor DstMacAddress;
+
+			/// EtherType, in host byte order (e.g. 2048 for IPv4)
 			static const FieldDescriptor EtherType;
 		};
 
