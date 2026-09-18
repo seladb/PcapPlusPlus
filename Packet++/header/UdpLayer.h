@@ -91,6 +91,25 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+		struct SerializedFields
+		{
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				for (const auto& field : { SrcPort, DstPort, Checksum })
+				{
+					result.push_back(field);
+				}
+				return result;
+			}
+			static const FieldDescriptor SrcPort;
+			static const FieldDescriptor DstPort;
+			static const FieldDescriptor Checksum;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	bool UdpLayer::isDataValid(const uint8_t* data, size_t dataLen)

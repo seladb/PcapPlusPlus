@@ -190,6 +190,42 @@ namespace pcpp
 			return OsiModelNetworkLayer;
 		}
 
+		struct SerializedFields
+		{
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				for (const auto& field : { SrcIp, DstIp, PayloadLength, IsFragment, NextHeader, Extensions })
+				{
+					result.push_back(field);
+				}
+				return result;
+			}
+
+			struct IPv6ExtensionObject : ObjectFieldDescriptor<IPv6ExtensionObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Name, Type };
+				}
+
+				static const FieldDescriptor Name;
+				static const FieldDescriptor Type;
+			};
+
+			static const FieldDescriptor SrcIp;
+			static const FieldDescriptor DstIp;
+			static const FieldDescriptor PayloadLength;
+			static const FieldDescriptor IsFragment;
+			static const FieldDescriptor NextHeader;
+			static const FieldDescriptor Extensions;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		void initLayer();
 		void parseExtensions();
