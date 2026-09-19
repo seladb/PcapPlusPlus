@@ -3,7 +3,7 @@ on:
   push:
     branches: ["master", "dev"]
   pull_request:
-    branches: ["dev"]
+    branches: ["dev", "packet-serialization-foundation"]
   schedule:
     - cron: '0 0 * * 0' # Run every Sunday at midnight
 

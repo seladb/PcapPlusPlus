@@ -12,6 +12,7 @@
 #include "VrrpLayer.h"
 #include "Packet.h"
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 
 namespace pcpp
 {
@@ -365,28 +366,8 @@ namespace pcpp
 			IPv6Extension* curExt = m_FirstExtension;
 			while (curExt != nullptr)
 			{
-				switch (curExt->getExtensionType())
-				{
-				case IPv6Extension::IPv6Fragmentation:
-					result += "Fragment,";
-					break;
-				case IPv6Extension::IPv6HopByHop:
-					result += "Hop-By-Hop,";
-					break;
-				case IPv6Extension::IPv6Destination:
-					result += "Destination,";
-					break;
-				case IPv6Extension::IPv6Routing:
-					result += "Routing,";
-					break;
-				case IPv6Extension::IPv6AuthenticationHdr:
-					result += "Authentication,";
-					break;
-				default:
-					result += "Unknown,";
-					break;
-				}
-
+				result += curExt->getExtensionTypeAsString();
+				result += ",";
 				curExt = curExt->getNextHeader();
 			}
 
@@ -397,4 +378,33 @@ namespace pcpp
 		return result;
 	}
 
+	const FieldDescriptor IPv6Layer::SerializedFields::SrcIp{ Layer::SerializedFields::MaxID + 1, "srcIP" };
+	const FieldDescriptor IPv6Layer::SerializedFields::DstIp{ Layer::SerializedFields::MaxID + 2, "dstIP" };
+	const FieldDescriptor IPv6Layer::SerializedFields::PayloadLength{ Layer::SerializedFields::MaxID + 3,
+		                                                              "payloadLength" };
+	const FieldDescriptor IPv6Layer::SerializedFields::IsFragment{ Layer::SerializedFields::MaxID + 4, "isFragment" };
+	const FieldDescriptor IPv6Layer::SerializedFields::NextHeader{ Layer::SerializedFields::MaxID + 5, "nextHeader" };
+	const FieldDescriptor IPv6Layer::SerializedFields::Extensions{ Layer::SerializedFields::MaxID + 6, "extensions" };
+	const IPv6Layer::SerializedFields::IPv6ExtensionObject ExtensionObject{ 0, "extension" };
+	const FieldDescriptor IPv6Layer::SerializedFields::IPv6ExtensionObject::Name{ 0, "name" };
+	const FieldDescriptor IPv6Layer::SerializedFields::IPv6ExtensionObject::Type{ 0, "type" };
+
+	void IPv6Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::SrcIp, getSrcIPAddress().toString());
+		serializer.writeField(SerializedFields::DstIp, getDstIPAddress().toString());
+		auto header = getIPv6Header();
+		serializer.writeField(SerializedFields::PayloadLength, netToHost16(header->payloadLength));
+		serializer.writeField(SerializedFields::IsFragment, isFragment());
+		serializer.writeField(SerializedFields::NextHeader, header->nextHeader);
+		auto extensions = serializer.writeArray(SerializedFields::Extensions);
+		for (auto extension = m_FirstExtension; extension != nullptr; extension = extension->getNextHeader())
+		{
+			auto extensionObject = extensions.writeObject(ExtensionObject);
+			extensionObject.writeField(SerializedFields::IPv6ExtensionObject::Name,
+			                           extension->getExtensionTypeAsString());
+			extensionObject.writeField(SerializedFields::IPv6ExtensionObject::Type,
+			                           static_cast<uint8_t>(extension->getExtensionType()));
+		}
+	}
 }  // namespace pcpp

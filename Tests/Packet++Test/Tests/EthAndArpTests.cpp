@@ -103,6 +103,13 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(ethLayer->getSourceMac(), expectedSrcMac);
 	PTF_ASSERT_EQUAL(ethLayer->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_ARP), hex);
 
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	ethLayer->serialize(serializer);
+	PTF_ASSERT_EQUAL(
+	    oss.str(),
+	    R"({"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"30:46:9a:23:fb:fa","dstMacAddress":"6c:f0:49:b2:de:6e","etherType":2054})");
+
 	PTF_ASSERT_EQUAL(ethLayer->getNextLayer()->getProtocol(), pcpp::ARP, enum);
 	pcpp::ArpLayer* arpLayer = (pcpp::ArpLayer*)ethLayer->getNextLayer();
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->hardwareType, htobe16(1));
