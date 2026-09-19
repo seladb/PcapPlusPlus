@@ -282,33 +282,23 @@ class TestPcapSplitter(ExampleTest):
         }
         self.run_example(args=args)
 
-        filenames = os.listdir(tmpdir)
-        # one file per session, not one per unique 5-tuple: the reused 5-tuple
-        # must produce two files, not collide into one
-        assert len(filenames) == 12
+        # First session on the reused 5-tuple keeps its plain name; the second
+        # (colliding) session gets a "-<fileNumber>" suffix. Every other,
+        # non-colliding session's filename is unaffected by the fix.
+        expected_filenames = {
+            "reused-five-tuple-connection-tcp_10-0-0-5_40001-10-0-0-9_443.pcap",
+            "reused-five-tuple-connection-tcp_10-0-0-5_40001-10-0-0-9_443-0012.pcap",
+        } | {
+            f"reused-five-tuple-connection-tcp_10-0-0-5_{port}-10-0-0-9_443.pcap"
+            for port in range(41000, 41010)
+        }
+        assert set(os.listdir(tmpdir)) == expected_filenames
 
-        total_packets = 0
-        base_names = []
-        for filename in filenames:
-            packets = rdpcap(os.path.join(tmpdir, filename))
-            total_packets += len(packets)
-            base_names.append(os.path.splitext(filename)[0])
         # no packets lost to a silent write collision
+        total_packets = sum(
+            len(rdpcap(os.path.join(tmpdir, filename))) for filename in expected_filenames
+        )
         assert total_packets == 48
-
-        # exactly one base name repeats: the first session keeps it unsuffixed,
-        # the second (colliding) session gets a "-<fileNumber>" suffix
-        reused_base = [n for n in base_names if "40001" in n]
-        assert len(reused_base) == 2
-        unsuffixed = [n for n in reused_base if not n.split("-")[-1].isdigit()]
-        suffixed = [n for n in reused_base if n.split("-")[-1].isdigit()]
-        assert len(unsuffixed) == 1
-        assert len(suffixed) == 1
-        assert suffixed[0] == unsuffixed[0] + "-" + suffixed[0].split("-")[-1]
-
-        # every other (non-colliding) session's filename is untouched by the fix
-        other_bases = [n for n in base_names if "40001" not in n]
-        assert all(not n.split("-")[-1].isdigit() for n in other_bases)
 
     def test_split_by_bpf_filter(self, tmpdir):
         args = {
