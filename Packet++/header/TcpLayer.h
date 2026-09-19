@@ -4,6 +4,8 @@
 #include "Layer.h"
 #include "TLVData.h"
 #include <string.h>
+#include <algorithm>
+#include <iterator>
 
 #define PCPP_INTERNAL_DEPRECATE_TCP_OPTION_TYPE_MSG                                                                    \
 	"enum TcpOptionType is deprecated; Use enum class TcpOptionEnumType instead"
@@ -586,10 +588,9 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				for (const auto& field : { SrcPort, DstPort, SequenceNumber, TcpFlags, WindowSize, Checksum, Options })
-				{
-					result.push_back(field);
-				}
+				std::initializer_list<FieldDescriptor> extra{ SrcPort,    DstPort,  SequenceNumber, TcpFlags,
+					                                          WindowSize, Checksum, Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 

@@ -2,6 +2,8 @@
 
 #include "Layer.h"
 #include "MacAddress.h"
+#include <algorithm>
+#include <iterator>
 
 /// @file
 
@@ -165,10 +167,8 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				for (const auto& field : { SrcMacAddress, DstMacAddress, EtherType })
-				{
-					result.push_back(field);
-				}
+				std::initializer_list<FieldDescriptor> extra{ SrcMacAddress, DstMacAddress, EtherType };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 

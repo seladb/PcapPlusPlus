@@ -6,6 +6,8 @@
 #include "IPLayer.h"
 #include <string.h>
 #include <vector>
+#include <algorithm>
+#include <iterator>
 
 /// @file
 
@@ -614,11 +616,9 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				for (const auto& field :
-				     { SrcIp, DstIp, IpId, IpProtocol, TotalLength, IsFragment, FragmentOffset, Options })
-				{
-					result.push_back(field);
-				}
+				std::initializer_list<FieldDescriptor> extra{ SrcIp,       DstIp,      IpId,           IpProtocol,
+					                                          TotalLength, IsFragment, FragmentOffset, Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
