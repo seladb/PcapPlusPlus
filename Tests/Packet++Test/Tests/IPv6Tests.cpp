@@ -145,6 +145,15 @@ PTF_TEST_CASE(IPv6FragmentationTest)
 	PTF_ASSERT_EQUAL(be32toh(fragHeader->getFragHeader()->id), 0xf88eb466);
 	PTF_ASSERT_EQUAL(fragHeader->getFragHeader()->nextHeader, pcpp::PACKETPP_IPPROTO_UDP);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ipv6Layer->serialize(serializer);
+		auto serializedData = oss.str();
+		PTF_ASSERT_CONTAINS(serializedData, R"("isFragment":true)");
+		PTF_ASSERT_CONTAINS(serializedData, R"("extensions":[{"name":"Fragment","type":44}])");
+	}
+
 	pcpp::EthLayer newEthLayer(*frag1.getLayerOfType<pcpp::EthLayer>());
 
 	pcpp::IPv6Layer newIPv6Layer(*frag1.getLayerOfType<pcpp::IPv6Layer>());
@@ -289,6 +298,8 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<pcpp::IPv6HopByHopHeader>()->getFirstOption().getType(), 5);
 	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<pcpp::IPv6RoutingHeader>());
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<pcpp::IPv6RoutingHeader>()->getRoutingHeader()->routingType, 0);
+	PTF_ASSERT_EQUAL(ipv6Layer->toString(),
+	                 "IPv6 Layer, Src: fe80::2, Dst: ff02::5, Options=[Hop-By-Hop,Destination,Routing,Authentication]");
 	{
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
