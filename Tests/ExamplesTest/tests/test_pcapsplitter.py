@@ -296,7 +296,8 @@ class TestPcapSplitter(ExampleTest):
 
         # no packets lost to a silent write collision
         total_packets = sum(
-            len(rdpcap(os.path.join(tmpdir, filename))) for filename in expected_filenames
+            len(rdpcap(os.path.join(tmpdir, filename)))
+            for filename in expected_filenames
         )
         assert total_packets == 48
 
