@@ -265,6 +265,21 @@ namespace pcpp
 	/// QUIC v1 protocol
 	const ProtocolType QUICv1 = 64;
 
+	/// Bluetooth HCI Protocol Command Packet
+	const ProtocolType BluetoothHciCommand = 65;
+
+	/// Bluetooth HCI Protocol ACL Data Packet
+	const ProtocolType BluetoothHciAclData = 66;
+
+	/// Bluetooth HCI Protocol SCO Data Packet
+	const ProtocolType BluetoothHciScoData = 67;
+
+	/// Bluetooth HCI Protocol Event Packet
+	const ProtocolType BluetoothHciEvent = 68;
+
+	/// Bluetooth HCI Protocol ISO Data Packet
+	const ProtocolType BluetoothHciIsoData = 69;
+
 	/// @}
 
 	/// An enum representing OSI model layers

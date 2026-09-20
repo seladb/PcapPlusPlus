@@ -149,6 +149,11 @@ PTF_TEST_CASE(Sll2PacketCreationTest);
 // Implemented in NflogTests.cpp
 PTF_TEST_CASE(NflogPacketParsingTest);
 
+// Implemented in BluetoothHciTests.cpp
+PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest);
+PTF_TEST_CASE(BluetoothHciEventGenericTest);
+PTF_TEST_CASE(BluetoothHciEventInvalidDataTest);
+
 // Implemented in GreTests.cpp
 PTF_TEST_CASE(GreParsingTest);
 PTF_TEST_CASE(GreCreationTest);
