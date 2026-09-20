@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include "DeprecationUtils.h"
+
 /// @file
 
 /// @namespace pcpp
@@ -263,6 +265,9 @@ namespace pcpp
 	/// FTP protocol family (FTPControl and FtpData protocols)
 	const ProtocolTypeFamily FTP = 0x3c29;
 
+	/// QUIC v1 protocol
+	const ProtocolType QUICv1 = 64;
+
 	/// @}
 
 	/// An enum representing OSI model layers
@@ -277,7 +282,9 @@ namespace pcpp
 		/// Transport layer (layer 4)
 		OsiModelTransportLayer = 4,
 		/// Session layer (layer 5)
-		OsiModelSesionLayer = 5,
+		OsiModelSessionLayer = 5,
+		/// Deprecated typo, use OsiModelSessionLayer instead.
+		OsiModelSesionLayer PCPP_DEPRECATED("Use OsiModelSessionLayer instead") = OsiModelSessionLayer,
 		/// Presentation layer (layer 6)
 		OsiModelPresentationLayer = 6,
 		/// Application layer (layer 7)

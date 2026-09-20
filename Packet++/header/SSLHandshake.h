@@ -32,7 +32,7 @@ namespace pcpp
 		/// @param[in] MACAlg MAC algorithm used in this cipher-suite
 		/// @param[in] name String representation of this cipher-suite
 		SSLCipherSuite(uint16_t id, SSLKeyExchangeAlgorithm keyExAlg, SSLAuthenticationAlgorithm authAlg,
-		               SSLSymetricEncryptionAlgorithm symKeyAlg, SSLHashingAlgorithm MACAlg, const char* name)
+		               SSLSymmetricEncryptionAlgorithm symKeyAlg, SSLHashingAlgorithm MACAlg, const char* name)
 		    : m_Id(id), m_KeyExAlg(keyExAlg), m_AuthAlg(authAlg), m_SymKeyAlg(symKeyAlg), m_MACAlg(MACAlg), m_Name(name)
 		{}
 
@@ -61,7 +61,7 @@ namespace pcpp
 		}
 
 		/// @return Symmetric key algorithm used in this cipher-suite
-		SSLSymetricEncryptionAlgorithm getSymKeyAlg() const
+		SSLSymmetricEncryptionAlgorithm getSymKeyAlg() const
 		{
 			return m_SymKeyAlg;
 		}
@@ -86,7 +86,7 @@ namespace pcpp
 		uint16_t m_Id;
 		SSLKeyExchangeAlgorithm m_KeyExAlg;
 		SSLAuthenticationAlgorithm m_AuthAlg;
-		SSLSymetricEncryptionAlgorithm m_SymKeyAlg;
+		SSLSymmetricEncryptionAlgorithm m_SymKeyAlg;
 		SSLHashingAlgorithm m_MACAlg;
 		std::string m_Name;
 	};
@@ -472,8 +472,8 @@ namespace pcpp
 
 		/// TLS fingerprinting is a way to identify client applications using the details in the TLS Client Hello
 		/// packet. It was initially introduced by Lee Brotherston in his 2015 research:
-		/// <https://blog.squarelemon.com/tls-fingerprinting/> This implementation of TLS fingerprint is a C++ version
-		/// of Salesforce's JA3 open source project (originally written in Python and Zeek):
+		/// <https://github.com/leebrotherston/tls-fingerprinting> This implementation of TLS fingerprint is a C++
+		/// version of Salesforce's JA3 open source project (originally written in Python and Zeek):
 		/// <https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967>
 		/// @return A SSLClientHelloMessage#ClientHelloTLSFingerprint struct that contains all the elements needed for
 		/// creating a TLS fingerprint out of this Client Hello message. This struct has also methods to extract the TLS

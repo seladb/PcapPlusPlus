@@ -238,6 +238,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpInvalidPackets, "doip");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
+	PTF_RUN_TEST(IcmpTruncatedPacketTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	PTF_RUN_TEST(IcmpEditTest, "icmp");
 
@@ -430,6 +431,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(MySqlLayerParsingTest, "mysql");
 	PTF_RUN_TEST(MySqlMessageParsingTest, "mysql");
 	PTF_RUN_TEST(MySqlInvalidDataTest, "mysql");
+
+	PTF_RUN_TEST(QuicV1ParsingTest, "quic");
+	PTF_RUN_TEST(QuicV1MalformedPacketsTest, "quic");
 
 	PTF_END_RUNNING_TESTS;
 }

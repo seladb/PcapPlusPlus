@@ -136,6 +136,7 @@ PTF_TEST_CASE(DoIpInvalidPackets);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);
+PTF_TEST_CASE(IcmpTruncatedPacketTest);
 PTF_TEST_CASE(IcmpCreationTest);
 PTF_TEST_CASE(IcmpEditTest);
 
@@ -366,3 +367,7 @@ PTF_TEST_CASE(PostgresInvalidDataTest);
 PTF_TEST_CASE(MySqlLayerParsingTest);
 PTF_TEST_CASE(MySqlMessageParsingTest);
 PTF_TEST_CASE(MySqlInvalidDataTest);
+
+// Implement in QuicTests.cpp
+PTF_TEST_CASE(QuicV1ParsingTest);
+PTF_TEST_CASE(QuicV1MalformedPacketsTest);
