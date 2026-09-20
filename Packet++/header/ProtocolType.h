@@ -271,7 +271,7 @@ namespace pcpp
 	/// Convert a protocol type to its string representation.
 	/// @param[in] protocolType The protocol type to convert.
 	/// @return The string representation of the protocol type.
-	inline const char* protocolTypeToString(ProtocolType protocolType)
+	constexpr const char* protocolTypeToString(ProtocolType protocolType)
 	{
 		switch (protocolType)
 		{

@@ -23,7 +23,7 @@ namespace pcpp
 		const std::string name;
 
 		/// Function returning the descriptors of the field's children, or nullptr if the field has no children.
-		std::vector<FieldDescriptor> (*const children)();
+		std::vector<FieldDescriptor> (*const getChildren)();
 
 		/// Create a field descriptor.
 		/// @param[in] fieldId The stable numeric identifier of the field
@@ -32,14 +32,14 @@ namespace pcpp
 		/// children
 		FieldDescriptor(uint16_t fieldId, std::string fieldName,
 		                std::vector<FieldDescriptor> (*fieldChildren)() = nullptr)
-		    : id(fieldId), name(std::move(fieldName)), children(fieldChildren)
+		    : id(fieldId), name(std::move(fieldName)), getChildren(fieldChildren)
 		{}
 
 		/// Check whether the field has child fields.
 		/// @return True if the field has child fields, false otherwise
 		bool hasChildren() const
 		{
-			return children != nullptr;
+			return getChildren != nullptr;
 		}
 	};
 
@@ -62,11 +62,14 @@ namespace pcpp
 	namespace internal
 	{
 		template <typename T>
-		using EnableIfSignedIntegral = typename std::enable_if<
-		    std::is_integral<T>::value && std::is_signed<T>::value && !std::is_same<T, bool>::value, int>::type;
+		using EnableIfSignedIntegral =
+		    std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value && !std::is_same<T, bool>::value,
+		                     int>;
+
 		template <typename T>
-		using EnableIfUnsignedIntegral = typename std::enable_if<
-		    std::is_integral<T>::value && std::is_unsigned<T>::value && !std::is_same<T, bool>::value, int>::type;
+		using EnableIfUnsignedIntegral =
+		    std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value && !std::is_same<T, bool>::value,
+		                     int>;
 	}  // namespace internal
 
 	/// @class ISerializer
@@ -119,8 +122,7 @@ namespace pcpp
 
 		virtual void writeHexField(const FieldDescriptor& field, uint64_t value) = 0;
 
-		template <typename T,
-		          typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, int>::type = 0>
+		template <typename T, std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int> = 0>
 		void writeHexField(const FieldDescriptor& field, T value)
 		{
 			writeHexField(field, static_cast<uint64_t>(value));

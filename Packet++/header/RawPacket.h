@@ -254,7 +254,7 @@ namespace pcpp
 	/// Convert a link layer type to its string representation.
 	/// @param[in] linkLayer The link layer type to convert.
 	/// @return The string representation of the link layer type.
-	inline const char* linkLayerToString(LinkLayerType linkLayer)
+	constexpr const char* linkLayerToString(LinkLayerType linkLayer)
 	{
 		switch (linkLayer)
 		{
