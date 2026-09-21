@@ -390,7 +390,7 @@ void* operator new[](size_t size) noexcept(false) { // PCPP Patch
 	return operator new(size, getCaller(), 0);
 }
 
-void* operator new(size_t size) noexept(false) { // PCPP Patch
+void* operator new(size_t size) noexcept(false) { // PCPP Patch
 	return operator new(size, getCaller(), 0);
 }
 
