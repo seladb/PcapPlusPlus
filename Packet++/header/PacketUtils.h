@@ -64,18 +64,39 @@ namespace pcpp
 	/// @return The hash value calculated for this packet or 0 if the packet isn't IPv4/6
 	uint32_t hash2Tuple(Packet* packet);
 
+	/// @class PacketSerializer
+	/// Serializes a collection of packets into a single array. The array
+	/// is opened immediately in the constructor and closed when the
+	/// PacketSerializer is destroyed, so all packets must be added within
+	/// its lifetime. Not copyable, since copying would either double-write
+	/// the array or leave one copy's array permanently unclosed.
 	class PacketSerializer
 	{
 	public:
+		/// Opens the "packets" array field on the given serializer.
+		/// @param[in] serializer The serializer to write the array into
 		explicit PacketSerializer(ISerializer& serializer) : m_Packets(serializer.writeArray(Packets))
 		{}
 
 		PacketSerializer(const PacketSerializer&) = delete;
 		PacketSerializer& operator=(const PacketSerializer&) = delete;
 
+		/// Serializes one packet and appends it to the array.
+		/// @param[in] packet The packet to add
 		void addPacket(const Packet& packet);
+
+		/// Serializes one packet and appends it to the array.
+		/// @param[in] packet The packet to add
 		void addPacket(const Packet* packet);
+
+		/// Serializes every packet in the vector and appends them to the
+		/// array, in order.
+		/// @param[in] packets The packets to add
 		void addPackets(const PointerVector<Packet>& packets);
+
+		/// Serializes every packet in the vector and appends them to the
+		/// array, in order.
+		/// @param[in] packets The packets to add
 		void addPackets(const std::vector<Packet>& packets);
 
 	private:

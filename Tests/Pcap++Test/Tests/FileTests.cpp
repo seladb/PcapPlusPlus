@@ -2519,7 +2519,6 @@ PTF_TEST_CASE(PcapFileSerializeTest)
 	// Read a file and serialize every packet in it.
 	{
 		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_MICRO_PATH);
-		PTF_ASSERT_TRUE(reader.open());
 
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
@@ -2532,6 +2531,18 @@ PTF_TEST_CASE(PcapFileSerializeTest)
 		    R"([{"timestamp":{"sec":1,"nsec":2000},"frameLength":16,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"06:07:08:09:0a:0b","dstMacAddress":"00:01:02:03:04:05","etherType":3085},{"protocolName":"GenericPayload","protocolId":25,"length":2}]},{"timestamp":{"sec":1,"nsec":1000},"frameLength":16,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"06:07:08:09:0a:0b","dstMacAddress":"00:01:02:03:04:05","etherType":3085},{"protocolName":"GenericPayload","protocolId":25,"length":2}]}])");
 	}
 
+	// Reader already open.
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_MICRO_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		auto count = pcpp::serializePackets(reader, serializer);
+
+		PTF_ASSERT_EQUAL(count, static_cast<size_t>(2));
+	}
+
 	// serializePackets() with an empty file
 	{
 		std::string emptyFileName = "PcapExamples/empty-file.pcap";
@@ -2542,7 +2553,6 @@ PTF_TEST_CASE(PcapFileSerializeTest)
 		}
 
 		pcpp::PcapFileReaderDevice reader(emptyFileName);
-		PTF_ASSERT_TRUE(reader.open());
 
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
@@ -2552,4 +2562,16 @@ PTF_TEST_CASE(PcapFileSerializeTest)
 		PTF_ASSERT_EQUAL(count, static_cast<size_t>(0));
 		PTF_ASSERT_EQUAL(oss.str(), "[]");
 	}
-}
+
+	// The underlying file doesn't exist, so open() will fail
+	{
+		SuppressLogs suppressLogs;
+
+		pcpp::PcapFileReaderDevice reader("PcapExamples/this_file_does_not_exist.pcap");
+		PTF_ASSERT_FALSE(reader.isOpened());
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		PTF_ASSERT_RAISES(pcpp::serializePackets(reader, serializer), std::runtime_error, "Device cannot be opened");
+	}
+}  // PcapFileSerializeTest

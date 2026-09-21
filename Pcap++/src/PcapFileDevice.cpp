@@ -1640,12 +1640,14 @@ namespace pcpp
 
 	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer)
 	{
+		if (!reader.isOpened() && !reader.open())
+		{
+			throw std::runtime_error("Device cannot be opened");
+		}
+
 		size_t packetCount = 0;
-
 		auto packets = serializer.writeArray(FieldDescriptor{ 0, "packets" });
-
 		RawPacket rawPacket;
-
 		while (reader.getNextPacket(rawPacket))
 		{
 			Packet packet(&rawPacket);

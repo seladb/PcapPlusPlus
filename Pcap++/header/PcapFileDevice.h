@@ -627,5 +627,10 @@ namespace pcpp
 		void close() override;
 	};
 
+	/// Reads every packet from a file reader device and serializes them
+	/// into a single array.
+	/// @param[in] reader The file reader device to read packets from
+	/// @param[in] serializer The serializer to write the packets into
+	/// @return The number of packets read and serialized
 	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer);
 }  // namespace pcpp
