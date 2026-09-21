@@ -378,27 +378,27 @@ const char* getCaller() {
 }
 #endif
 
-void* operator new(std::size_t size, const char* file, int line) noexcept(false) {
+void* operator new(std::size_t size, const char* file, int line) noexcept(false) { // PCPP Patch
     return MemPlumberInternal::getInstance().allocateMemory(size, file, line);
 }
 
-void* operator new[](std::size_t size, const char* file, int line) noexcept(false) {
+void* operator new[](std::size_t size, const char* file, int line) noexcept(false) { // PCPP Patch
     return operator new(size, file, line);
 }
 
-void* operator new[](size_t size) noexept(false) {
+void* operator new[](size_t size) noexept(false) { // PCPP Patch
 	return operator new(size, getCaller(), 0);
 }
 
-void* operator new(size_t size) noexept(false) {
+void* operator new(size_t size) noexept(false) { // PCPP Patch
 	return operator new(size, getCaller(), 0);
 }
 
-void* operator new(size_t size, const std::nothrow_t&) noexcept {
+void* operator new(size_t size, const std::nothrow_t&) noexcept { // PCPP Patch
 	return operator new(size, getCaller(), 0);
 }
 
-void* operator new[](size_t size, const std::nothrow_t&) noexcept {
+void* operator new[](size_t size, const std::nothrow_t&) noexcept { // PCPP Patch
 	return operator new[](size, getCaller(), 0);
 }
 
@@ -406,32 +406,32 @@ void operator delete(void* pointer, const char* file, int line) {
     MemPlumberInternal::getInstance().freeMemory(pointer, file, line);
 }
 
-void operator delete(void* pointer) noexcept {
+void operator delete(void* pointer) noexcept { // PCPP Patch
     operator delete(pointer, __FILE__, __LINE__);
 }
 
-void operator delete(void* pointer, std::size_t size) noexcept {
+void operator delete(void* pointer, std::size_t size) noexcept { // PCPP Patch
     operator delete(pointer, __FILE__, __LINE__);
 }
 
-void operator delete[](void* pointer) noexcept {
+void operator delete[](void* pointer) noexcept { // PCPP Patch
     operator delete(pointer, __FILE__, __LINE__);
 }
 
-void operator delete[](void* pointer, std::size_t size) noexcept {
+void operator delete[](void* pointer, std::size_t size) noexcept { // PCPP Patch
     operator delete(pointer, __FILE__, __LINE__);
 }
 
 
-void operator delete[](void* pointer, const char* file, int line) noexcept {
+void operator delete[](void* pointer, const char* file, int line) noexcept { // PCPP Patch
     operator delete(pointer, file, line);
 }
 
-void operator delete(void* pointer, const std::nothrow_t&) noexcept {
+void operator delete(void* pointer, const std::nothrow_t&) noexcept { // PCPP Patch
 	operator delete(pointer);
 }
 
-void operator delete[](void* pointer, const std::nothrow_t&) noexcept {
+void operator delete[](void* pointer, const std::nothrow_t&) noexcept { // PCPP Patch
 	operator delete(pointer, std::nothrow);
 }
 
