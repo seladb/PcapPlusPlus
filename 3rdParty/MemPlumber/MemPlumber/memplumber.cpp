@@ -386,7 +386,7 @@ void* operator new[](std::size_t size, const char* file, int line) noexcept(fals
     return operator new(size, file, line);
 }
 
-void* operator new[](size_t size) noexept(false) { // PCPP Patch
+void* operator new[](size_t size) noexcept(false) { // PCPP Patch
 	return operator new(size, getCaller(), 0);
 }
 
