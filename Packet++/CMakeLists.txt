@@ -4,7 +4,7 @@ add_library(
   src/ArpLayer.cpp
   src/Asn1Codec.cpp
   src/BgpLayer.cpp
-  src/BluetoothHciEventLayer.cpp
+  src/BluetoothHciLayer.cpp
   src/CiscoHdlcLayer.cpp
   src/CotpLayer.cpp
   src/CryptoKeyDecoder.cpp
@@ -85,7 +85,7 @@ set(
   header/ArpLayer.h
   header/Asn1Codec.h
   header/BgpLayer.h
-  header/BluetoothHciEventLayer.h
+  header/BluetoothHciLayer.h
   header/CiscoHdlcLayer.h
   header/CotpLayer.h
   header/CryptoDataReader.h

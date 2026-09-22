@@ -10,7 +10,7 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "CiscoHdlcLayer.h"
-#include "BluetoothHciEventLayer.h"
+#include "BluetoothHciLayer.h"
 #include "PayloadLayer.h"
 #include "PacketTrailerLayer.h"
 #include "Logger.h"
@@ -915,18 +915,13 @@ namespace pcpp
 			break;
 		}
 		case LinkLayerType::LINKTYPE_BLUETOOTH_HCI_H4:
-		{
-			if (BluetoothHciEventLayer::isDataValid(rawData, rawDataLen, false))
-			{
-				return new BluetoothHciEventLayer(const_cast<uint8_t*>(rawData), rawDataLen, this, false);
-			}
-			break;
-		}
 		case LinkLayerType::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR:
 		{
-			if (BluetoothHciEventLayer::isDataValid(rawData, rawDataLen, true))
+			bool hasDirectionHeader = (linkType == LinkLayerType::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR);
+			if (auto* hciLayer =
+			        BluetoothHciLayer::parseLayer(const_cast<uint8_t*>(rawData), rawDataLen, this, hasDirectionHeader))
 			{
-				return new BluetoothHciEventLayer(const_cast<uint8_t*>(rawData), rawDataLen, this, true);
+				return hciLayer;
 			}
 			break;
 		}

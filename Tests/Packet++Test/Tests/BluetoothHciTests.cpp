@@ -1,7 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "Packet.h"
-#include "BluetoothHciEventLayer.h"
+#include "BluetoothHciLayer.h"
 #include "PayloadLayer.h"
 
 namespace
@@ -25,8 +25,8 @@ namespace
 		PTF_PRINT_VERBOSE("  hasDirectionHeader():      " << (eventLayer->hasDirectionHeader() ? "true" : "false"));
 		PTF_PRINT_VERBOSE("  getDirection():            " << directionToString(eventLayer->getDirection()));
 		PTF_PRINT_VERBOSE("  getHeaderLen():            " << eventLayer->getHeaderLen());
-		PTF_PRINT_VERBOSE("  getEventHeader()->packetIndicator: 0x"
-		                  << std::hex << static_cast<int>(eventLayer->getEventHeader()->packetIndicator) << std::dec);
+		PTF_PRINT_VERBOSE("  getPacketIndicator():      0x"
+		                  << std::hex << static_cast<int>(eventLayer->getPacketIndicator()) << std::dec);
 		PTF_PRINT_VERBOSE("  getEventCode():            0x" << std::hex << static_cast<int>(eventLayer->getEventCode())
 		                                                    << std::dec);
 		PTF_PRINT_VERBOSE("  getParameterTotalLength(): " << static_cast<int>(eventLayer->getParameterTotalLength()));
@@ -49,10 +49,15 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 
 		pcpp::Packet packet(rawPacket.get());
 
-		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHciEvent));
-		PTF_ASSERT_EQUAL(packet.getFirstLayer()->getProtocol(), pcpp::BluetoothHciEvent, enum);
+		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHci));
+		PTF_ASSERT_EQUAL(packet.getFirstLayer()->getProtocol(), pcpp::BluetoothHci, enum);
 
-		auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+		auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
+		PTF_ASSERT_NOT_NULL(hciLayer);
+		PTF_ASSERT_EQUAL(hciLayer->getPacketType(), pcpp::BluetoothHciPacketType::Event, enumclass);
+		PTF_ASSERT_EQUAL(hciLayer->getPacketIndicator(), 0x04);
+
+		auto* eventLayer = hciLayer->asEventLayer();
 		PTF_ASSERT_NOT_NULL(eventLayer);
 		PTF_ASSERT_NULL(eventLayer->getNextLayer());
 
@@ -67,7 +72,6 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 
 		auto* header = eventLayer->getEventHeader();
 		PTF_ASSERT_NOT_NULL(header);
-		PTF_ASSERT_EQUAL(header->packetIndicator, pcpp::BluetoothHciEventPacketIndicator);
 		PTF_ASSERT_EQUAL(header->eventCode, pcpp::BluetoothHciInquiryCompleteEventCode);
 		PTF_ASSERT_EQUAL(header->parameterTotalLength, 1);
 
@@ -92,9 +96,14 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 
 		pcpp::Packet packet(rawPacket.get());
 
-		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHciEvent));
+		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHci));
 
-		auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+		auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
+		PTF_ASSERT_NOT_NULL(hciLayer);
+		PTF_ASSERT_EQUAL(hciLayer->getPacketType(), pcpp::BluetoothHciPacketType::Event, enumclass);
+		PTF_ASSERT_EQUAL(hciLayer->getPacketIndicator(), 0x04);
+
+		auto* eventLayer = hciLayer->asEventLayer();
 		PTF_ASSERT_NOT_NULL(eventLayer);
 		PTF_ASSERT_NULL(eventLayer->getNextLayer());
 
@@ -105,7 +114,6 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 		PTF_ASSERT_EQUAL(eventLayer->getDirection(), pcpp::BluetoothHciDirection::Unknown, enumclass);
 		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 3);
 		PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 1);
-		PTF_ASSERT_EQUAL(eventLayer->getEventHeader()->packetIndicator, pcpp::BluetoothHciEventPacketIndicator);
 		PTF_ASSERT_EQUAL(eventLayer->getEventCode(), pcpp::BluetoothHciInquiryCompleteEventCode);
 		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 1);
 
@@ -127,9 +135,13 @@ PTF_TEST_CASE(BluetoothHciEventGenericTest)
 
 	pcpp::Packet packet(rawPacket.get());
 
-	PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHciEvent));
+	PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHci));
 
-	auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+	auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
+	PTF_ASSERT_NOT_NULL(hciLayer);
+	PTF_ASSERT_EQUAL(hciLayer->getPacketType(), pcpp::BluetoothHciPacketType::Event, enumclass);
+
+	auto* eventLayer = hciLayer->asEventLayer();
 	PTF_ASSERT_NOT_NULL(eventLayer);
 
 	PTF_PRINT_VERBOSE("Command Status (LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR):");
@@ -165,7 +177,7 @@ PTF_TEST_CASE(BluetoothHciEventInvalidDataTest)
 
 		PTF_PRINT_VERBOSE("Command packet (indicator 0x01) parsed as: " << packet.getFirstLayer()->toString());
 
-		PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::BluetoothHciEvent));
+		PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::BluetoothHci));
 		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
 	}
 
@@ -198,7 +210,12 @@ PTF_TEST_CASE(BluetoothHciEventInvalidDataTest)
 		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4);
 		pcpp::Packet packet(&rawPacket);
 
-		auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+		auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
+		PTF_ASSERT_NOT_NULL(hciLayer);
+		PTF_ASSERT_EQUAL(hciLayer->getPacketType(), pcpp::BluetoothHciPacketType::Event, enumclass);
+		PTF_ASSERT_EQUAL(hciLayer->getPacketIndicator(), 0x04);
+
+		auto* eventLayer = hciLayer->asEventLayer();
 		PTF_ASSERT_NOT_NULL(eventLayer);
 		PTF_ASSERT_NULL(eventLayer->getInquiryCompleteParameters());
 		PTF_ASSERT_EQUAL(eventLayer->toString(), "Bluetooth HCI Event, Event Code: 0x01");
