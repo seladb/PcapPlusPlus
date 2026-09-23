@@ -1,6 +1,10 @@
+#define LOG_MODULE PacketLogModuleS7CommLayer
+
 #include "EndianPortable.h"
 
+#include "Logger.h"
 #include "S7CommLayer.h"
+#include <algorithm>
 #include <iostream>
 #include <cstring>
 #include <sstream>
@@ -108,12 +112,24 @@ namespace pcpp
 
 	uint8_t S7CommLayer::getErrorCode() const
 	{
-		return getS7commAckDataHeader()->errorCode;
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader == nullptr)
+		{
+			return 0;
+		}
+
+		return ackDataHeader->errorCode;
 	}
 
 	uint8_t S7CommLayer::getErrorClass() const
 	{
-		return getS7commAckDataHeader()->errorClass;
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader == nullptr)
+		{
+			return 0;
+		}
+
+		return ackDataHeader->errorClass;
 	}
 
 	void S7CommLayer::setPduRef(uint16_t pduRef) const
@@ -123,20 +139,36 @@ namespace pcpp
 
 	void S7CommLayer::setErrorCode(uint8_t errorCode) const
 	{
-		getS7commAckDataHeader()->errorCode = errorCode;
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader == nullptr)
+		{
+			PCPP_LOG_ERROR("Cannot set the error code, the layer has no Ack-Data header");
+			return;
+		}
+
+		ackDataHeader->errorCode = errorCode;
 	}
 
 	void S7CommLayer::setErrorClass(uint8_t errorClass) const
 	{
-		getS7commAckDataHeader()->errorClass = errorClass;
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader == nullptr)
+		{
+			PCPP_LOG_ERROR("Cannot set the error class, the layer has no Ack-Data header");
+			return;
+		}
+
+		ackDataHeader->errorClass = errorClass;
 	}
 
 	const S7CommParameter* S7CommLayer::getParameter()
 	{
 		if (!m_Parameter)
 		{
-			uint8_t* payload = m_Data + getS7commHeaderLength();
-			m_Parameter = std::unique_ptr<S7CommParameter>(new S7CommParameter(payload, getParamLength()));
+			// the parameter length comes from the packet, so keep it inside the layer
+			size_t offset = std::min(getS7commHeaderLength(), m_DataLen);
+			size_t paramLength = std::min(static_cast<size_t>(getParamLength()), m_DataLen - offset);
+			m_Parameter = std::unique_ptr<S7CommParameter>(new S7CommParameter(m_Data + offset, paramLength));
 		}
 
 		return m_Parameter.get();
