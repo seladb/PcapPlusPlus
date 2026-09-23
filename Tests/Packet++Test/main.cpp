@@ -382,6 +382,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(S7CommLayerParsingTest, "s7comm");
 	PTF_RUN_TEST(S7CommLayerCreationTest, "s7comm");
+	PTF_RUN_TEST(S7CommLayerMalformedTest, "s7comm");
 
 	PTF_RUN_TEST(SmtpParsingTests, "smtp");
 	PTF_RUN_TEST(SmtpCreationTests, "smtp");
