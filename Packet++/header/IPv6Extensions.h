@@ -48,6 +48,8 @@ namespace pcpp
 			return m_ExtType;
 		}
 
+		const char* getExtensionTypeAsString() const;
+
 		/// A destructor for this class
 		virtual ~IPv6Extension();
 
