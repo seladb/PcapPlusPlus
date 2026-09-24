@@ -833,6 +833,7 @@ namespace pcpp
 			pcap_close(m_PcapSendDescriptor);
 			PCPP_LOG_DEBUG("Send pcap descriptor closed");
 		}
+		m_PcapSendDescriptor = nullptr;
 
 		m_DeviceOpened = false;
 		PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' closed");
