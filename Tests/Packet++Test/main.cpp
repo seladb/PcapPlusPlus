@@ -156,6 +156,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PacketUtilsHash5TupleUdp, "udp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleTcp, "tcp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleIPv6, "ipv6");
+	PTF_RUN_TEST(PacketSerializerTest, "packet");
 
 	PTF_RUN_TEST(InsertDataToPacket, "packet;insert");
 	PTF_RUN_TEST(CreatePacketFromBuffer, "packet");
@@ -174,7 +175,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PacketParseMultiLayerTest, "packet");
 	PTF_RUN_TEST(PacketIncrementalParseTest, "packet");
 	PTF_RUN_TEST(PacketFullReparseTest, "packet");
-	PTF_RUN_TEST(PacketSerializeTest, "packet");
+	PTF_RUN_TEST(PacketSerializeTest, "packet;serializers");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
