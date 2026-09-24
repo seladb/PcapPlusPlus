@@ -56,6 +56,42 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	PTF_ASSERT_BUF_COMPARE(s7commLayer->getParameter()->getData(), expectedErrorParameterData, 2);
 }  // S7CommLayerParsingTest
 
+PTF_TEST_CASE(S7CommLayerMalformedTest)
+{
+	// the Ack-Data header is only present for message type 0x03
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/S7comm.dat");
+
+	pcpp::Packet userDataPacket(rawPacket1.get());
+	auto* userDataLayer = userDataPacket.getLayerOfType<pcpp::S7CommLayer>();
+	PTF_ASSERT_NOT_NULL(userDataLayer);
+	PTF_ASSERT_EQUAL(userDataLayer->getMsgType(), 7);
+	PTF_ASSERT_EQUAL(userDataLayer->getErrorClass(), 0);
+	PTF_ASSERT_EQUAL(userDataLayer->getErrorCode(), 0);
+
+	{
+		SuppressLogs suppressLogs;
+		userDataLayer->setErrorClass(7);
+		userDataLayer->setErrorCode(6);
+	}
+	PTF_ASSERT_EQUAL(userDataLayer->getErrorClass(), 0);
+	PTF_ASSERT_EQUAL(userDataLayer->getErrorCode(), 0);
+
+	// an Ack-Data message carrying only the 10 byte base header, which is the smallest
+	// layer isDataValid() accepts, and a parameter length that runs past the packet
+	auto rawPacket2 = createPacketFromHexResource("PacketExamples/s7comm_ack_data_truncated.dat");
+
+	pcpp::Packet truncatedPacket(rawPacket2.get());
+	auto* truncatedLayer = truncatedPacket.getLayerOfType<pcpp::S7CommLayer>();
+	PTF_ASSERT_NOT_NULL(truncatedLayer);
+	PTF_ASSERT_EQUAL(truncatedLayer->getMsgType(), 3);
+	PTF_ASSERT_EQUAL(truncatedLayer->getHeaderLen(), 10);
+	PTF_ASSERT_EQUAL(truncatedLayer->getErrorClass(), 0);
+	PTF_ASSERT_EQUAL(truncatedLayer->getErrorCode(), 0);
+
+	PTF_ASSERT_EQUAL(truncatedLayer->getParamLength(), 65535);
+	PTF_ASSERT_EQUAL(truncatedLayer->getParameter()->getDataLength(), 0);
+}  // S7CommLayerMalformedTest
+
 PTF_TEST_CASE(S7CommLayerCreationTest)
 {
 	pcpp::S7CommLayer newS7commLayer(1, 64780, 12, 212);

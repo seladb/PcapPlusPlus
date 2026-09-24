@@ -171,7 +171,7 @@ namespace pcpp
 
 		s7comm_ack_data_hdr* getS7commAckDataHeader() const
 		{
-			if (getS7commHeader()->msgType == 0x03)
+			if (getS7commHeader()->msgType == 0x03 && m_DataLen >= sizeof(s7comm_ack_data_hdr))
 			{
 				return reinterpret_cast<s7comm_ack_data_hdr*>(m_Data);
 			}
