@@ -49,7 +49,7 @@ public:
 	      TcpCount(0), UdpCount(0), HttpCount(0), MatchedTcpFlows(0), MatchedUdpFlows(0), MatchedPackets(0)
 	{}
 
-	void collectStats(pcpp::Packet& packet)
+	void collectStats(const pcpp::Packet& packet)
 	{
 		PacketCount++;
 		if (packet.isPacketOfType(pcpp::Ethernet))

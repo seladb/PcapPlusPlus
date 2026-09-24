@@ -203,7 +203,7 @@ namespace pcpp
 		return nullptr;
 	}
 
-	int16_t TelnetLayer::getSubCommand(uint8_t* pos, size_t len)
+	int16_t TelnetLayer::getSubCommand(const uint8_t* pos, size_t len)
 	{
 		if (len < 3 || pos[1] < static_cast<int>(TelnetCommand::Subnegotiation))
 			return static_cast<int>(TelnetOption::TelnetOptionNoOption);

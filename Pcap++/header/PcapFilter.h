@@ -653,7 +653,7 @@ namespace pcpp
 
 		/// Removes the first matching filter from the composite filter
 		/// @param[in] filter The filter to remove
-		void removeFilter(GeneralFilter* filter);
+		void removeFilter(const GeneralFilter* filter);
 
 		/// Remove the current filters and set new ones
 		/// @param[in] filters The new filters to set. The previous ones will be removed
