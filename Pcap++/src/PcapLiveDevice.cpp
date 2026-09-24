@@ -22,6 +22,7 @@
 #include <sstream>
 #include <vector>
 #include <array>
+#include <utility>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
@@ -80,10 +81,9 @@ namespace pcpp
 		PcapHandle::PcapHandle(pcap_t* pcapDescriptor) noexcept : m_PcapDescriptor(pcapDescriptor)
 		{}
 
-		PcapHandle::PcapHandle(PcapHandle&& other) noexcept : m_PcapDescriptor(other.m_PcapDescriptor)
-		{
-			other.m_PcapDescriptor = nullptr;
-		}
+		PcapHandle::PcapHandle(PcapHandle&& other) noexcept
+		    : m_PcapDescriptor(std::exchange(other.m_PcapDescriptor, nullptr))
+		{}
 
 		PcapHandle& PcapHandle::operator=(PcapHandle&& other) noexcept
 		{
@@ -108,9 +108,7 @@ namespace pcpp
 
 		pcap_t* PcapHandle::release() noexcept
 		{
-			auto result = m_PcapDescriptor;
-			m_PcapDescriptor = nullptr;
-			return result;
+			return std::exchange(m_PcapDescriptor, nullptr);
 		}
 
 		void PcapHandle::reset(pcap_t* pcapDescriptor) noexcept
