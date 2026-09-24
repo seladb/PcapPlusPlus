@@ -133,6 +133,7 @@ PTF_TEST_CASE(DoIpInvalidPackets);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);
+PTF_TEST_CASE(IcmpTruncatedPacketTest);
 PTF_TEST_CASE(IcmpCreationTest);
 PTF_TEST_CASE(IcmpEditTest);
 
