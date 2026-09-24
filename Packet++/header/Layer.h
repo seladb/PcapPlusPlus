@@ -588,6 +588,11 @@ namespace pcpp
 			return data != nullptr && dataLen >= sizeof(T);
 		}
 
+		/// Serializes the layer's data into a provided serializer object.
+		/// This is used for generating serialized representations (like JSON) of the packet layers.
+		/// This method should be overridden by derived layers to provide specific serialization logic.
+		///
+		/// @param[in] serializer The object scope serializer to which the layer details should be written.
 		virtual void serializeLayer(ObjectScope& serializer) const
 		{}
 	};
