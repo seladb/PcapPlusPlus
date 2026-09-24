@@ -2,6 +2,7 @@
 
 #include "RawPacket.h"
 #include "Layer.h"
+#include "Serializers.h"
 #include <vector>
 
 /// @file
@@ -361,6 +362,55 @@ namespace pcpp
 		/// @param[in] timeAsLocalTime Print time as local time or GMT. Default (true value) is local time, for GMT set
 		/// to false
 		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true) const;
+
+		/// @struct SerializedFields
+		/// Field descriptors for the fields serialized by Packet::serialize().
+		struct SerializedFields
+		{
+			/// @struct TimestampObject
+			/// Field descriptors for the packet timestamp.
+			struct TimestampObject : ObjectFieldDescriptor<TimestampObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return A vector containing all timestamp field descriptors.
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Sec, NSec };
+				}
+
+				/// Field descriptor for the timestamp seconds.
+				static const FieldDescriptor Sec;
+
+				/// Field descriptor for the timestamp nanoseconds.
+				static const FieldDescriptor NSec;
+			};
+
+			/// @return A vector containing all packet field descriptors.
+			static std::vector<FieldDescriptor> all()
+			{
+				return { Timestamp, FrameLength, LinkLayer, LinkLayerName, Layers };
+			}
+
+			/// Field descriptor for the packet timestamp.
+			static const TimestampObject Timestamp;
+
+			/// Field descriptor for the packet frame length.
+			static const FieldDescriptor FrameLength;
+
+			/// Field descriptor for the packet link layer type.
+			static const FieldDescriptor LinkLayer;
+
+			/// Field descriptor for the packet link layer name.
+			static const FieldDescriptor LinkLayerName;
+
+			/// Field descriptor for the packet layers.
+			static const FieldDescriptor Layers;
+		};
+
+		/// Serialize the packet using the provided serializer.
+		/// @param[in] serializer The serializer to use.
+		void serialize(ISerializer& serializer) const;
 
 	private:
 		void copyDataFrom(const Packet& other);
