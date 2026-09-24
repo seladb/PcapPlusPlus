@@ -113,6 +113,7 @@ PTF_TEST_CASE(TestPfRingDevice);
 PTF_TEST_CASE(TestPfRingDeviceSingleChannel);
 PTF_TEST_CASE(TestPfRingMultiThreadAllCores);
 PTF_TEST_CASE(TestPfRingMultiThreadSomeCores);
+PTF_TEST_CASE(TestPfRingMultiThreadAutoTune);
 PTF_TEST_CASE(TestPfRingSendPacket);
 PTF_TEST_CASE(TestPfRingSendPackets);
 PTF_TEST_CASE(TestPfRingFilters);
