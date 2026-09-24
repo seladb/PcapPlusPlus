@@ -1,4 +1,5 @@
 #include "PcapFileDevice.h"
+#include "Packet.h"
 #define LOG_MODULE PcapLogModuleFileDevice
 
 #include <cerrno>
@@ -1635,5 +1636,23 @@ namespace pcpp
 	{
 		m_SnoopFile.close();
 		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
+	}
+
+	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer)
+	{
+		size_t packetCount = 0;
+
+		auto packets = serializer.writeArray(FieldDescriptor{ 0, "packets" });
+
+		RawPacket rawPacket;
+
+		while (reader.getNextPacket(rawPacket))
+		{
+			Packet packet(&rawPacket);
+			packet.serialize(packets);
+			++packetCount;
+		}
+
+		return packetCount;
 	}
 }  // namespace pcpp
