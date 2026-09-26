@@ -13,6 +13,7 @@
 #include "SipLayer.h"
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
+#include "GvcpLayer.h"
 #include "NtpLayer.h"
 #include "SomeIpLayer.h"
 #include "WakeOnLanLayer.h"
@@ -169,6 +170,10 @@ namespace pcpp
 		{
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(WireGuardLayer::parseWireGuardLayer, udpData,
 			                                                           udpDataLen);
+		}
+		else if (GvcpLayer::isGvcpPort(portDst) || GvcpLayer::isGvcpPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(GvcpLayer::parseGvcpLayer, udpData, udpDataLen);
 		}
 
 		// If a valid layer was found, return immediately
