@@ -10,6 +10,25 @@ namespace pcpp
 	// BluetoothHciLayer
 	// ~~~~~~~~~~~~~~~~~
 
+	BluetoothHciPacketType BluetoothHciLayer::packetTypeFromIndicator(uint8_t packetIndicator)
+	{
+		switch (packetIndicator)
+		{
+		case static_cast<uint8_t>(BluetoothHciPacketType::Command):
+			return BluetoothHciPacketType::Command;
+		case static_cast<uint8_t>(BluetoothHciPacketType::AclData):
+			return BluetoothHciPacketType::AclData;
+		case static_cast<uint8_t>(BluetoothHciPacketType::ScoData):
+			return BluetoothHciPacketType::ScoData;
+		case static_cast<uint8_t>(BluetoothHciPacketType::Event):
+			return BluetoothHciPacketType::Event;
+		case static_cast<uint8_t>(BluetoothHciPacketType::IsoData):
+			return BluetoothHciPacketType::IsoData;
+		default:
+			return BluetoothHciPacketType::Unknown;
+		}
+	}
+
 	BluetoothHciLayer* BluetoothHciLayer::parseLayer(uint8_t* data, size_t dataLen, Packet* packet,
 	                                                 bool hasDirectionHeader)
 	{
@@ -19,7 +38,7 @@ namespace pcpp
 		}
 
 		size_t directionHeaderLen = hasDirectionHeader ? sizeof(bluetooth_hci_direction_header) : 0;
-		switch (static_cast<BluetoothHciPacketType>(data[directionHeaderLen]))
+		switch (packetTypeFromIndicator(data[directionHeaderLen]))
 		{
 		case BluetoothHciPacketType::Event:
 		{
@@ -45,7 +64,15 @@ namespace pcpp
 		}
 
 		auto* directionHeader = reinterpret_cast<bluetooth_hci_direction_header*>(m_Data);
-		return static_cast<BluetoothHciDirection>(be32toh(directionHeader->direction));
+		switch (be32toh(directionHeader->direction))
+		{
+		case static_cast<uint32_t>(BluetoothHciDirection::HostToController):
+			return BluetoothHciDirection::HostToController;
+		case static_cast<uint32_t>(BluetoothHciDirection::ControllerToHost):
+			return BluetoothHciDirection::ControllerToHost;
+		default:
+			return BluetoothHciDirection::Unknown;
+		}
 	}
 
 	BluetoothHciEventLayer* BluetoothHciLayer::asEventLayer()
@@ -114,7 +141,7 @@ namespace pcpp
 			return false;
 		}
 
-		return static_cast<BluetoothHciPacketType>(data[directionHeaderLen]) == BluetoothHciPacketType::Event;
+		return data[directionHeaderLen] == static_cast<uint8_t>(BluetoothHciPacketType::Event);
 	}
 
 }  // namespace pcpp

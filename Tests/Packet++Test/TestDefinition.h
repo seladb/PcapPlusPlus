@@ -153,6 +153,7 @@ PTF_TEST_CASE(NflogPacketParsingTest);
 PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest);
 PTF_TEST_CASE(BluetoothHciEventGenericTest);
 PTF_TEST_CASE(BluetoothHciEventInvalidDataTest);
+PTF_TEST_CASE(BluetoothHciPacketTypeTest);
 
 // Implemented in GreTests.cpp
 PTF_TEST_CASE(GreParsingTest);

@@ -19,6 +19,8 @@ namespace pcpp
 	/// The HCI packet type, taken from the H4 packet indicator octet
 	enum class BluetoothHciPacketType : uint8_t
 	{
+		/// Not a recognized HCI packet type. 0x00 is not a valid H4 packet indicator value
+		Unknown = 0x00,
 		/// A command sent from the host to the controller
 		Command = 0x01,
 		/// ACL data
@@ -95,11 +97,18 @@ namespace pcpp
 			return m_Data[getDirectionHeaderLen()];
 		}
 
-		/// @return The HCI packet type this layer represents
+		/// @return The HCI packet type this layer represents, or BluetoothHciPacketType::Unknown if the packet
+		/// indicator octet doesn't match a known packet type
 		BluetoothHciPacketType getPacketType() const
 		{
-			return static_cast<BluetoothHciPacketType>(getPacketIndicator());
+			return packetTypeFromIndicator(getPacketIndicator());
 		}
+
+		/// Convert an H4 packet indicator octet to its matching packet type
+		/// @param[in] packetIndicator The H4 packet indicator octet
+		/// @return The matching packet type, or BluetoothHciPacketType::Unknown if the octet doesn't match a known
+		/// packet type
+		static BluetoothHciPacketType packetTypeFromIndicator(uint8_t packetIndicator);
 
 		/// Get this layer as a Bluetooth HCI Event layer. As instances are only created by parseLayer(), the packet
 		/// indicator octet is a reliable indication of the concrete type, so no dynamic cast is needed

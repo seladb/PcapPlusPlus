@@ -221,3 +221,76 @@ PTF_TEST_CASE(BluetoothHciEventInvalidDataTest)
 		PTF_ASSERT_EQUAL(eventLayer->toString(), "Bluetooth HCI Event, Event Code: 0x01");
 	}
 }
+
+PTF_TEST_CASE(BluetoothHciPacketTypeTest)
+{
+	// Every known H4 packet indicator maps to its packet type
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0x01), pcpp::BluetoothHciPacketType::Command,
+	                 enumclass);
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0x02), pcpp::BluetoothHciPacketType::AclData,
+	                 enumclass);
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0x03), pcpp::BluetoothHciPacketType::ScoData,
+	                 enumclass);
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0x04), pcpp::BluetoothHciPacketType::Event,
+	                 enumclass);
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0x05), pcpp::BluetoothHciPacketType::IsoData,
+	                 enumclass);
+
+	// Anything else is reported as Unknown rather than becoming an out-of-range enum value
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0x00), pcpp::BluetoothHciPacketType::Unknown,
+	                 enumclass);
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0x06), pcpp::BluetoothHciPacketType::Unknown,
+	                 enumclass);
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0x42), pcpp::BluetoothHciPacketType::Unknown,
+	                 enumclass);
+	PTF_ASSERT_EQUAL(pcpp::BluetoothHciLayer::packetTypeFromIndicator(0xff), pcpp::BluetoothHciPacketType::Unknown,
+	                 enumclass);
+
+	// A packet whose indicator is not a known packet type isn't parsed as an HCI layer at all
+	{
+		uint8_t unknownIndicator[] = { 0x42, 0x01, 0x01, 0x00 };
+		PTF_ASSERT_FALSE(pcpp::BluetoothHciEventLayer::isDataValid(unknownIndicator, sizeof(unknownIndicator), false));
+
+		pcpp::RawPacket rawPacket(unknownIndicator, sizeof(unknownIndicator), timeval{ 0, 0 }, false,
+		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4);
+		pcpp::Packet packet(&rawPacket);
+
+		PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::BluetoothHci));
+		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
+	}
+
+	// A direction value that is neither host-to-controller nor controller-to-host is reported as Unknown
+	{
+		uint8_t unknownDirection[] = { 0x00, 0x00, 0x00, 0x07, 0x04, 0x01, 0x01, 0x00 };
+		pcpp::RawPacket rawPacket(unknownDirection, sizeof(unknownDirection), timeval{ 0, 0 }, false,
+		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR);
+		pcpp::Packet packet(&rawPacket);
+
+		auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
+		PTF_ASSERT_NOT_NULL(hciLayer);
+
+		PTF_PRINT_VERBOSE("Unknown direction value parsed as: " << directionToString(hciLayer->getDirection()));
+
+		PTF_ASSERT_TRUE(hciLayer->hasDirectionHeader());
+		PTF_ASSERT_EQUAL(hciLayer->getDirection(), pcpp::BluetoothHciDirection::Unknown, enumclass);
+		PTF_ASSERT_EQUAL(hciLayer->getPacketType(), pcpp::BluetoothHciPacketType::Event, enumclass);
+		PTF_ASSERT_NOT_NULL(hciLayer->asEventLayer());
+	}
+
+	// A host-to-controller direction value is read correctly. Events are always sent by the controller, so real
+	// captures don't contain this, but the direction field must still be read correctly
+	{
+		uint8_t hostToController[] = { 0x00, 0x00, 0x00, 0x00, 0x04, 0x01, 0x01, 0x00 };
+		pcpp::RawPacket rawPacket(hostToController, sizeof(hostToController), timeval{ 0, 0 }, false,
+		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR);
+		pcpp::Packet packet(&rawPacket);
+
+		auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
+		PTF_ASSERT_NOT_NULL(hciLayer);
+		PTF_ASSERT_EQUAL(hciLayer->getDirection(), pcpp::BluetoothHciDirection::HostToController, enumclass);
+
+		auto* eventLayer = hciLayer->asEventLayer();
+		PTF_ASSERT_NOT_NULL(eventLayer);
+		PTF_ASSERT_EQUAL(eventLayer->toString(), "Bluetooth HCI Event - Inquiry Complete, Status: Success (0x00)");
+	}
+}

@@ -3,8 +3,8 @@ add_library(
   $<TARGET_OBJECTS:hash-library>
   src/ArpLayer.cpp
   src/Asn1Codec.cpp
-  src/BgpLayer.cpp
   src/BluetoothHciLayer.cpp
+  src/BgpLayer.cpp
   src/CiscoHdlcLayer.cpp
   src/CotpLayer.cpp
   src/CryptoKeyDecoder.cpp
@@ -84,8 +84,8 @@ set(
   public_headers
   header/ArpLayer.h
   header/Asn1Codec.h
-  header/BgpLayer.h
   header/BluetoothHciLayer.h
+  header/BgpLayer.h
   header/CiscoHdlcLayer.h
   header/CotpLayer.h
   header/CryptoDataReader.h
