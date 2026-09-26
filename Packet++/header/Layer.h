@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "ProtocolType.h"
+#include "Serializers.h"
 #include <ostream>
 #include <string>
 #include <stdexcept>
@@ -204,6 +205,33 @@ namespace pcpp
 		/// @param[in] destSize The maximum number of bytes to copy
 		/// @return The number of bytes copied to the destination array.
 		size_t copyData(uint8_t* dest, size_t destSize) const;
+
+		/// @struct SerializedFields
+		/// Field descriptors for the fields serialized by Layer::serialize().
+		struct SerializedFields
+		{
+			/// @return A vector containing all layer field descriptors.
+			static std::vector<FieldDescriptor> all()
+			{
+				return { ProtocolName, ProtocolId, Length };
+			}
+
+			/// Field descriptor for the layer protocol name.
+			static const FieldDescriptor ProtocolName;
+
+			/// Field descriptor for the layer protocol ID.
+			static const FieldDescriptor ProtocolId;
+
+			/// Field descriptor for the layer length.
+			static const FieldDescriptor Length;
+
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = 1;
+		};
+
+		/// Serialize the layer using the provided serializer.
+		/// @param[in] serializer The serializer to use.
+		void serialize(ISerializer& serializer) const;
 
 		// implement abstract methods
 
@@ -559,6 +587,14 @@ namespace pcpp
 		{
 			return data != nullptr && dataLen >= sizeof(T);
 		}
+
+		/// Serializes the layer's data into a provided serializer object.
+		/// This is used for generating serialized representations (like JSON) of the packet layers.
+		/// This method should be overridden by derived layers to provide specific serialization logic.
+		///
+		/// @param[in] serializer The object scope serializer to which the layer details should be written.
+		virtual void serializeLayer(ObjectScope& serializer) const
+		{}
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)

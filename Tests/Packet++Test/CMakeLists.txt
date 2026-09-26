@@ -37,6 +37,7 @@ add_executable(
   Tests/QuicTests.cpp
   Tests/RadiusTests.cpp
   Tests/S7CommTests.cpp
+  Tests/SerializerTests.cpp
   Tests/SipSdpTests.cpp
   Tests/Sll2Tests.cpp
   Tests/SllNullLoopbackTests.cpp
