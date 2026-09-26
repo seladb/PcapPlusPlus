@@ -58,5 +58,7 @@ namespace pcpp
 		void prepareCapture(bool asyncCapture, bool captureStats) override;
 
 		int sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength) override;
+
+		int sendPacketBatchUncheckedIndirect(RawPacket const* const* rawPacketsArr, int arrLength) override;
 	};
 }  // namespace pcpp

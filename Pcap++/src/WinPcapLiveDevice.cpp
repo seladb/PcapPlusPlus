@@ -52,19 +52,8 @@ namespace pcpp
 		}
 	}
 
-	int WinPcapLiveDevice::sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength)
+	namespace
 	{
-		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
-		{
-			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
-			return 0;
-		}
-
-		int dataSize = 0;
-		int packetsSent = 0;
-		for (int i = 0; i < arrLength; i++)
-			dataSize += rawPacketsArr[i].getRawDataLen();
-
 		struct PcapSendQueueDeleter
 		{
 			void operator()(pcap_send_queue* ptr) const noexcept
@@ -73,47 +62,117 @@ namespace pcpp
 			}
 		};
 
-		auto sendQueue = std::unique_ptr<pcap_send_queue, PcapSendQueueDeleter>(
-		    pcap_sendqueue_alloc(dataSize + arrLength * sizeof(pcap_pkthdr)));
-		PCPP_LOG_DEBUG("Allocated send queue of size " << (dataSize + arrLength * sizeof(pcap_pkthdr)));
-
-		std::vector<pcap_pkthdr> packetHeader(arrLength);
-		for (int i = 0; i < arrLength; i++)
+		class PcapSendQueue
 		{
-			packetHeader[i].caplen = rawPacketsArr[i].getRawDataLen();
-			packetHeader[i].len = rawPacketsArr[i].getRawDataLen();
-			packetHeader[i].ts = internal::toTimeval(rawPacketsArr[i].getPacketTimeStamp());
-			if (pcap_sendqueue_queue(sendQueue.get(), &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
+		public:
+			explicit PcapSendQueue(std::uint32_t maxBuffer) : m_Queue(pcap_sendqueue_alloc(maxBuffer))
+			{}
+
+			int pushPacket(RawPacket const& packet)
 			{
-				PCPP_LOG_ERROR("pcap_send_queue is too small for all packets. Sending only " << i << " packets");
-				break;
+				pcap_pkthdr header;
+				header.caplen = packet.getRawDataLen();
+				header.len = packet.getRawDataLen();
+				header.ts = internal::toTimeval(packet.getPacketTimeStamp());
+				int res = pcap_sendqueue_queue(m_Queue.get(), &header, packet.getRawData());
+				return res;
 			}
-			packetsSent++;
+
+			/// @brief Transmits the packets in the send queue through the specified pcap handle.
+			/// @param handle The pcap handle to use for transmission.
+			/// @return The number of bytes transmitted.
+			size_t transmit(pcap_t* handle)
+			{
+				return pcap_sendqueue_transmit(handle, m_Queue.get(), 0);
+			}
+
+			size_t maxSizeBytes() const
+			{
+				return m_Queue->maxlen;
+			}
+
+			size_t sizeBytes() const
+			{
+				return m_Queue->len;
+			}
+		private:
+			std::unique_ptr<pcap_send_queue, PcapSendQueueDeleter> m_Queue;
+		};
+
+		RawPacket const& deref(RawPacket const& p)
+		{
+			return p;
+		}
+		RawPacket const& deref(RawPacket const* p)
+		{
+			return *p;
 		}
 
-		PCPP_LOG_DEBUG(packetsSent << " packets were queued successfully");
-
-		int res = pcap_sendqueue_transmit(m_PcapDescriptor.get(), sendQueue.get(), 0);
-		if (res < static_cast<int>(sendQueue->len))
+		template <typename PacketElem> int sendPacketBatchByQueue(PacketElem const* packetsArr, int arrLength, internal::PcapHandle& sendHandle)
 		{
-			PCPP_LOG_ERROR("An error occurred sending the packets: " << m_PcapDescriptor.getLastError() << ". Only "
-			                                                         << res << " bytes were sent");
-			packetsSent = 0;
-			dataSize = 0;
+			int dataSize = 0;
+			int packetsSent = 0;
+			for (int i = 0; i < arrLength; i++)
+				dataSize += deref(packetsArr[i]).getRawDataLen();
+
+			auto sendQueue = PcapSendQueue(dataSize + arrLength * sizeof(pcap_pkthdr));
+			PCPP_LOG_DEBUG("Allocated send queue of size " << sendQueue.maxSizeBytes());
+
 			for (int i = 0; i < arrLength; i++)
 			{
-				dataSize += rawPacketsArr[i].getRawDataLen();
-				if (dataSize > res)
+				if (sendQueue.pushPacket(deref(packetsArr[i])) == -1)
 				{
-					return packetsSent;
+					PCPP_LOG_ERROR("pcap_send_queue is too small for all packets. Sending only " << i << " packets");
+					break;
 				}
 				packetsSent++;
 			}
+
+			PCPP_LOG_DEBUG(packetsSent << " packets were queued successfully");
+
+			size_t res = sendQueue.transmit(sendHandle.get());
+			if (res < sendQueue.sizeBytes())
+			{
+				PCPP_LOG_ERROR("An error occurred sending the packets: " << sendHandle.getLastError() << ". Only "
+				                                                         << res << " bytes were sent");
+				packetsSent = 0;
+				dataSize = 0;
+				for (int i = 0; i < arrLength; i++)
+				{
+					dataSize += deref(packetsArr[i]).getRawDataLen();
+					if (dataSize > res)
+					{
+						return packetsSent;
+					}
+					packetsSent++;
+				}
+				return packetsSent;
+			}
+			PCPP_LOG_DEBUG("Packets were sent successfully");
 			return packetsSent;
 		}
-		PCPP_LOG_DEBUG("Packets were sent successfully");
+	}
 
-		return packetsSent;
+	int WinPcapLiveDevice::sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength)
+	{
+		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
+		{
+			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
+			return 0;
+		}
+
+		return sendPacketBatchByQueue(rawPacketsArr, arrLength, m_PcapDescriptor);
+	}
+
+	int WinPcapLiveDevice::sendPacketBatchUncheckedIndirect(RawPacket const* const* rawPacketsArr, int arrLength)
+	{
+		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
+		{
+			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
+			return 0;
+		}
+
+		return sendPacketBatchByQueue(rawPacketsArr, arrLength, m_PcapDescriptor);
 	}
 
 }  // namespace pcpp
