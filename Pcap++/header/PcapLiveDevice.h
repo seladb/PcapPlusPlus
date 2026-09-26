@@ -802,7 +802,7 @@ namespace pcpp
 		virtual int sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength);
 
 		/// @brief Sends a batch of raw packets directly to the network without performing any checks.
-		/// 
+		///
 		/// @param pRawPacketsArr A pointer to an array of pointers to RawPacket objects to send.
 		/// @param arrLength The number of RawPacket pointers in the array.
 		/// @return The number of packets sent successfully. Sending a packet can fail if:

@@ -95,6 +95,7 @@ namespace pcpp
 			{
 				return m_Queue->len;
 			}
+
 		private:
 			std::unique_ptr<pcap_send_queue, PcapSendQueueDeleter> m_Queue;
 		};
@@ -108,7 +109,8 @@ namespace pcpp
 			return *p;
 		}
 
-		template <typename PacketElem> int sendPacketBatchByQueue(PacketElem const* packetsArr, int arrLength, internal::PcapHandle& sendHandle)
+		template <typename PacketElem>
+		int sendPacketBatchByQueue(PacketElem const* packetsArr, int arrLength, internal::PcapHandle& sendHandle)
 		{
 			int dataSize = 0;
 			int packetsSent = 0;
@@ -151,7 +153,7 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Packets were sent successfully");
 			return packetsSent;
 		}
-	}
+	}  // namespace
 
 	int WinPcapLiveDevice::sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength)
 	{

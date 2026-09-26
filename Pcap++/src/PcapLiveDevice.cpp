@@ -1378,7 +1378,7 @@ namespace pcpp
 
 	int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 	{
-		if(!checkMtu)
+		if (!checkMtu)
 		{
 			return sendPacketBatchUnchecked(rawPacketsArr, arrLength);
 		}
@@ -1395,7 +1395,7 @@ namespace pcpp
 
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
-		if(!checkMtu && rawPackets.size() < std::numeric_limits<int>::max())
+		if (!checkMtu && rawPackets.size() < std::numeric_limits<int>::max())
 		{
 			return sendPacketBatchUncheckedIndirect(rawPackets.data(), static_cast<int>(rawPackets.size()));
 		}
