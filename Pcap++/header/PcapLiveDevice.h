@@ -792,6 +792,15 @@ namespace pcpp
 			return sendPacketUnchecked(rawPacket.getRawData(), rawPacket.getRawDataLen());
 		}
 
+		/// @brief Sends a batch of raw packets directly to the network without performing any checks.
+		/// @param[in] rawPacketsArr A pointer to an array of RawPacket objects to send.
+		/// @param[in] arrLength The number of RawPacket objects in the array.
+		/// @return The number of packets sent successfully. Sending a packet can fail if:
+		/// - Device is not opened. In this case no packets will be sent, return value will be 0
+		/// - Packet length is 0
+		/// - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
+		virtual int sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength);
+
 	private:
 		bool isNflogDevice() const;
 

@@ -18,7 +18,41 @@ namespace pcpp
 		m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
 	}
 
-	int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
+	bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size)
+	{
+		if (!m_DeviceOpened)
+		{
+			PCPP_LOG_ERROR("Device not opened");
+			return false;
+		}
+
+		if (pcap_setmintocopy(m_PcapDescriptor.get(), size) != 0)
+		{
+			PCPP_LOG_ERROR("pcap_setmintocopy failed");
+			return false;
+		}
+		m_MinAmountOfDataToCopyFromKernelToApplication = size;
+		return true;
+	}
+
+	WinPcapLiveDevice* WinPcapLiveDevice::clone() const
+	{
+		return new WinPcapLiveDevice(m_InterfaceDetails, true, true, true);
+	}
+
+	void WinPcapLiveDevice::prepareCapture(bool asyncCapture, bool captureStats)
+	{
+
+		int mode = captureStats ? MODE_STAT : MODE_CAPT;
+		int res = pcap_setmode(m_PcapDescriptor.get(), mode);
+		if (res < 0)
+		{
+			throw std::runtime_error("Error setting the mode for device '" + m_InterfaceDetails.name +
+			                         "': " + m_PcapDescriptor.getLastError());
+		}
+	}
+
+	int WinPcapLiveDevice::sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength)
 	{
 		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
@@ -80,40 +114,6 @@ namespace pcpp
 		PCPP_LOG_DEBUG("Packets were sent successfully");
 
 		return packetsSent;
-	}
-
-	bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size)
-	{
-		if (!m_DeviceOpened)
-		{
-			PCPP_LOG_ERROR("Device not opened");
-			return false;
-		}
-
-		if (pcap_setmintocopy(m_PcapDescriptor.get(), size) != 0)
-		{
-			PCPP_LOG_ERROR("pcap_setmintocopy failed");
-			return false;
-		}
-		m_MinAmountOfDataToCopyFromKernelToApplication = size;
-		return true;
-	}
-
-	WinPcapLiveDevice* WinPcapLiveDevice::clone() const
-	{
-		return new WinPcapLiveDevice(m_InterfaceDetails, true, true, true);
-	}
-
-	void WinPcapLiveDevice::prepareCapture(bool asyncCapture, bool captureStats)
-	{
-
-		int mode = captureStats ? MODE_STAT : MODE_CAPT;
-		int res = pcap_setmode(m_PcapDescriptor.get(), mode);
-		if (res < 0)
-		{
-			throw std::runtime_error("Error setting the mode for device '" + m_InterfaceDetails.name +
-			                         "': " + m_PcapDescriptor.getLastError());
-		}
 	}
 
 }  // namespace pcpp
