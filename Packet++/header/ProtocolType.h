@@ -266,6 +266,9 @@ namespace pcpp
 	/// QUIC v1 protocol
 	const ProtocolType QUICv1 = 64;
 
+	/// GigE Vision Control Protocol (GVCP)
+	const ProtocolType GVCP = 65;
+
 	/// @}
 
 	/// Convert a protocol type to its string representation.
