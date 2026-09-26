@@ -266,6 +266,9 @@ namespace pcpp
 	/// QUIC v1 protocol
 	const ProtocolType QUICv1 = 64;
 
+	/// Bluetooth HCI Protocol
+	const ProtocolType BluetoothHci = 65;
+
 	/// @}
 
 	/// Convert a protocol type to its string representation.
