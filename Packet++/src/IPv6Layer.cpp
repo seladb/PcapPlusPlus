@@ -387,7 +387,7 @@ namespace pcpp
 	const FieldDescriptor IPv6Layer::SerializedFields::Extensions{ Layer::SerializedFields::MaxID + 6, "extensions" };
 	const IPv6Layer::SerializedFields::IPv6ExtensionObject ExtensionObject{ 0, "extension" };
 	const FieldDescriptor IPv6Layer::SerializedFields::IPv6ExtensionObject::Name{ 0, "name" };
-	const FieldDescriptor IPv6Layer::SerializedFields::IPv6ExtensionObject::Type{ 0, "type" };
+	const FieldDescriptor IPv6Layer::SerializedFields::IPv6ExtensionObject::Type{ 1, "type" };
 
 	void IPv6Layer::serializeLayer(ObjectScope& serializer) const
 	{
