@@ -104,9 +104,16 @@ namespace pcpp
 				return result;
 			}
 
+			/// Packet type
 			static const FieldDescriptor PacketType;
+
+			/// ARPHRD_* link-layer address type (e.g. 1 for Ethernet)
 			static const FieldDescriptor ArpHeaderType;
+
+			/// EtherType of the encapsulated protocol, in host byte order
 			static const FieldDescriptor ProtocolType;
+
+			/// Link-layer address of the sender
 			static const FieldDescriptor LinkLayerAddress;
 		};
 

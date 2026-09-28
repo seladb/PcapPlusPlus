@@ -102,6 +102,7 @@ namespace pcpp
 				return result;
 			}
 
+			/// Protocol family (AF_* value) of the payload
 			static const FieldDescriptor Family;
 		};
 

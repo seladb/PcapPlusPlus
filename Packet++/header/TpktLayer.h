@@ -114,6 +114,7 @@ namespace pcpp
 				return result;
 			}
 
+			/// TPKT version
 			static const FieldDescriptor Version;
 		};
 

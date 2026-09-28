@@ -135,10 +135,13 @@ namespace pcpp
 				return result;
 			}
 
+			/// VLAN identifier (12 bits)
 			static const FieldDescriptor VlanID;
 
+			/// Canonical Format Indicator / Drop Eligible Indicator bit
 			static const FieldDescriptor CFI;
 
+			/// Priority Code Point
 			static const FieldDescriptor Priority;
 
 			/// EtherType, in host byte order (e.g. 2048 for IPv4)

@@ -94,8 +94,13 @@ namespace pcpp
 				return result;
 			}
 
+			/// Destination Service Access Point
 			static const FieldDescriptor DSAP;
+
+			/// Source Service Access Point
 			static const FieldDescriptor SSAP;
+
+			/// First byte of the LLC control field
 			static const FieldDescriptor Control;
 		};
 

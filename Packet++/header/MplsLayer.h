@@ -130,12 +130,16 @@ namespace pcpp
 				return result;
 			}
 
+			/// MPLS label
 			static const FieldDescriptor Label;
 
+			/// Time to live
 			static const FieldDescriptor TTL;
 
+			/// True if this is the last label in the stack (S bit)
 			static const FieldDescriptor IsBottomOfStack;
 
+			/// Experimental use / traffic class bits
 			static const FieldDescriptor ExperimentalUseValue;
 		};
 

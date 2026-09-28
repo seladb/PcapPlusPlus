@@ -157,8 +157,13 @@ namespace pcpp
 				return result;
 			}
 
+			/// True if the "valid VNI" flag (I bit) is set
 			static const FieldDescriptor ValidVNI;
+
+			/// Group Policy ID (VXLAN-GBP extension)
 			static const FieldDescriptor GroupPolicyID;
+
+			/// VXLAN Network Identifier (24 bits)
 			static const FieldDescriptor VNI;
 		};
 

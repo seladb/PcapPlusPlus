@@ -152,7 +152,10 @@ namespace pcpp
 				return result;
 			}
 
+			/// Target MAC address that the magic packet wakes, as a string
 			static const FieldDescriptor TargetAddress;
+
+			/// Optional SecureOn password, if present
 			static const FieldDescriptor Password;
 		};
 

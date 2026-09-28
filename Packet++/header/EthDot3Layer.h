@@ -124,11 +124,11 @@ namespace pcpp
 		/// Layer::SerializedFields.
 		struct SerializedFields
 		{
-			/// @return All field descriptors for EthLayer
+			/// @return All field descriptors for EthDot3Layer
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ SrcMacAddress, DstMacAddress, EtherType };
+				std::initializer_list<FieldDescriptor> extra{ SrcMacAddress, DstMacAddress };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -138,9 +138,6 @@ namespace pcpp
 
 			/// Destination MAC address, as a string
 			static const FieldDescriptor DstMacAddress;
-
-			/// EtherType, in host byte order (e.g. 2048 for IPv4)
-			static const FieldDescriptor EtherType;
 		};
 
 	protected:
