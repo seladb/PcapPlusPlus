@@ -252,44 +252,45 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 27. COTP
 28. GTP (v1 & v2)
 29. IPSec AH 和 ESP - 僅支援解析（不支援編輯）
-30. TCP
-31. TPKT
-32. UDP
+30. QUIC v1 - 僅支援解析（不支援編輯）
+31. TCP
+32. TPKT
+33. UDP
 
 ### 對話層 (L5)
 
-33. SDP
-34. SIP
+34. SDP
+35. SIP
 
 ### 表示層 (L6)
 
-35. SSL/TLS - 僅支援解析（不支援編輯）
+36. SSL/TLS - 僅支援解析（不支援編輯）
 
 ### 應用層 (L7)
 
-36. ASN.1 編碼器與解碼器
-37. BGP (v4)
-38. 加密金鑰解碼器
-39. DHCP
-40. DHCPv6
-41. DNS
-42. DoIP
-43. FTP
-44. HTTP 標頭（請求和響應）
-45. LDAP
-46. Modbus
-47. MySQL - 僅支援解析（不支援編輯）
-48. NTP (v3, v4)
-49. PEM 編碼器與解碼器
-50. PostgreSQL Wire Protocol (PGWire) - 僅支援解析（不支援編輯）
-51. Radius
-52. S7 通訊（S7comm）
-53. SMTP
-54. SOME/IP
-55. SSH - 僅支援解析（不支援編輯）
-56. Telnet - 僅支援解析（不支援編輯）
-57. X509 憑證 - 僅支援解析（不支援編輯）
-58. 通用酬載（Generic Payload）
+37. ASN.1 編碼器與解碼器
+38. BGP (v4)
+39. 加密金鑰解碼器
+40. DHCP
+41. DHCPv6
+42. DNS
+43. DoIP
+44. FTP
+45. HTTP 標頭（請求和響應）
+46. LDAP
+47. Modbus
+48. MySQL - 僅支援解析（不支援編輯）
+49. NTP (v3, v4)
+50. PEM 編碼器與解碼器
+51. PostgreSQL Wire Protocol (PGWire) - 僅支援解析（不支援編輯）
+52. Radius
+53. S7 通訊（S7comm）
+54. SMTP
+55. SOME/IP
+56. SSH - 僅支援解析（不支援編輯）
+57. Telnet - 僅支援解析（不支援編輯）
+58. X509 憑證 - 僅支援解析（不支援編輯）
+59. 通用酬載（Generic Payload）
 
 ## DPDK 和 PF_RING 支援
 

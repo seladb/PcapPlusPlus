@@ -20,6 +20,8 @@
 #include "WireGuardLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
+#include "QuicLayer.h"
+
 #include <sstream>
 
 namespace pcpp
@@ -118,6 +120,11 @@ namespace pcpp
 		{
 			constructNextLayer<DnsLayer>(udpData, udpDataLen);
 		}
+		else if (QuicV1Layer::isQuicPort(portDst) || QuicV1Layer::isQuicPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(QuicV1Layer::parseQuicLayer, udpData,
+			                                                           udpDataLen);
+		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
 			// Resolves the overload of parseSipLayer, without static_casting a function pointer.
@@ -182,6 +189,7 @@ namespace pcpp
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen);
 		}
 
+		// cppcheck-suppress knownConditionTrueFalse
 		if (!hasNextLayer())
 		{
 			constructNextLayer<PayloadLayer>(udpData, udpDataLen);

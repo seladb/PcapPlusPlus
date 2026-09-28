@@ -146,7 +146,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
-			return OsiModelSesionLayer;
+			return OsiModelSessionLayer;
 		}
 
 		std::string toString() const override;
