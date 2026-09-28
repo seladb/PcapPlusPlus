@@ -115,6 +115,32 @@ namespace pcpp
 		{
 			return canReinterpretAs<mpls_header>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by MplsLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields
+		{
+			/// @return All field descriptors for MplsLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Label, TTL, IsBottomOfStack, ExperimentalUseValue };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor Label;
+
+			static const FieldDescriptor TTL;
+
+			static const FieldDescriptor IsBottomOfStack;
+
+			static const FieldDescriptor ExperimentalUseValue;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

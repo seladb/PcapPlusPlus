@@ -120,5 +120,32 @@ namespace pcpp
 		{
 			return canReinterpretAs<vlan_header>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by VlanLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields
+		{
+			/// @return All field descriptors for VlanLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ VlanID, CFI, Priority, EtherType };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor VlanID;
+
+			static const FieldDescriptor CFI;
+
+			static const FieldDescriptor Priority;
+
+			/// EtherType, in host byte order (e.g. 2048 for IPv4)
+			static const FieldDescriptor EtherType;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp

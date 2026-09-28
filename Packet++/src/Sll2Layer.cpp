@@ -11,6 +11,7 @@
 #include "MplsLayer.h"
 #include "LLCLayer.h"
 #include "EndianPortable.h"
+#include "GeneralUtils.h"
 
 namespace pcpp
 {
@@ -208,4 +209,25 @@ namespace pcpp
 		return getSll2Header()->link_layer_addr;
 	}
 
+	const FieldDescriptor Sll2Layer::SerializedFields::ProtocolType{ Layer::SerializedFields::MaxID + 1,
+		                                                             "protocolType" };
+	const FieldDescriptor Sll2Layer::SerializedFields::InterfaceIndex{ Layer::SerializedFields::MaxID + 2,
+		                                                               "interfaceIndex" };
+	const FieldDescriptor Sll2Layer::SerializedFields::ArpHeaderType{ Layer::SerializedFields::MaxID + 3,
+		                                                              "arpHeaderType" };
+	const FieldDescriptor Sll2Layer::SerializedFields::PacketType{ Layer::SerializedFields::MaxID + 4, "packetType" };
+	const FieldDescriptor Sll2Layer::SerializedFields::LinkLayerAddress{ Layer::SerializedFields::MaxID + 5,
+		                                                                 "linkLayerAddress" };
+
+	void Sll2Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getSll2Header();
+		serializer.writeField(SerializedFields::ProtocolType, be16toh(header->protocol_type));
+		serializer.writeField(SerializedFields::InterfaceIndex, be32toh(header->interface_index));
+		serializer.writeField(SerializedFields::ArpHeaderType, be16toh(header->ARPHRD_type));
+		serializer.writeField(SerializedFields::PacketType, be16toh(header->packet_type));
+		auto linkLayerAddrLen = (std::min)(be16toh(header->link_layer_addr_len), static_cast<uint16_t>(8));
+		serializer.writeField(SerializedFields::LinkLayerAddress,
+		                      byteArrayToHexString(header->link_layer_addr, linkLayerAddrLen));
+	}
 }  // namespace pcpp

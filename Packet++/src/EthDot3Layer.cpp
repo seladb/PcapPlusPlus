@@ -52,4 +52,18 @@ namespace pcpp
 			return false;
 		}
 	}
+
+	const FieldDescriptor EthDot3Layer::SerializedFields::SrcMacAddress{ Layer::SerializedFields::MaxID + 1,
+		                                                                 "srcMacAddress" };
+	const FieldDescriptor EthDot3Layer::SerializedFields::DstMacAddress{ Layer::SerializedFields::MaxID + 2,
+		                                                                 "dstMacAddress" };
+	const FieldDescriptor EthDot3Layer::SerializedFields::EtherType{ Layer::SerializedFields::MaxID + 3, "etherType" };
+
+	void EthDot3Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getEthHeader();
+		serializer.writeField(SerializedFields::SrcMacAddress, getSourceMac().toString());
+		serializer.writeField(SerializedFields::DstMacAddress, getDestMac().toString());
+		serializer.writeField(SerializedFields::EtherType, be16toh(header->length));
+	}
 }  // namespace pcpp

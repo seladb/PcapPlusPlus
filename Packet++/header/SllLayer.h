@@ -88,6 +88,30 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by SllLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields
+		{
+			/// @return All field descriptors for SllLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ PacketType, ArpHeaderType, ProtocolType,
+					                                          LinkLayerAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor PacketType;
+			static const FieldDescriptor ArpHeaderType;
+			static const FieldDescriptor ProtocolType;
+			static const FieldDescriptor LinkLayerAddress;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp
