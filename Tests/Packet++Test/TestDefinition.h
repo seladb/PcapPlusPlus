@@ -69,6 +69,7 @@ PTF_TEST_CASE(PacketParseLayerLimitTest);
 PTF_TEST_CASE(PacketParseMultiLayerTest);
 PTF_TEST_CASE(PacketIncrementalParseTest);
 PTF_TEST_CASE(PacketFullReparseTest);
+PTF_TEST_CASE(PacketSerializeTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
@@ -368,6 +369,9 @@ PTF_TEST_CASE(MySqlLayerParsingTest);
 PTF_TEST_CASE(MySqlMessageParsingTest);
 PTF_TEST_CASE(MySqlInvalidDataTest);
 
-// Implement in QuicTests.cpp
+// Implemented in QuicTests.cpp
 PTF_TEST_CASE(QuicV1ParsingTest);
 PTF_TEST_CASE(QuicV1MalformedPacketsTest);
+
+// Implemented in SerializerTests.cpp
+PTF_TEST_CASE(JsonSerializerTest);

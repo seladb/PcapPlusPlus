@@ -833,6 +833,7 @@ namespace pcpp
 			pcap_close(m_PcapSendDescriptor);
 			PCPP_LOG_DEBUG("Send pcap descriptor closed");
 		}
+		m_PcapSendDescriptor = nullptr;
 
 		m_DeviceOpened = false;
 		PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' closed");
@@ -1699,7 +1700,7 @@ namespace pcpp
 				sa = reinterpret_cast<sockaddr*>(spacePtr);
 				if (index == RTA_GATEWAY)
 				{
-					gateAddr = internal::sockaddr2in_addr(sa);
+					gateAddr = internal::try_sockaddr2in_addr(sa);
 					break;
 				}
 				spacePtr += sa->sa_len > 0 ? roundUpClosestMultiple(sizeof(uint32_t), sa->sa_len) : sizeof(uint32_t);
