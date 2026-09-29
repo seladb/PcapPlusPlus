@@ -472,8 +472,8 @@ namespace pcpp
 
 		/// TLS fingerprinting is a way to identify client applications using the details in the TLS Client Hello
 		/// packet. It was initially introduced by Lee Brotherston in his 2015 research:
-		/// <https://blog.squarelemon.com/tls-fingerprinting/> This implementation of TLS fingerprint is a C++ version
-		/// of Salesforce's JA3 open source project (originally written in Python and Zeek):
+		/// <https://github.com/leebrotherston/tls-fingerprinting> This implementation of TLS fingerprint is a C++
+		/// version of Salesforce's JA3 open source project (originally written in Python and Zeek):
 		/// <https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967>
 		/// @return A SSLClientHelloMessage#ClientHelloTLSFingerprint struct that contains all the elements needed for
 		/// creating a TLS fingerprint out of this Client Hello message. This struct has also methods to extract the TLS
