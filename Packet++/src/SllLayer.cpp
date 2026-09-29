@@ -10,6 +10,7 @@
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
 #include "EndianPortable.h"
+#include "GeneralUtils.h"
 
 namespace pcpp
 {
@@ -129,6 +130,25 @@ namespace pcpp
 	std::string SllLayer::toString() const
 	{
 		return "Linux cooked header";
+	}
+
+	const FieldDescriptor SllLayer::SerializedFields::PacketType{ Layer::SerializedFields::MaxID + 1, "packetType" };
+	const FieldDescriptor SllLayer::SerializedFields::ArpHeaderType{ Layer::SerializedFields::MaxID + 2,
+		                                                             "arpHeaderType" };
+	const FieldDescriptor SllLayer::SerializedFields::ProtocolType{ Layer::SerializedFields::MaxID + 3,
+		                                                            "protocolType" };
+	const FieldDescriptor SllLayer::SerializedFields::LinkLayerAddress{ Layer::SerializedFields::MaxID + 4,
+		                                                                "linkLayerAddress" };
+
+	void SllLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getSllHeader();
+		serializer.writeField(SerializedFields::PacketType, be16toh(header->packet_type));
+		serializer.writeField(SerializedFields::ArpHeaderType, be16toh(header->ARPHRD_type));
+		serializer.writeField(SerializedFields::ProtocolType, be16toh(header->protocol_type));
+		auto linkLayerAddrLen = (std::min)(be16toh(header->link_layer_addr_len), static_cast<uint16_t>(8));
+		serializer.writeField(SerializedFields::LinkLayerAddress,
+		                      byteArrayToHexString(header->link_layer_addr, linkLayerAddrLen));
 	}
 
 }  // namespace pcpp
