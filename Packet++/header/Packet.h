@@ -4,6 +4,7 @@
 #include "Layer.h"
 #include "Serializers.h"
 #include <vector>
+#include <iterator>
 
 /// @file
 
@@ -78,8 +79,16 @@ namespace pcpp
 
 			PacketLayerIterator& operator--()
 			{
-				if (m_CurrentLayer != nullptr)
+				// Decrementing an iterator that points to the first layer is undefined behavior by the C++ standard.
+				if(m_CurrentLayer != nullptr)
+				{
 					m_CurrentLayer = m_CurrentLayer->getPrevLayer();
+				}
+				else
+				{
+					// We are in the sentinel position (end iterator).
+					m_CurrentLayer = m_Packet->getLastLayer();
+				}
 				return *this;
 			}
 
@@ -101,9 +110,10 @@ namespace pcpp
 			}
 
 		private:
-			PacketLayerIterator(pointer layer) : m_CurrentLayer(layer)
+			PacketLayerIterator(Packet const* packet, pointer layer) : m_CurrentLayer(layer), m_Packet(packet)
 			{}
 
+			Packet const* m_Packet = nullptr;
 			pointer m_CurrentLayer = nullptr;
 		};
 	}  // namespace internal
@@ -290,18 +300,20 @@ namespace pcpp
 
 		using iterator = internal::PacketLayerIterator<false>;
 		using const_iterator = internal::PacketLayerIterator<true>;
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 		/// @brief Returns an iterator to the first layer in the packet.
 		/// If the packet has no layers, the returned iterator will be equal to end().
 		iterator begin()
 		{
-			return iterator(m_FirstLayer);
+			return iterator(this, m_FirstLayer);
 		}
 
 		/// @brief Returns an iterator to one past the last layer in the packet.
 		iterator end()
 		{
-			return iterator(nullptr);
+			return iterator(this, nullptr);
 		}
 
 		const_iterator begin() const
@@ -318,13 +330,48 @@ namespace pcpp
 		/// If the packet has no layers, the returned iterator will be equal to end().
 		const_iterator cbegin() const
 		{
-			return const_iterator(m_FirstLayer);
+			return const_iterator(this, m_FirstLayer);
 		}
 
 		/// @brief Returns a const iterator to one past the last layer in the packet.
 		const_iterator cend() const
 		{
-			return const_iterator(nullptr);
+			return const_iterator(this, nullptr);
+		}
+
+		/// @brief Returns a reverse iterator to the last parsed layer in the packet.
+		/// If the packet has no layers, the returned iterator will be equal to rend().
+		reverse_iterator rbegin()
+		{
+			return std::make_reverse_iterator(end());
+		}
+
+		/// @brief Returns a reverse iterator to one before the first parsed layer in the packet.
+		reverse_iterator rend()
+		{
+			return std::make_reverse_iterator(begin());
+		}
+
+		const_reverse_iterator rbegin() const
+		{
+			return crbegin();
+		}
+
+		const_reverse_iterator rend() const
+		{
+			return crend();
+		}
+
+		/// @brief Returns a const reverse iterator to the last parsed layer in the packet.
+		const_reverse_iterator crbegin() const
+		{
+			return std::make_reverse_iterator(cend());
+		}
+
+		/// @brief Returns a const reverse iterator to one before the first parsed layer in the packet.
+		const_reverse_iterator crend() const
+		{
+			return std::make_reverse_iterator(cbegin());
 		}
 
 		/// Add a new layer as the last layer in the packet. This method gets a pointer to the new layer as a parameter

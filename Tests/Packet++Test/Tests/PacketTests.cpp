@@ -1304,6 +1304,12 @@ PTF_TEST_CASE(PacketIteratorTest)
 		PTF_ASSERT_POLY_CLASS(&(*it), pcpp::IPv4Layer);
 		it--;
 		PTF_ASSERT_POLY_CLASS(&(*it), pcpp::EthLayer);
+
+		// Bidirectional iterators must support the -- operator on end() iterator, which should point to the last layer
+		// in the packet
+		auto endIt = igmpPacket.end();
+		--endIt;
+		PTF_ASSERT_POLY_CLASS(&(*endIt), pcpp::PacketTrailerLayer);
 	}
 
 	{
@@ -1315,6 +1321,32 @@ PTF_TEST_CASE(PacketIteratorTest)
 			numLayers++;
 		}
 		PTF_ASSERT_EQUAL(numLayers, 4);
+	}
+
+	// Test reverse iterators
+	{
+		layerNum = 0;
+		for (auto rit = igmpPacket.rbegin(); rit != igmpPacket.rend(); ++rit)
+		{
+			pcpp::Layer& layer = *rit;
+			switch (layerNum)
+			{
+			case 0:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::PacketTrailerLayer);
+				break;
+			case 1:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::IgmpV1Layer);
+				break;
+			case 2:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::IPv4Layer);
+				break;
+			case 3:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::EthLayer);
+				break;
+			}
+			layerNum++;
+		}
+		PTF_ASSERT_EQUAL(layerNum, 4);
 	}
 }
 
