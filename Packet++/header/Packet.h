@@ -40,6 +40,8 @@ namespace pcpp
 
 	namespace internal
 	{
+		/// @brief Iterator class for iterating over the layers of a Packet.
+		/// @tparam IsConst If true, the iterator will be a const iterator, otherwise it will be a non-const iterator.
 		template <bool IsConst = false> class PacketLayerIterator
 		{
 			friend class Packet;
