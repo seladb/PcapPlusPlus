@@ -110,7 +110,7 @@ namespace pcpp
 			}
 
 		private:
-			PacketLayerIterator(Packet const* packet, pointer layer) : m_CurrentLayer(layer), m_Packet(packet)
+			PacketLayerIterator(Packet const* packet, pointer layer) : m_Packet(packet), m_CurrentLayer(layer)
 			{}
 
 			Packet const* m_Packet = nullptr;
