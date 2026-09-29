@@ -637,9 +637,9 @@ namespace pcpp
 
 	namespace internal
 	{
-		// Implementation of PacketLayerIterator::operator--() is provided here to avoid circular dependency issues with the Packet class.
-		template <bool IsConst>
-		PacketLayerIterator<IsConst>& PacketLayerIterator<IsConst>::operator--()
+		// Implementation of PacketLayerIterator::operator--() is provided here to avoid circular dependency issues with
+		// the Packet class.
+		template <bool IsConst> PacketLayerIterator<IsConst>& PacketLayerIterator<IsConst>::operator--()
 		{
 			// Decrementing an iterator that points to the first layer is undefined behavior by the C++ standard.
 			if (m_CurrentLayer != nullptr)
@@ -653,5 +653,5 @@ namespace pcpp
 			}
 			return *this;
 		}
-	}
+	}  // namespace internal
 }  // namespace pcpp
