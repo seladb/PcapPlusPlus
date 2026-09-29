@@ -25,6 +25,15 @@ PTF_TEST_CASE(WakeOnLanParsingTests)
 	PTF_ASSERT_EQUAL(wolLayer1->getPassword(), "192.168.1.1");
 	PTF_ASSERT_EQUAL(wolLayer1->toString(), "Wake On LAN Layer, target address: 00:0d:56:dc:9e:35");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		wolLayer1->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"WakeOnLan","protocolId":46,"length":106,"targetAddress":"00:0d:56:dc:9e:35","password":"192.168.1.1"})");
+	}
+
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/WoL_udp.dat");
 
 	pcpp::Packet wolPacket2(rawPacket2.get());

@@ -79,6 +79,33 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an LLC packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		/// @struct SerializedFields
+		/// Fields written by LLCLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for LLCLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ DSAP, SSAP, Control };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Destination Service Access Point
+			static const FieldDescriptor DSAP;
+
+			/// @brief Source Service Access Point
+			static const FieldDescriptor SSAP;
+
+			/// @brief First byte of the LLC control field
+			static const FieldDescriptor Control;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp
