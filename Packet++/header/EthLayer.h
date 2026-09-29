@@ -161,7 +161,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by EthLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for EthLayer
 			static std::vector<FieldDescriptor> all()
@@ -172,13 +172,13 @@ namespace pcpp
 				return result;
 			}
 
-			/// Source MAC address, as a string
+			/// @brief Source MAC address, as a string
 			static const FieldDescriptor SrcMacAddress;
 
-			/// Destination MAC address, as a string
+			/// @brief Destination MAC address, as a string
 			static const FieldDescriptor DstMacAddress;
 
-			/// EtherType, in host byte order (e.g. 2048 for IPv4)
+			/// @brief EtherType, in host byte order (e.g. 2048 for IPv4)
 			static const FieldDescriptor EtherType;
 		};
 
