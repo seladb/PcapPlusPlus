@@ -38,13 +38,16 @@ namespace pcpp
 		OsiModelLayer parseUntilLayer = OsiModelLayerUnknown;
 	};
 
+	// Forward declaration for PacketLayerIterator
+	class Packet;
+
 	namespace internal
 	{
 		/// @brief Iterator class for iterating over the layers of a Packet.
 		/// @tparam IsConst If true, the iterator will be a const iterator, otherwise it will be a non-const iterator.
 		template <bool IsConst = false> class PacketLayerIterator
 		{
-			friend class Packet;
+			friend class pcpp::Packet;
 
 		public:
 			using iterator_category = std::bidirectional_iterator_tag;
@@ -79,20 +82,7 @@ namespace pcpp
 				return tmp;
 			}
 
-			PacketLayerIterator& operator--()
-			{
-				// Decrementing an iterator that points to the first layer is undefined behavior by the C++ standard.
-				if (m_CurrentLayer != nullptr)
-				{
-					m_CurrentLayer = m_CurrentLayer->getPrevLayer();
-				}
-				else
-				{
-					// We are in the sentinel position (end iterator).
-					m_CurrentLayer = m_Packet->getLastLayer();
-				}
-				return *this;
-			}
+			PacketLayerIterator& operator--();
 
 			PacketLayerIterator operator--(int)
 			{
@@ -643,5 +633,25 @@ namespace pcpp
 	{
 		os << packet.toString();
 		return os;
+	}
+
+	namespace internal
+	{
+		// Implementation of PacketLayerIterator::operator--() is provided here to avoid circular dependency issues with the Packet class.
+		template <bool IsConst>
+		PacketLayerIterator<IsConst>& PacketLayerIterator<IsConst>::operator--()
+		{
+			// Decrementing an iterator that points to the first layer is undefined behavior by the C++ standard.
+			if (m_CurrentLayer != nullptr)
+			{
+				m_CurrentLayer = m_CurrentLayer->getPrevLayer();
+			}
+			else
+			{
+				// We are in the sentinel position (end iterator).
+				m_CurrentLayer = m_Packet->getLastLayer();
+			}
+			return *this;
+		}
 	}
 }  // namespace pcpp
