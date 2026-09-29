@@ -363,8 +363,7 @@ namespace pcpp
 		if (m_ExtensionsLen > 0)
 		{
 			result += ", Options=[";
-			IPv6Extension* curExt = m_FirstExtension;
-			while (curExt != nullptr)
+			for (auto const* curExt = m_FirstExtension; curExt != nullptr; curExt = curExt->getNextHeader())
 			{
 				result += curExt->getExtensionTypeAsString();
 				result += ",";

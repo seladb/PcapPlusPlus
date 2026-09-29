@@ -25,15 +25,14 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "DeprecationUtils.h"
-
-#include <SystemUtils.h>
+#include "SystemUtils.h"
 #include <sstream>
 
 namespace pcpp
 {
 	constexpr uint8_t TcpOptionDummy = 0xff;
 
-	const char* tcpOptionTypeToString(TcpOptionEnumType type)
+	constexpr const char* tcpOptionTypeToString(TcpOptionEnumType type)
 	{
 		switch (type)
 		{
