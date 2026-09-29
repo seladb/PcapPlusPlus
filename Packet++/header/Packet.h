@@ -37,6 +37,77 @@ namespace pcpp
 		OsiModelLayer parseUntilLayer = OsiModelLayerUnknown;
 	};
 
+	namespace internal
+	{
+		template <bool IsConst = false> class PacketLayerIterator
+		{
+			friend class Packet;
+
+		public:
+			using iterator_category = std::bidirectional_iterator_tag;
+			using value_type = std::conditional_t<IsConst, const Layer, Layer>;
+			using difference_type = std::ptrdiff_t;
+			using pointer = value_type*;
+			using reference = value_type&;
+
+			PacketLayerIterator() = default;
+
+			reference operator*() const
+			{
+				return *m_CurrentLayer;
+			}
+
+			pointer operator->() const
+			{
+				return m_CurrentLayer;
+			}
+
+			PacketLayerIterator& operator++()
+			{
+				if (m_CurrentLayer != nullptr)
+					m_CurrentLayer = m_CurrentLayer->getNextLayer();
+				return *this;
+			}
+
+			PacketLayerIterator operator++(int)
+			{
+				PacketLayerIterator tmp = *this;
+				++(*this);
+				return tmp;
+			}
+
+			PacketLayerIterator& operator--()
+			{
+				if (m_CurrentLayer != nullptr)
+					m_CurrentLayer = m_CurrentLayer->getPrevLayer();
+				return *this;
+			}
+
+			PacketLayerIterator operator--(int)
+			{
+				PacketLayerIterator tmp = *this;
+				--(*this);
+				return tmp;
+			}
+
+			bool operator==(const PacketLayerIterator& other) const
+			{
+				return m_CurrentLayer == other.m_CurrentLayer;
+			}
+
+			bool operator!=(const PacketLayerIterator& other) const
+			{
+				return !(*this == other);
+			}
+
+		private:
+			PacketLayerIterator(pointer layer) : m_CurrentLayer(layer)
+			{}
+
+			pointer m_CurrentLayer = nullptr;
+		};
+	}  // namespace internal
+
 	/// @class Packet
 	/// This class represents a parsed packet. It contains the raw data (RawPacket instance), and a linked list of
 	/// layers, each layer is a parsed protocol that this packet contains. The layers linked list is ordered where the
@@ -215,6 +286,45 @@ namespace pcpp
 		Layer* getLastLayer() const
 		{
 			return m_LastLayer;
+		}
+
+		using iterator = internal::PacketLayerIterator<false>;
+		using const_iterator = internal::PacketLayerIterator<true>;
+
+		/// @brief Returns an iterator to the first layer in the packet.
+		/// If the packet has no layers, the returned iterator will be equal to end().
+		iterator begin()
+		{
+			return iterator(m_FirstLayer);
+		}
+
+		/// @brief Returns an iterator to one past the last layer in the packet.
+		iterator end()
+		{
+			return iterator(nullptr);
+		}
+
+		const_iterator begin() const
+		{
+			return cbegin();
+		}
+
+		const_iterator end() const
+		{
+			return cend();
+		}
+
+		/// @brief Returns a const iterator to the first layer in the packet.
+		/// If the packet has no layers, the returned iterator will be equal to end().
+		const_iterator cbegin() const
+		{
+			return const_iterator(m_FirstLayer);
+		}
+
+		/// @brief Returns a const iterator to one past the last layer in the packet.
+		const_iterator cend() const
+		{
+			return const_iterator(nullptr);
 		}
 
 		/// Add a new layer as the last layer in the packet. This method gets a pointer to the new layer as a parameter

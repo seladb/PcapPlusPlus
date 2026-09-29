@@ -220,6 +220,15 @@
 		return;                                                                                                        \
 	}
 
+#define PTF_ASSERT_POLY_CLASS(obj, klass)                                                                              \
+	if (dynamic_cast<klass*>(obj) == nullptr)                                                                          \
+	{                                                                                                                  \
+		PTF_PRINT_ASSERTION("FAILED", "POLYMORPHIC CLASS")                                                             \
+		    << "   [" << #obj << "] is not of type [" << #klass << "]" << std::endl;                                   \
+		ptfResult = PTF_RESULT_FAILED;                                                                                 \
+		return;                                                                                                        \
+	}
+
 #define PTF_ASSERT_RAISES(expression, exception_type, message)                                                         \
 	{                                                                                                                  \
 		auto rightExceptionCaught = false;                                                                             \
