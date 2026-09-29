@@ -150,7 +150,7 @@ namespace pcpp
 				for (int i = 0; i < arrLength; i++)
 				{
 					dataSize += deref(packetsArr[i]).getRawDataLen();
-					if (dataSize > res)
+					if (static_cast<size_t>(dataSize) > res)
 					{
 						return packetsSent;
 					}
