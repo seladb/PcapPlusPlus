@@ -367,7 +367,6 @@ namespace pcpp
 			{
 				result += curExt->getExtensionTypeAsString();
 				result += ",";
-				curExt = curExt->getNextHeader();
 			}
 
 			// replace the last ','
