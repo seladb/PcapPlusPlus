@@ -582,7 +582,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by TcpLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for TcpLayer
 			static std::vector<FieldDescriptor> all()
@@ -594,29 +594,28 @@ namespace pcpp
 				return result;
 			}
 
-			/// Source port, in host byte order
+			/// @brief Source port, in host byte order
 			static const FieldDescriptor SrcPort;
 
-			/// Destination port, in host byte order
+			/// @brief Destination port, in host byte order
 			static const FieldDescriptor DstPort;
 
-			/// Sequence number, in host byte order
+			/// @brief Sequence number, in host byte order
 			static const FieldDescriptor SequenceNumber;
 
-			/// Array of set flag names (e.g. "SYN", "ACK"); elements
-			/// described by TcpFlag
+			/// @brief Array of set flag names (e.g. "SYN", "ACK"); elements described by TcpFlag
 			static const FieldDescriptor TcpFlags;
 
-			/// One set flag's name; a TcpFlags element, not in all()
+			/// @brief One set flag's name; a TcpFlags element, not in all()
 			static const FieldDescriptor TcpFlag;
 
-			/// Window size, in host byte order
+			/// @brief Window size, in host byte order
 			static const FieldDescriptor WindowSize;
 
-			/// Checksum, as a hex string
+			/// @brief Checksum, as a hex string
 			static const FieldDescriptor Checksum;
 
-			/// Array of header options; elements described by Option
+			/// @brief Array of header options; elements described by Option
 			static const FieldDescriptor Options;
 
 			/// One option's type name (e.g. "Mss"); an Options element,

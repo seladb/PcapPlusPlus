@@ -87,5 +87,26 @@ namespace pcpp
 		{
 			return data != nullptr && dataLen >= sizeof(uint32_t);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by NullLoopbackLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for NullLoopbackLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Family };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Protocol family (AF_* value) of the payload
+			static const FieldDescriptor Family;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp

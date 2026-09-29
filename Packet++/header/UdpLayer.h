@@ -97,7 +97,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by UdpLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for UdpLayer
 			static std::vector<FieldDescriptor> all()
@@ -108,13 +108,13 @@ namespace pcpp
 				return result;
 			}
 
-			/// Source port, in host byte order
+			/// @brief Source port, in host byte order
 			static const FieldDescriptor SrcPort;
 
-			/// Destination port, in host byte order
+			/// @brief Destination port, in host byte order
 			static const FieldDescriptor DstPort;
 
-			/// Checksum, as a hex string
+			/// @brief Checksum, as a hex string
 			static const FieldDescriptor Checksum;
 		};
 

@@ -22,7 +22,7 @@ namespace pcpp
 	constexpr uint8_t IPv4OptionDummy = 0xff;
 	constexpr size_t IPv4MaxOptionSize = 40;
 
-	const char* ipv4OptionTypeToString(IPv4OptionTypes type)
+	constexpr const char* ipv4OptionTypeToString(IPv4OptionTypes type)
 	{
 		switch (type)
 		{

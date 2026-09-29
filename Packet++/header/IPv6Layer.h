@@ -195,7 +195,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by IPv6Layer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for IPv6Layer
 			static std::vector<FieldDescriptor> all()
@@ -219,31 +219,29 @@ namespace pcpp
 					return { Name, Type };
 				}
 
-				/// Extension type name (e.g. "Fragment", "Hop-By-Hop")
+				/// @brief Extension type name (e.g. "Fragment", "Hop-By-Hop")
 				static const FieldDescriptor Name;
 
-				/// Raw numeric extension type
+				/// @brief Raw numeric extension type
 				static const FieldDescriptor Type;
 			};
 
-			/// Source IP address, as a string
+			/// @brief Source IP address, as a string
 			static const FieldDescriptor SrcIp;
 
-			/// Destination IP address, as a string
+			/// @brief Destination IP address, as a string
 			static const FieldDescriptor DstIp;
 
-			/// Payload length, in host byte order
+			/// @brief Payload length, in host byte order
 			static const FieldDescriptor PayloadLength;
 
-			/// Whether this packet is a fragment
+			/// @brief Whether this packet is a fragment
 			static const FieldDescriptor IsFragment;
 
-			/// Next Header field (first extension header, or upper-layer
-			/// protocol if none)
+			/// @brief Next Header field (first extension header, or upper-layer protocol if none)
 			static const FieldDescriptor NextHeader;
 
-			/// Array of extension headers; elements described by
-			/// IPv6ExtensionObject
+			/// @brief Array of extension headers; elements described by IPv6ExtensionObject
 			static const FieldDescriptor Extensions;
 		};
 

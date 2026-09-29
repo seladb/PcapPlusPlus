@@ -610,7 +610,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by IPv4Layer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for IPv4Layer
 			static std::vector<FieldDescriptor> all()
@@ -622,32 +622,31 @@ namespace pcpp
 				return result;
 			}
 
-			/// Source IP address, as a string
+			/// @brief Source IP address, as a string
 			static const FieldDescriptor SrcIp;
 
-			/// Destination IP address, as a string
+			/// @brief Destination IP address, as a string
 			static const FieldDescriptor DstIp;
 
-			/// IP identification field, in host byte order
+			/// @brief IP identification field, in host byte order
 			static const FieldDescriptor IpId;
 
-			/// Next layer's protocol (e.g. 6 for TCP, 17 for UDP)
+			/// @brief Next layer's protocol (e.g. 6 for TCP, 17 for UDP)
 			static const FieldDescriptor IpProtocol;
 
-			/// Total length, in host byte order
+			/// @brief Total length, in host byte order
 			static const FieldDescriptor TotalLength;
 
-			/// Whether this packet is a fragment
+			/// @brief Whether this packet is a fragment
 			static const FieldDescriptor IsFragment;
 
-			/// Fragment offset, in 8-byte units
+			/// @brief Fragment offset, in 8-byte units
 			static const FieldDescriptor FragmentOffset;
 
-			/// Array of header options; elements described by Option
+			/// @brief Array of header options; elements described by Option
 			static const FieldDescriptor Options;
 
-			/// One option's type name (e.g. "NOP"); an Options element,
-			/// not included in all()
+			/// @brief One option's type name (e.g. "NOP"); an Options element, not included in all()
 			static const FieldDescriptor Option;
 		};
 
