@@ -19,6 +19,8 @@
 #include "WireGuardLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
+#include "QuicLayer.h"
+
 #include <sstream>
 
 namespace pcpp
@@ -60,8 +62,9 @@ namespace pcpp
 				IPv4Address srcIP = static_cast<IPv4Layer*>(m_PrevLayer)->getSrcIPv4Address();
 				IPv4Address dstIP = static_cast<IPv4Layer*>(m_PrevLayer)->getDstIPv4Address();
 
-				checksumRes = pcpp::computePseudoHdrChecksum((uint8_t*)udpHdr, getDataLen(), IPAddress::IPv4AddressType,
-				                                             PACKETPP_IPPROTO_UDP, srcIP, dstIP);
+				checksumRes =
+				    pcpp::computePseudoHdrChecksum(reinterpret_cast<uint8_t*>(udpHdr), getDataLen(),
+				                                   IPAddress::IPv4AddressType, PACKETPP_IPPROTO_UDP, srcIP, dstIP);
 
 				PCPP_LOG_DEBUG("calculated IPv4 UDP checksum = 0x" << std::uppercase << std::hex << checksumRes);
 			}
@@ -70,8 +73,8 @@ namespace pcpp
 				IPv6Address srcIP = static_cast<IPv6Layer*>(m_PrevLayer)->getSrcIPv6Address();
 				IPv6Address dstIP = static_cast<IPv6Layer*>(m_PrevLayer)->getDstIPv6Address();
 
-				checksumRes = computePseudoHdrChecksum((uint8_t*)udpHdr, getDataLen(), IPAddress::IPv6AddressType,
-				                                       PACKETPP_IPPROTO_UDP, srcIP, dstIP);
+				checksumRes = computePseudoHdrChecksum(reinterpret_cast<uint8_t*>(udpHdr), getDataLen(),
+				                                       IPAddress::IPv6AddressType, PACKETPP_IPPROTO_UDP, srcIP, dstIP);
 
 				PCPP_LOG_DEBUG("calculated IPv6 UDP checksum = 0xX" << std::uppercase << std::hex << checksumRes);
 			}
@@ -111,6 +114,11 @@ namespace pcpp
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		{
 			constructNextLayer<DnsLayer>(udpData, udpDataLen);
+		}
+		else if (QuicV1Layer::isQuicPort(portDst) || QuicV1Layer::isQuicPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(QuicV1Layer::parseQuicLayer, udpData,
+			                                                           udpDataLen);
 		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
@@ -176,6 +184,7 @@ namespace pcpp
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen);
 		}
 
+		// cppcheck-suppress knownConditionTrueFalse
 		if (!hasNextLayer())
 		{
 			constructNextLayer<PayloadLayer>(udpData, udpDataLen);

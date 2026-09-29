@@ -100,7 +100,7 @@ namespace pcpp
 		}
 		case PCPP_ETHERTYPE_MPLS:
 		{
-			constructNextLayer<MplsLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		default:
@@ -155,4 +155,17 @@ namespace pcpp
 		       ", CFI: " + cfiStream.str();
 	}
 
+	const FieldDescriptor VlanLayer::SerializedFields::VlanID{ Layer::SerializedFields::MaxID + 1, "vlanID" };
+	const FieldDescriptor VlanLayer::SerializedFields::CFI{ Layer::SerializedFields::MaxID + 2, "cfi" };
+	const FieldDescriptor VlanLayer::SerializedFields::Priority{ Layer::SerializedFields::MaxID + 3, "priority" };
+
+	const FieldDescriptor VlanLayer::SerializedFields::EtherType{ Layer::SerializedFields::MaxID + 4, "etherType" };
+
+	void VlanLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::VlanID, getVlanID());
+		serializer.writeField(SerializedFields::CFI, getCFI());
+		serializer.writeField(SerializedFields::Priority, getPriority());
+		serializer.writeField(SerializedFields::EtherType, be16toh(getVlanHeader()->etherType));
+	}
 }  // namespace pcpp

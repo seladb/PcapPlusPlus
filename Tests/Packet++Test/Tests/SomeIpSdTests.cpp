@@ -64,7 +64,8 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL((uint8_t)option->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv4Endpoint);
 	PTF_ASSERT_EQUAL(option->getDataPtr()[1], 0x09);
 
-	pcpp::SomeIpSdIPv4Option* ipv4Option = (pcpp::SomeIpSdIPv4Option*)option;
+	pcpp::SomeIpSdIPv4Option* ipv4Option = dynamic_cast<pcpp::SomeIpSdIPv4Option*>(option);
+	PTF_ASSERT_NOT_NULL(ipv4Option);
 	PTF_ASSERT_EQUAL(ipv4Option->getIpAddress(), pcpp::IPv4Address("160.48.199.28"));
 	PTF_ASSERT_EQUAL(ipv4Option->getProtocol(), pcpp::SomeIpSdProtocolType::SD_UDP);
 	PTF_ASSERT_EQUAL(ipv4Option->getPort(), 30502);
@@ -112,7 +113,8 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL((uint8_t)option2_1->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv6Endpoint);
 	PTF_ASSERT_EQUAL(option2_1->getDataPtr()[1], 0x15);
 
-	pcpp::SomeIpSdIPv6Option* ipv6Option2_1 = (pcpp::SomeIpSdIPv6Option*)option2_1;
+	pcpp::SomeIpSdIPv6Option* ipv6Option2_1 = dynamic_cast<pcpp::SomeIpSdIPv6Option*>(option2_1);
+	PTF_ASSERT_NOT_NULL(ipv6Option2_1);
 	PTF_ASSERT_EQUAL(ipv6Option2_1->getIpAddress(), pcpp::IPv6Address("fd53:7cb8:383:4::1:1e5"));
 	PTF_ASSERT_EQUAL(ipv6Option2_1->getProtocol(), pcpp::SomeIpSdProtocolType::SD_TCP);
 	PTF_ASSERT_EQUAL(ipv6Option2_1->getPort(), 29769);
@@ -122,7 +124,9 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL((uint8_t)option2_2->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::ConfigurationString);
 	PTF_ASSERT_EQUAL(option2_2->getDataPtr()[5], 0x63);
 
-	pcpp::SomeIpSdConfigurationOption* configurationOption = (pcpp::SomeIpSdConfigurationOption*)option2_2;
+	pcpp::SomeIpSdConfigurationOption* configurationOption =
+	    dynamic_cast<pcpp::SomeIpSdConfigurationOption*>(option2_2);
+	PTF_ASSERT_NOT_NULL(configurationOption);
 	for (int i = 0; i < 89; i++)
 	{
 		PTF_ASSERT_EQUAL(configurationOption->getConfigurationString()[i],

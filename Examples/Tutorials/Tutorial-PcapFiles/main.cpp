@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 {
 	// use the IFileReaderDevice interface to automatically identify file type (pcap/pcap-ng)
 	// and create an interface instance that both readers implement
-	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader("input.pcap"));
+	auto reader = pcpp::IFileReaderDevice::tryCreateReader("input.pcap");
 
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)

@@ -6,6 +6,7 @@
 #include "EthLayer.h"
 #include "IcmpLayer.h"
 #include "IPv4Layer.h"
+#include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 
@@ -254,6 +255,17 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("14.80.84.66"));
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0);
 }  // IcmpParsingTest
+
+PTF_TEST_CASE(IcmpTruncatedPacketTest)
+{
+	// The ICMP header requires eight bytes, so this packet should be rejected.
+	auto rawPacket = createPacketFromHexResource("PacketExamples/IcmpInfoRequestTruncated.dat");
+	pcpp::Packet packet(rawPacket.get());
+	PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::ICMP));
+	auto* payload = packet.getLayerOfType<pcpp::PayloadLayer>();
+	PTF_ASSERT_NOT_NULL(payload);
+	PTF_ASSERT_EQUAL(payload->getPayloadLen(), 7);
+}  // IcmpTruncatedPacketTest
 
 PTF_TEST_CASE(IcmpCreationTest)
 {

@@ -85,7 +85,7 @@ namespace pcpp
 
 		ipv6_ext_base_header* getBaseHeader() const
 		{
-			return (ipv6_ext_base_header*)getDataPtr();
+			return reinterpret_cast<ipv6_ext_base_header*>(getDataPtr());
 		}
 
 		void setNextHeader(IPv6Extension* nextHeader)
@@ -136,7 +136,7 @@ namespace pcpp
 		/// @return A pointer to the @ref ipv6_frag_header
 		ipv6_frag_header* getFragHeader() const
 		{
-			return (ipv6_frag_header*)getDataPtr();
+			return reinterpret_cast<ipv6_frag_header*>(getDataPtr());
 		}
 
 		/// @return True if this is the first fragment (which usually contains the L4 header), false otherwise
@@ -191,7 +191,7 @@ namespace pcpp
 			/// @return True if data is valid and can be assigned
 			static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 			{
-				auto data = (TLVRawData*)recordRawData;
+				auto data = reinterpret_cast<TLVRawData const*>(recordRawData);
 				if (data == nullptr)
 					return false;
 
@@ -389,7 +389,7 @@ namespace pcpp
 		/// @return A pointer to the @ref ipv6_routing_header
 		ipv6_routing_header* getRoutingHeader() const
 		{
-			return (ipv6_routing_header*)getDataPtr();
+			return reinterpret_cast<ipv6_routing_header*>(getDataPtr());
 		}
 
 		/// @return A pointer to the buffer containing the additional routing data for this extension. Notice that any
@@ -462,7 +462,7 @@ namespace pcpp
 		/// @return A pointer to the @ref ipv6_authentication_header
 		ipv6_authentication_header* getAuthHeader() const
 		{
-			return (ipv6_authentication_header*)getDataPtr();
+			return reinterpret_cast<ipv6_authentication_header*>(getDataPtr());
 		}
 
 		/// @return A pointer to the buffer containing the integrity check value (ICV) for this extension. Notice that

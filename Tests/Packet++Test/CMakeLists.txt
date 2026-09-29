@@ -33,8 +33,10 @@ add_executable(
   Tests/PemTests.cpp
   Tests/PostgresTests.cpp
   Tests/PPPoETests.cpp
+  Tests/QuicTests.cpp
   Tests/RadiusTests.cpp
   Tests/S7CommTests.cpp
+  Tests/SerializerTests.cpp
   Tests/SipSdpTests.cpp
   Tests/Sll2Tests.cpp
   Tests/SllNullLoopbackTests.cpp

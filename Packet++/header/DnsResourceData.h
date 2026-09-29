@@ -235,7 +235,7 @@ namespace pcpp
 		struct MxData
 		{
 			/// Preference value
-			uint16_t preference;
+			uint16_t preference = 0;
 			/// Mail exchange hostname
 			std::string mailExchange;
 		};
@@ -255,7 +255,7 @@ namespace pcpp
 		/// the offset from the start of the DNS layer. For example: if the string 'yahoo.com' already appears in offset
 		/// 12 in the packet and you want to set the DNS RR data as 'my.subdomain.yahoo.com' you may use the following
 		/// string: 'my.subdomain.#12'. This will result in writing 'my.subdomain' and a pointer to offset 12
-		MxDnsResourceData(const uint16_t& preference, const std::string& mailExchange);
+		MxDnsResourceData(uint16_t preference, const std::string& mailExchange);
 
 		~MxDnsResourceData() override = default;
 

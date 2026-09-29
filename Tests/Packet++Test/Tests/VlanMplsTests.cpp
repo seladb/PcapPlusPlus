@@ -10,6 +10,9 @@
 #include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
+#include <string>
+#include <tuple>
+#include <vector>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -46,6 +49,14 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getVlanID(), 200);
 	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getCFI(), 0);
 	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getPriority(), 2);
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		secondVlanLayerPtr->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"VLAN","protocolId":9,"length":4,"vlanID":200,"cfi":0,"priority":2,"etherType":2054})");
+	}
 
 	pcpp::MacAddress macSrc("ca:03:0d:b4:00:1c");
 	pcpp::MacAddress macDest("ff:ff:ff:ff:ff:ff");
@@ -108,6 +119,14 @@ PTF_TEST_CASE(MplsLayerTest)
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
 	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
 	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 16000);
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		mplsLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"MPLS","protocolId":14,"length":4,"label":16000,"ttl":126,"isBottomOfStack":true,"experimentalUseValue":0})");
+	}
 
 	PTF_ASSERT_NOT_NULL(mplsLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(mplsLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
@@ -172,6 +191,32 @@ PTF_TEST_CASE(MplsLayerTest)
 	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 18);
 	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
+
+	// Protocol identifiers alone must not create an MPLS layer when its four-byte header is truncated.
+	const std::vector<std::tuple<std::string, pcpp::LinkLayerType>> truncatedMplsPackets = {
+		{ "PacketExamples/TruncatedMplsVlan.dat", pcpp::LINKTYPE_ETHERNET   },
+		{ "PacketExamples/TruncatedMplsSll.dat",  pcpp::LINKTYPE_LINUX_SLL  },
+		{ "PacketExamples/TruncatedMplsSll2.dat", pcpp::LINKTYPE_LINUX_SLL2 },
+		{ "PacketExamples/TruncatedMplsGre.dat",  pcpp::LINKTYPE_ETHERNET   },
+	};
+	for (const auto& testCase : truncatedMplsPackets)
+	{
+		auto rawPacket =
+		    createPacketFromHexResource(std::get<0>(testCase), pcpp_tests::utils::PacketFactory(std::get<1>(testCase)));
+		pcpp::Packet packet(rawPacket.get());
+		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::MplsLayer>());
+		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
+	}
+
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/TruncatedMplsStacked.dat");
+		pcpp::Packet packet(rawPacket.get());
+		auto* firstMpls = packet.getLayerOfType<pcpp::MplsLayer>();
+		PTF_ASSERT_NOT_NULL(firstMpls);
+		auto* nextLayer = firstMpls->getNextLayer();
+		PTF_ASSERT_NOT_NULL(nextLayer);
+		PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::GenericPayload, enum);
+	}
 }  // MplsLayerTest
 
 PTF_TEST_CASE(VxlanParsingAndCreationTest)
@@ -195,6 +240,15 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->policyAppliedFlag, 1);
 	PTF_ASSERT_NOT_NULL(vxlanLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(vxlanLayer->getNextLayer()->getProtocol(), pcpp::Ethernet, enum);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		vxlanLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"VXLAN","protocolId":26,"length":8,"validVNI":true,"groupPolicyID":100,"vni":3000001})");
+	}
 
 	// edit vxlan fields
 	vxlanLayer->getVxlanHeader()->gbpFlag = 0;

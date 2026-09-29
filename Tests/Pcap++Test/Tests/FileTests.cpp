@@ -172,6 +172,7 @@ PTF_TEST_CASE(TestReaderFactory_Pcap_Micro)
 
 PTF_TEST_CASE(TestReaderFactory_Pcap_Nano)
 {
+	// cppcheck-suppress knownConditionTrueFalse
 	if (!pcpp::PcapFileReaderDevice::isNanoSecondPrecisionSupported())
 	{
 		PTF_SKIP_TEST("Nano-second precision is not supported in this platform/environment");

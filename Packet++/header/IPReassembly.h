@@ -102,7 +102,7 @@ namespace pcpp
 			/// @param[in] ipid IP ID value
 			/// @param[in] srcip Source IPv4 address
 			/// @param[in] dstip Dest IPv4 address
-			IPv4PacketKey(uint16_t ipid, IPv4Address srcip, IPv4Address dstip)
+			IPv4PacketKey(uint16_t ipid, IPv4Address const& srcip, IPv4Address const& dstip)
 			    : m_IpID(ipid), m_SrcIP(srcip), m_DstIP(dstip)
 			{}
 
@@ -196,7 +196,7 @@ namespace pcpp
 			/// @param[in] fragmentID Fragment ID value
 			/// @param[in] srcip Source IPv6 address
 			/// @param[in] dstip Dest IPv6 address
-			IPv6PacketKey(uint32_t fragmentID, IPv6Address srcip, IPv6Address dstip)
+			IPv6PacketKey(uint32_t fragmentID, IPv6Address const& srcip, IPv6Address const& dstip)
 			    : m_FragmentID(fragmentID), m_SrcIP(srcip), m_DstIP(dstip)
 			{}
 
