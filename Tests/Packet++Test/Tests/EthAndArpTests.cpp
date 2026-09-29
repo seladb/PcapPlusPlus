@@ -274,6 +274,15 @@ PTF_TEST_CASE(EthDot3LayerParsingTest)
 
 	PTF_ASSERT_NOT_NULL(ethDot3Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ethDot3Layer->getNextLayer()->getProtocol(), pcpp::LLC, enum);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ethDot3Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"EthernetDot3","protocolId":33,"length":14,"srcMacAddress":"00:13:f7:11:5e:db","dstMacAddress":"01:80:c2:00:00:00"})");
+	}
 }  // EthDot3LayerParsingTest
 
 PTF_TEST_CASE(EthDot3LayerCreateEditTest)

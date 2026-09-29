@@ -131,4 +131,13 @@ namespace pcpp
 		return "Wake On LAN Layer, target address: " + getTargetAddr().toString();
 	}
 
+	const FieldDescriptor WakeOnLanLayer::SerializedFields::TargetAddress{ Layer::SerializedFields::MaxID + 1,
+		                                                                   "targetAddress" };
+	const FieldDescriptor WakeOnLanLayer::SerializedFields::Password{ Layer::SerializedFields::MaxID + 2, "password" };
+
+	void WakeOnLanLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::TargetAddress, getTargetAddr().toString());
+		serializer.writeField(SerializedFields::Password, getPassword());
+	}
 }  // namespace pcpp
