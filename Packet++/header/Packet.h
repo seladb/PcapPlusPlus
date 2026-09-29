@@ -80,7 +80,7 @@ namespace pcpp
 			PacketLayerIterator& operator--()
 			{
 				// Decrementing an iterator that points to the first layer is undefined behavior by the C++ standard.
-				if(m_CurrentLayer != nullptr)
+				if (m_CurrentLayer != nullptr)
 				{
 					m_CurrentLayer = m_CurrentLayer->getPrevLayer();
 				}
