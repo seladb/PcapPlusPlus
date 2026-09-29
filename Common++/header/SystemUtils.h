@@ -14,7 +14,7 @@
 // @todo Change to constexpr when C++17 is minimum supported version
 enum : uint8_t
 {
-	MAX_NUM_OF_CORES = 32,
+	MAX_NUM_OF_CORES = 32
 };
 
 #ifdef _MSC_VER
@@ -191,7 +191,7 @@ namespace pcpp
 	struct LongCoreMask
 	{
 		/// @brief The maximum number of cores supported by LongCoreMask.
-		static const size_t MaxCoreCount = 256;
+		static constexpr size_t MaxCoreCount = 256;
 
 		/// @brief A bitset representing the core mask.
 		/// Each bit corresponds to a core, where a set bit indicates that the core is included in the mask.
