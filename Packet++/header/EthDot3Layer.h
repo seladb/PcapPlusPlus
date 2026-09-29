@@ -122,7 +122,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by EthDot3Layer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for EthDot3Layer
 			static std::vector<FieldDescriptor> all()
@@ -133,10 +133,10 @@ namespace pcpp
 				return result;
 			}
 
-			/// Source MAC address, as a string
+			/// @brief Source MAC address, as a string
 			static const FieldDescriptor SrcMacAddress;
 
-			/// Destination MAC address, as a string
+			/// @brief Destination MAC address, as a string
 			static const FieldDescriptor DstMacAddress;
 		};
 

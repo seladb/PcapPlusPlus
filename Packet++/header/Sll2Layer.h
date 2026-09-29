@@ -151,7 +151,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by Sll2Layer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for Sll2Layer
 			static std::vector<FieldDescriptor> all()
@@ -163,19 +163,19 @@ namespace pcpp
 				return result;
 			}
 
-			/// EtherType of the encapsulated protocol, in host byte order
+			/// @brief EtherType of the encapsulated protocol, in host byte order
 			static const FieldDescriptor ProtocolType;
 
-			/// Index of the capture interface
+			/// @brief Index of the capture interface
 			static const FieldDescriptor InterfaceIndex;
 
-			/// ARPHRD_* link-layer address type (e.g. 1 for Ethernet)
+			/// @brief ARPHRD_* link-layer address type (e.g. 1 for Ethernet)
 			static const FieldDescriptor ArpHeaderType;
 
-			/// Packet type
+			/// @brief Packet type
 			static const FieldDescriptor PacketType;
 
-			/// Link-layer address of the sender
+			/// @brief Link-layer address of the sender
 			static const FieldDescriptor LinkLayerAddress;
 		};
 

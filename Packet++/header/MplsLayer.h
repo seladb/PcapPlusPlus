@@ -119,7 +119,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by MplsLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for MplsLayer
 			static std::vector<FieldDescriptor> all()
@@ -130,16 +130,16 @@ namespace pcpp
 				return result;
 			}
 
-			/// MPLS label
+			/// @brief MPLS label
 			static const FieldDescriptor Label;
 
-			/// Time to live
+			/// @brief Time to live
 			static const FieldDescriptor TTL;
 
-			/// True if this is the last label in the stack (S bit)
+			/// @brief True if this is the last label in the stack (S bit)
 			static const FieldDescriptor IsBottomOfStack;
 
-			/// Experimental use / traffic class bits
+			/// @brief Experimental use / traffic class bits
 			static const FieldDescriptor ExperimentalUseValue;
 		};
 

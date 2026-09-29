@@ -141,7 +141,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by WakeOnLanLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for WakeOnLanLayer
 			static std::vector<FieldDescriptor> all()
@@ -152,10 +152,10 @@ namespace pcpp
 				return result;
 			}
 
-			/// Target MAC address that the magic packet wakes, as a string
+			/// @brief Target MAC address that the magic packet wakes, as a string
 			static const FieldDescriptor TargetAddress;
 
-			/// Optional SecureOn password, if present
+			/// @brief Optional SecureOn password, if present
 			static const FieldDescriptor Password;
 		};
 

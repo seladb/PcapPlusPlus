@@ -103,7 +103,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by TpktLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for TpktLayer
 			static std::vector<FieldDescriptor> all()
@@ -114,7 +114,7 @@ namespace pcpp
 				return result;
 			}
 
-			/// TPKT version
+			/// @brief TPKT version
 			static const FieldDescriptor Version;
 		};
 

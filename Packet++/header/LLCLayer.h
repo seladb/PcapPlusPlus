@@ -83,7 +83,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by LLCLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for LLCLayer
 			static std::vector<FieldDescriptor> all()
@@ -94,13 +94,13 @@ namespace pcpp
 				return result;
 			}
 
-			/// Destination Service Access Point
+			/// @brief Destination Service Access Point
 			static const FieldDescriptor DSAP;
 
-			/// Source Service Access Point
+			/// @brief Source Service Access Point
 			static const FieldDescriptor SSAP;
 
-			/// First byte of the LLC control field
+			/// @brief First byte of the LLC control field
 			static const FieldDescriptor Control;
 		};
 

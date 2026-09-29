@@ -91,7 +91,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by NullLoopbackLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for NullLoopbackLayer
 			static std::vector<FieldDescriptor> all()
@@ -102,7 +102,7 @@ namespace pcpp
 				return result;
 			}
 
-			/// Protocol family (AF_* value) of the payload
+			/// @brief Protocol family (AF_* value) of the payload
 			static const FieldDescriptor Family;
 		};
 

@@ -146,7 +146,7 @@ namespace pcpp
 		/// @struct SerializedFields
 		/// Fields written by VxlanLayer's serializeLayer(), in addition to
 		/// Layer::SerializedFields.
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors for VxlanLayer
 			static std::vector<FieldDescriptor> all()
@@ -157,13 +157,13 @@ namespace pcpp
 				return result;
 			}
 
-			/// True if the "valid VNI" flag (I bit) is set
+			/// @brief True if the "valid VNI" flag (I bit) is set
 			static const FieldDescriptor ValidVNI;
 
-			/// Group Policy ID (VXLAN-GBP extension)
+			/// @brief Group Policy ID (VXLAN-GBP extension)
 			static const FieldDescriptor GroupPolicyID;
 
-			/// VXLAN Network Identifier (24 bits)
+			/// @brief VXLAN Network Identifier (24 bits)
 			static const FieldDescriptor VNI;
 		};
 
