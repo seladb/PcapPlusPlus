@@ -260,14 +260,14 @@ namespace pcpp
 	/// MySQL protocol
 	const ProtocolType MySQL = 63;
 
-	/// GENEVE protocol
-	const ProtocolType Geneve = 65;
-
 	/// FTP protocol family (FTPControl and FtpData protocols)
 	const ProtocolTypeFamily FTP = 0x3c29;
 
 	/// QUIC v1 protocol
 	const ProtocolType QUICv1 = 64;
+
+	/// GENEVE protocol
+	const ProtocolType Geneve = 65;
 
 	/// @}
 
@@ -408,6 +408,8 @@ namespace pcpp
 			return "MySQL";
 		case QUICv1:
 			return "QUICv1";
+		case Geneve:
+			return "Geneve";
 		default:
 			throw std::invalid_argument("Unknown protocol type");
 		}

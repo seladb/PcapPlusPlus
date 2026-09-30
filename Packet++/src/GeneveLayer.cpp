@@ -2,7 +2,6 @@
 
 #include "GeneveLayer.h"
 #include "ArpLayer.h"
-#include "EndianPortable.h"
 #include "EthDot3Layer.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
@@ -11,152 +10,89 @@
 #include "MplsLayer.h"
 #include "PayloadLayer.h"
 #include "VlanLayer.h"
+#include "SystemUtils.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <sstream>
 
 namespace pcpp
 {
-	uint16_t geneve_option_header::getOptionClass() const
+	void GeneveOption::setOptionClass(uint16_t value)
 	{
-		return be16toh(optionClass);
+		m_Data->optionClass = hostToNet16(value);
 	}
 
-	void geneve_option_header::setOptionClass(uint16_t value)
+	void GeneveOption::setType(uint8_t value, bool critical)
 	{
-		optionClass = htobe16(value);
+		m_Data->type = static_cast<uint8_t>(extractType(value) | (critical ? CriticalBitMask : 0));
+	}
+
+	void GeneveOption::setDataSize(size_t value)
+	{
+		m_Data->length = static_cast<uint8_t>(value / DataLengthUnit);
 	}
 
 	bool GeneveOption::canAssign(const uint8_t* optionRawData, size_t optionDataLen)
 	{
-		if (optionRawData == nullptr || optionDataLen < sizeof(geneve_option_header))
+		if (optionRawData == nullptr || optionDataLen < HeaderLength)
 			return false;
 
-		return reinterpret_cast<const geneve_option_header*>(optionRawData)->getTotalSize() <= optionDataLen;
+		const auto* header = reinterpret_cast<const geneve_option_header*>(optionRawData);
+		const auto totalSize = HeaderLength + static_cast<size_t>(header->length) * DataLengthUnit;
+		return totalSize <= optionDataLen;
 	}
 
 	uint16_t GeneveOption::getOptionClass() const
 	{
-		return m_Data->getOptionClass();
+		if (isNull())
+			return 0;
+		return netToHost16(m_Data->optionClass);
 	}
 
 	uint8_t GeneveOption::getType() const
 	{
-		return m_Data->getType();
+		if (isNull())
+			return 0;
+		return extractType(m_Data->type);
 	}
 
 	bool GeneveOption::isCritical() const
 	{
-		return m_Data->isCritical();
+		if (isNull())
+			return false;
+		return (m_Data->type & CriticalBitMask) != 0;
 	}
 
 	size_t GeneveOption::getDataSize() const
 	{
-		return m_Data->getDataSize();
+		if (isNull())
+			return 0;
+		return static_cast<size_t>(m_Data->length) * DataLengthUnit;
 	}
 
 	size_t GeneveOption::getTotalSize() const
 	{
-		return m_Data->getTotalSize();
+		if (isNull())
+			return 0;
+		return HeaderLength + getDataSize();
 	}
 
 	uint8_t* GeneveOption::getData() const
 	{
-		return reinterpret_cast<uint8_t*>(m_Data) + sizeof(geneve_option_header);
-	}
-
-	GeneveOption GeneveOptionIterator::operator*() const
-	{
-		return GeneveOption(*reinterpret_cast<geneve_option_header*>(m_Current));
-	}
-
-	GeneveOptionIterator& GeneveOptionIterator::operator++()
-	{
-		if (m_Current == m_End)
-			return *this;
-
-		size_t remaining = static_cast<size_t>(m_End - m_Current);
-		if (!GeneveOption::canAssign(m_Current, remaining))
-		{
-			m_Current = m_End;
-			return *this;
-		}
-
-		m_Current += (**this).getTotalSize();
-		if (m_Current != m_End && !GeneveOption::canAssign(m_Current, static_cast<size_t>(m_End - m_Current)))
-		{
-			m_Current = m_End;
-		}
-
-		return *this;
-	}
-
-	GeneveOptionIterator GeneveOptionIterator::operator++(int)
-	{
-		GeneveOptionIterator previous = *this;
-		++(*this);
-		return previous;
-	}
-
-	GeneveOptionRange::GeneveOptionRange(uint8_t* begin, uint8_t* end) : m_Begin(begin), m_End(end)
-	{
-		if (m_Begin == nullptr || m_Begin == m_End ||
-		    !GeneveOption::canAssign(m_Begin, static_cast<size_t>(m_End - m_Begin)))
-		{
-			m_Begin = m_End;
-		}
-	}
-
-	GeneveOptionIterator GeneveOptionRange::find(uint16_t optionClass, uint8_t optionType) const
-	{
-		for (auto iterator = begin(); iterator != end(); ++iterator)
-		{
-			GeneveOption option = *iterator;
-			if (option.getOptionClass() == optionClass &&
-			    option.getType() == geneve_option_header::extractType(optionType))
-				return iterator;
-		}
-
-		return end();
-	}
-
-	size_t GeneveOptionRange::size() const
-	{
-		size_t count = 0;
-		for (auto iterator = begin(); iterator != end(); ++iterator)
-			++count;
-		return count;
-	}
-
-	std::vector<uint8_t> GeneveOptionBuilder::build() const
-	{
-		if (m_RecValueLen > geneve_option_header::MaxDataLength)
-			return {};
-
-		size_t paddedDataLength = geneve_option_header::alignDataSize(m_RecValueLen);
-
-		size_t totalLength = sizeof(geneve_option_header) + paddedDataLength;
-		std::vector<uint8_t> optionData(totalLength, 0);
-
-		geneve_option_header header = {};
-		header.setOptionClass(m_OptionClass);
-		header.setType(m_RecType, m_Critical);
-		header.setDataSize(paddedDataLength);
-		memcpy(optionData.data(), &header, sizeof(header));
-		if (m_RecValueLen > 0)
-			memcpy(optionData.data() + sizeof(geneve_option_header), m_RecValue, m_RecValueLen);
-
-		return optionData;
+		if (isNull())
+			return nullptr;
+		return reinterpret_cast<uint8_t*>(m_Data) + HeaderLength;
 	}
 
 	GeneveLayer::GeneveLayer(uint32_t vni, uint16_t protocolType, bool oamFlag)
 	{
-		allocData(sizeof(geneve_header));
+		allocData(HeaderLength);
 		m_Protocol = Geneve;
 		setVNI(vni);
 		setProtocolType(protocolType);
-		getGeneveHeader()->oamFlag = oamFlag ? 1 : 0;
+		setOamFlag(oamFlag);
 	}
 
 	bool GeneveLayer::isDataValid(const uint8_t* data, size_t dataLen)
@@ -170,127 +106,183 @@ namespace pcpp
 			return false;
 		// RFC 8926 Section 3.4 requires Protocol Type to follow the EtherType convention,
 		// whose valid encodings start at 0x0600.
-		if (be16toh(header->protocolType) < 0x0600)
+		if (netToHost16(header->protocolType) < 0x0600)
 			return false;
 
-		auto optionsLength = header->getOptionsLength();
-		if (optionsLength > dataLen - sizeof(geneve_header))
+		auto optionsLength = static_cast<size_t>(header->optionsLength) * OptionsLengthUnit;
+		if (optionsLength > dataLen - HeaderLength)
 			return false;
-
-		const uint8_t* option = data + sizeof(geneve_header);
-		size_t remaining = optionsLength;
-		while (remaining > 0)
-		{
-			if (!GeneveOption::canAssign(option, remaining))
-				return false;
-			if (reinterpret_cast<const geneve_option_header*>(option)->isCritical() && header->criticalFlag == 0)
-				return false;
-
-			size_t optionLength = reinterpret_cast<const geneve_option_header*>(option)->getTotalSize();
-			option += optionLength;
-			remaining -= optionLength;
-		}
 
 		return true;
 	}
 
 	uint32_t GeneveLayer::getVNI() const
 	{
-		return getGeneveHeader()->getVNI();
+		const geneve_header* header = getGeneveHeader();
+		return (static_cast<uint32_t>(header->vni[0]) << 16) | (static_cast<uint32_t>(header->vni[1]) << 8) |
+		       header->vni[2];
 	}
 
 	void GeneveLayer::setVNI(uint32_t vni)
 	{
-		getGeneveHeader()->setVNI(vni);
+		geneve_header* header = getGeneveHeader();
+		header->vni[0] = static_cast<uint8_t>((vni >> 16) & 0xff);
+		header->vni[1] = static_cast<uint8_t>((vni >> 8) & 0xff);
+		header->vni[2] = static_cast<uint8_t>(vni & 0xff);
 	}
 
 	uint16_t GeneveLayer::getProtocolType() const
 	{
-		return be16toh(getGeneveHeader()->protocolType);
+		return netToHost16(getGeneveHeader()->protocolType);
 	}
 
 	void GeneveLayer::setProtocolType(uint16_t protocolType)
 	{
-		getGeneveHeader()->protocolType = htobe16(protocolType);
+		getGeneveHeader()->protocolType = hostToNet16(protocolType);
+	}
+
+	bool GeneveLayer::getOamFlag() const
+	{
+		return getGeneveHeader()->oamFlag != 0;
+	}
+
+	void GeneveLayer::setOamFlag(bool value)
+	{
+		getGeneveHeader()->oamFlag = value ? 1 : 0;
+	}
+
+	bool GeneveLayer::getCriticalFlag() const
+	{
+		return getGeneveHeader()->criticalFlag != 0;
 	}
 
 	size_t GeneveLayer::getOptionsLength() const
 	{
-		if (m_Data == nullptr || m_DataLen < sizeof(geneve_header))
-			return 0;
-		return getGeneveHeader()->getOptionsLength();
+		return static_cast<size_t>(getGeneveHeader()->optionsLength) * OptionsLengthUnit;
+	}
+
+	void GeneveLayer::setOptionsLength(size_t value)
+	{
+		getGeneveHeader()->optionsLength = static_cast<uint8_t>(value / OptionsLengthUnit);
 	}
 
 	size_t GeneveLayer::getHeaderLen() const
 	{
-		if (m_Data == nullptr)
-			return 0;
-		if (m_DataLen < sizeof(geneve_header))
-			return m_DataLen;
-
-		return (std::min)(m_DataLen, sizeof(geneve_header) + getOptionsLength());
+		return (std::min)(m_DataLen, HeaderLength + getOptionsLength());
 	}
 
-	GeneveOptionRange GeneveLayer::getOptions() const
+	GeneveOption GeneveLayer::getFirstOption() const
 	{
-		if (m_Data == nullptr || m_DataLen <= sizeof(geneve_header))
-			return {};
+		if (m_Data == nullptr || m_DataLen < HeaderLength || getOptionsLength() > m_DataLen - HeaderLength)
+			return GeneveOption();
 
-		size_t optionsLength = getHeaderLen() - sizeof(geneve_header);
-		uint8_t* options = m_Data + sizeof(geneve_header);
-		return GeneveOptionRange(options, options + optionsLength);
+		uint8_t* options = m_Data + HeaderLength;
+		return GeneveOption::canAssign(options, getOptionsLength()) ? GeneveOption(options) : GeneveOption();
+	}
+
+	GeneveOption GeneveLayer::getNextOption(const GeneveOption& option) const
+	{
+		if (m_Data == nullptr || m_DataLen < HeaderLength || option.isNull() ||
+		    getOptionsLength() > m_DataLen - HeaderLength)
+			return GeneveOption();
+
+		uint8_t* optionsBegin = m_Data + HeaderLength;
+		uint8_t* current = option.getRecordBasePtr();
+		const auto optionsBeginAddress = reinterpret_cast<std::uintptr_t>(optionsBegin);
+		const auto currentAddress = reinterpret_cast<std::uintptr_t>(current);
+		if (currentAddress < optionsBeginAddress)
+			return GeneveOption();
+
+		const auto currentOffsetAddress = currentAddress - optionsBeginAddress;
+		const size_t optionsLength = getOptionsLength();
+		if (currentOffsetAddress >= optionsLength)
+			return GeneveOption();
+
+		const auto currentOffset = static_cast<size_t>(currentOffsetAddress);
+		const size_t currentBytesAvailable = optionsLength - currentOffset;
+		if (!GeneveOption::canAssign(current, currentBytesAvailable))
+			return GeneveOption();
+
+		const size_t nextOffset = currentOffset + option.getTotalSize();
+		if (nextOffset >= optionsLength)
+			return GeneveOption();
+
+		uint8_t* next = optionsBegin + nextOffset;
+		if (!GeneveOption::canAssign(next, optionsLength - nextOffset))
+			return GeneveOption();
+
+		return GeneveOption(next);
+	}
+
+	GeneveOption GeneveLayer::getOption(uint16_t optionClass, uint8_t optionType) const
+	{
+		for (GeneveOption option = getFirstOption(); !option.isNull(); option = getNextOption(option))
+		{
+			if (option.getOptionClass() == optionClass && option.getType() == GeneveOption::extractType(optionType))
+				return option;
+		}
+
+		return GeneveOption();
 	}
 
 	size_t GeneveLayer::getOptionCount() const
 	{
-		return getOptions().size();
+		size_t count = 0;
+		for (GeneveOption option = getFirstOption(); !option.isNull(); option = getNextOption(option))
+			++count;
+		return count;
 	}
 
-	bool GeneveLayer::addOption(const GeneveOptionBuilder& optionBuilder)
+	bool GeneveLayer::addOption(uint16_t optionClass, uint8_t optionType, const uint8_t* optionData,
+	                            size_t optionDataLen, bool critical)
 	{
-		std::vector<uint8_t> optionData = optionBuilder.build();
-		if (optionData.empty())
+		if (optionDataLen > GeneveOption::MaxDataLength || (optionData == nullptr && optionDataLen > 0))
 		{
-			PCPP_LOG_ERROR("Cannot build GENEVE option");
+			PCPP_LOG_ERROR("Cannot add GENEVE option with invalid data length");
 			return false;
 		}
 
+		size_t paddedDataLength = GeneveOption::alignDataSize(optionDataLen);
+		size_t optionSize = GeneveOption::HeaderLength + paddedDataLength;
 		size_t oldOptionsLength = getOptionsLength();
-		if (oldOptionsLength + optionData.size() > geneve_header::MaxOptionsLength)
+		if (oldOptionsLength + optionSize > MaxOptionsLength)
 		{
 			PCPP_LOG_ERROR("GENEVE options exceed the maximum length of 252 bytes");
 			return false;
 		}
 
-		int offset = static_cast<int>(sizeof(geneve_header) + oldOptionsLength);
-		size_t optionSize = optionData.size();
+		auto offset = static_cast<int>(HeaderLength + oldOptionsLength);
 		if (!extendLayer(offset, optionSize))
 		{
 			PCPP_LOG_ERROR("Could not extend GeneveLayer by " << optionSize << " bytes");
 			return false;
 		}
 
-		memcpy(m_Data + offset, optionData.data(), optionSize);
-		getGeneveHeader()->setOptionsLength(oldOptionsLength + optionSize);
+		memset(m_Data + offset, 0, optionSize);
+		GeneveOption option(m_Data + offset);
+		option.setOptionClass(optionClass);
+		option.setType(optionType, critical);
+		option.setDataSize(paddedDataLength);
+		if (optionDataLen > 0)
+			memcpy(option.getData(), optionData, optionDataLen);
+		setOptionsLength(oldOptionsLength + optionSize);
 		updateCriticalFlag();
 		return true;
 	}
 
 	bool GeneveLayer::removeOption(uint16_t optionClass, uint8_t optionType)
 	{
-		GeneveOptionRange options = getOptions();
-		GeneveOptionIterator optionIterator = options.find(optionClass, optionType);
-		if (optionIterator == options.end())
+		GeneveOption option = getOption(optionClass, optionType);
+		if (option.isNull())
 			return false;
-		GeneveOption option = *optionIterator;
 
 		size_t oldOptionsLength = getOptionsLength();
 		size_t optionSize = option.getTotalSize();
-		int offset = static_cast<int>(option.getRecordBasePtr() - m_Data);
+		auto offset = static_cast<int>(option.getRecordBasePtr() - m_Data);
 		if (!shortenLayer(offset, optionSize))
 			return false;
 
-		getGeneveHeader()->setOptionsLength(oldOptionsLength - optionSize);
+		setOptionsLength(oldOptionsLength - optionSize);
 		updateCriticalFlag();
 		return true;
 	}
@@ -304,10 +296,10 @@ namespace pcpp
 			return true;
 		}
 
-		if (!shortenLayer(sizeof(geneve_header), optionsLength))
+		if (!shortenLayer(HeaderLength, optionsLength))
 			return false;
 
-		getGeneveHeader()->optionsLength = 0;
+		setOptionsLength(0);
 		getGeneveHeader()->criticalFlag = 0;
 		return true;
 	}
@@ -315,7 +307,7 @@ namespace pcpp
 	void GeneveLayer::updateCriticalFlag()
 	{
 		getGeneveHeader()->criticalFlag = 0;
-		for (GeneveOption option : getOptions())
+		for (GeneveOption option = getFirstOption(); !option.isNull(); option = getNextOption(option))
 		{
 			if (option.isCritical())
 			{

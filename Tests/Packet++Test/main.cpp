@@ -130,7 +130,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(QinQ802_1adParse, "vlan");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
 	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
-	PTF_RUN_TEST(GeneveParsingAndCreationTest, "geneve");
+	PTF_RUN_TEST(GeneveParsingTest, "geneve");
+	PTF_RUN_TEST(GeneveCreationTest, "geneve");
+	PTF_RUN_TEST(GeneveEditTest, "geneve");
 	PTF_RUN_TEST(GeneveMalformedPacketTest, "geneve");
 
 	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");

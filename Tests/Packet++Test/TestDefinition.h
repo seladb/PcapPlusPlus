@@ -18,7 +18,9 @@ PTF_TEST_CASE(MplsLayerTest);
 PTF_TEST_CASE(VxlanParsingAndCreationTest);
 
 // Implemented in GeneveTests.cpp
-PTF_TEST_CASE(GeneveParsingAndCreationTest);
+PTF_TEST_CASE(GeneveParsingTest);
+PTF_TEST_CASE(GeneveCreationTest);
+PTF_TEST_CASE(GeneveEditTest);
 PTF_TEST_CASE(GeneveMalformedPacketTest);
 
 // Implemented in IPv4Tests.cpp
