@@ -1316,7 +1316,8 @@ PTF_TEST_CASE(PacketIteratorTest)
 		// Test const iterator
 		auto const& packetAsConst = igmpPacket;
 		int numLayers = 0;
-		for (auto& layer : packetAsConst)
+		// cppcheck-suppress useStlAlgorithm
+		for (auto const& layer : packetAsConst)
 		{
 			numLayers++;
 		}
