@@ -108,16 +108,26 @@ namespace pcpp
 			Packet const* m_Packet = nullptr;
 			pointer m_CurrentLayer = nullptr;
 		};
-	}  // namespace internal
+	};  // namespace internal
 
-	/// @class Packet
-	/// This class represents a parsed packet. It contains the raw data (RawPacket instance), and a linked list of
-	/// layers, each layer is a parsed protocol that this packet contains. The layers linked list is ordered where the
-	/// first layer is the lowest in the packet (currently it's always Ethernet protocol as PcapPlusPlus supports only
-	/// Ethernet packets), the next layer will be L2.5 or L3 (e.g VLAN, IPv4, IPv6, etc.), and so on. etc.), etc. The
-	/// last layer in the linked list will be the highest in the packet. For example: for a standard HTTP request packet
-	/// the layer will look like this: EthLayer -> IPv4Layer -> TcpLayer -> HttpRequestLayer <BR> Packet instance isn't
-	/// read only. The user can add or remove layers, update current layer, etc.
+	/// @brief This class represents a parsed packet. It contains the raw data (RawPacket instance), and a linked list
+	/// of layers, each layer is a parsed protocol that this packet contains.
+	///
+	/// The layers linked list is ordered where the first layer is the lowest in the packet (currently it's always
+	/// Ethernet protocol as PcapPlusPlus supports only Ethernet packets), the next layer will be L2.5 or L3 (e.g VLAN,
+	/// IPv4, IPv6, etc.), and so on. etc.), etc. The last layer in the linked list will be the highest in the packet.
+	/// For example: for a standard HTTP request packet the layer will look like this: EthLayer -> IPv4Layer -> TcpLayer
+	/// -> HttpRequestLayer <BR> Packet instance isn't read only. The user can add or remove layers, update current
+	/// layer, etc.
+	///
+	/// @par Iterator invalidation
+	/// The Packet class provides bidirectional iterator API to iterate over the layers of a packet. The iterators are
+	/// invalidated when the packet is modified in a way that changes the layer structure. This includes the following
+	/// operations:
+	/// - Adding a new layer to the packet
+	/// - Removing a layer from the packet
+	/// - Replacing a layer with a different layer
+	/// - Performing a parse operation on the packet (incremental or full reparse)
 	class Packet
 	{
 		friend class Layer;
