@@ -1315,13 +1315,7 @@ PTF_TEST_CASE(PacketIteratorTest)
 	{
 		// Test const iterator
 		auto const& packetAsConst = igmpPacket;
-		int numLayers = 0;
-		// cppcheck-suppress useStlAlgorithm
-		for (auto const& layer : packetAsConst)
-		{
-			numLayers++;
-		}
-		PTF_ASSERT_EQUAL(numLayers, 4);
+		PTF_ASSERT_EQUAL(std::distance(packetAsConst.begin(), packetAsConst.end()), 4);
 	}
 
 	// Test reverse iterators
