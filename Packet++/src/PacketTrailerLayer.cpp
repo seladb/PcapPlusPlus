@@ -23,4 +23,14 @@ namespace pcpp
 		return "Packet Trailer, Data: " + trailerStr + ", Length: " + dataLenStream.str() + " [Bytes]";
 	}
 
+	const FieldDescriptor PacketTrailerLayer::SerializedFields::TrailerData{ MaxID, "trailerData" };
+
+	void PacketTrailerLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		if (m_Data != nullptr && m_DataLen > 0)
+		{
+			serializer.writeField(SerializedFields::TrailerData, getTrailerDataAsHexString());
+		}
+	}
+
 }  // namespace pcpp

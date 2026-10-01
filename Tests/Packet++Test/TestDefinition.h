@@ -371,3 +371,7 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest);
 
 // Implemented in SerializerTests.cpp
 PTF_TEST_CASE(JsonSerializerTest);
+PTF_TEST_CASE(EthLayerSerializationTest);
+PTF_TEST_CASE(ArpLayerSerializationTest);
+PTF_TEST_CASE(PayloadLayerSerializationTest);
+PTF_TEST_CASE(PacketTrailerLayerSerializationTest);

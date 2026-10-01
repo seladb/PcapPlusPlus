@@ -115,4 +115,20 @@ namespace pcpp
 			return false;
 		}
 	}
+
+	const FieldDescriptor EthLayer::SerializedFields::SourceMac{ MaxID - 2, "sourceMac" };
+	const FieldDescriptor EthLayer::SerializedFields::DestMac{ MaxID - 1, "destMac" };
+	const FieldDescriptor EthLayer::SerializedFields::EtherType{ MaxID, "etherType" };
+
+	void EthLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getEthHeader();
+		if (header != nullptr)
+		{
+			serializer.writeField(SerializedFields::SourceMac, getSourceMac().toString());
+			serializer.writeField(SerializedFields::DestMac, getDestMac().toString());
+			serializer.writeHexField(SerializedFields::EtherType, be16toh(header->etherType));
+		}
+	}
+
 }  // namespace pcpp

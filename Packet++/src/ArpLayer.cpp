@@ -112,4 +112,31 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor ArpLayer::SerializedFields::HardwareType{ MaxID - 8, "hardwareType" };
+	const FieldDescriptor ArpLayer::SerializedFields::ProtocolType{ MaxID - 7, "protocolType" };
+	const FieldDescriptor ArpLayer::SerializedFields::HardwareSize{ MaxID - 6, "hardwareSize" };
+	const FieldDescriptor ArpLayer::SerializedFields::ProtocolSize{ MaxID - 5, "protocolSize" };
+	const FieldDescriptor ArpLayer::SerializedFields::Opcode{ MaxID - 4, "opcode" };
+	const FieldDescriptor ArpLayer::SerializedFields::SenderMacAddr{ MaxID - 3, "senderMacAddr" };
+	const FieldDescriptor ArpLayer::SerializedFields::SenderIpAddr{ MaxID - 2, "senderIpAddr" };
+	const FieldDescriptor ArpLayer::SerializedFields::TargetMacAddr{ MaxID - 1, "targetMacAddr" };
+	const FieldDescriptor ArpLayer::SerializedFields::TargetIpAddr{ MaxID, "targetIpAddr" };
+
+	void ArpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getArpHeader();
+		if (header != nullptr)
+		{
+			serializer.writeField(SerializedFields::HardwareType, be16toh(header->hardwareType));
+			serializer.writeHexField(SerializedFields::ProtocolType, be16toh(header->protocolType));
+			serializer.writeField(SerializedFields::HardwareSize, header->hardwareSize);
+			serializer.writeField(SerializedFields::ProtocolSize, header->protocolSize);
+			serializer.writeField(SerializedFields::Opcode, be16toh(header->opcode));
+			serializer.writeField(SerializedFields::SenderMacAddr, getSenderMacAddress().toString());
+			serializer.writeField(SerializedFields::SenderIpAddr, getSenderIpAddr().toString());
+			serializer.writeField(SerializedFields::TargetMacAddr, getTargetMacAddress().toString());
+			serializer.writeField(SerializedFields::TargetIpAddr, getTargetIpAddr().toString());
+		}
+	}
+
 }  // namespace pcpp

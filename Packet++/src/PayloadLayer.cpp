@@ -59,4 +59,15 @@ namespace pcpp
 		return "Payload Layer, Data length: " + dataLenStream.str() + " [Bytes]";
 	}
 
+	const FieldDescriptor PayloadLayer::SerializedFields::Payload{ MaxID, "payload" };
+
+	void PayloadLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		if (m_Data != nullptr && m_DataLen > 0)
+		{
+			serializer.writeField(SerializedFields::Payload, byteArrayToHexString(m_Data, m_DataLen));
+		}
+	}
+
 }  // namespace pcpp
+

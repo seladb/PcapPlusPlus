@@ -435,6 +435,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(QuicV1MalformedPacketsTest, "quic");
 
 	PTF_RUN_TEST(JsonSerializerTest, "serializers");
+	PTF_RUN_TEST(EthLayerSerializationTest, "serializers");
+	PTF_RUN_TEST(ArpLayerSerializationTest, "serializers");
+	PTF_RUN_TEST(PayloadLayerSerializationTest, "serializers");
+	PTF_RUN_TEST(PacketTrailerLayerSerializationTest, "serializers");
 
 	PTF_END_RUNNING_TESTS;
 }

@@ -155,6 +155,33 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an Ethernet II packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		/// @struct SerializedFields
+		/// Field descriptors for the fields serialized by EthLayer::serializeLayer().
+		struct SerializedFields : public Layer::SerializedFields
+		{
+			/// @return A vector containing all layer field descriptors.
+			static std::vector<FieldDescriptor> all()
+			{
+				auto fields = Layer::SerializedFields::all();
+				fields.push_back(SourceMac);
+				fields.push_back(DestMac);
+				fields.push_back(EtherType);
+				return fields;
+			}
+
+			/// Field descriptor for the source MAC address.
+			static const FieldDescriptor SourceMac;
+			/// Field descriptor for the destination MAC address.
+			static const FieldDescriptor DestMac;
+			/// Field descriptor for the ether type.
+			static const FieldDescriptor EtherType;
+
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+		};
+
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

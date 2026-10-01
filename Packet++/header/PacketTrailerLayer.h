@@ -81,6 +81,27 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Field descriptors for the fields serialized by PacketTrailerLayer::serializeLayer().
+		struct SerializedFields : public Layer::SerializedFields
+		{
+			/// @return A vector containing all layer field descriptors.
+			static std::vector<FieldDescriptor> all()
+			{
+				auto fields = Layer::SerializedFields::all();
+				fields.push_back(TrailerData);
+				return fields;
+			}
+
+			/// Field descriptor for the trailer data as hex string.
+			static const FieldDescriptor TrailerData;
+
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 1;
+		};
+
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

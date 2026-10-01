@@ -1,5 +1,9 @@
 #include "../TestDefinition.h"
 #include "Serializers.h"
+#include "EthLayer.h"
+#include "ArpLayer.h"
+#include "PayloadLayer.h"
+#include "PacketTrailerLayer.h"
 #include <limits>
 #include <sstream>
 #include <string>
@@ -308,3 +312,58 @@ PTF_TEST_CASE(JsonSerializerTest)
 		}
 	}
 }  // JsonSerializerTest
+
+PTF_TEST_CASE(EthLayerSerializationTest)
+{
+	pcpp::MacAddress srcMac("00:11:22:33:44:55");
+	pcpp::MacAddress dstMac("66:77:88:99:aa:bb");
+	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	ethLayer.serialize(serializer);
+
+	PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"Ethernet","protocolId":1,"length":14,"sourceMac":"00:11:22:33:44:55","destMac":"66:77:88:99:aa:bb","etherType":"0x800"})");
+}
+
+PTF_TEST_CASE(ArpLayerSerializationTest)
+{
+	pcpp::MacAddress senderMac("00:11:22:33:44:55");
+	pcpp::MacAddress targetMac("66:77:88:99:aa:bb");
+	pcpp::IPv4Address senderIp("192.168.1.1");
+	pcpp::IPv4Address targetIp("192.168.1.2");
+	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, senderMac, targetMac, senderIp, targetIp);
+	arpLayer.computeCalculateFields();
+
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	arpLayer.serialize(serializer);
+
+	PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"ARP","protocolId":8,"length":28,"hardwareType":1,"protocolType":"0x800","hardwareSize":6,"protocolSize":4,"opcode":1,"senderMacAddr":"00:11:22:33:44:55","senderIpAddr":"192.168.1.1","targetMacAddr":"00:00:00:00:00:00","targetIpAddr":"192.168.1.2"})");
+}
+
+PTF_TEST_CASE(PayloadLayerSerializationTest)
+{
+	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
+	pcpp::PayloadLayer payloadLayer(payload, 4);
+
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	payloadLayer.serialize(serializer);
+
+	PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"GenericPayload","protocolId":25,"length":4,"payload":"01020304"})");
+}
+
+PTF_TEST_CASE(PacketTrailerLayerSerializationTest)
+{
+	uint8_t* trailer = new uint8_t[2]{ 0xAA, 0xBB };
+	pcpp::PacketTrailerLayer trailerLayer(trailer, 2, nullptr, nullptr);
+
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	trailerLayer.serialize(serializer);
+
+	PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"PacketTrailer","protocolId":30,"length":2,"trailerData":"aabb"})");
+}
+
+

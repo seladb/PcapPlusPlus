@@ -280,6 +280,51 @@ namespace pcpp
 		{
 			return canReinterpretAs<arphdr>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Field descriptors for the fields serialized by ArpLayer::serializeLayer().
+		struct SerializedFields : public Layer::SerializedFields
+		{
+			/// @return A vector containing all layer field descriptors.
+			static std::vector<FieldDescriptor> all()
+			{
+				auto fields = Layer::SerializedFields::all();
+				fields.push_back(HardwareType);
+				fields.push_back(ProtocolType);
+				fields.push_back(HardwareSize);
+				fields.push_back(ProtocolSize);
+				fields.push_back(Opcode);
+				fields.push_back(SenderMacAddr);
+				fields.push_back(SenderIpAddr);
+				fields.push_back(TargetMacAddr);
+				fields.push_back(TargetIpAddr);
+				return fields;
+			}
+
+			/// Field descriptor for hardware type.
+			static const FieldDescriptor HardwareType;
+			/// Field descriptor for protocol type.
+			static const FieldDescriptor ProtocolType;
+			/// Field descriptor for hardware size.
+			static const FieldDescriptor HardwareSize;
+			/// Field descriptor for protocol size.
+			static const FieldDescriptor ProtocolSize;
+			/// Field descriptor for opcode.
+			static const FieldDescriptor Opcode;
+			/// Field descriptor for sender MAC address.
+			static const FieldDescriptor SenderMacAddr;
+			/// Field descriptor for sender IP address.
+			static const FieldDescriptor SenderIpAddr;
+			/// Field descriptor for target MAC address.
+			static const FieldDescriptor TargetMacAddr;
+			/// Field descriptor for target IP address.
+			static const FieldDescriptor TargetIpAddr;
+
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 9;
+		};
+
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

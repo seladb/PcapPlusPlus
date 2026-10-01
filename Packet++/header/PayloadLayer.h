@@ -84,10 +84,25 @@ namespace pcpp
 		/// @param[in] data A byte array
 		/// @param[in] dataLen The byte array size (in bytes)
 		/// @return True if the data is non-nullptr and dataLen is greater than 0, or data is nullptr and dataLen is 0.
-		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		/// @struct SerializedFields
+		/// Field descriptors for the fields serialized by PayloadLayer::serializeLayer().
+		struct SerializedFields : public Layer::SerializedFields
 		{
-			// PayloadLayer is special as it can be empty. So, it's valid if data is nullptr and dataLen is 0.
-			return (data == nullptr) != (dataLen != 0);  // XOR
+			/// @return A vector containing all layer field descriptors.
+			static std::vector<FieldDescriptor> all()
+			{
+				auto fields = Layer::SerializedFields::all();
+				fields.push_back(Payload);
+				return fields;
+			}
+
+			/// Field descriptor for the raw payload data as hex string.
+			static const FieldDescriptor Payload;
+
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 1;
 		};
+
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp
