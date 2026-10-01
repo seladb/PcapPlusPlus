@@ -794,8 +794,6 @@ jobs:
       matrix:
         include:
           - os: windows-11-arm
-            platform: "Visual Studio 17 2022"
-          - os: windows-11-vs2026-arm
             platform: "Visual Studio 18 2026"
 
     runs-on: ${{ matrix.os }}
