@@ -8,6 +8,7 @@
 #include "PacketTrailerLayer.h"
 #include "PayloadLayer.h"
 #include "UdpLayer.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -33,6 +34,13 @@ PTF_TEST_CASE(GvcpDiscoveryParsingTest)
 		PTF_ASSERT_EQUAL(gvcpLayer->getHeaderLen(), 8);
 		PTF_ASSERT_NULL(gvcpLayer->getNextLayer());
 		PTF_ASSERT_EQUAL(gvcpLayer->toString(), "GVCP Request Layer, Command: DiscoveredCmd, Request ID: 19942");
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		gvcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":2,"commandName":"DiscoveredCmd","dataSize":0,"flag":17,"acknowledgeRequired":true,"requestId":19942,"allowBroadcastAck":true})");
 	}
 
 	// Discovery acknowledge
@@ -58,6 +66,13 @@ PTF_TEST_CASE(GvcpDiscoveryParsingTest)
 		PTF_ASSERT_EQUAL(gvcpLayer->getSerialNumber(), "XXX-005");
 		PTF_ASSERT_EQUAL(gvcpLayer->toString(),
 		                 "GVCP Acknowledge Layer, Command: DiscoveredAck, Acknowledge ID: 1, Status: Success");
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		gvcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"json({"protocolName":"GVCP","protocolId":65,"length":256,"command":3,"commandName":"DiscoveredAck","dataSize":248,"status":0,"statusName":"Success","ackId":1,"versionMajor":2,"versionMinor":1,"macAddress":"00:04:4b:ea:b0:b4","ipAddress":"172.28.60.100","subnetMask":"255.255.255.0","gatewayIpAddress":"172.28.60.1","manufacturerName":"Vendor01","modelName":"ABCDE 3D Scanner (TW)","deviceVersion":"XL","manufacturerSpecificInformation":"","serialNumber":"XXX-005","userDefinedName":""})json");
 	}
 }  // GvcpDiscoveryParsingTest
 
@@ -83,6 +98,13 @@ PTF_TEST_CASE(GvcpForceIpParsingTest)
 		PTF_ASSERT_EQUAL(gvcpLayer->getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
 		PTF_ASSERT_EQUAL(gvcpLayer->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
 		PTF_ASSERT_EQUAL(gvcpLayer->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		gvcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GVCP","protocolId":65,"length":64,"command":4,"commandName":"ForceIpCmd","dataSize":56,"flag":1,"acknowledgeRequired":true,"requestId":8787,"macAddress":"8c:e9:b4:01:63:b2","ipAddress":"192.168.5.1","subnetMask":"255.255.0.0","gatewayIpAddress":"0.0.0.0"})");
 	}
 
 	// Force IP acknowledge
@@ -99,6 +121,13 @@ PTF_TEST_CASE(GvcpForceIpParsingTest)
 		PTF_ASSERT_EQUAL(gvcpLayer->getDataSize(), 0);
 		PTF_ASSERT_EQUAL(gvcpLayer->getHeaderLen(), 8);
 		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		gvcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":5,"commandName":"ForceIpAck","dataSize":0,"status":0,"statusName":"Success","ackId":8787})");
 	}
 }  // GvcpForceIpParsingTest
 
@@ -122,6 +151,13 @@ PTF_TEST_CASE(GvcpRegisterAccessParsingTest)
 		PTF_ASSERT_EQUAL(gvcpLayer->getNextLayer(), payloadLayer, ptr);
 		PTF_ASSERT_EQUAL(gvcpLayer->getDataSize(), payloadLayer->getPayloadLen());
 		PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(payloadLayer->getPayload(), 4), "00000000");
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		gvcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":128,"commandName":"ReadRegCmd","dataSize":4,"flag":1,"acknowledgeRequired":true,"requestId":35824})");
 	}
 
 	// Read register acknowledge
@@ -177,6 +213,13 @@ PTF_TEST_CASE(GvcpRegisterAccessParsingTest)
 		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
 		PTF_ASSERT_EQUAL(gvcpLayer->toString(),
 		                 "GVCP Acknowledge Layer, Command: WriteRegAck, Acknowledge ID: 8788, Status: AccessDenied");
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		gvcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":131,"commandName":"WriteRegAck","dataSize":0,"status":32774,"statusName":"AccessDenied","ackId":8788})");
 	}
 }  // GvcpRegisterAccessParsingTest
 

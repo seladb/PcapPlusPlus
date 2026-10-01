@@ -151,6 +151,18 @@ namespace pcpp
 			return getGvcpResponseStatusName(status) != nullptr ? status : GvcpResponseStatus::Unknown;
 		}
 
+		const char* commandToString(GvcpCommand command)
+		{
+			const char* name = getGvcpCommandName(command);
+			return name != nullptr ? name : "Unknown";
+		}
+
+		const char* statusToString(GvcpResponseStatus status)
+		{
+			const char* name = getGvcpResponseStatusName(status);
+			return name != nullptr ? name : "Unknown";
+		}
+
 		/// Read a fixed size char field which isn't necessarily null-terminated
 		template <size_t N> std::string fieldToString(const char (&field)[N])
 		{
@@ -167,14 +179,12 @@ namespace pcpp
 
 	std::ostream& operator<<(std::ostream& os, GvcpCommand command)
 	{
-		const char* name = getGvcpCommandName(command);
-		return os << (name != nullptr ? name : "Unknown");
+		return os << commandToString(command);
 	}
 
 	std::ostream& operator<<(std::ostream& os, GvcpResponseStatus status)
 	{
-		const char* name = getGvcpResponseStatusName(status);
-		return os << (name != nullptr ? name : "Unknown");
+		return os << statusToString(status);
 	}
 
 	// -------- Class GvcpLayer -----------------
@@ -217,6 +227,17 @@ namespace pcpp
 			return;
 
 		constructNextLayer<PayloadLayer>(m_Data + headerLen, m_DataLen - headerLen);
+	}
+
+	const FieldDescriptor GvcpLayer::SerializedFields::Command{ Layer::SerializedFields::MaxID + 1, "command" };
+	const FieldDescriptor GvcpLayer::SerializedFields::CommandName{ Layer::SerializedFields::MaxID + 2, "commandName" };
+	const FieldDescriptor GvcpLayer::SerializedFields::DataSize{ Layer::SerializedFields::MaxID + 3, "dataSize" };
+
+	void GvcpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Command, static_cast<uint16_t>(getCommand()));
+		serializer.writeField(SerializedFields::CommandName, commandToString(getCommand()));
+		serializer.writeField(SerializedFields::DataSize, getDataSize());
 	}
 
 	// -------- Class GvcpRequestLayer -----------------
@@ -288,6 +309,21 @@ namespace pcpp
 		return ss.str();
 	}
 
+	const FieldDescriptor GvcpRequestLayer::SerializedFields::Flag{ GvcpLayer::SerializedFields::MaxID + 1, "flag" };
+	const FieldDescriptor GvcpRequestLayer::SerializedFields::AcknowledgeRequired{
+		GvcpLayer::SerializedFields::MaxID + 2, "acknowledgeRequired"
+	};
+	const FieldDescriptor GvcpRequestLayer::SerializedFields::RequestId{ GvcpLayer::SerializedFields::MaxID + 3,
+		                                                                 "requestId" };
+
+	void GvcpRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		GvcpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::Flag, getFlag());
+		serializer.writeField(SerializedFields::AcknowledgeRequired, hasAcknowledgeFlag());
+		serializer.writeField(SerializedFields::RequestId, getRequestId());
+	}
+
 	// -------- Class GvcpAcknowledgeLayer -----------------
 
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command, uint16_t ackId,
@@ -353,6 +389,21 @@ namespace pcpp
 		return ss.str();
 	}
 
+	const FieldDescriptor GvcpAcknowledgeLayer::SerializedFields::Status{ GvcpLayer::SerializedFields::MaxID + 1,
+		                                                                  "status" };
+	const FieldDescriptor GvcpAcknowledgeLayer::SerializedFields::StatusName{ GvcpLayer::SerializedFields::MaxID + 2,
+		                                                                      "statusName" };
+	const FieldDescriptor GvcpAcknowledgeLayer::SerializedFields::AckId{ GvcpLayer::SerializedFields::MaxID + 3,
+		                                                                 "ackId" };
+
+	void GvcpAcknowledgeLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		GvcpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::Status, static_cast<uint16_t>(getStatus()));
+		serializer.writeField(SerializedFields::StatusName, statusToString(getStatus()));
+		serializer.writeField(SerializedFields::AckId, getAckId());
+	}
+
 	// -------- Class GvcpDiscoveryRequestLayer -----------------
 
 	GvcpDiscoveryRequestLayer::GvcpDiscoveryRequestLayer(bool allowBroadcastAck, bool acknowledgeRequired,
@@ -372,6 +423,16 @@ namespace pcpp
 	{
 		setFlag(static_cast<GvcpFlag>(allowBroadcastAck ? getFlag() | gvcpAllowBroadcastAckFlag
 		                                                : getFlag() & ~gvcpAllowBroadcastAckFlag));
+	}
+
+	const FieldDescriptor GvcpDiscoveryRequestLayer::SerializedFields::AllowBroadcastAck{
+		GvcpRequestLayer::SerializedFields::MaxID + 1, "allowBroadcastAck"
+	};
+
+	void GvcpDiscoveryRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		GvcpRequestLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::AllowBroadcastAck, hasAllowBroadcastAckFlag());
 	}
 
 	// -------- Class GvcpDiscoveryAcknowledgeLayer -----------------
@@ -499,6 +560,61 @@ namespace pcpp
 		stringToField(userDefinedName, getGvcpDiscoveryBody()->userDefinedName);
 	}
 
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::VersionMajor{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 1, "versionMajor"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::VersionMinor{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 2, "versionMinor"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::MacAddress{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 3, "macAddress"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::IpAddress{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 4, "ipAddress"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::SubnetMask{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 5, "subnetMask"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::GatewayIpAddress{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 6, "gatewayIpAddress"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::ManufacturerName{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 7, "manufacturerName"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::ModelName{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 8, "modelName"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::DeviceVersion{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 9, "deviceVersion"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::ManufacturerSpecificInformation{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 10, "manufacturerSpecificInformation"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::SerialNumber{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 11, "serialNumber"
+	};
+	const FieldDescriptor GvcpDiscoveryAcknowledgeLayer::SerializedFields::UserDefinedName{
+		GvcpAcknowledgeLayer::SerializedFields::MaxID + 12, "userDefinedName"
+	};
+
+	void GvcpDiscoveryAcknowledgeLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		GvcpAcknowledgeLayer::serializeLayer(serializer);
+		const GvcpVersion version = getVersion();
+		serializer.writeField(SerializedFields::VersionMajor, version.major);
+		serializer.writeField(SerializedFields::VersionMinor, version.minor);
+		serializer.writeField(SerializedFields::MacAddress, getMacAddress().toString());
+		serializer.writeField(SerializedFields::IpAddress, getIpAddress().toString());
+		serializer.writeField(SerializedFields::SubnetMask, getSubnetMask().toString());
+		serializer.writeField(SerializedFields::GatewayIpAddress, getGatewayIpAddress().toString());
+		serializer.writeField(SerializedFields::ManufacturerName, getManufacturerName());
+		serializer.writeField(SerializedFields::ModelName, getModelName());
+		serializer.writeField(SerializedFields::DeviceVersion, getDeviceVersion());
+		serializer.writeField(SerializedFields::ManufacturerSpecificInformation, getManufacturerSpecificInformation());
+		serializer.writeField(SerializedFields::SerialNumber, getSerialNumber());
+		serializer.writeField(SerializedFields::UserDefinedName, getUserDefinedName());
+	}
+
 	// -------- Class GvcpForceIpRequestLayer -----------------
 
 	GvcpForceIpRequestLayer::GvcpForceIpRequestLayer(const MacAddress& macAddress, const IPv4Address& ipAddress,
@@ -557,4 +673,26 @@ namespace pcpp
 	{
 		getGvcpForceIpBody()->gateway = gatewayIpAddress.toInt();
 	}
+	const FieldDescriptor GvcpForceIpRequestLayer::SerializedFields::MacAddress{
+		GvcpRequestLayer::SerializedFields::MaxID + 1, "macAddress"
+	};
+	const FieldDescriptor GvcpForceIpRequestLayer::SerializedFields::IpAddress{
+		GvcpRequestLayer::SerializedFields::MaxID + 2, "ipAddress"
+	};
+	const FieldDescriptor GvcpForceIpRequestLayer::SerializedFields::SubnetMask{
+		GvcpRequestLayer::SerializedFields::MaxID + 3, "subnetMask"
+	};
+	const FieldDescriptor GvcpForceIpRequestLayer::SerializedFields::GatewayIpAddress{
+		GvcpRequestLayer::SerializedFields::MaxID + 4, "gatewayIpAddress"
+	};
+
+	void GvcpForceIpRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		GvcpRequestLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::MacAddress, getMacAddress().toString());
+		serializer.writeField(SerializedFields::IpAddress, getIpAddress().toString());
+		serializer.writeField(SerializedFields::SubnetMask, getSubnetMask().toString());
+		serializer.writeField(SerializedFields::GatewayIpAddress, getGatewayIpAddress().toString());
+	}
+
 }  // namespace pcpp

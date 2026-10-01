@@ -3,6 +3,9 @@
 #include "IpAddress.h"
 #include "Layer.h"
 #include "MacAddress.h"
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
 #include <ostream>
 #include <string>
 
@@ -121,7 +124,36 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by GvcpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for GvcpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Command, CommandName, DataSize };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Command or acknowledge value
+			static const FieldDescriptor Command;
+
+			/// @brief Name of the command or acknowledge value, or "Unknown"
+			static const FieldDescriptor CommandName;
+
+			/// @brief Data size field from the header
+			static const FieldDescriptor DataSize;
+
+			/// Maximum field ID used by GvcpLayer
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+		};
+
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		GvcpLayer() = default;
 
 		GvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -206,7 +238,36 @@ namespace pcpp
 		/// @return A string representation of the layer most important data
 		std::string toString() const override;
 
+		/// @struct SerializedFields
+		/// Fields written by GvcpRequestLayer's serializeLayer(), in addition to
+		/// GvcpLayer::SerializedFields.
+		struct SerializedFields : GvcpLayer::SerializedFields
+		{
+			/// @return All field descriptors for GvcpRequestLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = GvcpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Flag, AcknowledgeRequired, RequestId };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Flag from the header
+			static const FieldDescriptor Flag;
+
+			/// @brief Whether the acknowledge-required bit is set
+			static const FieldDescriptor AcknowledgeRequired;
+
+			/// @brief Request ID
+			static const FieldDescriptor RequestId;
+
+			/// Maximum field ID used by GvcpRequestLayer
+			static constexpr uint16_t MaxID = GvcpLayer::SerializedFields::MaxID + 3;
+		};
+
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 #pragma pack(push, 1)
 		/// @struct gvcp_request_header
 		/// GVCP request header, see the spec "15.1 Request Header". The data is stored as big-endian.
@@ -374,7 +435,36 @@ namespace pcpp
 		/// @return A string representation of the layer most important data
 		std::string toString() const override;
 
+		/// @struct SerializedFields
+		/// Fields written by GvcpAcknowledgeLayer's serializeLayer(), in addition to
+		/// GvcpLayer::SerializedFields.
+		struct SerializedFields : GvcpLayer::SerializedFields
+		{
+			/// @return All field descriptors for GvcpAcknowledgeLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = GvcpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Status, StatusName, AckId };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Response status value
+			static const FieldDescriptor Status;
+
+			/// @brief Name of the response status, or "Unknown"
+			static const FieldDescriptor StatusName;
+
+			/// @brief Acknowledge ID
+			static const FieldDescriptor AckId;
+
+			/// Maximum field ID used by GvcpAcknowledgeLayer
+			static constexpr uint16_t MaxID = GvcpLayer::SerializedFields::MaxID + 3;
+		};
+
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 #pragma pack(push, 1)
 		/// @struct gvcp_ack_header
 		/// GVCP acknowledge header, see the spec "15.2 Acknowledge Header". The data is stored as big-endian.
@@ -442,6 +532,29 @@ namespace pcpp
 		/// Set or clear the allow-broadcast-acknowledge bit in the flag
 		/// @param[in] allowBroadcastAck True to set the bit, false to clear it
 		void setAllowBroadcastAckFlag(bool allowBroadcastAck);
+		/// @struct SerializedFields
+		/// Fields written by GvcpDiscoveryRequestLayer's serializeLayer(), in addition to
+		/// GvcpRequestLayer::SerializedFields.
+		struct SerializedFields : GvcpRequestLayer::SerializedFields
+		{
+			/// @return All field descriptors for GvcpDiscoveryRequestLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = GvcpRequestLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ AllowBroadcastAck };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Whether the allow-broadcast-acknowledge bit is set
+			static const FieldDescriptor AllowBroadcastAck;
+
+			/// Maximum field ID used by GvcpDiscoveryRequestLayer
+			static constexpr uint16_t MaxID = GvcpRequestLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class GvcpDiscoveryAcknowledgeLayer
@@ -567,6 +680,67 @@ namespace pcpp
 			return sizeof(gvcp_ack_header) + sizeof(gvcp_discovery_body);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by GvcpDiscoveryAcknowledgeLayer's serializeLayer(), in addition to
+		/// GvcpAcknowledgeLayer::SerializedFields.
+		struct SerializedFields : GvcpAcknowledgeLayer::SerializedFields
+		{
+			/// @return All field descriptors for GvcpDiscoveryAcknowledgeLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = GvcpAcknowledgeLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{
+					VersionMajor,     VersionMinor,     MacAddress, IpAddress,     SubnetMask,
+					GatewayIpAddress, ManufacturerName, ModelName,  DeviceVersion, ManufacturerSpecificInformation,
+					SerialNumber,     UserDefinedName
+				};
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief GigE Vision spec version major number
+			static const FieldDescriptor VersionMajor;
+
+			/// @brief GigE Vision spec version minor number
+			static const FieldDescriptor VersionMinor;
+
+			/// @brief Device MAC address, as a string
+			static const FieldDescriptor MacAddress;
+
+			/// @brief Device IP address, as a string
+			static const FieldDescriptor IpAddress;
+
+			/// @brief Device subnet mask, as a string
+			static const FieldDescriptor SubnetMask;
+
+			/// @brief Device default gateway IP address, as a string
+			static const FieldDescriptor GatewayIpAddress;
+
+			/// @brief Manufacturer name
+			static const FieldDescriptor ManufacturerName;
+
+			/// @brief Model name
+			static const FieldDescriptor ModelName;
+
+			/// @brief Device version
+			static const FieldDescriptor DeviceVersion;
+
+			/// @brief Manufacturer specific information
+			static const FieldDescriptor ManufacturerSpecificInformation;
+
+			/// @brief Serial number
+			static const FieldDescriptor SerialNumber;
+
+			/// @brief User defined name
+			static const FieldDescriptor UserDefinedName;
+
+			/// Maximum field ID used by GvcpDiscoveryAcknowledgeLayer
+			static constexpr uint16_t MaxID = GvcpAcknowledgeLayer::SerializedFields::MaxID + 12;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		/// GVCP discovery acknowledge body, see the spec "16.1.2 DISCOVERY_ACK". The data is stored as big-endian.
@@ -688,6 +862,39 @@ namespace pcpp
 		{
 			return sizeof(gvcp_request_header) + sizeof(gvcp_forceip_body);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by GvcpForceIpRequestLayer's serializeLayer(), in addition to
+		/// GvcpRequestLayer::SerializedFields.
+		struct SerializedFields : GvcpRequestLayer::SerializedFields
+		{
+			/// @return All field descriptors for GvcpForceIpRequestLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = GvcpRequestLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ MacAddress, IpAddress, SubnetMask, GatewayIpAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief MAC address of the device to configure, as a string
+			static const FieldDescriptor MacAddress;
+
+			/// @brief IP address to force on the device, as a string
+			static const FieldDescriptor IpAddress;
+
+			/// @brief Subnet mask to force on the device, as a string
+			static const FieldDescriptor SubnetMask;
+
+			/// @brief Default gateway IP address to force on the device, as a string
+			static const FieldDescriptor GatewayIpAddress;
+
+			/// Maximum field ID used by GvcpForceIpRequestLayer
+			static constexpr uint16_t MaxID = GvcpRequestLayer::SerializedFields::MaxID + 4;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)
