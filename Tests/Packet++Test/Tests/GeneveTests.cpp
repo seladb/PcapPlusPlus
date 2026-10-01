@@ -137,9 +137,9 @@ PTF_TEST_CASE(GeneveCreationTest)
 	pcpp::GeneveLayer geneveLayer(0xabcdef, PCPP_ETHERTYPE_ETHBRIDGE, true);
 	PTF_ASSERT_TRUE(geneveLayer.addOption(0x0102, 3, optionData, sizeof(optionData)));
 	PTF_ASSERT_TRUE(geneveLayer.addOption(0x0102, 4, nullptr, 0, true));
-	std::vector<uint8_t> tooLongOptionData(125, 0);
 	{
 		SuppressLogs suppressLogs;
+		std::vector<uint8_t> tooLongOptionData(125, 0);
 		PTF_ASSERT_FALSE(geneveLayer.addOption(0x0102, 5, tooLongOptionData.data(), tooLongOptionData.size()));
 	}
 	PTF_ASSERT_EQUAL(geneveLayer.getOptionsLength(), 16);
