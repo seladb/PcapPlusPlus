@@ -44,7 +44,7 @@ PTF_TEST_CASE(GvcpDiscoveryParsingTest)
 		auto* gvcpLayer = packet.getLayerOfType<pcpp::GvcpDiscoveryAcknowledgeLayer>();
 		PTF_ASSERT_NOT_NULL(gvcpLayer);
 		PTF_ASSERT_EQUAL(gvcpLayer->getProtocol(), pcpp::GVCP);
-		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpLayer::GvcpResponseStatus::Success, enumclass);
+		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Success, enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getCommand(), pcpp::GvcpLayer::GvcpCommand::DiscoveredAck, enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getAckId(), 1);
 		PTF_ASSERT_EQUAL(gvcpLayer->getDataSize(), 248);
@@ -93,7 +93,7 @@ PTF_TEST_CASE(GvcpForceIpParsingTest)
 
 		auto* gvcpLayer = packet.getLayerOfType<pcpp::GvcpForceIpAcknowledgeLayer>();
 		PTF_ASSERT_NOT_NULL(gvcpLayer);
-		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpLayer::GvcpResponseStatus::Success, enumclass);
+		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Success, enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getCommand(), pcpp::GvcpLayer::GvcpCommand::ForceIpAck, enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getAckId(), 8787);
 		PTF_ASSERT_EQUAL(gvcpLayer->getDataSize(), 0);
@@ -132,7 +132,7 @@ PTF_TEST_CASE(GvcpRegisterAccessParsingTest)
 
 		auto* gvcpLayer = packet.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
 		PTF_ASSERT_NOT_NULL(gvcpLayer);
-		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpLayer::GvcpResponseStatus::Success, enumclass);
+		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Success, enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getCommand(), pcpp::GvcpLayer::GvcpCommand::ReadRegAck, enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getAckId(), 0x1fee);
 
@@ -169,7 +169,8 @@ PTF_TEST_CASE(GvcpRegisterAccessParsingTest)
 
 		auto* gvcpLayer = packet.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
 		PTF_ASSERT_NOT_NULL(gvcpLayer);
-		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpLayer::GvcpResponseStatus::AccessDenied, enumclass);
+		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::AccessDenied,
+		                 enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getCommand(), pcpp::GvcpLayer::GvcpCommand::WriteRegAck, enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getAckId(), 8788);
 		PTF_ASSERT_EQUAL(gvcpLayer->getDataSize(), 0);
@@ -212,9 +213,9 @@ PTF_TEST_CASE(GvcpMalformedParsingTest)
 		pcpp::GvcpRequestLayer requestLayer(static_cast<pcpp::GvcpLayer::GvcpCommand>(0x1234));
 		PTF_ASSERT_EQUAL(requestLayer.getCommand(), pcpp::GvcpLayer::GvcpCommand::Unknown, enumclass);
 
-		pcpp::GvcpAcknowledgeLayer ackLayer(static_cast<pcpp::GvcpLayer::GvcpResponseStatus>(0x1234),
+		pcpp::GvcpAcknowledgeLayer ackLayer(static_cast<pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus>(0x1234),
 		                                    static_cast<pcpp::GvcpLayer::GvcpCommand>(0x4321));
-		PTF_ASSERT_EQUAL(ackLayer.getStatus(), pcpp::GvcpLayer::GvcpResponseStatus::Unknown, enumclass);
+		PTF_ASSERT_EQUAL(ackLayer.getStatus(), pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Unknown, enumclass);
 		PTF_ASSERT_EQUAL(ackLayer.getCommand(), pcpp::GvcpLayer::GvcpCommand::Unknown, enumclass);
 		PTF_ASSERT_EQUAL(ackLayer.toString(),
 		                 "GVCP Acknowledge Layer, Command: Unknown, Acknowledge ID: 0, Status: Unknown");
@@ -224,7 +225,7 @@ PTF_TEST_CASE(GvcpMalformedParsingTest)
 	{
 		PTF_ASSERT_RAISES(pcpp::GvcpRequestLayer{ pcpp::GvcpLayer::GvcpCommand::ReadRegAck }, std::invalid_argument,
 		                  "A GVCP request can't be created with an acknowledge value");
-		PTF_ASSERT_RAISES(pcpp::GvcpAcknowledgeLayer(pcpp::GvcpLayer::GvcpResponseStatus::Success,
+		PTF_ASSERT_RAISES(pcpp::GvcpAcknowledgeLayer(pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Success,
 		                                             pcpp::GvcpLayer::GvcpCommand::ReadRegCmd),
 		                  std::invalid_argument, "A GVCP acknowledge can't be created with a command value");
 	}
@@ -264,7 +265,7 @@ PTF_TEST_CASE(GvcpLayerCreationTest)
 
 	// Discovery acknowledge
 	{
-		pcpp::GvcpDiscoveryAcknowledgeLayer newLayer(pcpp::GvcpLayer::GvcpResponseStatus::Success, 1);
+		pcpp::GvcpDiscoveryAcknowledgeLayer newLayer(pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Success, 1);
 		PTF_ASSERT_EQUAL(newLayer.getProtocol(), pcpp::GVCP);
 		PTF_ASSERT_EQUAL(newLayer.getCommand(), pcpp::GvcpLayer::GvcpCommand::DiscoveredAck, enumclass);
 		PTF_ASSERT_EQUAL(newLayer.getDataLen(), 256);
@@ -327,7 +328,7 @@ PTF_TEST_CASE(GvcpLayerCreationTest)
 		auto* realLayer = realPacket.getLayerOfType<pcpp::GvcpForceIpAcknowledgeLayer>();
 		PTF_ASSERT_NOT_NULL(realLayer);
 
-		pcpp::GvcpForceIpAcknowledgeLayer newLayer(pcpp::GvcpLayer::GvcpResponseStatus::Success, 8787);
+		pcpp::GvcpForceIpAcknowledgeLayer newLayer(pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Success, 8787);
 		PTF_ASSERT_EQUAL(newLayer.getDataLen(), realLayer->getDataLen());
 		PTF_ASSERT_BUF_COMPARE(newLayer.getData(), realLayer->getData(), realLayer->getDataLen());
 	}
@@ -340,7 +341,7 @@ PTF_TEST_CASE(GvcpLayerCreationTest)
 		pcpp::EthLayer ethLayer(*realPacket.getLayerOfType<pcpp::EthLayer>());
 		pcpp::IPv4Layer ipLayer(*realPacket.getLayerOfType<pcpp::IPv4Layer>());
 		pcpp::UdpLayer udpLayer(*realPacket.getLayerOfType<pcpp::UdpLayer>());
-		pcpp::GvcpAcknowledgeLayer newAckLayer(pcpp::GvcpLayer::GvcpResponseStatus::Success,
+		pcpp::GvcpAcknowledgeLayer newAckLayer(pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Success,
 		                                       pcpp::GvcpLayer::GvcpCommand::ReadRegAck, 0x1fee);
 		PTF_ASSERT_EQUAL(newAckLayer.getDataLen(), 8);
 		PTF_ASSERT_EQUAL(newAckLayer.getDataSize(), 0);
@@ -426,11 +427,11 @@ PTF_TEST_CASE(GvcpLayerEditTest)
 		auto* gvcpLayer = packet.getLayerOfType<pcpp::GvcpDiscoveryAcknowledgeLayer>();
 		PTF_ASSERT_NOT_NULL(gvcpLayer);
 
-		gvcpLayer->setStatus(pcpp::GvcpLayer::GvcpResponseStatus::Busy);
+		gvcpLayer->setStatus(pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Busy);
 		gvcpLayer->setAckId(4321);
 		gvcpLayer->setModelName("New Model");
 
-		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpLayer::GvcpResponseStatus::Busy, enumclass);
+		PTF_ASSERT_EQUAL(gvcpLayer->getStatus(), pcpp::GvcpAcknowledgeLayer::GvcpResponseStatus::Busy, enumclass);
 		PTF_ASSERT_EQUAL(gvcpLayer->getAckId(), 4321);
 		PTF_ASSERT_EQUAL(gvcpLayer->getModelName(), "New Model");
 		// the rest of the fields aren't affected

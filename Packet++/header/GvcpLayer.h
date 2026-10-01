@@ -18,16 +18,6 @@ namespace pcpp
 	/// significant bit) is the acknowledge-required bit
 	using GvcpFlag = uint8_t;
 
-	/// @struct GvcpVersion
-	/// The GigE Vision spec version
-	struct GvcpVersion
-	{
-		/// The version major number
-		uint16_t major;
-		/// The version minor number
-		uint16_t minor;
-	};
-
 	/// @class GvcpLayer
 	/// An abstract class representing the GigE Vision Control Protocol (GVCP).
 	/// The class is implemented according to the GigE Vision specification 2.0.
@@ -94,70 +84,6 @@ namespace pcpp
 			Unknown = 0xFFFF
 		};
 
-		/// GVCP response status can be returned in an acknowledge message or a GVSP header.
-		/// See more in the spec "Table 19-1: List of Standard Status Codes"
-		enum class GvcpResponseStatus : uint16_t
-		{
-			/// Command executed successfully
-			Success = 0x0000,
-			/// Only applies to packet being resent
-			PacketResend = 0x0100,
-			/// Command is not supported by the device
-			NotImplemented = 0x8001,
-			/// At least one parameter provided in the command is invalid (or out of range) for the device
-			InvalidParameter = 0x8002,
-			/// An attempt was made to access a non-existent address space location
-			InvalidAddress = 0x8003,
-			/// The addressed register cannot be written to
-			WriteProtect = 0x8004,
-			/// A badly aligned address offset or data size was specified
-			BadAlignment = 0x8005,
-			/// An attempt was made to access an address location which is currently/momentary not accessible
-			AccessDenied = 0x8006,
-			/// A required resource to service the request is not currently available. The request may be retried at a
-			/// later time
-			Busy = 0x8007,
-			/// Deprecated
-			LocalProblem = 0x8008,
-			/// Deprecated
-			MsgMismatch = 0x8009,
-			/// Deprecated
-			InvalidProtocol = 0x800A,
-			/// Deprecated
-			NoMsg = 0x800B,
-			/// The requested packet is not available anymore
-			PacketUnavailable = 0x800C,
-			/// Internal memory of GVSP transmitter overrun (typically for image acquisition)
-			DataOverrun = 0x800D,
-			/// The message header is not valid. Some of its fields do not match the specification
-			InvalidHeader = 0x800E,
-			/// Deprecated
-			WrongConfig = 0x800F,
-			/// The requested packet has not yet been acquired. Can be used for linescan cameras device when line
-			/// trigger rate is slower than application timeout
-			PacketNotYetAvailable = 0x8010,
-			/// The requested packet and all previous ones are not available anymore and have been discarded from the
-			/// GVSP transmitter memory
-			PacketAndPrevRemovedFromMemory = 0x8011,
-			/// The requested packet is not available anymore and has been discarded from the GVSP transmitter memory
-			PacketRemovedFromMemory = 0x8012,
-			/// The device is not synchronized to a master clock to be used as time reference
-			NoRefTime = 0x8013,
-			/// The packet cannot be resent at the moment due to temporary bandwidth issues and should be requested
-			/// again in the future
-			PacketTemporarilyUnavailable = 0x8014,
-			/// A device queue or packet data has overflowed
-			Overflow = 0x8015,
-			/// The requested scheduled action command was requested at a time that is already past
-			ActionLate = 0x8016,
-			/// Leader or trailer overflow (GEV 2.1)
-			LeaderTrailerOverflow = 0x8017,
-			/// Generic error
-			Error = 0x8FFF,
-			/// Unknown status
-			Unknown = 0xFFFF
-		};
-
 		/// A static method that checks whether the port is considered as GVCP
 		/// @param[in] port The port number to be checked
 		/// @return True if the port is the GVCP port (3956), false otherwise
@@ -210,10 +136,6 @@ namespace pcpp
 	/// Output operator for GvcpLayer::GvcpCommand, prints the command name, or "Unknown" if the value isn't defined by
 	/// the spec
 	std::ostream& operator<<(std::ostream& os, GvcpLayer::GvcpCommand command);
-
-	/// Output operator for GvcpLayer::GvcpResponseStatus, prints the status name, or "Unknown" if the value isn't
-	/// defined by the spec
-	std::ostream& operator<<(std::ostream& os, GvcpLayer::GvcpResponseStatus status);
 
 	/// @class GvcpRequestLayer
 	/// Represents a GVCP request (command) message. Commands which don't have a specific layer class are
@@ -328,6 +250,70 @@ namespace pcpp
 	class GvcpAcknowledgeLayer : public GvcpLayer
 	{
 	public:
+		/// GVCP response status can be returned in an acknowledge message or a GVSP header.
+		/// See more in the spec "Table 19-1: List of Standard Status Codes"
+		enum class GvcpResponseStatus : uint16_t
+		{
+			/// Command executed successfully
+			Success = 0x0000,
+			/// Only applies to packet being resent
+			PacketResend = 0x0100,
+			/// Command is not supported by the device
+			NotImplemented = 0x8001,
+			/// At least one parameter provided in the command is invalid (or out of range) for the device
+			InvalidParameter = 0x8002,
+			/// An attempt was made to access a non-existent address space location
+			InvalidAddress = 0x8003,
+			/// The addressed register cannot be written to
+			WriteProtect = 0x8004,
+			/// A badly aligned address offset or data size was specified
+			BadAlignment = 0x8005,
+			/// An attempt was made to access an address location which is currently/momentary not accessible
+			AccessDenied = 0x8006,
+			/// A required resource to service the request is not currently available. The request may be retried at a
+			/// later time
+			Busy = 0x8007,
+			/// Deprecated
+			LocalProblem = 0x8008,
+			/// Deprecated
+			MsgMismatch = 0x8009,
+			/// Deprecated
+			InvalidProtocol = 0x800A,
+			/// Deprecated
+			NoMsg = 0x800B,
+			/// The requested packet is not available anymore
+			PacketUnavailable = 0x800C,
+			/// Internal memory of GVSP transmitter overrun (typically for image acquisition)
+			DataOverrun = 0x800D,
+			/// The message header is not valid. Some of its fields do not match the specification
+			InvalidHeader = 0x800E,
+			/// Deprecated
+			WrongConfig = 0x800F,
+			/// The requested packet has not yet been acquired. Can be used for linescan cameras device when line
+			/// trigger rate is slower than application timeout
+			PacketNotYetAvailable = 0x8010,
+			/// The requested packet and all previous ones are not available anymore and have been discarded from the
+			/// GVSP transmitter memory
+			PacketAndPrevRemovedFromMemory = 0x8011,
+			/// The requested packet is not available anymore and has been discarded from the GVSP transmitter memory
+			PacketRemovedFromMemory = 0x8012,
+			/// The device is not synchronized to a master clock to be used as time reference
+			NoRefTime = 0x8013,
+			/// The packet cannot be resent at the moment due to temporary bandwidth issues and should be requested
+			/// again in the future
+			PacketTemporarilyUnavailable = 0x8014,
+			/// A device queue or packet data has overflowed
+			Overflow = 0x8015,
+			/// The requested scheduled action command was requested at a time that is already past
+			ActionLate = 0x8016,
+			/// Leader or trailer overflow (GEV 2.1)
+			LeaderTrailerOverflow = 0x8017,
+			/// Generic error
+			Error = 0x8FFF,
+			/// Unknown status
+			Unknown = 0xFFFF
+		};
+
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
@@ -424,6 +410,10 @@ namespace pcpp
 		}
 	};
 
+	/// Output operator for GvcpAcknowledgeLayer::GvcpResponseStatus, prints the status name, or "Unknown" if the value
+	/// isn't defined by the spec
+	std::ostream& operator<<(std::ostream& os, GvcpAcknowledgeLayer::GvcpResponseStatus status);
+
 	/// @class GvcpDiscoveryRequestLayer
 	/// Represents a GVCP discovery command (DISCOVERY_CMD)
 	class GvcpDiscoveryRequestLayer : public GvcpRequestLayer
@@ -459,6 +449,16 @@ namespace pcpp
 	class GvcpDiscoveryAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
 	public:
+		/// @struct GvcpVersion
+		/// The GigE Vision spec version
+		struct GvcpVersion
+		{
+			/// The version major number
+			uint16_t major;
+			/// The version minor number
+			uint16_t minor;
+		};
+
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes

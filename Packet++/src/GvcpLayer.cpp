@@ -11,7 +11,8 @@ namespace pcpp
 	namespace
 	{
 		using GvcpCommand = GvcpLayer::GvcpCommand;
-		using GvcpResponseStatus = GvcpLayer::GvcpResponseStatus;
+		using GvcpResponseStatus = GvcpAcknowledgeLayer::GvcpResponseStatus;
+		using GvcpVersion = GvcpDiscoveryAcknowledgeLayer::GvcpVersion;
 
 		constexpr uint8_t gvcpMagicNumber = 0x42;
 		constexpr GvcpFlag gvcpAcknowledgeFlag = 0x01;
