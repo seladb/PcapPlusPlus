@@ -382,7 +382,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (coreMask & getDpdkMasterCore().Mask)
+		if (coreMask & getDpdkMasterCore().getShortCoreMask())
 		{
 			PCPP_LOG_ERROR("Cannot run worker thread on DPDK master core");
 			return false;
@@ -394,7 +394,7 @@ namespace pcpp
 		while (iter != workerThreadsVec.end())
 		{
 			SystemCore core = SystemCores::IdToSystemCore[index];
-			if (!(coreMask & core.Mask))
+			if (!(coreMask & core.getShortCoreMask()))
 			{
 				index++;
 				continue;
