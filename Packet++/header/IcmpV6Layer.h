@@ -185,8 +185,34 @@ namespace pcpp
 
 		std::string toString() const override;
 
+		/// @struct SerializedFields
+		/// Fields written by IcmpV6Layer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for IcmpV6Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Type, Code, Checksum };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief ICMPv6 message type, as an integer
+			static const FieldDescriptor Type;
+
+			/// @brief ICMPv6 message code, as an integer
+			static const FieldDescriptor Code;
+
+			/// @brief Checksum, in hexadecimal notation
+			static const FieldDescriptor Checksum;
+		};
+
 	protected:
 		IcmpV6Layer() = default;
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		void calculateChecksum();
@@ -248,6 +274,30 @@ namespace pcpp
 		}
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by ICMPv6EchoLayer's serializeLayer(), in addition to
+		/// IcmpV6Layer::SerializedFields.
+		struct SerializedFields : IcmpV6Layer::SerializedFields
+		{
+			/// @return All field descriptors for ICMPv6EchoLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = IcmpV6Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Identifier, Sequence };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Echo identifier, in host byte order
+			static const FieldDescriptor Identifier;
+
+			/// @brief Echo sequence number, in host byte order
+			static const FieldDescriptor Sequence;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		icmpv6_echo_hdr* getEchoHeader() const

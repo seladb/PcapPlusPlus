@@ -11,6 +11,7 @@
 #include "Packet.h"
 #include "SystemUtils.h"
 #include "VlanLayer.h"
+#include "Serializers.h"
 #include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -156,6 +157,60 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	    "0000000204000000ff05000000000000000000000001000304000000ff020000000000000000000000010002";
 	PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(icmpV6Layer->getDataPtr(4), icmpV6Layer->getDataLen() - 4),
 	                 expectedPayloadString);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		echoRequestLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":64,"type":128,"code":0,"checksum":"0x7a4c","id":24,"sequence":20})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		echoReplyLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":64,"type":129,"code":0,"checksum":"0x794c","id":24,"sequence":20})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		neighSoliLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":32,"type":135,"code":0,"checksum":"0xfe98","targetIP":"fd53:7cb8:383:2::1:117","linkLayerAddress":"00:54:af:e9:4d:80","options":["SourceLinkLayer"]})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		neighAdvLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":32,"type":136,"code":0,"checksum":"0x9abb","targetIP":"fe80::c000:54ff:fef5:0","routerFlag":true,"unicastFlag":false,"overrideFlag":true,"targetMac":"c2:00:54:f5:00:00","options":["TargetLinkLayer"]})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		neighAdvNoOptLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":24,"type":136,"code":0,"checksum":"0xb49e","targetIP":"fe80:ebeb:ebeb::1","routerFlag":false,"unicastFlag":true,"overrideFlag":false,"options":[]})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpV6Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":48,"type":143,"code":0,"checksum":"0x2b5a"})");
+	}
 
 	// A neighbor solicitation/advertisement message shorter than its 24-byte header must be rejected.
 	// Otherwise getTargetIP() reads the 16-byte target address past the buffer, and the NDP option walk

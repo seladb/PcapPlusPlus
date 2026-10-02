@@ -9,6 +9,8 @@
 #include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
+#include "Serializers.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -254,6 +256,51 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NOT_NULL(routerAddr);
 	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("14.80.84.66"));
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpEchoRequest.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":64,"type":8,"code":0,"checksum":"0xbbb3","id":55099,"sequence":0,"timestamp":"16451935313918863185"})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpEchoReply.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":64,"type":0,"code":0,"checksum":"0xc3b3","id":55099,"sequence":0,"timestamp":"16451935313918863185"})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpRouterAdv1.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":16,"type":9,"code":16,"checksum":"0x8153","advertisementCount":1,"addressEntrySize":2,"lifetime":200,"routerAddresses":[{"routerAddress":"192.168.144.2","preferenceLevel":2147483648}]})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpRedirect.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":8,"type":5,"code":1,"checksum":"0x383e","gatewayAddress":"10.2.99.98"})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpDestUnreachableUdp.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":8,"type":3,"code":3,"checksum":"0xb42a","nextHopMTU":0})");
+	}
 }  // IcmpParsingTest
 
 PTF_TEST_CASE(IcmpTruncatedPacketTest)

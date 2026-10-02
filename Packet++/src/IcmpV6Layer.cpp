@@ -167,4 +167,27 @@ namespace pcpp
 		return "ICMPv6 Layer, Echo Request/Reply Message (type: " + typeStream.str() + ")";
 	}
 
+	const FieldDescriptor IcmpV6Layer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
+	const FieldDescriptor IcmpV6Layer::SerializedFields::Code{ Layer::SerializedFields::MaxID + 2, "code" };
+	const FieldDescriptor IcmpV6Layer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3, "checksum" };
+
+	void IcmpV6Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Type, static_cast<uint8_t>(getMessageType()));
+		serializer.writeField(SerializedFields::Code, getCode());
+		serializer.writeHexField(SerializedFields::Checksum, getChecksum());
+	}
+
+	const FieldDescriptor ICMPv6EchoLayer::SerializedFields::Identifier{ IcmpV6Layer::SerializedFields::MaxID + 4,
+		                                                                 "id" };
+	const FieldDescriptor ICMPv6EchoLayer::SerializedFields::Sequence{ IcmpV6Layer::SerializedFields::MaxID + 5,
+		                                                               "sequence" };
+
+	void ICMPv6EchoLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		IcmpV6Layer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::Identifier, getIdentifier());
+		serializer.writeField(SerializedFields::Sequence, getSequenceNr());
+	}
+
 }  // namespace pcpp

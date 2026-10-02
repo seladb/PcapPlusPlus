@@ -133,12 +133,35 @@ namespace pcpp
 		/// will be printed to log)
 		bool removeAllNdpOptions();
 
+		/// @struct SerializedFields
+		/// Fields written by NDPLayerBase's serializeLayer(), in addition to
+		/// IcmpV6Layer::SerializedFields.
+		struct SerializedFields : IcmpV6Layer::SerializedFields
+		{
+			/// @return All field descriptors for NDPLayerBase
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = IcmpV6Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Array of NDP options; elements described by Option
+			static const FieldDescriptor Options;
+
+			/// @brief One option's type name; an Options element, not included in all()
+			static const FieldDescriptor Option;
+		};
+
 	protected:
 		NDPLayerBase() = default;
 
 		NDPLayerBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : IcmpV6Layer(data, dataLen, prevLayer, packet)
 		{}
+
+		void serializeOptions(ObjectScope& serializer) const;
 
 	private:
 		TLVRecordReader<NdpOption> m_OptionReader;
@@ -214,6 +237,30 @@ namespace pcpp
 		MacAddress getLinkLayerAddress() const;
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by NDPNeighborSolicitationLayer's serializeLayer(), in addition to
+		/// NDPLayerBase::SerializedFields.
+		struct SerializedFields : NDPLayerBase::SerializedFields
+		{
+			/// @return All field descriptors for NDPNeighborSolicitationLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = NDPLayerBase::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ TargetIP, LinkLayerAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Target IPv6 address, as a string
+			static const FieldDescriptor TargetIP;
+
+			/// @brief Link-layer MAC address option, as a string (if present)
+			static const FieldDescriptor LinkLayerAddress;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		void initLayer(uint8_t code, const IPv6Address& targetIP);
@@ -339,6 +386,40 @@ namespace pcpp
 		}
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by NDPNeighborAdvertisementLayer's serializeLayer(), in addition to
+		/// NDPLayerBase::SerializedFields.
+		struct SerializedFields : NDPLayerBase::SerializedFields
+		{
+			/// @return All field descriptors for NDPNeighborAdvertisementLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = NDPLayerBase::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ TargetIP, RouterFlag, UnicastFlag, OverrideFlag,
+					                                          TargetMac };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Target IPv6 address, as a string
+			static const FieldDescriptor TargetIP;
+
+			/// @brief Router flag
+			static const FieldDescriptor RouterFlag;
+
+			/// @brief Solicited (unicast) flag
+			static const FieldDescriptor UnicastFlag;
+
+			/// @brief Override flag
+			static const FieldDescriptor OverrideFlag;
+
+			/// @brief Target MAC address option, as a string (if present)
+			static const FieldDescriptor TargetMac;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		void initLayer(uint8_t code, const IPv6Address& targetIP, bool routerFlag, bool unicastFlag, bool overrideFlag);
