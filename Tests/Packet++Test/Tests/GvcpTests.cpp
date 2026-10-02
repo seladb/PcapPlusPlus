@@ -40,7 +40,7 @@ PTF_TEST_CASE(GvcpDiscoveryParsingTest)
 		gvcpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":2,"commandName":"DiscoveredCmd","dataSize":0,"flag":17,"acknowledgeRequired":true,"requestId":19942,"allowBroadcastAck":true})");
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":2,"commandName":"DiscoveredCmd","flag":17,"acknowledgeRequired":true,"requestId":19942,"allowBroadcastAck":true})");
 	}
 
 	// Discovery acknowledge
@@ -72,7 +72,7 @@ PTF_TEST_CASE(GvcpDiscoveryParsingTest)
 		gvcpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"json({"protocolName":"GVCP","protocolId":65,"length":256,"command":3,"commandName":"DiscoveredAck","dataSize":248,"status":0,"statusName":"Success","ackId":1,"versionMajor":2,"versionMinor":1,"macAddress":"00:04:4b:ea:b0:b4","ipAddress":"172.28.60.100","subnetMask":"255.255.255.0","gatewayIpAddress":"172.28.60.1","manufacturerName":"Vendor01","modelName":"ABCDE 3D Scanner (TW)","deviceVersion":"XL","manufacturerSpecificInformation":"","serialNumber":"XXX-005","userDefinedName":""})json");
+		    R"json({"protocolName":"GVCP","protocolId":65,"length":256,"command":3,"commandName":"DiscoveredAck","status":0,"statusName":"Success","ackId":1,"versionMajor":2,"versionMinor":1,"macAddress":"00:04:4b:ea:b0:b4","ipAddress":"172.28.60.100","subnetMask":"255.255.255.0","gatewayIpAddress":"172.28.60.1","manufacturerName":"Vendor01","modelName":"ABCDE 3D Scanner (TW)","deviceVersion":"XL","manufacturerSpecificInformation":"","serialNumber":"XXX-005","userDefinedName":""})json");
 	}
 }  // GvcpDiscoveryParsingTest
 
@@ -104,7 +104,7 @@ PTF_TEST_CASE(GvcpForceIpParsingTest)
 		gvcpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"GVCP","protocolId":65,"length":64,"command":4,"commandName":"ForceIpCmd","dataSize":56,"flag":1,"acknowledgeRequired":true,"requestId":8787,"macAddress":"8c:e9:b4:01:63:b2","ipAddress":"192.168.5.1","subnetMask":"255.255.0.0","gatewayIpAddress":"0.0.0.0"})");
+		    R"({"protocolName":"GVCP","protocolId":65,"length":64,"command":4,"commandName":"ForceIpCmd","flag":1,"acknowledgeRequired":true,"requestId":8787,"macAddress":"8c:e9:b4:01:63:b2","ipAddress":"192.168.5.1","subnetMask":"255.255.0.0","gatewayIpAddress":"0.0.0.0"})");
 	}
 
 	// Force IP acknowledge
@@ -127,7 +127,7 @@ PTF_TEST_CASE(GvcpForceIpParsingTest)
 		gvcpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":5,"commandName":"ForceIpAck","dataSize":0,"status":0,"statusName":"Success","ackId":8787})");
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":5,"commandName":"ForceIpAck","status":0,"statusName":"Success","ackId":8787})");
 	}
 }  // GvcpForceIpParsingTest
 
@@ -157,7 +157,7 @@ PTF_TEST_CASE(GvcpRegisterAccessParsingTest)
 		gvcpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":128,"commandName":"ReadRegCmd","dataSize":4,"flag":1,"acknowledgeRequired":true,"requestId":35824})");
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":128,"commandName":"ReadRegCmd","flag":1,"acknowledgeRequired":true,"requestId":35824})");
 	}
 
 	// Read register acknowledge
@@ -219,7 +219,7 @@ PTF_TEST_CASE(GvcpRegisterAccessParsingTest)
 		gvcpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":131,"commandName":"WriteRegAck","dataSize":0,"status":32774,"statusName":"AccessDenied","ackId":8788})");
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":131,"commandName":"WriteRegAck","status":32774,"statusName":"AccessDenied","ackId":8788})");
 	}
 }  // GvcpRegisterAccessParsingTest
 
@@ -269,14 +269,14 @@ PTF_TEST_CASE(GvcpMalformedParsingTest)
 		requestLayer.serialize(requestSerializer);
 		PTF_ASSERT_EQUAL(
 		    requestOss.str(),
-		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":4660,"commandName":"Unknown","dataSize":0,"flag":0,"acknowledgeRequired":false,"requestId":1})");
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":4660,"commandName":"Unknown","flag":0,"acknowledgeRequired":false,"requestId":1})");
 
 		std::ostringstream ackOss;
 		pcpp::JsonSerializer ackSerializer(ackOss);
 		ackLayer.serialize(ackSerializer);
 		PTF_ASSERT_EQUAL(
 		    ackOss.str(),
-		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":17185,"commandName":"Unknown","dataSize":0,"status":4660,"statusName":"Unknown","ackId":0})");
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":17185,"commandName":"Unknown","status":4660,"statusName":"Unknown","ackId":0})");
 	}
 
 	// A request can't be created with an acknowledge value, and an acknowledge can't be created with a command value

@@ -133,7 +133,7 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ Command, CommandName, DataSize };
+				std::initializer_list<FieldDescriptor> extra{ Command, CommandName };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -144,12 +144,9 @@ namespace pcpp
 			/// @brief Name of the command or acknowledge value, or "Unknown"
 			static const FieldDescriptor CommandName;
 
-			/// @brief Data size field from the header
-			static const FieldDescriptor DataSize;
-
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by GvcpLayer
-			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 2;
 		};
 
 	protected:

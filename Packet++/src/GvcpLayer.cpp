@@ -27,7 +27,7 @@ namespace pcpp
 		}
 
 		/// @return The name of a command defined by the spec, or nullptr if the value isn't defined
-		const char* getGvcpCommandName(GvcpCommand command)
+		constexpr const char* getGvcpCommandName(GvcpCommand command)
 		{
 			switch (command)
 			{
@@ -79,7 +79,7 @@ namespace pcpp
 		}
 
 		/// @return The name of a status defined by the spec, or nullptr if the value isn't defined
-		const char* getGvcpResponseStatusName(GvcpResponseStatus status)
+		constexpr const char* getGvcpResponseStatusName(GvcpResponseStatus status)
 		{
 			switch (status)
 			{
@@ -239,13 +239,11 @@ namespace pcpp
 
 	const FieldDescriptor GvcpLayer::SerializedFields::Command{ Layer::SerializedFields::MaxID + 1, "command" };
 	const FieldDescriptor GvcpLayer::SerializedFields::CommandName{ Layer::SerializedFields::MaxID + 2, "commandName" };
-	const FieldDescriptor GvcpLayer::SerializedFields::DataSize{ Layer::SerializedFields::MaxID + 3, "dataSize" };
 
 	void GvcpLayer::serializeLayer(ObjectScope& serializer) const
 	{
 		serializer.writeField(SerializedFields::Command, getRawCommand(m_Data));
 		serializer.writeField(SerializedFields::CommandName, commandToString(getCommand()));
-		serializer.writeField(SerializedFields::DataSize, getDataSize());
 	}
 
 	// -------- Class GvcpRequestLayer -----------------
