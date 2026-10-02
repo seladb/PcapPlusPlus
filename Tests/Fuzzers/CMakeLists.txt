@@ -20,3 +20,7 @@ target_compile_definitions(FuzzWriter PUBLIC FILE_EXT=".pcap" NG_WRITER)
 add_executable(FuzzWriterNg FuzzWriter.cpp)
 target_link_libraries(FuzzWriterNg PRIVATE Pcap++ -fsanitize=fuzzer)
 target_compile_definitions(FuzzWriterNg PUBLIC FILE_EXT=".pcapng")
+
+add_executable(FuzzX509 FuzzX509.cpp)
+target_link_libraries(FuzzX509 PRIVATE Pcap++ -fsanitize=fuzzer)
+target_include_directories(FuzzX509 PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)
