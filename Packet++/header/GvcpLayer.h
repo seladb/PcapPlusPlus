@@ -147,6 +147,7 @@ namespace pcpp
 			/// @brief Data size field from the header
 			static const FieldDescriptor DataSize;
 
+			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by GvcpLayer
 			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
 		};
@@ -266,6 +267,7 @@ namespace pcpp
 			/// @brief Request ID
 			static const FieldDescriptor RequestId;
 
+			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by GvcpRequestLayer
 			static constexpr uint16_t MaxID = GvcpLayer::SerializedFields::MaxID + 3;
 		};
@@ -463,6 +465,7 @@ namespace pcpp
 			/// @brief Acknowledge ID
 			static const FieldDescriptor AckId;
 
+			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by GvcpAcknowledgeLayer
 			static constexpr uint16_t MaxID = GvcpLayer::SerializedFields::MaxID + 3;
 		};
@@ -554,6 +557,7 @@ namespace pcpp
 			/// @brief Whether the allow-broadcast-acknowledge bit is set
 			static const FieldDescriptor AllowBroadcastAck;
 
+			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by GvcpDiscoveryRequestLayer
 			static constexpr uint16_t MaxID = GvcpRequestLayer::SerializedFields::MaxID + 1;
 		};
@@ -739,6 +743,7 @@ namespace pcpp
 			/// @brief User defined name
 			static const FieldDescriptor UserDefinedName;
 
+			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by GvcpDiscoveryAcknowledgeLayer
 			static constexpr uint16_t MaxID = GvcpAcknowledgeLayer::SerializedFields::MaxID + 12;
 		};
@@ -894,6 +899,7 @@ namespace pcpp
 			/// @brief Default gateway IP address to force on the device, as a string
 			static const FieldDescriptor GatewayIpAddress;
 
+			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by GvcpForceIpRequestLayer
 			static constexpr uint16_t MaxID = GvcpRequestLayer::SerializedFields::MaxID + 4;
 		};
