@@ -4,6 +4,8 @@
 #include "Packet.h"
 #include "DhcpV6Layer.h"
 #include "SystemUtils.h"
+#include "Serializers.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -43,6 +45,15 @@ PTF_TEST_CASE(DhcpV6ParsingTest)
 		PTF_ASSERT_EQUAL(dhcpOption.getTotalSize(), optDataSizeArr[i] + 4);
 		PTF_ASSERT_EQUAL(dhcpOption.getValueAsHexString(), optDataAsHexString[i]);
 		dhcpOption = dhcpv6Layer->getNextOptionData(dhcpOption);
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dhcpv6Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DHCPv6","protocolId":38,"length":135,"messageType":"Solicit","transactionID":"0x9a0006","options":["ClientID","OptionRequestOption","ElapsedTime","UserClass","VendorClass","IA_NA"]})");
 	}
 }  // DhcpV6ParsingTest
 
@@ -125,8 +136,15 @@ PTF_TEST_CASE(DhcpV6CreationTest)
 
 	PTF_ASSERT_TRUE(dhcpv6Packet.addLayer(&newDhcpV6Layer));
 	dhcpv6Packet.computeCalculateFields();
-	PTF_ASSERT_EQUAL(dhcpv6Packet.getRawPacket()->getRawDataLen(), resource1.length);
 	PTF_ASSERT_BUF_COMPARE(dhcpv6Packet.getRawPacket()->getRawData(), origBuffer, resource1.length);
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		origDhcpV6Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DHCPv6","protocolId":38,"length":183,"messageType":"Advertise","transactionID":"0x9a0006","options":["IA_NA","ClientID","ServerID","DNSRecursiveNameServer","DomainSearchList","BootfileURL"]})");
+	}
 	delete origDhcpV6Layer;
 }  // DhcpV6CreationTest
 
