@@ -114,6 +114,15 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(arpLayer->isRequest(), false);
 	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), pcpp::IPv4Address("10.0.0.138"));
 	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), pcpp::MacAddress("6c:f0:49:b2:de:6e"));
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		arpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ARP","protocolId":8,"length":28,"opCode":"Reply","senderMacAddress":"30:46:9a:23:fb:fa","targetMacAddress":"6c:f0:49:b2:de:6e","senderIpAddress":"10.0.0.138","targetIpAddress":"10.0.0.1","messageType":"Reply","hardwareType":1,"hardwareSize":6,"protocolType":2048,"protocolSize":4})");
+	}
 }  // EthAndArpPacketParsing
 
 PTF_TEST_CASE(ArpPacketCreation)

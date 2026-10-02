@@ -52,6 +52,14 @@ PTF_TEST_CASE(VrrpParsingTest)
 		                                                  pcpp::IPAddress("192.168.0.2"),
 		                                                  pcpp::IPAddress("192.168.0.3") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		vrrpV2Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"VRRPv2","protocolId":49,"length":20,"type":"Advertisement","virtualRouterID":1,"priority":"Default","priorityValue":100,"checksum":"0x38fa","advInt":1,"authType":"NoAuthentication","ipAddresses":["192.168.0.1","192.168.0.2","192.168.0.3"]})");
+	}
 
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRPv2))
@@ -71,6 +79,14 @@ PTF_TEST_CASE(VrrpParsingTest)
 	ipAddressVec = vrrpV3IPv4Layer->getIPAddresses();
 	expectedIpAddressVec = { pcpp::IPAddress("192.168.0.1"), pcpp::IPAddress("192.168.0.2") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		vrrpV3IPv4Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"VRRPv3","protocolId":50,"length":16,"type":"Advertisement","virtualRouterID":1,"priority":"Default","priorityValue":100,"checksum":"0x484d","maxAdvInt":1,"ipAddresses":["192.168.0.1","192.168.0.2"]})");
+	}
 
 	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRPv2))

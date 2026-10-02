@@ -162,17 +162,17 @@ namespace pcpp
 
 		/// Get address family of the packet. e.g. 2 for ipv4 and 10 for ipv6
 		/// @return an unsigned char of address family
-		uint8_t getFamily();
+		uint8_t getFamily() const;
 
 		/// Get Version number inside packet header
 		/// The version field is 0 for the current version of the pseudo-header
 		/// @return an unsigned char for version
-		uint8_t getVersion();
+		uint8_t getVersion() const;
 
 		/// Get Resource Id in packet header
 		/// On one netlink socket it's possible to listen to several nflog groups; the resource ID is the nflog group
 		/// for the packet
-		uint16_t getResourceId();
+		uint16_t getResourceId() const;
 
 		/// Get a TLV object found with the input type. if no tlv is found, the internal value of the object will set to
 		/// nullptr
@@ -204,6 +204,34 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an NFLOG packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		/// @struct SerializedFields
+		/// Fields written by NflogLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for NflogLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Family, Version, ResourceID, Attributes };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor Family;
+
+			static const FieldDescriptor Version;
+
+			static const FieldDescriptor ResourceID;
+
+			static const FieldDescriptor Attributes;
+
+			static const FieldDescriptor Attribute;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		uint8_t* getTlvsBasePtr() const

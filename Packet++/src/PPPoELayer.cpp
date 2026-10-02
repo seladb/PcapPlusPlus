@@ -35,6 +35,20 @@ namespace pcpp
 		pppoeHdr->payloadLength = htobe16(m_DataLen - sizeof(pppoe_header));
 	}
 
+	const FieldDescriptor PPPoELayer::SerializedFields::Code{ Layer::SerializedFields::MaxID + 1, "code" };
+	const FieldDescriptor PPPoELayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 2, "version" };
+	const FieldDescriptor PPPoELayer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 3, "type" };
+	const FieldDescriptor PPPoELayer::SerializedFields::SessionID{ Layer::SerializedFields::MaxID + 4, "sessionID" };
+
+	void PPPoELayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getPPPoEHeader();
+		serializer.writeField(SerializedFields::Code, header->code);
+		serializer.writeField(SerializedFields::Version, header->version);
+		serializer.writeField(SerializedFields::Type, header->type);
+		serializer.writeField(SerializedFields::SessionID, be16toh(header->sessionId));
+	}
+
 	/// PPPoESessionLayer
 	/// ~~~~~~~~~~~~~~~~~
 
@@ -434,6 +448,67 @@ namespace pcpp
 			return std::string("PADN");
 		default:
 			return std::string("Unknown PPPoE code");
+		}
+	}
+
+	static constexpr const char* tagTypeToString(PPPoEDiscoveryLayer::PPPoETagTypes tagType)
+	{
+		switch (tagType)
+		{
+		case PPPoEDiscoveryLayer::PPPOE_TAG_EOL:
+			return "PPPOE_TAG_EOL";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME:
+			return "PPPOE_TAG_SVC_NAME";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME:
+			return "PPPOE_TAG_AC_NAME";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ:
+			return "PPPOE_TAG_HOST_UNIQ";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE:
+			return "PPPOE_TAG_AC_COOKIE";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_VENDOR:
+			return "PPPOE_TAG_VENDOR";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_CREDITS:
+			return "PPPOE_TAG_CREDITS";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_METRICS:
+			return "PPPOE_TAG_METRICS";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_SEQ_NUM:
+			return "PPPOE_TAG_SEQ_NUM";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_CRED_SCALE:
+			return "PPPOE_TAG_CRED_SCALE";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_RELAY_ID:
+			return "PPPOE_TAG_RELAY_ID";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_HURL:
+			return "PPPOE_TAG_HURL";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_MOTM:
+			return "PPPOE_TAG_MOTM";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_MAX_PAYLD:
+			return "PPPOE_TAG_MAX_PAYLD";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_IP_RT_ADD:
+			return "PPPOE_TAG_IP_RT_ADD";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_SVC_ERR:
+			return "PPPOE_TAG_SVC_ERR";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_AC_ERR:
+			return "PPPOE_TAG_AC_ERR";
+		case PPPoEDiscoveryLayer::PPPOE_TAG_GENERIC_ERR:
+			return "PPPOE_TAG_GENERIC_ERR";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor PPPoEDiscoveryLayer::SerializedFields::Tags{ PPPoELayer::SerializedFields::MaxID + 1,
+		                                                               "tags" };
+	const FieldDescriptor PPPoEDiscoveryLayer::SerializedFields::Tag{ 0, "tags" };
+
+	void PPPoEDiscoveryLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		PPPoELayer::serializeLayer(serializer);
+		{
+			auto tags = serializer.writeArray(SerializedFields::Tags);
+			for (auto tag = getFirstTag(); tag.isNotNull(); tag = getNextTag(tag))
+			{
+				tags.writeField(SerializedFields::Tag, tagTypeToString(tag.getType()));
+			}
 		}
 	}
 

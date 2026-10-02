@@ -1,6 +1,6 @@
 #define LOG_MODULE PacketLogModuleVrrpLayer
 
-#include <SystemUtils.h>
+#include "SystemUtils.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
@@ -382,6 +382,59 @@ namespace pcpp
 		m_AddressType = addressType;
 	}
 
+	constexpr const char* vrrpTypeToString(VrrpLayer::VrrpType type)
+	{
+		if (type == VrrpLayer::VrrpType_Advertisement)
+		{
+			return "Advertisement";
+		}
+
+		return "Unknown";
+	}
+
+	static constexpr const char* vrrpPriorityToString(VrrpLayer::VrrpPriority priority)
+	{
+		switch (priority)
+		{
+		case VrrpLayer::Default:
+			return "Default";
+		case VrrpLayer::Stop:
+			return "Stop";
+		case VrrpLayer::Owner:
+			return "Owner";
+		default:
+			return "Other";
+		}
+	}
+
+	const FieldDescriptor VrrpLayer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
+	const FieldDescriptor VrrpLayer::SerializedFields::VirtualRouterID{ Layer::SerializedFields::MaxID + 2,
+		                                                                "virtualRouterID" };
+	const FieldDescriptor VrrpLayer::SerializedFields::Priority{ Layer::SerializedFields::MaxID + 3, "priority" };
+	const FieldDescriptor VrrpLayer::SerializedFields::PriorityValue{ Layer::SerializedFields::MaxID + 3,
+		                                                              "priorityValue" };
+	const FieldDescriptor VrrpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 4, "checksum" };
+	const FieldDescriptor VrrpLayer::SerializedFields::IPAddresses{ Layer::SerializedFields::MaxID + 5, "ipAddresses" };
+	const FieldDescriptor VrrpLayer::SerializedFields::IPAddress{ 0, "ipAddress" };
+
+	void VrrpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Type, vrrpTypeToString(getType()));
+		serializer.writeField(SerializedFields::VirtualRouterID, getVirtualRouterID());
+		serializer.writeField(SerializedFields::Priority, vrrpPriorityToString(getPriorityAsEnum()));
+		serializer.writeField(SerializedFields::PriorityValue, getPriority());
+		serializer.writeHexField(SerializedFields::Checksum, getChecksum());
+		serializeVrrpLayer(serializer);
+		{
+			auto ipAddressArray = serializer.writeArray(SerializedFields::IPAddresses);
+			auto ipAddresses = getIPAddresses();
+			for (const auto ipAddress : ipAddresses)
+			{
+				ipAddressArray.writeField(SerializedFields::IPAddress, ipAddress.toString());
+			}
+		}
+	}
+
 	// -------- Class Vrrpv2Layer -----------------
 
 	VrrpV2Layer::VrrpV2Layer(uint8_t virtualRouterId, uint8_t priority, uint8_t advInt, uint8_t authType)
@@ -448,6 +501,32 @@ namespace pcpp
 		return checksum;
 	}
 
+	static constexpr const char* authTypeToString(VrrpV2Layer::VrrpAuthType authType)
+	{
+		switch (authType)
+		{
+		case VrrpV2Layer::VrrpAuthType::NoAuthentication:
+			return "NoAuthentication";
+		case VrrpV2Layer::VrrpAuthType::SimpleTextPassword:
+			return "SimpleTextPassword";
+		case VrrpV2Layer::VrrpAuthType::IPAuthenticationHeader:
+			return "IPAuthenticationHeader";
+		case VrrpV2Layer::VrrpAuthType::MD5:
+			return "MD5";
+		default:
+			return "Other";
+		}
+	}
+
+	const FieldDescriptor VrrpV2Layer::SerializedFields::AdvInt{ VrrpLayer::SerializedFields::MaxID + 1, "advInt" };
+	const FieldDescriptor VrrpV2Layer::SerializedFields::AuthType{ VrrpLayer::SerializedFields::MaxID + 2, "authType" };
+
+	void VrrpV2Layer::serializeVrrpLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::AdvInt, getAdvInt());
+		serializer.writeField(SerializedFields::AuthType, authTypeToString(getAuthTypeAsEnum()));
+	}
+
 	// -------- Class Vrrpv3Layer -----------------
 
 	VrrpV3Layer::VrrpV3Layer(IPAddress::AddressType addressType, uint8_t virtualRouterId, uint8_t priority,
@@ -505,5 +584,13 @@ namespace pcpp
 		vrrpHeader->checksum = currChecksumValue;
 
 		return checksum;
+	}
+
+	const FieldDescriptor VrrpV3Layer::SerializedFields::MaxAdvInt{ VrrpLayer::SerializedFields::MaxID + 1,
+		                                                            "maxAdvInt" };
+
+	void VrrpV3Layer::serializeVrrpLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::MaxAdvInt, getMaxAdvInt());
 	}
 }  // namespace pcpp

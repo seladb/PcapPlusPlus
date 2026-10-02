@@ -138,6 +138,10 @@ namespace pcpp
 
 		void setAddressType(IPAddress::AddressType addressType);
 
+		void serializeLayer(ObjectScope& serializer) const override;
+
+		virtual void serializeVrrpLayer(ObjectScope& serializer) const = 0;
+
 	public:
 		/// VRRP message types
 		enum VrrpType
@@ -263,6 +267,37 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by VrrpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for VrrpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Type, VirtualRouterID, Priority, Checksum, IPAddresses };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor Type;
+
+			static const FieldDescriptor VirtualRouterID;
+
+			static const FieldDescriptor Priority;
+
+			static const FieldDescriptor PriorityValue;
+
+			static const FieldDescriptor Checksum;
+
+			static const FieldDescriptor IPAddresses;
+
+			static const FieldDescriptor IPAddress;
+
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 5;
+		};
 	};
 
 	/// @class VrrpV2Layer
@@ -343,6 +378,28 @@ namespace pcpp
 		{
 			return canReinterpretAs<vrrp_header>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by VrrpV2Layer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for VrrpV2Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = VrrpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ AdvInt, AuthType };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor AdvInt;
+
+			static const FieldDescriptor AuthType;
+		};
+
+	protected:
+		void serializeVrrpLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class VrrpV3Layer
@@ -399,5 +456,25 @@ namespace pcpp
 		{
 			return canReinterpretAs<vrrp_header>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by VrrpV3Layer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for VrrpV3Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = VrrpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ MaxAdvInt };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor MaxAdvInt;
+		};
+
+	protected:
+		void serializeVrrpLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp

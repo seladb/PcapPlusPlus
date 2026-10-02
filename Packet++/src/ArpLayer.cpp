@@ -112,4 +112,70 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor ArpLayer::SerializedFields::OpCode{ Layer::SerializedFields::MaxID + 1, "opCode" };
+	const FieldDescriptor ArpLayer::SerializedFields::SenderMacAddress{ Layer::SerializedFields::MaxID + 2,
+		                                                                "senderMacAddress" };
+	const FieldDescriptor ArpLayer::SerializedFields::TargetMacAddress{ Layer::SerializedFields::MaxID + 3,
+		                                                                "targetMacAddress" };
+	const FieldDescriptor ArpLayer::SerializedFields::SenderIpAddress{ Layer::SerializedFields::MaxID + 4,
+		                                                               "senderIpAddress" };
+	const FieldDescriptor ArpLayer::SerializedFields::TargetIpAddress{ Layer::SerializedFields::MaxID + 5,
+		                                                               "targetIpAddress" };
+	const FieldDescriptor ArpLayer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 6, "messageType" };
+	const FieldDescriptor ArpLayer::SerializedFields::HardwareType{ Layer::SerializedFields::MaxID + 7,
+		                                                            "hardwareType" };
+	const FieldDescriptor ArpLayer::SerializedFields::HardwareSize{ Layer::SerializedFields::MaxID + 9,
+		                                                            "hardwareSize" };
+	const FieldDescriptor ArpLayer::SerializedFields::ProtocolType{ Layer::SerializedFields::MaxID + 10,
+		                                                            "protocolType" };
+	const FieldDescriptor ArpLayer::SerializedFields::ProtocolSize{ Layer::SerializedFields::MaxID + 11,
+		                                                            "protocolSize" };
+
+	static constexpr const char* getOpCodeAsString(ArpOpcode opCode)
+	{
+		switch (opCode)
+		{
+		case ARP_REQUEST:
+			return "Request";
+		case ARP_REPLY:
+			return "Reply";
+		default:
+			return "Unknown";
+		}
+	}
+
+	static constexpr const char* getMessageTypeAsString(ArpMessageType messageType)
+	{
+		switch (messageType)
+		{
+		case ArpMessageType::Request:
+			return "Request";
+		case ArpMessageType::Reply:
+			return "Reply";
+		case ArpMessageType::GratuitousRequest:
+			return "GratuitousRequest";
+		case ArpMessageType::GratuitousReply:
+			return "GratuitousReply";
+		default:
+			return "Unknown";
+		}
+	}
+
+	void ArpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* opCode = getOpCodeAsString(getOpcode());
+		auto* messageType = getMessageTypeAsString(getMessageType());
+
+		serializer.writeField(SerializedFields::OpCode, opCode);
+		serializer.writeField(SerializedFields::SenderMacAddress, getSenderMacAddress().toString());
+		serializer.writeField(SerializedFields::TargetMacAddress, getTargetMacAddress().toString());
+		serializer.writeField(SerializedFields::SenderIpAddress, getSenderIpAddr().toString());
+		serializer.writeField(SerializedFields::TargetIpAddress, getTargetIpAddr().toString());
+		serializer.writeField(SerializedFields::MessageType, messageType);
+		auto* header = getArpHeader();
+		serializer.writeField(SerializedFields::HardwareType, be16toh(header->hardwareType));
+		serializer.writeField(SerializedFields::HardwareSize, header->hardwareSize);
+		serializer.writeField(SerializedFields::ProtocolType, be16toh(header->protocolType));
+		serializer.writeField(SerializedFields::ProtocolSize, header->protocolSize);
+	}
 }  // namespace pcpp

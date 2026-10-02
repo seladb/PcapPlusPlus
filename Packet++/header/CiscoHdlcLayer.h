@@ -82,6 +82,28 @@ namespace pcpp
 			return OsiModelDataLinkLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by CiscoHdlcLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for CiscoHdlcLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Address, NextProtocol };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor Address;
+
+			static const FieldDescriptor NextProtocol;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct cisco_hdlc_header

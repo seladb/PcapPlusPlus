@@ -165,6 +165,32 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by ModbusLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for ModbusLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ TransactionID, ProtocolID, UnitID, FunctionCode };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor TransactionID;
+
+			static const FieldDescriptor ProtocolID;
+
+			static const FieldDescriptor UnitID;
+
+			static const FieldDescriptor FunctionCode;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		/// @return A pointer to the MODBUS header
 		modbus_header* getModbusHeader() const;

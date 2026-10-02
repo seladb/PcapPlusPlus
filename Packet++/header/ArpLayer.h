@@ -280,6 +280,47 @@ namespace pcpp
 		{
 			return canReinterpretAs<arphdr>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by ArpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for ArpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ OpCode,          SenderMacAddress, TargetMacAddress,
+					                                          SenderIpAddress, TargetIpAddress,  MessageType,
+					                                          HardwareType,    HardwareSize,     ProtocolType,
+					                                          ProtocolSize };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			static const FieldDescriptor OpCode;
+
+			static const FieldDescriptor SenderMacAddress;
+
+			static const FieldDescriptor TargetMacAddress;
+
+			static const FieldDescriptor SenderIpAddress;
+
+			static const FieldDescriptor TargetIpAddress;
+
+			static const FieldDescriptor MessageType;
+
+			static const FieldDescriptor HardwareType;
+
+			static const FieldDescriptor HardwareSize;
+
+			static const FieldDescriptor ProtocolType;
+
+			static const FieldDescriptor ProtocolSize;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp
