@@ -411,10 +411,10 @@ namespace pcpp
 	const FieldDescriptor VrrpLayer::SerializedFields::VirtualRouterID{ Layer::SerializedFields::MaxID + 2,
 		                                                                "virtualRouterID" };
 	const FieldDescriptor VrrpLayer::SerializedFields::Priority{ Layer::SerializedFields::MaxID + 3, "priority" };
-	const FieldDescriptor VrrpLayer::SerializedFields::PriorityValue{ Layer::SerializedFields::MaxID + 3,
+	const FieldDescriptor VrrpLayer::SerializedFields::PriorityValue{ Layer::SerializedFields::MaxID + 4,
 		                                                              "priorityValue" };
-	const FieldDescriptor VrrpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 4, "checksum" };
-	const FieldDescriptor VrrpLayer::SerializedFields::IPAddresses{ Layer::SerializedFields::MaxID + 5, "ipAddresses" };
+	const FieldDescriptor VrrpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 5, "checksum" };
+	const FieldDescriptor VrrpLayer::SerializedFields::IPAddresses{ Layer::SerializedFields::MaxID + 6, "ipAddresses" };
 	const FieldDescriptor VrrpLayer::SerializedFields::IPAddress{ 0, "ipAddress" };
 
 	void VrrpLayer::serializeLayer(ObjectScope& serializer) const

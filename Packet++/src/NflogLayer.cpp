@@ -109,7 +109,7 @@ namespace pcpp
 	const FieldDescriptor NflogLayer::SerializedFields::Attributes{ Layer::SerializedFields::MaxID + 4, "attributes" };
 	const FieldDescriptor NflogLayer::SerializedFields::Attribute{ 0, "attribute" };
 
-	static constexpr const char* getAttributeTypeAsString(const NflogTlv& attribute)
+	static const char* getAttributeTypeAsString(const NflogTlv& attribute)
 	{
 		switch (attribute.getType())
 		{

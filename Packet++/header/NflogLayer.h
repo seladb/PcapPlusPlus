@@ -219,14 +219,20 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the address family of the packet (e.g. 2 for IPv4, 10 for IPv6).
 			static const FieldDescriptor Family;
 
+			/// @brief Field descriptor for the pseudo-header version (0 for the current version).
 			static const FieldDescriptor Version;
 
+			/// @brief Field descriptor for the resource ID, i.e. the nflog group the packet was received on.
 			static const FieldDescriptor ResourceID;
 
+			/// @brief Field descriptor for the array of TLV attributes found in the layer.
 			static const FieldDescriptor Attributes;
 
+			/// @brief Field descriptor for a single entry of the Attributes array, written as the attribute type name
+			/// (e.g. "NFULA_PACKET_HDR").
 			static const FieldDescriptor Attribute;
 		};
 

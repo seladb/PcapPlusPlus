@@ -124,11 +124,11 @@ namespace pcpp
 	const FieldDescriptor ArpLayer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 6, "messageType" };
 	const FieldDescriptor ArpLayer::SerializedFields::HardwareType{ Layer::SerializedFields::MaxID + 7,
 		                                                            "hardwareType" };
-	const FieldDescriptor ArpLayer::SerializedFields::HardwareSize{ Layer::SerializedFields::MaxID + 9,
+	const FieldDescriptor ArpLayer::SerializedFields::HardwareSize{ Layer::SerializedFields::MaxID + 8,
 		                                                            "hardwareSize" };
-	const FieldDescriptor ArpLayer::SerializedFields::ProtocolType{ Layer::SerializedFields::MaxID + 10,
+	const FieldDescriptor ArpLayer::SerializedFields::ProtocolType{ Layer::SerializedFields::MaxID + 9,
 		                                                            "protocolType" };
-	const FieldDescriptor ArpLayer::SerializedFields::ProtocolSize{ Layer::SerializedFields::MaxID + 11,
+	const FieldDescriptor ArpLayer::SerializedFields::ProtocolSize{ Layer::SerializedFields::MaxID + 10,
 		                                                            "protocolSize" };
 
 	static constexpr const char* getOpCodeAsString(ArpOpcode opCode)

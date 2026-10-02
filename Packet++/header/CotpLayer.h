@@ -105,8 +105,10 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the COTP PDU type, written as a number.
 			static const FieldDescriptor PduType;
 
+			/// @brief Field descriptor for the COTP TPDU number, written as a number.
 			static const FieldDescriptor TpduNumber;
 		};
 

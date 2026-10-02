@@ -498,7 +498,7 @@ namespace pcpp
 
 	const FieldDescriptor PPPoEDiscoveryLayer::SerializedFields::Tags{ PPPoELayer::SerializedFields::MaxID + 1,
 		                                                               "tags" };
-	const FieldDescriptor PPPoEDiscoveryLayer::SerializedFields::Tag{ 0, "tags" };
+	const FieldDescriptor PPPoEDiscoveryLayer::SerializedFields::Tag{ 0, "tag" };
 
 	void PPPoEDiscoveryLayer::serializeLayer(ObjectScope& serializer) const
 	{

@@ -282,20 +282,29 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the VRRP message type, written as a string.
 			static const FieldDescriptor Type;
 
+			/// @brief Field descriptor for the virtual router ID (VRID), written as a number.
 			static const FieldDescriptor VirtualRouterID;
 
+			/// @brief Field descriptor for the priority category, written as a string: "Default", "Stop",
+			/// "Owner" or "Other".
 			static const FieldDescriptor Priority;
 
+			/// @brief Field descriptor for the raw priority value, written as a number.
 			static const FieldDescriptor PriorityValue;
 
+			/// @brief Field descriptor for the VRRP checksum, written as a hex value.
 			static const FieldDescriptor Checksum;
 
+			/// @brief Field descriptor for the array of virtual router IP addresses.
 			static const FieldDescriptor IPAddresses;
 
+			/// @brief Field descriptor for a single entry of the IPAddresses array, written as an IP address string.
 			static const FieldDescriptor IPAddress;
 
+			/// Maximum field ID used by the layer.
 			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 5;
 		};
 	};
@@ -381,8 +390,8 @@ namespace pcpp
 
 		/// @struct SerializedFields
 		/// Fields written by VrrpV2Layer's serializeLayer(), in addition to
-		/// Layer::SerializedFields.
-		struct SerializedFields : Layer::SerializedFields
+		/// VrrpLayer::SerializedFields.
+		struct SerializedFields : VrrpLayer::SerializedFields
 		{
 			/// @return All field descriptors for VrrpV2Layer
 			static std::vector<FieldDescriptor> all()
@@ -393,8 +402,11 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the advertisement interval (in seconds), written as a number.
 			static const FieldDescriptor AdvInt;
 
+			/// @brief Field descriptor for the authentication type, written as a string
+			/// (see VrrpV2Layer::VrrpAuthType).
 			static const FieldDescriptor AuthType;
 		};
 
@@ -459,8 +471,8 @@ namespace pcpp
 
 		/// @struct SerializedFields
 		/// Fields written by VrrpV3Layer's serializeLayer(), in addition to
-		/// Layer::SerializedFields.
-		struct SerializedFields : Layer::SerializedFields
+		/// VrrpLayer::SerializedFields.
+		struct SerializedFields : VrrpLayer::SerializedFields
 		{
 			/// @return All field descriptors for VrrpV3Layer
 			static std::vector<FieldDescriptor> all()
@@ -471,6 +483,7 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the maximum advertisement interval (in centiseconds), written as a number.
 			static const FieldDescriptor MaxAdvInt;
 		};
 

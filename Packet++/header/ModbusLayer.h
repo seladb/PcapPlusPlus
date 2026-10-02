@@ -179,12 +179,16 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the MODBUS transaction ID, written as a number.
 			static const FieldDescriptor TransactionID;
 
+			/// @brief Field descriptor for the MODBUS protocol ID, written as a number.
 			static const FieldDescriptor ProtocolID;
 
+			/// @brief Field descriptor for the MODBUS unit ID, written as a number.
 			static const FieldDescriptor UnitID;
 
+			/// @brief Field descriptor for the MODBUS function code, written as a string.
 			static const FieldDescriptor FunctionCode;
 		};
 

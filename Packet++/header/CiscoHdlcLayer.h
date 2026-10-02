@@ -96,8 +96,10 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the address field, written as a string (see CiscoHdlcLayer::AddressType).
 			static const FieldDescriptor Address;
 
+			/// @brief Field descriptor for the protocol type of the encapsulated payload, written as a number.
 			static const FieldDescriptor NextProtocol;
 		};
 

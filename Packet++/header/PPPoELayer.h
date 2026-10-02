@@ -108,14 +108,19 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the PPPoE code, written as a number.
 			static const FieldDescriptor Code;
 
+			/// @brief Field descriptor for the PPPoE version, written as a number.
 			static const FieldDescriptor Version;
 
+			/// @brief Field descriptor for the PPPoE type, written as a number.
 			static const FieldDescriptor Type;
 
+			/// @brief Field descriptor for the PPPoE session ID, written as a number in host byte order.
 			static const FieldDescriptor SessionID;
 
+			/// Maximum field ID used by the layer.
 			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 4;
 		};
 
@@ -392,7 +397,7 @@ namespace pcpp
 
 		/// @struct SerializedFields
 		/// Fields written by PPPoEDiscoveryLayer's serializeLayer(), in addition to
-		/// Layer::SerializedFields.
+		/// PPPoELayer::SerializedFields.
 		struct SerializedFields : PPPoELayer::SerializedFields
 		{
 			/// @return All field descriptors for PPPoEDiscoveryLayer
@@ -404,8 +409,11 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the array of PPPoE tags found in the layer.
 			static const FieldDescriptor Tags;
 
+			/// @brief Field descriptor for a single entry of the Tags array, written as the tag type name
+			/// (e.g. "PPPOE_TAG_SVC_NAME").
 			static const FieldDescriptor Tag;
 		};
 

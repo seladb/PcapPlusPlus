@@ -120,10 +120,13 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the Security Parameters Index (SPI), written as a hex value.
 			static const FieldDescriptor SPI;
 
+			/// @brief Field descriptor for the sequence number, written as a number.
 			static const FieldDescriptor SequenceNumber;
 
+			/// @brief Field descriptor for the Integrity Check Value (ICV), written as a hex string.
 			static const FieldDescriptor ICV;
 		};
 
@@ -203,8 +206,10 @@ namespace pcpp
 				return result;
 			}
 
+			/// @brief Field descriptor for the Security Parameters Index (SPI), written as a hex value.
 			static const FieldDescriptor SPI;
 
+			/// @brief Field descriptor for the sequence number, written as a number.
 			static const FieldDescriptor SequenceNumber;
 		};
 
