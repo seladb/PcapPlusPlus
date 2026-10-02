@@ -279,21 +279,22 @@ PcapPlusPlus は現在、以下のプロトコルのパケットの解析、編�
 42. DNS
 43. DoIP
 44. FTP
-45. HTTP ヘッダ (リクエストとレスポンス)
-46. LDAP
-47. Modbus
-48. MySQL - 解析のみ (編集機能なし)
-49. NTP (v3, v4)
-50. PEM デコーダおよびエンコーダ
-51. PostgreSQL Wire Protocol (PGWire) - 解析のみ (編集機能なし)
-52. Radius
-53. S7 Communication (S7comm)
-54. SMTP
-55. SOME/IP
-56. SSH - 解析のみ (編集機能なし)
-57. Telnet - 解析のみ (編集機能なし)
-58. X509 証明書 - 解析のみ (編集機能なし)
-59. 汎用ペイロード
+45. GVCP
+46. HTTP ヘッダ (リクエストとレスポンス)
+47. LDAP
+48. Modbus
+49. MySQL - 解析のみ (編集機能なし)
+50. NTP (v3, v4)
+51. PEM デコーダおよびエンコーダ
+52. PostgreSQL Wire Protocol (PGWire) - 解析のみ (編集機能なし)
+53. Radius
+54. S7 Communication (S7comm)
+55. SMTP
+56. SOME/IP
+57. SSH - 解析のみ (編集機能なし)
+58. Telnet - 解析のみ (編集機能なし)
+59. X509 証明書 - 解析のみ (編集機能なし)
+60. 汎用ペイロード
 
 ## DPDK と PF_RING のサポート
 
