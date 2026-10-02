@@ -281,4 +281,384 @@ namespace pcpp
 			return;
 		m_Out << '"' << escapeQuotedString(name) << "\":";
 	}
+
+	// ============================================================
+	// YamlSerializer
+	// ============================================================
+
+	YamlSerializer::YamlSerializer(std::ostream& out) : m_Out(out)
+	{}
+
+	void YamlSerializer::writeIndent()
+	{
+		if (!m_WriteIdent)
+		{
+			m_WriteIdent = true;
+			return;
+		}
+		// The outermost/root container contributes no visual indent (it
+		// has no "-"/"key:" wrapper of its own to be nested under) — only
+		// containers pushed while the stack was already non-empty do.
+		size_t depth = m_ContextStack.empty() ? 0 : m_ContextStack.size() - 1;
+		m_Out << std::string(depth * 2, ' ');
+	}
+
+	void YamlSerializer::writeNewlineIfNeeded()
+	{
+		if (m_WriteNewLine)
+			m_Out << '\n';
+		m_WriteNewLine = true;
+	}
+
+	void YamlSerializer::writeContainerHeader(const std::string& name)
+	{
+		if (m_ContextStack.empty())
+			return;  // document root: nothing visible to write at all — writing
+			         // indent(0)/newline here would leave a spurious leading blank line
+		writeNewlineIfNeeded();
+		writeIndent();
+		if (isArrayContext())
+		{
+			m_Out << "- ";
+			if (m_ContextStack.back() == Context::EmptyArray)
+			{
+				m_ContextStack.back() = Context::Array;
+			}
+		}
+		else
+			m_Out << name << ':';
+	}
+
+	void YamlSerializer::writeFieldPrefix(const std::string& name)
+	{
+		writeNewlineIfNeeded();
+		writeIndent();
+		if (isArrayContext())
+		{
+			m_Out << "- ";
+			if (m_ContextStack.back() == Context::EmptyArray)
+			{
+				m_ContextStack.back() = Context::Array;
+			}
+			return;
+		}
+		m_Out << name << ": ";  // also covers the (degenerate) root-scalar case
+	}
+
+	void YamlSerializer::startObject(const FieldDescriptor& field)
+	{
+		writeContainerHeader(field.name);
+		if (isArrayContext())
+		{
+			m_WriteIdent = false;
+			m_WriteNewLine = false;
+		}
+		m_ContextStack.push_back(Context::Object);
+	}
+
+	void YamlSerializer::endObject()
+	{
+		m_ContextStack.pop_back();
+	}
+
+	void YamlSerializer::startArray(const FieldDescriptor& field)
+	{
+		writeContainerHeader(field.name);
+		m_ContextStack.push_back(Context::EmptyArray);
+	}
+
+	void YamlSerializer::endArray()
+	{
+		if (m_ContextStack.back() == Context::EmptyArray)
+		{
+			m_Out << " []";
+		}
+		m_ContextStack.pop_back();
+	}
+
+	void YamlSerializer::writeField(const FieldDescriptor& field, const std::string& value)
+	{
+		writeFieldPrefix(field.name);
+		m_Out << '"' << escapeQuotedString(value) << '"';
+	}
+
+	void YamlSerializer::writeField(const FieldDescriptor& field, int64_t value)
+	{
+		writeFieldPrefix(field.name);
+		m_Out << value;
+	}
+
+	void YamlSerializer::writeField(const FieldDescriptor& field, uint64_t value)
+	{
+		writeFieldPrefix(field.name);
+		// Same reasoning as JsonSerializer: only quote when the value
+		// could actually lose precision in a JS-based consumer (many YAML
+		// tools, e.g. js-yaml, are JS-based) — not unconditionally.
+		if (value > kMaxSafeJsonInteger)
+			m_Out << '"' << value << '"';
+		else
+			m_Out << value;
+	}
+
+	void YamlSerializer::writeField(const FieldDescriptor& field, double value)
+	{
+		writeFieldPrefix(field.name);
+		m_Out << value;
+	}
+
+	void YamlSerializer::writeField(const FieldDescriptor& field, bool value)
+	{
+		writeFieldPrefix(field.name);
+		m_Out << (value ? "true" : "false");
+	}
+
+	void YamlSerializer::writeNullField(const FieldDescriptor& field)
+	{
+		writeFieldPrefix(field.name);
+		m_Out << "null";
+	}
+
+	void YamlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value)
+	{
+		writeFieldPrefix(field.name);
+		hexNumToStream(m_Out, value);
+	}
+
+	bool YamlSerializer::isArrayContext() const
+	{
+		return !m_ContextStack.empty() &&
+		       (m_ContextStack.back() == Context::EmptyArray || m_ContextStack.back() == Context::Array);
+	}
+
+	// ============================================================
+	// XmlSerializer
+	// ============================================================
+
+	namespace
+	{
+		bool isXmlControlChar(char c)
+		{
+			return (c >= 0x00 && c <= 0x1F) && c != '\t' && c != '\n' && c != '\r';
+		}
+	}  // namespace
+
+	XmlSerializer::XmlSerializer(std::ostream& out) : m_Out(out)
+	{
+		// Write XML declaration
+		m_Out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	}
+
+	void XmlSerializer::startObject(const FieldDescriptor& field)
+	{
+		Context ctx;
+		ctx.name = resolveElementName(field.name, "object");
+		ctx.isArray = false;
+
+		writeIndent();
+		writeOpenTag(ctx.name);
+		m_ContextStack.push_back(ctx);
+	}
+
+	void XmlSerializer::endObject()
+	{
+		if (m_ContextStack.empty())
+			return;  // Unbalanced call - ignore
+
+		Context ctx = m_ContextStack.back();
+		m_ContextStack.pop_back();
+
+		writeIndent();
+		writeCloseTag(ctx.name);
+	}
+
+	void XmlSerializer::startArray(const FieldDescriptor& field)
+	{
+		Context ctx;
+		ctx.name = resolveElementName(field.name, "array");
+		ctx.isArray = true;
+
+		writeIndent();
+		writeOpenTag(ctx.name);
+		m_ContextStack.push_back(ctx);
+	}
+
+	void XmlSerializer::endArray()
+	{
+		if (m_ContextStack.empty())
+			return;
+
+		Context ctx = m_ContextStack.back();
+		m_ContextStack.pop_back();
+
+		writeIndent();
+		writeCloseTag(ctx.name);
+	}
+
+	void XmlSerializer::writeField(const FieldDescriptor& field, const std::string& value)
+	{
+		writeValueElement(resolveElementName(field.name, "field"), escapeXML(value), false);
+	}
+
+	void XmlSerializer::writeField(const FieldDescriptor& field, int64_t value)
+	{
+		writeValueElement(resolveElementName(field.name, "field"), std::to_string(value), false);
+	}
+
+	void XmlSerializer::writeField(const FieldDescriptor& field, uint64_t value)
+	{
+		writeValueElement(resolveElementName(field.name, "field"), std::to_string(value), false);
+	}
+
+	void XmlSerializer::writeField(const FieldDescriptor& field, double value)
+	{
+		std::string strVal = std::to_string(value);
+		// Remove trailing zeros for cleaner output (and the decimal point
+		// itself if nothing remains after it). find_last_not_of('0') lands
+		// on the last significant digit — e.g. for "1.500000" that's the
+		// '5', not the '.' — so we must erase everything AFTER it, not
+		// just the "whole fraction is zero" case where it happens to land
+		// on the decimal point.
+		size_t pos = strVal.find_last_not_of('0');
+		if (pos != std::string::npos)
+		{
+			if (strVal[pos] == '.')
+				--pos;
+			strVal.erase(pos + 1);
+		}
+		writeValueElement(resolveElementName(field.name, "field"), strVal, false);
+	}
+
+	void XmlSerializer::writeField(const FieldDescriptor& field, bool value)
+	{
+		writeValueElement(resolveElementName(field.name, "field"), value ? "true" : "false", false);
+	}
+
+	void XmlSerializer::writeNullField(const FieldDescriptor& field)
+	{
+		writeValueElement(resolveElementName(field.name, "field"), "", true);
+	}
+
+	void XmlSerializer::writeHexField(const FieldDescriptor& field, uint64_t value)
+	{
+		writeValueElement(resolveElementName(field.name, "field"), hexNumToString(value), false);
+	}
+
+	// --- Private helper methods ---
+
+	void XmlSerializer::writeOpenTag(const std::string& name)
+	{
+		m_Out << '<' << name << '>' << '\n';
+	}
+
+	void XmlSerializer::writeCloseTag(const std::string& name)
+	{
+		m_Out << "</" << name << '>' << '\n';
+	}
+
+	void XmlSerializer::writeValueElement(const std::string& name, const std::string& value, bool isNull)
+	{
+		writeIndent();
+		m_Out << '<' << name;
+
+		if (isNull)
+		{
+			m_Out << " xsi:nil=\"true\"";
+		}
+
+		if (value.empty() || isNull)
+		{
+			// Empty value - self-closing tag
+			m_Out << "/>\n";
+		}
+		else
+		{
+			m_Out << '>' << value << "</" << name << ">\n";
+		}
+	}
+
+	void XmlSerializer::writeIndent()
+	{
+		if (m_ContextStack.empty())
+			return;
+
+		size_t depth = m_ContextStack.size();
+		// Cache indentation strings for performance
+		if (m_IndentCache.size() <= depth)
+		{
+			m_IndentCache.resize(depth + 1);
+			std::string indent;
+			for (size_t i = 0; i < depth; ++i)
+			{
+				indent += "  ";
+			}
+			m_IndentCache[depth] = indent;
+		}
+		m_Out << m_IndentCache[depth];
+	}
+
+	std::string XmlSerializer::escapeXML(const std::string& s)
+	{
+		std::string result;
+		result.reserve(s.size() + s.size() / 5);  // Pre-allocate for typical ~20% expansion
+
+		for (char c : s)
+		{
+			// Filter out invalid XML control characters
+			if (isXmlControlChar(c))
+				continue;
+
+			switch (c)
+			{
+			case '&':
+				result += "&amp;";
+				break;
+			case '<':
+				result += "&lt;";
+				break;
+			case '>':
+				result += "&gt;";
+				break;
+			case '"':
+				result += "&quot;";
+				break;
+			case '\'':
+				result += "&apos;";
+				break;
+			default:
+				result += c;
+				break;
+			}
+		}
+		return result;
+	}
+
+	bool XmlSerializer::isValidXMLName(const std::string& name)
+	{
+		if (name.empty())
+			return false;
+
+		// XML names must start with a letter or underscore
+		char first = name[0];
+		if (!((first >= 'a' && first <= 'z') || (first >= 'A' && first <= 'Z') || first == '_' || first == ':'))
+		{
+			return false;
+		}
+
+		// Subsequent characters can be letters, digits, or certain punctuation
+		for (size_t i = 1; i < name.length(); ++i)
+		{
+			char c = name[i];
+			if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-' ||
+			      c == '.' || c == ':'))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	std::string XmlSerializer::resolveElementName(const std::string& name, const char* fallback)
+	{
+		return isValidXMLName(name) ? name : std::string(fallback);
+	}
 }  // namespace pcpp
