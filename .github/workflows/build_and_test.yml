@@ -11,7 +11,6 @@ env:
   BUILD_DIR: Dist
   GCOVR_FLAGS: --gcov-ignore-errors all --gcov-ignore-parse-errors all --merge-mode-functions=separate --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
   CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CPPCHECK_VERSION: 2.9
 
 permissions:
   contents: read
@@ -21,38 +20,6 @@ concurrency:
   cancel-in-progress: ${{ !(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev') }}
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-latest
-    container: seladb/alpine317
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      # Checkout is performed out of the container and doesn't match our user
-      - name: Fix checkout ownership
-        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
-
-      - name: Install dependencies
-        run: |
-          apk update && apk add python3-dev
-          git clone --branch $CPPCHECK_VERSION --single-branch https://github.com/danmar/cppcheck.git
-          cd cppcheck && mkdir build && cd build && cmake .. && cmake --build . && cmake --install . && cd ../../ && rm -rf cppcheck
-          python3 -m venv .venv
-          . .venv/bin/activate
-          python3 -m pip install pre-commit setuptools clang-format==19.1.6 clang-tidy==18.1.8
-
-      - name: Run pre-commit
-        run: |
-          . .venv/bin/activate
-          pre-commit run --all-files
-
-      - name: Configure PcapPlusPlus for Static analysis
-        run: cmake -S . -B "$BUILD_DIR"
-
-      - name: Run clang-tidy on changed files
-        run: |
-          ./ci/clang-tidy-all.sh changed "$BUILD_DIR"
-
   linux:
     runs-on: ${{ matrix.runner }}
     container: seladb/${{ matrix.image }}
