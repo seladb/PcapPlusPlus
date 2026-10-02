@@ -4,13 +4,12 @@ on:
     branches: ["master", "dev"]
   pull_request:
     branches: ["dev"]
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
 
 env:
   BUILD_DIR: Dist
   CPPCHECK_VERSION: 2.9
-  CPPCHECK_CACHE_PATHS: |
-    /usr/local/bin/cppcheck
-    /usr/local/share/Cppcheck
 
 permissions:
   contents: read
@@ -22,7 +21,7 @@ concurrency:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
-    container: seladb/alpine317@sha256:d6b95ae66733358db3f5632b11c51fb0c2202898db6c4b350f099237c0fe8ad5
+    container: seladb/alpine317
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,32 +30,13 @@ jobs:
       - name: Fix checkout ownership
         run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
-      - name: Install node for cache support
-        run : apk update && apk add nodejs
-
-      - name: Restore cppcheck
-        id: cppcheck-restore
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-            path: ${{ env.CPPCHECK_CACHE_PATHS }}
-            key: cppcheck-${{ env.CPPCHECK_VERSION }}-${{ hashFiles('.github/workflows/lint.yml') }}
-
       - name: Install cppcheck
-        if: steps.cppcheck-restore.outputs.cache-hit != 'true'
         run: |
-          apk update && apk add pcre-dev
           git clone --branch $CPPCHECK_VERSION --depth 1 https://github.com/cppcheck-opensource/cppcheck.git
           cmake -S cppcheck -B cppcheck/build -DCMAKE_BUILD_TYPE=Release
           cmake --build cppcheck/build --parallel $(nproc)
           cmake --install cppcheck/build
           rm -rf cppcheck
-
-      - name: Cache cppcheck
-        if: steps.cppcheck-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-            path: ${{ env.CPPCHECK_CACHE_PATHS }}
-            key: ${{ steps.cppcheck-restore.outputs.cache-primary-key }}
 
       - name: Install pre-commit
         run: |
@@ -71,7 +51,7 @@ jobs:
 
   clang-tidy:
     runs-on: ubuntu-latest
-    container: seladb/alpine317@sha256:d6b95ae66733358db3f5632b11c51fb0c2202898db6c4b350f099237c0fe8ad5
+    container: seladb/alpine317
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
