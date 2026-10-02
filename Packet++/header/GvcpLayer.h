@@ -163,6 +163,11 @@ namespace pcpp
 		/// Allocate zeroed data for a new layer and set the protocol
 		/// @param[in] dataLen The size of the data to allocate in bytes
 		void initLayer(size_t dataLen);
+
+	private:
+		/// @return The command field of a GVCP request or acknowledge in host byte order, also when the spec doesn't
+		/// define the value
+		static uint16_t getRawCommand(const uint8_t* data);
 	};
 
 	/// Output operator for GvcpLayer::GvcpCommand, prints the command name, or "Unknown" if the value isn't defined by
@@ -188,7 +193,7 @@ namespace pcpp
 		/// add a PayloadLayer after this layer
 		/// @param[in] command The command
 		/// @param[in] flag The flag, optional
-		/// @param[in] requestId The request ID, which must not be 0, optional
+		/// @param[in] requestId The request ID, optional. The spec requires a non-zero value
 		/// @throw std::invalid_argument if the command is an acknowledge value (an odd value)
 		explicit GvcpRequestLayer(GvcpCommand command, GvcpFlag flag = 0, uint16_t requestId = 1)
 		    : GvcpRequestLayer(command, flag, requestId, 0)
@@ -521,7 +526,7 @@ namespace pcpp
 		/// A constructor that creates a new GVCP discovery command
 		/// @param[in] allowBroadcastAck Whether the device is allowed to broadcast the acknowledge, optional
 		/// @param[in] acknowledgeRequired Whether an acknowledge is required, optional
-		/// @param[in] requestId The request ID, which must not be 0, optional
+		/// @param[in] requestId The request ID, optional. The spec requires a non-zero value
 		explicit GvcpDiscoveryRequestLayer(bool allowBroadcastAck = false, bool acknowledgeRequired = true,
 		                                   uint16_t requestId = 1);
 
@@ -814,7 +819,7 @@ namespace pcpp
 		/// @param[in] subnetMask The subnet mask to force on the device
 		/// @param[in] gatewayIpAddress The default gateway to force on the device
 		/// @param[in] flag The flag, optional
-		/// @param[in] requestId The request ID, which must not be 0, optional
+		/// @param[in] requestId The request ID, optional. The spec requires a non-zero value
 		GvcpForceIpRequestLayer(const MacAddress& macAddress, const IPv4Address& ipAddress,
 		                        const IPv4Address& subnetMask, const IPv4Address& gatewayIpAddress, GvcpFlag flag = 0,
 		                        uint16_t requestId = 1);

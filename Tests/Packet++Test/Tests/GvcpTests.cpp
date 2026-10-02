@@ -262,6 +262,21 @@ PTF_TEST_CASE(GvcpMalformedParsingTest)
 		PTF_ASSERT_EQUAL(ackLayer.getCommand(), pcpp::GvcpLayer::GvcpCommand::Unknown, enumclass);
 		PTF_ASSERT_EQUAL(ackLayer.toString(),
 		                 "GVCP Acknowledge Layer, Command: Unknown, Acknowledge ID: 0, Status: Unknown");
+
+		// the serialized values are the raw values from the header
+		std::ostringstream requestOss;
+		pcpp::JsonSerializer requestSerializer(requestOss);
+		requestLayer.serialize(requestSerializer);
+		PTF_ASSERT_EQUAL(
+		    requestOss.str(),
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":4660,"commandName":"Unknown","dataSize":0,"flag":0,"acknowledgeRequired":false,"requestId":1})");
+
+		std::ostringstream ackOss;
+		pcpp::JsonSerializer ackSerializer(ackOss);
+		ackLayer.serialize(ackSerializer);
+		PTF_ASSERT_EQUAL(
+		    ackOss.str(),
+		    R"({"protocolName":"GVCP","protocolId":65,"length":8,"command":17185,"commandName":"Unknown","dataSize":0,"status":4660,"statusName":"Unknown","ackId":0})");
 	}
 
 	// A request can't be created with an acknowledge value, and an acknowledge can't be created with a command value

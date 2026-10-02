@@ -2,6 +2,7 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 #include <algorithm>
+#include <cstddef>
 #include <cstring>
 #include <stdexcept>
 #include <sstream>
@@ -189,14 +190,21 @@ namespace pcpp
 
 	// -------- Class GvcpLayer -----------------
 
+	uint16_t GvcpLayer::getRawCommand(const uint8_t* data)
+	{
+		static_assert(offsetof(GvcpRequestLayer::gvcp_request_header, command) ==
+		                  offsetof(GvcpAcknowledgeLayer::gvcp_ack_header, command),
+		              "The command must have the same offset in both GVCP headers");
+		return netToHost16(reinterpret_cast<const GvcpRequestLayer::gvcp_request_header*>(data)->command);
+	}
+
 	GvcpLayer* GvcpLayer::parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		const bool isRequest = GvcpRequestLayer::isDataValid(data, dataLen);
 		if (!isRequest && !GvcpAcknowledgeLayer::isDataValid(data, dataLen))
 			return nullptr;
 
-		const GvcpCommand command =
-		    toGvcpCommand(netToHost16(reinterpret_cast<const GvcpRequestLayer::gvcp_request_header*>(data)->command));
+		const GvcpCommand command = toGvcpCommand(getRawCommand(data));
 
 		if (isRequest)
 		{
@@ -235,7 +243,7 @@ namespace pcpp
 
 	void GvcpLayer::serializeLayer(ObjectScope& serializer) const
 	{
-		serializer.writeField(SerializedFields::Command, static_cast<uint16_t>(getCommand()));
+		serializer.writeField(SerializedFields::Command, getRawCommand(m_Data));
 		serializer.writeField(SerializedFields::CommandName, commandToString(getCommand()));
 		serializer.writeField(SerializedFields::DataSize, getDataSize());
 	}
@@ -399,7 +407,7 @@ namespace pcpp
 	void GvcpAcknowledgeLayer::serializeLayer(ObjectScope& serializer) const
 	{
 		GvcpLayer::serializeLayer(serializer);
-		serializer.writeField(SerializedFields::Status, static_cast<uint16_t>(getStatus()));
+		serializer.writeField(SerializedFields::Status, netToHost16(getGvcpHeader()->status));
 		serializer.writeField(SerializedFields::StatusName, statusToString(getStatus()));
 		serializer.writeField(SerializedFields::AckId, getAckId());
 	}
