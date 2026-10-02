@@ -68,7 +68,7 @@ public:
 	/**
 	 * Collect stats per packet
 	 */
-	void collectStats(pcpp::Packet& packet)
+	void collectStats(const pcpp::Packet& packet)
 	{
 		packetCount++;
 		if (packet.isPacketOfType(pcpp::Ethernet))

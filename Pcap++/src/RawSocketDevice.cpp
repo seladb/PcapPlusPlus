@@ -551,6 +551,7 @@ namespace pcpp
 		}
 	}
 
+	// cppcheck-suppress constParameter
 	RawSocketDevice::RecvPacketResult RawSocketDevice::getError(int& errorCode) const
 	{
 #if defined(_WIN32)
