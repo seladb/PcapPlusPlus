@@ -224,7 +224,7 @@ namespace pcpp
 		}
 	}
 
-	const FieldDescriptor NDPLayerBase::SerializedFields::Options{ IcmpV6Layer::SerializedFields::MaxID + 4,
+	const FieldDescriptor NDPLayerBase::SerializedFields::Options{ IcmpV6Layer::SerializedFields::MaxID + 1,
 		                                                           "options" };
 	const FieldDescriptor NDPLayerBase::SerializedFields::Option{ 0, "option" };
 
@@ -238,10 +238,10 @@ namespace pcpp
 	}
 
 	const FieldDescriptor NDPNeighborSolicitationLayer::SerializedFields::TargetIP{
-		NDPLayerBase::SerializedFields::MaxID + 5, "targetIP"
+		NDPLayerBase::SerializedFields::MaxID + 1, "targetIP"
 	};
 	const FieldDescriptor NDPNeighborSolicitationLayer::SerializedFields::LinkLayerAddress{
-		NDPLayerBase::SerializedFields::MaxID + 6, "linkLayerAddress"
+		NDPLayerBase::SerializedFields::MaxID + 2, "linkLayerAddress"
 	};
 
 	void NDPNeighborSolicitationLayer::serializeLayer(ObjectScope& serializer) const
@@ -256,19 +256,19 @@ namespace pcpp
 	}
 
 	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::TargetIP{
-		NDPLayerBase::SerializedFields::MaxID + 7, "targetIP"
+		NDPLayerBase::SerializedFields::MaxID + 1, "targetIP"
 	};
 	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::RouterFlag{
-		NDPLayerBase::SerializedFields::MaxID + 8, "routerFlag"
+		NDPLayerBase::SerializedFields::MaxID + 2, "routerFlag"
 	};
 	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::UnicastFlag{
-		NDPLayerBase::SerializedFields::MaxID + 9, "unicastFlag"
+		NDPLayerBase::SerializedFields::MaxID + 3, "unicastFlag"
 	};
 	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::OverrideFlag{
-		NDPLayerBase::SerializedFields::MaxID + 10, "overrideFlag"
+		NDPLayerBase::SerializedFields::MaxID + 4, "overrideFlag"
 	};
 	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::TargetMac{
-		NDPLayerBase::SerializedFields::MaxID + 11, "targetMac"
+		NDPLayerBase::SerializedFields::MaxID + 5, "targetMac"
 	};
 
 	void NDPNeighborAdvertisementLayer::serializeLayer(ObjectScope& serializer) const

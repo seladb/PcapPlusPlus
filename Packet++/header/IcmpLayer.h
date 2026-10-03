@@ -623,6 +623,7 @@ namespace pcpp
 			{
 				auto result = Layer::SerializedFields::all();
 				std::initializer_list<FieldDescriptor> extra{ Type,
+					                                          TypeName,
 					                                          Code,
 					                                          Checksum,
 					                                          Id,
@@ -646,28 +647,36 @@ namespace pcpp
 			/// @brief ICMP message type, as an integer
 			static const FieldDescriptor Type;
 
+			/// @brief ICMP message type, as a string
+			static const FieldDescriptor TypeName;
+
 			/// @brief ICMP message code, as an integer
 			static const FieldDescriptor Code;
 
 			/// @brief Checksum, in hexadecimal notation
 			static const FieldDescriptor Checksum;
 
-			/// @brief Identifier, in host byte order
+			/// @brief Identifier for echo, timestamp, information, and address mask request/reply messages, in host
+			/// byte order
 			static const FieldDescriptor Id;
 
-			/// @brief Sequence number, in host byte order
+			/// @brief Sequence number for echo, timestamp, information, and address mask request/reply messages, in
+			/// host byte order
 			static const FieldDescriptor Sequence;
 
 			/// @brief Timestamp for echo request/reply messages
 			static const FieldDescriptor Timestamp;
 
-			/// @brief Originate timestamp (milliseconds since midnight UTC), in host byte order
+			/// @brief Originate timestamp for timestamp request/reply messages (milliseconds since midnight UTC), in
+			/// host byte order
 			static const FieldDescriptor OriginateTimestamp;
 
-			/// @brief Receive timestamp (milliseconds since midnight UTC), in host byte order
+			/// @brief Receive timestamp for timestamp request/reply messages (milliseconds since midnight UTC), in host
+			/// byte order
 			static const FieldDescriptor ReceiveTimestamp;
 
-			/// @brief Transmit timestamp (milliseconds since midnight UTC), in host byte order
+			/// @brief Transmit timestamp for timestamp request/reply messages (milliseconds since midnight UTC), in
+			/// host byte order
 			static const FieldDescriptor TransmitTimestamp;
 
 			/// @brief Next-hop MTU for destination unreachable messages, in host byte order
@@ -676,22 +685,23 @@ namespace pcpp
 			/// @brief Gateway IPv4 address for redirect messages, as a string
 			static const FieldDescriptor GatewayAddress;
 
-			/// @brief Subnet address mask for address mask messages, as a string
+			/// @brief Subnet address mask for address mask request/reply messages, as a string
 			static const FieldDescriptor AddressMask;
 
 			/// @brief Pointer byte offset for parameter problem messages
 			static const FieldDescriptor Pointer;
 
-			/// @brief Number of router advertisements in the message
+			/// @brief Number of router addresses in router advertisement messages
 			static const FieldDescriptor AdvertisementCount;
 
-			/// @brief Number of 32-bit words per router address entry (typically 2)
+			/// @brief Number of 32-bit words per router address entry in router advertisement messages (typically 2)
 			static const FieldDescriptor AddressEntrySize;
 
 			/// @brief Router advertisement lifetime in seconds, in host byte order
 			static const FieldDescriptor Lifetime;
 
-			/// @brief Array of router address advertisements; elements described by RouterAddressEntry
+			/// @brief Array of router addresses in router advertisement messages; elements described by
+			/// RouterAddressEntry
 			static const FieldDescriptor RouterAddresses;
 
 			/// @brief Router address entry descriptor; not included in all()

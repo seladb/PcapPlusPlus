@@ -190,17 +190,23 @@ namespace pcpp
 		/// Layer::SerializedFields.
 		struct SerializedFields : Layer::SerializedFields
 		{
+			/// @brief The highest field ID used by IcmpV6Layer
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 4;
+
 			/// @return All field descriptors for IcmpV6Layer
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ Type, Code, Checksum };
+				std::initializer_list<FieldDescriptor> extra{ Type, TypeName, Code, Checksum };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
 			/// @brief ICMPv6 message type, as an integer
 			static const FieldDescriptor Type;
+
+			/// @brief ICMPv6 message type, as a string
+			static const FieldDescriptor TypeName;
 
 			/// @brief ICMPv6 message code, as an integer
 			static const FieldDescriptor Code;

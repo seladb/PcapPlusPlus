@@ -167,20 +167,102 @@ namespace pcpp
 		return "ICMPv6 Layer, Echo Request/Reply Message (type: " + typeStream.str() + ")";
 	}
 
+	static constexpr const char* icmpV6MessageTypeToString(ICMPv6MessageType type)
+	{
+		switch (type)
+		{
+		case ICMPv6MessageType::ICMPv6_DESTINATION_UNREACHABLE:
+			return "DestinationUnreachable";
+		case ICMPv6MessageType::ICMPv6_PACKET_TOO_BIG:
+			return "PacketTooBig";
+		case ICMPv6MessageType::ICMPv6_TIME_EXCEEDED:
+			return "TimeExceeded";
+		case ICMPv6MessageType::ICMPv6_PARAMETER_PROBLEM:
+			return "ParameterProblem";
+		case ICMPv6MessageType::ICMPv6_PRIVATE_EXPERIMENTATION1:
+		case ICMPv6MessageType::ICMPv6_PRIVATE_EXPERIMENTATION2:
+		case ICMPv6MessageType::ICMPv6_PRIVATE_EXPERIMENTATION3:
+		case ICMPv6MessageType::ICMPv6_PRIVATE_EXPERIMENTATION4:
+			return "PrivateExperimentation";
+		case ICMPv6MessageType::ICMPv6_RESERVED_EXPANSION_ERROR:
+			return "ReservedExpansionError";
+		case ICMPv6MessageType::ICMPv6_ECHO_REQUEST:
+			return "EchoRequest";
+		case ICMPv6MessageType::ICMPv6_ECHO_REPLY:
+			return "EchoReply";
+		case ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_QUERY:
+			return "MulticastListenerQuery";
+		case ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_REPORT:
+			return "MulticastListenerReport";
+		case ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DONE:
+			return "MulticastListenerDone";
+		case ICMPv6MessageType::ICMPv6_ROUTER_SOLICITATION:
+			return "RouterSolicitation";
+		case ICMPv6MessageType::ICMPv6_ROUTER_ADVERTISEMENT:
+			return "RouterAdvertisement";
+		case ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION:
+			return "NeighborSolicitation";
+		case ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT:
+			return "NeighborAdvertisement";
+		case ICMPv6MessageType::ICMPv6_REDIRECT_MESSAGE:
+			return "Redirect";
+		case ICMPv6MessageType::ICMPv6_ROUTER_RENUMBERING:
+			return "RouterRenumbering";
+		case ICMPv6MessageType::ICMPv6_ICMP_NODE_INFORMATION_QUERY:
+			return "NodeInformationQuery";
+		case ICMPv6MessageType::ICMPv6_ICMP_NODE_INFORMATION_RESPONSE:
+			return "NodeInformationReply";
+		case ICMPv6MessageType::ICMPv6_INVERSE_NEIGHBOR_DISCOVERY_SOLICITATION_MESSAGE:
+			return "InverseNeighborDiscoverySolicitation";
+		case ICMPv6MessageType::ICMPv6_INVERSE_NEIGHBOR_DISCOVERY_ADVERTISEMENT_MESSAGE:
+			return "InverseNeighborDiscoveryAdvertisement";
+		case ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS:
+			return "MulticastListenerDiscoveryReports";
+		case ICMPv6MessageType::ICMPv6_HOME_AGENT_ADDRESS_DISCOVERY_REQUEST_MESSAGE:
+			return "HomeAgentAddressDiscoveryRequest";
+		case ICMPv6MessageType::ICMPv6_HOME_AGENT_ADDRESS_DISCOVERY_REPLY_MESSAGE:
+			return "HomeAgentAddressDiscoveryReply";
+		case ICMPv6MessageType::ICMPv6_MOBILE_PREFIX_SOLICITATION:
+			return "MobilePrefixSolicitation";
+		case ICMPv6MessageType::ICMPv6_MOBILE_PREFIX_ADVERTISEMENT:
+			return "MobilePrefixAdvertisement";
+		case ICMPv6MessageType::ICMPv6_CERTIFICATION_PATH_SOLICITATION:
+			return "CertificationPathSolicitation";
+		case ICMPv6MessageType::ICMPv6_CERTIFICATION_PATH_ADVERTISEMENT:
+			return "CertificationPathAdvertisement";
+		case ICMPv6MessageType::ICMPv6_EXPERIMENTAL_MOBILITY:
+			return "ExperimentalMobility";
+		case ICMPv6MessageType::ICMPv6_MULTICAST_ROUTER_ADVERTISEMENT:
+			return "MulticastRouterAdvertisement";
+		case ICMPv6MessageType::ICMPv6_MULTICAST_ROUTER_SOLICITATION:
+			return "MulticastRouterSolicitation";
+		case ICMPv6MessageType::ICMPv6_MULTICAST_ROUTER_TERMINATION:
+			return "MulticastRouterTermination";
+		case ICMPv6MessageType::ICMPv6_RPL_CONTROL_MESSAGE:
+			return "RplControl";
+		case ICMPv6MessageType::ICMPv6_RESERVED_EXPANSION_INFORMATIONAL:
+			return "ReservedExpansionInformational";
+		default:
+			return "Unknown";
+		}
+	}
+
 	const FieldDescriptor IcmpV6Layer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
+	const FieldDescriptor IcmpV6Layer::SerializedFields::TypeName{ Layer::SerializedFields::MaxID + 4, "typeName" };
 	const FieldDescriptor IcmpV6Layer::SerializedFields::Code{ Layer::SerializedFields::MaxID + 2, "code" };
 	const FieldDescriptor IcmpV6Layer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3, "checksum" };
 
 	void IcmpV6Layer::serializeLayer(ObjectScope& serializer) const
 	{
 		serializer.writeField(SerializedFields::Type, static_cast<uint8_t>(getMessageType()));
+		serializer.writeField(SerializedFields::TypeName, icmpV6MessageTypeToString(getMessageType()));
 		serializer.writeField(SerializedFields::Code, getCode());
 		serializer.writeHexField(SerializedFields::Checksum, getChecksum());
 	}
 
-	const FieldDescriptor ICMPv6EchoLayer::SerializedFields::Identifier{ IcmpV6Layer::SerializedFields::MaxID + 4,
+	const FieldDescriptor ICMPv6EchoLayer::SerializedFields::Identifier{ IcmpV6Layer::SerializedFields::MaxID + 1,
 		                                                                 "id" };
-	const FieldDescriptor ICMPv6EchoLayer::SerializedFields::Sequence{ IcmpV6Layer::SerializedFields::MaxID + 5,
+	const FieldDescriptor ICMPv6EchoLayer::SerializedFields::Sequence{ IcmpV6Layer::SerializedFields::MaxID + 2,
 		                                                               "sequence" };
 
 	void ICMPv6EchoLayer::serializeLayer(ObjectScope& serializer) const

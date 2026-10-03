@@ -138,6 +138,9 @@ namespace pcpp
 		/// IcmpV6Layer::SerializedFields.
 		struct SerializedFields : IcmpV6Layer::SerializedFields
 		{
+			/// @brief The highest field ID used by NDPLayerBase
+			static constexpr uint16_t MaxID = IcmpV6Layer::SerializedFields::MaxID + 1;
+
 			/// @return All field descriptors for NDPLayerBase
 			static std::vector<FieldDescriptor> all()
 			{

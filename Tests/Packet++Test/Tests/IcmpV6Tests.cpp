@@ -47,6 +47,15 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	uint8_t data[] = { 0xbd, 0xce, 0xcb, 0x62 };
 	PTF_ASSERT_BUF_COMPARE(echoRequestLayer->getEchoDataPtr(), data, 4);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		echoRequestLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":64,"type":128,"typeName":"EchoRequest","code":0,"checksum":"0x7a4c","id":24,"sequence":20})");
+	}
+
 	// Echo reply
 	PTF_ASSERT_TRUE(echoReplyPacket.isPacketOfType(pcpp::ICMPv6));
 	pcpp::ICMPv6EchoLayer* echoReplyLayer = echoReplyPacket.getLayerOfType<pcpp::ICMPv6EchoLayer>();
@@ -60,6 +69,15 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	PTF_ASSERT_EQUAL(echoReplyLayer->getEchoDataLen(), 56);
 
 	PTF_ASSERT_BUF_COMPARE(echoReplyLayer->getEchoDataPtr(), data, 4);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		echoReplyLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":64,"type":129,"typeName":"EchoReply","code":0,"checksum":"0x794c","id":24,"sequence":20})");
+	}
 
 	// Neighbor solicitation with source link-layer option
 	PTF_ASSERT_TRUE(neighSoliPacket.isPacketOfType(pcpp::ICMPv6));
@@ -94,6 +112,15 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getChecksum(), 0xfe98);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		neighSoliLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":32,"type":135,"typeName":"NeighborSolicitation","code":0,"checksum":"0xfe98","targetIP":"fd53:7cb8:383:2::1:117","linkLayerAddress":"00:54:af:e9:4d:80","options":["SourceLinkLayer"]})");
+	}
+
 	// Neighbor advertisement with target link-layer option
 	PTF_ASSERT_TRUE(neighAdvPacket.isPacketOfType(pcpp::ICMPv6));
 	pcpp::NDPNeighborAdvertisementLayer* neighAdvLayer =
@@ -125,6 +152,15 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	PTF_ASSERT_EQUAL(icmpNeighAdv->getCode(), 0);
 	PTF_ASSERT_EQUAL(icmpNeighAdv->getChecksum(), 0x9abb);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		neighAdvLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":32,"type":136,"typeName":"NeighborAdvertisement","code":0,"checksum":"0x9abb","targetIP":"fe80::c000:54ff:fef5:0","routerFlag":true,"unicastFlag":false,"overrideFlag":true,"targetMac":"c2:00:54:f5:00:00","options":["TargetLinkLayer"]})");
+	}
+
 	// Neighbor advertisement without target link-layer option
 	PTF_ASSERT_TRUE(neighAdvPacketNoOpt.isPacketOfType(pcpp::ICMPv6));
 	pcpp::NDPNeighborAdvertisementLayer* neighAdvNoOptLayer =
@@ -140,6 +176,15 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	pcpp::NdpOption targetLinkLayerNoOptOption =
 	    neighAdvNoOptLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
 	PTF_ASSERT_TRUE(targetLinkLayerNoOptOption.isNull());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		neighAdvNoOptLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":24,"type":136,"typeName":"NeighborAdvertisement","code":0,"checksum":"0xb49e","targetIP":"fe80:ebeb:ebeb::1","routerFlag":false,"unicastFlag":true,"overrideFlag":false,"options":[]})");
+	}
 
 	// Generic ICMPv6 packet
 	PTF_ASSERT_TRUE(icmpV6GenericPacket.isPacketOfType(pcpp::ICMPv6));
@@ -161,55 +206,10 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	{
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
-		echoRequestLayer->serialize(serializer);
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    R"({"protocolName":"ICMPv6","protocolId":42,"length":64,"type":128,"code":0,"checksum":"0x7a4c","id":24,"sequence":20})");
-	}
-
-	{
-		std::ostringstream oss;
-		pcpp::JsonSerializer serializer(oss);
-		echoReplyLayer->serialize(serializer);
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    R"({"protocolName":"ICMPv6","protocolId":42,"length":64,"type":129,"code":0,"checksum":"0x794c","id":24,"sequence":20})");
-	}
-
-	{
-		std::ostringstream oss;
-		pcpp::JsonSerializer serializer(oss);
-		neighSoliLayer->serialize(serializer);
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    R"({"protocolName":"ICMPv6","protocolId":42,"length":32,"type":135,"code":0,"checksum":"0xfe98","targetIP":"fd53:7cb8:383:2::1:117","linkLayerAddress":"00:54:af:e9:4d:80","options":["SourceLinkLayer"]})");
-	}
-
-	{
-		std::ostringstream oss;
-		pcpp::JsonSerializer serializer(oss);
-		neighAdvLayer->serialize(serializer);
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    R"({"protocolName":"ICMPv6","protocolId":42,"length":32,"type":136,"code":0,"checksum":"0x9abb","targetIP":"fe80::c000:54ff:fef5:0","routerFlag":true,"unicastFlag":false,"overrideFlag":true,"targetMac":"c2:00:54:f5:00:00","options":["TargetLinkLayer"]})");
-	}
-
-	{
-		std::ostringstream oss;
-		pcpp::JsonSerializer serializer(oss);
-		neighAdvNoOptLayer->serialize(serializer);
-		PTF_ASSERT_EQUAL(
-		    oss.str(),
-		    R"({"protocolName":"ICMPv6","protocolId":42,"length":24,"type":136,"code":0,"checksum":"0xb49e","targetIP":"fe80:ebeb:ebeb::1","routerFlag":false,"unicastFlag":true,"overrideFlag":false,"options":[]})");
-	}
-
-	{
-		std::ostringstream oss;
-		pcpp::JsonSerializer serializer(oss);
 		icmpV6Layer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"ICMPv6","protocolId":42,"length":48,"type":143,"code":0,"checksum":"0x2b5a"})");
+		    R"({"protocolName":"ICMPv6","protocolId":42,"length":48,"type":143,"typeName":"MulticastListenerDiscoveryReports","code":0,"checksum":"0x2b5a"})");
 	}
 
 	// A neighbor solicitation/advertisement message shorter than its 24-byte header must be rejected.
