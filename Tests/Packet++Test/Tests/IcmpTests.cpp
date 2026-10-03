@@ -9,6 +9,8 @@
 #include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
+#include "Serializers.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -80,6 +82,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(reqData->data[5], 0x0d);
 	PTF_ASSERT_EQUAL(reqData->data[43], 0x33);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpEchoRequest.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":64,"type":8,"typeName":"EchoRequest","code":0,"checksum":"0xbbb3","id":55099,"sequence":0,"timestamp":"16451935313918863185"})");
+	}
+
 	// Echo reply
 	icmpLayer = icmpEchoReply.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -91,6 +102,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(repData->dataLength, 48);
 	PTF_ASSERT_EQUAL(repData->data[5], 0x0d);
 	PTF_ASSERT_EQUAL(reqData->data[43], 0x33);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpEchoReply.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":64,"type":0,"typeName":"EchoReply","code":0,"checksum":"0xc3b3","id":55099,"sequence":0,"timestamp":"16451935313918863185"})");
+	}
 
 	// Timestamp request
 	icmpLayer = icmpTimestampReq.getLayerOfType<pcpp::IcmpLayer>();
@@ -162,6 +182,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::UDP, enum);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpDestUnreachableUdp.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":8,"type":3,"typeName":"DestinationUnreachable","code":3,"checksum":"0xb42a","nextHopMTU":0})");
+	}
+
 	icmpLayer = icmpDestUnreachableEcho.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
 	PTF_ASSERT_TRUE(icmpLayer->isMessageOfType(pcpp::ICMP_DEST_UNREACHABLE));
@@ -226,6 +255,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(icmpLayer->getMessageType(), pcpp::ICMP_ECHO_REQUEST, enum);
 	PTF_ASSERT_EQUAL(icmpLayer->getEchoRequestData()->header->id, 0x2);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpRedirect.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":8,"type":5,"typeName":"Redirect","code":1,"checksum":"0x383e","gatewayAddress":"10.2.99.98"})");
+	}
+
 	// Router advertisement
 	icmpLayer = icmpRouterAdv1.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -241,6 +279,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("192.168.144.2"));
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0x80);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpRouterAdv1.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":16,"type":9,"typeName":"RouterAdvertisement","code":16,"checksum":"0x8153","advertisementCount":1,"addressEntrySize":2,"lifetime":200,"routerAddresses":[{"routerAddress":"192.168.144.2","preferenceLevel":2147483648}]})");
+	}
+
 	icmpLayer = icmpRouterAdv2.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
 	PTF_ASSERT_TRUE(icmpLayer->isMessageOfType(pcpp::ICMP_ROUTER_ADV));
@@ -254,6 +301,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NOT_NULL(routerAddr);
 	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("14.80.84.66"));
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0);
+
 }  // IcmpParsingTest
 
 PTF_TEST_CASE(IcmpTruncatedPacketTest)

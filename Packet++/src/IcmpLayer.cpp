@@ -710,4 +710,198 @@ namespace pcpp
 		return "ICMP Layer, " + messageTypeAsString + " (type: " + typeStream.str() + ")";
 	}
 
+	static constexpr const char* icmpMessageTypeToString(IcmpMessageType type)
+	{
+		switch (type)
+		{
+		case ICMP_ECHO_REPLY:
+			return "EchoReply";
+		case ICMP_DEST_UNREACHABLE:
+			return "DestinationUnreachable";
+		case ICMP_SOURCE_QUENCH:
+			return "SourceQuench";
+		case ICMP_REDIRECT:
+			return "Redirect";
+		case ICMP_ECHO_REQUEST:
+			return "EchoRequest";
+		case ICMP_ROUTER_ADV:
+			return "RouterAdvertisement";
+		case ICMP_ROUTER_SOL:
+			return "RouterSolicitation";
+		case ICMP_TIME_EXCEEDED:
+			return "TimeExceeded";
+		case ICMP_PARAM_PROBLEM:
+			return "ParameterProblem";
+		case ICMP_TIMESTAMP_REQUEST:
+			return "TimestampRequest";
+		case ICMP_TIMESTAMP_REPLY:
+			return "TimestampReply";
+		case ICMP_INFO_REQUEST:
+			return "InformationRequest";
+		case ICMP_INFO_REPLY:
+			return "InformationReply";
+		case ICMP_ADDRESS_MASK_REQUEST:
+			return "AddressMaskRequest";
+		case ICMP_ADDRESS_MASK_REPLY:
+			return "AddressMaskReply";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor IcmpLayer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
+	const FieldDescriptor IcmpLayer::SerializedFields::TypeName{ Layer::SerializedFields::MaxID + 18, "typeName" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Code{ Layer::SerializedFields::MaxID + 2, "code" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3, "checksum" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Id{ Layer::SerializedFields::MaxID + 4, "id" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Sequence{ Layer::SerializedFields::MaxID + 5, "sequence" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Timestamp{ Layer::SerializedFields::MaxID + 6, "timestamp" };
+	const FieldDescriptor IcmpLayer::SerializedFields::OriginateTimestamp{ Layer::SerializedFields::MaxID + 7,
+		                                                                   "originateTimestamp" };
+	const FieldDescriptor IcmpLayer::SerializedFields::ReceiveTimestamp{ Layer::SerializedFields::MaxID + 8,
+		                                                                 "receiveTimestamp" };
+	const FieldDescriptor IcmpLayer::SerializedFields::TransmitTimestamp{ Layer::SerializedFields::MaxID + 9,
+		                                                                  "transmitTimestamp" };
+	const FieldDescriptor IcmpLayer::SerializedFields::NextHopMTU{ Layer::SerializedFields::MaxID + 10, "nextHopMTU" };
+	const FieldDescriptor IcmpLayer::SerializedFields::GatewayAddress{ Layer::SerializedFields::MaxID + 11,
+		                                                               "gatewayAddress" };
+	const FieldDescriptor IcmpLayer::SerializedFields::AddressMask{ Layer::SerializedFields::MaxID + 12,
+		                                                            "addressMask" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Pointer{ Layer::SerializedFields::MaxID + 13, "pointer" };
+	const FieldDescriptor IcmpLayer::SerializedFields::AdvertisementCount{ Layer::SerializedFields::MaxID + 14,
+		                                                                   "advertisementCount" };
+	const FieldDescriptor IcmpLayer::SerializedFields::AddressEntrySize{ Layer::SerializedFields::MaxID + 15,
+		                                                                 "addressEntrySize" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Lifetime{ Layer::SerializedFields::MaxID + 16, "lifetime" };
+	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddresses{ Layer::SerializedFields::MaxID + 17,
+		                                                                "routerAddresses" };
+	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddressEntry{ 0, "routerAddressEntry" };
+	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddress{ 0, "routerAddress" };
+	const FieldDescriptor IcmpLayer::SerializedFields::PreferenceLevel{ 1, "preferenceLevel" };
+
+	void IcmpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Type, getIcmpHeader()->type);
+		serializer.writeField(SerializedFields::TypeName, icmpMessageTypeToString(getMessageType()));
+		serializer.writeField(SerializedFields::Code, getIcmpHeader()->code);
+		serializer.writeHexField(SerializedFields::Checksum, be16toh(getIcmpHeader()->checksum));
+
+		switch (getMessageType())
+		{
+		case ICMP_ECHO_REQUEST:
+		case ICMP_ECHO_REPLY:
+		{
+			auto* echo = (getMessageType() == ICMP_ECHO_REQUEST) ? const_cast<IcmpLayer*>(this)->getEchoRequestData()
+			                                                     : const_cast<IcmpLayer*>(this)->getEchoReplyData();
+			if (echo && echo->header)
+			{
+				serializer.writeField(SerializedFields::Id, be16toh(echo->header->id));
+				serializer.writeField(SerializedFields::Sequence, be16toh(echo->header->sequence));
+				if (echo->header->timestamp != 0)
+				{
+					serializer.writeField(SerializedFields::Timestamp, echo->header->timestamp);
+				}
+			}
+			break;
+		}
+		case ICMP_TIMESTAMP_REQUEST:
+		case ICMP_TIMESTAMP_REPLY:
+		{
+			auto* ts = (getMessageType() == ICMP_TIMESTAMP_REQUEST)
+			               ? const_cast<IcmpLayer*>(this)->getTimestampRequestData()
+			               : const_cast<IcmpLayer*>(this)->getTimestampReplyData();
+			if (ts)
+			{
+				serializer.writeField(SerializedFields::Id, be16toh(ts->id));
+				serializer.writeField(SerializedFields::Sequence, be16toh(ts->sequence));
+				serializer.writeField(SerializedFields::OriginateTimestamp, be32toh(ts->originateTimestamp));
+				serializer.writeField(SerializedFields::ReceiveTimestamp, be32toh(ts->receiveTimestamp));
+				serializer.writeField(SerializedFields::TransmitTimestamp, be32toh(ts->transmitTimestamp));
+			}
+			break;
+		}
+		case ICMP_DEST_UNREACHABLE:
+		{
+			auto* unreach = const_cast<IcmpLayer*>(this)->getDestUnreachableData();
+			if (unreach)
+			{
+				serializer.writeField(SerializedFields::NextHopMTU, be16toh(unreach->nextHopMTU));
+			}
+			break;
+		}
+		case ICMP_REDIRECT:
+		{
+			auto* redir = const_cast<IcmpLayer*>(this)->getRedirectData();
+			if (redir)
+			{
+				serializer.writeField(SerializedFields::GatewayAddress, IPv4Address(redir->gatewayAddress).toString());
+			}
+			break;
+		}
+		case ICMP_PARAM_PROBLEM:
+		{
+			auto* param = const_cast<IcmpLayer*>(this)->getParamProblemData();
+			if (param)
+			{
+				serializer.writeField(SerializedFields::Pointer, param->pointer);
+			}
+			break;
+		}
+		case ICMP_ROUTER_ADV:
+		{
+			auto* adv = getRouterAdvertisementData();
+			if (adv && adv->header)
+			{
+				serializer.writeField(SerializedFields::AdvertisementCount, adv->header->advertisementCount);
+				serializer.writeField(SerializedFields::AddressEntrySize, adv->header->addressEntrySize);
+				serializer.writeField(SerializedFields::Lifetime, be16toh(adv->header->lifetime));
+				auto arr = serializer.writeArray(SerializedFields::RouterAddresses);
+				for (int i = 0; i < adv->header->advertisementCount; ++i)
+				{
+					auto* routerAddr = adv->getRouterAddress(i);
+					if (routerAddr)
+					{
+						auto obj = arr.writeObject(SerializedFields::RouterAddressEntry);
+						obj.writeField(SerializedFields::RouterAddress, routerAddr->getAddress().toString());
+						obj.writeField(SerializedFields::PreferenceLevel, be32toh(routerAddr->preferenceLevel));
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			break;
+		}
+		case ICMP_ADDRESS_MASK_REQUEST:
+		case ICMP_ADDRESS_MASK_REPLY:
+		{
+			auto* mask = (getMessageType() == ICMP_ADDRESS_MASK_REQUEST)
+			                 ? const_cast<IcmpLayer*>(this)->getAddressMaskRequestData()
+			                 : const_cast<IcmpLayer*>(this)->getAddressMaskReplyData();
+			if (mask)
+			{
+				serializer.writeField(SerializedFields::Id, be16toh(mask->id));
+				serializer.writeField(SerializedFields::Sequence, be16toh(mask->sequence));
+				serializer.writeField(SerializedFields::AddressMask, IPv4Address(mask->addressMask).toString());
+			}
+			break;
+		}
+		case ICMP_INFO_REQUEST:
+		case ICMP_INFO_REPLY:
+		{
+			auto* info = (getMessageType() == ICMP_INFO_REQUEST) ? const_cast<IcmpLayer*>(this)->getInfoRequestData()
+			                                                     : const_cast<IcmpLayer*>(this)->getInfoReplyData();
+			if (info)
+			{
+				serializer.writeField(SerializedFields::Id, be16toh(info->id));
+				serializer.writeField(SerializedFields::Sequence, be16toh(info->sequence));
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
 }  // namespace pcpp
