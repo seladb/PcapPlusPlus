@@ -224,6 +224,16 @@ PTF_TEST_CASE(GeneveEditTest)
 	PTF_ASSERT_EQUAL(geneveLayer->getOptionsLength(), 0);
 	PTF_ASSERT_EQUAL(geneveLayer->getHeaderLen(), 8);
 	PTF_ASSERT_FALSE(geneveLayer->getCriticalFlag());
+
+	// Adding an option may reallocate the layer, so input data can no longer point into the old buffer.
+	pcpp::GeneveLayer aliasedDataLayer;
+	const uint8_t aliasedData[] = { 0x10, 0x20, 0x30, 0x40 };
+	PTF_ASSERT_TRUE(aliasedDataLayer.addOption(0x0102, 8, aliasedData, sizeof(aliasedData)));
+	pcpp::GeneveOption sourceOption = aliasedDataLayer.getFirstOption();
+	PTF_ASSERT_TRUE(aliasedDataLayer.addOption(0x0102, 9, sourceOption.getData(), sourceOption.getDataSize()));
+	pcpp::GeneveOption copiedOption = aliasedDataLayer.getNextOption(aliasedDataLayer.getFirstOption());
+	PTF_ASSERT_FALSE(copiedOption.isNull());
+	PTF_ASSERT_BUF_COMPARE(copiedOption.getData(), aliasedData, sizeof(aliasedData));
 }  // GeneveEditTest
 
 PTF_TEST_CASE(GeneveMalformedPacketTest)

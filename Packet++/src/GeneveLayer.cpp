@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <cstring>
 #include <sstream>
+#include <vector>
 
 namespace pcpp
 {
@@ -251,6 +252,12 @@ namespace pcpp
 			return false;
 		}
 
+		// extendLayer() can reallocate the layer data, so preserve the input before extending it. This also handles
+		// callers passing data that aliases this layer or another layer in the same packet.
+		std::vector<uint8_t> optionDataCopy(optionDataLen);
+		if (optionDataLen > 0)
+			memcpy(optionDataCopy.data(), optionData, optionDataLen);
+
 		auto offset = static_cast<int>(HeaderLength + oldOptionsLength);
 		if (!extendLayer(offset, optionSize))
 		{
@@ -264,7 +271,7 @@ namespace pcpp
 		option.setType(optionType, critical);
 		option.setDataSize(paddedDataLength);
 		if (optionDataLen > 0)
-			memcpy(option.getData(), optionData, optionDataLen);
+			memcpy(option.getData(), optionDataCopy.data(), optionDataLen);
 		setOptionsLength(oldOptionsLength + optionSize);
 		updateCriticalFlag();
 		return true;
