@@ -750,28 +750,28 @@ namespace pcpp
 	}
 
 	const FieldDescriptor IcmpLayer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
-	const FieldDescriptor IcmpLayer::SerializedFields::TypeName{ Layer::SerializedFields::MaxID + 18, "typeName" };
-	const FieldDescriptor IcmpLayer::SerializedFields::Code{ Layer::SerializedFields::MaxID + 2, "code" };
-	const FieldDescriptor IcmpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3, "checksum" };
-	const FieldDescriptor IcmpLayer::SerializedFields::Id{ Layer::SerializedFields::MaxID + 4, "id" };
-	const FieldDescriptor IcmpLayer::SerializedFields::Sequence{ Layer::SerializedFields::MaxID + 5, "sequence" };
-	const FieldDescriptor IcmpLayer::SerializedFields::Timestamp{ Layer::SerializedFields::MaxID + 6, "timestamp" };
-	const FieldDescriptor IcmpLayer::SerializedFields::OriginateTimestamp{ Layer::SerializedFields::MaxID + 7,
+	const FieldDescriptor IcmpLayer::SerializedFields::TypeName{ Layer::SerializedFields::MaxID + 2, "typeName" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Code{ Layer::SerializedFields::MaxID + 3, "code" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 4, "checksum" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Id{ Layer::SerializedFields::MaxID + 5, "id" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Sequence{ Layer::SerializedFields::MaxID + 6, "sequence" };
+	const FieldDescriptor IcmpLayer::SerializedFields::Timestamp{ Layer::SerializedFields::MaxID + 7, "timestamp" };
+	const FieldDescriptor IcmpLayer::SerializedFields::OriginateTimestamp{ Layer::SerializedFields::MaxID + 8,
 		                                                                   "originateTimestamp" };
-	const FieldDescriptor IcmpLayer::SerializedFields::ReceiveTimestamp{ Layer::SerializedFields::MaxID + 8,
+	const FieldDescriptor IcmpLayer::SerializedFields::ReceiveTimestamp{ Layer::SerializedFields::MaxID + 9,
 		                                                                 "receiveTimestamp" };
-	const FieldDescriptor IcmpLayer::SerializedFields::TransmitTimestamp{ Layer::SerializedFields::MaxID + 9,
+	const FieldDescriptor IcmpLayer::SerializedFields::TransmitTimestamp{ Layer::SerializedFields::MaxID + 10,
 		                                                                  "transmitTimestamp" };
-	const FieldDescriptor IcmpLayer::SerializedFields::NextHopMTU{ Layer::SerializedFields::MaxID + 10, "nextHopMTU" };
-	const FieldDescriptor IcmpLayer::SerializedFields::GatewayAddress{ Layer::SerializedFields::MaxID + 11,
+	const FieldDescriptor IcmpLayer::SerializedFields::NextHopMTU{ Layer::SerializedFields::MaxID + 11, "nextHopMTU" };
+	const FieldDescriptor IcmpLayer::SerializedFields::GatewayAddress{ Layer::SerializedFields::MaxID + 12,
 		                                                               "gatewayAddress" };
-	const FieldDescriptor IcmpLayer::SerializedFields::AddressMask{ Layer::SerializedFields::MaxID + 12,
+	const FieldDescriptor IcmpLayer::SerializedFields::AddressMask{ Layer::SerializedFields::MaxID + 13,
 		                                                            "addressMask" };
-	const FieldDescriptor IcmpLayer::SerializedFields::Pointer{ Layer::SerializedFields::MaxID + 13, "pointer" };
-	const FieldDescriptor IcmpLayer::SerializedFields::AddressEntrySize{ Layer::SerializedFields::MaxID + 14,
+	const FieldDescriptor IcmpLayer::SerializedFields::Pointer{ Layer::SerializedFields::MaxID + 14, "pointer" };
+	const FieldDescriptor IcmpLayer::SerializedFields::AddressEntrySize{ Layer::SerializedFields::MaxID + 15,
 		                                                                 "addressEntrySize" };
-	const FieldDescriptor IcmpLayer::SerializedFields::Lifetime{ Layer::SerializedFields::MaxID + 15, "lifetime" };
-	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddresses{ Layer::SerializedFields::MaxID + 16,
+	const FieldDescriptor IcmpLayer::SerializedFields::Lifetime{ Layer::SerializedFields::MaxID + 16, "lifetime" };
+	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddresses{ Layer::SerializedFields::MaxID + 17,
 		                                                                "routerAddresses" };
 	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddressEntry{ 0, "routerAddressEntry" };
 	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddress{ 0, "routerAddress" };
