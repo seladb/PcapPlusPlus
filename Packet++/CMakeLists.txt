@@ -19,6 +19,7 @@ add_library(
   src/GeneveLayer.cpp
   src/GreLayer.cpp
   src/GtpLayer.cpp
+  src/GvcpLayer.cpp
   src/HttpLayer.cpp
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
@@ -102,6 +103,7 @@ set(
   header/GeneveLayer.h
   header/GreLayer.h
   header/GtpLayer.h
+  header/GvcpLayer.h
   header/HttpLayer.h
   header/IcmpLayer.h
   header/IcmpV6Layer.h

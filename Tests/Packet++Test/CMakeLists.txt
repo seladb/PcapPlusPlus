@@ -16,6 +16,7 @@ add_executable(
   Tests/GeneveTests.cpp
   Tests/GreTests.cpp
   Tests/GtpTests.cpp
+  Tests/GvcpTests.cpp
   Tests/HttpTests.cpp
   Tests/IcmpTests.cpp
   Tests/IcmpV6Tests.cpp

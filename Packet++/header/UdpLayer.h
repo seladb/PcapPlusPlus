@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Layer.h"
+#include <algorithm>
+#include <iterator>
 
 /// @file
 
@@ -91,6 +93,33 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by UdpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for UdpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SrcPort, DstPort, Checksum };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Source port, in host byte order
+			static const FieldDescriptor SrcPort;
+
+			/// @brief Destination port, in host byte order
+			static const FieldDescriptor DstPort;
+
+			/// @brief Checksum, as a hex string
+			static const FieldDescriptor Checksum;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	bool UdpLayer::isDataValid(const uint8_t* data, size_t dataLen)

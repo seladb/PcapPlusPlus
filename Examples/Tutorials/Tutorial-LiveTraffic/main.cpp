@@ -32,7 +32,7 @@ struct PacketStats
 	/**
 	 * Collect stats from a packet
 	 */
-	void consumePacket(pcpp::Packet& packet)
+	void consumePacket(const pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::Ethernet))
 			ethPacketCount++;

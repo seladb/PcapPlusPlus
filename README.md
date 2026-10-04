@@ -278,21 +278,22 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 43. DNS
 44. DoIP
 45. FTP
-46. HTTP headers (request & response)
-47. LDAP
-48. Modbus
-49. MySQL - parsing only (no editing capabilities)
-50. NTP (v3, v4)
-51. PEM decoder and encoder
-52. PostgreSQL Wire Protocol (PGWire) - parsing only (no editing capabilities)
-53. Radius
-54. S7 Communication (S7comm)
-55. SMTP
-56. SOME/IP
-57. SSH - parsing only (no editing capabilities)
-58. Telnet - parsing only (no editing capabilities)
-59. X509 certificates - parsing only (no editing capabilities)
-60. Generic payload
+46. GVCP
+47. HTTP headers (request & response)
+48. LDAP
+49. Modbus
+50. MySQL - parsing only (no editing capabilities)
+51. NTP (v3, v4)
+52. PEM decoder and encoder
+53. PostgreSQL Wire Protocol (PGWire) - parsing only (no editing capabilities)
+54. Radius
+55. S7 Communication (S7comm)
+56. SMTP
+57. SOME/IP
+58. SSH - parsing only (no editing capabilities)
+59. Telnet - parsing only (no editing capabilities)
+60. X509 certificates - parsing only (no editing capabilities)
+61. Generic payload
 
 ## DPDK And PF_RING Support
 
