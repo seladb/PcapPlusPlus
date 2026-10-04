@@ -17,6 +17,12 @@ PTF_TEST_CASE(QinQ802_1adParse);
 PTF_TEST_CASE(MplsLayerTest);
 PTF_TEST_CASE(VxlanParsingAndCreationTest);
 
+// Implemented in GeneveTests.cpp
+PTF_TEST_CASE(GeneveParsingTest);
+PTF_TEST_CASE(GeneveCreationTest);
+PTF_TEST_CASE(GeneveEditTest);
+PTF_TEST_CASE(GeneveMalformedPacketTest);
+
 // Implemented in IPv4Tests.cpp
 PTF_TEST_CASE(IPv4PacketCreation);
 PTF_TEST_CASE(IPv4PacketParsing);
