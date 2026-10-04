@@ -105,13 +105,6 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	    neighSoliLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
 	PTF_ASSERT_TRUE(targetLinkLayerOption2.isNull());
 
-	pcpp::IcmpV6Layer* icmpNeighSoliLayer = neighSoliPacket.getLayerOfType<pcpp::IcmpV6Layer>();
-	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION,
-	                 enumclass);
-	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getCode(), 0);
-	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getChecksum(), 0xfe98);
-
 	{
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
@@ -120,6 +113,13 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 		    oss.str(),
 		    R"({"protocolName":"ICMPv6","protocolId":42,"length":32,"type":135,"typeName":"NeighborSolicitation","code":0,"checksum":"0xfe98","targetIP":"fd53:7cb8:383:2::1:117","linkLayerAddress":"00:54:af:e9:4d:80","options":["SourceLinkLayer"]})");
 	}
+
+	pcpp::IcmpV6Layer* icmpNeighSoliLayer = neighSoliPacket.getLayerOfType<pcpp::IcmpV6Layer>();
+	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getHeaderLen(), 32);
+	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION,
+	                 enumclass);
+	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getCode(), 0);
+	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getChecksum(), 0xfe98);
 
 	// Neighbor advertisement with target link-layer option
 	PTF_ASSERT_TRUE(neighAdvPacket.isPacketOfType(pcpp::ICMPv6));
@@ -146,12 +146,6 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	PTF_ASSERT_EQUAL(targetLinkLayerOption.getTotalSize(), 8);
 	PTF_ASSERT_EQUAL(pcpp::MacAddress(targetLinkLayerOption.getValue()), pcpp::MacAddress("c2:00:54:f5:00:00"));
 
-	pcpp::IcmpV6Layer* icmpNeighAdv = neighAdvPacket.getLayerOfType<pcpp::IcmpV6Layer>();
-	PTF_ASSERT_EQUAL(icmpNeighAdv->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL(icmpNeighAdv->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT, enumclass);
-	PTF_ASSERT_EQUAL(icmpNeighAdv->getCode(), 0);
-	PTF_ASSERT_EQUAL(icmpNeighAdv->getChecksum(), 0x9abb);
-
 	{
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
@@ -160,6 +154,12 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 		    oss.str(),
 		    R"({"protocolName":"ICMPv6","protocolId":42,"length":32,"type":136,"typeName":"NeighborAdvertisement","code":0,"checksum":"0x9abb","targetIP":"fe80::c000:54ff:fef5:0","routerFlag":true,"unicastFlag":false,"overrideFlag":true,"targetMac":"c2:00:54:f5:00:00","options":["TargetLinkLayer"]})");
 	}
+
+	pcpp::IcmpV6Layer* icmpNeighAdv = neighAdvPacket.getLayerOfType<pcpp::IcmpV6Layer>();
+	PTF_ASSERT_EQUAL(icmpNeighAdv->getHeaderLen(), 32);
+	PTF_ASSERT_EQUAL(icmpNeighAdv->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT, enumclass);
+	PTF_ASSERT_EQUAL(icmpNeighAdv->getCode(), 0);
+	PTF_ASSERT_EQUAL(icmpNeighAdv->getChecksum(), 0x9abb);
 
 	// Neighbor advertisement without target link-layer option
 	PTF_ASSERT_TRUE(neighAdvPacketNoOpt.isPacketOfType(pcpp::ICMPv6));

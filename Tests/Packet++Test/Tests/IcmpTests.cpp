@@ -123,6 +123,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(tsReqData->originateTimestamp, 0x6324f600);
 	PTF_ASSERT_EQUAL(tsReqData->transmitTimestamp, 0);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpTimestampReq.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":20,"type":13,"typeName":"TimestampRequest","code":0,"checksum":"0x9476","id":14640,"sequence":0,"originateTimestamp":16131171,"receiveTimestamp":0,"transmitTimestamp":0})");
+	}
+
 	// Timestamp reply
 	icmpLayer = icmpTimestampReply.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -133,6 +142,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(tsRepData->checksum, 0x19e3);
 	PTF_ASSERT_EQUAL(tsRepData->receiveTimestamp, 0x00f62d62);
 	PTF_ASSERT_EQUAL(tsRepData->transmitTimestamp, 0x00f62d62);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpTimestampReply.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":20,"type":14,"typeName":"TimestampReply","code":0,"checksum":"0xe319","id":14640,"sequence":0,"originateTimestamp":16131171,"receiveTimestamp":1647179264,"transmitTimestamp":1647179264})");
+	}
 
 	// Address mask request
 	icmpLayer = icmpAddrMaskReq.getLayerOfType<pcpp::IcmpLayer>();
@@ -145,6 +163,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(maskReqData->sequence, 0x6);
 	PTF_ASSERT_EQUAL(maskReqData->addressMask, 0);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpAddrMaskReq.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":12,"type":17,"typeName":"AddressMaskRequest","code":0,"checksum":"0x38f3","id":45068,"sequence":1536,"addressMask":"0.0.0.0"})");
+	}
+
 	// Address mask reply
 	icmpLayer = icmpAddrMaskRep.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -156,6 +183,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(maskRepData->id, 0x0cb2);
 	PTF_ASSERT_EQUAL(maskRepData->type, (uint8_t)pcpp::ICMP_ADDRESS_MASK_REPLY);
 	PTF_ASSERT_EQUAL(maskRepData->addressMask, 0);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpAddrMaskRep.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":12,"type":18,"typeName":"AddressMaskReply","code":0,"checksum":"0x3bf3","id":45580,"sequence":0,"addressMask":"0.0.0.0"})");
+	}
 
 	// Router solicitation
 	icmpLayer = icmpRouterSol.getLayerOfType<pcpp::IcmpLayer>();
@@ -285,7 +321,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 		icmpRouterAdv1.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"ICMP","protocolId":10,"length":16,"type":9,"typeName":"RouterAdvertisement","code":16,"checksum":"0x8153","advertisementCount":1,"addressEntrySize":2,"lifetime":200,"routerAddresses":[{"routerAddress":"192.168.144.2","preferenceLevel":2147483648}]})");
+		    R"({"protocolName":"ICMP","protocolId":10,"length":16,"type":9,"typeName":"RouterAdvertisement","code":16,"checksum":"0x8153","addressEntrySize":2,"lifetime":200,"routerAddresses":[{"routerAddress":"192.168.144.2","preferenceLevel":128}]})");
 	}
 
 	icmpLayer = icmpRouterAdv2.getLayerOfType<pcpp::IcmpLayer>();
@@ -301,7 +337,6 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NOT_NULL(routerAddr);
 	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("14.80.84.66"));
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0);
-
 }  // IcmpParsingTest
 
 PTF_TEST_CASE(IcmpTruncatedPacketTest)

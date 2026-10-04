@@ -768,12 +768,10 @@ namespace pcpp
 	const FieldDescriptor IcmpLayer::SerializedFields::AddressMask{ Layer::SerializedFields::MaxID + 12,
 		                                                            "addressMask" };
 	const FieldDescriptor IcmpLayer::SerializedFields::Pointer{ Layer::SerializedFields::MaxID + 13, "pointer" };
-	const FieldDescriptor IcmpLayer::SerializedFields::AdvertisementCount{ Layer::SerializedFields::MaxID + 14,
-		                                                                   "advertisementCount" };
-	const FieldDescriptor IcmpLayer::SerializedFields::AddressEntrySize{ Layer::SerializedFields::MaxID + 15,
+	const FieldDescriptor IcmpLayer::SerializedFields::AddressEntrySize{ Layer::SerializedFields::MaxID + 14,
 		                                                                 "addressEntrySize" };
-	const FieldDescriptor IcmpLayer::SerializedFields::Lifetime{ Layer::SerializedFields::MaxID + 16, "lifetime" };
-	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddresses{ Layer::SerializedFields::MaxID + 17,
+	const FieldDescriptor IcmpLayer::SerializedFields::Lifetime{ Layer::SerializedFields::MaxID + 15, "lifetime" };
+	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddresses{ Layer::SerializedFields::MaxID + 16,
 		                                                                "routerAddresses" };
 	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddressEntry{ 0, "routerAddressEntry" };
 	const FieldDescriptor IcmpLayer::SerializedFields::RouterAddress{ 0, "routerAddress" };
@@ -852,7 +850,6 @@ namespace pcpp
 			auto* adv = getRouterAdvertisementData();
 			if (adv && adv->header)
 			{
-				serializer.writeField(SerializedFields::AdvertisementCount, adv->header->advertisementCount);
 				serializer.writeField(SerializedFields::AddressEntrySize, adv->header->addressEntrySize);
 				serializer.writeField(SerializedFields::Lifetime, be16toh(adv->header->lifetime));
 				auto arr = serializer.writeArray(SerializedFields::RouterAddresses);
@@ -863,7 +860,7 @@ namespace pcpp
 					{
 						auto obj = arr.writeObject(SerializedFields::RouterAddressEntry);
 						obj.writeField(SerializedFields::RouterAddress, routerAddr->getAddress().toString());
-						obj.writeField(SerializedFields::PreferenceLevel, be32toh(routerAddr->preferenceLevel));
+						obj.writeField(SerializedFields::PreferenceLevel, routerAddr->preferenceLevel);
 					}
 					else
 					{

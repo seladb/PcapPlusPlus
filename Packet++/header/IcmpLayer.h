@@ -636,7 +636,6 @@ namespace pcpp
 					                                          GatewayAddress,
 					                                          AddressMask,
 					                                          Pointer,
-					                                          AdvertisementCount,
 					                                          AddressEntrySize,
 					                                          Lifetime,
 					                                          RouterAddresses };
@@ -690,9 +689,6 @@ namespace pcpp
 
 			/// @brief Pointer byte offset for parameter problem messages
 			static const FieldDescriptor Pointer;
-
-			/// @brief Number of router addresses in router advertisement messages
-			static const FieldDescriptor AdvertisementCount;
 
 			/// @brief Number of 32-bit words per router address entry in router advertisement messages (typically 2)
 			static const FieldDescriptor AddressEntrySize;
