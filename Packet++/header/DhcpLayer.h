@@ -756,10 +756,49 @@ namespace pcpp
 		///                            ::DHCP_INFORM, ::DHCP_UNKNOWN_MSG_TYPE
 		///                            ::DHCP_BOOTREPLY for message types: ::DHCP_OFFER, ::DHCP_ACK, ::DHCP_NAK
 		/// - @ref dhcp_header#hardwareType = 1 (Ethernet)
-		/// - @ref dhcp_header#hardwareAddressLength = 6 (MAC address length)
 		void computeCalculateFields() override;
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Struct that contains field descriptors for serialization
+		struct SerializedFields
+		{
+			/// Serialized field: BootP opcode
+			static const FieldDescriptor OpCode;
+			/// Serialized field: Hardware type
+			static const FieldDescriptor HardwareType;
+			/// Serialized field: Hardware address length
+			static const FieldDescriptor HardwareAddressLength;
+			/// Serialized field: Hops
+			static const FieldDescriptor Hops;
+			/// Serialized field: Transaction ID
+			static const FieldDescriptor TransactionID;
+			/// Serialized field: Seconds elapsed
+			static const FieldDescriptor SecondsElapsed;
+			/// Serialized field: BootP flags
+			static const FieldDescriptor Flags;
+			/// Serialized field: Client IPv4 address
+			static const FieldDescriptor ClientIpAddress;
+			/// Serialized field: Your IPv4 address
+			static const FieldDescriptor YourIpAddress;
+			/// Serialized field: Server IPv4 address
+			static const FieldDescriptor ServerIpAddress;
+			/// Serialized field: Gateway IPv4 address
+			static const FieldDescriptor GatewayIpAddress;
+			/// Serialized field: Client hardware MAC address
+			static const FieldDescriptor ClientHardwareAddress;
+			/// Serialized field: Magic number
+			static const FieldDescriptor MagicNumber;
+			/// Serialized field: DHCP message type
+			static const FieldDescriptor MessageType;
+			/// Serialized field: Array of DHCP options
+			static const FieldDescriptor Options;
+			/// Serialized field: DHCP option
+			static const FieldDescriptor Option;
+		};
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{

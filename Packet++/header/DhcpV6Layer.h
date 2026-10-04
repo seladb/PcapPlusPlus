@@ -364,6 +364,22 @@ namespace pcpp
 
 		std::string toString() const override;
 
+		/// @struct SerializedFields
+		/// Struct that contains field descriptors for serialization
+		struct SerializedFields
+		{
+			/// Serialized field: DHCPv6 message type
+			static const FieldDescriptor MessageType;
+			/// Serialized field: Transaction ID
+			static const FieldDescriptor TransactionID;
+			/// Serialized field: Array of DHCPv6 options
+			static const FieldDescriptor Options;
+			/// Serialized field: DHCPv6 option
+			static const FieldDescriptor Option;
+		};
+
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
