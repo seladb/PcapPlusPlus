@@ -119,4 +119,27 @@ namespace pcpp
 	{
 		getCiscoHdlcHeader()->protocol = htobe16(protocol);
 	}
+
+	const FieldDescriptor CiscoHdlcLayer::SerializedFields::Address{ Layer::SerializedFields::MaxID + 1, "address" };
+	const FieldDescriptor CiscoHdlcLayer::SerializedFields::NextProtocol{ Layer::SerializedFields::MaxID + 2,
+		                                                                  "nextProtocol" };
+
+	constexpr const char* getAddressTypeAsString(CiscoHdlcLayer::AddressType addressType)
+	{
+		switch (addressType)
+		{
+		case CiscoHdlcLayer::AddressType::Multicast:
+			return "Multicast";
+		case CiscoHdlcLayer::AddressType::Unicast:
+			return "Unicast";
+		default:
+			return "Unknown";
+		}
+	}
+
+	void CiscoHdlcLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Address, getAddressTypeAsString(getAddress()));
+		serializer.writeField(SerializedFields::NextProtocol, getNextProtocol());
+	}
 }  // namespace pcpp

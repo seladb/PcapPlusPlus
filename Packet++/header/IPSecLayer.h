@@ -106,6 +106,33 @@ namespace pcpp
 			return OsiModelNetworkLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by AuthenticationHeaderLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for AuthenticationHeaderLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SPI, SequenceNumber, ICV };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the Security Parameters Index (SPI), written as a hex value.
+			static const FieldDescriptor SPI;
+
+			/// @brief Field descriptor for the sequence number, written as a number.
+			static const FieldDescriptor SequenceNumber;
+
+			/// @brief Field descriptor for the Integrity Check Value (ICV), written as a hex string.
+			static const FieldDescriptor ICV;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		// this layer supports parsing only
 		AuthenticationHeaderLayer()
@@ -164,6 +191,30 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by ESPLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for ESPLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SPI, SequenceNumber };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the Security Parameters Index (SPI), written as a hex value.
+			static const FieldDescriptor SPI;
+
+			/// @brief Field descriptor for the sequence number, written as a number.
+			static const FieldDescriptor SequenceNumber;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		// this layer supports parsing only
