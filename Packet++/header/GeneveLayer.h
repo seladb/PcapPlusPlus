@@ -268,6 +268,71 @@ namespace pcpp
 			return OsiModelDataLinkLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by GeneveLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for GeneveLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ OptionsLength, ProtocolType, VNI,
+					                                          OamFlag,       CriticalFlag, Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @struct OptionObject
+			/// Fields describing one element of the options array.
+			struct OptionObject : ObjectFieldDescriptor<OptionObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one GENEVE option
+				static std::vector<FieldDescriptor> all()
+				{
+					return { OptionClass, Type, Critical, DataSize };
+				}
+
+				/// @brief Option class in host byte order
+				static const FieldDescriptor OptionClass;
+
+				/// @brief Option type without the critical bit
+				static const FieldDescriptor Type;
+
+				/// @brief True if the option critical bit is set
+				static const FieldDescriptor Critical;
+
+				/// @brief Option data length in bytes
+				static const FieldDescriptor DataSize;
+			};
+
+			/// @brief Total options length in bytes declared by the GENEVE header
+			static const FieldDescriptor OptionsLength;
+
+			/// @brief Encapsulated protocol EtherType in host byte order
+			static const FieldDescriptor ProtocolType;
+
+			/// @brief The 24-bit virtual network identifier
+			static const FieldDescriptor VNI;
+
+			/// @brief True if the GENEVE OAM flag is set
+			static const FieldDescriptor OamFlag;
+
+			/// @brief True if the GENEVE critical options flag is set
+			static const FieldDescriptor CriticalFlag;
+
+			/// @brief GENEVE options
+			static const FieldDescriptor Options;
+
+			/// Descriptor for one element of the options array
+			static const OptionObject Option;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		void updateCriticalFlag();
 	};

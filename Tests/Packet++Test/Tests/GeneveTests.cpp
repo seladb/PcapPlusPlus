@@ -10,11 +10,13 @@
 #include "Packet.h"
 #include "PayloadLayer.h"
 #include "RawPacket.h"
+#include "Serializers.h"
 #include "UdpLayer.h"
 #include "VlanLayer.h"
 
 #include <cstring>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
@@ -80,6 +82,13 @@ PTF_TEST_CASE(GeneveParsingTest)
 		PTF_ASSERT_BUF_COMPARE(option.getData(), expectedOptionData, sizeof(expectedOptionData));
 		PTF_ASSERT_FALSE(geneveLayer->getFirstOption().isNull());
 		PTF_ASSERT_TRUE(geneveLayer->getNextOption(option).isNull());
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		geneveLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"Geneve","protocolId":66,"length":16,"optionsLength":8,"protocolType":25944,"vni":2748,"oamFlag":true,"criticalFlag":true,"options":[{"optionClass":258,"type":3,"critical":true,"dataSize":4}]})");
 
 		PTF_ASSERT_NOT_NULL(geneveLayer->getNextLayer());
 		PTF_ASSERT_EQUAL(geneveLayer->getNextLayer()->getProtocol(), pcpp::Ethernet, enum);

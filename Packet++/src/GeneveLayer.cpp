@@ -392,6 +392,40 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor GeneveLayer::SerializedFields::OptionsLength{ Layer::SerializedFields::MaxID + 1,
+		                                                                "optionsLength" };
+	const FieldDescriptor GeneveLayer::SerializedFields::ProtocolType{ Layer::SerializedFields::MaxID + 2,
+		                                                               "protocolType" };
+	const FieldDescriptor GeneveLayer::SerializedFields::VNI{ Layer::SerializedFields::MaxID + 3, "vni" };
+	const FieldDescriptor GeneveLayer::SerializedFields::OamFlag{ Layer::SerializedFields::MaxID + 4, "oamFlag" };
+	const FieldDescriptor GeneveLayer::SerializedFields::CriticalFlag{ Layer::SerializedFields::MaxID + 5,
+		                                                               "criticalFlag" };
+	const FieldDescriptor GeneveLayer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 6, "options" };
+	const GeneveLayer::SerializedFields::OptionObject GeneveLayer::SerializedFields::Option{ 0, "option" };
+	const FieldDescriptor GeneveLayer::SerializedFields::OptionObject::OptionClass{ 0, "optionClass" };
+	const FieldDescriptor GeneveLayer::SerializedFields::OptionObject::Type{ 1, "type" };
+	const FieldDescriptor GeneveLayer::SerializedFields::OptionObject::Critical{ 2, "critical" };
+	const FieldDescriptor GeneveLayer::SerializedFields::OptionObject::DataSize{ 3, "dataSize" };
+
+	void GeneveLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::OptionsLength, getOptionsLength());
+		serializer.writeField(SerializedFields::ProtocolType, getProtocolType());
+		serializer.writeField(SerializedFields::VNI, getVNI());
+		serializer.writeField(SerializedFields::OamFlag, getOamFlag());
+		serializer.writeField(SerializedFields::CriticalFlag, getCriticalFlag());
+
+		auto options = serializer.writeArray(SerializedFields::Options);
+		for (auto option = getFirstOption(); !option.isNull(); option = getNextOption(option))
+		{
+			auto optionObject = options.writeObject(SerializedFields::Option);
+			optionObject.writeField(SerializedFields::OptionObject::OptionClass, option.getOptionClass());
+			optionObject.writeField(SerializedFields::OptionObject::Type, option.getType());
+			optionObject.writeField(SerializedFields::OptionObject::Critical, option.isCritical());
+			optionObject.writeField(SerializedFields::OptionObject::DataSize, option.getDataSize());
+		}
+	}
+
 	std::string GeneveLayer::toString() const
 	{
 		std::ostringstream result;
