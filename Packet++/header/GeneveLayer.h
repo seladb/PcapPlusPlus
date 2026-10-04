@@ -98,6 +98,10 @@ namespace pcpp
 	};
 	/// @class GeneveLayer
 	/// Represents a GENEVE (Generic Network Virtualization Encapsulation) protocol layer
+	/// Layer methods assume that the fixed header and its declared options area are complete. Data passed to the
+	/// raw-data constructor must first pass isDataValid(); crafted layers establish this layout internally. Callers
+	/// modifying raw layer data must preserve this layout. Individual options may still be malformed and are checked
+	/// during traversal.
 	class GeneveLayer : public Layer
 	{
 	private:
@@ -144,8 +148,8 @@ namespace pcpp
 		/// @param[in] dataLen Size of the data in bytes
 		/// @param[in] prevLayer A pointer to the previous layer
 		/// @param[in] packet A pointer to the Packet instance where the layer is stored
-		/// @note This constructor does not validate the input. Use isDataValid() before constructing a standalone
-		/// parsed layer.
+		/// @note This constructor does not validate the input. The caller must ensure isDataValid(data, dataLen)
+		/// returns true before calling it.
 		GeneveLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, Geneve)
 		{}
@@ -175,45 +179,35 @@ namespace pcpp
 		}
 
 		/// @return The VNI in host byte order
-		/// @pre The layer must contain a complete fixed GENEVE header
 		uint32_t getVNI() const;
 
 		/// Set the VNI. Only the least significant 24 bits are used
 		/// @param[in] vni The VNI to set
-		/// @pre The layer must contain a complete fixed GENEVE header
 		void setVNI(uint32_t vni);
 
 		/// @return Encapsulated protocol EtherType in host byte order
-		/// @pre The layer must contain a complete fixed GENEVE header
 		uint16_t getProtocolType() const;
 
 		/// Set the encapsulated protocol EtherType
 		/// @param[in] protocolType EtherType in host byte order
-		/// @pre The layer must contain a complete fixed GENEVE header
 		void setProtocolType(uint16_t protocolType);
 
 		/// @return True if the GENEVE OAM flag is set
-		/// @pre The layer must contain a complete fixed GENEVE header
 		bool getOamFlag() const;
 
 		/// Set the GENEVE OAM flag
 		/// @param[in] value Whether to set the OAM flag
-		/// @pre The layer must contain a complete fixed GENEVE header
 		void setOamFlag(bool value);
 
 		/// @return True if the GENEVE critical options flag is set
-		/// @pre The layer must contain a complete fixed GENEVE header
 		bool getCriticalFlag() const;
 
-		/// @pre The layer must contain a complete fixed GENEVE header
 		/// @return Total options length in bytes declared by the fixed header
 		size_t getOptionsLength() const;
 
-		/// @pre The layer must contain a complete fixed GENEVE header
 		/// @return Number of options that can be traversed safely before malformed data, in this layer
 		size_t getOptionCount() const;
 
-		/// @pre The layer must contain a complete fixed GENEVE header
 		/// @return The first option, or a null option if no complete option is available
 		GeneveOption getFirstOption() const;
 
@@ -254,8 +248,7 @@ namespace pcpp
 		/// malformed payloads are represented as a generic PayloadLayer.
 		void parseNextLayer() override;
 
-		/// @pre The layer must contain a complete fixed GENEVE header
-		/// @return The fixed header plus the declared options length, capped at the available data length
+		/// @return The fixed header plus the declared options length
 		size_t getHeaderLen() const override;
 
 		/// Update the Protocol Type and Critical flag from the following layer and options

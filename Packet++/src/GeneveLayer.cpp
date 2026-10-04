@@ -12,7 +12,6 @@
 #include "VlanLayer.h"
 #include "SystemUtils.h"
 
-#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <sstream>
@@ -169,25 +168,23 @@ namespace pcpp
 
 	size_t GeneveLayer::getHeaderLen() const
 	{
-		return (std::min)(m_DataLen, HeaderLength + getOptionsLength());
+		return HeaderLength + getOptionsLength();
 	}
 
 	GeneveOption GeneveLayer::getFirstOption() const
 	{
-		if (m_Data == nullptr || m_DataLen < HeaderLength || getOptionsLength() > m_DataLen - HeaderLength)
-			return GeneveOption();
-
+		const size_t optionsLength = getOptionsLength();
 		uint8_t* options = m_Data + HeaderLength;
-		return GeneveOption::canAssign(options, getOptionsLength()) ? GeneveOption(options) : GeneveOption();
+		return GeneveOption::canAssign(options, optionsLength) ? GeneveOption(options) : GeneveOption();
 	}
 
 	GeneveOption GeneveLayer::getNextOption(const GeneveOption& option) const
 	{
-		if (m_Data == nullptr || m_DataLen < HeaderLength || option.isNull() ||
-		    getOptionsLength() > m_DataLen - HeaderLength)
+		if (option.isNull())
 			return GeneveOption();
 
 		uint8_t* optionsBegin = m_Data + HeaderLength;
+		const size_t optionsLength = getOptionsLength();
 		uint8_t* current = option.getRecordBasePtr();
 		const auto optionsBeginAddress = reinterpret_cast<std::uintptr_t>(optionsBegin);
 		const auto currentAddress = reinterpret_cast<std::uintptr_t>(current);
@@ -195,7 +192,6 @@ namespace pcpp
 			return GeneveOption();
 
 		const auto currentOffsetAddress = currentAddress - optionsBeginAddress;
-		const size_t optionsLength = getOptionsLength();
 		if (currentOffsetAddress >= optionsLength)
 			return GeneveOption();
 
