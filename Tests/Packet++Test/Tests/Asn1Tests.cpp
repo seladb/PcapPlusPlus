@@ -398,6 +398,40 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->toString(), "GeneralizedTime, Length: 2+19, Value: 2025-05-31 14:30:00.123");
 	}
 
+	// Generalized time - the fraction is a decimal fraction of a second, whatever its number of digits
+	{
+		std::vector<std::pair<std::string, int64_t>> fractions = {
+			{ "181132303235303533313134333030302e355a",       1748701800500000 }, // 20250531143000.5Z
+			{ "181232303235303533313134333030302e31325a",     1748701800120000 }, // 20250531143000.12Z
+			{ "181432303235303533313134333030302e313233345a", 1748701800123000 }, // 20250531143000.1234Z
+		};
+
+		for (const auto& fraction : fractions)
+		{
+			uint8_t data[24];
+			auto dataLen = pcpp::hexStringToByteArray(fraction.first, data, 24);
+			auto record = pcpp::Asn1Record::decode(data, dataLen);
+			PTF_ASSERT_EQUAL(std::chrono::duration_cast<std::chrono::microseconds>(
+			                     record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue().time_since_epoch())
+			                     .count(),
+			                 fraction.second);
+		}
+	}
+
+	// UTC time and generalized time - empty value
+	{
+		uint8_t data[2];
+		auto dataLen = pcpp::hexStringToByteArray("1700", data, 2);
+		auto record = pcpp::Asn1Record::decode(data, dataLen);
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1UtcTimeRecord>()->getValue(), std::runtime_error,
+		                  "Failed to parse ASN.1 UTC time");
+
+		dataLen = pcpp::hexStringToByteArray("1800", data, 2);
+		record = pcpp::Asn1Record::decode(data, dataLen);
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1GeneralizedTimeRecord>()->getValue(), std::runtime_error,
+		                  "Failed to parse ASN.1 generalized time");
+	}
+
 	// Generalized time - invalid data
 	{
 		uint8_t data[20];
