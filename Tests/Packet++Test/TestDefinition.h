@@ -65,6 +65,7 @@ PTF_TEST_CASE(PacketParseLayerLimitTest);
 PTF_TEST_CASE(PacketParseMultiLayerTest);
 PTF_TEST_CASE(PacketIncrementalParseTest);
 PTF_TEST_CASE(PacketFullReparseTest);
+PTF_TEST_CASE(PacketSerializeTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
@@ -132,6 +133,7 @@ PTF_TEST_CASE(DoIpInvalidPackets);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);
+PTF_TEST_CASE(IcmpTruncatedPacketTest);
 PTF_TEST_CASE(IcmpCreationTest);
 PTF_TEST_CASE(IcmpEditTest);
 
@@ -335,6 +337,14 @@ PTF_TEST_CASE(ModbusLayerCreationTest);
 PTF_TEST_CASE(ModbusLayerParsingTest);
 PTF_TEST_CASE(ModbusLayerTruncatedTest);
 
+// Implemented in GvcpTests.cpp
+PTF_TEST_CASE(GvcpDiscoveryParsingTest);
+PTF_TEST_CASE(GvcpForceIpParsingTest);
+PTF_TEST_CASE(GvcpRegisterAccessParsingTest);
+PTF_TEST_CASE(GvcpMalformedParsingTest);
+PTF_TEST_CASE(GvcpLayerCreationTest);
+PTF_TEST_CASE(GvcpLayerEditTest);
+
 // Implemented in X509Tests.cpp
 PTF_TEST_CASE(X509ParsingTest);
 PTF_TEST_CASE(X509VariantsParsingTest);
@@ -362,3 +372,10 @@ PTF_TEST_CASE(PostgresInvalidDataTest);
 PTF_TEST_CASE(MySqlLayerParsingTest);
 PTF_TEST_CASE(MySqlMessageParsingTest);
 PTF_TEST_CASE(MySqlInvalidDataTest);
+
+// Implemented in QuicTests.cpp
+PTF_TEST_CASE(QuicV1ParsingTest);
+PTF_TEST_CASE(QuicV1MalformedPacketsTest);
+
+// Implemented in SerializerTests.cpp
+PTF_TEST_CASE(JsonSerializerTest);

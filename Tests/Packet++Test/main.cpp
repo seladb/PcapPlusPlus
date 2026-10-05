@@ -174,6 +174,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PacketParseMultiLayerTest, "packet");
 	PTF_RUN_TEST(PacketIncrementalParseTest, "packet");
 	PTF_RUN_TEST(PacketFullReparseTest, "packet");
+	PTF_RUN_TEST(PacketSerializeTest, "packet");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
@@ -236,6 +237,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpInvalidPackets, "doip");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
+	PTF_RUN_TEST(IcmpTruncatedPacketTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	PTF_RUN_TEST(IcmpEditTest, "icmp");
 
@@ -407,6 +409,13 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerTruncatedTest, "modbus");
 
+	PTF_RUN_TEST(GvcpDiscoveryParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpForceIpParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpRegisterAccessParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpMalformedParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpLayerCreationTest, "gvcp");
+	PTF_RUN_TEST(GvcpLayerEditTest, "gvcp");
+
 	PTF_RUN_TEST(X509ParsingTest, "x509");
 	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
 	PTF_RUN_TEST(X509InvalidDataTest, "x509");
@@ -428,6 +437,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(MySqlLayerParsingTest, "mysql");
 	PTF_RUN_TEST(MySqlMessageParsingTest, "mysql");
 	PTF_RUN_TEST(MySqlInvalidDataTest, "mysql");
+
+	PTF_RUN_TEST(QuicV1ParsingTest, "quic");
+	PTF_RUN_TEST(QuicV1MalformedPacketsTest, "quic");
+
+	PTF_RUN_TEST(JsonSerializerTest, "serializers");
 
 	PTF_END_RUNNING_TESTS;
 }

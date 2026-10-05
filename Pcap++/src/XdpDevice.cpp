@@ -5,7 +5,11 @@
 #include "Logger.h"
 #include "Packet.h"
 #include <bpf/libbpf.h>
-#include <bpf/xsk.h>
+#if LIBBPF_MAJOR_VERSION < 1
+#	include <bpf/xsk.h>
+#else
+#	include <xdp/xsk.h>
+#endif
 #include <linux/if_link.h>
 #include <net/if.h>
 #include <sys/mman.h>
@@ -126,7 +130,7 @@ namespace pcpp
 
 	XdpDevice::~XdpDevice()
 	{
-		close();
+		XdpDevice::close();
 	}
 
 	bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS)
@@ -398,7 +402,7 @@ namespace pcpp
 
 	bool XdpDevice::configureSocket()
 	{
-		auto socketInfo = new xsk_socket_info();
+		auto socketInfo = std::make_unique<xsk_socket_info>();
 
 		auto umemInfo = static_cast<xsk_umem_info*>(m_Umem->getInfo());
 
@@ -424,11 +428,10 @@ namespace pcpp
 		if (ret)
 		{
 			PCPP_LOG_ERROR("xsk_socket__create returned an error: " << ret);
-			delete socketInfo;
 			return false;
 		}
 
-		m_SocketInfo = socketInfo;
+		m_SocketInfo = socketInfo.release();
 		return true;
 	}
 

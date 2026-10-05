@@ -56,7 +56,7 @@ private:
 		if (m_Device == nullptr)
 			return;
 
-		if (!m_CancelTeardown && m_Device != nullptr && m_Device->isOpened())
+		if (!m_CancelTeardown && m_Device->isOpened())
 		{
 			m_Device->close();
 		}

@@ -472,7 +472,7 @@ namespace pcpp
 	std::string Base64::encodeHexString(const std::string& hexStringInput)
 	{
 		size_t inputLen = hexStringInput.length() / 2;
-		std::unique_ptr<uint8_t[]> inputBytes(new uint8_t[inputLen]);
+		auto inputBytes = std::make_unique<uint8_t[]>(inputLen);
 		auto inputLenAfterConvertingToByteArray = hexStringToByteArray(hexStringInput, inputBytes.get(), inputLen);
 		if (inputLen != inputLenAfterConvertingToByteArray)
 		{

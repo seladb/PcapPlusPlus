@@ -1,6 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
+#include "Serializers.h"
 #include "Logger.h"
 #include "Packet.h"
 #include "EthLayer.h"
@@ -1231,3 +1232,100 @@ PTF_TEST_CASE(PacketFullReparseTest)
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
 }
+
+PTF_TEST_CASE(PacketSerializeTest)
+{
+	auto serializePacket = [](const pcpp::Packet& packet) {
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		packet.serialize(serializer);
+		return oss.str();
+	};
+
+	auto serializeLayer = [](const pcpp::Layer& layer) {
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		layer.serialize(serializer);
+		return oss.str();
+	};
+
+	// Empty packet
+	{
+		SuppressLogs suppress;
+		pcpp::RawPacket rawPacket;
+		pcpp::Packet packet(&rawPacket, false);
+
+		PTF_ASSERT_EQUAL(
+		    serializePacket(packet),
+		    R"({"timestamp":{"sec":0,"nsec":0},"frameLength":0,"linkLayer":1,"linkLayerName":"Ethernet","layers":[]})");
+	}
+
+	// Single layer
+	{
+		pcpp::EthLayer ethLayer(pcpp::MacAddress("aa:aa:aa:aa:aa:aa"), pcpp::MacAddress("bb:bb:bb:bb:bb:bb"),
+		                        PCPP_ETHERTYPE_IP);
+
+		SuppressLogs suppress;
+		pcpp::RawPacket rawPacket;
+		pcpp::Packet packet(&rawPacket, false);
+		PTF_ASSERT_TRUE(packet.addLayer(&ethLayer));
+
+		PTF_ASSERT_EQUAL(
+		    serializePacket(packet),
+		    R"({"timestamp":{"sec":0,"nsec":0},"frameLength":14,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"aa:aa:aa:aa:aa:aa","dstMacAddress":"bb:bb:bb:bb:bb:bb","etherType":2048}]})");
+	}
+
+	// Multiple layers
+	{
+		pcpp::EthLayer ethLayer(pcpp::MacAddress("aa:aa:aa:aa:aa:aa"), pcpp::MacAddress("bb:bb:bb:bb:bb:bb"),
+		                        PCPP_ETHERTYPE_IP);
+
+		pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("10.0.0.1"), pcpp::IPv4Address("10.0.0.2"));
+
+		pcpp::TcpLayer tcpLayer(12345, 80);
+
+		SuppressLogs suppress;
+		pcpp::RawPacket rawPacket;
+		pcpp::Packet packet(&rawPacket, false);
+		PTF_ASSERT_TRUE(packet.addLayer(&ethLayer));
+		PTF_ASSERT_TRUE(packet.addLayer(&ipLayer));
+		PTF_ASSERT_TRUE(packet.addLayer(&tcpLayer));
+
+		PTF_ASSERT_EQUAL(
+		    serializePacket(packet),
+		    R"({"timestamp":{"sec":0,"nsec":0},"frameLength":54,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"aa:aa:aa:aa:aa:aa","dstMacAddress":"bb:bb:bb:bb:bb:bb","etherType":2048},{"protocolName":"IPv4","protocolId":2,"length":20,"srcIP":"10.0.0.1","dstIP":"10.0.0.2","ipID":0,"ipProtocol":0,"totalLength":0,"isFragment":false,"fragmentOffset":0,"options":[]},{"protocolName":"TCP","protocolId":4,"length":20,"srcPort":12345,"dstPort":80,"sequenceNumber":0,"tcpFlags":[],"windowSize":0,"checksum":"0x0","options":[]}]})");
+	}
+
+	// Zero-length layer
+	{
+		pcpp::PayloadLayer payloadLayer(nullptr, 0);
+
+		PTF_ASSERT_EQUAL(serializeLayer(payloadLayer),
+		                 R"({"protocolName":"GenericPayload","protocolId":25,"length":0})");
+	}
+
+	// Direct layer serialization
+	{
+		pcpp::EthLayer ethLayer(pcpp::MacAddress("aa:aa:aa:aa:aa:aa"), pcpp::MacAddress("bb:bb:bb:bb:bb:bb"),
+		                        PCPP_ETHERTYPE_IP);
+
+		PTF_ASSERT_EQUAL(
+		    serializeLayer(ethLayer),
+		    R"({"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"aa:aa:aa:aa:aa:aa","dstMacAddress":"bb:bb:bb:bb:bb:bb","etherType":2048})");
+	}
+
+	// Parsed packet
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/radius_1.dat");
+		pcpp::Packet packet(rawPacket.get(), false);
+
+		timespec timestamp{};
+		timestamp.tv_sec = 1789544222;
+		timestamp.tv_nsec = 100760000;
+		packet.getRawPacket()->setPacketTimeStamp(timestamp);
+
+		PTF_ASSERT_EQUAL(
+		    serializePacket(packet),
+		    R"({"timestamp":{"sec":1789544222,"nsec":100760000},"frameLength":181,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"00:19:06:ea:b8:c0","dstMacAddress":"00:1d:60:b3:01:84","etherType":2048},{"protocolName":"IPv4","protocolId":2,"length":20,"srcIP":"10.0.0.1","dstIP":"10.0.0.100","ipID":70,"ipProtocol":17,"totalLength":167,"isFragment":false,"fragmentOffset":0,"options":[]},{"protocolName":"UDP","protocolId":5,"length":8,"srcPort":1645,"dstPort":1812,"checksum":"0x3dca"},{"protocolName":"Radius","protocolId":31,"length":139}]})");
+	}
+}  // PacketSerializeTest

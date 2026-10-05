@@ -1054,7 +1054,7 @@ namespace pcpp
 
 	SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 	{
-		std::unordered_map<uint16_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteIdToObjectMap.find(id);
+		auto pos = CipherSuiteIdToObjectMap.find(id);
 		if (pos == CipherSuiteIdToObjectMap.end())
 			return nullptr;
 		else
@@ -1064,7 +1064,7 @@ namespace pcpp
 	SSLCipherSuite* SSLCipherSuite::getCipherSuiteByName(std::string name)
 	{
 		uint32_t nameHash = hashString(std::move(name));
-		std::unordered_map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
+		auto pos = CipherSuiteStringToObjectMap.find(nameHash);
 		if (pos == CipherSuiteStringToObjectMap.end())
 			return nullptr;
 		else

@@ -57,4 +57,16 @@ namespace pcpp
 		tryConstructNextLayerWithFallback<EthLayer, PayloadLayer>(payload, payloadLen);
 	}
 
+	const FieldDescriptor VxlanLayer::SerializedFields::ValidVNI{ Layer::SerializedFields::MaxID + 1, "validVNI" };
+	const FieldDescriptor VxlanLayer::SerializedFields::GroupPolicyID{ Layer::SerializedFields::MaxID + 2,
+		                                                               "groupPolicyID" };
+	const FieldDescriptor VxlanLayer::SerializedFields::VNI{ Layer::SerializedFields::MaxID + 3, "vni" };
+
+	void VxlanLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getVxlanHeader();
+		serializer.writeField(SerializedFields::ValidVNI, header->vniPresentFlag ? true : false);
+		serializer.writeField(SerializedFields::GroupPolicyID, be16toh(header->groupPolicyID));
+		serializer.writeField(SerializedFields::VNI, getVNI());
+	}
 }  // namespace pcpp
