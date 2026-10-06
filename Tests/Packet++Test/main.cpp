@@ -402,6 +402,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WireGuardCreationTest, "wg");
 	PTF_RUN_TEST(WireGuardEditTest, "wg");
 	PTF_RUN_TEST(WireGuardMalformedPacketsTest, "wg");
+	PTF_RUN_TEST(WireGuardSetEncryptedDataTest, "wg");
 
 	PTF_RUN_TEST(CiscoHdlcParsingTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
