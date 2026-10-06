@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstring>
 #include <sstream>
+#include <stdexcept>
 
 namespace pcpp
 {
@@ -115,7 +116,7 @@ namespace pcpp
 		auto* ackDataHeader = getS7commAckDataHeader();
 		if (ackDataHeader == nullptr)
 		{
-			return 0;
+			throw std::runtime_error("Error code field not present!");
 		}
 
 		return ackDataHeader->errorCode;
@@ -126,7 +127,7 @@ namespace pcpp
 		auto* ackDataHeader = getS7commAckDataHeader();
 		if (ackDataHeader == nullptr)
 		{
-			return 0;
+			throw std::runtime_error("Error class field not present!");
 		}
 
 		return ackDataHeader->errorClass;
