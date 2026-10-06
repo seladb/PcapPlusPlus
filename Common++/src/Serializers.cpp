@@ -479,7 +479,7 @@ namespace pcpp
 
 		writeIndent();
 		writeOpenTag(ctx.name);
-		m_ContextStack.push_back(ctx);
+		m_ContextStack.push_back(std::move(ctx));
 	}
 
 	void XmlSerializer::endArray()
