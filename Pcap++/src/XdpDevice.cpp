@@ -402,7 +402,7 @@ namespace pcpp
 
 	bool XdpDevice::configureSocket()
 	{
-		auto socketInfo = new xsk_socket_info();
+		auto socketInfo = std::make_unique<xsk_socket_info>();
 
 		auto umemInfo = static_cast<xsk_umem_info*>(m_Umem->getInfo());
 
@@ -428,11 +428,10 @@ namespace pcpp
 		if (ret)
 		{
 			PCPP_LOG_ERROR("xsk_socket__create returned an error: " << ret);
-			delete socketInfo;
 			return false;
 		}
 
-		m_SocketInfo = socketInfo;
+		m_SocketInfo = socketInfo.release();
 		return true;
 	}
 
