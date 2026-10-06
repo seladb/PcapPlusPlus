@@ -101,7 +101,7 @@ void testSetUp()
 		pcpp::CoreMask coreMask = 0;
 		for (int i = 0; i < pcpp::getNumOfCores(); i++)
 		{
-			coreMask |= pcpp::SystemCores::IdToSystemCore[i].Mask;
+			coreMask |= pcpp::SystemCores::IdToSystemCore[i].getShortCoreMask();
 		}
 
 		std::vector<char*> dpdkArgv;
