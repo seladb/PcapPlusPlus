@@ -304,6 +304,7 @@ PTF_TEST_CASE(CotpLayerTest);
 // Implemented in S7commTests.cpp
 PTF_TEST_CASE(S7CommLayerParsingTest);
 PTF_TEST_CASE(S7CommLayerCreationTest);
+PTF_TEST_CASE(S7CommLayerMalformedTest);
 
 // Implemented in SmtpTests.cpp
 PTF_TEST_CASE(SmtpParsingTests);
@@ -326,6 +327,7 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest);
 PTF_TEST_CASE(WireGuardTransportDataParsingTest);
 PTF_TEST_CASE(WireGuardCreationTest);
 PTF_TEST_CASE(WireGuardEditTest);
+PTF_TEST_CASE(WireGuardMalformedPacketsTest);
 
 // Implemented in CiscoHdlcTests.cpp
 PTF_TEST_CASE(CiscoHdlcParsingTest);
@@ -379,3 +381,5 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest);
 
 // Implemented in SerializerTests.cpp
 PTF_TEST_CASE(JsonSerializerTest);
+PTF_TEST_CASE(YamlSerializerTest);
+PTF_TEST_CASE(XmlSerializerTest);

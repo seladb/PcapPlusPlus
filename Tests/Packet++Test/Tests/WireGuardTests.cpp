@@ -4,6 +4,7 @@
 #include "WireGuardLayer.h"
 #include "SystemUtils.h"
 #include <cstring>
+#include <memory>
 #include "EndianPortable.h"
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
@@ -541,3 +542,34 @@ PTF_TEST_CASE(WireGuardEditTest)
 	                       sizeof(expectedEncryptedDataTrans));
 
 }  // WireGuardEditTest
+
+PTF_TEST_CASE(WireGuardMalformedPacketsTest)
+{
+	using MessageType = pcpp::WireGuardLayer::WireGuardMessageType;
+
+	// fixed message sizes from the WireGuard protocol description
+	struct
+	{
+		MessageType type;
+		size_t length;
+	} const messages[] = {
+		{ MessageType::HandshakeInitiation, 148 },
+		{ MessageType::HandshakeResponse,   92  },
+		{ MessageType::CookieReply,         64  },
+		{ MessageType::TransportData,       16  },
+	};
+
+	for (const auto& message : messages)
+	{
+		auto buffer = std::make_unique<uint8_t[]>(message.length);
+		buffer[0] = static_cast<uint8_t>(message.type);
+
+		PTF_ASSERT_NULL(pcpp::WireGuardLayer::parseWireGuardLayer(buffer.get(), 8, nullptr, nullptr));
+		PTF_ASSERT_NULL(pcpp::WireGuardLayer::parseWireGuardLayer(buffer.get(), message.length - 1, nullptr, nullptr));
+
+		std::unique_ptr<pcpp::WireGuardLayer> layer(
+		    pcpp::WireGuardLayer::parseWireGuardLayer(buffer.release(), message.length, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		PTF_ASSERT_EQUAL(layer->getMessageType(), static_cast<uint8_t>(message.type));
+	}
+}  // WireGuardMalformedPacketsTest

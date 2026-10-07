@@ -162,6 +162,16 @@ namespace pcpp
 		    : WireGuardLayer(data, dataLen, prevLayer, packet)
 		{}
 
+		/// A static method that checks whether a byte stream is long enough to hold a WireGuard Handshake Initiation
+		/// message
+		/// @param[in] data A pointer to the beginning of the message
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is at least as long as the fixed part of the message, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(wg_handshake_initiation);
+		}
+
 		/// A constructor that creates a new Handshake Initiation message
 		/// @param[in] senderIndex The sender's index
 		/// @param[in] initiatorEphemeral The initiator's ephemeral public key
@@ -259,6 +269,16 @@ namespace pcpp
 		    : WireGuardLayer(data, dataLen, prevLayer, packet)
 		{}
 
+		/// A static method that checks whether a byte stream is long enough to hold a WireGuard Handshake Response
+		/// message
+		/// @param[in] data A pointer to the beginning of the message
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is at least as long as the fixed part of the message, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(wg_handshake_response);
+		}
+
 		/// A constructor that creates a new Handshake Response message
 		/// @param[in] senderIndex The sender index
 		/// @param[in] receiverIndex The receiver index
@@ -349,6 +369,15 @@ namespace pcpp
 		    : WireGuardLayer(data, dataLen, prevLayer, packet)
 		{}
 
+		/// A static method that checks whether a byte stream is long enough to hold a WireGuard Cookie Reply message
+		/// @param[in] data A pointer to the beginning of the message
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is at least as long as the fixed part of the message, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(wg_cookie_reply);
+		}
+
 		/// A constructor that creates a new Cookie Reply message
 		/// @param[in] receiverIndex The receiver index
 		/// @param[in] nonce The nonce field
@@ -415,6 +444,15 @@ namespace pcpp
 		WireGuardTransportDataLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : WireGuardLayer(data, dataLen, prevLayer, packet)
 		{}
+
+		/// A static method that checks whether a byte stream is long enough to hold a WireGuard Transport Data message
+		/// @param[in] data A pointer to the beginning of the message
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is at least as long as the fixed part of the message, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(wg_transport_data);
+		}
 
 		/// A constructor that creates a new Transport Data message
 		/// @param[in] receiverIndex The receiver index
