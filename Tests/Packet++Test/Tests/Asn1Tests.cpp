@@ -173,6 +173,22 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->toString(), "Boolean, Length: 2+1, Value: false");
 	}
 
+	// Boolean with no value
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("0100", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen, false), std::invalid_argument,
+		                  "Cannot decode ASN.1 Boolean record, value length must be 1");
+	}
+
+	// Boolean with more than one value byte
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("0102ff00", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen, false), std::invalid_argument,
+		                  "Cannot decode ASN.1 Boolean record, value length must be 1");
+	}
+
 	// OctetString with printable value
 	{
 		uint8_t data[20];

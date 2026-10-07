@@ -759,6 +759,11 @@ namespace pcpp
 
 	void Asn1BooleanRecord::decodeValue(uint8_t const* data) const
 	{
+		if (m_ValueLength != 1)
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 Boolean record, value length must be 1");
+		}
+
 		m_Value = data[0] != 0;
 	}
 
