@@ -103,6 +103,7 @@ namespace pcpp
 		PacketLogModuleWireGuardLayer,   ///< WireGuardLayer module (Packet++)
 		PacketLogModuleDoIpLayer,        ///< DoipLayer module (Packet++)
 		PacketLogModuleGeneveLayer,      ///< GeneveLayer module (Packet++)
+		PacketLogModuleS7CommLayer,      ///< S7CommLayer module (Packet++)
 		PcapLogModuleWinPcapLiveDevice,  ///< WinPcapLiveDevice module (Pcap++)
 		PcapLogModuleRemoteDevice,       ///< WinPcapRemoteDevice module (Pcap++)
 		PcapLogModuleLiveDevice,         ///< PcapLiveDevice module (Pcap++)
