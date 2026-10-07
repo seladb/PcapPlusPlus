@@ -16,12 +16,20 @@ namespace pcpp
 		switch (wgHeader->messageType)
 		{
 		case static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation):
+			if (!WireGuardHandshakeInitiationLayer::isDataValid(data, dataLen))
+				return nullptr;
 			return new WireGuardHandshakeInitiationLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::HandshakeResponse):
+			if (!WireGuardHandshakeResponseLayer::isDataValid(data, dataLen))
+				return nullptr;
 			return new WireGuardHandshakeResponseLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::CookieReply):
+			if (!WireGuardCookieReplyLayer::isDataValid(data, dataLen))
+				return nullptr;
 			return new WireGuardCookieReplyLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::TransportData):
+			if (!WireGuardTransportDataLayer::isDataValid(data, dataLen))
+				return nullptr;
 			return new WireGuardTransportDataLayer(data, dataLen, prevLayer, packet);
 		default:
 			return nullptr;

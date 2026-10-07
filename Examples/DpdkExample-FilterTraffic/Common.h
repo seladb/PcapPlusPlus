@@ -80,7 +80,7 @@ public:
 	      matchedPackets(0)
 	{}
 
-	void collectStats(pcpp::Packet& packet)
+	void collectStats(const pcpp::Packet& packet)
 	{
 		packetCount++;
 		if (packet.isPacketOfType(pcpp::Ethernet))
