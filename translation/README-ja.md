@@ -221,17 +221,17 @@ PcapPlusPlus は現在、以下のプロトコルのパケットの解析、編�
 
 1. Cisco HDLC
 2. Ethernet II
-3. IEEE 802.3 Ethernet
-4. LLC (BPDU のみサポート)
-5. Null/Loopback
-6. Packet trailer (footer または padding とも呼ばれる)
-7. PPPoE
-8. SLL (Linux cooked capture)
-9. SLL2 (Linux cooked capture v2)
-10. STP
-11. VLAN
-12. VXLAN
-13. GENEVE
+3. GENEVE
+4. IEEE 802.3 Ethernet
+5. LLC (BPDU のみサポート)
+6. Null/Loopback
+7. Packet trailer (footer または padding とも呼ばれる)
+8. PPPoE
+9. SLL (Linux cooked capture)
+10. SLL2 (Linux cooked capture v2)
+11. STP
+12. VLAN
+13. VXLAN
 14. Wake on LAN (WoL)
 15. NFLOG (Linux Netfilter NFLOG) - 解析のみ (編集機能なし)
 

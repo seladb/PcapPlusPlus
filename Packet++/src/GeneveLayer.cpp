@@ -86,6 +86,22 @@ namespace pcpp
 		return reinterpret_cast<uint8_t*>(m_Data) + HeaderLength;
 	}
 
+	bool GeneveOption::operator==(const GeneveOption& other) const
+	{
+		if (m_Data == other.m_Data)
+			return true;
+
+		if (isNull() || other.isNull())
+			return false;
+
+		if (getOptionClass() != other.getOptionClass() || getType() != other.getType() ||
+		    isCritical() != other.isCritical() || getDataSize() != other.getDataSize())
+			return false;
+
+		const size_t dataSize = getDataSize();
+		return dataSize == 0 || memcmp(getData(), other.getData(), dataSize) == 0;
+	}
+
 	GeneveLayer::GeneveLayer(uint32_t vni, uint16_t protocolType, bool oamFlag)
 	{
 		allocData(HeaderLength);
@@ -175,40 +191,34 @@ namespace pcpp
 	{
 		const size_t optionsLength = getOptionsLength();
 		uint8_t* options = m_Data + HeaderLength;
-		return GeneveOption::canAssign(options, optionsLength) ? GeneveOption(options) : GeneveOption();
+		return GeneveOption::canAssign(options, optionsLength) ? GeneveOption{ options } : GeneveOption{};
 	}
 
 	GeneveOption GeneveLayer::getNextOption(const GeneveOption& option) const
 	{
 		if (option.isNull())
-			return GeneveOption();
+			return {};
 
+		uint8_t* current = option.getRecordBasePtr();
 		uint8_t* optionsBegin = m_Data + HeaderLength;
 		const size_t optionsLength = getOptionsLength();
-		uint8_t* current = option.getRecordBasePtr();
-		const auto optionsBeginAddress = reinterpret_cast<std::uintptr_t>(optionsBegin);
-		const auto currentAddress = reinterpret_cast<std::uintptr_t>(current);
-		if (currentAddress < optionsBeginAddress)
-			return GeneveOption();
 
-		const auto currentOffsetAddress = currentAddress - optionsBeginAddress;
-		if (currentOffsetAddress >= optionsLength)
-			return GeneveOption();
+		// uintptr_t comparison avoids UB from relational comparison of unrelated pointers
+		const auto currentAddr = reinterpret_cast<std::uintptr_t>(current);
+		const auto beginAddr = reinterpret_cast<std::uintptr_t>(optionsBegin);
+		if (currentAddr < beginAddr || currentAddr - beginAddr >= optionsLength)
+			return {};
 
-		const auto currentOffset = static_cast<size_t>(currentOffsetAddress);
-		const size_t currentBytesAvailable = optionsLength - currentOffset;
-		if (!GeneveOption::canAssign(current, currentBytesAvailable))
-			return GeneveOption();
+		const size_t currentOffset = currentAddr - beginAddr;
+		if (!GeneveOption::canAssign(current, optionsLength - currentOffset))
+			return {};
 
 		const size_t nextOffset = currentOffset + option.getTotalSize();
-		if (nextOffset >= optionsLength)
-			return GeneveOption();
+		if (nextOffset >= optionsLength ||
+		    !GeneveOption::canAssign(optionsBegin + nextOffset, optionsLength - nextOffset))
+			return {};
 
-		uint8_t* next = optionsBegin + nextOffset;
-		if (!GeneveOption::canAssign(next, optionsLength - nextOffset))
-			return GeneveOption();
-
-		return GeneveOption(next);
+		return GeneveOption{ optionsBegin + nextOffset };
 	}
 
 	GeneveOption GeneveLayer::getOption(uint16_t optionClass, uint8_t optionType) const
@@ -219,7 +229,7 @@ namespace pcpp
 				return option;
 		}
 
-		return GeneveOption();
+		return {};
 	}
 
 	size_t GeneveLayer::getOptionCount() const
@@ -269,7 +279,8 @@ namespace pcpp
 		if (optionDataLen > 0)
 			memcpy(option.getData(), optionDataCopy.data(), optionDataLen);
 		setOptionsLength(oldOptionsLength + optionSize);
-		updateCriticalFlag();
+		if (critical)
+			getGeneveHeader()->criticalFlag = 1;
 		return true;
 	}
 

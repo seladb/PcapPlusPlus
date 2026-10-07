@@ -220,17 +220,17 @@ PcapPlusPlus в настоящее время поддерживает анал�
 
 1. Cisco HDLC
 2. Ethernet II
-3. IEEE 802.3 Ethernet
-4. LLC (поддерживается только BPDU)
-5. Null/Loopback
-6. Трейлер пакета (также известный как футер или паддинг)
-7. PPPoE
-8. SLL (Linux cooked capture)
-9. SLL2 (Linux cooked capture v2)
-10. STP
-11. VLAN
-12. VXLAN
-13. GENEVE
+3. GENEVE
+4. IEEE 802.3 Ethernet
+5. LLC (поддерживается только BPDU)
+6. Null/Loopback
+7. Трейлер пакета (также известный как футер или паддинг)
+8. PPPoE
+9. SLL (Linux cooked capture)
+10. SLL2 (Linux cooked capture v2)
+11. STP
+12. VLAN
+13. VXLAN
 14. Wake on LAN (WoL)
 15. NFLOG (Linux Netfilter NFLOG) — только анализ (без возможностей редактирования)
 

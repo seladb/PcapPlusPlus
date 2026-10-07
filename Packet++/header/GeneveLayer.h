@@ -95,50 +95,18 @@ namespace pcpp
 
 		/// @return A pointer to the option data, or nullptr if this option is null
 		uint8_t* getData() const;
+
+		/// @return True if both options are null or have the same class, type, critical flag, and data
+		bool operator==(const GeneveOption& other) const;
 	};
 	/// @class GeneveLayer
-	/// Represents a GENEVE (Generic Network Virtualization Encapsulation) protocol layer
+	/// Represents a GENEVE (Generic Network Virtualization Encapsulation) protocol layer.
 	/// Layer methods assume that the fixed header and its declared options area are complete. Data passed to the
 	/// raw-data constructor must first pass isDataValid(); crafted layers establish this layout internally. Callers
 	/// modifying raw layer data must preserve this layout. Individual options may still be malformed and are checked
 	/// during traversal.
 	class GeneveLayer : public Layer
 	{
-	private:
-#pragma pack(push, 1)
-		struct geneve_header
-		{
-#if (BYTE_ORDER == LITTLE_ENDIAN)
-			uint8_t optionsLength : 6;
-			uint8_t version : 2;
-			uint8_t reserved1 : 6;
-			uint8_t criticalFlag : 1;
-			uint8_t oamFlag : 1;
-#else
-			uint8_t version : 2;
-			uint8_t optionsLength : 6;
-			uint8_t oamFlag : 1;
-			uint8_t criticalFlag : 1;
-			uint8_t reserved1 : 6;
-#endif
-			uint16_t protocolType;
-			uint8_t vni[3];
-			uint8_t reserved2;
-		};
-#pragma pack(pop)
-		static_assert(sizeof(geneve_header) == 8, "geneve_header size is not 8 bytes");
-
-		static constexpr size_t HeaderLength = sizeof(geneve_header);
-		static constexpr size_t OptionsLengthUnit = 4;
-		static constexpr size_t MaxOptionsLength = ((1 << 6) - 1) * OptionsLengthUnit;
-
-		geneve_header* getGeneveHeader() const
-		{
-			return reinterpret_cast<geneve_header*>(m_Data);
-		}
-
-		void setOptionsLength(size_t value);
-
 	public:
 		/// The IANA-assigned UDP destination port for GENEVE
 		static constexpr uint16_t DefaultPort = 6081;
@@ -327,6 +295,40 @@ namespace pcpp
 		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
+#pragma pack(push, 1)
+		struct geneve_header
+		{
+#if (BYTE_ORDER == LITTLE_ENDIAN)
+			uint8_t optionsLength : 6;
+			uint8_t version : 2;
+			uint8_t reserved1 : 6;
+			uint8_t criticalFlag : 1;
+			uint8_t oamFlag : 1;
+#else
+			uint8_t version : 2;
+			uint8_t optionsLength : 6;
+			uint8_t oamFlag : 1;
+			uint8_t criticalFlag : 1;
+			uint8_t reserved1 : 6;
+#endif
+			uint16_t protocolType;
+			uint8_t vni[3];
+			uint8_t reserved2;
+		};
+#pragma pack(pop)
+		static_assert(sizeof(geneve_header) == 8, "geneve_header size is not 8 bytes");
+
+		static constexpr size_t HeaderLength = sizeof(geneve_header);
+		static constexpr size_t OptionsLengthUnit = 4;
+		static constexpr size_t MaxOptionsLength = ((1 << 6) - 1) * OptionsLengthUnit;
+
+		geneve_header* getGeneveHeader() const
+		{
+			return reinterpret_cast<geneve_header*>(m_Data);
+		}
+
+		void setOptionsLength(size_t value);
+
 		void updateCriticalFlag();
 	};
 }  // namespace pcpp

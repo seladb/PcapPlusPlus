@@ -220,17 +220,17 @@ PcapPlusPlus는 현재 다음 프로토콜의 패킷을 파싱, 편집 및 생�
 
 1. Cisco HDLC
 2. Ethernet II
-3. IEEE 802.3 Ethernet
-4. LLC (BPDU만 지원)
-5. Null/Loopback
-6. Packet trailer (패킷 패딩)
-7. PPPoE
-8. SLL (Linux cooked capture)
-9. SLL2 (Linux cooked capture v2)
-10. STP
-11. VLAN
-12. VXLAN
-13. GENEVE
+3. GENEVE
+4. IEEE 802.3 Ethernet
+5. LLC (BPDU만 지원)
+6. Null/Loopback
+7. Packet trailer (패킷 패딩)
+8. PPPoE
+9. SLL (Linux cooked capture)
+10. SLL2 (Linux cooked capture v2)
+11. STP
+12. VLAN
+13. VXLAN
 14. Wake on LAN (WoL)
 15. NFLOG (Linux Netfilter NFLOG) - 파싱만 가능 (편집 불가)
 
