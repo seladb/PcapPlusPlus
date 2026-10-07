@@ -332,6 +332,7 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest);
 PTF_TEST_CASE(WireGuardTransportDataParsingTest);
 PTF_TEST_CASE(WireGuardCreationTest);
 PTF_TEST_CASE(WireGuardEditTest);
+PTF_TEST_CASE(WireGuardMalformedPacketsTest);
 
 // Implemented in CiscoHdlcTests.cpp
 PTF_TEST_CASE(CiscoHdlcParsingTest);
@@ -385,3 +386,5 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest);
 
 // Implemented in SerializerTests.cpp
 PTF_TEST_CASE(JsonSerializerTest);
+PTF_TEST_CASE(YamlSerializerTest);
+PTF_TEST_CASE(XmlSerializerTest);

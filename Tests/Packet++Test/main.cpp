@@ -404,6 +404,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WireGuardTransportDataParsingTest, "wg");
 	PTF_RUN_TEST(WireGuardCreationTest, "wg");
 	PTF_RUN_TEST(WireGuardEditTest, "wg");
+	PTF_RUN_TEST(WireGuardMalformedPacketsTest, "wg");
 
 	PTF_RUN_TEST(CiscoHdlcParsingTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
@@ -446,6 +447,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(QuicV1MalformedPacketsTest, "quic");
 
 	PTF_RUN_TEST(JsonSerializerTest, "serializers");
+	PTF_RUN_TEST(YamlSerializerTest, "serializers");
+	PTF_RUN_TEST(XmlSerializerTest, "serializers");
 
 	PTF_END_RUNNING_TESTS;
 }
