@@ -5,8 +5,6 @@
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
 #include "Serializers.h"
-#include <iomanip>
-#include <sstream>
 
 namespace pcpp
 {
@@ -272,7 +270,7 @@ namespace pcpp
 		return "DHCPv6 Layer, " + getMessageTypeAsString() + " message";
 	}
 
-	static std::string dhcpV6OptionTypeToString(DhcpV6OptionType optType)
+	static constexpr const char* dhcpV6OptionTypeToString(DhcpV6OptionType optType)
 	{
 		switch (optType)
 		{
@@ -408,13 +406,6 @@ namespace pcpp
 		}
 	}
 
-	static void writeHexField(ObjectScope& serializer, const FieldDescriptor& desc, uint32_t val)
-	{
-		std::ostringstream oss;
-		oss << "0x" << std::hex << val;
-		serializer.writeField(desc, oss.str());
-	}
-
 	const FieldDescriptor DhcpV6Layer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 1,
 		                                                              "messageType" };
 	const FieldDescriptor DhcpV6Layer::SerializedFields::TransactionID{ Layer::SerializedFields::MaxID + 2,
@@ -425,7 +416,7 @@ namespace pcpp
 	void DhcpV6Layer::serializeLayer(ObjectScope& serializer) const
 	{
 		serializer.writeField(SerializedFields::MessageType, getMessageTypeAsString());
-		writeHexField(serializer, SerializedFields::TransactionID, getTransactionID());
+		serializer.writeHexField(SerializedFields::TransactionID, getTransactionID());
 		auto options = serializer.writeArray(SerializedFields::Options);
 		for (auto opt = getFirstOptionData(); opt.isNotNull(); opt = getNextOptionData(opt))
 		{

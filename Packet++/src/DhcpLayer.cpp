@@ -5,8 +5,6 @@
 #include "EndianPortable.h"
 #include "Serializers.h"
 #include "GeneralUtils.h"
-#include <iomanip>
-#include <sstream>
 
 namespace pcpp
 {
@@ -312,7 +310,7 @@ namespace pcpp
 		return true;
 	}
 
-	static std::string dhcpMessageTypeToString(DhcpMessageType msgType)
+	static constexpr const char* dhcpMessageTypeToString(DhcpMessageType msgType)
 	{
 		switch (msgType)
 		{
@@ -337,7 +335,7 @@ namespace pcpp
 		}
 	}
 
-	static std::string dhcpOptionTypeToString(DhcpOptionTypes optType)
+	static constexpr const char* dhcpOptionTypeToString(DhcpOptionTypes optType)
 	{
 		switch (optType)
 		{
@@ -636,13 +634,6 @@ namespace pcpp
 		}
 	}
 
-	static void writeHexField(ObjectScope& serializer, const FieldDescriptor& desc, uint32_t val)
-	{
-		std::ostringstream oss;
-		oss << "0x" << std::hex << val;
-		serializer.writeField(desc, oss.str());
-	}
-
 	const FieldDescriptor DhcpLayer::SerializedFields::OpCode{ Layer::SerializedFields::MaxID + 1, "opCode" };
 	const FieldDescriptor DhcpLayer::SerializedFields::HardwareType{ Layer::SerializedFields::MaxID + 2,
 		                                                             "hardwareType" };
@@ -664,8 +655,6 @@ namespace pcpp
 		                                                                 "gatewayIpAddress" };
 	const FieldDescriptor DhcpLayer::SerializedFields::ClientHardwareAddress{ Layer::SerializedFields::MaxID + 12,
 		                                                                      "clientHardwareAddress" };
-	const FieldDescriptor DhcpLayer::SerializedFields::MagicNumber{ Layer::SerializedFields::MaxID + 13,
-		                                                            "magicNumber" };
 	const FieldDescriptor DhcpLayer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 14,
 		                                                            "messageType" };
 	const FieldDescriptor DhcpLayer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 15, "options" };
@@ -674,24 +663,21 @@ namespace pcpp
 	void DhcpLayer::serializeLayer(ObjectScope& serializer) const
 	{
 		const dhcp_header* hdr = getDhcpHeader();
-		serializer.writeField(SerializedFields::OpCode, hdr->opCode);
+		serializer.writeField(SerializedFields::OpCode, getOpCode() == DHCP_BOOTREQUEST ? "BootRequest"
+		                                                : getOpCode() == DHCP_BOOTREPLY ? "BootReply"
+		                                                                                : "Unknown");
 		serializer.writeField(SerializedFields::HardwareType, hdr->hardwareType);
 		serializer.writeField(SerializedFields::HardwareAddressLength, hdr->hardwareAddressLength);
 		serializer.writeField(SerializedFields::Hops, hdr->hops);
-		writeHexField(serializer, SerializedFields::TransactionID, be32toh(hdr->transactionID));
+		serializer.writeHexField(SerializedFields::TransactionID, be32toh(hdr->transactionID));
 		serializer.writeField(SerializedFields::SecondsElapsed, be16toh(hdr->secondsElapsed));
-		writeHexField(serializer, SerializedFields::Flags, be16toh(hdr->flags));
+		serializer.writeHexField(SerializedFields::Flags, be16toh(hdr->flags));
 		serializer.writeField(SerializedFields::ClientIpAddress, getClientIpAddress().toString());
 		serializer.writeField(SerializedFields::YourIpAddress, getYourIpAddress().toString());
 		serializer.writeField(SerializedFields::ServerIpAddress, getServerIpAddress().toString());
 		serializer.writeField(SerializedFields::GatewayIpAddress, getGatewayIpAddress().toString());
 		serializer.writeField(SerializedFields::ClientHardwareAddress, getClientHardwareAddress().toString());
-		writeHexField(serializer, SerializedFields::MagicNumber, be32toh(hdr->magicNumber));
-		DhcpMessageType msgType = getMessageType();
-		if (msgType != DHCP_UNKNOWN_MSG_TYPE)
-		{
-			serializer.writeField(SerializedFields::MessageType, dhcpMessageTypeToString(msgType));
-		}
+		serializer.writeField(SerializedFields::MessageType, dhcpMessageTypeToString(getMessageType()));
 		auto options = serializer.writeArray(SerializedFields::Options);
 		for (auto opt = getFirstOptionData(); opt.isNotNull(); opt = getNextOptionData(opt))
 		{

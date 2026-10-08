@@ -17,6 +17,8 @@ PTF_TEST_CASE(DhcpV6ParsingTest)
 	pcpp::Packet dhcpv6Packet(rawPacket1.get());
 	pcpp::DhcpV6Layer* dhcpv6Layer = dhcpv6Packet.getLayerOfType<pcpp::DhcpV6Layer>();
 	PTF_ASSERT_NOT_NULL(dhcpv6Layer);
+	PTF_ASSERT_EQUAL(pcpp::DhcpV6Layer::SerializedFields::all().size(),
+	                 pcpp::Layer::SerializedFields::all().size() + 3);
 	PTF_ASSERT_EQUAL(dhcpv6Layer->getMessageType(), pcpp::DHCPV6_SOLICIT);
 	PTF_ASSERT_EQUAL(dhcpv6Layer->getMessageTypeAsString(), "Solicit");
 	PTF_ASSERT_EQUAL(dhcpv6Layer->getTransactionID(), 0x9a0006);

@@ -366,24 +366,33 @@ namespace pcpp
 
 		/// @struct SerializedFields
 		/// Struct that contains field descriptors for serialization
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
-			/// Serialized field: DHCPv6 message type
+			/// @return All field descriptors for DhcpV6Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ MessageType, TransactionID, Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+			/// @brief DHCPv6 message type name
 			static const FieldDescriptor MessageType;
-			/// Serialized field: Transaction ID
+			/// @brief Transaction identifier in hexadecimal
 			static const FieldDescriptor TransactionID;
-			/// Serialized field: Array of DHCPv6 options
+			/// @brief Array of DHCPv6 option names
 			static const FieldDescriptor Options;
-			/// Serialized field: DHCPv6 option
+			/// @brief Name of one option within the options array
 			static const FieldDescriptor Option;
 		};
-
-		void serializeLayer(ObjectScope& serializer) const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		uint8_t* getOptionsBasePtr() const

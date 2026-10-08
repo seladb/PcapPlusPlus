@@ -20,6 +20,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_ASSERT_TRUE(dhcpPacket.isPacketOfType(pcpp::DHCP));
 	pcpp::DhcpLayer* dhcpLayer = dhcpPacket.getLayerOfType<pcpp::DhcpLayer>();
 	PTF_ASSERT_NOT_NULL(dhcpLayer);
+	PTF_ASSERT_EQUAL(pcpp::DhcpLayer::SerializedFields::all().size(), pcpp::Layer::SerializedFields::all().size() + 14);
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getOpCode(), pcpp::DHCP_BOOTREPLY, enum);
 	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->secondsElapsed, be16toh(10));
@@ -80,7 +81,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 		dhcpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"DHCP","protocolId":20,"length":376,"opCode":2,"hardwareType":1,"hardwareAddressLength":6,"hops":1,"transactionID":"0x7771cf85","secondsElapsed":10,"flags":"0x0","clientIpAddress":"0.0.0.0","yourIpAddress":"10.10.8.235","serverIpAddress":"172.22.178.234","gatewayIpAddress":"10.10.8.240","clientHardwareAddress":"00:0e:86:11:c0:75","magicNumber":"0x63825363","messageType":"Offer","options":["DHCPMessageType","SubnetMask","ServerIdentifier","IPAddressLeaseTime","Routers","DomainNameServers","TFTPServerName","SIPServers","ClientIdentifier","Authentication","RelayAgentInformation","End"]})");
+		    R"({"protocolName":"DHCP","protocolId":20,"length":376,"opCode":"BootReply","hardwareType":1,"hardwareAddressLength":6,"hops":1,"transactionID":"0x7771cf85","secondsElapsed":10,"flags":"0x0","clientIpAddress":"0.0.0.0","yourIpAddress":"10.10.8.235","serverIpAddress":"172.22.178.234","gatewayIpAddress":"10.10.8.240","clientHardwareAddress":"00:0e:86:11:c0:75","messageType":"Offer","options":["DHCPMessageType","SubnetMask","ServerIdentifier","IPAddressLeaseTime","Routers","DomainNameServers","TFTPServerName","SIPServers","ClientIdentifier","Authentication","RelayAgentInformation","End"]})");
 	}
 
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/Dhcp2.dat");
@@ -139,7 +140,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 		dhcpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"DHCP","protocolId":20,"length":282,"opCode":1,"hardwareType":1,"hardwareAddressLength":6,"hops":0,"transactionID":"0xac2effff","secondsElapsed":0,"flags":"0x0","clientIpAddress":"0.0.0.0","yourIpAddress":"0.0.0.0","serverIpAddress":"0.0.0.0","gatewayIpAddress":"0.0.0.0","clientHardwareAddress":"00:00:6c:82:dc:4e","magicNumber":"0x63825363","messageType":"Discover","options":["DHCPMessageType","DHCPMaxMessageSize","ParameterRequestList","IPAddressLeaseTime","OptionOverload","DHCPErrorMessage","Pad","ClientIdentifier","End"]})");
+		    R"({"protocolName":"DHCP","protocolId":20,"length":282,"opCode":"BootRequest","hardwareType":1,"hardwareAddressLength":6,"hops":0,"transactionID":"0xac2effff","secondsElapsed":0,"flags":"0x0","clientIpAddress":"0.0.0.0","yourIpAddress":"0.0.0.0","serverIpAddress":"0.0.0.0","gatewayIpAddress":"0.0.0.0","clientHardwareAddress":"00:00:6c:82:dc:4e","messageType":"Discover","options":["DHCPMessageType","DHCPMaxMessageSize","ParameterRequestList","IPAddressLeaseTime","OptionOverload","DHCPErrorMessage","Pad","ClientIdentifier","End"]})");
 	}
 }  // DhcpParsingTest
 
@@ -283,6 +284,12 @@ PTF_TEST_CASE(DhcpEditTest)
 	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(pcpp::dhcp_header));
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_UNKNOWN_MSG_TYPE, enum);
+	{
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		dhcpLayer->serialize(serializer);
+		PTF_ASSERT_TRUE(output.str().find("\"messageType\":\"Unknown\"") != std::string::npos);
+	}
 
 	PTF_ASSERT_FALSE(dhcpLayer->addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_END, nullptr, 0)).isNull());
 

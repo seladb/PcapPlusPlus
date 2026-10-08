@@ -762,48 +762,68 @@ namespace pcpp
 
 		/// @struct SerializedFields
 		/// Struct that contains field descriptors for serialization
-		struct SerializedFields
+		struct SerializedFields : Layer::SerializedFields
 		{
-			/// Serialized field: BootP opcode
+			/// @return All field descriptors for DhcpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ OpCode,
+					                                          HardwareType,
+					                                          HardwareAddressLength,
+					                                          Hops,
+					                                          TransactionID,
+					                                          SecondsElapsed,
+					                                          Flags,
+					                                          ClientIpAddress,
+					                                          YourIpAddress,
+					                                          ServerIpAddress,
+					                                          GatewayIpAddress,
+					                                          ClientHardwareAddress,
+					                                          MessageType,
+					                                          Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+			/// @brief BOOTP operation name (BootRequest or BootReply)
 			static const FieldDescriptor OpCode;
-			/// Serialized field: Hardware type
+			/// @brief Hardware address type
 			static const FieldDescriptor HardwareType;
-			/// Serialized field: Hardware address length
+			/// @brief Hardware address length in bytes
 			static const FieldDescriptor HardwareAddressLength;
-			/// Serialized field: Hops
+			/// @brief Number of relay hops
 			static const FieldDescriptor Hops;
-			/// Serialized field: Transaction ID
+			/// @brief Transaction identifier in hexadecimal
 			static const FieldDescriptor TransactionID;
-			/// Serialized field: Seconds elapsed
+			/// @brief Seconds elapsed since address acquisition began
 			static const FieldDescriptor SecondsElapsed;
-			/// Serialized field: BootP flags
+			/// @brief BOOTP flags in hexadecimal
 			static const FieldDescriptor Flags;
-			/// Serialized field: Client IPv4 address
+			/// @brief Client IPv4 address
 			static const FieldDescriptor ClientIpAddress;
-			/// Serialized field: Your IPv4 address
+			/// @brief IPv4 address offered to the client
 			static const FieldDescriptor YourIpAddress;
-			/// Serialized field: Server IPv4 address
+			/// @brief Next server IPv4 address
 			static const FieldDescriptor ServerIpAddress;
-			/// Serialized field: Gateway IPv4 address
+			/// @brief Relay agent IPv4 address
 			static const FieldDescriptor GatewayIpAddress;
-			/// Serialized field: Client hardware MAC address
+			/// @brief Client hardware MAC address
 			static const FieldDescriptor ClientHardwareAddress;
-			/// Serialized field: Magic number
-			static const FieldDescriptor MagicNumber;
-			/// Serialized field: DHCP message type
+			/// @brief DHCP message type name, or Unknown if absent
 			static const FieldDescriptor MessageType;
-			/// Serialized field: Array of DHCP options
+			/// @brief Array of DHCP option names
 			static const FieldDescriptor Options;
-			/// Serialized field: DHCP option
+			/// @brief Name of one option within the options array
 			static const FieldDescriptor Option;
 		};
-
-		void serializeLayer(ObjectScope& serializer) const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		uint8_t* getOptionsBasePtr() const
