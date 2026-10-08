@@ -382,6 +382,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(S7CommLayerParsingTest, "s7comm");
 	PTF_RUN_TEST(S7CommLayerCreationTest, "s7comm");
+	PTF_RUN_TEST(S7CommLayerMalformedTest, "s7comm");
 
 	PTF_RUN_TEST(SmtpParsingTests, "smtp");
 	PTF_RUN_TEST(SmtpCreationTests, "smtp");
@@ -400,6 +401,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WireGuardTransportDataParsingTest, "wg");
 	PTF_RUN_TEST(WireGuardCreationTest, "wg");
 	PTF_RUN_TEST(WireGuardEditTest, "wg");
+	PTF_RUN_TEST(WireGuardMalformedPacketsTest, "wg");
 
 	PTF_RUN_TEST(CiscoHdlcParsingTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
@@ -408,6 +410,13 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerTruncatedTest, "modbus");
+
+	PTF_RUN_TEST(GvcpDiscoveryParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpForceIpParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpRegisterAccessParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpMalformedParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpLayerCreationTest, "gvcp");
+	PTF_RUN_TEST(GvcpLayerEditTest, "gvcp");
 
 	PTF_RUN_TEST(X509ParsingTest, "x509");
 	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
@@ -435,6 +444,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(QuicV1MalformedPacketsTest, "quic");
 
 	PTF_RUN_TEST(JsonSerializerTest, "serializers");
+	PTF_RUN_TEST(YamlSerializerTest, "serializers");
+	PTF_RUN_TEST(XmlSerializerTest, "serializers");
 
 	PTF_END_RUNNING_TESTS;
 }

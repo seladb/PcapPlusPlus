@@ -30,6 +30,17 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	uint8_t expectedParameterData[] = { 0, 1, 18, 8, 18, 132, 1, 1, 0, 0, 0, 0 };
 	PTF_ASSERT_BUF_COMPARE(S7CommLayer->getParameter()->getData(), expectedParameterData, 12);
 
+	// the Ack-Data header is only present for message type 0x03
+	PTF_ASSERT_RAISES(S7CommLayer->getErrorClass(), std::runtime_error, "Error class field not present!");
+	PTF_ASSERT_RAISES(S7CommLayer->getErrorCode(), std::runtime_error, "Error code field not present!");
+	{
+		SuppressLogs suppressLogs;
+		S7CommLayer->setErrorClass(7);
+		S7CommLayer->setErrorCode(6);
+	}
+	PTF_ASSERT_RAISES(S7CommLayer->getErrorClass(), std::runtime_error, "Error class field not present!");
+	PTF_ASSERT_RAISES(S7CommLayer->getErrorCode(), std::runtime_error, "Error code field not present!");
+
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/s7comm_ack_data.dat");
 
 	pcpp::Packet s7CommLayerTest2(rawPacket2.get());
@@ -55,6 +66,24 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	uint8_t expectedErrorParameterData[] = { 4, 1 };
 	PTF_ASSERT_BUF_COMPARE(s7commLayer->getParameter()->getData(), expectedErrorParameterData, 2);
 }  // S7CommLayerParsingTest
+
+PTF_TEST_CASE(S7CommLayerMalformedTest)
+{
+	// an Ack-Data message carrying only the 10 byte base header, which is the smallest
+	// layer isDataValid() accepts, and a parameter length that runs past the packet
+	auto rawPacket = createPacketFromHexResource("PacketExamples/s7comm_ack_data_truncated.dat");
+
+	pcpp::Packet packet(rawPacket.get());
+	auto* s7CommLayer = packet.getLayerOfType<pcpp::S7CommLayer>();
+	PTF_ASSERT_NOT_NULL(s7CommLayer);
+	PTF_ASSERT_EQUAL(s7CommLayer->getMsgType(), 3);
+	PTF_ASSERT_EQUAL(s7CommLayer->getHeaderLen(), 10);
+	PTF_ASSERT_RAISES(s7CommLayer->getErrorClass(), std::runtime_error, "Error class field not present!");
+	PTF_ASSERT_RAISES(s7CommLayer->getErrorCode(), std::runtime_error, "Error code field not present!");
+
+	PTF_ASSERT_EQUAL(s7CommLayer->getParamLength(), 65535);
+	PTF_ASSERT_EQUAL(s7CommLayer->getParameter()->getDataLength(), 0);
+}  // S7CommLayerMalformedTest
 
 PTF_TEST_CASE(S7CommLayerCreationTest)
 {

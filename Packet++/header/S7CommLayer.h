@@ -113,9 +113,13 @@ namespace pcpp
 		uint16_t getDataLength() const;
 
 		/// @return S7comm error code
+		/// @throw std::runtime_error if the message is not Ack-Data (message type 0x03) or is too short to hold the
+		/// error code
 		uint8_t getErrorCode() const;
 
 		/// @return S7comm error class
+		/// @throw std::runtime_error if the message is not Ack-Data (message type 0x03) or is too short to hold the
+		/// error class
 		uint8_t getErrorClass() const;
 
 		/// @return S7comm parameter
@@ -171,7 +175,7 @@ namespace pcpp
 
 		s7comm_ack_data_hdr* getS7commAckDataHeader() const
 		{
-			if (getS7commHeader()->msgType == 0x03)
+			if (getS7commHeader()->msgType == 0x03 && m_DataLen >= sizeof(s7comm_ack_data_hdr))
 			{
 				return reinterpret_cast<s7comm_ack_data_hdr*>(m_Data);
 			}
