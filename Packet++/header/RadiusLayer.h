@@ -266,6 +266,42 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by RadiusLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for RadiusLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Code, CodeName, Id, Authenticator, Attributes };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief RADIUS message code, as an integer
+			static const FieldDescriptor Code;
+
+			/// @brief RADIUS message code name, as a string
+			static const FieldDescriptor CodeName;
+
+			/// @brief RADIUS message ID
+			static const FieldDescriptor Id;
+
+			/// @brief RADIUS authenticator value, as a hexadecimal string
+			static const FieldDescriptor Authenticator;
+
+			/// @brief List of RADIUS attribute types present in the message
+			static const FieldDescriptor Attributes;
+
+			/// @brief A single RADIUS attribute type, as an integer
+			static const FieldDescriptor Attribute;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	// implementation of inline methods

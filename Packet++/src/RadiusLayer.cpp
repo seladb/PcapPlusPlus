@@ -246,4 +246,26 @@ namespace pcpp
 		return false;
 	}
 
+	const FieldDescriptor RadiusLayer::SerializedFields::Code{ Layer::SerializedFields::MaxID + 1, "code" };
+	const FieldDescriptor RadiusLayer::SerializedFields::CodeName{ Layer::SerializedFields::MaxID + 2, "codeName" };
+	const FieldDescriptor RadiusLayer::SerializedFields::Id{ Layer::SerializedFields::MaxID + 3, "id" };
+	const FieldDescriptor RadiusLayer::SerializedFields::Authenticator{ Layer::SerializedFields::MaxID + 4,
+		                                                               "authenticator" };
+	const FieldDescriptor RadiusLayer::SerializedFields::Attributes{ Layer::SerializedFields::MaxID + 5, "attributes" };
+	const FieldDescriptor RadiusLayer::SerializedFields::Attribute{ 0, "attribute" };
+
+	void RadiusLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Code, getRadiusHeader()->code);
+		serializer.writeField(SerializedFields::CodeName, getRadiusMessageString(getRadiusHeader()->code));
+		serializer.writeField(SerializedFields::Id, getRadiusHeader()->id);
+		serializer.writeField(SerializedFields::Authenticator, getAuthenticatorValue());
+		auto attributes = serializer.writeArray(SerializedFields::Attributes);
+		for (auto attr = getFirstAttribute(); attr.isNotNull(); attr = getNextAttribute(attr))
+		{
+			attributes.writeField(SerializedFields::Attribute, static_cast<uint64_t>(attr.getType()));
+		}
+	}
+
 }  // namespace pcpp
+
