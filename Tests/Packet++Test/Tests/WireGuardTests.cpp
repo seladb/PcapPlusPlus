@@ -542,6 +542,23 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_BUF_COMPARE(wgTransportDataLayer->getEncryptedData(), expectedEncryptedDataTrans,
 	                       sizeof(expectedEncryptedDataTrans));
 
+	// shorter and longer encrypted data resize the layer and the packet
+	const int packetLen = rawPacket4->getRawDataLen();
+	for (size_t newLength : { size_t(64), size_t(200) })
+	{
+		std::vector<uint8_t> newData(newLength);
+		for (size_t i = 0; i < newLength; i++)
+		{
+			newData[i] = static_cast<uint8_t>(i);
+		}
+		wgTransportDataLayer->setEncryptedData(newData.data(), newData.size());
+		wgTransportDataLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
+
+		PTF_ASSERT_EQUAL(wgTransportDataLayer->getHeaderLen(), 16 + newLength);
+		PTF_ASSERT_EQUAL(rawPacket4->getRawDataLen(), packetLen + static_cast<int>(newLength) - 112);
+		PTF_ASSERT_EQUAL(wgTransportDataLayer->getReceiverIndex(), 1);
+		PTF_ASSERT_BUF_COMPARE(wgTransportDataLayer->getEncryptedData(), newData.data(), newLength);
+	}
 }  // WireGuardEditTest
 
 PTF_TEST_CASE(WireGuardMalformedPacketsTest)
@@ -574,30 +591,3 @@ PTF_TEST_CASE(WireGuardMalformedPacketsTest)
 		PTF_ASSERT_EQUAL(layer->getMessageType(), static_cast<uint8_t>(message.type));
 	}
 }  // WireGuardMalformedPacketsTest
-
-PTF_TEST_CASE(WireGuardSetEncryptedDataTest)
-{
-	// the sample carries 112 bytes of encrypted data after the 16 byte transport header
-	for (size_t newLength : { size_t(64), size_t(112), size_t(200) })
-	{
-		auto rawPacket = createPacketFromHexResource("PacketExamples/WireGuardTransportData.dat");
-		pcpp::Packet packet(rawPacket.get());
-		auto* layer = packet.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
-		PTF_ASSERT_NOT_NULL(layer);
-		PTF_ASSERT_EQUAL(layer->getHeaderLen(), 128);
-		const int packetLenBefore = rawPacket->getRawDataLen();
-		const uint32_t receiverIndex = layer->getReceiverIndex();
-
-		std::vector<uint8_t> newData(newLength);
-		for (size_t i = 0; i < newLength; i++)
-		{
-			newData[i] = static_cast<uint8_t>(i);
-		}
-		layer->setEncryptedData(newData.data(), newData.size());
-
-		PTF_ASSERT_EQUAL(layer->getHeaderLen(), 16 + newLength);
-		PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), packetLenBefore + static_cast<int>(newLength) - 112);
-		PTF_ASSERT_EQUAL(layer->getReceiverIndex(), receiverIndex);
-		PTF_ASSERT_BUF_COMPARE(layer->getEncryptedData(), newData.data(), newLength);
-	}
-}  // WireGuardSetEncryptedDataTest
