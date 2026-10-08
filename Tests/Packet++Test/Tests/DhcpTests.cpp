@@ -288,7 +288,7 @@ PTF_TEST_CASE(DhcpEditTest)
 		std::ostringstream output;
 		pcpp::JsonSerializer serializer(output);
 		dhcpLayer->serialize(serializer);
-		PTF_ASSERT_TRUE(output.str().find("\"messageType\":\"Unknown\"") != std::string::npos);
+		PTF_ASSERT_CONTAINS(output.str(), R"("messageType":"Unknown")");
 	}
 
 	PTF_ASSERT_FALSE(dhcpLayer->addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_END, nullptr, 0)).isNull());

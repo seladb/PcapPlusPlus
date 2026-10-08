@@ -756,6 +756,7 @@ namespace pcpp
 		///                            ::DHCP_INFORM, ::DHCP_UNKNOWN_MSG_TYPE
 		///                            ::DHCP_BOOTREPLY for message types: ::DHCP_OFFER, ::DHCP_ACK, ::DHCP_NAK
 		/// - @ref dhcp_header#hardwareType = 1 (Ethernet)
+		/// - @ref dhcp_header#hardwareAddressLength = 6 (MAC address length)
 		void computeCalculateFields() override;
 
 		std::string toString() const override;
