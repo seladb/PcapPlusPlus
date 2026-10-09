@@ -7,7 +7,7 @@
   - Raw packet data handed to `pcpp::RawPacket` / `pcpp::Packet` and then parsed layer by layer (`Layer::parseNextLayer()`, constructors and getters of every `*Layer` in `Packet++/src`). This includes length/offset/count fields, TLV and option lists, DNS name compression pointers, HTTP/SIP/SMTP/FTP text parsing, TLS/SSL handshake and X.509/ASN.1 decoding, QUIC, BGP, GTP, LDAP, IPv6 extension headers and all supported protocols fields.
   - Capture files read by `PcapFileReaderDevice`, `PcapNgFileReaderDevice` and `SnoopFileReaderDevice` in `Pcap++/src/PcapFileDevice.cpp`, which use libpcap and the bundled LightPcapNg. File headers, block lengths and options are attacker-controlled.
   - Stateful reassembly over untrusted streams: `TcpReassembly` (`Packet++/src/TcpReassembly.cpp`) and `IPReassembly` / IP fragmentation (`Packet++/src/IPReassembly.cpp`). These keep per-flow state and buffers driven by attacker data.
-  - Live capture devices (`PcapLiveDevice`, `PcapRemoteDevice`, `RawSocketDevice`, DPDK, XDP, PF_RING, WinDivert, `MBufRawPacket`) deliver untrusted frames into the parsers. 
+  - Live capture devices (`PcapLiveDevice`, `PcapRemoteDevice`, `RawSocketDevice`, DPDK, XDP, PF_RING, WinDivert, `MBufRawPacket`) deliver untrusted frames into the parsers.
   - Text/file inputs to helpers: PEM/DER key and certificate decoders (`PemCodec`, `CryptoKeyDecoder`, `X509Decoder`, `Asn1Codec`), BPF filter strings (`PcapFilter`), and IP/MAC address string parsing in `Common++`.
 - Not attacker-controlled: command-line arguments of the example applications and the code that a library user writes. Treat those as trusted unless a library API is misused in a way that its documentation does not forbid.
 
@@ -19,7 +19,7 @@
 - **In scope but lower priority:** the writer paths (`PcapFileWriterDevice`, `PcapNgFileWriterDevice`), crafting APIs fed by trusted data, the platform-specific device code (DPDK, KNI, XDP, PF_RING, WinDivert, `WinPcapLiveDevice`, `LinuxNicInformationSocket`), and `NetworkUtils`. These matter mostly when they handle captured data.
 - **Less important:** the applications in `Examples/` (and `Examples/Tutorials`). Memory-safety bugs there are still reported, particularly in the ones that parse untrusted pcaps or traffic (`PcapPrinter`, `PcapSplitter`, `PcapSearch`, `HttpAnalyzer`, `SSLAnalyzer`, `TcpReassembly`, `X509Toolkit`, `IcmpFileTransfer`). Issues that need a malicious local command line are out of scope.
 - **Out of scope (third-party or generated code):**
-  - `3rdParty/`: `EndianPortable`, `Getopt-for-Visual-Studio`, `hash-library`, `json` (nlohmann), `MemPlumber`, `OUIDataset`. 
+  - `3rdParty/`: `EndianPortable`, `Getopt-for-Visual-Studio`, `hash-library`, `json` (nlohmann), `MemPlumber`, `OUIDataset`.
   - `3rdParty/LightPcapNg` is vendored third-party code, **but** it parses untrusted pcapng files for us. Report bugs reachable through `PcapNgFileReaderDevice` / `PcapNgFileWriterDevice` and say clearly that the root cause is in the vendored code.
   - `Tests/` (including `PcppTestFramework`, `PcppTestUtilities`), `ci/`, `cmake/`, `build/`, `translation/` and documentation.
 
