@@ -1233,6 +1233,123 @@ PTF_TEST_CASE(PacketFullReparseTest)
 	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
 }
 
+PTF_TEST_CASE(PacketIteratorTest)
+{
+	auto rawPacket = createPacketFromHexResource("PacketExamples/IGMPv1_1.dat");
+	pcpp::Packet igmpPacket(rawPacket.get(), false);
+
+	// Assert test data.
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IGMP));
+
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+
+	// Iterate over all layers and assert that the layers are in the expected order
+	{
+		int layerNum = 0;
+		for (auto it = igmpPacket.begin(); it != igmpPacket.end(); ++it)
+		{
+			pcpp::Layer& layer = *it;
+
+			switch (layerNum)
+			{
+			case 0:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::EthLayer);
+				break;
+			case 1:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::IPv4Layer);
+				break;
+			case 2:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::IgmpV1Layer);
+				break;
+			case 3:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::PacketTrailerLayer);
+				break;
+			}
+
+			layerNum++;
+		}
+		PTF_ASSERT_EQUAL(layerNum, 4);
+	}
+
+	// Iterate over all layers using range-based for loop
+	{
+		int layerNum = 0;
+		for (auto& layer : igmpPacket)
+		{
+			switch (layerNum)
+			{
+			case 0:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::EthLayer);
+				break;
+			case 1:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::IPv4Layer);
+				break;
+			case 2:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::IgmpV1Layer);
+				break;
+			case 3:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::PacketTrailerLayer);
+				break;
+			}
+			layerNum++;
+		}
+		PTF_ASSERT_EQUAL(layerNum, 4);
+	}
+
+	// Test iterator increment and decrement operators
+	{
+		auto it = igmpPacket.begin();
+		PTF_ASSERT_POLY_CLASS(&(*it), pcpp::EthLayer);
+		it++;
+		PTF_ASSERT_POLY_CLASS(&(*it), pcpp::IPv4Layer);
+		it--;
+		PTF_ASSERT_POLY_CLASS(&(*it), pcpp::EthLayer);
+
+		// Bidirectional iterators must support the -- operator on end() iterator, which should point to the last layer
+		// in the packet
+		auto endIt = igmpPacket.end();
+		--endIt;
+		PTF_ASSERT_POLY_CLASS(&(*endIt), pcpp::PacketTrailerLayer);
+	}
+
+	// Test const iterator
+	{
+		auto const& packetAsConst = igmpPacket;
+		PTF_ASSERT_EQUAL(std::distance(packetAsConst.begin(), packetAsConst.end()), 4);
+	}
+
+	// Test reverse iterators
+	{
+		int layerNum = 0;
+		for (auto rit = igmpPacket.rbegin(); rit != igmpPacket.rend(); ++rit)
+		{
+			pcpp::Layer& layer = *rit;
+			switch (layerNum)
+			{
+			case 0:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::PacketTrailerLayer);
+				break;
+			case 1:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::IgmpV1Layer);
+				break;
+			case 2:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::IPv4Layer);
+				break;
+			case 3:
+				PTF_ASSERT_POLY_CLASS(&layer, pcpp::EthLayer);
+				break;
+			}
+			layerNum++;
+		}
+		PTF_ASSERT_EQUAL(layerNum, 4);
+	}
+}
+
 PTF_TEST_CASE(PacketSerializeTest)
 {
 	auto serializePacket = [](const pcpp::Packet& packet) {
