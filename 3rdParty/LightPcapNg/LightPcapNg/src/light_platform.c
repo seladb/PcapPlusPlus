@@ -41,7 +41,10 @@
 
 light_file light_open_decompression(const char *file_name, const __read_mode_t mode)
 {
+	DCHECK_NULLP(file_name, return NULL); // ---> PCPP patch
+
 	light_file fd = calloc(1, sizeof(light_file_t));
+	DCHECK_NULLP(fd, return NULL); // ---> PCPP patch
 	fd->file = INVALID_FILE;
 	fd->decompression_context = light_get_decompression_context();
 
@@ -67,7 +70,10 @@ light_file light_open_decompression(const char *file_name, const __read_mode_t m
 
 light_file light_open(const char *file_name, const __read_mode_t mode)
 {
+	DCHECK_NULLP(file_name, return NULL); // ---> PCPP patch
+	
 	light_file fd = calloc(1,sizeof(light_file_t));
+	DCHECK_NULLP(fd, return NULL); // ---> PCPP patch
 	fd->file = INVALID_FILE;
 	fd->compression_context = NULL;
 	fd->decompression_context = NULL;
@@ -103,7 +109,10 @@ light_file light_open(const char *file_name, const __read_mode_t mode)
 
 light_file light_open_compression(const char *file_name, const __read_mode_t mode, int compression_level)
 {
+	DCHECK_NULLP(file_name, return NULL); // ---> PCPP patch
+
 	light_file fd = calloc(1, sizeof(light_file_t));
+	DCHECK_NULLP(fd, return NULL); // ---> PCPP patch
 	fd->file = INVALID_FILE;
 
 	assert(0 <= compression_level && 10 >= compression_level);
@@ -140,6 +149,9 @@ light_file light_open_compression(const char *file_name, const __read_mode_t mod
 
 size_t light_read(light_file fd, void *buf, size_t count)
 {
+	DCHECK_NULLP(fd, return 0); // ---> PCPP patch
+	DCHECK_NULLP(buf, return 0); // ---> PCPP patch
+
 	if (fd->decompression_context == NULL)
 	{
 		size_t bytes_read = fread(buf, 1, count, fd->file);
@@ -153,6 +165,9 @@ size_t light_read(light_file fd, void *buf, size_t count)
 
 size_t light_write(light_file fd, const void *buf, size_t count)
 {
+	DCHECK_NULLP(fd, return 0); // ---> PCPP patch
+	DCHECK_NULLP(buf, return 0); // ---> PCPP patch
+
 	if (fd->compression_context == NULL)
 	{
 		size_t bytes_written = fwrite(buf, 1, count, fd->file);
@@ -166,6 +181,8 @@ size_t light_write(light_file fd, const void *buf, size_t count)
 
 size_t light_size(light_file fd)
 {
+	DCHECK_NULLP(fd, return 0); // ---> PCPP patch
+
 	size_t size = 0;
 	size_t current = ftell(fd->file);
 
@@ -178,6 +195,8 @@ size_t light_size(light_file fd)
 
 int light_close(light_file fd)
 {
+	DCHECK_NULLP(fd, return -1); // ---> PCPP patch
+
 	light_close_compressed(fd);
 	int rc = fclose(fd->file);
 
@@ -188,21 +207,25 @@ int light_close(light_file fd)
 
 int light_flush(light_file fd)
 {
+	DCHECK_NULLP(fd, return -1); // ---> PCPP patch
 	return fflush(fd->file);
 }
 
 int light_eof(light_file fd)
 {
+	DCHECK_NULLP(fd, return -1); // ---> PCPP patch
 	return feof(fd->file);
 }
 
 light_file_pos_t light_get_pos(light_file fd)
 {
+	DCHECK_NULLP(fd, return 0); // ---> PCPP patch
 	return ftell(fd->file);
 }
 
 light_file_pos_t light_set_pos(light_file fd, light_file_pos_t pos)
 {
+	DCHECK_NULLP(fd, return -1); // ---> PCPP patch
 	return fseek(fd->file, pos, SEEK_SET);
 }
 
