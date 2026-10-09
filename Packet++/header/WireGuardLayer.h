@@ -477,6 +477,7 @@ namespace pcpp
 		/// @param counter A 64-bit unsigned integer representing the counter field.
 		void setCounter(uint64_t counter);
 
+		/// Set the encrypted data, extending or shortening the layer to fit it
 		/// @param encryptedData A pointer to the encrypted data.
 		/// @param encryptedDataLen The length of the encrypted data.
 		void setEncryptedData(const uint8_t* encryptedData, size_t encryptedDataLen);

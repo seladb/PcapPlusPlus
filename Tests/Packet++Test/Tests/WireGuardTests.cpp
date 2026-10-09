@@ -5,6 +5,7 @@
 #include "SystemUtils.h"
 #include <cstring>
 #include <memory>
+#include <vector>
 #include "EndianPortable.h"
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
@@ -541,6 +542,23 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_BUF_COMPARE(wgTransportDataLayer->getEncryptedData(), expectedEncryptedDataTrans,
 	                       sizeof(expectedEncryptedDataTrans));
 
+	// shorter and longer encrypted data resize the layer and the packet
+	const int packetLen = rawPacket4->getRawDataLen();
+	for (size_t newLength : { size_t(64), size_t(200) })
+	{
+		std::vector<uint8_t> newData(newLength);
+		for (size_t i = 0; i < newLength; i++)
+		{
+			newData[i] = static_cast<uint8_t>(i);
+		}
+		wgTransportDataLayer->setEncryptedData(newData.data(), newData.size());
+		wgTransportDataLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
+
+		PTF_ASSERT_EQUAL(wgTransportDataLayer->getHeaderLen(), 16 + newLength);
+		PTF_ASSERT_EQUAL(rawPacket4->getRawDataLen(), packetLen + static_cast<int>(newLength) - 112);
+		PTF_ASSERT_EQUAL(wgTransportDataLayer->getReceiverIndex(), 1);
+		PTF_ASSERT_BUF_COMPARE(wgTransportDataLayer->getEncryptedData(), newData.data(), newLength);
+	}
 }  // WireGuardEditTest
 
 PTF_TEST_CASE(WireGuardMalformedPacketsTest)
