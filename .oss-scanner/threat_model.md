@@ -3,9 +3,9 @@
 
 ## What this project does and where untrusted input enters
 - PcapPlusPlus is a multiplatform C++14 library for capturing, parsing, crafting and editing network packets. It has three libraries: `Common++` (utilities), `Packet++` (protocol parsing/crafting, no libpcap needed) and `Pcap++` (capture/send and file I/O on top of libpcap/Npcap, DPDK, AF_XDP, PF_RING, WinDivert).
-- We assume **all packet bytes are untrusted**, whether they come from the wire, from a pcap/pcapng/snoop file, or from a remote capture. A library user may analyze hostile traffic or files, so a crafted packet must never cause memory corruption.
+- We assume **all packet bytes are untrusted**, whether they come from the wire, from a pcap/pcapng/snoop file, or from a remote capture. A library user may analyze hostile traffic or files, so a crafted packet must never cause memory corruption. Also it is possible that some packets might be corrupted, malformed, truncated or non-standard.
 - Main entry points for untrusted input:
-  - Raw packet data handed to `pcpp::RawPacket` / `pcpp::Packet` and then parsed layer by layer (`Layer::parseNextLayer()`, constructors and getters of every `*Layer` in `Packet++/src`). This includes length/offset/count fields, TLV and option lists, DNS name compression pointers, HTTP/SIP/SMTP/FTP text parsing, TLS/SSL handshake and X.509/ASN.1 decoding, QUIC, BGP, GTP, LDAP, IPv6 extension headers, etc.
+  - Raw packet data handed to `pcpp::RawPacket` / `pcpp::Packet` and then parsed layer by layer (`Layer::parseNextLayer()`, constructors and getters of every `*Layer` in `Packet++/src`). This includes length/offset/count fields, TLV and option lists, DNS name compression pointers, HTTP/SIP/SMTP/FTP text parsing, TLS/SSL handshake and X.509/ASN.1 decoding, QUIC, BGP, GTP, LDAP, IPv6 extension headers and all supported protocols fields.
   - Capture files read by `PcapFileReaderDevice`, `PcapNgFileReaderDevice` and `SnoopFileReaderDevice` in `Pcap++/src/PcapFileDevice.cpp`, which use libpcap and the bundled LightPcapNg. File headers, block lengths and options are attacker-controlled.
   - Stateful reassembly over untrusted streams: `TcpReassembly` (`Packet++/src/TcpReassembly.cpp`) and `IPReassembly` / IP fragmentation (`Packet++/src/IPReassembly.cpp`). These keep per-flow state and buffers driven by attacker data.
   - Live capture devices (`PcapLiveDevice`, `PcapRemoteDevice`, `RawSocketDevice`, DPDK, XDP, PF_RING, WinDivert, `MBufRawPacket`) deliver untrusted frames into the parsers. 
@@ -14,7 +14,7 @@
 
 ## Components that matter most / least
 - **Most important (in scope, highest priority):**
-  - `Packet++/src` and `Packet++/header`: all protocol layers, the parser chain in `Packet.cpp`/`Layer.cpp`/`RawPacket.cpp`, the layer editing and crafting code (`extendLayer`, `shortenLayer`, `addOption`, `addResource`, and similar functions that resize or move buffers), the SSL/X.509/ASN.1/PEM decoders, `TcpReassembly` and `IPReassembly`.
+  - `Packet++/src` and `Packet++/header`: all protocol layers, the parser chain in `Packet.cpp`/`Layer.cpp`/`RawPacket.cpp`, the layer editing and crafting code (`extendLayer`, `shortenLayer`, `addOption`, `addResource`, and similar functions that resize or move buffers), `TcpReassembly` and `IPReassembly`.
   - `Pcap++/src/PcapFileDevice.cpp` (pcap/pcapng/snoop file readers and writers), `PcapFilter.cpp`, and the packet-delivery paths of the live devices.
   - `Common++/src`: IP/MAC address parsing, `OUILookup` (parses a JSON dataset), `Serializers`, `GeneralUtils`, `Logger`.
 - **In scope but lower priority:** the writer paths (`PcapFileWriterDevice`, `PcapNgFileWriterDevice`), crafting APIs fed by trusted data, the platform-specific device code (DPDK, KNI, XDP, PF_RING, WinDivert, `WinPcapLiveDevice`, `LinuxNicInformationSocket`), and `NetworkUtils`. These matter mostly when they handle captured data.
