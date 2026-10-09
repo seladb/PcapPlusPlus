@@ -232,66 +232,67 @@ PcapPlusPlus는 현재 다음 프로토콜의 패킷을 파싱, 편집 및 생�
 12. VXLAN
 13. Wake on LAN (WoL)
 14. NFLOG (Linux Netfilter NFLOG) - 파싱만 가능 (편집 불가)
+15. Bluetooth HCI - 파싱만 가능 (편집 불가)
 
 ### 네트워크 계층 (L3)
 
-15. ARP
-16. GRE
-17. ICMP
-18. ICMPv6
-19. IGMP (IGMPv1, IGMPv2, IGMPv3 지원)
-20. IPv4
-21. IPv6
-22. MPLS
-23. NDP
-24. Raw IP (IPv4 & IPv6)
-25. VRRP (IPv4 & IPv6)
-26. WireGuard
+16. ARP
+17. GRE
+18. ICMP
+19. ICMPv6
+20. IGMP (IGMPv1, IGMPv2, IGMPv3 지원)
+21. IPv4
+22. IPv6
+23. MPLS
+24. NDP
+25. Raw IP (IPv4 & IPv6)
+26. VRRP (IPv4 & IPv6)
+27. WireGuard
 
 ### 전송 계층 (L4)
 
-27. COTP
-28. GTP (v1 & v2)
-29. IPSec AH & ESP - 파싱만 가능 (편집 불가)
-30. QUIC v1 - 파싱만 가능 (편집 불가)
-31. TCP
-32. TPKT
-33. UDP
+28. COTP
+29. GTP (v1 & v2)
+30. IPSec AH & ESP - 파싱만 가능 (편집 불가)
+31. QUIC v1 - 파싱만 가능 (편집 불가)
+32. TCP
+33. TPKT
+34. UDP
 
 ### 세션 계층 (L5)
 
-34. SDP
-35. SIP
+35. SDP
+36. SIP
 
 ### 프레젠테이션 계층 (L6)
 
-36. SSL/TLS - 파싱만 가능 (편집 불가)
+37. SSL/TLS - 파싱만 가능 (편집 불가)
 
 ### 응용 계층 (L7)
 
-37. ASN.1 인코더 및 디코더
-38. BGP (v4)
-39. 암호화 키 디코더
-40. DHCP
-41. DHCPv6
-42. DNS
-43. DoIP
-44. FTP
-45. HTTP 헤더 (요청 및 응답)
-46. LDAP
-47. Modbus
-48. MySQL - 파싱만 가능 (편집 불가)
-49. NTP (v3, v4)
-50. PEM 인코더 및 디코더
-51. PostgreSQL Wire Protocol (PGWire) - 파싱만 가능 (편집 불가)
-52. Radius
-53. S7 Communication (S7comm)
-54. SMTP
-55. SOME/IP
-56. SSH - 파싱만 가능 (편집 불가)
-57. Telnet - 파싱만 가능 (편집 불가)
-58. X509 인증서 - 파싱만 가능 (편집 불가)
-59. 일반 페이로드
+38. ASN.1 인코더 및 디코더
+39. BGP (v4)
+40. 암호화 키 디코더
+41. DHCP
+42. DHCPv6
+43. DNS
+44. DoIP
+45. FTP
+46. HTTP 헤더 (요청 및 응답)
+47. LDAP
+48. Modbus
+49. MySQL - 파싱만 가능 (편집 불가)
+50. NTP (v3, v4)
+51. PEM 인코더 및 디코더
+52. PostgreSQL Wire Protocol (PGWire) - 파싱만 가능 (편집 불가)
+53. Radius
+54. S7 Communication (S7comm)
+55. SMTP
+56. SOME/IP
+57. SSH - 파싱만 가능 (편집 불가)
+58. Telnet - 파싱만 가능 (편집 불가)
+59. X509 인증서 - 파싱만 가능 (편집 불가)
+60. 일반 페이로드
 
 ## DPDK 및 PF_RING 지원
 
