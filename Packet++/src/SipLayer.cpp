@@ -159,30 +159,6 @@ namespace pcpp
 		}
 	}
 
-	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, uint16_t srcPort,
-	                                  uint16_t dstPort)
-	{
-		if (!(SipLayer::isSipPort(srcPort) || SipLayer::isSipPort(dstPort)))
-		{
-			return nullptr;
-		}
-
-		if (SipRequestFirstLine::parseMethod(reinterpret_cast<char*>(data), dataLen) !=
-		    SipRequestLayer::SipMethodUnknown)
-		{
-			return new SipRequestLayer(data, dataLen, prevLayer, packet);
-		}
-
-		if (SipResponseFirstLine::parseStatusCode(reinterpret_cast<char*>(data), dataLen) !=
-		        SipResponseLayer::SipStatusCodeUnknown &&
-		    !SipResponseFirstLine::parseVersion(reinterpret_cast<char*>(data), dataLen).empty())
-		{
-			return new SipResponseLayer(data, dataLen, prevLayer, packet);
-		}
-
-		return nullptr;
-	}
-
 	SipLayer* SipLayer::parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		SipLayer::SipParseResult sipParseResult = detectSipMessageType(data, dataLen);
