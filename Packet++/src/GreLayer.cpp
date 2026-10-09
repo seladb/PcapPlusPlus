@@ -254,6 +254,41 @@ namespace pcpp
 		return result;
 	}
 
+	const FieldDescriptor GreLayer::SerializedFields::StrictSourceRouteBit{ Layer::SerializedFields::MaxID + 1,
+		                                                                    "strictSourceRouteBit" };
+	const FieldDescriptor GreLayer::SerializedFields::SequenceNumBit{ Layer::SerializedFields::MaxID + 2,
+		                                                              "sequenceNumBit" };
+	const FieldDescriptor GreLayer::SerializedFields::KeyBit{ Layer::SerializedFields::MaxID + 3, "keyBit" };
+	const FieldDescriptor GreLayer::SerializedFields::RoutingBit{ Layer::SerializedFields::MaxID + 4, "routingBit" };
+	const FieldDescriptor GreLayer::SerializedFields::ChecksumBit{ Layer::SerializedFields::MaxID + 5, "checksumBit" };
+	const FieldDescriptor GreLayer::SerializedFields::RecursionControl{ Layer::SerializedFields::MaxID + 6,
+		                                                                "recursionControl" };
+	const FieldDescriptor GreLayer::SerializedFields::Flags{ Layer::SerializedFields::MaxID + 7, "flags" };
+	const FieldDescriptor GreLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 8, "version" };
+	const FieldDescriptor GreLayer::SerializedFields::Protocol{ Layer::SerializedFields::MaxID + 9, "protocol" };
+	const FieldDescriptor GreLayer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 10,
+		                                                              "sequenceNumber" };
+
+	void GreLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = reinterpret_cast<const gre_basic_header*>(m_Data);
+		serializer.writeField(SerializedFields::ChecksumBit, header->checksumBit != 0);
+		serializer.writeField(SerializedFields::RoutingBit, header->routingBit != 0);
+		serializer.writeField(SerializedFields::KeyBit, header->keyBit != 0);
+		serializer.writeField(SerializedFields::SequenceNumBit, header->sequenceNumBit != 0);
+		serializer.writeField(SerializedFields::StrictSourceRouteBit, header->strictSourceRouteBit != 0);
+		serializer.writeField(SerializedFields::RecursionControl, static_cast<uint8_t>(header->recursionControl));
+		serializer.writeField(SerializedFields::Flags, static_cast<uint8_t>(header->flags));
+		serializer.writeField(SerializedFields::Version, static_cast<uint8_t>(header->version));
+		serializer.writeField(SerializedFields::Protocol, be16toh(header->protocol));
+
+		uint32_t seqNumber = 0;
+		if (getSequenceNumber(seqNumber))
+		{
+			serializer.writeField(SerializedFields::SequenceNumber, seqNumber);
+		}
+	}
+
 	// ================
 	// GREv0Layer class
 	// ================
@@ -264,7 +299,7 @@ namespace pcpp
 		m_Protocol = GREv0;
 	}
 
-	bool GREv0Layer::getChecksum(uint16_t& checksum)
+	bool GREv0Layer::getChecksum(uint16_t& checksum) const
 	{
 		if (getGreHeader()->checksumBit == 0)
 			return false;
@@ -444,6 +479,33 @@ namespace pcpp
 		return "GRE Layer, version 0";
 	}
 
+	const FieldDescriptor GREv0Layer::SerializedFields::Checksum{ GreLayer::SerializedFields::MaxID + 1, "checksum" };
+	const FieldDescriptor GREv0Layer::SerializedFields::Offset{ GreLayer::SerializedFields::MaxID + 2, "offset" };
+	const FieldDescriptor GREv0Layer::SerializedFields::Key{ GreLayer::SerializedFields::MaxID + 3, "key" };
+
+	void GREv0Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		GreLayer::serializeLayer(serializer);
+
+		uint16_t checksum = 0;
+		if (getChecksum(checksum))
+		{
+			serializer.writeHexField(SerializedFields::Checksum, checksum);
+		}
+
+		uint16_t offset = 0;
+		if (getOffset(offset))
+		{
+			serializer.writeField(SerializedFields::Offset, offset);
+		}
+
+		uint32_t key = 0;
+		if (getKey(key))
+		{
+			serializer.writeField(SerializedFields::Key, key);
+		}
+	}
+
 	// ================
 	// GREv1Layer class
 	// ================
@@ -532,6 +594,30 @@ namespace pcpp
 		return "GRE Layer, version 1";
 	}
 
+	const FieldDescriptor GREv1Layer::SerializedFields::AckSequenceNumBit{ GreLayer::SerializedFields::MaxID + 1,
+		                                                                   "ackSequenceNumBit" };
+	const FieldDescriptor GREv1Layer::SerializedFields::PayloadLength{ GreLayer::SerializedFields::MaxID + 2,
+		                                                               "payloadLength" };
+	const FieldDescriptor GREv1Layer::SerializedFields::CallID{ GreLayer::SerializedFields::MaxID + 3, "callID" };
+	const FieldDescriptor GREv1Layer::SerializedFields::AcknowledgmentNumber{ GreLayer::SerializedFields::MaxID + 4,
+		                                                                      "acknowledgmentNumber" };
+
+	void GREv1Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		GreLayer::serializeLayer(serializer);
+
+		auto* header = getGreHeader();
+		serializer.writeField(SerializedFields::AckSequenceNumBit, header->ackSequenceNumBit != 0);
+		serializer.writeField(SerializedFields::PayloadLength, be16toh(header->payloadLength));
+		serializer.writeField(SerializedFields::CallID, be16toh(header->callID));
+
+		uint32_t ackNum = 0;
+		if (getAcknowledgmentNum(ackNum))
+		{
+			serializer.writeField(SerializedFields::AcknowledgmentNumber, ackNum);
+		}
+	}
+
 	// ===================
 	// PPP_PPTPLayer class
 	// ===================
@@ -588,6 +674,18 @@ namespace pcpp
 		}
 		else
 			header->protocol = 0;
+	}
+
+	const FieldDescriptor PPP_PPTPLayer::SerializedFields::Address{ Layer::SerializedFields::MaxID + 1, "address" };
+	const FieldDescriptor PPP_PPTPLayer::SerializedFields::Control{ Layer::SerializedFields::MaxID + 2, "control" };
+	const FieldDescriptor PPP_PPTPLayer::SerializedFields::Protocol{ Layer::SerializedFields::MaxID + 3, "protocol" };
+
+	void PPP_PPTPLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getPPP_PPTPHeader();
+		serializer.writeField(SerializedFields::Address, header->address);
+		serializer.writeField(SerializedFields::Control, header->control);
+		serializer.writeField(SerializedFields::Protocol, be16toh(header->protocol));
 	}
 
 }  // namespace pcpp
