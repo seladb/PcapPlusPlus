@@ -1,5 +1,6 @@
 #define LOG_MODULE PacketLogModuleWireGuardLayer
 
+#include "Logger.h"
 #include "UdpLayer.h"
 #include "WireGuardLayer.h"
 #include "EndianPortable.h"
@@ -403,8 +404,27 @@ namespace pcpp
 
 	void WireGuardTransportDataLayer::setEncryptedData(const uint8_t* encryptedData, size_t encryptedDataLen)
 	{
-		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
-		memcpy(msg->encryptedData, encryptedData, encryptedDataLen);
+		const size_t headerLen = sizeof(wg_transport_data);
+		const size_t currentLen = m_DataLen - headerLen;
+
+		if (encryptedDataLen < currentLen)
+		{
+			if (!shortenLayer(static_cast<int>(headerLen + encryptedDataLen), currentLen - encryptedDataLen))
+			{
+				PCPP_LOG_ERROR("Couldn't shorten the layer to fit the new encrypted data");
+				return;
+			}
+		}
+		else if (encryptedDataLen > currentLen)
+		{
+			if (!extendLayer(static_cast<int>(m_DataLen), encryptedDataLen - currentLen))
+			{
+				PCPP_LOG_ERROR("Couldn't extend the layer to fit the new encrypted data");
+				return;
+			}
+		}
+
+		memcpy(m_Data + headerLen, encryptedData, encryptedDataLen);
 	}
 
 }  // namespace pcpp
