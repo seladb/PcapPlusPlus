@@ -203,6 +203,42 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by IgmpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @brief The highest field ID used by IgmpLayer
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 5;
+
+			/// @return All field descriptors for IgmpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Type, TypeName, MaxResponseTime, Checksum, GroupAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief IGMP message type, as an integer
+			static const FieldDescriptor Type;
+
+			/// @brief IGMP message type name, as a string
+			static const FieldDescriptor TypeName;
+
+			/// @brief Maximum response time in units of 1/10 second (100 ms)
+			static const FieldDescriptor MaxResponseTime;
+
+			/// @brief Checksum, in hexadecimal notation
+			static const FieldDescriptor Checksum;
+
+			/// @brief Multicast group IPv4 address, as a string
+			static const FieldDescriptor GroupAddress;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class IgmpV1Layer
@@ -374,6 +410,40 @@ namespace pcpp
 		{
 			return canReinterpretAs<igmpv3_query_header>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by IgmpV3QueryLayer's serializeLayer(), in addition to
+		/// IgmpLayer::SerializedFields.
+		struct SerializedFields : IgmpLayer::SerializedFields
+		{
+			/// @return All field descriptors for IgmpV3QueryLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = IgmpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SuppressRouterSideProcessing, RobustnessVariable,
+					                                          QueryIntervalCode, Sources };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Suppress Router-side Processing flag (S flag)
+			static const FieldDescriptor SuppressRouterSideProcessing;
+
+			/// @brief Querier's Robustness Variable (QRV)
+			static const FieldDescriptor RobustnessVariable;
+
+			/// @brief Querier's Query Interval Code (QQIC)
+			static const FieldDescriptor QueryIntervalCode;
+
+			/// @brief Array of unicast IPv4 source addresses; elements described by Source
+			static const FieldDescriptor Sources;
+
+			/// @brief Unicast IPv4 source address, as a string; element of Sources, not included in all()
+			static const FieldDescriptor Source;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class IgmpV3ReportLayer
@@ -477,6 +547,54 @@ namespace pcpp
 		{
 			return canReinterpretAs<igmpv3_report_header>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by IgmpV3ReportLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for IgmpV3ReportLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Type, TypeName, Checksum, GroupRecords };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief IGMP message type, as an integer
+			static const FieldDescriptor Type;
+
+			/// @brief IGMP message type name, as a string
+			static const FieldDescriptor TypeName;
+
+			/// @brief Checksum, in hexadecimal notation
+			static const FieldDescriptor Checksum;
+
+			/// @brief Array of group records; elements described by GroupRecord
+			static const FieldDescriptor GroupRecords;
+
+			/// @brief Group record descriptor; not included in all()
+			static const FieldDescriptor GroupRecord;
+
+			/// @brief Group record type, as an integer; element of GroupRecord, not included in all()
+			static const FieldDescriptor RecordType;
+
+			/// @brief Auxiliary data length, in 32-bit words; element of GroupRecord, not included in all()
+			static const FieldDescriptor AuxDataLen;
+
+			/// @brief Multicast IPv4 address, as a string; element of GroupRecord, not included in all()
+			static const FieldDescriptor MulticastAddress;
+
+			/// @brief Array of unicast IPv4 source addresses; element of GroupRecord, not included in all()
+			static const FieldDescriptor Sources;
+
+			/// @brief Unicast IPv4 source address, as a string; element of Sources, not included in all()
+			static const FieldDescriptor Source;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp
