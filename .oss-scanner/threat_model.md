@@ -1,4 +1,3 @@
-<!-- Template: copy to your project or place a copy at projects/<name>/threat_model.md. Free text; the scanner reads it before it starts. -->
 # Threat model
 
 ## What this project does and where untrusted input enters
@@ -25,7 +24,7 @@
   - `Tests/` (including `PcppTestFramework`, `PcppTestUtilities`), `ci/`, `cmake/`, `build/`, `translation/` and documentation.
 
 ## How to exercise it
-- Build with CMake: `cmake -S . -B build && cmake --build build`. Add `-DPCAPPP_BUILD_EXAMPLES=ON` for the example binaries (`build/examples_bin/`). To scan only the parsing code use `-DPCAPPP_BUILD_PCAPPP=OFF`, which builds just Common++ and Packet++ and needs no libpcap. Building with ASan/UBSan (for example `-DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g"`) is recommended.
+- Build with CMake: `cmake -S . -B build && cmake --build build`. Add `-DPCAPPP_BUILD_EXAMPLES=ON` for the example binaries (`build/examples_bin/`). To scan only the parsing code use `-DPCAPPP_BUILD_PCAPPP=OFF`, which builds just Common++ and Packet++ and needs no libpcap. Building with ASan/UBSan (for example `-DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g"`) is recommended. For additional instructions and explanations check `AGENTS.md`
 - `Tests/Fuzzers/` has the libFuzzer/oss-fuzz harnesses. `FuzzTarget.cpp` parses pcap, pcapng and snoop input and walks every parsed layer (`ReadParsedPacket.h`). `FuzzWriter.cpp` converts between pcap and pcapng. `Tests/Fuzzers/RegressionTests/` contains regression samples and `run_tests.sh`. New fuzz harnesses for individual layers or for the reassembly classes are welcome.
 - `Tests/Packet++Test/` is the unit test suite for parsing/crafting, and needs no network. Fixtures are in `Tests/Packet++Test/PacketExamples/`. Run it from inside that directory: `cd Tests/Packet++Test && Bin/Packet++Test`. Every test is also leak-checked with MemPlumber.
 - `Tests/Pcap++Test/` covers file I/O and live capture. Run `sudo Bin/Pcap++Test -n` to skip anything that needs the network. Fixtures are in `Tests/Pcap++Test/PcapExamples/`.
