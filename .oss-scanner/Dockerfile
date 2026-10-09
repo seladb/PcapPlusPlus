@@ -32,4 +32,4 @@ RUN cmake -S /src -B /src/build -G Ninja \
 RUN python3 -m venv /src/.venv \
     && . /src/.venv/bin/activate \
     && python3 -m pip install -r /src/ci/run_tests/requirements.txt \
-    && python3 /src/ci/run_tests/run_tests.py --interface eth0 --test-suites "packet" --build-dir /src/build
+    && python3 /src/ci/run_tests/run_tests.py --interface lo --test-suites "packet" --build-dir /src/build

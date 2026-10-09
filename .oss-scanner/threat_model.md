@@ -30,6 +30,7 @@
 - `Tests/Pcap++Test/` covers file I/O and live capture. Run `sudo Bin/Pcap++Test -n` to skip anything that needs the network. Fixtures are in `Tests/Pcap++Test/PcapExamples/`.
 - `Examples/PcapPrinter`, `PcapSplitter`, `PcapSearch`, `TcpReassembly`, `HttpAnalyzer`, `SSLAnalyzer`, `X509Toolkit` and `IPDefragUtil` are small drivers that read a pcap file and exercise the parsers, which makes them good for scanning with crafted files. `Tests/ExamplesTest/` has pytest tests with sample pcaps (`pcap_examples/`).
 - Anything that needs a live interface, root privileges, DPDK, PF_RING, XDP or WinDivert hardware is hard to exercise. Prefer reasoning about the code and reproducing with pcap files.
+- It is possible to run all tests using `. /src/.venv/bin/activate && python3 /src/ci/run_tests/run_tests.py --interface lo --build-dir /src/build`. But if the provided docker/container has a live interface it should be updated to a live interface name which is exist. If only available interface is loopback some of the `*Live*` named tests might fail this is normal.
 
 ## How you rate severity
 - Out-of-bounds read or write, use-after-free, double free, uninitialized memory use, or integer overflow leading to any of these, reachable from crafted packet or file bytes through the public API: **high at a minimum**. If the overflow is controlled (attacker picks the size and the content) and could give code execution, rate it **critical**.
