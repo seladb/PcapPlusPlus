@@ -436,6 +436,7 @@ namespace pcpp
 	private:
 		internal::LightPcapNgHandle* m_LightPcapNg;
 		int m_CompressionLevel;
+		size_t m_IOBufferSize;
 
 	public:
 		/// @brief A static method that checks if the device was built with zstd compression support
@@ -448,7 +449,11 @@ namespace pcpp
 		/// @param[in] fileName The full path of the file
 		/// @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression
 		/// or 10 for max compression. Default is 0
-		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
+		/// @param[in] ioBufferSize The size (in bytes) of the write buffer to use for this file, or 0 (the default)
+		/// for the platform's default stdio buffering. A larger buffer (e.g. 1 MiB) reduces the number of write()
+		/// syscalls for high packet-rate captures. Only takes effect when the file is opened, i.e. after this
+		/// constructor is called
+		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0, size_t ioBufferSize = 0);
 
 		/// A destructor for this class
 		~PcapNgFileWriterDevice() override
