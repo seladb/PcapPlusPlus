@@ -271,6 +271,22 @@ namespace pcpp
 			Nanoseconds,
 		};
 
+		/// Controls whether libpcap's "immediate mode" is used for packet delivery.
+		/// PcapPlusPlus enables immediate mode by default (where supported) for minimal packet delivery latency.
+		/// On Linux, immediate mode also forces a less efficient capture path (TPACKET_V2 with non-blocking
+		/// polling, instead of TPACKET_V3 with blocking, batched reads), which can hurt throughput and CPU usage
+		/// at high packet rates.
+		enum class BufferingMode
+		{
+			/// Let the device decide, currently equivalent to Immediate. Default value.
+			Default = 0,
+			/// Use immediate mode, trading throughput/CPU for minimal packet delivery latency
+			Immediate,
+			/// Disable immediate mode, trading some added latency (up to packetBufferTimeoutMs, or 100 ms on
+			/// Linux/Windows if not set) for the throughput and CPU benefits described above
+			Buffered
+		};
+
 		/// @struct DeviceConfiguration
 		/// A struct that contains user configurable parameters for opening a device. All parameters have default values
 		/// so the user isn't expected to set all parameters or understand exactly how they work
@@ -318,6 +334,10 @@ namespace pcpp
 			/// Depending on the capture device and the software on the host, different precision can be used
 			TimestampPrecision timestampPrecision;
 
+			/// Controls whether libpcap's immediate mode is used. See BufferingMode for details.
+			/// Default value is BufferingMode::Default.
+			BufferingMode bufferingMode;
+
 			/// A c'tor for this struct
 			/// @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is
 			/// promiscuous
@@ -338,11 +358,14 @@ namespace pcpp
 			/// for each packet (not all platforms support this). Default provider is Host.
 			/// @param[in] timestampPrecision The timestamp precision (not all platforms support this).
 			/// Default precision is Microseconds.
+			/// @param[in] bufferingMode Controls whether libpcap's immediate mode is used. See BufferingMode for
+			/// details. Default value is BufferingMode::Default.
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
 			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
 			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false,
 			                             TimestampProvider timestampProvider = TimestampProvider::Host,
-			                             TimestampPrecision timestampPrecision = TimestampPrecision::Microseconds)
+			                             TimestampPrecision timestampPrecision = TimestampPrecision::Microseconds,
+			                             BufferingMode bufferingMode = BufferingMode::Default)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
@@ -353,6 +376,7 @@ namespace pcpp
 				this->usePoll = usePoll;
 				this->timestampProvider = timestampProvider;
 				this->timestampPrecision = timestampPrecision;
+				this->bufferingMode = bufferingMode;
 			}
 		};
 
