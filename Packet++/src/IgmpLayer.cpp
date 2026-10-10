@@ -4,6 +4,7 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
+#include "Serializers.h"
 
 namespace pcpp
 {
@@ -521,5 +522,119 @@ namespace pcpp
 
 		int headerLen = numOfRecords * sizeof(uint32_t) + sizeof(igmpv3_group_record);
 		return (size_t)headerLen;
+	}
+
+	static constexpr const char* igmpTypeToString(IgmpType type)
+	{
+		switch (type)
+		{
+		case IgmpType_MembershipQuery:
+			return "MembershipQuery";
+		case IgmpType_MembershipReportV1:
+			return "MembershipReportV1";
+		case IgmpType_DVMRP:
+			return "DVMRP";
+		case IgmpType_P1Mv1:
+			return "P1Mv1";
+		case IgmpType_CiscoTrace:
+			return "CiscoTrace";
+		case IgmpType_MembershipReportV2:
+			return "MembershipReportV2";
+		case IgmpType_LeaveGroup:
+			return "LeaveGroup";
+		case IgmpType_MulticastTracerouteResponse:
+			return "MulticastTracerouteResponse";
+		case IgmpType_MulticastTraceroute:
+			return "MulticastTraceroute";
+		case IgmpType_MembershipReportV3:
+			return "MembershipReportV3";
+		case IgmpType_MulticastRouterAdvertisement:
+			return "MulticastRouterAdvertisement";
+		case IgmpType_MulticastRouterSolicitation:
+			return "MulticastRouterSolicitation";
+		case IgmpType_MulticastRouterTermination:
+			return "MulticastRouterTermination";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor IgmpLayer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
+	const FieldDescriptor IgmpLayer::SerializedFields::TypeName{ Layer::SerializedFields::MaxID + 2, "typeName" };
+	const FieldDescriptor IgmpLayer::SerializedFields::MaxResponseTime{ Layer::SerializedFields::MaxID + 3,
+		                                                                "maxResponseTime" };
+	const FieldDescriptor IgmpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 4, "checksum" };
+	const FieldDescriptor IgmpLayer::SerializedFields::GroupAddress{ Layer::SerializedFields::MaxID + 5,
+		                                                             "groupAddress" };
+
+	void IgmpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Type, getIgmpHeader()->type);
+		serializer.writeField(SerializedFields::TypeName, igmpTypeToString(getType()));
+		serializer.writeField(SerializedFields::MaxResponseTime, getIgmpHeader()->maxResponseTime);
+		serializer.writeHexField(SerializedFields::Checksum, be16toh(getIgmpHeader()->checksum));
+		serializer.writeField(SerializedFields::GroupAddress, getGroupAddress().toString());
+	}
+
+	const FieldDescriptor IgmpV3QueryLayer::SerializedFields::SuppressRouterSideProcessing{
+		IgmpLayer::SerializedFields::MaxID + 1, "suppressRouterSideProcessing"
+	};
+	const FieldDescriptor IgmpV3QueryLayer::SerializedFields::RobustnessVariable{
+		IgmpLayer::SerializedFields::MaxID + 2, "robustnessVariable"
+	};
+	const FieldDescriptor IgmpV3QueryLayer::SerializedFields::QueryIntervalCode{ IgmpLayer::SerializedFields::MaxID + 3,
+		                                                                         "queryIntervalCode" };
+	const FieldDescriptor IgmpV3QueryLayer::SerializedFields::Sources{ IgmpLayer::SerializedFields::MaxID + 4,
+		                                                               "sources" };
+	const FieldDescriptor IgmpV3QueryLayer::SerializedFields::Source{ 0, "source" };
+
+	void IgmpV3QueryLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		IgmpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::SuppressRouterSideProcessing,
+		                      (getIgmpV3QueryHeader()->s_qrv & 0x08) != 0);
+		serializer.writeField(SerializedFields::RobustnessVariable,
+		                      static_cast<uint64_t>(getIgmpV3QueryHeader()->s_qrv & 0x07));
+		serializer.writeField(SerializedFields::QueryIntervalCode, static_cast<uint64_t>(getIgmpV3QueryHeader()->qqic));
+		auto sources = serializer.writeArray(SerializedFields::Sources);
+		for (size_t i = 0; i < getSourceAddressCount(); ++i)
+		{
+			sources.writeField(SerializedFields::Source, getSourceAddressAtIndex(static_cast<int>(i)).toString());
+		}
+	}
+
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::TypeName{ Layer::SerializedFields::MaxID + 2,
+		                                                                 "typeName" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3,
+		                                                                 "checksum" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::GroupRecords{ Layer::SerializedFields::MaxID + 4,
+		                                                                     "groupRecords" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::GroupRecord{ 0, "groupRecord" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::RecordType{ 0, "recordType" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::AuxDataLen{ 1, "auxDataLen" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::MulticastAddress{ 2, "multicastAddress" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::Sources{ 3, "sources" };
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::Source{ 0, "source" };
+
+	void IgmpV3ReportLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Type, getReportHeader()->type);
+		serializer.writeField(SerializedFields::TypeName, igmpTypeToString(getType()));
+		serializer.writeHexField(SerializedFields::Checksum, be16toh(getReportHeader()->checksum));
+		auto groupRecords = serializer.writeArray(SerializedFields::GroupRecords);
+		for (auto* record = getFirstGroupRecord(); record != nullptr; record = getNextGroupRecord(record))
+		{
+			auto obj = groupRecords.writeObject(SerializedFields::GroupRecord);
+			obj.writeField(SerializedFields::RecordType, record->recordType);
+			obj.writeField(SerializedFields::AuxDataLen, record->auxDataLen);
+			obj.writeField(SerializedFields::MulticastAddress, record->getMulticastAddress().toString());
+			auto sources = obj.writeArray(SerializedFields::Sources);
+			for (size_t i = 0; i < record->getSourceAddressCount(); ++i)
+			{
+				sources.writeField(SerializedFields::Source,
+				                   record->getSourceAddressAtIndex(static_cast<int>(i)).toString());
+			}
+		}
 	}
 }  // namespace pcpp
