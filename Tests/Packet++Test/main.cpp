@@ -259,6 +259,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
 	PTF_RUN_TEST(SSLMalformedPacketParsing, "ssl");
 	PTF_RUN_TEST(SSLECPointFormatExtensionZeroLengthTest, "ssl");
+	PTF_RUN_TEST(SSLSupportedVersionsExtensionZeroLengthTest, "ssl");
+	PTF_RUN_TEST(SSLServerNameIndicationExtensionTruncatedTest, "ssl");
+	PTF_RUN_TEST(SSLAlertLayerTruncatedTest, "ssl");
 	PTF_RUN_TEST(TLS1_3ParsingTest, "ssl");
 	PTF_RUN_TEST(TLSCipherSuiteTest, "ssl");
 	PTF_RUN_TEST(ClientHelloTLSFingerprintTest, "ssl");
