@@ -590,7 +590,7 @@ PTF_TEST_CASE(BgpLayerEditTest)
 
 PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 {
-	// Suppress expected error/warning logs from malformed packet parsing
+	// Suppress expected logs from malformed packet parsing and rejected invalid parameters
 	SuppressLogs suppress;
 
 	// Test 1: BGP OPEN with header too short for bgp_open_message (headerLen < sizeof(bgp_open_message))
@@ -669,6 +669,105 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 		{
 			PTF_ASSERT_EQUAL(op.value[i], 0);
 		}
+	}
+
+	// Test 6: Reject an invalid parameter without partially replacing existing parameters
+	{
+		pcpp::BgpOpenMessageLayer::optional_parameter originalParam;
+		originalParam.type = 2;
+		originalParam.length = 1;
+		originalParam.value[0] = 0x42;
+		pcpp::BgpOpenMessageLayer bgpOpenLayer(1, 180, pcpp::IPv4Address("1.1.1.1"), { originalParam });
+		const size_t originalHeaderLen = bgpOpenLayer.getHeaderLen();
+
+		pcpp::BgpOpenMessageLayer::optional_parameter validParam;
+		validParam.type = 3;
+		validParam.length = 1;
+		validParam.value[0] = 0x24;
+		pcpp::BgpOpenMessageLayer::optional_parameter invalidParam;
+		invalidParam.type = 4;
+		invalidParam.length = 33;
+
+		PTF_ASSERT_FALSE(bgpOpenLayer.setOptionalParameters({ validParam, invalidParam }));
+		PTF_ASSERT_EQUAL(bgpOpenLayer.getHeaderLen(), originalHeaderLen);
+		PTF_ASSERT_EQUAL(bgpOpenLayer.getOpenMsgHeader()->optionalParameterLength, 3);
+
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams;
+		bgpOpenLayer.getOptionalParameters(optionalParams);
+		PTF_ASSERT_EQUAL(optionalParams.size(), 1);
+		PTF_ASSERT_EQUAL(static_cast<unsigned int>(optionalParams.at(0).type),
+		                 static_cast<unsigned int>(originalParam.type));
+		PTF_ASSERT_EQUAL(static_cast<unsigned int>(optionalParams.at(0).value[0]),
+		                 static_cast<unsigned int>(originalParam.value[0]));
+	}
+
+	// Test 7: Accept parameter data that exactly fills the one-byte optional parameter length
+	{
+		pcpp::BgpOpenMessageLayer bgpOpenLayer(1, 180, pcpp::IPv4Address("1.1.1.1"));
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams(8);
+		for (auto& param : optionalParams)
+		{
+			param.type = 2;
+			param.length = sizeof(param.value);
+		}
+		optionalParams.back().length = 15;
+
+		PTF_ASSERT_TRUE(bgpOpenLayer.setOptionalParameters(optionalParams));
+		PTF_ASSERT_EQUAL(bgpOpenLayer.getOpenMsgHeader()->optionalParameterLength, 255);
+		PTF_ASSERT_EQUAL(bgpOpenLayer.getOptionalParametersLength(), 255);
+	}
+
+	// Test 8: Reject parameter data that cannot fit in the one-byte optional parameter length
+	{
+		pcpp::BgpOpenMessageLayer::optional_parameter originalParam;
+		originalParam.type = 2;
+		originalParam.length = 1;
+		originalParam.value[0] = 0x42;
+		pcpp::BgpOpenMessageLayer bgpOpenLayer(1, 180, pcpp::IPv4Address("1.1.1.1"), { originalParam });
+		const size_t originalHeaderLen = bgpOpenLayer.getHeaderLen();
+
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams(8);
+		for (auto& param : optionalParams)
+		{
+			param.type = 2;
+			param.length = sizeof(param.value);
+		}
+
+		PTF_ASSERT_FALSE(bgpOpenLayer.setOptionalParameters(optionalParams));
+		PTF_ASSERT_EQUAL(bgpOpenLayer.getHeaderLen(), originalHeaderLen);
+		PTF_ASSERT_EQUAL(bgpOpenLayer.getOpenMsgHeader()->optionalParameterLength, 3);
+
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> actualParams;
+		bgpOpenLayer.getOptionalParameters(actualParams);
+		PTF_ASSERT_EQUAL(actualParams.size(), 1);
+		PTF_ASSERT_EQUAL(static_cast<unsigned int>(actualParams.at(0).type),
+		                 static_cast<unsigned int>(originalParam.type));
+		PTF_ASSERT_EQUAL(static_cast<unsigned int>(actualParams.at(0).value[0]),
+		                 static_cast<unsigned int>(originalParam.value[0]));
+	}
+
+	// Test 9: Reject invalid optional parameters when constructing a BGP OPEN layer
+	{
+		pcpp::BgpOpenMessageLayer::optional_parameter validParam;
+		validParam.type = 2;
+		validParam.length = 1;
+		validParam.value[0] = 0x42;
+		pcpp::BgpOpenMessageLayer::optional_parameter invalidParam;
+		invalidParam.type = 3;
+		invalidParam.length = 33;
+
+		PTF_ASSERT_RAISES(pcpp::BgpOpenMessageLayer(1, 180, pcpp::IPv4Address("1.1.1.1"), { validParam, invalidParam }),
+		                  std::invalid_argument, "Invalid BGP OPEN optional parameters");
+
+		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> oversizedParams(8);
+		for (auto& param : oversizedParams)
+		{
+			param.type = 2;
+			param.length = sizeof(param.value);
+		}
+
+		PTF_ASSERT_RAISES(pcpp::BgpOpenMessageLayer(1, 180, pcpp::IPv4Address("1.1.1.1"), oversizedParams),
+		                  std::invalid_argument, "Invalid BGP OPEN optional parameters");
 	}
 
 }  // BgpOpenMalformedOptionalParamsTest

@@ -184,6 +184,7 @@ namespace pcpp
 		/// @param[in] bgpId The BGP Identifier of the sender
 		/// @param[in] optionalParams A vector of optional parameters. This parameter is optional and if not provided no
 		/// parameters will be set on the message
+		/// @throws std::invalid_argument if an optional parameter is invalid or the serialized data exceeds 255 bytes
 		BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
 		                    const std::vector<optional_parameter>& optionalParams = std::vector<optional_parameter>());
 
