@@ -318,8 +318,9 @@ namespace pcpp
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
 		}
 
-		auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
-		if (dataLen < messageLength + 1)
+		// The length covers itself but not the message type byte
+		size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
+		if (messageLength < sizeof(uint32_t) || dataLen < messageLength + 1)
 		{
 			return std::unique_ptr<PostgresMessage>(
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
@@ -533,8 +534,9 @@ namespace pcpp
 				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 			}
 
-			auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data));
-			if (messageLength > dataLen)
+			// The length covers itself and the 4 byte tag
+			size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data));
+			if (messageLength < 2 * sizeof(uint32_t) || messageLength > dataLen)
 			{
 				return std::unique_ptr<PostgresMessage>(
 				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
@@ -579,8 +581,9 @@ namespace pcpp
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 		}
 
-		auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
-		if (dataLen < messageLength + 1)
+		// The length covers itself but not the message type byte
+		size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
+		if (messageLength < sizeof(uint32_t) || dataLen < messageLength + 1)
 		{
 			return std::unique_ptr<PostgresMessage>(
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
@@ -591,8 +594,7 @@ namespace pcpp
 		{
 		case PostgresFrontendMessage_Q:
 		{
-			return std::make_unique<PostgresQueryMessage>(data,
-			                                              (std::min)(static_cast<size_t>(messageLength) + 1, dataLen));
+			return std::make_unique<PostgresQueryMessage>(data, (std::min)(messageLength + 1, dataLen));
 		}
 		case PostgresFrontendMessage_P:
 		{
