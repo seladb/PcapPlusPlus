@@ -84,13 +84,13 @@ namespace pcpp
 		}
 		case PCPP_ETHERTYPE_ARP:
 		{
-			constructNextLayer<ArpLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<ArpLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		case PCPP_ETHERTYPE_VLAN:
 		case PCPP_ETHERTYPE_IEEE_802_1AD:
 		{
-			constructNextLayer<VlanLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<VlanLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		case PCPP_ETHERTYPE_PPPOES:

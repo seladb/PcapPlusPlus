@@ -213,7 +213,7 @@ namespace pcpp
 			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_VLAN:
-			constructNextLayer<VlanLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<VlanLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		case PCPP_ETHERTYPE_MPLS:
 			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen);
