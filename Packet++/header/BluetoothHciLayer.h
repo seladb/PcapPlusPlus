@@ -15,51 +15,6 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-	/// @enum BluetoothHciPacketType
-	/// The HCI packet type, taken from the H4 packet indicator octet
-	enum class BluetoothHciPacketType : uint8_t
-	{
-		/// Not a recognized HCI packet type. 0x00 is not a valid H4 packet indicator value
-		Unknown = 0x00,
-		/// A command sent from the host to the controller
-		Command = 0x01,
-		/// ACL data
-		AclData = 0x02,
-		/// Synchronous (SCO) data
-		ScoData = 0x03,
-		/// An event sent from the controller to the host
-		Event = 0x04,
-		/// Isochronous (ISO) data
-		IsoData = 0x05
-	};
-
-	/// @enum BluetoothHciDirection
-	/// The direction of an HCI packet, taken from the pseudo-header present in
-	/// LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR captures
-	enum class BluetoothHciDirection : uint32_t
-	{
-		/// Sent from the host to the controller
-		HostToController = 0,
-		/// Received by the host from the controller
-		ControllerToHost = 1,
-		/// The capture has no direction pseudo-header (LINKTYPE_BLUETOOTH_HCI_H4)
-		Unknown = 0xffffffff
-	};
-
-	/// @struct bluetooth_hci_direction_header
-	/// Represents the 4-byte direction pseudo-header that precedes the H4 packet in
-	/// LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR captures
-#pragma pack(push, 1)
-	struct bluetooth_hci_direction_header
-	{
-		/// The packet direction, in network byte order (big-endian)
-		uint32_t direction;
-	};
-#pragma pack(pop)
-	static_assert(sizeof(bluetooth_hci_direction_header) == 4, "bluetooth_hci_direction_header size is not 4 bytes");
-
-	class BluetoothHciEventLayer;
-
 	/// @class BluetoothHciLayer
 	/// An abstract base class for all Bluetooth HCI packet types. It handles the parts common to every HCI packet:
 	/// the optional direction pseudo-header and the H4 packet indicator octet. Concrete subclasses parse a specific
@@ -67,6 +22,37 @@ namespace pcpp
 	class BluetoothHciLayer : public Layer
 	{
 	public:
+		/// @enum BluetoothHciPacketType
+		/// The HCI packet type, taken from the H4 packet indicator octet
+		enum class BluetoothHciPacketType : uint8_t
+		{
+			/// Not a recognized HCI packet type. 0x00 is not a valid H4 packet indicator value
+			Unknown = 0x00,
+			/// A command sent from the host to the controller
+			Command = 0x01,
+			/// ACL data
+			AclData = 0x02,
+			/// Synchronous (SCO) data
+			ScoData = 0x03,
+			/// An event sent from the controller to the host
+			Event = 0x04,
+			/// Isochronous (ISO) data
+			IsoData = 0x05
+		};
+
+		/// @enum BluetoothHciDirection
+		/// The direction of an HCI packet, taken from the pseudo-header present in
+		/// LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR captures
+		enum class BluetoothHciDirection : uint32_t
+		{
+			/// Sent from the host to the controller
+			HostToController = 0,
+			/// Received by the host from the controller
+			ControllerToHost = 1,
+			/// The capture has no direction pseudo-header (LINKTYPE_BLUETOOTH_HCI_H4)
+			Unknown = 0xffffffff
+		};
+
 		~BluetoothHciLayer() override = default;
 
 		/// A static factory that identifies the HCI packet type and creates the matching layer
@@ -91,29 +77,12 @@ namespace pcpp
 		/// pseudo-header
 		BluetoothHciDirection getDirection() const;
 
-		/// @return The H4 packet indicator octet
-		uint8_t getPacketIndicator() const
-		{
-			return m_Data[getDirectionHeaderLen()];
-		}
-
 		/// @return The HCI packet type this layer represents, or BluetoothHciPacketType::Unknown if the packet
 		/// indicator octet doesn't match a known packet type
 		BluetoothHciPacketType getPacketType() const
 		{
-			return packetTypeFromIndicator(getPacketIndicator());
+			return packetTypeFromIndicator(m_Data[getDirectionHeaderLen()]);
 		}
-
-		/// Convert an H4 packet indicator octet to its matching packet type
-		/// @param[in] packetIndicator The H4 packet indicator octet
-		/// @return The matching packet type, or BluetoothHciPacketType::Unknown if the octet doesn't match a known
-		/// packet type
-		static BluetoothHciPacketType packetTypeFromIndicator(uint8_t packetIndicator);
-
-		/// Get this layer as a Bluetooth HCI Event layer. As instances are only created by parseLayer(), the packet
-		/// indicator octet is a reliable indication of the concrete type, so no dynamic cast is needed
-		/// @return A pointer to this layer as a BluetoothHciEventLayer, or nullptr if this is not an Event packet
-		BluetoothHciEventLayer* asEventLayer();
 
 		// implement abstract methods
 
@@ -140,6 +109,10 @@ namespace pcpp
 		static bool isDataValid(const uint8_t* data, size_t dataLen, bool hasDirectionHeader);
 
 	protected:
+		/// Size of the direction pseudo-header on the wire. Exposed to derived classes so their static
+		/// validators can size-check the raw buffer without needing the struct definition itself
+		static constexpr size_t directionHeaderSize = 4;
+
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
@@ -152,40 +125,23 @@ namespace pcpp
 		/// @return Size of the direction pseudo-header, or 0 if this packet has none
 		size_t getDirectionHeaderLen() const
 		{
-			return m_HasDirectionHeader ? sizeof(bluetooth_hci_direction_header) : 0;
+			return m_HasDirectionHeader ? directionHeaderSize : 0;
 		}
 
 	private:
+#pragma pack(push, 1)
+		struct bluetooth_hci_direction_header
+		{
+			uint32_t direction;
+		};
+#pragma pack(pop)
+		static_assert(sizeof(bluetooth_hci_direction_header) == directionHeaderSize,
+		              "bluetooth_hci_direction_header size does not match directionHeaderSize");
+
+		static BluetoothHciPacketType packetTypeFromIndicator(uint8_t packetIndicator);
+
 		bool m_HasDirectionHeader;
 	};
-
-	/// Event Code for the Inquiry Complete event
-	constexpr uint8_t BluetoothHciInquiryCompleteEventCode = 0x01;
-
-	/// @struct bluetooth_hci_event_header
-	/// Represents a Bluetooth HCI Event packet header, excluding the direction pseudo-header and the packet indicator
-#pragma pack(push, 1)
-	struct bluetooth_hci_event_header
-	{
-		/// The event code identifying the event type
-		uint8_t eventCode;
-		/// The total length of the parameters that follow
-		uint8_t parameterTotalLength;
-	};
-#pragma pack(pop)
-	static_assert(sizeof(bluetooth_hci_event_header) == 2, "bluetooth_hci_event_header size is not 2 bytes");
-
-	/// @struct bluetooth_hci_inquiry_complete_parameters
-	/// Represents the parameters of a Bluetooth HCI Inquiry Complete event
-#pragma pack(push, 1)
-	struct bluetooth_hci_inquiry_complete_parameters
-	{
-		/// 0x00 means success, any other value is an error code
-		uint8_t status;
-	};
-#pragma pack(pop)
-	static_assert(sizeof(bluetooth_hci_inquiry_complete_parameters) == 1,
-	              "bluetooth_hci_inquiry_complete_parameters size is not 1 byte");
 
 	/// @class BluetoothHciEventLayer
 	/// Represents a Bluetooth HCI Event packet, identified by the H4 packet indicator octet 0x04
@@ -196,13 +152,6 @@ namespace pcpp
 
 	public:
 		~BluetoothHciEventLayer() override = default;
-
-		/// Get a pointer to the Bluetooth HCI Event header
-		/// @return A pointer to the bluetooth_hci_event_header
-		bluetooth_hci_event_header* getEventHeader() const
-		{
-			return reinterpret_cast<bluetooth_hci_event_header*>(m_Data + getDirectionHeaderLen() + sizeof(uint8_t));
-		}
 
 		/// Get the event code of this packet
 		/// @return The event code
@@ -225,19 +174,6 @@ namespace pcpp
 			return m_Data + getHeaderLen();
 		}
 
-		/// Check if this packet is a specific event type
-		/// @param[in] eventCode The event code to check against
-		/// @return True if the packet's event code matches the given one, false otherwise
-		bool isEventOfType(uint8_t eventCode) const
-		{
-			return getEventCode() == eventCode;
-		}
-
-		/// Get a pointer to the Inquiry Complete event parameters
-		/// @return A pointer to the bluetooth_hci_inquiry_complete_parameters, or nullptr if this packet is not an
-		/// Inquiry Complete event or the parameters are truncated
-		bluetooth_hci_inquiry_complete_parameters* getInquiryCompleteParameters() const;
-
 		// implement abstract methods
 
 		/// @return Size of the direction pseudo-header (if present), the packet indicator octet and
@@ -257,6 +193,15 @@ namespace pcpp
 		static bool isDataValid(const uint8_t* data, size_t dataLen, bool hasDirectionHeader);
 
 	private:
+#pragma pack(push, 1)
+		struct bluetooth_hci_event_header
+		{
+			uint8_t eventCode;
+			uint8_t parameterTotalLength;
+		};
+#pragma pack(pop)
+		static_assert(sizeof(bluetooth_hci_event_header) == 2, "bluetooth_hci_event_header size is not 2 bytes");
+
 		/// A constructor that creates the layer from an existing packet raw data. Instances are only created through
 		/// BluetoothHciLayer::parseLayer()
 		/// @param[in] data A pointer to the raw data
@@ -266,6 +211,11 @@ namespace pcpp
 		BluetoothHciEventLayer(uint8_t* data, size_t dataLen, Packet* packet, bool hasDirectionHeader)
 		    : BluetoothHciLayer(data, dataLen, packet, hasDirectionHeader)
 		{}
+
+		bluetooth_hci_event_header* getEventHeader() const
+		{
+			return reinterpret_cast<bluetooth_hci_event_header*>(m_Data + getDirectionHeaderLen() + sizeof(uint8_t));
+		}
 	};
 
 }  // namespace pcpp
