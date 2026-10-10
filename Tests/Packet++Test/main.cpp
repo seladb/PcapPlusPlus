@@ -435,6 +435,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PostgresLayerParsingTest, "postgres");
 	PTF_RUN_TEST(PostgresMessageParsingTest, "postgres");
 	PTF_RUN_TEST(PostgresInvalidDataTest, "postgres");
+	PTF_RUN_TEST(PostgresInvalidMessageLengthTest, "postgres");
 
 	PTF_RUN_TEST(MySqlLayerParsingTest, "mysql");
 	PTF_RUN_TEST(MySqlMessageParsingTest, "mysql");
