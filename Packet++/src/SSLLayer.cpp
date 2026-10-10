@@ -174,6 +174,10 @@ namespace pcpp
 
 	SSLAlertLevel SSLAlertLayer::getAlertLevel() const
 	{
+		// the record is too short to hold the alert level
+		if (getHeaderLen() < sizeof(ssl_tls_record_layer) + sizeof(uint8_t))
+			return SSL_ALERT_LEVEL_ENCRYPTED;
+
 		uint8_t* pos = m_Data + sizeof(ssl_tls_record_layer);
 		uint8_t alertLevel = *pos;
 		if (alertLevel == SSL_ALERT_LEVEL_WARNING || alertLevel == SSL_ALERT_LEVEL_FATAL)
@@ -185,6 +189,10 @@ namespace pcpp
 	SSLAlertDescription SSLAlertLayer::getAlertDescription()
 	{
 		if (getAlertLevel() == SSL_ALERT_LEVEL_ENCRYPTED)
+			return SSL_ALERT_ENCRYPTED;
+
+		// the record is too short to hold the alert description
+		if (getHeaderLen() < sizeof(ssl_tls_record_layer) + 2 * sizeof(uint8_t))
 			return SSL_ALERT_ENCRYPTED;
 
 		uint8_t* pos = m_Data + sizeof(ssl_tls_record_layer) + sizeof(uint8_t);
