@@ -280,6 +280,59 @@ namespace pcpp
 		{
 			return canReinterpretAs<arphdr>(data, dataLen);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by ArpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for ArpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ OpCode,          SenderMacAddress, TargetMacAddress,
+					                                          SenderIpAddress, TargetIpAddress,  MessageType,
+					                                          HardwareType,    HardwareSize,     ProtocolType,
+					                                          ProtocolSize };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the ARP opcode, written as a string.
+			static const FieldDescriptor OpCode;
+
+			/// @brief Field descriptor for the sender hardware (MAC) address, written as a string.
+			static const FieldDescriptor SenderMacAddress;
+
+			/// @brief Field descriptor for the target hardware (MAC) address, written as a string.
+			static const FieldDescriptor TargetMacAddress;
+
+			/// @brief Field descriptor for the sender protocol (IP) address, written as a string.
+			static const FieldDescriptor SenderIpAddress;
+
+			/// @brief Field descriptor for the target protocol (IP) address, written as a string.
+			static const FieldDescriptor TargetIpAddress;
+
+			/// @brief Field descriptor for the ARP message type, written as a string.
+			static const FieldDescriptor MessageType;
+
+			/// @brief Field descriptor for the hardware type (e.g. 1 for Ethernet), written as a number in host byte
+			/// order.
+			static const FieldDescriptor HardwareType;
+
+			/// @brief Field descriptor for the hardware address length in bytes (e.g. 6 for Ethernet).
+			static const FieldDescriptor HardwareSize;
+
+			/// @brief Field descriptor for the protocol type, i.e. the EtherType of the protocol being resolved
+			/// (e.g. 0x0800 for IPv4), written as a number in host byte order.
+			static const FieldDescriptor ProtocolType;
+
+			/// @brief Field descriptor for the protocol address length in bytes (e.g. 4 for IPv4).
+			static const FieldDescriptor ProtocolSize;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

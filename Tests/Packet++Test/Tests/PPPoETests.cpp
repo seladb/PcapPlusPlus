@@ -38,6 +38,15 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->toString(),
 	                 std::string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"));
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		pppoeSessionLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"PPPoESession","protocolId":11,"length":8,"code":0,"version":1,"type":1,"sessionID":17})");
+	}
 }  // PPPoESessionLayerParsingTest
 
 PTF_TEST_CASE(PPPoESessionLayerCreationTest)
@@ -124,6 +133,16 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getTagCount(), 4);
 
 	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->toString(), std::string("PPP-over-Ethernet Discovery (PADS)"));
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		pppoeDiscoveryLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"PPPoEDiscovery","protocolId":12,"length":46,"code":101,"version":1,"type":1,"sessionID":17,"tags":["PPPOE_TAG_SVC_NAME","PPPOE_TAG_HOST_UNIQ","PPPOE_TAG_AC_NAME","PPPOE_TAG_AC_COOKIE"]})");
+	}
+
 }  // PPPoEDiscoveryLayerParsingTest
 
 PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
