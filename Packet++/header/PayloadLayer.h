@@ -80,6 +80,9 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @return Payload data as a hexadecimal string
+		std::string getPayloadAsHexString() const;
+
 		/// A static method that takes a byte array and detects if it can be parsed as a PayloadLayer.
 		/// @param[in] data A byte array
 		/// @param[in] dataLen The byte array size (in bytes)
@@ -89,5 +92,26 @@ namespace pcpp
 			// PayloadLayer is special as it can be empty. So, it's valid if data is nullptr and dataLen is 0.
 			return (data == nullptr) != (dataLen != 0);  // XOR
 		};
+
+		/// @struct SerializedFields
+		/// Fields written by PayloadLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for PayloadLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ PayloadData };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Payload data as a hexadecimal string
+			static const FieldDescriptor PayloadData;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp

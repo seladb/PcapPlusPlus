@@ -59,4 +59,17 @@ namespace pcpp
 		return "Payload Layer, Data length: " + dataLenStream.str() + " [Bytes]";
 	}
 
+	std::string PayloadLayer::getPayloadAsHexString() const
+	{
+		return byteArrayToHexString(m_Data, m_DataLen);
+	}
+
+	const FieldDescriptor PayloadLayer::SerializedFields::PayloadData{ Layer::SerializedFields::MaxID + 1,
+		                                                               "payloadData" };
+
+	void PayloadLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::PayloadData, getPayloadAsHexString());
+	}
+
 }  // namespace pcpp

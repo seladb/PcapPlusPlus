@@ -1300,8 +1300,34 @@ PTF_TEST_CASE(PacketSerializeTest)
 	{
 		pcpp::PayloadLayer payloadLayer(nullptr, 0);
 
+		PTF_ASSERT_EQUAL(pcpp::PayloadLayer::SerializedFields::all().size(),
+		                 pcpp::Layer::SerializedFields::all().size() + 1);
 		PTF_ASSERT_EQUAL(serializeLayer(payloadLayer),
-		                 R"({"protocolName":"GenericPayload","protocolId":25,"length":0})");
+		                 R"({"protocolName":"GenericPayload","protocolId":25,"length":0,"payloadData":""})");
+	}
+
+	// PayloadLayer with data
+	{
+		uint8_t payloadBytes[] = { 0x01, 0x02, 0x03, 0x04 };
+		pcpp::PayloadLayer payloadLayer(payloadBytes, sizeof(payloadBytes));
+
+		PTF_ASSERT_EQUAL(pcpp::PayloadLayer::SerializedFields::all().size(),
+		                 pcpp::Layer::SerializedFields::all().size() + 1);
+		PTF_ASSERT_EQUAL(
+		    serializeLayer(payloadLayer),
+		    R"({"protocolName":"GenericPayload","protocolId":25,"length":4,"payloadData":"01020304"})");
+	}
+
+	// PacketTrailerLayer
+	{
+		uint8_t* trailerBytes = new uint8_t[4]{ 0xaa, 0xbb, 0xcc, 0xdd };
+		pcpp::PacketTrailerLayer trailerLayer(trailerBytes, 4, nullptr, nullptr);
+
+		PTF_ASSERT_EQUAL(pcpp::PacketTrailerLayer::SerializedFields::all().size(),
+		                 pcpp::Layer::SerializedFields::all().size() + 1);
+		PTF_ASSERT_EQUAL(
+		    serializeLayer(trailerLayer),
+		    R"({"protocolName":"PacketTrailer","protocolId":30,"length":4,"trailerData":"aabbccdd"})");
 	}
 
 	// Direct layer serialization
