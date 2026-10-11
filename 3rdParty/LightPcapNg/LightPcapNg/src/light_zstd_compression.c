@@ -240,7 +240,7 @@ size_t write_zstd_compressed(light_file fd, const void *buf, size_t count)
 int close_zstd_compressed(light_file fd)
 {
 	if (fd == NULL) // ---> PCPP patch
-		return NULL;
+		return -1;
 
 	//Wrap up the compression here
 	if (fd->compression_context)
