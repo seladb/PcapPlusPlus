@@ -231,7 +231,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 12. VXLAN
 13. Wake on LAN (WoL)
 14. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
-15. Bluetooth HCI - parsing only (no editing capabilities)
+15. Bluetooth HCI
 
 
 ### Network Layer (L3)

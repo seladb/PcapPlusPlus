@@ -233,7 +233,7 @@ PcapPlusPlus は現在、以下のプロトコルのパケットの解析、編�
 12. VXLAN
 13. Wake on LAN (WoL)
 14. NFLOG (Linux Netfilter NFLOG) - 解析のみ (編集機能なし)
-15. Bluetooth HCI - 解析のみ (編集機能なし)
+15. Bluetooth HCI
 
 
 ### ネットワーク層 (L3)

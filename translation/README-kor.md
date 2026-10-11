@@ -232,7 +232,7 @@ PcapPlusPlus는 현재 다음 프로토콜의 패킷을 파싱, 편집 및 생�
 12. VXLAN
 13. Wake on LAN (WoL)
 14. NFLOG (Linux Netfilter NFLOG) - 파싱만 가능 (편집 불가)
-15. Bluetooth HCI - 파싱만 가능 (편집 불가)
+15. Bluetooth HCI
 
 ### 네트워크 계층 (L3)
 

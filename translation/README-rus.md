@@ -232,7 +232,7 @@ PcapPlusPlus в настоящее время поддерживает анал�
 12. VXLAN
 13. Wake on LAN (WoL)
 14. NFLOG (Linux Netfilter NFLOG) — только анализ (без возможностей редактирования)
-15. Bluetooth HCI — только анализ (без возможностей редактирования)
+15. Bluetooth HCI
 
 
 ### Сетевой уровень (L3)

@@ -408,6 +408,8 @@ namespace pcpp
 			return "MySQL";
 		case QUICv1:
 			return "QUICv1";
+		case BluetoothHci:
+			return "BluetoothHci";
 		default:
 			throw std::invalid_argument("Unknown protocol type");
 		}

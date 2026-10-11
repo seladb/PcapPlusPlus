@@ -122,6 +122,13 @@ namespace pcpp
 		    : Layer(data, dataLen, nullptr, packet, BluetoothHci), m_HasDirectionHeader(hasDirectionHeader)
 		{}
 
+		/// Constructor used by subclasses that will allocate their own buffer via allocData()
+		/// @param[in] hasDirectionHeader True if the buffer will include a 4-byte direction pseudo-header
+		explicit BluetoothHciLayer(bool hasDirectionHeader) : m_HasDirectionHeader(hasDirectionHeader)
+		{
+			m_Protocol = BluetoothHci;
+		}
+
 		/// @return Size of the direction pseudo-header, or 0 if this packet has none
 		size_t getDirectionHeaderLen() const
 		{
@@ -152,6 +159,22 @@ namespace pcpp
 
 	public:
 		~BluetoothHciEventLayer() override = default;
+
+		/// Construct a new Event layer with no direction pseudo-header, suitable for serialization to
+		/// LINKTYPE_BLUETOOTH_HCI_H4 captures
+		/// @param[in] eventCode The HCI event code
+		/// @param[in] parameters Pointer to the raw parameter bytes (may be nullptr if paramLen is 0)
+		/// @param[in] paramLen Length of the parameter bytes
+		BluetoothHciEventLayer(uint8_t eventCode, const uint8_t* parameters, uint8_t paramLen);
+
+		/// Construct a new Event layer prefixed with the 4-byte direction pseudo-header, suitable for serialization
+		/// to LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR captures
+		/// @param[in] direction The packet direction
+		/// @param[in] eventCode The HCI event code
+		/// @param[in] parameters Pointer to the raw parameter bytes (may be nullptr if paramLen is 0)
+		/// @param[in] paramLen Length of the parameter bytes
+		BluetoothHciEventLayer(BluetoothHciDirection direction, uint8_t eventCode, const uint8_t* parameters,
+		                       uint8_t paramLen);
 
 		/// Get the event code of this packet
 		/// @return The event code
@@ -191,6 +214,35 @@ namespace pcpp
 		/// @param[in] hasDirectionHeader True if the data is expected to start with a 4-byte direction pseudo-header
 		/// @return True if the data is valid and can represent a Bluetooth HCI Event packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen, bool hasDirectionHeader);
+
+		/// @struct SerializedFields
+		/// Fields written by BluetoothHciEventLayer's serializeLayer(), in addition to Layer::SerializedFields
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for BluetoothHciEventLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Direction, EventCode, ParameterTotalLength, Parameters };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Packet direction, as "HostToController", "ControllerToHost", or "Unknown"
+			static const FieldDescriptor Direction;
+
+			/// @brief HCI event code
+			static const FieldDescriptor EventCode;
+
+			/// @brief Length of the parameter bytes
+			static const FieldDescriptor ParameterTotalLength;
+
+			/// @brief Parameter bytes, as a hex string
+			static const FieldDescriptor Parameters;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)

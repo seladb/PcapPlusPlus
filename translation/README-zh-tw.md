@@ -231,7 +231,7 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 12. VXLAN
 13. Wake on LAN (WoL)
 14. NFLOG（Linux Netfilter NFLOG）- 僅支援解析（不支援編輯）
-15. Bluetooth HCI - 僅支援解析（不支援編輯）
+15. Bluetooth HCI
 
 ### 網路層 (L3)
 

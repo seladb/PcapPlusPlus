@@ -3,6 +3,9 @@
 #include "Packet.h"
 #include "BluetoothHciLayer.h"
 #include "PayloadLayer.h"
+#include "Serializers.h"
+
+#include <sstream>
 
 namespace
 {
@@ -71,6 +74,15 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 		PTF_ASSERT_EQUAL(eventLayer->getParameters()[0], 0);
 
 		PTF_ASSERT_EQUAL(eventLayer->toString(), "Bluetooth HCI Event, Event Code: 0x01");
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			eventLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"({"protocolName":"BluetoothHci","protocolId":65,"length":7,"direction":"ControllerToHost","eventCode":1,"parameterTotalLength":1,"parameters":"00"})");
+		}
 	}
 
 	// LINKTYPE_BLUETOOTH_HCI_H4: H4 packet with no direction header
@@ -231,5 +243,63 @@ PTF_TEST_CASE(BluetoothHciPacketTypeTest)
 		auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
 		PTF_ASSERT_NOT_NULL(eventLayer);
 		PTF_ASSERT_EQUAL(eventLayer->toString(), "Bluetooth HCI Event, Event Code: 0x01");
+	}
+}
+
+PTF_TEST_CASE(BluetoothHciEventCreationTest)
+{
+	uint8_t statusParam[] = { 0x00 };
+
+	// No direction header: 0x04 indicator + event header + 1 parameter byte = 4 bytes total
+	{
+		pcpp::BluetoothHciEventLayer eventLayer(0x01, statusParam, sizeof(statusParam));
+
+		PTF_ASSERT_FALSE(eventLayer.hasDirectionHeader());
+		PTF_ASSERT_EQUAL(eventLayer.getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::Unknown, enumclass);
+		PTF_ASSERT_EQUAL(eventLayer.getPacketType(), pcpp::BluetoothHciLayer::BluetoothHciPacketType::Event, enumclass);
+		PTF_ASSERT_EQUAL(eventLayer.getHeaderLen(), 3);
+		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), 4);
+		PTF_ASSERT_EQUAL(eventLayer.getEventCode(), 0x01);
+		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 1);
+		PTF_ASSERT_EQUAL(eventLayer.getParameters()[0], 0x00);
+	}
+
+	// With direction header: 4 (phdr) + 1 (indicator) + 2 (event header) + 1 (param) = 8 bytes total
+	{
+		pcpp::BluetoothHciEventLayer eventLayer(pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
+		                                        0x01, statusParam, sizeof(statusParam));
+
+		PTF_ASSERT_TRUE(eventLayer.hasDirectionHeader());
+		PTF_ASSERT_EQUAL(eventLayer.getDirection(),
+		                 pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost, enumclass);
+		PTF_ASSERT_EQUAL(eventLayer.getHeaderLen(), 7);
+		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), 8);
+		PTF_ASSERT_EQUAL(eventLayer.getEventCode(), 0x01);
+		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 1);
+		PTF_ASSERT_EQUAL(eventLayer.getParameters()[0], 0x00);
+
+		// Round-trip the created buffer back through parseLayer and confirm it decodes identically.
+		// RawPacket does not take ownership of eventLayer's buffer (`false` on the 4th arg).
+		pcpp::RawPacket rawPacket(eventLayer.getData(), eventLayer.getDataLen(), timeval{ 0, 0 }, false,
+		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR);
+		pcpp::Packet packet(&rawPacket);
+		auto* parsed = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+		PTF_ASSERT_NOT_NULL(parsed);
+		PTF_ASSERT_EQUAL(parsed->getPacketType(), pcpp::BluetoothHciLayer::BluetoothHciPacketType::Event, enumclass);
+		PTF_ASSERT_EQUAL(parsed->getDirection(),
+		                 pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost, enumclass);
+		PTF_ASSERT_EQUAL(parsed->getEventCode(), 0x01);
+		PTF_ASSERT_EQUAL(parsed->getParameterTotalLength(), 1);
+		PTF_ASSERT_EQUAL(parsed->getParameters()[0], 0x00);
+	}
+
+	// Zero-length parameters are valid: event header + 1 (indicator) = 3 bytes total
+	{
+		pcpp::BluetoothHciEventLayer eventLayer(0x0f, nullptr, 0);
+
+		PTF_ASSERT_EQUAL(eventLayer.getHeaderLen(), 3);
+		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), 3);
+		PTF_ASSERT_EQUAL(eventLayer.getEventCode(), 0x0f);
+		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 0);
 	}
 }
