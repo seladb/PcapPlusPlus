@@ -71,7 +71,7 @@ light_file light_open_decompression(const char *file_name, const __read_mode_t m
 light_file light_open(const char *file_name, const __read_mode_t mode)
 {
 	DCHECK_NULLP(file_name, return NULL); // ---> PCPP patch
-	
+
 	light_file fd = calloc(1,sizeof(light_file_t));
 	DCHECK_NULLP(fd, return NULL); // ---> PCPP patch
 	fd->file = INVALID_FILE;
