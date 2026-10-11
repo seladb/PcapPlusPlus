@@ -5,8 +5,108 @@
 #include "SystemUtils.h"
 #include "Packet.h"
 #include "StpLayer.h"
+#include <sstream>
+#include <utility>
+#include <vector>
 
 using pcpp_tests::utils::createPacketFromHexResource;
+
+PTF_TEST_CASE(StpSerializationTests)
+{
+	const std::vector<std::pair<std::string, std::string>> cases{
+		{ "StpTcn.dat",                   R"({"protocolName":"STP","protocolId":43,"length":4,"protoId":0,"version":0,"type":128})" },
+		{ "StpConf.dat",
+         R"({"protocolName":"STP","protocolId":43,"length":35,"protoId":0,"version":0,"type":0,"flags":0,)"
+		  R"("rootId":"9251519655028684800","pathCost":4,"bridgeId":"9251519655028688128","portId":32772,"messageAge":256,)"
+		  R"("maximumAge":5120,"helloTime":512,"forwardDelay":3840})"                                                               },
+		{ "StpRapid.dat",
+         R"({"protocolName":"STP","protocolId":43,"length":36,"protoId":0,"version":2,"type":2,"flags":61,)"
+		  R"("rootId":"6917810560158266880","pathCost":10,"bridgeId":"9223653563329548032","portId":32769,"messageAge":256,)"
+		  R"("maximumAge":5120,"helloTime":512,"forwardDelay":3840,"version1Length":0})"                                            },
+		{ "StpMultiple.dat",
+         R"({"protocolName":"STP","protocolId":43,"length":36,"protoId":0,"version":3,"type":2,"flags":124,)"
+		  R"("rootId":"9223372089205838080","pathCost":0,"bridgeId":"9223372089205838080","portId":32773,"messageAge":0,)"
+		  R"("maximumAge":5120,"helloTime":512,"forwardDelay":3840,"version1Length":0,"version3Length":80,)"
+		  R"("configFormatSelector":0,"configName":"","configRevision":0,"configDigest":"55bf4e8a44b25d442868549c1bf7720f",)"
+		  R"("cistInternalRootPathCost":200000,"cistBridgeId":"9223372151235006848","remainingHopCount":19,)"
+		  R"("mstiMessages":[{"flags":124,"regionalRootId":"9224779464089391360","pathCost":200000,"bridgePriority":128,)"
+		  R"("portPriority":128,"remainingHops":19}]})"		                                                                     },
+		{ "StpMultipleWithoutConfig.dat",
+         R"({"protocolName":"STP","protocolId":43,"length":36,"protoId":0,"version":3,"type":2,"flags":124,)"
+		  R"("rootId":"9223372089205838080","pathCost":0,"bridgeId":"9223372089205838080","portId":32773,"messageAge":0,)"
+		  R"("maximumAge":5120,"helloTime":512,"forwardDelay":3840,"version1Length":0,"version3Length":64,)"
+		  R"("configFormatSelector":0,"configName":"Test Message","configRevision":0,)"
+		  R"("configDigest":"00000000000000000000000000000000","cistInternalRootPathCost":200000,)"
+		  R"("cistBridgeId":"9223372151235006848","remainingHopCount":19,"mstiMessages":[]})"                                       },
+	};
+	for (const auto& testCase : cases)
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/" + testCase.first);
+		pcpp::Packet packet(rawPacket.get());
+		auto* layer = packet.getLayerOfType<pcpp::StpLayer>();
+		PTF_ASSERT_NOT_NULL(layer);
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(output.str(), testCase.second);
+		std::vector<pcpp::FieldDescriptor> fields = pcpp::StpLayer::SerializedFields::all();
+		if (dynamic_cast<pcpp::MultipleStpLayer*>(layer))
+			fields = pcpp::MultipleStpLayer::SerializedFields::all();
+		else if (dynamic_cast<pcpp::RapidStpLayer*>(layer))
+			fields = pcpp::RapidStpLayer::SerializedFields::all();
+		else if (dynamic_cast<pcpp::StpConfigurationBPDULayer*>(layer))
+			fields = pcpp::StpConfigurationBPDULayer::SerializedFields::all();
+		const auto result = output.str();
+		const auto topLevel = result.substr(0, result.find("[{"));
+		for (const auto& field : fields)
+		{
+			const std::string key = "\"" + field.name + "\":";
+			const auto pos = topLevel.find(key);
+			PTF_ASSERT_TRUE(pos != std::string::npos);
+			PTF_ASSERT_TRUE(topLevel.find(key, pos + key.size()) == std::string::npos);
+		}
+	}
+	const auto& descriptor = pcpp::MultipleStpLayer::SerializedFields::MstiMessages;
+	PTF_ASSERT_TRUE(descriptor.hasChildren());
+	const auto children = descriptor.getChildren();
+	PTF_ASSERT_EQUAL(children.size(), 6);
+	PTF_ASSERT_EQUAL(children[1].name, "regionalRootId");
+
+	// Invalid declared lengths must not underflow or read missing MSTI messages.
+	for (uint16_t length : { 0, 63, 64, 80, 65535 })
+	{
+		pcpp::MultipleStpLayer layer;
+		layer.setVersion3Len(length);
+		layer.setMstConfigurationName(std::string(32, 'A'));
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer.serialize(serializer);
+		PTF_ASSERT_TRUE(output.str().find(R"("mstiMessages":[])") != std::string::npos);
+		PTF_ASSERT_TRUE(output.str().find(std::string(32, 'A')) != std::string::npos);
+	}
+
+	// A partial message is ignored, excessive declared counts are clamped to available data,
+	// and even an oversized buffer cannot produce more than the protocol's 64 messages.
+	for (size_t dataLength : { size_t(117), size_t(121), size_t(1142) })
+	{
+		auto data = std::make_unique<uint8_t[]>(dataLength);
+		std::fill(data.get(), data.get() + dataLength, 0);
+		pcpp::MultipleStpLayer layer(data.release(), dataLength, nullptr, nullptr);
+		layer.setVersion3Len(65535);
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer.serialize(serializer);
+		size_t count = 0;
+		size_t pos = 0;
+		while ((pos = output.str().find("\"regionalRootId\":", pos)) != std::string::npos)
+		{
+			++count;
+			++pos;
+		}
+		const size_t expected = dataLength == 117 ? 0 : dataLength == 121 ? 1 : 64;
+		PTF_ASSERT_EQUAL(count, expected);
+	}
+}
 
 PTF_TEST_CASE(StpConfigurationParsingTests)
 {

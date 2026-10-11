@@ -349,6 +349,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(LLCCreationTests, "llc");
 
 	PTF_RUN_TEST(StpConfigurationParsingTests, "stp");
+	PTF_RUN_TEST(StpSerializationTests, "stp;serializers");
 	PTF_RUN_TEST(StpConfigurationCreationTests, "stp");
 	PTF_RUN_TEST(StpConfigurationEditTests, "stp");
 	PTF_RUN_TEST(StpTopologyChangeParsingTests, "stp");
