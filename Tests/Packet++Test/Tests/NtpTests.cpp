@@ -10,12 +10,61 @@
 #include "SystemUtils.h"
 
 #include <math.h>
+#include <sstream>
+#include <utility>
+#include <vector>
 
 #define EPSILON 1e-6
 #define EPOCH_OFFSET 2208988800ULL
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
+
+PTF_TEST_CASE(NtpSerializationTests)
+{
+	const std::vector<std::pair<std::string, std::string>> cases{
+		{ "ntpv3.dat",
+         R"({"protocolName":"NTP","protocolId":39,"length":48,"leapIndicator":0,"version":3,"mode":4,"modeName":"Server","stratum":0,"pollInterval":4,"precision":-6,"rootDelay":0,"rootDispersion":0,"referenceIdentifier":0,"referenceTimestamp":0,"originTimestamp":0,"receiveTimestamp":"15658821363823542272","transmitTimestamp":"15658821363823542272","additionalData":""})"                                                          },
+		{ "ntpv4.dat",
+         R"({"protocolName":"NTP","protocolId":39,"length":48,"leapIndicator":0,"version":4,"mode":3,"modeName":"Client","stratum":2,"pollInterval":7,"precision":-21,"rootDelay":1104,"rootDispersion":939,"referenceIdentifier":2210137055,"referenceTimestamp":"15658824328179726432","originTimestamp":"15655734228039200720","receiveTimestamp":"15655734228064463224","transmitTimestamp":"15658824538561897204","additionalData":""})" },
+		{ "ntpv4Ipv6_withAuth.dat",
+         R"({"protocolName":"NTP","protocolId":39,"length":68,"leapIndicator":0,"version":4,"mode":3,"modeName":"Client","stratum":2,"pollInterval":6,"precision":-24,"rootDelay":145,"rootDispersion":1719,"referenceIdentifier":3064299739,"referenceTimestamp":"15911964977360393322","originTimestamp":0,"receiveTimestamp":0,"transmitTimestamp":"15911967906554944476","additionalData":"00000001ac017b69915ce5a7a9fb73ac8bd1603b"})"   }
+	};
+	for (const auto& testCase : cases)
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/" + testCase.first);
+		pcpp::Packet packet(rawPacket.get());
+		auto* layer = packet.getLayerOfType<pcpp::NtpLayer>();
+		PTF_ASSERT_NOT_NULL(layer);
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(output.str(), testCase.second);
+		const auto fields = pcpp::NtpLayer::SerializedFields::all();
+		PTF_ASSERT_EQUAL(fields.size(), 18);
+		for (const auto& field : fields)
+		{
+			const std::string key = "\"" + field.name + "\":";
+			const auto pos = output.str().find(key);
+			PTF_ASSERT_TRUE(pos != std::string::npos);
+			PTF_ASSERT_TRUE(output.str().find(key, pos + key.size()) == std::string::npos);
+		}
+	}
+
+	// Preserve negative exponents, all timestamp fraction bits and unknown trailing data.
+	auto data = std::make_unique<uint8_t[]>(53);
+	std::fill(data.get(), data.get() + 53, 0xff);
+	data[0] = 0xe4;  // LI=3, version=4, server mode
+	data[2] = 0x80;
+	data[3] = 0x80;
+	pcpp::NtpLayer layer(data.release(), 53, nullptr, nullptr);
+	std::ostringstream output;
+	pcpp::JsonSerializer serializer(output);
+	layer.serialize(serializer);
+	PTF_ASSERT_EQUAL(
+	    output.str(),
+	    R"({"protocolName":"NTP","protocolId":39,"length":53,"leapIndicator":3,"version":4,"mode":4,"modeName":"Server","stratum":255,"pollInterval":-128,"precision":-128,"rootDelay":4294967295,"rootDispersion":4294967295,"referenceIdentifier":4294967295,"referenceTimestamp":"18446744073709551615","originTimestamp":"18446744073709551615","receiveTimestamp":"18446744073709551615","transmitTimestamp":"18446744073709551615","additionalData":"ffffffffff"})");
+}
 
 PTF_TEST_CASE(NtpMethodsTests)
 {

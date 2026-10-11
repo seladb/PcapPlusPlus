@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "NtpLayer.h"
+#include "EndianPortable.h"
 #include "SystemUtils.h"
 #include "GeneralUtils.h"
 #include <cmath>
@@ -617,6 +618,51 @@ namespace pcpp
 	bool NtpLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		return data && dataSize >= sizeof(ntp_header);
+	}
+
+	const FieldDescriptor NtpLayer::SerializedFields::LeapIndicator{ Layer::SerializedFields::MaxID + 1,
+		                                                             "leapIndicator" };
+	const FieldDescriptor NtpLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 2, "version" };
+	const FieldDescriptor NtpLayer::SerializedFields::Mode{ Layer::SerializedFields::MaxID + 3, "mode" };
+	const FieldDescriptor NtpLayer::SerializedFields::ModeName{ Layer::SerializedFields::MaxID + 4, "modeName" };
+	const FieldDescriptor NtpLayer::SerializedFields::Stratum{ Layer::SerializedFields::MaxID + 5, "stratum" };
+	const FieldDescriptor NtpLayer::SerializedFields::PollInterval{ Layer::SerializedFields::MaxID + 6,
+		                                                            "pollInterval" };
+	const FieldDescriptor NtpLayer::SerializedFields::Precision{ Layer::SerializedFields::MaxID + 7, "precision" };
+	const FieldDescriptor NtpLayer::SerializedFields::RootDelay{ Layer::SerializedFields::MaxID + 8, "rootDelay" };
+	const FieldDescriptor NtpLayer::SerializedFields::RootDispersion{ Layer::SerializedFields::MaxID + 9,
+		                                                              "rootDispersion" };
+	const FieldDescriptor NtpLayer::SerializedFields::ReferenceIdentifier{ Layer::SerializedFields::MaxID + 10,
+		                                                                   "referenceIdentifier" };
+	const FieldDescriptor NtpLayer::SerializedFields::ReferenceTimestamp{ Layer::SerializedFields::MaxID + 11,
+		                                                                  "referenceTimestamp" };
+	const FieldDescriptor NtpLayer::SerializedFields::OriginTimestamp{ Layer::SerializedFields::MaxID + 12,
+		                                                               "originTimestamp" };
+	const FieldDescriptor NtpLayer::SerializedFields::ReceiveTimestamp{ Layer::SerializedFields::MaxID + 13,
+		                                                                "receiveTimestamp" };
+	const FieldDescriptor NtpLayer::SerializedFields::TransmitTimestamp{ Layer::SerializedFields::MaxID + 14,
+		                                                                 "transmitTimestamp" };
+	const FieldDescriptor NtpLayer::SerializedFields::AdditionalData{ Layer::SerializedFields::MaxID + 15,
+		                                                              "additionalData" };
+
+	void NtpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::LeapIndicator, static_cast<uint8_t>(getLeapIndicator()));
+		serializer.writeField(SerializedFields::Version, getVersion());
+		serializer.writeField(SerializedFields::Mode, static_cast<uint8_t>(getMode()));
+		serializer.writeField(SerializedFields::ModeName, getModeString());
+		serializer.writeField(SerializedFields::Stratum, getStratum());
+		serializer.writeField(SerializedFields::PollInterval, getPollInterval());
+		serializer.writeField(SerializedFields::Precision, getPrecision());
+		serializer.writeField(SerializedFields::RootDelay, be32toh(getRootDelay()));
+		serializer.writeField(SerializedFields::RootDispersion, be32toh(getRootDispersion()));
+		serializer.writeField(SerializedFields::ReferenceIdentifier, be32toh(getReferenceIdentifier()));
+		serializer.writeField(SerializedFields::ReferenceTimestamp, be64toh(getReferenceTimestamp()));
+		serializer.writeField(SerializedFields::OriginTimestamp, be64toh(getOriginTimestamp()));
+		serializer.writeField(SerializedFields::ReceiveTimestamp, be64toh(getReceiveTimestamp()));
+		serializer.writeField(SerializedFields::TransmitTimestamp, be64toh(getTransmitTimestamp()));
+		serializer.writeField(SerializedFields::AdditionalData,
+		                      byteArrayToHexString(m_Data + sizeof(ntp_header), m_DataLen - sizeof(ntp_header)));
 	}
 
 	std::string NtpLayer::toString() const

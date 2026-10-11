@@ -557,5 +557,68 @@ namespace pcpp
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields serialized for NTP, including Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All NTP field descriptors, including the common layer fields
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ LeapIndicator,
+					                                          Version,
+					                                          Mode,
+					                                          ModeName,
+					                                          Stratum,
+					                                          PollInterval,
+					                                          Precision,
+					                                          RootDelay,
+					                                          RootDispersion,
+					                                          ReferenceIdentifier,
+					                                          ReferenceTimestamp,
+					                                          OriginTimestamp,
+					                                          ReceiveTimestamp,
+					                                          TransmitTimestamp,
+					                                          AdditionalData };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// Numeric leap indicator (0-3).
+			static const FieldDescriptor LeapIndicator;
+			/// NTP version number.
+			static const FieldDescriptor Version;
+			/// Numeric association mode (0-7).
+			static const FieldDescriptor Mode;
+			/// Human-readable association mode.
+			static const FieldDescriptor ModeName;
+			/// Stratum of the reference clock.
+			static const FieldDescriptor Stratum;
+			/// Signed polling interval exponent, in log2 seconds.
+			static const FieldDescriptor PollInterval;
+			/// Signed clock precision exponent, in log2 seconds.
+			static const FieldDescriptor Precision;
+			/// Raw 16.16 fixed-point root delay bits, as an unsigned integer in host byte order.
+			static const FieldDescriptor RootDelay;
+			/// Raw 16.16 fixed-point root dispersion bits, as an unsigned integer in host byte order.
+			static const FieldDescriptor RootDispersion;
+			/// Raw reference identifier, as an unsigned integer in host byte order.
+			static const FieldDescriptor ReferenceIdentifier;
+			/// Raw 32.32 NTP reference timestamp, in host byte order (epoch: 1900-01-01).
+			static const FieldDescriptor ReferenceTimestamp;
+			/// Raw 32.32 NTP origin timestamp, in host byte order (epoch: 1900-01-01).
+			static const FieldDescriptor OriginTimestamp;
+			/// Raw 32.32 NTP receive timestamp, in host byte order (epoch: 1900-01-01).
+			static const FieldDescriptor ReceiveTimestamp;
+			/// Raw 32.32 NTP transmit timestamp, in host byte order (epoch: 1900-01-01).
+			static const FieldDescriptor TransmitTimestamp;
+			/// Bytes after the fixed header, including extensions and authentication, as lowercase hexadecimal
+			/// without separators. An empty string represents no additional data.
+			static const FieldDescriptor AdditionalData;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp
