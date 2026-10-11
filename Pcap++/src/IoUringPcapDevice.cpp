@@ -517,6 +517,12 @@ namespace pcpp
 		return (m_Status != IoUringReaderStatus::IoError && m_Buffers[bufferIdx].bytesRead > 0);
 	}
 
+	// Circular pipeline invariant:
+	// All numBuffers slots are initially submitted during open().
+	// When the reader finishes consuming m_CurrentBufferIdx (oldIdx), that buffer is spent.
+	// It is immediately re-submitted to prefetch the future chunk at m_NextFileOffsetToRead.
+	// m_CurrentBufferIdx is then advanced to (oldIdx + 1) % numBuffers, which is already in-flight
+	// or ready in the kernel, and we wait on that next slot.
 	bool IoUringPcapReaderDevice::advanceToNextChunk()
 	{
 		size_t oldIdx = m_CurrentBufferIdx;
