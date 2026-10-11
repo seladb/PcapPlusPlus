@@ -26,6 +26,13 @@ PTF_TEST_CASE(TpktLayerTest)
 
 	PTF_ASSERT_EQUAL(tpktLayer->toString(), "TPKT Layer, version: 3, length: 607");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		tpktLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"TPKT","protocolId":48,"length":4,"version":3})");
+	}
+
 	pcpp::TpktLayer tpktLayerTest((uint8_t)8, (uint16_t)605);
 	PTF_ASSERT_EQUAL(tpktLayerTest.getVersion(), 8);
 	PTF_ASSERT_EQUAL(tpktLayerTest.getLength(), 605);

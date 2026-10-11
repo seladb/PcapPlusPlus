@@ -97,7 +97,7 @@ namespace pcpp
 
 	RawSocketDevice::~RawSocketDevice()
 	{
-		close();
+		RawSocketDevice::close();
 	}
 
 	RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,

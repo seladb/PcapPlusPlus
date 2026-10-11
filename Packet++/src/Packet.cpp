@@ -941,4 +941,36 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor Packet::SerializedFields::TimestampObject::Sec{ 0, "sec" };
+	const FieldDescriptor Packet::SerializedFields::TimestampObject::NSec{ 1, "nsec" };
+	const Packet::SerializedFields::TimestampObject Packet::SerializedFields::Timestamp{ 0, "timestamp" };
+	const FieldDescriptor Packet::SerializedFields::FrameLength{ 1, "frameLength" };
+	const FieldDescriptor Packet::SerializedFields::LinkLayer{ 2, "linkLayer" };
+	const FieldDescriptor Packet::SerializedFields::LinkLayerName{ 3, "linkLayerName" };
+	const FieldDescriptor Packet::SerializedFields::Layers{ 4, "layers" };
+	const FieldDescriptor PacketObject{ 0, "packet" };
+
+	void Packet::serialize(ISerializer& serializer) const
+	{
+		auto rawPacket = getRawPacket();
+		timespec ts = rawPacket->getPacketTimeStamp();
+
+		auto packetObject = serializer.writeObject(PacketObject);
+		{
+			auto timestamp = packetObject.writeObject(SerializedFields::Timestamp);
+			timestamp.writeField(SerializedFields::TimestampObject::Sec, static_cast<uint64_t>(ts.tv_sec));
+			timestamp.writeField(SerializedFields::TimestampObject::NSec, static_cast<uint64_t>(ts.tv_nsec));
+		}
+		packetObject.writeField(SerializedFields::FrameLength, rawPacket->getFrameLength());
+		auto linkLayer = rawPacket->getLinkLayerType();
+		packetObject.writeField(SerializedFields::LinkLayer, static_cast<uint16_t>(linkLayer));
+		packetObject.writeField(SerializedFields::LinkLayerName, linkLayerToString(linkLayer));
+
+		auto layersArray = packetObject.writeArray(SerializedFields::Layers);
+		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
+		{
+			curLayer->serialize(layersArray);
+		}
+	}
+
 }  // namespace pcpp

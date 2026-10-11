@@ -20,7 +20,7 @@ namespace pcpp
 
 	RawPacket::~RawPacket()
 	{
-		clear();
+		RawPacket::clear();
 	}
 
 	RawPacket::RawPacket(const RawPacket& other)

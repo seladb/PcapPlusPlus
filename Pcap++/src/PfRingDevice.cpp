@@ -489,7 +489,7 @@ namespace pcpp
 			return false;
 		}
 
-		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
+		auto startupBlock = std::make_shared<StartupBlock>();
 
 		m_StopThread = false;
 		int rxChannel = 0;
@@ -566,7 +566,7 @@ namespace pcpp
 
 		m_ReentrantMode = false;
 
-		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
+		auto startupBlock = std::make_shared<StartupBlock>();
 
 		m_CoreConfiguration[0].IsInUse = true;
 		m_CoreConfiguration[0].Channel = m_PfRingDescriptors[0];

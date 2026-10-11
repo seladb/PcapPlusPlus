@@ -387,7 +387,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
-			return OsiModelSesionLayer;
+			return OsiModelSessionLayer;
 		}
 	};
 
