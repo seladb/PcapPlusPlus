@@ -16,7 +16,7 @@ namespace pcpp
 		bool validateOptionalParameters(const std::vector<BgpOpenMessageLayer::optional_parameter>& optionalParams,
 		                                size_t& serializedLength)
 		{
-			constexpr size_t maxOptionalParamsDataLen = std::numeric_limits<uint8_t>::max();
+			constexpr size_t maxOptionalParamsDataLen = (std::numeric_limits<uint8_t>::max)();
 			serializedLength = 0;
 			for (const auto& param : optionalParams)
 			{
