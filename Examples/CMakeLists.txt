@@ -40,6 +40,10 @@ if(PCAPPP_USE_PCAP)
   add_subdirectory(TLSFingerprinting)
 endif()
 
+if(LINUX AND LIBURING_LIBRARIES)
+  add_subdirectory(IoUringBenchmark)
+endif()
+
 if(PCAPPP_USE_DPDK)
   add_subdirectory(DpdkExample-FilterTraffic)
   add_subdirectory(DpdkBridge)

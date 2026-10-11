@@ -9,6 +9,12 @@
 #include <array>
 #include <fstream>
 #include <chrono>
+#include <vector>
+#include <cstring>
+
+#if defined(__linux__) && defined(PCPP_HAS_IO_URING_SUPPORT)
+#	include "IoUringPcapDevice.h"
+#endif
 
 class FileReaderTeardown
 {
@@ -2513,3 +2519,382 @@ PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
 	PTF_ASSERT_NOT_EQUAL(0, posExplicitClose);
 	PTF_ASSERT_EQUAL(posNoClose, posExplicitClose);
 }  // TestPcapFileWriterDeviceDestructor
+
+#if defined(__linux__) && defined(PCPP_HAS_IO_URING_SUPPORT)
+
+namespace
+{
+	static void write16Le(uint8_t* dst, uint16_t v)
+	{
+		dst[0] = static_cast<uint8_t>(v & 0xFF);
+		dst[1] = static_cast<uint8_t>((v >> 8) & 0xFF);
+	}
+
+	static void write32Le(uint8_t* dst, uint32_t v)
+	{
+		dst[0] = static_cast<uint8_t>(v & 0xFF);
+		dst[1] = static_cast<uint8_t>((v >> 8) & 0xFF);
+		dst[2] = static_cast<uint8_t>((v >> 16) & 0xFF);
+		dst[3] = static_cast<uint8_t>((v >> 24) & 0xFF);
+	}
+
+	static bool compareRawPackets(const pcpp::RawPacket& p1, const pcpp::RawPacket& p2)
+	{
+		if (p1.getRawDataLen() != p2.getRawDataLen())
+			return false;
+		if (p1.getFrameLength() != p2.getFrameLength())
+			return false;
+		if (p1.getPacketTimeStamp().tv_sec != p2.getPacketTimeStamp().tv_sec ||
+		    p1.getPacketTimeStamp().tv_nsec != p2.getPacketTimeStamp().tv_nsec)
+			return false;
+		if (p1.getLinkLayerType() != p2.getLinkLayerType())
+			return false;
+		if (p1.getRawDataLen() > 0 && std::memcmp(p1.getRawData(), p2.getRawData(), p1.getRawDataLen()) != 0)
+			return false;
+		return true;
+	}
+
+	static bool verifyIoUringEquivalence(const std::string& filePath, size_t bufSize, size_t numBuffers, bool useView)
+	{
+		pcpp::PcapFileReaderDevice baseline(filePath);
+		if (!baseline.open())
+			return false;
+
+		pcpp::IoUringReaderOptions opts;
+		opts.bufferSize = bufSize;
+		opts.numBuffers = numBuffers;
+		pcpp::IoUringPcapReaderDevice uring(filePath, opts);
+		if (!uring.open())
+			return false;
+
+		if (uring.getFileSize() != baseline.getFileSize())
+			return false;
+		if (uring.getLinkLayerType() != baseline.getLinkLayerType())
+			return false;
+		if (uring.getTimestampPrecision() != baseline.getTimestampPrecision())
+			return false;
+
+		pcpp::RawPacket basePkt;
+		pcpp::RawPacket uringPkt;
+		size_t packetCount = 0;
+
+		while (true)
+		{
+			bool baseOk = baseline.getNextPacket(basePkt);
+			bool uringOk = useView ? uring.getNextPacketView(uringPkt) : uring.getNextPacket(uringPkt);
+
+			if (!baseOk && !uringOk)
+				break;
+			if (baseOk != uringOk)
+				return false;
+
+			if (!compareRawPackets(basePkt, uringPkt))
+				return false;
+
+			packetCount++;
+		}
+
+		return packetCount > 0;
+	}
+}  // namespace
+
+#endif  // __linux__ && PCPP_HAS_IO_URING_SUPPORT
+
+PTF_TEST_CASE(TestIoUringPcapReaderDevice)
+{
+#if !defined(__linux__) || !defined(PCPP_HAS_IO_URING_SUPPORT)
+	PTF_SKIP_TEST("io_uring PCAP reader is not supported on this platform or liburing is unavailable");
+#else
+	// 1. Device properties and initial state
+	{
+		pcpp::IoUringPcapReaderDevice reader(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_FALSE(reader.isOpened());
+		PTF_ASSERT_EQUAL(reader.getFileName(), EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_TRUE(reader.isOpened());
+		PTF_ASSERT_EQUAL(reader.getFileSize(), 3812643);
+		PTF_ASSERT_EQUAL(reader.getLinkLayerType(), pcpp::LINKTYPE_ETHERNET, enumclass);
+		PTF_ASSERT_EQUAL(reader.getTimestampPrecision(), pcpp::FileTimestampPrecision::Microseconds, enumclass);
+		PTF_ASSERT_NOT_EQUAL(reader.getSnapshotLength(), 0);
+		pcpp::PcapStats stats;
+		reader.getStatistics(stats);
+		PTF_ASSERT_EQUAL(stats.packetsRecv, 0);
+		reader.close();
+		PTF_ASSERT_FALSE(reader.isOpened());
+	}
+
+	// 2. Differential equivalence against PcapFileReaderDevice on standard sample
+	//    Verify owning and zero-copy view across multiple buffer sizes (including 4096 1-page minimum)
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(EXAMPLE_PCAP_PATH, 4 * 1024 * 1024, 3, false));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(EXAMPLE_PCAP_PATH, 4 * 1024 * 1024, 3, true));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(EXAMPLE_PCAP_PATH, 4096, 3, false));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(EXAMPLE_PCAP_PATH, 4096, 3, true));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(EXAMPLE_PCAP_PATH, 65536, 3, false));
+
+	// 3. Differential equivalence on timestamp precision and byte order variations
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(EXAMPLE_PCAP_MICRO_BIG_ENDIAN_PATH, 65536, 3, false));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(EXAMPLE_PCAP_NANO_PATH, 65536, 3, false));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(EXAMPLE_PCAP_NANO_BIG_ENDIAN_PATH, 65536, 3, false));
+
+	// 4. Differential equivalence on link types
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(SLL_PCAP_PATH, 65536, 3, false));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(SLL2_PCAP_PATH, 65536, 3, false));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(RAW_IP_PCAP_PATH, 65536, 3, false));
+	PTF_ASSERT_TRUE(verifyIoUringEquivalence(NULL_LOOPBACK_PCAP_PATH, 65536, 3, false));
+
+	// 5. Device lifecycle and reopen
+	{
+		// Partial read -> early close -> reopen -> re-read
+		pcpp::IoUringPcapReaderDevice reader(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+		pcpp::RawPacket pkt1, pkt2;
+		PTF_ASSERT_TRUE(reader.getNextPacket(pkt1));
+		PTF_ASSERT_TRUE(reader.getNextPacket(pkt2));
+		reader.close();
+		PTF_ASSERT_FALSE(reader.isOpened());
+
+		PTF_ASSERT_TRUE(reader.open());
+		PTF_ASSERT_TRUE(reader.isOpened());
+		pcpp::RawPacket reopenPkt1;
+		PTF_ASSERT_TRUE(reader.getNextPacket(reopenPkt1));
+		PTF_ASSERT_TRUE(compareRawPackets(pkt1, reopenPkt1));
+		reader.close();
+	}
+
+	{
+		// Full read to EOF -> close -> reopen -> full read to EOF
+		pcpp::IoUringPcapReaderDevice reader(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+		pcpp::RawPacket pkt;
+		size_t count1 = 0;
+		while (reader.getNextPacket(pkt))
+			count1++;
+		PTF_ASSERT_EQUAL(count1, 4631);
+		reader.close();
+
+		PTF_ASSERT_TRUE(reader.open());
+		size_t count2 = 0;
+		while (reader.getNextPacket(pkt))
+			count2++;
+		PTF_ASSERT_EQUAL(count2, 4631);
+		reader.close();
+	}
+
+	{
+		// Non-existent file open failure
+		SuppressLogs suppress;
+		pcpp::IoUringPcapReaderDevice badReader("non_existent_file_path_12345.pcap");
+		PTF_ASSERT_FALSE(badReader.open());
+		PTF_ASSERT_FALSE(badReader.isOpened());
+		PTF_ASSERT_EQUAL(badReader.getStatus(), pcpp::IoUringReaderStatus::IoError, enumclass);
+	}
+
+	// 6. Owning vector safety across circular buffer reuse
+	{
+		pcpp::IoUringReaderOptions opts;
+		opts.bufferSize = 4096;
+		opts.numBuffers = 2;
+		pcpp::IoUringPcapReaderDevice reader(EXAMPLE_PCAP_PATH, opts);
+		PTF_ASSERT_TRUE(reader.open());
+		std::vector<pcpp::RawPacket> savedPackets;
+		pcpp::RawPacket pkt;
+		while (reader.getNextPacket(pkt))
+			savedPackets.push_back(pkt);
+		reader.close();
+
+		pcpp::PcapFileReaderDevice baseline(EXAMPLE_PCAP_PATH);
+		PTF_ASSERT_TRUE(baseline.open());
+		size_t checkIdx = 0;
+		while (baseline.getNextPacket(pkt))
+		{
+			PTF_ASSERT_LOWER_THAN(checkIdx, savedPackets.size());
+			PTF_ASSERT_TRUE(compareRawPackets(pkt, savedPackets[checkIdx]));
+			checkIdx++;
+		}
+		PTF_ASSERT_EQUAL(checkIdx, savedPackets.size());
+	}
+
+	// 7. Deterministic chunk boundary splitting (packet header & payload cross 4096-byte chunk boundary)
+	{
+		TempFile splitFile(".pcap");
+		const size_t chunkSize = 4096;
+
+		// PCAP global header: 24 bytes
+		std::vector<uint8_t> pcapData;
+		pcapData.resize(24, 0);
+		write32Le(pcapData.data(), 0xa1b2c3d4);
+		write16Le(pcapData.data() + 4, 2);
+		write16Le(pcapData.data() + 6, 4);
+		write32Le(pcapData.data() + 16, 65535);
+		write32Le(pcapData.data() + 20, 1);  // Ethernet
+
+		// Packet 1: header starts at 24.
+		// Start packet 2 header at 4096 - 8 = 4088.
+		// So Packet 1 payload length = 4088 - 24 - 16 = 4048 bytes.
+		const uint32_t p1Len = 4048;
+		size_t p1HdrOffset = pcapData.size();
+		pcapData.resize(p1HdrOffset + 16 + p1Len);
+		write32Le(pcapData.data() + p1HdrOffset, 100);
+		write32Le(pcapData.data() + p1HdrOffset + 4, 1000);
+		write32Le(pcapData.data() + p1HdrOffset + 8, p1Len);
+		write32Le(pcapData.data() + p1HdrOffset + 12, p1Len);
+		for (size_t i = 0; i < p1Len; ++i)
+			pcapData[p1HdrOffset + 16 + i] = static_cast<uint8_t>((i + 1) & 0xFF);
+
+		// Packet 2: header starts at offset 4088.
+		// Bytes 4088..4095 (8 bytes) in chunk 0; bytes 4096..4103 (8 bytes) in chunk 1.
+		const uint32_t p2Len = 120;
+		size_t p2HdrOffset = pcapData.size();
+		PTF_ASSERT_EQUAL(p2HdrOffset, 4088);
+		pcapData.resize(p2HdrOffset + 16 + p2Len);
+		write32Le(pcapData.data() + p2HdrOffset, 101);
+		write32Le(pcapData.data() + p2HdrOffset + 4, 2000);
+		write32Le(pcapData.data() + p2HdrOffset + 8, p2Len);
+		write32Le(pcapData.data() + p2HdrOffset + 12, p2Len);
+		for (size_t i = 0; i < p2Len; ++i)
+			pcapData[p2HdrOffset + 16 + i] = static_cast<uint8_t>((i + 2) & 0xFF);
+
+		// Packet 3: payload straddles boundary between chunk 1 and chunk 2 (boundary at 8192).
+		// Current offset is 4088 + 16 + 120 = 4224.
+		// Place packet 3 header at offset 8100.
+		const uint32_t padLen = 8100 - static_cast<uint32_t>(pcapData.size()) - 16;
+		size_t padHdrOffset = pcapData.size();
+		pcapData.resize(padHdrOffset + 16 + padLen);
+		write32Le(pcapData.data() + padHdrOffset, 102);
+		write32Le(pcapData.data() + padHdrOffset + 4, 3000);
+		write32Le(pcapData.data() + padHdrOffset + 8, padLen);
+		write32Le(pcapData.data() + padHdrOffset + 12, padLen);
+		for (size_t i = 0; i < padLen; ++i)
+			pcapData[padHdrOffset + 16 + i] = static_cast<uint8_t>((i + 3) & 0xFF);
+
+		// Packet 3: header at 8100..8115. Payload 200 bytes (8116..8315), straddling 8192.
+		const uint32_t p3Len = 200;
+		size_t p3HdrOffset = pcapData.size();
+		PTF_ASSERT_EQUAL(p3HdrOffset, 8100);
+		pcapData.resize(p3HdrOffset + 16 + p3Len);
+		write32Le(pcapData.data() + p3HdrOffset, 103);
+		write32Le(pcapData.data() + p3HdrOffset + 4, 4000);
+		write32Le(pcapData.data() + p3HdrOffset + 8, p3Len);
+		write32Le(pcapData.data() + p3HdrOffset + 12, p3Len);
+		for (size_t i = 0; i < p3Len; ++i)
+			pcapData[p3HdrOffset + 16 + i] = static_cast<uint8_t>((i + 4) & 0xFF);
+
+		// Packet 4: spans 3 chunks (chunkSize = 4096, payload = 10000 bytes)
+		const uint32_t p4Len = 10000;
+		size_t p4HdrOffset = pcapData.size();
+		pcapData.resize(p4HdrOffset + 16 + p4Len);
+		write32Le(pcapData.data() + p4HdrOffset, 104);
+		write32Le(pcapData.data() + p4HdrOffset + 4, 5000);
+		write32Le(pcapData.data() + p4HdrOffset + 8, p4Len);
+		write32Le(pcapData.data() + p4HdrOffset + 12, p4Len);
+		for (size_t i = 0; i < p4Len; ++i)
+			pcapData[p4HdrOffset + 16 + i] = static_cast<uint8_t>((i + 5) & 0xFF);
+
+		splitFile << pcapData;
+		splitFile.close();
+
+		PTF_ASSERT_TRUE(verifyIoUringEquivalence(splitFile.getFileName(), chunkSize, 3, false));
+		PTF_ASSERT_TRUE(verifyIoUringEquivalence(splitFile.getFileName(), chunkSize, 3, true));
+	}
+
+	// 8. Malformed PCAP edge cases
+	{
+		SuppressLogs suppress;
+
+		// Empty file
+		{
+			TempFile emptyFile(".pcap");
+			emptyFile.close();
+			pcpp::IoUringPcapReaderDevice reader(emptyFile.getFileName());
+			PTF_ASSERT_FALSE(reader.open());
+			PTF_ASSERT_EQUAL(reader.getStatus(), pcpp::IoUringReaderStatus::FormatError, enumclass);
+		}
+
+		// Truncated global header
+		{
+			TempFile truncGhdr(".pcap");
+			std::vector<uint8_t> data(16, 0);
+			write32Le(data.data(), 0xa1b2c3d4);
+			truncGhdr << data;
+			truncGhdr.close();
+			pcpp::IoUringPcapReaderDevice reader(truncGhdr.getFileName());
+			PTF_ASSERT_FALSE(reader.open());
+			PTF_ASSERT_EQUAL(reader.getStatus(), pcpp::IoUringReaderStatus::FormatError, enumclass);
+		}
+
+		// Invalid magic
+		{
+			TempFile badMagic(".pcap");
+			std::vector<uint8_t> data(24, 0);
+			write32Le(data.data(), 0xdeadbeef);
+			badMagic << data;
+			badMagic.close();
+			pcpp::IoUringPcapReaderDevice reader(badMagic.getFileName());
+			PTF_ASSERT_FALSE(reader.open());
+			PTF_ASSERT_EQUAL(reader.getStatus(), pcpp::IoUringReaderStatus::FormatError, enumclass);
+		}
+
+		// Truncated packet header
+		{
+			TempFile truncPhdr(".pcap");
+			std::vector<uint8_t> data(24 + 8, 0);
+			write32Le(data.data(), 0xa1b2c3d4);
+			write16Le(data.data() + 4, 2);
+			write16Le(data.data() + 6, 4);
+			write32Le(data.data() + 16, 65535);
+			write32Le(data.data() + 20, 1);
+			truncPhdr << data;
+			truncPhdr.close();
+			pcpp::IoUringPcapReaderDevice reader(truncPhdr.getFileName());
+			PTF_ASSERT_TRUE(reader.open());
+			pcpp::RawPacket pkt;
+			PTF_ASSERT_FALSE(reader.getNextPacket(pkt));
+			PTF_ASSERT_EQUAL(reader.getStatus(), pcpp::IoUringReaderStatus::FormatError, enumclass);
+		}
+
+		// Truncated packet payload
+		{
+			TempFile truncPayload(".pcap");
+			std::vector<uint8_t> data(24 + 16 + 50, 0);
+			write32Le(data.data(), 0xa1b2c3d4);
+			write16Le(data.data() + 4, 2);
+			write16Le(data.data() + 6, 4);
+			write32Le(data.data() + 16, 65535);
+			write32Le(data.data() + 20, 1);
+			write32Le(data.data() + 24, 100);
+			write32Le(data.data() + 28, 0);
+			write32Le(data.data() + 32, 1000);  // claims 1000 bytes, only 50 present
+			write32Le(data.data() + 36, 1000);
+			truncPayload << data;
+			truncPayload.close();
+			pcpp::IoUringPcapReaderDevice reader(truncPayload.getFileName());
+			PTF_ASSERT_TRUE(reader.open());
+			pcpp::RawPacket pkt;
+			PTF_ASSERT_FALSE(reader.getNextPacket(pkt));
+			PTF_ASSERT_EQUAL(reader.getStatus(), pcpp::IoUringReaderStatus::FormatError, enumclass);
+		}
+
+		// Snapshot length overflow
+		{
+			TempFile snapOverflow(".pcap");
+			std::vector<uint8_t> data(24 + 16 + 200, 0);
+			write32Le(data.data(), 0xa1b2c3d4);
+			write16Le(data.data() + 4, 2);
+			write16Le(data.data() + 6, 4);
+			write32Le(data.data() + 16, 100);  // snaplen = 100
+			write32Le(data.data() + 20, 1);
+			write32Le(data.data() + 24, 100);
+			write32Le(data.data() + 28, 0);
+			write32Le(data.data() + 32, 150);  // incl_len = 150 > 100
+			write32Le(data.data() + 36, 150);
+			snapOverflow << data;
+			snapOverflow.close();
+			pcpp::IoUringPcapReaderDevice reader(snapOverflow.getFileName());
+			PTF_ASSERT_TRUE(reader.open());
+			pcpp::RawPacket pkt;
+			PTF_ASSERT_FALSE(reader.getNextPacket(pkt));
+			PTF_ASSERT_EQUAL(reader.getStatus(), pcpp::IoUringReaderStatus::FormatError, enumclass);
+		}
+	}
+#endif
+}  // TestIoUringPcapReaderDevice
