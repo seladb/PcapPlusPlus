@@ -197,6 +197,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DnsLayerResourceCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerEditTest, "dns");
 	PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
+	PTF_RUN_TEST(DnsLayerAddResourceOutOfOrderTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpParsingTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerAddDnsKeyTest, "dns");
