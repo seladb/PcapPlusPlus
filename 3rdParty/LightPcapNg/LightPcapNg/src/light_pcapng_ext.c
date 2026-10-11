@@ -78,7 +78,7 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 		file_info->hardware_desc = calloc(file_info->hardware_desc_size+1, sizeof(char));
 		// ---> PCPP patch
 		// If calloc fails it returns NULL pointer. Without early return it will cause Undefined Behaviour in memcpy
-		if (file_info->os_desc == NULL) {
+		if (file_info->hardware_desc == NULL) {
 			free(file_info);
 			return NULL;
 		}
