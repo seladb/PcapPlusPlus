@@ -1272,7 +1272,7 @@ PTF_TEST_CASE(PacketSerializeTest)
 
 		PTF_ASSERT_EQUAL(
 		    serializePacket(packet),
-		    R"({"timestamp":{"sec":0,"nsec":0},"frameLength":14,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14}]})");
+		    R"({"timestamp":{"sec":0,"nsec":0},"frameLength":14,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"aa:aa:aa:aa:aa:aa","dstMacAddress":"bb:bb:bb:bb:bb:bb","etherType":2048}]})");
 	}
 
 	// Multiple layers
@@ -1293,7 +1293,7 @@ PTF_TEST_CASE(PacketSerializeTest)
 
 		PTF_ASSERT_EQUAL(
 		    serializePacket(packet),
-		    R"({"timestamp":{"sec":0,"nsec":0},"frameLength":54,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14},{"protocolName":"IPv4","protocolId":2,"length":20},{"protocolName":"TCP","protocolId":4,"length":20}]})");
+		    R"({"timestamp":{"sec":0,"nsec":0},"frameLength":54,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"aa:aa:aa:aa:aa:aa","dstMacAddress":"bb:bb:bb:bb:bb:bb","etherType":2048},{"protocolName":"IPv4","protocolId":2,"length":20,"srcIP":"10.0.0.1","dstIP":"10.0.0.2","ipID":0,"ipProtocol":0,"totalLength":0,"isFragment":false,"fragmentOffset":0,"options":[]},{"protocolName":"TCP","protocolId":4,"length":20,"srcPort":12345,"dstPort":80,"sequenceNumber":0,"tcpFlags":[],"windowSize":0,"checksum":"0x0","options":[]}]})");
 	}
 
 	// Zero-length layer
@@ -1309,7 +1309,9 @@ PTF_TEST_CASE(PacketSerializeTest)
 		pcpp::EthLayer ethLayer(pcpp::MacAddress("aa:aa:aa:aa:aa:aa"), pcpp::MacAddress("bb:bb:bb:bb:bb:bb"),
 		                        PCPP_ETHERTYPE_IP);
 
-		PTF_ASSERT_EQUAL(serializeLayer(ethLayer), R"({"protocolName":"Ethernet","protocolId":1,"length":14})");
+		PTF_ASSERT_EQUAL(
+		    serializeLayer(ethLayer),
+		    R"({"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"aa:aa:aa:aa:aa:aa","dstMacAddress":"bb:bb:bb:bb:bb:bb","etherType":2048})");
 	}
 
 	// Parsed packet
@@ -1324,6 +1326,6 @@ PTF_TEST_CASE(PacketSerializeTest)
 
 		PTF_ASSERT_EQUAL(
 		    serializePacket(packet),
-		    R"({"timestamp":{"sec":1789544222,"nsec":100760000},"frameLength":181,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14},{"protocolName":"IPv4","protocolId":2,"length":20},{"protocolName":"UDP","protocolId":5,"length":8},{"protocolName":"Radius","protocolId":31,"length":139}]})");
+		    R"({"timestamp":{"sec":1789544222,"nsec":100760000},"frameLength":181,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"00:19:06:ea:b8:c0","dstMacAddress":"00:1d:60:b3:01:84","etherType":2048},{"protocolName":"IPv4","protocolId":2,"length":20,"srcIP":"10.0.0.1","dstIP":"10.0.0.100","ipID":70,"ipProtocol":17,"totalLength":167,"isFragment":false,"fragmentOffset":0,"options":[]},{"protocolName":"UDP","protocolId":5,"length":8,"srcPort":1645,"dstPort":1812,"checksum":"0x3dca"},{"protocolName":"Radius","protocolId":31,"length":139}]})");
 	}
 }  // PacketSerializeTest

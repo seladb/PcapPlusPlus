@@ -110,6 +110,19 @@ namespace pcpp
 		return "Authentication Header Layer";
 	}
 
+	const FieldDescriptor AuthenticationHeaderLayer::SerializedFields::SPI{ Layer::SerializedFields::MaxID + 1, "spi" };
+	const FieldDescriptor AuthenticationHeaderLayer::SerializedFields::SequenceNumber{
+		Layer::SerializedFields::MaxID + 2, "sequenceNumber"
+	};
+	const FieldDescriptor AuthenticationHeaderLayer::SerializedFields::ICV{ Layer::SerializedFields::MaxID + 3, "icv" };
+
+	void AuthenticationHeaderLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeHexField(SerializedFields::SPI, getSPI());
+		serializer.writeField(SerializedFields::SequenceNumber, getSequenceNumber());
+		serializer.writeField(SerializedFields::ICV, getICVHexStream());
+	}
+
 	// ----------------
 	// ESPLayer methods
 	// ----------------
@@ -140,4 +153,13 @@ namespace pcpp
 		return stream.str();
 	}
 
+	const FieldDescriptor ESPLayer::SerializedFields::SPI{ Layer::SerializedFields::MaxID + 1, "spi" };
+	const FieldDescriptor ESPLayer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 2,
+		                                                              "sequenceNumber" };
+
+	void ESPLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeHexField(SerializedFields::SPI, getSPI());
+		serializer.writeField(SerializedFields::SequenceNumber, getSequenceNumber());
+	}
 }  // namespace pcpp

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <atomic>
 
 #ifndef MEMPLUMBER_FILENAME_LEN
 #define MEMPLUMBER_FILENAME_LEN  100
@@ -42,6 +43,11 @@ class MemPlumberInternal {
     int m_ProgramStarted;
     bool m_Verbose;
     FILE* m_Dumper;
+
+    // PCPP Patch: C++11 thread safety
+    // Atomic flag to ensure thread-safe access to the hashtables
+    // Specifically using atomic_flag here to avoid potential issues with higher abstraction atomic types.
+	std::atomic_flag m_Lock{};
 
     // private c'tor
     MemPlumberInternal() {
@@ -105,7 +111,27 @@ class MemPlumberInternal {
         return instance;
     }
 
+    // PCPP Patch: C++11 thread safety
+    struct SpinLockGuard
+	{
+		std::atomic_flag& lock;
+		SpinLockGuard(std::atomic_flag& lock) noexcept : lock(lock)
+		{
+			while (lock.test_and_set(std::memory_order_acquire))
+			{
+				// spin until the lock is released
+			}
+		}
+		~SpinLockGuard() noexcept
+		{
+			lock.clear(std::memory_order_release);
+		}
+	};
+    // PCPP Patch End: C++11 thread safety
+
     void* allocateMemory(std::size_t size, const char* file, int line) {
+
+        SpinLockGuard guard(m_Lock);  // PCPP Patch: C++11 thread safety
 
         // if not started, allocate memory and exit
         if (m_ProgramStarted != 0 && !m_Started) {
@@ -162,6 +188,8 @@ class MemPlumberInternal {
         if (pointer == NULL) {
             return;
         }
+
+        SpinLockGuard guard(m_Lock);  // PCPP Patch: C++11 thread safety
 
         // find the metadata record bucket in the hash table
         size_t hashIndex = MEMPLUMBER_HASH(pointer);
