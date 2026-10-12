@@ -757,7 +757,8 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 		invalidParam.length = 33;
 
 		PTF_ASSERT_RAISES(pcpp::BgpOpenMessageLayer(1, 180, pcpp::IPv4Address("1.1.1.1"), { validParam, invalidParam }),
-		                  std::invalid_argument, "Invalid BGP OPEN optional parameters");
+		                  std::invalid_argument,
+		                  "Illegal BGP OPEN optional parameter length 33, must be 32 bytes or less");
 
 		std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> oversizedParams(8);
 		for (auto& param : oversizedParams)
@@ -767,7 +768,8 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 		}
 
 		PTF_ASSERT_RAISES(pcpp::BgpOpenMessageLayer(1, 180, pcpp::IPv4Address("1.1.1.1"), oversizedParams),
-		                  std::invalid_argument, "Invalid BGP OPEN optional parameters");
+		                  std::invalid_argument,
+		                  "The BGP OPEN optional parameters exceed the maximum length of 255 bytes");
 	}
 
 }  // BgpOpenMalformedOptionalParamsTest

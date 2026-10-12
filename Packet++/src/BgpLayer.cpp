@@ -8,40 +8,10 @@
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
+#include <string>
 
 namespace pcpp
 {
-	namespace
-	{
-		bool validateOptionalParameters(const std::vector<BgpOpenMessageLayer::optional_parameter>& optionalParams,
-		                                size_t& serializedLength)
-		{
-			constexpr size_t maxOptionalParamsDataLen = (std::numeric_limits<uint8_t>::max)();
-			serializedLength = 0;
-			for (const auto& param : optionalParams)
-			{
-				if (param.length > sizeof(param.value))
-				{
-					PCPP_LOG_ERROR("Illegal optional parameter length " << static_cast<int>(param.length)
-					                                                    << ", must be 32 bytes or less");
-					return false;
-				}
-
-				const size_t curDataSize = (2 * sizeof(uint8_t)) + static_cast<size_t>(param.length);
-				if (curDataSize > maxOptionalParamsDataLen - serializedLength)
-				{
-					PCPP_LOG_ERROR("BGP OPEN optional parameters exceed the maximum length of "
-					               << maxOptionalParamsDataLen << " bytes");
-					return false;
-				}
-
-				serializedLength += curDataSize;
-			}
-
-			return true;
-		}
-	}  // namespace
-
 	// ~~~~~~~~
 	// BgpLayer
 	// ~~~~~~~~
@@ -229,18 +199,8 @@ namespace pcpp
 	BgpOpenMessageLayer::BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
 	                                         const std::vector<optional_parameter>& optionalParams)
 	{
-		size_t expectedOptionalParamsDataLen = 0;
-		if (!validateOptionalParameters(optionalParams, expectedOptionalParamsDataLen))
-		{
-			throw std::invalid_argument("Invalid BGP OPEN optional parameters");
-		}
-
 		uint8_t optionalParamsData[1500];
-		const size_t optionalParamsDataLen = optionalParamsToByteArray(optionalParams, optionalParamsData, 1500);
-		if (optionalParamsDataLen != expectedOptionalParamsDataLen)
-		{
-			throw std::invalid_argument("Couldn't serialize all BGP OPEN optional parameters");
-		}
+		size_t optionalParamsDataLen = optionalParamsToByteArray(optionalParams, optionalParamsData, 1500);
 
 		const size_t headerLen = sizeof(bgp_open_message) + optionalParamsDataLen;
 		allocData(headerLen);
@@ -268,22 +228,29 @@ namespace pcpp
 			return 0;
 		}
 
+		// The length of the optional parameters is stored in a single byte of the OPEN message.
+		// Parentheses around std::numeric_limits<>::max and std::min avoid clashes with platform min and max macros
+		// (for example on Windows)
+		constexpr size_t maxOptionalParamsDataLen = (std::numeric_limits<uint8_t>::max)();
+		const size_t maxDataLen = (std::min)(maxByteArrSize, maxOptionalParamsDataLen);
+
 		size_t dataLen = 0;
 
 		for (const auto& param : optionalParams)
 		{
-			if (param.length > 32)
+			if (param.length > sizeof(param.value))
 			{
-				PCPP_LOG_ERROR("Illegal optional parameter length " << (int)param.length
-				                                                    << ", must be 32 bytes or less");
-				break;  // illegal value
+				throw std::invalid_argument("Illegal BGP OPEN optional parameter length " +
+				                            std::to_string(param.length) + ", must be " +
+				                            std::to_string(sizeof(param.value)) + " bytes or less");
 			}
 
 			size_t curDataSize = 2 * sizeof(uint8_t) + (size_t)param.length;
 
-			if (dataLen + curDataSize > maxByteArrSize)
+			if (dataLen + curDataSize > maxDataLen)
 			{
-				break;
+				throw std::invalid_argument("The BGP OPEN optional parameters exceed the maximum length of " +
+				                            std::to_string(maxDataLen) + " bytes");
 			}
 
 			resultByteArr[0] = param.type;
@@ -375,18 +342,15 @@ namespace pcpp
 
 	bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_parameter>& optionalParameters)
 	{
-		size_t expectedOptionalParamsDataLen = 0;
-		if (!validateOptionalParameters(optionalParameters, expectedOptionalParamsDataLen))
-		{
-			return false;
-		}
-
 		uint8_t newOptionalParamsData[1500];
-		const size_t newOptionalParamsDataLen =
-		    optionalParamsToByteArray(optionalParameters, newOptionalParamsData, 1500);
-		if (newOptionalParamsDataLen != expectedOptionalParamsDataLen)
+		size_t newOptionalParamsDataLen = 0;
+		try
 		{
-			PCPP_LOG_ERROR("Couldn't serialize all BGP OPEN optional parameters");
+			newOptionalParamsDataLen = optionalParamsToByteArray(optionalParameters, newOptionalParamsData, 1500);
+		}
+		catch (const std::invalid_argument& e)
+		{
+			PCPP_LOG_ERROR("Couldn't set the BGP OPEN optional parameters: " << e.what());
 			return false;
 		}
 
