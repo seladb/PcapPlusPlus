@@ -318,7 +318,8 @@ namespace pcpp
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
 		}
 
-		// The length covers itself but not the message type byte, so the message takes messageLength + 1 bytes.
+		// The length covers itself (4 bytes) but not the message type byte, so the smallest valid length is 4 (for
+		// example a Sync message) and the message takes messageLength + 1 bytes.
 		// The check doesn't add 1: with a 32-bit size_t, 0xFFFFFFFF + 1 wraps around to 0.
 		size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
 		if (messageLength < sizeof(uint32_t) || messageLength >= dataLen)
@@ -582,7 +583,8 @@ namespace pcpp
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 		}
 
-		// The length covers itself but not the message type byte, so the message takes messageLength + 1 bytes.
+		// The length covers itself (4 bytes) but not the message type byte, so the smallest valid length is 4 (for
+		// example a Sync message) and the message takes messageLength + 1 bytes.
 		// The check doesn't add 1: with a 32-bit size_t, 0xFFFFFFFF + 1 wraps around to 0.
 		size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
 		if (messageLength < sizeof(uint32_t) || messageLength >= dataLen)
