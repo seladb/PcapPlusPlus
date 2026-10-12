@@ -109,7 +109,7 @@ namespace pcpp
 	}
 
 	BluetoothHciEventLayer::BluetoothHciEventLayer(BluetoothHciDirection direction, uint8_t eventCode,
-	                                                const uint8_t* parameters, uint8_t paramLen)
+	                                               const uint8_t* parameters, uint8_t paramLen)
 	    : BluetoothHciLayer(true)
 	{
 		size_t len = directionHeaderSize + sizeof(uint8_t) + sizeof(bluetooth_hci_event_header) + paramLen;
@@ -177,8 +177,7 @@ namespace pcpp
 		}
 		serializer.writeField(SerializedFields::Direction, directionStr);
 		serializer.writeField(SerializedFields::EventCode, static_cast<uint64_t>(getEventCode()));
-		serializer.writeField(SerializedFields::ParameterTotalLength,
-		                      static_cast<uint64_t>(getParameterTotalLength()));
+		serializer.writeField(SerializedFields::ParameterTotalLength, static_cast<uint64_t>(getParameterTotalLength()));
 		serializer.writeField(SerializedFields::Parameters,
 		                      byteArrayToHexString(getParameters(), getParameterTotalLength()));
 	}

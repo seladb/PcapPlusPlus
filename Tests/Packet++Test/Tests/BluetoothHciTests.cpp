@@ -64,8 +64,8 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 
 		PTF_ASSERT_EQUAL(eventLayer->getOsiModelLayer(), pcpp::OsiModelDataLinkLayer, enum);
 		PTF_ASSERT_TRUE(eventLayer->hasDirectionHeader());
-		PTF_ASSERT_EQUAL(eventLayer->getDirection(),
-		                 pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost, enumclass);
+		PTF_ASSERT_EQUAL(eventLayer->getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
+		                 enumclass);
 		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 7);
 		PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 1);
 
@@ -266,12 +266,12 @@ PTF_TEST_CASE(BluetoothHciEventCreationTest)
 
 	// With direction header: 4 (phdr) + 1 (indicator) + 2 (event header) + 1 (param) = 8 bytes total
 	{
-		pcpp::BluetoothHciEventLayer eventLayer(pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
-		                                        0x01, statusParam, sizeof(statusParam));
+		pcpp::BluetoothHciEventLayer eventLayer(pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost, 0x01,
+		                                        statusParam, sizeof(statusParam));
 
 		PTF_ASSERT_TRUE(eventLayer.hasDirectionHeader());
-		PTF_ASSERT_EQUAL(eventLayer.getDirection(),
-		                 pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost, enumclass);
+		PTF_ASSERT_EQUAL(eventLayer.getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
+		                 enumclass);
 		PTF_ASSERT_EQUAL(eventLayer.getHeaderLen(), 7);
 		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), 8);
 		PTF_ASSERT_EQUAL(eventLayer.getEventCode(), 0x01);
@@ -286,8 +286,8 @@ PTF_TEST_CASE(BluetoothHciEventCreationTest)
 		auto* parsed = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
 		PTF_ASSERT_NOT_NULL(parsed);
 		PTF_ASSERT_EQUAL(parsed->getPacketType(), pcpp::BluetoothHciLayer::BluetoothHciPacketType::Event, enumclass);
-		PTF_ASSERT_EQUAL(parsed->getDirection(),
-		                 pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost, enumclass);
+		PTF_ASSERT_EQUAL(parsed->getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
+		                 enumclass);
 		PTF_ASSERT_EQUAL(parsed->getEventCode(), 0x01);
 		PTF_ASSERT_EQUAL(parsed->getParameterTotalLength(), 1);
 		PTF_ASSERT_EQUAL(parsed->getParameters()[0], 0x00);
