@@ -603,12 +603,7 @@ namespace pcpp
 		}
 	}
 
-	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
-	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::TypeName{ Layer::SerializedFields::MaxID + 2,
-		                                                                 "typeName" };
-	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3,
-		                                                                 "checksum" };
-	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::GroupRecords{ Layer::SerializedFields::MaxID + 4,
+	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::GroupRecords{ IgmpLayer::SerializedFields::MaxID + 1,
 		                                                                     "groupRecords" };
 	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::GroupRecord{ 0, "groupRecord" };
 	const FieldDescriptor IgmpV3ReportLayer::SerializedFields::RecordType{ 0, "recordType" };

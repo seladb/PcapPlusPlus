@@ -550,8 +550,8 @@ namespace pcpp
 
 		/// @struct SerializedFields
 		/// Fields written by IgmpV3ReportLayer's serializeLayer(), in addition to
-		/// Layer::SerializedFields.
-		struct SerializedFields : Layer::SerializedFields
+		/// IgmpLayer::SerializedFields.
+		struct SerializedFields : IgmpLayer::SerializedFields
 		{
 			/// @return All field descriptors for IgmpV3ReportLayer
 			static std::vector<FieldDescriptor> all()
@@ -561,15 +561,6 @@ namespace pcpp
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
-
-			/// @brief IGMP message type, as an integer
-			static const FieldDescriptor Type;
-
-			/// @brief IGMP message type name, as a string
-			static const FieldDescriptor TypeName;
-
-			/// @brief Checksum, in hexadecimal notation
-			static const FieldDescriptor Checksum;
 
 			/// @brief Array of group records; elements described by GroupRecord
 			static const FieldDescriptor GroupRecords;
