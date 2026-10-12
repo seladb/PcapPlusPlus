@@ -72,4 +72,13 @@ namespace pcpp
 
 		tryConstructNextLayerWithFallback<S7CommLayer, PayloadLayer>(payload, payloadLen);
 	}
+
+	const FieldDescriptor CotpLayer::SerializedFields::PduType{ Layer::SerializedFields::MaxID + 1, "pduType" };
+	const FieldDescriptor CotpLayer::SerializedFields::TpduNumber{ Layer::SerializedFields::MaxID + 2, "tpduNumber" };
+
+	void CotpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::PduType, getPduType());
+		serializer.writeField(SerializedFields::TpduNumber, getTpduNumber());
+	}
 }  // namespace pcpp

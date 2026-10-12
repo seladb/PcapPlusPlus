@@ -46,6 +46,7 @@ PTF_TEST_CASE(TcpChecksumMultiBuffer);
 PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
 PTF_TEST_CASE(PacketUtilsHash5TupleTcp);
 PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
+PTF_TEST_CASE(PacketSerializerTest);
 
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
@@ -175,6 +176,9 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
 PTF_TEST_CASE(SSLECPointFormatExtensionZeroLengthTest);
+PTF_TEST_CASE(SSLSupportedVersionsExtensionZeroLengthTest);
+PTF_TEST_CASE(SSLServerNameIndicationExtensionTruncatedTest);
+PTF_TEST_CASE(SSLAlertLayerTruncatedTest);
 PTF_TEST_CASE(TLS1_3ParsingTest);
 PTF_TEST_CASE(TLSCipherSuiteTest);
 PTF_TEST_CASE(ClientHelloTLSFingerprintTest);

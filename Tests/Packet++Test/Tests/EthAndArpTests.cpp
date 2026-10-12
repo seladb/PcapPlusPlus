@@ -102,13 +102,14 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(ethLayer->getDestMac(), expectedDstMac);
 	PTF_ASSERT_EQUAL(ethLayer->getSourceMac(), expectedSrcMac);
 	PTF_ASSERT_EQUAL(ethLayer->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_ARP), hex);
-
-	std::ostringstream oss;
-	pcpp::JsonSerializer serializer(oss);
-	ethLayer->serialize(serializer);
-	PTF_ASSERT_EQUAL(
-	    oss.str(),
-	    R"({"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"30:46:9a:23:fb:fa","dstMacAddress":"6c:f0:49:b2:de:6e","etherType":2054})");
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ethLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"30:46:9a:23:fb:fa","dstMacAddress":"6c:f0:49:b2:de:6e","etherType":2054})");
+	}
 
 	PTF_ASSERT_EQUAL(ethLayer->getNextLayer()->getProtocol(), pcpp::ARP, enum);
 	pcpp::ArpLayer* arpLayer = (pcpp::ArpLayer*)ethLayer->getNextLayer();
@@ -121,6 +122,15 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(arpLayer->isRequest(), false);
 	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), pcpp::IPv4Address("10.0.0.138"));
 	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), pcpp::MacAddress("6c:f0:49:b2:de:6e"));
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		arpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ARP","protocolId":8,"length":28,"opCode":"Reply","senderMacAddress":"30:46:9a:23:fb:fa","targetMacAddress":"6c:f0:49:b2:de:6e","senderIpAddress":"10.0.0.138","targetIpAddress":"10.0.0.1","messageType":"Reply","hardwareType":1,"hardwareSize":6,"protocolType":2048,"protocolSize":4})");
+	}
 }  // EthAndArpPacketParsing
 
 PTF_TEST_CASE(ArpPacketCreation)
