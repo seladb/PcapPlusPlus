@@ -559,10 +559,10 @@ namespace pcpp
 		std::string toString() const override;
 
 		/// @struct SerializedFields
-		/// Fields serialized for NTP, including Layer::SerializedFields.
+		/// @brief Fields serialized for NTP, including Layer::SerializedFields.
 		struct SerializedFields : Layer::SerializedFields
 		{
-			/// @return All NTP field descriptors, including the common layer fields
+			/// @brief Get all NTP field descriptors, including the common layer fields
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
@@ -579,43 +579,39 @@ namespace pcpp
 					                                          ReferenceTimestamp,
 					                                          OriginTimestamp,
 					                                          ReceiveTimestamp,
-					                                          TransmitTimestamp,
-					                                          AdditionalData };
+					                                          TransmitTimestamp };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// Numeric leap indicator (0-3).
+			/// @brief Human-readable leap indicator.
 			static const FieldDescriptor LeapIndicator;
-			/// NTP version number.
+			/// @brief NTP version number.
 			static const FieldDescriptor Version;
-			/// Numeric association mode (0-7).
+			/// @brief Numeric association mode (0-7).
 			static const FieldDescriptor Mode;
-			/// Human-readable association mode.
+			/// @brief Human-readable association mode.
 			static const FieldDescriptor ModeName;
-			/// Stratum of the reference clock.
+			/// @brief Stratum of the reference clock.
 			static const FieldDescriptor Stratum;
-			/// Signed polling interval exponent, in log2 seconds.
+			/// @brief Signed polling interval exponent, in log2 seconds.
 			static const FieldDescriptor PollInterval;
-			/// Signed clock precision exponent, in log2 seconds.
+			/// @brief Signed clock precision exponent, in log2 seconds.
 			static const FieldDescriptor Precision;
-			/// Raw 16.16 fixed-point root delay bits, as an unsigned integer in host byte order.
+			/// @brief Raw 16.16 fixed-point root delay bits, as an unsigned integer in host byte order.
 			static const FieldDescriptor RootDelay;
-			/// Raw 16.16 fixed-point root dispersion bits, as an unsigned integer in host byte order.
+			/// @brief Raw 16.16 fixed-point root dispersion bits, as an unsigned integer in host byte order.
 			static const FieldDescriptor RootDispersion;
-			/// Raw reference identifier, as an unsigned integer in host byte order.
+			/// @brief Raw reference identifier, as an unsigned integer in host byte order.
 			static const FieldDescriptor ReferenceIdentifier;
-			/// Raw 32.32 NTP reference timestamp, in host byte order (epoch: 1900-01-01).
+			/// @brief ISO 8601 UTC reference timestamp, using the existing NTP time conversion.
 			static const FieldDescriptor ReferenceTimestamp;
-			/// Raw 32.32 NTP origin timestamp, in host byte order (epoch: 1900-01-01).
+			/// @brief ISO 8601 UTC origin timestamp, using the existing NTP time conversion.
 			static const FieldDescriptor OriginTimestamp;
-			/// Raw 32.32 NTP receive timestamp, in host byte order (epoch: 1900-01-01).
+			/// @brief ISO 8601 UTC receive timestamp, using the existing NTP time conversion.
 			static const FieldDescriptor ReceiveTimestamp;
-			/// Raw 32.32 NTP transmit timestamp, in host byte order (epoch: 1900-01-01).
+			/// @brief ISO 8601 UTC transmit timestamp, using the existing NTP time conversion.
 			static const FieldDescriptor TransmitTimestamp;
-			/// Bytes after the fixed header, including extensions and authentication, as lowercase hexadecimal
-			/// without separators. An empty string represents no additional data.
-			static const FieldDescriptor AdditionalData;
 		};
 
 	protected:

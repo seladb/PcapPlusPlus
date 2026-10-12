@@ -2,7 +2,6 @@
 
 #include "Logger.h"
 #include "NtpLayer.h"
-#include "EndianPortable.h"
 #include "SystemUtils.h"
 #include "GeneralUtils.h"
 #include <cmath>
@@ -642,27 +641,38 @@ namespace pcpp
 		                                                                "receiveTimestamp" };
 	const FieldDescriptor NtpLayer::SerializedFields::TransmitTimestamp{ Layer::SerializedFields::MaxID + 14,
 		                                                                 "transmitTimestamp" };
-	const FieldDescriptor NtpLayer::SerializedFields::AdditionalData{ Layer::SerializedFields::MaxID + 15,
-		                                                              "additionalData" };
+
+	static constexpr const char* leapIndicatorToString(NtpLayer::LeapIndicator indicator)
+	{
+		switch (indicator)
+		{
+		case NtpLayer::NoWarning:
+			return "No warning";
+		case NtpLayer::Last61Secs:
+			return "Last minute has 61 seconds";
+		case NtpLayer::Last59Secs:
+			return "Last minute has 59 seconds";
+		default:
+			return "Unknown";
+		}
+	}
 
 	void NtpLayer::serializeLayer(ObjectScope& serializer) const
 	{
-		serializer.writeField(SerializedFields::LeapIndicator, static_cast<uint8_t>(getLeapIndicator()));
+		serializer.writeField(SerializedFields::LeapIndicator, leapIndicatorToString(getLeapIndicator()));
 		serializer.writeField(SerializedFields::Version, getVersion());
 		serializer.writeField(SerializedFields::Mode, static_cast<uint8_t>(getMode()));
 		serializer.writeField(SerializedFields::ModeName, getModeString());
 		serializer.writeField(SerializedFields::Stratum, getStratum());
 		serializer.writeField(SerializedFields::PollInterval, getPollInterval());
 		serializer.writeField(SerializedFields::Precision, getPrecision());
-		serializer.writeField(SerializedFields::RootDelay, be32toh(getRootDelay()));
-		serializer.writeField(SerializedFields::RootDispersion, be32toh(getRootDispersion()));
-		serializer.writeField(SerializedFields::ReferenceIdentifier, be32toh(getReferenceIdentifier()));
-		serializer.writeField(SerializedFields::ReferenceTimestamp, be64toh(getReferenceTimestamp()));
-		serializer.writeField(SerializedFields::OriginTimestamp, be64toh(getOriginTimestamp()));
-		serializer.writeField(SerializedFields::ReceiveTimestamp, be64toh(getReceiveTimestamp()));
-		serializer.writeField(SerializedFields::TransmitTimestamp, be64toh(getTransmitTimestamp()));
-		serializer.writeField(SerializedFields::AdditionalData,
-		                      byteArrayToHexString(m_Data + sizeof(ntp_header), m_DataLen - sizeof(ntp_header)));
+		serializer.writeField(SerializedFields::RootDelay, netToHost32(getRootDelay()));
+		serializer.writeField(SerializedFields::RootDispersion, netToHost32(getRootDispersion()));
+		serializer.writeField(SerializedFields::ReferenceIdentifier, netToHost32(getReferenceIdentifier()));
+		serializer.writeField(SerializedFields::ReferenceTimestamp, convertToIsoFormat(getReferenceTimestamp()));
+		serializer.writeField(SerializedFields::OriginTimestamp, convertToIsoFormat(getOriginTimestamp()));
+		serializer.writeField(SerializedFields::ReceiveTimestamp, convertToIsoFormat(getReceiveTimestamp()));
+		serializer.writeField(SerializedFields::TransmitTimestamp, convertToIsoFormat(getTransmitTimestamp()));
 	}
 
 	std::string NtpLayer::toString() const
