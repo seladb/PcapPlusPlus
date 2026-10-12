@@ -81,7 +81,7 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 			eventLayer->serialize(serializer);
 			PTF_ASSERT_EQUAL(
 			    oss.str(),
-			    R"({"protocolName":"BluetoothHci","protocolId":65,"length":7,"direction":"ControllerToHost","eventCode":1,"parameterTotalLength":1,"parameters":"00"})");
+			    R"({"protocolName":"BluetoothHci","protocolId":66,"length":7,"direction":"ControllerToHost","eventCode":1,"parameterTotalLength":1,"parameters":"00"})");
 		}
 	}
 

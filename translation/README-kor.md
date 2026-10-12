@@ -278,21 +278,22 @@ PcapPlusPlus는 현재 다음 프로토콜의 패킷을 파싱, 편집 및 생�
 43. DNS
 44. DoIP
 45. FTP
-46. HTTP 헤더 (요청 및 응답)
-47. LDAP
-48. Modbus
-49. MySQL - 파싱만 가능 (편집 불가)
-50. NTP (v3, v4)
-51. PEM 인코더 및 디코더
-52. PostgreSQL Wire Protocol (PGWire) - 파싱만 가능 (편집 불가)
-53. Radius
-54. S7 Communication (S7comm)
-55. SMTP
-56. SOME/IP
-57. SSH - 파싱만 가능 (편집 불가)
-58. Telnet - 파싱만 가능 (편집 불가)
-59. X509 인증서 - 파싱만 가능 (편집 불가)
-60. 일반 페이로드
+46. GVCP
+47. HTTP 헤더 (요청 및 응답)
+48. LDAP
+49. Modbus
+50. MySQL - 파싱만 가능 (편집 불가)
+51. NTP (v3, v4)
+52. PEM 인코더 및 디코더
+53. PostgreSQL Wire Protocol (PGWire) - 파싱만 가능 (편집 불가)
+54. Radius
+55. S7 Communication (S7comm)
+56. SMTP
+57. SOME/IP
+58. SSH - 파싱만 가능 (편집 불가)
+59. Telnet - 파싱만 가능 (편집 불가)
+60. X509 인증서 - 파싱만 가능 (편집 불가)
+61. 일반 페이로드
 
 ## DPDK 및 PF_RING 지원
 

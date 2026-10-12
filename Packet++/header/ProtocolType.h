@@ -266,8 +266,11 @@ namespace pcpp
 	/// QUIC v1 protocol
 	const ProtocolType QUICv1 = 64;
 
+	/// GigE Vision Control Protocol (GVCP)
+	const ProtocolType GVCP = 65;
+
 	/// Bluetooth HCI Protocol
-	const ProtocolType BluetoothHci = 65;
+	const ProtocolType BluetoothHci = 66;
 
 	/// @}
 
@@ -408,6 +411,8 @@ namespace pcpp
 			return "MySQL";
 		case QUICv1:
 			return "QUICv1";
+		case GVCP:
+			return "GVCP";
 		case BluetoothHci:
 			return "BluetoothHci";
 		default:
