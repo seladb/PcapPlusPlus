@@ -250,7 +250,7 @@ namespace pcpp
 	const FieldDescriptor RadiusLayer::SerializedFields::CodeName{ Layer::SerializedFields::MaxID + 2, "codeName" };
 	const FieldDescriptor RadiusLayer::SerializedFields::Id{ Layer::SerializedFields::MaxID + 3, "id" };
 	const FieldDescriptor RadiusLayer::SerializedFields::Authenticator{ Layer::SerializedFields::MaxID + 4,
-		                                                               "authenticator" };
+		                                                                "authenticator" };
 	const FieldDescriptor RadiusLayer::SerializedFields::Attributes{ Layer::SerializedFields::MaxID + 5, "attributes" };
 	const FieldDescriptor RadiusLayer::SerializedFields::Attribute{ 0, "attribute" };
 
@@ -268,4 +268,3 @@ namespace pcpp
 	}
 
 }  // namespace pcpp
-
