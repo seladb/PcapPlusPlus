@@ -46,6 +46,7 @@ PTF_TEST_CASE(TcpChecksumMultiBuffer);
 PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
 PTF_TEST_CASE(PacketUtilsHash5TupleTcp);
 PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
+PTF_TEST_CASE(PacketSerializerTest);
 
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
