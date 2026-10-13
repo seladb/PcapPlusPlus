@@ -579,7 +579,9 @@ namespace pcpp
 					                                          ReferenceTimestamp,
 					                                          OriginTimestamp,
 					                                          ReceiveTimestamp,
-					                                          TransmitTimestamp };
+					                                          TransmitTimestamp,
+					                                          KeyID,
+					                                          Digest };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -602,7 +604,7 @@ namespace pcpp
 			static const FieldDescriptor RootDelay;
 			/// @brief Raw 16.16 fixed-point root dispersion bits, as an unsigned integer in host byte order.
 			static const FieldDescriptor RootDispersion;
-			/// @brief Raw reference identifier, as an unsigned integer in host byte order.
+			/// @brief Reference identifier as a hexadecimal value in host byte order.
 			static const FieldDescriptor ReferenceIdentifier;
 			/// @brief ISO 8601 UTC reference timestamp, using the existing NTP time conversion.
 			static const FieldDescriptor ReferenceTimestamp;
@@ -612,6 +614,10 @@ namespace pcpp
 			static const FieldDescriptor ReceiveTimestamp;
 			/// @brief ISO 8601 UTC transmit timestamp, using the existing NTP time conversion.
 			static const FieldDescriptor TransmitTimestamp;
+			/// @brief Authentication key identifier in host byte order, when supported authentication data is present.
+			static const FieldDescriptor KeyID;
+			/// @brief Authentication digest as lowercase hexadecimal, when supported authentication data is present.
+			static const FieldDescriptor Digest;
 		};
 
 	protected:

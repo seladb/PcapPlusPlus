@@ -642,6 +642,9 @@ namespace pcpp
 	const FieldDescriptor NtpLayer::SerializedFields::TransmitTimestamp{ Layer::SerializedFields::MaxID + 14,
 		                                                                 "transmitTimestamp" };
 
+	const FieldDescriptor NtpLayer::SerializedFields::KeyID{ Layer::SerializedFields::MaxID + 15, "keyID" };
+	const FieldDescriptor NtpLayer::SerializedFields::Digest{ Layer::SerializedFields::MaxID + 16, "digest" };
+
 	static constexpr const char* leapIndicatorToString(NtpLayer::LeapIndicator indicator)
 	{
 		switch (indicator)
@@ -668,11 +671,19 @@ namespace pcpp
 		serializer.writeField(SerializedFields::Precision, getPrecision());
 		serializer.writeField(SerializedFields::RootDelay, netToHost32(getRootDelay()));
 		serializer.writeField(SerializedFields::RootDispersion, netToHost32(getRootDispersion()));
-		serializer.writeField(SerializedFields::ReferenceIdentifier, netToHost32(getReferenceIdentifier()));
+		serializer.writeHexField(SerializedFields::ReferenceIdentifier, netToHost32(getReferenceIdentifier()));
 		serializer.writeField(SerializedFields::ReferenceTimestamp, convertToIsoFormat(getReferenceTimestamp()));
 		serializer.writeField(SerializedFields::OriginTimestamp, convertToIsoFormat(getOriginTimestamp()));
 		serializer.writeField(SerializedFields::ReceiveTimestamp, convertToIsoFormat(getReceiveTimestamp()));
 		serializer.writeField(SerializedFields::TransmitTimestamp, convertToIsoFormat(getTransmitTimestamp()));
+		// Match the authentication formats supported by getKeyID() and getDigest().
+		if ((getVersion() == 3 && m_DataLen >= sizeof(ntp_header) + sizeof(ntp_v3_auth)) ||
+		    (getVersion() == 4 && (m_DataLen == sizeof(ntp_header) + sizeof(ntp_v4_auth_md5) ||
+		                           m_DataLen == sizeof(ntp_header) + sizeof(ntp_v4_auth_sha1))))
+		{
+			serializer.writeField(SerializedFields::KeyID, netToHost32(getKeyID()));
+			serializer.writeField(SerializedFields::Digest, getDigest());
+		}
 	}
 
 	std::string NtpLayer::toString() const

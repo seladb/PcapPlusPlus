@@ -55,7 +55,7 @@ PTF_TEST_CASE(NtpMethodsTests)
 	layer.serialize(serializer);
 	PTF_ASSERT_EQUAL(
 	    output.str(),
-	    R"({"protocolName":"NTP","protocolId":39,"length":53,"leapIndicator":"Unknown","version":4,"mode":4,"modeName":"Server","stratum":255,"pollInterval":-128,"precision":-128,"rootDelay":4294967295,"rootDispersion":4294967295,"referenceIdentifier":4294967295,"referenceTimestamp":"2036-02-07T06:28:16.0000Z","originTimestamp":"2036-02-07T06:28:16.0000Z","receiveTimestamp":"2036-02-07T06:28:16.0000Z","transmitTimestamp":"2036-02-07T06:28:16.0000Z"})");
+	    R"({"protocolName":"NTP","protocolId":39,"length":53,"leapIndicator":"Unknown","version":4,"mode":4,"modeName":"Server","stratum":255,"pollInterval":-128,"precision":-128,"rootDelay":4294967295,"rootDispersion":4294967295,"referenceIdentifier":"0xffffffff","referenceTimestamp":"2036-02-07T06:28:16.0000Z","originTimestamp":"2036-02-07T06:28:16.0000Z","receiveTimestamp":"2036-02-07T06:28:16.0000Z","transmitTimestamp":"2036-02-07T06:28:16.0000Z"})");
 	const char* leapNames[] = { "No warning", "Last minute has 61 seconds", "Last minute has 59 seconds", "Unknown" };
 	for (uint8_t indicator = 0; indicator < 4; ++indicator)
 	{
@@ -63,8 +63,37 @@ PTF_TEST_CASE(NtpMethodsTests)
 		std::ostringstream leapOutput;
 		pcpp::JsonSerializer leapSerializer(leapOutput);
 		layer.serialize(leapSerializer);
-		PTF_ASSERT_TRUE(leapOutput.str().find(std::string("\"leapIndicator\":\"") + leapNames[indicator] + "\"") !=
-		                std::string::npos);
+		PTF_ASSERT_CONTAINS(leapOutput.str(), std::string("\"leapIndicator\":\"") + leapNames[indicator] + "\"");
+	}
+
+	// NTPv3 authentication: preserve network byte order and the complete DES digest.
+	auto authData = std::make_unique<uint8_t[]>(60);
+	std::fill(authData.get(), authData.get() + 60, 0);
+	authData[0] = 0x1c;
+	authData[48] = 0x12;
+	authData[49] = 0x34;
+	authData[50] = 0x56;
+	authData[51] = 0x78;
+	std::fill(authData.get() + 52, authData.get() + 60, 0xab);
+	pcpp::NtpLayer authLayer(authData.release(), 60, nullptr, nullptr);
+	std::ostringstream authOutput;
+	pcpp::JsonSerializer authSerializer(authOutput);
+	authLayer.serialize(authSerializer);
+	PTF_ASSERT_CONTAINS(authOutput.str(), "\"keyID\":305419896");
+	PTF_ASSERT_CONTAINS(authOutput.str(), "\"digest\":\"abababababababab\"");
+
+	// Incomplete or unsupported NTPv4 authentication must be omitted without logging errors.
+	for (size_t length : { 48, 49, 59, 60, 67, 69, 71, 73 })
+	{
+		auto shortData = std::make_unique<uint8_t[]>(length);
+		std::fill(shortData.get(), shortData.get() + length, 0);
+		shortData[0] = 0x24;
+		pcpp::NtpLayer shortLayer(shortData.release(), length, nullptr, nullptr);
+		std::ostringstream shortOutput;
+		pcpp::JsonSerializer shortSerializer(shortOutput);
+		shortLayer.serialize(shortSerializer);
+		PTF_ASSERT_TRUE(shortOutput.str().find("\"keyID\"") == std::string::npos);
+		PTF_ASSERT_TRUE(shortOutput.str().find("\"digest\"") == std::string::npos);
 	}
 
 }  // NtpMethodsTests
@@ -121,18 +150,9 @@ PTF_TEST_CASE(NtpParsingV3Tests)
 		ntpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    output.str(),
-		    R"({"protocolName":"NTP","protocolId":39,"length":48,"leapIndicator":"No warning","version":3,"mode":4,"modeName":"Server","stratum":0,"pollInterval":4,"precision":-6,"rootDelay":0,"rootDispersion":0,"referenceIdentifier":0,"referenceTimestamp":")" +
+		    R"({"protocolName":"NTP","protocolId":39,"length":48,"leapIndicator":"No warning","version":3,"mode":4,"modeName":"Server","stratum":0,"pollInterval":4,"precision":-6,"rootDelay":0,"rootDispersion":0,"referenceIdentifier":"0x0","referenceTimestamp":")" +
 		        std::string(zeroTimestamp) + R"(","originTimestamp":")" + std::string(zeroTimestamp) +
 		        R"(","receiveTimestamp":"2015-07-14T09:04:17.0000Z","transmitTimestamp":"2015-07-14T09:04:17.0000Z"})");
-		const auto fields = pcpp::NtpLayer::SerializedFields::all();
-		PTF_ASSERT_EQUAL(fields.size(), 17);
-		for (const auto& field : fields)
-		{
-			const std::string key = "\"" + field.name + "\":";
-			const auto pos = output.str().find(key);
-			PTF_ASSERT_TRUE(pos != std::string::npos);
-			PTF_ASSERT_TRUE(output.str().find(key, pos + key.size()) == std::string::npos);
-		}
 	}
 }  // NtpParsingV3Tests
 
@@ -183,7 +203,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 		ntpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    output.str(),
-		    R"({"protocolName":"NTP","protocolId":39,"length":48,"leapIndicator":"No warning","version":4,"mode":3,"modeName":"Client","stratum":2,"pollInterval":7,"precision":-21,"rootDelay":1104,"rootDispersion":939,"referenceIdentifier":2210137055,"referenceTimestamp":"2015-07-14T09:15:47.1930Z","originTimestamp":"2015-07-06T01:24:37.1883Z","receiveTimestamp":"2015-07-06T01:24:37.1942Z","transmitTimestamp":"2015-07-14T09:16:36.1764Z"})");
+		    R"({"protocolName":"NTP","protocolId":39,"length":48,"leapIndicator":"No warning","version":4,"mode":3,"modeName":"Client","stratum":2,"pollInterval":7,"precision":-21,"rootDelay":1104,"rootDispersion":939,"referenceIdentifier":"0x83bc03df","referenceTimestamp":"2015-07-14T09:15:47.1930Z","originTimestamp":"2015-07-06T01:24:37.1883Z","receiveTimestamp":"2015-07-06T01:24:37.1942Z","transmitTimestamp":"2015-07-14T09:16:36.1764Z"})");
 	}
 
 	// Test Ipv6
@@ -238,9 +258,9 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 		ntpLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    output.str(),
-		    R"({"protocolName":"NTP","protocolId":39,"length":68,"leapIndicator":"No warning","version":4,"mode":3,"modeName":"Client","stratum":2,"pollInterval":6,"precision":-24,"rootDelay":145,"rootDispersion":1719,"referenceIdentifier":3064299739,"referenceTimestamp":"2017-05-26T13:10:47.4767Z","originTimestamp":")" +
+		    R"({"protocolName":"NTP","protocolId":39,"length":68,"leapIndicator":"No warning","version":4,"mode":3,"modeName":"Client","stratum":2,"pollInterval":6,"precision":-24,"rootDelay":145,"rootDispersion":1719,"referenceIdentifier":"0xb6a580db","referenceTimestamp":"2017-05-26T13:10:47.4767Z","originTimestamp":")" +
 		        std::string(zeroTimestamp) + R"(","receiveTimestamp":")" + std::string(zeroTimestamp) +
-		        R"(","transmitTimestamp":"2017-05-26T13:22:09.4829Z"})");
+		        R"(","transmitTimestamp":"2017-05-26T13:22:09.4829Z","keyID":1,"digest":"ac017b69915ce5a7a9fb73ac8bd1603b"})");
 	}
 
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/ntpv4Ipv6_withAuth2.dat");
@@ -282,6 +302,24 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 	PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "2017-05-26T13:23:48.5567Z");
 	PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "2017-05-26T13:23:48.5571Z");
 	PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2017-05-26T13:23:48.5578Z");
+
+	{
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		ntpLayer->serialize(serializer);
+		PTF_ASSERT_CONTAINS(output.str(), "\"referenceIdentifier\":\"0x44434661\"");
+		PTF_ASSERT_CONTAINS(output.str(), "\"keyID\":11");
+		PTF_ASSERT_CONTAINS(output.str(), "\"digest\":\"ece2d5b07e9fc63279aa2322b76038e53cd0ecc6\"");
+		const auto fields = pcpp::NtpLayer::SerializedFields::all();
+		PTF_ASSERT_EQUAL(fields.size(), 19);
+		for (const auto& field : fields)
+		{
+			const std::string key = "\"" + field.name + "\":";
+			const auto pos = output.str().find(key);
+			PTF_ASSERT_TRUE(pos != std::string::npos);
+			PTF_ASSERT_TRUE(output.str().find(key, pos + key.size()) == std::string::npos);
+		}
+	}
 }  // NtpParsingV4Tests
 
 PTF_TEST_CASE(NtpCreationTests)
