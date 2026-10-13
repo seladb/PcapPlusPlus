@@ -369,7 +369,6 @@ PTF_TEST_CASE(CryptoKeyInvalidDataTest);
 PTF_TEST_CASE(PostgresLayerParsingTest);
 PTF_TEST_CASE(PostgresMessageParsingTest);
 PTF_TEST_CASE(PostgresInvalidDataTest);
-PTF_TEST_CASE(PostgresInvalidMessageLengthTest);
 
 // Implemented in MySqlTests.cpp
 PTF_TEST_CASE(MySqlLayerParsingTest);

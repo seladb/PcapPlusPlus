@@ -1341,68 +1341,67 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 		PTF_ASSERT_EQUAL(fields.size(), 1);
 		PTF_ASSERT_EQUAL(fields.at(pcpp::PostgresErrorResponseMessage::ErrorField::Severity), "FATAL");
 	}
-}
-
-PTF_TEST_CASE(PostgresInvalidMessageLengthTest)
-{
-	using pcpp::PostgresMessage;
-	using pcpp::PostgresMessageType;
 
 	// A message must always consume at least one byte and no more than the data it was parsed from. Otherwise
 	// PostgresLayer::getPostgresMessages() never reaches the end of the layer.
 
 	// Frontend messages without a type byte. Their length covers itself and the 4 byte tag, so it is at least 8
-	const std::vector<std::vector<uint8_t>> frontendUntypedData = {
-		{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00 }, // length 0
-		{ 0x00, 0x00, 0x00, 0x07, 0x00, 0x03, 0x00, 0x00 }, // length 7
-	};
-	for (const auto& data : frontendUntypedData)
 	{
-		auto message = PostgresMessage::parsePostgresFrontendMessage(data.data(), data.size());
-		PTF_ASSERT_NOT_NULL(message.get());
-		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), data.size());
-		PTF_ASSERT_EQUAL(message->getMessageType(), PostgresMessageType::Frontend_Unknown, enum);
+		const std::vector<std::vector<uint8_t>> untypedData = {
+			{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00 }, // length 0
+			{ 0x00, 0x00, 0x00, 0x07, 0x00, 0x03, 0x00, 0x00 }, // length 7
+		};
+		for (const auto& data : untypedData)
+		{
+			auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(data.data(), data.size());
+			PTF_ASSERT_NOT_NULL(message.get());
+			PTF_ASSERT_EQUAL(message->getTotalMessageLength(), data.size());
+			PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
+		}
 	}
 
 	// A valid SSLRequest has the smallest length (8) and is parsed as such
 	{
 		std::vector<uint8_t> sslRequestData = { 0x00, 0x00, 0x00, 0x08, 0x04, 0xD2, 0x16, 0x2F };
-		auto message = PostgresMessage::parsePostgresFrontendMessage(sslRequestData.data(), sslRequestData.size());
+		auto message =
+		    pcpp::PostgresMessage::parsePostgresFrontendMessage(sslRequestData.data(), sslRequestData.size());
 		PTF_ASSERT_NOT_NULL(message.get());
 		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), 8);
-		PTF_ASSERT_EQUAL(message->getMessageType(), PostgresMessageType::Frontend_SSLRequest, enum);
+		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Frontend_SSLRequest, enum);
 	}
 
 	// Messages with a type byte. Their length covers itself but not the type byte, so it is at least 4.
 	// 0xFFFFFFFF used to wrap around to a total message length of 0
-	const std::vector<std::vector<uint8_t>> typedData = {
-		{ 'Q', 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00 }, // length 0xFFFFFFFF
-		{ 'R', 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00 }, // length 0xFFFFFFFF
-		{ 'Q', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // length 0
-		{ 'R', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // length 0
-		{ 'Q', 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00 }, // length 3
-		{ 'R', 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00 }, // length 3
-	};
-	for (const auto& data : typedData)
 	{
-		auto frontendMessage = PostgresMessage::parsePostgresFrontendMessage(data.data(), data.size());
-		PTF_ASSERT_NOT_NULL(frontendMessage.get());
-		PTF_ASSERT_EQUAL(frontendMessage->getTotalMessageLength(), data.size());
-		PTF_ASSERT_EQUAL(frontendMessage->getMessageType(), PostgresMessageType::Frontend_Unknown, enum);
+		const std::vector<std::vector<uint8_t>> typedData = {
+			{ 'Q', 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00 }, // length 0xFFFFFFFF
+			{ 'R', 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00 }, // length 0xFFFFFFFF
+			{ 'Q', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // length 0
+			{ 'R', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // length 0
+			{ 'Q', 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00 }, // length 3
+			{ 'R', 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00 }, // length 3
+		};
+		for (const auto& data : typedData)
+		{
+			auto frontendMessage = pcpp::PostgresMessage::parsePostgresFrontendMessage(data.data(), data.size());
+			PTF_ASSERT_NOT_NULL(frontendMessage.get());
+			PTF_ASSERT_EQUAL(frontendMessage->getTotalMessageLength(), data.size());
+			PTF_ASSERT_EQUAL(frontendMessage->getMessageType(), pcpp::PostgresMessageType::Frontend_Unknown, enum);
 
-		auto backendMessage = PostgresMessage::parsePostgresBackendMessage(data.data(), data.size());
-		PTF_ASSERT_NOT_NULL(backendMessage.get());
-		PTF_ASSERT_EQUAL(backendMessage->getTotalMessageLength(), data.size());
-		PTF_ASSERT_EQUAL(backendMessage->getMessageType(), PostgresMessageType::Backend_Unknown, enum);
+			auto backendMessage = pcpp::PostgresMessage::parsePostgresBackendMessage(data.data(), data.size());
+			PTF_ASSERT_NOT_NULL(backendMessage.get());
+			PTF_ASSERT_EQUAL(backendMessage->getTotalMessageLength(), data.size());
+			PTF_ASSERT_EQUAL(backendMessage->getMessageType(), pcpp::PostgresMessageType::Backend_Unknown, enum);
+		}
 	}
 
 	// The smallest valid length (4) is still parsed: a Sync message
 	{
 		std::vector<uint8_t> syncData = { 'S', 0x00, 0x00, 0x00, 0x04 };
-		auto message = PostgresMessage::parsePostgresFrontendMessage(syncData.data(), syncData.size());
+		auto message = pcpp::PostgresMessage::parsePostgresFrontendMessage(syncData.data(), syncData.size());
 		PTF_ASSERT_NOT_NULL(message.get());
 		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), 5);
-		PTF_ASSERT_EQUAL(message->getMessageType(), PostgresMessageType::Frontend_Sync, enum);
+		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Frontend_Sync, enum);
 	}
 
 	// A layer with such a message ends after one message instead of looping
@@ -1413,4 +1412,4 @@ PTF_TEST_CASE(PostgresInvalidMessageLengthTest)
 		PTF_ASSERT_EQUAL(layer->getPostgresMessages().size(), 1);
 		PTF_ASSERT_EQUAL(layer->toString(), "PostgreSQL Frontend Layer, 1 message(s)");
 	}
-}  // PostgresInvalidMessageLengthTest
+}
