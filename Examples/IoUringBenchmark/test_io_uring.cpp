@@ -1,25 +1,39 @@
 #include "PcapFileDevice.h"
 #include "IoUringPcapDevice.h"
-#include "Packet.h"
-#include "EthLayer.h"
-#include "IPv4Layer.h"
-#include "TcpLayer.h"
 
-#include <iostream>
-#include <vector>
-#include <cstring>
-#include <fstream>
-#include <memory>
+#if !defined(__linux__) || !defined(PCPP_HAS_IO_URING_SUPPORT)
 
-#define TEST_CHECK(condition, msg)                                                                                     \
-	do                                                                                                                 \
-	{                                                                                                                  \
-		if (!(condition))                                                                                              \
+#	include <iostream>
+
+int main()
+{
+	std::cout << "test_io_uring is only supported on Linux with liburing support enabled." << std::endl;
+	return 0;
+}
+
+#else
+
+#	include "Packet.h"
+#	include "EthLayer.h"
+#	include "IPv4Layer.h"
+#	include "TcpLayer.h"
+
+#	include <iostream>
+#	include <vector>
+#	include <cstring>
+#	include <fstream>
+#	include <memory>
+
+#	define TEST_CHECK(condition, msg)                                                                                 \
+		do                                                                                                             \
 		{                                                                                                              \
-			std::cerr << "\n[TEST FAILED] " << __FILE__ << ":" << __LINE__ << ": " << (msg) << " (" #condition ")\n";  \
-			return false;                                                                                              \
-		}                                                                                                              \
-	} while (false)
+			if (!(condition))                                                                                          \
+			{                                                                                                          \
+				std::cerr << "\n[TEST FAILED] " << __FILE__ << ":" << __LINE__ << ": " << (msg)                        \
+				          << " (" #condition ")\n";                                                                    \
+				return false;                                                                                          \
+			}                                                                                                          \
+		} while (false)
 
 struct ReaderScopeGuard
 {
@@ -814,21 +828,30 @@ int main(int argc, char* argv[])
 	}
 
 	// 3. Nanosecond timestamp file (Little Endian)
-	if (!testDifferential(testNano, 65536, 3, false))
+	if (std::ifstream(testNano).good())
 	{
-		return 1;
+		if (!testDifferential(testNano, 65536, 3, false))
+		{
+			return 1;
+		}
 	}
 
 	// 4. Swapped microsecond timestamp file (Big Endian)
-	if (!testDifferential(testSwapped, 65536, 3, false))
+	if (std::ifstream(testSwapped).good())
 	{
-		return 1;
+		if (!testDifferential(testSwapped, 65536, 3, false))
+		{
+			return 1;
+		}
 	}
 
 	// 5. Swapped nanosecond timestamp file (Big Endian)
-	if (!testDifferential(testNanoSwapped, 65536, 3, false))
+	if (std::ifstream(testNanoSwapped).good())
 	{
-		return 1;
+		if (!testDifferential(testNanoSwapped, 65536, 3, false))
+		{
+			return 1;
+		}
 	}
 
 	// 6. Owning vector safety across buffer reuse
@@ -864,3 +887,5 @@ int main(int argc, char* argv[])
 	std::cout << "\n=== All IoUringPcapReaderDevice Tests Passed ===\n";
 	return 0;
 }
+
+#endif  // !defined(__linux__) || !defined(PCPP_HAS_IO_URING_SUPPORT)

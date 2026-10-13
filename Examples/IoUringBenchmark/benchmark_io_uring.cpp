@@ -1,21 +1,34 @@
 #include "PcapFileDevice.h"
 #include "IoUringPcapDevice.h"
-#include "Packet.h"
-#include "IPv4Layer.h"
-#include "TcpLayer.h"
 
-#include <iostream>
-#include <iomanip>
-#include <chrono>
-#include <string>
-#include <vector>
-#include <numeric>
-#include <algorithm>
-#include <cmath>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/resource.h>
+#if !defined(__linux__) || !defined(PCPP_HAS_IO_URING_SUPPORT)
+
+#	include <iostream>
+
+int main()
+{
+	std::cout << "IoUringBenchmark is only supported on Linux with liburing support enabled." << std::endl;
+	return 0;
+}
+
+#else
+
+#	include "Packet.h"
+#	include "IPv4Layer.h"
+#	include "TcpLayer.h"
+
+#	include <iostream>
+#	include <iomanip>
+#	include <chrono>
+#	include <string>
+#	include <vector>
+#	include <numeric>
+#	include <algorithm>
+#	include <cmath>
+#	include <fcntl.h>
+#	include <unistd.h>
+#	include <sys/stat.h>
+#	include <sys/resource.h>
 
 struct RunStats
 {
@@ -489,3 +502,5 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+
+#endif  // !defined(__linux__) || !defined(PCPP_HAS_IO_URING_SUPPORT)

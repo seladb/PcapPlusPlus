@@ -36,7 +36,7 @@ struct IPv4Header
 {
 	uint8_t verIhl = 0x45;
 	uint8_t tos = 0x00;
-	uint16_t totalLength;
+	uint16_t totalLength = 0;
 	uint16_t id = 0x1234;
 	uint16_t flagsFragment = 0x0040;  // Don't fragment
 	uint8_t ttl = 64;
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 	std::cout << "Generating " << argv[2] << " MB PCAP file: " << outputPath << "\n";
 	auto startTime = std::chrono::steady_clock::now();
 
-	uint8_t ghBytes[24];
+	uint8_t ghBytes[24] = {};
 	uint32_t magic = 0xa1b2c3d4;
 	if (nanosec)
 	{
@@ -172,14 +172,14 @@ int main(int argc, char* argv[])
 			usec = 0;
 		}
 
-		EthHeader eth;
+		EthHeader eth{};
 		std::memcpy(dst, &eth, sizeof(eth));
 
-		IPv4Header ip;
+		IPv4Header ip{};
 		ip.totalLength = __builtin_bswap16(pktLen - sizeof(EthHeader));
 		std::memcpy(dst + sizeof(EthHeader), &ip, sizeof(ip));
 
-		TcpHeader tcp;
+		TcpHeader tcp{};
 		std::memcpy(dst + sizeof(EthHeader) + sizeof(IPv4Header), &tcp, sizeof(tcp));
 
 		size_t headersLen = sizeof(EthHeader) + sizeof(IPv4Header) + sizeof(TcpHeader);
