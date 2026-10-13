@@ -12,6 +12,13 @@
 
 namespace pcpp
 {
+	namespace
+	{
+		// The length of the optional parameters is stored in a single byte of the OPEN message.
+		// Parentheses around std::numeric_limits<>::max avoid a clash with the Windows max macro
+		constexpr size_t maxOptionalParamsDataLen = (std::numeric_limits<uint8_t>::max)();
+	}  // namespace
+
 	// ~~~~~~~~
 	// BgpLayer
 	// ~~~~~~~~
@@ -199,8 +206,9 @@ namespace pcpp
 	BgpOpenMessageLayer::BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
 	                                         const std::vector<optional_parameter>& optionalParams)
 	{
-		uint8_t optionalParamsData[1500];
-		size_t optionalParamsDataLen = optionalParamsToByteArray(optionalParams, optionalParamsData, 1500);
+		uint8_t optionalParamsData[maxOptionalParamsDataLen];
+		size_t optionalParamsDataLen =
+		    optionalParamsToByteArray(optionalParams, optionalParamsData, sizeof(optionalParamsData));
 
 		const size_t headerLen = sizeof(bgp_open_message) + optionalParamsDataLen;
 		allocData(headerLen);
@@ -228,12 +236,6 @@ namespace pcpp
 			return 0;
 		}
 
-		// The length of the optional parameters is stored in a single byte of the OPEN message.
-		// Parentheses around std::numeric_limits<>::max and std::min avoid clashes with platform min and max macros
-		// (for example on Windows)
-		constexpr size_t maxOptionalParamsDataLen = (std::numeric_limits<uint8_t>::max)();
-		const size_t maxDataLen = (std::min)(maxByteArrSize, maxOptionalParamsDataLen);
-
 		size_t dataLen = 0;
 
 		for (const auto& param : optionalParams)
@@ -247,10 +249,10 @@ namespace pcpp
 
 			size_t curDataSize = 2 * sizeof(uint8_t) + (size_t)param.length;
 
-			if (dataLen + curDataSize > maxDataLen)
+			if (dataLen + curDataSize > maxByteArrSize)
 			{
 				throw std::invalid_argument("The BGP OPEN optional parameters exceed the maximum length of " +
-				                            std::to_string(maxDataLen) + " bytes");
+				                            std::to_string(maxByteArrSize) + " bytes");
 			}
 
 			resultByteArr[0] = param.type;
@@ -342,11 +344,12 @@ namespace pcpp
 
 	bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_parameter>& optionalParameters)
 	{
-		uint8_t newOptionalParamsData[1500];
+		uint8_t newOptionalParamsData[maxOptionalParamsDataLen];
 		size_t newOptionalParamsDataLen = 0;
 		try
 		{
-			newOptionalParamsDataLen = optionalParamsToByteArray(optionalParameters, newOptionalParamsData, 1500);
+			newOptionalParamsDataLen =
+			    optionalParamsToByteArray(optionalParameters, newOptionalParamsData, sizeof(newOptionalParamsData));
 		}
 		catch (const std::invalid_argument& e)
 		{

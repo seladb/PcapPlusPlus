@@ -590,7 +590,7 @@ PTF_TEST_CASE(BgpLayerEditTest)
 
 PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 {
-	// Suppress expected logs from malformed packet parsing and rejected invalid parameters
+	// Suppress expected error/warning logs from malformed packet parsing
 	SuppressLogs suppress;
 
 	// Test 1: BGP OPEN with header too short for bgp_open_message (headerLen < sizeof(bgp_open_message))
@@ -688,7 +688,10 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 		invalidParam.type = 4;
 		invalidParam.length = 33;
 
-		PTF_ASSERT_FALSE(bgpOpenLayer.setOptionalParameters({ validParam, invalidParam }));
+		{
+			SuppressLogs logSuppress;
+			PTF_ASSERT_FALSE(bgpOpenLayer.setOptionalParameters({ validParam, invalidParam }));
+		}
 		PTF_ASSERT_EQUAL(bgpOpenLayer.getHeaderLen(), originalHeaderLen);
 		PTF_ASSERT_EQUAL(bgpOpenLayer.getOpenMsgHeader()->optionalParameterLength, 3);
 
@@ -733,7 +736,10 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 			param.length = sizeof(param.value);
 		}
 
-		PTF_ASSERT_FALSE(bgpOpenLayer.setOptionalParameters(optionalParams));
+		{
+			SuppressLogs logSuppress;
+			PTF_ASSERT_FALSE(bgpOpenLayer.setOptionalParameters(optionalParams));
+		}
 		PTF_ASSERT_EQUAL(bgpOpenLayer.getHeaderLen(), originalHeaderLen);
 		PTF_ASSERT_EQUAL(bgpOpenLayer.getOpenMsgHeader()->optionalParameterLength, 3);
 

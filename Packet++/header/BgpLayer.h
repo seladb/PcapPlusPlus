@@ -238,7 +238,8 @@ namespace pcpp
 
 	private:
 		/// Serializes the optional parameters to a byte array
-		/// @throws std::invalid_argument if an optional parameter is invalid or the serialized data exceeds 255 bytes
+		/// @throws std::invalid_argument if an optional parameter is invalid or the serialized data doesn't fit in
+		/// maxByteArrSize bytes
 		size_t optionalParamsToByteArray(const std::vector<optional_parameter>& optionalParams, uint8_t* resultByteArr,
 		                                 size_t maxByteArrSize);
 	};
