@@ -162,6 +162,39 @@ namespace pcpp
 		virtual bool open(bool appendMode) = 0;
 	};
 
+	namespace internal
+	{
+		/// @brief An abstract class that defines an interface for reading files.
+		/// 
+		/// This class is used in PcapFileReaderDevice to abstract away the file reading mechanism.
+		/// This can be used to provide different implementations for reading files, such as standard C++ streams, prefetching, etc.
+		class FileIOReadDriver
+		{
+		public:
+			virtual ~FileIOReadDriver() = default;
+
+			virtual bool isOpen() const = 0;
+
+			/// @brief Opens the file with the given filename for reading.
+			/// @param[in] filename The file to open.
+			/// @return True if the file was successfully opened, false otherwise.
+			virtual bool open(std::string const& filename) = 0;
+			/// @brief Closes the file.
+			virtual void close() = 0;
+
+			/// @brief Reads a specified number of bytes from the file into the provided buffer.
+			/// @param[in] buffer The buffer to read the bytes into.
+			/// @param[in] size The number of bytes to read. Must be less than or equal to the size of the buffer.
+			/// @return The number of bytes actually read.
+			virtual size_t readBytes(char* buffer, size_t size) = 0;
+			
+			/// @brief Ignores a specified number of bytes in the file.
+			/// @param[in] size The number of bytes to ignore.
+			/// @return The number of bytes actually ignored.
+			virtual size_t ignoreBytes(size_t size) = 0;
+		};
+	}
+
 	/// @class PcapFileReaderDevice
 	/// A class for opening a pcap file in read-only mode. This class enable to open the file and read all packets,
 	/// packet-by-packet
@@ -212,7 +245,7 @@ namespace pcpp
 		/// @return True if the file is opened, false otherwise
 		bool isOpened() const override
 		{
-			return m_PcapFile.is_open();
+			return m_FileIODriver && m_FileIODriver->isOpen();
 		}
 
 		/// Read the next packet from the file. Before using this method please verify the file is opened using open()
@@ -230,9 +263,10 @@ namespace pcpp
 		void close() override;
 
 	private:
+		std::unique_ptr<internal::FileIOReadDriver> m_FileIODriver;
+
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;
 		LinkLayerType m_PcapLinkLayerType = LINKTYPE_ETHERNET;
-		std::ifstream m_PcapFile;
 		bool m_NeedsSwap = false;
 		uint32_t m_SnapshotLength = 0;
 		std::vector<uint8_t> m_ReadBuffer;
