@@ -14,6 +14,7 @@
 #include <iterator>
 
 #include "AssertionUtils.h"
+#include "fileio\win_ioring.h"
 
 namespace pcpp
 {
@@ -763,6 +764,9 @@ namespace pcpp
 		{
 			PCPP_LOG_DEBUG("File I/O driver is not set, using default fstream driver");
 			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+
+			//PCPP_LOG_DEBUG("File I/O Driver: Windows IORing Driver");
+			//m_FileIODriver = std::make_unique<internal::WindowsIoRingDriver>();
 		}
 
 		if (m_FileIODriver->isOpen())

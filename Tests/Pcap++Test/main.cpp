@@ -212,6 +212,8 @@ int main(int argc, char* argv[])
 
 	testSetUp();
 
+	PTF_RUN_TEST(TestWindowsIoRingDriver, "no_network");
+
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
 	PTF_RUN_TEST(TestLRUList, "no_network");
