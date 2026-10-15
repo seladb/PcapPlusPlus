@@ -22,15 +22,14 @@ namespace pcpp
 	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::Flags{
 		StpLayer::SerializedFields::MaxStpFieldID + 1, "flags"
 	};
-	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::RootId{
-		StpLayer::SerializedFields::MaxStpFieldID + 2, "rootId"
-	};
+	const ObjectFieldDescriptor<StpConfigurationBPDULayer::BridgeIdSerializedFields>
+	    StpConfigurationBPDULayer::SerializedFields::RootId{ StpLayer::SerializedFields::MaxStpFieldID + 2, "rootId" };
 	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::PathCost{
 		StpLayer::SerializedFields::MaxStpFieldID + 3, "pathCost"
 	};
-	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::BridgeId{
-		StpLayer::SerializedFields::MaxStpFieldID + 4, "bridgeId"
-	};
+	const ObjectFieldDescriptor<StpConfigurationBPDULayer::BridgeIdSerializedFields>
+	    StpConfigurationBPDULayer::SerializedFields::BridgeId{ StpLayer::SerializedFields::MaxStpFieldID + 4,
+		                                                       "bridgeId" };
 	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::PortId{
 		StpLayer::SerializedFields::MaxStpFieldID + 5, "portId"
 	};
@@ -40,25 +39,40 @@ namespace pcpp
 	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::MaximumAge{
 		StpLayer::SerializedFields::MaxStpFieldID + 7, "maximumAge"
 	};
-	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::HelloTime{
-		StpLayer::SerializedFields::MaxStpFieldID + 8, "helloTime"
+	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::TransmissionInterval{
+		StpLayer::SerializedFields::MaxStpFieldID + 8, "transmissionInterval"
 	};
 	const FieldDescriptor StpConfigurationBPDULayer::SerializedFields::ForwardDelay{
 		StpLayer::SerializedFields::MaxStpFieldID + 9, "forwardDelay"
 	};
 
+	const FieldDescriptor StpConfigurationBPDULayer::BridgeIdSerializedFields::Priority{ 0, "priority" };
+	const FieldDescriptor StpConfigurationBPDULayer::BridgeIdSerializedFields::SystemIdExtension{ 1,
+		                                                                                          "systemIdExtension" };
+	const FieldDescriptor StpConfigurationBPDULayer::BridgeIdSerializedFields::SystemId{ 2, "systemId" };
+
 	void StpConfigurationBPDULayer::serializeLayer(ObjectScope& serializer) const
 	{
 		StpLayer::serializeLayer(serializer);
 		serializer.writeField(SerializedFields::Flags, getFlag());
-		serializer.writeField(SerializedFields::RootId, getRootId());
+		{
+			auto identifier = serializer.writeObject(SerializedFields::RootId);
+			identifier.writeField(BridgeIdSerializedFields::Priority, getRootPriority());
+			identifier.writeField(BridgeIdSerializedFields::SystemIdExtension, getRootSystemIDExtension());
+			identifier.writeField(BridgeIdSerializedFields::SystemId, getRootSystemID().toString());
+		}
 		serializer.writeField(SerializedFields::PathCost, getPathCost());
-		serializer.writeField(SerializedFields::BridgeId, getBridgeId());
+		{
+			auto identifier = serializer.writeObject(SerializedFields::BridgeId);
+			identifier.writeField(BridgeIdSerializedFields::Priority, getBridgePriority());
+			identifier.writeField(BridgeIdSerializedFields::SystemIdExtension, getBridgeSystemIDExtension());
+			identifier.writeField(BridgeIdSerializedFields::SystemId, getBridgeSystemID().toString());
+		}
 		serializer.writeField(SerializedFields::PortId, getPortId());
-		serializer.writeField(SerializedFields::MessageAge, be16toh(getStpConfHeader()->msgAge));
-		serializer.writeField(SerializedFields::MaximumAge, be16toh(getStpConfHeader()->maxAge));
-		serializer.writeField(SerializedFields::HelloTime, be16toh(getStpConfHeader()->helloTime));
-		serializer.writeField(SerializedFields::ForwardDelay, be16toh(getStpConfHeader()->forwardDelay));
+		serializer.writeField(SerializedFields::MessageAge, getMessageAge());
+		serializer.writeField(SerializedFields::MaximumAge, getMaximumAge());
+		serializer.writeField(SerializedFields::TransmissionInterval, getTransmissionInterval());
+		serializer.writeField(SerializedFields::ForwardDelay, getForwardDelay());
 	}
 
 	const FieldDescriptor RapidStpLayer::SerializedFields::Version1Length{
@@ -72,32 +86,29 @@ namespace pcpp
 	}
 
 	const FieldDescriptor MultipleStpLayer::SerializedFields::Version3Length{
-		RapidStpLayer::SerializedFields::MaxStpFieldID + 1, "version3Length"
+		RapidStpLayer::SerializedFields::MaxRapidFieldID + 1, "version3Length"
 	};
 	const FieldDescriptor MultipleStpLayer::SerializedFields::ConfigFormatSelector{
-		RapidStpLayer::SerializedFields::MaxStpFieldID + 2, "configFormatSelector"
+		RapidStpLayer::SerializedFields::MaxRapidFieldID + 2, "configFormatSelector"
 	};
 	const FieldDescriptor MultipleStpLayer::SerializedFields::ConfigName{
-		RapidStpLayer::SerializedFields::MaxStpFieldID + 3, "configName"
+		RapidStpLayer::SerializedFields::MaxRapidFieldID + 3, "configName"
 	};
 	const FieldDescriptor MultipleStpLayer::SerializedFields::ConfigRevision{
-		RapidStpLayer::SerializedFields::MaxStpFieldID + 4, "configRevision"
+		RapidStpLayer::SerializedFields::MaxRapidFieldID + 4, "configRevision"
 	};
 	const FieldDescriptor MultipleStpLayer::SerializedFields::ConfigDigest{
-		RapidStpLayer::SerializedFields::MaxStpFieldID + 5, "configDigest"
+		RapidStpLayer::SerializedFields::MaxRapidFieldID + 5, "configDigest"
 	};
 	const FieldDescriptor MultipleStpLayer::SerializedFields::CistInternalRootPathCost{
-		RapidStpLayer::SerializedFields::MaxStpFieldID + 6, "cistInternalRootPathCost"
+		RapidStpLayer::SerializedFields::MaxRapidFieldID + 6, "cistInternalRootPathCost"
 	};
-	const FieldDescriptor MultipleStpLayer::SerializedFields::CistBridgeId{
-		RapidStpLayer::SerializedFields::MaxStpFieldID + 7, "cistBridgeId"
-	};
+	const ObjectFieldDescriptor<StpConfigurationBPDULayer::BridgeIdSerializedFields>
+	    MultipleStpLayer::SerializedFields::CistBridgeId{ RapidStpLayer::SerializedFields::MaxRapidFieldID + 7,
+		                                                  "cistBridgeId" };
 	const FieldDescriptor MultipleStpLayer::SerializedFields::RemainingHopCount{
-		RapidStpLayer::SerializedFields::MaxStpFieldID + 8, "remainingHopCount"
+		RapidStpLayer::SerializedFields::MaxRapidFieldID + 8, "remainingHopCount"
 	};
-	const ObjectFieldDescriptor<MultipleStpLayer::MstiSerializedFields>
-	    MultipleStpLayer::SerializedFields::MstiMessages{ RapidStpLayer::SerializedFields::MaxStpFieldID + 9,
-		                                                  "mstiMessages" };
 
 	void MultipleStpLayer::serializeLayer(ObjectScope& serializer) const
 	{
@@ -108,36 +119,14 @@ namespace pcpp
 		serializer.writeField(SerializedFields::ConfigRevision, getMstConfigRevision());
 		serializer.writeField(SerializedFields::ConfigDigest, byteArrayToHexString(getMstConfigDigest(), 16));
 		serializer.writeField(SerializedFields::CistInternalRootPathCost, getCISTIrpc());
-		serializer.writeField(SerializedFields::CistBridgeId, getCISTBridgeId());
-		serializer.writeField(SerializedFields::RemainingHopCount, getRemainingHopCount());
-		auto messages = serializer.writeArray(SerializedFields::MstiMessages);
-		constexpr size_t fixedVersion3Length = sizeof(mstp_conf_bpdu) - sizeof(rstp_conf_bpdu) - sizeof(uint16_t);
-		const size_t declaredLength = getVersion3Len();
-		if (declaredLength < fixedVersion3Length || m_DataLen < sizeof(mstp_conf_bpdu))
-			return;
-		const size_t declaredCount = (declaredLength - fixedVersion3Length) / sizeof(msti_conf_msg);
-		const size_t availableCount = (m_DataLen - sizeof(mstp_conf_bpdu)) / sizeof(msti_conf_msg);
-		const size_t count = std::min<size_t>(64, std::min(declaredCount, availableCount));
-		for (size_t i = 0; i < count; ++i)
 		{
-			const auto* message =
-			    reinterpret_cast<const msti_conf_msg*>(m_Data + sizeof(mstp_conf_bpdu) + i * sizeof(msti_conf_msg));
-			auto object = messages.writeObject(SerializedFields::MstiMessages);
-			object.writeField(MstiSerializedFields::Flags, message->flags);
-			object.writeField(MstiSerializedFields::RegionalRootId, be64toh(message->regionalRootId));
-			object.writeField(MstiSerializedFields::PathCost, be32toh(message->pathCost));
-			object.writeField(MstiSerializedFields::BridgePriority, message->bridgePriority);
-			object.writeField(MstiSerializedFields::PortPriority, message->portPriority);
-			object.writeField(MstiSerializedFields::RemainingHops, message->remainingHops);
+			auto identifier = serializer.writeObject(SerializedFields::CistBridgeId);
+			identifier.writeField(BridgeIdSerializedFields::Priority, getCISTBridgePriority());
+			identifier.writeField(BridgeIdSerializedFields::SystemIdExtension, getCISTBridgeSystemIDExtension());
+			identifier.writeField(BridgeIdSerializedFields::SystemId, getCISTBridgeSystemID().toString());
 		}
+		serializer.writeField(SerializedFields::RemainingHopCount, getRemainingHopCount());
 	}
-
-	const FieldDescriptor MultipleStpLayer::MstiSerializedFields::Flags{ 1, "flags" };
-	const FieldDescriptor MultipleStpLayer::MstiSerializedFields::RegionalRootId{ 2, "regionalRootId" };
-	const FieldDescriptor MultipleStpLayer::MstiSerializedFields::PathCost{ 3, "pathCost" };
-	const FieldDescriptor MultipleStpLayer::MstiSerializedFields::BridgePriority{ 4, "bridgePriority" };
-	const FieldDescriptor MultipleStpLayer::MstiSerializedFields::PortPriority{ 5, "portPriority" };
-	const FieldDescriptor MultipleStpLayer::MstiSerializedFields::RemainingHops{ 6, "remainingHops" };
 
 	// ---------------------- Class STPLayer ----------------------
 	MacAddress StpLayer::StpMulticastDstMAC("01:80:C2:00:00:00");

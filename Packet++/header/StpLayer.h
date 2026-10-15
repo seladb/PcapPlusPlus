@@ -132,8 +132,10 @@ namespace pcpp
 		static pcpp::MacAddress IDtoMacAddress(uint64_t id);
 		static uint64_t macAddressToID(const pcpp::MacAddress& addr);
 
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	public:
-		/// Fields serialized for StpLayer, including its base layer fields.
+		/// @brief Fields serialized for StpLayer, including its base layer fields.
 		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @return All field descriptors, including the inherited fields
@@ -145,23 +147,19 @@ namespace pcpp
 				return result;
 			}
 
-			/// BPDU protocol identifier, as an unsigned integer in host byte order.
+			/// @brief BPDU protocol identifier, as an unsigned integer in host byte order.
 			static const FieldDescriptor ProtoId;
 
-			/// BPDU protocol version.
+			/// @brief BPDU protocol version.
 			static const FieldDescriptor Version;
 
-			/// BPDU type (0 for configuration, 2 for RSTP/MSTP, 128 for TCN).
+			/// @brief BPDU type (0 for configuration, 2 for RSTP/MSTP, 128 for TCN).
 			static const FieldDescriptor Type;
 
-			/// Maximum field ID used by this layer.
+			/// @brief Maximum field ID used by this layer.
 			static constexpr uint16_t MaxStpFieldID = Layer::SerializedFields::MaxID + 3;
 		};
 
-	protected:
-		void serializeLayer(ObjectScope& serializer) const override;
-
-	public:
 		/// STP protocol uses "01:80:C2:00:00:00" multicast address as destination MAC
 		static pcpp::MacAddress StpMulticastDstMAC;
 		/// STP Uplink Fast protocol uses "01:00:0C:CD:CD:CD" as destination MAC
@@ -316,6 +314,8 @@ namespace pcpp
 		explicit StpConfigurationBPDULayer(size_t dataLen) : StpTopologyChangeBPDULayer(dataLen)
 		{}
 
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	public:
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data
@@ -326,54 +326,70 @@ namespace pcpp
 		    : StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet)
 		{}
 
-		/// Fields serialized for StpConfigurationBPDULayer, including its base layer fields.
+		/// @brief Fields describing an STP bridge identifier.
+		struct BridgeIdSerializedFields
+		{
+			/// @return All field descriptors for a bridge identifier
+			static std::vector<FieldDescriptor> all()
+			{
+				return { Priority, SystemIdExtension, SystemId };
+			}
+
+			/// @brief Bridge priority, in host byte order.
+			static const FieldDescriptor Priority;
+
+			/// @brief System identifier extension, in host byte order.
+			static const FieldDescriptor SystemIdExtension;
+
+			/// @brief System identifier as a MAC address string.
+			static const FieldDescriptor SystemId;
+		};
+
+		/// @brief Fields serialized for StpConfigurationBPDULayer, including its base layer fields.
 		struct SerializedFields : StpLayer::SerializedFields
 		{
 			/// @return All field descriptors, including the inherited fields
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = StpLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ Flags,      RootId,     PathCost,  BridgeId,    PortId,
-					                                          MessageAge, MaximumAge, HelloTime, ForwardDelay };
+				std::initializer_list<FieldDescriptor> extra{ Flags,       RootId,     PathCost,   BridgeId,
+					                                          PortId,      MessageAge, MaximumAge, TransmissionInterval,
+					                                          ForwardDelay };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// Raw BPDU flag bits.
+			/// @brief Raw BPDU flag bits.
 			static const FieldDescriptor Flags;
 
-			/// Root bridge identifier, as an unsigned 64-bit integer in host byte order.
-			static const FieldDescriptor RootId;
+			/// @brief Root bridge identifier containing priority, system identifier extension and MAC address.
+			static const ObjectFieldDescriptor<BridgeIdSerializedFields> RootId;
 
-			/// Root path cost, in host byte order.
+			/// @brief Root path cost, in host byte order.
 			static const FieldDescriptor PathCost;
 
-			/// Bridge identifier, as an unsigned 64-bit integer in host byte order.
-			static const FieldDescriptor BridgeId;
+			/// @brief Bridge identifier containing priority, system identifier extension and MAC address.
+			static const ObjectFieldDescriptor<BridgeIdSerializedFields> BridgeId;
 
-			/// Port identifier, in host byte order.
+			/// @brief Port identifier, in host byte order.
 			static const FieldDescriptor PortId;
 
-			/// Raw message age, in units of 1/256 second and host byte order.
+			/// @brief BPDU message age, as returned by getMessageAge().
 			static const FieldDescriptor MessageAge;
 
-			/// Raw maximum age, in units of 1/256 second and host byte order.
+			/// @brief BPDU maximum age, as returned by getMaximumAge().
 			static const FieldDescriptor MaximumAge;
 
-			/// Raw hello time, in units of 1/256 second and host byte order.
-			static const FieldDescriptor HelloTime;
+			/// @brief BPDU transmission interval, as returned by getTransmissionInterval().
+			static const FieldDescriptor TransmissionInterval;
 
-			/// Raw forward delay, in units of 1/256 second and host byte order.
+			/// @brief Forward delay, as returned by getForwardDelay().
 			static const FieldDescriptor ForwardDelay;
 
-			/// Maximum field ID used by this layer.
+			/// @brief Maximum field ID used by this layer.
 			static constexpr uint16_t MaxConfigurationFieldID = StpLayer::SerializedFields::MaxStpFieldID + 9;
 		};
 
-	protected:
-		void serializeLayer(ObjectScope& serializer) const override;
-
-	public:
 		/// Empty c'tor to create a new configuration BPDU layer.
 		/// Initializes the protocol identifier, version and STP type fields with correct values
 		StpConfigurationBPDULayer();
@@ -552,6 +568,8 @@ namespace pcpp
 		explicit RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen)
 		{}
 
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	public:
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data
@@ -562,7 +580,7 @@ namespace pcpp
 		    : StpConfigurationBPDULayer(data, dataLen, prevLayer, packet)
 		{}
 
-		/// Fields serialized for RapidStpLayer, including its base layer fields.
+		/// @brief Fields serialized for RapidStpLayer, including its base layer fields.
 		struct SerializedFields : StpConfigurationBPDULayer::SerializedFields
 		{
 			/// @return All field descriptors, including the inherited fields
@@ -574,18 +592,14 @@ namespace pcpp
 				return result;
 			}
 
-			/// Version 1 length, in bytes.
+			/// @brief Version 1 length, in bytes.
 			static const FieldDescriptor Version1Length;
 
-			/// Maximum field ID used by this layer.
+			/// @brief Maximum field ID used by this layer.
 			static constexpr uint16_t MaxRapidFieldID =
 			    StpConfigurationBPDULayer::SerializedFields::MaxConfigurationFieldID + 1;
 		};
 
-	protected:
-		void serializeLayer(ObjectScope& serializer) const override;
-
-	public:
 		/// Empty c'tor to create a new Rapid STP layer.
 		/// Initializes the protocol identifier, version and STP type fields with correct values
 		RapidStpLayer();
@@ -643,6 +657,9 @@ namespace pcpp
 	/// over MSTI configuration
 	class MultipleStpLayer : public RapidStpLayer
 	{
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	public:
 		/// A constructor that creates the layer from an existing packet raw data
 		/// @param[in] data A pointer to the raw data
@@ -653,84 +670,49 @@ namespace pcpp
 		    : RapidStpLayer(data, dataLen, prevLayer, packet)
 		{}
 
-		/// Field descriptors for each object in the MSTI messages array.
-		struct MstiSerializedFields
-		{
-			/// @return All fields of an MSTI configuration message
-			static std::vector<FieldDescriptor> all()
-			{
-				return { Flags, RegionalRootId, PathCost, BridgePriority, PortPriority, RemainingHops };
-			}
-
-			/// Raw MSTI flag bits.
-			static const FieldDescriptor Flags;
-
-			/// Regional root identifier, as an unsigned 64-bit integer in host byte order.
-			static const FieldDescriptor RegionalRootId;
-
-			/// MSTI internal root path cost, in host byte order.
-			static const FieldDescriptor PathCost;
-
-			/// Raw bridge priority byte (priority in its high four bits).
-			static const FieldDescriptor BridgePriority;
-
-			/// Raw port priority byte (priority in its high four bits).
-			static const FieldDescriptor PortPriority;
-
-			/// MSTI remaining hop count.
-			static const FieldDescriptor RemainingHops;
-		};
-
-		/// Fields serialized for MultipleStpLayer, including its base layer fields.
+		/// @brief Fields serialized for MultipleStpLayer, including its base layer fields.
 		struct SerializedFields : RapidStpLayer::SerializedFields
 		{
 			/// @return All field descriptors, including the inherited fields
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = RapidStpLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{
-					Version3Length,           ConfigFormatSelector, ConfigName,        ConfigRevision, ConfigDigest,
-					CistInternalRootPathCost, CistBridgeId,         RemainingHopCount, MstiMessages
-				};
+				std::initializer_list<FieldDescriptor> extra{ Version3Length, ConfigFormatSelector,
+					                                          ConfigName,     ConfigRevision,
+					                                          ConfigDigest,   CistInternalRootPathCost,
+					                                          CistBridgeId,   RemainingHopCount };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// Version 3 length, in bytes and host byte order.
+			/// @brief Version 3 length, in bytes and host byte order.
 			static const FieldDescriptor Version3Length;
 
-			/// MST configuration format selector.
+			/// @brief MST configuration format selector.
 			static const FieldDescriptor ConfigFormatSelector;
 
-			/// MST configuration name, up to 32 characters, terminated at the first null byte.
+			/// @brief MST configuration name, up to 32 characters, terminated at the first null byte.
 			static const FieldDescriptor ConfigName;
 
-			/// MST configuration revision, in host byte order.
+			/// @brief MST configuration revision, in host byte order.
 			static const FieldDescriptor ConfigRevision;
 
-			/// 16-byte MST configuration digest as lowercase hexadecimal without separators.
+			/// @brief 16-byte MST configuration digest as lowercase hexadecimal without separators.
 			static const FieldDescriptor ConfigDigest;
 
-			/// CIST internal root path cost, in host byte order.
+			/// @brief CIST internal root path cost, in host byte order.
 			static const FieldDescriptor CistInternalRootPathCost;
 
-			/// CIST bridge identifier, as an unsigned 64-bit integer in host byte order.
-			static const FieldDescriptor CistBridgeId;
+			/// @brief CIST bridge identifier containing priority, system identifier extension and MAC address.
+			static const ObjectFieldDescriptor<BridgeIdSerializedFields> CistBridgeId;
 
-			/// CIST remaining hop count.
+			/// @brief CIST remaining hop count.
 			static const FieldDescriptor RemainingHopCount;
 
-			/// Array of complete MSTI configuration messages available within the declared length (at most 64).
-			static const ObjectFieldDescriptor<MstiSerializedFields> MstiMessages;
-
-			/// Maximum field ID used by this layer.
-			static constexpr uint16_t MaxMultipleFieldID = RapidStpLayer::SerializedFields::MaxStpFieldID + 9;
+			/// @brief Maximum field ID used by this layer.
+			static constexpr uint16_t MaxMultipleFieldID = RapidStpLayer::SerializedFields::MaxRapidFieldID + 8;
 		};
 
-	protected:
-		void serializeLayer(ObjectScope& serializer) const override;
-
-	public:
 		/// Empty c'tor to create a new Multiple STP layer.
 		/// Initializes the protocol identifier, version and STP type fields with correct values
 		MultipleStpLayer();
