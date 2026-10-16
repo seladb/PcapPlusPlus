@@ -829,6 +829,7 @@ namespace pcpp
 
 			~AutoClose()
 			{
+				// cppcheck-suppress knownConditionTrueFalse
 				if (shouldClose)
 				{
 					driver.close();
@@ -876,6 +877,8 @@ namespace pcpp
 
 		m_SnapshotLength = pcapFileHeader.snaplen;
 		m_ReadBuffer.resize(m_SnapshotLength);
+
+		// cppcheck-suppress unreadVariable
 		autoClose.shouldClose = false;  // Don't close the file, we are done with initialization.
 		return true;
 	}
