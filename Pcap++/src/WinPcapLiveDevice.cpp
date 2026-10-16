@@ -112,7 +112,7 @@ namespace pcpp
 		template <typename PacketElem>
 		int sendPacketBatchByQueue(PacketElem const* packetsArr, int arrLength, internal::PcapHandle& sendHandle)
 		{
-			if(arrLength <= 0)
+			if (arrLength <= 0)
 			{
 				PCPP_LOG_DEBUG("Empty array. No packets to send");
 				return 0;
@@ -120,7 +120,7 @@ namespace pcpp
 
 			int dataSize = 0;
 			int packetsSent = 0;
-			for(int i = 0; i < arrLength; i++)
+			for (int i = 0; i < arrLength; i++)
 			{
 				dataSize += deref(packetsArr[i]).getRawDataLen();
 			}
