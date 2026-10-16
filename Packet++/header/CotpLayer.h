@@ -91,6 +91,30 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by CotpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for CotpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ PduType, TpduNumber };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the COTP PDU type, written as a number.
+			static const FieldDescriptor PduType;
+
+			/// @brief Field descriptor for the COTP TPDU number, written as a number.
+			static const FieldDescriptor TpduNumber;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		cotphdr* getCotpHeader() const
 		{

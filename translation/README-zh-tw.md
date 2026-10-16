@@ -276,21 +276,22 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 42. DNS
 43. DoIP
 44. FTP
-45. HTTP 標頭（請求和響應）
-46. LDAP
-47. Modbus
-48. MySQL - 僅支援解析（不支援編輯）
-49. NTP (v3, v4)
-50. PEM 編碼器與解碼器
-51. PostgreSQL Wire Protocol (PGWire) - 僅支援解析（不支援編輯）
-52. Radius
-53. S7 通訊（S7comm）
-54. SMTP
-55. SOME/IP
-56. SSH - 僅支援解析（不支援編輯）
-57. Telnet - 僅支援解析（不支援編輯）
-58. X509 憑證 - 僅支援解析（不支援編輯）
-59. 通用酬載（Generic Payload）
+45. GVCP
+46. HTTP 標頭（請求和響應）
+47. LDAP
+48. Modbus
+49. MySQL - 僅支援解析（不支援編輯）
+50. NTP (v3, v4)
+51. PEM 編碼器與解碼器
+52. PostgreSQL Wire Protocol (PGWire) - 僅支援解析（不支援編輯）
+53. Radius
+54. S7 通訊（S7comm）
+55. SMTP
+56. SOME/IP
+57. SSH - 僅支援解析（不支援編輯）
+58. Telnet - 僅支援解析（不支援編輯）
+59. X509 憑證 - 僅支援解析（不支援編輯）
+60. 通用酬載（Generic Payload）
 
 ## DPDK 和 PF_RING 支援
 

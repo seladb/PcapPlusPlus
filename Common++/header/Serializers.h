@@ -279,4 +279,119 @@ namespace pcpp
 		std::vector<Context> m_ContextStack;
 		std::vector<bool> m_FirstAtLevel;
 	};
+
+	/// @class YamlSerializer
+	/// Serializer that writes YAML.
+	class YamlSerializer : public ISerializer
+	{
+	public:
+		using ISerializer::writeField;
+		using ISerializer::writeHexField;
+
+		/// Create a YAML serializer.
+		/// @param[in] out The output stream to which YAML is written
+		explicit YamlSerializer(std::ostream& out);
+
+	protected:
+		void writeField(const FieldDescriptor& field, const std::string& value) override;
+		void writeField(const FieldDescriptor& field, int64_t value) override;
+		void writeField(const FieldDescriptor& field, uint64_t value) override;
+		void writeField(const FieldDescriptor& field, double value) override;
+		void writeField(const FieldDescriptor& field, bool value) override;
+		void writeNullField(const FieldDescriptor& field) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
+
+		void startObject(const FieldDescriptor& field) override;
+		void endObject() override;
+		void startArray(const FieldDescriptor& field) override;
+		void endArray() override;
+
+	private:
+		enum class Context
+		{
+			EmptyArray,
+			Array,
+			Object
+		};
+
+		void writeIndent();
+		void writeNewlineIfNeeded();
+		// Called by startObject()/startArray(), BEFORE pushing the new
+		// context: writes the line introducing the container (a bare "-"
+		// for an array element, "name:" for an object member, or nothing
+		// at the document root) — content follows on subsequent, more
+		// deeply indented lines.
+		void writeContainerHeader(const std::string& name);
+		// Called by writeField()/writeNullField()/writeHexField(): writes
+		// everything on the current line up to (not including) the value
+		// itself — "- " inside an array, "name: " inside an object or at
+		// the root. Caller writes the actual value immediately after.
+		void writeFieldPrefix(const std::string& name);
+
+		bool isArrayContext() const;
+
+		std::ostream& m_Out;
+		std::vector<Context> m_ContextStack;
+		bool m_WriteNewLine = false;
+		bool m_WriteIdent = true;
+	};
+
+	/// @class XmlSerializer
+	/// Serializer that writes XML.
+	class XmlSerializer : public ISerializer
+	{
+	public:
+		using ISerializer::writeField;
+		using ISerializer::writeHexField;
+
+		/// Create an XML serializer.
+		/// @param[in] out The output stream to which YAML is written
+		explicit XmlSerializer(std::ostream& out);
+
+	protected:
+		void writeField(const FieldDescriptor& field, const std::string& value) override;
+		void writeField(const FieldDescriptor& field, int64_t value) override;
+		void writeField(const FieldDescriptor& field, uint64_t value) override;
+		void writeField(const FieldDescriptor& field, double value) override;
+		void writeField(const FieldDescriptor& field, bool value) override;
+		void writeNullField(const FieldDescriptor& field) override;
+		void writeHexField(const FieldDescriptor& field, uint64_t value) override;
+
+		void startObject(const FieldDescriptor& field) override;
+		void endObject() override;
+		void startArray(const FieldDescriptor& field) override;
+		void endArray() override;
+
+	private:
+		struct Context
+		{
+			std::string name;  // Element name
+			bool isArray;      // True if this is an array container
+		};
+
+		// Core writing methods
+		void writeOpenTag(const std::string& name);
+		void writeCloseTag(const std::string& name);
+		void writeValueElement(const std::string& name, const std::string& value, bool isNull = false);
+		void writeIndent();
+
+		// XML escaping (handles &, <, >, ", ')
+		static std::string escapeXML(const std::string& s);
+
+		// Checks if a string is safe to use as an XML name
+		static bool isValidXMLName(const std::string& name);
+
+		// Returns `name` if it's a valid XML element name, otherwise
+		// `fallback`. Centralizes the isValidXMLName()-check-plus-fallback
+		// pattern that every writeField()/startObject()/startArray()
+		// overload below needs.
+		static std::string resolveElementName(const std::string& name, const char* fallback);
+
+		// State
+		std::ostream& m_Out;
+		std::vector<Context> m_ContextStack;
+
+		// Optimization: pre-allocate indentation strings
+		mutable std::vector<std::string> m_IndentCache;
+	};
 }  // namespace pcpp
