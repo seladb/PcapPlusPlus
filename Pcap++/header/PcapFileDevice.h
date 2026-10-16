@@ -204,6 +204,7 @@ namespace pcpp
 	class PcapFileReaderDevice : public IFileReaderDevice
 	{
 	public:
+		/// @brief An enumeration specifying the type of I/O driver to use for reading the file.
 		enum class IODriverType
 		{
 			/// @brief Automatically choose a driver type based on the file.
@@ -217,10 +218,22 @@ namespace pcpp
 			EXPERIMENTAL_AsyncPrefetch = 101,
 		};
 
+		/// @brief A full configuration specifying the I/O driver to use for reading the file.
 		struct IODriverConfig
 		{
+			/// @brief The driver type.
 			IODriverType driverType = IODriverType::Auto;
+
+			/// @brief Number of prefetch buffers to use.
+			/// Set to 0 to let the driver decide automatically.
+			///
+			/// @remarks Only applicable to EXPERIMENTAL_AsyncPrefetch driver.
 			size_t numPrefetchBuffers = 0;
+
+			/// @brief Number of prefetch buffers to use.
+			///	Set to 0 to let the driver decide automatically.
+			///
+			/// @remarks Only applicable to EXPERIMENTAL_AsyncPrefetch driver.
 			size_t prefetchBufferSize = 0;
 		};
 
