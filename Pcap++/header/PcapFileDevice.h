@@ -174,6 +174,8 @@ namespace pcpp
 		public:
 			virtual ~FileIOReadDriver() = default;
 
+			/// @brief Check if the IO driver is open.
+			/// @return True if open, false otherwise.
 			virtual bool isOpen() const = 0;
 
 			/// @brief Opens the file with the given filename for reading.
@@ -222,12 +224,21 @@ namespace pcpp
 			size_t prefetchBufferSize = 0;
 		};
 
-		/// A constructor for this class that gets the pcap full path file name to open. Notice that after calling this
-		/// constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
+		/// @brief Creates a new device instance with the specified file name and I/O driver type.
+		/// 
+		/// The device still needs to be opened using the `open()` method before it can be used to read packets.
+		/// 
 		/// @param[in] fileName The full path of the file to read
 		/// @param[in] driver The type of file I/O driver to use for reading the file. The default is Auto, which will
 		/// choose the best driver based on the file.
 		explicit PcapFileReaderDevice(const std::string& fileName, IODriverType driver = IODriverType::Auto);
+
+		/// @brief Creates a new device instance with the specified file name and I/O driver configuration. 
+		/// 
+		/// The device still needs to be opened using the `open()` method before it can be used to read packets.
+		/// 
+		/// @param[in] fileName The full path of the file to read
+		/// @param[in] config The I/O driver configuration to use for reading the file
 		explicit PcapFileReaderDevice(const std::string& fileName, IODriverConfig config);
 
 		/// A destructor for this class
@@ -236,6 +247,7 @@ namespace pcpp
 		PcapFileReaderDevice(const PcapFileReaderDevice& other) = delete;
 		PcapFileReaderDevice& operator=(const PcapFileReaderDevice& other) = delete;
 
+		/// @brief Gets the I/O driver type used by this device.
 		IODriverType getDriverType() const
 		{
 			return m_IODriverConfig.driverType;
