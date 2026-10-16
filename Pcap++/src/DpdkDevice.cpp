@@ -1281,7 +1281,7 @@ namespace pcpp
 		return packetSent;
 	}
 
-	bool DpdkDevice::sendPacket(Packet& packet, uint16_t txQueueId, bool useTxBuffer)
+	bool DpdkDevice::sendPacket(const Packet& packet, uint16_t txQueueId, bool useTxBuffer)
 	{
 		return sendPacket(*(packet.getRawPacket()), txQueueId);
 	}
