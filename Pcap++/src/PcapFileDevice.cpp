@@ -827,7 +827,6 @@ namespace pcpp
 			}
 			case IODriverType::EXPERIMENTAL_AsyncPrefetch:
 			{
-<<<<<<< HEAD
 				PCPP_LOG_DEBUG("File I/O Driver: Windows IORing Driver");
 				internal::WindowsIoRingDriver::IoRingConfig ioRingConfig;
 				if (m_IODriverConfig.numPrefetchBuffers > 0)
@@ -835,29 +834,6 @@ namespace pcpp
 				if (m_IODriverConfig.prefetchBufferSize > 0)
 					ioRingConfig.bufferSize = m_IODriverConfig.prefetchBufferSize;
 				m_FileIODriver = std::make_unique<internal::WindowsIoRingDriver>(ioRingConfig);
-=======
-				// TODO: Hook up prefetch driver when it is implemented
-			switch (m_IODriverConfig.driverType) {
-			case IODriverType::Auto:
-			case IODriverType::Fstream:
-			{
-				PCPP_LOG_DEBUG("File I/O driver: FileStream driver");	
-				m_FileIODriver = std::make_unique<FstreamFileIODriver>();
-				break;
-			}
-			case IODriverType::EXPERIMENTAL_AsyncPrefetch:
-			{
-				PCPP_LOG_DEBUG("File I/O Driver: Windows IORing Driver");
-				internal::WindowsIoRingDriver::IoRingConfig ioRingConfig;
-				if (m_IODriverConfig.numPrefetchBuffers > 0)
-					ioRingConfig.numBuffers = m_IODriverConfig.numPrefetchBuffers;
-				if (m_IODriverConfig.prefetchBufferSize > 0)
-					ioRingConfig.bufferSize = m_IODriverConfig.prefetchBufferSize;
-				m_FileIODriver = std::make_unique<internal::WindowsIoRingDriver>(ioRingConfig);
-				break;
-			}
-			}
->>>>>>> feature/file-io-driver
 				break;
 			}
 			}
