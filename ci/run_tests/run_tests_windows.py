@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 import logging
 import argparse
 import subprocess
@@ -52,7 +53,10 @@ def find_interface() -> tuple[str, IPv4Address] | tuple[None, None]:
     for row in raw_nics_output.split("\n")[2:]:
         columns = row.split("\t")
         if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
-            interface = columns[1]
+            # tcpreplay is a Cygwin binary which re-parses its command line POSIX-style, stripping the
+            # backslashes and braces from "\Device\NPF_{GUID}". Use its interface alias (e.g. "%1") instead
+            alias = columns[0].strip()
+            interface = columns[1].strip()
             try:
                 nic_guid = interface.lstrip("\\Device\\NPF_")
 
@@ -72,7 +76,7 @@ def find_interface() -> tuple[str, IPv4Address] | tuple[None, None]:
                 if completed_process.returncode != 0:
                     continue
 
-                return interface, ipv4
+                return alias, ipv4
             except Exception:
                 pass
     return None, None
@@ -85,6 +89,14 @@ def tcp_replay_worker(interface: str, tcpreplay_dir: Path, source_pcap: Path):
         cwd=tcpreplay_dir,
         shell=True,
     )
+
+    # Make sure tcpreplay actually started sending traffic, otherwise the live capture tests run without it
+    time.sleep(2)
+    if tcpreplay_proc.poll() is not None:
+        logging.critical(
+            f"tcpreplay exited unexpectedly with code {tcpreplay_proc.returncode}"
+        )
+        exit(1)
 
     try:
         yield tcpreplay_proc
