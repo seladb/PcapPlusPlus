@@ -212,7 +212,7 @@ namespace pcpp
 			Fstream = 1,
 
 			/// @brief Use asynchronous prefetching of the file.
-			/// 
+			///
 			/// This is an experimental feature and may not be supported on all platforms.
 			EXPERIMENTAL_AsyncPrefetch = 101,
 		};
@@ -225,18 +225,18 @@ namespace pcpp
 		};
 
 		/// @brief Creates a new device instance with the specified file name and I/O driver type.
-		/// 
+		///
 		/// The device still needs to be opened using the `open()` method before it can be used to read packets.
-		/// 
+		///
 		/// @param[in] fileName The full path of the file to read
 		/// @param[in] driver The type of file I/O driver to use for reading the file. The default is Auto, which will
 		/// choose the best driver based on the file.
 		explicit PcapFileReaderDevice(const std::string& fileName, IODriverType driver = IODriverType::Auto);
 
-		/// @brief Creates a new device instance with the specified file name and I/O driver configuration. 
-		/// 
+		/// @brief Creates a new device instance with the specified file name and I/O driver configuration.
+		///
 		/// The device still needs to be opened using the `open()` method before it can be used to read packets.
-		/// 
+		///
 		/// @param[in] fileName The full path of the file to read
 		/// @param[in] config The I/O driver configuration to use for reading the file
 		explicit PcapFileReaderDevice(const std::string& fileName, IODriverConfig config);
