@@ -14,6 +14,7 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest);
 // Implemented in VlanMplsTests.cpp
 PTF_TEST_CASE(VlanParseAndCreation);
 PTF_TEST_CASE(QinQ802_1adParse);
+PTF_TEST_CASE(TruncatedArpAndVlanPayloadTest);
 PTF_TEST_CASE(MplsLayerTest);
 PTF_TEST_CASE(VxlanParsingAndCreationTest);
 
@@ -92,6 +93,7 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest);
 PTF_TEST_CASE(DnsLayerResourceCreationTest);
 PTF_TEST_CASE(DnsLayerEditTest);
 PTF_TEST_CASE(DnsLayerRemoveResourceTest);
+PTF_TEST_CASE(DnsLayerAddResourceOutOfOrderTest);
 PTF_TEST_CASE(DnsOverTcpParsingTest);
 PTF_TEST_CASE(DnsOverTcpCreationTest);
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest);

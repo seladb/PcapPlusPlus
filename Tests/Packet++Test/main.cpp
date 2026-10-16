@@ -128,6 +128,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(QinQ802_1adParse, "vlan");
+	PTF_RUN_TEST(TruncatedArpAndVlanPayloadTest, "vlan;arp;sll;gre");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
 	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
 
@@ -198,6 +199,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DnsLayerResourceCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerEditTest, "dns");
 	PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
+	PTF_RUN_TEST(DnsLayerAddResourceOutOfOrderTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpParsingTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerAddDnsKeyTest, "dns");
