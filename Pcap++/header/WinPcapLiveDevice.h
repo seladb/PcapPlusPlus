@@ -37,9 +37,6 @@ namespace pcpp
 			return WinPcapDevice;
 		}
 
-		using PcapLiveDevice::sendPackets;
-		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
-
 		/// WinPcap/Npcap have a feature (that doesn't exist in libpcap) to change the minimum amount of data in the
 		/// kernel buffer that causes a read from the application to return (unless the timeout expires). Please see
 		/// documentation for pcap_setmintocopy for more info. This method enables the user to change this size. Note
@@ -59,5 +56,9 @@ namespace pcpp
 
 	protected:
 		void prepareCapture(bool asyncCapture, bool captureStats) override;
+
+		int sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength) override;
+
+		int sendPacketBatchUncheckedIndirect(RawPacket const* const* rawPacketsArr, int arrLength) override;
 	};
 }  // namespace pcpp
