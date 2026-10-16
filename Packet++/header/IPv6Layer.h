@@ -4,6 +4,8 @@
 #include "IPLayer.h"
 #include "IPv6Extensions.h"
 #include "IpAddress.h"
+#include <algorithm>
+#include <iterator>
 
 /// @file
 
@@ -189,6 +191,62 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by IPv6Layer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for IPv6Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SrcIp,      DstIp,      PayloadLength,
+					                                          IsFragment, NextHeader, Extensions };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @struct IPv6ExtensionObject
+			/// Fields describing one element of the Extensions array
+			struct IPv6ExtensionObject : ObjectFieldDescriptor<IPv6ExtensionObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one extension header
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Name, Type };
+				}
+
+				/// @brief Extension type name (e.g. "Fragment", "Hop-By-Hop")
+				static const FieldDescriptor Name;
+
+				/// @brief Raw numeric extension type
+				static const FieldDescriptor Type;
+			};
+
+			/// @brief Source IP address, as a string
+			static const FieldDescriptor SrcIp;
+
+			/// @brief Destination IP address, as a string
+			static const FieldDescriptor DstIp;
+
+			/// @brief Payload length, in host byte order
+			static const FieldDescriptor PayloadLength;
+
+			/// @brief Whether this packet is a fragment
+			static const FieldDescriptor IsFragment;
+
+			/// @brief Next Header field (first extension header, or upper-layer protocol if none)
+			static const FieldDescriptor NextHeader;
+
+			/// @brief Array of extension headers; elements described by IPv6ExtensionObject
+			static const FieldDescriptor Extensions;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		void initLayer();

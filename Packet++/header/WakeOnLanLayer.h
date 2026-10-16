@@ -137,5 +137,29 @@ namespace pcpp
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by WakeOnLanLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for WakeOnLanLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ TargetAddress, Password };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Target MAC address that the magic packet wakes, as a string
+			static const FieldDescriptor TargetAddress;
+
+			/// @brief Optional SecureOn password, if present
+			static const FieldDescriptor Password;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp

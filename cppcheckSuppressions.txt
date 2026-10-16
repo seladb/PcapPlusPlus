@@ -4,7 +4,6 @@ checkersReport:*
 ConfigurationNotChecked:*
 ctuOneDefinitionRuleViolation:Examples/*
 missingInclude:*
-unknownMacro:*
 unusedFunction:*
 unusedStructMember:*
 
@@ -13,6 +12,7 @@ noExplicitConstructor:Common++/header/MacAddress.h
 useStlAlgorithm:Packet++/src/Asn1Codec.cpp
 noExplicitConstructor:Pcap++/header/PcapFileDevice.h
 
+unknownMacro:Tests/*
 missingOverride:Pcap++/*
 missingOverride:Examples/*
 cstyleCast:*

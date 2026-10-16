@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 {
 	// use the IFileReaderDevice interface to automatically identify file type (pcap/pcap-ng)
 	// and create an interface instance that both readers implement
-	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader("1_http_packet.pcap"));
+	auto reader = pcpp::IFileReaderDevice::tryCreateReader("1_http_packet.pcap");
 
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 	// open the reader for reading
 	if (!reader->open())
 	{
-		std::cerr << "Cannot open input.pcap for reading" << std::endl;
+		std::cerr << "Cannot open 1_http_packet.pcap for reading" << std::endl;
 		return 1;
 	}
 

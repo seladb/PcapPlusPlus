@@ -159,8 +159,8 @@ void listDpdkPorts()
  * Prepare the configuration for each core. Configuration includes: which DpdkDevices and which RX queues to receive
  * packets from, where to send the matched packets, etc.
  */
-void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
-                              std::vector<pcpp::SystemCore>& coresToUse, bool writePacketsToDisk,
+void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*> const& dpdkDevicesToUse,
+                              std::vector<pcpp::SystemCore> const& coresToUse, bool writePacketsToDisk,
                               const std::string& packetFilePath, pcpp::DpdkDevice* sendPacketsTo,
                               std::vector<AppWorkerConfig>& workerConfigArr, int workerConfigArrLen, uint16_t rxQueues)
 {
@@ -269,7 +269,7 @@ void printStats(const PacketStats& threadStats, const std::string& columnName)
  */
 void onApplicationInterrupted(void* cookie)
 {
-	FilterTrafficArgs* args = (FilterTrafficArgs*)cookie;
+	FilterTrafficArgs* args = static_cast<FilterTrafficArgs*>(cookie);
 
 	std::cout << std::endl << std::endl << "Application stopped" << std::endl;
 
@@ -281,7 +281,7 @@ void onApplicationInterrupted(void* cookie)
 	std::vector<PacketStats> threadStatsVec;
 	for (const auto& iter : *(args->workerThreadsVector))
 	{
-		AppWorkerThread* thread = (AppWorkerThread*)(iter);
+		AppWorkerThread* thread = static_cast<AppWorkerThread*>(iter);
 		PacketStats threadStats = thread->getStats();
 		aggregatedStats.collectStats(threadStats);
 		threadStatsVec.push_back(threadStats);
@@ -289,7 +289,7 @@ void onApplicationInterrupted(void* cookie)
 	}
 
 	// print stats for every worker threads
-	for (auto threadStats : threadStatsVec)
+	for (auto const& threadStats : threadStatsVec)
 	{
 		// no need to print table if no packets were received
 		if (threadStats.packetCount == 0)

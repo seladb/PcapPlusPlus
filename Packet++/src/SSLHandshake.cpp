@@ -1054,7 +1054,7 @@ namespace pcpp
 
 	SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 	{
-		std::unordered_map<uint16_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteIdToObjectMap.find(id);
+		auto pos = CipherSuiteIdToObjectMap.find(id);
 		if (pos == CipherSuiteIdToObjectMap.end())
 			return nullptr;
 		else
@@ -1064,7 +1064,7 @@ namespace pcpp
 	SSLCipherSuite* SSLCipherSuite::getCipherSuiteByName(std::string name)
 	{
 		uint32_t nameHash = hashString(std::move(name));
-		std::unordered_map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
+		auto pos = CipherSuiteStringToObjectMap.find(nameHash);
 		if (pos == CipherSuiteStringToObjectMap.end())
 			return nullptr;
 		else
@@ -1138,7 +1138,10 @@ namespace pcpp
 	std::string SSLServerNameIndicationExtension::getHostName() const
 	{
 		auto* extensionDataPtr = getData();
-		if (extensionDataPtr == nullptr)
+		// server name list length + name type + host name length
+		constexpr size_t minExtensionDataLen = sizeof(uint16_t) + sizeof(uint8_t) + sizeof(uint16_t);
+		auto length = getLength();
+		if (extensionDataPtr == nullptr || length < minExtensionDataLen)
 		{
 			return "";
 		}
@@ -1148,7 +1151,7 @@ namespace pcpp
 
 		uint8_t const* hostNameDataIt = hostNameLengthPos + sizeof(uint16_t);
 		uint8_t const* hostNameDataEndIt = hostNameDataIt + hostNameLength;
-		uint8_t const* extensionDataEndIt = extensionDataPtr + getLength();
+		uint8_t const* extensionDataEndIt = extensionDataPtr + length;
 
 		if (hostNameDataEndIt > extensionDataEndIt)
 		{
@@ -1167,6 +1170,9 @@ namespace pcpp
 	{
 		std::vector<SSLVersion> result;
 		uint16_t extensionLength = getLength();
+		if (extensionLength == 0)
+			return result;  // bad extension data
+
 		if (extensionLength == 2)  // server hello message
 		{
 			result.push_back(SSLVersion(be16toh(*reinterpret_cast<uint16_t*>(getData()))));
@@ -1207,7 +1213,7 @@ namespace pcpp
 		uint8_t* dataPtr = getData() + sizeof(uint16_t);
 		for (int i = 0; i < listLength / 2; i++)
 		{
-			result.push_back(be16toh(*(uint16_t*)dataPtr));
+			result.push_back(be16toh(*reinterpret_cast<uint16_t*>(dataPtr)));
 			dataPtr += sizeof(uint16_t);
 		}
 
@@ -1540,7 +1546,7 @@ namespace pcpp
 			return 0;
 
 		uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
-		return be16toh(*(uint16_t*)extensionLengthPos);
+		return be16toh(*reinterpret_cast<uint16_t*>(extensionLengthPos));
 	}
 
 	SSLExtension* SSLClientHelloMessage::getExtension(int index) const
@@ -1965,7 +1971,7 @@ namespace pcpp
 		// read certificates length
 		// TODO: certificates length is 3B. Currently assuming the MSB is 0 and reading only 2 LSBs
 		uint8_t* curPos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
-		uint16_t certificatesLength = be16toh(*(uint16_t*)(curPos));
+		uint16_t certificatesLength = be16toh(*reinterpret_cast<uint16_t*>(curPos));
 		if (certificatesLength == 0)
 			return;
 
@@ -1981,7 +1987,7 @@ namespace pcpp
 
 			// read certificate length
 			curPos += sizeof(uint8_t);
-			uint16_t certificateLength = be16toh(*(uint16_t*)(curPos));
+			uint16_t certificateLength = be16toh(*reinterpret_cast<uint16_t*>(curPos));
 
 			// advance to start position of certificate
 			curPos += sizeof(uint16_t);

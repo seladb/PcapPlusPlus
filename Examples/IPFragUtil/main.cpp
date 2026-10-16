@@ -218,9 +218,13 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 
 		// set fragment parameters in IPv4/6 layer
 		if (ipProto == pcpp::IPv4)
-			setIPv4FragmentParams((pcpp::IPv4Layer*)fragIpLayer, curOffset, lastFrag);
+		{
+			setIPv4FragmentParams(static_cast<pcpp::IPv4Layer*>(fragIpLayer), curOffset, lastFrag);
+		}
 		else  // ipProto == IPv6
-			setIPv6FragmentParams((pcpp::IPv6Layer*)fragIpLayer, curOffset, lastFrag, randomNum);
+		{
+			setIPv6FragmentParams(static_cast<pcpp::IPv6Layer*>(fragIpLayer), curOffset, lastFrag, randomNum);
+		}
 
 		// compute all calculated fields of the new fragment
 		newFrag.computeCalculateFields();
