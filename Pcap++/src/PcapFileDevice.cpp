@@ -757,12 +757,49 @@ namespace pcpp
 		};
 	}  // namespace
 
+	PcapFileReaderDevice::PcapFileReaderDevice(const std::string& fileName, IODriverType config)
+	    : PcapFileReaderDevice(fileName, IODriverConfig{ config })
+	{}
+
+	PcapFileReaderDevice::PcapFileReaderDevice(const std::string& fileName, IODriverConfig config)
+	    : IFileReaderDevice(fileName), m_IODriverConfig(config)
+	{
+		switch (config.driverType) {
+		case IODriverType::Auto:
+			break;  // Defer to open() to select the driver
+		case IODriverType::Fstream:
+			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+			break;
+		case IODriverType::EXPERIMENTAL_AsyncPrefetch:
+		{
+			// TODO: Hook up prefetch driver when it is implemented
+			PCPP_LOG_WARN("File I/O Driver: Unsupported driver type EXPERIMENTAL_AsyncPrefetch selected. Falling back to Fstream driver");
+			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+			break;
+		}
+		}
+	}
+
 	bool PcapFileReaderDevice::open()
 	{
 		if (m_FileIODriver == nullptr)
 		{
-			PCPP_LOG_DEBUG("File I/O driver is not set, using default fstream driver");
-			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+			switch (m_IODriverConfig.driverType) {
+			case IODriverType::Auto:
+			case IODriverType::Fstream:
+			{
+				PCPP_LOG_DEBUG("File I/O driver: FileStream driver");	
+				m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+				break;
+			}
+			case IODriverType::EXPERIMENTAL_AsyncPrefetch:
+			{
+				// TODO: Hook up prefetch driver when it is implemented
+				PCPP_LOG_WARN("File I/O Driver: Unsupported driver type EXPERIMENTAL_AsyncPrefetch selected. Falling back to Fstream driver");
+				m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+				break;
+			}
+			}
 		}
 
 		if (m_FileIODriver->isOpen())
