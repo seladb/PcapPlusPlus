@@ -165,9 +165,10 @@ namespace pcpp
 	namespace internal
 	{
 		/// @brief An abstract class that defines an interface for reading files.
-		/// 
+		///
 		/// This class is used in PcapFileReaderDevice to abstract away the file reading mechanism.
-		/// This can be used to provide different implementations for reading files, such as standard C++ streams, prefetching, etc.
+		/// This can be used to provide different implementations for reading files, such as standard C++ streams,
+		/// prefetching, etc.
 		class FileIOReadDriver
 		{
 		public:
@@ -187,13 +188,13 @@ namespace pcpp
 			/// @param[in] size The number of bytes to read. Must be less than or equal to the size of the buffer.
 			/// @return The number of bytes actually read.
 			virtual size_t readBytes(char* buffer, size_t size) = 0;
-			
+
 			/// @brief Ignores a specified number of bytes in the file.
 			/// @param[in] size The number of bytes to ignore.
 			/// @return The number of bytes actually ignored.
 			virtual size_t ignoreBytes(size_t size) = 0;
 		};
-	}
+	}  // namespace internal
 
 	/// @class PcapFileReaderDevice
 	/// A class for opening a pcap file in read-only mode. This class enable to open the file and read all packets,
@@ -201,17 +202,44 @@ namespace pcpp
 	class PcapFileReaderDevice : public IFileReaderDevice
 	{
 	public:
+		enum class IODriverType
+		{
+			/// @brief Automatically choose a driver type based on the file.
+			Auto = 0,
+			/// @brief Use the standard C++ fstream driver for reading the file.
+			Fstream = 1,
+
+			/// @brief Use asynchronous prefetching of the file.
+			/// 
+			/// This is an experimental feature and may not be supported on all platforms.
+			EXPERIMENTAL_AsyncPrefetch = 101,
+		};
+
+		struct IODriverConfig
+		{
+			IODriverType driverType = IODriverType::Auto;
+			size_t numPrefetchBuffers = 0;
+			size_t prefetchBufferSize = 0;
+		};
+
 		/// A constructor for this class that gets the pcap full path file name to open. Notice that after calling this
 		/// constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
 		/// @param[in] fileName The full path of the file to read
-		explicit PcapFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName)
-		{}
+		/// @param[in] driver The type of file I/O driver to use for reading the file. The default is Auto, which will
+		/// choose the best driver based on the file.
+		explicit PcapFileReaderDevice(const std::string& fileName, IODriverType driver = IODriverType::Auto);
+		explicit PcapFileReaderDevice(const std::string& fileName, IODriverConfig config);
 
 		/// A destructor for this class
 		~PcapFileReaderDevice() override = default;
 
 		PcapFileReaderDevice(const PcapFileReaderDevice& other) = delete;
 		PcapFileReaderDevice& operator=(const PcapFileReaderDevice& other) = delete;
+
+		IODriverType getDriverType() const
+		{
+			return m_IODriverConfig.driverType;
+		}
 
 		/// @return The link layer type of this file
 		LinkLayerType getLinkLayerType() const
@@ -263,6 +291,7 @@ namespace pcpp
 		void close() override;
 
 	private:
+		IODriverConfig m_IODriverConfig;
 		std::unique_ptr<internal::FileIOReadDriver> m_FileIODriver;
 
 		FileTimestampPrecision m_Precision = FileTimestampPrecision::Unknown;

@@ -758,15 +758,56 @@ namespace pcpp
 		};
 	}  // namespace
 
+	PcapFileReaderDevice::PcapFileReaderDevice(const std::string& fileName, IODriverType config)
+	    : PcapFileReaderDevice(fileName, IODriverConfig{ config })
+	{}
+
+	PcapFileReaderDevice::PcapFileReaderDevice(const std::string& fileName, IODriverConfig config)
+	    : IFileReaderDevice(fileName), m_IODriverConfig(config)
+	{
+		switch (config.driverType) {
+		case IODriverType::Auto:
+			break;  // Defer to open() to select the driver
+		case IODriverType::Fstream:
+			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+			break;
+		case IODriverType::EXPERIMENTAL_AsyncPrefetch:
+		{
+			internal::WindowsIoRingDriver::IoRingConfig ioRingConfig;
+			if (config.numPrefetchBuffers > 0)
+				ioRingConfig.numBuffers = config.numPrefetchBuffers;
+			if (config.prefetchBufferSize > 0)
+				ioRingConfig.bufferSize = config.prefetchBufferSize;
+			m_FileIODriver = std::make_unique<internal::WindowsIoRingDriver>(ioRingConfig);
+			break;
+		}
+		}
+	}
+
 	bool PcapFileReaderDevice::open()
 	{
 		if (m_FileIODriver == nullptr)
 		{
-			PCPP_LOG_DEBUG("File I/O driver is not set, using default fstream driver");
-			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
-
-			//PCPP_LOG_DEBUG("File I/O Driver: Windows IORing Driver");
-			//m_FileIODriver = std::make_unique<internal::WindowsIoRingDriver>();
+			switch (m_IODriverConfig.driverType) {
+			case IODriverType::Auto:
+			case IODriverType::Fstream:
+			{
+				PCPP_LOG_DEBUG("File I/O driver: FileStream driver");	
+				m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+				break;
+			}
+			case IODriverType::EXPERIMENTAL_AsyncPrefetch:
+			{
+				PCPP_LOG_DEBUG("File I/O Driver: Windows IORing Driver");
+				internal::WindowsIoRingDriver::IoRingConfig ioRingConfig;
+				if (m_IODriverConfig.numPrefetchBuffers > 0)
+					ioRingConfig.numBuffers = m_IODriverConfig.numPrefetchBuffers;
+				if (m_IODriverConfig.prefetchBufferSize > 0)
+					ioRingConfig.bufferSize = m_IODriverConfig.prefetchBufferSize;
+				m_FileIODriver = std::make_unique<internal::WindowsIoRingDriver>(ioRingConfig);
+				break;
+			}
+			}
 		}
 
 		if (m_FileIODriver->isOpen())
