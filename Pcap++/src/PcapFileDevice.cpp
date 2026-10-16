@@ -698,7 +698,8 @@ namespace pcpp
 		/// The function will populate the file header structure and convert it to host byte order.
 		///
 		/// @param[in] inStream The input stream to read from.
-		/// @param[out] header A pcap_file_header structure that will be filled with the header data read from the stream.
+		/// @param[out] header A pcap_file_header structure that will be filled with the header data read from the
+		/// stream.
 		/// @param[out] precision The precision of the timestamps in the pcap file.
 		/// @param[out] needsSwap If the file contents need to be byte-swapped to match the host's endianness.
 		/// @return The status of the reading operation.
@@ -715,7 +716,7 @@ namespace pcpp
 			size_t bytesRead = fileDriver.readBytes(reinterpret_cast<char*>(&header), sizeof(header));
 			return parsePcapHeader(static_cast<size_t>(bytesRead), header, precision, needsSwap);
 		}
-	
+
 		class FstreamFileIODriver : public internal::FileIOReadDriver
 		{
 		public:
@@ -765,7 +766,8 @@ namespace pcpp
 	PcapFileReaderDevice::PcapFileReaderDevice(const std::string& fileName, IODriverConfig config)
 	    : IFileReaderDevice(fileName), m_IODriverConfig(config)
 	{
-		switch (config.driverType) {
+		switch (config.driverType)
+		{
 		case IODriverType::Auto:
 			break;  // Defer to open() to select the driver
 		case IODriverType::Fstream:
@@ -814,11 +816,12 @@ namespace pcpp
 	{
 		if (m_FileIODriver == nullptr)
 		{
-			switch (m_IODriverConfig.driverType) {
+			switch (m_IODriverConfig.driverType)
+			{
 			case IODriverType::Auto:
 			case IODriverType::Fstream:
 			{
-				PCPP_LOG_DEBUG("File I/O driver: FileStream driver");	
+				PCPP_LOG_DEBUG("File I/O driver: FileStream driver");
 				m_FileIODriver = std::make_unique<FstreamFileIODriver>();
 				break;
 			}
@@ -1028,7 +1031,8 @@ namespace pcpp
 			packetHeader.caplen = packetDataLen;
 		}
 
-		if (packetHeader.caplen > 0 && m_FileIODriver->readBytes(reinterpret_cast<char*>(packetData), packetHeader.caplen) != packetHeader.caplen)
+		if (packetHeader.caplen > 0 &&
+		    m_FileIODriver->readBytes(reinterpret_cast<char*>(packetData), packetHeader.caplen) != packetHeader.caplen)
 		{
 			PCPP_LOG_ERROR("Failed to read packet data");
 			return false;
