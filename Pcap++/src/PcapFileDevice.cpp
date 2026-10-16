@@ -1323,11 +1323,13 @@ namespace pcpp
 		return checkZstdSupport();
 	}
 
-	PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel)
+	PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel,
+	                                               size_t ioBufferSize)
 	    : IFileWriterDevice(fileName)
 	{
 		m_LightPcapNg = nullptr;
 		m_CompressionLevel = compressionLevel;
+		m_IOBufferSize = ioBufferSize;
 	}
 
 	bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const std::string& comment)
@@ -1429,7 +1431,8 @@ namespace pcpp
 			                              metadata->captureApplication.c_str(), metadata->comment.c_str());
 		}
 
-		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel));
+		m_LightPcapNg =
+		    toLightPcapNgHandle(light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel, m_IOBufferSize));
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '"
@@ -1457,7 +1460,7 @@ namespace pcpp
 
 		resetStatisticCounters();
 
-		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_append(m_FileName.c_str()));
+		m_LightPcapNg = toLightPcapNgHandle(light_pcapng_open_append(m_FileName.c_str(), m_IOBufferSize));
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device in append mode for file '"
