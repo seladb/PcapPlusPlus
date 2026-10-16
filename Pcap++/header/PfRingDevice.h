@@ -169,7 +169,7 @@ namespace pcpp
 
 		/// @brief Start multi-threaded (multi-core) capture with callback. Works with openMultiRxChannels().
 		///
-		/// A capture thread will be started for each RX channel opened on this device. Thread afinity will be assigned
+		/// A capture thread will be started for each RX channel opened on this device. Thread affinity will be assigned
 		/// to each thread automatically, prioritizing cores with lower IDs first.
 		///
 		/// The callback must be callable from multiple threads simultaneously, as the device implementation
