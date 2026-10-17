@@ -166,7 +166,7 @@ def main():
         subprocess.run(
             [
                 "OpenCppCoverage.exe",
-                "--verbose",
+                "--verbose" if logging.root.level <= logging.DEBUG else "", # Only add verbose flag if logging level is DEBUG or lower
                 "--sources",
                 "Packet++",
                 "--sources",
@@ -217,7 +217,7 @@ def main():
             subprocess.run(
                 [
                     "OpenCppCoverage.exe",
-                    "--verbose",
+                    "--verbose" if logging.root.level <= logging.DEBUG else "", # Only add verbose flag if logging level is DEBUG or lower
                     "--sources",
                     "Packet++",
                     "--sources",
