@@ -163,12 +163,14 @@ def main():
 
     if args.coverage:
         logging.debug("Running Packet++ tests with coverage from: %s", packet_exec_path)
+        extra = []
+        if logging.root.level <= logging.DEBUG:
+            extra.append("--verbose")
+
         subprocess.run(
             [
                 "OpenCppCoverage.exe",
-                "--verbose"
-                if logging.root.level <= logging.DEBUG
-                else "",  # Only add verbose flag if logging level is DEBUG or lower
+                *extra,
                 "--sources",
                 "Packet++",
                 "--sources",
@@ -215,13 +217,15 @@ def main():
         )
 
         if args.coverage:
+            extra = []
+            if logging.root.level <= logging.DEBUG:
+                extra.append("--verbose")
+
             logging.debug("Running Pcap++ tests with coverage from: %s", pcap_exec_path)
             subprocess.run(
                 [
                     "OpenCppCoverage.exe",
-                    "--verbose"
-                    if logging.root.level <= logging.DEBUG
-                    else "",  # Only add verbose flag if logging level is DEBUG or lower
+                    *extra,
                     "--sources",
                     "Packet++",
                     "--sources",
