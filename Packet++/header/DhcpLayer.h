@@ -462,7 +462,11 @@ namespace pcpp
 			    data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
 				return true;
 
-			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
+			if (!TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen))
+				return false;
+
+			return tlvDataLen >= sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen) +
+			                   static_cast<size_t>(data->recordLen);
 		}
 
 		// implement abstract methods
