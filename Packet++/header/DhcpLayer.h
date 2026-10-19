@@ -466,7 +466,7 @@ namespace pcpp
 				return false;
 
 			return tlvDataLen >= sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen) +
-			                   static_cast<size_t>(data->recordLen);
+			                         static_cast<size_t>(data->recordLen);
 		}
 
 		// implement abstract methods
