@@ -74,8 +74,10 @@ static bool packetArrivesBlockingModeStartCapture(pcpp::RawPacket* rawPacket, pc
 static bool packetArrivesBlockingModeStopCapture(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev,
                                                  void* userCookie)
 {
+#ifdef USE_PCAP
 	// shouldn't do anything
 	dev->stopCapture();
+#endif  // USE_PCAP
 
 	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
