@@ -469,7 +469,7 @@ namespace pcpp
 		/// factor please make sure you send a parsed packet that contains a raw packet of type MBufRawPacket
 		/// @return True if packet was sent successfully or false if device is not opened or if the packet wasn't sent
 		/// for any other reason
-		bool sendPacket(Packet& packet);
+		bool sendPacket(const Packet& packet);
 
 		/// @brief Start capturing packets asynchronously on this KNI interface.
 		/// Each time a burst of packets is captured the onPacketArrives callback is called.

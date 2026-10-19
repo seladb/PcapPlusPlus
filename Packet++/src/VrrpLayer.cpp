@@ -191,7 +191,7 @@ namespace pcpp
 		return (m_Data + VrrpPacketFixedLength);
 	}
 
-	uint8_t* VrrpLayer::getNextIPAddressPtr(uint8_t* ipAddressPtr) const
+	uint8_t* VrrpLayer::getNextIPAddressPtr(const uint8_t* ipAddressPtr) const
 	{
 		if (ipAddressPtr == nullptr)
 		{
@@ -356,7 +356,7 @@ namespace pcpp
 		return IPv6Address(data);
 	}
 
-	bool VrrpLayer::isIPAddressValid(IPAddress& ipAddress) const
+	bool VrrpLayer::isIPAddressValid(const IPAddress& ipAddress) const
 	{
 		if (ipAddress.isIPv6() && (getProtocol() != VRRPv3))
 		{

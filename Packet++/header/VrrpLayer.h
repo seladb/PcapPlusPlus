@@ -111,11 +111,11 @@ namespace pcpp
 
 		uint8_t getIPAddressLen() const;
 
-		bool isIPAddressValid(IPAddress& ipAddress) const;
+		bool isIPAddressValid(const IPAddress& ipAddress) const;
 
 		uint8_t* getFirstIPAddressPtr() const;
 
-		uint8_t* getNextIPAddressPtr(uint8_t* ipAddressPtr) const;
+		uint8_t* getNextIPAddressPtr(const uint8_t* ipAddressPtr) const;
 
 		IPAddress getIPAddressFromData(uint8_t* data) const;
 
