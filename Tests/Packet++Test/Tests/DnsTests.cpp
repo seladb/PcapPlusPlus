@@ -622,6 +622,56 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), sizeof(pcpp::dnshdr));
 }  // DnsLayerRemoveResourceTest
 
+PTF_TEST_CASE(DnsLayerAddResourceOutOfOrderTest)
+{
+	// The resources are added in the opposite order of their place in the packet. Adding a resource that belongs
+	// before all the existing ones used to link it back to the first existing resource, so the resource list became
+	// circular and removing a resource or adding a query never returned
+	pcpp::IPv4DnsResourceData ipData(std::string("10.0.0.1"));
+	pcpp::DnsLayer dnsLayer;
+
+	pcpp::DnsResource* additional =
+	    dnsLayer.addAdditionalRecord("additional.example.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 30, &ipData);
+	PTF_ASSERT_NOT_NULL(additional);
+
+	pcpp::DnsResource* authority =
+	    dnsLayer.addAuthority("authority.example.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 20, &ipData);
+	PTF_ASSERT_NOT_NULL(authority);
+
+	pcpp::DnsResource* answer =
+	    dnsLayer.addAnswer("answer.example.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 10, &ipData);
+	PTF_ASSERT_NOT_NULL(answer);
+
+	pcpp::DnsQuery* query = dnsLayer.addQuery("query.example.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN);
+	PTF_ASSERT_NOT_NULL(query);
+
+	PTF_ASSERT_EQUAL(dnsLayer.getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer.getAnswerCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer.getAuthorityCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer.getAdditionalRecordCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer.getFirstQuery(), query, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer.getFirstAnswer(), answer, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer.getFirstAuthority(), authority, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer.getFirstAdditionalRecord(), additional, ptr);
+
+	// copying the layer parses the layer data again, so this verifies the order of the resources in the packet
+	pcpp::DnsLayer parsedLayer(dnsLayer);
+	PTF_ASSERT_EQUAL(parsedLayer.getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(parsedLayer.getAnswerCount(), 1);
+	PTF_ASSERT_EQUAL(parsedLayer.getAuthorityCount(), 1);
+	PTF_ASSERT_EQUAL(parsedLayer.getAdditionalRecordCount(), 1);
+	PTF_ASSERT_EQUAL(parsedLayer.getFirstQuery()->getName(), "query.example.com");
+	PTF_ASSERT_EQUAL(parsedLayer.getFirstAnswer()->getName(), "answer.example.com");
+	PTF_ASSERT_EQUAL(parsedLayer.getFirstAuthority()->getName(), "authority.example.com");
+	PTF_ASSERT_EQUAL(parsedLayer.getFirstAdditionalRecord()->getName(), "additional.example.com");
+
+	PTF_ASSERT_TRUE(dnsLayer.removeAnswer(answer));
+	PTF_ASSERT_TRUE(dnsLayer.removeAuthority(authority));
+	PTF_ASSERT_TRUE(dnsLayer.removeAdditionalRecord(additional));
+	PTF_ASSERT_TRUE(dnsLayer.removeQuery(query));
+	PTF_ASSERT_EQUAL(dnsLayer.getHeaderLen(), sizeof(pcpp::dnshdr));
+}  // DnsLayerAddResourceOutOfOrderTest
+
 PTF_TEST_CASE(DnsOverTcpParsingTest)
 {
 	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dns_over_tcp_query.dat");
