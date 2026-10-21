@@ -163,9 +163,6 @@ namespace pcpp
 		m_StopThread = true;
 	}
 
-	DpdkDevice::~DpdkDevice()
-	{}
-
 	uint32_t DpdkDevice::getCurrentCoreId() const
 	{
 		return rte_lcore_id();

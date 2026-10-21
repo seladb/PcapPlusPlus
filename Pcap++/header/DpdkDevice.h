@@ -348,7 +348,7 @@ namespace pcpp
 			uint64_t rxMbufAllocFailed;
 		};
 
-		virtual ~DpdkDevice();
+		~DpdkDevice() override = default;
 
 		/// @return The device ID (DPDK port ID)
 		int getDeviceId() const
