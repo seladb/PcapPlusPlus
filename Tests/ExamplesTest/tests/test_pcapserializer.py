@@ -17,6 +17,7 @@ class TestPcapSerializer(ExampleTest):
             "-o": output_file,
         }
         completed_process = self.run_example(args=args)
+        assert "Serializing packets from file" in completed_process.stdout
         assert "Finished. Serialized 4709 packets" in completed_process.stdout
         with open(output_file) as f:
             packets = json.load(f)
@@ -31,7 +32,7 @@ class TestPcapSerializer(ExampleTest):
         }
         completed_process = self.run_example(args=args)
         assert len(json.loads(completed_process.stdout)) == 10
-        assert "Finished. Serialized 10 packets" in completed_process.stderr
+        assert completed_process.stderr == ""
 
     @pytest.mark.no_network
     def test_yaml(self, tmpdir):

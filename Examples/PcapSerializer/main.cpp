@@ -17,6 +17,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <thread>
 #include <Packet.h>
 #include <PacketUtils.h>
@@ -135,10 +136,11 @@ std::unique_ptr<pcpp::ISerializer> createSerializer(std::string format, std::ost
 }
 
 /**
- * Serialize packets read from a capture file. Returns the number of serialized packets
+ * Serialize packets read from a capture file. Returns the number of serialized packets. If printStatus is set,
+ * a message is printed to stdout when reading the file starts
  */
 int serializeFromFile(const std::string& fileName, const std::string& filter, int packetCount,
-                      pcpp::ISerializer& serializer)
+                      pcpp::ISerializer& serializer, bool printStatus)
 {
 	// open a pcap/pcapng/snoop file for reading
 	auto reader = pcpp::IFileReaderDevice::tryCreateReader(fileName);
@@ -151,6 +153,11 @@ int serializeFromFile(const std::string& fileName, const std::string& filter, in
 	if (!filter.empty() && !reader->setFilter(filter))
 	{
 		EXIT_WITH_ERROR("Couldn't set filter '" << filter << "'");
+	}
+
+	if (printStatus)
+	{
+		std::cout << "Serializing packets from file '" << fileName << "'..." << std::endl;
 	}
 
 	// read and serialize the packets. A max packet count of 0 means serializing all packets in the file
@@ -167,8 +174,8 @@ int serializeFromFile(const std::string& fileName, const std::string& filter, in
  */
 struct LiveCaptureData
 {
-	pcpp::PacketSerializer* packetSerializer;
-	int maxPacketCount;
+	pcpp::PacketSerializer* packetSerializer{};
+	int maxPacketCount{};
 	std::atomic<int> packetCount{ 0 };
 	std::atomic<bool> shouldStop{ false };
 };
@@ -205,10 +212,11 @@ void onApplicationInterrupted(void* cookie)
 }
 
 /**
- * Serialize packets captured from a live interface. Returns the number of serialized packets
+ * Serialize packets captured from a live interface. Returns the number of serialized packets. If printStatus is set,
+ * a message is printed to stdout when the capture starts
  */
 int serializeFromLiveTraffic(const std::string& interfaceNameOrIP, const std::string& filter, int packetCount,
-                             pcpp::ISerializer& serializer)
+                             pcpp::ISerializer& serializer, bool printStatus)
 {
 	auto* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(interfaceNameOrIP);
 	if (dev == nullptr)
@@ -240,6 +248,16 @@ int serializeFromLiveTraffic(const std::string& interfaceNameOrIP, const std::st
 		if (!dev->startCapture(onPacketArrives, &data))
 		{
 			EXIT_WITH_ERROR("Couldn't start capturing on interface '" << dev->getName() << "'");
+		}
+
+		if (printStatus)
+		{
+			std::cout << "Capturing packets on interface '" << dev->getName() << "'";
+			if (packetCount > 0)
+			{
+				std::cout << " until " << packetCount << " packets are captured or";
+			}
+			std::cout << " until Ctrl+C is pressed..." << std::endl;
 		}
 
 		while (!data.shouldStop)
@@ -291,7 +309,7 @@ int main(int argc, char* argv[])
 			outputFileName = optarg;
 			break;
 		case 'c':
-			packetCount = atoi(optarg);
+			packetCount = std::stoi(optarg);
 			break;
 		case 'e':
 			filter = optarg;
@@ -345,21 +363,26 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Unknown output format '" << format << "'");
 	}
 
+	// status messages are printed only when writing to a file, otherwise the serialized output is already on the screen
+	bool printStatus = !outputFileName.empty();
+
 	int serializedPacketCount = 0;
 	if (!inputFileName.empty())
 	{
-		serializedPacketCount = serializeFromFile(inputFileName, filter, packetCount, *serializer);
+		serializedPacketCount = serializeFromFile(inputFileName, filter, packetCount, *serializer, printStatus);
 	}
 	else
 	{
-		serializedPacketCount = serializeFromLiveTraffic(interfaceNameOrIP, filter, packetCount, *serializer);
+		serializedPacketCount =
+		    serializeFromLiveTraffic(interfaceNameOrIP, filter, packetCount, *serializer, printStatus);
 	}
 
 	(*out) << std::endl;
 
-	// when the serialized output goes to stdout, print the summary to stderr so it doesn't corrupt the output
-	auto& summaryOut = outputFileName.empty() ? std::cerr : std::cout;
-	summaryOut << "Finished. Serialized " << serializedPacketCount << " packets" << std::endl;
+	if (printStatus)
+	{
+		std::cout << "Finished. Serialized " << serializedPacketCount << " packets" << std::endl;
+	}
 
 	return 0;
 }
