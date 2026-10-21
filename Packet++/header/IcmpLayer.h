@@ -757,7 +757,14 @@ namespace pcpp
 
 		// ICMP_ROUTER_ADV
 		if (type == 9)
-			return dataLen >= sizeof(icmp_router_advertisement_hdr);
+		{
+			if (dataLen < sizeof(icmp_router_advertisement_hdr))
+				return false;
+
+			const auto* routerAdv = reinterpret_cast<const icmp_router_advertisement_hdr*>(data);
+			return routerAdv->advertisementCount <=
+			       (dataLen - sizeof(icmp_router_advertisement_hdr)) / sizeof(icmp_router_address_structure);
+		}
 
 		return false;
 	}

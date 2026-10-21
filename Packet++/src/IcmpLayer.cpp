@@ -848,12 +848,24 @@ namespace pcpp
 		case ICMP_ROUTER_ADV:
 		{
 			auto* adv = getRouterAdvertisementData();
-			if (adv && adv->header)
+			if (adv && adv->header && m_DataLen >= sizeof(icmp_router_advertisement_hdr))
 			{
 				serializer.writeField(SerializedFields::AddressEntrySize, adv->header->addressEntrySize);
 				serializer.writeField(SerializedFields::Lifetime, be16toh(adv->header->lifetime));
 				auto arr = serializer.writeArray(SerializedFields::RouterAddresses);
-				for (int i = 0; i < adv->header->advertisementCount; ++i)
+
+				// Don't trust advertisementCount alone: the layer may contain fewer entries.
+				size_t maxEntries = 0;
+				if (m_DataLen > sizeof(icmp_router_advertisement_hdr))
+				{
+					maxEntries =
+					    (m_DataLen - sizeof(icmp_router_advertisement_hdr)) / sizeof(icmp_router_address_structure);
+				}
+				int entryCount = adv->header->advertisementCount;
+				if (static_cast<size_t>(entryCount) > maxEntries)
+					entryCount = static_cast<int>(maxEntries);
+
+				for (int i = 0; i < entryCount; ++i)
 				{
 					auto* routerAddr = adv->getRouterAddress(i);
 					if (routerAddr)

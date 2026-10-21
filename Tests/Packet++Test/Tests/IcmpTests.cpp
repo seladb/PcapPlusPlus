@@ -348,6 +348,24 @@ PTF_TEST_CASE(IcmpTruncatedPacketTest)
 	auto* payload = packet.getLayerOfType<pcpp::PayloadLayer>();
 	PTF_ASSERT_NOT_NULL(payload);
 	PTF_ASSERT_EQUAL(payload->getPayloadLen(), 7);
+
+	// ICMP router advertisement with advertisementCount larger than the actual
+	// number of entries must be rejected instead of trusting the count.
+	uint8_t routerAdv[16] = {};
+	routerAdv[0] = pcpp::ICMP_ROUTER_ADV;
+	routerAdv[4] = 200;  // advertisementCount
+	routerAdv[5] = 2;    // addressEntrySize
+	PTF_ASSERT_FALSE(pcpp::IcmpLayer::isDataValid(routerAdv, sizeof(routerAdv)));
+
+	routerAdv[4] = 1;
+	PTF_ASSERT_TRUE(pcpp::IcmpLayer::isDataValid(routerAdv, sizeof(routerAdv)));
+
+	auto rawRouterAdvPacket = createPacketFromHexResource("PacketExamples/IcmpRouterAdvInvalidCount.dat");
+	pcpp::Packet routerAdvPacket(rawRouterAdvPacket.get());
+	PTF_ASSERT_FALSE(routerAdvPacket.isPacketOfType(pcpp::ICMP));
+	auto* routerAdvPayload = routerAdvPacket.getLayerOfType<pcpp::PayloadLayer>();
+	PTF_ASSERT_NOT_NULL(routerAdvPayload);
+	PTF_ASSERT_EQUAL(routerAdvPayload->getPayloadLen(), 16);
 }  // IcmpTruncatedPacketTest
 
 PTF_TEST_CASE(IcmpCreationTest)
