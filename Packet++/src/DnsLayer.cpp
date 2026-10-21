@@ -3,6 +3,7 @@
 #include "DnsLayer.h"
 #include "Logger.h"
 #include <sstream>
+#include <vector>
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -449,11 +450,26 @@ namespace pcpp
 	DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& name, DnsType dnsType,
 	                                   DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data)
 	{
-		// create new query on temporary buffer
-		uint8_t newResourceRawData[4096];
-		memset(newResourceRawData, 0, sizeof(newResourceRawData));
+		// create new query on temporary buffer. Generic RDATA can be larger than 4096 bytes.
+		// 512 bytes is enough for the encoded name, fixed RR header and padding.
+		size_t tempBufferSize = 4096;
+		if (data != nullptr)
+		{
+			auto* genericData = data->castAs<GenericDnsResourceData>();
+			if (genericData != nullptr)
+			{
+				if (genericData->getDataLength() > 65535)
+				{
+					PCPP_LOG_ERROR("DNS generic RDATA is too large: " << genericData->getDataLength());
+					return nullptr;
+				}
+				if (genericData->getDataLength() + 512 > tempBufferSize)
+					tempBufferSize = genericData->getDataLength() + 512;
+			}
+		}
+		std::vector<uint8_t> newResourceRawData(tempBufferSize, 0);
 
-		DnsResource* newResource = new DnsResource(newResourceRawData, resType);
+		DnsResource* newResource = new DnsResource(newResourceRawData.data(), resType);
 
 		newResource->setDnsClass(dnsClass);
 

@@ -3,6 +3,7 @@
 #include "DnsResource.h"
 #include "Logger.h"
 #include <sstream>
+#include <vector>
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -342,13 +343,28 @@ namespace pcpp
 	{
 		// convert data to byte array according to the DNS type
 		size_t dataLength = 0;
-		uint8_t dataAsByteArr[4096];
 
 		if (data == nullptr)
 		{
 			PCPP_LOG_ERROR("Given data is nullptr");
 			return false;
 		}
+
+		// Generic RDATA has a 16-bit wire length and can be larger than 4096 bytes.
+		// Size the temporary buffer from the data instead of using a fixed stack buffer.
+		size_t dataBufferSize = 4096;
+		auto* genericData = data->castAs<GenericDnsResourceData>();
+		if (genericData != nullptr)
+		{
+			if (genericData->getDataLength() > 65535)
+			{
+				PCPP_LOG_ERROR("DNS generic RDATA is too large: " << genericData->getDataLength());
+				return false;
+			}
+			if (genericData->getDataLength() > dataBufferSize)
+				dataBufferSize = genericData->getDataLength();
+		}
+		std::vector<uint8_t> dataAsByteArr(dataBufferSize);
 
 		switch (getDnsType())
 		{
@@ -403,9 +419,15 @@ namespace pcpp
 		}
 
 		// convert the IDnsResourceData to byte array
-		if (!data->toByteArr(dataAsByteArr, dataLength, this))
+		if (!data->toByteArr(dataAsByteArr.data(), dataLength, this))
 		{
 			PCPP_LOG_ERROR("Cannot convert DNS resource data to byte array, data is probably invalid");
+			return false;
+		}
+
+		if (dataLength > dataAsByteArr.size())
+		{
+			PCPP_LOG_ERROR("DNS resource data is larger than the allocated buffer");
 			return false;
 		}
 
@@ -434,7 +456,7 @@ namespace pcpp
 		}
 
 		// write data to resource
-		memcpy(getRawData() + dataOffset, dataAsByteArr, dataLength);
+		memcpy(getRawData() + dataOffset, dataAsByteArr.data(), dataLength);
 		// update data length in resource
 		dataLength = htobe16((uint16_t)dataLength);
 		memcpy(getRawData() + dataLengthOffset, &dataLength, sizeof(uint16_t));

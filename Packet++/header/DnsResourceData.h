@@ -325,6 +325,12 @@ namespace pcpp
 		/// @return True if data is the same in both objects, meaning byte streams are equal, false otherwise
 		bool operator==(const GenericDnsResourceData& other) const;
 
+		/// @return The length of the raw DNS RR data
+		size_t getDataLength() const
+		{
+			return m_DataLen;
+		}
+
 		// implement abstract methods
 
 		std::string toString() const override;

@@ -97,6 +97,7 @@ PTF_TEST_CASE(DnsLayerAddResourceOutOfOrderTest);
 PTF_TEST_CASE(DnsOverTcpParsingTest);
 PTF_TEST_CASE(DnsOverTcpCreationTest);
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest);
+PTF_TEST_CASE(DnsLayerLargeGenericDataTest);
 
 // Implemented in DoIpTests.cpp
 PTF_TEST_CASE(DoIpRoutActReqParsing);
