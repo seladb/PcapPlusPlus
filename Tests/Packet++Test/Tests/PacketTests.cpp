@@ -1329,3 +1329,41 @@ PTF_TEST_CASE(PacketSerializeTest)
 		    R"({"timestamp":{"sec":1789544222,"nsec":100760000},"frameLength":181,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"00:19:06:ea:b8:c0","dstMacAddress":"00:1d:60:b3:01:84","etherType":2048},{"protocolName":"IPv4","protocolId":2,"length":20,"srcIP":"10.0.0.1","dstIP":"10.0.0.100","ipID":70,"ipProtocol":17,"totalLength":167,"isFragment":false,"fragmentOffset":0,"options":[]},{"protocolName":"UDP","protocolId":5,"length":8,"srcPort":1645,"dstPort":1812,"checksum":"0x3dca"},{"protocolName":"Radius","protocolId":31,"length":139,"code":1,"codeName":"Access-Request","id":5,"authenticator":"ecfe3d2fe4473ec6299095ee46aedf77","attributes":[4,5,61,1,30,31,6,12,79,80]}]})");
 	}
 }  // PacketSerializeTest
+
+PTF_TEST_CASE(RawPacketRemoveDataBounds)
+{
+	uint8_t buffer[64];
+	memset(buffer, 0xAB, sizeof(buffer));
+
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	pcpp::RawPacket rawPacket(buffer, sizeof(buffer), time, true, pcpp::LINKTYPE_ETHERNET);
+
+	// Negative index
+	PTF_ASSERT_FALSE(rawPacket.removeData(-1, 10));
+
+	// Index out of bounds
+	PTF_ASSERT_FALSE(rawPacket.removeData(65, 1));
+	PTF_ASSERT_FALSE(rawPacket.removeData(64, 1));
+
+	// Bytes to remove exceeds remaining size
+	PTF_ASSERT_FALSE(rawPacket.removeData(50, 20));
+
+	// Huge numOfBytesToRemove (testing integer overflow)
+	PTF_ASSERT_FALSE(rawPacket.removeData(50, static_cast<size_t>(-1)));
+	PTF_ASSERT_FALSE(rawPacket.removeData(64, static_cast<size_t>(-1)));
+
+	// Valid remove 0 bytes at end of buffer
+	PTF_ASSERT_TRUE(rawPacket.removeData(64, 0));
+	PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 64);
+
+	// Valid remove 14 bytes from index 10
+	PTF_ASSERT_TRUE(rawPacket.removeData(10, 14));
+	PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 50);
+
+	// Valid remove to the end
+	PTF_ASSERT_TRUE(rawPacket.removeData(40, 10));
+	PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 40);
+}  // RawPacketRemoveDataBounds
+
