@@ -43,6 +43,20 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL(someIpSdLayer->getNumOptions(), 1);
 	PTF_ASSERT_EQUAL(someIpSdLayer->toString(), "SOME/IP-SD Layer, 1 entries, 1 options");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		someIpSdLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SomeIP","protocolId":45,"length":56,"serviceID":"0xffff","methodID":"0x8100",)"
+		    R"("clientID":"0x0","sessionID":2,"protocolVersion":1,"interfaceVersion":1,"messageType":2,)"
+		    R"("messageTypeName":"Notification","returnCode":0,"flags":192,"entries":[{"type":"OfferService",)"
+		    R"("serviceID":"0xd05f","instanceID":"0x2","majorVersion":1,"ttl":3,"firstOptionIndex":0,)"
+		    R"("firstOptionCount":1,"secondOptionIndex":0,"secondOptionCount":0,"minorVersion":0}],)"
+		    R"("options":[{"type":"IPv4Endpoint","ipAddress":"160.48.199.28","port":30502,"protocol":"UDP"}]})");
+	}
+
 	pcpp::SomeIpSdLayer::EntriesVec entries1 = someIpSdLayer->getEntries();
 	PTF_ASSERT_EQUAL(entries1.size(), 1);
 	pcpp::SomeIpSdEntry* entry = *(entries1.begin());
@@ -90,6 +104,22 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL(someIpSdLayer2->getNumEntries(), 1);
 	PTF_ASSERT_EQUAL(someIpSdLayer2->getNumOptions(), 2);
 	PTF_ASSERT_EQUAL(someIpSdLayer2->toString(), "SOME/IP-SD Layer, 1 entries, 2 options");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		someIpSdLayer2->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SomeIP","protocolId":45,"length":161,"serviceID":"0xffff","methodID":"0x8100",)"
+		    R"("clientID":"0x0","sessionID":2,"protocolVersion":1,"interfaceVersion":1,"messageType":2,)"
+		    R"("messageTypeName":"Notification","returnCode":0,"flags":224,"entries":[{"type":"OfferService",)"
+		    R"("serviceID":"0xfffe","instanceID":"0x1","majorVersion":5,"ttl":120,"firstOptionIndex":0,)"
+		    R"("firstOptionCount":2,"secondOptionIndex":0,"secondOptionCount":0,"minorVersion":0}],)"
+		    R"("options":[{"type":"IPv6Endpoint","ipAddress":"fd53:7cb8:383:4::1:1e5","port":29769,)"
+		    R"("protocol":"TCP"},{"type":"ConfigurationString","configurationItems":["category=bridged",)"
+		    R"("l6proto=viwi","otherserv=AdaptiveCruiseAssistHMI","txtvers=1","version=5.0.0"]}]})");
+	}
 
 	pcpp::SomeIpSdLayer::EntriesVec entries2 = someIpSdLayer2->getEntries();
 	PTF_ASSERT_EQUAL(entries2.size(), 1);
@@ -170,6 +200,24 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL(someIpSdLayer3->getNumEntries(), 2);
 	PTF_ASSERT_EQUAL(someIpSdLayer3->getNumOptions(), 1);
 	PTF_ASSERT_EQUAL(someIpSdLayer3->toString(), "SOME/IP-SD Layer, 2 entries, 1 options");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		someIpSdLayer3->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SomeIP","protocolId":45,"length":72,"serviceID":"0xffff","methodID":"0x8100",)"
+		    R"("clientID":"0x0","sessionID":3,"protocolVersion":1,"interfaceVersion":1,"messageType":2,)"
+		    R"("messageTypeName":"Notification","returnCode":0,"flags":192,)"
+		    R"("entries":[{"type":"SubscribeEventgroup","serviceID":"0xd063","instanceID":"0x1",)"
+		    R"("majorVersion":1,"ttl":3,"firstOptionIndex":0,"firstOptionCount":1,"secondOptionIndex":0,)"
+		    R"("secondOptionCount":0,"counter":0,"eventgroupID":"0x1"},{"type":"SubscribeEventgroup",)"
+		    R"("serviceID":"0xd066","instanceID":"0x1","majorVersion":1,"ttl":3,"firstOptionIndex":0,)"
+		    R"("firstOptionCount":1,"secondOptionIndex":0,"secondOptionCount":0,"counter":0,)"
+		    R"("eventgroupID":"0x1"}],"options":[{"type":"IPv4Endpoint","ipAddress":"160.48.199.101",)"
+		    R"("port":58358,"protocol":"UDP"}]})");
+	}
 
 	pcpp::SomeIpSdLayer::EntriesVec entries3 = someIpSdLayer3->getEntries();
 	PTF_ASSERT_EQUAL(entries3.size(), 2);

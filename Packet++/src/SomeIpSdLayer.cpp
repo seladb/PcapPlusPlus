@@ -3,6 +3,7 @@
 #include "SomeIpSdLayer.h"
 #include "EndianPortable.h"
 #include <algorithm>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 
@@ -611,6 +612,215 @@ namespace pcpp
 		dataStream << "SOME/IP-SD Layer, " << getNumEntries() << " entries, " << getNumOptions() << " options";
 
 		return dataStream.str();
+	}
+
+	static constexpr const char* entryTypeToString(SomeIpSdEntry::EntryType type)
+	{
+		switch (type)
+		{
+		case SomeIpSdEntry::EntryType::FindService:
+			return "FindService";
+		case SomeIpSdEntry::EntryType::OfferService:
+			return "OfferService";
+		case SomeIpSdEntry::EntryType::StopOfferService:
+			return "StopOfferService";
+		case SomeIpSdEntry::EntryType::SubscribeEventgroup:
+			return "SubscribeEventgroup";
+		case SomeIpSdEntry::EntryType::StopSubscribeEventgroup:
+			return "StopSubscribeEventgroup";
+		case SomeIpSdEntry::EntryType::SubscribeEventgroupAck:
+			return "SubscribeEventgroupAck";
+		case SomeIpSdEntry::EntryType::SubscribeEventgroupNack:
+			return "SubscribeEventgroupNack";
+		default:
+			return "Unknown";
+		}
+	}
+
+	static constexpr const char* optionTypeToString(SomeIpSdOption::OptionType type)
+	{
+		switch (type)
+		{
+		case SomeIpSdOption::OptionType::ConfigurationString:
+			return "ConfigurationString";
+		case SomeIpSdOption::OptionType::LoadBalancing:
+			return "LoadBalancing";
+		case SomeIpSdOption::OptionType::IPv4Endpoint:
+			return "IPv4Endpoint";
+		case SomeIpSdOption::OptionType::IPv6Endpoint:
+			return "IPv6Endpoint";
+		case SomeIpSdOption::OptionType::IPv4Multicast:
+			return "IPv4Multicast";
+		case SomeIpSdOption::OptionType::IPv6Multicast:
+			return "IPv6Multicast";
+		case SomeIpSdOption::OptionType::IPv4SdEndpoint:
+			return "IPv4SdEndpoint";
+		case SomeIpSdOption::OptionType::IPv6SdEndpoint:
+			return "IPv6SdEndpoint";
+		default:
+			return "Unknown";
+		}
+	}
+
+	static constexpr const char* sdProtocolToString(SomeIpSdProtocolType protocol)
+	{
+		switch (protocol)
+		{
+		case SD_TCP:
+			return "TCP";
+		case SD_UDP:
+			return "UDP";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::Flags{ SomeIpLayer::SerializedFields::MaxID + 1, "flags" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::Entries{ SomeIpLayer::SerializedFields::MaxID + 2,
+		                                                            "entries" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::Options{ SomeIpLayer::SerializedFields::MaxID + 3,
+		                                                            "options" };
+
+	const SomeIpSdLayer::SerializedFields::EntryObject SomeIpSdEntryObject{ 0, "entry" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::Type{ 0, "type" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::ServiceID{ 1, "serviceID" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::InstanceID{ 2, "instanceID" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::MajorVersion{ 3, "majorVersion" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::Ttl{ 4, "ttl" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::FirstOptionIndex{ 5, "firstOptionIndex" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::FirstOptionCount{ 6, "firstOptionCount" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::SecondOptionIndex{ 7, "secondOptionIndex" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::SecondOptionCount{ 8, "secondOptionCount" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::MinorVersion{ 9, "minorVersion" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::Counter{ 10, "counter" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::EntryObject::EventgroupID{ 11, "eventgroupID" };
+
+	const SomeIpSdLayer::SerializedFields::OptionObject SomeIpSdOptionObject{ 0, "option" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::OptionObject::Type{ 0, "type" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::OptionObject::IpAddress{ 1, "ipAddress" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::OptionObject::Port{ 2, "port" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::OptionObject::Protocol{ 3, "protocol" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::OptionObject::ConfigurationItems{ 4, "configurationItems" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::OptionObject::Priority{ 5, "priority" };
+	const FieldDescriptor SomeIpSdLayer::SerializedFields::OptionObject::Weight{ 6, "weight" };
+	const FieldDescriptor SomeIpSdConfigurationItem{ 0, "item" };
+
+	void SomeIpSdLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		using EntryFields = SerializedFields::EntryObject;
+		using OptionFields = SerializedFields::OptionObject;
+
+		SomeIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::Flags, getFlags());
+
+		{
+			// getEntries() allocates the entries, take ownership of all of them before writing anything
+			std::vector<std::unique_ptr<SomeIpSdEntry>> entryList;
+			for (auto* entry : getEntries())
+			{
+				entryList.emplace_back(entry);
+			}
+
+			auto entries = serializer.writeArray(SerializedFields::Entries);
+			for (const auto& entry : entryList)
+			{
+				auto* entryHeader = entry->getSomeIpSdEntryHeader();
+				auto entryObject = entries.writeObject(SomeIpSdEntryObject);
+				entryObject.writeField(EntryFields::Type, entryTypeToString(entry->getType()));
+				entryObject.writeHexField(EntryFields::ServiceID, entry->getServiceId());
+				entryObject.writeHexField(EntryFields::InstanceID, entry->getInstanceId());
+				entryObject.writeField(EntryFields::MajorVersion, entry->getMajorVersion());
+				entryObject.writeField(EntryFields::Ttl, entry->getTtl());
+				entryObject.writeField(EntryFields::FirstOptionIndex, entryHeader->indexFirstOption);
+				entryObject.writeField(EntryFields::FirstOptionCount, static_cast<uint8_t>(entryHeader->nrOpt1));
+				entryObject.writeField(EntryFields::SecondOptionIndex, entryHeader->indexSecondOption);
+				entryObject.writeField(EntryFields::SecondOptionCount, static_cast<uint8_t>(entryHeader->nrOpt2));
+
+				switch (entry->getType())
+				{
+				case SomeIpSdEntry::EntryType::FindService:
+				case SomeIpSdEntry::EntryType::OfferService:
+				case SomeIpSdEntry::EntryType::StopOfferService:
+					entryObject.writeField(EntryFields::MinorVersion, entry->getMinorVersion());
+					break;
+				case SomeIpSdEntry::EntryType::SubscribeEventgroup:
+				case SomeIpSdEntry::EntryType::StopSubscribeEventgroup:
+				case SomeIpSdEntry::EntryType::SubscribeEventgroupAck:
+				case SomeIpSdEntry::EntryType::SubscribeEventgroupNack:
+					entryObject.writeField(EntryFields::Counter, entry->getCounter());
+					entryObject.writeHexField(EntryFields::EventgroupID, entry->getEventgroupId());
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		// getOptions() allocates the options, take ownership of all of them before writing anything
+		std::vector<std::unique_ptr<SomeIpSdOption>> optionList;
+		for (auto* option : getOptions())
+		{
+			optionList.emplace_back(option);
+		}
+
+		auto options = serializer.writeArray(SerializedFields::Options);
+		for (const auto& option : optionList)
+		{
+			auto optionObject = options.writeObject(SomeIpSdOptionObject);
+			optionObject.writeField(OptionFields::Type, optionTypeToString(option->getType()));
+
+			switch (option->getType())
+			{
+			case SomeIpSdOption::OptionType::IPv4Endpoint:
+			case SomeIpSdOption::OptionType::IPv4Multicast:
+			case SomeIpSdOption::OptionType::IPv4SdEndpoint:
+			{
+				auto* ipv4Option = static_cast<SomeIpSdIPv4Option*>(option.get());
+				optionObject.writeField(OptionFields::IpAddress, ipv4Option->getIpAddress().toString());
+				optionObject.writeField(OptionFields::Port, ipv4Option->getPort());
+				optionObject.writeField(OptionFields::Protocol, sdProtocolToString(ipv4Option->getProtocol()));
+				break;
+			}
+			case SomeIpSdOption::OptionType::IPv6Endpoint:
+			case SomeIpSdOption::OptionType::IPv6Multicast:
+			case SomeIpSdOption::OptionType::IPv6SdEndpoint:
+			{
+				auto* ipv6Option = static_cast<SomeIpSdIPv6Option*>(option.get());
+				optionObject.writeField(OptionFields::IpAddress, ipv6Option->getIpAddress().toString());
+				optionObject.writeField(OptionFields::Port, ipv6Option->getPort());
+				optionObject.writeField(OptionFields::Protocol, sdProtocolToString(ipv6Option->getProtocol()));
+				break;
+			}
+			case SomeIpSdOption::OptionType::ConfigurationString:
+			{
+				// the configuration string is a sequence of length-prefixed items terminated by a zero length
+				auto configurationString =
+				    static_cast<SomeIpSdConfigurationOption*>(option.get())->getConfigurationString();
+				auto items = optionObject.writeArray(OptionFields::ConfigurationItems);
+				size_t pos = 0;
+				while (pos < configurationString.size())
+				{
+					size_t itemLen = static_cast<uint8_t>(configurationString[pos]);
+					if (itemLen == 0 || pos + 1 + itemLen > configurationString.size())
+					{
+						break;
+					}
+					items.writeField(SomeIpSdConfigurationItem, configurationString.substr(pos + 1, itemLen));
+					pos += 1 + itemLen;
+				}
+				break;
+			}
+			case SomeIpSdOption::OptionType::LoadBalancing:
+			{
+				auto* loadBalancingOption = static_cast<SomeIpSdLoadBalancingOption*>(option.get());
+				optionObject.writeField(OptionFields::Priority, loadBalancingOption->getPriority());
+				optionObject.writeField(OptionFields::Weight, loadBalancingOption->getWeight());
+				break;
+			}
+			default:
+				break;
+			}
+		}
 	}
 
 	uint32_t SomeIpSdLayer::addEntry(const SomeIpSdEntry& entry)
