@@ -714,16 +714,10 @@ namespace pcpp
 		serializer.writeField(SerializedFields::Flags, getFlags());
 
 		{
-			// getEntries() allocates the entries, take ownership of all of them before writing anything
-			std::vector<std::unique_ptr<SomeIpSdEntry>> entryList;
-			for (auto* entry : getEntries())
-			{
-				entryList.emplace_back(entry);
-			}
-
 			auto entries = serializer.writeArray(SerializedFields::Entries);
-			for (const auto& entry : entryList)
+			for (auto* rawEntry : getEntries())
 			{
+				std::unique_ptr<SomeIpSdEntry> entry(rawEntry);
 				auto* entryHeader = entry->getSomeIpSdEntryHeader();
 				auto entryObject = entries.writeObject(SomeIpSdEntryObject);
 				entryObject.writeField(EntryFields::Type, entryTypeToString(entry->getType()));
@@ -756,16 +750,10 @@ namespace pcpp
 			}
 		}
 
-		// getOptions() allocates the options, take ownership of all of them before writing anything
-		std::vector<std::unique_ptr<SomeIpSdOption>> optionList;
-		for (auto* option : getOptions())
-		{
-			optionList.emplace_back(option);
-		}
-
 		auto options = serializer.writeArray(SerializedFields::Options);
-		for (const auto& option : optionList)
+		for (auto* rawOption : getOptions())
 		{
+			std::unique_ptr<SomeIpSdOption> option(rawOption);
 			auto optionObject = options.writeObject(SomeIpSdOptionObject);
 			optionObject.writeField(OptionFields::Type, optionTypeToString(option->getType()));
 
