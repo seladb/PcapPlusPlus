@@ -11,7 +11,10 @@ namespace pcpp
 	PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen) : Layer()
 	{
 		allocData(dataLen, false);
-		memcpy(m_Data, data, dataLen);
+		if (dataLen > 0)
+		{
+			memcpy(m_Data, data, dataLen);
+		}
 		m_DataLen = dataLen;
 		m_Protocol = GenericPayload;
 	}
