@@ -149,7 +149,7 @@ jobs:
         run: |
           wget -qO /etc/apt/trusted.gpg.d/apt.llvm.org.asc https://apt.llvm.org/llvm-snapshot.gpg.key
           echo "deb http://apt.llvm.org/resolute/ llvm-toolchain-resolute-23 main" > /etc/apt/sources.list.d/llvm.list
-          apt-get update && apt-get install -y clang-23 llvm-23
+          apt-get update && apt-get install -y clang-23 llvm-23 libclang-rt-23-dev
 
       - name: Restore Ccache
         id: ccache-restore
