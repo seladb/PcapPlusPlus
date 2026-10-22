@@ -113,6 +113,18 @@ jobs:
           - runner: ubuntu-latest
             image: alpine320
             config-zstd: OFF
+          - runner: ubuntu-latest
+            image: ubuntu2604
+            compiler: gcc-16
+            config-zstd: OFF
+            additional-flags: -DCMAKE_C_COMPILER=gcc-16 -DCMAKE_CXX_COMPILER=g++-16
+            additional-gcov-flags: --gcov-executable gcov-16
+          - runner: ubuntu-latest
+            image: ubuntu2604
+            compiler: clang-23
+            config-zstd: OFF
+            additional-flags: -DCMAKE_C_COMPILER=clang-23 -DCMAKE_CXX_COMPILER=clang++-23
+            additional-gcov-flags: --gcov-executable "llvm-cov-23 gcov"
 
     steps:
       - name: Checkout code
@@ -128,6 +140,17 @@ jobs:
           . /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
 
+      - name: Install GCC 16
+        if: matrix.compiler == 'gcc-16'
+        run: apt-get update && apt-get install -y g++-16
+
+      - name: Install Clang 23
+        if: matrix.compiler == 'clang-23'
+        run: |
+          wget -qO /etc/apt/trusted.gpg.d/apt.llvm.org.asc https://apt.llvm.org/llvm-snapshot.gpg.key
+          echo "deb http://apt.llvm.org/resolute/ llvm-toolchain-resolute-23 main" > /etc/apt/sources.list.d/llvm.list
+          apt-get update && apt-get install -y clang-23 llvm-23
+
       - name: Restore Ccache
         id: ccache-restore
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -136,9 +159,9 @@ jobs:
             ${{ env.CCACHE_DIR }}
             !*.gcda
             !*.gcno
-          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+          key: ${{ matrix.image }}${{ matrix.compiler && format('-{0}', matrix.compiler) || '' }}-ccache-${{ github.run_id }}
           restore-keys: |
-            ${{ matrix.image }}-ccache
+            ${{ matrix.image }}${{ matrix.compiler && format('-{0}', matrix.compiler) || '' }}-ccache
 
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
@@ -188,7 +211,7 @@ jobs:
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.xml
-          flags: ${{ matrix.image }},unittest
+          flags: ${{ matrix.image }}${{ matrix.compiler && format('-{0}', matrix.compiler) || '' }},unittest
           fail_ci_if_error: false
           verbose: true
         env:
