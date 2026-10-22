@@ -17,7 +17,6 @@
 
 namespace pcpp
 {
-
 	static const int DEFAULT_SNAPLEN = 9000;
 
 	namespace internal
@@ -131,13 +130,42 @@ namespace pcpp
 #endif
 	}
 
+	namespace
+	{
+#ifdef USE_PCAP
+		/// @brief Applies linktype patches to ensure compatibility with BPF filters.
+		/// @param linktype The original link layer type.
+		/// @return The patched link layer type suitable for BPF filters.
+		LinkLayerType patchLinktype2dlt(LinkLayerType linktype)
+		{
+			switch (linktype)
+			{
+			// NOTE: Issue #2221
+			// Libpcap maps LINKTYPE_RAW to the old DLT_RAW. LINKTYPE_RAW is not that well supported for BPF filters.
+			// https://github.com/the-tcpdump-group/libpcap/blob/720fb235648dd06eaa5b0fc0e7b6bac84bf2bf28/pcap-common.c#L1559-L1560
+			case LinkLayerType::LINKTYPE_RAW:
+			{
+#	ifdef __OpenBSD__
+				return LinkLayerType::LINKTYPE_DLT_RAW2;  // OpenBSD uses a different DLT_RAW value.
+#	else
+				return LinkLayerType::LINKTYPE_DLT_RAW1;
+#	endif  // !__OpenBSD__
+			}
+			default:
+				return linktype;
+			}
+		}
+#endif  // USE_PCAP
+	}  // namespace
+
 	BpfFilterWrapper::BpfProgramUPtr BpfFilterWrapper::compileFilter(std::string const& filter, LinkLayerType linkType)
 	{
 		if (filter.empty())
 			return nullptr;
 
 #ifdef USE_PCAP
-		auto pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
+		auto pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(
+		    pcap_open_dead(patchLinktype2dlt(linkType), DEFAULT_SNAPLEN));
 		if (pcap == nullptr)
 		{
 			return nullptr;

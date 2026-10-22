@@ -102,6 +102,7 @@ target_link_libraries(
     $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
     $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
     $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
+    $<$<BOOL:${XDP_FOUND}>:XDP::XDP>
     $<$<BOOL:${PCAPPP_USE_WINDIVERT}>:WinDivert::WinDivert>
     $<$<BOOL:${PCAPPP_USE_PCAP}>:PCAP::PCAP>
     Threads::Threads

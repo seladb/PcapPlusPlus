@@ -268,6 +268,39 @@ class TestPcapSplitter(ExampleTest):
 
                 assert packet_conn == conn
 
+    @pytest.mark.no_pcap
+    def test_split_by_connection_with_reused_five_tuple(self, tmpdir):
+        # reused-five-tuple.pcap: 12 TCP sessions, 4 packets (SYN/SYN-ACK/ACK/FIN)
+        # each = 48 packets total. Session 1 and session 12 share the exact same
+        # 5-tuple (10 unrelated sessions in between), so getFileNumber() assigns
+        # them different file numbers but they'd produce the same filename -- the
+        # collision from seladb/PcapPlusPlus#2248.
+        args = {
+            "-f": os.path.join("pcap_examples", "reused-five-tuple.pcap"),
+            "-o": tmpdir,
+            "-m": "connection",
+        }
+        self.run_example(args=args)
+
+        # First session on the reused 5-tuple keeps its plain name; the second
+        # (colliding) session gets a "-<fileNumber>" suffix. Every other,
+        # non-colliding session's filename is unaffected by the fix.
+        expected_filenames = {
+            "reused-five-tuple-connection-tcp_10-0-0-5_40001-10-0-0-9_443.pcap",
+            "reused-five-tuple-connection-tcp_10-0-0-5_40001-10-0-0-9_443-0012.pcap",
+        } | {
+            f"reused-five-tuple-connection-tcp_10-0-0-5_{port}-10-0-0-9_443.pcap"
+            for port in range(41000, 41010)
+        }
+        assert set(os.listdir(tmpdir)) == expected_filenames
+
+        # no packets lost to a silent write collision
+        total_packets = sum(
+            len(rdpcap(os.path.join(tmpdir, filename)))
+            for filename in expected_filenames
+        )
+        assert total_packets == 48
+
     def test_split_by_bpf_filter(self, tmpdir):
         args = {
             "-f": os.path.join("pcap_examples", "many-protocols.pcap"),

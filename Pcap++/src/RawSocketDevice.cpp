@@ -97,7 +97,7 @@ namespace pcpp
 
 	RawSocketDevice::~RawSocketDevice()
 	{
-		close();
+		RawSocketDevice::close();
 	}
 
 	RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
@@ -551,6 +551,7 @@ namespace pcpp
 		}
 	}
 
+	// cppcheck-suppress constParameter
 	RawSocketDevice::RecvPacketResult RawSocketDevice::getError(int& errorCode) const
 	{
 #if defined(_WIN32)
