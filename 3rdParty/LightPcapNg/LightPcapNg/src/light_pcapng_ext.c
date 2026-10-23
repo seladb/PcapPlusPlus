@@ -61,8 +61,8 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 	if (type != LIGHT_SECTION_HEADER_BLOCK)
 		return NULL;
 
-	light_pcapng_file_info *file_info = calloc(1, sizeof(light_pcapng_file_info));
-	DCHECK_NULLP(file_info, return NULL); // ---> PCPP patch
+	light_pcapng_file_info *file_info = NULL;
+	LIGHT_CALLOC(file_info, 1, sizeof(light_pcapng_file_info), return NULL); // ---> PCPP patch
 
 
 	struct _light_section_header* section_header;
@@ -237,8 +237,8 @@ light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read
 {
 	DCHECK_NULLP(file_path, return NULL);
 
-	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
-	DCHECK_NULLP(pcapng, return NULL); // ---> PCPP patch
+	light_pcapng_t *pcapng = NULL;
+	LIGHT_CALLOC(pcapng, 1, sizeof(struct _light_pcapng_t), return NULL); // ---> PCPP patch
 	pcapng->file = light_open(file_path, LIGHT_OREAD);
 	DCHECK_ASSERT_EXP(pcapng->file != NULL, "could not open file", return NULL);
 
@@ -282,8 +282,8 @@ light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file
 	DCHECK_NULLP(file_info, return NULL);
 	DCHECK_NULLP(file_path, return NULL);
 
-	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
-	DCHECK_NULLP(pcapng, return NULL); // ---> PCPP patch
+	light_pcapng_t *pcapng = NULL;
+	LIGHT_CALLOC(pcapng, 1, sizeof(struct _light_pcapng_t), return NULL); // ---> PCPP patch
 
 	pcapng->file = light_open_compression(file_path, LIGHT_OWRITE, compression_level);
 	pcapng->file_info = file_info;
@@ -364,8 +364,8 @@ light_pcapng_t *light_pcapng_open_append(const char* file_path)
 
 light_pcapng_file_info *light_create_default_file_info()
 {
-	light_pcapng_file_info *default_file_info = calloc(1, sizeof(light_pcapng_file_info));
-	DCHECK_NULLP(default_file_info, return NULL); // ---> PCPP patch
+	light_pcapng_file_info *default_file_info = NULL;
+	LIGHT_CALLOC(default_file_info, 1, sizeof(light_pcapng_file_info), return NULL); // ---> PCPP patch
 	memset(default_file_info, 0, sizeof(light_pcapng_file_info));
 	default_file_info->major_version = 1;
 	return default_file_info;
@@ -379,8 +379,7 @@ light_pcapng_file_info *light_create_file_info(const char *os_desc, const char *
 	if (os_desc != NULL && strlen(os_desc) > 0)
 	{
 		size_t os_len = strlen(os_desc);
-		info->os_desc = calloc(os_len, sizeof(char));
-		DCHECK_NULLP(info->os_desc, return NULL); // ---> PCPP patch
+		LIGHT_CALLOC(info->os_desc, os_len, sizeof(char), return NULL); // ---> PCPP patch
 		memcpy(info->os_desc, os_desc, os_len);
 		info->os_desc_size = os_len;
 	}
@@ -388,8 +387,7 @@ light_pcapng_file_info *light_create_file_info(const char *os_desc, const char *
 	if (hardware_desc != NULL && strlen(hardware_desc) > 0)
 	{
 		size_t hw_len = strlen(hardware_desc);
-		info->hardware_desc = calloc(hw_len, sizeof(char));
-		DCHECK_NULLP(info->hardware_desc, return NULL); // ---> PCPP patch
+		LIGHT_CALLOC(info->hardware_desc, hw_len, sizeof(char), return NULL); // ---> PCPP patch
 		memcpy(info->hardware_desc, hardware_desc, hw_len);
 		info->hardware_desc_size = hw_len;
 	}
@@ -397,8 +395,7 @@ light_pcapng_file_info *light_create_file_info(const char *os_desc, const char *
 	if (user_app_desc != NULL && strlen(user_app_desc) > 0)
 	{
 		size_t app_len = strlen(user_app_desc);
-		info->user_app_desc = calloc(app_len, sizeof(char));
-		DCHECK_NULLP(info->user_app_desc, return NULL); // ---> PCPP patch
+		LIGHT_CALLOC(info->user_app_desc, app_len, sizeof(char), return NULL); // ---> PCPP patch
 		memcpy(info->user_app_desc, user_app_desc, app_len);
 		info->user_app_desc_size = app_len;
 	}
@@ -406,8 +403,7 @@ light_pcapng_file_info *light_create_file_info(const char *os_desc, const char *
 	if (file_comment != NULL && strlen(file_comment) > 0)
 	{
 		size_t comment_len = strlen(file_comment);
-		info->file_comment = calloc(comment_len, sizeof(char));
-		DCHECK_NULLP(info->file_comment, return NULL); // ---> PCPP patch
+		LIGHT_CALLOC(info->file_comment, comment_len, sizeof(char), return NULL); // ---> PCPP patch
 		memcpy(info->file_comment, file_comment, comment_len);
 		info->file_comment_size = comment_len;
 	}

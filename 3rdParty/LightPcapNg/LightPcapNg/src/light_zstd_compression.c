@@ -49,9 +49,8 @@ int(*close_compressed)(struct light_file_t *) = &close_zstd_compressed;
 
 _compression_t * get_zstd_compression_context(int compression_level)
 {
-	struct zstd_compression_t *context = calloc(1, sizeof(struct zstd_compression_t));
-	if (context == NULL) // ---> PCPP patch
-		return NULL;
+	struct zstd_compression_t *context = NULL;
+	LIGHT_CALLOC(context, 1, sizeof(struct zstd_compression_t), return NULL); // ---> PCPP patch
 	context->cctx = ZSTD_createCCtx();
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
@@ -90,9 +89,8 @@ void free_zstd_compression_context(_compression_t* context)
 
 _decompression_t * get_zstd_decompression_context()
 {
-	struct zstd_decompression_t *context = calloc(1, sizeof(struct zstd_decompression_t));
-	if (context == NULL) // ---> PCPP patch
-		return NULL;
+	struct zstd_decompression_t *context = NULL;
+	LIGHT_CALLOC(context, 1, sizeof(struct zstd_decompression_t), return NULL); // ---> PCPP patch
 	context->dctx = ZSTD_createDCtx();
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = ZSTD_DStreamInSize();;

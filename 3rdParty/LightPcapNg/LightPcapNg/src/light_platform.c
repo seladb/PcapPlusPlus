@@ -24,6 +24,7 @@
 #include "light_platform.h"
 #include "light_internal.h"
 #include "light_compression.h"
+#include "light_util.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,8 +44,8 @@ light_file light_open_decompression(const char *file_name, const __read_mode_t m
 {
 	DCHECK_NULLP(file_name, return NULL); // ---> PCPP patch
 
-	light_file fd = calloc(1, sizeof(light_file_t));
-	DCHECK_NULLP(fd, return NULL); // ---> PCPP patch
+	light_file fd = NULL;
+	LIGHT_CALLOC(fd, 1, sizeof(light_file_t), return NULL); // ---> PCPP patch
 	fd->file = INVALID_FILE;
 	fd->decompression_context = light_get_decompression_context();
 
@@ -72,8 +73,8 @@ light_file light_open(const char *file_name, const __read_mode_t mode)
 {
 	DCHECK_NULLP(file_name, return NULL); // ---> PCPP patch
 
-	light_file fd = calloc(1,sizeof(light_file_t));
-	DCHECK_NULLP(fd, return NULL); // ---> PCPP patch
+	light_file fd = NULL;
+	LIGHT_CALLOC(fd, 1, sizeof(light_file_t), return NULL); // ---> PCPP patch
 	fd->file = INVALID_FILE;
 	fd->compression_context = NULL;
 	fd->decompression_context = NULL;
@@ -111,8 +112,8 @@ light_file light_open_compression(const char *file_name, const __read_mode_t mod
 {
 	DCHECK_NULLP(file_name, return NULL); // ---> PCPP patch
 
-	light_file fd = calloc(1, sizeof(light_file_t));
-	DCHECK_NULLP(fd, return NULL); // ---> PCPP patch
+	light_file fd = NULL;
+	LIGHT_CALLOC(fd, 1, sizeof(light_file_t), return NULL); // ---> PCPP patch
 	fd->file = INVALID_FILE;
 
 	assert(0 <= compression_level && 10 >= compression_level);

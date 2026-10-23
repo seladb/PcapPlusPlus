@@ -42,8 +42,8 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
       return NULL;
    }
    else {
-      struct _light_option *opt = calloc(1, sizeof(struct _light_option));
-	   DCHECK_NULLP(opt, return NULL); // ---> PCPP patch
+      struct _light_option *opt = NULL;
+      LIGHT_CALLOC(opt, 1, sizeof(struct _light_option), return NULL); // ---> PCPP patch
       uint16_t actual_length;
       uint16_t alignment = sizeof(uint32_t);
 
@@ -120,8 +120,8 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       case LIGHT_SECTION_HEADER_BLOCK:
       { // PCPP patch
          DPRINT_HERE(LIGHT_SECTION_HEADER_BLOCK);
-         struct _light_section_header *shb = calloc(1, sizeof(struct _light_section_header));
-         DCHECK_NULLP(shb, return);
+         struct _light_section_header *shb = NULL;
+         LIGHT_CALLOC(shb, 1, sizeof(struct _light_section_header), return); // ---> PCPP patch
          struct _light_option *opt = NULL;
          uint32_t version = 0;
          int32_t local_offset = 0;
@@ -146,8 +146,8 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       case LIGHT_INTERFACE_BLOCK:
       { // PCPP patch
          DPRINT_HERE(LIGHT_INTERFACE_BLOCK);
-         struct _light_interface_description_block *idb = calloc(1, sizeof(struct _light_interface_description_block));
-	      DCHECK_NULLP(idb, return); // ---> PCPP patch
+         struct _light_interface_description_block *idb = NULL;
+         LIGHT_CALLOC(idb, 1, sizeof(struct _light_interface_description_block), return); // ---> PCPP patch
          struct _light_option *opt = NULL;
          uint32_t link_reserved = *local_data++;
          int32_t local_offset = 0;
@@ -192,8 +192,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
 
          PADD32(captured_packet_length, &actual_len);
 
-         epb = calloc(1, sizeof(struct _light_enhanced_packet_block) + actual_len);
-	      DCHECK_NULLP(epb, return); // ---> PCPP patch
+         LIGHT_CALLOC(epb, 1, sizeof(struct _light_enhanced_packet_block) + actual_len, return); // ---> PCPP patch
          epb->interface_id = interface_id;
          epb->timestamp_high = timestamp_high;
          epb->timestamp_low = timestamp_low;
@@ -218,8 +217,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          uint32_t original_packet_length = *local_data++;
          uint32_t actual_len = current->block_total_length - 2 * sizeof(current->block_total_length) - sizeof(current->block_type) - sizeof(original_packet_length);
 
-         spb = calloc(1, sizeof(struct _light_enhanced_packet_block) + actual_len);
-	      DCHECK_NULLP(spb, return); // ---> PCPP patch
+         LIGHT_CALLOC(spb, 1, sizeof(struct _light_enhanced_packet_block) + actual_len, return); // ---> PCPP patch
          spb->original_packet_length = original_packet_length;
 
          memcpy(spb->packet_data, local_data, actual_len);
@@ -254,8 +252,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          }
 
          PADD32(len, &actual_len);
-         cnb = calloc(1, sizeof(struct _light_custom_nonstandard_block) + actual_len);
-	      DCHECK_NULLP(cnb, return); // ---> PCPP patch
+         LIGHT_CALLOC(cnb, 1, sizeof(struct _light_custom_nonstandard_block) + actual_len, return); // ---> PCPP patch
          cnb->data_length = len;
          cnb->reserved0 = reserved0;
          cnb->reserved1 = reserved1;
@@ -277,8 +274,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          uint32_t raw_size = current->block_total_length - 2 * sizeof(current->block_total_length) - sizeof(current->block_type);
          if (raw_size > 0)
          {
-            current->block_body = calloc(raw_size, 1);
-	         DCHECK_NULLP(current->block_body, return); // ---> PCPP patch
+            LIGHT_CALLOC(current->block_body, 1, raw_size, return); // ---> PCPP patch
             memcpy(current->block_body, local_data, raw_size);
             local_data += raw_size / (sizeof(*local_data));
          }
@@ -328,16 +324,14 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
       }
 
       if (current == NULL) {
-         current = calloc(1, sizeof(struct _light_pcapng));
-         DCHECK_NULLP(current, return block_count);
+         LIGHT_CALLOC(current, 1, sizeof(struct _light_pcapng), return block_count); // ---> PCPP patch
 
          if (*iter == NULL) {
             *iter = current;
          }
       }
       else {
-         current->next_block = calloc(1, sizeof(struct _light_pcapng));
-         DCHECK_NULLP(current->next_block, return block_count);
+         LIGHT_CALLOC(current->next_block, 1, sizeof(struct _light_pcapng), return block_count); // ---> PCPP patch
 
          current = current->next_block;
       }
@@ -400,8 +394,8 @@ void light_read_record(light_file fd, light_pcapng *record)
    }
 
    //A block remains to be read so allocate here
-   current = calloc(1, sizeof(struct _light_pcapng));
-   DCHECK_NULLP(current, return);
+   LIGHT_CALLOC(current, 1, sizeof(struct _light_pcapng), return); // ---> PCPP patch
+
    current->block_type = blockType;
 
    //From here on if there is malformed block data we need to release the block we just allocated!

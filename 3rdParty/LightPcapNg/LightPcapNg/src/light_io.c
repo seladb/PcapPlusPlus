@@ -25,6 +25,7 @@
 #include "light_internal.h"
 #include "light_pcapng.h"
 #include "light_platform.h"
+#include "light_util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,8 +88,8 @@ int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pc
 
 light_pcapng_stream light_open_stream(const char *file_name)
 {
-	light_pcapng_stream pcapng = calloc(1, sizeof(struct _light_pcapng_stream));
-	DCHECK_NULLP(pcapng, return NULL); // ---> PCPP patch
+	light_pcapng_stream pcapng = NULL;
+	LIGHT_CALLOC(pcapng, 1, sizeof(struct _light_pcapng_stream), return NULL); // ---> PCPP patch
 	pcapng->file = light_open(file_name, LIGHT_OREAD); // PCPP patch
 
 	if (pcapng->file == NULL) { // PCPP patch

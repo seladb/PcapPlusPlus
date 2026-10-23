@@ -60,14 +60,18 @@
 light_option light_create_option(const uint16_t option_code, const uint16_t option_length, void *option_value)
 {
 	uint16_t size = 0;
-	light_option option = calloc(1, sizeof(struct _light_option));
-	DCHECK_NULLP(option, return NULL); // ---> PCPP patch
+	light_option option = NULL;
+	LIGHT_CALLOC(option, 1, sizeof(struct _light_option), return NULL); // ---> PCPP patch
 
 	PADD32(option_length, &size);
 	option->custom_option_code = option_code;
 	option->option_length = option_length;
 
 	option->data = calloc(size, sizeof(uint8_t));
+	if (option->data == NULL) {
+		free(option);
+		return NULL;
+	}
 	memcpy(option->data, option_value, option_length);
 
 	return option;
@@ -338,8 +342,8 @@ static flow_information_t *__create_flow(const light_pcapng section, const light
 {
 	DCHECK_NULLP(key, return NULL); // ---> PCPP patch
 
-	flow_information_t *flow = calloc(1, sizeof(flow_information_t));
-	DCHECK_NULLP(flow, return NULL); // ---> PCPP patch
+	flow_information_t *flow = NULL;
+	LIGHT_CALLOC(flow, 1, sizeof(flow_information_t), return NULL); // ---> PCPP patch
 	flow->version = protocol_version;
 	memcpy(&flow->address, key, sizeof(flow->address));
 	flow->section = __copy_block(section, LIGHT_FALSE);

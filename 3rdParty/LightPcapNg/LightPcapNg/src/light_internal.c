@@ -37,14 +37,18 @@ struct _light_option *__copy_option(const struct _light_option *option)
 	}
 
 	size_t current_size = 0;
-	struct _light_option *copy = calloc(1, sizeof(struct _light_option));
-	DCHECK_NULLP(copy, return NULL); // ---> PCPP patch
+	struct _light_option *copy = NULL;
+	LIGHT_CALLOC(copy, 1, sizeof(struct _light_option), return NULL); // ---> PCPP patch
 
 	PADD32(option->option_length, &current_size);
 
 	copy->custom_option_code = option->custom_option_code;
 	copy->option_length = option->option_length;
 	copy->data = calloc(1, current_size);
+	if (copy->data == NULL) {
+		free(copy);
+		return NULL;
+	}
 	memcpy(copy->data, option->data, option->option_length);
 
 	copy->next_option = __copy_option(option->next_option);
@@ -59,8 +63,8 @@ struct _light_pcapng *__copy_block(const struct _light_pcapng *pcapng, const lig
 	}
 
 	size_t body_length = pcapng->block_total_length - 2 * sizeof(pcapng->block_total_length) - sizeof(pcapng->block_type);
-	struct _light_pcapng *pcopy = calloc(1, sizeof(struct _light_pcapng));
-	DCHECK_NULLP(pcopy, return NULL); // ---> PCPP patch
+	struct _light_pcapng *pcopy = NULL;
+	LIGHT_CALLOC(pcopy, 1, sizeof(struct _light_pcapng), return NULL); // ---> PCPP patch
 
 	size_t option_length = 0;
 
