@@ -2,6 +2,8 @@
 
 #include "PcppTestFramework.h"
 
+PTF_TEST_CASE(TestWindowsIoRingDriver);
+
 // Implemented in IpMac.cpp
 PTF_TEST_CASE(TestIPAddress);
 PTF_TEST_CASE(TestMacAddress);

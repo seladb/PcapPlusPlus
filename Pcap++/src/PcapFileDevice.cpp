@@ -14,6 +14,7 @@
 #include <iterator>
 
 #include "AssertionUtils.h"
+#include "fileio\win_ioring.h"
 
 namespace pcpp
 {
@@ -774,10 +775,12 @@ namespace pcpp
 			break;
 		case IODriverType::EXPERIMENTAL_AsyncPrefetch:
 		{
-			// TODO: Hook up prefetch driver when it is implemented
-			PCPP_LOG_WARN(
-			    "File I/O Driver: Unsupported driver type EXPERIMENTAL_AsyncPrefetch selected. Falling back to Fstream driver");
-			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+			internal::WindowsIoRingDriver::IoRingConfig ioRingConfig;
+			if (config.numPrefetchBuffers > 0)
+				ioRingConfig.numBuffers = config.numPrefetchBuffers;
+			if (config.prefetchBufferSize > 0)
+				ioRingConfig.bufferSize = config.prefetchBufferSize;
+			m_FileIODriver = std::make_unique<internal::WindowsIoRingDriver>(ioRingConfig);
 			break;
 		}
 		}
@@ -798,10 +801,13 @@ namespace pcpp
 			}
 			case IODriverType::EXPERIMENTAL_AsyncPrefetch:
 			{
-				// TODO: Hook up prefetch driver when it is implemented
-				PCPP_LOG_WARN(
-				    "File I/O Driver: Unsupported driver type EXPERIMENTAL_AsyncPrefetch selected. Falling back to Fstream driver");
-				m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+				PCPP_LOG_DEBUG("File I/O Driver: Windows IORing Driver");
+				internal::WindowsIoRingDriver::IoRingConfig ioRingConfig;
+				if (m_IODriverConfig.numPrefetchBuffers > 0)
+					ioRingConfig.numBuffers = m_IODriverConfig.numPrefetchBuffers;
+				if (m_IODriverConfig.prefetchBufferSize > 0)
+					ioRingConfig.bufferSize = m_IODriverConfig.prefetchBufferSize;
+				m_FileIODriver = std::make_unique<internal::WindowsIoRingDriver>(ioRingConfig);
 				break;
 			}
 			}

@@ -18,6 +18,7 @@ add_executable(
   Tests/TcpReassemblyTests.cpp
   Tests/WinDivertTests.cpp
   Tests/XdpTests.cpp
+  Tests/Internal/win_ioring_tests.cpp
 )
 
 # Added as source files for IDEs
