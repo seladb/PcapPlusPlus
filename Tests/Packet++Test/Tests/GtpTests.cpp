@@ -244,6 +244,28 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 		gtpLayer->getHeader()->messageType = 0xFF;
 		gtpLayer->addExtension(0x85, 0x1234);
 	}
+
+	{
+		// Regression - issue #2322: the layer is attached to a Packet and already
+		// has an extension. addExtension() must not keep a pointer into the old
+		// packet buffer across the extendLayer() reallocation.
+		auto rawPacket = createPacketFromHexResource("PacketExamples/gtp-u-1ext.dat");
+		pcpp::Packet gtpPacket(rawPacket.get());
+
+		auto* gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV1Layer>();
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+		PTF_ASSERT_FALSE(gtpLayer->getNextExtension().isNull());
+
+		pcpp::GtpV1Layer::GtpExtension newExt = gtpLayer->addExtension(0x85, 0x1234);
+		PTF_ASSERT_FALSE(newExt.isNull());
+		PTF_ASSERT_EQUAL(newExt.getExtensionType(), 0x85);
+		PTF_ASSERT_EQUAL(newExt.getTotalLength(), 4 * sizeof(uint8_t));
+		PTF_ASSERT_EQUAL(newExt.getContentLength(), 2 * sizeof(uint8_t));
+		auto* content = reinterpret_cast<uint16_t*>(newExt.getContent());
+		PTF_ASSERT_EQUAL(be16toh(content[0]), 0x1234);
+		PTF_ASSERT_TRUE(newExt.getNextExtension().isNull());
+		PTF_ASSERT_EQUAL(gtpLayer->getNextExtension().getNextExtensionHeaderType(), 0x85);
+	}
 }  // GtpLayerCreationTest
 
 PTF_TEST_CASE(GtpV1LayerEditTest)
