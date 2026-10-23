@@ -1752,7 +1752,7 @@ namespace pcpp
 		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
 	}
 
-	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer)
+	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer, size_t maxPackets)
 	{
 		if (!reader.isOpened() && !reader.open())
 		{
@@ -1762,7 +1762,7 @@ namespace pcpp
 		size_t packetCount = 0;
 		auto packets = serializer.writeArray(FieldDescriptor{ 0, "packets" });
 		RawPacket rawPacket;
-		while (reader.getNextPacket(rawPacket))
+		while ((maxPackets == 0 || packetCount < maxPackets) && reader.getNextPacket(rawPacket))
 		{
 			Packet packet(&rawPacket);
 			packet.serialize(packets);

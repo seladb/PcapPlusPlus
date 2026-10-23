@@ -281,6 +281,7 @@ namespace pcpp
 #endif
 	}
 
+	// cppcheck-suppress constParameter
 	static void setTimestampProvider(internal::PcapHandle& pcap,
 	                                 const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
