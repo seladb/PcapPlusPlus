@@ -45,6 +45,25 @@ namespace pcpp
 			delete[] m_ShadowData;
 	}
 
+	const char* IPv6Extension::getExtensionTypeAsString() const
+	{
+		switch (m_ExtType)
+		{
+		case IPv6Fragmentation:
+			return "Fragment";
+		case IPv6HopByHop:
+			return "Hop-By-Hop";
+		case IPv6Destination:
+			return "Destination";
+		case IPv6Routing:
+			return "Routing";
+		case IPv6AuthenticationHdr:
+			return "Authentication";
+		default:
+			return "Unknown";
+		}
+	}
+
 	// =======================
 	// IPv6FragmentationHeader
 	// =======================

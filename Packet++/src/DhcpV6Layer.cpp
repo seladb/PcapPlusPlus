@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
+#include "Serializers.h"
 
 namespace pcpp
 {
@@ -267,6 +268,160 @@ namespace pcpp
 	std::string DhcpV6Layer::toString() const
 	{
 		return "DHCPv6 Layer, " + getMessageTypeAsString() + " message";
+	}
+
+	static constexpr const char* dhcpV6OptionTypeToString(DhcpV6OptionType optType)
+	{
+		switch (optType)
+		{
+		case DHCPV6_OPT_CLIENTID:
+			return "ClientID";
+		case DHCPV6_OPT_SERVERID:
+			return "ServerID";
+		case DHCPV6_OPT_IA_NA:
+			return "IA_NA";
+		case DHCPV6_OPT_IA_TA:
+			return "IA_TA";
+		case DHCPV6_OPT_IAADDR:
+			return "IAAddress";
+		case DHCPV6_OPT_ORO:
+			return "OptionRequestOption";
+		case DHCPV6_OPT_PREFERENCE:
+			return "Preference";
+		case DHCPV6_OPT_ELAPSED_TIME:
+			return "ElapsedTime";
+		case DHCPV6_OPT_RELAY_MSG:
+			return "RelayMessage";
+		case DHCPV6_OPT_AUTH:
+			return "Authentication";
+		case DHCPV6_OPT_UNICAST:
+			return "ServerUnicast";
+		case DHCPV6_OPT_STATUS_CODE:
+			return "StatusCode";
+		case DHCPV6_OPT_RAPID_COMMIT:
+			return "RapidCommit";
+		case DHCPV6_OPT_USER_CLASS:
+			return "UserClass";
+		case DHCPV6_OPT_VENDOR_CLASS:
+			return "VendorClass";
+		case DHCPV6_OPT_VENDOR_OPTS:
+			return "VendorSpecificInformation";
+		case DHCPV6_OPT_INTERFACE_ID:
+			return "InterfaceID";
+		case DHCPV6_OPT_RECONF_MSG:
+			return "ReconfigureMessage";
+		case DHCPV6_OPT_RECONF_ACCEPT:
+			return "ReconfigureAccept";
+		case DHCPV6_OPT_SIP_SERVERS_D:
+			return "SIPServersDomainName";
+		case DHCPV6_OPT_SIP_SERVERS_A:
+			return "SIPServersIPv6AddressList";
+		case DHCPV6_OPT_DNS_SERVERS:
+			return "DNSRecursiveNameServer";
+		case DHCPV6_OPT_DOMAIN_LIST:
+			return "DomainSearchList";
+		case DHCPV6_OPT_IA_PD:
+			return "IA_PD";
+		case DHCPV6_OPT_IAPREFIX:
+			return "IA_PDPrefix";
+		case DHCPV6_OPT_NIS_SERVERS:
+			return "NISServers";
+		case DHCPV6_OPT_NISP_SERVERS:
+			return "NISPlusServers";
+		case DHCPV6_OPT_NIS_DOMAIN_NAME:
+			return "NISDomainName";
+		case DHCPV6_OPT_NISP_DOMAIN_NAME:
+			return "NISPlusDomainName";
+		case DHCPV6_OPT_SNTP_SERVERS:
+			return "SNTPServers";
+		case DHCPV6_OPT_INFORMATION_REFRESH_TIME:
+			return "InformationRefreshTime";
+		case DHCPV6_OPT_BCMCS_SERVER_D:
+			return "BCMCSServerDomainNameList";
+		case DHCPV6_OPT_BCMCS_SERVER_A:
+			return "BCMCSServerIPv6AddressList";
+		case DHCPV6_OPT_GEOCONF_CIVIC:
+			return "GeoConfCivic";
+		case DHCPV6_OPT_REMOTE_ID:
+			return "RelayAgentRemoteID";
+		case DHCPV6_OPT_SUBSCRIBER_ID:
+			return "RelayAgentSubscriberID";
+		case DHCPV6_OPT_CLIENT_FQDN:
+			return "ClientFQDN";
+		case DHCPV6_OPT_PANA_AGENT:
+			return "PANAAgent";
+		case DHCPV6_OPT_NEW_POSIX_TIMEZONE:
+			return "NewPOSIXTimeZone";
+		case DHCPV6_OPT_NEW_TZDB_TIMEZONE:
+			return "NewTZDBTimeZone";
+		case DHCPV6_OPT_ERO:
+			return "RelayAgentEchoRequest";
+		case DHCPV6_OPT_LQ_QUERY:
+			return "QueryOption";
+		case DHCPV6_OPT_CLIENT_DATA:
+			return "ClientData";
+		case DHCPV6_OPT_CLT_TIME:
+			return "ClientLastTransactionTime";
+		case DHCPV6_OPT_LQ_RELAY_DATA:
+			return "RelayData";
+		case DHCPV6_OPT_LQ_CLIENT_LINK:
+			return "ClientLink";
+		case DHCPV6_OPT_MIP6_HNINF:
+			return "MobileIPv6HomeNetworkInfo";
+		case DHCPV6_OPT_MIP6_RELAY:
+			return "MobileIPv6RelayAgent";
+		case DHCPV6_OPT_V6_LOST:
+			return "V6Lost";
+		case DHCPV6_OPT_CAPWAP_AC_V6:
+			return "CapwapAcV6";
+		case DHCPV6_OPT_RELAY_ID:
+			return "RelayID";
+		case DHCPV6_OPT_IPH6_ADDRESS_MOS:
+			return "IPv6AddressMOS";
+		case DHCPV6_OPT_IPV6_FQDN_MOS:
+			return "IPv6FqdnMOS";
+		case DHCPV6_OPT_NTP_SERVER:
+			return "NTPServer";
+		case DHCPV6_OPT_BOOTFILE_URL:
+			return "BootfileURL";
+		case DHCPV6_OPT_BOOTFILE_PARAM:
+			return "BootfileParameters";
+		case DHCPV6_OPT_CLIENT_ARCH_TYPE:
+			return "ClientArchType";
+		case DHCPV6_OPT_NII:
+			return "NetworkInterfaceIdentifier";
+		case DHCPV6_OPT_ERP_LOCAL_DOMAIN_NAME:
+			return "ERPLocalDomainName";
+		case DHCPV6_OPT_RELAY_SUPPLIED_OPTIONS:
+			return "RelaySuppliedOptions";
+		case DHCPV6_OPT_VSS:
+			return "VirtualSubnetSelection";
+		case DHCPV6_OPT_CLIENT_LINKLAYER_ADDR:
+			return "ClientLinkLayerAddress";
+		case DHCPV6_OPT_MUD_URL:
+			return "ManufacturerUsageDescriptionURL";
+		case DHCPV6_OPT_UNKNOWN:
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor DhcpV6Layer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 1,
+		                                                              "messageType" };
+	const FieldDescriptor DhcpV6Layer::SerializedFields::TransactionID{ Layer::SerializedFields::MaxID + 2,
+		                                                                "transactionID" };
+	const FieldDescriptor DhcpV6Layer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 3, "options" };
+	const FieldDescriptor DhcpV6Layer::SerializedFields::Option{ 0, "option" };
+
+	void DhcpV6Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::MessageType, getMessageTypeAsString());
+		serializer.writeHexField(SerializedFields::TransactionID, getTransactionID());
+		auto options = serializer.writeArray(SerializedFields::Options);
+		for (auto opt = getFirstOptionData(); opt.isNotNull(); opt = getNextOptionData(opt))
+		{
+			options.writeField(SerializedFields::Option, dhcpV6OptionTypeToString(opt.getType()));
+		}
 	}
 
 }  // namespace pcpp

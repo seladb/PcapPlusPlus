@@ -14,6 +14,7 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest);
 // Implemented in VlanMplsTests.cpp
 PTF_TEST_CASE(VlanParseAndCreation);
 PTF_TEST_CASE(QinQ802_1adParse);
+PTF_TEST_CASE(TruncatedArpAndVlanPayloadTest);
 PTF_TEST_CASE(MplsLayerTest);
 PTF_TEST_CASE(VxlanParsingAndCreationTest);
 
@@ -46,6 +47,7 @@ PTF_TEST_CASE(TcpChecksumMultiBuffer);
 PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
 PTF_TEST_CASE(PacketUtilsHash5TupleTcp);
 PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
+PTF_TEST_CASE(PacketSerializerTest);
 
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
@@ -91,6 +93,7 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest);
 PTF_TEST_CASE(DnsLayerResourceCreationTest);
 PTF_TEST_CASE(DnsLayerEditTest);
 PTF_TEST_CASE(DnsLayerRemoveResourceTest);
+PTF_TEST_CASE(DnsLayerAddResourceOutOfOrderTest);
 PTF_TEST_CASE(DnsOverTcpParsingTest);
 PTF_TEST_CASE(DnsOverTcpCreationTest);
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest);
@@ -175,6 +178,9 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
 PTF_TEST_CASE(SSLECPointFormatExtensionZeroLengthTest);
+PTF_TEST_CASE(SSLSupportedVersionsExtensionZeroLengthTest);
+PTF_TEST_CASE(SSLServerNameIndicationExtensionTruncatedTest);
+PTF_TEST_CASE(SSLAlertLayerTruncatedTest);
 PTF_TEST_CASE(TLS1_3ParsingTest);
 PTF_TEST_CASE(TLSCipherSuiteTest);
 PTF_TEST_CASE(ClientHelloTLSFingerprintTest);
@@ -304,6 +310,7 @@ PTF_TEST_CASE(CotpLayerTest);
 // Implemented in S7commTests.cpp
 PTF_TEST_CASE(S7CommLayerParsingTest);
 PTF_TEST_CASE(S7CommLayerCreationTest);
+PTF_TEST_CASE(S7CommLayerMalformedTest);
 
 // Implemented in SmtpTests.cpp
 PTF_TEST_CASE(SmtpParsingTests);
@@ -326,6 +333,7 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest);
 PTF_TEST_CASE(WireGuardTransportDataParsingTest);
 PTF_TEST_CASE(WireGuardCreationTest);
 PTF_TEST_CASE(WireGuardEditTest);
+PTF_TEST_CASE(WireGuardMalformedPacketsTest);
 
 // Implemented in CiscoHdlcTests.cpp
 PTF_TEST_CASE(CiscoHdlcParsingTest);
@@ -336,6 +344,14 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest);
 PTF_TEST_CASE(ModbusLayerCreationTest);
 PTF_TEST_CASE(ModbusLayerParsingTest);
 PTF_TEST_CASE(ModbusLayerTruncatedTest);
+
+// Implemented in GvcpTests.cpp
+PTF_TEST_CASE(GvcpDiscoveryParsingTest);
+PTF_TEST_CASE(GvcpForceIpParsingTest);
+PTF_TEST_CASE(GvcpRegisterAccessParsingTest);
+PTF_TEST_CASE(GvcpMalformedParsingTest);
+PTF_TEST_CASE(GvcpLayerCreationTest);
+PTF_TEST_CASE(GvcpLayerEditTest);
 
 // Implemented in X509Tests.cpp
 PTF_TEST_CASE(X509ParsingTest);
@@ -371,3 +387,5 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest);
 
 // Implemented in SerializerTests.cpp
 PTF_TEST_CASE(JsonSerializerTest);
+PTF_TEST_CASE(YamlSerializerTest);
+PTF_TEST_CASE(XmlSerializerTest);

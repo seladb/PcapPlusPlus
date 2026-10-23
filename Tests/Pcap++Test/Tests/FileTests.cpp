@@ -1145,6 +1145,20 @@ PTF_TEST_CASE(TestPcapNgFilePrecision)
 	readerDev.close();
 }  // TestPcapNgFilePrecision
 
+PTF_TEST_CASE(TestPcapNgSimplePacketBlockOverlongLength)
+{
+	pcpp::PcapNgFileReaderDevice readerDev("PcapExamples/SpbOverlongOriginalLength.pcapng");
+	PTF_ASSERT_TRUE(readerDev.open());
+
+	pcpp::RawPacket rawPacket;
+	PTF_ASSERT_TRUE(readerDev.getNextPacket(rawPacket));
+	// The SPB contains 64 packet bytes but claims original_packet_length=60000.
+	// captured_length must be clamped to the bytes present in the block.
+	PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 64);
+	PTF_ASSERT_EQUAL(rawPacket.getFrameLength(), 60000);
+	readerDev.close();
+}  // TestPcapNgSimplePacketBlockOverlongLength
+
 PTF_TEST_CASE(TestPcapSllFileReadWrite)
 {
 	pcpp::PcapFileReaderDevice readerDev(SLL_PCAP_PATH);
@@ -2513,3 +2527,91 @@ PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
 	PTF_ASSERT_NOT_EQUAL(0, posExplicitClose);
 	PTF_ASSERT_EQUAL(posNoClose, posExplicitClose);
 }  // TestPcapFileWriterDeviceDestructor
+
+PTF_TEST_CASE(PcapFileSerializeTest)
+{
+	// Read a file and serialize every packet in it.
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_MICRO_PATH);
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		auto count = pcpp::serializePackets(reader, serializer);
+
+		PTF_ASSERT_EQUAL(count, static_cast<size_t>(2));
+
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"([{"timestamp":{"sec":1,"nsec":2000},"frameLength":16,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"06:07:08:09:0a:0b","dstMacAddress":"00:01:02:03:04:05","etherType":3085},{"protocolName":"GenericPayload","protocolId":25,"length":2}]},{"timestamp":{"sec":1,"nsec":1000},"frameLength":16,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"06:07:08:09:0a:0b","dstMacAddress":"00:01:02:03:04:05","etherType":3085},{"protocolName":"GenericPayload","protocolId":25,"length":2}]}])");
+	}
+
+	// Reader already open.
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_MICRO_PATH);
+		PTF_ASSERT_TRUE(reader.open());
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		auto count = pcpp::serializePackets(reader, serializer);
+
+		PTF_ASSERT_EQUAL(count, static_cast<size_t>(2));
+	}
+
+	// Serialize only the first packet
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_MICRO_PATH);
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		auto count = pcpp::serializePackets(reader, serializer, 1);
+
+		PTF_ASSERT_EQUAL(count, static_cast<size_t>(1));
+
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"([{"timestamp":{"sec":1,"nsec":2000},"frameLength":16,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"06:07:08:09:0a:0b","dstMacAddress":"00:01:02:03:04:05","etherType":3085},{"protocolName":"GenericPayload","protocolId":25,"length":2}]}])");
+	}
+
+	// Limit larger than the number of packets in the file
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_MICRO_PATH);
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		auto count = pcpp::serializePackets(reader, serializer, 10);
+
+		PTF_ASSERT_EQUAL(count, static_cast<size_t>(2));
+	}
+
+	// serializePackets() with an empty file
+	{
+		std::string emptyFileName = "PcapExamples/empty-file.pcap";
+		{
+			pcpp::PcapFileWriterDevice writer(emptyFileName, pcpp::LINKTYPE_ETHERNET);
+			PTF_ASSERT_TRUE(writer.open());
+			writer.close();
+		}
+
+		pcpp::PcapFileReaderDevice reader(emptyFileName);
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		size_t count = pcpp::serializePackets(reader, serializer);
+		reader.close();
+
+		PTF_ASSERT_EQUAL(count, static_cast<size_t>(0));
+		PTF_ASSERT_EQUAL(oss.str(), "[]");
+	}
+
+	// The underlying file doesn't exist, so open() will fail
+	{
+		SuppressLogs suppressLogs;
+
+		pcpp::PcapFileReaderDevice reader("PcapExamples/this_file_does_not_exist.pcap");
+		PTF_ASSERT_FALSE(reader.isOpened());
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		PTF_ASSERT_RAISES(pcpp::serializePackets(reader, serializer), std::runtime_error, "Device cannot be opened");
+	}
+}  // PcapFileSerializeTest
