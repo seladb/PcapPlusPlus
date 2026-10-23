@@ -131,6 +131,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TruncatedArpAndVlanPayloadTest, "vlan;arp;sll;gre");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
 	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
+	PTF_RUN_TEST(GeneveParsingTest, "geneve");
+	PTF_RUN_TEST(GeneveCreationTest, "geneve");
+	PTF_RUN_TEST(GeneveEditTest, "geneve");
+	PTF_RUN_TEST(GeneveEdgeCaseTest, "geneve");
 
 	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");
 	PTF_RUN_TEST(IPv4PacketParsing, "ipv4");
