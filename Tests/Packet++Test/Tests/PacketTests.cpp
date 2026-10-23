@@ -1338,7 +1338,7 @@ PTF_TEST_CASE(RawPacketRemoveDataBounds)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	pcpp::RawPacket rawPacket(buffer, sizeof(buffer), time, true, pcpp::LINKTYPE_ETHERNET);
+	pcpp::RawPacket rawPacket(buffer, sizeof(buffer), time, false, pcpp::LINKTYPE_ETHERNET);
 
 	// Negative index
 	PTF_ASSERT_FALSE(rawPacket.removeData(-1, 10));
