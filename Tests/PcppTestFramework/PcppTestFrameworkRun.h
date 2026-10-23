@@ -131,7 +131,7 @@ namespace ptf
 			return result;
 		}
 
-		int finalizeResults()
+		int finalizeResults() const
 		{
 			std::string message = (!hasFailures() ? "ALL TESTS PASSED!!" : "NOT ALL TESTS PASSED!!");
 			std::cout << std::endl
@@ -140,7 +140,7 @@ namespace ptf
 			          << "Passed: " << m_TestsPassed << ", "
 			          << "Failed: " << m_TestsFailed << ", "
 			          << "Skipped: " << m_TestsSkipped << std::endl;
-			return hasFailures();
+			return hasFailures() ? EXIT_FAILURE : EXIT_SUCCESS;
 		}
 
 	private:
