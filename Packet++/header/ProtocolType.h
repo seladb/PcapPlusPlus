@@ -269,6 +269,9 @@ namespace pcpp
 	/// GigE Vision Control Protocol (GVCP)
 	const ProtocolType GVCP = 65;
 
+	/// Bluetooth HCI Protocol
+	const ProtocolType BluetoothHci = 66;
+
 	/// @}
 
 	/// Convert a protocol type to its string representation.
@@ -410,6 +413,8 @@ namespace pcpp
 			return "QUICv1";
 		case GVCP:
 			return "GVCP";
+		case BluetoothHci:
+			return "BluetoothHci";
 		default:
 			throw std::invalid_argument("Unknown protocol type");
 		}
