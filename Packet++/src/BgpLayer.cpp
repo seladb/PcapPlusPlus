@@ -905,17 +905,21 @@ namespace pcpp
 	void BgpNotificationMessageLayer::initMessageData(uint8_t errorCode, uint8_t errorSubCode,
 	                                                  const uint8_t* notificationData, size_t notificationDataLen)
 	{
-		size_t headerLen = sizeof(bgp_notification_message);
-		if (notificationData != nullptr && notificationDataLen > 0)
+		if (notificationData == nullptr)
 		{
-			headerLen += notificationDataLen;
+			notificationDataLen = 0;
 		}
+
+		size_t headerLen = sizeof(bgp_notification_message) + notificationDataLen;
 		allocData(headerLen);
 		setBgpFields(headerLen);
 		bgp_notification_message* msgHdr = getNotificationMsgHeader();
 		msgHdr->errorCode = errorCode;
 		msgHdr->errorSubCode = errorSubCode;
-		memcpy(m_Data + sizeof(bgp_notification_message), notificationData, notificationDataLen);
+		if (notificationDataLen > 0)
+		{
+			memcpy(m_Data + sizeof(bgp_notification_message), notificationData, notificationDataLen);
+		}
 		m_Protocol = BGP;
 	}
 
