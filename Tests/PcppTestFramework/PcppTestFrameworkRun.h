@@ -122,11 +122,11 @@ namespace ptf
 				}
 			}
 			if (result == PTF_RESULT_PASSED)
-				testsPassed++;
+				m_TestsPassed++;
 			if (result == PTF_RESULT_FAILED)
-				testsFailed++;
+				m_TestsFailed++;
 			if (result == PTF_RESULT_SKIPPED)
-				testsSkipped++;
+				m_TestsSkipped++;
 
 			return result;
 		}
@@ -136,10 +136,10 @@ namespace ptf
 			std::string message = (!hasFailures() ? "ALL TESTS PASSED!!" : "NOT ALL TESTS PASSED!!");
 			std::cout << std::endl
 			          << message << std::endl
-			          << "Test cases: " << testsPassed + testsFailed + testsSkipped << ", "
-			          << "Passed: " << testsPassed << ", "
-			          << "Failed: " << testsFailed << ", "
-			          << "Skipped: " << testsSkipped << std::endl;
+			          << "Test cases: " << m_TestsPassed + m_TestsFailed + m_TestsSkipped << ", "
+			          << "Passed: " << m_TestsPassed << ", "
+			          << "Failed: " << m_TestsFailed << ", "
+			          << "Skipped: " << m_TestsSkipped << std::endl;
 			return hasFailures();
 		}
 
@@ -147,16 +147,16 @@ namespace ptf
 		bool hasFailures(bool ignoreSkipped = true) const
 		{
 			if (ignoreSkipped)
-				return testsFailed != 0;
-			return testsFailed + testsSkipped != 0;
+				return m_TestsFailed != 0;
+			return m_TestsFailed + m_TestsSkipped != 0;
 		}
 
 		std::string m_UserIncludeTags;
 		std::string m_UserExcludeTags;
 		std::string m_ConfigTagsToRun;
-		int testsPassed = 0;
-		int testsFailed = 0;
-		int testsSkipped = 0;
+		int m_TestsPassed = 0;
+		int m_TestsFailed = 0;
+		int m_TestsSkipped = 0;
 	};
 }  // namespace ptf
 
