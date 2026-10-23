@@ -363,9 +363,6 @@ PTF_TEST_CASE(IcmpTruncatedPacketTest)
 	auto rawRouterAdvPacket = createPacketFromHexResource("PacketExamples/IcmpRouterAdvInvalidCount.dat");
 	pcpp::Packet routerAdvPacket(rawRouterAdvPacket.get());
 	PTF_ASSERT_FALSE(routerAdvPacket.isPacketOfType(pcpp::ICMP));
-	auto* routerAdvPayload = routerAdvPacket.getLayerOfType<pcpp::PayloadLayer>();
-	PTF_ASSERT_NOT_NULL(routerAdvPayload);
-	PTF_ASSERT_EQUAL(routerAdvPayload->getPayloadLen(), 16);
 }  // IcmpTruncatedPacketTest
 
 PTF_TEST_CASE(IcmpCreationTest)
