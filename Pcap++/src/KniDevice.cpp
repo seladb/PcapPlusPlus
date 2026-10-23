@@ -773,6 +773,7 @@ namespace pcpp
 		return sent;
 	}
 
+	// cppcheck-suppress constParameter
 	bool KniDevice::sendPacket(Packet& packet)
 	{
 		return sendPacket(*packet.getRawPacket());
