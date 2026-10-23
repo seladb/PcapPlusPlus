@@ -192,7 +192,7 @@ light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read
 	DCHECK_NULLP(file_path, return NULL);
 
 	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
-	pcapng->file = light_open(file_path, LIGHT_OREAD);
+	pcapng->file = light_open(file_path, LIGHT_OREAD, 0);  // PCPP patch
 	DCHECK_ASSERT_EXP(pcapng->file != NULL, "could not open file", return NULL);
 
 	//The first thing inside an NG capture is the section header block
@@ -230,14 +230,15 @@ light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read
 	return pcapng;
 }
 
-light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file_info *file_info, int compression_level)
+light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file_info *file_info, int compression_level,
+                                         size_t io_buffer_size)
 {
 	DCHECK_NULLP(file_info, return NULL);
 	DCHECK_NULLP(file_path, return NULL);
 
 	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
 
-	pcapng->file = light_open_compression(file_path, LIGHT_OWRITE, compression_level);
+	pcapng->file = light_open_compression(file_path, LIGHT_OWRITE, compression_level, io_buffer_size);  // PCPP patch
 	pcapng->file_info = file_info;
 
 	DCHECK_ASSERT_EXP(pcapng->file != NULL, "could not open output file", return NULL);
@@ -297,7 +298,7 @@ light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file
 	return pcapng;
 }
 
-light_pcapng_t *light_pcapng_open_append(const char* file_path)
+light_pcapng_t *light_pcapng_open_append(const char* file_path, size_t io_buffer_size)
 {
 	DCHECK_NULLP(file_path, return NULL);
 
@@ -305,7 +306,7 @@ light_pcapng_t *light_pcapng_open_append(const char* file_path)
 	DCHECK_NULLP(pcapng, return NULL);
 	light_close(pcapng->file);
 
-	pcapng->file = light_open(file_path, LIGHT_OAPPEND);
+	pcapng->file = light_open(file_path, LIGHT_OAPPEND, io_buffer_size);  // PCPP patch
 	DCHECK_NULLP(pcapng->file, return NULL);
 
 	light_pcapng_release(pcapng->pcapng);
