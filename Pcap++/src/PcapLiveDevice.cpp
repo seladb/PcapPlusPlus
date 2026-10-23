@@ -1365,8 +1365,25 @@ namespace pcpp
 		}
 	}  // namespace
 
+	int PcapLiveDevice::sendPacketBatchUnchecked(RawPacket const* rawPacketsArr, int arrLength)
+	{
+		return sendPacketsLoop(rawPacketsArr, rawPacketsArr + arrLength,
+		                       [this](RawPacket const& packet) { return sendPacketUnchecked(packet); });
+	}
+
+	int PcapLiveDevice::sendPacketBatchUncheckedIndirect(RawPacket const* const* pRawPacketsArr, int arrLength)
+	{
+		return sendPacketsLoop(pRawPacketsArr, pRawPacketsArr + arrLength,
+		                       [this](RawPacket const* packet) { return sendPacketUnchecked(*packet); });
+	}
+
 	int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 	{
+		if (!checkMtu)
+		{
+			return sendPacketBatchUnchecked(rawPacketsArr, arrLength);
+		}
+
 		return sendPacketsLoop(rawPacketsArr, rawPacketsArr + arrLength,
 		                       [this, checkMtu](RawPacket const& packet) { return sendPacket(packet, checkMtu); });
 	}
@@ -1379,6 +1396,11 @@ namespace pcpp
 
 	int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 	{
+		if (!checkMtu && rawPackets.size() < static_cast<size_t>(std::numeric_limits<int>::max()))
+		{
+			return sendPacketBatchUncheckedIndirect(rawPackets.data(), static_cast<int>(rawPackets.size()));
+		}
+
 		return sendPacketsLoop(rawPackets.begin(), rawPackets.end(),
 		                       [this, checkMtu](RawPacket const* packet) { return sendPacket(*packet, checkMtu); });
 	}
