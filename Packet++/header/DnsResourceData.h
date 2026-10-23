@@ -4,6 +4,7 @@
 #include "IpAddress.h"
 #include <memory>
 #include <string>
+#include <vector>
 #include <stdint.h>
 
 /// @file
@@ -63,6 +64,14 @@ namespace pcpp
 		/// @return True if the DNS RR data was successfully converted into a byte array and written to the given array
 		/// or false if stored DNS RR data is invalid or if it could not be written to the given array
 		virtual bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const = 0;
+
+		/// Serialize the DNS RR data into a byte vector. This is a convenience method for callers that don't
+		/// have a pre-allocated buffer at hand
+		/// @param[in] dnsResource A pointer to a DNS resource object where this DNS RR data will be stored, may be
+		/// nullptr for data types that don't need it
+		/// @return A vector with the serialized DNS RR data, or an empty vector if the data is invalid or couldn't
+		/// be serialized
+		virtual std::vector<uint8_t> toBytes(IDnsResource* dnsResource) const;
 	};
 
 	/// @class DnsResourceDataPtr
@@ -132,6 +141,7 @@ namespace pcpp
 			return m_Data;
 		}
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
+		std::vector<uint8_t> toBytes(IDnsResource* dnsResource) const override;
 	};
 
 	/// @class IPv4DnsResourceData
@@ -178,6 +188,7 @@ namespace pcpp
 			return m_Data.toString();
 		}
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
+		std::vector<uint8_t> toBytes(IDnsResource* dnsResource) const override;
 	};
 
 	/// @class IPv6DnsResourceData
@@ -224,6 +235,7 @@ namespace pcpp
 			return m_Data.toString();
 		}
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
+		std::vector<uint8_t> toBytes(IDnsResource* dnsResource) const override;
 	};
 
 	/// @class MxDnsResourceData
@@ -283,6 +295,7 @@ namespace pcpp
 		std::string toString() const override;
 
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
+		std::vector<uint8_t> toBytes(IDnsResource* dnsResource) const override;
 
 	private:
 		MxData m_Data;
@@ -329,6 +342,7 @@ namespace pcpp
 
 		std::string toString() const override;
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
+		std::vector<uint8_t> toBytes(IDnsResource* dnsResource) const override;
 	};
 
 }  // namespace pcpp

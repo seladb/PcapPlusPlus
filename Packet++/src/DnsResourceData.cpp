@@ -10,6 +10,18 @@
 namespace pcpp
 {
 
+	std::vector<uint8_t> IDnsResourceData::toBytes(IDnsResource* dnsResource) const
+	{
+		// DNS RR data is limited to 65535 bytes because its length is encoded in a 16-bit field
+		std::vector<uint8_t> result(65535);
+		size_t resultLength = result.size();
+		if (!toByteArr(result.data(), resultLength, dnsResource))
+			return {};
+
+		result.resize(resultLength);
+		return result;
+	}
+
 	size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsResource* dnsResource) const
 	{
 		if (dnsResource == nullptr)
@@ -51,6 +63,17 @@ namespace pcpp
 		return true;
 	}
 
+	std::vector<uint8_t> StringDnsResourceData::toBytes(IDnsResource* dnsResource) const
+	{
+		// the encoded name can't be longer than the decoded one plus a length byte for each label and the
+		// terminating zero byte
+		std::vector<uint8_t> result(m_Data.size() + 2);
+		size_t resultLength = 0;
+		encodeName(m_Data, reinterpret_cast<char*>(result.data()), resultLength, dnsResource);
+		result.resize(resultLength);
+		return result;
+	}
+
 	IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	{
 		if (dataLen != 4)
@@ -70,6 +93,13 @@ namespace pcpp
 		return true;
 	}
 
+	std::vector<uint8_t> IPv4DnsResourceData::toBytes(IDnsResource*) const
+	{
+		std::vector<uint8_t> result(sizeof(uint32_t));
+		memcpy(result.data(), m_Data.toBytes(), sizeof(uint32_t));
+		return result;
+	}
+
 	IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	{
 		if (dataLen != 16)
@@ -86,6 +116,14 @@ namespace pcpp
 		arrLength = 16;
 		m_Data.copyTo(arr);
 		return true;
+	}
+
+	std::vector<uint8_t> IPv6DnsResourceData::toBytes(IDnsResource*) const
+	{
+		// an IPv6 address is 16 bytes long
+		std::vector<uint8_t> result(16);
+		m_Data.copyTo(result.data());
+		return result;
 	}
 
 	MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
@@ -134,6 +172,20 @@ namespace pcpp
 		arrLength += sizeof(uint16_t);
 
 		return true;
+	}
+
+	std::vector<uint8_t> MxDnsResourceData::toBytes(IDnsResource* dnsResource) const
+	{
+		// the preference field followed by the encoded mail exchange name, which can't be longer than the
+		// decoded name plus a length byte for each label and the terminating zero byte
+		std::vector<uint8_t> result(sizeof(uint16_t) + m_Data.mailExchange.size() + 2);
+		uint16_t netOrderPreference = htobe16(m_Data.preference);
+		memcpy(result.data(), &netOrderPreference, sizeof(uint16_t));
+		size_t encodedNameLength = 0;
+		encodeName(m_Data.mailExchange, reinterpret_cast<char*>(result.data() + sizeof(uint16_t)), encodedNameLength,
+		           dnsResource);
+		result.resize(sizeof(uint16_t) + encodedNameLength);
+		return result;
 	}
 
 	GenericDnsResourceData::GenericDnsResourceData(const uint8_t* dataPtr, size_t dataLen)
@@ -216,6 +268,17 @@ namespace pcpp
 		arrLength = m_DataLen;
 		memcpy(arr, m_Data, m_DataLen);
 		return true;
+	}
+
+	std::vector<uint8_t> GenericDnsResourceData::toBytes(IDnsResource*) const
+	{
+		if (m_DataLen == 0 || m_Data == nullptr)
+		{
+			PCPP_LOG_ERROR("Input data is null or illegal" << "|m_DataLen:" << m_DataLen);
+			return {};
+		}
+
+		return std::vector<uint8_t>(m_Data, m_Data + m_DataLen);
 	}
 
 }  // namespace pcpp
