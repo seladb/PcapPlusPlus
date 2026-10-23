@@ -511,8 +511,20 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 
 		light_get_block_info(pcapng->pcapng, LIGHT_INFO_BODY, &spb, NULL);
 
+		// PCPP patch (#2320): original_packet_length is not a captured length. Bound it
+		// to the number of packet bytes actually present in the block so the caller
+		// cannot memcpy past the block data.
+		uint32_t block_total_length = 0;
+		light_get_block_info(pcapng->pcapng, LIGHT_INFO_LENGTH, &block_total_length, NULL);
+		uint32_t max_captured_length = 0;
+		if (block_total_length > 4 * sizeof(uint32_t))
+		{
+			max_captured_length = block_total_length - 4 * sizeof(uint32_t);
+		}
+
 		packet_header->interface_id = 0;
-		packet_header->captured_length = spb->original_packet_length;
+		packet_header->captured_length =
+		    spb->original_packet_length < max_captured_length ? spb->original_packet_length : max_captured_length;
 		packet_header->original_length = spb->original_packet_length;
 		packet_header->timestamp.tv_sec = 0;
 		packet_header->timestamp.tv_nsec = 0;

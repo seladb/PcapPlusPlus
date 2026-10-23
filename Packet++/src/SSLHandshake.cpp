@@ -1138,7 +1138,10 @@ namespace pcpp
 	std::string SSLServerNameIndicationExtension::getHostName() const
 	{
 		auto* extensionDataPtr = getData();
-		if (extensionDataPtr == nullptr)
+		// server name list length + name type + host name length
+		constexpr size_t minExtensionDataLen = sizeof(uint16_t) + sizeof(uint8_t) + sizeof(uint16_t);
+		auto length = getLength();
+		if (extensionDataPtr == nullptr || length < minExtensionDataLen)
 		{
 			return "";
 		}
@@ -1148,7 +1151,7 @@ namespace pcpp
 
 		uint8_t const* hostNameDataIt = hostNameLengthPos + sizeof(uint16_t);
 		uint8_t const* hostNameDataEndIt = hostNameDataIt + hostNameLength;
-		uint8_t const* extensionDataEndIt = extensionDataPtr + getLength();
+		uint8_t const* extensionDataEndIt = extensionDataPtr + length;
 
 		if (hostNameDataEndIt > extensionDataEndIt)
 		{
@@ -1167,6 +1170,9 @@ namespace pcpp
 	{
 		std::vector<SSLVersion> result;
 		uint16_t extensionLength = getLength();
+		if (extensionLength == 0)
+			return result;  // bad extension data
+
 		if (extensionLength == 2)  // server hello message
 		{
 			result.push_back(SSLVersion(be16toh(*reinterpret_cast<uint16_t*>(getData()))));
