@@ -108,7 +108,7 @@ public:
 			return;
 
 		int threadId = logMessage.back() - '0';
-		if (threadId < 0 || threadId >= counters.size())
+		if (threadId < 0 || threadId >= static_cast<int>(counters.size()))
 			return;
 
 		counters[threadId].logMessagesCount++;
