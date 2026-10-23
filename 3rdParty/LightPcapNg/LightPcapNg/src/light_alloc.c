@@ -31,9 +31,10 @@
 
 light_option light_alloc_option(uint16_t option_length)
 {
-	struct _light_option *option = calloc(1, sizeof(struct _light_option));
-	uint16_t actual_size = 0;
+	struct _light_option *option = NULL;
+	LIGHT_CALLOC(option, 1, sizeof(struct _light_option), return NULL); // ---> PCPP patch
 
+	uint16_t actual_size = 0;
 	option->option_length = option_length;
 
 	PADD32(option_length, &actual_size);
@@ -46,7 +47,9 @@ light_option light_alloc_option(uint16_t option_length)
 
 light_pcapng light_alloc_block(uint32_t block_type, const uint32_t *block_body, uint32_t block_body_length)
 {
-	struct _light_pcapng *pcapng_block = calloc(1, sizeof(struct _light_pcapng));
+	struct _light_pcapng *pcapng_block = NULL;
+	LIGHT_CALLOC(pcapng_block, 1, sizeof(struct _light_pcapng), return NULL); // ---> PCPP patch
+
 	uint32_t actual_size = 0;
 	int32_t block_body_size;
 
@@ -67,7 +70,9 @@ light_pcapng light_alloc_block(uint32_t block_type, const uint32_t *block_body, 
 
 	if (block_body_size > 0) {
 		pcapng_block->block_body = calloc(1, block_body_size);
-		memcpy(pcapng_block->block_body, block_body, block_body_size);
+		if (pcapng_block->block_body != NULL) {
+			memcpy(pcapng_block->block_body, block_body, block_body_size);
+		}
 	}
 
 	pcapng_block->next_block = NULL;
@@ -78,12 +83,17 @@ light_pcapng light_alloc_block(uint32_t block_type, const uint32_t *block_body, 
 
 void light_free_option(light_option option)
 {
-	free(option->data);
+	DCHECK_NULLP(option, return); // ---> PCPP patch
 	free(option);
 }
 
 void light_free_block(light_pcapng pcapng)
 {
-	free(pcapng->block_body);
+	// ---> PCPP patch
+	// If condition added to prevent possible NULL pointer dereference
+	if (pcapng != NULL) {
+		free(pcapng->block_body);
+	}
+	// <--- end of PCPP patch
 	free(pcapng);
 }

@@ -24,9 +24,17 @@
 #ifndef INCLUDE_LIGHT_UTIL_H_
 #define INCLUDE_LIGHT_UTIL_H_
 
+#include <light_debug.h> // ---> PCPP patch
+
 #define PADD32(val, aligned_val_p) do { \
 		*aligned_val_p = (val % sizeof(uint32_t)) == 0 ? val : (val / sizeof(uint32_t) + 1) * sizeof(uint32_t); \
 } while (0)
 
+// ---> PCPP patch
+#define LIGHT_CALLOC(ptr, size, count, other) do { \
+		(ptr) = calloc(size, count); \
+		DCHECK_NULLP(ptr, other); \
+} while (0)
+// <--- end of PCPP patch
 
 #endif /* INCLUDE_LIGHT_UTIL_H_ */
