@@ -144,11 +144,9 @@ namespace ptf
 		}
 
 	private:
-		bool hasFailures(bool ignoreSkipped = true) const
+		bool hasFailures() const
 		{
-			if (ignoreSkipped)
-				return m_TestsFailed != 0;
-			return m_TestsFailed + m_TestsSkipped != 0;
+			return m_TestsFailed != 0;
 		}
 
 		std::string m_UserIncludeTags;
