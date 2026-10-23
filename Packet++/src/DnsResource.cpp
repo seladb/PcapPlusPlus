@@ -341,30 +341,11 @@ namespace pcpp
 
 	bool DnsResource::setData(IDnsResourceData* data)
 	{
-		// convert data to byte array according to the DNS type
-		size_t dataLength = 0;
-
 		if (data == nullptr)
 		{
 			PCPP_LOG_ERROR("Given data is nullptr");
 			return false;
 		}
-
-		// Generic RDATA has a 16-bit wire length and can be larger than 4096 bytes.
-		// Size the temporary buffer from the data instead of using a fixed stack buffer.
-		size_t dataBufferSize = 4096;
-		auto* genericData = data->castAs<GenericDnsResourceData>();
-		if (genericData != nullptr)
-		{
-			if (genericData->getDataLength() > 65535)
-			{
-				PCPP_LOG_ERROR("DNS generic RDATA is too large: " << genericData->getDataLength());
-				return false;
-			}
-			if (genericData->getDataLength() > dataBufferSize)
-				dataBufferSize = genericData->getDataLength();
-		}
-		std::vector<uint8_t> dataAsByteArr(dataBufferSize);
 
 		switch (getDnsType())
 		{
@@ -418,16 +399,20 @@ namespace pcpp
 		}
 		}
 
-		// convert the IDnsResourceData to byte array
-		if (!data->toByteArr(dataAsByteArr.data(), dataLength, this))
+		// convert the IDnsResourceData to a byte array
+		std::vector<uint8_t> dataAsByteArr = data->toBytes(this);
+		if (dataAsByteArr.empty())
 		{
 			PCPP_LOG_ERROR("Cannot convert DNS resource data to byte array, data is probably invalid");
 			return false;
 		}
 
-		if (dataLength > dataAsByteArr.size())
+		size_t dataLength = dataAsByteArr.size();
+
+		// DNS RR data length is encoded in a 16-bit field
+		if (dataLength > 65535)
 		{
-			PCPP_LOG_ERROR("DNS resource data is larger than the allocated buffer");
+			PCPP_LOG_ERROR("DNS resource data is too large: " << dataLength);
 			return false;
 		}
 

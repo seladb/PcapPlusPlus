@@ -203,7 +203,6 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DnsOverTcpParsingTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerAddDnsKeyTest, "dns");
-	PTF_RUN_TEST(DnsLayerLargeGenericDataTest, "dns");
 
 	PTF_RUN_TEST(DoIpRoutActReqParsing, "doip");
 	PTF_RUN_TEST(DoIpRoutActReqCreation, "doip");

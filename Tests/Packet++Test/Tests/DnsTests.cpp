@@ -475,6 +475,29 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	PTF_ASSERT_EQUAL(dnsEdit7Packet.getRawPacket()->getRawDataLen(), resource7.length);
 	PTF_ASSERT_BUF_COMPARE(dnsEdit7Packet.getRawPacket()->getRawData(), resource7.data.get(), resource7.length);
+
+	// Generic RDATA uses a 16-bit wire length and can exceed the old 4096-byte temporary buffer,
+	// verify that both adding and copying such a record work
+	{
+		std::vector<uint8_t> rdata(5000, 0xAB);
+		pcpp::GenericDnsResourceData largeGenericData(rdata.data(), rdata.size());
+
+		pcpp::DnsLayer largeDataLayer;
+		auto* largeDataAnswer =
+		    largeDataLayer.addAnswer("example.com", pcpp::DNS_TYPE_DNSKEY, pcpp::DNS_CLASS_IN, 60, &largeGenericData);
+		PTF_ASSERT_NOT_NULL(largeDataAnswer);
+		PTF_ASSERT_EQUAL(largeDataAnswer->getDataLength(), static_cast<size_t>(5000));
+
+		auto largeData = largeDataAnswer->getData();
+		PTF_ASSERT_TRUE(largeData.isTypeOf<pcpp::GenericDnsResourceData>());
+		PTF_ASSERT_TRUE(*largeData.castAs<pcpp::GenericDnsResourceData>() == largeGenericData);
+
+		pcpp::DnsLayer copiedLayer;
+		auto* copiedAnswer = copiedLayer.addAnswer(largeDataAnswer);
+		PTF_ASSERT_NOT_NULL(copiedAnswer);
+		PTF_ASSERT_EQUAL(copiedAnswer->getDataLength(), static_cast<size_t>(5000));
+	}
+
 }  // DnsLayerResourceCreationTest
 
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest)
@@ -492,28 +515,6 @@ DK6nWeL3c6H5Apxz7LjVc1uTIdsIXxuOLYA4/ilBmSVIzuDWfdRUfhHdY6+cn8HFRm+2hM8AnXGXws95
 	    dnsLayer.addAnswer("github.com", pcpp::DNS_TYPE_DNSKEY, pcpp::DNS_CLASS_IN, 32, &genericData);
 	PTF_ASSERT_NOT_NULL(additional);
 }
-
-PTF_TEST_CASE(DnsLayerLargeGenericDataTest)
-{
-	// Generic RDATA uses a 16-bit wire length and can exceed the old 4096-byte
-	// temporary buffer. Verify that both adding and copying such a record work.
-	std::vector<uint8_t> rdata(5000, 0xAB);
-	pcpp::GenericDnsResourceData genericData(rdata.data(), rdata.size());
-
-	pcpp::DnsLayer dnsLayer;
-	auto* answer = dnsLayer.addAnswer("example.com", pcpp::DNS_TYPE_DNSKEY, pcpp::DNS_CLASS_IN, 60, &genericData);
-	PTF_ASSERT_NOT_NULL(answer);
-	PTF_ASSERT_EQUAL(answer->getDataLength(), static_cast<size_t>(5000));
-
-	auto data = answer->getData();
-	PTF_ASSERT_TRUE(data.isTypeOf<pcpp::GenericDnsResourceData>());
-	PTF_ASSERT_EQUAL(data.castAs<pcpp::GenericDnsResourceData>()->getDataLength(), static_cast<size_t>(5000));
-
-	pcpp::DnsLayer copiedLayer;
-	auto* copied = copiedLayer.addAnswer(answer);
-	PTF_ASSERT_NOT_NULL(copied);
-	PTF_ASSERT_EQUAL(copied->getDataLength(), static_cast<size_t>(5000));
-}  // DnsLayerLargeGenericDataTest
 
 PTF_TEST_CASE(DnsLayerEditTest)
 {

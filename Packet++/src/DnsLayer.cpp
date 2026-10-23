@@ -450,24 +450,31 @@ namespace pcpp
 	DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& name, DnsType dnsType,
 	                                   DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data)
 	{
-		// create new query on temporary buffer. Generic RDATA can be larger than 4096 bytes.
-		// 512 bytes is enough for the encoded name, fixed RR header and padding.
-		size_t tempBufferSize = 4096;
+		// Name encoding is performed by a DNS resource object, so serialize the RDATA against a scratch resource
+		// to learn its exact size before allocating the buffer for the new resource
+		std::vector<uint8_t> resourceData;
 		if (data != nullptr)
 		{
-			auto* genericData = data->castAs<GenericDnsResourceData>();
-			if (genericData != nullptr)
+			uint8_t scratchRawData[512] = {};
+			DnsResource scratchResource(scratchRawData, resType);
+			resourceData = data->toBytes(&scratchResource);
+			if (resourceData.empty())
 			{
-				if (genericData->getDataLength() > 65535)
-				{
-					PCPP_LOG_ERROR("DNS generic RDATA is too large: " << genericData->getDataLength());
-					return nullptr;
-				}
-				if (genericData->getDataLength() + 512 > tempBufferSize)
-					tempBufferSize = genericData->getDataLength() + 512;
+				PCPP_LOG_ERROR("Couldn't serialize DNS resource data");
+				return nullptr;
+			}
+			// DNS RR data length is encoded in a 16-bit field
+			if (resourceData.size() > 65535)
+			{
+				PCPP_LOG_ERROR("DNS resource data is too large: " << resourceData.size());
+				return nullptr;
 			}
 		}
-		std::vector<uint8_t> newResourceRawData(tempBufferSize, 0);
+
+		// The encoded name is at most the decoded name plus 2 bytes (a length byte for each label and the terminating
+		// zero byte), and the fixed RR header is 10 bytes long
+		const size_t newResourceBufferSize = name.size() + 2 + 10 + resourceData.size();
+		std::vector<uint8_t> newResourceRawData(newResourceBufferSize, 0);
 
 		DnsResource* newResource = new DnsResource(newResourceRawData.data(), resType);
 
