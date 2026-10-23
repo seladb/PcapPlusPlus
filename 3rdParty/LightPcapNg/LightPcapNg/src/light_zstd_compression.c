@@ -26,6 +26,7 @@
 #include "light_zstd_compression.h"
 #include "light_compression_functions.h"
 #include "light_file.h"
+#include "light_util.h"
 #include <assert.h>
 #include <memory.h>
 #include <stdlib.h>
