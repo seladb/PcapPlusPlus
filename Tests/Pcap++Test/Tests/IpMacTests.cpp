@@ -314,6 +314,16 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_RAISES(pcpp::MacAddress{ invalidCharArrayAddress }, std::invalid_argument,
 	                  "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
 
+	// a char array without a null terminator must not be read past its end
+	const char unterminatedAddress[17] = { '1', '1', ':', '0', '2', ':', '3', '3', ':',
+		                                   '0', '4', ':', '5', '5', ':', '0', '6' };
+	pcpp::MacAddress macAddr5(unterminatedAddress);
+	PTF_ASSERT_EQUAL(macAddr1, macAddr5);
+
+	const char paddedAddress[24] = "11:02:33:04:55:06";
+	pcpp::MacAddress macAddr6(paddedAddress);
+	PTF_ASSERT_EQUAL(macAddr1, macAddr6);
+
 	PTF_ASSERT_RAISES(pcpp::MacAddress(nullptr, 0), std::invalid_argument, "Address pointer is null");
 	PTF_ASSERT_RAISES(pcpp::MacAddress(addrAsArr, 4), std::out_of_range,
 	                  "Buffer size is smaller than MAC address size (6 bytes)")

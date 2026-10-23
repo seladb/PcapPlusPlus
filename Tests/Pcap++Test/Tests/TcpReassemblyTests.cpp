@@ -332,8 +332,7 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(be32toh(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 
-	pcpp::PayloadLayer newPayloadLayer(newPayload, numOfBytes);
-	packet.addLayer(&newPayloadLayer);
+	packet.addLayer(new pcpp::PayloadLayer(newPayload, numOfBytes), true);
 
 	packet.computeCalculateFields();
 
