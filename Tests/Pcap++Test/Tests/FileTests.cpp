@@ -1145,6 +1145,20 @@ PTF_TEST_CASE(TestPcapNgFilePrecision)
 	readerDev.close();
 }  // TestPcapNgFilePrecision
 
+PTF_TEST_CASE(TestPcapNgSimplePacketBlockOverlongLength)
+{
+	pcpp::PcapNgFileReaderDevice readerDev("PcapExamples/SpbOverlongOriginalLength.pcapng");
+	PTF_ASSERT_TRUE(readerDev.open());
+
+	pcpp::RawPacket rawPacket;
+	PTF_ASSERT_TRUE(readerDev.getNextPacket(rawPacket));
+	// The SPB contains 64 packet bytes but claims original_packet_length=60000.
+	// captured_length must be clamped to the bytes present in the block.
+	PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 64);
+	PTF_ASSERT_EQUAL(rawPacket.getFrameLength(), 60000);
+	readerDev.close();
+}  // TestPcapNgSimplePacketBlockOverlongLength
+
 PTF_TEST_CASE(TestPcapSllFileReadWrite)
 {
 	pcpp::PcapFileReaderDevice readerDev(SLL_PCAP_PATH);
