@@ -95,6 +95,13 @@ namespace ptf
 					          << ": FAILED. Unhandled exception occurred! "
 					          << "Exception: " << e.what() << std::endl;
 				}
+				catch (...)
+				{
+					result = PTF_RESULT_FAILED;
+					std::cout << std::left << std::setw(PTF_TESTNAME_WIDTH) << testName
+					          << ": FAILED. Unhandled exception occurred!" << std::endl;
+				}
+
 				if (runMemLeakCheck)
 				{
 					if (result != PTF_RESULT_PASSED)
