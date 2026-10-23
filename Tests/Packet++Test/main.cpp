@@ -177,6 +177,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PacketIncrementalParseTest, "packet");
 	PTF_RUN_TEST(PacketFullReparseTest, "packet");
 	PTF_RUN_TEST(PacketSerializeTest, "packet;serializers");
+	PTF_RUN_TEST(RawPacketRemoveDataBounds, "packet;raw_packet");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
