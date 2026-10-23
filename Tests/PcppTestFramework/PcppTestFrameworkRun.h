@@ -169,7 +169,11 @@ namespace ptf
 	ptf::TestRunner testRunner(userIncludeTags, userExcludeTags, configTags);                                          \
 	std::cout << "Start running tests..." << std::endl << std::endl
 
-#define PTF_RUN_TEST(TestName, tags) testRunner.runTest(TestName, #TestName, tags)
+#define PTF_RUN_TEST(TestName, tags)                                                                                   \
+	struct PtfTestMarker_##TestName                                                                                    \
+	{ /* Prevents duplicate ruuns of the same test in scope */                                                         \
+	};                                                                                                                 \
+	testRunner.runTest(TestName, #TestName, tags)
 
 #define PTF_END_RUNNING_TESTS return testRunner.finalizeResults();
 
