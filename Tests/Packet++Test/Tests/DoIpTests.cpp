@@ -51,18 +51,12 @@ PTF_TEST_CASE(DoIpRoutActReqParsing)
 // DoIpRoutActReqCreation
 PTF_TEST_CASE(DoIpRoutActReqCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::TcpLayer tcpLayer(13400, 13400);
 
 	tcpLayer.getTcpHeader()->windowSize = 64240;
 	ipLayer.getIPv4Header()->timeToLive = 128;
-
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
-	doIpPacket.computeCalculateFields();
 
 	unsigned char routingActivationRequestLayer[] = { 0x2, 0xfd, 0x0, 0x5, 0x0, 0x0,  0x0,  0xb,  0xe, 0x80,
 		                                              0x0, 0x1,  0x2, 0x3, 0x4, 0x05, 0x05, 0x05, 0x05 };
@@ -75,6 +69,12 @@ PTF_TEST_CASE(DoIpRoutActReqCreation)
 
 	doipLayer.setReservedIso(isoReserved);
 	doipLayer.setReservedOem(oemField);
+
+	pcpp::Packet doIpPacket(100);
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
+	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer));
 	doIpPacket.computeCalculateFields();
@@ -143,18 +143,12 @@ PTF_TEST_CASE(DoIpRoutActResParsing)
 // DoIpRoutActResCreation
 PTF_TEST_CASE(DoIpRoutActResCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::TcpLayer tcpLayer(13400, 13400);
 
 	tcpLayer.getTcpHeader()->windowSize = 64240;
 	ipLayer.getIPv4Header()->timeToLive = 128;
-
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
-	doIpPacket.computeCalculateFields();
 
 	unsigned char routingActivationResponseLayer[] = { 0x2,  0xfd, 0x0, 0x6, 0x0, 0x0, 0x0, 0xd, 0xe, 0x80, 0x40,
 		                                               0x10, 0x10, 0x1, 0x2, 0x3, 0x4, 0x5, 0x5, 0x5, 0x5 };
@@ -174,6 +168,12 @@ PTF_TEST_CASE(DoIpRoutActResCreation)
 	PTF_ASSERT_EQUAL(doipLayer.getProtocolVersionAsStr(), "Unknown Protocol Version");
 	doipLayer.setProtocolVersion(pcpp::DoIpProtocolVersion::ISO13400_2012);
 	PTF_ASSERT_EQUAL(doipLayer.getProtocolVersion(), pcpp::DoIpProtocolVersion::ISO13400_2012, enumclass);
+
+	pcpp::Packet doIpPacket(100);
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
+	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer));
 	doIpPacket.computeCalculateFields();
@@ -219,20 +219,20 @@ PTF_TEST_CASE(DoIpGenHdrNackParsing)
 // DoIpGenHdrNackCreation
 PTF_TEST_CASE(DoIpGenHdrNackCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
+	unsigned char genericHeaderNackLayer[] = { 0x2, 0xfd, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1 };
+	pcpp::DoIpGenericHeaderNack doipLayer(pcpp::DoIpGenericHeaderNackCodes::UNKNOWN_PAYLOAD_TYPE);
+
+	pcpp::Packet doIpPacket(100);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
 	doIpPacket.computeCalculateFields();
-
-	unsigned char genericHeaderNackLayer[] = { 0x2, 0xfd, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1 };
-	pcpp::DoIpGenericHeaderNack doipLayer(pcpp::DoIpGenericHeaderNackCodes::UNKNOWN_PAYLOAD_TYPE);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&doipLayer));
 	doIpPacket.computeCalculateFields();
@@ -282,23 +282,23 @@ PTF_TEST_CASE(DoIpVehIdenReqWithEIDParsing)
 // DoIpVehIdenReqWithEIDCreation
 PTF_TEST_CASE(DoIpVehIdenReqWithEIDCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(65300, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
-	doIpPacket.computeCalculateFields();
-
 	unsigned char vehicleIdentificationRequestWEIDLayer[] = { 0x2, 0xfd, 0x0,  0x2,  0x0,  0x0,  0x0,
 		                                                      0x6, 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45 };
 	std::array<uint8_t, 6> eid{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45 };
 
 	pcpp::DoIpVehicleIdentificationRequestWithEID newVehicleIdentificationRequestWEID(eid);
+
+	pcpp::Packet doIpPacket(100);
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
+	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newVehicleIdentificationRequestWEID));
 	doIpPacket.computeCalculateFields();
@@ -342,17 +342,11 @@ PTF_TEST_CASE(DoIpVehIdenReqWithVINParsing)
 // DoIpVehIdenReqWithVINCreation
 PTF_TEST_CASE(DoIpVehIdenReqWithVINCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(65300, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
-
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
-	doIpPacket.computeCalculateFields();
 
 	unsigned char VehicleIdentificationRequestWVINLayer[] = { 0x2,  0xfd, 0x0,  0x3,  0x0,  0x0,  0x0,  0x11, 0x42,
 		                                                      0x41, 0x55, 0x4e, 0x45, 0x45, 0x34, 0x4d, 0x5a, 0x31,
@@ -362,6 +356,12 @@ PTF_TEST_CASE(DoIpVehIdenReqWithVINCreation)
 
 	pcpp::DoIpVehicleIdentificationRequestWithVIN newVehicleIdentificationRequestWVIN(vin);
 	newVehicleIdentificationRequestWVIN.setVIN(vin);
+
+	pcpp::Packet doIpPacket(100);
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
+	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newVehicleIdentificationRequestWVIN));
 	doIpPacket.computeCalculateFields();
@@ -417,17 +417,11 @@ PTF_TEST_CASE(DoIpVehAnnMessParsing)
 // DoIpVehAnnMessCreation
 PTF_TEST_CASE(DoIpVehAnnMessCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
-
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
-	doIpPacket.computeCalculateFields();
 
 	unsigned char vehicleAnnouncementLayer[] = { 0x2,  0xfd, 0x0,  0x4,  0x0,  0x0,  0x0,  0x21, 0x42, 0x41, 0x55,
 		                                         0x4e, 0x45, 0x45, 0x34, 0x4d, 0x5a, 0x31, 0x37, 0x30, 0x34, 0x32,
@@ -441,6 +435,12 @@ PTF_TEST_CASE(DoIpVehAnnMessCreation)
 	pcpp::DoIpVehicleAnnouncementMessage newVehicleAnnouncement(vin, 0x4010, eid, gid,
 	                                                            pcpp::DoIpActionCodes::NO_FURTHER_ACTION_REQUIRED);
 	newVehicleAnnouncement.setSyncStatus(pcpp::DoIpSyncStatus::VIN_AND_OR_GID_ARE_SINCHRONIZED);
+
+	pcpp::Packet doIpPacket(100);
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
+	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newVehicleAnnouncement));
 	doIpPacket.computeCalculateFields();
@@ -485,7 +485,6 @@ PTF_TEST_CASE(DoIpVehIdenReqParsing)
 // DoIpVehIdenReqCreation
 PTF_TEST_CASE(DoIpVehIdenReqCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 
@@ -493,13 +492,14 @@ PTF_TEST_CASE(DoIpVehIdenReqCreation)
 	ipLayer.getIPv4Header()->timeToLive = 128;
 	pcpp::UdpLayer udpLayer(65300, 13400);
 
+	unsigned char vehicleIdentificationRequestLayer[] = { 0x2, 0xfd, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0 };
+
+	pcpp::DoIpVehicleIdentificationRequest newVehicleIdentificationRequest;
+	pcpp::Packet doIpPacket(100);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
 
-	unsigned char vehicleIdentificationRequestLayer[] = { 0x2, 0xfd, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0 };
-
-	pcpp::DoIpVehicleIdentificationRequest newVehicleIdentificationRequest;
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newVehicleIdentificationRequest));
 	doIpPacket.computeCalculateFields();
 
@@ -532,20 +532,20 @@ PTF_TEST_CASE(DoIpAliveCheckRespParsing)
 // DoIpAliveCheckRespCreation
 PTF_TEST_CASE(DoIpAliveCheckRespCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
+	unsigned char aliveCheckResponseLayer[] = { 0x2, 0xfd, 0x0, 0x8, 0x0, 0x0, 0x0, 0x2, 0x10, 0x20 };
+	pcpp::DoIpAliveCheckResponse newAliveCheckResponse(0x1020);
+
+	pcpp::Packet doIpPacket(100);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
 	doIpPacket.computeCalculateFields();
-
-	unsigned char aliveCheckResponseLayer[] = { 0x2, 0xfd, 0x0, 0x8, 0x0, 0x0, 0x0, 0x2, 0x10, 0x20 };
-	pcpp::DoIpAliveCheckResponse newAliveCheckResponse(0x1020);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newAliveCheckResponse));
 	doIpPacket.computeCalculateFields();
@@ -580,20 +580,20 @@ PTF_TEST_CASE(DoIpDiagPowerModeRespParsing)
 // DoIpDiagPowerModeRespCreation
 PTF_TEST_CASE(DoIpDiagPowerModeRespCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
+	unsigned char diagnosticPowerModeResponseLayer[] = { 0x2, 0xfd, 0x40, 0x4, 0x0, 0x0, 0x0, 0x1, 0x1 };
+	pcpp::DoIpDiagnosticPowerModeResponse newDiagnosticPowerModeResponse(pcpp::DoIpDiagnosticPowerModeCodes::READY);
+
+	pcpp::Packet doIpPacket(100);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
 	doIpPacket.computeCalculateFields();
-
-	unsigned char diagnosticPowerModeResponseLayer[] = { 0x2, 0xfd, 0x40, 0x4, 0x0, 0x0, 0x0, 0x1, 0x1 };
-	pcpp::DoIpDiagnosticPowerModeResponse newDiagnosticPowerModeResponse(pcpp::DoIpDiagnosticPowerModeCodes::READY);
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newDiagnosticPowerModeResponse));
 	doIpPacket.computeCalculateFields();
@@ -635,23 +635,23 @@ PTF_TEST_CASE(DoIpEntityStatusRespParsing)
 // DoIpEntityStatusRespCreation
 PTF_TEST_CASE(DoIpEntityStatusRespCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
-	doIpPacket.computeCalculateFields();
-
 	unsigned char entityStatusResponseWithoutMaxDataSizeLayer[] = { 0x2, 0xfd, 0x40, 0x2, 0x0, 0x0,
 		                                                            0x0, 0x3,  0x0,  0x5, 0x2 };
 	unsigned char entityStatusResponse[] = { 0x2, 0xfd, 0x40, 0x2,  0x0,  0x0,  0x0, 0x7,
 		                                     0x0, 0x5,  0x2,  0x11, 0x22, 0x33, 0x44 };
 	pcpp::DoIpEntityStatusResponse newEntityStatusResponse(pcpp::DoIpEntityStatusResponseCode::GATEWAY, 5, 2);
+
+	pcpp::Packet doIpPacket(100);
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
+	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newEntityStatusResponse));
 	doIpPacket.computeCalculateFields();
@@ -718,22 +718,22 @@ PTF_TEST_CASE(DoIpDiagMessParsing)
 // DoIpDiagMessCreation
 PTF_TEST_CASE(DoIpDiagMessCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::TcpLayer tcpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
-	doIpPacket.computeCalculateFields();
-
 	unsigned char diagnosticMessageLayer[] = { 0x2, 0xfd, 0x80, 0x1,  0x0,  0x0,  0x0,
 		                                       0x6, 0x20, 0x30, 0x40, 0x40, 0x10, 0x02 };
 	const std::vector<uint8_t>& diagnosticData{ 0x10, 0x02 };
 	pcpp::DoIpDiagnosticMessage newDiagnosticMessage(0x2030, 0x4040, diagnosticData);
+
+	pcpp::Packet doIpPacket(100);
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
+	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newDiagnosticMessage));
 	doIpPacket.computeCalculateFields();
@@ -780,22 +780,22 @@ PTF_TEST_CASE(DoIpDiagMessAckParsing)
 // DoIpDiagMessAckCreation
 PTF_TEST_CASE(DoIpDiagMessAckCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::TcpLayer tcpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
-	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
-	doIpPacket.computeCalculateFields();
-
 	unsigned char diagnosticAckMessageLayer[] = {
 		0x2, 0xfd, 0x80, 0x2, 0x0, 0x0, 0x0, 0x5, 0x40, 0x10, 0xe, 0x80, 0x0
 	};
 	pcpp::DoIpDiagnosticMessageAck newDiagnosticAckMessage(0x4010, 0xe80, pcpp::DoIpDiagnosticAckCodes::ACK);
+
+	pcpp::Packet doIpPacket(100);
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
+	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
+	doIpPacket.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newDiagnosticAckMessage));
 	doIpPacket.computeCalculateFields();
@@ -869,20 +869,20 @@ PTF_TEST_CASE(DoIpDiagMessNackParsing)
 // DoIpDiagMessNackCreation
 PTF_TEST_CASE(DoIpDiagMessNackCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::TcpLayer tcpLayer(13400, 13400);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
+	// Create NACK message with no previous message
+	pcpp::DoIpDiagnosticMessageNack newDiagnosticnackMessage(
+	    0x4010, 0x0e80, pcpp::DoIpDiagnosticMessageNackCodes::INVALID_SOURCE_ADDRESS);
+	pcpp::Packet doIpPacket(100);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&tcpLayer));
 	doIpPacket.computeCalculateFields();
 
-	// Create NACK message with no previous message
-	pcpp::DoIpDiagnosticMessageNack newDiagnosticnackMessage(
-	    0x4010, 0x0e80, pcpp::DoIpDiagnosticMessageNackCodes::INVALID_SOURCE_ADDRESS);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newDiagnosticnackMessage));
 	doIpPacket.computeCalculateFields();
 
@@ -943,20 +943,20 @@ PTF_TEST_CASE(DoIpDiagPowerModeReqParsing)
 // DoIpDiagPowerModeReqCreation
 PTF_TEST_CASE(DoIpDiagPowerModeReqCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
+	unsigned char diagnosticPowerModeLayer[] = { 0x2, 0xfd, 0x40, 0x3, 0x0, 0x0, 0x0, 0x0 };
+	pcpp::DoIpDiagnosticPowerModeRequest newDiagnosticPowerModeRequest;
+
+	pcpp::Packet doIpPacket(100);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
 	doIpPacket.computeCalculateFields();
-
-	unsigned char diagnosticPowerModeLayer[] = { 0x2, 0xfd, 0x40, 0x3, 0x0, 0x0, 0x0, 0x0 };
-	pcpp::DoIpDiagnosticPowerModeRequest newDiagnosticPowerModeRequest;
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newDiagnosticPowerModeRequest));
 	doIpPacket.computeCalculateFields();
@@ -988,20 +988,20 @@ PTF_TEST_CASE(DoIpEntityStatusReqParsing)
 // DoIpEntityStatusReqCreation
 PTF_TEST_CASE(DoIpEntityStatusReqCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
+	unsigned char entityStatusRequestLayer[] = { 0x2, 0xfd, 0x40, 0x1, 0x0, 0x0, 0x0, 0x0 };
+	pcpp::DoIpEntityStatusRequest newEntityStatusRequest;
+
+	pcpp::Packet doIpPacket(100);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
 	doIpPacket.computeCalculateFields();
-
-	unsigned char entityStatusRequestLayer[] = { 0x2, 0xfd, 0x40, 0x1, 0x0, 0x0, 0x0, 0x0 };
-	pcpp::DoIpEntityStatusRequest newEntityStatusRequest;
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&newEntityStatusRequest));
 	doIpPacket.computeCalculateFields();
@@ -1033,20 +1033,20 @@ PTF_TEST_CASE(DoIpAliveCheckReqParsing)
 // DoIpAliveCheckReqCreation
 PTF_TEST_CASE(DoIpAliveCheckReqCreation)
 {
-	pcpp::Packet doIpPacket(100);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("172.22.178.234"), pcpp::IPv4Address("10.10.8.240"));
 	pcpp::UdpLayer udpLayer(13400, 13400);
 
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
+	unsigned char aliveCheckRequestLayer[] = { 0x2, 0xfd, 0x0, 0x7, 0x0, 0x0, 0x0, 0x0 };
+	pcpp::DoIpAliveCheckRequest req;
+
+	pcpp::Packet doIpPacket(100);
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&udpLayer));
 	doIpPacket.computeCalculateFields();
-
-	unsigned char aliveCheckRequestLayer[] = { 0x2, 0xfd, 0x0, 0x7, 0x0, 0x0, 0x0, 0x0 };
-	pcpp::DoIpAliveCheckRequest req;
 
 	PTF_ASSERT_TRUE(doIpPacket.addLayer(&req));
 	doIpPacket.computeCalculateFields();
