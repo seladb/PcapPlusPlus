@@ -1366,4 +1366,3 @@ PTF_TEST_CASE(RawPacketRemoveDataBounds)
 	PTF_ASSERT_TRUE(rawPacket.removeData(40, 10));
 	PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 40);
 }  // RawPacketRemoveDataBounds
-
