@@ -26,28 +26,50 @@ jobs:
     container: seladb/alpine317
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
         run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
-      - name: Install dependencies
+      - name: Install cppcheck
         run: |
-          apk update && apk add python3-dev
-          git clone --branch $CPPCHECK_VERSION --single-branch https://github.com/danmar/cppcheck.git
-          cd cppcheck && mkdir build && cd build && cmake .. && cmake --build . && cmake --install . && cd ../../ && rm -rf cppcheck
+          git clone --branch $CPPCHECK_VERSION --depth 1 https://github.com/cppcheck-opensource/cppcheck.git
+          cmake -S cppcheck -B cppcheck/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build cppcheck/build --parallel $(nproc)
+          cmake --install cppcheck/build
+          rm -rf cppcheck
+
+      - name: Install pre-commit
+        run: |
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install pre-commit setuptools clang-format==19.1.6 clang-tidy==18.1.8
+          python3 -m pip install pre-commit
 
       - name: Run pre-commit
         run: |
           . .venv/bin/activate
           pre-commit run --all-files
 
+  clang-tidy:
+    runs-on: ubuntu-latest
+    container: seladb/alpine317
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
       - name: Configure PcapPlusPlus for Static analysis
         run: cmake -S . -B "$BUILD_DIR"
+
+      - name: Install clang-tidy
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install clang-tidy==18.1.8
 
       - name: Run clang-tidy on changed files
         run: |
@@ -94,7 +116,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -108,7 +130,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -163,7 +185,7 @@ jobs:
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.xml
           flags: ${{ matrix.image }},unittest
@@ -173,7 +195,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -185,7 +207,7 @@ jobs:
       image: ubuntu2404
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -193,7 +215,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -233,7 +255,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.xml
           flags: ${{ env.image }},unittest
@@ -243,7 +265,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -255,7 +277,7 @@ jobs:
       image: ubuntu2404
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -263,7 +285,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -304,7 +326,7 @@ jobs:
           python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin -m no_pcap
 
       - name: Save Ccache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -319,7 +341,7 @@ jobs:
           - dpdk_version: 23.11.6
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install dependencies
         run: |
@@ -328,7 +350,7 @@ jobs:
 
       - name: Restore DPDK cache
         id: cache-dpdk
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: dpdk/install
           key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
@@ -346,7 +368,7 @@ jobs:
 
       - name: Cache DPDK
         if: steps.cache-dpdk.outputs.cache-hit != 'true'
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: dpdk/install
           key: dpdk-${{ runner.os }}-${{ matrix.dpdk_version }}
@@ -395,7 +417,7 @@ jobs:
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.xml
           flags: ${{ matrix.dpdk_version }},unittest
@@ -414,11 +436,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -454,7 +476,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -483,10 +505,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
@@ -496,7 +518,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.os-version }}-${{ matrix.arch }}-ccache-${{ github.run_id }}
@@ -559,7 +581,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ matrix.host-arch == matrix.arch }}
         with:
           files: ./coverage.xml
@@ -570,7 +592,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -618,10 +640,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@e9898307ac31d1a803454791be09ab9973336e1c # v2.31.1
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         with:
           msystem: ${{matrix.sys}}
           install: >-
@@ -631,7 +653,7 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
 
@@ -686,7 +708,7 @@ jobs:
         run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.xml
           flags: ${{ matrix.sys }},unittest
@@ -716,10 +738,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
 
@@ -776,7 +798,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./Dist/Tests/Pcap++Test/Debug/Pcap++Coverage.xml,./Dist/Tests/Packet++Test/Debug/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
@@ -785,11 +807,69 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  # WinPcap has no arm64 support, so this job only runs when NPcap credentials are available. Additionally OpenCppCoverage
+  # not works with arm64 currently so coverage calculation is disabled for Windows ARM builds.
+  visual-studio-arm64:
+    needs: define-windows-pcap-backend-matrix
+    if: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default == 'npcap' }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-11-arm
+            platform: "Visual Studio 18 2026"
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          # Use x64 Python (runs under emulation) since some pip dependencies (e.g. cryptography)
+          # don't publish win_arm64 wheels, which would otherwise force a from-source build.
+          architecture: "x64"
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
+
+      - name: Install NPcap
+        env:
+          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
+          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
+        run: |
+          ci\install_npcap.bat
+          echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
+
+        # The visual studio generator is a multi-config generator. This means that the executable will be in a configuration subfolder (e.g., Debug or Release),
+        # relative to the target folder. Example: $(BuildDir)/Test/Packet++Test/Debug/Packet++Test.exe
+      - name: Configure PcapPlusPlus
+        run: cmake -A arm64 -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B "$env:BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build $env:BUILD_DIR -j
+
+      - name: Install tcpreplay
+        run: ci\install_tcpreplay.bat
+
+      - name: Test PcapPlusPlus
+        run: |
+          python -m pip install -r ci\run_tests\requirements.txt
+          python ci\run_tests\run_tests_windows.py --build-dir $env:BUILD_DIR --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
+
+      - name: Test Examples
+        run: |
+          move ".\Dist\examples_bin\Debug\*" ".\Dist\examples_bin\"
+          cd Tests\ExamplesTest
+          python -m pip install -r requirements.txt
+          python -m pytest --root-path=../../Dist/examples_bin
+
   windivert:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
@@ -832,12 +912,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["14.1", "13.4"]
+        version: ["15.1", "14.1"]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Test in FreeBSD
         id: test
-        uses: vmactions/freebsd-vm@d1e65811565151536c0c894fff74f06351ed26e6 # v1.4.5
+        uses: vmactions/freebsd-vm@a2f9a41fa97f6848b8c3b791087dfcdaa5b473ff # v1.5.8
         with:
           release: ${{ matrix.version }}
           usesh: true
@@ -888,10 +968,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -905,7 +985,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
@@ -925,7 +1005,7 @@ jobs:
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6.0.1
         with:
           java-version: "17"
           distribution: "zulu"
@@ -959,19 +1039,80 @@ jobs:
 #            gradle -is connectedCheck
 
   xdp:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - bpf_version: 1.7.0 # The latest version available as of 8/2026
+          - bpf_version: 0.5.0 # The version available from apt for Ubuntu 22.04
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install ccache libpcap-dev libbpf-dev tcpreplay
+          sudo apt update && sudo apt -y install ccache libpcap-dev libelf-dev tcpreplay
+
+      - name: Restore BPF cache
+        id: cache-bpf
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: bpf/install
+          key: bpf-${{ runner.os }}-${{ matrix.bpf_version }}
+
+      - name: Install BPF
+        if: steps.cache-bpf.outputs.cache-hit != 'true'
+        run: |
+          wget https://github.com/libbpf/libbpf/archive/refs/tags/v${{ matrix.bpf_version }}.tar.gz \
+            && tar -xvf v${{ matrix.bpf_version }}.tar.gz \
+            && rm -rf v${{ matrix.bpf_version }}.tar.gz \
+            && mv libbpf-${{ matrix.bpf_version }} bpf && cd bpf/src \
+            && make install PREFIX="${{ github.workspace }}/bpf/install"
+
+      - name: Cache BPF
+        if: steps.cache-bpf.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: bpf/install
+          key: bpf-${{ runner.os }}-${{ matrix.bpf_version }}
+
+      - name: Compare BPF Versions
+        id: bpf-compare
+        uses: madhead/semver-utils@4cf918affe9106ea59f86c6250e5ec4570ac4389 # v5.0.0
+        with:
+          version: ${{ matrix.bpf_version }}
+          satisfies: 1.x
+
+      # libxdp was split out from libbpf at v1.0.0, so it only needs to be installed if >= 1.0.0.
+      - name: Restore XDP cache
+        if: steps.bpf-compare.outputs.satisfies == 'true'
+        id: cache-xdp
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: xdp/install
+          key: xdp-${{ runner.os }}
+
+      - name: Install XDP
+        if: steps.bpf-compare.outputs.satisfies == 'true' && steps.cache-xdp.outputs.cache-hit != 'true'
+        run: |
+          wget https://github.com/xdp-project/xdp-tools/releases/download/v1.6.3/xdp-tools-1.6.3.tar.gz \
+            && tar -xvf xdp-tools-1.6.3.tar.gz \
+            && rm -rf xdp-tools-1.6.3.tar.gz \
+            && mv xdp-tools-1.6.3 xdp && cd xdp \
+            && PKG_CONFIG_PATH="${{ github.workspace }}/bpf/install/lib64/pkgconfig" ./configure \
+            && make install PREFIX="${{ github.workspace }}/xdp/install"
+
+      - name: Cache XDP
+        if: steps.bpf-compare.outputs.satisfies == 'true' && steps.cache-xdp.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: xdp/install
+          key: xdp-${{ runner.os }}
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -979,7 +1120,12 @@ jobs:
             ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
+        run: |
+          if [[ "true" == "${{ steps.bpf-compare.outputs.satisfies }}" ]]; then
+            export PKG_CONFIG_PATH="${{ github.workspace }}/xdp/install/lib/pkgconfig"
+          fi
+          export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}${{ github.workspace }}/bpf/install/lib64/pkgconfig"
+          cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
@@ -1009,7 +1155,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.xml
           flags: xdp,unittest
@@ -1019,7 +1165,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -1036,7 +1182,7 @@ jobs:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install prerequisites
         run: |
@@ -1048,7 +1194,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.engine }}-${{ matrix.sanitizer }}-ccache-${{ github.run_id }}
@@ -1070,7 +1216,7 @@ jobs:
           Tests/Fuzzers/RegressionTests/run_tests.sh
 
       - name: Save Ccache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}

@@ -759,6 +759,11 @@ namespace pcpp
 
 	void Asn1BooleanRecord::decodeValue(uint8_t const* data) const
 	{
+		if (m_ValueLength != 1)
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 Boolean record, value length must be 1");
+		}
+
 		m_Value = data[0] != 0;
 	}
 
@@ -1060,6 +1065,11 @@ namespace pcpp
 	{
 		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
 
+		if (timeString.empty())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 UTC time");
+		}
+
 		if (timeString.back() == 'Z')
 		{
 			timeString.pop_back();
@@ -1128,6 +1138,11 @@ namespace pcpp
 	{
 		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
 
+		if (timeString.empty())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 generalized time");
+		}
+
 		std::string timezone = "Z";
 		auto timezonePos = timeString.find_first_of("+-");
 		if (timeString.back() == 'Z')
@@ -1153,13 +1168,10 @@ namespace pcpp
 		int milliseconds = 0;
 		if (dotPos != std::string::npos)
 		{
+			// The digits after the dot are a decimal fraction of a second, so ".5" is 500 milliseconds.
+			// Pad or truncate them to 3 digits to read them as milliseconds
 			std::string millisecondsStr = timeString.substr(dotPos + 1);
-			// Limit the milliseconds to 3 digits
-			if (millisecondsStr.length() > 3)
-			{
-				timeString.erase(timezonePos);
-				millisecondsStr.resize(3);
-			}
+			millisecondsStr.resize(3, '0');
 			milliseconds = std::stoi(millisecondsStr);
 		}
 
@@ -1282,7 +1294,27 @@ namespace pcpp
 
 	void Asn1BitStringRecord::decodeValue(uint8_t const* data) const
 	{
-		auto numBits = (m_ValueLength - 1) * 8 - static_cast<size_t>(data[0]);
+		// A BitString value must contain at least the initial octet holding the number of unused bits
+		if (m_ValueLength == 0)
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 BitString record, value is empty");
+		}
+
+		auto unusedBits = static_cast<size_t>(data[0]);
+
+		// The number of unused bits must be in the range 0-7, and must be 0 if the bit string is empty
+		if (unusedBits > 7 || (m_ValueLength == 1 && unusedBits != 0))
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 BitString record, invalid number of unused bits");
+		}
+
+		auto numBits = (m_ValueLength - 1) * 8 - unusedBits;
+		if (numBits == 0)
+		{
+			m_Value = BitSet();
+			return;
+		}
+
 		m_Value = BitSet(data + 1, numBits);
 	}
 

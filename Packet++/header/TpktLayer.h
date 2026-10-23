@@ -100,6 +100,27 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by TpktLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for TpktLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Version };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief TPKT version
+			static const FieldDescriptor Version;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		/// Get a pointer to the TPKT header. Data can be retrieved through the
 		/// other methods of this layer. Notice the return value points directly to the data, so every change will

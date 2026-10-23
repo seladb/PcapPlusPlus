@@ -52,6 +52,14 @@ PTF_TEST_CASE(VrrpParsingTest)
 		                                                  pcpp::IPAddress("192.168.0.2"),
 		                                                  pcpp::IPAddress("192.168.0.3") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		vrrpV2Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"VRRPv2","protocolId":49,"length":20,"type":"Advertisement","virtualRouterID":1,"priority":"Default","priorityValue":100,"checksum":"0x38fa","advInt":1,"authType":"NoAuthentication","ipAddresses":["192.168.0.1","192.168.0.2","192.168.0.3"]})");
+	}
 
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRPv2))
@@ -71,6 +79,14 @@ PTF_TEST_CASE(VrrpParsingTest)
 	ipAddressVec = vrrpV3IPv4Layer->getIPAddresses();
 	expectedIpAddressVec = { pcpp::IPAddress("192.168.0.1"), pcpp::IPAddress("192.168.0.2") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		vrrpV3IPv4Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"VRRPv3","protocolId":50,"length":16,"type":"Advertisement","virtualRouterID":1,"priority":"Default","priorityValue":100,"checksum":"0x484d","maxAdvInt":1,"ipAddresses":["192.168.0.1","192.168.0.2"]})");
+	}
 
 	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRPv2))
@@ -91,6 +107,29 @@ PTF_TEST_CASE(VrrpParsingTest)
 	expectedIpAddressVec = { pcpp::IPAddress("fe80::254"), pcpp::IPAddress("2001:db8::1"),
 		                     pcpp::IPAddress("2001:db8::2") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
+
+	// A VRRP layer whose length leaves a partial virtual IP address at the end must stop before it.
+	// getNextIPAddressPtr() only checked that the current address ends inside the layer, so it handed
+	// back a pointer to a trailing partial address that getIPAddresses() then read in full, running
+	// past the end of the buffer.
+	{
+		uint8_t truncated[] = { // Ethernet
+			                    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x08, 0x00,
+			                    // IPv4, total length 33, protocol 112 (VRRP)
+			                    0x45, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0xff, 0x70, 0x00, 0x00, 0x0a, 0x00,
+			                    0x00, 0x01, 0xe0, 0x00, 0x00, 0x12,
+			                    // VRRP v2: 8-byte header, one full IPv4 address, then a single trailing byte
+			                    0x21, 0x01, 0x64, 0x01, 0x00, 0x01, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x01, 0xff
+		};
+
+		timeval truncatedTime = {};
+		pcpp::RawPacket truncatedRawPacket(truncated, sizeof(truncated), truncatedTime, false, pcpp::LINKTYPE_ETHERNET);
+		pcpp::Packet truncatedPacket(&truncatedRawPacket);
+
+		auto truncatedVrrpLayer = truncatedPacket.getLayerOfType<pcpp::VrrpV2Layer>();
+		PTF_ASSERT_NOT_NULL(truncatedVrrpLayer);
+		PTF_ASSERT_EQUAL(truncatedVrrpLayer->getIPAddresses().size(), 1);
+	}
 }  // VrrpParsingTest
 
 PTF_TEST_CASE(VrrpCreateAndEditTest)

@@ -519,7 +519,12 @@ namespace pcpp
 		// connect the new resource to the layer's resource list
 		if (curResource != nullptr)
 		{
-			curResource->setNextResource(newResource);
+			// if the new resource should be the first resource in the packet, its next resource is already the current
+			// first resource, which must not point back to it
+			if (curResource->getType() <= newResource->getType())
+			{
+				curResource->setNextResource(newResource);
+			}
 			// this means the new resource is the first of it's type
 			if (curResource->getType() < newResource->getType())
 			{

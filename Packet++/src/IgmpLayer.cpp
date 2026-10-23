@@ -333,12 +333,13 @@ namespace pcpp
 
 	igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord() const
 	{
-		// check if there are group records at all
-		if (getHeaderLen() <= sizeof(igmpv3_report_header))
+		// a group record is only usable if its fixed part fits inside the layer, otherwise reading
+		// the record type, the source count or the multicast address runs past the end of the data
+		if (getHeaderLen() < sizeof(igmpv3_report_header) + sizeof(igmpv3_group_record))
 			return nullptr;
 
 		uint8_t* curGroupPtr = m_Data + sizeof(igmpv3_report_header);
-		return (igmpv3_group_record*)curGroupPtr;
+		return reinterpret_cast<igmpv3_group_record*>(curGroupPtr);
 	}
 
 	igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord) const
@@ -346,15 +347,17 @@ namespace pcpp
 		if (groupRecord == nullptr)
 			return nullptr;
 
-		uint8_t* nextGroupRecordBegin = reinterpret_cast<uint8_t*>(groupRecord) + groupRecord->getRecordLen();
-		if (std::distance(m_Data, nextGroupRecordBegin) >= static_cast<std::ptrdiff_t>(getHeaderLen()))
+		size_t recordOffset = static_cast<size_t>(reinterpret_cast<uint8_t*>(groupRecord) - m_Data);
+		size_t nextOffset = recordOffset + groupRecord->getRecordLen();
+
+		// checking only that the next record starts inside the layer leaves a trailing partial
+		// record reachable, which the caller then reads in full
+		if (nextOffset + sizeof(igmpv3_group_record) > getHeaderLen())
 		{
 			return nullptr;
 		}
 
-		igmpv3_group_record* nextGroup = reinterpret_cast<igmpv3_group_record*>(nextGroupRecordBegin);
-
-		return nextGroup;
+		return reinterpret_cast<igmpv3_group_record*>(m_Data + nextOffset);
 	}
 
 	void IgmpV3ReportLayer::computeCalculateFields()
@@ -384,7 +387,7 @@ namespace pcpp
 
 		uint8_t* groupRecordBuffer = new uint8_t[groupRecordSize];
 		memset(groupRecordBuffer, 0, groupRecordSize);
-		igmpv3_group_record* newGroupRecord = (igmpv3_group_record*)groupRecordBuffer;
+		igmpv3_group_record* newGroupRecord = reinterpret_cast<igmpv3_group_record*>(groupRecordBuffer);
 		newGroupRecord->multicastAddress = multicastAddress.toInt();
 		newGroupRecord->recordType = recordType;
 		newGroupRecord->auxDataLen = 0;

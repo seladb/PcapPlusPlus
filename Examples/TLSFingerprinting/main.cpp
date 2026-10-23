@@ -387,10 +387,10 @@ void doTlsFingerprintingOnPcapFile(const std::string& inputPcapFileName, std::st
                                    const std::string& separator, bool chFP, bool shFP, const std::string& bpfFilter)
 {
 	// open input file (pcap or pcapng file)
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputPcapFileName.c_str());
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(inputPcapFileName);
 
 	// try to open the file device
-	if (!reader->open())
+	if (!reader || !reader->open())
 		EXIT_WITH_ERROR("Cannot open pcap/pcapng file");
 
 	// set output file name to input file name if not provided by the user
@@ -440,7 +440,6 @@ void doTlsFingerprintingOnPcapFile(const std::string& inputPcapFileName, std::st
 
 	// close the reader and free its memory
 	reader->close();
-	delete reader;
 
 	printStats(stats, chFP, shFP);
 

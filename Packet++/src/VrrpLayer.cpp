@@ -1,6 +1,6 @@
 #define LOG_MODULE PacketLogModuleVrrpLayer
 
-#include <SystemUtils.h>
+#include "SystemUtils.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
@@ -11,31 +11,31 @@
 namespace pcpp
 {
 
-#define VRRP_PRIO_STOP 0     ///< priority to stop
-#define VRRP_PRIO_DEF 100    ///< default priority
-#define VRRP_PRIO_OWNER 255  ///< priority of the ip owner
+	constexpr uint8_t VrrpPriorityStop = 0;       ///< priority to stop
+	constexpr uint8_t VrrpPriorityDefault = 100;  ///< default priority
+	constexpr uint8_t VrrpPriorityOwner = 255;    ///< priority of the IP owner
 
-#define VRRP_PACKET_FIX_LEN 8
-#define VRRP_PACKET_MAX_IP_ADDRESS_NUM 255
+	constexpr uint8_t VrrpPacketFixedLength = 8;
+	constexpr uint8_t VrrpPacketMaxIpAddressCount = 255;
 
-#define VRRP_V2_VERSION 2
-#define VRRP_V3_VERSION 3
+	constexpr uint8_t VrrpVersion2 = 2;
+	constexpr uint8_t VrrpVersion3 = 3;
 
 	// -------- Class VrrpLayer -----------------
 
 	VrrpLayer::VrrpLayer(ProtocolType subProtocol, uint8_t virtualRouterId, uint8_t priority)
 	{
-		allocData(VRRP_PACKET_FIX_LEN);
+		allocData(VrrpPacketFixedLength);
 		m_Protocol = subProtocol;
 		m_AddressType = IPAddress::IPv4AddressType;
 		auto vrrpHeader = getVrrpHeader();
 		if (subProtocol == VRRPv2)
 		{
-			vrrpHeader->version = VRRP_V2_VERSION;
+			vrrpHeader->version = VrrpVersion2;
 		}
 		else if (subProtocol == VRRPv3)
 		{
-			vrrpHeader->version = VRRP_V3_VERSION;
+			vrrpHeader->version = VrrpVersion3;
 		}
 		vrrpHeader->type = static_cast<uint8_t>(VrrpType::VrrpType_Advertisement);
 		setVirtualRouterID(virtualRouterId);
@@ -44,7 +44,7 @@ namespace pcpp
 
 	ProtocolType VrrpLayer::getVersionFromData(uint8_t* data, size_t dataLen)
 	{
-		if (!data || dataLen <= VRRP_PACKET_FIX_LEN)
+		if (!data || dataLen <= VrrpPacketFixedLength)
 		{
 			return UnknownProtocol;
 		}
@@ -53,9 +53,9 @@ namespace pcpp
 		uint8_t version = vrrpPacketCommon->version;
 		switch (version)
 		{
-		case VRRP_V2_VERSION:
+		case VrrpVersion2:
 			return VRRPv2;
-		case VRRP_V3_VERSION:
+		case VrrpVersion3:
 			return VRRPv3;
 		default:
 			return UnknownProtocol;
@@ -93,13 +93,13 @@ namespace pcpp
 	{
 		switch (getVrrpHeader()->priority)
 		{
-		case VRRP_PRIO_DEF:
+		case VrrpPriorityDefault:
 			return VrrpLayer::VrrpPriority::Default;
 
-		case VRRP_PRIO_STOP:
+		case VrrpPriorityStop:
 			return VrrpLayer::VrrpPriority::Stop;
 
-		case VRRP_PRIO_OWNER:
+		case VrrpPriorityOwner:
 			return VrrpLayer::VrrpPriority::Owner;
 
 		default:
@@ -183,12 +183,12 @@ namespace pcpp
 		size_t ipAddressLen = getIPAddressLen();
 
 		// check if there are virtual IP address at all
-		if (getHeaderLen() <= VRRP_PACKET_FIX_LEN + ipAddressLen)
+		if (getHeaderLen() <= VrrpPacketFixedLength + ipAddressLen)
 		{
 			return nullptr;
 		}
 
-		return (m_Data + VRRP_PACKET_FIX_LEN);
+		return (m_Data + VrrpPacketFixedLength);
 	}
 
 	uint8_t* VrrpLayer::getNextIPAddressPtr(uint8_t* ipAddressPtr) const
@@ -199,14 +199,17 @@ namespace pcpp
 		}
 
 		size_t ipAddressLen = getIPAddressLen();
+		size_t nextOffset = static_cast<size_t>(ipAddressPtr - m_Data) + ipAddressLen;
 
-		// prev virtual IP address was the last virtual IP address
-		if (ipAddressPtr + ipAddressLen - m_Data >= (int)getHeaderLen())
+		// The next virtual IP address must fit entirely inside the layer. Checking only that the current
+		// address ends inside it leaves a trailing partial address reachable, which the caller then reads
+		// in full and runs past the end of the buffer.
+		if (nextOffset + ipAddressLen > getHeaderLen())
 		{
 			return nullptr;
 		}
 
-		return (ipAddressPtr + ipAddressLen);
+		return (m_Data + nextOffset);
 	}
 
 	bool VrrpLayer::addIPAddressesAt(const std::vector<IPAddress>& ipAddresses, int offset)
@@ -226,7 +229,7 @@ namespace pcpp
 			}
 		}
 
-		if (getIPAddressesCount() + ipAddresses.size() > VRRP_PACKET_MAX_IP_ADDRESS_NUM)
+		if (getIPAddressesCount() + ipAddresses.size() > VrrpPacketMaxIpAddressCount)
 		{
 			PCPP_LOG_ERROR("Cannot add virtual IP address, for virtual IP address has already exceed maximum.");
 			return false;
@@ -283,7 +286,7 @@ namespace pcpp
 
 		size_t ipAddressLen = getIPAddressLen();
 
-		size_t offset = VRRP_PACKET_FIX_LEN;
+		size_t offset = VrrpPacketFixedLength;
 		auto curIpAddressPtr = getFirstIPAddressPtr();
 		for (int i = 0; i < index; i++)
 		{
@@ -311,7 +314,7 @@ namespace pcpp
 
 	bool VrrpLayer::removeAllIPAddresses()
 	{
-		size_t offset = VRRP_PACKET_FIX_LEN;
+		size_t offset = VrrpPacketFixedLength;
 		size_t packetLen = getHeaderLen();
 		if (packetLen <= offset)
 		{
@@ -379,6 +382,59 @@ namespace pcpp
 		m_AddressType = addressType;
 	}
 
+	constexpr const char* vrrpTypeToString(VrrpLayer::VrrpType type)
+	{
+		if (type == VrrpLayer::VrrpType_Advertisement)
+		{
+			return "Advertisement";
+		}
+
+		return "Unknown";
+	}
+
+	static constexpr const char* vrrpPriorityToString(VrrpLayer::VrrpPriority priority)
+	{
+		switch (priority)
+		{
+		case VrrpLayer::Default:
+			return "Default";
+		case VrrpLayer::Stop:
+			return "Stop";
+		case VrrpLayer::Owner:
+			return "Owner";
+		default:
+			return "Other";
+		}
+	}
+
+	const FieldDescriptor VrrpLayer::SerializedFields::Type{ Layer::SerializedFields::MaxID + 1, "type" };
+	const FieldDescriptor VrrpLayer::SerializedFields::VirtualRouterID{ Layer::SerializedFields::MaxID + 2,
+		                                                                "virtualRouterID" };
+	const FieldDescriptor VrrpLayer::SerializedFields::Priority{ Layer::SerializedFields::MaxID + 3, "priority" };
+	const FieldDescriptor VrrpLayer::SerializedFields::PriorityValue{ Layer::SerializedFields::MaxID + 4,
+		                                                              "priorityValue" };
+	const FieldDescriptor VrrpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 5, "checksum" };
+	const FieldDescriptor VrrpLayer::SerializedFields::IPAddresses{ Layer::SerializedFields::MaxID + 6, "ipAddresses" };
+	const FieldDescriptor VrrpLayer::SerializedFields::IPAddress{ 0, "ipAddress" };
+
+	void VrrpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Type, vrrpTypeToString(getType()));
+		serializer.writeField(SerializedFields::VirtualRouterID, getVirtualRouterID());
+		serializer.writeField(SerializedFields::Priority, vrrpPriorityToString(getPriorityAsEnum()));
+		serializer.writeField(SerializedFields::PriorityValue, getPriority());
+		serializer.writeHexField(SerializedFields::Checksum, getChecksum());
+		serializeVrrpLayer(serializer);
+		{
+			auto ipAddressArray = serializer.writeArray(SerializedFields::IPAddresses);
+			auto ipAddresses = getIPAddresses();
+			for (const auto ipAddress : ipAddresses)
+			{
+				ipAddressArray.writeField(SerializedFields::IPAddress, ipAddress.toString());
+			}
+		}
+	}
+
 	// -------- Class Vrrpv2Layer -----------------
 
 	VrrpV2Layer::VrrpV2Layer(uint8_t virtualRouterId, uint8_t priority, uint8_t advInt, uint8_t authType)
@@ -402,26 +458,26 @@ namespace pcpp
 	uint8_t VrrpV2Layer::getAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto authAdvIntPtr = (vrrpv2_auth_adv*)(&authAdvInt);
+		auto authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&authAdvInt);
 		return authAdvIntPtr->advInt;
 	}
 
 	void VrrpV2Layer::setAdvInt(uint8_t advInt)
 	{
-		auto authAdvIntPtr = (vrrpv2_auth_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		authAdvIntPtr->advInt = advInt;
 	}
 
 	uint8_t VrrpV2Layer::getAuthType() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto* authAdvIntPtr = (vrrpv2_auth_adv*)(&authAdvInt);
+		auto* authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&authAdvInt);
 		return authAdvIntPtr->authType;
 	}
 
 	void VrrpV2Layer::setAuthType(uint8_t authType)
 	{
-		auto authAdvIntPtr = (vrrpv2_auth_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		authAdvIntPtr->authType = authType;
 	}
 
@@ -445,6 +501,32 @@ namespace pcpp
 		return checksum;
 	}
 
+	static constexpr const char* authTypeToString(VrrpV2Layer::VrrpAuthType authType)
+	{
+		switch (authType)
+		{
+		case VrrpV2Layer::VrrpAuthType::NoAuthentication:
+			return "NoAuthentication";
+		case VrrpV2Layer::VrrpAuthType::SimpleTextPassword:
+			return "SimpleTextPassword";
+		case VrrpV2Layer::VrrpAuthType::IPAuthenticationHeader:
+			return "IPAuthenticationHeader";
+		case VrrpV2Layer::VrrpAuthType::MD5:
+			return "MD5";
+		default:
+			return "Other";
+		}
+	}
+
+	const FieldDescriptor VrrpV2Layer::SerializedFields::AdvInt{ VrrpLayer::SerializedFields::MaxID + 1, "advInt" };
+	const FieldDescriptor VrrpV2Layer::SerializedFields::AuthType{ VrrpLayer::SerializedFields::MaxID + 2, "authType" };
+
+	void VrrpV2Layer::serializeVrrpLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::AdvInt, getAdvInt());
+		serializer.writeField(SerializedFields::AuthType, authTypeToString(getAuthTypeAsEnum()));
+	}
+
 	// -------- Class Vrrpv3Layer -----------------
 
 	VrrpV3Layer::VrrpV3Layer(IPAddress::AddressType addressType, uint8_t virtualRouterId, uint8_t priority,
@@ -458,7 +540,7 @@ namespace pcpp
 	uint16_t VrrpV3Layer::getMaxAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto rsvdAdv = (vrrpv3_rsvd_adv*)(&authAdvInt);
+		auto rsvdAdv = reinterpret_cast<vrrpv3_rsvd_adv*>(&authAdvInt);
 		return be16toh(rsvdAdv->maxAdvInt);
 	}
 
@@ -468,7 +550,7 @@ namespace pcpp
 		{
 			throw std::invalid_argument("maxAdvInt must not exceed 12 bits length");
 		}
-		auto rsvdAdv = (vrrpv3_rsvd_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto rsvdAdv = reinterpret_cast<vrrpv3_rsvd_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		rsvdAdv->maxAdvInt = htobe16(maxAdvInt);
 	}
 
@@ -502,5 +584,13 @@ namespace pcpp
 		vrrpHeader->checksum = currChecksumValue;
 
 		return checksum;
+	}
+
+	const FieldDescriptor VrrpV3Layer::SerializedFields::MaxAdvInt{ VrrpLayer::SerializedFields::MaxID + 1,
+		                                                            "maxAdvInt" };
+
+	void VrrpV3Layer::serializeVrrpLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::MaxAdvInt, getMaxAdvInt());
 	}
 }  // namespace pcpp

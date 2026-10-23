@@ -3,21 +3,20 @@
 #include <algorithm>
 #include <vector>
 
-#define ASCII_HYPHEN 0x2d
-#define ASCII_SPACE 0x20
-#define MAX_COMMAND_LENGTH 9  // From SMTP command "STARTTLS" + 1 byte hyphen or space
-#define MIN_PACKET_LENGTH 2   // CRLF
-
 namespace pcpp
 {
+	constexpr char AsciiHyphen = 0x2d;
+	constexpr char AsciiSpace = 0x20;
+	constexpr size_t MaxCommandLength = 9;  // From SMTP command "STARTTLS" + 1 byte hyphen or space
+	constexpr size_t MinPacketLength = 2;   // CRLF
 
 	size_t SingleCommandTextProtocol::getArgumentFieldOffset() const
 	{
 		size_t maxLen;
-		if (m_DataLen < MAX_COMMAND_LENGTH)
+		if (m_DataLen < MaxCommandLength)
 			maxLen = m_DataLen;
 		else
-			maxLen = MAX_COMMAND_LENGTH;
+			maxLen = MaxCommandLength;
 
 		// To correctly detect multi-line packets with the option containing a space in
 		// the first MAX_CONTENT_LENGTH bytes, search the both of hyphen and space to take
@@ -25,8 +24,8 @@ namespace pcpp
 
 		std::string field(reinterpret_cast<char*>(m_Data), maxLen);
 
-		size_t posHyphen = field.find_first_of(ASCII_HYPHEN);
-		size_t posSpace = field.find_first_of(ASCII_SPACE);
+		size_t posHyphen = field.find_first_of(AsciiHyphen);
+		size_t posSpace = field.find_first_of(AsciiSpace);
 		size_t posCRLF = field.rfind("\r\n");
 
 		// No delimiter or packet end
@@ -45,9 +44,9 @@ namespace pcpp
 	void SingleCommandTextProtocol::setDelimiter(bool hyphen)
 	{
 		if (hyphen)
-			memset(&m_Data[getArgumentFieldOffset()], ASCII_HYPHEN, 1);
+			memset(&m_Data[getArgumentFieldOffset()], AsciiHyphen, 1);
 		else
-			memset(&m_Data[getArgumentFieldOffset()], ASCII_SPACE, 1);
+			memset(&m_Data[getArgumentFieldOffset()], AsciiSpace, 1);
 	}
 
 	bool SingleCommandTextProtocol::hyphenRequired(const std::string& value)
@@ -61,7 +60,7 @@ namespace pcpp
 	                                                     ProtocolType protocol)
 	{
 		m_Protocol = protocol;
-		allocData(MIN_PACKET_LENGTH);
+		allocData(MinPacketLength);
 		if (!command.empty())
 			setCommandInternal(command);
 		if (!option.empty())
@@ -163,12 +162,12 @@ namespace pcpp
 
 	bool SingleCommandTextProtocol::isMultiLine() const
 	{
-		return m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN;
+		return m_Data[getArgumentFieldOffset()] == AsciiHyphen;
 	}
 
 	bool SingleCommandTextProtocol::isDataValid(const uint8_t* data, size_t dataSize)
 	{
-		if (data == nullptr || dataSize < MIN_PACKET_LENGTH)
+		if (data == nullptr || dataSize < MinPacketLength)
 			return false;
 
 		std::string payload = std::string(reinterpret_cast<const char*>(data), dataSize);

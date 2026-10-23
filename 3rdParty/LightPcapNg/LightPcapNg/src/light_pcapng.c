@@ -160,6 +160,19 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          int32_t local_offset;
          uint32_t actual_len = 0;
 
+         // PCPP Patch (GH #2180): captured_packet_length comes straight from the input.
+         // Bound it to what this block can actually hold (as LIGHT_SIMPLE_PACKET_BLOCK does)
+         // so a malformed length can't drive an oversized calloc()/memcpy().
+         {
+            uint32_t max_capture = 0;
+            uint32_t overhead = 2 * sizeof(current->block_total_length) + sizeof(current->block_type) +
+                                5 * sizeof(uint32_t);
+            if (current->block_total_length > overhead)
+               max_capture = current->block_total_length - overhead;
+            if (captured_packet_length > max_capture)
+               captured_packet_length = max_capture;
+         }
+
          PADD32(captured_packet_length, &actual_len);
 
          epb = calloc(1, sizeof(struct _light_enhanced_packet_block) + actual_len);
@@ -207,6 +220,19 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          uint32_t reserved1 = *local_data++;
          int32_t local_offset;
          uint32_t actual_len = 0;
+
+         // PCPP Patch (GH #2180): bound the attacker-controlled len to what this block can
+         // hold before it sizes the calloc()/memcpy().
+         {
+            uint32_t max_len = 0;
+            // overhead = block_type + leading/trailing block_total_length + len + reserved0 + reserved1
+            uint32_t overhead = 2 * sizeof(current->block_total_length) + sizeof(current->block_type) +
+                                3 * sizeof(uint32_t);
+            if (current->block_total_length > overhead)
+               max_len = current->block_total_length - overhead;
+            if (len > max_len)
+               len = max_len;
+         }
 
          PADD32(len, &actual_len);
          cnb = calloc(1, sizeof(struct _light_custom_nonstandard_block) + actual_len);
@@ -257,6 +283,21 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
    while (remaining > 12) {
       const uint32_t *local_data = (const uint32_t *)(memory);
 
+      uint32_t block_type = *local_data++;
+      uint32_t block_total_length = *local_data++;
+
+      DCHECK_INT(((block_total_length % 4) == 0), 0, light_stop);
+
+      // PCPP Patch (GH #2180): block_total_length is read straight from the input and is
+      // attacker-controlled. The DCHECK_* macros are no-ops in release builds, so reject
+      // here any block that is smaller than the mandatory framing or claims more bytes
+      // than are left in the buffer. This runs before the block is allocated and linked,
+      // so a rejected block leaves no half-initialised entry in the list.
+      if (block_total_length < 12 || block_total_length > remaining)
+      {
+         break;
+      }
+
       if (current == NULL) {
          current = calloc(1, sizeof(struct _light_pcapng));
          DCHECK_NULLP(current, return block_count);
@@ -272,9 +313,8 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
          current = current->next_block;
       }
 
-      current->block_type = *local_data++;
-      current->block_total_length = *local_data++;
-      DCHECK_INT(((current->block_total_length % 4) == 0), 0, light_stop);
+      current->block_type = block_type;
+      current->block_total_length = block_total_length;
 
       parse_by_block_type(current, local_data, memory);
 
