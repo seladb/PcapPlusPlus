@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <functional>
+#include <cstdlib>
 #include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
