@@ -13,12 +13,16 @@ namespace pcpp
 
 	icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int index) const
 	{
-		if (index < 0 || index >= header->advertisementCount)
+		if (header == nullptr || index < 0 || index >= header->advertisementCount)
 			return nullptr;
 
-		uint8_t* headerAsByteArr = reinterpret_cast<uint8_t*>(header);
-		return reinterpret_cast<icmp_router_address_structure*>(
-		    headerAsByteArr + sizeof(icmp_router_advertisement_hdr) + index * sizeof(icmp_router_address_structure));
+		// advertisementCount is taken from the message and can't be trusted: make sure the entry is actually
+		// present in the layer data
+		size_t addressOffset = sizeof(icmp_router_advertisement_hdr) + index * sizeof(icmp_router_address_structure);
+		if (addressOffset + sizeof(icmp_router_address_structure) > dataLen)
+			return nullptr;
+
+		return reinterpret_cast<icmp_router_address_structure*>(reinterpret_cast<uint8_t*>(header) + addressOffset);
 	}
 
 	void icmp_router_address_structure::setRouterAddress(IPv4Address addr, uint32_t preference)
@@ -319,6 +323,7 @@ namespace pcpp
 			return nullptr;
 
 		m_RouterAdvData.header = reinterpret_cast<icmp_router_advertisement_hdr*>(m_Data);
+		m_RouterAdvData.dataLen = m_DataLen;
 
 		return &m_RouterAdvData;
 	}
@@ -854,18 +859,8 @@ namespace pcpp
 				serializer.writeField(SerializedFields::Lifetime, be16toh(adv->header->lifetime));
 				auto arr = serializer.writeArray(SerializedFields::RouterAddresses);
 
-				// Don't trust advertisementCount alone: the layer may contain fewer entries.
-				size_t maxEntries = 0;
-				if (m_DataLen > sizeof(icmp_router_advertisement_hdr))
-				{
-					maxEntries =
-					    (m_DataLen - sizeof(icmp_router_advertisement_hdr)) / sizeof(icmp_router_address_structure);
-				}
-				int entryCount = adv->header->advertisementCount;
-				if (static_cast<size_t>(entryCount) > maxEntries)
-					entryCount = static_cast<int>(maxEntries);
-
-				for (int i = 0; i < entryCount; ++i)
+				// getRouterAddress() returns nullptr for entries that aren't present in the layer data
+				for (int i = 0; i < adv->header->advertisementCount; ++i)
 				{
 					auto* routerAddr = adv->getRouterAddress(i);
 					if (routerAddr)
