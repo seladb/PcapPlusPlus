@@ -172,7 +172,7 @@ namespace ptf
 
 #define PTF_RUN_TEST(TestName, tags)                                                                                   \
 	struct PtfTestMarker_##TestName                                                                                    \
-	{ /* Prevents duplicate ruuns of the same test in scope */                                                         \
+	{ /* Prevents duplicate runs of the same test in scope */                                                         \
 	};                                                                                                                 \
 	testRunner.runTest(TestName, #TestName, tags)
 
