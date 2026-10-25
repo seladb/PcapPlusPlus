@@ -133,7 +133,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(GeneveParsingTest, "geneve");
 	PTF_RUN_TEST(GeneveCreationTest, "geneve");
 	PTF_RUN_TEST(GeneveEditTest, "geneve");
-	PTF_RUN_TEST(GeneveEdgeCaseTest, "geneve");
+	PTF_RUN_TEST(GeneveDataValidationTest, "geneve");
+	PTF_RUN_TEST(GeneveOptionTraversalTest, "geneve");
 
 	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");
 	PTF_RUN_TEST(IPv4PacketParsing, "ipv4");
