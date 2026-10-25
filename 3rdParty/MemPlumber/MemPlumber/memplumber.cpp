@@ -179,10 +179,10 @@ public:
         // Get the linked list for the current allocation type (static or dynamic)
         LinkedList& list = (m_ProgramStarted == 0 ? m_StaticAllocations : m_DynamicAllocations);
 
-        // mark this allocation as tracked
+        // Mark this allocation as tracked
         node->magic = MagicTrackState::TRACKED;
 
-        // chain this metadata to the linked list of the specific bucket
+        // Add the metadata record to the head of the linked list
 		node->list = &list;
         node->next = list.head;
         node->prev = nullptr;
@@ -191,7 +191,7 @@ public:
             node->next->prev = node;
         }
 
-        // put this metadata in the head of the list
+        // Update the head and tail of the linked list if necessary
         list.head = node;
         if(list.tail == nullptr)
         {
