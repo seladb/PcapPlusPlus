@@ -193,6 +193,10 @@ public:
 
         // put this metadata in the head of the list
         list.head = node;
+        if(list.tail == nullptr)
+        {
+			list.tail = node;
+        }
 
         if (isVerbose()) {
             if (m_ProgramStarted == 0) {
