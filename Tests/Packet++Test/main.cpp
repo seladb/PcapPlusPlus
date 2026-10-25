@@ -128,6 +128,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(QinQ802_1adParse, "vlan");
+	PTF_RUN_TEST(TruncatedArpAndVlanPayloadTest, "vlan;arp;sll;gre");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
 	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
 	PTF_RUN_TEST(GeneveParsingTest, "geneve");
@@ -161,6 +162,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PacketUtilsHash5TupleUdp, "udp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleTcp, "tcp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleIPv6, "ipv6");
+	PTF_RUN_TEST(PacketSerializerTest, "packet");
 
 	PTF_RUN_TEST(InsertDataToPacket, "packet;insert");
 	PTF_RUN_TEST(CreatePacketFromBuffer, "packet");
@@ -179,7 +181,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PacketParseMultiLayerTest, "packet");
 	PTF_RUN_TEST(PacketIncrementalParseTest, "packet");
 	PTF_RUN_TEST(PacketFullReparseTest, "packet");
-	PTF_RUN_TEST(PacketSerializeTest, "packet");
+	PTF_RUN_TEST(PacketSerializeTest, "packet;serializers");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
@@ -202,6 +204,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DnsLayerResourceCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerEditTest, "dns");
 	PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
+	PTF_RUN_TEST(DnsLayerAddResourceOutOfOrderTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpParsingTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerAddDnsKeyTest, "dns");
@@ -264,6 +267,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
 	PTF_RUN_TEST(SSLMalformedPacketParsing, "ssl");
 	PTF_RUN_TEST(SSLECPointFormatExtensionZeroLengthTest, "ssl");
+	PTF_RUN_TEST(SSLSupportedVersionsExtensionZeroLengthTest, "ssl");
+	PTF_RUN_TEST(SSLServerNameIndicationExtensionTruncatedTest, "ssl");
+	PTF_RUN_TEST(SSLAlertLayerTruncatedTest, "ssl");
 	PTF_RUN_TEST(TLS1_3ParsingTest, "ssl");
 	PTF_RUN_TEST(TLSCipherSuiteTest, "ssl");
 	PTF_RUN_TEST(ClientHelloTLSFingerprintTest, "ssl");

@@ -281,6 +281,7 @@ namespace pcpp
 #endif
 	}
 
+	// cppcheck-suppress constParameter
 	static void setTimestampProvider(internal::PcapHandle& pcap,
 	                                 const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
@@ -802,7 +803,7 @@ namespace pcpp
 		{
 #if !defined(_WIN32)
 			m_UsePoll = true;
-			m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
+			m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapDescriptor.get());
 #else
 			PCPP_LOG_ERROR("Windows doesn't support poll(), ignoring the `usePoll` parameter");
 #endif
