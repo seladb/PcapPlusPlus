@@ -149,60 +149,60 @@ public:
         // This ensures that free can always be called on a pointer and performs the same,
 		// no matter if the pointer was allocated before or after tracking started.
         size_t totalSizeToAllocate = size + sizeof(LinkedListNode);
-		LinkedListNode* pointerMetaDataRecord = (LinkedListNode*)malloc(totalSizeToAllocate);
+		LinkedListNode* node = (LinkedListNode*)malloc(totalSizeToAllocate);
 
         // Return null on allocation failure
-		if (pointerMetaDataRecord == NULL)
-			return pointerMetaDataRecord;
+		if (node == NULL)
+			return node;
 
         // Avoid placement new because it might be overriden.
-		*pointerMetaDataRecord = LinkedListNode();
+		*node = LinkedListNode();
 
-		void* actualPointer = (char*)pointerMetaDataRecord + sizeof(LinkedListNode);
+		void* userPointer = (char*)node + sizeof(LinkedListNode);
 
         // Fill in the metadata record with the allocation information
         // Mark as untracked initially, as it is not part of the lists yet.
-		pointerMetaDataRecord->magic = MagicTrackState::UNTRACKED;
-		pointerMetaDataRecord->line = line;
-		pointerMetaDataRecord->size = size;
-		strncpy(pointerMetaDataRecord->file, file, MEMPLUMBER_FILENAME_LEN - 1);
-		pointerMetaDataRecord->file[MEMPLUMBER_FILENAME_LEN - 1] = '\0';
+		node->magic = MagicTrackState::UNTRACKED;
+		node->line = line;
+		node->size = size;
+		strncpy(node->file, file, MEMPLUMBER_FILENAME_LEN - 1);
+		node->file[MEMPLUMBER_FILENAME_LEN - 1] = '\0';
 
         // if not started, do not add the allocation into the hashtable.
         if (m_ProgramStarted != 0 && !m_Started) {
             if (isVerbose()) {
-                fprintf(m_Dumper, "Allocate untracked: %d[bytes] in 0x%p in %s:%d\n", (int)size, actualPointer, file, line);
+                fprintf(m_Dumper, "Allocate untracked: %d[bytes] in 0x%p in %s:%d\n", (int)size, userPointer, file, line);
             }
-            return actualPointer;
+            return userPointer;
         }
 
         // Get the linked list for the current allocation type (static or dynamic)
         LinkedList& list = (m_ProgramStarted == 0 ? m_StaticAllocations : m_DynamicAllocations);
 
         // mark this allocation as tracked
-        pointerMetaDataRecord->magic = MagicTrackState::TRACKED;
+        node->magic = MagicTrackState::TRACKED;
 
         // chain this metadata to the linked list of the specific bucket
-		pointerMetaDataRecord->list = &list;
-        pointerMetaDataRecord->next = list.head;
-        pointerMetaDataRecord->prev = nullptr;
-		if (pointerMetaDataRecord->next != nullptr)
+		node->list = &list;
+        node->next = list.head;
+        node->prev = nullptr;
+		if (node->next != nullptr)
 		{
-            pointerMetaDataRecord->next->prev = pointerMetaDataRecord;
+            node->next->prev = node;
         }
 
         // put this metadata in the head of the list
-        list.head = pointerMetaDataRecord;
+        list.head = node;
 
         if (isVerbose()) {
             if (m_ProgramStarted == 0) {
-                fprintf(m_Dumper, "Allocate static variable: %d[bytes] in 0x%p in %s:%d\n", (int)size, actualPointer, file, line);
+                fprintf(m_Dumper, "Allocate static variable: %d[bytes] in 0x%p in %s:%d\n", (int)size, userPointer, file, line);
             } else {
-                fprintf(m_Dumper, "Allocate: %d[bytes] in 0x%p in %s:%d\n", (int)size, actualPointer, file, line);
+                fprintf(m_Dumper, "Allocate: %d[bytes] in 0x%p in %s:%d\n", (int)size, userPointer, file, line);
             }
         }
 
-        return actualPointer;
+        return userPointer;
     }
 
     void freeMemory(void* pointer, const char* file, int line) {
@@ -213,49 +213,49 @@ public:
 
         SpinLockGuard guard(m_Lock);  // PCPP Patch: C++11 thread safety
 
-        LinkedListNode* metadataRecord = (LinkedListNode*)((char*)pointer - sizeof(LinkedListNode));
+        LinkedListNode* node = (LinkedListNode*)((char*)pointer - sizeof(LinkedListNode));
 
         // Record was allocated before tracking started
-        if(metadataRecord->magic == MagicTrackState::UNTRACKED)
+        if(node->magic == MagicTrackState::UNTRACKED)
         {
 			if (isVerbose())
 			{
 				fprintf(m_Dumper, "Free Untracked: 0x%p (size %d[bytes]) allocated in: %s:%d\n", pointer,
-				        (int)metadataRecord->size, metadataRecord->file, metadataRecord->line);
+				        (int)node->size, node->file, node->line);
 			}
 
-			free(metadataRecord);
+			free(node);
             return;
         }
 
-        if (metadataRecord->magic != MagicTrackState::TRACKED)
+        if (node->magic != MagicTrackState::TRACKED)
 		{
 			fprintf(stderr, "ERROR: Memory corruption detected when freeing pointer 0x%p allocated in %s:%d\n", pointer,
-			        metadataRecord->file, metadataRecord->line);
+			        node->file, node->line);
 			fprintf(m_Dumper, "ERROR: Memory corruption detected when freeing pointer 0x%p allocated in %s:%d\n", pointer,
-			        metadataRecord->file, metadataRecord->line);
+			        node->file, node->line);
 			return;
 		}
 
         // Unlink the metadata record from the linked list
-        LinkedList* list = metadataRecord->list;
-        if(list->head == metadataRecord)
+        LinkedList* list = node->list;
+        if(list->head == node)
         {
-			list->head = metadataRecord->next;
+			list->head = node->next;
         }
-        if(list->tail == metadataRecord)
+        if(list->tail == node)
         {
-			list->tail = metadataRecord->prev;
+			list->tail = node->prev;
         }
 
         // Unlink the node from adjacent nodes in the linked list
-        if (metadataRecord->prev != nullptr)
+        if (node->prev != nullptr)
         {
-			metadataRecord->prev->next = metadataRecord->next;
+			node->prev->next = node->next;
         }
-        if (metadataRecord->next != nullptr)
+        if (node->next != nullptr)
         {
-			metadataRecord->next->prev = metadataRecord->prev;
+			node->next->prev = node->prev;
         }
 
         // if got to here it means memory was allocated before monitoring started. Simply free the memory and return
@@ -263,7 +263,7 @@ public:
             fprintf(m_Dumper, "Pointer 0x%p wasn't found\n", pointer);
         }
 
-        free(metadataRecord);
+        free(node);
     }
 
     void programStarted() {
