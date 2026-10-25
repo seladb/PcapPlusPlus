@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleDhcpV6Layer
 
 #include "DhcpV6Layer.h"
+#include <algorithm>
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
@@ -148,26 +149,37 @@ namespace pcpp
 		hdr->transactionId3 = transactionId & 0xff;
 	}
 
+	size_t DhcpV6Layer::getOptionsOffset() const
+	{
+		// Relay-forward and relay-reply messages carry a hop count, a link address and a peer address instead of a
+		// transaction ID (RFC 8415 section 9)
+		constexpr size_t relayHeaderLen = 2 * sizeof(uint8_t) + 2 * 16;
+		const uint8_t messageType = getDhcpHeader()->messageType;
+		if (messageType == DHCPV6_RELAY_FORWARD || messageType == DHCPV6_RELAY_REPLY)
+			return std::min(m_DataLen, relayHeaderLen);
+
+		return sizeof(dhcpv6_header);
+	}
+
 	DhcpV6Option DhcpV6Layer::getFirstOptionData() const
 	{
-		return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcpv6_header));
+		return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - getOptionsOffset());
 	}
 
 	DhcpV6Option DhcpV6Layer::getNextOptionData(DhcpV6Option dhcpv6Option) const
 	{
-		return m_OptionReader.getNextTLVRecord(dhcpv6Option, getOptionsBasePtr(),
-		                                       getHeaderLen() - sizeof(dhcpv6_header));
+		return m_OptionReader.getNextTLVRecord(dhcpv6Option, getOptionsBasePtr(), getHeaderLen() - getOptionsOffset());
 	}
 
 	DhcpV6Option DhcpV6Layer::getOptionData(DhcpV6OptionType option) const
 	{
 		return m_OptionReader.getTLVRecord(static_cast<uint32_t>(option), getOptionsBasePtr(),
-		                                   getHeaderLen() - sizeof(dhcpv6_header));
+		                                   getHeaderLen() - getOptionsOffset());
 	}
 
 	size_t DhcpV6Layer::getOptionCount() const
 	{
-		return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcpv6_header));
+		return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - getOptionsOffset());
 	}
 
 	DhcpV6Option DhcpV6Layer::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, int offset)
@@ -256,7 +268,7 @@ namespace pcpp
 
 	bool DhcpV6Layer::removeAllOptions()
 	{
-		int offset = sizeof(dhcpv6_header);
+		int offset = static_cast<int>(getOptionsOffset());
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
 			return false;

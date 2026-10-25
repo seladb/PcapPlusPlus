@@ -397,8 +397,9 @@ namespace pcpp
 	private:
 		uint8_t* getOptionsBasePtr() const
 		{
-			return m_Data + sizeof(dhcpv6_header);
+			return m_Data + getOptionsOffset();
 		}
+		size_t getOptionsOffset() const;
 		dhcpv6_header* getDhcpHeader() const
 		{
 			return reinterpret_cast<dhcpv6_header*>(m_Data);

@@ -59,6 +59,34 @@ PTF_TEST_CASE(DhcpV6ParsingTest)
 	}
 }  // DhcpV6ParsingTest
 
+PTF_TEST_CASE(DhcpV6RelayMessageParsingTest)
+{
+	// A relay-forward message has a hop count, a link address and a peer address before its options
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dhcpv6_relay_forward.dat");
+
+	pcpp::Packet dhcpv6Packet(rawPacket1.get());
+	pcpp::DhcpV6Layer* dhcpv6Layer = dhcpv6Packet.getLayerOfType<pcpp::DhcpV6Layer>();
+	PTF_ASSERT_NOT_NULL(dhcpv6Layer);
+	PTF_ASSERT_EQUAL(dhcpv6Layer->getMessageType(), pcpp::DHCPV6_RELAY_FORWARD);
+	PTF_ASSERT_EQUAL(dhcpv6Layer->getOptionCount(), 2);
+
+	pcpp::DhcpV6Option dhcpOption = dhcpv6Layer->getFirstOptionData();
+	PTF_ASSERT_TRUE(dhcpOption.isNotNull());
+	PTF_ASSERT_EQUAL(dhcpOption.getType(), pcpp::DHCPV6_OPT_INTERFACE_ID);
+	PTF_ASSERT_EQUAL(dhcpOption.getValueAsHexString(), "65746830");
+
+	dhcpOption = dhcpv6Layer->getNextOptionData(dhcpOption);
+	PTF_ASSERT_TRUE(dhcpOption.isNotNull());
+	PTF_ASSERT_EQUAL(dhcpOption.getType(), pcpp::DHCPV6_OPT_RELAY_MSG);
+	PTF_ASSERT_EQUAL(dhcpOption.getDataSize(), 24);
+	PTF_ASSERT_TRUE(dhcpv6Layer->getNextOptionData(dhcpOption).isNull());
+	PTF_ASSERT_TRUE(dhcpv6Layer->getOptionData(pcpp::DHCPV6_OPT_RELAY_MSG).isNotNull());
+
+	PTF_ASSERT_TRUE(dhcpv6Layer->removeAllOptions());
+	PTF_ASSERT_EQUAL(dhcpv6Layer->getHeaderLen(), 34);
+	PTF_ASSERT_EQUAL(dhcpv6Layer->getOptionCount(), 0);
+}  // DhcpV6RelayMessageParsingTest
+
 PTF_TEST_CASE(DhcpV6CreationTest)
 {
 	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/dhcpv6_2.dat");
