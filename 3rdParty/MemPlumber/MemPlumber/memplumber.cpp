@@ -258,9 +258,8 @@ public:
 			node->next->prev = node->prev;
         }
 
-        // if got to here it means memory was allocated before monitoring started. Simply free the memory and return
         if (isVerbose()) {
-            fprintf(m_Dumper, "Pointer 0x%p wasn't found\n", pointer);
+            fprintf(m_Dumper, "Free Tracked: 0x%p (size %d[bytes]) allocated in %s:%d\n", pointer, (int)node->size, node->file, node->line);
         }
 
         free(node);
