@@ -83,6 +83,13 @@ PTF_TEST_CASE(IPv4PacketParsing)
 		PTF_ASSERT_TRUE(ipv4Layer->getFirstOption().isNull());
 		PTF_ASSERT_TRUE(ipv4Layer->getOption(pcpp::IPV4OPT_CommercialSecurity).isNull());
 		PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 0);
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ipv4Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"IPv4","protocolId":2,"length":20,"srcIP":"10.0.0.4","dstIP":"1.1.1.1","ipID":6743,"ipProtocol":1,"totalLength":60,"isFragment":false,"fragmentOffset":0,"options":[]})");
 	}
 
 	{
@@ -169,6 +176,10 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 	PTF_ASSERT_EQUAL(ipLayer->getFragmentFlags(), 0);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer())
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	ipLayer->serialize(serializer);
+	PTF_ASSERT_CONTAINS(oss.str(), R"("isFragment":true,"fragmentOffset":2960)");
 }  // Ipv4FragmentationTest
 
 PTF_TEST_CASE(IPv4OptionsParsingTest)
@@ -321,6 +332,10 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 	PTF_ASSERT_TRUE(opt2 == opt);
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT_TRUE(opt.isNull());
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	ipLayer->serialize(serializer);
+	PTF_ASSERT_CONTAINS(oss.str(), R"("options":["NOP","LooseSourceRoute"])");
 }  // Ipv4OptionsParsingTest
 
 PTF_TEST_CASE(IPv4OptionsEditTest)
@@ -528,3 +543,30 @@ PTF_TEST_CASE(IPv4UdpChecksum)
 		PTF_ASSERT_EQUAL(udpLayer->getUdpHeader()->headerChecksum, packetChecksum, hex);
 	}
 }  // Ipv4UdpChecksum
+
+PTF_TEST_CASE(IPv4ComputeFieldsInvalidIhl)
+{
+	uint8_t data[60]{};
+
+	data[12] = 0x08;
+	data[13] = 0x00;
+
+	constexpr size_t ipOffset = sizeof(pcpp::ether_header);
+	data[ipOffset] = 0x4d;  // IPv4, IHL = 13 => 52 bytes.
+	data[ipOffset + 2] = 0x00;
+	data[ipOffset + 3] = 0x1c;  // totalLength = 28.
+
+	timeval time{};
+	pcpp::RawPacket rawPacket(data, sizeof(data), time, false, pcpp::LINKTYPE_ETHERNET);
+	pcpp::Packet packet(&rawPacket);
+
+	auto ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+	PTF_ASSERT_NOT_NULL(ipv4Layer);
+	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 52);
+	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 46);
+	PTF_ASSERT_NULL(ipv4Layer->getNextLayer());
+
+	packet.computeCalculateFields();
+
+	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 46);
+}  // IPv4ComputeFieldsInvalidIhl

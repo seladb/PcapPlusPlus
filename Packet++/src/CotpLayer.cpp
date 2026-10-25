@@ -10,9 +10,7 @@ namespace pcpp
 	pcpp::CotpLayer::CotpLayer(uint8_t tpduNumber)
 	{
 		const size_t headerLen = sizeof(cotphdr);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 		cotphdr* cotpHdr = getCotpHeader();
 		cotpHdr->length = 0x02;
 		cotpHdr->pduType = 0x0f;
@@ -73,5 +71,14 @@ namespace pcpp
 		size_t payloadLen = m_DataLen - headerLen;
 
 		tryConstructNextLayerWithFallback<S7CommLayer, PayloadLayer>(payload, payloadLen);
+	}
+
+	const FieldDescriptor CotpLayer::SerializedFields::PduType{ Layer::SerializedFields::MaxID + 1, "pduType" };
+	const FieldDescriptor CotpLayer::SerializedFields::TpduNumber{ Layer::SerializedFields::MaxID + 2, "tpduNumber" };
+
+	void CotpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::PduType, getPduType());
+		serializer.writeField(SerializedFields::TpduNumber, getTpduNumber());
 	}
 }  // namespace pcpp

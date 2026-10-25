@@ -125,8 +125,10 @@ namespace pcpp
 	/// @return Total number of CPU cores on device
 	int getNumOfCores();
 
-	/// Create a core mask for all cores available on machine
-	/// @return A core mask for all cores available on machine
+	/// Create a core mask for all cores available on machine. Since CoreMask is a 32-bit
+	/// value, on machines with more than MAX_NUM_OF_CORES (32) cores only the first 32
+	/// cores are represented in the returned mask
+	/// @return A core mask for all cores available on machine, capped at MAX_NUM_OF_CORES
 	CoreMask getCoreMaskForAllMachineCores();
 
 	/// Create a core mask from a vector of system cores

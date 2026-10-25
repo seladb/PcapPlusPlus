@@ -86,9 +86,7 @@ namespace pcpp
 	{
 		m_OffsetAdjustment = offsetAdjustment;
 		const size_t headerLen = getBasicHeaderSize();
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		init(m_OffsetAdjustment, false);
 	}
@@ -521,7 +519,12 @@ namespace pcpp
 		// connect the new resource to the layer's resource list
 		if (curResource != nullptr)
 		{
-			curResource->setNextResource(newResource);
+			// if the new resource should be the first resource in the packet, its next resource is already the current
+			// first resource, which must not point back to it
+			if (curResource->getType() <= newResource->getType())
+			{
+				curResource->setNextResource(newResource);
+			}
 			// this means the new resource is the first of it's type
 			if (curResource->getType() < newResource->getType())
 			{

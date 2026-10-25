@@ -1,5 +1,6 @@
 #include "VxlanLayer.h"
 #include "EthLayer.h"
+#include "PayloadLayer.h"
 #include "EndianPortable.h"
 
 #include <cstring>
@@ -10,10 +11,7 @@ namespace pcpp
 	VxlanLayer::VxlanLayer(uint32_t vni, uint16_t groupPolicyID, bool setGbpFlag, bool setPolicyAppliedFlag,
 	                       bool setDontLearnFlag)
 	{
-		const size_t headerLen = sizeof(vxlan_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(sizeof(vxlan_header));
 		m_Protocol = VXLAN;
 
 		if (vni != 0)
@@ -56,7 +54,19 @@ namespace pcpp
 
 		auto payload = m_Data + sizeof(vxlan_header);
 		auto payloadLen = m_DataLen - sizeof(vxlan_header);
-		constructNextLayer<EthLayer>(payload, payloadLen);
+		tryConstructNextLayerWithFallback<EthLayer, PayloadLayer>(payload, payloadLen);
 	}
 
+	const FieldDescriptor VxlanLayer::SerializedFields::ValidVNI{ Layer::SerializedFields::MaxID + 1, "validVNI" };
+	const FieldDescriptor VxlanLayer::SerializedFields::GroupPolicyID{ Layer::SerializedFields::MaxID + 2,
+		                                                               "groupPolicyID" };
+	const FieldDescriptor VxlanLayer::SerializedFields::VNI{ Layer::SerializedFields::MaxID + 3, "vni" };
+
+	void VxlanLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getVxlanHeader();
+		serializer.writeField(SerializedFields::ValidVNI, header->vniPresentFlag ? true : false);
+		serializer.writeField(SerializedFields::GroupPolicyID, be16toh(header->groupPolicyID));
+		serializer.writeField(SerializedFields::VNI, getVNI());
+	}
 }  // namespace pcpp

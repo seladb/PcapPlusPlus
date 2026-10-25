@@ -101,6 +101,15 @@ namespace pcpp
 			return port == 502;
 		}
 
+		/// A static method that checks whether the data is large enough to hold a MODBUS header
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataSize The size of the data in bytes
+		/// @return True if the data is large enough to be parsed as a MODBUS layer, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataSize)
+		{
+			return data != nullptr && dataSize >= sizeof(modbus_header);
+		}
+
 		/// @return MODBUS message type
 		uint16_t getTransactionId() const;
 
@@ -155,6 +164,36 @@ namespace pcpp
 		{
 			return OsiModelApplicationLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by ModbusLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for ModbusLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ TransactionID, ProtocolID, UnitID, FunctionCode };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the MODBUS transaction ID, written as a number.
+			static const FieldDescriptor TransactionID;
+
+			/// @brief Field descriptor for the MODBUS protocol ID, written as a number.
+			static const FieldDescriptor ProtocolID;
+
+			/// @brief Field descriptor for the MODBUS unit ID, written as a number.
+			static const FieldDescriptor UnitID;
+
+			/// @brief Field descriptor for the MODBUS function code, written as a string.
+			static const FieldDescriptor FunctionCode;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		/// @return A pointer to the MODBUS header

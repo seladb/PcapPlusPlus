@@ -18,6 +18,7 @@ add_library(
   src/FtpLayer.cpp
   src/GreLayer.cpp
   src/GtpLayer.cpp
+  src/GvcpLayer.cpp
   src/HttpLayer.cpp
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
@@ -45,6 +46,7 @@ add_library(
   src/PemCodec.cpp
   src/PostgresLayer.cpp
   src/PPPoELayer.cpp
+  src/QuicLayer.cpp
   src/RadiusLayer.cpp
   src/RawPacket.cpp
   src/S7CommLayer.cpp
@@ -99,6 +101,7 @@ set(
   header/FtpLayer.h
   header/GreLayer.h
   header/GtpLayer.h
+  header/GvcpLayer.h
   header/HttpLayer.h
   header/IcmpLayer.h
   header/IcmpV6Layer.h
@@ -112,6 +115,7 @@ set(
   header/Layer.h
   header/LdapLayer.h
   header/LLCLayer.h
+  header/ModbusLayer.h
   header/MplsLayer.h
   header/MySqlLayer.h
   header/NullLoopbackLayer.h
@@ -126,6 +130,7 @@ set(
   header/PostgresLayer.h
   header/PPPoELayer.h
   header/ProtocolType.h
+  header/QuicLayer.h
   header/RadiusLayer.h
   header/RawPacket.h
   header/S7CommLayer.h

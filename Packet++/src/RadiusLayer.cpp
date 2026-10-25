@@ -23,9 +23,7 @@ namespace pcpp
 
 	RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator, uint8_t authenticatorArrSize)
 	{
-		m_DataLen = sizeof(radius_header);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(radius_header));
 		m_Protocol = Radius;
 
 		radius_header* hdr = getRadiusHeader();
@@ -41,9 +39,7 @@ namespace pcpp
 
 	RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const std::string& authenticator)
 	{
-		m_DataLen = sizeof(radius_header);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(radius_header));
 		m_Protocol = Radius;
 
 		radius_header* hdr = getRadiusHeader();
@@ -248,6 +244,27 @@ namespace pcpp
 			return radLen >= sizeof(radius_header) && radLen <= udpDataLen;
 		}
 		return false;
+	}
+
+	const FieldDescriptor RadiusLayer::SerializedFields::Code{ Layer::SerializedFields::MaxID + 1, "code" };
+	const FieldDescriptor RadiusLayer::SerializedFields::CodeName{ Layer::SerializedFields::MaxID + 2, "codeName" };
+	const FieldDescriptor RadiusLayer::SerializedFields::Id{ Layer::SerializedFields::MaxID + 3, "id" };
+	const FieldDescriptor RadiusLayer::SerializedFields::Authenticator{ Layer::SerializedFields::MaxID + 4,
+		                                                                "authenticator" };
+	const FieldDescriptor RadiusLayer::SerializedFields::Attributes{ Layer::SerializedFields::MaxID + 5, "attributes" };
+	const FieldDescriptor RadiusLayer::SerializedFields::Attribute{ 0, "attribute" };
+
+	void RadiusLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Code, getRadiusHeader()->code);
+		serializer.writeField(SerializedFields::CodeName, getRadiusMessageString(getRadiusHeader()->code));
+		serializer.writeField(SerializedFields::Id, getRadiusHeader()->id);
+		serializer.writeField(SerializedFields::Authenticator, getAuthenticatorValue());
+		auto attributes = serializer.writeArray(SerializedFields::Attributes);
+		for (auto attr = getFirstAttribute(); attr.isNotNull(); attr = getNextAttribute(attr))
+		{
+			attributes.writeField(SerializedFields::Attribute, static_cast<uint64_t>(attr.getType()));
+		}
 	}
 
 }  // namespace pcpp

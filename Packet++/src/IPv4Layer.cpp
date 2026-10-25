@@ -11,15 +11,66 @@
 #include "IPSecLayer.h"
 #include "VrrpLayer.h"
 #include "PacketUtils.h"
-#include <sstream>
 #include "Logger.h"
 #include "EndianPortable.h"
+#include "SystemUtils.h"
+#include <sstream>
+#include <algorithm>
 
 namespace pcpp
 {
+	constexpr uint8_t IPv4OptionDummy = 0xff;
+	constexpr size_t IPv4MaxOptionSize = 40;
 
-#define IPV4OPT_DUMMY 0xff
-#define IPV4_MAX_OPT_SIZE 40
+	static constexpr const char* ipv4OptionTypeToString(IPv4OptionTypes type)
+	{
+		switch (type)
+		{
+		case IPV4OPT_EndOfOptionsList:
+			return "EndOfOptionsList";
+		case IPV4OPT_NOP:
+			return "NOP";
+		case IPV4OPT_RecordRoute:
+			return "RecordRoute";
+		case IPV4OPT_MTUProbe:
+			return "MTUProbe";
+		case IPV4OPT_MTUReply:
+			return "MTUReply";
+		case IPV4OPT_QuickStart:
+			return "QuickStart";
+		case IPV4OPT_Timestamp:
+			return "Timestamp";
+		case IPV4OPT_Traceroute:
+			return "Traceroute";
+		case IPV4OPT_Security:
+			return "Security";
+		case IPV4OPT_LooseSourceRoute:
+			return "LooseSourceRoute";
+		case IPV4OPT_ExtendedSecurity:
+			return "ExtendedSecurity";
+		case IPV4OPT_CommercialSecurity:
+			return "CommercialSecurity";
+		case IPV4OPT_StreamID:
+			return "StreamID";
+		case IPV4OPT_StrictSourceRoute:
+			return "StrictSourceRoute";
+		case IPV4OPT_ExtendedInternetProtocol:
+			return "ExtendedInternetProtocol";
+		case IPV4OPT_AddressExtension:
+			return "AddressExtension";
+		case IPV4OPT_RouterAlert:
+			return "RouterAlert";
+		case IPV4OPT_SelectiveDirectedBroadcast:
+			return "SelectiveDirectedBroadcast";
+		case IPV4OPT_DynamicPacketState:
+			return "DynamicPacketState";
+		case IPV4OPT_UpstreamMulticastPkt:
+			return "UpstreamMulticastPkt";
+		case IPV4OPT_Unknown:
+		default:
+			return "Unknown";
+		}
+	}
 
 	/// ~~~~~~~~~~~~~~~~~
 	/// IPv4OptionBuilder
@@ -168,11 +219,8 @@ namespace pcpp
 
 	void IPv4Layer::initLayer()
 	{
-		const size_t headerLen = sizeof(iphdr);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
+		allocData(sizeof(iphdr));
 		m_Protocol = IPv4;
-		memset(m_Data, 0, headerLen);
 		iphdr* ipHdr = getIPv4Header();
 		ipHdr->internetHeaderLength = (5 & 0xf);
 		m_NumOfTrailingBytes = 0;
@@ -191,9 +239,9 @@ namespace pcpp
 			// value of totalLen and look at the data captured on the wire
 			if ((totalLen < m_DataLen) && (totalLen != 0))
 			{
-				auto headerLen = getHeaderLen();
+				auto headerLen = (std::min)(getHeaderLen(), m_DataLen);
 				// Make sure totalLen is larger than header len, otherwise it's a malformed packet
-				m_DataLen = totalLen > headerLen ? totalLen : headerLen;
+				m_DataLen = (std::max)(totalLen, headerLen);
 			}
 		}
 	}
@@ -373,7 +421,7 @@ namespace pcpp
 
 	void IPv4Layer::computeCalculateFields()
 	{
-		iphdr* ipHdr = getIPv4Header();
+		auto* ipHdr = getIPv4Header();
 		ipHdr->ipVersion = (4 & 0x0f);
 		ipHdr->totalLength = htobe16(m_DataLen);
 		ipHdr->headerChecksum = 0;
@@ -409,7 +457,8 @@ namespace pcpp
 			}
 		}
 
-		ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength * 4) };
+		auto headerLen = (std::min)(static_cast<size_t>(ipHdr->internetHeaderLength * 4), m_DataLen);
+		ScalarBuffer<uint16_t> scalar = { reinterpret_cast<uint16_t*>(ipHdr), headerLen };
 		ipHdr->headerChecksum = htobe16(computeChecksum(&scalar, 1));
 	}
 
@@ -495,7 +544,7 @@ namespace pcpp
 		m_NumOfTrailingBytes = newNumberOfTrailingBytes;
 
 		for (int i = 0; i < m_NumOfTrailingBytes; i++)
-			m_Data[ipHdrSize + totalOptSize + i] = IPV4OPT_DUMMY;
+			m_Data[ipHdrSize + totalOptSize + i] = IPv4OptionDummy;
 
 		m_TempHeaderExtension = 0;
 		getIPv4Header()->internetHeaderLength = ((ipHdrSize + totalOptSize + m_NumOfTrailingBytes) / 4 & 0x0f);
@@ -511,10 +560,10 @@ namespace pcpp
 
 		size_t totalOptSize = getHeaderLen() - sizeof(iphdr) - m_NumOfTrailingBytes + sizeToExtend;
 
-		if (totalOptSize > IPV4_MAX_OPT_SIZE)
+		if (totalOptSize > IPv4MaxOptionSize)
 		{
 			PCPP_LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is "
-			               << IPV4_MAX_OPT_SIZE);
+			               << IPv4MaxOptionSize);
 			newOption.purgeRecordData();
 			return IPv4Option(nullptr);
 		}
@@ -623,4 +672,31 @@ namespace pcpp
 		return true;
 	}
 
+	const FieldDescriptor IPv4Layer::SerializedFields::SrcIp{ Layer::SerializedFields::MaxID + 1, "srcIP" };
+	const FieldDescriptor IPv4Layer::SerializedFields::DstIp{ Layer::SerializedFields::MaxID + 2, "dstIP" };
+	const FieldDescriptor IPv4Layer::SerializedFields::IpId{ Layer::SerializedFields::MaxID + 3, "ipID" };
+	const FieldDescriptor IPv4Layer::SerializedFields::IpProtocol{ Layer::SerializedFields::MaxID + 4, "ipProtocol" };
+	const FieldDescriptor IPv4Layer::SerializedFields::TotalLength{ Layer::SerializedFields::MaxID + 5, "totalLength" };
+	const FieldDescriptor IPv4Layer::SerializedFields::IsFragment{ Layer::SerializedFields::MaxID + 6, "isFragment" };
+	const FieldDescriptor IPv4Layer::SerializedFields::FragmentOffset{ Layer::SerializedFields::MaxID + 7,
+		                                                               "fragmentOffset" };
+	const FieldDescriptor IPv4Layer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 8, "options" };
+	const FieldDescriptor IPv4Layer::SerializedFields::Option{ 0, "option" };
+
+	void IPv4Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::SrcIp, getSrcIPAddress().toString());
+		serializer.writeField(SerializedFields::DstIp, getDstIPAddress().toString());
+		auto* header = getIPv4Header();
+		serializer.writeField(SerializedFields::IpId, netToHost16(header->ipId));
+		serializer.writeField(SerializedFields::IpProtocol, header->protocol);
+		serializer.writeField(SerializedFields::TotalLength, netToHost16(header->totalLength));
+		serializer.writeField(SerializedFields::IsFragment, isFragment());
+		serializer.writeField(SerializedFields::FragmentOffset, getFragmentOffset());
+		auto options = serializer.writeArray(SerializedFields::Options);
+		for (auto option = getFirstOption(); option.isNotNull(); option = getNextOption(option))
+		{
+			options.writeField(SerializedFields::Option, ipv4OptionTypeToString(option.getIPv4OptionType()));
+		}
+	}
 }  // namespace pcpp

@@ -29,20 +29,20 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-latest
-            image: ubuntu2404
+            image: ubuntu2604
             config-zstd: OFF
-          - runner: ubuntu-24.04-arm
-            image: ubuntu2404-arm64
-            config-zstd: OFF
-          - runner: ubuntu-latest
-            image: ubuntu2204
+          - runner: ubuntu-26.04-arm
+            image: ubuntu2604-arm64
             config-zstd: OFF
           - runner: ubuntu-latest
-            image: ubuntu2204-icpx
+            image: ubuntu2604-icpx
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
           - runner: ubuntu-latest
-            image: ubuntu2004
+            image: ubuntu2404
+            config-zstd: OFF
+          - runner: ubuntu-latest
+            image: ubuntu2204
             config-zstd: OFF
           - runner: ubuntu-latest
             image: rhel94
@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -82,7 +82,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
@@ -107,16 +107,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Test in FreeBSD
-        uses: vmactions/freebsd-vm@d1e65811565151536c0c894fff74f06351ed26e6 # v1.4.5
+        uses: vmactions/freebsd-vm@a2f9a41fa97f6848b8c3b791087dfcdaa5b473ff # v1.5.8
         with:
           release: ${{ matrix.version }}
           envs: 'BUILD_DIR'
           usesh: true
           prepare: |
-            pkg install -y bash cmake git-tiny gmake gsed libpcap py311-pip
+            pkg install -y bash cmake git-tiny gmake gsed libpcap python
           run: |
             cmake -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
             cmake --build "$BUILD_DIR" -j 4
@@ -124,7 +124,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
 
@@ -146,17 +146,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - os-version: macos-14
-            xcode-version: 15.4
-            arch: x86_64
-          - os-version: macos-14
-            xcode-version: 15.4
+          - os-version: macos-26
+            xcode-version: 26.6.0
             arch: arm64
-          - os-version: macos-15
-            xcode-version: 16.0.0
+          - os-version: macos-26-intel
+            xcode-version: 26.6.0
             arch: x86_64
           - os-version: macos-15
-            xcode-version: 16.0.0
+            xcode-version: 16.4.0
+            arch: x86_64
+          - os-version: macos-15
+            xcode-version: 16.4.0
             arch: arm64
 
     steps:
@@ -165,11 +165,11 @@ jobs:
           xcode-version: "${{ matrix.xcode-version }}"
 
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configure PcapPlusPlus
         run: |
-          cmake -DPCAPPP_PACKAGE=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
+          cmake -DPCAPPP_PACKAGE=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
@@ -179,7 +179,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
@@ -208,10 +208,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@e9898307ac31d1a803454791be09ab9973336e1c # v2.31.1
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         with:
           msystem: ${{matrix.sys}}
           install: >-
@@ -249,7 +249,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
@@ -276,7 +276,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
@@ -288,7 +288,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          $platform = "Visual Studio 17 2022"
+          $platform = "Visual Studio 18 2026"
           cmake -A ${{ matrix.arch }} -G "$platform" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DPCAPPP_PACKAGE=ON -S . -B "$env:BUILD_DIR"
 
       - name: Build PcapPlusPlus
@@ -299,7 +299,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
@@ -329,10 +329,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -390,7 +390,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
 

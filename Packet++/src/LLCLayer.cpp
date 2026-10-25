@@ -11,10 +11,7 @@ namespace pcpp
 
 	LLCLayer::LLCLayer(uint8_t dsap, uint8_t ssap, uint8_t control)
 	{
-		m_DataLen = sizeof(llc_header);
-		m_Data = new uint8_t[sizeof(llc_header)];
-		memset(m_Data, 0, sizeof(llc_header));
-
+		allocData(sizeof(llc_header));
 		m_Protocol = LLC;
 
 		// Set values
@@ -54,4 +51,15 @@ namespace pcpp
 		return dataLen >= sizeof(llc_header) && !(data[0] == 0xFF && data[1] == 0xFF);
 	}
 
+	const FieldDescriptor LLCLayer::SerializedFields::DSAP{ Layer::SerializedFields::MaxID + 1, "dsap" };
+	const FieldDescriptor LLCLayer::SerializedFields::SSAP{ Layer::SerializedFields::MaxID + 2, "ssap" };
+	const FieldDescriptor LLCLayer::SerializedFields::Control{ Layer::SerializedFields::MaxID + 3, "control" };
+
+	void LLCLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getLlcHeader();
+		serializer.writeField(SerializedFields::DSAP, header->dsap);
+		serializer.writeField(SerializedFields::SSAP, header->ssap);
+		serializer.writeField(SerializedFields::Control, header->control);
+	}
 }  // namespace pcpp

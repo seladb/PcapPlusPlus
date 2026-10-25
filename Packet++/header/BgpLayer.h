@@ -147,16 +147,14 @@ namespace pcpp
 		struct optional_parameter
 		{
 			/// Parameter type
-			uint8_t type;
+			uint8_t type = 0;
 			/// Parameter length
-			uint8_t length;
+			uint8_t length = 0;
 			/// Parameter data
-			uint8_t value[32];
+			uint8_t value[32] = {};
 
-			// FIXME: This does not actually zero the data.
 			/// A default c'tor that zeroes all data
-			optional_parameter()
-			{}
+			optional_parameter() = default;
 
 			/// A c'tor that initializes the values of the struct
 			/// @param[in] typeVal Parameter type value
@@ -174,12 +172,19 @@ namespace pcpp
 		    : BgpLayer(data, dataLen, prevLayer, packet)
 		{}
 
+		/// A static method that takes a byte array and detects whether it is a BgpOpenMessage
+		/// @param[in] data A byte array
+		/// @param[in] dataSize The byte array size (in bytes)
+		/// @return True if the data looks like a valid BgpOpenMessage layer
+		static bool isDataValid(const uint8_t* data, size_t dataSize);
+
 		/// A c'tor that creates a new BGP OPEN message
 		/// @param[in] myAutonomousSystem The Autonomous System number of the sender
 		/// @param[in] holdTime The number of seconds the sender proposes for the value of the Hold Timer
 		/// @param[in] bgpId The BGP Identifier of the sender
 		/// @param[in] optionalParams A vector of optional parameters. This parameter is optional and if not provided no
 		/// parameters will be set on the message
+		/// @throws std::invalid_argument if an optional parameter is invalid or the serialized data exceeds 255 bytes
 		BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
 		                    const std::vector<optional_parameter>& optionalParams = std::vector<optional_parameter>());
 
@@ -232,6 +237,9 @@ namespace pcpp
 		}
 
 	private:
+		/// Serializes the optional parameters to a byte array
+		/// @throws std::invalid_argument if an optional parameter is invalid or the serialized data doesn't fit in
+		/// maxByteArrSize bytes
 		size_t optionalParamsToByteArray(const std::vector<optional_parameter>& optionalParams, uint8_t* resultByteArr,
 		                                 size_t maxByteArrSize);
 	};

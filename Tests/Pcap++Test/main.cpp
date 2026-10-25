@@ -223,6 +223,16 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TestObjectPool, "no_network");
 
+	PTF_RUN_TEST(TestFileFormatDetector, "no_network");
+	PTF_RUN_TEST(TestReaderFactory_Pcap_Micro, "no_network;pcap");
+	PTF_RUN_TEST(TestReaderFactory_Pcap_Nano, "no_network;pcap");
+	PTF_RUN_TEST(TestReaderFactory_Pcap_Nano_Unsupported, "no_network;pcap");
+	PTF_RUN_TEST(TestReaderFactory_PcapNG, "no_network;pcapng");
+	PTF_RUN_TEST(TestReaderFactory_PcapNG_ZST, "no_network;pcapng");
+	PTF_RUN_TEST(TestReaderFactory_PcapNG_ZST_Unsupported, "no_network;pcapng");
+	PTF_RUN_TEST(TestReaderFactory_Snoop, "no_network;snoop");
+	PTF_RUN_TEST(TestReaderFactory_InvalidFile, "no_network;pcap");
+
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileMicroPrecision, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileNanoPrecision, "no_network;pcap");
@@ -237,10 +247,12 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapNgFileReadWriteAdv, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapNgFileTooManyInterfaces, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapNgFilePrecision, "no_network;pcapng");
+	PTF_RUN_TEST(TestPcapNgSimplePacketBlockOverlongLength, "no_network;pcapng;spb");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv6, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv4, "no_network;pcap");
 	PTF_RUN_TEST(TestSolarisSnoopFileRead, "no_network;pcap;snoop");
 	PTF_RUN_TEST(TestPcapFileWriterDeviceDestructor, "no_network;pcap");
+	PTF_RUN_TEST(PcapFileSerializeTest, "no_network;pcap;serializers");
 
 	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");

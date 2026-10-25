@@ -9,9 +9,8 @@ namespace pcpp
 {
 	TpktLayer::TpktLayer(uint8_t version, uint16_t length)
 	{
-		m_DataLen = sizeof(tpkthdr);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(tpkthdr));
+
 		tpkthdr* tpktHdr = getTpktHeader();
 		tpktHdr->version = version;
 		tpktHdr->reserved = 0;
@@ -66,4 +65,10 @@ namespace pcpp
 		tryConstructNextLayerWithFallback<CotpLayer, PayloadLayer>(payload, payloadLen);
 	}
 
+	const FieldDescriptor TpktLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 1, "version" };
+
+	void TpktLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Version, getTpktHeader()->version);
+	}
 }  // namespace pcpp

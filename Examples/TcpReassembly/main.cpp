@@ -520,10 +520,10 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName, pcpp::TcpReassembly&
                                const std::string& bpfFilter = "")
 {
 	// open input file (pcap or pcapng file)
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(fileName);
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(fileName);
 
 	// try to open the file device
-	if (!reader->open())
+	if (!reader || !reader->open())
 		EXIT_WITH_ERROR("Cannot open pcap/pcapng file");
 
 	// set BPF filter if set by the user
@@ -550,7 +550,6 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName, pcpp::TcpReassembly&
 
 	// close the reader and free its memory
 	reader->close();
-	delete reader;
 
 	std::cout << "Done! processed " << numOfConnectionsProcessed << " connections" << std::endl;
 }

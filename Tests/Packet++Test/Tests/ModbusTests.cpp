@@ -50,4 +50,24 @@ PTF_TEST_CASE(ModbusLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(modbusLayer->toString(),
 	                 "Modbus Layer, Transaction ID: 17, Protocol ID: 0, Length: 6, Unit ID: 255, Function Code: 4");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		modbusLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"Modbus","protocolId":61,"length":8,"transactionID":17,"protocolID":0,"unitID":255,"functionCode":"ReadInputRegisters"})");
+	}
 }  // ModbusLayerParsingTest
+
+PTF_TEST_CASE(ModbusLayerTruncatedTest)
+{
+	// A packet to port 502 whose payload is shorter than a full modbus_header (8 bytes).
+	// It must not be parsed as a Modbus layer, otherwise the header getters read out of bounds.
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/ModbusTruncated.dat");
+
+	pcpp::Packet packet(rawPacket1.get());
+	PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::Modbus));
+	PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::ModbusLayer>());
+}  // ModbusLayerTruncatedTest

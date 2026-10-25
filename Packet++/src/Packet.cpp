@@ -739,9 +739,8 @@ namespace pcpp
 		const uint8_t* dataPtr = m_RawPacket->getRawData();
 
 		// go over all layers from the first layer to the last layer and set the data ptr and data length for each layer
-		Layer* curLayer = m_FirstLayer;
 		bool passedExtendedLayer = false;
-		while (curLayer != nullptr)
+		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			if (dataPtr > m_RawPacket->getRawData() + m_RawPacket->getRawDataLen())
 			{
@@ -766,7 +765,6 @@ namespace pcpp
 			// assuming header length of the layer that requested to be extended hasn't been enlarged yet
 			headerLen -= (curLayer == layer ? numOfBytesToShorten : 0);
 			dataPtr += headerLen;
-			curLayer = curLayer->getNextLayer();
 		}
 
 		return true;
@@ -940,6 +938,38 @@ namespace pcpp
 		for (Layer* curLayer = m_FirstLayer; curLayer != nullptr; curLayer = curLayer->getNextLayer())
 		{
 			result.push_back(curLayer->toString());
+		}
+	}
+
+	const FieldDescriptor Packet::SerializedFields::TimestampObject::Sec{ 0, "sec" };
+	const FieldDescriptor Packet::SerializedFields::TimestampObject::NSec{ 1, "nsec" };
+	const Packet::SerializedFields::TimestampObject Packet::SerializedFields::Timestamp{ 0, "timestamp" };
+	const FieldDescriptor Packet::SerializedFields::FrameLength{ 1, "frameLength" };
+	const FieldDescriptor Packet::SerializedFields::LinkLayer{ 2, "linkLayer" };
+	const FieldDescriptor Packet::SerializedFields::LinkLayerName{ 3, "linkLayerName" };
+	const FieldDescriptor Packet::SerializedFields::Layers{ 4, "layers" };
+	const FieldDescriptor PacketObject{ 0, "packet" };
+
+	void Packet::serialize(ISerializer& serializer) const
+	{
+		auto rawPacket = getRawPacket();
+		timespec ts = rawPacket->getPacketTimeStamp();
+
+		auto packetObject = serializer.writeObject(PacketObject);
+		{
+			auto timestamp = packetObject.writeObject(SerializedFields::Timestamp);
+			timestamp.writeField(SerializedFields::TimestampObject::Sec, static_cast<uint64_t>(ts.tv_sec));
+			timestamp.writeField(SerializedFields::TimestampObject::NSec, static_cast<uint64_t>(ts.tv_nsec));
+		}
+		packetObject.writeField(SerializedFields::FrameLength, rawPacket->getFrameLength());
+		auto linkLayer = rawPacket->getLinkLayerType();
+		packetObject.writeField(SerializedFields::LinkLayer, static_cast<uint16_t>(linkLayer));
+		packetObject.writeField(SerializedFields::LinkLayerName, linkLayerToString(linkLayer));
+
+		auto layersArray = packetObject.writeArray(SerializedFields::Layers);
+		for (Layer* curLayer = getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
+		{
+			curLayer->serialize(layersArray);
 		}
 	}
 

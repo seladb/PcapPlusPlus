@@ -1,5 +1,6 @@
 #define LOG_MODULE PacketLogModuleWireGuardLayer
 
+#include "Logger.h"
 #include "UdpLayer.h"
 #include "WireGuardLayer.h"
 #include "EndianPortable.h"
@@ -16,12 +17,20 @@ namespace pcpp
 		switch (wgHeader->messageType)
 		{
 		case static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation):
+			if (!WireGuardHandshakeInitiationLayer::isDataValid(data, dataLen))
+				return nullptr;
 			return new WireGuardHandshakeInitiationLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::HandshakeResponse):
+			if (!WireGuardHandshakeResponseLayer::isDataValid(data, dataLen))
+				return nullptr;
 			return new WireGuardHandshakeResponseLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::CookieReply):
+			if (!WireGuardCookieReplyLayer::isDataValid(data, dataLen))
+				return nullptr;
 			return new WireGuardCookieReplyLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::TransportData):
+			if (!WireGuardTransportDataLayer::isDataValid(data, dataLen))
+				return nullptr;
 			return new WireGuardTransportDataLayer(data, dataLen, prevLayer, packet);
 		default:
 			return nullptr;
@@ -94,10 +103,7 @@ namespace pcpp
 	                                                                     const uint8_t encryptedTimestamp[28],
 	                                                                     const uint8_t mac1[16], const uint8_t mac2[16])
 	{
-		const size_t messageLen = sizeof(wg_handshake_initiation);
-		m_DataLen = messageLen;
-		m_Data = new uint8_t[messageLen];
-		memset(m_Data, 0, messageLen);
+		allocData(sizeof(wg_handshake_initiation));
 
 		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
 
@@ -200,9 +206,8 @@ namespace pcpp
 	                                                                 const uint8_t encryptedEmpty[16],
 	                                                                 const uint8_t mac1[16], const uint8_t mac2[16])
 	{
-		const size_t messageLen = sizeof(wg_handshake_response);
-		m_DataLen = messageLen;
-		m_Data = new uint8_t[messageLen];
+		allocData(sizeof(wg_handshake_response), false);
+
 		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
 
 		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::HandshakeResponse);
@@ -299,10 +304,7 @@ namespace pcpp
 	WireGuardCookieReplyLayer::WireGuardCookieReplyLayer(uint32_t receiverIndex, const uint8_t nonce[24],
 	                                                     const uint8_t encryptedCookie[32])
 	{
-		const size_t messageLen = sizeof(wg_cookie_reply);
-		m_DataLen = messageLen;
-		m_Data = new uint8_t[messageLen];
-		memset(m_Data, 0, messageLen);
+		allocData(sizeof(wg_cookie_reply));
 
 		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
 
@@ -360,9 +362,7 @@ namespace pcpp
 	                                                         const uint8_t* encryptedData, size_t encryptedDataLen)
 	{
 		const size_t messageLen = sizeof(wg_transport_data) + encryptedDataLen;
-		m_DataLen = messageLen;
-		m_Data = new uint8_t[messageLen];
-		memset(m_Data, 0, messageLen);
+		allocData(messageLen);
 
 		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
 
@@ -404,8 +404,27 @@ namespace pcpp
 
 	void WireGuardTransportDataLayer::setEncryptedData(const uint8_t* encryptedData, size_t encryptedDataLen)
 	{
-		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
-		memcpy(msg->encryptedData, encryptedData, encryptedDataLen);
+		const size_t headerLen = sizeof(wg_transport_data);
+		const size_t currentLen = m_DataLen - headerLen;
+
+		if (encryptedDataLen < currentLen)
+		{
+			if (!shortenLayer(static_cast<int>(headerLen + encryptedDataLen), currentLen - encryptedDataLen))
+			{
+				PCPP_LOG_ERROR("Couldn't shorten the layer to fit the new encrypted data");
+				return;
+			}
+		}
+		else if (encryptedDataLen > currentLen)
+		{
+			if (!extendLayer(static_cast<int>(m_DataLen), encryptedDataLen - currentLen))
+			{
+				PCPP_LOG_ERROR("Couldn't extend the layer to fit the new encrypted data");
+				return;
+			}
+		}
+
+		memcpy(m_Data + headerLen, encryptedData, encryptedDataLen);
 	}
 
 }  // namespace pcpp

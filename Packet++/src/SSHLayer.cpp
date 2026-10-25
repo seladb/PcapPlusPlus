@@ -9,7 +9,7 @@
 namespace pcpp
 {
 
-#define SSH_LAYER_BASE_STRING "SSH Layer"
+	constexpr char SshLayerBaseString[] = "SSH Layer";
 
 	// ----------------
 	// SSHLayer methods
@@ -64,7 +64,7 @@ namespace pcpp
 
 	std::string SSHIdentificationMessage::toString() const
 	{
-		return std::string(SSH_LAYER_BASE_STRING) + ", " + "Identification message";
+		return std::string(SshLayerBaseString) + ", " + "Identification message";
 	}
 
 	// ---------------------------
@@ -109,8 +109,16 @@ namespace pcpp
 
 	size_t SSHHandshakeMessage::getSSHHandshakeMessageLength() const
 	{
-		uint32_t length = be32toh(getMsgBaseHeader()->packetLength);
-		return static_cast<size_t>(length) - getMsgBaseHeader()->paddingLength - sizeof(uint8_t) * 2;
+		size_t length = static_cast<size_t>(be32toh(getMsgBaseHeader()->packetLength));
+		// the padding length and the message type come from the packet, so the subtraction
+		// underflows and reports a huge message when they do not fit inside the packet length
+		size_t overhead = getMsgBaseHeader()->paddingLength + sizeof(uint8_t) * 2;
+		if (overhead > length)
+		{
+			return 0;
+		}
+
+		return length - overhead;
 	}
 
 	size_t SSHHandshakeMessage::getPaddingLength() const
@@ -125,7 +133,7 @@ namespace pcpp
 
 	std::string SSHHandshakeMessage::toString() const
 	{
-		return std::string(SSH_LAYER_BASE_STRING) + ", " + "Handshake Message: " + getMessageTypeStr();
+		return std::string(SshLayerBaseString) + ", " + "Handshake Message: " + getMessageTypeStr();
 	}
 
 	SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -254,7 +262,7 @@ namespace pcpp
 
 	std::string SSHEncryptedMessage::toString() const
 	{
-		return std::string(SSH_LAYER_BASE_STRING) + ", " + "Encrypted Message";
+		return std::string(SshLayerBaseString) + ", " + "Encrypted Message";
 	}
 
 }  // namespace pcpp

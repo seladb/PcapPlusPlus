@@ -171,11 +171,9 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 
 		auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u-1ext.dat");
 		auto& resource2 = rawPacketAndBuf2.resourceBuffer;
-		auto& rawPacket2 = rawPacketAndBuf2.packet;
 
 		auto rawPacketAndBuf3 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u-2ext.dat");
 		auto& resource3 = rawPacketAndBuf3.resourceBuffer;
-		auto& rawPacket3 = rawPacketAndBuf3.packet;
 
 		pcpp::Packet gtpPacket1(rawPacket1.get());
 
@@ -243,6 +241,28 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 		    new pcpp::GtpV1Layer(pcpp::GtpV1MessageType::GtpV1_VersionNotSupported, 0x12345678, true, 1, false, 0));
 		gtpLayer->getHeader()->messageType = 0xFF;
 		gtpLayer->addExtension(0x85, 0x1234);
+	}
+
+	{
+		// Regression - issue #2322: the layer is attached to a Packet and already
+		// has an extension. addExtension() must not keep a pointer into the old
+		// packet buffer across the extendLayer() reallocation.
+		auto rawPacket = createPacketFromHexResource("PacketExamples/gtp-u-1ext.dat");
+		pcpp::Packet gtpPacket(rawPacket.get());
+
+		auto* gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV1Layer>();
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+		PTF_ASSERT_FALSE(gtpLayer->getNextExtension().isNull());
+
+		pcpp::GtpV1Layer::GtpExtension newExt = gtpLayer->addExtension(0x85, 0x1234);
+		PTF_ASSERT_FALSE(newExt.isNull());
+		PTF_ASSERT_EQUAL(newExt.getExtensionType(), 0x85);
+		PTF_ASSERT_EQUAL(newExt.getTotalLength(), 4 * sizeof(uint8_t));
+		PTF_ASSERT_EQUAL(newExt.getContentLength(), 2 * sizeof(uint8_t));
+		auto* content = reinterpret_cast<uint16_t*>(newExt.getContent());
+		PTF_ASSERT_EQUAL(be16toh(content[0]), 0x1234);
+		PTF_ASSERT_TRUE(newExt.getNextExtension().isNull());
+		PTF_ASSERT_EQUAL(gtpLayer->getNextExtension().getNextExtensionHeaderType(), 0x85);
 	}
 }  // GtpLayerCreationTest
 
@@ -420,6 +440,18 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		auto infoElement = gtpLayer->getFirstInformationElement();
 		PTF_ASSERT_EQUAL(infoElement.getCRFlag(), 7);
 		PTF_ASSERT_EQUAL(infoElement.getInstance(), 12);
+	}
+
+	// GH #2171: a TEID-present header that is long enough for the basic header + TEID but not
+	// for the sequence-number word must be rejected, otherwise getSequenceNumber() reads OOB.
+	{
+		// version 2, TEID-present flag set, only 8 bytes (basic header + TEID, missing seq word)
+		const uint8_t truncatedTeidPresent[] = { 0x48, 0x20, 0x00, 0x08, 0xde, 0xad, 0xbe, 0xef };
+		PTF_ASSERT_FALSE(pcpp::GtpV2Layer::isDataValid(truncatedTeidPresent, sizeof(truncatedTeidPresent)));
+
+		// the same header with the 4-byte sequence word present (12 bytes) is accepted
+		const uint8_t fullTeidPresent[] = { 0x48, 0x20, 0x00, 0x0c, 0xde, 0xad, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00 };
+		PTF_ASSERT_TRUE(pcpp::GtpV2Layer::isDataValid(fullTeidPresent, sizeof(fullTeidPresent)));
 	}
 }  // GtpV2LayerParsingTest
 

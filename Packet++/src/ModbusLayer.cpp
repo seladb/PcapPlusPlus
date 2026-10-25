@@ -9,12 +9,10 @@ namespace pcpp
 {
 	ModbusLayer::ModbusLayer(uint16_t transactionId, uint8_t unitId)
 	{
-		const int16_t pduSize = sizeof(ModbusReadInputRegisters);  // Currently only supporting Read Input Registers
-		const size_t headerLen = sizeof(modbus_header);
+		constexpr int16_t pduSize = sizeof(ModbusReadInputRegisters);  // Currently only supporting Read Input Registers
+		constexpr size_t headerLen = sizeof(modbus_header);
 
-		m_DataLen = headerLen + pduSize;
-		m_Data = new uint8_t[m_DataLen]{};
-		memset(m_Data, 0, m_DataLen);
+		allocData(headerLen + pduSize);
 
 		// Initialize the header fields to default values
 		modbus_header* header = getModbusHeader();
@@ -98,5 +96,47 @@ namespace pcpp
 		       ", Protocol ID: " + std::to_string(getProtocolId()) + ", Length: " + std::to_string(getLength()) +
 		       ", Unit ID: " + std::to_string(getUnitId()) +
 		       ", Function Code: " + std::to_string(static_cast<uint8_t>(getFunctionCode()));
+	}
+
+	static constexpr const char* functionCodeToString(ModbusLayer::ModbusFunctionCode functionCode)
+	{
+		switch (functionCode)
+		{
+		case ModbusLayer::ModbusFunctionCode::ReadCoils:
+			return "ReadCoils";
+		case ModbusLayer::ModbusFunctionCode::ReadDiscreteInputs:
+			return "ReadDiscreteInputs";
+		case ModbusLayer::ModbusFunctionCode::ReadHoldingRegisters:
+			return "ReadHoldingRegisters";
+		case ModbusLayer::ModbusFunctionCode::ReadInputRegisters:
+			return "ReadInputRegisters";
+		case ModbusLayer::ModbusFunctionCode::WriteSingleCoil:
+			return "WriteSingleCoil";
+		case ModbusLayer::ModbusFunctionCode::WriteSingleHoldingRegister:
+			return "WriteSingleHoldingRegister";
+		case ModbusLayer::ModbusFunctionCode::WriteMultipleCoils:
+			return "WriteMultipleCoils";
+		case ModbusLayer::ModbusFunctionCode::WriteMultipleHoldingRegisters:
+			return "WriteMultipleHoldingRegisters";
+		case ModbusLayer::ModbusFunctionCode::ReadSlaveId:
+			return "ReadSlaveId";
+		default:
+			return "UnknownFunction";
+		}
+	}
+
+	const FieldDescriptor ModbusLayer::SerializedFields::TransactionID{ Layer::SerializedFields::MaxID + 1,
+		                                                                "transactionID" };
+	const FieldDescriptor ModbusLayer::SerializedFields::ProtocolID{ Layer::SerializedFields::MaxID + 2, "protocolID" };
+	const FieldDescriptor ModbusLayer::SerializedFields::UnitID{ Layer::SerializedFields::MaxID + 3, "unitID" };
+	const FieldDescriptor ModbusLayer::SerializedFields::FunctionCode{ Layer::SerializedFields::MaxID + 4,
+		                                                               "functionCode" };
+
+	void ModbusLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::TransactionID, getTransactionId());
+		serializer.writeField(SerializedFields::ProtocolID, getProtocolId());
+		serializer.writeField(SerializedFields::UnitID, getUnitId());
+		serializer.writeField(SerializedFields::FunctionCode, functionCodeToString(getFunctionCode()));
 	}
 }  // namespace pcpp

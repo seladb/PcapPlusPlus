@@ -247,8 +247,8 @@ namespace pcpp
 		Asn1SequenceRecord rootRecord(rootSubRecords);
 
 		auto encodedData = rootRecord.encode();
-		m_DataLen = encodedData.size();
-		m_Data = new uint8_t[m_DataLen];
+		// No need to zero-init as we will overwrite it anyway.
+		allocData(encodedData.size(), false);
 		std::copy(encodedData.begin(), encodedData.end(), m_Data);
 		m_Protocol = LDAP;
 		m_Asn1Record = Asn1Record::decode(m_Data, m_DataLen, true);

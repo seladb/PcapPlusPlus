@@ -16,9 +16,7 @@ namespace pcpp
 	EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t etherType) : Layer()
 	{
 		const size_t headerLen = sizeof(ether_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		ether_header* ethHdr = getEthHeader();
 		destMac.copyTo(ethHdr->dstMac);
@@ -116,5 +114,19 @@ namespace pcpp
 		{
 			return false;
 		}
+	}
+
+	const FieldDescriptor EthLayer::SerializedFields::SrcMacAddress{ Layer::SerializedFields::MaxID + 1,
+		                                                             "srcMacAddress" };
+	const FieldDescriptor EthLayer::SerializedFields::DstMacAddress{ Layer::SerializedFields::MaxID + 2,
+		                                                             "dstMacAddress" };
+	const FieldDescriptor EthLayer::SerializedFields::EtherType{ Layer::SerializedFields::MaxID + 3, "etherType" };
+
+	void EthLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getEthHeader();
+		serializer.writeField(SerializedFields::SrcMacAddress, getSourceMac().toString());
+		serializer.writeField(SerializedFields::DstMacAddress, getDestMac().toString());
+		serializer.writeField(SerializedFields::EtherType, be16toh(header->etherType));
 	}
 }  // namespace pcpp

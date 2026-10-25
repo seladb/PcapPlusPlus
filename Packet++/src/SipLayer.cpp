@@ -272,6 +272,7 @@ namespace pcpp
 		m_FirstLineEndOffset = firstLine.length();
 		m_VersionOffset = m_UriOffset + uri.length() + 6;
 
+		// TODO: AllocData.
 		m_SipRequest->m_DataLen = firstLine.length();
 		m_SipRequest->m_Data = new uint8_t[m_SipRequest->m_DataLen];
 		memcpy(m_SipRequest->m_Data, firstLine.c_str(), m_SipRequest->m_DataLen);
@@ -460,8 +461,7 @@ namespace pcpp
 
 		if (lengthDifference != 0)
 		{
-			m_SipRequest->shiftFieldsOffset(m_SipRequest->getFirstField(), lengthDifference);
-			m_SipRequest->m_FieldsOffset += lengthDifference;
+			m_SipRequest->shiftFieldsOffset(lengthDifference);
 		}
 
 		memcpy(m_SipRequest->m_Data, SipMethodEnumToString[newMethod].c_str(),
@@ -498,10 +498,10 @@ namespace pcpp
 
 		// extend or shorten layer
 		std::string currentUri = getUri();
-		int lengthDifference = newUri.length() - currentUri.length();
+		int lengthDifference = static_cast<int>(newUri.length()) - static_cast<int>(currentUri.length());
 		if (lengthDifference > 0)
 		{
-			if (!m_SipRequest->extendLayer(m_UriOffset, lengthDifference))
+			if (!m_SipRequest->extendLayer(m_UriOffset, static_cast<size_t>(lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -509,7 +509,7 @@ namespace pcpp
 		}
 		else if (lengthDifference < 0)
 		{
-			if (!m_SipRequest->shortenLayer(m_UriOffset, 0 - lengthDifference))
+			if (!m_SipRequest->shortenLayer(m_UriOffset, static_cast<size_t>(-lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -518,8 +518,7 @@ namespace pcpp
 
 		if (lengthDifference != 0)
 		{
-			m_SipRequest->shiftFieldsOffset(m_SipRequest->getFirstField(), lengthDifference);
-			m_SipRequest->m_FieldsOffset += lengthDifference;
+			m_SipRequest->shiftFieldsOffset(lengthDifference);
 		}
 
 		memcpy(m_SipRequest->m_Data + m_UriOffset, newUri.c_str(), newUri.length());
@@ -536,7 +535,7 @@ namespace pcpp
 	    : SipLayer(data, dataLen, prevLayer, packet, SIPRequest)
 	{
 		m_FirstLine = new SipRequestFirstLine(this);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 		parseFields();
 	}
 
@@ -544,7 +543,7 @@ namespace pcpp
 	{
 		m_Protocol = SIPRequest;
 		m_FirstLine = new SipRequestFirstLine(this, method, version, requestUri);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 	}
 
 	SipRequestLayer::SipRequestLayer(const SipRequestLayer& other) : SipLayer(other)
@@ -554,6 +553,11 @@ namespace pcpp
 
 	SipRequestLayer& SipRequestLayer::operator=(const SipRequestLayer& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		SipLayer::operator=(other);
 
 		if (m_FirstLine != nullptr)
@@ -877,7 +881,7 @@ namespace pcpp
 	    : SipLayer(data, dataLen, prevLayer, packet, SIPResponse)
 	{
 		m_FirstLine = new SipResponseFirstLine(this);
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 		parseFields();
 	}
 
@@ -886,7 +890,7 @@ namespace pcpp
 	{
 		m_Protocol = SIPResponse;
 		m_FirstLine = new SipResponseFirstLine(this, sipVersion, statusCode, std::move(statusCodeString));
-		m_FieldsOffset = m_FirstLine->getSize();
+		setFieldsOffset(m_FirstLine->getSize());
 	}
 
 	SipResponseLayer::~SipResponseLayer()
@@ -901,6 +905,11 @@ namespace pcpp
 
 	SipResponseLayer& SipResponseLayer::operator=(const SipResponseLayer& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		SipLayer::operator=(other);
 
 		if (m_FirstLine != nullptr)
@@ -982,11 +991,12 @@ namespace pcpp
 		size_t statusStringOffset = 12;
 		if (statusCodeString == "")
 			statusCodeString = StatusCodeEnumToString[newStatusCode];
-		int lengthDifference = statusCodeString.length() - getStatusCodeString().length();
+		int lengthDifference =
+		    static_cast<int>(statusCodeString.length()) - static_cast<int>(getStatusCodeString().length());
 
 		if (lengthDifference > 0)
 		{
-			if (!m_SipResponse->extendLayer(statusStringOffset, lengthDifference))
+			if (!m_SipResponse->extendLayer(statusStringOffset, static_cast<size_t>(lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -994,7 +1004,7 @@ namespace pcpp
 		}
 		else if (lengthDifference < 0)
 		{
-			if (!m_SipResponse->shortenLayer(statusStringOffset, 0 - lengthDifference))
+			if (!m_SipResponse->shortenLayer(statusStringOffset, static_cast<size_t>(-lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -1003,8 +1013,7 @@ namespace pcpp
 
 		if (lengthDifference != 0)
 		{
-			m_SipResponse->shiftFieldsOffset(m_SipResponse->getFirstField(), lengthDifference);
-			m_SipResponse->m_FieldsOffset += lengthDifference;
+			m_SipResponse->shiftFieldsOffset(lengthDifference);
 		}
 
 		// copy status string
@@ -1118,6 +1127,7 @@ namespace pcpp
 
 		m_FirstLineEndOffset = firstLine.length();
 
+		// TODO: Alloc Data.
 		m_SipResponse->m_DataLen = firstLine.length();
 		m_SipResponse->m_Data = new uint8_t[m_SipResponse->m_DataLen];
 		memcpy(m_SipResponse->m_Data, firstLine.c_str(), m_SipResponse->m_DataLen);

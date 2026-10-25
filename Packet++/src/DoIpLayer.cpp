@@ -191,9 +191,8 @@ namespace pcpp
 
 	DoIpLayer::DoIpLayer(size_t length)
 	{
-		m_DataLen = length;
 		m_Protocol = DOIP;
-		m_Data = new uint8_t[m_DataLen]{};
+		allocData(length);
 	}
 
 	DoIpLayer::DoIpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -1249,7 +1248,7 @@ namespace pcpp
 
 	DoIpDiagnosticMessageAck::DoIpDiagnosticMessageAck(uint16_t sourceAddress, uint16_t targetAddress,
 	                                                   DoIpDiagnosticAckCodes ackCode)
-	    : DoIpDiagnosticResponseMessageBase(sourceAddress, targetAddress, getPayloadType())
+	    : DoIpDiagnosticResponseMessageBase(sourceAddress, targetAddress, DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_ACK)
 	{
 		setAckCode(ackCode);
 	}
@@ -1292,7 +1291,7 @@ namespace pcpp
 
 	DoIpDiagnosticMessageNack::DoIpDiagnosticMessageNack(uint16_t sourceAddress, uint16_t targetAddress,
 	                                                     DoIpDiagnosticMessageNackCodes nackCode)
-	    : DoIpDiagnosticResponseMessageBase(sourceAddress, targetAddress, getPayloadType())
+	    : DoIpDiagnosticResponseMessageBase(sourceAddress, targetAddress, DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NACK)
 	{
 		setNackCode(nackCode);
 	}

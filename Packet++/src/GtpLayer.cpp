@@ -12,7 +12,7 @@
 namespace pcpp
 {
 
-#define PCPP_GTP_V1_GPDU_MESSAGE_TYPE 0xff
+	constexpr uint8_t GtpV1GpduMessageType = 0xff;
 
 	/// ==================
 	/// GtpExtension class
@@ -169,9 +169,7 @@ namespace pcpp
 			dataLen += sizeof(gtpv1_header_extra);
 		}
 
-		m_DataLen = dataLen;
-		m_Data = new uint8_t[dataLen];
-		memset(m_Data, 0, dataLen);
+		allocData(dataLen);
 		m_Protocol = GTPv1;
 
 		gtpv1_header* hdr = getHeader();
@@ -392,7 +390,9 @@ namespace pcpp
 		}
 
 		// lastExt != null means layer contains 1 or more extensions
-		if (!lastExt.isNull())
+		const bool hadExtension = !lastExt.isNull();
+
+		if (hadExtension)
 		{
 			// add ext total length to offset
 			offsetForNewExtension += lastExt.getTotalLength();
@@ -405,11 +405,17 @@ namespace pcpp
 			return {};
 		}
 
-		// lastExt != null means layer contains 1 or more extensions
-		if (!lastExt.isNull())
+		// extendLayer() may have reallocated the packet buffer, so lastExt is no longer valid.
+		// Re-walk the extension chain in the current buffer before linking the new extension.
+		if (hadExtension)
 		{
-			// set the next header type in the last extension
-			lastExt.setNextHeaderType(extensionType);
+			GtpV1Layer::GtpExtension refreshedLastExt = getNextExtension();
+			while (!refreshedLastExt.getNextExtension().isNull())
+			{
+				refreshedLastExt = refreshedLastExt.getNextExtension();
+			}
+
+			refreshedLastExt.setNextHeaderType(extensionType);
 		}
 		else
 		{
@@ -545,7 +551,7 @@ namespace pcpp
 			return false;
 		}
 
-		return header->messageType == PCPP_GTP_V1_GPDU_MESSAGE_TYPE;
+		return header->messageType == GtpV1GpduMessageType;
 	}
 
 	bool GtpV1Layer::isGTPCMessage() const
@@ -556,7 +562,7 @@ namespace pcpp
 			return false;
 		}
 
-		return header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE;
+		return header->messageType != GtpV1GpduMessageType;
 	}
 
 	void GtpV1Layer::parseNextLayer()
@@ -569,7 +575,7 @@ namespace pcpp
 		}
 
 		gtpv1_header* header = getHeader();
-		if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+		if (header->messageType != GtpV1GpduMessageType)
 		{
 			// this is a GTP-C message, hence it is the last layer
 			return;
@@ -611,7 +617,7 @@ namespace pcpp
 
 		size_t res = sizeof(gtpv1_header);
 
-		if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+		if (header->messageType != GtpV1GpduMessageType)
 		{
 			size_t msgLen = be16toh(header->messageLength);
 			res += (msgLen > m_DataLen - sizeof(gtpv1_header) ? m_DataLen - sizeof(gtpv1_header) : msgLen);
@@ -646,7 +652,7 @@ namespace pcpp
 			teidStream << be32toh(header->teid);
 
 			std::string gtpu_gtpc;
-			if (header->messageType == PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+			if (header->messageType == GtpV1GpduMessageType)
 			{
 				gtpu_gtpc = "GTP-U message";
 			}
@@ -985,9 +991,7 @@ namespace pcpp
 	{
 		size_t messageLength = sizeof(uint32_t) + (setTeid ? sizeof(uint32_t) : 0);
 		size_t headerLen = sizeof(gtpv2_basic_header) + messageLength;
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(headerLen);
 
 		auto* hdr = getHeader();
 		hdr->version = 2;
@@ -1027,6 +1031,14 @@ namespace pcpp
 		auto* header = reinterpret_cast<const gtpv2_basic_header*>(data);
 
 		if (header->version != 2)
+		{
+			return false;
+		}
+
+		// When the TEID-present flag is set, the fixed header carries the 4-byte TEID before
+		// the sequence-number word, so the minimum length grows accordingly. Without this
+		// check accessors such as getSequenceNumber() would read past the buffer (GH #2171).
+		if (header->teidPresent && dataSize < sizeof(gtpv2_basic_header) + 2 * sizeof(uint32_t))
 		{
 			return false;
 		}

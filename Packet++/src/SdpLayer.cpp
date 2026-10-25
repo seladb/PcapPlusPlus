@@ -21,22 +21,23 @@ namespace pcpp
 	SdpLayer::SdpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, SDP)
 	{
-		m_FieldsOffset = 0;
+		setFieldsOffset(0);
 		parseFields();
 	}
 
 	SdpLayer::SdpLayer()
 	{
 		m_Protocol = SDP;
-		m_FieldsOffset = 0;
+		setFieldsOffset(0);
 	}
 
 	SdpLayer::SdpLayer(const std::string& username, long sessionID, long sessionVersion, IPv4Address ipAddress,
 	                   const std::string& sessionName, long startTime, long stopTime)
 	{
 		m_Protocol = SDP;
-		m_FieldsOffset = 0;
+		setFieldsOffset(0);
 
+		// TODO: Fix this to work with allocData.
 		// must initialize m_Data otherwise addField() will fail while trying to extend the layer
 		// initializing in length of 1 but keeping m_DataLen with value of 0.
 		// when extending the field m_Data is purged so there isn't a memory leak here

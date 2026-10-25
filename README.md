@@ -18,7 +18,7 @@
 
 PcapPlusPlus enables decoding and forging capabilities for a large variety of network protocols. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
 
-Translations: English · [正體中文](./translation/README-zh-tw.md) · [한국어](./translation/README-kor.md)
+Translations: English · [正體中文](./translation/README-zh-tw.md) · [한국어](./translation/README-kor.md) · [日本語](./translation/README-ja.md) · [Русский](./translation/README-rus.md)
 
 ## Table Of Contents
 
@@ -253,44 +253,46 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 27. COTP
 28. GTP (v1 & v2)
 29. IPSec AH & ESP - parsing only (no editing capabilities)
-30. TCP
-31. TPKT
-32. UDP
+30. QUIC v1 - parsing only (no editing capabilities)
+31. TCP
+32. TPKT
+33. UDP
 
 ### Session Layer (L5)
 
-33. SDP
-34. SIP
+34. SDP
+35. SIP
 
 ### Presentation Layer (L6)
 
-35. SSL/TLS - parsing only (no editing capabilities)
+36. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-36. ASN.1 decoder and encoder
-37. BGP (v4)
+37. ASN.1 decoder and encoder
+38. BGP (v4)
 38. Cryptographic key decoders
-39. DHCP
-40. DHCPv6
-41. DNS
-42. DoIP
-43. FTP
-44. HTTP headers (request & response)
-45. LDAP
-46. Modbus
-47. MySQL - parsing only (no editing capabilities)
-48. NTP (v3, v4)
-49. PEM decoder and encoder
-50. PostgreSQL Wire Protocol (PGWire) - parsing only (no editing capabilities)
-51. Radius
-52. S7 Communication (S7comm)
-53. SMTP
-54. SOME/IP
-55. SSH - parsing only (no editing capabilities)
-56. Telnet - parsing only (no editing capabilities)
-57. X509 certificates - parsing only (no editing capabilities)
-58. Generic payload
+40. DHCP
+41. DHCPv6
+42. DNS
+43. DoIP
+44. FTP
+45. GVCP
+46. HTTP headers (request & response)
+47. LDAP
+48. Modbus
+49. MySQL - parsing only (no editing capabilities)
+50. NTP (v3, v4)
+51. PEM decoder and encoder
+52. PostgreSQL Wire Protocol (PGWire) - parsing only (no editing capabilities)
+53. Radius
+54. S7 Communication (S7comm)
+55. SMTP
+56. SOME/IP
+57. SSH - parsing only (no editing capabilities)
+58. Telnet - parsing only (no editing capabilities)
+59. X509 certificates - parsing only (no editing capabilities)
+60. Generic payload
 
 ## DPDK And PF_RING Support
 

@@ -19,7 +19,7 @@
 
 PcapPlusPlus는 다양한 네트워크 프로토콜을 디코딩하고 생성할 수 있는 기능을 제공하며, [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html), [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 등과 같은 유용한 패킷 처리 엔진을 위한 손쉬운 C++ 래퍼를 지원합니다.
 
-번역: [English](../README.md) · [正體中文](./README-zh-tw.md) · 한국어
+번역: [English](../README.md) · [正體中文](./README-zh-tw.md) · 한국어 · [日本語](./README-ja.md) · [Русский](./README-rus.md)
 
 ## 목차
 
@@ -102,7 +102,7 @@ PcapPlusPlus 웹사이트의 [소스에서 빌드](https://pcapplusplus.github.i
 
 ### 패키지 검증
 
-v23.09 이상의 PcapPlusPlus 릴리스는 GitHub 증명을 통해 서명됩니다. 모든 증명은 [여기](https://github.com/seladb/PcapPlusPlus/attestations)에서 확인할 수 있습니다. GitHub CLI를 통해 이러한 패키지의 증명을 검증할 수 있습니다. 패키지 검증을 위해 다음 명령어를 사용할 수 있습니다:
+v23.09 이상의 PcapPlusPlus 릴리스는 GitHub 증명을 통해 서명됩니다. 모든 증명은 [여기](https://github.com/seladb/PcapPlusPlus/attestations)에서 확인할 수 있습니다. GitHub CLI를 통해 이러한 패키지의 증명을 검증할 수 있습니다. 패키지를 검증하려면 [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify)의 최신 지침을 따르세요. 간단한 지침으로는 다음 명령어를 사용할 수 있습니다:
 
 ```shell
 gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
         pcpp::IPv4Address destIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address();
 
         // 소스 및 대상 IP 출력
-        std::cout << "Source IP is '" << srcIP << "'; Dest IP is '" << destIP << "'" << std::endl;
+        std::cout << "소스 IP: '" << srcIP << "'; 대상 IP: '" << destIP << "'" << std::endl;
     }
 
     // 파일 닫기
@@ -253,44 +253,46 @@ PcapPlusPlus는 현재 다음 프로토콜의 패킷을 파싱, 편집 및 생�
 27. COTP
 28. GTP (v1 & v2)
 29. IPSec AH & ESP - 파싱만 가능 (편집 불가)
-30. TCP
-31. TPKT
-32. UDP
+30. QUIC v1 - 파싱만 가능 (편집 불가)
+31. TCP
+32. TPKT
+33. UDP
 
 ### 세션 계층 (L5)
 
-33. SDP
-34. SIP
+34. SDP
+35. SIP
 
 ### 프레젠테이션 계층 (L6)
 
-35. SSL/TLS - 파싱만 가능 (편집 불가)
+36. SSL/TLS - 파싱만 가능 (편집 불가)
 
 ### 응용 계층 (L7)
 
-36. ASN.1 인코더 및 디코더
-37. BGP (v4)
-38. 암호화 키 디코더
-39. DHCP
-40. DHCPv6
-41. DNS
-42. DoIP
-43. FTP
-44. HTTP 헤더 (요청 및 응답)
-45. LDAP
-46. Modbus
-47. MySQL - 파싱만 가능 (편집 불가)
-48. NTP (v3, v4)
-49. PEM 인코더 및 디코더
-50. PostgreSQL Wire Protocol (PGWire) - 파싱만 가능 (편집 불가)
-51. Radius
-52. S7 Communication (S7comm)
-53. SMTP
-54. SOME/IP
-55. SSH - 파싱만 가능 (편집 불가)
-56. Telnet - 파싱만 가능 (편집 불가)
-57. X509 인증서 - 파싱만 가능 (편집 불가)
-58. 일반 페이로드
+37. ASN.1 인코더 및 디코더
+38. BGP (v4)
+39. 암호화 키 디코더
+40. DHCP
+41. DHCPv6
+42. DNS
+43. DoIP
+44. FTP
+45. GVCP
+46. HTTP 헤더 (요청 및 응답)
+47. LDAP
+48. Modbus
+49. MySQL - 파싱만 가능 (편집 불가)
+50. NTP (v3, v4)
+51. PEM 인코더 및 디코더
+52. PostgreSQL Wire Protocol (PGWire) - 파싱만 가능 (편집 불가)
+53. Radius
+54. S7 Communication (S7comm)
+55. SMTP
+56. SOME/IP
+57. SSH - 파싱만 가능 (편집 불가)
+58. Telnet - 파싱만 가능 (편집 불가)
+59. X509 인증서 - 파싱만 가능 (편집 불가)
+60. 일반 페이로드
 
 ## DPDK 및 PF_RING 지원
 

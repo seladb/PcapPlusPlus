@@ -1,7 +1,7 @@
 # We need 3.12 or later, so that we can set policy CMP0074; see below.
 cmake_minimum_required(VERSION 3.12)
 
-set(PCAPPP_VERSION "25.05+")
+set(PCAPPP_VERSION "26.07")
 
 # MAIN_PROJECT CHECK
 set(PCAPPP_MAIN_PROJECT OFF)
@@ -34,8 +34,9 @@ target_architecture(PCAPP_TARGET_ARCHITECTURE)
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
   message(STATUS "Ccache found!")
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
+  message(VERBOSE "Ccache program: ${CCACHE_PROGRAM}")
+  set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
 else()
   message(STATUS "Ccache not found!")
 endif()
@@ -288,6 +289,14 @@ if(PCAPPP_BUILD_PCAPPP)
     if(NOT BPF_FOUND)
       message(FATAL_ERROR "libbpf not found!")
     endif()
+    # xsk.h moved from libbpf to libxdp at libpf version 1.0
+    find_file(XSK_H_FILE "bpf/xsk.h" PATHS ${BPF_INCLUDE_DIRS})
+    if(NOT XSK_H_FILE)
+      find_package(XDP)
+      if(NOT XDP_FOUND)
+        message(FATAL_ERROR "libxdp not found!")
+      endif()
+    endif()
     add_definitions(-DUSE_XDP)
   endif()
 
@@ -403,6 +412,17 @@ if(PCAPPP_INSTALL)
   if(PCAPPP_USE_DPDK)
     pcapp_install_cmake_module(DPDK)
     pcapp_install_cmake_module(NUMA)
+  endif()
+
+  if(PCAPPP_USE_XDP)
+    pcapp_install_cmake_module(BPF)
+    if(XDP_FOUND)
+      pcapp_install_cmake_module(XDP)
+    endif()
+  endif()
+
+  if(PCAPPP_USE_WINDIVERT)
+    pcapp_install_cmake_module(WinDivert)
   endif()
 
   if(LIGHT_PCAPNG_ZSTD)

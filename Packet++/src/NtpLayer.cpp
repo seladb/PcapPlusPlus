@@ -6,20 +6,17 @@
 #include "GeneralUtils.h"
 #include <cmath>
 
-/// 2^16 as a double
-#define NTP_FRIC 65536.
-/// 2^32 as a double
-#define NTP_FRAC 4294967296.
-/// Epoch offset between Unix time and NTP
-#define EPOCH_OFFSET 2208988800ULL
-
 namespace pcpp
 {
+	/// 2^16 as a double
+	constexpr double NtpFraction16Scale = 65536.;
+	/// 2^32 as a double
+	constexpr double NtpFraction32Scale = 4294967296.;
+	/// Epoch offset between Unix time and NTP
+	constexpr uint64_t NtpEpochOffset = 2208988800ULL;
 	NtpLayer::NtpLayer()
 	{
-		m_DataLen = sizeof(ntp_header);
-		m_Data = new uint8_t[sizeof(ntp_header)];
-		memset(m_Data, 0, sizeof(ntp_header));
+		allocData(sizeof(ntp_header));
 		m_Protocol = NTP;
 	}
 
@@ -541,7 +538,7 @@ namespace pcpp
 	double NtpLayer::convertFromShortFormat(const uint32_t val)
 	{
 		double integerPart = netToHost16(val & 0xFFFF);
-		double fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NTP_FRIC;
+		double fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NtpFraction16Scale;
 
 		return integerPart + fractionPart;
 	}
@@ -549,11 +546,11 @@ namespace pcpp
 	double NtpLayer::convertFromTimestampFormat(const uint64_t val)
 	{
 		double integerPart = netToHost32(val & 0xFFFFFFFF);
-		double fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
+		double fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NtpFraction32Scale;
 
 		// TODO: Return integer and fraction parts as struct to increase precision
 		// Offset change should be done here because of overflow
-		return integerPart + fractionPart - EPOCH_OFFSET;
+		return integerPart + fractionPart - NtpEpochOffset;
 	}
 
 	uint32_t NtpLayer::convertToShortFormat(const double val)
@@ -563,7 +560,7 @@ namespace pcpp
 
 		// Cast values to 16bit
 		uint32_t integerPartInt = hostToNet16(integerPart);
-		uint32_t fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
+		uint32_t fractionPartInt = hostToNet16(fractionPart * NtpFraction16Scale);
 
 		return integerPartInt | (fractionPartInt << 16);
 	}
@@ -574,8 +571,8 @@ namespace pcpp
 		double fractionPart = modf(val, &integerPart);
 
 		// Cast values to 32bit
-		uint64_t integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
-		uint64_t fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
+		uint64_t integerPartInt = hostToNet32(integerPart + NtpEpochOffset);
+		uint64_t fractionPartInt = hostToNet32(fractionPart * NtpFraction32Scale);
 
 		return integerPartInt | (fractionPartInt << 32);
 	}
@@ -620,6 +617,73 @@ namespace pcpp
 	bool NtpLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		return data && dataSize >= sizeof(ntp_header);
+	}
+
+	const FieldDescriptor NtpLayer::SerializedFields::LeapIndicator{ Layer::SerializedFields::MaxID + 1,
+		                                                             "leapIndicator" };
+	const FieldDescriptor NtpLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 2, "version" };
+	const FieldDescriptor NtpLayer::SerializedFields::Mode{ Layer::SerializedFields::MaxID + 3, "mode" };
+	const FieldDescriptor NtpLayer::SerializedFields::ModeName{ Layer::SerializedFields::MaxID + 4, "modeName" };
+	const FieldDescriptor NtpLayer::SerializedFields::Stratum{ Layer::SerializedFields::MaxID + 5, "stratum" };
+	const FieldDescriptor NtpLayer::SerializedFields::PollInterval{ Layer::SerializedFields::MaxID + 6,
+		                                                            "pollInterval" };
+	const FieldDescriptor NtpLayer::SerializedFields::Precision{ Layer::SerializedFields::MaxID + 7, "precision" };
+	const FieldDescriptor NtpLayer::SerializedFields::RootDelay{ Layer::SerializedFields::MaxID + 8, "rootDelay" };
+	const FieldDescriptor NtpLayer::SerializedFields::RootDispersion{ Layer::SerializedFields::MaxID + 9,
+		                                                              "rootDispersion" };
+	const FieldDescriptor NtpLayer::SerializedFields::ReferenceIdentifier{ Layer::SerializedFields::MaxID + 10,
+		                                                                   "referenceIdentifier" };
+	const FieldDescriptor NtpLayer::SerializedFields::ReferenceTimestamp{ Layer::SerializedFields::MaxID + 11,
+		                                                                  "referenceTimestamp" };
+	const FieldDescriptor NtpLayer::SerializedFields::OriginTimestamp{ Layer::SerializedFields::MaxID + 12,
+		                                                               "originTimestamp" };
+	const FieldDescriptor NtpLayer::SerializedFields::ReceiveTimestamp{ Layer::SerializedFields::MaxID + 13,
+		                                                                "receiveTimestamp" };
+	const FieldDescriptor NtpLayer::SerializedFields::TransmitTimestamp{ Layer::SerializedFields::MaxID + 14,
+		                                                                 "transmitTimestamp" };
+
+	const FieldDescriptor NtpLayer::SerializedFields::KeyID{ Layer::SerializedFields::MaxID + 15, "keyID" };
+	const FieldDescriptor NtpLayer::SerializedFields::Digest{ Layer::SerializedFields::MaxID + 16, "digest" };
+
+	static constexpr const char* leapIndicatorToString(NtpLayer::LeapIndicator indicator)
+	{
+		switch (indicator)
+		{
+		case NtpLayer::NoWarning:
+			return "No warning";
+		case NtpLayer::Last61Secs:
+			return "Last minute has 61 seconds";
+		case NtpLayer::Last59Secs:
+			return "Last minute has 59 seconds";
+		default:
+			return "Unknown";
+		}
+	}
+
+	void NtpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::LeapIndicator, leapIndicatorToString(getLeapIndicator()));
+		serializer.writeField(SerializedFields::Version, getVersion());
+		serializer.writeField(SerializedFields::Mode, static_cast<uint8_t>(getMode()));
+		serializer.writeField(SerializedFields::ModeName, getModeString());
+		serializer.writeField(SerializedFields::Stratum, getStratum());
+		serializer.writeField(SerializedFields::PollInterval, getPollInterval());
+		serializer.writeField(SerializedFields::Precision, getPrecision());
+		serializer.writeField(SerializedFields::RootDelay, netToHost32(getRootDelay()));
+		serializer.writeField(SerializedFields::RootDispersion, netToHost32(getRootDispersion()));
+		serializer.writeHexField(SerializedFields::ReferenceIdentifier, netToHost32(getReferenceIdentifier()));
+		serializer.writeField(SerializedFields::ReferenceTimestamp, convertToIsoFormat(getReferenceTimestamp()));
+		serializer.writeField(SerializedFields::OriginTimestamp, convertToIsoFormat(getOriginTimestamp()));
+		serializer.writeField(SerializedFields::ReceiveTimestamp, convertToIsoFormat(getReceiveTimestamp()));
+		serializer.writeField(SerializedFields::TransmitTimestamp, convertToIsoFormat(getTransmitTimestamp()));
+		// Match the authentication formats supported by getKeyID() and getDigest().
+		if ((getVersion() == 3 && m_DataLen >= sizeof(ntp_header) + sizeof(ntp_v3_auth)) ||
+		    (getVersion() == 4 && (m_DataLen == sizeof(ntp_header) + sizeof(ntp_v4_auth_md5) ||
+		                           m_DataLen == sizeof(ntp_header) + sizeof(ntp_v4_auth_sha1))))
+		{
+			serializer.writeField(SerializedFields::KeyID, netToHost32(getKeyID()));
+			serializer.writeField(SerializedFields::Digest, getDigest());
+		}
 	}
 
 	std::string NtpLayer::toString() const

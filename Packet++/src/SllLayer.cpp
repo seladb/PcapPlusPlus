@@ -10,16 +10,15 @@
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
 #include "EndianPortable.h"
+#include "GeneralUtils.h"
 
 namespace pcpp
 {
 
 	SllLayer::SllLayer(uint16_t packetType, uint16_t ARPHRDType)
 	{
-		const size_t headerLen = sizeof(sll_header);
-		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, headerLen);
+		allocData(sizeof(sll_header));
+
 		auto* sllHdr = reinterpret_cast<sll_header*>(m_Data);
 		sllHdr->packet_type = htobe16(packetType);
 		sllHdr->ARPHRD_type = htobe16(ARPHRDType);
@@ -71,13 +70,13 @@ namespace pcpp
 		}
 		case PCPP_ETHERTYPE_ARP:
 		{
-			constructNextLayer<ArpLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<ArpLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		case PCPP_ETHERTYPE_VLAN:
 		case PCPP_ETHERTYPE_IEEE_802_1AD:
 		{
-			constructNextLayer<VlanLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<VlanLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		case PCPP_ETHERTYPE_PPPOES:
@@ -92,7 +91,7 @@ namespace pcpp
 		}
 		case PCPP_ETHERTYPE_MPLS:
 		{
-			constructNextLayer<MplsLayer>(payload, payloadLen);
+			tryConstructNextLayerWithFallback<MplsLayer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
 		default:
@@ -131,6 +130,25 @@ namespace pcpp
 	std::string SllLayer::toString() const
 	{
 		return "Linux cooked header";
+	}
+
+	const FieldDescriptor SllLayer::SerializedFields::PacketType{ Layer::SerializedFields::MaxID + 1, "packetType" };
+	const FieldDescriptor SllLayer::SerializedFields::ArpHeaderType{ Layer::SerializedFields::MaxID + 2,
+		                                                             "arpHeaderType" };
+	const FieldDescriptor SllLayer::SerializedFields::ProtocolType{ Layer::SerializedFields::MaxID + 3,
+		                                                            "protocolType" };
+	const FieldDescriptor SllLayer::SerializedFields::LinkLayerAddress{ Layer::SerializedFields::MaxID + 4,
+		                                                                "linkLayerAddress" };
+
+	void SllLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getSllHeader();
+		serializer.writeField(SerializedFields::PacketType, be16toh(header->packet_type));
+		serializer.writeField(SerializedFields::ArpHeaderType, be16toh(header->ARPHRD_type));
+		serializer.writeField(SerializedFields::ProtocolType, be16toh(header->protocol_type));
+		auto linkLayerAddrLen = (std::min)(be16toh(header->link_layer_addr_len), static_cast<uint16_t>(8));
+		serializer.writeField(SerializedFields::LinkLayerAddress,
+		                      byteArrayToHexString(header->link_layer_addr, linkLayerAddrLen));
 	}
 
 }  // namespace pcpp

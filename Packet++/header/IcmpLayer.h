@@ -612,6 +612,106 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by IcmpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for IcmpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Type,
+					                                          TypeName,
+					                                          Code,
+					                                          Checksum,
+					                                          Id,
+					                                          Sequence,
+					                                          Timestamp,
+					                                          OriginateTimestamp,
+					                                          ReceiveTimestamp,
+					                                          TransmitTimestamp,
+					                                          NextHopMTU,
+					                                          GatewayAddress,
+					                                          AddressMask,
+					                                          Pointer,
+					                                          AddressEntrySize,
+					                                          Lifetime,
+					                                          RouterAddresses };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief ICMP message type, as an integer
+			static const FieldDescriptor Type;
+
+			/// @brief ICMP message type, as a string
+			static const FieldDescriptor TypeName;
+
+			/// @brief ICMP message code, as an integer
+			static const FieldDescriptor Code;
+
+			/// @brief Checksum, in hexadecimal notation
+			static const FieldDescriptor Checksum;
+
+			/// @brief Identifier for echo, timestamp, information, and address mask request/reply messages, in host
+			/// byte order
+			static const FieldDescriptor Id;
+
+			/// @brief Sequence number for echo, timestamp, information, and address mask request/reply messages, in
+			/// host byte order
+			static const FieldDescriptor Sequence;
+
+			/// @brief Timestamp for echo request/reply messages
+			static const FieldDescriptor Timestamp;
+
+			/// @brief Originate timestamp for timestamp request/reply messages (milliseconds since midnight UTC), in
+			/// host byte order
+			static const FieldDescriptor OriginateTimestamp;
+
+			/// @brief Receive timestamp for timestamp request/reply messages (milliseconds since midnight UTC), in host
+			/// byte order
+			static const FieldDescriptor ReceiveTimestamp;
+
+			/// @brief Transmit timestamp for timestamp request/reply messages (milliseconds since midnight UTC), in
+			/// host byte order
+			static const FieldDescriptor TransmitTimestamp;
+
+			/// @brief Next-hop MTU for destination unreachable messages, in host byte order
+			static const FieldDescriptor NextHopMTU;
+
+			/// @brief Gateway IPv4 address for redirect messages, as a string
+			static const FieldDescriptor GatewayAddress;
+
+			/// @brief Subnet address mask for address mask request/reply messages, as a string
+			static const FieldDescriptor AddressMask;
+
+			/// @brief Pointer byte offset for parameter problem messages
+			static const FieldDescriptor Pointer;
+
+			/// @brief Number of 32-bit words per router address entry in router advertisement messages (typically 2)
+			static const FieldDescriptor AddressEntrySize;
+
+			/// @brief Router advertisement lifetime in seconds, in host byte order
+			static const FieldDescriptor Lifetime;
+
+			/// @brief Array of router addresses in router advertisement messages; elements described by
+			/// RouterAddressEntry
+			static const FieldDescriptor RouterAddresses;
+
+			/// @brief Router address entry descriptor; not included in all()
+			static const FieldDescriptor RouterAddressEntry;
+
+			/// @brief Router IPv4 address, as a string; element of RouterAddressEntry, not included in all()
+			static const FieldDescriptor RouterAddress;
+
+			/// @brief Preference level for the router address; element of RouterAddressEntry, not included in all()
+			static const FieldDescriptor PreferenceLevel;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	// implementation of inline methods
@@ -623,9 +723,13 @@ namespace pcpp
 
 		uint8_t type = data[0];
 
-		// ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, ICMP_ROUTER_SOL, ICMP_INFO_REQUEST, ICMP_INFO_REPLY
-		if (type == 8 || type == 0 || type == 10 || type == 15 || type == 16)
+		// ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, ICMP_ROUTER_SOL
+		if (type == 8 || type == 0 || type == 10)
 			return true;
+
+		// ICMP_INFO_REQUEST, ICMP_INFO_REPLY
+		if (type == 15 || type == 16)
+			return dataLen >= sizeof(icmp_info_request);
 
 		// ICMP_TIMESTAMP_REQUEST, ICMP_TIMESTAMP_REPLY
 		if (type == 13 || type == 14)

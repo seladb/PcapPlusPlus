@@ -108,9 +108,7 @@ namespace pcpp
 
 	void NDPNeighborSolicitationLayer::initLayer(uint8_t code, const IPv6Address& targetIP)
 	{
-		m_DataLen = sizeof(ndpneighborsolicitationhdr);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(ndpneighborsolicitationhdr));
 		m_Protocol = ICMPv6;
 
 		ndpneighborsolicitationhdr* pHdr = getNdpHeader();
@@ -167,9 +165,7 @@ namespace pcpp
 	void NDPNeighborAdvertisementLayer::initLayer(uint8_t code, const IPv6Address& targetIP, bool routerFlag,
 	                                              bool unicastFlag, bool overrideFlag)
 	{
-		m_DataLen = sizeof(ndpneighboradvertisementhdr);
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		allocData(sizeof(ndpneighboradvertisementhdr));
 		m_Protocol = ICMPv6;
 
 		ndpneighboradvertisementhdr* pHdr = getNdpHeader();
@@ -207,6 +203,86 @@ namespace pcpp
 		hasTargetMacInfo() ? typeStream << ", TargetMAC: " + getTargetMac().toString() : typeStream << ", no Option";
 
 		return typeStream.str();
+	}
+
+	static constexpr const char* ndpOptionTypeToString(NDPNeighborOptionTypes type)
+	{
+		switch (type)
+		{
+		case NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER:
+			return "SourceLinkLayer";
+		case NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER:
+			return "TargetLinkLayer";
+		case NDPNeighborOptionTypes::NDP_OPTION_PREFIX_INFORMATION:
+			return "PrefixInformation";
+		case NDPNeighborOptionTypes::NDP_OPTION_REDIRECTED_HEADER:
+			return "RedirectedHeader";
+		case NDPNeighborOptionTypes::NDP_OPTION_MTU:
+			return "MTU";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor NDPLayerBase::SerializedFields::Options{ IcmpV6Layer::SerializedFields::MaxID + 1,
+		                                                           "options" };
+	const FieldDescriptor NDPLayerBase::SerializedFields::Option{ 0, "option" };
+
+	void NDPLayerBase::serializeOptions(ObjectScope& serializer) const
+	{
+		auto options = serializer.writeArray(SerializedFields::Options);
+		for (auto option = getFirstNdpOption(); option.isNotNull(); option = getNextNdpOption(option))
+		{
+			options.writeField(SerializedFields::Option, ndpOptionTypeToString(option.getNdpOptionType()));
+		}
+	}
+
+	const FieldDescriptor NDPNeighborSolicitationLayer::SerializedFields::TargetIP{
+		NDPLayerBase::SerializedFields::MaxID + 1, "targetIP"
+	};
+	const FieldDescriptor NDPNeighborSolicitationLayer::SerializedFields::LinkLayerAddress{
+		NDPLayerBase::SerializedFields::MaxID + 2, "linkLayerAddress"
+	};
+
+	void NDPNeighborSolicitationLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		IcmpV6Layer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::TargetIP, getTargetIP().toString());
+		if (hasLinkLayerAddress())
+		{
+			serializer.writeField(SerializedFields::LinkLayerAddress, getLinkLayerAddress().toString());
+		}
+		serializeOptions(serializer);
+	}
+
+	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::TargetIP{
+		NDPLayerBase::SerializedFields::MaxID + 1, "targetIP"
+	};
+	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::RouterFlag{
+		NDPLayerBase::SerializedFields::MaxID + 2, "routerFlag"
+	};
+	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::UnicastFlag{
+		NDPLayerBase::SerializedFields::MaxID + 3, "unicastFlag"
+	};
+	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::OverrideFlag{
+		NDPLayerBase::SerializedFields::MaxID + 4, "overrideFlag"
+	};
+	const FieldDescriptor NDPNeighborAdvertisementLayer::SerializedFields::TargetMac{
+		NDPLayerBase::SerializedFields::MaxID + 5, "targetMac"
+	};
+
+	void NDPNeighborAdvertisementLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		IcmpV6Layer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::TargetIP, getTargetIP().toString());
+		serializer.writeField(SerializedFields::RouterFlag, getRouterFlag());
+		serializer.writeField(SerializedFields::UnicastFlag, getUnicastFlag());
+		serializer.writeField(SerializedFields::OverrideFlag, getOverrideFlag());
+		if (hasTargetMacInfo())
+		{
+			serializer.writeField(SerializedFields::TargetMac, getTargetMac().toString());
+		}
+		serializeOptions(serializer);
 	}
 
 }  // namespace pcpp

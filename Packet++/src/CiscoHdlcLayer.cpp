@@ -9,14 +9,13 @@
 namespace pcpp
 {
 
-// Protocol types for Cisco HDLC
-#define CISCO_HDLC_TYPE_IP 0x0800
-#define CISCO_HDLC_TYPE_IPV6 0x86DD
+	// Protocol types for Cisco HDLC
+	constexpr uint16_t CiscoHdlcTypeIp = 0x0800;
+	constexpr uint16_t CiscoHdlcTypeIpv6 = 0x86DD;
 
 	CiscoHdlcLayer::CiscoHdlcLayer(AddressType address)
 	{
-		m_DataLen = sizeof(cisco_hdlc_header);
-		m_Data = new uint8_t[m_DataLen]{};
+		allocData(sizeof(cisco_hdlc_header));
 
 		cisco_hdlc_header* hdlcHdr = getCiscoHdlcHeader();
 		hdlcHdr->address = static_cast<uint8_t>(address == AddressType::Unknown ? AddressType::Unicast : address);
@@ -31,12 +30,12 @@ namespace pcpp
 			{
 			case IPv4:
 			{
-				setNextProtocol(CISCO_HDLC_TYPE_IP);
+				setNextProtocol(CiscoHdlcTypeIp);
 				break;
 			}
 			case IPv6:
 			{
-				setNextProtocol(CISCO_HDLC_TYPE_IPV6);
+				setNextProtocol(CiscoHdlcTypeIpv6);
 				break;
 			}
 			}
@@ -52,12 +51,12 @@ namespace pcpp
 
 		switch (nextProtocol)
 		{
-		case CISCO_HDLC_TYPE_IP:
+		case CiscoHdlcTypeIp:
 		{
 			tryConstructNextLayerWithFallback<IPv4Layer, PayloadLayer>(payload, payloadLen);
 			break;
 		}
-		case CISCO_HDLC_TYPE_IPV6:
+		case CiscoHdlcTypeIpv6:
 		{
 			tryConstructNextLayerWithFallback<IPv6Layer, PayloadLayer>(payload, payloadLen);
 			break;
@@ -119,5 +118,28 @@ namespace pcpp
 	void CiscoHdlcLayer::setNextProtocol(uint16_t protocol)
 	{
 		getCiscoHdlcHeader()->protocol = htobe16(protocol);
+	}
+
+	const FieldDescriptor CiscoHdlcLayer::SerializedFields::Address{ Layer::SerializedFields::MaxID + 1, "address" };
+	const FieldDescriptor CiscoHdlcLayer::SerializedFields::NextProtocol{ Layer::SerializedFields::MaxID + 2,
+		                                                                  "nextProtocol" };
+
+	constexpr const char* getAddressTypeAsString(CiscoHdlcLayer::AddressType addressType)
+	{
+		switch (addressType)
+		{
+		case CiscoHdlcLayer::AddressType::Multicast:
+			return "Multicast";
+		case CiscoHdlcLayer::AddressType::Unicast:
+			return "Unicast";
+		default:
+			return "Unknown";
+		}
+	}
+
+	void CiscoHdlcLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Address, getAddressTypeAsString(getAddress()));
+		serializer.writeField(SerializedFields::NextProtocol, getNextProtocol());
 	}
 }  // namespace pcpp

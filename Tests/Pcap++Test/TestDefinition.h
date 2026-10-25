@@ -20,6 +20,15 @@ PTF_TEST_CASE(TestLogger);
 PTF_TEST_CASE(TestLoggerMultiThread);
 
 // Implemented in FileTests.cpp
+PTF_TEST_CASE(TestFileFormatDetector);
+PTF_TEST_CASE(TestReaderFactory_Pcap_Micro);
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano);
+PTF_TEST_CASE(TestReaderFactory_Pcap_Nano_Unsupported);
+PTF_TEST_CASE(TestReaderFactory_PcapNG);
+PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST);
+PTF_TEST_CASE(TestReaderFactory_PcapNG_ZST_Unsupported);
+PTF_TEST_CASE(TestReaderFactory_Snoop);
+PTF_TEST_CASE(TestReaderFactory_InvalidFile);
 PTF_TEST_CASE(TestPcapFileReadWrite);
 PTF_TEST_CASE(TestPcapFileMicroPrecision);
 PTF_TEST_CASE(TestPcapFileNanoPrecision);
@@ -37,7 +46,9 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6);
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4);
 PTF_TEST_CASE(TestSolarisSnoopFileRead);
 PTF_TEST_CASE(TestPcapNgFilePrecision);
+PTF_TEST_CASE(TestPcapNgSimplePacketBlockOverlongLength);
 PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor);
+PTF_TEST_CASE(PcapFileSerializeTest);
 
 // Implemented in LiveDeviceTests.cpp
 PTF_TEST_CASE(TestPcapLiveDeviceList);

@@ -9,8 +9,7 @@ namespace pcpp
 
 	void WakeOnLanLayer::init(uint16_t len)
 	{
-		m_Data = new uint8_t[len];
-		m_DataLen = len;
+		allocData(len);
 		m_Protocol = WakeOnLan;
 
 		memset(getWakeOnLanHeader()->sync, 0xFF, 6);
@@ -132,4 +131,13 @@ namespace pcpp
 		return "Wake On LAN Layer, target address: " + getTargetAddr().toString();
 	}
 
+	const FieldDescriptor WakeOnLanLayer::SerializedFields::TargetAddress{ Layer::SerializedFields::MaxID + 1,
+		                                                                   "targetAddress" };
+	const FieldDescriptor WakeOnLanLayer::SerializedFields::Password{ Layer::SerializedFields::MaxID + 2, "password" };
+
+	void WakeOnLanLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::TargetAddress, getTargetAddr().toString());
+		serializer.writeField(SerializedFields::Password, getPassword());
+	}
 }  // namespace pcpp
