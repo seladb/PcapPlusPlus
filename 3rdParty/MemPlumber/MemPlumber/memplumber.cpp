@@ -293,7 +293,6 @@ public:
             dumper = openFile(fileDumperName, append);
         }
 
-        // go over all buckets in the hashmap
         for(auto* node = m_DynamicAllocations.head; node != nullptr; node = node->next)
         {
 			memLeakCount++;
