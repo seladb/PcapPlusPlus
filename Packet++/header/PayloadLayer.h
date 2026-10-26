@@ -22,9 +22,8 @@ namespace pcpp
 		    : Layer(data, dataLen, prevLayer, packet, GenericPayload)
 		{}
 
-		/// A constructor that allocates a new payload
-		/// @param[in] data A raw buffer that will be used as a payload. This data will be copied to the layer. If it is
-		/// nullptr, the payload is empty
+		/// A constructor that allocates a new payload. If data is nullptr or dataLen is zero then the payload is empty
+		/// @param[in] data A raw buffer that will be used as a payload. This data will be copied to the layer
 		/// @param[in] dataLen The raw buffer length
 		PayloadLayer(const uint8_t* data, size_t dataLen);
 
@@ -69,8 +68,9 @@ namespace pcpp
 		{}
 
 		/// Sets the payload of the PayloadLayer to the given pointer. This will resize (extend/shorten) the underlying
-		/// packet respectively if there is one.
-		/// @param[in] newPayload New payload that shall be set. If it is nullptr, the payload becomes empty
+		/// packet respectively if there is one. If newPayload is nullptr or newPayloadLength is zero then the payload
+		/// will be set to none.
+		/// @param[in] newPayload New payload that shall be set
 		/// @param[in] newPayloadLength New length of payload
 		void setPayload(const uint8_t* newPayload, size_t newPayloadLength);
 
