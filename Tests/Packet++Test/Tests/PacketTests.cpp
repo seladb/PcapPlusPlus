@@ -1017,6 +1017,26 @@ PTF_TEST_CASE(ResizeLayerTest)
 	PTF_ASSERT_EQUAL(rawData2[7], 0xEF);
 }  // ResizeLayerTest
 
+PTF_TEST_CASE(PayloadLayerNullDataTest)
+{
+	// a null data pointer means an empty payload, whatever the length
+	pcpp::PayloadLayer nullPayloadLayer(nullptr, 5);
+	PTF_ASSERT_EQUAL(nullPayloadLayer.getDataLen(), 0);
+
+	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
+	pcpp::PayloadLayer payloadLayer(payload, 4);
+	pcpp::Packet packet(100);
+	PTF_ASSERT_TRUE(packet.addLayer(&payloadLayer));
+	payloadLayer.setPayload(nullptr, 5);
+	PTF_ASSERT_EQUAL(payloadLayer.getDataLen(), 0);
+	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 0);
+
+	// growing a raw packet without data copies nothing from its null buffer
+	pcpp::RawPacket rawPacket;
+	PTF_ASSERT_TRUE(rawPacket.reallocateData(10));
+	PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 0);
+}  // PayloadLayerNullDataTest
+
 PTF_TEST_CASE(PrintPacketAndLayersTest)
 {
 	timeval time;

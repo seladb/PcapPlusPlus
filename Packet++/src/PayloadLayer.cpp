@@ -10,8 +10,16 @@ namespace pcpp
 
 	PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen) : Layer()
 	{
+		if (data == nullptr)
+		{
+			dataLen = 0;
+		}
+
 		allocData(dataLen, false);
-		memcpy(m_Data, data, dataLen);
+		if (dataLen > 0)
+		{
+			memcpy(m_Data, data, dataLen);
+		}
 		m_DataLen = dataLen;
 		m_Protocol = GenericPayload;
 	}
@@ -35,6 +43,11 @@ namespace pcpp
 
 	void PayloadLayer::setPayload(const uint8_t* newPayload, size_t newPayloadLength)
 	{
+		if (newPayload == nullptr)
+		{
+			newPayloadLength = 0;
+		}
+
 		if (newPayloadLength < m_DataLen)
 		{
 			// shorten payload layer
@@ -48,7 +61,10 @@ namespace pcpp
 
 		// and copy data to layer
 		// this is also executed if the newPayloadLength == m_DataLen
-		memcpy(m_Data, newPayload, newPayloadLength);
+		if (newPayloadLength > 0)
+		{
+			memcpy(m_Data, newPayload, newPayloadLength);
+		}
 	}
 
 	std::string PayloadLayer::toString() const
