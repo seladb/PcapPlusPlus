@@ -89,6 +89,39 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields shared by HttpRequestLayer and HttpResponseLayer. They're written after the first line fields, which
+		/// use IDs Layer::SerializedFields::MaxID + 1 to Layer::SerializedFields::MaxID + 3.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @struct HeaderFieldObject
+			/// Fields describing one element of the HeaderFields array of HttpRequestLayer and HttpResponseLayer
+			struct HeaderFieldObject : ObjectFieldDescriptor<HeaderFieldObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one header field
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Name, Value };
+				}
+
+				/// @brief Header field name, as a string
+				static const FieldDescriptor Name;
+
+				/// @brief Header field value, as a string
+				static const FieldDescriptor Value;
+			};
+
+			/// @brief Field descriptor for whether the HTTP header is complete (i.e. ends with an empty line) or is
+			/// partial and continues in the next packet, written as a boolean.
+			static const FieldDescriptor HeaderComplete;
+
+			/// @brief Field descriptor for the array of HTTP header fields, in the order they appear in the message.
+			/// Elements are described by HeaderFieldObject.
+			static const FieldDescriptor HeaderFields;
+		};
+
 	protected:
 		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
 		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
@@ -112,6 +145,8 @@ namespace pcpp
 		{
 			return true;
 		}
+
+		void serializeHeader(ObjectScope& serializer) const;
 	};
 
 	// -------- Class HttpRequestLayer -----------------
@@ -199,6 +234,35 @@ namespace pcpp
 
 		// implement Layer's abstract methods
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by HttpRequestLayer's serializeLayer(), in addition to
+		/// HttpMessage::SerializedFields.
+		struct SerializedFields : HttpMessage::SerializedFields
+		{
+			/// @return All field descriptors for HttpRequestLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = HttpMessage::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Method, Uri, Version, HeaderComplete, HeaderFields };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the HTTP method, written as a string (for example "GET"), or "Unknown" if
+			/// the method isn't recognized.
+			static const FieldDescriptor Method;
+
+			/// @brief Field descriptor for the request URI, written as a string.
+			static const FieldDescriptor Uri;
+
+			/// @brief Field descriptor for the HTTP version, written as a string (for example "HTTP/1.1"), or
+			/// "Unknown" if the version isn't recognized.
+			static const FieldDescriptor Version;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		HttpRequestFirstLine* m_FirstLine;
@@ -549,6 +613,37 @@ namespace pcpp
 		// implement Layer's abstract methods
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by HttpResponseLayer's serializeLayer(), in addition to
+		/// HttpMessage::SerializedFields.
+		struct SerializedFields : HttpMessage::SerializedFields
+		{
+			/// @return All field descriptors for HttpResponseLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = HttpMessage::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Version, StatusCode, StatusCodeDescription,
+					                                          HeaderComplete, HeaderFields };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the HTTP version, written as a string (for example "HTTP/1.1"), or
+			/// "Unknown" if the version isn't recognized.
+			static const FieldDescriptor Version;
+
+			/// @brief Field descriptor for the status code, written as a number (for example 200).
+			static const FieldDescriptor StatusCode;
+
+			/// @brief Field descriptor for the status code string, written as a string (see
+			/// HttpResponseFirstLine::getStatusCodeString()). An empty string is written if the status code isn't
+			/// supported.
+			static const FieldDescriptor StatusCodeDescription;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		HttpResponseFirstLine* m_FirstLine;

@@ -10,6 +10,7 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 #include <iostream>
+#include <sstream>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -70,6 +71,21 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(requestLayer->getUrl(), "www.ynet.co.il/home/0,7340,L-8,00.html");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		requestLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"HTTPRequest","protocolId":6,"length":356,"method":"GET",)"
+		    R"("uri":"/home/0,7340,L-8,00.html","version":"HTTP/1.1","headerComplete":true,"headerFields":[)"
+		    R"({"name":"Host","value":"www.ynet.co.il"},{"name":"Connection","value":"keep-alive"},)"
+		    R"({"name":"Accept","value":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"},)"
+		    R"({"name":"User-Agent","value":"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) )"
+		    R"(Chrome/38.0.2125.104 Safari/537.36"},{"name":"Accept-Encoding","value":"gzip,deflate,sdch"},)"
+		    R"({"name":"Accept-Language","value":"en-US,en;q=0.8"}]})");
+	}
+
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/PartialHttpRequest.dat");
 	pcpp::Packet httpPacket2(rawPacket2.get());
 
@@ -94,6 +110,16 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(requestLayer->getFieldCount(), 8);
 	PTF_ASSERT_FALSE(requestLayer->isHeaderComplete());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		requestLayer->serialize(serializer);
+		// the cookie in this packet is truncated and contains binary data, so only check the parts that matter
+		PTF_ASSERT_CONTAINS(oss.str(),
+		                    R"("uri":"/spa/vendor.bundle.5d388fb8db38cec4d554.js","version":"HTTP/1.1",)"
+		                    R"("headerComplete":false,"headerFields":[{"name":"Host","value":"auth.wi-fi.ru"})");
+	}
 }  // HttpRequestLayerParsingTest
 
 PTF_TEST_CASE(HttpRequestLayerCreationTest)
@@ -403,6 +429,22 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 	pcpp::HeaderField* contentTypeField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 	PTF_ASSERT_NOT_NULL(contentTypeField);
 	PTF_ASSERT_EQUAL(contentTypeField->getFieldValue(), "application/x-javascript");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		responseLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"HTTPResponse","protocolId":7,"length":382,"version":"HTTP/1.1","statusCode":200,)"
+		    R"("statusCodeDescription":"OK","headerComplete":true,"headerFields":[)"
+		    R"({"name":"Server","value":"Microsoft-IIS/5.0"},{"name":"Content-Type","value":"application/x-javascript"},)"
+		    R"({"name":"Accept-Ranges","value":"bytes"},{"name":"Last-Modified","value":"Wed, 19 Dec 2012 14:06:29 GMT"},)"
+		    R"({"name":"ETag","value":"\"3b846daf2ddcd1:e29\""},{"name":"Vary","value":"Accept-Encoding"},)"
+		    R"({"name":"Content-Encoding","value":"gzip"},{"name":"Content-Length","value":"1616"},)"
+		    R"({"name":"Cache-Control","value":"max-age=66137"},{"name":"Expires","value":"Mon, 20 Oct 2014 13:34:26 GMT"},)"
+		    R"({"name":"Date","value":"Sun, 19 Oct 2014 19:12:09 GMT"},{"name":"Connection","value":"keep-alive"}]})");
+	}
 }  // HttpResponseLayerParsingTest
 
 PTF_TEST_CASE(HttpResponseLayerCreationTest)
