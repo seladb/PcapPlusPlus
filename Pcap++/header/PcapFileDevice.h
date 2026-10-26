@@ -631,6 +631,8 @@ namespace pcpp
 	/// into a single array.
 	/// @param[in] reader The file reader device to read packets from
 	/// @param[in] serializer The serializer to write the packets into
+	/// @param[in] maxPackets The maximum number of packets to serialize. The default value of 0 means no limit, so
+	/// all packets in the file are serialized
 	/// @return The number of packets read and serialized
-	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer);
+	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer, size_t maxPackets = 0);
 }  // namespace pcpp

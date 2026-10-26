@@ -390,7 +390,9 @@ namespace pcpp
 		}
 
 		// lastExt != null means layer contains 1 or more extensions
-		if (!lastExt.isNull())
+		const bool hadExtension = !lastExt.isNull();
+
+		if (hadExtension)
 		{
 			// add ext total length to offset
 			offsetForNewExtension += lastExt.getTotalLength();
@@ -403,11 +405,17 @@ namespace pcpp
 			return {};
 		}
 
-		// lastExt != null means layer contains 1 or more extensions
-		if (!lastExt.isNull())
+		// extendLayer() may have reallocated the packet buffer, so lastExt is no longer valid.
+		// Re-walk the extension chain in the current buffer before linking the new extension.
+		if (hadExtension)
 		{
-			// set the next header type in the last extension
-			lastExt.setNextHeaderType(extensionType);
+			GtpV1Layer::GtpExtension refreshedLastExt = getNextExtension();
+			while (!refreshedLastExt.getNextExtension().isNull())
+			{
+				refreshedLastExt = refreshedLastExt.getNextExtension();
+			}
+
+			refreshedLastExt.setNextHeaderType(extensionType);
 		}
 		else
 		{

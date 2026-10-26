@@ -273,13 +273,17 @@ namespace pcpp
 	struct icmp_router_advertisement
 	{
 		/// a pointer to the header data on the packet
-		icmp_router_advertisement_hdr* header;
+		icmp_router_advertisement_hdr* header = nullptr;
+
+		/// The number of bytes available for this message, meaning the fixed header and the router address entries.
+		/// This value is set by IcmpLayer and is used to verify that a requested entry actually exists in the layer
+		size_t dataLen = 0;
 
 		/// Extract router advertisement at a given index
 		/// @param[in] index The index of the router advertisement
-		/// @return A pointer to the router advertisement on the packet or null if index is out of range (less than zero
-		/// or greater than the number of router advertisement records on this message, determined by advertisementCount
-		/// field)
+		/// @return A pointer to the router advertisement on the packet or null if index is out of range: less than
+		/// zero, greater than or equal to the number of router advertisement records on this message (determined by
+		/// advertisementCount field), or pointing to an entry that is not present in the layer data
 		icmp_router_address_structure* getRouterAddress(int index) const;
 	};
 
@@ -757,7 +761,14 @@ namespace pcpp
 
 		// ICMP_ROUTER_ADV
 		if (type == 9)
-			return dataLen >= sizeof(icmp_router_advertisement_hdr);
+		{
+			if (dataLen < sizeof(icmp_router_advertisement_hdr))
+				return false;
+
+			const auto* routerAdv = reinterpret_cast<const icmp_router_advertisement_hdr*>(data);
+			return routerAdv->advertisementCount <=
+			       (dataLen - sizeof(icmp_router_advertisement_hdr)) / sizeof(icmp_router_address_structure);
+		}
 
 		return false;
 	}
