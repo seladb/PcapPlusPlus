@@ -348,6 +348,32 @@ PTF_TEST_CASE(IcmpTruncatedPacketTest)
 	auto* payload = packet.getLayerOfType<pcpp::PayloadLayer>();
 	PTF_ASSERT_NOT_NULL(payload);
 	PTF_ASSERT_EQUAL(payload->getPayloadLen(), 7);
+
+	// ICMP router advertisement with advertisementCount larger than the actual
+	// number of entries must be rejected instead of trusting the count.
+	uint8_t routerAdv[16] = {};
+	routerAdv[0] = pcpp::ICMP_ROUTER_ADV;
+	routerAdv[4] = 200;  // advertisementCount
+	routerAdv[5] = 2;    // addressEntrySize
+	PTF_ASSERT_FALSE(pcpp::IcmpLayer::isDataValid(routerAdv, sizeof(routerAdv)));
+
+	routerAdv[4] = 1;
+	PTF_ASSERT_TRUE(pcpp::IcmpLayer::isDataValid(routerAdv, sizeof(routerAdv)));
+
+	auto rawRouterAdvPacket = createPacketFromHexResource("PacketExamples/IcmpRouterAdvInvalidCount.dat");
+	pcpp::Packet routerAdvPacket(rawRouterAdvPacket.get());
+	PTF_ASSERT_FALSE(routerAdvPacket.isPacketOfType(pcpp::ICMP));
+
+	// getRouterAddress() must not expose entries that aren't present in the layer data, even when
+	// advertisementCount claims more entries than the layer actually contains
+	pcpp::IcmpLayer routerAdvLayer;
+	std::vector<pcpp::icmp_router_address_structure> routerAddresses(1);
+	PTF_ASSERT_NOT_NULL(routerAdvLayer.setRouterAdvertisementData(0, 1800, routerAddresses));
+	auto* routerAdvData = routerAdvLayer.getRouterAdvertisementData();
+	PTF_ASSERT_NOT_NULL(routerAdvData);
+	PTF_ASSERT_NOT_NULL(routerAdvData->getRouterAddress(0));
+	routerAdvData->header->advertisementCount = 200;
+	PTF_ASSERT_NULL(routerAdvData->getRouterAddress(1));
 }  // IcmpTruncatedPacketTest
 
 PTF_TEST_CASE(IcmpCreationTest)
