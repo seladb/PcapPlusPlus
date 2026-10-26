@@ -68,7 +68,7 @@
 
 // Fallback used on Linux/Windows (where LIBPCAP_OPEN_LIVE_TIMEOUT is -1) when immediate mode is disabled and
 // packetBufferTimeoutMs isn't set, since libpcap's timeout behavior is unpredictable without immediate mode
-static const int NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT = 100;
+static const int NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT = 10;
 
 static const char* NFLOG_IFACE = "nflog";
 static const int DEFAULT_SNAPLEN = 9000;

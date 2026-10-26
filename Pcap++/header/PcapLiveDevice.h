@@ -278,11 +278,9 @@ namespace pcpp
 		/// at high packet rates.
 		enum class BufferingMode
 		{
-			/// Let the device decide, currently equivalent to Immediate. Default value.
-			Default = 0,
-			/// Use immediate mode, trading throughput/CPU for minimal packet delivery latency
-			Immediate,
-			/// Disable immediate mode, trading some added latency (up to packetBufferTimeoutMs, or 100 ms on
+			/// Use immediate mode, trading throughput/CPU for minimal packet delivery latency. Default value.
+			Immediate = 0,
+			/// Disable immediate mode, trading some added latency (up to packetBufferTimeoutMs, or 10 ms on
 			/// Linux/Windows if not set) for the throughput and CPU benefits described above
 			Buffered
 		};
@@ -335,7 +333,7 @@ namespace pcpp
 			TimestampPrecision timestampPrecision;
 
 			/// Controls whether libpcap's immediate mode is used. See BufferingMode for details.
-			/// Default value is BufferingMode::Default.
+			/// Default value is BufferingMode::Immediate.
 			BufferingMode bufferingMode;
 
 			/// A c'tor for this struct
@@ -359,13 +357,13 @@ namespace pcpp
 			/// @param[in] timestampPrecision The timestamp precision (not all platforms support this).
 			/// Default precision is Microseconds.
 			/// @param[in] bufferingMode Controls whether libpcap's immediate mode is used. See BufferingMode for
-			/// details. Default value is BufferingMode::Default.
+			/// details. Default value is BufferingMode::Immediate.
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
 			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
 			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false,
 			                             TimestampProvider timestampProvider = TimestampProvider::Host,
 			                             TimestampPrecision timestampPrecision = TimestampPrecision::Microseconds,
-			                             BufferingMode bufferingMode = BufferingMode::Default)
+			                             BufferingMode bufferingMode = BufferingMode::Immediate)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
