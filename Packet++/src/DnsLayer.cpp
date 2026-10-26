@@ -450,31 +450,16 @@ namespace pcpp
 	DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& name, DnsType dnsType,
 	                                   DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data)
 	{
-		// Name encoding is performed by a DNS resource object, so serialize the RDATA against a scratch resource
-		// to learn its exact size before allocating the buffer for the new resource
-		std::vector<uint8_t> resourceData;
-		if (data != nullptr)
+		if (data == nullptr)
 		{
-			uint8_t scratchRawData[512] = {};
-			DnsResource scratchResource(scratchRawData, resType);
-			resourceData = data->toBytes(&scratchResource);
-			if (resourceData.empty())
-			{
-				PCPP_LOG_ERROR("Couldn't serialize DNS resource data");
-				return nullptr;
-			}
-			// DNS RR data length is encoded in a 16-bit field
-			if (resourceData.size() > 65535)
-			{
-				PCPP_LOG_ERROR("DNS resource data is too large: " << resourceData.size());
-				return nullptr;
-			}
+			PCPP_LOG_ERROR("Given data is nullptr");
+			return nullptr;
 		}
 
-		// The encoded name is at most the decoded name plus 2 bytes (a length byte for each label and the terminating
-		// zero byte), and the fixed RR header is 10 bytes long
-		const size_t newResourceBufferSize = name.size() + 2 + 10 + resourceData.size();
-		std::vector<uint8_t> newResourceRawData(newResourceBufferSize, 0);
+		// The temporary buffer holds the encoded name and the fixed RR header. The encoded name is at most the decoded
+		// name plus 2 bytes and the fixed RR header is 10 bytes long. The RDATA is added by setData() after the new
+		// resource is attached to the layer, so the buffer doesn't need to leave room for it
+		std::vector<uint8_t> newResourceRawData(name.size() + 2 + 10, 0);
 
 		DnsResource* newResource = new DnsResource(newResourceRawData.data(), resType);
 
@@ -486,13 +471,6 @@ namespace pcpp
 		newResource->setName(name);
 
 		newResource->setTTL(ttl);
-
-		if (!newResource->setData(data))
-		{
-			delete newResource;
-			PCPP_LOG_ERROR("Couldn't set new resource data");
-			return nullptr;
-		}
 
 		size_t newResourceOffsetInLayer = getBasicHeaderSize();
 		IDnsResource* curResource = m_ResourceList;
@@ -566,6 +544,15 @@ namespace pcpp
 			m_ResourceList = newResource;
 
 			setFirstResource(resType, newResource);
+		}
+
+		// set the resource data after the resource is attached to the layer, so setData() can extend the layer
+		// by the size of the serialized RDATA
+		if (!newResource->setData(data))
+		{
+			PCPP_LOG_ERROR("Couldn't set new resource data");
+			removeResource(newResource);
+			return nullptr;
 		}
 
 		return newResource;
