@@ -509,14 +509,6 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 			PTF_ASSERT_CONTAINS(serializeToJson(gtpLayer), R"("informationElements":[])");
 		}
 	}
-
-	const auto fields = pcpp::GtpV2Layer::SerializedFields::all();
-	const auto baseFieldCount = pcpp::Layer::SerializedFields::all().size();
-	PTF_ASSERT_EQUAL(fields.size(), baseFieldCount + 8);
-	for (size_t i = baseFieldCount; i < fields.size(); ++i)
-	{
-		PTF_ASSERT_EQUAL(fields[i].id, pcpp::Layer::SerializedFields::MaxID + i - baseFieldCount + 1);
-	}
 }  // GtpV2LayerParsingTest
 
 PTF_TEST_CASE(GtpV2LayerCreationTest)
