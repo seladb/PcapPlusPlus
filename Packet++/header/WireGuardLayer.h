@@ -121,6 +121,34 @@ namespace pcpp
 		{
 			return WireGuardMessageType::Unknown;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ MessageType, MessageTypeName };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the raw message type value, written as a number.
+			static const FieldDescriptor MessageType;
+
+			/// @brief Field descriptor for the message type name, written as a string.
+			static const FieldDescriptor MessageTypeName;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by WireGuardLayer
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class WireGuardHandshakeInitiationLayer
@@ -227,6 +255,46 @@ namespace pcpp
 		{
 			return WireGuardMessageType::HandshakeInitiation;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardHandshakeInitiationLayer's serializeLayer(), in addition to
+		/// WireGuardLayer::SerializedFields.
+		struct SerializedFields : WireGuardLayer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardHandshakeInitiationLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = WireGuardLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{
+					SenderIndex, InitiatorEphemeral, EncryptedInitiatorStatic, EncryptedTimestamp, Mac1, Mac2
+				};
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the sender index, written as a hex value.
+			static const FieldDescriptor SenderIndex;
+
+			/// @brief Field descriptor for the 32-byte initiator ephemeral public key, written as a hex string with no
+			/// separators.
+			static const FieldDescriptor InitiatorEphemeral;
+
+			/// @brief Field descriptor for the 48-byte encrypted initiator static key, written as a hex string with no
+			/// separators.
+			static const FieldDescriptor EncryptedInitiatorStatic;
+
+			/// @brief Field descriptor for the 28-byte encrypted timestamp, written as a hex string with no separators.
+			static const FieldDescriptor EncryptedTimestamp;
+
+			/// @brief Field descriptor for the 16-byte MAC1, written as a hex string with no separators.
+			static const FieldDescriptor Mac1;
+
+			/// @brief Field descriptor for the 16-byte MAC2, written as a hex string with no separators.
+			static const FieldDescriptor Mac2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class WireGuardHandshakeResponseLayer
@@ -333,6 +401,45 @@ namespace pcpp
 		{
 			return WireGuardMessageType::HandshakeResponse;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardHandshakeResponseLayer's serializeLayer(), in addition to
+		/// WireGuardLayer::SerializedFields.
+		struct SerializedFields : WireGuardLayer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardHandshakeResponseLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = WireGuardLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SenderIndex,    ReceiverIndex, ResponderEphemeral,
+					                                          EncryptedEmpty, Mac1,          Mac2 };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the sender index, written as a hex value.
+			static const FieldDescriptor SenderIndex;
+
+			/// @brief Field descriptor for the receiver index, written as a hex value.
+			static const FieldDescriptor ReceiverIndex;
+
+			/// @brief Field descriptor for the 32-byte responder ephemeral public key, written as a hex string with no
+			/// separators.
+			static const FieldDescriptor ResponderEphemeral;
+
+			/// @brief Field descriptor for the 16-byte encrypted empty field, written as a hex string with no
+			/// separators.
+			static const FieldDescriptor EncryptedEmpty;
+
+			/// @brief Field descriptor for the 16-byte MAC1, written as a hex string with no separators.
+			static const FieldDescriptor Mac1;
+
+			/// @brief Field descriptor for the 16-byte MAC2, written as a hex string with no separators.
+			static const FieldDescriptor Mac2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class WireGuardCookieReplyLayer
@@ -409,6 +516,33 @@ namespace pcpp
 		{
 			return WireGuardMessageType::CookieReply;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardCookieReplyLayer's serializeLayer(), in addition to
+		/// WireGuardLayer::SerializedFields.
+		struct SerializedFields : WireGuardLayer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardCookieReplyLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = WireGuardLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ReceiverIndex, Nonce, EncryptedCookie };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the receiver index, written as a hex value.
+			static const FieldDescriptor ReceiverIndex;
+
+			/// @brief Field descriptor for the 24-byte nonce, written as a hex string with no separators.
+			static const FieldDescriptor Nonce;
+
+			/// @brief Field descriptor for the 32-byte encrypted cookie, written as a hex string with no separators.
+			static const FieldDescriptor EncryptedCookie;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class WireGuardTransportDataLayer
@@ -489,5 +623,29 @@ namespace pcpp
 		{
 			return WireGuardMessageType::TransportData;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardTransportDataLayer's serializeLayer(), in addition to
+		/// WireGuardLayer::SerializedFields.
+		struct SerializedFields : WireGuardLayer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardTransportDataLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = WireGuardLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ReceiverIndex, Counter };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the receiver index, written as a hex value.
+			static const FieldDescriptor ReceiverIndex;
+
+			/// @brief Field descriptor for the counter (nonce), written as a number.
+			static const FieldDescriptor Counter;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp
