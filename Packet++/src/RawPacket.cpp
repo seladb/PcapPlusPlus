@@ -174,10 +174,7 @@ namespace pcpp
 
 		uint8_t* newBuffer = new uint8_t[newBufferLength];
 		memset(newBuffer, 0, newBufferLength);
-		if (m_RawDataLen > 0)
-		{
-			memcpy(newBuffer, m_RawData, m_RawDataLen);
-		}
+		memcpy(newBuffer, m_RawData, m_RawDataLen);
 		if (m_OwnsRawData)
 			delete[] m_RawData;
 
