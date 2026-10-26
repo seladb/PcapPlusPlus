@@ -234,6 +234,19 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 		PTF_ASSERT_TRUE(pcpp::NDPNeighborAdvertisementLayer::isDataValid(fullNeighborAdvertisement,
 		                                                                 sizeof(fullNeighborAdvertisement)));
 	}
+
+	// An echo request/reply shorter than its 8-byte header must not be parsed as ICMPv6EchoLayer.
+	// Otherwise getIdentifier()/getSequenceNr() read past the buffer and getEchoDataLen() underflows
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/IcmpV6_EchoRequestTruncated.dat");
+		pcpp::Packet truncatedEchoPacket(rawPacket.get());
+		PTF_ASSERT_TRUE(truncatedEchoPacket.isPacketOfType(pcpp::ICMPv6));
+		PTF_ASSERT_NULL(truncatedEchoPacket.getLayerOfType<pcpp::ICMPv6EchoLayer>());
+		auto* icmpV6Layer = truncatedEchoPacket.getLayerOfType<pcpp::IcmpV6Layer>();
+		PTF_ASSERT_NOT_NULL(icmpV6Layer);
+		PTF_ASSERT_EQUAL(icmpV6Layer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST, enumclass);
+		PTF_ASSERT_EQUAL(icmpV6Layer->getDataLen(), 6);
+	}
 }
 
 PTF_TEST_CASE(IcmpV6CreationTest)
