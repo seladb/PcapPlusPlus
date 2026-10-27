@@ -11,11 +11,11 @@
 #include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
-static bool verboseMode = false;
-static bool showSkippedTests = false;
-
 namespace ptf
 {
+	static bool verboseMode = false;
+	static bool showSkippedTests = false;	
+
 	class TestRunner
 	{
 	public:
@@ -180,5 +180,5 @@ namespace ptf
 
 #define PTF_END_RUNNING_TESTS return testRunner.finalizeResults();
 
-#define PTF_SET_VERBOSE_MODE(flag) verboseMode = flag
-#define PTF_SHOW_SKIPPED_TESTS(flag) showSkippedTests = flag
+#define PTF_SET_VERBOSE_MODE(flag) ptf::verboseMode = flag
+#define PTF_SHOW_SKIPPED_TESTS(flag) ptf::showSkippedTests = flag
