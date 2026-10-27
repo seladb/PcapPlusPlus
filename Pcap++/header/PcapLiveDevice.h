@@ -280,8 +280,9 @@ namespace pcpp
 		{
 			/// Use immediate mode, trading throughput/CPU for minimal packet delivery latency. Default value.
 			Immediate = 0,
-			/// Disable immediate mode, trading some added latency (up to packetBufferTimeoutMs, or 10 ms on
-			/// Linux/Windows if not set) for the throughput and CPU benefits described above
+			/// Disable immediate mode, trading some added latency for the throughput and CPU benefits described
+			/// above. Packets are delivered at the latest after packetBufferTimeoutMs, or if it isn't set, after
+			/// 10 ms on Linux/Windows/FreeBSD and 1 ms on macOS
 			Buffered
 		};
 
@@ -295,7 +296,8 @@ namespace pcpp
 
 			/// Set the packet buffer timeout in milliseconds. You can read more here:
 			/// https://www.tcpdump.org/manpages/pcap.3pcap.html .
-			/// Any value above 0 is considered legal, otherwise a value of 1 or -1 is used (depends on the platform)
+			/// Any value above 0 is considered legal. Otherwise, a platform-dependent default is used, which also
+			/// depends on bufferingMode. See BufferingMode for details.
 			int packetBufferTimeoutMs;
 
 			/// Set the packet buffer size. You can read more about the packet buffer here:
@@ -339,8 +341,8 @@ namespace pcpp
 			/// A c'tor for this struct
 			/// @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is
 			/// promiscuous
-			/// @param[in] packetBufferTimeoutMs Buffer timeout in millisecond. Default value is 0 which means set
-			/// timeout of 1 or -1 (depends on the platform)
+			/// @param[in] packetBufferTimeoutMs Buffer timeout in millisecond. Default value is 0 which means use a
+			/// platform-dependent default that also depends on bufferingMode (see BufferingMode for details)
 			/// @param[in] packetBufferSize The packet buffer size. Default value is 0 which means use the default value
 			/// (varies between different OS's)
 			/// @param[in] direction Direction for capturing packets. Default value is INOUT which means capture both
