@@ -332,6 +332,18 @@ PTF_TEST_CASE(JsonSerializerTest)
 		}
 		PTF_ASSERT_EQUAL(oss.str(), "{\n\"name\": \"value\"\n}");
 	}
+
+	// An empty array or object should be pretty printed without new-lines.
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 2);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeArray(pcpp::FieldDescriptor{ 2, "emptyArray" });
+			obj.writeObject(pcpp::FieldDescriptor{ 3, "emptyObject" });
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "{\n  \"emptyArray\": [],\n  \"emptyObject\": {}\n}");
+	}
 }  // JsonSerializerTest
 
 PTF_TEST_CASE(YamlSerializerTest)
