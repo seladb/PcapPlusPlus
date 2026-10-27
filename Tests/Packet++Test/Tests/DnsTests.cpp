@@ -523,7 +523,8 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	// RDATA that doesn't fit the 16-bit length field must be rejected without changing the layer
 	{
-		std::vector<uint8_t> oversizedData(static_cast<size_t>(std::numeric_limits<uint16_t>::max()) + 1, 0x5A);
+		// Parentheses around std::numeric_limits<>::max avoid a clash with the Windows max macro
+		std::vector<uint8_t> oversizedData(static_cast<size_t>((std::numeric_limits<uint16_t>::max)()) + 1, 0x5A);
 		pcpp::GenericDnsResourceData oversizedGenericData(oversizedData.data(), oversizedData.size());
 
 		pcpp::DnsLayer oversizedLayer;

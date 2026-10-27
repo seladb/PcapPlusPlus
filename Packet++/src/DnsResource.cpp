@@ -410,8 +410,9 @@ namespace pcpp
 
 		size_t dataLength = dataAsByteArr.size();
 
-		// DNS RR data length is encoded in a 16-bit field
-		if (dataLength > std::numeric_limits<uint16_t>::max())
+		// DNS RR data length is encoded in a 16-bit field. Parentheses around max avoid a clash with the
+		// Windows max macro
+		if (dataLength > (std::numeric_limits<uint16_t>::max)())
 		{
 			PCPP_LOG_ERROR("DNS resource data is too large: " << dataLength);
 			return false;
