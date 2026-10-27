@@ -57,8 +57,18 @@ namespace pcpp
 		/// A template constructor that creates an instance of the class out of a string convertible to std::string.
 		/// If the string doesn't represent a valid MAC address, the constructor throws an exception.
 		/// @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
-		template <typename T, typename = std::enable_if_t<std::is_convertible<T, std::string>::value>>
+		template <typename T,
+		          typename = std::enable_if_t<std::is_convertible<T, std::string>::value && !std::is_array<T>::value>>
 		MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr))
+		{}
+
+		/// A constructor that creates an instance of the class out of a char array holding a string.
+		/// The string ends at the first null character or at the end of the array, whichever comes first, so an
+		/// array without a null terminator is never read past its end.
+		/// If the string doesn't represent a valid MAC address, the constructor throws an exception.
+		/// @param[in] addr the char array holding the MAC address in format "00:00:00:00:00:00"
+		template <size_t N>
+		MacAddress(const char (&addr)[N]) : MacAddress(std::string(addr, std::find(addr, addr + N, '\0')))
 		{}
 
 		/// A constructor that creates an instance of 6 bytes representing the MAC address

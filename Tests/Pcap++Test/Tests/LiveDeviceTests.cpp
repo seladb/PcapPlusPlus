@@ -918,8 +918,7 @@ PTF_TEST_CASE(TestMtuSize)
 	size_t smallDataLen = liveDev->getMtu() - (smallIPLayer.getDataLen());
 	uint8_t* smallData = new uint8_t[smallDataLen];
 	memset(smallData, 0xFF, smallDataLen);
-	pcpp::PayloadLayer smallPayload(smallData, smallDataLen);
-	smallPacket.addLayer(&smallPayload);
+	smallPacket.addLayer(new pcpp::PayloadLayer(smallData, smallDataLen), true);
 
 	// Check the size of the small Packet
 	PTF_PRINT_VERBOSE("Mtu: " << liveDev->getMtu());
@@ -951,8 +950,7 @@ PTF_TEST_CASE(TestMtuSize)
 	size_t largeDataLen = liveDev->getMtu() - largeIPLayer.getDataLen() + 1;
 	uint8_t* largeData = new uint8_t[largeDataLen];
 	memset(largeData, 0xFF, largeDataLen);
-	pcpp::PayloadLayer largePayload(largeData, largeDataLen);
-	largePacket.addLayer(&largePayload);
+	largePacket.addLayer(new pcpp::PayloadLayer(largeData, largeDataLen), true);
 
 	// Check the size of the large Packet
 	PTF_PRINT_VERBOSE("Large packet: " << largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
