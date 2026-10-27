@@ -195,9 +195,14 @@ namespace pcpp
 
 	void JsonSerializer::endObject()
 	{
+		bool hasContent = !m_FirstAtLevel.back();
 		m_ContextStack.pop_back();
 		m_FirstAtLevel.pop_back();
-		writeIndent(true);
+		// If no content was written, an object should be written as {} on a single line.
+		if (hasContent)
+		{
+			writeIndent(true);
+		}
 		m_Out << '}';
 	}
 
@@ -212,9 +217,14 @@ namespace pcpp
 
 	void JsonSerializer::endArray()
 	{
+		bool hasContent = !m_FirstAtLevel.back();
 		m_ContextStack.pop_back();
 		m_FirstAtLevel.pop_back();
-		writeIndent(true);
+		// If no content was written, an array should be written as [] on a single line.
+		if (hasContent)
+		{
+			writeIndent(true);
+		}
 		m_Out << ']';
 	}
 
