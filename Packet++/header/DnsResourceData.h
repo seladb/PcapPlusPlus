@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DeprecationUtils.h"
 #include "DnsResource.h"
 #include "IpAddress.h"
 #include <memory>
@@ -71,6 +72,7 @@ namespace pcpp
 		/// @param[in] dnsResource A pointer to a DNS resource object where this DNS RR data will be stored
 		/// @return True if the DNS RR data was successfully converted into a byte array and written to the given array
 		/// or false if stored DNS RR data is invalid or if it could not be written to the given array
+		PCPP_DEPRECATED("Use toBytes() instead")
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
 

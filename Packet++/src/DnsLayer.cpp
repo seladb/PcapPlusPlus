@@ -551,7 +551,8 @@ namespace pcpp
 		if (!newResource->setData(data))
 		{
 			PCPP_LOG_ERROR("Couldn't set new resource data");
-			removeResource(newResource);
+			if (!removeResource(newResource))
+				PCPP_LOG_ERROR("Couldn't remove the new resource from the DNS layer");
 			return nullptr;
 		}
 
