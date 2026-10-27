@@ -249,8 +249,14 @@ namespace pcpp
 		using ISerializer::writeHexField;
 
 		/// Create a JSON serializer.
+		///
+		/// By default the serializer produces minified JSON.
+		/// If indent is non-negative, the serializer produces pretty-printed JSON with the specified number of spaces
+		/// per indentation level.
+		///
 		/// @param[in] out The output stream to which JSON is written
-		explicit JsonSerializer(std::ostream& out);
+		/// @param[in] indent The number of spaces to use for each indentation level (negative for minified JSON)
+		explicit JsonSerializer(std::ostream& out, int indent = -1);
 
 	protected:
 		void writeField(const FieldDescriptor& field, const std::string& value) override;
@@ -272,12 +278,16 @@ namespace pcpp
 			Object
 		};
 
+		void prepareNext();
 		void writeSeparatorIfNeeded();
 		void writeKey(const std::string& name);
+
+		void writeIndent(bool forceNewline = false);
 
 		std::ostream& m_Out;
 		std::vector<Context> m_ContextStack;
 		std::vector<bool> m_FirstAtLevel;
+		int m_IndentPerLevel = -1;
 	};
 
 	/// @class YamlSerializer

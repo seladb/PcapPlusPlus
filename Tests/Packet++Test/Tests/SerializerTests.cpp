@@ -307,6 +307,31 @@ PTF_TEST_CASE(JsonSerializerTest)
 			                  "Only one root value may be written per instance");
 		}
 	}
+
+	// Different levels of indentation are supported.
+	// If indent is negative, the output is minified (no newlines or spaces).
+	// If indent is non-negative, the output is pretty-printed with the specified number of spaces per level.
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 2);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("value"));
+			auto arr = obj.writeArray(pcpp::FieldDescriptor{ 3, "list" });
+			arr.writeField(pcpp::FieldDescriptor{ 4, "ignored" }, 1);
+			arr.writeField(pcpp::FieldDescriptor{ 5, "ignored" }, 2);
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "{\n  \"name\": \"value\",\n  \"list\": [\n    1,\n    2\n  ]\n}");
+	}
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 0);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("value"));
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "{\n\"name\": \"value\"\n}");
+	}
 }  // JsonSerializerTest
 
 PTF_TEST_CASE(YamlSerializerTest)
