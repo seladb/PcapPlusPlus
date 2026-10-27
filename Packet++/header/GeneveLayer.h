@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EthLayer.h"
 #include "Layer.h"
 
 /// @file
@@ -98,6 +99,12 @@ namespace pcpp
 
 		/// @return True if both options are null or have the same class, type, critical flag, and data
 		bool operator==(const GeneveOption& other) const;
+
+		/// @return True if the options are not equal according to operator==
+		bool operator!=(const GeneveOption& other) const
+		{
+			return !(*this == other);
+		}
 	};
 	/// @class GeneveLayer
 	/// Represents a GENEVE (Generic Network Virtualization Encapsulation) protocol layer.
@@ -126,7 +133,7 @@ namespace pcpp
 		/// @param[in] vni The 24-bit virtual network identifier
 		/// @param[in] protocolType EtherType of the encapsulated protocol. Defaults to Transparent Ethernet Bridging
 		/// @param[in] oamFlag Set the operations, administration, and maintenance flag
-		explicit GeneveLayer(uint32_t vni = 0, uint16_t protocolType = 0x6558, bool oamFlag = false);
+		explicit GeneveLayer(uint32_t vni = 0, uint16_t protocolType = PCPP_ETHERTYPE_ETHBRIDGE, bool oamFlag = false);
 
 		~GeneveLayer() override = default;
 

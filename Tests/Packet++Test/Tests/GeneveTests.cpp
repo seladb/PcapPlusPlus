@@ -29,7 +29,7 @@ PTF_TEST_CASE(GeneveParsingTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/GeneveICMP.dat");
 		pcpp::Packet packet(rawPacket.get());
 
-		auto geneveLayer = packet.getLayerOfType<pcpp::GeneveLayer>();
+		auto* geneveLayer = packet.getLayerOfType<pcpp::GeneveLayer>();
 		PTF_ASSERT_NOT_NULL(geneveLayer);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::Geneve));
 		PTF_ASSERT_EQUAL(geneveLayer->getVNI(), 0x000abc);
@@ -51,7 +51,7 @@ PTF_TEST_CASE(GeneveParsingTest)
 		auto rawPacket = createPacketFromHexResource("PacketExamples/GeneveOptions.dat");
 		pcpp::Packet packet(rawPacket.get());
 
-		auto geneveLayer = packet.getLayerOfType<pcpp::GeneveLayer>();
+		auto* geneveLayer = packet.getLayerOfType<pcpp::GeneveLayer>();
 		PTF_ASSERT_NOT_NULL(geneveLayer);
 		PTF_ASSERT_EQUAL(geneveLayer->getVNI(), 0x000abc);
 		PTF_ASSERT_EQUAL(geneveLayer->getProtocolType(), PCPP_ETHERTYPE_ETHBRIDGE);
@@ -82,6 +82,7 @@ PTF_TEST_CASE(GeneveParsingTest)
 
 		auto sameOption = geneveLayer->getOption(0x0102, 3);
 		PTF_ASSERT_TRUE(firstOption == sameOption);
+		PTF_ASSERT_TRUE(firstOption != secondOption);
 
 		PTF_ASSERT_NOT_NULL(geneveLayer->getNextLayer());
 		PTF_ASSERT_EQUAL(geneveLayer->getNextLayer()->getProtocol(), pcpp::Ethernet, enum);
@@ -91,7 +92,7 @@ PTF_TEST_CASE(GeneveParsingTest)
 		geneveLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"({"protocolName":"Geneve","protocolId":66,"length":24,"optionsLength":16,"protocolType":25944,"vni":2748,"oamFlag":false,"criticalFlag":true,"options":[{"optionClass":258,"type":3,"critical":false,"dataSize":4},{"optionClass":258,"type":4,"critical":true,"dataSize":4}]})");
+		    R"({"protocolName":"Geneve","protocolId":66,"length":24,"optionsLength":16,"protocolType":25944,"vni":"0xabc","oamFlag":false,"criticalFlag":true,"options":[{"optionClass":258,"type":3,"critical":false,"dataSize":4},{"optionClass":258,"type":4,"critical":true,"dataSize":4}]})");
 	}
 
 }  // GeneveParsingTest

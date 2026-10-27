@@ -418,7 +418,7 @@ namespace pcpp
 	{
 		serializer.writeField(SerializedFields::OptionsLength, getOptionsLength());
 		serializer.writeField(SerializedFields::ProtocolType, getProtocolType());
-		serializer.writeField(SerializedFields::VNI, getVNI());
+		serializer.writeHexField(SerializedFields::VNI, getVNI());
 		serializer.writeField(SerializedFields::OamFlag, getOamFlag());
 		serializer.writeField(SerializedFields::CriticalFlag, getCriticalFlag());
 
