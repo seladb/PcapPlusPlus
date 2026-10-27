@@ -14,41 +14,6 @@
 static bool verboseMode = false;
 static bool showSkippedTests = false;
 
-static void __ptfSplitString(const std::string& input, std::vector<std::string>& result)
-{
-	std::istringstream ss(input);
-	std::string token;
-
-	while (std::getline(ss, token, ';'))
-	{
-		result.push_back(token);
-	}
-}
-
-static bool __ptfCheckTags(const std::string& tagSet, const std::string& tagSetToCompareWith, bool emptyTagSetMeansAll)
-{
-	std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
-
-	if (tagSetToCompareWith == "")
-	{
-		return emptyTagSetMeansAll;
-	}
-
-	__ptfSplitString(tagSet, tagSetVec);
-	__ptfSplitString(tagSetToCompareWith, tagSetToCompareWithVec);
-
-	for (const auto& tagSetToCompareWithIter : tagSetToCompareWithVec)
-	{
-		if (std::any_of(tagSetVec.begin(), tagSetVec.end(),
-		                [tagSetToCompareWithIter](const std::string& val) { return val == tagSetToCompareWithIter; }))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 namespace ptf
 {
 	class TestRunner
@@ -66,8 +31,8 @@ namespace ptf
 			std::string allTestTags = testName + ";" + additionalTestTags;
 			int result = PTF_RESULT_PASSED;
 
-			if (!__ptfCheckTags(allTestTags, m_UserIncludeTags, true) ||
-			    __ptfCheckTags(allTestTags, m_UserExcludeTags, false))
+			if (!checkTags(allTestTags, m_UserIncludeTags, true) ||
+			    checkTags(allTestTags, m_UserExcludeTags, false))
 			{
 				if (showSkippedTests)
 				{
@@ -78,11 +43,11 @@ namespace ptf
 			}
 			else
 			{
-				bool runMemLeakCheck = !__ptfCheckTags("skip_mem_leak_check", m_ConfigTagsToRun, false) &&
-				                       !__ptfCheckTags(allTestTags, "skip_mem_leak_check", false);
+				bool runMemLeakCheck = !checkTags("skip_mem_leak_check", m_ConfigTagsToRun, false) &&
+				                       !checkTags(allTestTags, "skip_mem_leak_check", false);
 				if (runMemLeakCheck)
 				{
-					bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", m_ConfigTagsToRun, false);
+					bool memAllocVerbose = checkTags("mem_leak_check_verbose", m_ConfigTagsToRun, false);
 					MemPlumber::start(memAllocVerbose);
 				}
 				try
@@ -155,6 +120,43 @@ namespace ptf
 		bool hasFailures() const
 		{
 			return m_TestsFailed != 0;
+		}
+
+		static void splitString(const std::string& input, std::vector<std::string>& result)
+		{
+			std::istringstream ss(input);
+			std::string token;
+
+			while (std::getline(ss, token, ';'))
+			{
+				result.push_back(token);
+			}
+		}
+
+		static bool checkTags(const std::string& tagSet, const std::string& tagSetToCompareWith,
+		                           bool emptyTagSetMeansAll)
+		{
+			std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
+
+			if (tagSetToCompareWith == "")
+			{
+				return emptyTagSetMeansAll;
+			}
+
+			splitString(tagSet, tagSetVec);
+			splitString(tagSetToCompareWith, tagSetToCompareWithVec);
+
+			for (const auto& tagSetToCompareWithIter : tagSetToCompareWithVec)
+			{
+				if (std::any_of(tagSetVec.begin(), tagSetVec.end(), [tagSetToCompareWithIter](const std::string& val) {
+					    return val == tagSetToCompareWithIter;
+				    }))
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		std::string m_UserIncludeTags;
