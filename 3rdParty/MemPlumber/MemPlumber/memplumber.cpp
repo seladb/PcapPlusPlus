@@ -168,7 +168,7 @@ public:
 		strncpy(node->file, file, MEMPLUMBER_FILENAME_LEN - 1);
 		node->file[MEMPLUMBER_FILENAME_LEN - 1] = '\0';
 
-        // if not started, do not add the allocation into the hashtable.
+        // If not started, do not add the allocation into the tracking lists.
         if (m_ProgramStarted != 0 && !m_Started) {
             if (isVerbose()) {
                 fprintf(m_Dumper, "Allocate untracked: %d[bytes] in 0x%p in %s:%d\n", (int)size, userPointer, file, line);
