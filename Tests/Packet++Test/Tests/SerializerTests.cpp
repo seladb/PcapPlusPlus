@@ -329,8 +329,10 @@ PTF_TEST_CASE(JsonSerializerTest)
 		{
 			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 			obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("value"));
+			auto obj2 = obj.writeObject(pcpp::FieldDescriptor{ 3, "nested" });
+			obj2.writeField(pcpp::FieldDescriptor{ 4, "inner" }, std::string("data"));
 		}
-		PTF_ASSERT_EQUAL(oss.str(), "{\n\"name\": \"value\"\n}");
+		PTF_ASSERT_EQUAL(oss.str(), "{\n\"name\": \"value\",\n\"nested\": {\n\"inner\": \"data\"\n}\n}");
 	}
 
 	// An empty array or object should be pretty printed without new-lines.
