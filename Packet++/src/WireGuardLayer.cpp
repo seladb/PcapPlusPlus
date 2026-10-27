@@ -4,6 +4,7 @@
 #include "UdpLayer.h"
 #include "WireGuardLayer.h"
 #include "EndianPortable.h"
+#include "GeneralUtils.h"
 #include <iomanip>
 
 namespace pcpp
@@ -91,6 +92,34 @@ namespace pcpp
 		uint8_t messageType = data[0];
 		return messageType >= static_cast<uint8_t>(WireGuardLayer::WireGuardMessageType::HandshakeInitiation) &&
 		       messageType <= static_cast<uint8_t>(WireGuardLayer::WireGuardMessageType::TransportData);
+	}
+
+	static constexpr const char* messageTypeToString(uint8_t messageType)
+	{
+		switch (messageType)
+		{
+		case static_cast<uint8_t>(WireGuardLayer::WireGuardMessageType::HandshakeInitiation):
+			return "HandshakeInitiation";
+		case static_cast<uint8_t>(WireGuardLayer::WireGuardMessageType::HandshakeResponse):
+			return "HandshakeResponse";
+		case static_cast<uint8_t>(WireGuardLayer::WireGuardMessageType::CookieReply):
+			return "CookieReply";
+		case static_cast<uint8_t>(WireGuardLayer::WireGuardMessageType::TransportData):
+			return "TransportData";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor WireGuardLayer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 1,
+		                                                                 "messageType" };
+	const FieldDescriptor WireGuardLayer::SerializedFields::MessageTypeName{ Layer::SerializedFields::MaxID + 2,
+		                                                                     "messageTypeName" };
+
+	void WireGuardLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::MessageType, getMessageType());
+		serializer.writeField(SerializedFields::MessageTypeName, messageTypeToString(getMessageType()));
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -197,6 +226,54 @@ namespace pcpp
 		memcpy(msg->mac2, mac2.data(), 16);
 	}
 
+	const FieldDescriptor WireGuardHandshakeInitiationLayer::SerializedFields::SenderIndex{
+		WireGuardLayer::SerializedFields::MaxID + 1, "senderIndex"
+	};
+	const FieldDescriptor WireGuardHandshakeInitiationLayer::SerializedFields::InitiatorEphemeral{
+		WireGuardLayer::SerializedFields::MaxID + 2, "initiatorEphemeral"
+	};
+	const FieldDescriptor WireGuardHandshakeInitiationLayer::SerializedFields::EncryptedInitiatorStatic{
+		WireGuardLayer::SerializedFields::MaxID + 3, "encryptedInitiatorStatic"
+	};
+	const FieldDescriptor WireGuardHandshakeInitiationLayer::SerializedFields::EncryptedTimestamp{
+		WireGuardLayer::SerializedFields::MaxID + 4, "encryptedTimestamp"
+	};
+	const FieldDescriptor WireGuardHandshakeInitiationLayer::SerializedFields::Mac1{
+		WireGuardLayer::SerializedFields::MaxID + 5, "mac1"
+	};
+	const FieldDescriptor WireGuardHandshakeInitiationLayer::SerializedFields::Mac2{
+		WireGuardLayer::SerializedFields::MaxID + 6, "mac2"
+	};
+
+	void WireGuardHandshakeInitiationLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		WireGuardLayer::serializeLayer(serializer);
+		serializer.writeHexField(SerializedFields::SenderIndex, getSenderIndex());
+		{
+			auto value = getInitiatorEphemeral();
+			serializer.writeField(SerializedFields::InitiatorEphemeral,
+			                      byteArrayToHexString(value.data(), value.size()));
+		}
+		{
+			auto value = getEncryptedInitiatorStatic();
+			serializer.writeField(SerializedFields::EncryptedInitiatorStatic,
+			                      byteArrayToHexString(value.data(), value.size()));
+		}
+		{
+			auto value = getEncryptedTimestamp();
+			serializer.writeField(SerializedFields::EncryptedTimestamp,
+			                      byteArrayToHexString(value.data(), value.size()));
+		}
+		{
+			auto value = getMac1();
+			serializer.writeField(SerializedFields::Mac1, byteArrayToHexString(value.data(), value.size()));
+		}
+		{
+			auto value = getMac2();
+			serializer.writeField(SerializedFields::Mac2, byteArrayToHexString(value.data(), value.size()));
+		}
+	}
+
 	// ~~~~~~~~~~~~~~~~~~~~
 	// WireGuardHandshakeResponseLayer
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -297,6 +374,49 @@ namespace pcpp
 		memcpy(msg->mac2, mac2.data(), 16);
 	}
 
+	const FieldDescriptor WireGuardHandshakeResponseLayer::SerializedFields::SenderIndex{
+		WireGuardLayer::SerializedFields::MaxID + 1, "senderIndex"
+	};
+	const FieldDescriptor WireGuardHandshakeResponseLayer::SerializedFields::ReceiverIndex{
+		WireGuardLayer::SerializedFields::MaxID + 2, "receiverIndex"
+	};
+	const FieldDescriptor WireGuardHandshakeResponseLayer::SerializedFields::ResponderEphemeral{
+		WireGuardLayer::SerializedFields::MaxID + 3, "responderEphemeral"
+	};
+	const FieldDescriptor WireGuardHandshakeResponseLayer::SerializedFields::EncryptedEmpty{
+		WireGuardLayer::SerializedFields::MaxID + 4, "encryptedEmpty"
+	};
+	const FieldDescriptor WireGuardHandshakeResponseLayer::SerializedFields::Mac1{
+		WireGuardLayer::SerializedFields::MaxID + 5, "mac1"
+	};
+	const FieldDescriptor WireGuardHandshakeResponseLayer::SerializedFields::Mac2{
+		WireGuardLayer::SerializedFields::MaxID + 6, "mac2"
+	};
+
+	void WireGuardHandshakeResponseLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		WireGuardLayer::serializeLayer(serializer);
+		serializer.writeHexField(SerializedFields::SenderIndex, getSenderIndex());
+		serializer.writeHexField(SerializedFields::ReceiverIndex, getReceiverIndex());
+		{
+			auto value = getResponderEphemeral();
+			serializer.writeField(SerializedFields::ResponderEphemeral,
+			                      byteArrayToHexString(value.data(), value.size()));
+		}
+		{
+			auto value = getEncryptedEmpty();
+			serializer.writeField(SerializedFields::EncryptedEmpty, byteArrayToHexString(value.data(), value.size()));
+		}
+		{
+			auto value = getMac1();
+			serializer.writeField(SerializedFields::Mac1, byteArrayToHexString(value.data(), value.size()));
+		}
+		{
+			auto value = getMac2();
+			serializer.writeField(SerializedFields::Mac2, byteArrayToHexString(value.data(), value.size()));
+		}
+	}
+
 	// ~~~~~~~~~~~~~~~~~~~~
 	// WireGuardCookieReplyLayer
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -352,6 +472,30 @@ namespace pcpp
 	{
 		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
 		memcpy(msg->encryptedCookie, encryptedCookie.data(), 32);
+	}
+
+	const FieldDescriptor WireGuardCookieReplyLayer::SerializedFields::ReceiverIndex{
+		WireGuardLayer::SerializedFields::MaxID + 1, "receiverIndex"
+	};
+	const FieldDescriptor WireGuardCookieReplyLayer::SerializedFields::Nonce{
+		WireGuardLayer::SerializedFields::MaxID + 2, "nonce"
+	};
+	const FieldDescriptor WireGuardCookieReplyLayer::SerializedFields::EncryptedCookie{
+		WireGuardLayer::SerializedFields::MaxID + 3, "encryptedCookie"
+	};
+
+	void WireGuardCookieReplyLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		WireGuardLayer::serializeLayer(serializer);
+		serializer.writeHexField(SerializedFields::ReceiverIndex, getReceiverIndex());
+		{
+			auto value = getNonce();
+			serializer.writeField(SerializedFields::Nonce, byteArrayToHexString(value.data(), value.size()));
+		}
+		{
+			auto value = getEncryptedCookie();
+			serializer.writeField(SerializedFields::EncryptedCookie, byteArrayToHexString(value.data(), value.size()));
+		}
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -425,6 +569,20 @@ namespace pcpp
 		}
 
 		memcpy(m_Data + headerLen, encryptedData, encryptedDataLen);
+	}
+
+	const FieldDescriptor WireGuardTransportDataLayer::SerializedFields::ReceiverIndex{
+		WireGuardLayer::SerializedFields::MaxID + 1, "receiverIndex"
+	};
+	const FieldDescriptor WireGuardTransportDataLayer::SerializedFields::Counter{
+		WireGuardLayer::SerializedFields::MaxID + 2, "counter"
+	};
+
+	void WireGuardTransportDataLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		WireGuardLayer::serializeLayer(serializer);
+		serializer.writeHexField(SerializedFields::ReceiverIndex, getReceiverIndex());
+		serializer.writeField(SerializedFields::Counter, getCounter());
 	}
 
 }  // namespace pcpp
