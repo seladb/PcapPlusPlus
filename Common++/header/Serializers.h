@@ -281,7 +281,6 @@ namespace pcpp
 		void prepareNext();
 		void writeSeparatorIfNeeded();
 		void writeKey(const std::string& name);
-
 		void writeIndent(bool forceNewline = false);
 
 		std::ostream& m_Out;
