@@ -315,7 +315,7 @@ namespace pcpp
 			m_Out << '\n';
 			if (m_IndentPerLevel > 0)
 			{
-				for (int i = 0; i < m_ContextStack.size() * m_IndentPerLevel; ++i)
+				for (size_t i = 0; i < m_ContextStack.size() * m_IndentPerLevel; ++i)
 					m_Out << ' ';
 			}
 		}
