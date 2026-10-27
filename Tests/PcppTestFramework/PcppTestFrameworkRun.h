@@ -14,7 +14,7 @@
 namespace ptf
 {
 	static bool verboseMode = false;
-	static bool showSkippedTests = false;	
+	static bool showSkippedTests = false;
 
 	class TestRunner
 	{
@@ -31,8 +31,7 @@ namespace ptf
 			std::string allTestTags = testName + ";" + additionalTestTags;
 			int result = PTF_RESULT_PASSED;
 
-			if (!checkTags(allTestTags, m_UserIncludeTags, true) ||
-			    checkTags(allTestTags, m_UserExcludeTags, false))
+			if (!checkTags(allTestTags, m_UserIncludeTags, true) || checkTags(allTestTags, m_UserExcludeTags, false))
 			{
 				if (showSkippedTests)
 				{
@@ -134,7 +133,7 @@ namespace ptf
 		}
 
 		static bool checkTags(const std::string& tagSet, const std::string& tagSetToCompareWith,
-		                           bool emptyTagSetMeansAll)
+		                      bool emptyTagSetMeansAll)
 		{
 			std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
 
