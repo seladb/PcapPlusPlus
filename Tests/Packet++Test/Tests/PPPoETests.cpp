@@ -48,6 +48,13 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->toString(),
 	                 std::string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"));
 
+	// a buffer shorter than the PPPoE header is kept as is
+	{
+		uint8_t* shortData = new uint8_t[3]{ 0x11, 0x00, 0x00 };
+		pcpp::PPPoESessionLayer shortLayer(shortData, 3, nullptr, nullptr);
+		PTF_ASSERT_EQUAL(shortLayer.getDataLen(), 3);
+	}
+
 	{
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
