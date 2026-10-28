@@ -329,6 +329,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(DhcpV6ParsingTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6RelayMessageParsingTest, "dhcp;dhcpv6");
+	PTF_RUN_TEST(DhcpV6RelayMessageCreationTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6CreationTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6EditTest, "dhcp;dhcpv6");
 

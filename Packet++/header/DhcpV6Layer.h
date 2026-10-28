@@ -2,6 +2,7 @@
 
 #include "Layer.h"
 #include "TLVData.h"
+#include "IpAddress.h"
 
 /// @file
 
@@ -251,24 +252,29 @@ namespace pcpp
 	};
 	static_assert(sizeof(dhcpv6_header) == 4, "dhcpv6_header size is not 4 bytes");
 
-	/// @class DhcpV6Layer
-	/// Represents a DHCPv6 (Dynamic Host Configuration Protocol version 6) protocol layer
-	class DhcpV6Layer : public Layer
+#pragma pack(push, 1)
+	/// @struct dhcpv6_relay_header
+	/// Represents the header of DHCPv6 relay-forward and relay-reply messages (RFC 8415 section 9)
+	struct dhcpv6_relay_header
+	{
+		/// DHCPv6 message type (relay-forward or relay-reply)
+		uint8_t messageType;
+		/// Number of relay agents that have already relayed this message
+		uint8_t hopCount;
+		/// Address that identifies the link on which the client is located
+		uint8_t linkAddress[16];
+		/// Address of the client or relay agent from which the message was received
+		uint8_t peerAddress[16];
+	};
+#pragma pack(pop)
+	static_assert(sizeof(dhcpv6_relay_header) == 34, "dhcpv6_relay_header size is not 34 bytes");
+
+	/// @class DhcpV6LayerBase
+	/// A base class for the DHCPv6 (Dynamic Host Configuration Protocol version 6) layers. It contains the message
+	/// type and the options, which client/server messages (DhcpV6Layer) and relay messages (DhcpV6RelayLayer) share
+	class DhcpV6LayerBase : public Layer
 	{
 	public:
-		/// A constructor that creates the layer from an existing packet raw data
-		/// @param[in] data A pointer to the raw data
-		/// @param[in] dataLen Size of the data in bytes
-		/// @param[in] prevLayer A pointer to the previous layer
-		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
-		DhcpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
-		/// A constructor that creates the layer from scratch
-		/// @param[in] messageType A DHCPv6 message type to be set
-		/// @param[in] transactionId The transaction ID to be set. Notice the transaction ID is 3-byte long so the value
-		/// shouldn't exceed 0xFFFFFF
-		DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId);
-
 		/// @return The message type of this DHCPv6 message
 		DhcpV6MessageType getMessageType() const;
 
@@ -278,13 +284,6 @@ namespace pcpp
 		/// Set the message type for this layer
 		/// @param[in] messageType The message type to set
 		void setMessageType(DhcpV6MessageType messageType);
-
-		/// @return The transaction ID of this DHCPv6 message
-		uint32_t getTransactionID() const;
-
-		/// Set the transaction ID for this DHCPv6 message
-		/// @param[in] transactionId The transaction ID value to set
-		void setTransactionID(uint32_t transactionId) const;
 
 		/// @return The first DHCPv6 option in the packet. If there are no DHCPv6 options the returned value will
 		/// contain a logical null (DhcpV6Option#isNull() == true)
@@ -340,19 +339,13 @@ namespace pcpp
 		/// @return True if this is a DHCPv6 port number, false otherwise
 		static inline bool isDhcpV6Port(uint16_t port);
 
-		/// A static method that validates the input data
-		/// @param[in] data The pointer to the beginning of a byte stream of an DHCPv6 layer
-		/// @param[in] dataLen The length of the byte stream
-		/// @return True if the data is valid and can represent an DHCPv6 layer
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
-
 		// implement abstract methods
 
-		/// Does nothing for this layer (DhcpV6Layer is always last)
+		/// Does nothing for this layer (DHCPv6 layers are always last)
 		void parseNextLayer() override
 		{}
 
-		/// @return The size of @ref dhcpv6_header + size of options
+		/// @return The size of the message header + size of options
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
@@ -363,6 +356,68 @@ namespace pcpp
 		{}
 
 		std::string toString() const override;
+
+		OsiModelLayer getOsiModelLayer() const override
+		{
+			return OsiModelApplicationLayer;
+		}
+
+	protected:
+		DhcpV6LayerBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, DHCPv6)
+		{}
+
+		/// Creates the layer from scratch with a zeroed header of the given size
+		explicit DhcpV6LayerBase(size_t headerLen);
+
+		/// @return The offset of the first option, i.e. the size of the message header
+		virtual size_t getOptionsOffset() const = 0;
+
+		/// Writes the names of the options to an array field
+		void serializeOptions(ObjectScope& serializer, const FieldDescriptor& optionsField,
+		                      const FieldDescriptor& optionField) const;
+
+	private:
+		uint8_t* getOptionsBasePtr() const
+		{
+			return m_Data + getOptionsOffset();
+		}
+		DhcpV6Option addOptionAt(const DhcpV6OptionBuilder& optionBuilder, int offset);
+
+		TLVRecordReader<DhcpV6Option> m_OptionReader;
+	};
+
+	/// @class DhcpV6Layer
+	/// Represents a DHCPv6 (Dynamic Host Configuration Protocol version 6) client/server message: every message type
+	/// except relay-forward and relay-reply, which DhcpV6RelayLayer represents
+	class DhcpV6Layer : public DhcpV6LayerBase
+	{
+	public:
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		DhcpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// A constructor that creates the layer from scratch
+		/// @param[in] messageType A DHCPv6 message type to be set
+		/// @param[in] transactionId The transaction ID to be set. Notice the transaction ID is 3-byte long so the value
+		/// shouldn't exceed 0xFFFFFF
+		DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId);
+
+		/// @return The transaction ID of this DHCPv6 message
+		uint32_t getTransactionID() const;
+
+		/// Set the transaction ID for this DHCPv6 message
+		/// @param[in] transactionId The transaction ID value to set
+		void setTransactionID(uint32_t transactionId) const;
+
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an DHCPv6 layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent a DHCPv6 client/server message
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		/// @struct SerializedFields
 		/// Struct that contains field descriptors for serialization
@@ -386,39 +441,129 @@ namespace pcpp
 			static const FieldDescriptor Option;
 		};
 
-		OsiModelLayer getOsiModelLayer() const override
-		{
-			return OsiModelApplicationLayer;
-		}
-
 	protected:
 		void serializeLayer(ObjectScope& serializer) const override;
 
-	private:
-		uint8_t* getOptionsBasePtr() const
+		size_t getOptionsOffset() const override
 		{
-			return m_Data + getOptionsOffset();
+			return sizeof(dhcpv6_header);
 		}
-		size_t getOptionsOffset() const;
+
+	private:
 		dhcpv6_header* getDhcpHeader() const
 		{
 			return reinterpret_cast<dhcpv6_header*>(m_Data);
 		}
-		DhcpV6Option addOptionAt(const DhcpV6OptionBuilder& optionBuilder, int offset);
+	};
 
-		TLVRecordReader<DhcpV6Option> m_OptionReader;
+	/// @class DhcpV6RelayLayer
+	/// Represents a DHCPv6 relay-forward or relay-reply message (RFC 8415 section 9), which has a hop count, a link
+	/// address and a peer address instead of a transaction ID
+	class DhcpV6RelayLayer : public DhcpV6LayerBase
+	{
+	public:
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
+		DhcpV6RelayLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/// A constructor that creates the layer from scratch
+		/// @param[in] messageType DHCPV6_RELAY_FORWARD or DHCPV6_RELAY_REPLY
+		/// @param[in] hopCount The hop count to be set
+		/// @param[in] linkAddress The link address to be set
+		/// @param[in] peerAddress The peer address to be set
+		/// @throws std::invalid_argument if messageType is not a relay message type
+		DhcpV6RelayLayer(DhcpV6MessageType messageType, uint8_t hopCount, const IPv6Address& linkAddress,
+		                 const IPv6Address& peerAddress);
+
+		/// @return The hop count of this message
+		uint8_t getHopCount() const;
+
+		/// Set the hop count of this message
+		/// @param[in] hopCount The hop count to set
+		void setHopCount(uint8_t hopCount);
+
+		/// @return The link address of this message
+		IPv6Address getLinkAddress() const;
+
+		/// Set the link address of this message
+		/// @param[in] linkAddress The link address to set
+		void setLinkAddress(const IPv6Address& linkAddress);
+
+		/// @return The peer address of this message
+		IPv6Address getPeerAddress() const;
+
+		/// Set the peer address of this message
+		/// @param[in] peerAddress The peer address to set
+		void setPeerAddress(const IPv6Address& peerAddress);
+
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an DHCPv6 layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is a relay-forward or relay-reply message that is long enough for its header
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		/// @struct SerializedFields
+		/// Struct that contains field descriptors for serialization
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for DhcpV6RelayLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ MessageType, HopCount, LinkAddress, PeerAddress,
+					                                          Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+			/// @brief DHCPv6 message type name
+			static const FieldDescriptor MessageType;
+			/// @brief Hop count
+			static const FieldDescriptor HopCount;
+			/// @brief Link address
+			static const FieldDescriptor LinkAddress;
+			/// @brief Peer address
+			static const FieldDescriptor PeerAddress;
+			/// @brief Array of DHCPv6 option names
+			static const FieldDescriptor Options;
+			/// @brief Name of one option within the options array
+			static const FieldDescriptor Option;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
+		size_t getOptionsOffset() const override
+		{
+			return sizeof(dhcpv6_relay_header);
+		}
+
+	private:
+		dhcpv6_relay_header* getRelayHeader() const
+		{
+			return reinterpret_cast<dhcpv6_relay_header*>(m_Data);
+		}
 	};
 
 	// implementation of inline methods
 
-	bool DhcpV6Layer::isDhcpV6Port(uint16_t port)
+	bool DhcpV6LayerBase::isDhcpV6Port(uint16_t port)
 	{
 		return (port == 546) || (port == 547);
 	}
 
 	bool DhcpV6Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(dhcpv6_header);
+		return data && dataLen >= sizeof(dhcpv6_header) && data[0] != DHCPV6_RELAY_FORWARD &&
+		       data[0] != DHCPV6_RELAY_REPLY;
+	}
+
+	bool DhcpV6RelayLayer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		return data && dataLen >= sizeof(dhcpv6_relay_header) &&
+		       (data[0] == DHCPV6_RELAY_FORWARD || data[0] == DHCPV6_RELAY_REPLY);
 	}
 
 }  // namespace pcpp
