@@ -28,7 +28,7 @@ namespace pcpp
 			return oss.str();
 		}
 
-		/// @brief Mutator view that prints a string as an escaped quoted string.
+		/// @brief Formatting view that prints a string as an escaped quoted string.
 		///
 		/// Backslash-escapes a string for embedding in a double-quoted JSON or YAML scalar.
 		/// Shared by JsonSerializer and YamlSerializer.
