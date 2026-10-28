@@ -1021,11 +1021,11 @@ PTF_TEST_CASE(PayloadLayerNullDataTest)
 {
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
 
-	// constructor: a null data pointer or a zero length gives an empty payload
+	// constructor: a zero length gives an empty payload, a null pointer with a length is rejected
 	pcpp::PayloadLayer nullZeroLayer(nullptr, 0);
 	PTF_ASSERT_EQUAL(nullZeroLayer.getDataLen(), 0);
-	pcpp::PayloadLayer nullLenLayer(nullptr, 5);
-	PTF_ASSERT_EQUAL(nullLenLayer.getDataLen(), 0);
+	PTF_ASSERT_RAISES(pcpp::PayloadLayer(nullptr, 5), std::invalid_argument,
+	                  "Payload data is null but its length is not zero");
 	pcpp::PayloadLayer zeroLenLayer(payload, 0);
 	PTF_ASSERT_EQUAL(zeroLenLayer.getDataLen(), 0);
 	pcpp::PayloadLayer dataLayer(payload, 4);
@@ -1036,9 +1036,16 @@ PTF_TEST_CASE(PayloadLayerNullDataTest)
 	pcpp::PayloadLayer payloadLayer(payload, 4);
 	pcpp::Packet packet(100);
 	PTF_ASSERT_TRUE(packet.addLayer(&payloadLayer));
-	payloadLayer.setPayload(nullptr, 5);
+	PTF_ASSERT_RAISES(payloadLayer.setPayload(nullptr, 5), std::invalid_argument,
+	                  "Payload data is null but its length is not zero");
+	PTF_ASSERT_EQUAL(payloadLayer.getDataLen(), 4);
+	PTF_ASSERT_BUF_COMPARE(packet.getRawPacket()->getRawData(), payload, 4);
+	payloadLayer.setPayload(payload, 2);
+	PTF_ASSERT_EQUAL(payloadLayer.getDataLen(), 2);
+	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 2);
+	PTF_ASSERT_BUF_COMPARE(packet.getRawPacket()->getRawData(), payload, 2);
+	payloadLayer.setPayload(payload, 0);
 	PTF_ASSERT_EQUAL(payloadLayer.getDataLen(), 0);
-	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 0);
 	payloadLayer.setPayload(payload, 4);
 	PTF_ASSERT_EQUAL(payloadLayer.getDataLen(), 4);
 	PTF_ASSERT_BUF_COMPARE(packet.getRawPacket()->getRawData(), payload, 4);

@@ -4,15 +4,16 @@
 #include "GeneralUtils.h"
 #include <sstream>
 #include <cstring>
+#include <stdexcept>
 
 namespace pcpp
 {
 
 	PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen) : Layer()
 	{
-		if (data == nullptr)
+		if (data == nullptr && dataLen != 0)
 		{
-			dataLen = 0;
+			throw std::invalid_argument("Payload data is null but its length is not zero");
 		}
 
 		allocData(dataLen, false);
@@ -43,9 +44,9 @@ namespace pcpp
 
 	void PayloadLayer::setPayload(const uint8_t* newPayload, size_t newPayloadLength)
 	{
-		if (newPayload == nullptr)
+		if (newPayload == nullptr && newPayloadLength != 0)
 		{
-			newPayloadLength = 0;
+			throw std::invalid_argument("Payload data is null but its length is not zero");
 		}
 
 		if (newPayloadLength < m_DataLen)
