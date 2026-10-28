@@ -34,7 +34,7 @@ namespace pcpp
 		/// Shared by JsonSerializer and YamlSerializer.
 		struct EscapedQuotedString
 		{
-			EscapedQuotedString(std::string const& s) : str(s)
+			explicit EscapedQuotedString(std::string const& s) : str(s)
 			{}
 
 			std::string const& str;
