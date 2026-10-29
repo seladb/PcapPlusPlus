@@ -2,7 +2,9 @@
 
 #include "DnsResource.h"
 #include "Logger.h"
+#include <limits>
 #include <sstream>
+#include <vector>
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -340,10 +342,6 @@ namespace pcpp
 
 	bool DnsResource::setData(IDnsResourceData* data)
 	{
-		// convert data to byte array according to the DNS type
-		size_t dataLength = 0;
-		uint8_t dataAsByteArr[4096];
-
 		if (data == nullptr)
 		{
 			PCPP_LOG_ERROR("Given data is nullptr");
@@ -402,10 +400,21 @@ namespace pcpp
 		}
 		}
 
-		// convert the IDnsResourceData to byte array
-		if (!data->toByteArr(dataAsByteArr, dataLength, this))
+		// convert the IDnsResourceData to a byte array
+		std::vector<uint8_t> dataAsByteArr = data->toBytes(this);
+		if (dataAsByteArr.empty())
 		{
 			PCPP_LOG_ERROR("Cannot convert DNS resource data to byte array, data is probably invalid");
+			return false;
+		}
+
+		size_t dataLength = dataAsByteArr.size();
+
+		// DNS RR data length is encoded in a 16-bit field. Parentheses around max avoid a clash with the
+		// Windows max macro
+		if (dataLength > (std::numeric_limits<uint16_t>::max)())
+		{
+			PCPP_LOG_ERROR("DNS resource data is too large: " << dataLength);
 			return false;
 		}
 
@@ -434,7 +443,7 @@ namespace pcpp
 		}
 
 		// write data to resource
-		memcpy(getRawData() + dataOffset, dataAsByteArr, dataLength);
+		memcpy(getRawData() + dataOffset, dataAsByteArr.data(), dataLength);
 		// update data length in resource
 		dataLength = htobe16((uint16_t)dataLength);
 		memcpy(getRawData() + dataLengthOffset, &dataLength, sizeof(uint16_t));
