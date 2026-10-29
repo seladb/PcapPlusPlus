@@ -90,12 +90,12 @@ namespace pcpp
 		}
 
 		/// @struct SerializedFields
-		/// Fields shared by HttpRequestLayer and HttpResponseLayer. They're written after the first line fields, which
-		/// use IDs Layer::SerializedFields::MaxID + 1 to Layer::SerializedFields::MaxID + 3.
+		/// @brief Fields shared by HttpRequestLayer and HttpResponseLayer. They're written after the first line fields,
+		/// which use IDs Layer::SerializedFields::MaxID + 1 to Layer::SerializedFields::MaxID + 3.
 		struct SerializedFields : Layer::SerializedFields
 		{
 			/// @struct HeaderFieldObject
-			/// Fields describing one element of the HeaderFields array of HttpRequestLayer and HttpResponseLayer
+			/// @brief Fields describing one element of the HeaderFields array of HttpRequestLayer and HttpResponseLayer
 			struct HeaderFieldObject : ObjectFieldDescriptor<HeaderFieldObject>
 			{
 				using ObjectFieldDescriptor::ObjectFieldDescriptor;
@@ -236,7 +236,7 @@ namespace pcpp
 		std::string toString() const override;
 
 		/// @struct SerializedFields
-		/// Fields written by HttpRequestLayer's serializeLayer(), in addition to
+		/// @brief Fields written by HttpRequestLayer's serializeLayer(), in addition to
 		/// HttpMessage::SerializedFields.
 		struct SerializedFields : HttpMessage::SerializedFields
 		{
@@ -615,7 +615,7 @@ namespace pcpp
 		std::string toString() const override;
 
 		/// @struct SerializedFields
-		/// Fields written by HttpResponseLayer's serializeLayer(), in addition to
+		/// @brief Fields written by HttpResponseLayer's serializeLayer(), in addition to
 		/// HttpMessage::SerializedFields.
 		struct SerializedFields : HttpMessage::SerializedFields
 		{
