@@ -374,7 +374,8 @@ namespace pcpp
 			return getMessageType() == type;
 		}
 
-		/// @return ICMP echo (ping) request data. If the layer isn't of type ICMP echo request nullptr is returned
+		/// @return ICMP echo (ping) request data. If the layer isn't of type ICMP echo request or is too short to
+		/// contain icmp_echo_hdr nullptr is returned
 		icmp_echo_request* getEchoRequestData();
 
 		/// Set echo (ping) request message data
@@ -388,7 +389,8 @@ namespace pcpp
 		icmp_echo_request* setEchoRequestData(uint16_t id, uint16_t sequence, uint64_t timestamp, const uint8_t* data,
 		                                      size_t dataLen);
 
-		/// @return ICMP echo reply data. If the layer isn't of type ICMP echo reply nullptr is returned
+		/// @return ICMP echo reply data. If the layer isn't of type ICMP echo reply or is too short to contain
+		/// icmp_echo_hdr nullptr is returned
 		icmp_echo_reply* getEchoReplyData();
 
 		/// Set echo (ping) reply message data
