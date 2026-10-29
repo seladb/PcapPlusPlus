@@ -307,6 +307,109 @@ PTF_TEST_CASE(JsonSerializerTest)
 			                  "Only one root value may be written per instance");
 		}
 	}
+
+	// Different levels of indentation are supported.
+	// If indent is negative, the output is minified (no newlines or spaces).
+	{
+		for (int indent = -4; indent < 0; ++indent)
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss, indent);
+			{
+				auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+				obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("value"));
+				auto arr = obj.writeArray(pcpp::FieldDescriptor{ 3, "list" });
+				arr.writeField(pcpp::FieldDescriptor{ 4, "ignored" }, 1);
+				arr.writeField(pcpp::FieldDescriptor{ 5, "ignored" }, 2);
+			}
+			PTF_ASSERT_EQUAL(oss.str(), R"({"name":"value","list":[1,2]})");
+		}
+	}
+	// If indent is non-negative, the output is pretty-printed with the specified number of spaces per level.
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 2);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("value"));
+			auto arr = obj.writeArray(pcpp::FieldDescriptor{ 3, "list" });
+			arr.writeField(pcpp::FieldDescriptor{ 4, "ignored" }, 1);
+			arr.writeField(pcpp::FieldDescriptor{ 5, "ignored" }, 2);
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "{\n  \"name\": \"value\",\n  \"list\": [\n    1,\n    2\n  ]\n}");
+	}
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 0);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeField(pcpp::FieldDescriptor{ 2, "name" }, std::string("value"));
+			auto obj2 = obj.writeObject(pcpp::FieldDescriptor{ 3, "nested" });
+			obj2.writeField(pcpp::FieldDescriptor{ 4, "inner" }, std::string("data"));
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "{\n\"name\": \"value\",\n\"nested\": {\n\"inner\": \"data\"\n}\n}");
+	}
+
+	// An empty array or object should be pretty printed without new-lines.
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 2);
+		{
+			auto obj = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			obj.writeArray(pcpp::FieldDescriptor{ 2, "emptyArray" });
+			obj.writeObject(pcpp::FieldDescriptor{ 3, "emptyObject" });
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "{\n  \"emptyArray\": [],\n  \"emptyObject\": {}\n}");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 2);
+		{
+			auto arr = serializer.writeArray(pcpp::FieldDescriptor{ 1, "root" });
+			arr.writeArray(pcpp::FieldDescriptor{ 2, "emptyArray" });
+			arr.writeObject(pcpp::FieldDescriptor{ 3, "emptyObject" });
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "[\n  [],\n  {}\n]");
+	}
+
+	// Depth 3 sample with indent 1
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 1);  // Single space to conserve horizontal space.
+		{
+			auto objd1 = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
+			auto objd2 = objd1.writeObject(pcpp::FieldDescriptor{ 2, "level2" });
+			auto objd3 = objd2.writeObject(pcpp::FieldDescriptor{ 3, "level3" });
+			auto objd4 = objd3.writeObject(pcpp::FieldDescriptor{ 4, "level4" });
+			objd4.writeField(pcpp::FieldDescriptor{ 5, "value" }, 42);
+		}
+
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 "{\n \"level2\": {\n  \"level3\": {\n   \"level4\": {\n    \"value\": 42\n   }\n  }\n }\n}");
+	}
+
+	// Combined sample with nested and empty arrays/objects.
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss, 1);  // Single space to conserve horizontal space.
+		{
+			// Use an array as the root to test root array serialization.
+			auto root = serializer.writeArray(pcpp::FieldDescriptor{ 1, "root" });
+			root.writeObject(pcpp::FieldDescriptor{ 2, "fooObject" });
+			root.writeArray(pcpp::FieldDescriptor{ 3, "fooArray" });
+			root.writeObject(pcpp::FieldDescriptor{ 4, "barObject" })
+			    .writeField(pcpp::FieldDescriptor{ 5, "values" }, 42);
+
+			{
+				auto arr = root.writeArray(pcpp::FieldDescriptor{ 6, "barArray" });
+				arr.writeField(pcpp::FieldDescriptor{ 7, "ignored" }, 1);
+				arr.writeField(pcpp::FieldDescriptor{ 7, "ignored" }, 2);
+				arr.writeField(pcpp::FieldDescriptor{ 7, "ignored" }, 3);
+			}
+		}
+		PTF_ASSERT_EQUAL(oss.str(), "[\n {},\n [],\n {\n  \"values\": 42\n },\n [\n  1,\n  2,\n  3\n ]\n]");
+	}
 }  // JsonSerializerTest
 
 PTF_TEST_CASE(YamlSerializerTest)

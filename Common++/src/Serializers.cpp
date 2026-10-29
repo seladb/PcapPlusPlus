@@ -188,11 +188,12 @@ namespace pcpp
 	// JsonSerializer
 	// ============================================================
 
-	JsonSerializer::JsonSerializer(std::ostream& out) : m_Out(out)
+	JsonSerializer::JsonSerializer(std::ostream& out, int indent) : m_Out(out), m_IndentPerLevel(indent)
 	{}
 
 	void JsonSerializer::startObject(const FieldDescriptor& field)
 	{
+		prepareNext();
 		writeKey(field.name);
 		m_Out << '{';
 		m_ContextStack.push_back(Context::Object);
@@ -201,13 +202,20 @@ namespace pcpp
 
 	void JsonSerializer::endObject()
 	{
-		m_Out << '}';
+		bool hasContent = !m_FirstAtLevel.back();
 		m_ContextStack.pop_back();
 		m_FirstAtLevel.pop_back();
+		// If no content was written, an object should be written as {} on a single line.
+		if (hasContent)
+		{
+			writeNewlineAndIndent();
+		}
+		m_Out << '}';
 	}
 
 	void JsonSerializer::startArray(const FieldDescriptor& field)
 	{
+		prepareNext();
 		writeKey(field.name);
 		m_Out << '[';
 		m_ContextStack.push_back(Context::Array);
@@ -216,25 +224,34 @@ namespace pcpp
 
 	void JsonSerializer::endArray()
 	{
-		m_Out << ']';
+		bool hasContent = !m_FirstAtLevel.back();
 		m_ContextStack.pop_back();
 		m_FirstAtLevel.pop_back();
+		// If no content was written, an array should be written as [] on a single line.
+		if (hasContent)
+		{
+			writeNewlineAndIndent();
+		}
+		m_Out << ']';
 	}
 
 	void JsonSerializer::writeField(const FieldDescriptor& field, const std::string& value)
 	{
+		prepareNext();
 		writeKey(field.name);
 		m_Out << '"' << EscapedQuotedString(value) << '"';
 	}
 
 	void JsonSerializer::writeField(const FieldDescriptor& field, int64_t value)
 	{
+		prepareNext();
 		writeKey(field.name);
 		m_Out << value;
 	}
 
 	void JsonSerializer::writeField(const FieldDescriptor& field, uint64_t value)
 	{
+		prepareNext();
 		writeKey(field.name);
 		// Only quote when the value could actually lose precision in a
 		// JS-based JSON parser — not unconditionally for every uint64_t
@@ -248,26 +265,40 @@ namespace pcpp
 
 	void JsonSerializer::writeField(const FieldDescriptor& field, double value)
 	{
+		prepareNext();
 		writeKey(field.name);
 		m_Out << value;
 	}
 
 	void JsonSerializer::writeField(const FieldDescriptor& field, bool value)
 	{
+		prepareNext();
 		writeKey(field.name);
 		m_Out << (value ? "true" : "false");
 	}
 
 	void JsonSerializer::writeNullField(const FieldDescriptor& field)
 	{
+		prepareNext();
 		writeKey(field.name);
 		m_Out << "null";
 	}
 
 	void JsonSerializer::writeHexField(const FieldDescriptor& field, uint64_t value)
 	{
+		prepareNext();
 		writeKey(field.name);
 		m_Out << '"' << hexNumToString(value) << '"';
+	}
+
+	void JsonSerializer::prepareNext()
+	{
+		writeSeparatorIfNeeded();
+		// Skip newline/indent if we are at root level.
+		if (!m_ContextStack.empty())
+		{
+			writeNewlineAndIndent();
+		}
 	}
 
 	void JsonSerializer::writeSeparatorIfNeeded()
@@ -281,12 +312,29 @@ namespace pcpp
 
 	void JsonSerializer::writeKey(const std::string& name)
 	{
-		writeSeparatorIfNeeded();
 		if (m_ContextStack.empty())
 			return;
 		if (m_ContextStack.back() == Context::Array)
 			return;
 		m_Out << '"' << EscapedQuotedString(name) << "\":";
+
+		// Write a space after the colon if we're not minifying, for readability.
+		if (m_IndentPerLevel >= 0)
+			m_Out << ' ';
+	}
+
+	void JsonSerializer::writeNewlineAndIndent()
+	{
+		// Negative indent means minified JSON.
+		if (m_IndentPerLevel < 0)
+			return;
+
+		m_Out << '\n';
+		if (m_IndentPerLevel > 0)
+		{
+			for (size_t i = 0; i < m_ContextStack.size() * m_IndentPerLevel; ++i)
+				m_Out << ' ';
+		}
 	}
 
 	// ============================================================
