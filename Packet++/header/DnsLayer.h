@@ -384,9 +384,139 @@ namespace pcpp
 		/// @return True if the data is valid and can represent a DNS packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen, bool dnsOverTcp = false);
 
+		/// @struct SerializedFields
+		/// Fields written by DnsLayer's serializeLayer(), in addition to Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for DnsLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ TransactionID,       IsResponse,       Opcode,
+					                                          AuthoritativeAnswer, Truncation,       RecursionDesired,
+					                                          RecursionAvailable,  AuthenticData,    CheckingDisabled,
+					                                          ResponseCode,        Queries,          Answers,
+					                                          Authorities,         AdditionalRecords };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @struct QueryObject
+			/// Fields describing one element of the Queries array
+			struct QueryObject : ObjectFieldDescriptor<QueryObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one query
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Name, Type, TypeName, Class };
+				}
+
+				/// @brief Field descriptor for the queried name, written as a string.
+				static const FieldDescriptor Name;
+
+				/// @brief Field descriptor for the DNS type, written as a number (see ::DnsType).
+				static const FieldDescriptor Type;
+
+				/// @brief Field descriptor for the DNS type name (for example "A", "AAAA" or "CNAME"), written as a
+				/// string, or "Unknown" if the type isn't recognized.
+				static const FieldDescriptor TypeName;
+
+				/// @brief Field descriptor for the DNS class, written as a number (see ::DnsClass).
+				static const FieldDescriptor Class;
+			};
+
+			/// @struct ResourceObject
+			/// Fields describing one element of the Answers, Authorities and AdditionalRecords arrays
+			struct ResourceObject : ObjectFieldDescriptor<ResourceObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one resource record
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Name, Type, TypeName, Class, Ttl, DataLength, Data };
+				}
+
+				/// @brief Field descriptor for the record name, written as a string.
+				static const FieldDescriptor Name;
+
+				/// @brief Field descriptor for the DNS type, written as a number (see ::DnsType).
+				static const FieldDescriptor Type;
+
+				/// @brief Field descriptor for the DNS type name (for example "A", "AAAA" or "CNAME"), written as a
+				/// string, or "Unknown" if the type isn't recognized.
+				static const FieldDescriptor TypeName;
+
+				/// @brief Field descriptor for the DNS class, written as a number (see ::DnsClass). For records that
+				/// don't have a DNS class (such as OPT records) this is the raw value of the class field.
+				static const FieldDescriptor Class;
+
+				/// @brief Field descriptor for the TTL, written as a number. For records that don't have a TTL (such
+				/// as OPT records) this is the raw value of the TTL field.
+				static const FieldDescriptor Ttl;
+
+				/// @brief Field descriptor for the record data length in bytes, written as a number.
+				static const FieldDescriptor DataLength;
+
+				/// @brief Field descriptor for the record data, written as a string (see IDnsResourceData::toString()).
+				/// Only written for records whose data has a dedicated type (A, AAAA, NS, CNAME, DNAME, PTR and MX),
+				/// not for records whose data is stored as a raw byte array (see GenericDnsResourceData).
+				static const FieldDescriptor Data;
+			};
+
+			/// @brief Field descriptor for the transaction ID, written as a hex value.
+			static const FieldDescriptor TransactionID;
+
+			/// @brief Field descriptor for the query/response flag, written as a boolean (true for a response).
+			static const FieldDescriptor IsResponse;
+
+			/// @brief Field descriptor for the operation code, written as a number.
+			static const FieldDescriptor Opcode;
+
+			/// @brief Field descriptor for the authoritative answer flag, written as a boolean.
+			static const FieldDescriptor AuthoritativeAnswer;
+
+			/// @brief Field descriptor for the truncation flag, written as a boolean.
+			static const FieldDescriptor Truncation;
+
+			/// @brief Field descriptor for the recursion desired flag, written as a boolean.
+			static const FieldDescriptor RecursionDesired;
+
+			/// @brief Field descriptor for the recursion available flag, written as a boolean.
+			static const FieldDescriptor RecursionAvailable;
+
+			/// @brief Field descriptor for the authenticated data flag, written as a boolean.
+			static const FieldDescriptor AuthenticData;
+
+			/// @brief Field descriptor for the checking disabled flag, written as a boolean.
+			static const FieldDescriptor CheckingDisabled;
+
+			/// @brief Field descriptor for the response code, written as a number.
+			static const FieldDescriptor ResponseCode;
+
+			/// @brief Field descriptor for the array of queries; elements described by QueryObject.
+			static const FieldDescriptor Queries;
+
+			/// @brief Field descriptor for the array of answers; elements described by ResourceObject.
+			static const FieldDescriptor Answers;
+
+			/// @brief Field descriptor for the array of authorities; elements described by ResourceObject.
+			static const FieldDescriptor Authorities;
+
+			/// @brief Field descriptor for the array of additional records; elements described by ResourceObject.
+			static const FieldDescriptor AdditionalRecords;
+
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 14;
+		};
+
 	protected:
 		DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, size_t offsetAdjustment);
 		explicit DnsLayer(size_t offsetAdjustment);
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		IDnsResource* m_ResourceList;
@@ -461,6 +591,25 @@ namespace pcpp
 
 		/// Calculate the TCP message length field
 		void computeCalculateFields() override;
+
+		/// @struct SerializedFields
+		/// Fields written by DnsOverTcpLayer's serializeLayer(), in addition to DnsLayer::SerializedFields.
+		struct SerializedFields : DnsLayer::SerializedFields
+		{
+			/// @return All field descriptors for DnsOverTcpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DnsLayer::SerializedFields::all();
+				result.push_back(TcpMessageLength);
+				return result;
+			}
+
+			/// @brief Field descriptor for the TCP message length, written as a number.
+			static const FieldDescriptor TcpMessageLength;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	// implementation of inline methods
