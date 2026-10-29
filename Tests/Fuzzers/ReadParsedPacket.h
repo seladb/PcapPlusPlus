@@ -379,9 +379,18 @@ static void readParsedPacket(pcpp::Packet parsedPacket, pcpp::Layer* layer)
 	}
 	if (parsedPacket.isPacketOfType(pcpp::DHCPv6))
 	{
-		if (auto dhcpLayer = dynamic_cast<pcpp::DhcpV6Layer*>(layer))
+		if (auto relayLayer = dynamic_cast<pcpp::DhcpV6RelayLayer*>(layer))
 		{
-			dhcpLayer->getTransactionID();
+			relayLayer->getHopCount();
+			relayLayer->getLinkAddress();
+			relayLayer->getPeerAddress();
+		}
+		if (auto dhcpV6Layer = dynamic_cast<pcpp::DhcpV6Layer*>(layer))
+		{
+			dhcpV6Layer->getTransactionID();
+		}
+		if (auto dhcpLayer = dynamic_cast<pcpp::DhcpV6LayerBase*>(layer))
+		{
 			if (dhcpLayer->getOptionCount() > 0)
 			{
 				pcpp::DhcpV6Option opt = dhcpLayer->getFirstOptionData();

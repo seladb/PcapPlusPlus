@@ -245,6 +245,8 @@ PTF_TEST_CASE(IPSecParsingTest);
 
 // Implemented in DhcpV6Tests.cpp
 PTF_TEST_CASE(DhcpV6ParsingTest);
+PTF_TEST_CASE(DhcpV6RelayMessageParsingTest);
+PTF_TEST_CASE(DhcpV6RelayMessageCreationTest);
 PTF_TEST_CASE(DhcpV6CreationTest);
 PTF_TEST_CASE(DhcpV6EditTest);
 

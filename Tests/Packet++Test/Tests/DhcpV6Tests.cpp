@@ -59,6 +59,96 @@ PTF_TEST_CASE(DhcpV6ParsingTest)
 	}
 }  // DhcpV6ParsingTest
 
+PTF_TEST_CASE(DhcpV6RelayMessageParsingTest)
+{
+	// A relay-forward message has a hop count, a link address and a peer address before its options
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dhcpv6_relay_forward.dat");
+
+	pcpp::Packet dhcpv6Packet(rawPacket1.get());
+	PTF_ASSERT_TRUE(dhcpv6Packet.isPacketOfType(pcpp::DHCPv6));
+	PTF_ASSERT_NULL(dhcpv6Packet.getLayerOfType<pcpp::DhcpV6Layer>());
+	PTF_ASSERT_NOT_NULL(dhcpv6Packet.getLayerOfType<pcpp::DhcpV6LayerBase>());
+	pcpp::DhcpV6RelayLayer* relayLayer = dhcpv6Packet.getLayerOfType<pcpp::DhcpV6RelayLayer>();
+	PTF_ASSERT_NOT_NULL(relayLayer);
+	PTF_ASSERT_EQUAL(pcpp::DhcpV6RelayLayer::SerializedFields::all().size(),
+	                 pcpp::Layer::SerializedFields::all().size() + 5);
+	PTF_ASSERT_EQUAL(relayLayer->getMessageType(), pcpp::DHCPV6_RELAY_FORWARD);
+	PTF_ASSERT_EQUAL(relayLayer->toString(), "DHCPv6 Layer, Relay-Forward message");
+	PTF_ASSERT_EQUAL(relayLayer->getHopCount(), 1);
+	PTF_ASSERT_EQUAL(relayLayer->getLinkAddress(), pcpp::IPv6Address("2001:db8:1::1"));
+	PTF_ASSERT_EQUAL(relayLayer->getPeerAddress(), pcpp::IPv6Address("fe80::211:22ff:fe33:4455"));
+	PTF_ASSERT_EQUAL(relayLayer->getOptionCount(), 2);
+
+	pcpp::DhcpV6Option dhcpOption = relayLayer->getFirstOptionData();
+	PTF_ASSERT_TRUE(dhcpOption.isNotNull());
+	PTF_ASSERT_EQUAL(dhcpOption.getType(), pcpp::DHCPV6_OPT_INTERFACE_ID);
+	PTF_ASSERT_EQUAL(dhcpOption.getValueAsHexString(), "65746830");
+
+	dhcpOption = relayLayer->getNextOptionData(dhcpOption);
+	PTF_ASSERT_TRUE(dhcpOption.isNotNull());
+	PTF_ASSERT_EQUAL(dhcpOption.getType(), pcpp::DHCPV6_OPT_RELAY_MSG);
+	PTF_ASSERT_EQUAL(dhcpOption.getDataSize(), 24);
+	PTF_ASSERT_TRUE(relayLayer->getNextOptionData(dhcpOption).isNull());
+	PTF_ASSERT_TRUE(relayLayer->getOptionData(pcpp::DHCPV6_OPT_RELAY_MSG).isNotNull());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		relayLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DHCPv6","protocolId":38,"length":70,"messageType":"Relay-Forward","hopCount":1,"linkAddress":"2001:db8:1::1","peerAddress":"fe80::211:22ff:fe33:4455","options":["InterfaceID","RelayMessage"]})");
+	}
+
+	PTF_ASSERT_TRUE(relayLayer->removeAllOptions());
+	PTF_ASSERT_EQUAL(relayLayer->getHeaderLen(), 34);
+	PTF_ASSERT_EQUAL(relayLayer->getOptionCount(), 0);
+	PTF_ASSERT_EQUAL(relayLayer->getPeerAddress(), pcpp::IPv6Address("fe80::211:22ff:fe33:4455"));
+}  // DhcpV6RelayMessageParsingTest
+
+PTF_TEST_CASE(DhcpV6RelayMessageCreationTest)
+{
+	auto rawPacket1 = createPacketFromHexResource("PacketExamples/dhcpv6_relay_forward.dat");
+	pcpp::Packet dhcpv6Packet(rawPacket1.get());
+	pcpp::DhcpV6RelayLayer* origRelayLayer = dhcpv6Packet.getLayerOfType<pcpp::DhcpV6RelayLayer>();
+	PTF_ASSERT_NOT_NULL(origRelayLayer);
+
+	pcpp::DhcpV6RelayLayer newRelayLayer(pcpp::DHCPV6_RELAY_FORWARD, 1, pcpp::IPv6Address("2001:db8:1::1"),
+	                                     pcpp::IPv6Address("fe80::211:22ff:fe33:4455"));
+	PTF_ASSERT_EQUAL(newRelayLayer.getHeaderLen(), 34);
+	PTF_ASSERT_EQUAL(newRelayLayer.getOptionCount(), 0);
+	newRelayLayer.addOption(
+	    pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_RELAY_MSG, "011234560001000a00030001001122334455000800020000"));
+	pcpp::DhcpV6Option option = newRelayLayer.addOptionBefore(
+	    pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_INTERFACE_ID, "65746830"), pcpp::DHCPV6_OPT_RELAY_MSG);
+	PTF_ASSERT_EQUAL(option.getType(), pcpp::DHCPV6_OPT_INTERFACE_ID);
+	PTF_ASSERT_EQUAL(newRelayLayer.getOptionCount(), 2);
+	PTF_ASSERT_EQUAL(newRelayLayer.getDataLen(), origRelayLayer->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(newRelayLayer.getData(), origRelayLayer->getData(), origRelayLayer->getDataLen());
+
+	newRelayLayer.setMessageType(pcpp::DHCPV6_RELAY_REPLY);
+	newRelayLayer.setHopCount(3);
+	newRelayLayer.setLinkAddress(pcpp::IPv6Address("2001:db8:2::2"));
+	newRelayLayer.setPeerAddress(pcpp::IPv6Address("2001:db8:3::3"));
+	PTF_ASSERT_EQUAL(newRelayLayer.getMessageType(), pcpp::DHCPV6_RELAY_REPLY);
+	PTF_ASSERT_EQUAL(newRelayLayer.getHopCount(), 3);
+	PTF_ASSERT_EQUAL(newRelayLayer.getLinkAddress(), pcpp::IPv6Address("2001:db8:2::2"));
+	PTF_ASSERT_EQUAL(newRelayLayer.getPeerAddress(), pcpp::IPv6Address("2001:db8:3::3"));
+	PTF_ASSERT_EQUAL(newRelayLayer.getOptionCount(), 2);
+	PTF_ASSERT_EQUAL(newRelayLayer.getFirstOptionData().getType(), pcpp::DHCPV6_OPT_INTERFACE_ID);
+
+	PTF_ASSERT_RAISES(pcpp::DhcpV6RelayLayer(pcpp::DHCPV6_SOLICIT, 0, pcpp::IPv6Address::Zero, pcpp::IPv6Address::Zero),
+	                  std::invalid_argument, "A DHCPv6 relay message must be a relay-forward or relay-reply message");
+
+	// a client/server message is not parsed as a relay message and the other way around
+	uint8_t solicit[] = { 0x01, 0x12, 0x34, 0x56 };
+	PTF_ASSERT_TRUE(pcpp::DhcpV6Layer::isDataValid(solicit, sizeof(solicit)));
+	PTF_ASSERT_FALSE(pcpp::DhcpV6RelayLayer::isDataValid(solicit, sizeof(solicit)));
+	PTF_ASSERT_FALSE(pcpp::DhcpV6Layer::isDataValid(origRelayLayer->getData(), origRelayLayer->getDataLen()));
+	PTF_ASSERT_TRUE(pcpp::DhcpV6RelayLayer::isDataValid(origRelayLayer->getData(), origRelayLayer->getDataLen()));
+	PTF_ASSERT_FALSE(pcpp::DhcpV6RelayLayer::isDataValid(origRelayLayer->getData(), 33));
+}  // DhcpV6RelayMessageCreationTest
+
 PTF_TEST_CASE(DhcpV6CreationTest)
 {
 	auto rawPacketAndBuf1 = createPacketAndBufferFromHexResource("PacketExamples/dhcpv6_2.dat");
