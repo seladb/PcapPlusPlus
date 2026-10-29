@@ -208,7 +208,7 @@ namespace pcpp
 		// If no content was written, an object should be written as {} on a single line.
 		if (hasContent)
 		{
-			writeIndent(true);
+			writeNewlineAndIndent();
 		}
 		m_Out << '}';
 	}
@@ -230,7 +230,7 @@ namespace pcpp
 		// If no content was written, an array should be written as [] on a single line.
 		if (hasContent)
 		{
-			writeIndent(true);
+			writeNewlineAndIndent();
 		}
 		m_Out << ']';
 	}
@@ -294,7 +294,11 @@ namespace pcpp
 	void JsonSerializer::prepareNext()
 	{
 		writeSeparatorIfNeeded();
-		writeIndent();
+		// Skip newline/indent if we are at root level.
+		if (!m_ContextStack.empty())
+		{
+			writeNewlineAndIndent();
+		}
 	}
 
 	void JsonSerializer::writeSeparatorIfNeeded()
@@ -319,22 +323,17 @@ namespace pcpp
 			m_Out << ' ';
 	}
 
-	void JsonSerializer::writeIndent(bool forceNewline)
+	void JsonSerializer::writeNewlineAndIndent()
 	{
 		// Negative indent means minified JSON.
 		if (m_IndentPerLevel < 0)
 			return;
 
-		// Newline is forced for closing scopes like objects and arrays.
-		// This is due to no context stack being present at root level during closing.
-		if (!m_ContextStack.empty() || forceNewline)
+		m_Out << '\n';
+		if (m_IndentPerLevel > 0)
 		{
-			m_Out << '\n';
-			if (m_IndentPerLevel > 0)
-			{
-				for (size_t i = 0; i < m_ContextStack.size() * m_IndentPerLevel; ++i)
-					m_Out << ' ';
-			}
+			for (size_t i = 0; i < m_ContextStack.size() * m_IndentPerLevel; ++i)
+				m_Out << ' ';
 		}
 	}
 

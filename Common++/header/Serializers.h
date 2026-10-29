@@ -281,7 +281,7 @@ namespace pcpp
 		void prepareNext();
 		void writeSeparatorIfNeeded();
 		void writeKey(const std::string& name);
-		void writeIndent(bool forceNewline = false);
+		void writeNewlineAndIndent();
 
 		std::ostream& m_Out;
 		std::vector<Context> m_ContextStack;
