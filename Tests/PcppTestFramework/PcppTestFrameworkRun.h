@@ -11,46 +11,11 @@
 #include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
-static bool verboseMode = false;
-static bool showSkippedTests = false;
-
-static void __ptfSplitString(const std::string& input, std::vector<std::string>& result)
-{
-	std::istringstream ss(input);
-	std::string token;
-
-	while (std::getline(ss, token, ';'))
-	{
-		result.push_back(token);
-	}
-}
-
-static bool __ptfCheckTags(const std::string& tagSet, const std::string& tagSetToCompareWith, bool emptyTagSetMeansAll)
-{
-	std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
-
-	if (tagSetToCompareWith == "")
-	{
-		return emptyTagSetMeansAll;
-	}
-
-	__ptfSplitString(tagSet, tagSetVec);
-	__ptfSplitString(tagSetToCompareWith, tagSetToCompareWithVec);
-
-	for (const auto& tagSetToCompareWithIter : tagSetToCompareWithVec)
-	{
-		if (std::any_of(tagSetVec.begin(), tagSetVec.end(),
-		                [tagSetToCompareWithIter](const std::string& val) { return val == tagSetToCompareWithIter; }))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 namespace ptf
 {
+	static bool verboseMode = false;
+	static bool showSkippedTests = false;
+
 	class TestRunner
 	{
 	public:
@@ -66,8 +31,7 @@ namespace ptf
 			std::string allTestTags = testName + ";" + additionalTestTags;
 			int result = PTF_RESULT_PASSED;
 
-			if (!__ptfCheckTags(allTestTags, m_UserIncludeTags, true) ||
-			    __ptfCheckTags(allTestTags, m_UserExcludeTags, false))
+			if (!checkTags(allTestTags, m_UserIncludeTags, true) || checkTags(allTestTags, m_UserExcludeTags, false))
 			{
 				if (showSkippedTests)
 				{
@@ -78,11 +42,11 @@ namespace ptf
 			}
 			else
 			{
-				bool runMemLeakCheck = !__ptfCheckTags("skip_mem_leak_check", m_ConfigTagsToRun, false) &&
-				                       !__ptfCheckTags(allTestTags, "skip_mem_leak_check", false);
+				bool runMemLeakCheck = !checkTags("skip_mem_leak_check", m_ConfigTagsToRun, false) &&
+				                       !checkTags(allTestTags, "skip_mem_leak_check", false);
 				if (runMemLeakCheck)
 				{
-					bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", m_ConfigTagsToRun, false);
+					bool memAllocVerbose = checkTags("mem_leak_check_verbose", m_ConfigTagsToRun, false);
 					MemPlumber::start(memAllocVerbose);
 				}
 				try
@@ -157,6 +121,43 @@ namespace ptf
 			return m_TestsFailed != 0;
 		}
 
+		static void splitString(const std::string& input, std::vector<std::string>& result)
+		{
+			std::istringstream ss(input);
+			std::string token;
+
+			while (std::getline(ss, token, ';'))
+			{
+				result.push_back(token);
+			}
+		}
+
+		static bool checkTags(const std::string& tagSet, const std::string& tagSetToCompareWith,
+		                      bool emptyTagSetMeansAll)
+		{
+			std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
+
+			if (tagSetToCompareWith == "")
+			{
+				return emptyTagSetMeansAll;
+			}
+
+			splitString(tagSet, tagSetVec);
+			splitString(tagSetToCompareWith, tagSetToCompareWithVec);
+
+			for (const auto& tagSetToCompareWithIter : tagSetToCompareWithVec)
+			{
+				if (std::any_of(tagSetVec.begin(), tagSetVec.end(), [tagSetToCompareWithIter](const std::string& val) {
+					    return val == tagSetToCompareWithIter;
+				    }))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		std::string m_UserIncludeTags;
 		std::string m_UserExcludeTags;
 		std::string m_ConfigTagsToRun;
@@ -178,5 +179,5 @@ namespace ptf
 
 #define PTF_END_RUNNING_TESTS return testRunner.finalizeResults();
 
-#define PTF_SET_VERBOSE_MODE(flag) verboseMode = flag
-#define PTF_SHOW_SKIPPED_TESTS(flag) showSkippedTests = flag
+#define PTF_SET_VERBOSE_MODE(flag) ptf::verboseMode = flag
+#define PTF_SHOW_SKIPPED_TESTS(flag) ptf::showSkippedTests = flag

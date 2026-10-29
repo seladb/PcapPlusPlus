@@ -28,35 +28,42 @@ namespace pcpp
 			return oss.str();
 		}
 
-		// Backslash-escapes a string for embedding in a double-quoted JSON
-		// or YAML scalar — both formats use the same escape set for the
-		// characters we care about here. Shared by JsonSerializer and
-		// YamlSerializer.
-		std::string escapeQuotedString(const std::string& s)
+		/// @brief Formatting view that prints a string as an escaped quoted string.
+		///
+		/// Backslash-escapes a string for embedding in a double-quoted JSON or YAML scalar.
+		/// Shared by JsonSerializer and YamlSerializer.
+		struct EscapedQuotedString
 		{
-			std::ostringstream oss;
-			for (char c : s)
+			explicit EscapedQuotedString(std::string const& s) : str(s)
+			{}
+
+			std::string const& str;
+
+			friend std::ostream& operator<<(std::ostream& os, EscapedQuotedString const& eqs)
 			{
-				switch (c)
+				for (char c : eqs.str)
 				{
-				case '"':
-					oss << "\\\"";
-					break;
-				case '\\':
-					oss << "\\\\";
-					break;
-				case '\n':
-					oss << "\\n";
-					break;
-				case '\t':
-					oss << "\\t";
-					break;
-				default:
-					oss << c;
+					switch (c)
+					{
+					case '"':
+						os << "\\\"";
+						break;
+					case '\\':
+						os << "\\\\";
+						break;
+					case '\n':
+						os << "\\n";
+						break;
+					case '\t':
+						os << "\\t";
+						break;
+					default:
+						os << c;
+					}
 				}
+				return os;
 			}
-			return oss.str();
-		}
+		};
 	}  // namespace
 
 	// ============================================================
@@ -232,7 +239,7 @@ namespace pcpp
 	{
 		prepareNext();
 		writeKey(field.name);
-		m_Out << '"' << escapeQuotedString(value) << '"';
+		m_Out << '"' << EscapedQuotedString(value) << '"';
 	}
 
 	void JsonSerializer::writeField(const FieldDescriptor& field, int64_t value)
@@ -305,7 +312,7 @@ namespace pcpp
 			return;
 		if (m_ContextStack.back() == Context::Array)
 			return;
-		m_Out << '"' << escapeQuotedString(name) << "\":";
+		m_Out << '"' << EscapedQuotedString(name) << "\":";
 
 		// Write a space after the colon if we're not minifying, for readability.
 		if (m_IndentPerLevel >= 0)
@@ -428,7 +435,7 @@ namespace pcpp
 	void YamlSerializer::writeField(const FieldDescriptor& field, const std::string& value)
 	{
 		writeFieldPrefix(field.name);
-		m_Out << '"' << escapeQuotedString(value) << '"';
+		m_Out << '"' << EscapedQuotedString(value) << '"';
 	}
 
 	void YamlSerializer::writeField(const FieldDescriptor& field, int64_t value)

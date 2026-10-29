@@ -1,6 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
+#include <limits>
 #include <sstream>
+#include <vector>
 #include "EndianPortable.h"
 #include "Logger.h"
 #include "Packet.h"
@@ -474,6 +476,65 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	PTF_ASSERT_EQUAL(dnsEdit7Packet.getRawPacket()->getRawDataLen(), resource7.length);
 	PTF_ASSERT_BUF_COMPARE(dnsEdit7Packet.getRawPacket()->getRawData(), resource7.data.get(), resource7.length);
+
+	// Generic RDATA uses a 16-bit wire length and can exceed the old 4096-byte temporary buffer,
+	// verify that both adding and copying such a record work
+	{
+		std::vector<uint8_t> rdata(5000, 0xAB);
+		pcpp::GenericDnsResourceData largeGenericData(rdata.data(), rdata.size());
+
+		pcpp::DnsLayer largeDataLayer;
+		auto* largeDataAnswer =
+		    largeDataLayer.addAnswer("example.com", pcpp::DNS_TYPE_DNSKEY, pcpp::DNS_CLASS_IN, 60, &largeGenericData);
+		PTF_ASSERT_NOT_NULL(largeDataAnswer);
+		PTF_ASSERT_EQUAL(largeDataAnswer->getDataLength(), static_cast<size_t>(5000));
+
+		auto largeData = largeDataAnswer->getData();
+		PTF_ASSERT_TRUE(largeData.isTypeOf<pcpp::GenericDnsResourceData>());
+		PTF_ASSERT_TRUE(*largeData.castAs<pcpp::GenericDnsResourceData>() == largeGenericData);
+
+		pcpp::DnsLayer copiedLayer;
+		auto* copiedAnswer = copiedLayer.addAnswer(largeDataAnswer);
+		PTF_ASSERT_NOT_NULL(copiedAnswer);
+		PTF_ASSERT_EQUAL(copiedAnswer->getDataLength(), static_cast<size_t>(5000));
+	}
+
+	// A resource whose data can't be serialized must be rolled back from the layer
+	{
+		pcpp::DnsLayer rollbackLayer;
+		pcpp::StringDnsResourceData cnameData("www.example.com");
+		PTF_ASSERT_NOT_NULL(
+		    rollbackLayer.addAnswer("example.com", pcpp::DNS_TYPE_CNAME, pcpp::DNS_CLASS_IN, 60, &cnameData));
+
+		const size_t layerSizeBefore = rollbackLayer.getDataLen();
+		const size_t answerCountBefore = rollbackLayer.getAnswerCount();
+
+		// DNS_TYPE_A requires IPv4DnsResourceData, so setData() fails after the resource was inserted to the layer
+		PTF_ASSERT_NULL(rollbackLayer.addAnswer("x", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 60, &cnameData));
+
+		PTF_ASSERT_EQUAL(rollbackLayer.getDataLen(), layerSizeBefore);
+		PTF_ASSERT_EQUAL(rollbackLayer.getAnswerCount(), answerCountBefore);
+		PTF_ASSERT_EQUAL(rollbackLayer.getAnswerCount(), static_cast<size_t>(1));
+		auto* remainingAnswer = rollbackLayer.getFirstAnswer();
+		PTF_ASSERT_NOT_NULL(remainingAnswer);
+		PTF_ASSERT_EQUAL(remainingAnswer->getName(), "example.com");
+		PTF_ASSERT_EQUAL(remainingAnswer->getData()->toString(), "www.example.com");
+	}
+
+	// RDATA that doesn't fit the 16-bit length field must be rejected without changing the layer
+	{
+		// Parentheses around std::numeric_limits<>::max avoid a clash with the Windows max macro
+		std::vector<uint8_t> oversizedData(static_cast<size_t>((std::numeric_limits<uint16_t>::max)()) + 1, 0x5A);
+		pcpp::GenericDnsResourceData oversizedGenericData(oversizedData.data(), oversizedData.size());
+
+		pcpp::DnsLayer oversizedLayer;
+		const size_t layerSizeBefore = oversizedLayer.getDataLen();
+		PTF_ASSERT_NULL(
+		    oversizedLayer.addAnswer("x", pcpp::DNS_TYPE_DNSKEY, pcpp::DNS_CLASS_IN, 60, &oversizedGenericData));
+		PTF_ASSERT_EQUAL(oversizedLayer.getDataLen(), layerSizeBefore);
+		PTF_ASSERT_EQUAL(oversizedLayer.getAnswerCount(), static_cast<size_t>(0));
+	}
+
 }  // DnsLayerResourceCreationTest
 
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest)
