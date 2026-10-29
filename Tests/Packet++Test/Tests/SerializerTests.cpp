@@ -380,8 +380,8 @@ PTF_TEST_CASE(JsonSerializerTest)
 		{
 			auto objd1 = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 			auto objd2 = objd1.writeObject(pcpp::FieldDescriptor{ 2, "level2" });
-			objd2.writeObject(pcpp::FieldDescriptor{ 3, "level3" });
-			auto objd4 = objd2.writeObject(pcpp::FieldDescriptor{ 4, "level4" });
+			auto objd3 = objd2.writeObject(pcpp::FieldDescriptor{ 3, "level3" });
+			auto objd4 = objd3.writeObject(pcpp::FieldDescriptor{ 4, "level4" });
 			objd4.writeField(pcpp::FieldDescriptor{ 5, "value" }, 42);
 		}
 
