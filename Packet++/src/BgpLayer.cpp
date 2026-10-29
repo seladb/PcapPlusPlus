@@ -660,6 +660,12 @@ namespace pcpp
 
 	bool BgpUpdateMessageLayer::setWithdrawnRoutes(const std::vector<prefix_and_ip>& withdrawnRoutes)
 	{
+		if (getHeaderLen() < sizeof(bgp_common_header) + sizeof(uint16_t))
+		{
+			PCPP_LOG_ERROR("BGP update layer header length is too small to set withdrawn routes");
+			return false;
+		}
+
 		uint8_t newWithdrawnRoutesData[1500];
 		size_t newWithdrawnRoutesDataLen = prefixAndIPDataToByteArray(withdrawnRoutes, newWithdrawnRoutesData, 1500);
 		size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
@@ -736,10 +742,17 @@ namespace pcpp
 
 	bool BgpUpdateMessageLayer::setPathAttributes(const std::vector<path_attribute>& pathAttributes)
 	{
+		size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
+		size_t minRequiredHeaderLen = sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen;
+		if (getHeaderLen() < minRequiredHeaderLen)
+		{
+			PCPP_LOG_ERROR("BGP update layer header length is too small to set path attributes");
+			return false;
+		}
+
 		uint8_t newPathAttributesData[1500];
 		size_t newPathAttributesDataLen = pathAttributesToByteArray(pathAttributes, newPathAttributesData, 1500);
 		size_t curPathAttributesDataLen = getPathAttributesLength();
-		size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
 		int offsetInLayer = sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + curWithdrawnRoutesDataLen;
 
 		if (newPathAttributesDataLen > curPathAttributesDataLen)
