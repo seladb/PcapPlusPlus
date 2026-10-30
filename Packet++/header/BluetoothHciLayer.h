@@ -2,6 +2,9 @@
 
 #include "Layer.h"
 
+#include <algorithm>
+#include <vector>
+
 /// @file
 /// This file contains classes for parsing Bluetooth Host Controller Interface (HCI) packets.
 /// It contains an abstract class named BluetoothHciLayer which has common functionality.
@@ -183,27 +186,43 @@ namespace pcpp
 			return getEventHeader()->eventCode;
 		}
 
+		/// Set the event code of this packet
+		/// @param[in] eventCode The new event code
+		void setEventCode(uint8_t eventCode)
+		{
+
+			getEventHeader()->eventCode = eventCode;
+		}
+
 		/// Get the parameter total length field
 		/// @return The parameter total length, in bytes
 		uint8_t getParameterTotalLength() const
 		{
-			return getEventHeader()->parameterTotalLength;
+
+			return std::min<uint8_t>(getEventHeader()->parameterTotalLength, m_DataLen - getDirectionHeaderLen() -
+			                                                                     sizeof(uint8_t) -
+			                                                                     sizeof(bluetooth_hci_event_header));
 		}
 
 		/// Get a pointer to the raw event parameters
 		/// @return A pointer to the raw parameter bytes
 		uint8_t* getParameters() const
 		{
-			return m_Data + getHeaderLen();
+			return m_Data + getDirectionHeaderLen() + sizeof(uint8_t) + sizeof(bluetooth_hci_event_header);
 		}
+
+		/// Replace the parameter bytes of this packet. The parameterTotalLength field is updated to match
+		/// @param[in] parameters The new parameter bytes. Must contain at most 255 bytes
+		/// @throw std::invalid_argument if parameters contains more than 255 bytes
+		void setParameters(const std::vector<uint8_t>& parameters);
 
 		// implement abstract methods
 
-		/// @return Size of the direction pseudo-header (if present), the packet indicator octet and
-		/// bluetooth_hci_event_header
+		/// @return The entire data length. HCI Event packets don't encapsulate another protocol, so the whole buffer
+		/// is treated as the header
 		size_t getHeaderLen() const override
 		{
-			return getDirectionHeaderLen() + sizeof(uint8_t) + sizeof(bluetooth_hci_event_header);
+			return m_DataLen;
 		}
 
 		std::string toString() const override;
@@ -223,7 +242,7 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ Direction, EventCode, ParameterTotalLength, Parameters };
+				std::initializer_list<FieldDescriptor> extra{ Direction, EventCode, ParameterTotalLength };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -236,9 +255,6 @@ namespace pcpp
 
 			/// @brief Length of the parameter bytes
 			static const FieldDescriptor ParameterTotalLength;
-
-			/// @brief Parameter bytes, as a hex string
-			static const FieldDescriptor Parameters;
 		};
 
 	protected:
@@ -263,6 +279,11 @@ namespace pcpp
 		BluetoothHciEventLayer(uint8_t* data, size_t dataLen, Packet* packet, bool hasDirectionHeader)
 		    : BluetoothHciLayer(data, dataLen, packet, hasDirectionHeader)
 		{}
+
+		/// Shared construction logic used by both public constructors. Allocates the buffer, writes the packet
+		/// indicator octet, event header and parameter bytes. The direction pseudo-header, when present, must be
+		/// written separately by the caller
+		void initLayer(uint8_t eventCode, const uint8_t* parameters, uint8_t paramLen);
 
 		bluetooth_hci_event_header* getEventHeader() const
 		{

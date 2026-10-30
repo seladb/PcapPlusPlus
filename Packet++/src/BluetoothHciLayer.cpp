@@ -1,11 +1,12 @@
 #include "BluetoothHciLayer.h"
-#include "GeneralUtils.h"
 #include "Serializers.h"
 #include "SystemUtils.h"
 
 #include <cstring>
 #include <iomanip>
+#include <limits>
 #include <sstream>
+#include <stdexcept>
 
 namespace pcpp
 {
@@ -96,33 +97,60 @@ namespace pcpp
 	BluetoothHciEventLayer::BluetoothHciEventLayer(uint8_t eventCode, const uint8_t* parameters, uint8_t paramLen)
 	    : BluetoothHciLayer(false)
 	{
-		size_t len = sizeof(uint8_t) + sizeof(bluetooth_hci_event_header) + paramLen;
-		allocData(len);
-		m_Data[0] = static_cast<uint8_t>(BluetoothHciPacketType::Event);
-		auto* header = getEventHeader();
-		header->eventCode = eventCode;
-		header->parameterTotalLength = paramLen;
-		if (paramLen > 0 && parameters != nullptr)
-		{
-			std::memcpy(m_Data + getHeaderLen(), parameters, paramLen);
-		}
+		initLayer(eventCode, parameters, paramLen);
 	}
 
 	BluetoothHciEventLayer::BluetoothHciEventLayer(BluetoothHciDirection direction, uint8_t eventCode,
 	                                               const uint8_t* parameters, uint8_t paramLen)
 	    : BluetoothHciLayer(true)
 	{
-		size_t len = directionHeaderSize + sizeof(uint8_t) + sizeof(bluetooth_hci_event_header) + paramLen;
-		allocData(len);
+		initLayer(eventCode, parameters, paramLen);
 		uint32_t netDirection = hostToNet32(static_cast<uint32_t>(direction));
 		std::memcpy(m_Data, &netDirection, directionHeaderSize);
-		m_Data[directionHeaderSize] = static_cast<uint8_t>(BluetoothHciPacketType::Event);
+	}
+
+	void BluetoothHciEventLayer::initLayer(uint8_t eventCode, const uint8_t* parameters, uint8_t paramLen)
+	{
+		size_t paramOffset = getDirectionHeaderLen() + sizeof(uint8_t) + sizeof(bluetooth_hci_event_header);
+		allocData(paramOffset + paramLen);
+		m_Data[getDirectionHeaderLen()] = static_cast<uint8_t>(BluetoothHciPacketType::Event);
 		auto* header = getEventHeader();
 		header->eventCode = eventCode;
 		header->parameterTotalLength = paramLen;
 		if (paramLen > 0 && parameters != nullptr)
 		{
-			std::memcpy(m_Data + getHeaderLen(), parameters, paramLen);
+			std::memcpy(m_Data + paramOffset, parameters, paramLen);
+		}
+	}
+
+	void BluetoothHciEventLayer::setParameters(const std::vector<uint8_t>& parameters)
+	{
+		if (parameters.size() > std::numeric_limits<uint8_t>::max())
+		{
+
+			throw std::invalid_argument("Parameters length is greater than 255 bytes");
+		}
+
+		size_t paramOffset = getDirectionHeaderLen() + sizeof(uint8_t) + sizeof(bluetooth_hci_event_header);
+		size_t currentParamLen = getParameterTotalLength();
+		size_t newParamLen = parameters.size();
+
+		if (newParamLen > currentParamLen)
+		{
+
+			extendLayer(paramOffset + currentParamLen, newParamLen - currentParamLen);
+		}
+		else if (newParamLen < currentParamLen)
+		{
+
+			shortenLayer(paramOffset + newParamLen, currentParamLen - newParamLen);
+		}
+
+		getEventHeader()->parameterTotalLength = static_cast<uint8_t>(newParamLen);
+		if (newParamLen > 0)
+		{
+
+			std::memcpy(m_Data + paramOffset, parameters.data(), newParamLen);
 		}
 	}
 
@@ -157,8 +185,6 @@ namespace pcpp
 	const FieldDescriptor BluetoothHciEventLayer::SerializedFields::ParameterTotalLength{
 		Layer::SerializedFields::MaxID + 3, "parameterTotalLength"
 	};
-	const FieldDescriptor BluetoothHciEventLayer::SerializedFields::Parameters{ Layer::SerializedFields::MaxID + 4,
-		                                                                        "parameters" };
 
 	void BluetoothHciEventLayer::serializeLayer(ObjectScope& serializer) const
 	{
@@ -176,10 +202,8 @@ namespace pcpp
 			break;
 		}
 		serializer.writeField(SerializedFields::Direction, directionStr);
-		serializer.writeField(SerializedFields::EventCode, static_cast<uint64_t>(getEventCode()));
-		serializer.writeField(SerializedFields::ParameterTotalLength, static_cast<uint64_t>(getParameterTotalLength()));
-		serializer.writeField(SerializedFields::Parameters,
-		                      byteArrayToHexString(getParameters(), getParameterTotalLength()));
+		serializer.writeField(SerializedFields::EventCode, getEventCode());
+		serializer.writeField(SerializedFields::ParameterTotalLength, getParameterTotalLength());
 	}
 
 }  // namespace pcpp
