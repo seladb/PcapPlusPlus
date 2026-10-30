@@ -6,9 +6,19 @@
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
 #include <algorithm>
+#include <limits>
+#include <stdexcept>
+#include <string>
 
 namespace pcpp
 {
+	namespace
+	{
+		// The length of the optional parameters is stored in a single byte of the OPEN message.
+		// Parentheses around std::numeric_limits<>::max avoid a clash with the Windows max macro
+		constexpr size_t maxOptionalParamsDataLen = (std::numeric_limits<uint8_t>::max)();
+	}  // namespace
+
 	// ~~~~~~~~
 	// BgpLayer
 	// ~~~~~~~~
@@ -196,8 +206,9 @@ namespace pcpp
 	BgpOpenMessageLayer::BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
 	                                         const std::vector<optional_parameter>& optionalParams)
 	{
-		uint8_t optionalParamsData[1500];
-		size_t optionalParamsDataLen = optionalParamsToByteArray(optionalParams, optionalParamsData, 1500);
+		uint8_t optionalParamsData[maxOptionalParamsDataLen];
+		size_t optionalParamsDataLen =
+		    optionalParamsToByteArray(optionalParams, optionalParamsData, sizeof(optionalParamsData));
 
 		const size_t headerLen = sizeof(bgp_open_message) + optionalParamsDataLen;
 		allocData(headerLen);
@@ -229,18 +240,19 @@ namespace pcpp
 
 		for (const auto& param : optionalParams)
 		{
-			if (param.length > 32)
+			if (param.length > sizeof(param.value))
 			{
-				PCPP_LOG_ERROR("Illegal optional parameter length " << (int)param.length
-				                                                    << ", must be 32 bytes or less");
-				break;  // illegal value
+				throw std::invalid_argument("Illegal BGP OPEN optional parameter length " +
+				                            std::to_string(param.length) + ", must be " +
+				                            std::to_string(sizeof(param.value)) + " bytes or less");
 			}
 
 			size_t curDataSize = 2 * sizeof(uint8_t) + (size_t)param.length;
 
 			if (dataLen + curDataSize > maxByteArrSize)
 			{
-				break;
+				throw std::invalid_argument("The BGP OPEN optional parameters exceed the maximum length of " +
+				                            std::to_string(maxByteArrSize) + " bytes");
 			}
 
 			resultByteArr[0] = param.type;
@@ -332,8 +344,19 @@ namespace pcpp
 
 	bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_parameter>& optionalParameters)
 	{
-		uint8_t newOptionalParamsData[1500];
-		size_t newOptionalParamsDataLen = optionalParamsToByteArray(optionalParameters, newOptionalParamsData, 1500);
+		uint8_t newOptionalParamsData[maxOptionalParamsDataLen];
+		size_t newOptionalParamsDataLen = 0;
+		try
+		{
+			newOptionalParamsDataLen =
+			    optionalParamsToByteArray(optionalParameters, newOptionalParamsData, sizeof(newOptionalParamsData));
+		}
+		catch (const std::invalid_argument& e)
+		{
+			PCPP_LOG_ERROR("Couldn't set the BGP OPEN optional parameters: " << e.what());
+			return false;
+		}
+
 		size_t curOptionalParamsDataLen = getOptionalParametersLength();
 		constexpr int offsetInLayer = sizeof(bgp_open_message);
 
@@ -882,17 +905,21 @@ namespace pcpp
 	void BgpNotificationMessageLayer::initMessageData(uint8_t errorCode, uint8_t errorSubCode,
 	                                                  const uint8_t* notificationData, size_t notificationDataLen)
 	{
-		size_t headerLen = sizeof(bgp_notification_message);
-		if (notificationData != nullptr && notificationDataLen > 0)
+		if (notificationData == nullptr)
 		{
-			headerLen += notificationDataLen;
+			notificationDataLen = 0;
 		}
+
+		size_t headerLen = sizeof(bgp_notification_message) + notificationDataLen;
 		allocData(headerLen);
 		setBgpFields(headerLen);
 		bgp_notification_message* msgHdr = getNotificationMsgHeader();
 		msgHdr->errorCode = errorCode;
 		msgHdr->errorSubCode = errorSubCode;
-		memcpy(m_Data + sizeof(bgp_notification_message), notificationData, notificationDataLen);
+		if (notificationDataLen > 0)
+		{
+			memcpy(m_Data + sizeof(bgp_notification_message), notificationData, notificationDataLen);
+		}
 		m_Protocol = BGP;
 	}
 

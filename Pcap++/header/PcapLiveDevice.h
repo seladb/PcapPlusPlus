@@ -271,6 +271,21 @@ namespace pcpp
 			Nanoseconds,
 		};
 
+		/// Controls whether libpcap's "immediate mode" is used for packet delivery.
+		/// PcapPlusPlus enables immediate mode by default (where supported) for minimal packet delivery latency.
+		/// On Linux, immediate mode also forces a less efficient capture path (TPACKET_V2 with non-blocking
+		/// polling, instead of TPACKET_V3 with blocking, batched reads), which can hurt throughput and CPU usage
+		/// at high packet rates.
+		enum class BufferingMode
+		{
+			/// Use immediate mode, trading throughput/CPU for minimal packet delivery latency. Default value.
+			Immediate = 0,
+			/// Disable immediate mode, trading some added latency for the throughput and CPU benefits described
+			/// above. Packets are delivered at the latest after packetBufferTimeoutMs, or if it isn't set, after
+			/// 10 ms on Linux/Windows/FreeBSD and 1 ms on macOS
+			Buffered
+		};
+
 		/// @struct DeviceConfiguration
 		/// A struct that contains user configurable parameters for opening a device. All parameters have default values
 		/// so the user isn't expected to set all parameters or understand exactly how they work
@@ -281,7 +296,8 @@ namespace pcpp
 
 			/// Set the packet buffer timeout in milliseconds. You can read more here:
 			/// https://www.tcpdump.org/manpages/pcap.3pcap.html .
-			/// Any value above 0 is considered legal, otherwise a value of 1 or -1 is used (depends on the platform)
+			/// Any value above 0 is considered legal. Otherwise, a platform-dependent default is used, which also
+			/// depends on bufferingMode. See BufferingMode for details.
 			int packetBufferTimeoutMs;
 
 			/// Set the packet buffer size. You can read more about the packet buffer here:
@@ -318,11 +334,15 @@ namespace pcpp
 			/// Depending on the capture device and the software on the host, different precision can be used
 			TimestampPrecision timestampPrecision;
 
+			/// Controls whether libpcap's immediate mode is used. See BufferingMode for details.
+			/// Default value is BufferingMode::Immediate.
+			BufferingMode bufferingMode;
+
 			/// A c'tor for this struct
 			/// @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is
 			/// promiscuous
-			/// @param[in] packetBufferTimeoutMs Buffer timeout in millisecond. Default value is 0 which means set
-			/// timeout of 1 or -1 (depends on the platform)
+			/// @param[in] packetBufferTimeoutMs Buffer timeout in millisecond. Default value is 0 which means use a
+			/// platform-dependent default that also depends on bufferingMode (see BufferingMode for details)
 			/// @param[in] packetBufferSize The packet buffer size. Default value is 0 which means use the default value
 			/// (varies between different OS's)
 			/// @param[in] direction Direction for capturing packets. Default value is INOUT which means capture both
@@ -338,11 +358,14 @@ namespace pcpp
 			/// for each packet (not all platforms support this). Default provider is Host.
 			/// @param[in] timestampPrecision The timestamp precision (not all platforms support this).
 			/// Default precision is Microseconds.
+			/// @param[in] bufferingMode Controls whether libpcap's immediate mode is used. See BufferingMode for
+			/// details. Default value is BufferingMode::Immediate.
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
 			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
 			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false,
 			                             TimestampProvider timestampProvider = TimestampProvider::Host,
-			                             TimestampPrecision timestampPrecision = TimestampPrecision::Microseconds)
+			                             TimestampPrecision timestampPrecision = TimestampPrecision::Microseconds,
+			                             BufferingMode bufferingMode = BufferingMode::Immediate)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
@@ -353,6 +376,7 @@ namespace pcpp
 				this->usePoll = usePoll;
 				this->timestampProvider = timestampProvider;
 				this->timestampPrecision = timestampPrecision;
+				this->bufferingMode = bufferingMode;
 			}
 		};
 
@@ -717,6 +741,7 @@ namespace pcpp
 		/// @return True if raw packet matches the filter or false otherwise
 		/// @deprecated This method is deprecated, use GeneralFilter::matches(...) method directly.
 		PCPP_DEPRECATED("Prefer GeneralFilter::matches(...) method directly.")
+		// cppcheck-suppress constParameter
 		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
 	protected:

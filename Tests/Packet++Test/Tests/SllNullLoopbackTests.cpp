@@ -40,6 +40,14 @@ PTF_TEST_CASE(SllPacketParsingTest)
 	pcpp::MacAddress macAddrRef("00:12:44:1e:74:00");
 	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
 	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->protocol_type, htobe16(PCPP_ETHERTYPE_IPV6));
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		sllLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SLL","protocolId":19,"length":16,"packetType":0,"arpHeaderType":1,"protocolType":34525,"linkLayerAddress":"0012441e7400"})");
+	}
 }  // SllPacketParsingTest
 
 PTF_TEST_CASE(SllPacketCreationTest)
@@ -111,6 +119,12 @@ PTF_TEST_CASE(NullLoopbackTest)
 	PTF_ASSERT_NOT_NULL(nextLayer);
 	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv6, enum);
 	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET6_DARWIN);
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		nullLoopbackLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"NULL_LOOPBACK","protocolId":21,"length":4,"family":30})");
+	}
 
 	PTF_ASSERT_TRUE(nullPacket2.isPacketOfType(pcpp::NULL_LOOPBACK));
 	nullLoopbackLayer = nullPacket2.getLayerOfType<pcpp::NullLoopbackLayer>();

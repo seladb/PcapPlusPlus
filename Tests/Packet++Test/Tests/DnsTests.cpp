@@ -1,6 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
+#include <limits>
 #include <sstream>
+#include <vector>
 #include "EndianPortable.h"
 #include "Logger.h"
 #include "Packet.h"
@@ -474,6 +476,65 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	PTF_ASSERT_EQUAL(dnsEdit7Packet.getRawPacket()->getRawDataLen(), resource7.length);
 	PTF_ASSERT_BUF_COMPARE(dnsEdit7Packet.getRawPacket()->getRawData(), resource7.data.get(), resource7.length);
+
+	// Generic RDATA uses a 16-bit wire length and can exceed the old 4096-byte temporary buffer,
+	// verify that both adding and copying such a record work
+	{
+		std::vector<uint8_t> rdata(5000, 0xAB);
+		pcpp::GenericDnsResourceData largeGenericData(rdata.data(), rdata.size());
+
+		pcpp::DnsLayer largeDataLayer;
+		auto* largeDataAnswer =
+		    largeDataLayer.addAnswer("example.com", pcpp::DNS_TYPE_DNSKEY, pcpp::DNS_CLASS_IN, 60, &largeGenericData);
+		PTF_ASSERT_NOT_NULL(largeDataAnswer);
+		PTF_ASSERT_EQUAL(largeDataAnswer->getDataLength(), static_cast<size_t>(5000));
+
+		auto largeData = largeDataAnswer->getData();
+		PTF_ASSERT_TRUE(largeData.isTypeOf<pcpp::GenericDnsResourceData>());
+		PTF_ASSERT_TRUE(*largeData.castAs<pcpp::GenericDnsResourceData>() == largeGenericData);
+
+		pcpp::DnsLayer copiedLayer;
+		auto* copiedAnswer = copiedLayer.addAnswer(largeDataAnswer);
+		PTF_ASSERT_NOT_NULL(copiedAnswer);
+		PTF_ASSERT_EQUAL(copiedAnswer->getDataLength(), static_cast<size_t>(5000));
+	}
+
+	// A resource whose data can't be serialized must be rolled back from the layer
+	{
+		pcpp::DnsLayer rollbackLayer;
+		pcpp::StringDnsResourceData cnameData("www.example.com");
+		PTF_ASSERT_NOT_NULL(
+		    rollbackLayer.addAnswer("example.com", pcpp::DNS_TYPE_CNAME, pcpp::DNS_CLASS_IN, 60, &cnameData));
+
+		const size_t layerSizeBefore = rollbackLayer.getDataLen();
+		const size_t answerCountBefore = rollbackLayer.getAnswerCount();
+
+		// DNS_TYPE_A requires IPv4DnsResourceData, so setData() fails after the resource was inserted to the layer
+		PTF_ASSERT_NULL(rollbackLayer.addAnswer("x", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 60, &cnameData));
+
+		PTF_ASSERT_EQUAL(rollbackLayer.getDataLen(), layerSizeBefore);
+		PTF_ASSERT_EQUAL(rollbackLayer.getAnswerCount(), answerCountBefore);
+		PTF_ASSERT_EQUAL(rollbackLayer.getAnswerCount(), static_cast<size_t>(1));
+		auto* remainingAnswer = rollbackLayer.getFirstAnswer();
+		PTF_ASSERT_NOT_NULL(remainingAnswer);
+		PTF_ASSERT_EQUAL(remainingAnswer->getName(), "example.com");
+		PTF_ASSERT_EQUAL(remainingAnswer->getData()->toString(), "www.example.com");
+	}
+
+	// RDATA that doesn't fit the 16-bit length field must be rejected without changing the layer
+	{
+		// Parentheses around std::numeric_limits<>::max avoid a clash with the Windows max macro
+		std::vector<uint8_t> oversizedData(static_cast<size_t>((std::numeric_limits<uint16_t>::max)()) + 1, 0x5A);
+		pcpp::GenericDnsResourceData oversizedGenericData(oversizedData.data(), oversizedData.size());
+
+		pcpp::DnsLayer oversizedLayer;
+		const size_t layerSizeBefore = oversizedLayer.getDataLen();
+		PTF_ASSERT_NULL(
+		    oversizedLayer.addAnswer("x", pcpp::DNS_TYPE_DNSKEY, pcpp::DNS_CLASS_IN, 60, &oversizedGenericData));
+		PTF_ASSERT_EQUAL(oversizedLayer.getDataLen(), layerSizeBefore);
+		PTF_ASSERT_EQUAL(oversizedLayer.getAnswerCount(), static_cast<size_t>(0));
+	}
+
 }  // DnsLayerResourceCreationTest
 
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest)
@@ -621,6 +682,56 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	PTF_ASSERT_FALSE(dnsLayer4->removeAdditionalRecord("blabla", false));
 	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), sizeof(pcpp::dnshdr));
 }  // DnsLayerRemoveResourceTest
+
+PTF_TEST_CASE(DnsLayerAddResourceOutOfOrderTest)
+{
+	// The resources are added in the opposite order of their place in the packet. Adding a resource that belongs
+	// before all the existing ones used to link it back to the first existing resource, so the resource list became
+	// circular and removing a resource or adding a query never returned
+	pcpp::IPv4DnsResourceData ipData(std::string("10.0.0.1"));
+	pcpp::DnsLayer dnsLayer;
+
+	pcpp::DnsResource* additional =
+	    dnsLayer.addAdditionalRecord("additional.example.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 30, &ipData);
+	PTF_ASSERT_NOT_NULL(additional);
+
+	pcpp::DnsResource* authority =
+	    dnsLayer.addAuthority("authority.example.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 20, &ipData);
+	PTF_ASSERT_NOT_NULL(authority);
+
+	pcpp::DnsResource* answer =
+	    dnsLayer.addAnswer("answer.example.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 10, &ipData);
+	PTF_ASSERT_NOT_NULL(answer);
+
+	pcpp::DnsQuery* query = dnsLayer.addQuery("query.example.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN);
+	PTF_ASSERT_NOT_NULL(query);
+
+	PTF_ASSERT_EQUAL(dnsLayer.getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer.getAnswerCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer.getAuthorityCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer.getAdditionalRecordCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer.getFirstQuery(), query, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer.getFirstAnswer(), answer, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer.getFirstAuthority(), authority, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer.getFirstAdditionalRecord(), additional, ptr);
+
+	// copying the layer parses the layer data again, so this verifies the order of the resources in the packet
+	pcpp::DnsLayer parsedLayer(dnsLayer);
+	PTF_ASSERT_EQUAL(parsedLayer.getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(parsedLayer.getAnswerCount(), 1);
+	PTF_ASSERT_EQUAL(parsedLayer.getAuthorityCount(), 1);
+	PTF_ASSERT_EQUAL(parsedLayer.getAdditionalRecordCount(), 1);
+	PTF_ASSERT_EQUAL(parsedLayer.getFirstQuery()->getName(), "query.example.com");
+	PTF_ASSERT_EQUAL(parsedLayer.getFirstAnswer()->getName(), "answer.example.com");
+	PTF_ASSERT_EQUAL(parsedLayer.getFirstAuthority()->getName(), "authority.example.com");
+	PTF_ASSERT_EQUAL(parsedLayer.getFirstAdditionalRecord()->getName(), "additional.example.com");
+
+	PTF_ASSERT_TRUE(dnsLayer.removeAnswer(answer));
+	PTF_ASSERT_TRUE(dnsLayer.removeAuthority(authority));
+	PTF_ASSERT_TRUE(dnsLayer.removeAdditionalRecord(additional));
+	PTF_ASSERT_TRUE(dnsLayer.removeQuery(query));
+	PTF_ASSERT_EQUAL(dnsLayer.getHeaderLen(), sizeof(pcpp::dnshdr));
+}  // DnsLayerAddResourceOutOfOrderTest
 
 PTF_TEST_CASE(DnsOverTcpParsingTest)
 {

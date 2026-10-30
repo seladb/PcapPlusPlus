@@ -3,6 +3,7 @@
 #include "DnsLayer.h"
 #include "Logger.h"
 #include <sstream>
+#include <vector>
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -449,11 +450,18 @@ namespace pcpp
 	DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& name, DnsType dnsType,
 	                                   DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data)
 	{
-		// create new query on temporary buffer
-		uint8_t newResourceRawData[4096];
-		memset(newResourceRawData, 0, sizeof(newResourceRawData));
+		if (data == nullptr)
+		{
+			PCPP_LOG_ERROR("Given data is nullptr");
+			return nullptr;
+		}
 
-		DnsResource* newResource = new DnsResource(newResourceRawData, resType);
+		// The temporary buffer holds the encoded name and the fixed RR header. The encoded name is at most the decoded
+		// name plus 2 bytes and the fixed RR header is 10 bytes long. The RDATA is added by setData() after the new
+		// resource is attached to the layer, so the buffer doesn't need to leave room for it
+		std::vector<uint8_t> newResourceRawData(name.size() + 2 + 10, 0);
+
+		DnsResource* newResource = new DnsResource(newResourceRawData.data(), resType);
 
 		newResource->setDnsClass(dnsClass);
 
@@ -463,13 +471,6 @@ namespace pcpp
 		newResource->setName(name);
 
 		newResource->setTTL(ttl);
-
-		if (!newResource->setData(data))
-		{
-			delete newResource;
-			PCPP_LOG_ERROR("Couldn't set new resource data");
-			return nullptr;
-		}
 
 		size_t newResourceOffsetInLayer = getBasicHeaderSize();
 		IDnsResource* curResource = m_ResourceList;
@@ -519,7 +520,12 @@ namespace pcpp
 		// connect the new resource to the layer's resource list
 		if (curResource != nullptr)
 		{
-			curResource->setNextResource(newResource);
+			// if the new resource should be the first resource in the packet, its next resource is already the current
+			// first resource, which must not point back to it
+			if (curResource->getType() <= newResource->getType())
+			{
+				curResource->setNextResource(newResource);
+			}
 			// this means the new resource is the first of it's type
 			if (curResource->getType() < newResource->getType())
 			{
@@ -538,6 +544,16 @@ namespace pcpp
 			m_ResourceList = newResource;
 
 			setFirstResource(resType, newResource);
+		}
+
+		// set the resource data after the resource is attached to the layer, so setData() can extend the layer
+		// by the size of the serialized RDATA
+		if (!newResource->setData(data))
+		{
+			PCPP_LOG_ERROR("Couldn't set new resource data");
+			if (!removeResource(newResource))
+				PCPP_LOG_ERROR("Couldn't remove the new resource from the DNS layer");
+			return nullptr;
 		}
 
 		return newResource;

@@ -29,6 +29,14 @@ PTF_TEST_CASE(LLCParsingTests)
 
 	PTF_ASSERT_EQUAL(llcLayer1->toString(), "Logical Link Control");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		llcLayer1->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"({"protocolName":"LLC","protocolId":44,"length":3,"dsap":66,"ssap":66,"control":3})");
+	}
+
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/llc_vlan.dat");
 	pcpp::Packet llcPacket2(rawPacket2.get());
 	pcpp::LLCLayer* llcLayer2 = llcPacket2.getLayerOfType<pcpp::LLCLayer>();

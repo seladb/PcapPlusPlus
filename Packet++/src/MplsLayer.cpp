@@ -150,4 +150,19 @@ namespace pcpp
 		       ", Bottom of stack: " + bottomOfStack;
 	}
 
+	const FieldDescriptor MplsLayer::SerializedFields::Label{ Layer::SerializedFields::MaxID + 1, "label" };
+	const FieldDescriptor MplsLayer::SerializedFields::TTL{ Layer::SerializedFields::MaxID + 2, "ttl" };
+	const FieldDescriptor MplsLayer::SerializedFields::IsBottomOfStack{ Layer::SerializedFields::MaxID + 3,
+		                                                                "isBottomOfStack" };
+
+	const FieldDescriptor MplsLayer::SerializedFields::ExperimentalUseValue{ Layer::SerializedFields::MaxID + 4,
+		                                                                     "experimentalUseValue" };
+
+	void MplsLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Label, getMplsLabel());
+		serializer.writeField(SerializedFields::TTL, getTTL());
+		serializer.writeField(SerializedFields::IsBottomOfStack, isBottomOfStack());
+		serializer.writeField(SerializedFields::ExperimentalUseValue, getExperimentalUseValue());
+	}
 }  // namespace pcpp

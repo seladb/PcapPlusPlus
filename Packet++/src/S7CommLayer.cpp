@@ -1,9 +1,14 @@
+#define LOG_MODULE PacketLogModuleS7CommLayer
+
 #include "EndianPortable.h"
 
+#include "Logger.h"
 #include "S7CommLayer.h"
+#include <algorithm>
 #include <iostream>
 #include <cstring>
 #include <sstream>
+#include <stdexcept>
 
 namespace pcpp
 {
@@ -68,6 +73,49 @@ namespace pcpp
 		return str.str();
 	}
 
+	static constexpr const char* msgTypeToString(uint8_t msgType)
+	{
+		switch (msgType)
+		{
+		case 0x01:
+			return "JobRequest";
+		case 0x02:
+			return "Ack";
+		case 0x03:
+			return "AckData";
+		case 0x07:
+			return "Userdata";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor S7CommLayer::SerializedFields::MsgType{ Layer::SerializedFields::MaxID + 1, "msgType" };
+	const FieldDescriptor S7CommLayer::SerializedFields::MsgTypeName{ Layer::SerializedFields::MaxID + 2,
+		                                                              "msgTypeName" };
+	const FieldDescriptor S7CommLayer::SerializedFields::PduRef{ Layer::SerializedFields::MaxID + 3, "pduRef" };
+	const FieldDescriptor S7CommLayer::SerializedFields::ParamLength{ Layer::SerializedFields::MaxID + 4,
+		                                                              "paramLength" };
+	const FieldDescriptor S7CommLayer::SerializedFields::DataLength{ Layer::SerializedFields::MaxID + 5, "dataLength" };
+	const FieldDescriptor S7CommLayer::SerializedFields::ErrorClass{ Layer::SerializedFields::MaxID + 6, "errorClass" };
+	const FieldDescriptor S7CommLayer::SerializedFields::ErrorCode{ Layer::SerializedFields::MaxID + 7, "errorCode" };
+
+	void S7CommLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::MsgType, getMsgType());
+		serializer.writeField(SerializedFields::MsgTypeName, msgTypeToString(getMsgType()));
+		serializer.writeField(SerializedFields::PduRef, getPduRef());
+		serializer.writeField(SerializedFields::ParamLength, getParamLength());
+		serializer.writeField(SerializedFields::DataLength, getDataLength());
+
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader != nullptr)
+		{
+			serializer.writeField(SerializedFields::ErrorClass, ackDataHeader->errorClass);
+			serializer.writeField(SerializedFields::ErrorCode, ackDataHeader->errorCode);
+		}
+	}
+
 	bool S7CommLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		if (!data || dataSize < sizeof(s7commhdr))
@@ -108,12 +156,24 @@ namespace pcpp
 
 	uint8_t S7CommLayer::getErrorCode() const
 	{
-		return getS7commAckDataHeader()->errorCode;
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader == nullptr)
+		{
+			throw std::runtime_error("Error code field not present!");
+		}
+
+		return ackDataHeader->errorCode;
 	}
 
 	uint8_t S7CommLayer::getErrorClass() const
 	{
-		return getS7commAckDataHeader()->errorClass;
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader == nullptr)
+		{
+			throw std::runtime_error("Error class field not present!");
+		}
+
+		return ackDataHeader->errorClass;
 	}
 
 	void S7CommLayer::setPduRef(uint16_t pduRef) const
@@ -123,20 +183,36 @@ namespace pcpp
 
 	void S7CommLayer::setErrorCode(uint8_t errorCode) const
 	{
-		getS7commAckDataHeader()->errorCode = errorCode;
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader == nullptr)
+		{
+			PCPP_LOG_ERROR("Cannot set the error code, the layer has no Ack-Data header");
+			return;
+		}
+
+		ackDataHeader->errorCode = errorCode;
 	}
 
 	void S7CommLayer::setErrorClass(uint8_t errorClass) const
 	{
-		getS7commAckDataHeader()->errorClass = errorClass;
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader == nullptr)
+		{
+			PCPP_LOG_ERROR("Cannot set the error class, the layer has no Ack-Data header");
+			return;
+		}
+
+		ackDataHeader->errorClass = errorClass;
 	}
 
 	const S7CommParameter* S7CommLayer::getParameter()
 	{
 		if (!m_Parameter)
 		{
-			uint8_t* payload = m_Data + getS7commHeaderLength();
-			m_Parameter = std::unique_ptr<S7CommParameter>(new S7CommParameter(payload, getParamLength()));
+			// the parameter length comes from the packet, so keep it inside the layer
+			size_t offset = std::min(getS7commHeaderLength(), m_DataLen);
+			size_t paramLength = std::min(static_cast<size_t>(getParamLength()), m_DataLen - offset);
+			m_Parameter = std::unique_ptr<S7CommParameter>(new S7CommParameter(m_Data + offset, paramLength));
 		}
 
 		return m_Parameter.get();
