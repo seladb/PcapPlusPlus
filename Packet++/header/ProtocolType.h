@@ -270,7 +270,7 @@ namespace pcpp
 	const ProtocolType GVCP = 65;
 
 	/// Bluetooth HCI Protocol
-	const ProtocolType BluetoothHci = 66;
+	const ProtocolType BluetoothHCI = 66;
 
 	/// @}
 
@@ -413,8 +413,8 @@ namespace pcpp
 			return "QUICv1";
 		case GVCP:
 			return "GVCP";
-		case BluetoothHci:
-			return "BluetoothHci";
+		case BluetoothHCI:
+			return "BluetoothHCI";
 		default:
 			throw std::invalid_argument("Unknown protocol type");
 		}

@@ -48,8 +48,8 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 
 		pcpp::Packet packet(rawPacket.get());
 
-		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHci));
-		PTF_ASSERT_EQUAL(packet.getFirstLayer()->getProtocol(), pcpp::BluetoothHci, enum);
+		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHCI));
+		PTF_ASSERT_EQUAL(packet.getFirstLayer()->getProtocol(), pcpp::BluetoothHCI, enum);
 
 		auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
 		PTF_ASSERT_NOT_NULL(hciLayer);
@@ -81,7 +81,7 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 			eventLayer->serialize(serializer);
 			PTF_ASSERT_EQUAL(
 			    oss.str(),
-			    R"({"protocolName":"BluetoothHci","protocolId":66,"length":7,"direction":"ControllerToHost","eventCode":1,"parameterTotalLength":1,"parameters":"00"})");
+			    R"({"protocolName":"BluetoothHCI","protocolId":66,"length":7,"direction":"ControllerToHost","eventCode":1,"parameterTotalLength":1,"parameters":"00"})");
 		}
 	}
 
@@ -93,7 +93,7 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 
 		pcpp::Packet packet(rawPacket.get());
 
-		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHci));
+		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHCI));
 
 		auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
 		PTF_ASSERT_NOT_NULL(hciLayer);
@@ -128,7 +128,7 @@ PTF_TEST_CASE(BluetoothHciEventGenericTest)
 
 	pcpp::Packet packet(rawPacket.get());
 
-	PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHci));
+	PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::BluetoothHCI));
 
 	auto* hciLayer = packet.getLayerOfType<pcpp::BluetoothHciLayer>();
 	PTF_ASSERT_NOT_NULL(hciLayer);
@@ -169,7 +169,7 @@ PTF_TEST_CASE(BluetoothHciEventInvalidDataTest)
 
 		PTF_PRINT_VERBOSE("Command packet (indicator 0x01) parsed as: " << packet.getFirstLayer()->toString());
 
-		PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::BluetoothHci));
+		PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::BluetoothHCI));
 		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
 	}
 
@@ -205,7 +205,7 @@ PTF_TEST_CASE(BluetoothHciPacketTypeTest)
 		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4);
 		pcpp::Packet packet(&rawPacket);
 
-		PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::BluetoothHci));
+		PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::BluetoothHCI));
 		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
 	}
 

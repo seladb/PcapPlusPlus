@@ -119,14 +119,14 @@ namespace pcpp
 		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		/// @param[in] hasDirectionHeader True if the data starts with a 4-byte direction pseudo-header
 		BluetoothHciLayer(uint8_t* data, size_t dataLen, Packet* packet, bool hasDirectionHeader)
-		    : Layer(data, dataLen, nullptr, packet, BluetoothHci), m_HasDirectionHeader(hasDirectionHeader)
+		    : Layer(data, dataLen, nullptr, packet, BluetoothHCI), m_HasDirectionHeader(hasDirectionHeader)
 		{}
 
 		/// Constructor used by subclasses that will allocate their own buffer via allocData()
 		/// @param[in] hasDirectionHeader True if the buffer will include a 4-byte direction pseudo-header
 		explicit BluetoothHciLayer(bool hasDirectionHeader) : m_HasDirectionHeader(hasDirectionHeader)
 		{
-			m_Protocol = BluetoothHci;
+			m_Protocol = BluetoothHCI;
 		}
 
 		/// @return Size of the direction pseudo-header, or 0 if this packet has none
