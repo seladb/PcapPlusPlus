@@ -66,8 +66,8 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 		PTF_ASSERT_TRUE(eventLayer->hasDirectionHeader());
 		PTF_ASSERT_EQUAL(eventLayer->getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
 		                 enumclass);
-		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 7);
-		PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 1);
+		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 8);
+		PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 0);
 
 		PTF_ASSERT_EQUAL(eventLayer->getEventCode(), 0x01);
 		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 1);
@@ -81,7 +81,7 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 			eventLayer->serialize(serializer);
 			PTF_ASSERT_EQUAL(
 			    oss.str(),
-			    R"({"protocolName":"BluetoothHCI","protocolId":67,"length":7,"direction":"ControllerToHost","eventCode":1,"parameterTotalLength":1})");
+			    R"({"protocolName":"BluetoothHCI","protocolId":67,"length":8,"direction":"ControllerToHost","eventCode":1,"parameterTotalLength":1})");
 		}
 	}
 
@@ -109,8 +109,8 @@ PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest)
 		PTF_ASSERT_FALSE(eventLayer->hasDirectionHeader());
 		PTF_ASSERT_EQUAL(eventLayer->getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::Unknown,
 		                 enumclass);
-		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 3);
-		PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 1);
+		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 4);
+		PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 0);
 		PTF_ASSERT_EQUAL(eventLayer->getEventCode(), 0x01);
 		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 1);
 
@@ -143,10 +143,10 @@ PTF_TEST_CASE(BluetoothHciEventGenericTest)
 	PTF_ASSERT_TRUE(eventLayer->hasDirectionHeader());
 	PTF_ASSERT_EQUAL(eventLayer->getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
 	                 enumclass);
-	PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 7);
+	PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 11);
 	PTF_ASSERT_EQUAL(eventLayer->getEventCode(), 0x0f);
 	PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 4);
-	PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 4);
+	PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 0);
 
 	const uint8_t* parameters = eventLayer->getParameters();
 	PTF_ASSERT_EQUAL(parameters[0], 0x00);
@@ -257,7 +257,7 @@ PTF_TEST_CASE(BluetoothHciEventCreationTest)
 		PTF_ASSERT_FALSE(eventLayer.hasDirectionHeader());
 		PTF_ASSERT_EQUAL(eventLayer.getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::Unknown, enumclass);
 		PTF_ASSERT_EQUAL(eventLayer.getPacketType(), pcpp::BluetoothHciLayer::BluetoothHciPacketType::Event, enumclass);
-		PTF_ASSERT_EQUAL(eventLayer.getHeaderLen(), 3);
+		PTF_ASSERT_EQUAL(eventLayer.getHeaderLen(), 4);
 		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), 4);
 		PTF_ASSERT_EQUAL(eventLayer.getEventCode(), 0x01);
 		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 1);
@@ -272,7 +272,7 @@ PTF_TEST_CASE(BluetoothHciEventCreationTest)
 		PTF_ASSERT_TRUE(eventLayer.hasDirectionHeader());
 		PTF_ASSERT_EQUAL(eventLayer.getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
 		                 enumclass);
-		PTF_ASSERT_EQUAL(eventLayer.getHeaderLen(), 7);
+		PTF_ASSERT_EQUAL(eventLayer.getHeaderLen(), 8);
 		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), 8);
 		PTF_ASSERT_EQUAL(eventLayer.getEventCode(), 0x01);
 		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 1);
