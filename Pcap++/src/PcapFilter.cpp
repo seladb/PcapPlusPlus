@@ -353,6 +353,7 @@ namespace pcpp
 	CompositeFilter::CompositeFilter(const std::vector<GeneralFilter*>& filters) : m_FilterList(filters)
 	{}
 
+	// cppcheck-suppress constParameter
 	void CompositeFilter::removeFilter(GeneralFilter* filter)
 	{
 		for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
