@@ -242,10 +242,10 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 		pcpp::Packet truncatedEchoPacket(rawPacket.get());
 		PTF_ASSERT_TRUE(truncatedEchoPacket.isPacketOfType(pcpp::ICMPv6));
 		PTF_ASSERT_NULL(truncatedEchoPacket.getLayerOfType<pcpp::ICMPv6EchoLayer>());
-		auto* icmpV6Layer = truncatedEchoPacket.getLayerOfType<pcpp::IcmpV6Layer>();
-		PTF_ASSERT_NOT_NULL(icmpV6Layer);
-		PTF_ASSERT_EQUAL(icmpV6Layer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST, enumclass);
-		PTF_ASSERT_EQUAL(icmpV6Layer->getDataLen(), 6);
+		auto* truncatedEchoLayer = truncatedEchoPacket.getLayerOfType<pcpp::IcmpV6Layer>();
+		PTF_ASSERT_NOT_NULL(truncatedEchoLayer);
+		PTF_ASSERT_EQUAL(truncatedEchoLayer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST, enumclass);
+		PTF_ASSERT_EQUAL(truncatedEchoLayer->getDataLen(), 6);
 	}
 }
 
