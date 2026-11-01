@@ -8,6 +8,7 @@
 #include "Packet.h"
 #include "SystemUtils.h"
 #include "TcpLayer.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -27,6 +28,14 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpLayer1->toString(), "FTP Request: USER");
 	PTF_ASSERT_FALSE(ftpLayer1->isMultiLine());
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ftpLayer1->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"FTPControl","protocolId":41,"length":15,"command":"USER",)"
+		                            R"("commandOption":"csanders"})");
+	}
+
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/ftpIpv4Resp.dat");
 
 	pcpp::Packet ftpPacket2(rawPacket2.get());
@@ -39,6 +48,16 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpLayer2->toString(), "FTP Response: 250");
 	PTF_ASSERT_FALSE(ftpLayer2->isMultiLine());
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ftpLayer2->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"({"protocolName":"FTPControl","protocolId":41,"length":55,"statusCode":250,)"
+		                 R"("statusCodeDescription":"Requested file action okay, completed",)"
+		                 R"("statusOption":"CWD command successful. \"/\" is current directory.","multiLine":false})");
+	}
+
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/ftpIpv4RespHyphen.dat");
 
 	pcpp::Packet ftpPacket3(rawPacket3.get());
@@ -50,6 +69,17 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpLayer3->getStatusOption(), "Extensions supported: CLNT MDTM PASV REST STREAM SIZEEnd.");
 	PTF_ASSERT_EQUAL(ftpLayer3->toString(), "FTP Response: 211");
 	PTF_ASSERT_TRUE(ftpLayer3->isMultiLine());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ftpLayer3->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"FTPControl","protocolId":41,"length":79,"statusCode":211,)"
+		    R"("statusCodeDescription":"System status, or system help reply",)"
+		    R"("statusOption":"Extensions supported: CLNT MDTM PASV REST STREAM SIZEEnd.","multiLine":true})");
+	}
 
 	// Test IPv6 packets
 	auto rawPacket4 = createPacketFromHexResource("PacketExamples/ftpIpv6Req.dat");
@@ -100,6 +130,14 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_EQUAL(ftpLayer7->getCommandOption(), "");
 	PTF_ASSERT_EQUAL(ftpLayer7->toString(), "FTP Request: SYST");
 	PTF_ASSERT_FALSE(ftpLayer7->isMultiLine());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ftpLayer7->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"FTPControl","protocolId":41,"length":6,"command":"SYST",)"
+		                            R"("commandOption":""})");
+	}
 
 	// Command codes
 	// clang-format off

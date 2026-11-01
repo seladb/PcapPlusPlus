@@ -103,4 +103,11 @@ namespace pcpp
 		return "Null/Loopback";
 	}
 
+	const FieldDescriptor NullLoopbackLayer::SerializedFields::Family{ Layer::SerializedFields::MaxID + 1, "family" };
+
+	void NullLoopbackLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Family, getFamily());
+	}
+
 }  // namespace pcpp

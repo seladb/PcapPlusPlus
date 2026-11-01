@@ -9,10 +9,22 @@
 #include "UdpLayer.h"
 #include "IcmpLayer.h"
 #include "SystemUtils.h"
+#include <algorithm>
+#include <memory>
+#include <sstream>
 #include <tuple>
+#include <vector>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
+
+static std::string serializeToJson(const pcpp::Layer& layer)
+{
+	std::ostringstream output;
+	pcpp::JsonSerializer serializer(output);
+	layer.serialize(serializer);
+	return output.str();
+}
 
 PTF_TEST_CASE(GtpV1LayerParsingTest)
 {
@@ -53,6 +65,9 @@ PTF_TEST_CASE(GtpV1LayerParsingTest)
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 12);
 	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 1");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*gtpLayer),
+	    R"({"protocolName":"GTPv1","protocolId":32,"length":12,"version":1,"protocolType":1,"messageType":255,"messageTypeName":"G-PDU","messageLength":88,"teid":"0x1","sequenceNumber":10461})");
 
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
@@ -94,6 +109,9 @@ PTF_TEST_CASE(GtpV1LayerParsingTest)
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 16);
 	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 1050199");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*gtpLayer),
+	    R"({"protocolName":"GTPv1","protocolId":32,"length":16,"version":1,"protocolType":1,"messageType":255,"messageTypeName":"G-PDU","messageLength":1508,"teid":"0x100657","sequenceNumber":5,"extensions":[192]})");
 
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
@@ -117,6 +135,9 @@ PTF_TEST_CASE(GtpV1LayerParsingTest)
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 8);
 	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 2327461905");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*gtpLayer),
+	    R"({"protocolName":"GTPv1","protocolId":32,"length":8,"version":1,"protocolType":1,"messageType":255,"messageTypeName":"G-PDU","messageLength":496,"teid":"0x8aba4011"})");
 
 	PTF_ASSERT_FALSE(gtpLayer->getSequenceNumber(seqNum));
 	PTF_ASSERT_FALSE(gtpLayer->getNpduNumber(npduNum));
@@ -157,9 +178,26 @@ PTF_TEST_CASE(GtpV1LayerParsingTest)
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 52);
 	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-C message: SGSN Context Response, TEID: 167660384");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*gtpLayer),
+	    R"({"protocolName":"GTPv1","protocolId":32,"length":52,"version":1,"protocolType":1,"messageType":51,"messageTypeName":"SGSN Context Response","messageLength":44,"teid":"0x9fe4b60","sequenceNumber":34062})");
 
 	PTF_ASSERT_TRUE(gtpLayer->isGTPCMessage());
 	PTF_ASSERT_FALSE(gtpLayer->isGTPUMessage());
+
+	// N-PDU number is only serialized when its flag is set
+	pcpp::GtpV1Layer newGtpLayer(pcpp::GtpV1_EchoRequest, 0x1234, true, 7, true, 3);
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(newGtpLayer),
+	    R"({"protocolName":"GTPv1","protocolId":32,"length":12,"version":1,"protocolType":1,"messageType":1,"messageTypeName":"Echo Request","messageLength":4,"teid":"0x1234","sequenceNumber":7,"npduNumber":3})");
+
+	const auto fields = pcpp::GtpV1Layer::SerializedFields::all();
+	const auto baseFieldCount = pcpp::Layer::SerializedFields::all().size();
+	PTF_ASSERT_EQUAL(fields.size(), baseFieldCount + 9);
+	for (size_t i = baseFieldCount; i < fields.size(); ++i)
+	{
+		PTF_ASSERT_EQUAL(fields[i].id, pcpp::Layer::SerializedFields::MaxID + i - baseFieldCount + 1);
+	}
 }  // GtpLayerParsingTest
 
 PTF_TEST_CASE(GtpV1LayerCreationTest)
@@ -171,11 +209,9 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 
 		auto rawPacketAndBuf2 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u-1ext.dat");
 		auto& resource2 = rawPacketAndBuf2.resourceBuffer;
-		auto& rawPacket2 = rawPacketAndBuf2.packet;
 
 		auto rawPacketAndBuf3 = createPacketAndBufferFromHexResource("PacketExamples/gtp-u-2ext.dat");
 		auto& resource3 = rawPacketAndBuf3.resourceBuffer;
-		auto& rawPacket3 = rawPacketAndBuf3.packet;
 
 		pcpp::Packet gtpPacket1(rawPacket1.get());
 
@@ -243,6 +279,28 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 		    new pcpp::GtpV1Layer(pcpp::GtpV1MessageType::GtpV1_VersionNotSupported, 0x12345678, true, 1, false, 0));
 		gtpLayer->getHeader()->messageType = 0xFF;
 		gtpLayer->addExtension(0x85, 0x1234);
+	}
+
+	{
+		// Regression - issue #2322: the layer is attached to a Packet and already
+		// has an extension. addExtension() must not keep a pointer into the old
+		// packet buffer across the extendLayer() reallocation.
+		auto rawPacket = createPacketFromHexResource("PacketExamples/gtp-u-1ext.dat");
+		pcpp::Packet gtpPacket(rawPacket.get());
+
+		auto* gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV1Layer>();
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+		PTF_ASSERT_FALSE(gtpLayer->getNextExtension().isNull());
+
+		pcpp::GtpV1Layer::GtpExtension newExt = gtpLayer->addExtension(0x85, 0x1234);
+		PTF_ASSERT_FALSE(newExt.isNull());
+		PTF_ASSERT_EQUAL(newExt.getExtensionType(), 0x85);
+		PTF_ASSERT_EQUAL(newExt.getTotalLength(), 4 * sizeof(uint8_t));
+		PTF_ASSERT_EQUAL(newExt.getContentLength(), 2 * sizeof(uint8_t));
+		auto* content = reinterpret_cast<uint16_t*>(newExt.getContent());
+		PTF_ASSERT_EQUAL(be16toh(content[0]), 0x1234);
+		PTF_ASSERT_TRUE(newExt.getNextExtension().isNull());
+		PTF_ASSERT_EQUAL(gtpLayer->getNextExtension().getNextExtensionHeaderType(), 0x85);
 	}
 }  // GtpLayerCreationTest
 
@@ -319,6 +377,9 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		PTF_ASSERT_NULL(gtpLayer->getNextLayer());
 
 		PTF_ASSERT_EQUAL(gtpLayer->getInformationElementCount(), 9);
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*gtpLayer),
+		    R"({"protocolName":"GTPv2","protocolId":57,"length":111,"messageType":34,"messageTypeName":"Modify Bearer Request","messageLength":107,"piggybacking":false,"teid":"0xd37d1590","sequenceNumber":1722947,"informationElements":[86,83,82,87,72,75,114,93,3]})");
 
 		auto expectedIEValues = std::vector<
 		    std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>>{
@@ -370,6 +431,9 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		PTF_ASSERT_EQUAL(gtpLayer->getSequenceNumber(), 12345);
 		PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTPv2 Layer, Echo Request message");
 		PTF_ASSERT_EQUAL(gtpLayer->getInformationElementCount(), 1);
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*gtpLayer),
+		    R"({"protocolName":"GTPv2","protocolId":57,"length":13,"messageType":1,"messageTypeName":"Echo Request","messageLength":9,"piggybacking":true,"sequenceNumber":12345,"informationElements":[3]})");
 
 		gtpLayer = reinterpret_cast<pcpp::GtpV2Layer*>(gtpLayer->getNextLayer());
 		PTF_ASSERT_NOT_NULL(gtpLayer);
@@ -385,6 +449,9 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		PTF_ASSERT_EQUAL(messagePriority.second, 9);
 		PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTPv2 Layer, Create Session Response message");
 		PTF_ASSERT_NULL(gtpLayer->getNextLayer());
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*gtpLayer),
+		    R"({"protocolName":"GTPv2","protocolId":57,"length":24,"messageType":33,"messageTypeName":"Create Session Response","messageLength":20,"piggybacking":false,"teid":"0x15666","sequenceNumber":67890,"messagePriority":9,"informationElements":[1]})");
 	}
 
 	{
@@ -397,6 +464,9 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		PTF_ASSERT_TRUE(gtpLayer->isPiggybacking());
 		PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 		PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload);
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*gtpLayer),
+		    R"({"protocolName":"GTPv2","protocolId":57,"length":13,"messageType":1,"messageTypeName":"Echo Request","messageLength":9,"piggybacking":true,"sequenceNumber":12345,"informationElements":[3]})");
 	}
 
 	{
@@ -409,6 +479,9 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		PTF_ASSERT_NOT_NULL(gtpLayer);
 		PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), pcpp::GtpV2MessageType::DeleteSessionResponse);
 		PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTPv2 Layer, Delete Session Response message");
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*gtpLayer),
+		    R"({"protocolName":"GTPv2","protocolId":57,"length":13,"messageType":37,"messageTypeName":"Delete Session Response","messageLength":9,"piggybacking":false,"teid":"0x0","sequenceNumber":12345,"informationElements":[]})");
 	}
 
 	{
@@ -420,6 +493,9 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		auto infoElement = gtpLayer->getFirstInformationElement();
 		PTF_ASSERT_EQUAL(infoElement.getCRFlag(), 7);
 		PTF_ASSERT_EQUAL(infoElement.getInstance(), 12);
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*gtpLayer),
+		    R"({"protocolName":"GTPv2","protocolId":57,"length":29,"messageType":34,"messageTypeName":"Modify Bearer Request","messageLength":25,"piggybacking":false,"teid":"0xd37d1590","sequenceNumber":1722947,"messagePriority":1,"informationElements":[86]})");
 	}
 
 	// GH #2171: a TEID-present header that is long enough for the basic header + TEID but not
@@ -432,6 +508,26 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 		// the same header with the 4-byte sequence word present (12 bytes) is accepted
 		const uint8_t fullTeidPresent[] = { 0x48, 0x20, 0x00, 0x0c, 0xde, 0xad, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00 };
 		PTF_ASSERT_TRUE(pcpp::GtpV2Layer::isDataValid(fullTeidPresent, sizeof(fullTeidPresent)));
+	}
+
+	// A message length shorter than the fixed header must not make the IE accessors (and thus serialization) read
+	// past the layer
+	{
+		std::vector<std::vector<uint8_t>> shortMessageLengthHeaders = {
+			{ 0x48, 0x20, 0x00, 0x00, 0xde, 0xad, 0xbe, 0xef, 0x00, 0x00, 0x01, 0x00 }, // TEID present, length 0
+			{ 0x40, 0x01, 0x00, 0x02, 0x00, 0x30, 0x39, 0x00 }  // no TEID, length 2
+		};
+		for (const auto& bytes : shortMessageLengthHeaders)
+		{
+			PTF_ASSERT_TRUE(pcpp::GtpV2Layer::isDataValid(bytes.data(), bytes.size()));
+			auto data = std::make_unique<uint8_t[]>(bytes.size());
+			std::copy(bytes.begin(), bytes.end(), data.get());
+			pcpp::GtpV2Layer gtpLayer(data.release(), bytes.size(), nullptr, nullptr);
+			PTF_ASSERT_TRUE(gtpLayer.getFirstInformationElement().isNull());
+			PTF_ASSERT_EQUAL(gtpLayer.getInformationElementCount(), 0);
+			PTF_ASSERT_TRUE(gtpLayer.getInformationElement(pcpp::GtpV2InformationElement::Type::Recovery).isNull());
+			PTF_ASSERT_CONTAINS(serializeToJson(gtpLayer), R"("informationElements":[])");
+		}
 	}
 }  // GtpV2LayerParsingTest
 

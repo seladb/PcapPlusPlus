@@ -13,8 +13,10 @@ add_executable(
   Tests/DoIpTests.cpp
   Tests/EthAndArpTests.cpp
   Tests/FtpTests.cpp
+  Tests/GeneveTests.cpp
   Tests/GreTests.cpp
   Tests/GtpTests.cpp
+  Tests/GvcpTests.cpp
   Tests/HttpTests.cpp
   Tests/IcmpTests.cpp
   Tests/IcmpV6Tests.cpp
@@ -36,6 +38,7 @@ add_executable(
   Tests/QuicTests.cpp
   Tests/RadiusTests.cpp
   Tests/S7CommTests.cpp
+  Tests/SerializerTests.cpp
   Tests/SipSdpTests.cpp
   Tests/Sll2Tests.cpp
   Tests/SllNullLoopbackTests.cpp

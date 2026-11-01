@@ -138,7 +138,61 @@ namespace pcpp
 			return OsiModelNetworkLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by GreLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for GreLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{
+					StrictSourceRouteBit, SequenceNumBit, KeyBit,  RoutingBit, ChecksumBit,
+					RecursionControl,     Flags,          Version, Protocol,   SequenceNumber
+				};
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Strict source route bit (1 if set, 0 otherwise)
+			static const FieldDescriptor StrictSourceRouteBit;
+
+			/// @brief Sequence number present bit (1 if set, 0 otherwise)
+			static const FieldDescriptor SequenceNumBit;
+
+			/// @brief Key present bit (1 if set, 0 otherwise)
+			static const FieldDescriptor KeyBit;
+
+			/// @brief Routing present bit (1 if set, 0 otherwise)
+			static const FieldDescriptor RoutingBit;
+
+			/// @brief Checksum present bit (1 if set, 0 otherwise)
+			static const FieldDescriptor ChecksumBit;
+
+			/// @brief Number of additional encapsulations permitted (3-bit counter)
+			static const FieldDescriptor RecursionControl;
+
+			/// @brief Reserved flags (bits 8 to 12)
+			static const FieldDescriptor Flags;
+
+			/// @brief GRE protocol version (3 bits: 0 for GREv0, 1 for GREv1)
+			static const FieldDescriptor Version;
+
+			/// @brief Encapsulated protocol EtherType, in host byte order
+			static const FieldDescriptor Protocol;
+
+			/// @brief Sequence number, in host byte order (written if sequenceNumBit is set)
+			static const FieldDescriptor SequenceNumber;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 10;
+		};
+
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		GreLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
 		    : Layer(data, dataLen, prevLayer, packet, protocol)
 		{}
@@ -196,7 +250,7 @@ namespace pcpp
 		/// @param[out] checksum The returned checksum value if exists in layer. Else remain unchanged
 		/// @return True if checksum field exists in layer. In this case checksum parameter will be filled with the
 		/// value. Or false if checksum field doesn't exist in layer
-		bool getChecksum(uint16_t& checksum);
+		bool getChecksum(uint16_t& checksum) const;
 
 		/// Set checksum value. If checksum or offset fields already exist (gre_basic_header#checksumBit or
 		/// gre_basic_header#routingBit are set) then only the new value is set. If both fields don't exist a new 4-byte
@@ -257,6 +311,38 @@ namespace pcpp
 		void computeCalculateFields() override;
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by GREv0Layer's serializeLayer(), in addition to
+		/// GreLayer::SerializedFields.
+		struct SerializedFields : GreLayer::SerializedFields
+		{
+			/// @return All field descriptors for GREv0Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = GreLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Checksum, Offset, Key };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Checksum value, in host byte order, written as a hexadecimal string (written if checksumBit is
+			/// set)
+			static const FieldDescriptor Checksum;
+
+			/// @brief Routing offset, in host byte order, in bytes (written if routingBit is set)
+			static const FieldDescriptor Offset;
+
+			/// @brief Key value, in host byte order (written if keyBit is set)
+			static const FieldDescriptor Key;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = GreLayer::SerializedFields::MaxID + 3;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class GREv1Layer
@@ -327,6 +413,41 @@ namespace pcpp
 		void computeCalculateFields() override;
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by GREv1Layer's serializeLayer(), in addition to
+		/// GreLayer::SerializedFields.
+		struct SerializedFields : GreLayer::SerializedFields
+		{
+			/// @return All field descriptors for GREv1Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = GreLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ AckSequenceNumBit, PayloadLength, CallID,
+					                                          AcknowledgmentNumber };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Acknowledgment number present bit (1 if set, 0 otherwise)
+			static const FieldDescriptor AckSequenceNumBit;
+
+			/// @brief Size of the payload not including the GRE header, in bytes and in host byte order
+			static const FieldDescriptor PayloadLength;
+
+			/// @brief Peer Call ID for the PPTP session, in host byte order
+			static const FieldDescriptor CallID;
+
+			/// @brief Acknowledgment sequence number, in host byte order (written if ackSequenceNumBit is set)
+			static const FieldDescriptor AcknowledgmentNumber;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = GreLayer::SerializedFields::MaxID + 4;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class PPP_PPTPLayer
@@ -389,6 +510,37 @@ namespace pcpp
 		{
 			return OsiModelSessionLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by PPP_PPTPLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for PPP_PPTPLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Address, Control, Protocol };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Broadcast address byte
+			static const FieldDescriptor Address;
+
+			/// @brief Control byte
+			static const FieldDescriptor Control;
+
+			/// @brief Protocol type of the next layer, in host byte order
+			static const FieldDescriptor Protocol;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by PPP_PPTPLayer
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	bool PPP_PPTPLayer::isDataValid(const uint8_t* data, size_t dataLen)

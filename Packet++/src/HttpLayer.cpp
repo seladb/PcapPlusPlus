@@ -57,6 +57,27 @@ namespace pcpp
 		return TextBasedProtocolMessage::insertField(prevField, newField);
 	}
 
+	const FieldDescriptor HttpMessage::SerializedFields::HeaderComplete{ Layer::SerializedFields::MaxID + 4,
+		                                                                 "headerComplete" };
+	const FieldDescriptor HttpMessage::SerializedFields::HeaderFields{ Layer::SerializedFields::MaxID + 5,
+		                                                               "headerFields" };
+	const HttpMessage::SerializedFields::HeaderFieldObject HttpHeaderFieldObject{ 0, "headerField" };
+	const FieldDescriptor HttpMessage::SerializedFields::HeaderFieldObject::Name{ 0, "name" };
+	const FieldDescriptor HttpMessage::SerializedFields::HeaderFieldObject::Value{ 1, "value" };
+
+	void HttpMessage::serializeHeader(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::HeaderComplete, isHeaderComplete());
+		auto headerFields = serializer.writeArray(SerializedFields::HeaderFields);
+		for (HeaderField* field = getFirstField(); field != nullptr && !field->isEndOfHeader();
+		     field = getNextField(field))
+		{
+			auto fieldObject = headerFields.writeObject(HttpHeaderFieldObject);
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Name, field->getFieldName());
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Value, field->getFieldValue());
+		}
+	}
+
 	// -------- Class HttpRequestLayer -----------------
 
 	HttpRequestLayer::HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -81,6 +102,11 @@ namespace pcpp
 
 	HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		HttpMessage::operator=(other);
 
 		if (m_FirstLine != nullptr)
@@ -377,10 +403,10 @@ namespace pcpp
 
 		// extend or shorten layer
 		std::string currentUri = getUri();
-		int lengthDifference = newUri.length() - currentUri.length();
+		int lengthDifference = static_cast<int>(newUri.length()) - static_cast<int>(currentUri.length());
 		if (lengthDifference > 0)
 		{
-			if (!m_HttpRequest->extendLayer(m_UriOffset, lengthDifference))
+			if (!m_HttpRequest->extendLayer(m_UriOffset, static_cast<size_t>(lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -388,7 +414,7 @@ namespace pcpp
 		}
 		else if (lengthDifference < 0)
 		{
-			if (!m_HttpRequest->shortenLayer(m_UriOffset, 0 - lengthDifference))
+			if (!m_HttpRequest->shortenLayer(m_UriOffset, static_cast<size_t>(-lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -417,6 +443,25 @@ namespace pcpp
 		memcpy(verPos, VersionEnumToString[newVersion].c_str(), 3);
 
 		m_Version = newVersion;
+	}
+
+	const FieldDescriptor HttpRequestLayer::SerializedFields::Method{ Layer::SerializedFields::MaxID + 1, "method" };
+	const FieldDescriptor HttpRequestLayer::SerializedFields::Uri{ Layer::SerializedFields::MaxID + 2, "uri" };
+	const FieldDescriptor HttpRequestLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 3, "version" };
+
+	static std::string httpVersionToString(HttpVersion version)
+	{
+		return version == HttpVersionUnknown ? "Unknown" : "HTTP/" + VersionEnumToString[version];
+	}
+
+	void HttpRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		const auto method = m_FirstLine->getMethod();
+		serializer.writeField(SerializedFields::Method,
+		                      method == HttpMethodUnknown ? std::string("Unknown") : MethodEnumToString[method]);
+		serializer.writeField(SerializedFields::Uri, m_FirstLine->getUri());
+		serializer.writeField(SerializedFields::Version, httpVersionToString(m_FirstLine->getVersion()));
+		serializeHeader(serializer);
 	}
 
 	// -------- Class HttpResponseLayer -----------------
@@ -698,6 +743,11 @@ namespace pcpp
 
 	HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		HttpMessage::operator=(other);
 
 		if (m_FirstLine != nullptr)
@@ -763,6 +813,21 @@ namespace pcpp
 		return result;
 	}
 
+	const FieldDescriptor HttpResponseLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 1, "version" };
+	const FieldDescriptor HttpResponseLayer::SerializedFields::StatusCode{ Layer::SerializedFields::MaxID + 2,
+		                                                                   "statusCode" };
+	const FieldDescriptor HttpResponseLayer::SerializedFields::StatusCodeDescription{
+		Layer::SerializedFields::MaxID + 3, "statusCodeDescription"
+	};
+
+	void HttpResponseLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Version, httpVersionToString(m_FirstLine->getVersion()));
+		serializer.writeField(SerializedFields::StatusCode, m_FirstLine->getStatusCodeAsInt());
+		serializer.writeField(SerializedFields::StatusCodeDescription, m_FirstLine->getStatusCodeString());
+		serializeHeader(serializer);
+	}
+
 	// -------- Class HttpResponseFirstLine -----------------
 
 	int HttpResponseFirstLine::getStatusCodeAsInt() const
@@ -801,10 +866,11 @@ namespace pcpp
 		size_t statusStringOffset = 13;
 		auto newStatusCodeMessage = newStatusCode.getMessage();
 
-		int lengthDifference = newStatusCodeMessage.length() - getStatusCodeString().length();
+		int lengthDifference =
+		    static_cast<int>(newStatusCodeMessage.length()) - static_cast<int>(getStatusCodeString().length());
 		if (lengthDifference > 0)
 		{
-			if (!m_HttpResponse->extendLayer(statusStringOffset, lengthDifference))
+			if (!m_HttpResponse->extendLayer(statusStringOffset, static_cast<size_t>(lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;
@@ -812,7 +878,7 @@ namespace pcpp
 		}
 		else if (lengthDifference < 0)
 		{
-			if (!m_HttpResponse->shortenLayer(statusStringOffset, 0 - lengthDifference))
+			if (!m_HttpResponse->shortenLayer(statusStringOffset, static_cast<size_t>(-lengthDifference)))
 			{
 				PCPP_LOG_ERROR("Cannot change layer size");
 				return false;

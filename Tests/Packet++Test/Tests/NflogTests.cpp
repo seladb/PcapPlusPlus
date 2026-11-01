@@ -54,4 +54,13 @@ PTF_TEST_CASE(NflogPacketParsingTest)
 	/// sum of all TLVs before payload + size of nflog_header + size of (recordLength + recordType) variables of payload
 	/// TLV
 	PTF_ASSERT_EQUAL(nflogLayer->getHeaderLen(), 48);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		nflogLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"NFLOG","protocolId":47,"length":48,"family":2,"version":0,"resourceID":42,"attributes":["NFULA_PACKET_HDR","NFULA_PREFIX","NFULA_IFINDEX_OUTDEV","NFULA_UID","NFULA_GID","NFULA_PAYLOAD"]})");
+	}
 }

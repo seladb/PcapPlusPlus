@@ -276,6 +276,72 @@ namespace pcpp
 		return dataStream.str();
 	}
 
+	static constexpr const char* msgTypeToString(SomeIpLayer::MsgType msgType)
+	{
+		switch (msgType)
+		{
+		case SomeIpLayer::MsgType::REQUEST:
+			return "Request";
+		case SomeIpLayer::MsgType::REQUEST_ACK:
+			return "RequestAck";
+		case SomeIpLayer::MsgType::REQUEST_NO_RETURN:
+			return "RequestNoReturn";
+		case SomeIpLayer::MsgType::REQUEST_NO_RETURN_ACK:
+			return "RequestNoReturnAck";
+		case SomeIpLayer::MsgType::NOTIFICATION:
+			return "Notification";
+		case SomeIpLayer::MsgType::NOTIFICATION_ACK:
+			return "NotificationAck";
+		case SomeIpLayer::MsgType::RESPONSE:
+			return "Response";
+		case SomeIpLayer::MsgType::RESPONSE_ACK:
+			return "ResponseAck";
+		case SomeIpLayer::MsgType::ERRORS:
+			return "Error";
+		case SomeIpLayer::MsgType::ERROR_ACK:
+			return "ErrorAck";
+		case SomeIpLayer::MsgType::TP_REQUEST:
+			return "TpRequest";
+		case SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN:
+			return "TpRequestNoReturn";
+		case SomeIpLayer::MsgType::TP_NOTIFICATION:
+			return "TpNotification";
+		case SomeIpLayer::MsgType::TP_RESPONSE:
+			return "TpResponse";
+		case SomeIpLayer::MsgType::TP_ERROR:
+			return "TpError";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor SomeIpLayer::SerializedFields::ServiceID{ Layer::SerializedFields::MaxID + 1, "serviceID" };
+	const FieldDescriptor SomeIpLayer::SerializedFields::MethodID{ Layer::SerializedFields::MaxID + 2, "methodID" };
+	const FieldDescriptor SomeIpLayer::SerializedFields::ClientID{ Layer::SerializedFields::MaxID + 3, "clientID" };
+	const FieldDescriptor SomeIpLayer::SerializedFields::SessionID{ Layer::SerializedFields::MaxID + 4, "sessionID" };
+	const FieldDescriptor SomeIpLayer::SerializedFields::ProtocolVersion{ Layer::SerializedFields::MaxID + 5,
+		                                                                  "protocolVersion" };
+	const FieldDescriptor SomeIpLayer::SerializedFields::InterfaceVersion{ Layer::SerializedFields::MaxID + 6,
+		                                                                   "interfaceVersion" };
+	const FieldDescriptor SomeIpLayer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 7,
+		                                                              "messageType" };
+	const FieldDescriptor SomeIpLayer::SerializedFields::MessageTypeName{ Layer::SerializedFields::MaxID + 8,
+		                                                                  "messageTypeName" };
+	const FieldDescriptor SomeIpLayer::SerializedFields::ReturnCode{ Layer::SerializedFields::MaxID + 9, "returnCode" };
+
+	void SomeIpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeHexField(SerializedFields::ServiceID, getServiceID());
+		serializer.writeHexField(SerializedFields::MethodID, getMethodID());
+		serializer.writeHexField(SerializedFields::ClientID, getClientID());
+		serializer.writeField(SerializedFields::SessionID, getSessionID());
+		serializer.writeField(SerializedFields::ProtocolVersion, getProtocolVersion());
+		serializer.writeField(SerializedFields::InterfaceVersion, getInterfaceVersion());
+		serializer.writeField(SerializedFields::MessageType, getMessageTypeAsInt());
+		serializer.writeField(SerializedFields::MessageTypeName, msgTypeToString(getMessageType()));
+		serializer.writeField(SerializedFields::ReturnCode, getReturnCode());
+	}
+
 	// SomeIpTpLayer
 
 	SomeIpTpLayer::SomeIpTpLayer(uint16_t serviceID, uint16_t methodID, uint16_t clientID, uint16_t sessionID,
@@ -358,5 +424,16 @@ namespace pcpp
 	uint8_t SomeIpTpLayer::setTpFlag(uint8_t messageType)
 	{
 		return messageType | (uint8_t)SomeIpLayer::MsgType::TP_REQUEST;
+	}
+
+	const FieldDescriptor SomeIpTpLayer::SerializedFields::Offset{ SomeIpLayer::SerializedFields::MaxID + 1, "offset" };
+	const FieldDescriptor SomeIpTpLayer::SerializedFields::MoreSegments{ SomeIpLayer::SerializedFields::MaxID + 2,
+		                                                                 "moreSegments" };
+
+	void SomeIpTpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		SomeIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::Offset, getOffset());
+		serializer.writeField(SerializedFields::MoreSegments, getMoreSegmentsFlag());
 	}
 }  // namespace pcpp

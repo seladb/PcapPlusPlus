@@ -2,6 +2,8 @@
 
 #include "Layer.h"
 #include "TLVData.h"
+
+#include <Layer.h>
 #include <vector>
 #include <string.h>
 
@@ -92,6 +94,36 @@ namespace pcpp
 			return OsiModelDataLinkLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by PPPoELayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for PPPoELayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Code, Version, Type, SessionID };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the PPPoE code, written as a number.
+			static const FieldDescriptor Code;
+
+			/// @brief Field descriptor for the PPPoE version, written as a number.
+			static const FieldDescriptor Version;
+
+			/// @brief Field descriptor for the PPPoE type, written as a number.
+			static const FieldDescriptor Type;
+
+			/// @brief Field descriptor for the PPPoE session ID, written as a number in host byte order.
+			static const FieldDescriptor SessionID;
+
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 4;
+		};
+
 	protected:
 		// protected c'tor as this class shouldn't be instantiated
 		PPPoELayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
@@ -101,6 +133,8 @@ namespace pcpp
 		// protected c'tor as this class shouldn't be instantiated
 		PPPoELayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code, uint16_t sessionId,
 		           size_t additionalBytesToAllocate = 0);
+
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class PPPoESessionLayer
@@ -360,6 +394,31 @@ namespace pcpp
 		{
 			return "PPP-over-Ethernet Discovery (" + codeToString((PPPoELayer::PPPoECode)getPPPoEHeader()->code) + ")";
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by PPPoEDiscoveryLayer's serializeLayer(), in addition to
+		/// PPPoELayer::SerializedFields.
+		struct SerializedFields : PPPoELayer::SerializedFields
+		{
+			/// @return All field descriptors for PPPoEDiscoveryLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = PPPoELayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Tags };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the array of PPPoE tags found in the layer.
+			static const FieldDescriptor Tags;
+
+			/// @brief Field descriptor for a single entry of the Tags array, written as the tag type name
+			/// (e.g. "PPPOE_TAG_SVC_NAME").
+			static const FieldDescriptor Tag;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		TLVRecordReader<PPPoETag> m_TagReader;

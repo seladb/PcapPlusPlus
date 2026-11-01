@@ -52,6 +52,14 @@ PTF_TEST_CASE(VrrpParsingTest)
 		                                                  pcpp::IPAddress("192.168.0.2"),
 		                                                  pcpp::IPAddress("192.168.0.3") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		vrrpV2Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"VRRPv2","protocolId":49,"length":20,"type":"Advertisement","virtualRouterID":1,"priority":"Default","priorityValue":100,"checksum":"0x38fa","advInt":1,"authType":"NoAuthentication","ipAddresses":["192.168.0.1","192.168.0.2","192.168.0.3"]})");
+	}
 
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRPv2))
@@ -71,6 +79,14 @@ PTF_TEST_CASE(VrrpParsingTest)
 	ipAddressVec = vrrpV3IPv4Layer->getIPAddresses();
 	expectedIpAddressVec = { pcpp::IPAddress("192.168.0.1"), pcpp::IPAddress("192.168.0.2") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		vrrpV3IPv4Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"VRRPv3","protocolId":50,"length":16,"type":"Advertisement","virtualRouterID":1,"priority":"Default","priorityValue":100,"checksum":"0x484d","maxAdvInt":1,"ipAddresses":["192.168.0.1","192.168.0.2"]})");
+	}
 
 	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRPv2))
@@ -135,8 +151,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	pcpp::IPv4Layer ipLayer1(pcpp::IPv4Address("192.168.0.30"), pcpp::IPv4Address("224.0.0.18"));
 	ipLayer1.getIPv4Header()->timeToLive = 255;
 
-	pcpp::Packet vrrpv2Packet(1);
 	pcpp::VrrpV2Layer vrrpv2Layer(1, 100, 1);
+	pcpp::Packet vrrpv2Packet(1);
 
 	vrrpv2Layer.addIPAddress(ipv4Address1);
 	vrrpv2Layer.addIPAddress(ipv4Address2);
@@ -206,8 +222,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	pcpp::IPv4Layer ipv4Layer(pcpp::IPv4Address("192.168.0.30"), pcpp::IPv4Address("224.0.0.18"));
 	ipv4Layer.getIPv4Header()->timeToLive = 255;
 
-	pcpp::Packet vrrpv3IPv4Packet(1);
 	pcpp::VrrpV3Layer vrrpv3IPv4Layer(pcpp::IPAddress::IPv4AddressType, 1, 100, 1);
+	pcpp::Packet vrrpv3IPv4Packet(1);
 
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address1);
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address2);
@@ -242,8 +258,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("fe80::1"), pcpp::IPv6Address("ff02::12"));
 	ipv6Layer.getIPv6Header()->hopLimit = 255;
 
-	pcpp::Packet ipv6Packet(1);
 	pcpp::VrrpV3Layer vrrpv3IPv6Layer(pcpp::IPAddress::IPv6AddressType, 1, 100, 1);
+	pcpp::Packet ipv6Packet(1);
 
 	ipAddresses.clear();
 	ipAddresses.push_back(ipv6Address1);

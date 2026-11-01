@@ -64,6 +64,13 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 	pcpp::Layer* afterTcpLayer = tcpLayer->getNextLayer();
 	PTF_ASSERT_NOT_NULL(afterTcpLayer);
 	PTF_ASSERT_EQUAL(afterTcpLayer->getProtocol(), pcpp::HTTPResponse, enum);
+
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	tcpLayer->serialize(serializer);
+	PTF_ASSERT_EQUAL(
+	    oss.str(),
+	    R"({"protocolName":"TCP","protocolId":4,"length":20,"srcPort":80,"dstPort":60388,"sequenceNumber":3198891594,"tcpFlags":["PSH","ACK"],"windowSize":11580,"checksum":"0x4c03","options":[]})");
 }  // TcpPacketNoOptionsParsing
 
 PTF_TEST_CASE(TcpPacketWithAccurateEcnParsing)
@@ -126,6 +133,11 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing)
 	uint32_t tsEchoReply2 = timestampOptionData2.getValueAs<uint32_t>(4);
 	PTF_ASSERT_EQUAL(tsValue2, htobe32(195102));
 	PTF_ASSERT_EQUAL(tsEchoReply2, htobe32(3555729271UL));
+
+	std::ostringstream oss;
+	pcpp::JsonSerializer serializer(oss);
+	tcpLayer->serialize(serializer);
+	PTF_ASSERT_CONTAINS(oss.str(), R"("options":["Nop","Nop","Timestamp"])");
 }  // TcpPacketWithOptionsParsing
 
 PTF_TEST_CASE(TcpPacketWithOptionsParsing2)

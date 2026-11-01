@@ -142,5 +142,32 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by VxlanLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for VxlanLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ValidVNI, GroupPolicyID, VNI };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief True if the "valid VNI" flag (I bit) is set
+			static const FieldDescriptor ValidVNI;
+
+			/// @brief Group Policy ID (VXLAN-GBP extension)
+			static const FieldDescriptor GroupPolicyID;
+
+			/// @brief VXLAN Network Identifier (24 bits)
+			static const FieldDescriptor VNI;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp

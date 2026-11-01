@@ -262,6 +262,32 @@ namespace pcpp
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by FtpRequestLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for FtpRequestLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Command, CommandOption };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the command, written as a string as it appears in the message (for
+			/// example "USER").
+			static const FieldDescriptor Command;
+
+			/// @brief Field descriptor for the command argument, written as a string with non-printable characters
+			/// removed. An empty string is written if the command has no argument.
+			static const FieldDescriptor CommandOption;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// Class for representing the response messages of FTP Layer
@@ -433,6 +459,39 @@ namespace pcpp
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by FtpResponseLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for FtpResponseLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ StatusCode, StatusCodeDescription, StatusOption,
+					                                          MultiLine };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the status code, written as a number (for example 220).
+			static const FieldDescriptor StatusCode;
+
+			/// @brief Field descriptor for a short description of the status code, written as a string (see
+			/// getStatusCodeAsString()), or "Unknown Status Code" if the status code isn't recognized.
+			static const FieldDescriptor StatusCodeDescription;
+
+			/// @brief Field descriptor for the status argument, written as a string with non-printable characters
+			/// removed. For multi-line replies the lines are concatenated with the status code prefixes removed.
+			static const FieldDescriptor StatusOption;
+
+			/// @brief Field descriptor for whether this is a multi-line reply, written as a boolean.
+			static const FieldDescriptor MultiLine;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// Class for representing the data of FTP Layer

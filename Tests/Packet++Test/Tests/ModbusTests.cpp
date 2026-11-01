@@ -50,6 +50,15 @@ PTF_TEST_CASE(ModbusLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(modbusLayer->toString(),
 	                 "Modbus Layer, Transaction ID: 17, Protocol ID: 0, Length: 6, Unit ID: 255, Function Code: 4");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		modbusLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"Modbus","protocolId":61,"length":8,"transactionID":17,"protocolID":0,"unitID":255,"functionCode":"ReadInputRegisters"})");
+	}
 }  // ModbusLayerParsingTest
 
 PTF_TEST_CASE(ModbusLayerTruncatedTest)

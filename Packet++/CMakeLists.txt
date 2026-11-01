@@ -16,8 +16,10 @@ add_library(
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
+  src/GeneveLayer.cpp
   src/GreLayer.cpp
   src/GtpLayer.cpp
+  src/GvcpLayer.cpp
   src/HttpLayer.cpp
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
@@ -98,8 +100,10 @@ set(
   header/EthDot3Layer.h
   header/EthLayer.h
   header/FtpLayer.h
+  header/GeneveLayer.h
   header/GreLayer.h
   header/GtpLayer.h
+  header/GvcpLayer.h
   header/HttpLayer.h
   header/IcmpLayer.h
   header/IcmpV6Layer.h

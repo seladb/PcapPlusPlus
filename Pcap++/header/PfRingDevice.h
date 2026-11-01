@@ -74,7 +74,7 @@ namespace pcpp
 		bool m_HwClockEnabled;
 		bool m_IsFilterCurrentlySet;
 
-		PfRingDevice(const char* deviceName);
+		explicit PfRingDevice(const char* deviceName);
 
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
 		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);

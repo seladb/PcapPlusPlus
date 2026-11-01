@@ -5,8 +5,11 @@
 #include "SSLLayer.h"
 #include "SystemUtils.h"
 #include "Logger.h"
+#include <algorithm>
 #include <fstream>
+#include <memory>
 #include <sstream>
+#include <vector>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -596,6 +599,75 @@ PTF_TEST_CASE(SSLECPointFormatExtensionZeroLengthTest)
 
 	PTF_ASSERT_TRUE(ecPointFormatList.empty());
 }  // SSLECPointFormatExtensionZeroLengthTest
+
+PTF_TEST_CASE(SSLSupportedVersionsExtensionZeroLengthTest)
+{
+	// Malformed Supported Versions extension:
+	// Bytes 0-1: { 0x00, 0x2b } -> Extension Type = 43 (Supported Versions)
+	// Bytes 2-3: { 0x00, 0x00 } -> Extension Length = 0
+	// (This is malformed because it lacks both the version of a server hello and the list length of a client hello.)
+	uint8_t malformedExtData[] = { 0x00, 0x2b, 0x00, 0x00 };
+
+	pcpp::SSLSupportedVersionsExtension supportedVersionsExt(malformedExtData, sizeof(malformedExtData));
+	PTF_ASSERT_TRUE(supportedVersionsExt.getSupportedVersions().empty());
+}  // SSLSupportedVersionsExtensionZeroLengthTest
+
+PTF_TEST_CASE(SSLServerNameIndicationExtensionTruncatedTest)
+{
+	// A Server Name Indication extension needs at least 5 bytes of data: the server name list length (2 bytes),
+	// the name type (1 byte) and the host name length (2 bytes). The bytes after the extension must not be read.
+	uint8_t extData[] = { 0x00, 0x00,                    // Extension Type = 0 (Server Name)
+		                  0x00, 0x00,                    // Extension Length, set below
+		                  0x00, 0x05, 0x00, 0x00, 0x03,  // list length, name type, host name length
+		                  'f',  'o',  'o' };
+
+	for (uint8_t extLength = 0; extLength < 5; extLength++)
+	{
+		extData[3] = extLength;
+		pcpp::SSLServerNameIndicationExtension serverNameExt(extData, sizeof(extData));
+		PTF_ASSERT_EQUAL(serverNameExt.getHostName(), "");
+	}
+
+	// the complete extension is parsed as before
+	extData[3] = 8;
+	pcpp::SSLServerNameIndicationExtension serverNameExt(extData, sizeof(extData));
+	PTF_ASSERT_EQUAL(serverNameExt.getHostName(), "foo");
+}  // SSLServerNameIndicationExtensionTruncatedTest
+
+PTF_TEST_CASE(SSLAlertLayerTruncatedTest)
+{
+	// The layer takes ownership of the data, so it has to be allocated on the heap.
+	// Only the first dataLen bytes are given to the layer, the others must not be read.
+	auto createAlertLayer = [](const std::vector<uint8_t>& bytes, size_t dataLen) {
+		auto* data = new uint8_t[bytes.size()];
+		std::copy(bytes.begin(), bytes.end(), data);
+		return std::unique_ptr<pcpp::SSLAlertLayer>(new pcpp::SSLAlertLayer(data, dataLen, nullptr, nullptr));
+	};
+
+	// A fatal protocol_version alert record followed by a byte that belongs to the next record
+	const std::vector<uint8_t> alertBytes = { 0x15, 0x03, 0x01, 0x00, 0x02, 0x02, 0x46, 0x16 };
+
+	// the complete alert
+	auto alertLayer = createAlertLayer(alertBytes, 7);
+	PTF_ASSERT_EQUAL(alertLayer->getAlertLevel(), pcpp::SSL_ALERT_LEVEL_FATAL, enum);
+	PTF_ASSERT_EQUAL(alertLayer->getAlertDescription(), pcpp::SSL_ALERT_PROTOCOL_VERSION, enum);
+
+	// the record header only
+	alertLayer = createAlertLayer(alertBytes, 5);
+	PTF_ASSERT_EQUAL(alertLayer->getAlertLevel(), pcpp::SSL_ALERT_LEVEL_ENCRYPTED, enum);
+	PTF_ASSERT_EQUAL(alertLayer->getAlertDescription(), pcpp::SSL_ALERT_ENCRYPTED, enum);
+
+	// the record header and the alert level only
+	alertLayer = createAlertLayer(alertBytes, 6);
+	PTF_ASSERT_EQUAL(alertLayer->getAlertLevel(), pcpp::SSL_ALERT_LEVEL_FATAL, enum);
+	PTF_ASSERT_EQUAL(alertLayer->getAlertDescription(), pcpp::SSL_ALERT_ENCRYPTED, enum);
+
+	// the record length field doesn't cover the alert description
+	const std::vector<uint8_t> shortRecordBytes = { 0x15, 0x03, 0x01, 0x00, 0x01, 0x02, 0x46 };
+	alertLayer = createAlertLayer(shortRecordBytes, shortRecordBytes.size());
+	PTF_ASSERT_EQUAL(alertLayer->getAlertLevel(), pcpp::SSL_ALERT_LEVEL_FATAL, enum);
+	PTF_ASSERT_EQUAL(alertLayer->getAlertDescription(), pcpp::SSL_ALERT_ENCRYPTED, enum);
+}  // SSLAlertLayerTruncatedTest
 
 PTF_TEST_CASE(TLS1_3ParsingTest)
 {

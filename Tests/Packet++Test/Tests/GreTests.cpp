@@ -10,7 +10,9 @@
 #include "GreLayer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
+#include "Serializers.h"
 #include "SystemUtils.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -59,6 +61,16 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(value32, 40000);
 	PTF_ASSERT_NOT_NULL(grev0Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		grev0Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GREv0","protocolId":15,"length":8,"checksumBit":true,"routingBit":false,"keyBit":false,"sequenceNumBit":false,"strictSourceRouteBit":false,"recursionControl":0,"flags":0,"version":0,"protocol":2048,"checksum":"0x77ff"})");
+	}
+
 	grev0Layer = nullptr;
 
 	// GREv0 packet 2
@@ -87,6 +99,16 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_IP));
 	PTF_ASSERT_NOT_NULL(grev0Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		grev0Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GREv0","protocolId":15,"length":4,"checksumBit":false,"routingBit":false,"keyBit":false,"sequenceNumBit":false,"strictSourceRouteBit":false,"recursionControl":0,"flags":0,"version":0,"protocol":2048})");
+	}
+
 	grev0Layer = nullptr;
 
 	// GREv1 packet 1
@@ -106,6 +128,16 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_TRUE(grev1Layer->getAcknowledgmentNum(value32));
 	PTF_ASSERT_EQUAL(value32, 26);
 	PTF_ASSERT_NULL(grev1Layer->getNextLayer());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		grev1Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GREv1","protocolId":16,"length":12,"checksumBit":false,"routingBit":false,"keyBit":true,"sequenceNumBit":false,"strictSourceRouteBit":false,"recursionControl":0,"flags":0,"version":1,"protocol":34827,"ackSequenceNumBit":true,"payloadLength":0,"callID":6,"acknowledgmentNumber":26})");
+	}
+
 	grev1Layer = nullptr;
 
 	// GREv1 packet 2
@@ -137,6 +169,25 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, htobe16(PCPP_PPP_IP));
 	PTF_ASSERT_NOT_NULL(pppLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(pppLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		grev1Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GREv1","protocolId":16,"length":12,"checksumBit":false,"routingBit":false,"keyBit":true,"sequenceNumBit":true,"strictSourceRouteBit":false,"recursionControl":0,"flags":0,"version":1,"protocol":34827,"sequenceNumber":539320,"ackSequenceNumBit":false,"payloadLength":178,"callID":17})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		pppLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"PPP_PPTP","protocolId":17,"length":4,"address":255,"control":3,"protocol":33})");
+	}
+
 	grev1Layer = nullptr;
 
 	// GREv0 packet 4 - Transparent Ethernet Bridging
@@ -151,6 +202,21 @@ PTF_TEST_CASE(GreParsingTest)
 	tcpLayer = grev0Packet4.getLayerOfType<pcpp::TcpLayer>(true /* reverse */);
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 1232);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		grev0Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"GREv0","protocolId":15,"length":8,"checksumBit":false,"routingBit":false,"keyBit":true,"sequenceNumBit":false,"strictSourceRouteBit":false,"recursionControl":0,"flags":0,"version":0,"protocol":25944,"key":65000})");
+	}
+
+	PTF_ASSERT_EQUAL(pcpp::GreLayer::SerializedFields::all().size(), 13);
+	PTF_ASSERT_EQUAL(pcpp::GREv0Layer::SerializedFields::all().size(), 16);
+	PTF_ASSERT_EQUAL(pcpp::GREv1Layer::SerializedFields::all().size(), 17);
+	PTF_ASSERT_EQUAL(pcpp::PPP_PPTPLayer::SerializedFields::all().size(), 6);
+
 	grev0Layer = nullptr;
 	tcpLayer = nullptr;
 }  // GreParsingTest

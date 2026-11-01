@@ -118,6 +118,30 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an IEEE 802.3 Eth packet
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		/// @struct SerializedFields
+		/// Fields written by EthDot3Layer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for EthDot3Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SrcMacAddress, DstMacAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Source MAC address, as a string
+			static const FieldDescriptor SrcMacAddress;
+
+			/// @brief Destination MAC address, as a string
+			static const FieldDescriptor DstMacAddress;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

@@ -10,6 +10,7 @@
 #include "VlanLayer.h"
 #include <array>
 #include <cstring>
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -81,6 +82,17 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	PTF_ASSERT_EQUAL(someIpLayer->getPduPayload()[20], 0x01);
 	PTF_ASSERT_EQUAL(someIpLayer->toString(), "SOME/IP Layer, Service ID: 0x6059, Method ID: 0x410c, Length: 30");
 	PTF_ASSERT_NULL(someIpLayer->getNextLayer());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		someIpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SomeIP","protocolId":45,"length":38,"serviceID":"0x6059","methodID":"0x410c",)"
+		    R"("clientID":"0x3","sessionID":10,"protocolVersion":1,"interfaceVersion":5,)"
+		    R"("messageType":0,"messageTypeName":"Request","returnCode":0})");
+	}
 
 	// Test with two SOME/IP layers
 	pcpp::SomeIpLayer* someIpLayer2_1 = someIpPacket2.getLayerOfType<pcpp::SomeIpLayer>();
@@ -239,6 +251,30 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getPduPayload()[224], 0xcd);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->toString(),
 	                 "SOME/IP-TP Layer, Service ID: 0xd05f, Method ID: 0x8001, Length: 237");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		someIpTpLayer1->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SomeIP","protocolId":45,"length":1412,"serviceID":"0xd05f","methodID":"0x8001",)"
+		    R"("clientID":"0x0","sessionID":0,"protocolVersion":1,"interfaceVersion":1,)"
+		    R"("messageType":33,"messageTypeName":"TpRequestNoReturn","returnCode":0,"offset":0,)"
+		    R"("moreSegments":true})");
+	}
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		someIpTpLayer2->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SomeIP","protocolId":45,"length":245,"serviceID":"0xd05f","methodID":"0x8001",)"
+		    R"("clientID":"0x0","sessionID":0,"protocolVersion":1,"interfaceVersion":1,)"
+		    R"("messageType":33,"messageTypeName":"TpRequestNoReturn","returnCode":0,"offset":91872,)"
+		    R"("moreSegments":false})");
+	}
 }
 
 PTF_TEST_CASE(SomeIpTpCreationTest)

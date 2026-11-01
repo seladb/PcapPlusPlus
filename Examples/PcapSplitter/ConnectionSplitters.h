@@ -58,6 +58,33 @@ private:
 	// the last packet seen on the flow was a TCP SYN packet
 	std::unordered_map<uint32_t, bool> m_TcpFlowTable;
 
+	// Maps a base filename (IP/port derived, no fileNumber) to the fileNumber that
+	// first claimed it. A reused 5-tuple gets a new fileNumber from getFileNumber()
+	// but produces the same base filename, since the name is derived purely from the
+	// packet's own IPs/ports. Suffix the fileNumber onto the name only when that
+	// collision actually happens, so captures with no reuse keep their existing,
+	// unsuffixed filenames. See seladb/PcapPlusPlus#2248.
+	std::unordered_map<std::string, int> m_FileNameToFileNumber;
+
+	std::string disambiguateFileName(const std::string& baseName, int fileNumber)
+	{
+		auto it = m_FileNameToFileNumber.find(baseName);
+		if (it == m_FileNameToFileNumber.end())
+		{
+			// first time this name is used - claim it, no suffix
+			m_FileNameToFileNumber[baseName] = fileNumber;
+			return baseName;
+		}
+		if (it->second == fileNumber)
+			// same session re-opening this name (e.g. after LRU eviction)
+			return baseName;
+
+		// a different session already owns this name - disambiguate
+		std::ostringstream numStream;
+		numStream << "-" << std::setw(4) << std::setfill('0') << fileNumber;
+		return baseName + numStream.str();
+	}
+
 	/**
 	 * A utility method that takes a packet and returns true if it's a TCP SYN packet
 	 */
@@ -189,7 +216,8 @@ public:
 				{
 					updateStringStream(sstream, getSrcIPString(packet), srcPort, getDstIPString(packet), dstPort);
 				}
-				return outputPcapBasePath + sstream.str();
+
+				return outputPcapBasePath + disambiguateFileName(sstream.str(), fileNumber);
 			}
 		}
 		else if (packet.isPacketOfType(pcpp::UDP))
@@ -210,7 +238,12 @@ public:
 				std::string secondIP = (srcPort < dstPort) ? getSrcIPString(packet) : getDstIPString(packet);
 
 				updateStringStream(sstream, firstIP, firstPort, secondIP, secondPort);
-				return outputPcapBasePath + sstream.str();
+
+				// getFileNumber() never reallocates a new fileNumber for a UDP flow
+				// that reuses an existing hash (only the TCP/SYN path above does), so
+				// this can't collide today -- routed through the same helper anyway to
+				// stay correct if that ever changes.
+				return outputPcapBasePath + disambiguateFileName(sstream.str(), fileNumber);
 			}
 		}
 

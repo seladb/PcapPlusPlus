@@ -34,6 +34,14 @@ PTF_TEST_CASE(IPSecParsingTest)
 	PTF_ASSERT_EQUAL(ahLayer->getHeaderLen(), 24);
 	PTF_ASSERT_EQUAL(ahLayer->toString(), "Authentication Header Layer");
 	PTF_ASSERT_EQUAL(ahLayer->getNextLayer()->getProtocol(), pcpp::ESP, enum);
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ahLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"AuthenticationHeader","protocolId":36,"length":24,"spi":"0x8179b705","sequenceNumber":3,"icv":"62325d2ea14e86ab902b70fb"})");
+	}
 
 	pcpp::ESPLayer* espLayer = ipsec1Packet.getLayerOfType<pcpp::ESPLayer>();
 	PTF_ASSERT_NOT_NULL(espLayer);
@@ -56,4 +64,12 @@ PTF_TEST_CASE(IPSecParsingTest)
 	PTF_ASSERT_NOT_NULL(espLayer);
 	PTF_ASSERT_EQUAL(espLayer->getSPI(), 0x49507636);
 	PTF_ASSERT_EQUAL(espLayer->getSequenceNumber(), 541414224);
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		espLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ESP","protocolId":37,"length":8,"spi":"0x49507636","sequenceNumber":541414224})");
+	}
 }  // IPSecParsingTest

@@ -81,6 +81,11 @@ namespace pcpp
 
 	TLVRecordBuilder& TLVRecordBuilder::operator=(const TLVRecordBuilder& other)
 	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
 		if (m_RecValue != nullptr)
 		{
 			delete[] m_RecValue;

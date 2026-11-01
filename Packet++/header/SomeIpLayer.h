@@ -269,9 +269,59 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by SomeIpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for SomeIpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ServiceID,   MethodID,        ClientID,
+					                                          SessionID,   ProtocolVersion, InterfaceVersion,
+					                                          MessageType, MessageTypeName, ReturnCode };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the service ID, written as a hex value.
+			static const FieldDescriptor ServiceID;
+
+			/// @brief Field descriptor for the method ID, written as a hex value.
+			static const FieldDescriptor MethodID;
+
+			/// @brief Field descriptor for the client ID, written as a hex value.
+			static const FieldDescriptor ClientID;
+
+			/// @brief Field descriptor for the session ID, written as a number.
+			static const FieldDescriptor SessionID;
+
+			/// @brief Field descriptor for the protocol version, written as a number.
+			static const FieldDescriptor ProtocolVersion;
+
+			/// @brief Field descriptor for the interface version, written as a number.
+			static const FieldDescriptor InterfaceVersion;
+
+			/// @brief Field descriptor for the raw message type value, written as a number.
+			static const FieldDescriptor MessageType;
+
+			/// @brief Field descriptor for the message type name, written as a string (see SomeIpLayer::MsgType).
+			static const FieldDescriptor MessageTypeName;
+
+			/// @brief Field descriptor for the return code, written as a number.
+			static const FieldDescriptor ReturnCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by SomeIpLayer
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 9;
+		};
+
 	protected:
 		SomeIpLayer()
 		{}
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		static const uint8_t SOMEIP_PROTOCOL_VERSION = 1;
@@ -360,6 +410,31 @@ namespace pcpp
 
 		/// @return The string representation of the SOME/IP-TP layer
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by SomeIpTpLayer's serializeLayer(), in addition to
+		/// SomeIpLayer::SerializedFields.
+		struct SerializedFields : SomeIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for SomeIpTpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = SomeIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Offset, MoreSegments };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the offset of the segment payload in the original message (in bytes),
+			/// written as a number. Always a multiple of 16.
+			static const FieldDescriptor Offset;
+
+			/// @brief Field descriptor for the More Segments flag, written as a boolean.
+			static const FieldDescriptor MoreSegments;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		static const uint32_t SOMEIP_TP_MORE_FLAG_MASK = 0x01;

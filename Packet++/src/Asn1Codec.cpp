@@ -759,6 +759,11 @@ namespace pcpp
 
 	void Asn1BooleanRecord::decodeValue(uint8_t const* data) const
 	{
+		if (m_ValueLength != 1)
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 Boolean record, value length must be 1");
+		}
+
 		m_Value = data[0] != 0;
 	}
 
@@ -1060,6 +1065,11 @@ namespace pcpp
 	{
 		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
 
+		if (timeString.empty())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 UTC time");
+		}
+
 		if (timeString.back() == 'Z')
 		{
 			timeString.pop_back();
@@ -1128,6 +1138,11 @@ namespace pcpp
 	{
 		std::string timeString(reinterpret_cast<const char*>(data), m_ValueLength);
 
+		if (timeString.empty())
+		{
+			throw std::runtime_error("Failed to parse ASN.1 generalized time");
+		}
+
 		std::string timezone = "Z";
 		auto timezonePos = timeString.find_first_of("+-");
 		if (timeString.back() == 'Z')
@@ -1153,13 +1168,10 @@ namespace pcpp
 		int milliseconds = 0;
 		if (dotPos != std::string::npos)
 		{
+			// The digits after the dot are a decimal fraction of a second, so ".5" is 500 milliseconds.
+			// Pad or truncate them to 3 digits to read them as milliseconds
 			std::string millisecondsStr = timeString.substr(dotPos + 1);
-			// Limit the milliseconds to 3 digits
-			if (millisecondsStr.length() > 3)
-			{
-				timeString.erase(timezonePos);
-				millisecondsStr.resize(3);
-			}
+			millisecondsStr.resize(3, '0');
 			milliseconds = std::stoi(millisecondsStr);
 		}
 

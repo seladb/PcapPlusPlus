@@ -4,6 +4,9 @@
 #include "WireGuardLayer.h"
 #include "SystemUtils.h"
 #include <cstring>
+#include <memory>
+#include <sstream>
+#include <vector>
 #include "EndianPortable.h"
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
@@ -63,6 +66,20 @@ PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 	std::array<uint8_t, 16> expectedMac2 = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	PTF_ASSERT_TRUE(wgHandShakeInitLayer->getMac2() == expectedMac2);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		wgHandShakeInitLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"WireGuard","protocolId":56,"length":148,"messageType":1,)"
+		    R"("messageTypeName":"HandshakeInitiation","senderIndex":"0xd837d030",)"
+		    R"("initiatorEphemeral":"5fcec7c8e5c8e2e3f7989eef60c228d82329d602b6b1e2bb9d068f89cf9d4d45",)"
+		    R"("encryptedInitiatorStatic":"32780f6d27264f7b98701fdc27a4ec00aeb6becdbef2332f1b4084cadb93823935c012ae255e7b25eff13940c321fa6b",)"
+		    R"("encryptedTimestamp":"d66a2a87b061db1430173e937f569349de2856dc5f2616763eeeafc0",)"
+		    R"("mac1":"533b01dd965e7ec76976e28f683d6712","mac2":"00000000000000000000000000000000"})");
+	}
 }
 
 PTF_TEST_CASE(WireGuardHandshakeRespParsingTest)
@@ -114,6 +131,20 @@ PTF_TEST_CASE(WireGuardHandshakeRespParsingTest)
 	std::array<uint8_t, 16> expectedMac2 = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	PTF_ASSERT_TRUE(wgHandShakeResponseLayer->getMac2() == expectedMac2);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		wgHandShakeResponseLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"WireGuard","protocolId":56,"length":92,"messageType":2,)"
+		    R"("messageTypeName":"HandshakeResponse","senderIndex":"0x6f47dab",)"
+		    R"("receiverIndex":"0xd837d030",)"
+		    R"("responderEphemeral":"b18d5550bd4042a37a46823ac08db1ec66839bc0ca2d64bc15cd80232b66232f",)"
+		    R"("encryptedEmpty":"aec24af8918de1060ff5c98e865d5f35","mac1":"f272214c5260110dc4c61e32cdd85421",)"
+		    R"("mac2":"00000000000000000000000000000000"})");
+	}
 }
 
 PTF_TEST_CASE(WireGuardCookieReplyParsingTest)
@@ -154,6 +185,17 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest)
 		                            0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	PTF_ASSERT_TRUE(
 	    std::memcmp(wgCookieReplyaLayer->getEncryptedCookie().data(), encryptedCookie, sizeof(encryptedCookie)) == 0);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		wgCookieReplyaLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"({"protocolName":"WireGuard","protocolId":56,"length":64,"messageType":3,)"
+		                 R"("messageTypeName":"CookieReply","receiverIndex":"0xab7df406",)"
+		                 R"("nonce":"010000000000000001000000000000000100000000000000",)"
+		                 R"("encryptedCookie":"0100000000000000010000000000000001000000000000000100000000000000"})");
+	}
 }
 
 PTF_TEST_CASE(WireGuardTransportDataParsingTest)
@@ -198,6 +240,14 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 		                                   0xe5, 0x47, 0xdd, 0xb2, 0x6e, 0xf6, 0xa4, 0x6b };
 	PTF_ASSERT_BUF_COMPARE(wgTransportDataLayer->getEncryptedData(), expectedEncryptedData,
 	                       sizeof(expectedEncryptedData));
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		wgTransportDataLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"WireGuard","protocolId":56,"length":128,"messageType":4,)"
+		                            R"("messageTypeName":"TransportData","receiverIndex":"0x6f47dab","counter":0})");
+	}
 }
 
 PTF_TEST_CASE(WireGuardCreationTest)
@@ -540,4 +590,52 @@ PTF_TEST_CASE(WireGuardEditTest)
 	PTF_ASSERT_BUF_COMPARE(wgTransportDataLayer->getEncryptedData(), expectedEncryptedDataTrans,
 	                       sizeof(expectedEncryptedDataTrans));
 
+	// shorter and longer encrypted data resize the layer and the packet
+	const int packetLen = rawPacket4->getRawDataLen();
+	for (size_t newLength : { size_t(64), size_t(200) })
+	{
+		std::vector<uint8_t> newData(newLength);
+		for (size_t i = 0; i < newLength; i++)
+		{
+			newData[i] = static_cast<uint8_t>(i);
+		}
+		wgTransportDataLayer->setEncryptedData(newData.data(), newData.size());
+		wgTransportDataLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
+
+		PTF_ASSERT_EQUAL(wgTransportDataLayer->getHeaderLen(), 16 + newLength);
+		PTF_ASSERT_EQUAL(rawPacket4->getRawDataLen(), packetLen + static_cast<int>(newLength) - 112);
+		PTF_ASSERT_EQUAL(wgTransportDataLayer->getReceiverIndex(), 1);
+		PTF_ASSERT_BUF_COMPARE(wgTransportDataLayer->getEncryptedData(), newData.data(), newLength);
+	}
 }  // WireGuardEditTest
+
+PTF_TEST_CASE(WireGuardMalformedPacketsTest)
+{
+	using MessageType = pcpp::WireGuardLayer::WireGuardMessageType;
+
+	// fixed message sizes from the WireGuard protocol description
+	struct
+	{
+		MessageType type;
+		size_t length;
+	} const messages[] = {
+		{ MessageType::HandshakeInitiation, 148 },
+		{ MessageType::HandshakeResponse,   92  },
+		{ MessageType::CookieReply,         64  },
+		{ MessageType::TransportData,       16  },
+	};
+
+	for (const auto& message : messages)
+	{
+		auto buffer = std::make_unique<uint8_t[]>(message.length);
+		buffer[0] = static_cast<uint8_t>(message.type);
+
+		PTF_ASSERT_NULL(pcpp::WireGuardLayer::parseWireGuardLayer(buffer.get(), 8, nullptr, nullptr));
+		PTF_ASSERT_NULL(pcpp::WireGuardLayer::parseWireGuardLayer(buffer.get(), message.length - 1, nullptr, nullptr));
+
+		std::unique_ptr<pcpp::WireGuardLayer> layer(
+		    pcpp::WireGuardLayer::parseWireGuardLayer(buffer.release(), message.length, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		PTF_ASSERT_EQUAL(layer->getMessageType(), static_cast<uint8_t>(message.type));
+	}
+}  // WireGuardMalformedPacketsTest

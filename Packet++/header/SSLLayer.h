@@ -392,10 +392,12 @@ namespace pcpp
 
 		~SSLAlertLayer() override = default;
 
-		/// @return SSL/TLS alert level. Will return ::SSL_ALERT_LEVEL_ENCRYPTED if alert is encrypted
+		/// @return SSL/TLS alert level. Will return ::SSL_ALERT_LEVEL_ENCRYPTED if alert is encrypted or if the record
+		/// is too short to hold the alert level
 		SSLAlertLevel getAlertLevel() const;
 
-		/// @return SSL/TLS alert description. Will return ::SSL_ALERT_ENCRYPTED if alert is encrypted
+		/// @return SSL/TLS alert description. Will return ::SSL_ALERT_ENCRYPTED if alert is encrypted or if the record
+		/// is too short to hold the alert description
 		SSLAlertDescription getAlertDescription();
 
 		// implement abstract methods

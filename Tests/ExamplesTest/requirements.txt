@@ -7,3 +7,4 @@ scapy==2.7.0
 toml==0.10.2
 pytest-rerunfailures==15.1
 cryptography==50.0.0
+PyYAML==6.0.3

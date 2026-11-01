@@ -8,6 +8,7 @@
 #include "SmtpLayer.h"
 #include "SystemUtils.h"
 #include "TcpLayer.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -30,6 +31,14 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer1->getCommandOption(false), "LOGIN");
 	PTF_ASSERT_EQUAL(smtpLayer1->toString(), "SMTP request layer, command: Authenticate client and server");
 	PTF_ASSERT_FALSE(smtpLayer1->isMultiLine());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		smtpLayer1->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"SMTP","protocolId":54,"length":12,"command":"AUTH",)"
+		                            R"("commandOption":"LOGIN"})");
+	}
 
 	// Response packet
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/smtpResponse.dat");
@@ -63,6 +72,18 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer3->toString(), "SMTP response layer, status code: Service ready");
 	PTF_ASSERT_TRUE(smtpLayer3->isMultiLine());
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		smtpLayer3->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SMTP","protocolId":54,"length":181,"statusCode":220,)"
+		    R"("statusCodeDescription":"Service ready",)"
+		    R"("statusOption":"xc90.websitewelcome.com ESMTP Exim 4.69 #1 Mon, 05 Oct 2009 01:05:54 -0500 We do not authorize the use of this system to transport unsolicited, and/or bulk e-mail.",)"
+		    R"("multiLine":true})");
+	}
+
 	// IPv6
 	auto rawPacket4 = createPacketFromHexResource("PacketExamples/smtpIpv6.dat");
 	pcpp::Packet smtpPacket4(rawPacket4.get());
@@ -77,6 +98,16 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer4->toString(), "SMTP response layer, status code: Service ready");
 	PTF_ASSERT_FALSE(smtpLayer4->isMultiLine());
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		smtpLayer4->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"({"protocolName":"SMTP","protocolId":54,"length":51,"statusCode":220,)"
+		                 R"("statusCodeDescription":"Service ready",)"
+		                 R"("statusOption":"mx.google.com ESMTP m17si1051593vck.2 - gsmtp","multiLine":false})");
+	}
+
 	// Username and Password packets. They should return Unknown since there is no command in packets
 	auto rawPacket5 = createPacketFromHexResource("PacketExamples/smtpUser.dat");
 	pcpp::Packet smtpPacket5(rawPacket5.get());
@@ -89,6 +120,14 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer5->getCommandOption(false), "Z3VycGFydGFwQHBhdHJpb3RzLmlu");
 	PTF_ASSERT_EQUAL(smtpLayer5->toString(), "SMTP request layer, command: Unknown command");
 	PTF_ASSERT_FALSE(smtpLayer5->isMultiLine());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		smtpLayer5->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"SMTP","protocolId":54,"length":30,"command":"",)"
+		                            R"("commandOption":"Z3VycGFydGFwQHBhdHJpb3RzLmlu"})");
+	}
 
 	auto rawPacket6 = createPacketFromHexResource("PacketExamples/smtpPassword.dat");
 	pcpp::Packet smtpPacket6(rawPacket6.get());

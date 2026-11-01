@@ -22,6 +22,7 @@
 #include <sstream>
 #include <vector>
 #include <array>
+#include <utility>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
@@ -65,6 +66,10 @@
 #	define LIBPCAP_OPEN_LIVE_TIMEOUT -1
 #endif
 
+// Fallback used on Linux/Windows (where LIBPCAP_OPEN_LIVE_TIMEOUT is -1) when immediate mode is disabled and
+// packetBufferTimeoutMs isn't set, since libpcap's timeout behavior is unpredictable without immediate mode
+static const int NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT = 10;
+
 static const char* NFLOG_IFACE = "nflog";
 static const int DEFAULT_SNAPLEN = 9000;
 
@@ -80,10 +85,9 @@ namespace pcpp
 		PcapHandle::PcapHandle(pcap_t* pcapDescriptor) noexcept : m_PcapDescriptor(pcapDescriptor)
 		{}
 
-		PcapHandle::PcapHandle(PcapHandle&& other) noexcept : m_PcapDescriptor(other.m_PcapDescriptor)
-		{
-			other.m_PcapDescriptor = nullptr;
-		}
+		PcapHandle::PcapHandle(PcapHandle&& other) noexcept
+		    : m_PcapDescriptor(std::exchange(other.m_PcapDescriptor, nullptr))
+		{}
 
 		PcapHandle& PcapHandle::operator=(PcapHandle&& other) noexcept
 		{
@@ -108,9 +112,7 @@ namespace pcpp
 
 		pcap_t* PcapHandle::release() noexcept
 		{
-			auto result = m_PcapDescriptor;
-			m_PcapDescriptor = nullptr;
-			return result;
+			return std::exchange(m_PcapDescriptor, nullptr);
 		}
 
 		void PcapHandle::reset(pcap_t* pcapDescriptor) noexcept
@@ -283,6 +285,7 @@ namespace pcpp
 #endif
 	}
 
+	// cppcheck-suppress constParameter
 	static void setTimestampProvider(internal::PcapHandle& pcap,
 	                                 const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
@@ -660,7 +663,16 @@ namespace pcpp
 			throw std::runtime_error("Cannot set promiscuous mode, error was: " + std::string(pcap.getLastError()));
 		}
 
-		int timeout = (config.packetBufferTimeoutMs <= 0 ? LIBPCAP_OPEN_LIVE_TIMEOUT : config.packetBufferTimeoutMs);
+		bool useBufferedMode = config.bufferingMode == BufferingMode::Buffered;
+
+		int timeout = config.packetBufferTimeoutMs;
+		if (timeout <= 0)
+		{
+			// FreeBSD/macOS already have a positive LIBPCAP_OPEN_LIVE_TIMEOUT for the pcap_breakloop() workaround
+			bool useNonImmediateModeDefault = useBufferedMode && LIBPCAP_OPEN_LIVE_TIMEOUT <= 0;
+			// cppcheck-suppress knownConditionTrueFalse
+			timeout = useNonImmediateModeDefault ? NON_IMMEDIATE_MODE_DEFAULT_TIMEOUT : LIBPCAP_OPEN_LIVE_TIMEOUT;
+		}
 		ret = pcap_set_timeout(pcap.get(), timeout);
 		if (ret != 0)
 		{
@@ -677,10 +689,13 @@ namespace pcpp
 		}
 
 #ifdef HAS_PCAP_IMMEDIATE_MODE
-		ret = pcap_set_immediate_mode(pcap.get(), 1);
-		if (ret != 0)
+		if (!useBufferedMode)
 		{
-			throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap.getLastError()));
+			ret = pcap_set_immediate_mode(pcap.get(), 1);
+			if (ret != 0)
+			{
+				throw std::runtime_error("Cannot set immediate mode, error was: " + std::string(pcap.getLastError()));
+			}
 		}
 #endif
 
@@ -804,7 +819,7 @@ namespace pcpp
 		{
 #if !defined(_WIN32)
 			m_UsePoll = true;
-			m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
+			m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapDescriptor.get());
 #else
 			PCPP_LOG_ERROR("Windows doesn't support poll(), ignoring the `usePoll` parameter");
 #endif
@@ -835,6 +850,7 @@ namespace pcpp
 			pcap_close(m_PcapSendDescriptor);
 			PCPP_LOG_DEBUG("Send pcap descriptor closed");
 		}
+		m_PcapSendDescriptor = nullptr;
 
 		m_DeviceOpened = false;
 		PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' closed");
@@ -1701,7 +1717,7 @@ namespace pcpp
 				sa = reinterpret_cast<sockaddr*>(spacePtr);
 				if (index == RTA_GATEWAY)
 				{
-					gateAddr = internal::sockaddr2in_addr(sa);
+					gateAddr = internal::try_sockaddr2in_addr(sa);
 					break;
 				}
 				spacePtr += sa->sa_len > 0 ? roundUpClosestMultiple(sizeof(uint32_t), sa->sa_len) : sizeof(uint32_t);

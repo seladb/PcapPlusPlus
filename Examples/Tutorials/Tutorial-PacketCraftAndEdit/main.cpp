@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 	// open the reader for reading
 	if (!reader->open())
 	{
-		std::cerr << "Cannot open input.pcap for reading" << std::endl;
+		std::cerr << "Cannot open 1_http_packet.pcap for reading" << std::endl;
 		return 1;
 	}
 

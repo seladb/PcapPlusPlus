@@ -40,6 +40,14 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	pcpp::MacAddress macAddrRef("d2:cf:c2:50:15:ea");
 	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
 	PTF_ASSERT_EQUAL(macAddrRef, sll2Layer->getLinkLayerAsMacAddress());
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		sll2Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"SLL2","protocolId":52,"length":20,"protocolType":2048,"interfaceIndex":20,"arpHeaderType":1,"packetType":1024,"linkLayerAddress":"d2cfc25015ea0000"})");
+	}
 }  // Sll2PacketParsingTest
 
 PTF_TEST_CASE(Sll2ParseLLCTest)

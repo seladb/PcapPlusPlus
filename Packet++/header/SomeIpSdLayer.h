@@ -625,6 +625,138 @@ namespace pcpp
 		/// @return The string representation of the SOME/IP-SD layer
 		std::string toString() const override;
 
+		/// @struct SerializedFields
+		/// Fields written by SomeIpSdLayer's serializeLayer(), in addition to
+		/// SomeIpLayer::SerializedFields.
+		struct SerializedFields : SomeIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for SomeIpSdLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = SomeIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Flags, Entries, Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @struct EntryObject
+			/// Fields describing one element of the Entries array
+			struct EntryObject : ObjectFieldDescriptor<EntryObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one entry
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Type,
+						     ServiceID,
+						     InstanceID,
+						     MajorVersion,
+						     Ttl,
+						     FirstOptionIndex,
+						     FirstOptionCount,
+						     SecondOptionIndex,
+						     SecondOptionCount,
+						     MinorVersion,
+						     Counter,
+						     EventgroupID };
+				}
+
+				/// @brief Field descriptor for the entry type name, written as a string (see SomeIpSdEntry::EntryType).
+				static const FieldDescriptor Type;
+
+				/// @brief Field descriptor for the service ID, written as a hex value.
+				static const FieldDescriptor ServiceID;
+
+				/// @brief Field descriptor for the instance ID, written as a hex value.
+				static const FieldDescriptor InstanceID;
+
+				/// @brief Field descriptor for the major version, written as a number.
+				static const FieldDescriptor MajorVersion;
+
+				/// @brief Field descriptor for the TTL (in seconds), written as a number.
+				static const FieldDescriptor Ttl;
+
+				/// @brief Field descriptor for the index of the first option in the first options run, written as a
+				/// number. The index refers to the Options array.
+				static const FieldDescriptor FirstOptionIndex;
+
+				/// @brief Field descriptor for the number of options in the first options run, written as a number.
+				static const FieldDescriptor FirstOptionCount;
+
+				/// @brief Field descriptor for the index of the first option in the second options run, written as a
+				/// number. The index refers to the Options array.
+				static const FieldDescriptor SecondOptionIndex;
+
+				/// @brief Field descriptor for the number of options in the second options run, written as a number.
+				static const FieldDescriptor SecondOptionCount;
+
+				/// @brief Field descriptor for the minor version, written as a number. Only written for service
+				/// entries (FindService, OfferService and StopOfferService).
+				static const FieldDescriptor MinorVersion;
+
+				/// @brief Field descriptor for the counter, written as a number. Only written for eventgroup entries.
+				static const FieldDescriptor Counter;
+
+				/// @brief Field descriptor for the eventgroup ID, written as a hex value. Only written for eventgroup
+				/// entries.
+				static const FieldDescriptor EventgroupID;
+			};
+
+			/// @struct OptionObject
+			/// Fields describing one element of the Options array
+			struct OptionObject : ObjectFieldDescriptor<OptionObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one option
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Type, IpAddress, Port, Protocol, ConfigurationItems, Priority, Weight };
+				}
+
+				/// @brief Field descriptor for the option type name, written as a string (see
+				/// SomeIpSdOption::OptionType).
+				static const FieldDescriptor Type;
+
+				/// @brief Field descriptor for the IP address, written as an IPv4 or IPv6 address string. Only written
+				/// for endpoint and multicast options.
+				static const FieldDescriptor IpAddress;
+
+				/// @brief Field descriptor for the port, written as a number. Only written for endpoint and multicast
+				/// options.
+				static const FieldDescriptor Port;
+
+				/// @brief Field descriptor for the transport protocol, written as a string. Only written for endpoint
+				/// and multicast options.
+				static const FieldDescriptor Protocol;
+
+				/// @brief Field descriptor for the array of configuration items, each written as a string (for
+				/// example "key=value"). Only written for configuration options.
+				static const FieldDescriptor ConfigurationItems;
+
+				/// @brief Field descriptor for the priority, written as a number. Only written for load balancing
+				/// options.
+				static const FieldDescriptor Priority;
+
+				/// @brief Field descriptor for the weight, written as a number. Only written for load balancing
+				/// options.
+				static const FieldDescriptor Weight;
+			};
+
+			/// @brief Field descriptor for the SOME/IP-SD flags, written as a number.
+			static const FieldDescriptor Flags;
+
+			/// @brief Field descriptor for the array of entries; elements described by EntryObject.
+			static const FieldDescriptor Entries;
+
+			/// @brief Field descriptor for the array of options; elements described by OptionObject.
+			static const FieldDescriptor Options;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		/// @struct someipsdhdr
 		/// Represents an SOME/IP-SD protocol header
