@@ -9,6 +9,10 @@
 #include "SdpLayer.h"
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
+#include "Serializers.h"
+#include <sstream>
+#include <set>
+#include <memory>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -109,6 +113,25 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 	PTF_ASSERT_EQUAL(sipReqLayer->getLayerPayloadSize(), 229);
 	PTF_ASSERT_EQUAL(sipReqLayer->getContentLength(), 229);
 
+	{
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		sipReqLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    output.str(),
+		    R"({"protocolName":"SIPRequest","protocolId":27,"length":469,"method":"INVITE",)"
+		    R"("uri":"sip:francisco@bestel.com:55060","version":"SIP/2.0","headerComplete":true,"headerFields":[)"
+		    R"({"name":"Via","value":"SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290"},)"
+		    R"({"name":"Via","value":"SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0"},)"
+		    R"({"name":"From","value":"<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34"},)"
+		    R"({"name":"To","value":"\"francisco@bestel.com\" <sip:francisco@bestel.com:55060>"},)"
+		    R"({"name":"Call-ID","value":"12013223@200.57.7.195"},)"
+		    R"({"name":"CSeq","value":"1 INVITE"},)"
+		    R"({"name":"Contact","value":"<sip:200.57.7.195:5060>"},)"
+		    R"({"name":"Content-Type","value":"application/sdp"},)"
+		    R"({"name":"Content-Length","value":"229"}]})");
+	}
+
 	sipReqLayer = sipReqPacket2.getLayerOfType<pcpp::SipRequestLayer>();
 
 	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getMethod(), pcpp::SipRequestLayer::SipCANCEL, enum);
@@ -164,6 +187,21 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 	                 "");
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldCount(), 11);
 
+	{
+		std::string data = "INVITE sip:bob@example.com SIP/2.0\r\nVia: first\r\n";
+		auto buffer = std::make_unique<uint8_t[]>(data.size());
+		std::copy(data.begin(), data.end(), buffer.get());
+		pcpp::SipRequestLayer layer(buffer.get(), data.size(), nullptr, nullptr);
+		buffer.release();
+		PTF_ASSERT_FALSE(layer.isHeaderComplete());
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer.serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    output.str(),
+		    R"({"protocolName":"SIPRequest","protocolId":27,"length":48,"method":"INVITE","uri":"sip:bob@example.com",)"
+		    R"("version":"SIP/2.0","headerComplete":false,"headerFields":[{"name":"Via","value":"first"}]})");
+	}
 }  // SipRequestLayerParsingTest
 
 PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort)
@@ -483,6 +521,25 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD)->getFieldValue(), "0");
 	PTF_ASSERT_EQUAL(sipRespLayer->getContentLength(), 0);
 
+	{
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		sipRespLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    output.str(),
+		    R"({"protocolName":"SIPResponse","protocolId":28,"length":461,"version":"SIP/2.0","statusCode":100,)"
+		    R"("statusCodeDescription":"Trying","headerComplete":true,"headerFields":[)"
+		    R"({"name":"Via","value":"SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290"},)"
+		    R"({"name":"Via","value":"SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0"},)"
+		    R"({"name":"From","value":"<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34"},)"
+		    R"({"name":"To","value":"\"francisco@bestel.com\" <sip:francisco@bestel.com:55060>;tag=298852044"},)"
+		    R"({"name":"Contact","value":"<sip:francisco@200.57.7.204:5061>"},)"
+		    R"({"name":"Call-ID","value":"12013223@200.57.7.195"},)"
+		    R"({"name":"CSeq","value":"1 INVITE"},)"
+		    R"({"name":"Server","value":"X-Lite release 1103m"},)"
+		    R"({"name":"Content-Length","value":"0"}]})");
+	}
+
 	sipRespLayer = sipRespPacket2.getLayerOfType<pcpp::SipResponseLayer>();
 
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip180Ringing, enum);
@@ -537,6 +594,41 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_RETRY_AFTER_FIELD));
 	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_RETRY_AFTER_FIELD)->getFieldValue(), "0");
 	PTF_ASSERT_EQUAL(sipRespLayer->getContentLength(), 0);
+
+	{
+		std::string data = "SIP/2.0 200 Custom reason\r\n\r\n";
+		auto buffer = std::make_unique<uint8_t[]>(data.size());
+		std::copy(data.begin(), data.end(), buffer.get());
+		pcpp::SipResponseLayer layer(buffer.get(), data.size(), nullptr, nullptr);
+		buffer.release();
+		PTF_ASSERT_TRUE(layer.isHeaderComplete());
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer.serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    output.str(),
+		    R"({"protocolName":"SIPResponse","protocolId":28,"length":29,"version":"SIP/2.0","statusCode":200,)"
+		    R"("statusCodeDescription":"Custom reason","headerComplete":true,"headerFields":[]})");
+	}
+
+	// Unknown status codes must not be used as indices into the status-code lookup table.
+	{
+		std::string data = "SIP/2.0 699 Custom\r\nContent-Length: 0\r\n\r\n";
+		auto buffer = std::make_unique<uint8_t[]>(data.size());
+		std::copy(data.begin(), data.end(), buffer.get());
+		pcpp::SipResponseLayer layer(buffer.get(), data.size(), nullptr, nullptr);
+		buffer.release();  // The standalone layer owns the buffer.
+		PTF_ASSERT_EQUAL(layer.getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::SipStatusCodeUnknown, enum);
+
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer.serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    output.str(),
+		    R"({"protocolName":"SIPResponse","protocolId":28,"length":41,"version":"SIP/2.0","statusCode":0,)"
+		    R"("statusCodeDescription":"","headerComplete":true,"headerFields":[)"
+		    R"({"name":"Content-Length","value":"0"}]})");
+	}
 }  // SipResponseLayerParsingTest
 
 PTF_TEST_CASE(SipResponseLayerCreationTest)
@@ -689,6 +781,24 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 	PTF_ASSERT_EQUAL(sdpLayer->getOwnerIPv4Address(), pcpp::IPv4Address("200.57.7.196"));
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("audio"), 40376);
 
+	{
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		sdpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(output.str(), R"({"protocolName":"SDP","protocolId":29,"length":229,"headerFields":[)"
+		                               R"({"name":"v","value":"0"},)"
+		                               R"({"name":"o","value":"Clarent 120386 120387 IN IP4 200.57.7.196"},)"
+		                               R"({"name":"s","value":"Clarent C5CM"},)"
+		                               R"({"name":"c","value":"IN IP4 200.57.7.196"},)"
+		                               R"({"name":"t","value":"0 0"},)"
+		                               R"({"name":"m","value":"audio 40376 RTP/AVP 8 18 4 0"},)"
+		                               R"({"name":"a","value":"rtpmap:8 PCMA/8000"},)"
+		                               R"({"name":"a","value":"rtpmap:18 G729/8000"},)"
+		                               R"({"name":"a","value":"rtpmap:4 G723/8000"},)"
+		                               R"({"name":"a","value":"rtpmap:0 PCMU/8000"},)"
+		                               R"({"name":"a","value":"SendRecv"}]})");
+	}
+
 	PTF_ASSERT_TRUE(sdpPacket2.isPacketOfType(pcpp::SDP));
 	sdpLayer = sdpPacket2.getLayerOfType<pcpp::SdpLayer>();
 	PTF_ASSERT_NOT_NULL(sdpLayer);
@@ -705,6 +815,67 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 	PTF_ASSERT_EQUAL(sdpLayer->getOwnerIPv4Address(), pcpp::IPv4Address("10.33.6.100"));
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("audio"), 6010);
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("image"), 6012);
+
+	{
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		sdpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(output.str(), R"({"protocolName":"SDP","protocolId":29,"length":406,"headerFields":[)"
+		                               R"({"name":"v","value":"0"},)"
+		                               R"({"name":"o","value":"IPP 782647527 782647407 IN IP4 10.33.6.100"},)"
+		                               R"({"name":"s","value":"Phone-Call"},)"
+		                               R"({"name":"c","value":"IN IP4 10.33.6.100"},)"
+		                               R"({"name":"t","value":"0 0"},)"
+		                               R"({"name":"m","value":"audio 6010 RTP/AVP 8 96"},)"
+		                               R"({"name":"a","value":"rtpmap:8 PCMA/8000"},)"
+		                               R"({"name":"a","value":"rtpmap:96 telephone-event/8000"},)"
+		                               R"({"name":"a","value":"fmtp:96 0-15,16"},)"
+		                               R"({"name":"a","value":"ptime:20"},)"
+		                               R"({"name":"a","value":"sendrecv"},)"
+		                               R"({"name":"m","value":"image 6012 udptl t38"},)"
+		                               R"({"name":"a","value":"T38FaxVersion:0"},)"
+		                               R"({"name":"a","value":"T38MaxBitRate:14400"},)"
+		                               R"({"name":"a","value":"T38FaxMaxBuffer:1024"},)"
+		                               R"({"name":"a","value":"T38FaxMaxDatagram:238"},)"
+		                               R"({"name":"a","value":"T38FaxRateManagement:transferredTCF"},)"
+		                               R"({"name":"a","value":"T38FaxUdpEC:t38UDPRedundancy"}]})");
+	}
+
+	{
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		sdpLayer->serialize(serializer);
+		const auto json = output.str();
+		const auto fields = pcpp::SdpLayer::SerializedFields::all();
+		PTF_ASSERT_EQUAL(fields.size(), pcpp::Layer::SerializedFields::all().size() + 1);
+		std::set<std::string> names;
+		for (const auto& field : fields)
+		{
+			PTF_ASSERT_TRUE(names.insert(field.name).second);
+			const auto key = "\"" + field.name + "\":";
+			const auto pos = json.find(key);
+			PTF_ASSERT_TRUE(pos != std::string::npos);
+			PTF_ASSERT_TRUE(json.find(key, pos + key.size()) == std::string::npos);
+		}
+		PTF_ASSERT_EQUAL(fields.back().name, "headerFields");
+		PTF_ASSERT_GREATER_THAN(fields.back().id, pcpp::Layer::SerializedFields::MaxID);
+
+		const auto elementFields = pcpp::SdpLayer::SerializedFields::HeaderFieldObject::all();
+		PTF_ASSERT_EQUAL(elementFields.size(), 2);
+		PTF_ASSERT_EQUAL(elementFields[0].name, "name");
+		PTF_ASSERT_EQUAL(elementFields[1].name, "value");
+		PTF_ASSERT_TRUE(elementFields[0].id != elementFields[1].id);
+		for (const auto& field : elementFields)
+		{
+			const auto key = "\"" + field.name + "\":";
+			size_t count = 0;
+			for (auto pos = json.find(key); pos != std::string::npos; pos = json.find(key, pos + key.size()))
+			{
+				++count;
+			}
+			PTF_ASSERT_EQUAL(count, 18);
+		}
+	}
 }  // SdpLayerParsingTest
 
 PTF_TEST_CASE(SipNotSdpLayerParsingTest)
@@ -838,3 +1009,54 @@ PTF_TEST_CASE(SdpLayerEditTest)
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("image"), targetSdpLayer->getMediaPort("image"));
 	PTF_ASSERT_BUF_COMPARE(sdpLayer->getData(), targetSdpLayer->getData(), targetSdpLayer->getHeaderLen());
 }  // SdpLayerEditTest
+
+PTF_TEST_CASE(SipSerializationFieldsTest)
+{
+	pcpp::SipRequestLayer request(pcpp::SipRequestLayer::SipINVITE, "sip:bob@example.com");
+	pcpp::SipResponseLayer response(pcpp::SipResponseLayer::Sip200OK);
+	PTF_ASSERT_NOT_NULL(request.addField("Via", "first"));
+	PTF_ASSERT_NOT_NULL(request.addEndOfHeader());
+	PTF_ASSERT_NOT_NULL(response.addField("Via", "first"));
+	PTF_ASSERT_NOT_NULL(response.addEndOfHeader());
+
+	std::ostringstream requestOutput;
+	pcpp::JsonSerializer requestSerializer(requestOutput);
+	request.serialize(requestSerializer);
+	std::ostringstream responseOutput;
+	pcpp::JsonSerializer responseSerializer(responseOutput);
+	response.serialize(responseSerializer);
+
+	const std::vector<std::pair<std::vector<pcpp::FieldDescriptor>, std::string>> outputs = {
+		{ pcpp::SipRequestLayer::SerializedFields::all(),  requestOutput.str()  },
+		{ pcpp::SipResponseLayer::SerializedFields::all(), responseOutput.str() }
+	};
+	for (const auto& output : outputs)
+	{
+		PTF_ASSERT_EQUAL(output.first.size(), pcpp::Layer::SerializedFields::all().size() + 5);
+		std::set<std::string> names;
+		std::set<uint16_t> sipIds;
+		for (const auto& field : output.first)
+		{
+			PTF_ASSERT_TRUE(names.insert(field.name).second);
+			if (field.id > pcpp::Layer::SerializedFields::MaxID)
+			{
+				PTF_ASSERT_TRUE(sipIds.insert(field.id).second);
+			}
+			const auto key = "\"" + field.name + "\":";
+			const auto pos = output.second.find(key);
+			PTF_ASSERT_TRUE(pos != std::string::npos);
+			PTF_ASSERT_TRUE(output.second.find(key, pos + key.size()) == std::string::npos);
+		}
+		PTF_ASSERT_EQUAL(sipIds.size(), 5);
+	}
+
+	const auto fields = pcpp::SipLayer::SerializedFields::HeaderFieldObject::all();
+	PTF_ASSERT_EQUAL(fields.size(), 2);
+	PTF_ASSERT_EQUAL(fields[0].name, "name");
+	PTF_ASSERT_EQUAL(fields[1].name, "value");
+	PTF_ASSERT_TRUE(fields[0].id != fields[1].id);
+	for (const auto& output : outputs)
+	{
+		PTF_ASSERT_CONTAINS(output.second, R"("headerFields":[{"name":"Via","value":"first"}])");
+	}
+}  // SipSerializationFieldsTest

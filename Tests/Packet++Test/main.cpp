@@ -297,6 +297,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(Igmpv3QueryCreateAndEditTest, "igmp");
 	PTF_RUN_TEST(Igmpv3ReportCreateAndEditTest, "igmp");
 
+	PTF_RUN_TEST(SipSerializationFieldsTest, "sip;serialization");
 	PTF_RUN_TEST(SipRequestParseMethodTest, "sip");
 	PTF_RUN_TEST(SipRequestLayerParsingTest, "sip");
 	PTF_RUN_TEST(SipDetectionByContentOnNonStandardPort, "sip");

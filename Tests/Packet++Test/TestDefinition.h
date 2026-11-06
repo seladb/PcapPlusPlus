@@ -202,6 +202,7 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest);
 PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest);
 
 // Implemented in SipSdpTests.cpp
+PTF_TEST_CASE(SipSerializationFieldsTest);
 PTF_TEST_CASE(SipRequestParseMethodTest);
 PTF_TEST_CASE(SipRequestLayerParsingTest);
 PTF_TEST_CASE(SipDetectionByContentOnNonStandardPort);

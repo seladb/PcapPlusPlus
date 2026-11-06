@@ -136,6 +136,40 @@ namespace pcpp
 		/// @return A newly allocated SIP layer of type request or response, or nullptr if parsing fails
 		static SipLayer* parseSipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
+		/// @struct SerializedFields
+		/// @brief Fields shared by SipRequestLayer and SipResponseLayer. They're written after the first line fields,
+		/// which use IDs Layer::SerializedFields::MaxID + 1 to Layer::SerializedFields::MaxID + 3.
+		struct SerializedFields : Layer::SerializedFields
+		{
+
+			/// @struct HeaderFieldObject
+			/// @brief Fields describing one element of the HeaderFields array of SipRequestLayer and SipResponseLayer
+			struct HeaderFieldObject : ObjectFieldDescriptor<HeaderFieldObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one header field
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Name, Value };
+				}
+
+				/// @brief Header field name, as a string
+				static const FieldDescriptor Name;
+
+				/// @brief Header field value, as a string
+				static const FieldDescriptor Value;
+			};
+
+			/// @brief Field descriptor for whether the SIP header is complete (i.e. ends with an empty line) or is
+			/// partial and continues in the next packet, written as a boolean.
+			static const FieldDescriptor HeaderComplete;
+
+			/// @brief Field descriptor for the array of SIP header fields, in the order they appear in the message.
+			/// Elements are described by HeaderFieldObject.
+			static const FieldDescriptor HeaderFields;
+		};
+
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
 		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
@@ -159,6 +193,8 @@ namespace pcpp
 		{
 			return true;
 		}
+
+		void serializeHeader(ObjectScope& serializer) const;
 
 	private:
 		enum class SipParseResult
@@ -255,6 +291,35 @@ namespace pcpp
 		// implement Layer's abstract methods
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// @brief Fields written by SipRequestLayer's serializeLayer(), in addition to
+		/// SipLayer::SerializedFields.
+		struct SerializedFields : SipLayer::SerializedFields
+		{
+			/// @return All field descriptors for SipRequestLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = SipLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Method, Uri, Version, HeaderComplete, HeaderFields };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the SIP method, written as a string (for example "INVITE"),
+			/// or "Unknown" if the method isn't recognized.
+			static const FieldDescriptor Method;
+
+			/// @brief Field descriptor for the request URI, written as a string.
+			static const FieldDescriptor Uri;
+
+			/// @brief Field descriptor for the SIP version, written as a string (for example "SIP/2.0"), or
+			/// "" if the version isn't recognized.
+			static const FieldDescriptor Version;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		SipRequestFirstLine* m_FirstLine;
@@ -511,6 +576,36 @@ namespace pcpp
 		// implement Layer's abstract methods
 
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// @brief Fields written by SipResponseLayer's serializeLayer(), in addition to
+		/// SipLayer::SerializedFields.
+		struct SerializedFields : SipLayer::SerializedFields
+		{
+			/// @return All field descriptors for SipResponseLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = SipLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Version, StatusCode, StatusCodeDescription,
+					                                          HeaderComplete, HeaderFields };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief SIP version as a string (for example "SIP/2.0"),
+			/// or an empty string if parsing fails.
+			static const FieldDescriptor Version;
+
+			/// @brief Field descriptor for the SIP status code, written as a number (for example 200)
+			/// or 0 if SipStatusCodeUnknown
+			static const FieldDescriptor StatusCode;
+
+			/// @brief Field descriptor for the SIP reason phrase (eg. "OK"), written as a string.
+			static const FieldDescriptor StatusCodeDescription;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		SipResponseFirstLine* m_FirstLine;
