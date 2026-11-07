@@ -1012,6 +1012,20 @@ PTF_TEST_CASE(SdpLayerEditTest)
 
 PTF_TEST_CASE(SipSerializationFieldsTest)
 {
+	// The shared SIP schema must include its own fields without relying on a derived class.
+	const auto sharedFields = pcpp::SipLayer::SerializedFields::all();
+	const std::vector<pcpp::FieldDescriptor> expectedSharedFields = { pcpp::Layer::SerializedFields::ProtocolName,
+		                                                              pcpp::Layer::SerializedFields::ProtocolId,
+		                                                              pcpp::Layer::SerializedFields::Length,
+		                                                              pcpp::SipLayer::SerializedFields::HeaderComplete,
+		                                                              pcpp::SipLayer::SerializedFields::HeaderFields };
+	PTF_ASSERT_EQUAL(sharedFields.size(), expectedSharedFields.size());
+	for (size_t i = 0; i < expectedSharedFields.size(); ++i)
+	{
+		PTF_ASSERT_EQUAL(sharedFields[i].id, expectedSharedFields[i].id);
+		PTF_ASSERT_EQUAL(sharedFields[i].name, expectedSharedFields[i].name);
+	}
+
 	pcpp::SipRequestLayer request(pcpp::SipRequestLayer::SipINVITE, "sip:bob@example.com");
 	pcpp::SipResponseLayer response(pcpp::SipResponseLayer::Sip200OK);
 	PTF_ASSERT_NOT_NULL(request.addField("Via", "first"));

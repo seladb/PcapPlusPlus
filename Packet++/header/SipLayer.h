@@ -168,6 +168,15 @@ namespace pcpp
 			/// @brief Field descriptor for the array of SIP header fields, in the order they appear in the message.
 			/// Elements are described by HeaderFieldObject.
 			static const FieldDescriptor HeaderFields;
+
+			/// @return All field descriptors shared by SIP request and response layers
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ HeaderComplete, HeaderFields };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
 		};
 
 	protected:
@@ -301,7 +310,7 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = SipLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ Method, Uri, Version, HeaderComplete, HeaderFields };
+				std::initializer_list<FieldDescriptor> extra{ Method, Uri, Version };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -586,8 +595,7 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = SipLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ Version, StatusCode, StatusCodeDescription,
-					                                          HeaderComplete, HeaderFields };
+				std::initializer_list<FieldDescriptor> extra{ Version, StatusCode, StatusCodeDescription };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
