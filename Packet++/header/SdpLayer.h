@@ -179,6 +179,7 @@ namespace pcpp
 			static const FieldDescriptor HeaderFields;
 
 			/// @return All field descriptors for SdpLayer
+			// cppcheck-suppress duplInheritedMember
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
