@@ -273,6 +273,21 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	delete option3;
 	entries3.clear();
 	options3.clear();
+
+	// ConfigurationString option with a zero length field, followed by a 9-byte unknown option
+	auto rawPacket4 = createPacketFromHexResource("PacketExamples/SomeIpSdOffer.dat");
+	pcpp::Packet someIpSdPacket4(rawPacket4.get());
+	pcpp::SomeIpSdLayer* someIpSdLayer4 = someIpSdPacket4.getLayerOfType<pcpp::SomeIpSdLayer>();
+	PTF_ASSERT_NOT_NULL(someIpSdLayer4);
+	const uint8_t zeroLenOptions[] = { 0x00, 0x00, 0x01, 0x00, 0x06, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	memcpy(someIpSdLayer4->getData() + 44, zeroLenOptions, sizeof(zeroLenOptions));
+
+	pcpp::SomeIpSdLayer::OptionsVec options4 = someIpSdLayer4->getOptions();
+	PTF_ASSERT_EQUAL(options4.size(), 1);
+	auto* configurationOption4 = dynamic_cast<pcpp::SomeIpSdConfigurationOption*>(options4[0]);
+	PTF_ASSERT_NOT_NULL(configurationOption4);
+	PTF_ASSERT_EQUAL(configurationOption4->getConfigurationString(), "");
+	delete options4[0];
 }
 
 PTF_TEST_CASE(SomeIpSdCreationTest)

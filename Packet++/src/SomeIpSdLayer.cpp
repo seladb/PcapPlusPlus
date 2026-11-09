@@ -173,8 +173,14 @@ namespace pcpp
 
 	std::string SomeIpSdConfigurationOption::getConfigurationString() const
 	{
-		return std::string((char*)getDataPtr() + sizeof(someipsdhdroptionsbase),
-		                   be16toh(getSomeIpSdOptionHeader()->length) - 1);
+		// the length field counts the reserved byte too, but a malformed packet can set it to 0
+		uint16_t length = be16toh(getSomeIpSdOptionHeader()->length);
+		if (length == 0)
+		{
+			return {};
+		}
+
+		return std::string((char*)getDataPtr() + sizeof(someipsdhdroptionsbase), length - 1);
 	}
 
 	// -------- Class SomeIpSdLoadBalancingOption -----------------
