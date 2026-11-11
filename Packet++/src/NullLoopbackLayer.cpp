@@ -1,4 +1,5 @@
 #include "NullLoopbackLayer.h"
+#include "UnalignedAccess.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -22,7 +23,7 @@ namespace pcpp
 
 	uint32_t NullLoopbackLayer::getFamily() const
 	{
-		uint32_t family = *(reinterpret_cast<uint32_t*>(m_Data));
+		uint32_t family = readUint32NativeOrder(m_Data);
 		if ((family & 0xFFFF'0000) != 0)
 		{
 			if ((family & 0xFF00'0000) == 0 && (family & 0x00FF'0000) < 0x0006'0000)

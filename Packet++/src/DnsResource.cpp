@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleDnsLayer
 
 #include "DnsResource.h"
+#include "UnalignedAccess.h"
 #include "Logger.h"
 #include <limits>
 #include <sstream>
@@ -198,7 +199,7 @@ namespace pcpp
 
 	DnsType IDnsResource::getDnsType() const
 	{
-		uint16_t dnsType = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength);
+		uint16_t dnsType = readUint16NativeOrder(getRawData() + m_NameLength);
 		return static_cast<DnsType>(be16toh(dnsType));
 	}
 
@@ -210,7 +211,7 @@ namespace pcpp
 
 	DnsClass IDnsResource::getDnsClass() const
 	{
-		uint16_t dnsClass = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength + sizeof(uint16_t));
+		uint16_t dnsClass = readUint16NativeOrder(getRawData() + m_NameLength + sizeof(uint16_t));
 		return static_cast<DnsClass>(be16toh(dnsClass));
 	}
 
@@ -270,7 +271,7 @@ namespace pcpp
 
 	uint32_t DnsResource::getTTL() const
 	{
-		uint32_t ttl = *reinterpret_cast<uint32_t*>(getRawData() + m_NameLength + 2 * sizeof(uint16_t));
+		uint32_t ttl = readUint32NativeOrder(getRawData() + m_NameLength + 2 * sizeof(uint16_t));
 		return be32toh(ttl);
 	}
 
@@ -292,7 +293,7 @@ namespace pcpp
 			return 0;
 		}
 
-		uint16_t dataLength = *reinterpret_cast<uint16_t*>(getRawData() + sizeToRead);
+		uint16_t dataLength = readUint16NativeOrder(getRawData() + sizeToRead);
 		return be16toh(dataLength);
 	}
 
@@ -453,7 +454,7 @@ namespace pcpp
 
 	uint16_t DnsResource::getCustomDnsClass() const
 	{
-		uint16_t value = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength + sizeof(uint16_t));
+		uint16_t value = readUint16NativeOrder(getRawData() + m_NameLength + sizeof(uint16_t));
 		return be16toh(value);
 	}
 

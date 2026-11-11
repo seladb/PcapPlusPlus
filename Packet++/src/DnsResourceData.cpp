@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleDnsLayer
 
 #include "DnsResourceData.h"
+#include "UnalignedAccess.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include <sstream>
@@ -78,7 +79,7 @@ namespace pcpp
 			return;
 		}
 
-		uint32_t addrAsInt = *(uint32_t*)dataPtr;
+		uint32_t addrAsInt = readUint32NativeOrder(dataPtr);
 		m_Data = IPv4Address(addrAsInt);
 	}
 
@@ -112,7 +113,7 @@ namespace pcpp
 	{
 		if (dataPtr && dataLen > 0)
 		{
-			uint16_t preference = be16toh(*(uint16_t*)dataPtr);
+			uint16_t preference = readUint16BigEndian(dataPtr);
 			char tempMX[4096];
 			decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
 			m_Data.preference = preference;

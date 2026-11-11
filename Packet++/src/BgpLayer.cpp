@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleBgpLayer
 
 #include "Logger.h"
+#include "UnalignedAccess.h"
 #include "BgpLayer.h"
 #include "Packet.h"
 #include "EndianPortable.h"
@@ -609,7 +610,7 @@ namespace pcpp
 		size_t minLen = sizeof(bgp_common_header) + sizeof(uint16_t);
 		if (headerLen >= minLen)
 		{
-			uint16_t res = be16toh(*(uint16_t*)(m_Data + sizeof(bgp_common_header)));
+			uint16_t res = readUint16BigEndian(m_Data + sizeof(bgp_common_header));
 			if ((size_t)res > headerLen - minLen)
 			{
 				return headerLen - minLen;
@@ -646,7 +647,7 @@ namespace pcpp
 				return 0;  // Invalid access, return 0
 			}
 			uint16_t res =
-			    be16toh(*(uint16_t*)(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrawnRouteLen));
+			    readUint16BigEndian(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrawnRouteLen);
 			if ((size_t)res > headerLen - minLen - withdrawnRouteLen)
 			{
 				return headerLen - minLen - withdrawnRouteLen;
@@ -821,11 +822,11 @@ namespace pcpp
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t))
 			return false;
 
-		uint16_t withdrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header)));
+		uint16_t withdrLen = readUint16BigEndian(data + sizeof(bgp_common_header));
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + withdrLen)
 			return false;
 
-		uint16_t attrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrLen));
+		uint16_t attrLen = readUint16BigEndian(data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrLen);
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + withdrLen + attrLen)
 			return false;
 

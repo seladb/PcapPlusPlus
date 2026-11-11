@@ -1,4 +1,5 @@
 #include "PostgresLayer.h"
+#include "UnalignedAccess.h"
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
 #include <algorithm>
@@ -321,7 +322,7 @@ namespace pcpp
 		// The length covers itself (4 bytes) but not the message type byte, so the smallest valid length is 4 (for
 		// example ParseComplete) and the message takes messageLength + 1 bytes.
 		// The check doesn't add 1: with a 32-bit size_t, 0xFFFFFFFF + 1 wraps around to 0.
-		size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
+		size_t messageLength = readUint32BigEndian(data + 1);
 		if (messageLength < sizeof(uint32_t) || messageLength >= dataLen)
 		{
 			return std::unique_ptr<PostgresMessage>(
@@ -335,7 +336,7 @@ namespace pcpp
 		{
 		case PostgresBackendMessage_R:
 		{
-			uint32_t authType = be32toh(*reinterpret_cast<const uint32_t*>(data + 5));
+			uint32_t authType = readUint32BigEndian(data + 5);
 			switch (authType)
 			{
 			case 0:
@@ -537,14 +538,14 @@ namespace pcpp
 			}
 
 			// The length covers itself and the 4 byte tag
-			size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data));
+			size_t messageLength = readUint32BigEndian(data);
 			if (messageLength < 2 * sizeof(uint32_t) || messageLength > dataLen)
 			{
 				return std::unique_ptr<PostgresMessage>(
 				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 			}
 
-			auto messageTag = be32toh(*reinterpret_cast<const uint32_t*>(data + 4));
+			auto messageTag = readUint32BigEndian(data + 4);
 			auto messageType = PostgresMessageType::Frontend_Unknown;
 
 			switch (messageTag)
@@ -586,7 +587,7 @@ namespace pcpp
 		// The length covers itself (4 bytes) but not the message type byte, so the smallest valid length is 4 (for
 		// example a Sync message) and the message takes messageLength + 1 bytes.
 		// The check doesn't add 1: with a 32-bit size_t, 0xFFFFFFFF + 1 wraps around to 0.
-		size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
+		size_t messageLength = readUint32BigEndian(data + 1);
 		if (messageLength < sizeof(uint32_t) || messageLength >= dataLen)
 		{
 			return std::unique_ptr<PostgresMessage>(
@@ -677,7 +678,7 @@ namespace pcpp
 		}
 
 		const auto offset = (m_Data[0] == 0) ? 0 : 1;
-		return be32toh(*reinterpret_cast<const uint32_t*>(m_Data + offset));
+		return readUint32BigEndian(m_Data + offset);
 	}
 
 	std::vector<uint8_t> PostgresMessage::getRawPayload() const
@@ -753,7 +754,7 @@ namespace pcpp
 		if (m_DataLen < headerLen)
 			return columns;
 
-		uint16_t numFields = be16toh(*reinterpret_cast<const uint16_t*>(m_Data + 5));
+		uint16_t numFields = readUint16BigEndian(m_Data + 5);
 		if (numFields > 10000)
 			return columns;
 
@@ -809,7 +810,7 @@ namespace pcpp
 			return {};
 		}
 
-		uint16_t numColumns = be16toh(*reinterpret_cast<const uint16_t*>(m_Data + 5));
+		uint16_t numColumns = readUint16BigEndian(m_Data + 5);
 		if (numColumns > 10000)
 		{
 			return {};
@@ -830,7 +831,7 @@ namespace pcpp
 				break;
 			}
 
-			const auto colLength = be32toh(*reinterpret_cast<const uint32_t*>(m_Data + offset));
+			const auto colLength = readUint32BigEndian(m_Data + offset);
 			offset += 4;
 
 			if (colLength == 0 || colLength == 0xffffffff)
@@ -930,17 +931,17 @@ namespace pcpp
 		{
 			return 0;
 		}
-		return *reinterpret_cast<const uint32_t*>(m_Data + ProtocolVersionOffset);
+		return readUint32NativeOrder(m_Data + ProtocolVersionOffset);
 	}
 
 	uint16_t PostgresStartupMessage::getProtocolMajorVersion() const
 	{
-		return be16toh(*reinterpret_cast<const uint16_t*>(m_Data + ProtocolVersionOffset));
+		return readUint16BigEndian(m_Data + ProtocolVersionOffset);
 	}
 
 	uint16_t PostgresStartupMessage::getProtocolMinorVersion() const
 	{
-		return be16toh(*reinterpret_cast<const uint16_t*>(m_Data + ProtocolVersionOffset + 2));
+		return readUint16BigEndian(m_Data + ProtocolVersionOffset + 2);
 	}
 
 	std::string PostgresStartupMessage::readString(size_t offset) const

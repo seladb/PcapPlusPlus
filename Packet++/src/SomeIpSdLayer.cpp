@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleSomeIpSdLayer
 
 #include "SomeIpSdLayer.h"
+#include "UnalignedAccess.h"
 #include "EndianPortable.h"
 #include <algorithm>
 #include <memory>
@@ -855,8 +856,7 @@ namespace pcpp
 			if (len + sizeof(uint16_t) + 3 * sizeof(uint8_t) > lenOptions)
 				return false;
 
-			uint32_t lenOption =
-			    be16toh(*(reinterpret_cast<uint16_t const*>(data + offsetOption + len))) + 3 * sizeof(uint8_t);
+			uint32_t lenOption = readUint16BigEndian(data + offsetOption + len) + 3 * sizeof(uint8_t);
 			len += lenOption;
 			if (len > lenOptions)  // the last one must be equal to lenOptions
 				return false;
@@ -873,7 +873,7 @@ namespace pcpp
 		uint32_t i = 0;
 		while (i < m_NumOptions)
 		{
-			uint32_t lenOption = be16toh(*(reinterpret_cast<uint16_t*>(m_Data + offsetOption))) + 3 * sizeof(uint8_t);
+			uint32_t lenOption = readUint16BigEndian(m_Data + offsetOption) + 3 * sizeof(uint8_t);
 
 			if (option.getLength() == lenOption)
 			{
@@ -1009,7 +1009,7 @@ namespace pcpp
 
 	size_t SomeIpSdLayer::getLenEntries(const uint8_t* data)
 	{
-		return be32toh(*(reinterpret_cast<const uint32_t*>(data + sizeof(someipsdhdr))));
+		return readUint32BigEndian(data + sizeof(someipsdhdr));
 	}
 
 	size_t SomeIpSdLayer::getLenOptions() const
@@ -1019,18 +1019,16 @@ namespace pcpp
 
 	size_t SomeIpSdLayer::getLenOptions(const uint8_t* data)
 	{
-		return be32toh(
-		    *(reinterpret_cast<const uint32_t*>(data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data))));
+		return readUint32BigEndian(data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data));
 	}
 
 	void SomeIpSdLayer::setLenEntries(uint32_t length)
 	{
-		*(reinterpret_cast<uint32_t*>(m_Data + sizeof(someipsdhdr))) = htobe32(length);
+		writeUint32BigEndian(m_Data + sizeof(someipsdhdr), length);
 	}
 
 	void SomeIpSdLayer::setLenOptions(uint32_t length)
 	{
-		*(reinterpret_cast<uint32_t*>(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries())) =
-		    htobe32(length);
+		writeUint32BigEndian(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(), length);
 	}
 }  // namespace pcpp

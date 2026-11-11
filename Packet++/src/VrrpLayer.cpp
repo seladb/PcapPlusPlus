@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleVrrpLayer
 
 #include "SystemUtils.h"
+#include "UnalignedAccess.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
@@ -350,7 +351,7 @@ namespace pcpp
 	{
 		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
-			return IPv4Address(*reinterpret_cast<const uint32_t*>(data));
+			return IPv4Address(readUint32NativeOrder(data));
 		}
 
 		return IPv6Address(data);

@@ -165,8 +165,10 @@ namespace pcpp
 		}
 
 	protected:
-		/// @struct SSLExtensionStruct
-		/// Represents the common fields of the extension
+/// @struct SSLExtensionStruct
+/// Represents the common fields of the extension
+// Packed: the extension header sits at an odd offset inside the packet buffer, so it must not be aligned.
+#pragma pack(push, 1)
 		struct SSLExtensionStruct
 		{
 			/// Extension type
@@ -179,6 +181,7 @@ namespace pcpp
 			/// @brief Gets the extension length in host byte order
 			uint16_t getDataLength() const;
 		};
+#pragma pack(pop)
 
 		uint8_t* m_RawData;
 		size_t m_RawDataLen;

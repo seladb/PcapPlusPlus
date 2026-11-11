@@ -60,6 +60,7 @@ namespace pcpp
 	///    |                                                               |
 	///    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#pragma pack(push, 1)
 	/// @struct vrrp_header
 	/// VRRP generic header
 	struct vrrp_header
@@ -98,6 +99,7 @@ namespace pcpp
 		/// This specifies one or more IPvX addresses that are associated with the virtual router.
 		uint8_t* ipAddresses[];
 	};
+#pragma pack(pop)
 	static_assert(sizeof(vrrp_header) == 8, "vrrp_header size is not 8 bytes");
 
 	/// @class VrrpLayer
@@ -315,11 +317,13 @@ namespace pcpp
 	class VrrpV2Layer : public VrrpLayer
 	{
 	private:
+#pragma pack(push, 1)
 		struct vrrpv2_auth_adv
 		{
 			uint8_t authType;
 			uint8_t advInt;
 		};
+#pragma pack(pop)
 
 	public:
 		/// VRRP v2 authentication types
@@ -420,10 +424,12 @@ namespace pcpp
 	class VrrpV3Layer : public VrrpLayer
 	{
 	private:
+#pragma pack(push, 1)
 		struct vrrpv3_rsvd_adv
 		{
 			uint16_t maxAdvInt;
 		};
+#pragma pack(pop)
 
 	public:
 		/// A constructor that creates the layer from an existing packet raw data

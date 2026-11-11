@@ -127,6 +127,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
+
+	PTF_RUN_TEST(UnalignedPacketsParseLikeAlignedOnes, "unaligned;ubsan");
+	PTF_RUN_TEST(UnalignedChecksumsMatchAlignedOnes, "unaligned;ubsan");
+	PTF_RUN_TEST(UnalignedFieldsWriteAndReadBack, "unaligned;ubsan");
 	PTF_RUN_TEST(QinQ802_1adParse, "vlan");
 	PTF_RUN_TEST(TruncatedArpAndVlanPayloadTest, "vlan;arp;sll;gre");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");

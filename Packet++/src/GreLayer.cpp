@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleGreLayer
 
 #include "GreLayer.h"
+#include "UnalignedAccess.h"
 #include "EthLayer.h"
 #include "EthDot3Layer.h"
 #include "IPv4Layer.h"
@@ -135,11 +136,11 @@ namespace pcpp
 		if (header->sequenceNumBit == 0)
 			return false;
 
-		uint32_t* val = (uint32_t*)getFieldValue(GreSeq, false);
+		uint8_t* val = getFieldValue(GreSeq, false);
 		if (val == nullptr)
 			return false;
 
-		seqNumber = be32toh(*val);
+		seqNumber = readUint32BigEndian(val);
 		return true;
 	}
 
@@ -164,8 +165,7 @@ namespace pcpp
 
 		header = (gre_basic_header*)m_Data;
 		header->sequenceNumBit = 1;
-		uint32_t* seqPtr = (uint32_t*)(m_Data + offset);
-		*seqPtr = htobe32(seqNumber);
+		writeUint32BigEndian(m_Data + offset, seqNumber);
 
 		return true;
 	}
@@ -330,14 +330,12 @@ namespace pcpp
 			return false;
 		}
 
-		uint16_t* checksumPtr = (uint16_t*)(m_Data + offset);
-		*checksumPtr = htobe16(checksum);
+		writeUint16BigEndian(m_Data + offset, checksum);
 
 		// if layer was extended in 4 bytes, make sure the offset field stays 0
 		if (needToExtendLayer)
 		{
-			checksumPtr++;
-			*checksumPtr = 0;
+			writeUint16BigEndian(m_Data + offset + sizeof(uint16_t), 0);
 		}
 
 		header = getGreHeader();
@@ -369,8 +367,7 @@ namespace pcpp
 
 		if (!needToShortenLayer)  // meaning routing bit is set - only zero the checksum field
 		{
-			uint16_t* checksumPtr = (uint16_t*)(m_Data + offset);
-			*checksumPtr = 0;
+			writeUint16BigEndian(m_Data + offset, 0);
 		}
 
 		header = getGreHeader();
@@ -397,11 +394,11 @@ namespace pcpp
 		if (getGreHeader()->keyBit == 0)
 			return false;
 
-		uint32_t* val = (uint32_t*)getFieldValue(GreKey, false);
+		uint8_t* val = getFieldValue(GreKey, false);
 		if (val == nullptr)
 			return false;
 
-		key = be32toh(*val);
+		key = readUint32BigEndian(val);
 		return true;
 	}
 
@@ -426,8 +423,7 @@ namespace pcpp
 
 		header = getGreHeader();
 		header->keyBit = 1;
-		uint32_t* keyPtr = (uint32_t*)(m_Data + offset);
-		*keyPtr = htobe32(key);
+		writeUint32BigEndian(m_Data + offset, key);
 
 		return true;
 	}
@@ -526,11 +522,11 @@ namespace pcpp
 		if (getGreHeader()->ackSequenceNumBit == 0)
 			return false;
 
-		uint32_t* val = (uint32_t*)getFieldValue(GreAck, false);
+		uint8_t* val = getFieldValue(GreAck, false);
 		if (val == nullptr)
 			return false;
 
-		ackNum = be32toh(*val);
+		ackNum = readUint32BigEndian(val);
 		return true;
 	}
 
@@ -553,8 +549,7 @@ namespace pcpp
 
 		header = getGreHeader();
 		header->ackSequenceNumBit = 1;
-		uint32_t* ackPtr = (uint32_t*)(m_Data + offset);
-		*ackPtr = htobe32(ackNum);
+		writeUint32BigEndian(m_Data + offset, ackNum);
 		return true;
 	}
 

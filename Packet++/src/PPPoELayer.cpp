@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModulePPPoELayer
 
 #include "PPPoELayer.h"
+#include "UnalignedAccess.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
@@ -83,7 +84,7 @@ namespace pcpp
 			return 0;
 		}
 
-		uint16_t pppNextProto = *reinterpret_cast<uint16_t*>(m_Data + sizeof(pppoe_header));
+		uint16_t pppNextProto = readUint16NativeOrder(m_Data + sizeof(pppoe_header));
 		return be16toh(pppNextProto);
 	}
 
@@ -95,8 +96,7 @@ namespace pcpp
 			return;
 		}
 
-		uint16_t* pppProto = reinterpret_cast<uint16_t*>(m_Data + sizeof(pppoe_header));
-		*pppProto = htobe16(nextProtocol);
+		writeUint16BigEndian(m_Data + sizeof(pppoe_header), nextProtocol);
 	}
 
 	std::unordered_map<uint16_t, std::string> createPPPNextProtoToStringMap()

@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <sstream>
 #include "Logger.h"
+#include "UnalignedAccess.h"
 #include "GtpLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -1122,7 +1123,7 @@ namespace pcpp
 			return { false, 0 };
 		}
 
-		return { true, be32toh(*reinterpret_cast<uint32_t*>(m_Data + sizeof(gtpv2_basic_header))) };
+		return { true, readUint32BigEndian(m_Data + sizeof(gtpv2_basic_header)) };
 	}
 
 	void GtpV2Layer::setTeid(uint32_t teid)
@@ -1141,7 +1142,7 @@ namespace pcpp
 			header->messageLength = htobe16(be16toh(header->messageLength) + sizeof(uint32_t));
 		}
 
-		reinterpret_cast<uint32_t*>(m_Data + teidOffset)[0] = htobe32(teid);
+		writeUint32BigEndian(m_Data + teidOffset, teid);
 
 		header->teidPresent = 1;
 	}
@@ -1175,7 +1176,7 @@ namespace pcpp
 			sequencePos += sizeof(uint32_t);
 		}
 
-		return be32toh(*reinterpret_cast<uint32_t*>(sequencePos)) >> 8;
+		return readUint32BigEndian(sequencePos) >> 8;
 	}
 
 	void GtpV2Layer::setSequenceNumber(uint32_t sequenceNumber)

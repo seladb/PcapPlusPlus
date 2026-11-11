@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleSSLLayer
 
 #include "EndianPortable.h"
+#include "UnalignedAccess.h"
 #include "md5.h"
 #include <sstream>
 #include <unordered_map>
@@ -1147,7 +1148,7 @@ namespace pcpp
 		}
 
 		uint8_t const* hostNameLengthPos = extensionDataPtr + sizeof(uint16_t) + sizeof(uint8_t);
-		uint16_t hostNameLength = be16toh(*reinterpret_cast<uint16_t const*>(hostNameLengthPos));
+		uint16_t hostNameLength = readUint16BigEndian(hostNameLengthPos);
 
 		uint8_t const* hostNameDataIt = hostNameLengthPos + sizeof(uint16_t);
 		uint8_t const* hostNameDataEndIt = hostNameDataIt + hostNameLength;
@@ -1175,7 +1176,7 @@ namespace pcpp
 
 		if (extensionLength == 2)  // server hello message
 		{
-			result.push_back(SSLVersion(be16toh(*reinterpret_cast<uint16_t*>(getData()))));
+			result.push_back(SSLVersion(readUint16BigEndian(getData())));
 		}
 		else  // client-hello message
 		{
@@ -1186,7 +1187,7 @@ namespace pcpp
 			uint8_t* dataPtr = getData() + sizeof(uint8_t);
 			for (int i = 0; i < listLength / 2; i++)
 			{
-				result.push_back(SSLVersion(be16toh(*reinterpret_cast<uint16_t*>(dataPtr))));
+				result.push_back(SSLVersion(readUint16BigEndian(dataPtr)));
 				dataPtr += sizeof(uint16_t);
 			}
 		}
@@ -1206,14 +1207,14 @@ namespace pcpp
 		if (extensionLength < sizeof(uint16_t))
 			return result;  // bad extension data
 
-		uint16_t listLength = be16toh(*(uint16_t*)getData());
+		uint16_t listLength = readUint16BigEndian(getData());
 		if (listLength != (extensionLength - sizeof(uint16_t)) || listLength % 2 != 0)
 			return result;  // bad extension data
 
 		uint8_t* dataPtr = getData() + sizeof(uint16_t);
 		for (int i = 0; i < listLength / 2; i++)
 		{
-			result.push_back(be16toh(*reinterpret_cast<uint16_t*>(dataPtr)));
+			result.push_back(readUint16BigEndian(dataPtr));
 			dataPtr += sizeof(uint16_t);
 		}
 
@@ -1298,7 +1299,7 @@ namespace pcpp
 
 		ssl_tls_handshake_layer* hsMsgHeader = reinterpret_cast<ssl_tls_handshake_layer*>(data);
 
-		if (dataLen >= 16 && (be64toh(*(uint64_t*)data) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
+		if (dataLen >= 16 && (readUint64BigEndian(data) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
 		{
 			// possibly Encrypted Handshake Message
 			// used heuristic:
@@ -1402,7 +1403,7 @@ namespace pcpp
 		{
 			std::unique_ptr<SSLExtension> newExt;
 
-			uint16_t sslExtType = be16toh(*reinterpret_cast<uint16_t*>(extensionIt));
+			uint16_t sslExtType = readUint16BigEndian(extensionIt);
 			size_t availableDataLen = std::distance(extensionIt, extensionEndIt);
 
 			switch (sslExtType)
@@ -1489,7 +1490,7 @@ namespace pcpp
 		if (cipherSuiteOffset + sizeof(uint16_t) > m_DataLen)
 			return 0;
 
-		uint16_t cipherSuiteLen = *(uint16_t*)(m_Data + cipherSuiteOffset);
+		uint16_t cipherSuiteLen = readUint16NativeOrder(m_Data + cipherSuiteOffset);
 		return be16toh(cipherSuiteLen) / 2;
 	}
 
@@ -1517,8 +1518,7 @@ namespace pcpp
 		}
 
 		isValid = true;
-		uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + cipherSuiteStartOffset);
-		return be16toh(*(cipherSuiteStartPos + index));
+		return readUint16BigEndian(m_Data + cipherSuiteStartOffset + index * sizeof(uint16_t));
 	}
 
 	uint8_t SSLClientHelloMessage::getCompressionMethodsValue() const
@@ -1546,7 +1546,7 @@ namespace pcpp
 			return 0;
 
 		uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
-		return be16toh(*reinterpret_cast<uint16_t*>(extensionLengthPos));
+		return readUint16BigEndian(extensionLengthPos);
 	}
 
 	SSLExtension* SSLClientHelloMessage::getExtension(int index) const
@@ -1726,7 +1726,7 @@ namespace pcpp
 		{
 			std::unique_ptr<SSLExtension> newExt;
 
-			uint16_t sslExtType = be16toh(*reinterpret_cast<uint16_t*>(extensionIt));
+			uint16_t sslExtType = readUint16BigEndian(extensionIt);
 			size_t availableDataLen = std::distance(extensionIt, extensionEndIt);
 
 			switch (sslExtType)
@@ -1831,8 +1831,7 @@ namespace pcpp
 		}
 
 		isValid = true;
-		uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + cipherSuiteStartOffset);
-		return be16toh(*(cipherSuiteStartPos));
+		return readUint16BigEndian(m_Data + cipherSuiteStartOffset);
 	}
 
 	uint8_t SSLServerHelloMessage::getCompressionMethodsValue() const
@@ -1857,8 +1856,7 @@ namespace pcpp
 		if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
 			return 0;
 
-		uint16_t* extensionLengthPos = (uint16_t*)(m_Data + extensionLengthOffset);
-		return be16toh(*extensionLengthPos);
+		return readUint16BigEndian(m_Data + extensionLengthOffset);
 	}
 
 	SSLExtension* SSLServerHelloMessage::getExtension(int index) const
@@ -1971,7 +1969,7 @@ namespace pcpp
 		// read certificates length
 		// TODO: certificates length is 3B. Currently assuming the MSB is 0 and reading only 2 LSBs
 		uint8_t* curPos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
-		uint16_t certificatesLength = be16toh(*reinterpret_cast<uint16_t*>(curPos));
+		uint16_t certificatesLength = readUint16BigEndian(curPos);
 		if (certificatesLength == 0)
 			return;
 
@@ -1987,7 +1985,7 @@ namespace pcpp
 
 			// read certificate length
 			curPos += sizeof(uint8_t);
-			uint16_t certificateLength = be16toh(*reinterpret_cast<uint16_t*>(curPos));
+			uint16_t certificateLength = readUint16BigEndian(curPos);
 
 			// advance to start position of certificate
 			curPos += sizeof(uint16_t);
@@ -2156,7 +2154,7 @@ namespace pcpp
 		if (offset + sizeof(uint16_t) >= messageLen)
 			return 0;
 
-		uint16_t certAuthLen = be16toh(*(uint16_t*)(m_Data + offset));
+		uint16_t certAuthLen = readUint16BigEndian(m_Data + offset);
 
 		offset += sizeof(uint16_t);
 

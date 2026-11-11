@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleDnsLayer
 
 #include "DnsLayer.h"
+#include "UnalignedAccess.h"
 #include "Logger.h"
 #include <sstream>
 #include <vector>
@@ -866,12 +867,12 @@ namespace pcpp
 
 	uint16_t DnsOverTcpLayer::getTcpMessageLength()
 	{
-		return be16toh(*(uint16_t*)m_Data);
+		return readUint16BigEndian(m_Data);
 	}
 
 	void DnsOverTcpLayer::setTcpMessageLength(uint16_t value)
 	{
-		((uint16_t*)m_Data)[0] = htobe16(value);
+		writeUint16BigEndian(m_Data, value);
 	}
 
 	void DnsOverTcpLayer::computeCalculateFields()

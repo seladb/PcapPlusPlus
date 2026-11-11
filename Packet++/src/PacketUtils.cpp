@@ -1,4 +1,5 @@
 #include "PacketUtils.h"
+#include "UnalignedAccess.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "TcpLayer.h"
@@ -19,8 +20,9 @@ namespace pcpp
 			// vec len is in bytes
 			for (size_t j = 0; j < vec[i].len / 2; j++)
 			{
-				PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex << vec[i].buffer[j]);
-				localSum += vec[i].buffer[j];
+				const uint16_t word = readUint16NativeOrder(reinterpret_cast<const uint8_t*>(vec[i].buffer) + 2 * j);
+				PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex << word);
+				localSum += word;
 			}
 			PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 

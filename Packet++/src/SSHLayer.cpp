@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleSSHLayer
 
 #include "SSHLayer.h"
+#include "UnalignedAccess.h"
 #include "GeneralUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
@@ -200,7 +201,7 @@ namespace pcpp
 			if (offset + sizeof(uint32_t) >= m_DataLen)
 				return;
 
-			size_t fieldLength = static_cast<size_t>(be32toh(*reinterpret_cast<uint32_t*>(m_Data + offset)));
+			size_t fieldLength = static_cast<size_t>(readUint32BigEndian(m_Data + offset));
 			if (offset + sizeof(uint32_t) + fieldLength > m_DataLen)
 				return;
 
@@ -224,7 +225,7 @@ namespace pcpp
 			return "";
 
 		size_t fieldOffset = m_FieldOffsets[fieldOffsetIndex];
-		uint32_t fieldLength = be32toh(*reinterpret_cast<uint32_t*>(m_Data + fieldOffset));
+		uint32_t fieldLength = readUint32BigEndian(m_Data + fieldOffset);
 		return std::string(reinterpret_cast<const char*>(m_Data + fieldOffset + sizeof(uint32_t)), (size_t)fieldLength);
 	}
 

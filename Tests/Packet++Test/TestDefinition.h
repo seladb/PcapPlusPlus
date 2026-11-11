@@ -13,6 +13,11 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest);
 
 // Implemented in VlanMplsTests.cpp
 PTF_TEST_CASE(VlanParseAndCreation);
+
+// Implemented in UnalignedAccessTests.cpp
+PTF_TEST_CASE(UnalignedPacketsParseLikeAlignedOnes);
+PTF_TEST_CASE(UnalignedChecksumsMatchAlignedOnes);
+PTF_TEST_CASE(UnalignedFieldsWriteAndReadBack);
 PTF_TEST_CASE(QinQ802_1adParse);
 PTF_TEST_CASE(TruncatedArpAndVlanPayloadTest);
 PTF_TEST_CASE(MplsLayerTest);

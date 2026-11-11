@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleIgmpLayer
 
 #include "IgmpLayer.h"
+#include "UnalignedAccess.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
@@ -222,7 +223,7 @@ namespace pcpp
 			return IPv4Address();
 
 		uint8_t* ptr = m_Data + ptrOffset;
-		return IPv4Address(*reinterpret_cast<uint32_t*>(ptr));
+		return IPv4Address(readUint32NativeOrder(ptr));
 	}
 
 	size_t IgmpV3QueryLayer::getHeaderLen() const
@@ -512,7 +513,7 @@ namespace pcpp
 
 		int offset = index * sizeof(uint32_t);
 		const uint8_t* ptr = sourceAddresses + offset;
-		return IPv4Address(*reinterpret_cast<const uint32_t*>(ptr));
+		return IPv4Address(readUint32NativeOrder(ptr));
 	}
 
 	size_t igmpv3_group_record::getRecordLen() const
