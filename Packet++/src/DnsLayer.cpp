@@ -393,6 +393,227 @@ namespace pcpp
 		}
 	}
 
+	static constexpr const char* dnsTypeToString(DnsType dnsType)
+	{
+		switch (dnsType)
+		{
+		case DNS_TYPE_A:
+			return "A";
+		case DNS_TYPE_NS:
+			return "NS";
+		case DNS_TYPE_MD:
+			return "MD";
+		case DNS_TYPE_MF:
+			return "MF";
+		case DNS_TYPE_CNAME:
+			return "CNAME";
+		case DNS_TYPE_SOA:
+			return "SOA";
+		case DNS_TYPE_MB:
+			return "MB";
+		case DNS_TYPE_MG:
+			return "MG";
+		case DNS_TYPE_MR:
+			return "MR";
+		case DNS_TYPE_NULL_R:
+			return "NULL";
+		case DNS_TYPE_WKS:
+			return "WKS";
+		case DNS_TYPE_PTR:
+			return "PTR";
+		case DNS_TYPE_HINFO:
+			return "HINFO";
+		case DNS_TYPE_MINFO:
+			return "MINFO";
+		case DNS_TYPE_MX:
+			return "MX";
+		case DNS_TYPE_TXT:
+			return "TXT";
+		case DNS_TYPE_RP:
+			return "RP";
+		case DNS_TYPE_AFSDB:
+			return "AFSDB";
+		case DNS_TYPE_X25:
+			return "X25";
+		case DNS_TYPE_ISDN:
+			return "ISDN";
+		case DNS_TYPE_RT:
+			return "RT";
+		case DNS_TYPE_NSAP:
+			return "NSAP";
+		case DNS_TYPE_NSAP_PTR:
+			return "NSAP-PTR";
+		case DNS_TYPE_SIG:
+			return "SIG";
+		case DNS_TYPE_KEY:
+			return "KEY";
+		case DNS_TYPE_PX:
+			return "PX";
+		case DNS_TYPE_GPOS:
+			return "GPOS";
+		case DNS_TYPE_AAAA:
+			return "AAAA";
+		case DNS_TYPE_LOC:
+			return "LOC";
+		case DNS_TYPE_NXT:
+			return "NXT";
+		case DNS_TYPE_EID:
+			return "EID";
+		case DNS_TYPE_NIMLOC:
+			return "NIMLOC";
+		case DNS_TYPE_SRV:
+			return "SRV";
+		case DNS_TYPE_ATMA:
+			return "ATMA";
+		case DNS_TYPE_NAPTR:
+			return "NAPTR";
+		case DNS_TYPE_KX:
+			return "KX";
+		case DNS_TYPE_CERT:
+			return "CERT";
+		case DNS_TYPE_A6:
+			return "A6";
+		case DNS_TYPE_DNAM:
+			return "DNAME";
+		case DNS_TYPE_SINK:
+			return "SINK";
+		case DNS_TYPE_OPT:
+			return "OPT";
+		case DNS_TYPE_APL:
+			return "APL";
+		case DNS_TYPE_DS:
+			return "DS";
+		case DNS_TYPE_SSHFP:
+			return "SSHFP";
+		case DNS_TYPE_IPSECKEY:
+			return "IPSECKEY";
+		case DNS_TYPE_RRSIG:
+			return "RRSIG";
+		case DNS_TYPE_NSEC:
+			return "NSEC";
+		case DNS_TYPE_DNSKEY:
+			return "DNSKEY";
+		case DNS_TYPE_DHCID:
+			return "DHCID";
+		case DNS_TYPE_NSEC3:
+			return "NSEC3";
+		case DNS_TYPE_NSEC3PARAM:
+			return "NSEC3PARAM";
+		case DNS_TYPE_ALL:
+			return "ANY";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor DnsLayer::SerializedFields::TransactionID{ Layer::SerializedFields::MaxID + 1,
+		                                                             "transactionID" };
+	const FieldDescriptor DnsLayer::SerializedFields::IsResponse{ Layer::SerializedFields::MaxID + 2, "isResponse" };
+	const FieldDescriptor DnsLayer::SerializedFields::Opcode{ Layer::SerializedFields::MaxID + 3, "opcode" };
+	const FieldDescriptor DnsLayer::SerializedFields::AuthoritativeAnswer{ Layer::SerializedFields::MaxID + 4,
+		                                                                   "authoritativeAnswer" };
+	const FieldDescriptor DnsLayer::SerializedFields::Truncation{ Layer::SerializedFields::MaxID + 5, "truncation" };
+	const FieldDescriptor DnsLayer::SerializedFields::RecursionDesired{ Layer::SerializedFields::MaxID + 6,
+		                                                                "recursionDesired" };
+	const FieldDescriptor DnsLayer::SerializedFields::RecursionAvailable{ Layer::SerializedFields::MaxID + 7,
+		                                                                  "recursionAvailable" };
+	const FieldDescriptor DnsLayer::SerializedFields::AuthenticData{ Layer::SerializedFields::MaxID + 8,
+		                                                             "authenticData" };
+	const FieldDescriptor DnsLayer::SerializedFields::CheckingDisabled{ Layer::SerializedFields::MaxID + 9,
+		                                                                "checkingDisabled" };
+	const FieldDescriptor DnsLayer::SerializedFields::ResponseCode{ Layer::SerializedFields::MaxID + 10,
+		                                                            "responseCode" };
+	const FieldDescriptor DnsLayer::SerializedFields::Queries{ Layer::SerializedFields::MaxID + 11, "queries" };
+	const FieldDescriptor DnsLayer::SerializedFields::Answers{ Layer::SerializedFields::MaxID + 12, "answers" };
+	const FieldDescriptor DnsLayer::SerializedFields::Authorities{ Layer::SerializedFields::MaxID + 13, "authorities" };
+	const FieldDescriptor DnsLayer::SerializedFields::AdditionalRecords{ Layer::SerializedFields::MaxID + 14,
+		                                                                 "additionalRecords" };
+
+	const DnsLayer::SerializedFields::QueryObject DnsQueryObject{ 0, "query" };
+	const FieldDescriptor DnsLayer::SerializedFields::QueryObject::Name{ 0, "name" };
+	const FieldDescriptor DnsLayer::SerializedFields::QueryObject::Type{ 1, "type" };
+	const FieldDescriptor DnsLayer::SerializedFields::QueryObject::TypeName{ 2, "typeName" };
+	const FieldDescriptor DnsLayer::SerializedFields::QueryObject::Class{ 3, "class" };
+
+	const DnsLayer::SerializedFields::ResourceObject DnsResourceObject{ 0, "resource" };
+	const FieldDescriptor DnsLayer::SerializedFields::ResourceObject::Name{ 0, "name" };
+	const FieldDescriptor DnsLayer::SerializedFields::ResourceObject::Type{ 1, "type" };
+	const FieldDescriptor DnsLayer::SerializedFields::ResourceObject::TypeName{ 2, "typeName" };
+	const FieldDescriptor DnsLayer::SerializedFields::ResourceObject::Class{ 3, "class" };
+	const FieldDescriptor DnsLayer::SerializedFields::ResourceObject::Ttl{ 4, "ttl" };
+	const FieldDescriptor DnsLayer::SerializedFields::ResourceObject::DataLength{ 5, "dataLength" };
+	const FieldDescriptor DnsLayer::SerializedFields::ResourceObject::Data{ 6, "data" };
+
+	void DnsLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		using QueryFields = SerializedFields::QueryObject;
+		using ResourceFields = SerializedFields::ResourceObject;
+
+		const dnshdr* hdr = getDnsHeader();
+		serializer.writeHexField(SerializedFields::TransactionID, be16toh(hdr->transactionID));
+		serializer.writeField(SerializedFields::IsResponse, hdr->queryOrResponse == 1);
+		serializer.writeField(SerializedFields::Opcode, static_cast<uint8_t>(hdr->opcode));
+		serializer.writeField(SerializedFields::AuthoritativeAnswer, hdr->authoritativeAnswer == 1);
+		serializer.writeField(SerializedFields::Truncation, hdr->truncation == 1);
+		serializer.writeField(SerializedFields::RecursionDesired, hdr->recursionDesired == 1);
+		serializer.writeField(SerializedFields::RecursionAvailable, hdr->recursionAvailable == 1);
+		serializer.writeField(SerializedFields::AuthenticData, hdr->authenticData == 1);
+		serializer.writeField(SerializedFields::CheckingDisabled, hdr->checkingDisabled == 1);
+		serializer.writeField(SerializedFields::ResponseCode, static_cast<uint8_t>(hdr->responseCode));
+
+		{
+			auto queries = serializer.writeArray(SerializedFields::Queries);
+			for (DnsQuery* query = getFirstQuery(); query != nullptr; query = getNextQuery(query))
+			{
+				auto queryObject = queries.writeObject(DnsQueryObject);
+				queryObject.writeField(QueryFields::Name, query->getName());
+				queryObject.writeField(QueryFields::Type, static_cast<uint16_t>(query->getDnsType()));
+				queryObject.writeField(QueryFields::TypeName, dnsTypeToString(query->getDnsType()));
+				queryObject.writeField(QueryFields::Class, static_cast<uint16_t>(query->getDnsClass()));
+			}
+		}
+
+		auto writeResource = [](ArrayScope& resources, const DnsResource* resource) {
+			auto resourceObject = resources.writeObject(DnsResourceObject);
+			resourceObject.writeField(ResourceFields::Name, resource->getName());
+			resourceObject.writeField(ResourceFields::Type, static_cast<uint16_t>(resource->getDnsType()));
+			resourceObject.writeField(ResourceFields::TypeName, dnsTypeToString(resource->getDnsType()));
+			resourceObject.writeField(ResourceFields::Class, static_cast<uint16_t>(resource->getDnsClass()));
+			resourceObject.writeField(ResourceFields::Ttl, resource->getTTL());
+			resourceObject.writeField(ResourceFields::DataLength, resource->getDataLength());
+			// raw byte arrays of records without a dedicated data type aren't meaningful to serialize
+			auto data = resource->getData();
+			if (!data.isTypeOf<GenericDnsResourceData>())
+			{
+				resourceObject.writeField(ResourceFields::Data, data->toString());
+			}
+		};
+
+		{
+			auto answers = serializer.writeArray(SerializedFields::Answers);
+			for (DnsResource* answer = getFirstAnswer(); answer != nullptr; answer = getNextAnswer(answer))
+			{
+				writeResource(answers, answer);
+			}
+		}
+
+		{
+			auto authorities = serializer.writeArray(SerializedFields::Authorities);
+			for (DnsResource* authority = getFirstAuthority(); authority != nullptr;
+			     authority = getNextAuthority(authority))
+			{
+				writeResource(authorities, authority);
+			}
+		}
+
+		auto additionalRecords = serializer.writeArray(SerializedFields::AdditionalRecords);
+		for (DnsResource* additionalRecord = getFirstAdditionalRecord(); additionalRecord != nullptr;
+		     additionalRecord = getNextAdditionalRecord(additionalRecord))
+		{
+			writeResource(additionalRecords, additionalRecord);
+		}
+	}
+
 	IDnsResource* DnsLayer::getFirstResource(DnsResourceType resType) const
 	{
 		switch (resType)
@@ -877,6 +1098,15 @@ namespace pcpp
 	void DnsOverTcpLayer::computeCalculateFields()
 	{
 		setTcpMessageLength(m_DataLen - sizeof(uint16_t));
+	}
+
+	const FieldDescriptor DnsOverTcpLayer::SerializedFields::TcpMessageLength{ DnsLayer::SerializedFields::MaxID + 1,
+		                                                                       "tcpMessageLength" };
+
+	void DnsOverTcpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		DnsLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::TcpMessageLength, be16toh(*reinterpret_cast<uint16_t*>(m_Data)));
 	}
 
 }  // namespace pcpp
