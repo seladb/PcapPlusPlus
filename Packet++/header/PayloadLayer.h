@@ -22,9 +22,10 @@ namespace pcpp
 		    : Layer(data, dataLen, prevLayer, packet, GenericPayload)
 		{}
 
-		/// A constructor that allocates a new payload
+		/// A constructor that allocates a new payload. If dataLen is zero then the payload is empty
 		/// @param[in] data A raw buffer that will be used as a payload. This data will be copied to the layer
 		/// @param[in] dataLen The raw buffer length
+		/// @throws std::invalid_argument if data is nullptr and dataLen is not zero
 		PayloadLayer(const uint8_t* data, size_t dataLen);
 
 		/// A constructor that allocates a new payload from an hex stream
@@ -68,9 +69,10 @@ namespace pcpp
 		{}
 
 		/// Sets the payload of the PayloadLayer to the given pointer. This will resize (extend/shorten) the underlying
-		/// packet respectively if there is one.
+		/// packet respectively if there is one. If newPayloadLength is zero then the payload will be set to none.
 		/// @param[in] newPayload New payload that shall be set
 		/// @param[in] newPayloadLength New length of payload
+		/// @throws std::invalid_argument if newPayload is nullptr and newPayloadLength is not zero
 		void setPayload(const uint8_t* newPayload, size_t newPayloadLength);
 
 		std::string toString() const override;
