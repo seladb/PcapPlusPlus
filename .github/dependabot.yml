@@ -25,3 +25,7 @@ updates:
       pip-dependencies:
         patterns:
           - "*"
+    ignore:
+      # pytest 9.x is not available on RHEL, the latest supported version is 8.4.2
+      - dependency-name: "pytest"
+        versions: [">=9"]
