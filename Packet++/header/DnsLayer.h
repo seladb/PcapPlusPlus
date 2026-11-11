@@ -596,6 +596,7 @@ namespace pcpp
 		/// Fields written by DnsOverTcpLayer's serializeLayer(), in addition to DnsLayer::SerializedFields.
 		struct SerializedFields : DnsLayer::SerializedFields
 		{
+			// cppcheck-suppress duplInheritedMember
 			/// @return All field descriptors for DnsOverTcpLayer
 			static std::vector<FieldDescriptor> all()
 			{
