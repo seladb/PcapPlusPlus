@@ -7,6 +7,8 @@
 #include "TcpLayer.h"
 #include "BgpLayer.h"
 #include "SystemUtils.h"
+#include "Serializers.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -786,3 +788,108 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 	}
 
 }  // BgpOpenMalformedOptionalParamsTest
+
+PTF_TEST_CASE(BgpLayerSerializationTest)
+{
+	// 1. SerializedFields::all() exposes the expected number of field descriptors for each message type.
+	//    Base BgpLayer adds "marker" + "messageType" to Layer::SerializedFields' 3 fields => 5.
+	PTF_ASSERT_EQUAL(pcpp::BgpLayer::SerializedFields::all().size(), 5);
+	PTF_ASSERT_EQUAL(pcpp::BgpOpenMessageLayer::SerializedFields::all().size(), 11);
+	PTF_ASSERT_EQUAL(pcpp::BgpUpdateMessageLayer::SerializedFields::all().size(), 8);
+	PTF_ASSERT_EQUAL(pcpp::BgpNotificationMessageLayer::SerializedFields::all().size(), 8);
+	PTF_ASSERT_EQUAL(pcpp::BgpKeepaliveMessageLayer::SerializedFields::all().size(), 5);
+	PTF_ASSERT_EQUAL(pcpp::BgpRouteRefreshMessageLayer::SerializedFields::all().size(), 8);
+
+	// 2. OPEN message serialization
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_open.dat");
+		pcpp::Packet packet(rawPacket.get());
+		auto* openLayer = packet.getLayerOfType<pcpp::BgpOpenMessageLayer>();
+		PTF_ASSERT_NOT_NULL(openLayer);
+
+		std::ostringstream jsonStream;
+		pcpp::JsonSerializer jsonSerializer(jsonStream);
+		openLayer->serialize(jsonSerializer);
+		std::string result = jsonStream.str();
+		PTF_ASSERT_FALSE(result.empty());
+		PTF_ASSERT_TRUE(result.find("\"messageType\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"OPEN\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"version\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"myAutonomousSystem\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"bgpId\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"1.1.1.1\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"optionalParameters\"") != std::string::npos);
+	}
+
+	// 3. UPDATE message serialization (withdrawn routes / path attributes / NLRI)
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_update2.dat");
+		pcpp::Packet packet(rawPacket.get());
+		auto* updateLayer = packet.getLayerOfType<pcpp::BgpUpdateMessageLayer>();
+		PTF_ASSERT_NOT_NULL(updateLayer);
+
+		std::ostringstream jsonStream;
+		pcpp::JsonSerializer jsonSerializer(jsonStream);
+		updateLayer->serialize(jsonSerializer);
+		std::string result = jsonStream.str();
+		PTF_ASSERT_FALSE(result.empty());
+		PTF_ASSERT_TRUE(result.find("\"messageType\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"UPDATE\"") != std::string::npos);
+		const bool hasSomeArray = result.find("\"withdrawnRoutes\"") != std::string::npos ||
+		                          result.find("\"pathAttributes\"") != std::string::npos ||
+		                          result.find("\"networkLayerReachabilityInfo\"") != std::string::npos;
+		PTF_ASSERT_TRUE(hasSomeArray);
+	}
+
+	// 4. NOTIFICATION message serialization
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_notification.dat");
+		pcpp::Packet packet(rawPacket.get());
+		auto* notificationLayer = packet.getLayerOfType<pcpp::BgpNotificationMessageLayer>();
+		PTF_ASSERT_NOT_NULL(notificationLayer);
+
+		std::ostringstream jsonStream;
+		pcpp::JsonSerializer jsonSerializer(jsonStream);
+		notificationLayer->serialize(jsonSerializer);
+		std::string result = jsonStream.str();
+		PTF_ASSERT_FALSE(result.empty());
+		PTF_ASSERT_TRUE(result.find("\"messageType\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"NOTIFICATION\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"errorCode\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"errorSubCode\"") != std::string::npos);
+	}
+
+	// 5. KEEPALIVE message serialization (common header only)
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_keepalive.dat");
+		pcpp::Packet packet(rawPacket.get());
+		auto* keepaliveLayer = packet.getLayerOfType<pcpp::BgpKeepaliveMessageLayer>();
+		PTF_ASSERT_NOT_NULL(keepaliveLayer);
+
+		std::ostringstream jsonStream;
+		pcpp::JsonSerializer jsonSerializer(jsonStream);
+		keepaliveLayer->serialize(jsonSerializer);
+		std::string result = jsonStream.str();
+		PTF_ASSERT_FALSE(result.empty());
+		PTF_ASSERT_TRUE(result.find("\"messageType\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"KEEPALIVE\"") != std::string::npos);
+	}
+
+	// 6. ROUTE-REFRESH message serialization
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_route-refresh.dat");
+		pcpp::Packet packet(rawPacket.get());
+		auto* routeRefreshLayer = packet.getLayerOfType<pcpp::BgpRouteRefreshMessageLayer>();
+		PTF_ASSERT_NOT_NULL(routeRefreshLayer);
+
+		std::ostringstream jsonStream;
+		pcpp::JsonSerializer jsonSerializer(jsonStream);
+		routeRefreshLayer->serialize(jsonSerializer);
+		std::string result = jsonStream.str();
+		PTF_ASSERT_FALSE(result.empty());
+		PTF_ASSERT_TRUE(result.find("\"messageType\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"ROUTE-REFRESH\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"afi\"") != std::string::npos);
+		PTF_ASSERT_TRUE(result.find("\"safi\"") != std::string::npos);
+	}
+}  // BgpLayerSerializationTest
