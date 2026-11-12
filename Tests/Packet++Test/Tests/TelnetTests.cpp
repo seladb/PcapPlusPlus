@@ -50,16 +50,16 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	};
 
 	std::vector<pcpp::TelnetLayer::TelnetOption> vOptions = { pcpp::TelnetLayer::TelnetOption::SuppressGoAhead,
-		                                                      pcpp::TelnetLayer::TelnetOption::TerminalType,
-		                                                      pcpp::TelnetLayer::TelnetOption::NegotiateAboutWindowSize,
-		                                                      pcpp::TelnetLayer::TelnetOption::TerminalSpeed,
-		                                                      pcpp::TelnetLayer::TelnetOption::RemoteFlowControl,
-		                                                      pcpp::TelnetLayer::TelnetOption::Linemode,
-		                                                      pcpp::TelnetLayer::TelnetOption::Linemode,
-		                                                      pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption };
+	                                                          pcpp::TelnetLayer::TelnetOption::TerminalType,
+	                                                          pcpp::TelnetLayer::TelnetOption::NegotiateAboutWindowSize,
+	                                                          pcpp::TelnetLayer::TelnetOption::TerminalSpeed,
+	                                                          pcpp::TelnetLayer::TelnetOption::RemoteFlowControl,
+	                                                          pcpp::TelnetLayer::TelnetOption::Linemode,
+	                                                          pcpp::TelnetLayer::TelnetOption::Linemode,
+	                                                          pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption };
 
 	std::vector<std::string> vCommandString = { "Will Perform", "Do Perform", "Do Perform",     "Do Perform",
-		                                        "Do Perform",   "Do Perform", "Subnegotiation", "Subnegotiation End" };
+	                                            "Do Perform",   "Do Perform", "Subnegotiation", "Subnegotiation End" };
 	std::vector<std::string> vOptionString = {
 		"Suppress Go Ahead", "Terminal Type", "Negotiate About Window Size", "Terminal Speed", "Remote Flow Control",
 		"Line mode",         "Line mode",     "No option for this command"
@@ -126,12 +126,12 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer2->getTotalNumberOfCommands(), 3);
 
 	std::vector<pcpp::TelnetLayer::TelnetCommand> vCommand2 = { pcpp::TelnetLayer::TelnetCommand::DoPerform,
-		                                                        pcpp::TelnetLayer::TelnetCommand::WillPerform,
-		                                                        pcpp::TelnetLayer::TelnetCommand::EndOfRecordCommand };
+	                                                            pcpp::TelnetLayer::TelnetCommand::WillPerform,
+	                                                            pcpp::TelnetLayer::TelnetCommand::EndOfRecordCommand };
 
 	std::vector<pcpp::TelnetLayer::TelnetOption> vOptions2 = { pcpp::TelnetLayer::TelnetOption::TransmitBinary,
-		                                                       pcpp::TelnetLayer::TelnetOption::TransmitBinary,
-		                                                       pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption };
+	                                                           pcpp::TelnetLayer::TelnetOption::TransmitBinary,
+	                                                           pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption };
 
 	size_t ctr2 = 0;
 	size_t length2 = 0;
@@ -228,14 +228,14 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 		{ pcpp::TelnetLayer::TelnetOption::OutputLineWidth,                 "Output Line Width"                           },
 		{ pcpp::TelnetLayer::TelnetOption::OutputPageSize,                  "Output Page Size"                            },
 		{ pcpp::TelnetLayer::TelnetOption::OutputCarriageReturnDisposition,
-         "Negotiate About Output Carriage-Return Disposition"                                                             },
+		 "Negotiate About Output Carriage-Return Disposition"                                                             },
 		{ pcpp::TelnetLayer::TelnetOption::OutputHorizontalTabStops,        "Negotiate About Output Horizontal Tabstops"  },
 		{ pcpp::TelnetLayer::TelnetOption::OutputHorizontalTabDisposition,
-         "Negotiate About Output Horizontal Tab Disposition"		                                                      },
+		 "Negotiate About Output Horizontal Tab Disposition"                                                              },
 		{ pcpp::TelnetLayer::TelnetOption::OutputFormfeedDisposition,       "Negotiate About Output Formfeed Disposition" },
 		{ pcpp::TelnetLayer::TelnetOption::OutputVerticalTabStops,          "Negotiate About Vertical Tabstops"           },
 		{ pcpp::TelnetLayer::TelnetOption::OutputVerticalTabDisposition,
-         "Negotiate About Output Vertcial Tab Disposition"		                                                        },
+		 "Negotiate About Output Vertcial Tab Disposition"                                                                },
 		{ pcpp::TelnetLayer::TelnetOption::OutputLinefeedDisposition,       "Negotiate About Output Linefeed Disposition" },
 		{ pcpp::TelnetLayer::TelnetOption::ExtendedASCII,                   "Extended ASCII"                              },
 		{ pcpp::TelnetLayer::TelnetOption::Logout,                          "Logout"                                      },
@@ -319,7 +319,7 @@ PTF_TEST_CASE(TelentCommandInvalidDataTests)
 PTF_TEST_CASE(TelnetCommandTruncatedOptionTest)
 {
 	auto* truncatedWill = new uint8_t[2]{ static_cast<uint8_t>(pcpp::TelnetLayer::TelnetCommand::InterpretAsCommand),
-		                                  static_cast<uint8_t>(pcpp::TelnetLayer::TelnetCommand::WillPerform) };
+	                                      static_cast<uint8_t>(pcpp::TelnetLayer::TelnetCommand::WillPerform) };
 	pcpp::TelnetLayer telnetLayer(truncatedWill, 2, nullptr, nullptr);
 
 	PTF_ASSERT_EQUAL(telnetLayer.getTotalNumberOfCommands(), 1);
