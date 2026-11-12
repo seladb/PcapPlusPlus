@@ -25,6 +25,7 @@
 
 #include "light_debug.h"
 #include "light_internal.h"
+#include "light_util.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -48,7 +49,7 @@ static void __parse_mem_inplace(struct _light_pcapng_mem *head, uint32_t *memory
 		iterator += tmp_block_len / sizeof(iterator[0]);
 	}
 
-	head->mem_blocks = calloc(head->block_count, sizeof(uint32_t *));
+	LIGHT_CALLOC(head->mem_blocks, head->block_count, sizeof(uint32_t *), return); // ---> PCPP patch
 	iterator = memory;
 	for (i = 0; i < head->block_count; ++i) {
 		head->mem_blocks[i] = iterator;
@@ -60,7 +61,8 @@ struct _light_pcapng_mem *light_no_copy_from_memory(uint32_t *memory, size_t siz
 {
 	struct _light_pcapng_mem *head = NULL;
 	head = calloc(1, sizeof(struct _light_pcapng_mem));
-	__parse_mem_inplace(head, memory, size, is_owner);
+	if (head != NULL)
+		__parse_mem_inplace(head, memory, size, is_owner);
 	return head;
 }
 

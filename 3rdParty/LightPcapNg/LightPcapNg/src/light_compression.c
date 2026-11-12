@@ -101,8 +101,13 @@ int light_close_compressed(light_file fd)
 	if (close_compressed != NULL)
 		result = close_compressed(fd);
 
-	light_free_compression_context(fd->compression_context);
-	light_free_decompression_context(fd->decompression_context);
+	// ---> PCPP patch
+	// If condition added to prevent possible NULL pointer dereference
+	if (fd != NULL) {
+		light_free_compression_context(fd->compression_context);
+		light_free_decompression_context(fd->decompression_context);
+	}
+	// <--- end of PCPP patch
 
 	return result;
 }
