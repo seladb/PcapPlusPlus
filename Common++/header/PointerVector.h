@@ -326,6 +326,13 @@ namespace pcpp
 			return m_Vector.data();
 		}
 
+		/// @brief Returns a pointer to the underlying array serving as the vector’s storage
+		/// @return A pointer to the underlying array serving as the vector’s storage
+		T* const* data() const
+		{
+			return m_Vector.data();
+		}
+
 	private:
 		/// Performs a copy of the vector along with its elements.
 		/// The caller is responsible of freeing the copied elements.
