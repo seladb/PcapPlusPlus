@@ -125,7 +125,7 @@ namespace pcpp
 
 	icmp_echo_request* IcmpLayer::getEchoRequestData()
 	{
-		if (!isMessageOfType(ICMP_ECHO_REQUEST))
+		if (!isMessageOfType(ICMP_ECHO_REQUEST) || m_DataLen < sizeof(icmp_echo_hdr))
 			return nullptr;
 
 		m_EchoData.header = reinterpret_cast<icmp_echo_hdr*>(m_Data);
@@ -146,7 +146,7 @@ namespace pcpp
 
 	icmp_echo_reply* IcmpLayer::getEchoReplyData()
 	{
-		if (!isMessageOfType(ICMP_ECHO_REPLY))
+		if (!isMessageOfType(ICMP_ECHO_REPLY) || m_DataLen < sizeof(icmp_echo_hdr))
 			return nullptr;
 
 		m_EchoData.header = reinterpret_cast<icmp_echo_hdr*>(m_Data);
