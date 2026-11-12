@@ -243,8 +243,9 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 		PTF_ASSERT_EQUAL(newExt1.getExtensionType(), 0xc0);
 		PTF_ASSERT_EQUAL(newExt1.getTotalLength(), 4 * sizeof(uint8_t));
 		PTF_ASSERT_EQUAL(newExt1.getContentLength(), 2 * sizeof(uint8_t));
-		uint16_t* content = reinterpret_cast<uint16_t*>(newExt1.getContent());
-		PTF_ASSERT_EQUAL(be16toh(content[0]), 2308);
+		uint16_t content;
+		memcpy(&content, newExt1.getContent(), sizeof(content));
+		PTF_ASSERT_EQUAL(be16toh(content), 2308);
 		PTF_ASSERT_TRUE(newExt1.getNextExtension().isNull());
 
 		newGtpPacket.computeCalculateFields();
@@ -258,8 +259,8 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 		PTF_ASSERT_EQUAL(newExt2.getExtensionType(), 0x40);
 		PTF_ASSERT_EQUAL(newExt2.getTotalLength(), 4 * sizeof(uint8_t));
 		PTF_ASSERT_EQUAL(newExt2.getContentLength(), 2 * sizeof(uint8_t));
-		content = reinterpret_cast<uint16_t*>(newExt2.getContent());
-		PTF_ASSERT_EQUAL(be16toh(content[0]), 1308);
+		memcpy(&content, newExt2.getContent(), sizeof(content));
+		PTF_ASSERT_EQUAL(be16toh(content), 1308);
 		PTF_ASSERT_TRUE(newExt2.getNextExtension().isNull());
 
 		newGtpPacket.computeCalculateFields();
@@ -297,8 +298,9 @@ PTF_TEST_CASE(GtpV1LayerCreationTest)
 		PTF_ASSERT_EQUAL(newExt.getExtensionType(), 0x85);
 		PTF_ASSERT_EQUAL(newExt.getTotalLength(), 4 * sizeof(uint8_t));
 		PTF_ASSERT_EQUAL(newExt.getContentLength(), 2 * sizeof(uint8_t));
-		auto* content = reinterpret_cast<uint16_t*>(newExt.getContent());
-		PTF_ASSERT_EQUAL(be16toh(content[0]), 0x1234);
+		uint16_t content;
+		memcpy(&content, newExt.getContent(), sizeof(content));
+		PTF_ASSERT_EQUAL(be16toh(content), 0x1234);
 		PTF_ASSERT_TRUE(newExt.getNextExtension().isNull());
 		PTF_ASSERT_EQUAL(gtpLayer->getNextExtension().getNextExtensionHeaderType(), 0x85);
 	}
@@ -339,8 +341,9 @@ PTF_TEST_CASE(GtpV1LayerEditTest)
 
 	pcpp::GtpV1Layer::GtpExtension gtpExtension = gtpLayer->getNextExtension();
 	PTF_ASSERT_FALSE(gtpExtension.isNull());
-	uint16_t* extContent = reinterpret_cast<uint16_t*>(gtpExtension.getContent());
-	PTF_ASSERT_EQUAL(be16toh(extContent[0]), 1000);
+	uint16_t extContent;
+	memcpy(&extContent, gtpExtension.getContent(), sizeof(extContent));
+	PTF_ASSERT_EQUAL(be16toh(extContent), 1000);
 
 	gtpHeader = gtpLayer->getHeader();
 	PTF_ASSERT_EQUAL(be32toh(gtpHeader->teid), 10000);

@@ -1122,7 +1122,9 @@ namespace pcpp
 			return { false, 0 };
 		}
 
-		return { true, be32toh(*reinterpret_cast<uint32_t*>(m_Data + sizeof(gtpv2_basic_header))) };
+		uint32_t value;
+		memcpy(&value, m_Data + sizeof(gtpv2_basic_header), sizeof(value));
+		return { true, be32toh(value) };
 	}
 
 	void GtpV2Layer::setTeid(uint32_t teid)
@@ -1175,7 +1177,9 @@ namespace pcpp
 			sequencePos += sizeof(uint32_t);
 		}
 
-		return be32toh(*reinterpret_cast<uint32_t*>(sequencePos)) >> 8;
+		uint32_t value;
+		memcpy(&value, sequencePos, sizeof(value));
+		return be32toh(value) >> 8;
 	}
 
 	void GtpV2Layer::setSequenceNumber(uint32_t sequenceNumber)

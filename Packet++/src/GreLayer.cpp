@@ -139,7 +139,8 @@ namespace pcpp
 		if (val == nullptr)
 			return false;
 
-		seqNumber = be32toh(*val);
+		memcpy(&seqNumber, val, sizeof(seqNumber));
+		seqNumber = be32toh(seqNumber);
 		return true;
 	}
 
@@ -164,8 +165,8 @@ namespace pcpp
 
 		header = (gre_basic_header*)m_Data;
 		header->sequenceNumBit = 1;
-		uint32_t* seqPtr = (uint32_t*)(m_Data + offset);
-		*seqPtr = htobe32(seqNumber);
+		uint32_t seqValue = htobe32(seqNumber);
+		memcpy(m_Data + offset, &seqValue, sizeof(seqValue));
 
 		return true;
 	}
@@ -401,7 +402,8 @@ namespace pcpp
 		if (val == nullptr)
 			return false;
 
-		key = be32toh(*val);
+		memcpy(&key, val, sizeof(key));
+		key = be32toh(key);
 		return true;
 	}
 
@@ -427,7 +429,8 @@ namespace pcpp
 		header = getGreHeader();
 		header->keyBit = 1;
 		uint32_t* keyPtr = (uint32_t*)(m_Data + offset);
-		*keyPtr = htobe32(key);
+		uint32_t keyValue = htobe32(key);
+		memcpy(keyPtr, &keyValue, sizeof(keyValue));
 
 		return true;
 	}
@@ -530,7 +533,8 @@ namespace pcpp
 		if (val == nullptr)
 			return false;
 
-		ackNum = be32toh(*val);
+		memcpy(&ackNum, val, sizeof(ackNum));
+		ackNum = be32toh(ackNum);
 		return true;
 	}
 
@@ -553,8 +557,8 @@ namespace pcpp
 
 		header = getGreHeader();
 		header->ackSequenceNumBit = 1;
-		uint32_t* ackPtr = (uint32_t*)(m_Data + offset);
-		*ackPtr = htobe32(ackNum);
+		uint32_t ackValue = htobe32(ackNum);
+		memcpy(m_Data + offset, &ackValue, sizeof(ackValue));
 		return true;
 	}
 

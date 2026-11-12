@@ -200,7 +200,9 @@ namespace pcpp
 			if (offset + sizeof(uint32_t) >= m_DataLen)
 				return;
 
-			size_t fieldLength = static_cast<size_t>(be32toh(*reinterpret_cast<uint32_t*>(m_Data + offset)));
+			uint32_t fieldLengthValue;
+			memcpy(&fieldLengthValue, m_Data + offset, sizeof(fieldLengthValue));
+			size_t fieldLength = static_cast<size_t>(be32toh(fieldLengthValue));
 			if (offset + sizeof(uint32_t) + fieldLength > m_DataLen)
 				return;
 
@@ -224,7 +226,9 @@ namespace pcpp
 			return "";
 
 		size_t fieldOffset = m_FieldOffsets[fieldOffsetIndex];
-		uint32_t fieldLength = be32toh(*reinterpret_cast<uint32_t*>(m_Data + fieldOffset));
+		uint32_t fieldLength;
+		memcpy(&fieldLength, m_Data + fieldOffset, sizeof(fieldLength));
+		fieldLength = be32toh(fieldLength);
 		return std::string(reinterpret_cast<const char*>(m_Data + fieldOffset + sizeof(uint32_t)), (size_t)fieldLength);
 	}
 

@@ -12,6 +12,8 @@ namespace pcpp
 {
 	/// @struct igmp_header
 	/// IGMPv1 and IGMPv2 basic protocol header
+
+#pragma pack(push, 1)
 	struct igmp_header
 	{
 		/// Indicates the message type. The enum for message type is pcpp::IgmpType
@@ -23,10 +25,13 @@ namespace pcpp
 		/// This is the multicast address being queried when sending a Group-Specific or Group-and-Source-Specific Query
 		uint32_t groupAddress;
 	};
+#pragma pack(pop)
 	static_assert(sizeof(igmp_header) == 8, "igmp_header size is not 8 bytes");
 
 	/// @struct igmpv3_query_header
 	/// IGMPv3 membership query basic header
+
+#pragma pack(push, 1)
 	struct igmpv3_query_header
 	{
 		/// IGMP message type. Should always have value of membership query (::IgmpType_MembershipQuery)
@@ -44,6 +49,7 @@ namespace pcpp
 		/// This field specifies the number of source addresses present in the Query
 		uint16_t numOfSources;
 	};
+#pragma pack(pop)
 	static_assert(sizeof(igmpv3_query_header) == 12, "igmpv3_query_header size is not 12 bytes");
 
 	/// @struct igmpv3_report_header
@@ -66,6 +72,8 @@ namespace pcpp
 	/// @struct igmpv3_group_record
 	/// A block of fields containing information pertaining to the sender's membership in a single multicast group on
 	/// the interface from which the Report is sent. Relevant only for IGMPv3 membership report messages
+
+#pragma pack(push, 1)
 	struct igmpv3_group_record
 	{
 		/// Group record type
@@ -97,6 +105,8 @@ namespace pcpp
 		/// @return The total size in bytes of the group record
 		size_t getRecordLen() const;
 	};
+#pragma pack(pop)
+	static_assert(sizeof(igmpv3_group_record) == 8, "igmpv3_group_record size is not 8 bytes");
 
 	/// IGMP message types
 	enum IgmpType

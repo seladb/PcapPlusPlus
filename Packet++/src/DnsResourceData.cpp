@@ -78,7 +78,9 @@ namespace pcpp
 			return;
 		}
 
-		uint32_t addrAsInt = *(uint32_t*)dataPtr;
+		uint32_t addrAsInt;
+		memcpy(&addrAsInt, dataPtr, sizeof(addrAsInt));
+
 		m_Data = IPv4Address(addrAsInt);
 	}
 
@@ -110,9 +112,11 @@ namespace pcpp
 
 	MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
 	{
-		if (dataPtr && dataLen > 0)
+		if (dataPtr && dataLen >= sizeof(uint16_t))
 		{
-			uint16_t preference = be16toh(*(uint16_t*)dataPtr);
+			uint16_t preference;
+			memcpy(&preference, dataPtr, sizeof(preference));
+			preference = be16toh(preference);
 			char tempMX[4096];
 			decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
 			m_Data.preference = preference;
