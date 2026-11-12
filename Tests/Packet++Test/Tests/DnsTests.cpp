@@ -95,6 +95,23 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(dnsLayer->toString(),
 	                 "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(), R"({"protocolName":"DNS","protocolId":13,"length":109,"transactionID":"0x0","isResponse":false,)"
+		               R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":false,)"
+		               R"("recursionAvailable":false,"authenticData":false,"checkingDisabled":false,"responseCode":0,)"
+		               R"("queries":[{"name":"Yaels-iPhone.local","type":255,"typeName":"ANY","class":1},)"
+		               R"({"name":"Yaels-iPhone.local","type":255,"typeName":"ANY","class":1}],"answers":[],)"
+		               R"("authorities":[{"name":"Yaels-iPhone.local","type":1,"typeName":"A","class":1,"ttl":120,)"
+		               R"("dataLength":4,"data":"10.0.0.2"},{"name":"Yaels-iPhone.local","type":28,"typeName":"AAAA",)"
+		               R"("class":1,"ttl":120,"dataLength":16,"data":"fe80::5a1f:aaff:fe4f:3f9d"}],)"
+		               R"("additionalRecords":[{"name":"","type":41,"typeName":"OPT","class":1440,"ttl":4500,)"
+		               R"("dataLength":12}]})");
+	}
+
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/Dns1.dat");
 
 	pcpp::Packet dnsPacket2(rawPacket2.get());
@@ -148,6 +165,45 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(dnsLayer->toString(),
 	                 "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DNS","protocolId":13,"length":365,"transactionID":"0x2d6d","isResponse":true,)"
+		    R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":true,)"
+		    R"("recursionAvailable":true,"authenticData":false,"checkingDisabled":false,"responseCode":0,)"
+		    R"("queries":[{"name":"www.google-analytics.com","type":1,"typeName":"A","class":1}],)"
+		    R"("answers":[{"name":"www.google-analytics.com","type":5,"typeName":"CNAME","class":1,"ttl":57008,)"
+		    R"("dataLength":32,"data":"www-google-analytics.l.google.com"},)"
+		    R"({"name":"www-google-analytics.L.google.com","type":1,"typeName":"A","class":1,"ttl":117,)"
+		    R"("dataLength":4,"data":"212.199.219.237"},{"name":"www-google-analytics.L.google.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":117,"dataLength":4,"data":"212.199.219.227"},)"
+		    R"({"name":"www-google-analytics.L.google.com","type":1,"typeName":"A","class":1,"ttl":117,)"
+		    R"("dataLength":4,"data":"212.199.219.246"},{"name":"www-google-analytics.L.google.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":117,"dataLength":4,"data":"212.199.219.241"},)"
+		    R"({"name":"www-google-analytics.L.google.com","type":1,"typeName":"A","class":1,"ttl":117,)"
+		    R"("dataLength":4,"data":"212.199.219.222"},{"name":"www-google-analytics.L.google.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":117,"dataLength":4,"data":"212.199.219.251"},)"
+		    R"({"name":"www-google-analytics.L.google.com","type":1,"typeName":"A","class":1,"ttl":117,)"
+		    R"("dataLength":4,"data":"212.199.219.212"},{"name":"www-google-analytics.L.google.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":117,"dataLength":4,"data":"212.199.219.247"},)"
+		    R"({"name":"www-google-analytics.L.google.com","type":1,"typeName":"A","class":1,"ttl":117,)"
+		    R"("dataLength":4,"data":"212.199.219.232"},{"name":"www-google-analytics.L.google.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":117,"dataLength":4,"data":"212.199.219.242"},)"
+		    R"({"name":"www-google-analytics.L.google.com","type":1,"typeName":"A","class":1,"ttl":117,)"
+		    R"("dataLength":4,"data":"212.199.219.216"},{"name":"www-google-analytics.L.google.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":117,"dataLength":4,"data":"212.199.219.221"},)"
+		    R"({"name":"www-google-analytics.L.google.com","type":1,"typeName":"A","class":1,"ttl":117,)"
+		    R"("dataLength":4,"data":"212.199.219.217"},{"name":"www-google-analytics.L.google.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":117,"dataLength":4,"data":"212.199.219.226"},)"
+		    R"({"name":"www-google-analytics.L.google.com","type":1,"typeName":"A","class":1,"ttl":117,)"
+		    R"("dataLength":4,"data":"212.199.219.231"},{"name":"www-google-analytics.L.google.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":117,"dataLength":4,"data":"212.199.219.236"}],"authorities":[],)"
+		    R"("additionalRecords":[]})");
+	}
+
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/Dns2.dat");
 
 	pcpp::Packet dnsPacket3(rawPacket3.get());
@@ -160,6 +216,23 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(dnsLayer->toString(),
 	                 "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(), R"({"protocolName":"DNS","protocolId":13,"length":109,"transactionID":"0x0","isResponse":false,)"
+		               R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":false,)"
+		               R"("recursionAvailable":false,"authenticData":false,"checkingDisabled":false,"responseCode":0,)"
+		               R"("queries":[{"name":"Yaels-iPhone.local","type":255,"typeName":"ANY","class":32769},)"
+		               R"({"name":"Yaels-iPhone.local","type":255,"typeName":"ANY","class":32769}],"answers":[],)"
+		               R"("authorities":[{"name":"Yaels-iPhone.local","type":1,"typeName":"A","class":1,"ttl":120,)"
+		               R"("dataLength":4,"data":"10.0.0.2"},{"name":"Yaels-iPhone.local","type":28,"typeName":"AAAA",)"
+		               R"("class":1,"ttl":120,"dataLength":16,"data":"fe80::5a1f:aaff:fe4f:3f9d"}],)"
+		               R"("additionalRecords":[{"name":"","type":41,"typeName":"OPT","class":1440,"ttl":4500,)"
+		               R"("dataLength":12}]})");
+	}
 
 	auto rawPacket4 = createPacketFromHexResource("PacketExamples/Dns4.dat");
 
@@ -194,6 +267,42 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().mailExchange,
 	                 "mta6.am0.yahoodns.net");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DNS","protocolId":13,"length":394,"transactionID":"0x264","isResponse":true,)"
+		    R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":true,)"
+		    R"("recursionAvailable":true,"authenticData":false,"checkingDisabled":false,"responseCode":0,)"
+		    R"("queries":[{"name":"yahoo.com","type":15,"typeName":"MX","class":1}],"answers":[{"name":"yahoo.com",)"
+		    R"("type":15,"typeName":"MX","class":1,"ttl":187,"dataLength":25,)"
+		    R"("data":"pref: 1; mx: mta5.am0.yahoodns.net"},{"name":"yahoo.com","type":15,"typeName":"MX",)"
+		    R"("class":1,"ttl":187,"dataLength":9,"data":"pref: 1; mx: mta7.am0.yahoodns.net"},{"name":"yahoo.com",)"
+		    R"("type":15,"typeName":"MX","class":1,"ttl":187,"dataLength":9,)"
+		    R"("data":"pref: 1; mx: mta6.am0.yahoodns.net"}],"authorities":[{"name":"yahoo.com","type":2,)"
+		    R"("typeName":"NS","class":1,"ttl":81481,"dataLength":6,"data":"ns4.yahoo.com"},{"name":"yahoo.com",)"
+		    R"("type":2,"typeName":"NS","class":1,"ttl":81481,"dataLength":6,"data":"ns6.yahoo.com"},)"
+		    R"({"name":"yahoo.com","type":2,"typeName":"NS","class":1,"ttl":81481,"dataLength":6,)"
+		    R"("data":"ns2.yahoo.com"},{"name":"yahoo.com","type":2,"typeName":"NS","class":1,"ttl":81481,)"
+		    R"("dataLength":6,"data":"ns3.yahoo.com"},{"name":"yahoo.com","type":2,"typeName":"NS","class":1,)"
+		    R"("ttl":81481,"dataLength":6,"data":"ns1.yahoo.com"},{"name":"yahoo.com","type":2,"typeName":"NS",)"
+		    R"("class":1,"ttl":81481,"dataLength":6,"data":"ns5.yahoo.com"}],)"
+		    R"("additionalRecords":[{"name":"ns1.yahoo.com","type":1,"typeName":"A","class":1,"ttl":1137517,)"
+		    R"("dataLength":4,"data":"68.180.131.16"},{"name":"ns2.yahoo.com","type":1,"typeName":"A","class":1,)"
+		    R"("ttl":1176690,"dataLength":4,"data":"68.142.255.16"},{"name":"ns2.yahoo.com","type":28,)"
+		    R"("typeName":"AAAA","class":1,"ttl":602,"dataLength":16,"data":"2001:4998:140::1002"},)"
+		    R"({"name":"ns3.yahoo.com","type":1,"typeName":"A","class":1,"ttl":1173959,"dataLength":4,)"
+		    R"("data":"203.84.221.53"},{"name":"ns3.yahoo.com","type":28,"typeName":"AAAA","class":1,"ttl":1808,)"
+		    R"("dataLength":16,"data":"2406:8600:b8:fe03::1003"},{"name":"ns4.yahoo.com","type":1,"typeName":"A",)"
+		    R"("class":1,"ttl":1199585,"dataLength":4,"data":"98.138.11.157"},{"name":"ns5.yahoo.com","type":1,)"
+		    R"("typeName":"A","class":1,"ttl":1178335,"dataLength":4,"data":"119.160.247.124"},)"
+		    R"({"name":"ns6.yahoo.com","type":1,"typeName":"A","class":1,"ttl":145869,"dataLength":4,)"
+		    R"("data":"121.101.144.139"},{"name":"ns6.yahoo.com","type":28,"typeName":"AAAA","class":1,"ttl":187,)"
+		    R"("dataLength":16,"data":"2406:2000:108:4::1006"}]})");
+	}
+
 	auto rawPacket5 = createPacketFromHexResource("PacketExamples/dns_stack_overflow.dat");
 
 	pcpp::Packet dnsPacket5(rawPacket5.get());
@@ -210,6 +319,20 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(firstQuery->getSize(), 134);
 	PTF_ASSERT_NULL(dnsLayer->getNextQuery(firstQuery));
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DNS","protocolId":13,"length":1068,"transactionID":"0x0","isResponse":true,)"
+		    R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":true,)"
+		    R"("recursionAvailable":false,"authenticData":false,"checkingDisabled":false,"responseCode":0,)"
+		    R"("queries":[{"name":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)"
+		    R"(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.","type":16962,"typeName":"Unknown",)"
+		    R"("class":16962}],"answers":[],"authorities":[],"additionalRecords":[]})");
+	}
+
 	// a corner case of malformed packet where the total number of resources overflow uint16
 	// by less than 300. This fixes the bug: https://github.com/seladb/PcapPlusPlus/issues/441
 	auto rawPacket6 = createPacketFromHexResource("PacketExamples/DnsTooManyResources.dat");
@@ -222,6 +345,18 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_NULL(dnsLayer->getFirstAnswer());
 	PTF_ASSERT_NULL(dnsLayer->getFirstAuthority());
 	PTF_ASSERT_NULL(dnsLayer->getFirstAdditionalRecord());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DNS","protocolId":13,"length":706,"transactionID":"0xa04","isResponse":false,)"
+		    R"("opcode":0,"authoritativeAnswer":false,"truncation":true,"recursionDesired":false,)"
+		    R"("recursionAvailable":true,"authenticData":true,"checkingDisabled":true,"responseCode":8,)"
+		    R"("queries":[],"answers":[],"authorities":[],"additionalRecords":[]})");
+	}
 }  // DnsLayerParsingTest
 
 PTF_TEST_CASE(DnsLayerQueryCreationTest)
@@ -758,6 +893,20 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 	PTF_ASSERT_EQUAL(additionalRecord->getDnsType(), pcpp::DNS_TYPE_OPT, enum);
 	PTF_ASSERT_EQUAL(additionalRecord->getName(), "");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsOverTcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DNS","protocolId":13,"length":44,"transactionID":"0x6165","isResponse":false,)"
+		    R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":true,)"
+		    R"("recursionAvailable":false,"authenticData":false,"checkingDisabled":true,"responseCode":0,)"
+		    R"("queries":[{"name":"cole-tech.net","type":28,"typeName":"AAAA","class":1}],"answers":[],)"
+		    R"("authorities":[],"additionalRecords":[{"name":"","type":41,"typeName":"OPT","class":512,"ttl":32768,)"
+		    R"("dataLength":0}],"tcpMessageLength":42})");
+	}
+
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/dns_over_tcp_response.dat");
 	pcpp::Packet dnsPacket2(rawPacket2.get());
 
@@ -793,6 +942,29 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 		i++;
 	}
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsOverTcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DNS","protocolId":13,"length":1135,"transactionID":"0x6165","isResponse":true,)"
+		    R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":true,)"
+		    R"("recursionAvailable":true,"authenticData":false,"checkingDisabled":true,"responseCode":3,)"
+		    R"("queries":[{"name":"cole-tech.net","type":28,"typeName":"AAAA","class":1}],"answers":[],)"
+		    R"("authorities":[{"name":"net","type":6,"typeName":"SOA","class":1,"ttl":891,"dataLength":61},)"
+		    R"({"name":"net","type":46,"typeName":"RRSIG","class":1,"ttl":891,"dataLength":183},)"
+		    R"({"name":"A1RT98BS5QGC9NFI51S9HCI47ULJG6JH.net","type":50,"typeName":"NSEC3","class":1,"ttl":3097,)"
+		    R"("dataLength":35},{"name":"A1RT98BS5QGC9NFI51S9HCI47ULJG6JH.net","type":46,"typeName":"RRSIG",)"
+		    R"("class":1,"ttl":3097,"dataLength":183},{"name":"QT8SCE02D5ONC5NBTQUNBEIDMFJE7GL8.net","type":50,)"
+		    R"("typeName":"NSEC3","class":1,"ttl":6232,"dataLength":34},)"
+		    R"({"name":"QT8SCE02D5ONC5NBTQUNBEIDMFJE7GL8.net","type":46,"typeName":"RRSIG","class":1,"ttl":6232,)"
+		    R"("dataLength":183},{"name":"EEQ3CIFFULOPN4J3E5MKEGKVDJKIGVBP.net","type":50,"typeName":"NSEC3",)"
+		    R"("class":1,"ttl":4711,"dataLength":34},{"name":"EEQ3CIFFULOPN4J3E5MKEGKVDJKIGVBP.net","type":46,)"
+		    R"("typeName":"RRSIG","class":1,"ttl":4711,"dataLength":183}],"additionalRecords":[{"name":"",)"
+		    R"("type":41,"typeName":"OPT","class":4096,"ttl":32768,"dataLength":0}],"tcpMessageLength":1133})");
+	}
+
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/dns_over_tcp_answer.dat");
 	pcpp::Packet dnsPacket3(rawPacket3.get());
 
@@ -805,6 +977,19 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 0);
 	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x38, hex);
 	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 44);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsOverTcpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(), R"({"protocolName":"DNS","protocolId":13,"length":46,"transactionID":"0x38","isResponse":true,)"
+		               R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":true,)"
+		               R"("recursionAvailable":true,"authenticData":false,"checkingDisabled":false,"responseCode":0,)"
+		               R"("queries":[{"name":"github.com","type":1,"typeName":"A","class":1}],)"
+		               R"("answers":[{"name":"github.com","type":1,"typeName":"A","class":1,"ttl":32,"dataLength":4,)"
+		               R"("data":"192.30.255.113"}],"authorities":[],"additionalRecords":[],"tcpMessageLength":44})");
+	}
 
 	pcpp::DnsResource* answer = dnsLayer->getFirstAnswer();
 	PTF_ASSERT_EQUAL(answer->getName(), "github.com");
@@ -845,4 +1030,17 @@ PTF_TEST_CASE(DnsNXDomainTest)
 	pcpp::DnsLayer* dnsLayer = dnsPacket.getLayerOfType<pcpp::DnsLayer>();
 
 	PTF_ASSERT_EQUAL(1, dnsLayer->getDnsHeader()->queryOrResponse);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		dnsLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"DNS","protocolId":13,"length":27,"transactionID":"0x7e51","isResponse":true,)"
+		    R"("opcode":0,"authoritativeAnswer":false,"truncation":false,"recursionDesired":true,)"
+		    R"("recursionAvailable":true,"authenticData":false,"checkingDisabled":false,"responseCode":3,)"
+		    R"("queries":[{"name":"htb.local","type":1,"typeName":"A","class":1}],"answers":[],"authorities":[],)"
+		    R"("additionalRecords":[]})");
+	}
 }  // DnsNXDomainTest
