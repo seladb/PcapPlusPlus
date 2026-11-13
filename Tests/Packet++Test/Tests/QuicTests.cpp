@@ -329,6 +329,35 @@ PTF_TEST_CASE(QuicV1MalformedPacketsTest)
 		PTF_ASSERT_EQUAL(initialLayer->getHeaderLen(), dataLen);
 	}
 
+	// Token ends exactly at the end of the captured data, so there is no room for the Length field
+	{
+		// DCIDLen=0, SCIDLen=0, tokenLength=0 (1 byte), then nothing
+		auto buffer = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 });
+		size_t dataLen = 8;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+		    pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer);
+		PTF_ASSERT_EQUAL(initialLayer->getLength(), 0);
+		PTF_ASSERT_EQUAL(initialLayer->getHeaderLen(), dataLen);
+		PTF_ASSERT_NULL(initialLayer->getProtectedPayload().data);
+	}
+
+	{
+		// DCIDLen=0, SCIDLen=0, tokenLength=1 (1 byte), token "aa", then nothing
+		auto buffer = makeBuffer({ 0xC0, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0xAA });
+		size_t dataLen = 9;
+		std::unique_ptr<pcpp::QuicV1Layer> layer(
+		    pcpp::QuicV1Layer::parseQuicLayer(buffer.release(), dataLen, nullptr, nullptr));
+		PTF_ASSERT_NOT_NULL(layer.get());
+		auto initialLayer = dynamic_cast<pcpp::QuicV1InitialLayer*>(layer.get());
+		PTF_ASSERT_NOT_NULL(initialLayer);
+		PTF_ASSERT_EQUAL(initialLayer->getTokenAsString(), "aa");
+		PTF_ASSERT_EQUAL(initialLayer->getLength(), 0);
+		PTF_ASSERT_EQUAL(initialLayer->getHeaderLen(), dataLen);
+	}
+
 	// Length field reports the protocol-declared value verbatim even when it exceeds the captured bytes
 	{
 		// DCIDLen=0, SCIDLen=0, tokenLength=0 (1 byte), Length varint (2-byte) = 1000,
