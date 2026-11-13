@@ -2,6 +2,9 @@
 
 #include "Layer.h"
 
+#include <algorithm>
+#include <iterator>
+
 /// @file
 
 /// @namespace pcpp
@@ -311,6 +314,60 @@ namespace pcpp
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written by TelnetLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for TelnetLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Data, Commands };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @struct CommandObject
+			/// Fields describing one element of the Commands array
+			struct CommandObject : ObjectFieldDescriptor<CommandObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one Telnet command
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Command, CommandName, Option, OptionName, OptionData };
+				}
+
+				/// @brief Telnet command code, written as a number (see TelnetCommand)
+				static const FieldDescriptor Command;
+
+				/// @brief Telnet command as a readable string (see getTelnetCommandAsString())
+				static const FieldDescriptor CommandName;
+
+				/// @brief Telnet option code, written as a number (see TelnetOption). May be
+				/// TelnetOptionNoOption (-1) when the command has no option.
+				static const FieldDescriptor Option;
+
+				/// @brief Telnet option as a readable string (see getTelnetOptionAsString())
+				static const FieldDescriptor OptionName;
+
+				/// @brief Option payload as a hex string. Empty if this command has no option data.
+				static const FieldDescriptor OptionData;
+			};
+
+			/// @brief Telnet user data as a readable string (see getDataAsString()). Empty for
+			/// control-only packets.
+			static const FieldDescriptor Data;
+
+			/// @brief Array of Telnet commands in packet order. Elements are described by CommandObject.
+			static const FieldDescriptor Commands;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

@@ -620,4 +620,55 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor TelnetLayer::SerializedFields::Data{ Layer::SerializedFields::MaxID + 1, "data" };
+	const FieldDescriptor TelnetLayer::SerializedFields::Commands{ Layer::SerializedFields::MaxID + 2, "commands" };
+
+	const TelnetLayer::SerializedFields::CommandObject TelnetCommandObject{ 0, "command" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::Command{ 0, "command" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::CommandName{ 1, "commandName" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::Option{ 2, "option" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::OptionName{ 3, "optionName" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::OptionData{ 4, "optionData" };
+
+	void TelnetLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		// Telnet command iteration mutates lastPositionOffset; keep serializeLayer const by
+		// saving/restoring that cursor on a non-const view of this layer.
+		auto* self = const_cast<TelnetLayer*>(this);
+		const size_t savedOffset = self->lastPositionOffset;
+		self->lastPositionOffset = SIZE_MAX;
+
+		serializer.writeField(SerializedFields::Data, self->getDataAsString());
+
+		auto commands = serializer.writeArray(SerializedFields::Commands);
+		TelnetCommand commandVal = self->getNextCommand();
+		while (commandVal != TelnetCommand::TelnetCommandEndOfPacket)
+		{
+			auto commandObject = commands.writeObject(TelnetCommandObject);
+			commandObject.writeField(SerializedFields::CommandObject::Command, static_cast<int>(commandVal));
+			commandObject.writeField(SerializedFields::CommandObject::CommandName,
+			                         getTelnetCommandAsString(commandVal));
+
+			const TelnetOption option = self->getOption();
+			commandObject.writeField(SerializedFields::CommandObject::Option, static_cast<int>(option));
+			commandObject.writeField(SerializedFields::CommandObject::OptionName, getTelnetOptionAsString(option));
+
+			size_t optionDataLen = 0;
+			uint8_t* optionData = self->getOptionData(optionDataLen);
+			if (optionData != nullptr && optionDataLen > 0)
+			{
+				commandObject.writeField(SerializedFields::CommandObject::OptionData,
+				                         byteArrayToHexString(optionData, optionDataLen));
+			}
+			else
+			{
+				commandObject.writeField(SerializedFields::CommandObject::OptionData, std::string());
+			}
+
+			commandVal = self->getNextCommand();
+		}
+
+		self->lastPositionOffset = savedOffset;
+	}
+
 }  // namespace pcpp
