@@ -58,8 +58,19 @@ if(PCAPPP_USE_WINDIVERT)
   list(APPEND public_headers header/WinDivertDevice.h)
 endif()
 
+set(LIBURING_FOUND FALSE)
 if(LINUX)
   list(APPEND public_headers header/LinuxNicInformationSocket.h)
+  find_path(LIBURING_INCLUDE_DIR NAMES liburing.h)
+  find_library(LIBURING_LIBRARIES NAMES uring)
+  if(LIBURING_INCLUDE_DIR AND LIBURING_LIBRARIES)
+    set(LIBURING_FOUND TRUE)
+    message(STATUS "Found liburing: ${LIBURING_LIBRARIES}")
+    list(APPEND public_headers header/IoUringPcapDevice.h)
+    target_sources(Pcap++ PRIVATE src/IoUringPcapDevice.cpp)
+    target_include_directories(Pcap++ PUBLIC ${LIBURING_INCLUDE_DIR})
+    target_link_libraries(Pcap++ PUBLIC ${LIBURING_LIBRARIES})
+  endif()
 endif()
 
 if(WIN32 AND PCAPPP_USE_PCAP)
@@ -140,6 +151,7 @@ set_target_properties(
     PCPP_HAS_PF_RING_SUPPORT ${PCAPPP_USE_PF_RING}
     PCPP_HAS_XDP_SUPPORT ${PCAPPP_USE_XDP}
     PCPP_HAS_WINDIVERT_SUPPORT ${PCAPPP_USE_WINDIVERT}
+    PCPP_HAS_IO_URING_SUPPORT ${LIBURING_FOUND}
 )
 
 target_compile_definitions(
@@ -153,6 +165,7 @@ target_compile_definitions(
     $<$<BOOL:${PCAPPP_USE_PF_RING}>:PCPP_HAS_PF_RING_SUPPORT>
     $<$<BOOL:${PCAPPP_USE_XDP}>:PCPP_HAS_XDP_SUPPORT>
     $<$<BOOL:${PCAPPP_USE_WINDIVERT}>:PCPP_HAS_WINDIVERT_SUPPORT>
+    $<$<BOOL:${LIBURING_FOUND}>:PCPP_HAS_IO_URING_SUPPORT>
 )
 
 # Export the feature set properties along with the target so they can be used by downstream consumers of the Pcap++ target.
@@ -169,6 +182,7 @@ set_property(
       PCPP_HAS_PF_RING_SUPPORT
       PCPP_HAS_XDP_SUPPORT
       PCPP_HAS_WINDIVERT_SUPPORT
+      PCPP_HAS_IO_URING_SUPPORT
 )
 
 if(PCAPPP_INSTALL)

@@ -16,7 +16,7 @@
 
 [PcapPlusPlus](https://pcapplusplus.github.io/) is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.
 
-PcapPlusPlus enables decoding and forging capabilities for a large variety of network protocols. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
+PcapPlusPlus enables decoding and forging capabilities for a large variety of network protocols. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/), as well as Linux [io_uring](https://kernel.dk/io_uring.pdf) for high-performance asynchronous PCAP reading.
 
 Translations: English · [正體中文](./translation/README-zh-tw.md) · [한국어](./translation/README-kor.md) · [日本語](./translation/README-ja.md) · [Русский](./translation/README-rus.md)
 
@@ -42,6 +42,7 @@ Translations: English · [正體中文](./translation/README-zh-tw.md) · [한�
   - [Presentation Layer (L6)](#presentation-layer-l6)
   - [Application Layer (L7)](#application-layer-l7)
 - [DPDK And PF_RING Support](#dpdk-and-pf_ring-support)
+- [io_uring Support](#io_uring-support)
 - [Benchmarks](#benchmarks)
 - [Provide Feedback](#provide-feedback)
 - [Contributing](#contributing)
@@ -117,7 +118,7 @@ and you should see the following output in your terminal:
 
 - __Packet capture__ through an easy to use C++ wrapper for popular packet capture engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [Intel DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html), [ntop’s PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) and [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[Learn more](https://pcapplusplus.github.io/docs/features#packet-capture)]
 - __Packet parsing and crafting__ including detailed analysis of protocols and layers, packet generation and packet edit for a large variety of [network protocols](https://pcapplusplus.github.io/docs/features#supported-network-protocols) [[Learn more](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)]
-- __Read and write packets from/to files__ in both __PCAP__ and __PCAPNG__ formats [[Learn more](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
+- __Read and write packets from/to files__ in both __PCAP__ and __PCAPNG__ formats, including high-throughput asynchronous PCAP reading on Linux via __io_uring__ (`IoUringPcapReaderDevice`) [[Learn more](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
 - __Packet processing in line rate__ through an efficient and easy to use C++ wrapper for [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) [[Learn more](https://pcapplusplus.github.io/docs/features#dpdk-support)]
 - __Multiplatform support__ - PcapPlusPlus is fully supported on Linux, MacOS, Windows, Android and FreeBSD
 - __Packet reassembly__ - unique implementation of __TCP Reassembly__ which includes TCP retransmission, out-of-order TCP packets and missing TCP data, and __IP Fragmentation and Defragmentation__ to create and reassemble IPv4 and IPv6 fragments [[Learn more](https://pcapplusplus.github.io/docs/features#packet-reassembly)]
@@ -180,7 +181,7 @@ You can find much more information in the [Getting Started](https://pcapplusplus
 PcapPlusPlus consists of 3 libraries:
 
 1. __Packet++__ - a library for parsing, creating and editing network packets
-2. __Pcap++__ - a library for intercepting and sending packets, providing network and NIC info, stats, etc. It is actually a C++ wrapper for packet capturing engines such as libpcap, WinPcap, Npcap, DPDK, AF_XDP, WinDivert and PF_RING
+2. __Pcap++__ - a library for intercepting and sending packets, providing network and NIC info, stats, etc. It is actually a C++ wrapper for packet capturing engines such as libpcap, WinPcap, Npcap, DPDK, AF_XDP, WinDivert and PF_RING, as well as Linux io_uring for asynchronous file reading
 3. __Common++__ - a library with some common code utilities used by both Packet++ and Pcap++
 
 You can find an extensive API documentation in the [API documentation section](https://pcapplusplus.github.io/docs/api) in PcapPlusPlus web-site.
@@ -303,6 +304,12 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 Both frameworks provide very fast packets processing (up to line speed) and are used in many network applications such as routers, firewalls, load balancers, etc.
 PcapPlusPLus provides a C++ abstraction layer over DPDK & PF_RING. This abstraction layer provides an easy to use interface that removes a lot of the boilerplate involved in using these frameworks. You can learn more by visiting the [DPDK](https://pcapplusplus.github.io/docs/dpdk) & [PF_RING](https://pcapplusplus.github.io/docs/features#pf_ring-support) support pages in PcapPlusPlus web-site.
+
+## io_uring Support
+
+[io_uring](https://kernel.dk/io_uring.pdf) is a high-performance asynchronous I/O subsystem in the Linux kernel.
+
+PcapPlusPlus provides `IoUringPcapReaderDevice` (on Linux systems with `liburing`), an asynchronous offline PCAP reader that uses a circular queue of page-aligned prefetch buffers to maximize NVMe storage throughput and reduce read latency, offering both owning and zero-copy packet view APIs.
 
 ## Benchmarks
 
