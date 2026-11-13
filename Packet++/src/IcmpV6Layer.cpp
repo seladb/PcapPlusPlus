@@ -26,6 +26,8 @@ namespace pcpp
 		{
 		case ICMPv6MessageType::ICMPv6_ECHO_REQUEST:
 		case ICMPv6MessageType::ICMPv6_ECHO_REPLY:
+			if (dataLen < sizeof(icmpv6_echo_hdr))
+				return new IcmpV6Layer(data, dataLen, prevLayer, packet);
 			return new ICMPv6EchoLayer(data, dataLen, prevLayer, packet);
 		case ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION:
 			if (!NDPNeighborSolicitationLayer::isDataValid(data, dataLen))
