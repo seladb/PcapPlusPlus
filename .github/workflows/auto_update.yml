@@ -24,10 +24,10 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.8.x"
+          python-version: "3.9.x"
       - name: Run update
         run: |
-            pip install pre-commit
+            python -m pip install --require-hashes -r ci/requirements/pre-commit.txt
             pre-commit autoupdate
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8.1.2
@@ -43,6 +43,45 @@ jobs:
           branch: auto-update/precommit_update
           delete-branch: true
           title: Auto precommit update
+          labels: automated-pr
+          assignees: seladb
+
+  python-requirements-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: dev
+      - name: Setup uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.8"
+      - name: Refresh Python requirements
+        run: sh ci/update_python_requirements.sh --upgrade
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8.1.2
+        with:
+          token: ${{ secrets.PAT }}
+          author: GitHub <noreply@github.com>
+          add-paths: |
+            Tests/ExamplesTest/requirements.txt
+            ci/run_tests/requirements.txt
+            ci/requirements/*.txt
+          commit-message: Refresh Python requirements hashes
+          body: |
+            Regenerate the universal Python requirements and hashes using uv.
+
+            Auto generated
+          branch: auto-update/python_requirements
+          delete-branch: true
+          title: Refresh Python requirements hashes
           labels: automated-pr
           assignees: seladb
 
