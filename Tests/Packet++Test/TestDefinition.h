@@ -171,6 +171,7 @@ PTF_TEST_CASE(GreEditTest);
 PTF_TEST_CASE(DhcpParsingTest);
 PTF_TEST_CASE(DhcpCreationTest);
 PTF_TEST_CASE(DhcpEditTest);
+PTF_TEST_CASE(DhcpOptionCanAssignRejectsTruncatedRecords);
 
 // Implemented in SSLTests.cpp
 PTF_TEST_CASE(SSLClientHelloParsingTest);
