@@ -78,45 +78,40 @@ namespace pcpp
 		return getCommonHeader()->fixedBit;
 	}
 
+	static std::string quicPacketTypeToString(QuicV1Layer::QuicPacketType packetType)
+	{
+		switch (packetType)
+		{
+		case QuicV1Layer::QuicPacketType::Initial:
+			return "Initial";
+		case QuicV1Layer::QuicPacketType::Handshake:
+			return "Handshake";
+		case QuicV1Layer::QuicPacketType::ZeroRTT:
+			return "0-RTT";
+		case QuicV1Layer::QuicPacketType::Retry:
+			return "Retry";
+		case QuicV1Layer::QuicPacketType::OneRtt:
+			return "1-RTT";
+		default:  // QuicPacketType::VersionNegotiation
+			return "Version Negotiation";
+		}
+	}
+
 	std::string QuicV1Layer::toString() const
 	{
-		std::string packetType;
+		return "QUIC v1 Layer, " + quicPacketTypeToString(getPacketType()) + " message";
+	}
 
-		switch (getPacketType())
-		{
-		case QuicPacketType::Initial:
-		{
-			packetType = "Initial";
-			break;
-		}
-		case QuicPacketType::Handshake:
-		{
-			packetType = "Handshake";
-			break;
-		}
-		case QuicPacketType::ZeroRTT:
-		{
-			packetType = "0-RTT";
-			break;
-		}
-		case QuicPacketType::Retry:
-		{
-			packetType = "Retry";
-			break;
-		}
-		case QuicPacketType::OneRtt:
-		{
-			packetType = "1-RTT";
-			break;
-		}
-		default:  // QuicPacketType::VersionNegotiation
-		{
-			packetType = "Version Negotiation";
-			break;
-		}
-		}
+	const FieldDescriptor QuicV1Layer::SerializedFields::PacketType{ Layer::SerializedFields::MaxID + 1, "packetType" };
+	const FieldDescriptor QuicV1Layer::SerializedFields::HeaderForm{ Layer::SerializedFields::MaxID + 2, "headerForm" };
+	const FieldDescriptor QuicV1Layer::SerializedFields::FixedBit{ Layer::SerializedFields::MaxID + 3, "fixedBit" };
 
-		return "QUIC v1 Layer, " + packetType + " message";
+	void QuicV1Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::PacketType, quicPacketTypeToString(getPacketType()));
+		serializer.writeField(SerializedFields::HeaderForm,
+		                      getHeaderForm() == QuicHeaderForm::LongHeader ? "Long" : "Short");
+		serializer.writeField(SerializedFields::FixedBit, getFixedBit());
 	}
 
 	bool QuicV1LongHeaderLayer::isDataValid(const uint8_t* data, size_t dataLen)
@@ -209,6 +204,23 @@ namespace pcpp
 		return byteArrayToHexString(connectionId.data(), connectionId.size());
 	}
 
+	const FieldDescriptor QuicV1LongHeaderLayer::SerializedFields::Version{ QuicV1Layer::SerializedFields::MaxID + 1,
+		                                                                    "version" };
+	const FieldDescriptor QuicV1LongHeaderLayer::SerializedFields::DestinationConnectionId{
+		QuicV1Layer::SerializedFields::MaxID + 2, "destinationConnectionId"
+	};
+	const FieldDescriptor QuicV1LongHeaderLayer::SerializedFields::SourceConnectionId{
+		QuicV1Layer::SerializedFields::MaxID + 3, "sourceConnectionId"
+	};
+
+	void QuicV1LongHeaderLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		QuicV1Layer::serializeLayer(serializer);
+		serializer.writeHexField(SerializedFields::Version, getVersion());
+		serializer.writeField(SerializedFields::DestinationConnectionId, getDestinationConnectionIdAsString());
+		serializer.writeField(SerializedFields::SourceConnectionId, getSourceConnectionIdAsString());
+	}
+
 	size_t QuicV1EstablishmentLayer::getLengthOffset() const
 	{
 		auto srcConOffsetAndLength = getSrcConIdOffsetAndLength();
@@ -288,6 +300,16 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor QuicV1EstablishmentLayer::SerializedFields::PayloadLength{
+		QuicV1LongHeaderLayer::SerializedFields::MaxID + 1, "payloadLength"
+	};
+
+	void QuicV1EstablishmentLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		QuicV1LongHeaderLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::PayloadLength, getLength());
+	}
+
 	std::vector<uint8_t> QuicV1InitialLayer::getToken() const
 	{
 		try
@@ -312,6 +334,16 @@ namespace pcpp
 	{
 		auto token = getToken();
 		return byteArrayToHexString(token.data(), token.size());
+	}
+
+	const FieldDescriptor QuicV1InitialLayer::SerializedFields::Token{
+		QuicV1EstablishmentLayer::SerializedFields::MaxID + 1, "token"
+	};
+
+	void QuicV1InitialLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		QuicV1EstablishmentLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::Token, getTokenAsString());
 	}
 
 	size_t QuicV1InitialLayer::getLengthOffset() const
@@ -382,6 +414,20 @@ namespace pcpp
 		return byteArrayToHexString(retryIntegrityTag.data(), retryIntegrityTag.size());
 	}
 
+	const FieldDescriptor QuicV1RetryLayer::SerializedFields::RetryToken{
+		QuicV1LongHeaderLayer::SerializedFields::MaxID + 1, "retryToken"
+	};
+	const FieldDescriptor QuicV1RetryLayer::SerializedFields::RetryIntegrityTag{
+		QuicV1LongHeaderLayer::SerializedFields::MaxID + 2, "retryIntegrityTag"
+	};
+
+	void QuicV1RetryLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		QuicV1LongHeaderLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::RetryToken, getRetryTokenAsString());
+		serializer.writeField(SerializedFields::RetryIntegrityTag, getRetryIntegrityTagAsString());
+	}
+
 	std::vector<uint32_t> QuicV1VersionNegotiationLayer::getSupportedVersions() const
 	{
 		try
@@ -408,6 +454,21 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor QuicV1VersionNegotiationLayer::SerializedFields::SupportedVersions{
+		QuicV1LongHeaderLayer::SerializedFields::MaxID + 1, "supportedVersions"
+	};
+	const FieldDescriptor QuicV1VersionNegotiationLayer::SerializedFields::SupportedVersion{ 0, "supportedVersion" };
+
+	void QuicV1VersionNegotiationLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		QuicV1LongHeaderLayer::serializeLayer(serializer);
+		auto versions = serializer.writeArray(SerializedFields::SupportedVersions);
+		for (auto version : getSupportedVersions())
+		{
+			versions.writeHexField(SerializedFields::SupportedVersion, version);
+		}
+	}
+
 	QuicV1Layer::ProtectedPayload QuicV1OneRttLayer::getProtectedPayload() const
 	{
 		return { m_Data + sizeof(quic_short_header), m_DataLen - sizeof(quic_short_header) };
@@ -416,5 +477,17 @@ namespace pcpp
 	bool QuicV1OneRttLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		return data != nullptr && dataLen >= sizeof(quic_short_header);
+	}
+
+	const FieldDescriptor QuicV1OneRttLayer::SerializedFields::SpinBit{ QuicV1Layer::SerializedFields::MaxID + 1,
+		                                                                "spinBit" };
+	const FieldDescriptor QuicV1OneRttLayer::SerializedFields::KeyPhaseBit{ QuicV1Layer::SerializedFields::MaxID + 2,
+		                                                                    "keyPhaseBit" };
+
+	void QuicV1OneRttLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		QuicV1Layer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::SpinBit, getSpinBit());
+		serializer.writeField(SerializedFields::KeyPhaseBit, getKeyPhaseBit());
 	}
 }  // namespace pcpp
