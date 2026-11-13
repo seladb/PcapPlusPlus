@@ -272,6 +272,9 @@ namespace pcpp
 	/// GENEVE protocol
 	const ProtocolType Geneve = 66;
 
+	/// Bluetooth HCI Protocol
+	const ProtocolType BluetoothHCI = 67;
+
 	/// @}
 
 	/// Convert a protocol type to its string representation.
@@ -415,6 +418,8 @@ namespace pcpp
 			return "GVCP";
 		case Geneve:
 			return "Geneve";
+		case BluetoothHCI:
+			return "BluetoothHCI";
 		default:
 			throw std::invalid_argument("Unknown protocol type");
 		}
