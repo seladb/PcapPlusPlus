@@ -1147,7 +1147,9 @@ namespace pcpp
 		}
 
 		uint8_t const* hostNameLengthPos = extensionDataPtr + sizeof(uint16_t) + sizeof(uint8_t);
-		uint16_t hostNameLength = be16toh(*reinterpret_cast<uint16_t const*>(hostNameLengthPos));
+		uint16_t hostNameLength;
+		memcpy(&hostNameLength, hostNameLengthPos, sizeof(hostNameLength));
+		hostNameLength = be16toh(hostNameLength);
 
 		uint8_t const* hostNameDataIt = hostNameLengthPos + sizeof(uint16_t);
 		uint8_t const* hostNameDataEndIt = hostNameDataIt + hostNameLength;
@@ -1175,7 +1177,9 @@ namespace pcpp
 
 		if (extensionLength == 2)  // server hello message
 		{
-			result.push_back(SSLVersion(be16toh(*reinterpret_cast<uint16_t*>(getData()))));
+			uint16_t version;
+			memcpy(&version, getData(), sizeof(version));
+			result.push_back(SSLVersion(be16toh(version)));
 		}
 		else  // client-hello message
 		{
@@ -1186,7 +1190,9 @@ namespace pcpp
 			uint8_t* dataPtr = getData() + sizeof(uint8_t);
 			for (int i = 0; i < listLength / 2; i++)
 			{
-				result.push_back(SSLVersion(be16toh(*reinterpret_cast<uint16_t*>(dataPtr))));
+				uint16_t version;
+				memcpy(&version, dataPtr, sizeof(version));
+				result.push_back(SSLVersion(be16toh(version)));
 				dataPtr += sizeof(uint16_t);
 			}
 		}
@@ -1298,7 +1304,10 @@ namespace pcpp
 
 		ssl_tls_handshake_layer* hsMsgHeader = reinterpret_cast<ssl_tls_handshake_layer*>(data);
 
-		if (dataLen >= 16 && (be64toh(*(uint64_t*)data) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
+		uint64_t value;
+		memcpy(&value, data, sizeof(value));
+
+		if (dataLen >= 16 && (be64toh(value) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
 		{
 			// possibly Encrypted Handshake Message
 			// used heuristic:
@@ -1402,7 +1411,9 @@ namespace pcpp
 		{
 			std::unique_ptr<SSLExtension> newExt;
 
-			uint16_t sslExtType = be16toh(*reinterpret_cast<uint16_t*>(extensionIt));
+			uint16_t sslExtType;
+			memcpy(&sslExtType, extensionIt, sizeof(sslExtType));
+			sslExtType = be16toh(sslExtType);
 			size_t availableDataLen = std::distance(extensionIt, extensionEndIt);
 
 			switch (sslExtType)
@@ -1726,7 +1737,9 @@ namespace pcpp
 		{
 			std::unique_ptr<SSLExtension> newExt;
 
-			uint16_t sslExtType = be16toh(*reinterpret_cast<uint16_t*>(extensionIt));
+			uint16_t sslExtType;
+			memcpy(&sslExtType, extensionIt, sizeof(sslExtType));
+			sslExtType = be16toh(sslExtType);
 			size_t availableDataLen = std::distance(extensionIt, extensionEndIt);
 
 			switch (sslExtType)
@@ -1857,8 +1870,9 @@ namespace pcpp
 		if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
 			return 0;
 
-		uint16_t* extensionLengthPos = (uint16_t*)(m_Data + extensionLengthOffset);
-		return be16toh(*extensionLengthPos);
+		uint16_t extensionLength;
+		memcpy(&extensionLength, m_Data + extensionLengthOffset, sizeof(extensionLength));
+		return be16toh(extensionLength);
 	}
 
 	SSLExtension* SSLServerHelloMessage::getExtension(int index) const
@@ -1971,7 +1985,9 @@ namespace pcpp
 		// read certificates length
 		// TODO: certificates length is 3B. Currently assuming the MSB is 0 and reading only 2 LSBs
 		uint8_t* curPos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
-		uint16_t certificatesLength = be16toh(*reinterpret_cast<uint16_t*>(curPos));
+		uint16_t certificatesLength;
+		memcpy(&certificatesLength, curPos + sizeof(uint8_t), sizeof(certificatesLength));
+		certificatesLength = be16toh(certificatesLength);
 		if (certificatesLength == 0)
 			return;
 
@@ -1987,7 +2003,9 @@ namespace pcpp
 
 			// read certificate length
 			curPos += sizeof(uint8_t);
-			uint16_t certificateLength = be16toh(*reinterpret_cast<uint16_t*>(curPos));
+			uint16_t certificateLength;
+			memcpy(&certificateLength, curPos, sizeof(certificateLength));
+			certificateLength = be16toh(certificateLength);
 
 			// advance to start position of certificate
 			curPos += sizeof(uint16_t);
@@ -2156,7 +2174,9 @@ namespace pcpp
 		if (offset + sizeof(uint16_t) >= messageLen)
 			return 0;
 
-		uint16_t certAuthLen = be16toh(*(uint16_t*)(m_Data + offset));
+		uint16_t certAuthLen;
+		memcpy(&certAuthLen, m_Data + offset, sizeof(certAuthLen));
+		certAuthLen = be16toh(certAuthLen);
 
 		offset += sizeof(uint16_t);
 

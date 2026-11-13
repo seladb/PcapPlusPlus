@@ -350,7 +350,9 @@ namespace pcpp
 	{
 		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
-			return IPv4Address(*reinterpret_cast<const uint32_t*>(data));
+			uint32_t address;
+			memcpy(&address, data, sizeof(address));
+			return IPv4Address(address);
 		}
 
 		return IPv6Address(data);

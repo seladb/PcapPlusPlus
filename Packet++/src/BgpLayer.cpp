@@ -6,6 +6,7 @@
 #include "EndianPortable.h"
 #include "GeneralUtils.h"
 #include <algorithm>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -609,7 +610,9 @@ namespace pcpp
 		size_t minLen = sizeof(bgp_common_header) + sizeof(uint16_t);
 		if (headerLen >= minLen)
 		{
-			uint16_t res = be16toh(*(uint16_t*)(m_Data + sizeof(bgp_common_header)));
+			uint16_t res;
+			memcpy(&res, m_Data + sizeof(bgp_common_header), sizeof(res));
+			res = be16toh(res);
 			if ((size_t)res > headerLen - minLen)
 			{
 				return headerLen - minLen;
@@ -645,8 +648,9 @@ namespace pcpp
 			{
 				return 0;  // Invalid access, return 0
 			}
-			uint16_t res =
-			    be16toh(*(uint16_t*)(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrawnRouteLen));
+			uint16_t res;
+			memcpy(&res, m_Data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrawnRouteLen, sizeof(res));
+			res = be16toh(res);
 			if ((size_t)res > headerLen - minLen - withdrawnRouteLen)
 			{
 				return headerLen - minLen - withdrawnRouteLen;
@@ -821,11 +825,15 @@ namespace pcpp
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t))
 			return false;
 
-		uint16_t withdrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header)));
+		uint16_t withdrLen;
+		memcpy(&withdrLen, data + sizeof(bgp_common_header), sizeof(withdrLen));
+		withdrLen = be16toh(withdrLen);
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + withdrLen)
 			return false;
 
-		uint16_t attrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrLen));
+		uint16_t attrLen;
+		memcpy(&attrLen, data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrLen, sizeof(attrLen));
+		attrLen = be16toh(attrLen);
 		if (dataSize < sizeof(bgp_common_header) + 2 * sizeof(uint16_t) + withdrLen + attrLen)
 			return false;
 

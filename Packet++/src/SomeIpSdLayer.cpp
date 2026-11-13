@@ -855,8 +855,10 @@ namespace pcpp
 			if (len + sizeof(uint16_t) + 3 * sizeof(uint8_t) > lenOptions)
 				return false;
 
-			uint32_t lenOption =
-			    be16toh(*(reinterpret_cast<uint16_t const*>(data + offsetOption + len))) + 3 * sizeof(uint8_t);
+			uint16_t lenOptionValue;
+			memcpy(&lenOptionValue, data + offsetOption + len, sizeof(lenOptionValue));
+
+			uint32_t lenOption = be16toh(lenOptionValue) + 3 * sizeof(uint8_t);
 			len += lenOption;
 			if (len > lenOptions)  // the last one must be equal to lenOptions
 				return false;
@@ -1009,7 +1011,9 @@ namespace pcpp
 
 	size_t SomeIpSdLayer::getLenEntries(const uint8_t* data)
 	{
-		return be32toh(*(reinterpret_cast<const uint32_t*>(data + sizeof(someipsdhdr))));
+		uint32_t value;
+		memcpy(&value, data + sizeof(someipsdhdr), sizeof(value));
+		return be32toh(value);
 	}
 
 	size_t SomeIpSdLayer::getLenOptions() const
@@ -1019,18 +1023,22 @@ namespace pcpp
 
 	size_t SomeIpSdLayer::getLenOptions(const uint8_t* data)
 	{
-		return be32toh(
-		    *(reinterpret_cast<const uint32_t*>(data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data))));
+		uint32_t value;
+		const uint8_t* valuePos = data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data);
+
+		memcpy(&value, valuePos, sizeof(value));
+		return be32toh(value);
 	}
 
 	void SomeIpSdLayer::setLenEntries(uint32_t length)
 	{
-		*(reinterpret_cast<uint32_t*>(m_Data + sizeof(someipsdhdr))) = htobe32(length);
+		uint32_t value = htobe32(length);
+		memcpy(m_Data + sizeof(someipsdhdr), &value, sizeof(value));
 	}
 
 	void SomeIpSdLayer::setLenOptions(uint32_t length)
 	{
-		*(reinterpret_cast<uint32_t*>(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries())) =
-		    htobe32(length);
+		uint32_t value = htobe32(length);
+		memcpy(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(), &value, sizeof(value));
 	}
 }  // namespace pcpp

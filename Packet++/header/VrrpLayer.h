@@ -62,6 +62,8 @@ namespace pcpp
 
 	/// @struct vrrp_header
 	/// VRRP generic header
+
+#pragma pack(push, 1)
 	struct vrrp_header
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -98,6 +100,7 @@ namespace pcpp
 		/// This specifies one or more IPvX addresses that are associated with the virtual router.
 		uint8_t* ipAddresses[];
 	};
+#pragma pack(pop)
 	static_assert(sizeof(vrrp_header) == 8, "vrrp_header size is not 8 bytes");
 
 	/// @class VrrpLayer

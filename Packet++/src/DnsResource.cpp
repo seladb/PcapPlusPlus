@@ -2,6 +2,7 @@
 
 #include "DnsResource.h"
 #include "Logger.h"
+#include <cstring>
 #include <limits>
 #include <sstream>
 #include <vector>
@@ -198,7 +199,8 @@ namespace pcpp
 
 	DnsType IDnsResource::getDnsType() const
 	{
-		uint16_t dnsType = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength);
+		uint16_t dnsType;
+		memcpy(&dnsType, getRawData() + m_NameLength, sizeof(dnsType));
 		return static_cast<DnsType>(be16toh(dnsType));
 	}
 
@@ -210,7 +212,8 @@ namespace pcpp
 
 	DnsClass IDnsResource::getDnsClass() const
 	{
-		uint16_t dnsClass = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength + sizeof(uint16_t));
+		uint16_t dnsClass;
+		memcpy(&dnsClass, getRawData() + m_NameLength + sizeof(uint16_t), sizeof(dnsClass));
 		return static_cast<DnsClass>(be16toh(dnsClass));
 	}
 
@@ -270,7 +273,8 @@ namespace pcpp
 
 	uint32_t DnsResource::getTTL() const
 	{
-		uint32_t ttl = *reinterpret_cast<uint32_t*>(getRawData() + m_NameLength + 2 * sizeof(uint16_t));
+		uint32_t ttl;
+		memcpy(&ttl, getRawData() + m_NameLength + 2 * sizeof(uint16_t), sizeof(ttl));
 		return be32toh(ttl);
 	}
 
@@ -292,7 +296,8 @@ namespace pcpp
 			return 0;
 		}
 
-		uint16_t dataLength = *reinterpret_cast<uint16_t*>(getRawData() + sizeToRead);
+		uint16_t dataLength;
+		memcpy(&dataLength, getRawData() + sizeToRead, sizeof(dataLength));
 		return be16toh(dataLength);
 	}
 

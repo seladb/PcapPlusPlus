@@ -222,7 +222,9 @@ namespace pcpp
 			return IPv4Address();
 
 		uint8_t* ptr = m_Data + ptrOffset;
-		return IPv4Address(*reinterpret_cast<uint32_t*>(ptr));
+		uint32_t address;
+		memcpy(&address, ptr, sizeof(address));
+		return IPv4Address(address);
 	}
 
 	size_t IgmpV3QueryLayer::getHeaderLen() const
@@ -512,7 +514,9 @@ namespace pcpp
 
 		int offset = index * sizeof(uint32_t);
 		const uint8_t* ptr = sourceAddresses + offset;
-		return IPv4Address(*reinterpret_cast<const uint32_t*>(ptr));
+		uint32_t address;
+		memcpy(&address, ptr, sizeof(address));
+		return IPv4Address(address);
 	}
 
 	size_t igmpv3_group_record::getRecordLen() const
