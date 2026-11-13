@@ -151,6 +151,43 @@ namespace pcpp
 
 		std::string toString() const override;
 
+		/// @struct SerializedFields
+		/// @brief Fields written by SdpLayer's serializeLayer().
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @struct HeaderFieldObject
+			/// @brief Fields describing one element of the HeaderFields array of SdpLayer
+			struct HeaderFieldObject : ObjectFieldDescriptor<HeaderFieldObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one header field
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Name, Value };
+				}
+
+				/// @brief Header field name, as a string
+				static const FieldDescriptor Name;
+
+				/// @brief SDP field value as a string, with subfields preserved together
+				static const FieldDescriptor Value;
+			};
+
+			/// @brief Field descriptor for the array of SDP fields, in the order they appear in the message.
+			/// Elements are described by HeaderFieldObject.
+			static const FieldDescriptor HeaderFields;
+
+			/// @return All field descriptors for SdpLayer
+			// cppcheck-suppress duplInheritedMember
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				result.push_back(HeaderFields);
+				return result;
+			}
+		};
+
 	protected:
 		// implementation of abstract methods
 		char getHeaderFieldNameValueSeparator() const override
@@ -161,5 +198,7 @@ namespace pcpp
 		{
 			return false;
 		}
+
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp

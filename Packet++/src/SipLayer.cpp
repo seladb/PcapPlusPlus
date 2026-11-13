@@ -208,6 +208,27 @@ namespace pcpp
 		return nullptr;
 	}
 
+	const FieldDescriptor SipLayer::SerializedFields::HeaderComplete{ Layer::SerializedFields::MaxID + 4,
+		                                                              "headerComplete" };
+	const FieldDescriptor SipLayer::SerializedFields::HeaderFields{ Layer::SerializedFields::MaxID + 5,
+		                                                            "headerFields" };
+	const SipLayer::SerializedFields::HeaderFieldObject SipHeaderFieldObject{ 0, "headerField" };
+	const FieldDescriptor SipLayer::SerializedFields::HeaderFieldObject::Name{ 0, "name" };
+	const FieldDescriptor SipLayer::SerializedFields::HeaderFieldObject::Value{ 1, "value" };
+
+	void SipLayer::serializeHeader(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::HeaderComplete, isHeaderComplete());
+		auto headerFields = serializer.writeArray(SerializedFields::HeaderFields);
+		for (HeaderField* field = getFirstField(); field != nullptr && !field->isEndOfHeader();
+		     field = getNextField(field))
+		{
+			auto fieldObject = headerFields.writeObject(SipHeaderFieldObject);
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Name, field->getFieldName());
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Value, field->getFieldValue());
+		}
+	}
+
 	// -------- Class SipRequestFirstLine -----------------
 
 	SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipRequest(sipRequest)
@@ -605,6 +626,22 @@ namespace pcpp
 		return result;
 	}
 
+	const FieldDescriptor SipRequestLayer::SerializedFields::Method{ Layer::SerializedFields::MaxID + 1, "method" };
+	const FieldDescriptor SipRequestLayer::SerializedFields::Uri{ Layer::SerializedFields::MaxID + 2, "uri" };
+	const FieldDescriptor SipRequestLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 3, "version" };
+
+	void SipRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		const auto* firstLine = getFirstLine();
+		const auto method = firstLine->getMethod();
+
+		serializer.writeField(SerializedFields::Method,
+		                      method == SipMethodUnknown ? std::string("Unknown") : SipMethodEnumToString[method]);
+		serializer.writeField(SerializedFields::Uri, firstLine->getUri());
+		serializer.writeField(SerializedFields::Version, firstLine->getVersion());
+		serializeHeader(serializer);
+	}
+
 	// -------- Class SipResponseLayer -----------------
 
 	namespace
@@ -950,6 +987,23 @@ namespace pcpp
 		}
 
 		return result;
+	}
+
+	const FieldDescriptor SipResponseLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 1, "version" };
+	const FieldDescriptor SipResponseLayer::SerializedFields::StatusCode{ Layer::SerializedFields::MaxID + 2,
+		                                                                  "statusCode" };
+	const FieldDescriptor SipResponseLayer::SerializedFields::StatusCodeDescription{ Layer::SerializedFields::MaxID + 3,
+		                                                                             "statusCodeDescription" };
+
+	void SipResponseLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		const auto statusCode = m_FirstLine->getStatusCode();
+
+		serializer.writeField(SerializedFields::Version, m_FirstLine->getVersion());
+		serializer.writeField(SerializedFields::StatusCode,
+		                      statusCode == SipStatusCodeUnknown ? 0 : m_FirstLine->getStatusCodeAsInt());
+		serializer.writeField(SerializedFields::StatusCodeDescription, m_FirstLine->getStatusCodeString());
+		serializeHeader(serializer);
 	}
 
 	// -------- Class SipResponseFirstLine -----------------
