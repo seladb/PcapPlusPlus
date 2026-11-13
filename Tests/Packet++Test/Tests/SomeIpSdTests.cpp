@@ -283,11 +283,8 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	memcpy(someIpSdLayer4->getData() + 44, zeroLenOptions, sizeof(zeroLenOptions));
 
 	pcpp::SomeIpSdLayer::OptionsVec options4 = someIpSdLayer4->getOptions();
-	PTF_ASSERT_EQUAL(options4.size(), 1);
-	auto* configurationOption4 = dynamic_cast<pcpp::SomeIpSdConfigurationOption*>(options4[0]);
-	PTF_ASSERT_NOT_NULL(configurationOption4);
-	PTF_ASSERT_EQUAL(configurationOption4->getConfigurationString(), "");
-	delete options4[0];
+	// length 0 must not be parsed as ConfigurationString (isDataValid rejects it)
+	PTF_ASSERT_EQUAL(options4.size(), 0);
 }
 
 PTF_TEST_CASE(SomeIpSdCreationTest)

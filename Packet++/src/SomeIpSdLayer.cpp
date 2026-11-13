@@ -173,14 +173,8 @@ namespace pcpp
 
 	std::string SomeIpSdConfigurationOption::getConfigurationString() const
 	{
-		// the length field counts the reserved byte too, but a malformed packet can set it to 0
-		uint16_t length = be16toh(getSomeIpSdOptionHeader()->length);
-		if (length == 0)
-		{
-			return {};
-		}
-
-		return std::string((char*)getDataPtr() + sizeof(someipsdhdroptionsbase), length - 1);
+		return std::string((char*)getDataPtr() + sizeof(someipsdhdroptionsbase),
+		                   be16toh(getSomeIpSdOptionHeader()->length) - 1);
 	}
 
 	// -------- Class SomeIpSdLoadBalancingOption -----------------
@@ -988,7 +982,7 @@ namespace pcpp
 		}
 		case SomeIpSdOption::OptionType::ConfigurationString:
 		{
-			if (SomeIpSdConfigurationOption::isDataValid(this, remainingLength))
+			if (SomeIpSdConfigurationOption::isDataValid(this, offset, remainingLength))
 			{
 				return new SomeIpSdConfigurationOption(this, offset);
 			}
