@@ -108,7 +108,7 @@ jobs:
       id-token: write
     strategy:
       matrix:
-        version: ["14.1", "13.4"]
+        version: ["15.1", "14.1"]
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
