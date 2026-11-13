@@ -7,6 +7,7 @@
 #include "IPv6Layer.h"
 #include "UdpLayer.h"
 #include "PPPoELayer.h"
+#include "PacketTrailerLayer.h"
 #include "DhcpV6Layer.h"
 #include "SystemUtils.h"
 
@@ -36,8 +37,23 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->payloadLength, htobe16(20));
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPNextProtocol(), PCPP_PPP_LCP);
 
+	// the frame is padded to the Ethernet minimum size, the padding isn't part of the PPPoE payload
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->getDataLen(), 26);
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->getNextLayer()->getDataLen(), 18);
+	PTF_ASSERT_NOT_NULL(pppoesPacket.getLayerOfType<pcpp::PacketTrailerLayer>());
+	PTF_ASSERT_EQUAL(pppoesPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getDataLen(), 20);
+	pppoesPacket.computeCalculateFields();
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->payloadLength, htobe16(20));
+
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->toString(),
 	                 std::string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"));
+
+	// a buffer shorter than the PPPoE header is kept as is
+	{
+		uint8_t* shortData = new uint8_t[3]{ 0x11, 0x00, 0x00 };
+		pcpp::PPPoESessionLayer shortLayer(shortData, 3, nullptr, nullptr);
+		PTF_ASSERT_EQUAL(shortLayer.getDataLen(), 3);
+	}
 
 	{
 		std::ostringstream oss;
