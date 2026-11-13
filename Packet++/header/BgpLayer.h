@@ -93,6 +93,31 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by BgpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for BgpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Marker, MessageType };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief 16-octet BGP marker, as lowercase hexadecimal without separators
+			static const FieldDescriptor Marker;
+
+			/// @brief BGP message type, one of: "OPEN", "UPDATE", "NOTIFICATION", "KEEPALIVE", "ROUTE-REFRESH"
+			static const FieldDescriptor MessageType;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 2;
+		};
+
 		/// Calculates the basic BGP fields:
 		/// - Set marker to all ones
 		/// - Set message type value
@@ -100,6 +125,8 @@ namespace pcpp
 		void computeCalculateFields() override;
 
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		// protected c'tors, this class cannot be instantiated by users
 		BgpLayer()
 		{}
@@ -209,7 +236,7 @@ namespace pcpp
 		/// Get a vector of the optional parameters in the message
 		/// @param[out] optionalParameters The vector where the optional parameters will be written to. This method
 		/// doesn't remove any existing data on this vector before pushing data to it
-		void getOptionalParameters(std::vector<optional_parameter>& optionalParameters);
+		void getOptionalParameters(std::vector<optional_parameter>& optionalParameters) const;
 
 		/// @return The length in [bytes] of the optional parameters data in the message
 		size_t getOptionalParametersLength();
@@ -235,6 +262,73 @@ namespace pcpp
 		{
 			return BgpLayer::Open;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by BgpOpenMessageLayer's serializeLayer(), in addition to
+		/// BgpLayer::SerializedFields.
+		struct SerializedFields : BgpLayer::SerializedFields
+		{
+			/// @return All field descriptors for BgpOpenMessageLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = BgpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Version, MyAutonomousSystem,      HoldTime,
+					                                          BgpId,   OptionalParameterLength, OptionalParameters };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief BGP version number
+			static const FieldDescriptor Version;
+
+			/// @brief Autonomous System number of the sender, in host byte order
+			static const FieldDescriptor MyAutonomousSystem;
+
+			/// @brief Hold Timer value proposed by the sender, in host byte order
+			static const FieldDescriptor HoldTime;
+
+			/// @brief BGP identifier of the sender, as an IPv4 address string
+			static const FieldDescriptor BgpId;
+
+			/// @brief Total length of the Optional Parameters field, in bytes
+			static const FieldDescriptor OptionalParameterLength;
+
+			/// @brief Optional parameters as an array of {type, length, value} objects
+			static const FieldDescriptor OptionalParameters;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = BgpLayer::SerializedFields::MaxID + 6;
+
+			/// @struct OptionalParameterSerializedFields
+			/// Fields of a single BGP OPEN optional parameter.
+			struct OptionalParameterSerializedFields
+			{
+				/// @return All field descriptors for an optional parameter
+				static std::vector<FieldDescriptor> all()
+				{
+					auto result = std::vector<FieldDescriptor>{};
+					std::initializer_list<FieldDescriptor> extra{ Type, Length, Value };
+					std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+					return result;
+				}
+
+				/// @brief Parameter type
+				static const FieldDescriptor Type;
+
+				/// @brief Parameter length, in bytes
+				static const FieldDescriptor Length;
+
+				/// @brief Parameter value, as a lowercase hexadecimal string
+				static const FieldDescriptor Value;
+			};
+
+			/// @brief Single optional parameter element (used as the array item type)
+			static const ObjectFieldDescriptor<OptionalParameterSerializedFields> OptionalParameter;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		/// Serializes the optional parameters to a byte array
@@ -337,7 +431,7 @@ namespace pcpp
 
 		/// Get a vector of the Withdrawn Routes currently in the message
 		/// @param[out] withdrawnRoutes A reference to a vector the Withdrawn Routes data will be written to
-		void getWithdrawnRoutes(std::vector<prefix_and_ip>& withdrawnRoutes);
+		void getWithdrawnRoutes(std::vector<prefix_and_ip>& withdrawnRoutes) const;
 
 		/// Set Withdrawn Routes in this message. This method will override any existing Withdrawn Routes in the
 		/// message. If the input is an empty vector all Withdrawn Routes will be removed. This method automatically
@@ -358,7 +452,7 @@ namespace pcpp
 
 		/// Get a vector of the Path Attributes currently in the message
 		/// @param[out] pathAttributes A reference to a vector the Path Attributes data will be written to
-		void getPathAttributes(std::vector<path_attribute>& pathAttributes);
+		void getPathAttributes(std::vector<path_attribute>& pathAttributes) const;
 
 		/// Set Path Attributes in this message. This method will override any existing Path Attributes in the message.
 		/// If the input is an empty vector all Path Attributes will be removed. This method automatically sets the
@@ -379,7 +473,7 @@ namespace pcpp
 
 		/// Get a vector of the Network Layer Reachability Info currently in the message
 		/// @param[out] nlri A reference to a vector the NLRI data will be written to
-		void getNetworkLayerReachabilityInfo(std::vector<prefix_and_ip>& nlri);
+		void getNetworkLayerReachabilityInfo(std::vector<prefix_and_ip>& nlri) const;
 
 		/// Set NLRI data in this message. This method will override any existing NLRI data in the message.
 		/// If the input is an empty vector all NLRI data will be removed. This method automatically sets the
@@ -402,8 +496,95 @@ namespace pcpp
 			return BgpLayer::Update;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by BgpUpdateMessageLayer's serializeLayer(), in addition to
+		/// BgpLayer::SerializedFields.
+		struct SerializedFields : BgpLayer::SerializedFields
+		{
+			/// @return All field descriptors for BgpUpdateMessageLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = BgpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ WithdrawnRoutes, PathAttributes,
+					                                          NetworkLayerReachabilityInfo };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Withdrawn routes as an array of {prefix, ipAddr} objects
+			static const FieldDescriptor WithdrawnRoutes;
+
+			/// @brief Path attributes as an array of {flags, type, length, value} objects
+			static const FieldDescriptor PathAttributes;
+
+			/// @brief Network Layer Reachability Information as an array of {prefix, ipAddr} objects
+			static const FieldDescriptor NetworkLayerReachabilityInfo;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = BgpLayer::SerializedFields::MaxID + 3;
+
+			/// @struct PrefixAndIpSerializedFields
+			/// Fields of a single IPv4 prefix + address pair.
+			struct PrefixAndIpSerializedFields
+			{
+				/// @return All field descriptors for a prefix + IP pair
+				static std::vector<FieldDescriptor> all()
+				{
+					auto result = std::vector<FieldDescriptor>{};
+					std::initializer_list<FieldDescriptor> extra{ Prefix, IpAddr };
+					std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+					return result;
+				}
+
+				/// @brief IPv4 address mask (8, 16, 24 or 32)
+				static const FieldDescriptor Prefix;
+
+				/// @brief IPv4 address as a string
+				static const FieldDescriptor IpAddr;
+			};
+
+			/// @brief Single withdrawn route element (used as the array item type)
+			static const ObjectFieldDescriptor<PrefixAndIpSerializedFields> WithdrawnRoute;
+
+			/// @struct PathAttributeSerializedFields
+			/// Fields of a single BGP path attribute.
+			struct PathAttributeSerializedFields
+			{
+				/// @return All field descriptors for a path attribute
+				static std::vector<FieldDescriptor> all()
+				{
+					auto result = std::vector<FieldDescriptor>{};
+					std::initializer_list<FieldDescriptor> extra{ Flags, Type, Length, Value };
+					std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+					return result;
+				}
+
+				/// @brief Path attribute flags
+				static const FieldDescriptor Flags;
+
+				/// @brief Path attribute type
+				static const FieldDescriptor Type;
+
+				/// @brief Path attribute length, in bytes
+				static const FieldDescriptor Length;
+
+				/// @brief Path attribute value, as a lowercase hexadecimal string
+				static const FieldDescriptor Value;
+			};
+
+			/// @brief Single path attribute element (used as the array item type)
+			static const ObjectFieldDescriptor<PathAttributeSerializedFields> PathAttribute;
+
+			/// @brief Single NLRI element (used as the array item type)
+			static const ObjectFieldDescriptor<PrefixAndIpSerializedFields> Nlri;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
-		void parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLen, std::vector<prefix_and_ip>& result);
+		void parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLen, std::vector<prefix_and_ip>& result) const;
 
 		size_t prefixAndIPDataToByteArray(const std::vector<prefix_and_ip>& prefixAndIpData, uint8_t* resultByteArr,
 		                                  size_t maxByteArrSize);
@@ -504,6 +685,37 @@ namespace pcpp
 			return BgpLayer::Notification;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by BgpNotificationMessageLayer's serializeLayer(), in addition to
+		/// BgpLayer::SerializedFields.
+		struct SerializedFields : BgpLayer::SerializedFields
+		{
+			/// @return All field descriptors for BgpNotificationMessageLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = BgpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ErrorCode, ErrorSubCode, NotificationData };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief BGP notification error code
+			static const FieldDescriptor ErrorCode;
+
+			/// @brief BGP notification error sub-code
+			static const FieldDescriptor ErrorSubCode;
+
+			/// @brief Notification data, as a lowercase hexadecimal string
+			static const FieldDescriptor NotificationData;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = BgpLayer::SerializedFields::MaxID + 3;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		void initMessageData(uint8_t errorCode, uint8_t errorSubCode, const uint8_t* notificationData,
 		                     size_t notificationDataLen);
@@ -544,6 +756,26 @@ namespace pcpp
 		{
 			return BgpLayer::Keepalive;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by BgpKeepaliveMessageLayer's serializeLayer(), in addition to
+		/// BgpLayer::SerializedFields. A KEEPALIVE message carries only the common BGP
+		/// header, so no message-specific fields are added here.
+		struct SerializedFields : BgpLayer::SerializedFields
+		{
+			/// @return All field descriptors for BgpKeepaliveMessageLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				return BgpLayer::SerializedFields::all();
+			}
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = BgpLayer::SerializedFields::MaxID;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class BgpRouteRefreshMessageLayer
@@ -593,6 +825,37 @@ namespace pcpp
 		{
 			return BgpLayer::RouteRefresh;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by BgpRouteRefreshMessageLayer's serializeLayer(), in addition to
+		/// BgpLayer::SerializedFields.
+		struct SerializedFields : BgpLayer::SerializedFields
+		{
+			/// @return All field descriptors for BgpRouteRefreshMessageLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = BgpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Afi, Reserved, Safi };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Address Family Identifier, in host byte order
+			static const FieldDescriptor Afi;
+
+			/// @brief Reserved field
+			static const FieldDescriptor Reserved;
+
+			/// @brief Subsequent Address Family Identifier, in host byte order
+			static const FieldDescriptor Safi;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = BgpLayer::SerializedFields::MaxID + 3;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp
