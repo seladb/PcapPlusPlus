@@ -25,6 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     container: seladb/alpine317
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -44,7 +49,7 @@ jobs:
         run: |
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install pre-commit
+          python3 -m pip install --require-hashes -r ci/requirements/pre-commit.txt
 
       - name: Run pre-commit
         run: |
@@ -55,6 +60,11 @@ jobs:
     runs-on: ubuntu-latest
     container: seladb/alpine317
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -69,7 +79,7 @@ jobs:
         run: |
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install clang-tidy==18.1.8
+          python3 -m pip install --require-hashes -r ci/requirements/clang-tidy.txt
 
       - name: Run clang-tidy on changed files
         run: |
@@ -102,7 +112,6 @@ jobs:
           - runner: ubuntu-latest
             image: rhel94
             config-zstd: OFF
-            gcovr-version: 8.5
           - runner: ubuntu-latest
             image: ubuntu2604
             config-zstd: ON
@@ -115,6 +124,11 @@ jobs:
             config-zstd: OFF
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -150,7 +164,7 @@ jobs:
         run: |
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 -m pip install --require-hashes -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
@@ -161,7 +175,7 @@ jobs:
         run: |
           . .venv/bin/activate
           cd Tests/ExamplesTest
-          python3 -m pip install -r requirements.txt
+          python3 -m pip install --require-hashes -r requirements.txt
           python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin
 
       - name: Check installation
@@ -181,7 +195,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==${{ matrix.gcovr-version || '8.6' }}
+          python3 -m pip install --require-hashes -r ci/requirements/gcovr.txt
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -206,6 +220,11 @@ jobs:
     env:
       image: ubuntu2404
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -235,7 +254,7 @@ jobs:
         run: |
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 -m pip install --require-hashes -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
@@ -251,7 +270,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==8.6
+          python3 -m pip install --require-hashes -r ci/requirements/gcovr.txt
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -276,6 +295,11 @@ jobs:
     env:
       image: ubuntu2404
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -305,7 +329,7 @@ jobs:
         run: |
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 -m pip install --require-hashes -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
@@ -322,7 +346,7 @@ jobs:
         run: |
           . .venv/bin/activate
           cd Tests/ExamplesTest
-          python3 -m pip install -r requirements.txt
+          python3 -m pip install --require-hashes -r requirements.txt
           python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin -m no_pcap
 
       - name: Save Ccache
@@ -340,13 +364,18 @@ jobs:
           - dpdk_version: 24.11.5
           - dpdk_version: 23.11.6
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt -y install meson libnuma-dev libpcap-dev tcpreplay
-          pip install --break-system-packages pyelftools
+          python3 -m pip install --break-system-packages --require-hashes -r ci/requirements/pyelftools.txt
 
       - name: Restore DPDK cache
         id: cache-dpdk
@@ -403,7 +432,7 @@ jobs:
         run: |
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 -m pip install --require-hashes -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
@@ -413,7 +442,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           . .venv/bin/activate
-          python3 -m pip install gcovr==${{ matrix.gcovr-version || '8.6' }}
+          python3 -m pip install --require-hashes -r ci/requirements/gcovr.txt
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -435,6 +464,11 @@ jobs:
           - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B "$BUILD_DIR"
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -504,6 +538,11 @@ jobs:
             config-zstd: ON
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -542,7 +581,7 @@ jobs:
         run: |
           python -m venv .venv
           . .venv/bin/activate
-          python -m pip install -r ci/run_tests/requirements.txt
+          python -m pip install --require-hashes -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         # We can't run cross compiled binaries
@@ -555,7 +594,7 @@ jobs:
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           cd Tests/ExamplesTest
-          python -m pip install -r requirements.txt
+          python -m pip install --require-hashes -r requirements.txt
           python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
 
       - name: Check installation
@@ -577,7 +616,7 @@ jobs:
       - name: Create Cobertura Report
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
-          python3 -m pip install gcovr==8.6
+          python3 -m pip install --require-hashes -r ci/requirements/gcovr.txt
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -603,6 +642,11 @@ jobs:
     outputs:
       npcap-or-default: ${{ steps.generate-backends.outputs.npcap_or_default}}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Initialize NPcap backend variable
         run: echo "npcap_available=false" >> $GITHUB_ENV
 
@@ -639,6 +683,11 @@ jobs:
             pcap_lib: ${{ needs.define-windows-pcap-backend-matrix.outputs.npcap-or-default }}
     runs-on: windows-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -688,17 +737,17 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
-          python -m pip install -r ci\run_tests\requirements.txt
+          python -m pip install --require-hashes -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --build-dir $env:BUILD_DIR
 
       - name: Test Examples
         run: |
           cd Tests\ExamplesTest
-          python -m pip install -r requirements.txt
+          python -m pip install --require-hashes -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Install Coverage Requirements
-        run: python3 -m pip install gcovr==8.6
+        run: python3 -m pip install --require-hashes -r ci/requirements/gcovr.txt
 
       - name: Process Coverage Files
         shell: msys2 {0}
@@ -737,6 +786,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -787,14 +841,14 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
-          python -m pip install -r ci\run_tests\requirements.txt
+          python -m pip install --require-hashes -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --coverage --build-dir $env:BUILD_DIR --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
       - name: Test Examples
         run: |
           move ".\Dist\examples_bin\Debug\*" ".\Dist\examples_bin\"
           cd Tests\ExamplesTest
-          python -m pip install -r requirements.txt
+          python -m pip install --require-hashes -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Upload Coverage Results
@@ -820,6 +874,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -855,19 +914,24 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
-          python -m pip install -r ci\run_tests\requirements.txt
+          python -m pip install --require-hashes -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --build-dir $env:BUILD_DIR --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
       - name: Test Examples
         run: |
           move ".\Dist\examples_bin\Debug\*" ".\Dist\examples_bin\"
           cd Tests\ExamplesTest
-          python -m pip install -r requirements.txt
+          python -m pip install --require-hashes -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
 
   windivert:
     runs-on: windows-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -905,7 +969,7 @@ jobs:
       - name: Test PcapPlusPlus
         shell: pwsh
         run: |
-          python -m pip install -r ci\run_tests\requirements.txt
+          python -m pip install --require-hashes -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py --include-tests windivert --build-dir "$env:BUILD_DIR" --packet-test-exe "Tests/Packet++Test/Debug/Packet++Test.exe" --pcap-test-exe "Tests/Pcap++Test/Debug/Pcap++Test.exe"
 
   freebsd:
@@ -914,6 +978,11 @@ jobs:
       matrix:
         version: ["15.1", "14.1"]
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Test in FreeBSD
         id: test
@@ -939,12 +1008,12 @@ jobs:
 
             echo "Testing PcapPlusPlus"
             python -m ensurepip
-            python -m pip install -r ci/run_tests/requirements.txt
+            python -m pip install --require-hashes -r ci/run_tests/requirements.txt
             python ci/run_tests/run_tests.py --interface "$interface_name" --build-dir Dist
 
             echo "Testing PcapPlusPlus examples"
             cd Tests/ExamplesTest
-            python -m pip install -r requirements.txt
+            python -m pip install --require-hashes -r requirements.txt
             python -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
 
   android:
@@ -967,6 +1036,11 @@ jobs:
     runs-on: ${{ matrix.run-on-os }}
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -1005,7 +1079,7 @@ jobs:
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
       - name: Set up JDK
-        uses: actions/setup-java@v6.2.0
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           java-version: "17"
           distribution: "zulu"
@@ -1026,7 +1100,7 @@ jobs:
 
       - name: Run instrumentation tests
         if: matrix.target == 'x86_64'
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
           api-level: ${{ matrix.api-version }}
           arch: ${{ matrix.target }}
@@ -1047,6 +1121,11 @@ jobs:
           - bpf_version: 0.5.0 # The version available from apt for Ubuntu 22.04
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -1142,7 +1221,7 @@ jobs:
         run: |
           python -m venv .venv
           . .venv/bin/activate
-          python -m pip install -r ci/run_tests/requirements.txt
+          python -m pip install --require-hashes -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
@@ -1151,7 +1230,7 @@ jobs:
 
       - name: Create Cobertura Report
         run: |
-          python -m pip install gcovr==8.6
+          python -m pip install --require-hashes -r ci/requirements/gcovr.txt
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
@@ -1181,6 +1260,11 @@ jobs:
     container:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

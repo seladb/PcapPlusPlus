@@ -1,0 +1,2 @@
+# gcovr 8.6 requires Python 3.10+, so uv locks 8.5 for Python 3.9 (RHEL 9) automatically
+gcovr

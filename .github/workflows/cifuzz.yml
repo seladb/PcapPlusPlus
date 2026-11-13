@@ -20,6 +20,11 @@ jobs:
       matrix:
         sanitizer: [address, undefined, memory]
     steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+      with:
+        egress-policy: audit
+
     - name: Build Fuzzers
       id: build
       uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@c2c0632831767ff05c568e7b552cef2801d739ff # master
