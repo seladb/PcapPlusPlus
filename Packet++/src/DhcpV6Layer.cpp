@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleDhcpV6Layer
 
 #include "DhcpV6Layer.h"
+#include <stdexcept>
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
@@ -68,22 +69,45 @@ namespace pcpp
 		return DhcpV6Option(recordBuffer);
 	}
 
+	DhcpV6LayerBase::DhcpV6LayerBase(size_t headerLen)
+	{
+		allocData(headerLen);
+		m_Protocol = DHCPv6;
+	}
+
 	DhcpV6Layer::DhcpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : Layer(data, dataLen, prevLayer, packet, DHCPv6)
+	    : DhcpV6LayerBase(data, dataLen, prevLayer, packet)
 	{}
 
 	DhcpV6Layer::DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId)
+	    : DhcpV6LayerBase(sizeof(dhcpv6_header))
 	{
-		allocData(sizeof(dhcpv6_header));
-		m_Protocol = DHCPv6;
-
 		setMessageType(messageType);
 		setTransactionID(transactionId);
 	}
 
-	DhcpV6MessageType DhcpV6Layer::getMessageType() const
+	DhcpV6RelayLayer::DhcpV6RelayLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	    : DhcpV6LayerBase(data, dataLen, prevLayer, packet)
+	{}
+
+	DhcpV6RelayLayer::DhcpV6RelayLayer(DhcpV6MessageType messageType, uint8_t hopCount, const IPv6Address& linkAddress,
+	                                   const IPv6Address& peerAddress)
+	    : DhcpV6LayerBase(sizeof(dhcpv6_relay_header))
 	{
-		uint8_t messageType = getDhcpHeader()->messageType;
+		if (messageType != DHCPV6_RELAY_FORWARD && messageType != DHCPV6_RELAY_REPLY)
+		{
+			throw std::invalid_argument("A DHCPv6 relay message must be a relay-forward or relay-reply message");
+		}
+
+		setMessageType(messageType);
+		setHopCount(hopCount);
+		setLinkAddress(linkAddress);
+		setPeerAddress(peerAddress);
+	}
+
+	DhcpV6MessageType DhcpV6LayerBase::getMessageType() const
+	{
+		uint8_t messageType = m_Data[0];
 		if (messageType > 13)
 		{
 			return DHCPV6_UNKNOWN_MSG_TYPE;
@@ -92,7 +116,7 @@ namespace pcpp
 		return static_cast<DhcpV6MessageType>(messageType);
 	}
 
-	std::string DhcpV6Layer::getMessageTypeAsString() const
+	std::string DhcpV6LayerBase::getMessageTypeAsString() const
 	{
 		DhcpV6MessageType messageType = getMessageType();
 		switch (messageType)
@@ -128,9 +152,9 @@ namespace pcpp
 		}
 	}
 
-	void DhcpV6Layer::setMessageType(DhcpV6MessageType messageType)
+	void DhcpV6LayerBase::setMessageType(DhcpV6MessageType messageType)
 	{
-		getDhcpHeader()->messageType = static_cast<uint8_t>(messageType);
+		m_Data[0] = static_cast<uint8_t>(messageType);
 	}
 
 	uint32_t DhcpV6Layer::getTransactionID() const
@@ -148,29 +172,58 @@ namespace pcpp
 		hdr->transactionId3 = transactionId & 0xff;
 	}
 
-	DhcpV6Option DhcpV6Layer::getFirstOptionData() const
+	uint8_t DhcpV6RelayLayer::getHopCount() const
 	{
-		return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcpv6_header));
+		return getRelayHeader()->hopCount;
 	}
 
-	DhcpV6Option DhcpV6Layer::getNextOptionData(DhcpV6Option dhcpv6Option) const
+	void DhcpV6RelayLayer::setHopCount(uint8_t hopCount)
 	{
-		return m_OptionReader.getNextTLVRecord(dhcpv6Option, getOptionsBasePtr(),
-		                                       getHeaderLen() - sizeof(dhcpv6_header));
+		getRelayHeader()->hopCount = hopCount;
 	}
 
-	DhcpV6Option DhcpV6Layer::getOptionData(DhcpV6OptionType option) const
+	IPv6Address DhcpV6RelayLayer::getLinkAddress() const
+	{
+		return IPv6Address(getRelayHeader()->linkAddress);
+	}
+
+	void DhcpV6RelayLayer::setLinkAddress(const IPv6Address& linkAddress)
+	{
+		linkAddress.copyTo(getRelayHeader()->linkAddress);
+	}
+
+	IPv6Address DhcpV6RelayLayer::getPeerAddress() const
+	{
+		return IPv6Address(getRelayHeader()->peerAddress);
+	}
+
+	void DhcpV6RelayLayer::setPeerAddress(const IPv6Address& peerAddress)
+	{
+		peerAddress.copyTo(getRelayHeader()->peerAddress);
+	}
+
+	DhcpV6Option DhcpV6LayerBase::getFirstOptionData() const
+	{
+		return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - getOptionsOffset());
+	}
+
+	DhcpV6Option DhcpV6LayerBase::getNextOptionData(DhcpV6Option dhcpv6Option) const
+	{
+		return m_OptionReader.getNextTLVRecord(dhcpv6Option, getOptionsBasePtr(), getHeaderLen() - getOptionsOffset());
+	}
+
+	DhcpV6Option DhcpV6LayerBase::getOptionData(DhcpV6OptionType option) const
 	{
 		return m_OptionReader.getTLVRecord(static_cast<uint32_t>(option), getOptionsBasePtr(),
-		                                   getHeaderLen() - sizeof(dhcpv6_header));
+		                                   getHeaderLen() - getOptionsOffset());
 	}
 
-	size_t DhcpV6Layer::getOptionCount() const
+	size_t DhcpV6LayerBase::getOptionCount() const
 	{
-		return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcpv6_header));
+		return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - getOptionsOffset());
 	}
 
-	DhcpV6Option DhcpV6Layer::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, int offset)
+	DhcpV6Option DhcpV6LayerBase::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, int offset)
 	{
 		DhcpV6Option newOpt = optionBuilder.build();
 		if (newOpt.isNull())
@@ -199,12 +252,12 @@ namespace pcpp
 		return DhcpV6Option(newOptPtr);
 	}
 
-	DhcpV6Option DhcpV6Layer::addOption(const DhcpV6OptionBuilder& optionBuilder)
+	DhcpV6Option DhcpV6LayerBase::addOption(const DhcpV6OptionBuilder& optionBuilder)
 	{
 		return addOptionAt(optionBuilder, getHeaderLen());
 	}
 
-	DhcpV6Option DhcpV6Layer::addOptionAfter(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType)
+	DhcpV6Option DhcpV6LayerBase::addOptionAfter(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType)
 	{
 		int offset = 0;
 
@@ -219,7 +272,7 @@ namespace pcpp
 		return addOptionAt(optionBuilder, offset);
 	}
 
-	DhcpV6Option DhcpV6Layer::addOptionBefore(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType)
+	DhcpV6Option DhcpV6LayerBase::addOptionBefore(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType)
 	{
 		int offset = 0;
 
@@ -235,7 +288,7 @@ namespace pcpp
 		return addOptionAt(optionBuilder, offset);
 	}
 
-	bool DhcpV6Layer::removeOption(DhcpV6OptionType optionType)
+	bool DhcpV6LayerBase::removeOption(DhcpV6OptionType optionType)
 	{
 		DhcpV6Option optToRemove = getOptionData(optionType);
 		if (optToRemove.isNull())
@@ -254,9 +307,9 @@ namespace pcpp
 		return true;
 	}
 
-	bool DhcpV6Layer::removeAllOptions()
+	bool DhcpV6LayerBase::removeAllOptions()
 	{
-		int offset = sizeof(dhcpv6_header);
+		int offset = static_cast<int>(getOptionsOffset());
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
 			return false;
@@ -265,7 +318,7 @@ namespace pcpp
 		return true;
 	}
 
-	std::string DhcpV6Layer::toString() const
+	std::string DhcpV6LayerBase::toString() const
 	{
 		return "DHCPv6 Layer, " + getMessageTypeAsString() + " message";
 	}
@@ -413,15 +466,41 @@ namespace pcpp
 	const FieldDescriptor DhcpV6Layer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 3, "options" };
 	const FieldDescriptor DhcpV6Layer::SerializedFields::Option{ 0, "option" };
 
+	const FieldDescriptor DhcpV6RelayLayer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 1,
+		                                                                   "messageType" };
+	const FieldDescriptor DhcpV6RelayLayer::SerializedFields::HopCount{ Layer::SerializedFields::MaxID + 2,
+		                                                                "hopCount" };
+	const FieldDescriptor DhcpV6RelayLayer::SerializedFields::LinkAddress{ Layer::SerializedFields::MaxID + 3,
+		                                                                   "linkAddress" };
+	const FieldDescriptor DhcpV6RelayLayer::SerializedFields::PeerAddress{ Layer::SerializedFields::MaxID + 4,
+		                                                                   "peerAddress" };
+	const FieldDescriptor DhcpV6RelayLayer::SerializedFields::Options{ Layer::SerializedFields::MaxID + 5, "options" };
+	const FieldDescriptor DhcpV6RelayLayer::SerializedFields::Option{ 0, "option" };
+
+	void DhcpV6LayerBase::serializeOptions(ObjectScope& serializer, const FieldDescriptor& optionsField,
+	                                       const FieldDescriptor& optionField) const
+	{
+		auto options = serializer.writeArray(optionsField);
+		for (auto opt = getFirstOptionData(); opt.isNotNull(); opt = getNextOptionData(opt))
+		{
+			options.writeField(optionField, dhcpV6OptionTypeToString(opt.getType()));
+		}
+	}
+
 	void DhcpV6Layer::serializeLayer(ObjectScope& serializer) const
 	{
 		serializer.writeField(SerializedFields::MessageType, getMessageTypeAsString());
 		serializer.writeHexField(SerializedFields::TransactionID, getTransactionID());
-		auto options = serializer.writeArray(SerializedFields::Options);
-		for (auto opt = getFirstOptionData(); opt.isNotNull(); opt = getNextOptionData(opt))
-		{
-			options.writeField(SerializedFields::Option, dhcpV6OptionTypeToString(opt.getType()));
-		}
+		serializeOptions(serializer, SerializedFields::Options, SerializedFields::Option);
+	}
+
+	void DhcpV6RelayLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::MessageType, getMessageTypeAsString());
+		serializer.writeField(SerializedFields::HopCount, getHopCount());
+		serializer.writeField(SerializedFields::LinkAddress, getLinkAddress().toString());
+		serializer.writeField(SerializedFields::PeerAddress, getPeerAddress().toString());
+		serializeOptions(serializer, SerializedFields::Options, SerializedFields::Option);
 	}
 
 }  // namespace pcpp

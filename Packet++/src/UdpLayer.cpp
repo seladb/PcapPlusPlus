@@ -148,7 +148,12 @@ namespace pcpp
 		{
 			constructNextLayer<GtpV2Layer>(udpData, udpDataLen);
 		}
-		else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) &&
+		else if ((DhcpV6LayerBase::isDhcpV6Port(portSrc) || DhcpV6LayerBase::isDhcpV6Port(portDst)) &&
+		         (DhcpV6RelayLayer::isDataValid(udpData, udpDataLen)))
+		{
+			constructNextLayer<DhcpV6RelayLayer>(udpData, udpDataLen);
+		}
+		else if ((DhcpV6LayerBase::isDhcpV6Port(portSrc) || DhcpV6LayerBase::isDhcpV6Port(portDst)) &&
 		         (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
 		{
 			constructNextLayer<DhcpV6Layer>(udpData, udpDataLen);
