@@ -982,7 +982,7 @@ namespace pcpp
 		}
 		case SomeIpSdOption::OptionType::ConfigurationString:
 		{
-			if (SomeIpSdConfigurationOption::isDataValid(this, remainingLength))
+			if (SomeIpSdConfigurationOption::isDataValid(this, offset, remainingLength))
 			{
 				return new SomeIpSdConfigurationOption(this, offset);
 			}
