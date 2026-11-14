@@ -326,6 +326,7 @@ namespace pcpp
 				return result;
 			}
 
+			// cppcheck-suppress duplInheritedMember
 			/// @brief Checksum value, in host byte order, written as a hexadecimal string (written if checksumBit is
 			/// set)
 			static const FieldDescriptor Checksum;
