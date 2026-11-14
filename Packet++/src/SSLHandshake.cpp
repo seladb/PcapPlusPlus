@@ -1304,18 +1304,21 @@ namespace pcpp
 
 		ssl_tls_handshake_layer* hsMsgHeader = reinterpret_cast<ssl_tls_handshake_layer*>(data);
 
-		uint64_t value;
-		memcpy(&value, data, sizeof(value));
-
-		if (dataLen >= 16 && (be64toh(value) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
+		if (dataLen >= 16)
 		{
-			// possibly Encrypted Handshake Message
-			// used heuristic:
-			// - handshake layer of more than 16 byte
-			// - first 5 bytes of the handshake message are zeroes
-			// - or wrong message length is over 64K
-			// - or message type makes so sense (handled through the switch statement)
-			return new SSLUnknownMessage(data, dataLen, container);
+			uint64_t value;
+			memcpy(&value, data, sizeof(value));
+
+			if (be64toh(value) <= 0xFFFFFF || hsMsgHeader->length1 >= 1)
+			{
+				// possibly Encrypted Handshake Message
+				// used heuristic:
+				// - handshake layer of more than 16 byte
+				// - first 5 bytes of the handshake message are zeroes
+				// - or wrong message length is over 64K
+				// - or message type makes so sense (handled through the switch statement)
+				return new SSLUnknownMessage(data, dataLen, container);
+			}
 		}
 
 		switch (hsMsgHeader->handshakeType)
@@ -1986,7 +1989,7 @@ namespace pcpp
 		// TODO: certificates length is 3B. Currently assuming the MSB is 0 and reading only 2 LSBs
 		uint8_t* curPos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
 		uint16_t certificatesLength;
-		memcpy(&certificatesLength, curPos + sizeof(uint8_t), sizeof(certificatesLength));
+		memcpy(&certificatesLength, curPos, sizeof(certificatesLength));
 		certificatesLength = be16toh(certificatesLength);
 		if (certificatesLength == 0)
 			return;
