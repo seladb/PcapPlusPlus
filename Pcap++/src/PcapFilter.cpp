@@ -350,7 +350,18 @@ namespace pcpp
 		result = "ether proto " + stream.str();
 	}
 
-	CompositeFilter::CompositeFilter(const std::vector<GeneralFilter*>& filters) : m_FilterList(filters)
+	CompositeFilter::CompositeFilter(const std::vector<GeneralFilter*>& filters) : m_FilterList()
+	{
+		m_FilterList.reserve(filters.size());
+		for (const GeneralFilter* f : filters)
+		{
+			// Non-owning: no-op deleter preserves the old semantics
+			m_FilterList.emplace_back(f, internal::GeneralFilterNoopDeleter{});
+		}
+	}
+
+	CompositeFilter::CompositeFilter(std::vector<std::shared_ptr<const GeneralFilter>> filters)
+	    : m_FilterList(std::move(filters))
 	{}
 
 	// cppcheck-suppress constParameter
@@ -358,7 +369,20 @@ namespace pcpp
 	{
 		for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
 		{
-			if (*it == filter)
+			if (it->get() == filter)
+			{
+				m_FilterList.erase(it);
+				invalidateCache();
+				break;
+			}
+		}
+	}
+
+	void CompositeFilter::removeFilter(const GeneralFilter& filter)
+	{
+		for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
+		{
+			if (it->get() == &filter)
 			{
 				m_FilterList.erase(it);
 				invalidateCache();
@@ -369,7 +393,18 @@ namespace pcpp
 
 	void CompositeFilter::setFilters(const std::vector<GeneralFilter*>& filters)
 	{
-		m_FilterList = filters;
+		m_FilterList.reserve(filters.size());
+		for (const GeneralFilter* f : filters)
+		{
+			// Non-owning: no-op deleter preserves the old semantics
+			m_FilterList.emplace_back(f, internal::GeneralFilterNoopDeleter{});
+		}
+		invalidateCache();
+	}
+
+	void CompositeFilter::setFilters(std::vector<std::shared_ptr<const GeneralFilter>> filters)
+	{
+		m_FilterList = std::move(filters);
 		invalidateCache();
 	}
 
