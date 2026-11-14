@@ -393,6 +393,7 @@ namespace pcpp
 
 	void CompositeFilter::setFilters(const std::vector<GeneralFilter*>& filters)
 	{
+		m_FilterList.clear();
 		m_FilterList.reserve(filters.size());
 		for (const GeneralFilter* f : filters)
 		{
