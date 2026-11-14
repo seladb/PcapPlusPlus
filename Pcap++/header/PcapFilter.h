@@ -625,6 +625,18 @@ namespace pcpp
 		}
 	};
 
+	namespace internal
+	{
+		/// @brief A deleter that does nothing. This is used for non-owning shared pointers
+		/// to GeneralFilter objects while the deprecated functions taking GeneralFilter*
+		/// are still in use.
+		struct GeneralFilterNoopDeleter
+		{
+			void operator()(const GeneralFilter*) const noexcept
+			{}
+		};
+	}  // namespace internal
+
 	/// @class CompositeFilter
 	/// The base class for all filter classes composed of several other filters. This class is virtual and abstract,
 	/// hence cannot be instantiated.
@@ -633,7 +645,7 @@ namespace pcpp
 	class CompositeFilter : public GeneralFilter
 	{
 	protected:
-		std::vector<GeneralFilter*> m_FilterList;
+		std::vector<std::shared_ptr<const GeneralFilter>> m_FilterList;
 
 	public:
 		/// An empty constructor for this class. Use addFilter() to add filters to the composite filter.
@@ -641,23 +653,52 @@ namespace pcpp
 
 		/// A constructor that gets a list of pointers to filters and creates one filter from all filters
 		/// @param[in] filters The list of pointers to filters
+		PCPP_DEPRECATED(
+		    "Use the std::vector<std::shared_ptr<const GeneralFilter>> overload; this one does not take ownership")
 		explicit CompositeFilter(const std::vector<GeneralFilter*>& filters);
+
+		/// A constructor that gets a list of shared pointers to filters and creates one filter from all filters
+		/// @param[in] filters The list of shared pointers to filters
+		explicit CompositeFilter(std::vector<std::shared_ptr<const GeneralFilter>> filters);
 
 		/// Add filter to the composite filter
 		/// @param[in] filter The filter to add
+		PCPP_DEPRECATED("Use the std::shared_ptr<const GeneralFilter> overload; this one does not take ownership")
 		void addFilter(GeneralFilter* filter)
+		{
+			// Non-owning: no-op deleter preserves the old semantics
+			m_FilterList.emplace_back(filter, internal::GeneralFilterNoopDeleter{});
+			invalidateCache();
+		}
+
+		/// Add filter to the composite filter
+		/// @param[in] filter The filter to add
+		/// @return A reference to this object, to allow chaining of addFilter() calls
+		CompositeFilter& addFilter(std::shared_ptr<const GeneralFilter> filter)
 		{
 			m_FilterList.push_back(filter);
 			invalidateCache();
+			return *this;
 		}
 
 		/// Removes the first matching filter from the composite filter
 		/// @param[in] filter The filter to remove
+		PCPP_DEPRECATED("Use the GeneralFilter& overload")
 		void removeFilter(GeneralFilter* filter);
+
+		/// Removes the first matching filter from the composite filter
+		/// @param[in] filter The filter to remove
+		void removeFilter(const GeneralFilter& filter);
 
 		/// Remove the current filters and set new ones
 		/// @param[in] filters The new filters to set. The previous ones will be removed
+		PCPP_DEPRECATED(
+		    "Use the std::vector<std::shared_ptr<const GeneralFilter>> overload; this one does not take ownership")
 		void setFilters(const std::vector<GeneralFilter*>& filters);
+
+		/// Remove the current filters and set new ones
+		/// @param[in] filters The new filters to set. The previous ones will be removed
+		void setFilters(std::vector<std::shared_ptr<const GeneralFilter>> filters);
 
 		/// Remove all filters from the composite filter.
 		void clearAllFilters()
@@ -744,21 +785,38 @@ namespace pcpp
 	class NotFilter : public GeneralFilter
 	{
 	private:
-		GeneralFilter* m_FilterToInverse;
+		std::shared_ptr<const GeneralFilter> m_FilterToInverse;
 
 	public:
 		/// A constructor that gets a pointer to a filter and create the inverse version of it
 		/// @param[in] filterToInverse A pointer to filter which the created filter be the inverse of
+		PCPP_DEPRECATED("Use the std::shared_ptr<const GeneralFilter> overload; this one does not take ownership")
 		explicit NotFilter(GeneralFilter* filterToInverse)
-		{
-			m_FilterToInverse = filterToInverse;
-		}
+		    :  // Non-owning: no-op deleter preserves the old semantics
+		      m_FilterToInverse(
+		          std::shared_ptr<const GeneralFilter>(filterToInverse, internal::GeneralFilterNoopDeleter{}))
+		{}
+
+		/// A constructor that gets a shared pointer to a filter and create the inverse version of it
+		/// @param[in] filterToInverse A shared pointer to filter which the created filter be the inverse of
+		explicit NotFilter(std::shared_ptr<const GeneralFilter> filterToInverse) : m_FilterToInverse(filterToInverse)
+		{}
 
 		void parseToString(std::string& result) const override;
 
 		/// Set a filter to create an inverse filter from
 		/// @param[in] filterToInverse A pointer to filter which the created filter be the inverse of
+		PCPP_DEPRECATED("Use the std::shared_ptr<const GeneralFilter> overload; this one does not take ownership")
 		void setFilter(GeneralFilter* filterToInverse)
+		{
+			m_FilterToInverse =
+			    std::shared_ptr<const GeneralFilter>(filterToInverse, internal::GeneralFilterNoopDeleter{});
+			invalidateCache();
+		}
+
+		/// Set a filter to create an inverse filter from
+		/// @param[in] filterToInverse A shared pointer to filter which the created filter be the inverse of
+		void setFilter(std::shared_ptr<const GeneralFilter> filterToInverse)
 		{
 			m_FilterToInverse = filterToInverse;
 			invalidateCache();

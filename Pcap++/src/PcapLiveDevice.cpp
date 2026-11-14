@@ -1173,6 +1173,7 @@ namespace pcpp
 		}
 	}
 
+	// cppcheck-suppress constParameter
 	bool PcapLiveDevice::matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket)
 	{
 		if (rawPacket == nullptr)
