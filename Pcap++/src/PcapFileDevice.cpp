@@ -534,7 +534,7 @@ namespace pcpp
 	IFileReaderDevice* IFileReaderDevice::getReader(const std::string& fileName)
 	{
 		const auto extensionPos = fileName.find_last_of('.');
-		const auto fileExtension = extensionPos != std::string::npos ? fileName.substr(extensionPos) : "";
+		const std::string fileExtension = extensionPos != std::string::npos ? fileName.substr(extensionPos) : "";
 
 		if (fileExtension == ".pcapng" || fileExtension == ".zstd" || fileExtension == ".zst")
 			return new PcapNgFileReaderDevice(fileName);
