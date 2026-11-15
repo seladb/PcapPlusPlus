@@ -510,22 +510,22 @@ namespace pcpp
 
 	IPv4Option IPv4Layer::getOption(IPv4OptionTypes option) const
 	{
-		return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
+		return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getOptionsLen());
 	}
 
 	IPv4Option IPv4Layer::getFirstOption() const
 	{
-		return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
+		return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getOptionsLen());
 	}
 
 	IPv4Option IPv4Layer::getNextOption(IPv4Option& option) const
 	{
-		return m_OptionReader.getNextTLVRecord(option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
+		return m_OptionReader.getNextTLVRecord(option, getOptionsBasePtr(), getOptionsLen());
 	}
 
 	size_t IPv4Layer::getOptionCount() const
 	{
-		return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
+		return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getOptionsLen());
 	}
 
 	void IPv4Layer::adjustOptionsTrailer(size_t totalOptSize)

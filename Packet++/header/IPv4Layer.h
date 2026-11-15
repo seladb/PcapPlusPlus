@@ -663,6 +663,11 @@ namespace pcpp
 		{
 			return m_Data + sizeof(iphdr);
 		}
+		size_t getOptionsLen() const
+		{
+			// the IHL may claim more bytes than the layer actually holds
+			return (std::min)(getHeaderLen(), m_DataLen) - sizeof(iphdr);
+		}
 		IPv4Option addOptionAt(const IPv4OptionBuilder& optionBuilder, int offset);
 		void adjustOptionsTrailer(size_t totalOptSize);
 		void initLayer();

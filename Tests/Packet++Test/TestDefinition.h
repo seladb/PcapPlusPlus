@@ -33,11 +33,13 @@ PTF_TEST_CASE(IPv4OptionsParsingTest);
 PTF_TEST_CASE(IPv4OptionsEditTest);
 PTF_TEST_CASE(IPv4UdpChecksum);
 PTF_TEST_CASE(IPv4ComputeFieldsInvalidIhl);
+PTF_TEST_CASE(IPv4OptionsInvalidIhl);
 
 // Implemented in IPv6Tests.cpp
 PTF_TEST_CASE(IPv6UdpPacketParseAndCreate);
 PTF_TEST_CASE(IPv6FragmentationTest);
 PTF_TEST_CASE(IPv6ExtensionsTest);
+PTF_TEST_CASE(IPv6ExtensionsTruncatedTest);
 
 // Implemented in TcpTests.cpp
 PTF_TEST_CASE(TcpPacketNoOptionsParsing);
