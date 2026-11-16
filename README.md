@@ -217,22 +217,22 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 ### Data Link Layer (L2)
 
-1. Cisco HDLC
-2. Ethernet II
-3. GENEVE
-4. IEEE 802.3 Ethernet
-5. LLC (Only BPDU supported)
-6. Null/Loopback
-7. Packet trailer (a.k.a footer or padding)
-8. PPPoE
-9. SLL (Linux cooked capture)
-10. SLL2 (Linux cooked capture v2)
-11. STP
-12. VLAN
-13. VXLAN
-14. Wake on LAN (WoL)
-15. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
-16. Bluetooth HCI
+1. Bluetooth HCI
+2. Cisco HDLC
+3. Ethernet II
+4. GENEVE
+5. IEEE 802.3 Ethernet
+6. LLC (Only BPDU supported)
+7. Null/Loopback
+8. Packet trailer (a.k.a footer or padding)
+9. PPPoE
+10. SLL (Linux cooked capture)
+11. SLL2 (Linux cooked capture v2)
+12. STP
+13. VLAN
+14. VXLAN
+15. Wake on LAN (WoL)
+16. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
 
 
 ### Network Layer (L3)

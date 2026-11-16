@@ -303,3 +303,152 @@ PTF_TEST_CASE(BluetoothHciEventCreationTest)
 		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 0);
 	}
 }
+
+PTF_TEST_CASE(BluetoothHciEventEditTest)
+{
+	// setEventCode() on a parsed packet
+	{
+		auto rawPacket = pcpp_tests::utils::createPacketFromHexResource(
+		    "PacketExamples/bluetoothHciCommandStatusWithPhdr.dat",
+		    pcpp_tests::utils::PacketFactory(pcpp::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR));
+		pcpp::Packet packet(rawPacket.get());
+
+		auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+		PTF_ASSERT_NOT_NULL(eventLayer);
+		PTF_ASSERT_EQUAL(eventLayer->getEventCode(), 0x0f);
+
+		eventLayer->setEventCode(0x0e);
+		PTF_ASSERT_EQUAL(eventLayer->getEventCode(), 0x0e);
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 4);
+		PTF_ASSERT_EQUAL(eventLayer->toString(), "Bluetooth HCI Event, Event Code: 0x0e");
+	}
+
+	// setParameters() on a parsed packet: extend, shorten, same size and empty
+	{
+		auto rawPacket = pcpp_tests::utils::createPacketFromHexResource(
+		    "PacketExamples/bluetoothHciCommandStatusWithPhdr.dat",
+		    pcpp_tests::utils::PacketFactory(pcpp::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR));
+		pcpp::Packet packet(rawPacket.get());
+
+		auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+		PTF_ASSERT_NOT_NULL(eventLayer);
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 4);
+
+		// Extend: 4 -> 6 parameter bytes
+		std::vector<uint8_t> longerParams = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
+		eventLayer->setParameters(longerParams);
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 6);
+		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 13);
+		PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 13);
+		PTF_ASSERT_BUF_COMPARE(eventLayer->getParameters(), longerParams.data(), longerParams.size());
+		PTF_ASSERT_EQUAL(eventLayer->getEventCode(), 0x0f);
+		PTF_ASSERT_EQUAL(eventLayer->getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
+		                 enumclass);
+
+		// Shorten: 6 -> 2 parameter bytes
+		std::vector<uint8_t> shorterParams = { 0xaa, 0xbb };
+		eventLayer->setParameters(shorterParams);
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 2);
+		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 9);
+		PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 9);
+		PTF_ASSERT_BUF_COMPARE(eventLayer->getParameters(), shorterParams.data(), shorterParams.size());
+
+		// Same size: 2 -> 2 parameter bytes
+		std::vector<uint8_t> sameSizeParams = { 0xcc, 0xdd };
+		eventLayer->setParameters(sameSizeParams);
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 2);
+		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 9);
+		PTF_ASSERT_BUF_COMPARE(eventLayer->getParameters(), sameSizeParams.data(), sameSizeParams.size());
+
+		// Empty parameters
+		eventLayer->setParameters({});
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 0);
+		PTF_ASSERT_EQUAL(eventLayer->getHeaderLen(), 7);
+		PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 7);
+		PTF_ASSERT_EQUAL(eventLayer->getEventCode(), 0x0f);
+	}
+
+	// setParameters() on a standalone layer with no direction header
+	{
+		uint8_t statusParam[] = { 0x00 };
+		pcpp::BluetoothHciEventLayer eventLayer(0x01, statusParam, sizeof(statusParam));
+
+		eventLayer.setEventCode(0x0f);
+		PTF_ASSERT_EQUAL(eventLayer.getEventCode(), 0x0f);
+
+		std::vector<uint8_t> newParams = { 0x00, 0x01, 0x01, 0x04 };
+		eventLayer.setParameters(newParams);
+		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 4);
+		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), 7);
+		PTF_ASSERT_BUF_COMPARE(eventLayer.getParameters(), newParams.data(), newParams.size());
+		PTF_ASSERT_EQUAL(eventLayer.getPacketType(), pcpp::BluetoothHciLayer::BluetoothHciPacketType::Event, enumclass);
+	}
+
+	// setParameters() with more than 255 bytes throws and leaves the layer unchanged
+	{
+		uint8_t statusParam[] = { 0x00 };
+		pcpp::BluetoothHciEventLayer eventLayer(0x01, statusParam, sizeof(statusParam));
+
+		std::vector<uint8_t> tooLong(256, 0xab);
+		PTF_ASSERT_RAISES(eventLayer.setParameters(tooLong), std::invalid_argument,
+		                  "Parameters length is greater than 255 bytes");
+		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 1);
+		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), 4);
+	}
+
+	// setParameters() throws if the layer can't be extended, e.g. when the packet buffer is pre-allocated and full
+	{
+		uint8_t buffer[4];
+		pcpp::Packet packet(buffer, sizeof(buffer), pcpp::LINKTYPE_BLUETOOTH_HCI_H4);
+
+		uint8_t statusParam[] = { 0x00 };
+		auto* eventLayer = new pcpp::BluetoothHciEventLayer(0x01, statusParam, sizeof(statusParam));
+		PTF_ASSERT_TRUE(packet.addLayer(eventLayer, true));
+
+		std::vector<uint8_t> longerParams = { 0x01, 0x02 };
+		SuppressLogs suppressLogs;
+		PTF_ASSERT_RAISES(eventLayer->setParameters(longerParams), std::runtime_error,
+		                  "Could not extend the Bluetooth HCI Event layer to fit the new parameters");
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 1);
+	}
+}
+
+PTF_TEST_CASE(BluetoothHciEventEdgeCasesTest)
+{
+	// Creating a layer with a direction header requires a valid direction
+	{
+		uint8_t statusParam[] = { 0x00 };
+		PTF_ASSERT_RAISES(pcpp::BluetoothHciEventLayer(pcpp::BluetoothHciLayer::BluetoothHciDirection::Unknown, 0x01,
+		                                               statusParam, sizeof(statusParam)),
+		                  std::invalid_argument, "Direction must be HostToController or ControllerToHost");
+	}
+
+	// parameterTotalLength larger than the available bytes: the available length is returned
+	{
+		uint8_t truncated[] = { 0x04, 0x0f, 0x04, 0x00, 0x01 };
+		pcpp::RawPacket rawPacket(truncated, sizeof(truncated), timeval{ 0, 0 }, false,
+		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4);
+		pcpp::Packet packet(&rawPacket);
+
+		auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+		PTF_ASSERT_NOT_NULL(eventLayer);
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 2);
+	}
+
+	// More than 255 bytes available after the event header: the available length must not be truncated to 8 bits,
+	// so the parameterTotalLength field (255) is returned
+	{
+		std::vector<uint8_t> data(4 + 1 + 2 + 256, 0x00);
+		data[3] = 0x01;  // ControllerToHost
+		data[4] = 0x04;  // Event indicator
+		data[5] = 0x0f;  // Event code
+		data[6] = 0xff;  // Parameter total length
+		pcpp::RawPacket rawPacket(data.data(), static_cast<int>(data.size()), timeval{ 0, 0 }, false,
+		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR);
+		pcpp::Packet packet(&rawPacket);
+
+		auto* eventLayer = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
+		PTF_ASSERT_NOT_NULL(eventLayer);
+		PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 255);
+	}
+}

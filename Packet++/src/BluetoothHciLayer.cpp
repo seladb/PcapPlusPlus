@@ -2,6 +2,7 @@
 #include "Serializers.h"
 #include "SystemUtils.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iomanip>
 #include <limits>
@@ -67,7 +68,7 @@ namespace pcpp
 			return BluetoothHciDirection::Unknown;
 		}
 
-		auto* directionHeader = reinterpret_cast<bluetooth_hci_direction_header*>(m_Data);
+		const auto* directionHeader = reinterpret_cast<const bluetooth_hci_direction_header*>(m_Data);
 		switch (netToHost32(directionHeader->direction))
 		{
 		case static_cast<uint32_t>(BluetoothHciDirection::HostToController):
@@ -104,6 +105,12 @@ namespace pcpp
 	                                               const uint8_t* parameters, uint8_t paramLen)
 	    : BluetoothHciLayer(true)
 	{
+		if (direction != BluetoothHciDirection::HostToController &&
+		    direction != BluetoothHciDirection::ControllerToHost)
+		{
+			throw std::invalid_argument("Direction must be HostToController or ControllerToHost");
+		}
+
 		initLayer(eventCode, parameters, paramLen);
 		uint32_t netDirection = hostToNet32(static_cast<uint32_t>(direction));
 		std::memcpy(m_Data, &netDirection, directionHeaderSize);
@@ -123,11 +130,19 @@ namespace pcpp
 		}
 	}
 
+	uint8_t BluetoothHciEventLayer::getParameterTotalLength() const
+	{
+		// Compute the available length as size_t so that it isn't truncated to 8 bits before the comparison
+		size_t availableLen =
+		    m_DataLen - getDirectionHeaderLen() - sizeof(uint8_t) - sizeof(bluetooth_hci_event_header);
+		size_t declaredLen = getEventHeader()->parameterTotalLength;
+		return static_cast<uint8_t>(std::min(declaredLen, availableLen));
+	}
+
 	void BluetoothHciEventLayer::setParameters(const std::vector<uint8_t>& parameters)
 	{
 		if (parameters.size() > std::numeric_limits<uint8_t>::max())
 		{
-
 			throw std::invalid_argument("Parameters length is greater than 255 bytes");
 		}
 
@@ -137,19 +152,22 @@ namespace pcpp
 
 		if (newParamLen > currentParamLen)
 		{
-
-			extendLayer(paramOffset + currentParamLen, newParamLen - currentParamLen);
+			if (!extendLayer(static_cast<int>(paramOffset + currentParamLen), newParamLen - currentParamLen))
+			{
+				throw std::runtime_error("Could not extend the Bluetooth HCI Event layer to fit the new parameters");
+			}
 		}
 		else if (newParamLen < currentParamLen)
 		{
-
-			shortenLayer(paramOffset + newParamLen, currentParamLen - newParamLen);
+			if (!shortenLayer(static_cast<int>(paramOffset + newParamLen), currentParamLen - newParamLen))
+			{
+				throw std::runtime_error("Could not shorten the Bluetooth HCI Event layer to fit the new parameters");
+			}
 		}
 
 		getEventHeader()->parameterTotalLength = static_cast<uint8_t>(newParamLen);
 		if (newParamLen > 0)
 		{
-
 			std::memcpy(m_Data + paramOffset, parameters.data(), newParamLen);
 		}
 	}

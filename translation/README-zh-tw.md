@@ -217,22 +217,22 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 
 ### 資料連接層 (L2)
 
-1. Cisco HDLC
-2. Ethernet II
-3. GENEVE
-4. IEEE 802.3 Ethernet
-5. LLC（僅支援 BPDU）
-6. Null/Loopback
-7. Packet trailer（又稱 footer 或 padding）
-8. PPPoE
-9. SLL（Linux 擷取協定）
-10. SLL2（Linux 擷取協定 v2）
-11. STP
-12. VLAN
-13. VXLAN
-14. Wake on LAN (WoL)
-15. NFLOG（Linux Netfilter NFLOG）- 僅支援解析（不支援編輯）
-16. Bluetooth HCI
+1. Bluetooth HCI
+2. Cisco HDLC
+3. Ethernet II
+4. GENEVE
+5. IEEE 802.3 Ethernet
+6. LLC（僅支援 BPDU）
+7. Null/Loopback
+8. Packet trailer（又稱 footer 或 padding）
+9. PPPoE
+10. SLL（Linux 擷取協定）
+11. SLL2（Linux 擷取協定 v2）
+12. STP
+13. VLAN
+14. VXLAN
+15. Wake on LAN (WoL)
+16. NFLOG（Linux Netfilter NFLOG）- 僅支援解析（不支援編輯）
 
 ### 網路層 (L3)
 

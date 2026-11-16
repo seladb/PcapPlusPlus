@@ -176,6 +176,7 @@ namespace pcpp
 		/// @param[in] eventCode The HCI event code
 		/// @param[in] parameters Pointer to the raw parameter bytes (may be nullptr if paramLen is 0)
 		/// @param[in] paramLen Length of the parameter bytes
+		/// @throw std::invalid_argument if direction is not HostToController or ControllerToHost
 		BluetoothHciEventLayer(BluetoothHciDirection direction, uint8_t eventCode, const uint8_t* parameters,
 		                       uint8_t paramLen);
 
@@ -190,19 +191,13 @@ namespace pcpp
 		/// @param[in] eventCode The new event code
 		void setEventCode(uint8_t eventCode)
 		{
-
 			getEventHeader()->eventCode = eventCode;
 		}
 
-		/// Get the parameter total length field
+		/// Get the parameter total length. If the packet is truncated, i.e. the parameterTotalLength field is
+		/// larger than the number of parameter bytes actually present, the number of bytes present is returned
 		/// @return The parameter total length, in bytes
-		uint8_t getParameterTotalLength() const
-		{
-
-			return std::min<uint8_t>(getEventHeader()->parameterTotalLength, m_DataLen - getDirectionHeaderLen() -
-			                                                                     sizeof(uint8_t) -
-			                                                                     sizeof(bluetooth_hci_event_header));
-		}
+		uint8_t getParameterTotalLength() const;
 
 		/// Get a pointer to the raw event parameters
 		/// @return A pointer to the raw parameter bytes
@@ -214,6 +209,7 @@ namespace pcpp
 		/// Replace the parameter bytes of this packet. The parameterTotalLength field is updated to match
 		/// @param[in] parameters The new parameter bytes. Must contain at most 255 bytes
 		/// @throw std::invalid_argument if parameters contains more than 255 bytes
+		/// @throw std::runtime_error if the layer could not be extended or shortened to fit the new parameters
 		void setParameters(const std::vector<uint8_t>& parameters);
 
 		// implement abstract methods
