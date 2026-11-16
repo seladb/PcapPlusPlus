@@ -52,6 +52,18 @@ namespace pcpp
 	/// PPPoESessionLayer
 	/// ~~~~~~~~~~~~~~~~~
 
+	PPPoESessionLayer::PPPoESessionLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	    : PPPoELayer(data, dataLen, prevLayer, packet, PPPoESession)
+	{
+		if (m_DataLen < sizeof(pppoe_header))
+			return;
+
+		// bytes after the PPPoE payload (such as Ethernet padding) belong to the packet trailer
+		size_t totalLen = sizeof(pppoe_header) + be16toh(getPPPoEHeader()->payloadLength);
+		if (totalLen >= getHeaderLen() && totalLen < m_DataLen)
+			m_DataLen = totalLen;
+	}
+
 	void PPPoESessionLayer::parseNextLayer()
 	{
 		size_t headerLen = getHeaderLen();
