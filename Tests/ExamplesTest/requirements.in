@@ -2,8 +2,7 @@ attrs
 iniconfig
 py
 pyparsing
-# pytest 9.x is not available on RHEL, the latest supported version is 8.4.2
-pytest<9
+pytest
 scapy
 toml
 pytest-rerunfailures
