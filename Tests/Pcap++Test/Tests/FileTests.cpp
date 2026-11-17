@@ -1145,6 +1145,20 @@ PTF_TEST_CASE(TestPcapNgFilePrecision)
 	readerDev.close();
 }  // TestPcapNgFilePrecision
 
+PTF_TEST_CASE(TestPcapNgSimplePacketBlockOverlongLength)
+{
+	pcpp::PcapNgFileReaderDevice readerDev("PcapExamples/SpbOverlongOriginalLength.pcapng");
+	PTF_ASSERT_TRUE(readerDev.open());
+
+	pcpp::RawPacket rawPacket;
+	PTF_ASSERT_TRUE(readerDev.getNextPacket(rawPacket));
+	// The SPB contains 64 packet bytes but claims original_packet_length=60000.
+	// captured_length must be clamped to the bytes present in the block.
+	PTF_ASSERT_EQUAL(rawPacket.getRawDataLen(), 64);
+	PTF_ASSERT_EQUAL(rawPacket.getFrameLength(), 60000);
+	readerDev.close();
+}  // TestPcapNgSimplePacketBlockOverlongLength
+
 PTF_TEST_CASE(TestPcapSllFileReadWrite)
 {
 	pcpp::PcapFileReaderDevice readerDev(SLL_PCAP_PATH);
@@ -2539,6 +2553,32 @@ PTF_TEST_CASE(PcapFileSerializeTest)
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
 		auto count = pcpp::serializePackets(reader, serializer);
+
+		PTF_ASSERT_EQUAL(count, static_cast<size_t>(2));
+	}
+
+	// Serialize only the first packet
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_MICRO_PATH);
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		auto count = pcpp::serializePackets(reader, serializer, 1);
+
+		PTF_ASSERT_EQUAL(count, static_cast<size_t>(1));
+
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"([{"timestamp":{"sec":1,"nsec":2000},"frameLength":16,"linkLayer":1,"linkLayerName":"Ethernet","layers":[{"protocolName":"Ethernet","protocolId":1,"length":14,"srcMacAddress":"06:07:08:09:0a:0b","dstMacAddress":"00:01:02:03:04:05","etherType":3085},{"protocolName":"GenericPayload","protocolId":25,"length":2}]}])");
+	}
+
+	// Limit larger than the number of packets in the file
+	{
+		pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAP_MICRO_PATH);
+
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		auto count = pcpp::serializePackets(reader, serializer, 10);
 
 		PTF_ASSERT_EQUAL(count, static_cast<size_t>(2));
 	}

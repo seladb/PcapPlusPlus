@@ -4,6 +4,7 @@
 #include "Packet.h"
 #include "S7CommLayer.h"
 #include "SystemUtils.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -25,6 +26,14 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	PTF_ASSERT_EQUAL(S7CommLayer->getDataLength(), 212);
 	PTF_ASSERT_EQUAL(S7CommLayer->getHeaderLen(), 234);
 	PTF_ASSERT_EQUAL(S7CommLayer->toString(), "S7Comm Layer, Userdata");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		S7CommLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"S7COMM","protocolId":53,"length":234,"msgType":7,)"
+		                            R"("msgTypeName":"Userdata","pduRef":64779,"paramLength":12,"dataLength":212})");
+	}
 
 	PTF_ASSERT_EQUAL(S7CommLayer->getParameter()->getDataLength(), 12);
 	uint8_t expectedParameterData[] = { 0, 1, 18, 8, 18, 132, 1, 1, 0, 0, 0, 0 };
@@ -57,6 +66,16 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	PTF_ASSERT_EQUAL(s7commLayer->getHeaderLen(), 82);
 
 	PTF_ASSERT_EQUAL(s7commLayer->toString(), "S7Comm Layer, Ack-Data");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		s7commLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"({"protocolName":"S7COMM","protocolId":53,"length":82,"msgType":3,)"
+		                 R"("msgTypeName":"AckData","pduRef":0,"paramLength":2,"dataLength":68,"errorClass":0,)"
+		                 R"("errorCode":0})");
+	}
 
 	s7commLayer->setErrorCode(6);
 	s7commLayer->setErrorClass(7);

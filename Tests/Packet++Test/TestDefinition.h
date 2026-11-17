@@ -18,6 +18,13 @@ PTF_TEST_CASE(TruncatedArpAndVlanPayloadTest);
 PTF_TEST_CASE(MplsLayerTest);
 PTF_TEST_CASE(VxlanParsingAndCreationTest);
 
+// Implemented in GeneveTests.cpp
+PTF_TEST_CASE(GeneveParsingTest);
+PTF_TEST_CASE(GeneveCreationTest);
+PTF_TEST_CASE(GeneveEditTest);
+PTF_TEST_CASE(GeneveDataValidationTest);
+PTF_TEST_CASE(GeneveOptionTraversalTest);
+
 // Implemented in IPv4Tests.cpp
 PTF_TEST_CASE(IPv4PacketCreation);
 PTF_TEST_CASE(IPv4PacketParsing);
@@ -61,6 +68,7 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest);
 PTF_TEST_CASE(ParsePartialPacketTest);
 PTF_TEST_CASE(PacketTrailerTest);
 PTF_TEST_CASE(ResizeLayerTest);
+PTF_TEST_CASE(PayloadLayerNullDataTest);
 PTF_TEST_CASE(PrintPacketAndLayersTest);
 PTF_TEST_CASE(ProtocolFamilyMembershipTest);
 PTF_TEST_CASE(PacketParseLayerLimitTest);
@@ -97,6 +105,7 @@ PTF_TEST_CASE(DnsLayerAddResourceOutOfOrderTest);
 PTF_TEST_CASE(DnsOverTcpParsingTest);
 PTF_TEST_CASE(DnsOverTcpCreationTest);
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest);
+PTF_TEST_CASE(DnsNXDomainTest);
 
 // Implemented in DoIpTests.cpp
 PTF_TEST_CASE(DoIpRoutActReqParsing);

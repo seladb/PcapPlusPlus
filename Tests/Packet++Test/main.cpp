@@ -131,6 +131,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TruncatedArpAndVlanPayloadTest, "vlan;arp;sll;gre");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
 	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
+	PTF_RUN_TEST(GeneveParsingTest, "geneve");
+	PTF_RUN_TEST(GeneveCreationTest, "geneve");
+	PTF_RUN_TEST(GeneveEditTest, "geneve");
+	PTF_RUN_TEST(GeneveDataValidationTest, "geneve");
+	PTF_RUN_TEST(GeneveOptionTraversalTest, "geneve");
 
 	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");
 	PTF_RUN_TEST(IPv4PacketParsing, "ipv4");
@@ -170,6 +175,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ParsePartialPacketTest, "packet;partial_packet");
 	PTF_RUN_TEST(PacketTrailerTest, "packet;packet_trailer");
 	PTF_RUN_TEST(ResizeLayerTest, "packet;resize");
+	PTF_RUN_TEST(PayloadLayerNullDataTest, "packet;payload");
 	PTF_RUN_TEST(PrintPacketAndLayersTest, "packet;print");
 	PTF_RUN_TEST(ProtocolFamilyMembershipTest, "packet");
 	PTF_RUN_TEST(PacketParseLayerLimitTest, "packet");
@@ -203,6 +209,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DnsOverTcpParsingTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerAddDnsKeyTest, "dns");
+	PTF_RUN_TEST(DnsNXDomainTest, "dns");
 
 	PTF_RUN_TEST(DoIpRoutActReqParsing, "doip");
 	PTF_RUN_TEST(DoIpRoutActReqCreation, "doip");

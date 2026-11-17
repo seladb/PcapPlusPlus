@@ -219,80 +219,81 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 1. Cisco HDLC
 2. Ethernet II
-3. IEEE 802.3 Ethernet
-4. LLC (Only BPDU supported)
-5. Null/Loopback
-6. Packet trailer (a.k.a footer or padding)
-7. PPPoE
-8. SLL (Linux cooked capture)
-9. SLL2 (Linux cooked capture v2)
-10. STP
-11. VLAN
-12. VXLAN
-13. Wake on LAN (WoL)
-14. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
+3. GENEVE
+4. IEEE 802.3 Ethernet
+5. LLC (Only BPDU supported)
+6. Null/Loopback
+7. Packet trailer (a.k.a footer or padding)
+8. PPPoE
+9. SLL (Linux cooked capture)
+10. SLL2 (Linux cooked capture v2)
+11. STP
+12. VLAN
+13. VXLAN
+14. Wake on LAN (WoL)
+15. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
 
 
 ### Network Layer (L3)
 
-15. ARP
-16. GRE
-17. ICMP
-18. ICMPv6
-19. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-20. IPv4
-21. IPv6
-22. MPLS
-23. NDP
-24. Raw IP (IPv4 & IPv6)
-25. VRRP (IPv4 & IPv6)
-26. WireGuard
+16. ARP
+17. GRE
+18. ICMP
+19. ICMPv6
+20. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+21. IPv4
+22. IPv6
+23. MPLS
+24. NDP
+25. Raw IP (IPv4 & IPv6)
+26. VRRP (IPv4 & IPv6)
+27. WireGuard
 
 ### Transport Layer (L4)
 
-27. COTP
-28. GTP (v1 & v2)
-29. IPSec AH & ESP - parsing only (no editing capabilities)
-30. QUIC v1 - parsing only (no editing capabilities)
-31. TCP
-32. TPKT
-33. UDP
+28. COTP
+29. GTP (v1 & v2)
+30. IPSec AH & ESP - parsing only (no editing capabilities)
+31. QUIC v1 - parsing only (no editing capabilities)
+32. TCP
+33. TPKT
+34. UDP
 
 ### Session Layer (L5)
 
-34. SDP
-35. SIP
+35. SDP
+36. SIP
 
 ### Presentation Layer (L6)
 
-36. SSL/TLS - parsing only (no editing capabilities)
+37. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-37. ASN.1 decoder and encoder
-38. BGP (v4)
-38. Cryptographic key decoders
-40. DHCP
-41. DHCPv6
-42. DNS
-43. DoIP
-44. FTP
-45. GVCP
-46. HTTP headers (request & response)
-47. LDAP
-48. Modbus
-49. MySQL - parsing only (no editing capabilities)
-50. NTP (v3, v4)
-51. PEM decoder and encoder
-52. PostgreSQL Wire Protocol (PGWire) - parsing only (no editing capabilities)
-53. Radius
-54. S7 Communication (S7comm)
-55. SMTP
-56. SOME/IP
-57. SSH - parsing only (no editing capabilities)
-58. Telnet - parsing only (no editing capabilities)
-59. X509 certificates - parsing only (no editing capabilities)
-60. Generic payload
+38. ASN.1 decoder and encoder
+39. BGP (v4)
+40. Cryptographic key decoders
+41. DHCP
+42. DHCPv6
+43. DNS
+44. DoIP
+45. FTP
+46. GVCP
+47. HTTP headers (request & response)
+48. LDAP
+49. Modbus
+50. MySQL - parsing only (no editing capabilities)
+51. NTP (v3, v4)
+52. PEM decoder and encoder
+53. PostgreSQL Wire Protocol (PGWire) - parsing only (no editing capabilities)
+54. Radius
+55. S7 Communication (S7comm)
+56. SMTP
+57. SOME/IP
+58. SSH - parsing only (no editing capabilities)
+59. Telnet - parsing only (no editing capabilities)
+60. X509 certificates - parsing only (no editing capabilities)
+61. Generic payload
 
 ## DPDK And PF_RING Support
 

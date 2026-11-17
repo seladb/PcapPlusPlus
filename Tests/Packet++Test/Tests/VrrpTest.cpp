@@ -151,8 +151,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	pcpp::IPv4Layer ipLayer1(pcpp::IPv4Address("192.168.0.30"), pcpp::IPv4Address("224.0.0.18"));
 	ipLayer1.getIPv4Header()->timeToLive = 255;
 
-	pcpp::Packet vrrpv2Packet(1);
 	pcpp::VrrpV2Layer vrrpv2Layer(1, 100, 1);
+	pcpp::Packet vrrpv2Packet(1);
 
 	vrrpv2Layer.addIPAddress(ipv4Address1);
 	vrrpv2Layer.addIPAddress(ipv4Address2);
@@ -222,8 +222,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	pcpp::IPv4Layer ipv4Layer(pcpp::IPv4Address("192.168.0.30"), pcpp::IPv4Address("224.0.0.18"));
 	ipv4Layer.getIPv4Header()->timeToLive = 255;
 
-	pcpp::Packet vrrpv3IPv4Packet(1);
 	pcpp::VrrpV3Layer vrrpv3IPv4Layer(pcpp::IPAddress::IPv4AddressType, 1, 100, 1);
+	pcpp::Packet vrrpv3IPv4Packet(1);
 
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address1);
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address2);
@@ -258,8 +258,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("fe80::1"), pcpp::IPv6Address("ff02::12"));
 	ipv6Layer.getIPv6Header()->hopLimit = 255;
 
-	pcpp::Packet ipv6Packet(1);
 	pcpp::VrrpV3Layer vrrpv3IPv6Layer(pcpp::IPAddress::IPv6AddressType, 1, 100, 1);
+	pcpp::Packet ipv6Packet(1);
 
 	ipAddresses.clear();
 	ipAddresses.push_back(ipv6Address1);

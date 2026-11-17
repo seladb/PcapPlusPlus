@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <chrono>
 #include <thread>
+#include <algorithm>
 
 #define MAX_BURST_SIZE 64
 
@@ -162,15 +163,6 @@ namespace pcpp
 		m_StopThread = true;
 	}
 
-	DpdkDevice::~DpdkDevice()
-	{
-		if (m_TxBuffers != nullptr)
-			delete[] m_TxBuffers;
-
-		if (m_TxBufferLastDrainTsc != nullptr)
-			delete[] m_TxBufferLastDrainTsc;
-	}
-
 	uint32_t DpdkDevice::getCurrentCoreId() const
 	{
 		return rte_lcore_id();
@@ -258,17 +250,8 @@ namespace pcpp
 		rte_eth_dev_stop(m_Id);
 		PCPP_LOG_DEBUG("Called rte_eth_dev_stop for device [" << m_DeviceName << "]");
 
-		if (m_TxBuffers != nullptr)
-		{
-			delete[] m_TxBuffers;
-			m_TxBuffers = nullptr;
-		}
-
-		if (m_TxBufferLastDrainTsc != nullptr)
-		{
-			delete[] m_TxBufferLastDrainTsc;
-			m_TxBufferLastDrainTsc = nullptr;
-		}
+		m_TxBuffers = nullptr;
+		m_TxBufferLastDrainTsc = nullptr;
 
 		m_DeviceOpened = false;
 	}
@@ -417,15 +400,10 @@ namespace pcpp
 			}
 		}
 
-		if (m_TxBuffers != nullptr)
-			delete[] m_TxBuffers;
-
-		if (m_TxBufferLastDrainTsc != nullptr)
-			delete[] m_TxBufferLastDrainTsc;
-
-		m_TxBuffers = new rte_eth_dev_tx_buffer*[numOfTxQueuesToInit];
-		m_TxBufferLastDrainTsc = new uint64_t[numOfTxQueuesToInit];
-		memset(m_TxBufferLastDrainTsc, 0, sizeof(uint64_t) * numOfTxQueuesToInit);
+		m_TxBufferDrainTsc = (rte_get_tsc_hz() + US_PER_S - 1) / US_PER_S * m_Config.flushTxBufferTimeout;
+		m_TxBuffers = std::make_unique<rte_eth_dev_tx_buffer*[]>(numOfTxQueuesToInit);
+		m_TxBufferLastDrainTsc = std::make_unique<uint64_t[]>(numOfTxQueuesToInit);
+		std::fill_n(m_TxBufferLastDrainTsc.get(), numOfTxQueuesToInit, 0);
 
 		for (uint8_t i = 0; i < numOfTxQueuesToInit; i++)
 		{
@@ -446,10 +424,6 @@ namespace pcpp
 				return false;
 			}
 		}
-
-		m_TxBufferDrainTsc = (rte_get_tsc_hz() + US_PER_S - 1) / US_PER_S * m_Config.flushTxBufferTimeout;
-
-		memset(m_TxBufferLastDrainTsc, 0, sizeof(uint64_t) * numOfTxQueuesToInit);
 
 		PCPP_LOG_DEBUG("Successfully initialized " << numOfTxQueuesToInit << " TX queues for device [" << m_DeviceName
 		                                           << "]");

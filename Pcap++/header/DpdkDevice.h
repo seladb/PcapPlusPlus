@@ -4,6 +4,7 @@
 
 #include <time.h>
 #include <vector>
+#include <memory>
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Device.h"
@@ -347,7 +348,7 @@ namespace pcpp
 			uint64_t rxMbufAllocFailed;
 		};
 
-		virtual ~DpdkDevice();
+		~DpdkDevice() override = default;
 
 		/// @return The device ID (DPDK port ID)
 		int getDeviceId() const
@@ -810,9 +811,11 @@ namespace pcpp
 		uint16_t m_DeviceMtu;
 		uint16_t m_MBufDataSize;
 		struct rte_mempool* m_MBufMempool;
-		struct rte_eth_dev_tx_buffer** m_TxBuffers;
+
 		uint64_t m_TxBufferDrainTsc;
-		uint64_t* m_TxBufferLastDrainTsc;
+		std::unique_ptr<rte_eth_dev_tx_buffer*[]> m_TxBuffers;
+		std::unique_ptr<uint64_t[]> m_TxBufferLastDrainTsc;
+
 		DpdkCoreConfiguration m_CoreConfiguration[MAX_NUM_OF_CORES];
 		uint16_t m_TotalAvailableRxQueues;
 		uint16_t m_TotalAvailableTxQueues;

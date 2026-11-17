@@ -126,6 +126,16 @@ namespace pcpp
 		return "SMTP request layer, command: " + getCommandInfo(getCommand());
 	}
 
+	const FieldDescriptor SmtpRequestLayer::SerializedFields::Command{ Layer::SerializedFields::MaxID + 1, "command" };
+	const FieldDescriptor SmtpRequestLayer::SerializedFields::CommandOption{ Layer::SerializedFields::MaxID + 2,
+		                                                                     "commandOption" };
+
+	void SmtpRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Command, getCommandString());
+		serializer.writeField(SerializedFields::CommandOption, getCommandOption());
+	}
+
 	// ----------------- Class SmtpResponseLayer -----------------
 	bool SmtpResponseLayer::setStatusCode(SmtpStatusCode code)
 	{
@@ -244,6 +254,24 @@ namespace pcpp
 	std::string SmtpResponseLayer::toString() const
 	{
 		return "SMTP response layer, status code: " + getStatusCodeAsString(getStatusCode());
+	}
+
+	const FieldDescriptor SmtpResponseLayer::SerializedFields::StatusCode{ Layer::SerializedFields::MaxID + 1,
+		                                                                   "statusCode" };
+	const FieldDescriptor SmtpResponseLayer::SerializedFields::StatusCodeDescription{
+		Layer::SerializedFields::MaxID + 2, "statusCodeDescription"
+	};
+	const FieldDescriptor SmtpResponseLayer::SerializedFields::StatusOption{ Layer::SerializedFields::MaxID + 3,
+		                                                                     "statusOption" };
+	const FieldDescriptor SmtpResponseLayer::SerializedFields::MultiLine{ Layer::SerializedFields::MaxID + 4,
+		                                                                  "multiLine" };
+
+	void SmtpResponseLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::StatusCode, static_cast<int>(getStatusCode()));
+		serializer.writeField(SerializedFields::StatusCodeDescription, getStatusCodeAsString(getStatusCode()));
+		serializer.writeField(SerializedFields::StatusOption, getStatusOption());
+		serializer.writeField(SerializedFields::MultiLine, isMultiLine());
 	}
 
 }  // namespace pcpp

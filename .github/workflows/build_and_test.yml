@@ -151,18 +151,19 @@ jobs:
           python3 -m venv .venv
           . .venv/bin/activate
           python3 -m pip install -r ci/run_tests/requirements.txt
+          echo "IFACE=$(python3 ci/detect-iface.py)" >> "$GITHUB_ENV"
 
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.additional-test-flags }} --build-dir "$BUILD_DIR"
+          python3 ci/run_tests/run_tests.py --interface "$IFACE" ${{ matrix.additional-test-flags }} --build-dir "$BUILD_DIR"
 
       - name: Test Examples
         run: |
           . .venv/bin/activate
           cd Tests/ExamplesTest
           python3 -m pip install -r requirements.txt
-          python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin
+          python3 -m pytest --interface "$IFACE" --root-path=../../Dist/examples_bin
 
       - name: Check installation
         run: |
@@ -236,11 +237,12 @@ jobs:
           python3 -m venv .venv
           . .venv/bin/activate
           python3 -m pip install -r ci/run_tests/requirements.txt
+          echo "IFACE=$(python3 ci/detect-iface.py)" >> "$GITHUB_ENV"
 
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 --test-suites "packet" --build-dir "$BUILD_DIR"
+          python3 ci/run_tests/run_tests.py --interface "$IFACE" --test-suites "packet" --build-dir "$BUILD_DIR"
 
       - name: Check installation
         run: |
@@ -306,11 +308,12 @@ jobs:
           python3 -m venv .venv
           . .venv/bin/activate
           python3 -m pip install -r ci/run_tests/requirements.txt
+          echo "IFACE=$(python3 ci/detect-iface.py)" >> "$GITHUB_ENV"
 
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 --build-dir "$BUILD_DIR"
+          python3 ci/run_tests/run_tests.py --interface "$IFACE" --build-dir "$BUILD_DIR"
 
       - name: Check installation
         run: |
@@ -323,7 +326,7 @@ jobs:
           . .venv/bin/activate
           cd Tests/ExamplesTest
           python3 -m pip install -r requirements.txt
-          python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin -m no_pcap
+          python3 -m pytest --interface "$IFACE" --root-path=../../Dist/examples_bin -m no_pcap
 
       - name: Save Ccache
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -404,11 +407,12 @@ jobs:
           python3 -m venv .venv
           . .venv/bin/activate
           python3 -m pip install -r ci/run_tests/requirements.txt
+          echo "IFACE=$(python3 ci/detect-iface.py)" >> "$GITHUB_ENV"
 
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python3 ci/run_tests/run_tests.py --interface eth0 --tcpreplay-interface veth1 --use-sudo --test-suites pcap --pcap-test-args "-t dpdk -d 0 -a --no-pci -a --vdev=net_af_packet0,iface=veth0" --build-dir "$BUILD_DIR"
+          python3 ci/run_tests/run_tests.py --interface "$IFACE" --tcpreplay-interface veth1 --use-sudo --test-suites pcap --pcap-test-args "-t dpdk -d 0 -a --no-pci -a --vdev=net_af_packet0,iface=veth0" --build-dir "$BUILD_DIR"
 
       - name: Create Cobertura Report
         run: |
@@ -508,7 +512,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
@@ -653,7 +657,7 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -741,7 +745,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -824,7 +828,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
           # Use x64 Python (runs under emulation) since some pip dependencies (e.g. cryptography)
@@ -917,7 +921,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Test in FreeBSD
         id: test
-        uses: vmactions/freebsd-vm@a2f9a41fa97f6848b8c3b791087dfcdaa5b473ff # v1.5.8
+        uses: vmactions/freebsd-vm@811efaaac0668df8bfb8308c3ec997b5ab50037b # v1.6.0
         with:
           release: ${{ matrix.version }}
           usesh: true
@@ -1005,7 +1009,7 @@ jobs:
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
       - name: Set up JDK
-        uses: actions/setup-java@v6.0.1
+        uses: actions/setup-java@v6.2.0
         with:
           java-version: "17"
           distribution: "zulu"
@@ -1079,7 +1083,7 @@ jobs:
 
       - name: Compare BPF Versions
         id: bpf-compare
-        uses: madhead/semver-utils@4cf918affe9106ea59f86c6250e5ec4570ac4389 # v5.0.0
+        uses: madhead/semver-utils@46f4caeac2202a1e850a7bbcabe22e750d28493c # v5.1.2
         with:
           version: ${{ matrix.bpf_version }}
           satisfies: 1.x
@@ -1143,11 +1147,12 @@ jobs:
           python -m venv .venv
           . .venv/bin/activate
           python -m pip install -r ci/run_tests/requirements.txt
+          echo "IFACE=$(python ci/detect-iface.py)" >> "$GITHUB_ENV"
 
       - name: Test PcapPlusPlus
         run: |
           . .venv/bin/activate
-          python ci/run_tests/run_tests.py --interface eth0 --tcpreplay-interface veth1 --use-sudo --pcap-test-args "-e veth0 -t xdp" --build-dir "$BUILD_DIR"
+          python ci/run_tests/run_tests.py --interface "$IFACE" --tcpreplay-interface veth1 --use-sudo --pcap-test-args "-e veth0 -t xdp" --build-dir "$BUILD_DIR"
 
       - name: Create Cobertura Report
         run: |

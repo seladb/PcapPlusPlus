@@ -534,7 +534,7 @@ namespace pcpp
 	IFileReaderDevice* IFileReaderDevice::getReader(const std::string& fileName)
 	{
 		const auto extensionPos = fileName.find_last_of('.');
-		const auto fileExtension = extensionPos != std::string::npos ? fileName.substr(extensionPos) : "";
+		const std::string fileExtension = extensionPos != std::string::npos ? fileName.substr(extensionPos) : "";
 
 		if (fileExtension == ".pcapng" || fileExtension == ".zstd" || fileExtension == ".zst")
 			return new PcapNgFileReaderDevice(fileName);
@@ -1638,7 +1638,7 @@ namespace pcpp
 		PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
 	}
 
-	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer)
+	size_t serializePackets(IFileReaderDevice& reader, ISerializer& serializer, size_t maxPackets)
 	{
 		if (!reader.isOpened() && !reader.open())
 		{
@@ -1648,7 +1648,7 @@ namespace pcpp
 		size_t packetCount = 0;
 		auto packets = serializer.writeArray(FieldDescriptor{ 0, "packets" });
 		RawPacket rawPacket;
-		while (reader.getNextPacket(rawPacket))
+		while ((maxPackets == 0 || packetCount < maxPackets) && reader.getNextPacket(rawPacket))
 		{
 			Packet packet(&rawPacket);
 			packet.serialize(packets);

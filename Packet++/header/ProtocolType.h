@@ -269,6 +269,9 @@ namespace pcpp
 	/// GigE Vision Control Protocol (GVCP)
 	const ProtocolType GVCP = 65;
 
+	/// GENEVE protocol
+	const ProtocolType Geneve = 66;
+
 	/// @}
 
 	/// Convert a protocol type to its string representation.
@@ -410,6 +413,8 @@ namespace pcpp
 			return "QUICv1";
 		case GVCP:
 			return "GVCP";
+		case Geneve:
+			return "Geneve";
 		default:
 			throw std::invalid_argument("Unknown protocol type");
 		}

@@ -73,6 +73,49 @@ namespace pcpp
 		return str.str();
 	}
 
+	static constexpr const char* msgTypeToString(uint8_t msgType)
+	{
+		switch (msgType)
+		{
+		case 0x01:
+			return "JobRequest";
+		case 0x02:
+			return "Ack";
+		case 0x03:
+			return "AckData";
+		case 0x07:
+			return "Userdata";
+		default:
+			return "Unknown";
+		}
+	}
+
+	const FieldDescriptor S7CommLayer::SerializedFields::MsgType{ Layer::SerializedFields::MaxID + 1, "msgType" };
+	const FieldDescriptor S7CommLayer::SerializedFields::MsgTypeName{ Layer::SerializedFields::MaxID + 2,
+		                                                              "msgTypeName" };
+	const FieldDescriptor S7CommLayer::SerializedFields::PduRef{ Layer::SerializedFields::MaxID + 3, "pduRef" };
+	const FieldDescriptor S7CommLayer::SerializedFields::ParamLength{ Layer::SerializedFields::MaxID + 4,
+		                                                              "paramLength" };
+	const FieldDescriptor S7CommLayer::SerializedFields::DataLength{ Layer::SerializedFields::MaxID + 5, "dataLength" };
+	const FieldDescriptor S7CommLayer::SerializedFields::ErrorClass{ Layer::SerializedFields::MaxID + 6, "errorClass" };
+	const FieldDescriptor S7CommLayer::SerializedFields::ErrorCode{ Layer::SerializedFields::MaxID + 7, "errorCode" };
+
+	void S7CommLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::MsgType, getMsgType());
+		serializer.writeField(SerializedFields::MsgTypeName, msgTypeToString(getMsgType()));
+		serializer.writeField(SerializedFields::PduRef, getPduRef());
+		serializer.writeField(SerializedFields::ParamLength, getParamLength());
+		serializer.writeField(SerializedFields::DataLength, getDataLength());
+
+		auto* ackDataHeader = getS7commAckDataHeader();
+		if (ackDataHeader != nullptr)
+		{
+			serializer.writeField(SerializedFields::ErrorClass, ackDataHeader->errorClass);
+			serializer.writeField(SerializedFields::ErrorCode, ackDataHeader->errorCode);
+		}
+	}
+
 	bool S7CommLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		if (!data || dataSize < sizeof(s7commhdr))
