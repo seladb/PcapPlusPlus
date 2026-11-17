@@ -373,10 +373,10 @@ PTF_TEST_CASE(JsonSerializerTest)
 		PTF_ASSERT_EQUAL(oss.str(), "[\n  [],\n  {}\n]");
 	}
 
-	// Depth 3 sample with indent 1
+	// Depth 4 sample with indent 2
 	{
 		std::ostringstream oss;
-		pcpp::JsonSerializer serializer(oss, 1);  // Single space to conserve horizontal space.
+		pcpp::JsonSerializer serializer(oss, 2);  // Single space to conserve horizontal space.
 		{
 			auto objd1 = serializer.writeObject(pcpp::FieldDescriptor{ 1, "root" });
 			auto objd2 = objd1.writeObject(pcpp::FieldDescriptor{ 2, "level2" });
@@ -385,8 +385,9 @@ PTF_TEST_CASE(JsonSerializerTest)
 			objd4.writeField(pcpp::FieldDescriptor{ 5, "value" }, 42);
 		}
 
-		PTF_ASSERT_EQUAL(oss.str(),
-		                 "{\n \"level2\": {\n  \"level3\": {\n   \"level4\": {\n    \"value\": 42\n   }\n  }\n }\n}");
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    "{\n  \"level2\": {\n    \"level3\": {\n      \"level4\": {\n        \"value\": 42\n      }\n    }\n  }\n}");
 	}
 
 	// Combined sample with nested and empty arrays/objects.
