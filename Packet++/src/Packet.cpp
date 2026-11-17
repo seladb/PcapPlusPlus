@@ -849,7 +849,11 @@ namespace pcpp
 		}
 		case LinkLayerType::LINKTYPE_LINUX_SLL:
 		{
-			return new SllLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
+			if (SllLayer::isDataValid(rawData, rawDataLen))
+			{
+				return new SllLayer(const_cast<uint8_t*>(rawData), rawDataLen, this);
+			}
+			break;
 		}
 		case LinkLayerType::LINKTYPE_LINUX_SLL2:
 		{

@@ -69,6 +69,15 @@ namespace pcpp
 		/// @return True if address was set successfully, false if MAC address isn't valid or if set failed
 		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
 
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an SLL packet
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an SLL packet
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(sll_header);
+		}
+
 		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer,
 		/// PPPoESessionLayer, PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
 		void parseNextLayer() override;
