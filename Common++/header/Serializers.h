@@ -278,7 +278,15 @@ namespace pcpp
 			Object
 		};
 
-		void prepareNext();
+		void prepareNext()
+		{
+			writeSeparatorIfNeeded();
+			// Skip newline/indent if we are at root level.
+			if (!m_ContextStack.empty())
+			{
+				writeNewlineAndIndent();
+			}
+		}
 		void writeSeparatorIfNeeded();
 		void writeKey(const std::string& name);
 		void writeNewlineAndIndent();

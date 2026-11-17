@@ -291,16 +291,6 @@ namespace pcpp
 		m_Out << '"' << hexNumToString(value) << '"';
 	}
 
-	void JsonSerializer::prepareNext()
-	{
-		writeSeparatorIfNeeded();
-		// Skip newline/indent if we are at root level.
-		if (!m_ContextStack.empty())
-		{
-			writeNewlineAndIndent();
-		}
-	}
-
 	void JsonSerializer::writeSeparatorIfNeeded()
 	{
 		if (m_FirstAtLevel.empty())
