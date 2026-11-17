@@ -5,5 +5,6 @@
 set -eu
 
 for in_file in Tests/ExamplesTest/requirements.in ci/run_tests/requirements.in ci/requirements/*.in; do
+    # The Python version must be the same as the oldest Python version available on the supported operating systems.
     uv pip compile --universal --generate-hashes "$in_file" -o "${in_file%.in}.txt" --python-version 3.9.1 "$@"
 done
