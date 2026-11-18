@@ -69,6 +69,14 @@ namespace pcpp
 		return DhcpV6Option(recordBuffer);
 	}
 
+	namespace
+	{
+		bool isRelayMessageType(DhcpV6MessageType messageType)
+		{
+			return messageType == DHCPV6_RELAY_FORWARD || messageType == DHCPV6_RELAY_REPLY;
+		}
+	}  // namespace
+
 	DhcpV6LayerBase::DhcpV6LayerBase(size_t headerLen)
 	{
 		allocData(headerLen);
@@ -94,11 +102,6 @@ namespace pcpp
 	                                   const IPv6Address& peerAddress)
 	    : DhcpV6LayerBase(sizeof(dhcpv6_relay_header))
 	{
-		if (messageType != DHCPV6_RELAY_FORWARD && messageType != DHCPV6_RELAY_REPLY)
-		{
-			throw std::invalid_argument("A DHCPv6 relay message must be a relay-forward or relay-reply message");
-		}
-
 		setMessageType(messageType);
 		setHopCount(hopCount);
 		setLinkAddress(linkAddress);
@@ -152,8 +155,23 @@ namespace pcpp
 		}
 	}
 
-	void DhcpV6LayerBase::setMessageType(DhcpV6MessageType messageType)
+	void DhcpV6Layer::setMessageType(DhcpV6MessageType messageType)
 	{
+		if (isRelayMessageType(messageType))
+		{
+			throw std::invalid_argument("A relay-forward or relay-reply message must be a DhcpV6RelayLayer");
+		}
+
+		m_Data[0] = static_cast<uint8_t>(messageType);
+	}
+
+	void DhcpV6RelayLayer::setMessageType(DhcpV6MessageType messageType)
+	{
+		if (!isRelayMessageType(messageType))
+		{
+			throw std::invalid_argument("A DHCPv6 relay message must be a relay-forward or relay-reply message");
+		}
+
 		m_Data[0] = static_cast<uint8_t>(messageType);
 	}
 
@@ -184,7 +202,7 @@ namespace pcpp
 
 	IPv6Address DhcpV6RelayLayer::getLinkAddress() const
 	{
-		return IPv6Address(getRelayHeader()->linkAddress);
+		return { getRelayHeader()->linkAddress };
 	}
 
 	void DhcpV6RelayLayer::setLinkAddress(const IPv6Address& linkAddress)
@@ -194,7 +212,7 @@ namespace pcpp
 
 	IPv6Address DhcpV6RelayLayer::getPeerAddress() const
 	{
-		return IPv6Address(getRelayHeader()->peerAddress);
+		return { getRelayHeader()->peerAddress };
 	}
 
 	void DhcpV6RelayLayer::setPeerAddress(const IPv6Address& peerAddress)

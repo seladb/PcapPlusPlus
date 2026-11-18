@@ -281,10 +281,6 @@ namespace pcpp
 		/// @return The string value of the message type of this DHCPv6 message
 		std::string getMessageTypeAsString() const;
 
-		/// Set the message type for this layer
-		/// @param[in] messageType The message type to set
-		void setMessageType(DhcpV6MessageType messageType);
-
 		/// @return The first DHCPv6 option in the packet. If there are no DHCPv6 options the returned value will
 		/// contain a logical null (DhcpV6Option#isNull() == true)
 		DhcpV6Option getFirstOptionData() const;
@@ -367,13 +363,10 @@ namespace pcpp
 		    : Layer(data, dataLen, prevLayer, packet, DHCPv6)
 		{}
 
-		/// Creates the layer from scratch with a zeroed header of the given size
 		explicit DhcpV6LayerBase(size_t headerLen);
 
-		/// @return The offset of the first option, i.e. the size of the message header
 		virtual size_t getOptionsOffset() const = 0;
 
-		/// Writes the names of the options to an array field
 		void serializeOptions(ObjectScope& serializer, const FieldDescriptor& optionsField,
 		                      const FieldDescriptor& optionField) const;
 
@@ -404,7 +397,15 @@ namespace pcpp
 		/// @param[in] messageType A DHCPv6 message type to be set
 		/// @param[in] transactionId The transaction ID to be set. Notice the transaction ID is 3-byte long so the value
 		/// shouldn't exceed 0xFFFFFF
+		/// @throws std::invalid_argument if messageType is DHCPV6_RELAY_FORWARD or DHCPV6_RELAY_REPLY, which
+		/// DhcpV6RelayLayer represents
 		DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId);
+
+		/// Set the message type for this layer
+		/// @param[in] messageType The message type to set
+		/// @throws std::invalid_argument if messageType is DHCPV6_RELAY_FORWARD or DHCPV6_RELAY_REPLY, which
+		/// DhcpV6RelayLayer represents
+		void setMessageType(DhcpV6MessageType messageType);
 
 		/// @return The transaction ID of this DHCPv6 message
 		uint32_t getTransactionID() const;
@@ -414,9 +415,10 @@ namespace pcpp
 		void setTransactionID(uint32_t transactionId) const;
 
 		/// A static method that validates the input data
-		/// @param[in] data The pointer to the beginning of a byte stream of an DHCPv6 layer
+		/// @param[in] data The pointer to the beginning of a byte stream of a DHCPv6 layer
 		/// @param[in] dataLen The length of the byte stream
-		/// @return True if the data is valid and can represent a DHCPv6 client/server message
+		/// @return True if the data is valid and can represent a DHCPv6 client/server message. False for relay-forward
+		/// and relay-reply messages, which DhcpV6RelayLayer represents
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		/// @struct SerializedFields
@@ -478,6 +480,11 @@ namespace pcpp
 		DhcpV6RelayLayer(DhcpV6MessageType messageType, uint8_t hopCount, const IPv6Address& linkAddress,
 		                 const IPv6Address& peerAddress);
 
+		/// Set the message type for this layer
+		/// @param[in] messageType DHCPV6_RELAY_FORWARD or DHCPV6_RELAY_REPLY
+		/// @throws std::invalid_argument if messageType is not a relay message type
+		void setMessageType(DhcpV6MessageType messageType);
+
 		/// @return The hop count of this message
 		uint8_t getHopCount() const;
 
@@ -500,7 +507,7 @@ namespace pcpp
 		void setPeerAddress(const IPv6Address& peerAddress);
 
 		/// A static method that validates the input data
-		/// @param[in] data The pointer to the beginning of a byte stream of an DHCPv6 layer
+		/// @param[in] data The pointer to the beginning of a byte stream of a DHCPv6 layer
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is a relay-forward or relay-reply message that is long enough for its header
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
