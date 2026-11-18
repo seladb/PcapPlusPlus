@@ -3,6 +3,7 @@ add_library(
   $<TARGET_OBJECTS:hash-library>
   src/ArpLayer.cpp
   src/Asn1Codec.cpp
+  src/BluetoothHciLayer.cpp
   src/BgpLayer.cpp
   src/CiscoHdlcLayer.cpp
   src/CotpLayer.cpp
@@ -16,6 +17,7 @@ add_library(
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
+  src/GeneveLayer.cpp
   src/GreLayer.cpp
   src/GtpLayer.cpp
   src/GvcpLayer.cpp
@@ -84,6 +86,7 @@ set(
   public_headers
   header/ArpLayer.h
   header/Asn1Codec.h
+  header/BluetoothHciLayer.h
   header/BgpLayer.h
   header/CiscoHdlcLayer.h
   header/CotpLayer.h
@@ -99,6 +102,7 @@ set(
   header/EthDot3Layer.h
   header/EthLayer.h
   header/FtpLayer.h
+  header/GeneveLayer.h
   header/GreLayer.h
   header/GtpLayer.h
   header/GvcpLayer.h

@@ -309,6 +309,13 @@ PTF_TEST_CASE(BgpLayerCreationTest)
 	PTF_ASSERT_BUF_COMPARE(bgpNotificationPacket2.getRawPacket()->getRawData(), origBuffer, resource4.length);
 	delete origNotificationMessage;
 
+	// a null notification data pointer means no notification data, as in setNotificationData()
+	pcpp::BgpNotificationMessageLayer newNotificationMessage3(6, 4, nullptr, 5);
+	PTF_ASSERT_EQUAL(newNotificationMessage3.getDataLen(), newNotificationMessage2.getDataLen());
+	PTF_ASSERT_EQUAL(newNotificationMessage3.getNotificationDataLen(), 0);
+	PTF_ASSERT_BUF_COMPARE(newNotificationMessage3.getData(), newNotificationMessage2.getData(),
+	                       newNotificationMessage2.getDataLen());
+
 	// create BGP UPDATE message with Withdrawn Routes
 
 	memcpy(origBuffer, resource5.data.get(), resource5.length);

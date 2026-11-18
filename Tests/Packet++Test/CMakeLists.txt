@@ -3,6 +3,7 @@ add_executable(
   main.cpp
   Tests/Asn1Tests.cpp
   Tests/Base64Tests.cpp
+  Tests/BluetoothHciTests.cpp
   Tests/BgpTests.cpp
   Tests/CiscoHdlcTests.cpp
   Tests/CotpTests.cpp
@@ -13,6 +14,7 @@ add_executable(
   Tests/DoIpTests.cpp
   Tests/EthAndArpTests.cpp
   Tests/FtpTests.cpp
+  Tests/GeneveTests.cpp
   Tests/GreTests.cpp
   Tests/GtpTests.cpp
   Tests/GvcpTests.cpp

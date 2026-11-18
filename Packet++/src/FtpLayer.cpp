@@ -218,6 +218,16 @@ namespace pcpp
 		return "FTP Request: " + getCommandString();
 	}
 
+	const FieldDescriptor FtpRequestLayer::SerializedFields::Command{ Layer::SerializedFields::MaxID + 1, "command" };
+	const FieldDescriptor FtpRequestLayer::SerializedFields::CommandOption{ Layer::SerializedFields::MaxID + 2,
+		                                                                    "commandOption" };
+
+	void FtpRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Command, getCommandString());
+		serializer.writeField(SerializedFields::CommandOption, getCommandOption());
+	}
+
 	// ----------------- Class FtpResponseLayer -----------------
 	bool FtpResponseLayer::setStatusCode(FtpStatusCode code)
 	{
@@ -381,6 +391,23 @@ namespace pcpp
 	std::string FtpResponseLayer::toString() const
 	{
 		return "FTP Response: " + getStatusCodeString();
+	}
+
+	const FieldDescriptor FtpResponseLayer::SerializedFields::StatusCode{ Layer::SerializedFields::MaxID + 1,
+		                                                                  "statusCode" };
+	const FieldDescriptor FtpResponseLayer::SerializedFields::StatusCodeDescription{ Layer::SerializedFields::MaxID + 2,
+		                                                                             "statusCodeDescription" };
+	const FieldDescriptor FtpResponseLayer::SerializedFields::StatusOption{ Layer::SerializedFields::MaxID + 3,
+		                                                                    "statusOption" };
+	const FieldDescriptor FtpResponseLayer::SerializedFields::MultiLine{ Layer::SerializedFields::MaxID + 4,
+		                                                                 "multiLine" };
+
+	void FtpResponseLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::StatusCode, static_cast<int>(getStatusCode()));
+		serializer.writeField(SerializedFields::StatusCodeDescription, getStatusCodeAsString(getStatusCode()));
+		serializer.writeField(SerializedFields::StatusOption, getStatusOption());
+		serializer.writeField(SerializedFields::MultiLine, isMultiLine());
 	}
 
 	std::string FtpDataLayer::toString() const

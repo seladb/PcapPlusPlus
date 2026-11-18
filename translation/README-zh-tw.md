@@ -217,81 +217,83 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 
 ### 資料連接層 (L2)
 
-1. Cisco HDLC
-2. Ethernet II
-3. IEEE 802.3 Ethernet
-4. LLC（僅支援 BPDU）
-5. Null/Loopback
-6. Packet trailer（又稱 footer 或 padding）
-7. PPPoE
-8. SLL（Linux 擷取協定）
-9. SLL2（Linux 擷取協定 v2）
-10. STP
-11. VLAN
-12. VXLAN
-13. Wake on LAN (WoL)
-14. NFLOG（Linux Netfilter NFLOG）- 僅支援解析（不支援編輯）
+1. Bluetooth HCI
+2. Cisco HDLC
+3. Ethernet II
+4. GENEVE
+5. IEEE 802.3 Ethernet
+6. LLC（僅支援 BPDU）
+7. Null/Loopback
+8. Packet trailer（又稱 footer 或 padding）
+9. PPPoE
+10. SLL（Linux 擷取協定）
+11. SLL2（Linux 擷取協定 v2）
+12. STP
+13. VLAN
+14. VXLAN
+15. Wake on LAN (WoL)
+16. NFLOG（Linux Netfilter NFLOG）- 僅支援解析（不支援編輯）
 
 ### 網路層 (L3)
 
-15. ARP
-16. GRE
-17. ICMP
-18. ICMPv6
-19. IGMP（支援 IGMPv1、IGMPv2 和 IGMPv3）
-20. IPv4
-21. IPv6
-22. MPLS
-23. NDP
-24. Raw IP（IPv4 和 IPv6）
-25. VRRP（IPv4 和 IPv6）
-26. WireGuard
+17. ARP
+18. GRE
+19. ICMP
+20. ICMPv6
+21. IGMP（支援 IGMPv1、IGMPv2 和 IGMPv3）
+22. IPv4
+23. IPv6
+24. MPLS
+25. NDP
+26. Raw IP（IPv4 和 IPv6）
+27. VRRP（IPv4 和 IPv6）
+28. WireGuard
 
 ### 傳輸層 (L4)
 
-27. COTP
-28. GTP (v1 & v2)
-29. IPSec AH 和 ESP - 僅支援解析（不支援編輯）
-30. QUIC v1 - 僅支援解析（不支援編輯）
-31. TCP
-32. TPKT
-33. UDP
+29. COTP
+30. GTP (v1 & v2)
+31. IPSec AH 和 ESP - 僅支援解析（不支援編輯）
+32. QUIC v1 - 僅支援解析（不支援編輯）
+33. TCP
+34. TPKT
+35. UDP
 
 ### 對話層 (L5)
 
-34. SDP
-35. SIP
+36. SDP
+37. SIP
 
 ### 表示層 (L6)
 
-36. SSL/TLS - 僅支援解析（不支援編輯）
+38. SSL/TLS - 僅支援解析（不支援編輯）
 
 ### 應用層 (L7)
 
-37. ASN.1 編碼器與解碼器
-38. BGP (v4)
-39. 加密金鑰解碼器
-40. DHCP
-41. DHCPv6
-42. DNS
-43. DoIP
-44. FTP
-45. GVCP
-46. HTTP 標頭（請求和響應）
-47. LDAP
-48. Modbus
-49. MySQL - 僅支援解析（不支援編輯）
-50. NTP (v3, v4)
-51. PEM 編碼器與解碼器
-52. PostgreSQL Wire Protocol (PGWire) - 僅支援解析（不支援編輯）
-53. Radius
-54. S7 通訊（S7comm）
-55. SMTP
-56. SOME/IP
-57. SSH - 僅支援解析（不支援編輯）
-58. Telnet - 僅支援解析（不支援編輯）
-59. X509 憑證 - 僅支援解析（不支援編輯）
-60. 通用酬載（Generic Payload）
+39. ASN.1 編碼器與解碼器
+40. BGP (v4)
+41. 加密金鑰解碼器
+42. DHCP
+43. DHCPv6
+44. DNS
+45. DoIP
+46. FTP
+47. GVCP
+48. HTTP 標頭（請求和響應）
+49. LDAP
+50. Modbus
+51. MySQL - 僅支援解析（不支援編輯）
+52. NTP (v3, v4)
+53. PEM 編碼器與解碼器
+54. PostgreSQL Wire Protocol (PGWire) - 僅支援解析（不支援編輯）
+55. Radius
+56. S7 通訊（S7comm）
+57. SMTP
+58. SOME/IP
+59. SSH - 僅支援解析（不支援編輯）
+60. Telnet - 僅支援解析（不支援編輯）
+61. X509 憑證 - 僅支援解析（不支援編輯）
+62. 通用酬載（Generic Payload）
 
 ## DPDK 和 PF_RING 支援
 

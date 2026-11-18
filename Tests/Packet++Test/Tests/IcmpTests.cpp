@@ -289,7 +289,9 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::ICMP, enum);
 	icmpLayer = (pcpp::IcmpLayer*)ipLayer->getNextLayer();
 	PTF_ASSERT_EQUAL(icmpLayer->getMessageType(), pcpp::ICMP_ECHO_REQUEST, enum);
-	PTF_ASSERT_EQUAL(icmpLayer->getEchoRequestData()->header->id, 0x2);
+	// the redirect only quotes the first 8 bytes of the echo request, which can't hold icmp_echo_hdr
+	PTF_ASSERT_EQUAL(icmpLayer->getDataLen(), 8);
+	PTF_ASSERT_NULL(icmpLayer->getEchoRequestData());
 
 	{
 		std::ostringstream oss;
@@ -348,6 +350,44 @@ PTF_TEST_CASE(IcmpTruncatedPacketTest)
 	auto* payload = packet.getLayerOfType<pcpp::PayloadLayer>();
 	PTF_ASSERT_NOT_NULL(payload);
 	PTF_ASSERT_EQUAL(payload->getPayloadLen(), 7);
+
+	// ICMP router advertisement with advertisementCount larger than the actual
+	// number of entries must be rejected instead of trusting the count.
+	uint8_t routerAdv[16] = {};
+	routerAdv[0] = pcpp::ICMP_ROUTER_ADV;
+	routerAdv[4] = 200;  // advertisementCount
+	routerAdv[5] = 2;    // addressEntrySize
+	PTF_ASSERT_FALSE(pcpp::IcmpLayer::isDataValid(routerAdv, sizeof(routerAdv)));
+
+	routerAdv[4] = 1;
+	PTF_ASSERT_TRUE(pcpp::IcmpLayer::isDataValid(routerAdv, sizeof(routerAdv)));
+
+	auto rawRouterAdvPacket = createPacketFromHexResource("PacketExamples/IcmpRouterAdvInvalidCount.dat");
+	pcpp::Packet routerAdvPacket(rawRouterAdvPacket.get());
+	PTF_ASSERT_FALSE(routerAdvPacket.isPacketOfType(pcpp::ICMP));
+
+	// getRouterAddress() must not expose entries that aren't present in the layer data, even when
+	// advertisementCount claims more entries than the layer actually contains
+	pcpp::IcmpLayer routerAdvLayer;
+	std::vector<pcpp::icmp_router_address_structure> routerAddresses(1);
+	PTF_ASSERT_NOT_NULL(routerAdvLayer.setRouterAdvertisementData(0, 1800, routerAddresses));
+	auto* routerAdvData = routerAdvLayer.getRouterAdvertisementData();
+	PTF_ASSERT_NOT_NULL(routerAdvData);
+	PTF_ASSERT_NOT_NULL(routerAdvData->getRouterAddress(0));
+	routerAdvData->header->advertisementCount = 200;
+	PTF_ASSERT_NULL(routerAdvData->getRouterAddress(1));
+
+	// An echo request without payload is 8 bytes, shorter than icmp_echo_hdr which also holds a timestamp.
+	// The echo getters must not return a header that reads past the layer or a data length that underflows
+	auto rawPacketEcho = createPacketFromHexResource("PacketExamples/IcmpEchoRequestNoPayload.dat");
+	pcpp::Packet echoPacket(rawPacketEcho.get());
+	auto* icmpLayer = echoPacket.getLayerOfType<pcpp::IcmpLayer>();
+	PTF_ASSERT_NOT_NULL(icmpLayer);
+	PTF_ASSERT_TRUE(icmpLayer->isMessageOfType(pcpp::ICMP_ECHO_REQUEST));
+	PTF_ASSERT_EQUAL(icmpLayer->getDataLen(), 8);
+	PTF_ASSERT_NULL(icmpLayer->getEchoRequestData());
+	icmpLayer->getIcmpHeader()->type = static_cast<uint8_t>(pcpp::ICMP_ECHO_REPLY);
+	PTF_ASSERT_NULL(icmpLayer->getEchoReplyData());
 }  // IcmpTruncatedPacketTest
 
 PTF_TEST_CASE(IcmpCreationTest)

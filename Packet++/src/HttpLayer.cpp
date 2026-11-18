@@ -57,6 +57,27 @@ namespace pcpp
 		return TextBasedProtocolMessage::insertField(prevField, newField);
 	}
 
+	const FieldDescriptor HttpMessage::SerializedFields::HeaderComplete{ Layer::SerializedFields::MaxID + 4,
+		                                                                 "headerComplete" };
+	const FieldDescriptor HttpMessage::SerializedFields::HeaderFields{ Layer::SerializedFields::MaxID + 5,
+		                                                               "headerFields" };
+	const HttpMessage::SerializedFields::HeaderFieldObject HttpHeaderFieldObject{ 0, "headerField" };
+	const FieldDescriptor HttpMessage::SerializedFields::HeaderFieldObject::Name{ 0, "name" };
+	const FieldDescriptor HttpMessage::SerializedFields::HeaderFieldObject::Value{ 1, "value" };
+
+	void HttpMessage::serializeHeader(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::HeaderComplete, isHeaderComplete());
+		auto headerFields = serializer.writeArray(SerializedFields::HeaderFields);
+		for (HeaderField* field = getFirstField(); field != nullptr && !field->isEndOfHeader();
+		     field = getNextField(field))
+		{
+			auto fieldObject = headerFields.writeObject(HttpHeaderFieldObject);
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Name, field->getFieldName());
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Value, field->getFieldValue());
+		}
+	}
+
 	// -------- Class HttpRequestLayer -----------------
 
 	HttpRequestLayer::HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -424,6 +445,25 @@ namespace pcpp
 		m_Version = newVersion;
 	}
 
+	const FieldDescriptor HttpRequestLayer::SerializedFields::Method{ Layer::SerializedFields::MaxID + 1, "method" };
+	const FieldDescriptor HttpRequestLayer::SerializedFields::Uri{ Layer::SerializedFields::MaxID + 2, "uri" };
+	const FieldDescriptor HttpRequestLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 3, "version" };
+
+	static std::string httpVersionToString(HttpVersion version)
+	{
+		return version == HttpVersionUnknown ? "Unknown" : "HTTP/" + VersionEnumToString[version];
+	}
+
+	void HttpRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		const auto method = m_FirstLine->getMethod();
+		serializer.writeField(SerializedFields::Method,
+		                      method == HttpMethodUnknown ? std::string("Unknown") : MethodEnumToString[method]);
+		serializer.writeField(SerializedFields::Uri, m_FirstLine->getUri());
+		serializer.writeField(SerializedFields::Version, httpVersionToString(m_FirstLine->getVersion()));
+		serializeHeader(serializer);
+	}
+
 	// -------- Class HttpResponseLayer -----------------
 
 	static const std::unordered_map<int, HttpResponseStatusCode> intStatusCodeMap = {
@@ -771,6 +811,21 @@ namespace pcpp
 		}
 
 		return result;
+	}
+
+	const FieldDescriptor HttpResponseLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 1, "version" };
+	const FieldDescriptor HttpResponseLayer::SerializedFields::StatusCode{ Layer::SerializedFields::MaxID + 2,
+		                                                                   "statusCode" };
+	const FieldDescriptor HttpResponseLayer::SerializedFields::StatusCodeDescription{
+		Layer::SerializedFields::MaxID + 3, "statusCodeDescription"
+	};
+
+	void HttpResponseLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Version, httpVersionToString(m_FirstLine->getVersion()));
+		serializer.writeField(SerializedFields::StatusCode, m_FirstLine->getStatusCodeAsInt());
+		serializer.writeField(SerializedFields::StatusCodeDescription, m_FirstLine->getStatusCodeString());
+		serializeHeader(serializer);
 	}
 
 	// -------- Class HttpResponseFirstLine -----------------

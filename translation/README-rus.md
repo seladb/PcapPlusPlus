@@ -218,82 +218,84 @@ PcapPlusPlus в настоящее время поддерживает анал�
 
 ### Канальный уровень (L2)
 
-1. Cisco HDLC
-2. Ethernet II
-3. IEEE 802.3 Ethernet
-4. LLC (поддерживается только BPDU)
-5. Null/Loopback
-6. Трейлер пакета (также известный как футер или паддинг)
-7. PPPoE
-8. SLL (Linux cooked capture)
-9. SLL2 (Linux cooked capture v2)
-10. STP
-11. VLAN
-12. VXLAN
-13. Wake on LAN (WoL)
-14. NFLOG (Linux Netfilter NFLOG) — только анализ (без возможностей редактирования)
+1. Bluetooth HCI
+2. Cisco HDLC
+3. Ethernet II
+4. GENEVE
+5. IEEE 802.3 Ethernet
+6. LLC (поддерживается только BPDU)
+7. Null/Loopback
+8. Трейлер пакета (также известный как футер или паддинг)
+9. PPPoE
+10. SLL (Linux cooked capture)
+11. SLL2 (Linux cooked capture v2)
+12. STP
+13. VLAN
+14. VXLAN
+15. Wake on LAN (WoL)
+16. NFLOG (Linux Netfilter NFLOG) — только анализ (без возможностей редактирования)
 
 
 ### Сетевой уровень (L3)
 
-15. ARP
-16. GRE
-17. ICMP
-18. ICMPv6
-19. IGMP (поддерживаются IGMPv1, IGMPv2 и IGMPv3)
-20. IPv4
-21. IPv6
-22. MPLS
-23. NDP
-24. Raw IP (IPv4 и IPv6)
-25. VRRP (IPv4 и IPv6)
-26. WireGuard
+17. ARP
+18. GRE
+19. ICMP
+20. ICMPv6
+21. IGMP (поддерживаются IGMPv1, IGMPv2 и IGMPv3)
+22. IPv4
+23. IPv6
+24. MPLS
+25. NDP
+26. Raw IP (IPv4 и IPv6)
+27. VRRP (IPv4 и IPv6)
+28. WireGuard
 
 ### Транспортный уровень (L4)
 
-27. COTP
-28. GTP (v1 и v2)
-29. IPSec AH и ESP — только анализ (без возможностей редактирования)
-30. QUIC v1 - только анализ (без возможностей редактирования)
-31. TCP
-32. TPKT
-33. UDP
+29. COTP
+30. GTP (v1 и v2)
+31. IPSec AH и ESP — только анализ (без возможностей редактирования)
+32. QUIC v1 - только анализ (без возможностей редактирования)
+33. TCP
+34. TPKT
+35. UDP
 
 ### Сеансовый уровень (L5)
 
-34. SDP
-35. SIP
+36. SDP
+37. SIP
 
 ### Уровень представления (L6)
 
-36. SSL/TLS — только анализ (без возможностей редактирования)
+38. SSL/TLS — только анализ (без возможностей редактирования)
 
 ### Прикладной уровень (L7)
 
-37. Декодер и энкодер ASN.1
-38. BGP (v4)
-39. Декодеры криптографических ключей
-40. DHCP
-41. DHCPv6
-42. DNS
-43. DoIP
-44. FTP
-45. GVCP
-46. Заголовки HTTP (запрос и ответ)
-47. LDAP
-48. Modbus
-49. MySQL — только анализ (без возможностей редактирования)
-50. NTP (v3, v4)
-51. Декодер и энкодер PEM
-52. PostgreSQL Wire Protocol (PGWire) — только анализ (без возможностей редактирования)
-53. Radius
-54. S7 Communication (S7comm)
-55. SMTP
-56. SOME/IP
-57. SSH — только анализ (без возможностей редактирования)
-58. Telnet — только анализ (без возможностей редактирования)
-59. Сертификаты X509 — только анализ (без возможностей редактирования)
-60. Generic payload
+39. Декодер и энкодер ASN.1
+40. BGP (v4)
+41. Декодеры криптографических ключей
+42. DHCP
+43. DHCPv6
+44. DNS
+45. DoIP
+46. FTP
+47. GVCP
+48. Заголовки HTTP (запрос и ответ)
+49. LDAP
+50. Modbus
+51. MySQL — только анализ (без возможностей редактирования)
+52. NTP (v3, v4)
+53. Декодер и энкодер PEM
+54. PostgreSQL Wire Protocol (PGWire) — только анализ (без возможностей редактирования)
+55. Radius
+56. S7 Communication (S7comm)
+57. SMTP
+58. SOME/IP
+59. SSH — только анализ (без возможностей редактирования)
+60. Telnet — только анализ (без возможностей редактирования)
+61. Сертификаты X509 — только анализ (без возможностей редактирования)
+62. Generic payload
 
 ## Поддержка DPDK и PF_RING
 
