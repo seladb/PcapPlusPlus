@@ -210,6 +210,7 @@ PTF_TEST_CASE(SipRequestLayerCreationTest);
 PTF_TEST_CASE(SipRequestLayerEditTest);
 PTF_TEST_CASE(SipResponseParseStatusCodeTest);
 PTF_TEST_CASE(SipResponseParseVersionCodeTest);
+PTF_TEST_CASE(SipResponseParseFirstLineTest);
 PTF_TEST_CASE(SipResponseLayerParsingTest);
 PTF_TEST_CASE(SipResponseLayerCreationTest);
 PTF_TEST_CASE(SipResponseLayerEditTest);
