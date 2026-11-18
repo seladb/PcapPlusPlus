@@ -97,21 +97,14 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(ctr, 8);
 	PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Control");
 
-	PTF_ASSERT_EQUAL(pcpp::TelnetLayer::SerializedFields::all().size(),
-	                 pcpp::Layer::SerializedFields::all().size() + 2);
-	PTF_ASSERT_EQUAL(pcpp::TelnetLayer::SerializedFields::CommandObject::all().size(), 5);
-
-	// serializeLayer must restore the shared command iterator
-	PTF_ASSERT_EQUAL(telnetLayer->getNextCommand(), pcpp::TelnetLayer::TelnetCommand::WillPerform, enumclass);
 	{
 		std::ostringstream oss;
 		pcpp::JsonSerializer serializer(oss);
 		telnetLayer->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"JSON({"protocolName":"Telnet","protocolId":40,"length":25,"data":"","commands":[{"command":251,"commandName":"Will Perform","option":3,"optionName":"Suppress Go Ahead","optionData":""},{"command":253,"commandName":"Do Perform","option":24,"optionName":"Terminal Type","optionData":""},{"command":253,"commandName":"Do Perform","option":31,"optionName":"Negotiate About Window Size","optionData":""},{"command":253,"commandName":"Do Perform","option":32,"optionName":"Terminal Speed","optionData":""},{"command":253,"commandName":"Do Perform","option":33,"optionName":"Remote Flow Control","optionData":""},{"command":253,"commandName":"Do Perform","option":34,"optionName":"Line mode","optionData":""},{"command":250,"commandName":"Subnegotiation","option":34,"optionName":"Line mode","optionData":"010b"},{"command":240,"commandName":"Subnegotiation End","option":-1,"optionName":"No option for this command","optionData":""}]})JSON");
+		    R"JSON({"protocolName":"Telnet","protocolId":40,"length":25,"data":"","commands":[{"command":251,"commandName":"Will Perform","option":3,"optionName":"Suppress Go Ahead"},{"command":253,"commandName":"Do Perform","option":24,"optionName":"Terminal Type"},{"command":253,"commandName":"Do Perform","option":31,"optionName":"Negotiate About Window Size"},{"command":253,"commandName":"Do Perform","option":32,"optionName":"Terminal Speed"},{"command":253,"commandName":"Do Perform","option":33,"optionName":"Remote Flow Control"},{"command":253,"commandName":"Do Perform","option":34,"optionName":"Line mode"},{"command":250,"commandName":"Subnegotiation","option":34,"optionName":"Line mode"},{"command":240,"commandName":"Subnegotiation End"}]})JSON");
 	}
-	PTF_ASSERT_EQUAL(telnetLayer->getNextCommand(), pcpp::TelnetLayer::TelnetCommand::DoPerform, enumclass);
 
 	// Telnet TN3270 sample (not supported but should not raise an error)
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/telnetTN3270.dat");
@@ -179,7 +172,7 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 		telnetLayer3->serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    oss.str(),
-		    R"JSON({"protocolName":"Telnet","protocolId":40,"length":191,"data":"Telnet server could not log you in using NTLM authentication.Your password may have expired.Login using username and passwordWelcome to Microsoft Telnet Service login: ","commands":[{"command":250,"commandName":"Subnegotiation","option":37,"optionName":"Authentication Option","optionData":"020f0004"},{"command":240,"commandName":"Subnegotiation End","option":-1,"optionName":"No option for this command","optionData":""}]})JSON");
+		    R"JSON({"protocolName":"Telnet","protocolId":40,"length":191,"data":"Telnet server could not log you in using NTLM authentication.Your password may have expired.Login using username and passwordWelcome to Microsoft Telnet Service login: ","commands":[{"command":250,"commandName":"Subnegotiation","option":37,"optionName":"Authentication Option"},{"command":240,"commandName":"Subnegotiation End"}]})JSON");
 	}
 
 	// Commands

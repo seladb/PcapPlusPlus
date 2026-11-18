@@ -19,17 +19,17 @@ namespace pcpp
 		size_t lastPositionOffset;
 
 		// Returns distance to next IAC
-		size_t distanceToNextIAC(uint8_t* startPos, size_t maxLength);
+		size_t distanceToNextIAC(uint8_t* startPos, size_t maxLength) const;
 		// Returns length of provided field
-		size_t getFieldLen(uint8_t* startPos, size_t maxLength);
+		size_t getFieldLen(uint8_t* startPos, size_t maxLength) const;
 		// Get position of next data field
-		uint8_t* getNextDataField(uint8_t* pos, size_t len);
+		uint8_t* getNextDataField(uint8_t* pos, size_t len) const;
 		// Get position of next command field
-		uint8_t* getNextCommandField(uint8_t* pos, size_t len);
+		uint8_t* getNextCommandField(uint8_t* pos, size_t len) const;
 		// Get options of provided field
-		int16_t getSubCommand(const uint8_t* pos, size_t len);
+		int16_t getSubCommand(const uint8_t* pos, size_t len) const;
 		// Get data of provided field
-		uint8_t* getCommandData(uint8_t* pos, size_t& slen);
+		uint8_t* getCommandData(uint8_t* pos, size_t& slen) const;
 
 	public:
 		/// Telnet Command Indicator
@@ -223,7 +223,7 @@ namespace pcpp
 		/// Get the Telnet data as readable string
 		/// @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
 		/// @return Full payload as readable string, empty if Telnet packet contains control commands/options.
-		std::string getDataAsString(bool removeEscapeCharacters = true);
+		std::string getDataAsString(bool removeEscapeCharacters = true) const;
 
 		/// Get the total number of detected Telnet commands
 		/// @return size_t The number of Telnet commands
@@ -338,7 +338,7 @@ namespace pcpp
 				/// @return All field descriptors for one Telnet command
 				static std::vector<FieldDescriptor> all()
 				{
-					return { Command, CommandName, Option, OptionName, OptionData };
+					return { Command, CommandName, Option, OptionName };
 				}
 
 				/// @brief Telnet command code, written as a number (see TelnetCommand)
@@ -347,15 +347,13 @@ namespace pcpp
 				/// @brief Telnet command as a readable string (see getTelnetCommandAsString())
 				static const FieldDescriptor CommandName;
 
-				/// @brief Telnet option code, written as a number (see TelnetOption). May be
-				/// TelnetOptionNoOption (-1) when the command has no option.
+				/// @brief Telnet option code, written as a number (see TelnetOption). Omitted when the
+				/// command has no option.
 				static const FieldDescriptor Option;
 
-				/// @brief Telnet option as a readable string (see getTelnetOptionAsString())
+				/// @brief Telnet option as a readable string (see getTelnetOptionAsString()). Omitted when
+				/// the command has no option.
 				static const FieldDescriptor OptionName;
-
-				/// @brief Option payload as a hex string. Empty if this command has no option data.
-				static const FieldDescriptor OptionData;
 			};
 
 			/// @brief Telnet user data as a readable string (see getDataAsString()). Empty for
