@@ -2,6 +2,7 @@
 
 #include "Layer.h"
 
+#include <iterator>
 #include <algorithm>
 #include <vector>
 
@@ -166,19 +167,19 @@ namespace pcpp
 		/// Construct a new Event layer with no direction pseudo-header, suitable for serialization to
 		/// LINKTYPE_BLUETOOTH_HCI_H4 captures
 		/// @param[in] eventCode The HCI event code
-		/// @param[in] parameters Pointer to the raw parameter bytes (may be nullptr if paramLen is 0)
-		/// @param[in] paramLen Length of the parameter bytes
-		BluetoothHciEventLayer(uint8_t eventCode, const uint8_t* parameters, uint8_t paramLen);
+		/// @param[in] parameters The raw parameter bytes. Must contain at most 255 bytes
+		/// @throw std::invalid_argument if parameters contains more than 255 bytes
+		explicit BluetoothHciEventLayer(uint8_t eventCode, const std::vector<uint8_t>& parameters = {});
 
 		/// Construct a new Event layer prefixed with the 4-byte direction pseudo-header, suitable for serialization
 		/// to LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR captures
 		/// @param[in] direction The packet direction
 		/// @param[in] eventCode The HCI event code
-		/// @param[in] parameters Pointer to the raw parameter bytes (may be nullptr if paramLen is 0)
-		/// @param[in] paramLen Length of the parameter bytes
-		/// @throw std::invalid_argument if direction is not HostToController or ControllerToHost
-		BluetoothHciEventLayer(BluetoothHciDirection direction, uint8_t eventCode, const uint8_t* parameters,
-		                       uint8_t paramLen);
+		/// @param[in] parameters The raw parameter bytes. Must contain at most 255 bytes
+		/// @throw std::invalid_argument if direction is not HostToController or ControllerToHost, or if parameters
+		/// contains more than 255 bytes
+		BluetoothHciEventLayer(BluetoothHciDirection direction, uint8_t eventCode,
+		                       const std::vector<uint8_t>& parameters = {});
 
 		/// Get the event code of this packet
 		/// @return The event code
@@ -279,7 +280,8 @@ namespace pcpp
 		/// Shared construction logic used by both public constructors. Allocates the buffer, writes the packet
 		/// indicator octet, event header and parameter bytes. The direction pseudo-header, when present, must be
 		/// written separately by the caller
-		void initLayer(uint8_t eventCode, const uint8_t* parameters, uint8_t paramLen);
+		/// @throw std::invalid_argument if parameters contains more than 255 bytes
+		void initLayer(uint8_t eventCode, const std::vector<uint8_t>& parameters);
 
 		bluetooth_hci_event_header* getEventHeader() const
 		{

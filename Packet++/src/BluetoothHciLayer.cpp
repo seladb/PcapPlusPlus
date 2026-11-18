@@ -95,14 +95,14 @@ namespace pcpp
 	// BluetoothHciEventLayer
 	// ~~~~~~~~~~~~~~~~~~~~~~
 
-	BluetoothHciEventLayer::BluetoothHciEventLayer(uint8_t eventCode, const uint8_t* parameters, uint8_t paramLen)
+	BluetoothHciEventLayer::BluetoothHciEventLayer(uint8_t eventCode, const std::vector<uint8_t>& parameters)
 	    : BluetoothHciLayer(false)
 	{
-		initLayer(eventCode, parameters, paramLen);
+		initLayer(eventCode, parameters);
 	}
 
 	BluetoothHciEventLayer::BluetoothHciEventLayer(BluetoothHciDirection direction, uint8_t eventCode,
-	                                               const uint8_t* parameters, uint8_t paramLen)
+	                                               const std::vector<uint8_t>& parameters)
 	    : BluetoothHciLayer(true)
 	{
 		if (direction != BluetoothHciDirection::HostToController &&
@@ -111,22 +111,27 @@ namespace pcpp
 			throw std::invalid_argument("Direction must be HostToController or ControllerToHost");
 		}
 
-		initLayer(eventCode, parameters, paramLen);
+		initLayer(eventCode, parameters);
 		uint32_t netDirection = hostToNet32(static_cast<uint32_t>(direction));
 		std::memcpy(m_Data, &netDirection, directionHeaderSize);
 	}
 
-	void BluetoothHciEventLayer::initLayer(uint8_t eventCode, const uint8_t* parameters, uint8_t paramLen)
+	void BluetoothHciEventLayer::initLayer(uint8_t eventCode, const std::vector<uint8_t>& parameters)
 	{
+		if (parameters.size() > std::numeric_limits<uint8_t>::max())
+		{
+			throw std::invalid_argument("Parameters length is greater than 255 bytes");
+		}
+
 		size_t paramOffset = getDirectionHeaderLen() + sizeof(uint8_t) + sizeof(bluetooth_hci_event_header);
-		allocData(paramOffset + paramLen);
+		allocData(paramOffset + parameters.size());
 		m_Data[getDirectionHeaderLen()] = static_cast<uint8_t>(BluetoothHciPacketType::Event);
 		auto* header = getEventHeader();
 		header->eventCode = eventCode;
-		header->parameterTotalLength = paramLen;
-		if (paramLen > 0 && parameters != nullptr)
+		header->parameterTotalLength = static_cast<uint8_t>(parameters.size());
+		if (!parameters.empty())
 		{
-			std::memcpy(m_Data + paramOffset, parameters, paramLen);
+			std::memcpy(m_Data + paramOffset, parameters.data(), parameters.size());
 		}
 	}
 
