@@ -148,11 +148,8 @@ PTF_TEST_CASE(BluetoothHciEventGenericTest)
 	PTF_ASSERT_EQUAL(eventLayer->getParameterTotalLength(), 4);
 	PTF_ASSERT_EQUAL(eventLayer->getLayerPayloadSize(), 0);
 
-	const uint8_t* parameters = eventLayer->getParameters();
-	PTF_ASSERT_EQUAL(parameters[0], 0x00);
-	PTF_ASSERT_EQUAL(parameters[1], 0x01);
-	PTF_ASSERT_EQUAL(parameters[2], 0x01);
-	PTF_ASSERT_EQUAL(parameters[3], 0x04);
+	const uint8_t expectedParameters[] = { 0x00, 0x01, 0x01, 0x04 };
+	PTF_ASSERT_BUF_COMPARE(eventLayer->getParameters(), expectedParameters, sizeof(expectedParameters));
 
 	PTF_ASSERT_EQUAL(eventLayer->toString(), "Bluetooth HCI Event, Event Code: 0x0f");
 }
@@ -262,6 +259,11 @@ PTF_TEST_CASE(BluetoothHciEventCreationTest)
 		PTF_ASSERT_EQUAL(eventLayer.getEventCode(), 0x01);
 		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 1);
 		PTF_ASSERT_EQUAL(eventLayer.getParameters()[0], 0x00);
+
+		// The created layer must be byte-identical to the captured Inquiry Complete packet
+		auto expected = pcpp_tests::loadHexResourceToVector("PacketExamples/bluetoothHciInquiryComplete.dat");
+		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), expected.size());
+		PTF_ASSERT_BUF_COMPARE(eventLayer.getData(), expected.data(), expected.size());
 	}
 
 	// With direction header: 4 (phdr) + 1 (indicator) + 2 (event header) + 1 (param) = 8 bytes total
@@ -278,19 +280,10 @@ PTF_TEST_CASE(BluetoothHciEventCreationTest)
 		PTF_ASSERT_EQUAL(eventLayer.getParameterTotalLength(), 1);
 		PTF_ASSERT_EQUAL(eventLayer.getParameters()[0], 0x00);
 
-		// Round-trip the created buffer back through parseLayer and confirm it decodes identically.
-		// RawPacket does not take ownership of eventLayer's buffer (`false` on the 4th arg).
-		pcpp::RawPacket rawPacket(eventLayer.getData(), eventLayer.getDataLen(), timeval{ 0, 0 }, false,
-		                          pcpp::LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR);
-		pcpp::Packet packet(&rawPacket);
-		auto* parsed = packet.getLayerOfType<pcpp::BluetoothHciEventLayer>();
-		PTF_ASSERT_NOT_NULL(parsed);
-		PTF_ASSERT_EQUAL(parsed->getPacketType(), pcpp::BluetoothHciLayer::BluetoothHciPacketType::Event, enumclass);
-		PTF_ASSERT_EQUAL(parsed->getDirection(), pcpp::BluetoothHciLayer::BluetoothHciDirection::ControllerToHost,
-		                 enumclass);
-		PTF_ASSERT_EQUAL(parsed->getEventCode(), 0x01);
-		PTF_ASSERT_EQUAL(parsed->getParameterTotalLength(), 1);
-		PTF_ASSERT_EQUAL(parsed->getParameters()[0], 0x00);
+		// The created layer must be byte-identical to the captured Inquiry Complete packet
+		auto expected = pcpp_tests::loadHexResourceToVector("PacketExamples/bluetoothHciInquiryCompleteWithPhdr.dat");
+		PTF_ASSERT_EQUAL(eventLayer.getDataLen(), expected.size());
+		PTF_ASSERT_BUF_COMPARE(eventLayer.getData(), expected.data(), expected.size());
 	}
 
 	// Zero-length parameters are valid: event header + 1 (indicator) = 3 bytes total
