@@ -373,6 +373,19 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpLayer::SerializedFields::ProtocolVersion{ Layer::SerializedFields::MaxID + 1,
+		                                                                "protocolVersion" };
+	const FieldDescriptor DoIpLayer::SerializedFields::PayloadType{ Layer::SerializedFields::MaxID + 2, "payloadType" };
+	const FieldDescriptor DoIpLayer::SerializedFields::PayloadLength{ Layer::SerializedFields::MaxID + 3,
+		                                                              "payloadLength" };
+
+	void DoIpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::ProtocolVersion, getProtocolVersionAsStr());
+		serializer.writeField(SerializedFields::PayloadType, getPayloadTypeAsStr());
+		serializer.writeField(SerializedFields::PayloadLength, getPayloadLength());
+	}
+
 	void DoIpLayer::setHeaderFields(DoIpProtocolVersion version, DoIpPayloadTypes type, uint32_t length)
 	{
 		setProtocolVersion(version);
@@ -925,6 +938,16 @@ namespace pcpp
 		std::ostringstream oss;
 		oss << "Source Address: " << std::hex << "0x" << getSourceAddress() << "\n";
 		return oss.str();
+	}
+
+	const FieldDescriptor DoIpAliveCheckResponse::SerializedFields::SourceAddress{
+		DoIpLayer::SerializedFields::MaxID + 1, "sourceAddress"
+	};
+
+	void DoIpAliveCheckResponse::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~|

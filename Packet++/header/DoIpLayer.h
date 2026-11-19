@@ -1,7 +1,9 @@
 #pragma once
 
-#include <vector>
+#include <algorithm>
 #include <cstring>
+#include <iterator>
+#include <vector>
 #include "Layer.h"
 #include "Logger.h"
 
@@ -639,6 +641,35 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields. Covers the common 8-byte DoIP header.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ProtocolVersion, PayloadType, PayloadLength };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief DoIP protocol version as a readable string (see getProtocolVersionAsStr())
+			static const FieldDescriptor ProtocolVersion;
+
+			/// @brief DoIP payload type as a readable string (see getPayloadTypeAsStr())
+			static const FieldDescriptor PayloadType;
+
+			/// @brief Payload length from the DoIP header, in bytes, not including the 8-byte header,
+			/// in host byte order
+			static const FieldDescriptor PayloadLength;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+		};
+
 	private:
 		void setPayloadType(DoIpPayloadTypes payloadType);
 
@@ -660,6 +691,8 @@ namespace pcpp
 		}
 
 		void setHeaderFields(DoIpProtocolVersion version, DoIpPayloadTypes type, uint32_t length);
+
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	// inline methods definition
@@ -1408,6 +1441,30 @@ namespace pcpp
 		{
 			return (dataLen == FIXED_LEN);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpAliveCheckResponse's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpAliveCheckResponse
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(SourceAddress);
+				return result;
+			}
+
+			/// @brief Source address of the responder, in host byte order
+			static const FieldDescriptor SourceAddress;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)

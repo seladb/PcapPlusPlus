@@ -14,8 +14,18 @@
 #include <array>
 #include "DoIpLayer.h"
 #include "GeneralUtils.h"
+#include "Serializers.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
+
+static std::string serializeToJson(const pcpp::Layer& layer)
+{
+	std::ostringstream output;
+	pcpp::JsonSerializer serializer(output);
+	layer.serialize(serializer);
+	return output.str();
+}
 
 // DoIpRoutActReqParsing
 PTF_TEST_CASE(DoIpRoutActReqParsing)
@@ -527,6 +537,9 @@ PTF_TEST_CASE(DoIpAliveCheckRespParsing)
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Alive check response (0x0008)");
 	PTF_ASSERT_EQUAL(doipLayer->getSourceAddress(), 0x00);
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(), "Source Address: 0x0\n");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":10,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Alive check response","payloadLength":2,"sourceAddress":0})");
 }  // DoIpAliveCheckRespParsing
 
 // DoIpAliveCheckRespCreation
@@ -1027,7 +1040,10 @@ PTF_TEST_CASE(DoIpAliveCheckReqParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ALIVE_CHECK_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Alive check request");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Alive check request (0x0007)")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Alive check request (0x0007)");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Alive check request","payloadLength":0})");
 }  // DoIpAliveCheckReqParsing
 
 // DoIpAliveCheckReqCreation
