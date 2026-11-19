@@ -429,6 +429,9 @@ PTF_TEST_CASE(DoIpVehAnnMessParsing)
 	                 enumclass);
 	PTF_ASSERT_FALSE(doipLayer->hasSyncStatus());
 	PTF_ASSERT_RAISES(doipLayer->getSyncStatus(), std::runtime_error, "Sync status field not present!");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":40,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Vehicle announcement message / vehicle identification response message","payloadLength":32,"vin":"BAUNEE4MZ17042403","logicalAddress":16400,"eid":"001a37bfee74","gid":"001a37bfee74","furtherActionRequired":"No further action required"})");
 }  // DoIpVehAnnMessParsing
 
 // DoIpVehAnnMessCreation

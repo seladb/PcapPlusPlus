@@ -1184,6 +1184,48 @@ namespace pcpp
 			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpVehicleAnnouncementMessage's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpVehicleAnnouncementMessage
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Vin, LogicalAddress,        Eid,
+					                                          Gid, FurtherActionRequired, SyncStatus };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Vehicle Identification Number (VIN) as a 17-character string
+			static const FieldDescriptor Vin;
+
+			/// @brief Logical address of the vehicle, in host byte order
+			static const FieldDescriptor LogicalAddress;
+
+			/// @brief Entity ID (EID) as a lowercase hexadecimal string without separators
+			static const FieldDescriptor Eid;
+
+			/// @brief Group ID (GID) as a lowercase hexadecimal string without separators
+			static const FieldDescriptor Gid;
+
+			/// @brief Further action required as a readable string
+			static const FieldDescriptor FurtherActionRequired;
+
+			/// @brief VIN/GID sync status as a readable string. Omitted when the optional field is
+			/// not present
+			static const FieldDescriptor SyncStatus;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 6;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct vehicle_announcement_message : doiphdr

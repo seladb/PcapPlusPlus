@@ -696,6 +696,45 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::Vin{ DoIpLayer::SerializedFields::MaxID + 1,
+		                                                                         "vin" };
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::LogicalAddress{
+		DoIpLayer::SerializedFields::MaxID + 2, "logicalAddress"
+	};
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::Eid{ DoIpLayer::SerializedFields::MaxID + 3,
+		                                                                         "eid" };
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::Gid{ DoIpLayer::SerializedFields::MaxID + 4,
+		                                                                         "gid" };
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::FurtherActionRequired{
+		DoIpLayer::SerializedFields::MaxID + 5, "furtherActionRequired"
+	};
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::SyncStatus{
+		DoIpLayer::SerializedFields::MaxID + 6, "syncStatus"
+	};
+
+	void DoIpVehicleAnnouncementMessage::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+
+		auto vin = getVIN();
+		serializer.writeField(SerializedFields::Vin, std::string(vin.begin(), vin.end()));
+		serializer.writeField(SerializedFields::LogicalAddress, getLogicalAddress());
+
+		auto eid = getEID();
+		serializer.writeField(SerializedFields::Eid, byteArrayToHexString(eid.data(), eid.size()));
+		auto gid = getGID();
+		serializer.writeField(SerializedFields::Gid, byteArrayToHexString(gid.data(), gid.size()));
+
+		auto actionIt = DoIpEnumToStringActionCodes.find(getFurtherActionRequired());
+		serializer.writeField(SerializedFields::FurtherActionRequired, actionIt->second);
+
+		if (hasSyncStatus())
+		{
+			auto syncIt = DoIpEnumToStringSyncStatus.find(getSyncStatus());
+			serializer.writeField(SerializedFields::SyncStatus, syncIt->second);
+		}
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpRoutingActivationRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
