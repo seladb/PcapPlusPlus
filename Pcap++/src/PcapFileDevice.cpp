@@ -655,27 +655,14 @@ namespace pcpp
 			UnsupportedFormat
 		};
 
-		/// @brief Reads a pcap file header from the given input stream and fills the provided header structure,
-		/// timestamp precision, and byte swap flag.
-		///
-		/// The function will populate the file header structure and convert it to host byte order.
-		///
-		/// @param inStream The input stream to read from.
-		/// @param header A pcap_file_header structure that will be filled with the header data read from the stream.
-		/// @param precision The precision of the timestamps in the pcap file.
-		/// @param needsSwap If the file contents need to be byte-swapped to match the host's endianness.
-		/// @return The status of the reading operation.
-		PcapReadHeaderStatus readPcapHeader(std::istream& inStream, pcap_file_header& header,
-		                                    FileTimestampPrecision& precision, bool& needsSwap)
+		PcapReadHeaderStatus parsePcapHeader(size_t bytesRead, pcap_file_header& header,
+		                                     FileTimestampPrecision& precision, bool& needsSwap)
 		{
-			inStream.read(reinterpret_cast<char*>(&header), sizeof(header));
-
-			auto readBytes = inStream.gcount();
-			if (readBytes == 0)
+			if (bytesRead == 0)
 			{
 				return PcapReadHeaderStatus::NoData;
 			}
-			if (readBytes < static_cast<std::streamsize>(sizeof(header)))
+			if (bytesRead < sizeof(header))
 			{
 				return PcapReadHeaderStatus::MalformedData;
 			}
@@ -703,11 +690,124 @@ namespace pcpp
 
 			return PcapReadHeaderStatus::Ok;
 		}
+
+		/// @brief Reads a pcap file header from the given input stream and fills the provided header structure,
+		/// timestamp precision, and byte swap flag.
+		///
+		/// The function will populate the file header structure and convert it to host byte order.
+		///
+		/// @param[in] inStream The input stream to read from.
+		/// @param[out] header A pcap_file_header structure that will be filled with the header data read from the
+		/// stream.
+		/// @param[out] precision The precision of the timestamps in the pcap file.
+		/// @param[out] needsSwap If the file contents need to be byte-swapped to match the host's endianness.
+		/// @return The status of the reading operation.
+		PcapReadHeaderStatus readPcapHeader(std::istream& inStream, pcap_file_header& header,
+		                                    FileTimestampPrecision& precision, bool& needsSwap)
+		{
+			inStream.read(reinterpret_cast<char*>(&header), sizeof(header));
+			return parsePcapHeader(static_cast<size_t>(inStream.gcount()), header, precision, needsSwap);
+		}
+
+		PcapReadHeaderStatus readPcapHeader(internal::FileIOReadDriver& fileDriver, pcap_file_header& header,
+		                                    FileTimestampPrecision& precision, bool& needsSwap)
+		{
+			size_t bytesRead = fileDriver.readBytes(reinterpret_cast<char*>(&header), sizeof(header));
+			return parsePcapHeader(static_cast<size_t>(bytesRead), header, precision, needsSwap);
+		}
+
+		class FstreamFileIODriver : public internal::FileIOReadDriver
+		{
+		public:
+			FstreamFileIODriver()
+			{}
+
+			~FstreamFileIODriver() override
+			{
+				FstreamFileIODriver::close();
+			}
+
+			bool isOpen() const override
+			{
+				return m_File.is_open();
+			}
+
+			bool open(std::string const& filename) override
+			{
+				m_File.open(filename, std::ifstream::binary);
+				return m_File.is_open();
+			}
+			void close() override
+			{
+				m_File.close();
+			}
+			size_t readBytes(char* buffer, size_t size) override
+			{
+				m_File.read(buffer, size);
+				return m_File.gcount();
+			}
+
+			size_t ignoreBytes(size_t size) override
+			{
+				m_File.ignore(size);
+				return m_File.gcount();
+			}
+
+		private:
+			std::ifstream m_File;
+		};
 	}  // namespace
+
+	PcapFileReaderDevice::PcapFileReaderDevice(const std::string& fileName, IODriverType config)
+	    : PcapFileReaderDevice(fileName, IODriverConfig{ config })
+	{}
+
+	PcapFileReaderDevice::PcapFileReaderDevice(const std::string& fileName, IODriverConfig config)
+	    : IFileReaderDevice(fileName), m_IODriverConfig(config)
+	{
+		switch (config.driverType)
+		{
+		case IODriverType::Auto:
+			break;  // Defer to open() to select the driver
+		case IODriverType::Fstream:
+			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+			break;
+		case IODriverType::EXPERIMENTAL_AsyncPrefetch:
+		{
+			// TODO: Hook up prefetch driver when it is implemented
+			PCPP_LOG_WARN(
+			    "File I/O Driver: Unsupported driver type EXPERIMENTAL_AsyncPrefetch selected. Falling back to Fstream driver");
+			m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+			break;
+		}
+		}
+	}
 
 	bool PcapFileReaderDevice::open()
 	{
-		if (m_PcapFile.is_open())
+		if (m_FileIODriver == nullptr)
+		{
+			switch (m_IODriverConfig.driverType)
+			{
+			case IODriverType::Auto:
+			case IODriverType::Fstream:
+			{
+				PCPP_LOG_DEBUG("File I/O driver: FileStream driver");
+				m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+				break;
+			}
+			case IODriverType::EXPERIMENTAL_AsyncPrefetch:
+			{
+				// TODO: Hook up prefetch driver when it is implemented
+				PCPP_LOG_WARN(
+				    "File I/O Driver: Unsupported driver type EXPERIMENTAL_AsyncPrefetch selected. Falling back to Fstream driver");
+				m_FileIODriver = std::make_unique<FstreamFileIODriver>();
+				break;
+			}
+			}
+		}
+
+		if (m_FileIODriver->isOpen())
 		{
 			PCPP_LOG_ERROR("File already opened");
 			return false;
@@ -715,16 +815,30 @@ namespace pcpp
 
 		resetStatisticCounters();
 
-		std::ifstream pcapFile;
-		pcapFile.open(m_FileName.c_str(), std::ifstream::binary);
-		if (!pcapFile.is_open())
+		if (!m_FileIODriver->open(m_FileName))
 		{
 			PCPP_LOG_ERROR("Cannot open pcap reader device for filename '" << m_FileName << "'");
 			return false;
 		}
 
+		// RAII wrapper if we exit early.
+		struct AutoClose
+		{
+			internal::FileIOReadDriver& driver;
+			bool shouldClose = true;
+
+			~AutoClose()
+			{
+				// cppcheck-suppress knownConditionTrueFalse
+				if (shouldClose)
+				{
+					driver.close();
+				}
+			}
+		} autoClose{ *m_FileIODriver };
+
 		pcap_file_header pcapFileHeader{};
-		auto status = readPcapHeader(pcapFile, pcapFileHeader, m_Precision, m_NeedsSwap);
+		auto status = readPcapHeader(*m_FileIODriver, pcapFileHeader, m_Precision, m_NeedsSwap);
 		switch (status)
 		{
 		case PcapReadHeaderStatus::Ok:
@@ -764,7 +878,8 @@ namespace pcpp
 		m_SnapshotLength = pcapFileHeader.snaplen;
 		m_ReadBuffer.resize(m_SnapshotLength);
 
-		m_PcapFile = std::move(pcapFile);
+		// cppcheck-suppress unreadVariable
+		autoClose.shouldClose = false;  // Don't close the file, we are done with initialization.
 		return true;
 	}
 
@@ -794,16 +909,14 @@ namespace pcpp
 
 	void PcapFileReaderDevice::close()
 	{
-		m_PcapFile.close();
+		m_FileIODriver->close();
 	}
 
 	bool PcapFileReaderDevice::readNextPacket(timespec& packetTimestamp, uint8_t* packetData, uint32_t packetDataLen,
 	                                          uint32_t& capturedLength, uint32_t& frameLength)
 	{
 		packet_header packetHeader{};
-		m_PcapFile.read(reinterpret_cast<char*>(&packetHeader), sizeof(packetHeader));
-
-		auto bytesRead = m_PcapFile.gcount();
+		auto bytesRead = m_FileIODriver->readBytes(reinterpret_cast<char*>(&packetHeader), sizeof(packetHeader));
 		if (bytesRead == 0)
 		{
 			return false;
@@ -865,13 +978,14 @@ namespace pcpp
 			packetHeader.caplen = packetDataLen;
 		}
 
-		if (packetHeader.caplen > 0 && !m_PcapFile.read(reinterpret_cast<char*>(packetData), packetHeader.caplen))
+		if (packetHeader.caplen > 0 &&
+		    m_FileIODriver->readBytes(reinterpret_cast<char*>(packetData), packetHeader.caplen) != packetHeader.caplen)
 		{
 			PCPP_LOG_ERROR("Failed to read packet data");
 			return false;
 		}
 
-		if (bytesToDiscard && !m_PcapFile.ignore(bytesToDiscard))
+		if (bytesToDiscard && m_FileIODriver->ignoreBytes(bytesToDiscard) != bytesToDiscard)
 		{
 			PCPP_LOG_ERROR("Failed to read discarded packet data");
 			return false;
