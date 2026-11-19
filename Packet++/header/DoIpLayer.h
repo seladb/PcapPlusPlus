@@ -958,6 +958,30 @@ namespace pcpp
 			return (dataLen == FIXED_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpVehicleIdentificationRequestWithEID's serializeLayer(), in
+		/// addition to DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpVehicleIdentificationRequestWithEID
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(Eid);
+				return result;
+			}
+
+			/// @brief Entity ID (EID) as a lowercase hexadecimal string without separators
+			static const FieldDescriptor Eid;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct vehicle_identification_request_with_eid : doiphdr
@@ -1018,6 +1042,30 @@ namespace pcpp
 		{
 			return (dataLen == FIXED_LEN);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpVehicleIdentificationRequestWithVIN's serializeLayer(), in
+		/// addition to DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpVehicleIdentificationRequestWithVIN
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(Vin);
+				return result;
+			}
+
+			/// @brief Vehicle Identification Number (VIN) as a 17-character string
+			static const FieldDescriptor Vin;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)

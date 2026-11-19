@@ -286,10 +286,12 @@ PTF_TEST_CASE(DoIpVehIdenReqWithEIDParsing)
 	                 enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request with EID");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x6);
-	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Vehicle identification request with EID (0x0002)")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Vehicle identification request with EID (0x0002)");
 	std::array<uint8_t, 6> eid{ 0x42, 0x41, 0x55, 0x4e, 0x45, 0x45 };
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getEID(), eid);
-
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":14,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Vehicle identification request with EID","payloadLength":6,"eid":"4241554e4545"})");
 }  // DoIpVehIdenReqWithEIDParsing
 
 // DoIpVehIdenReqWithEIDCreation
@@ -349,7 +351,9 @@ PTF_TEST_CASE(DoIpVehIdenReqWithVINParsing)
 		                         0x31, 0x37, 0x30, 0x34, 0x32, 0x34, 0x30, 0x33 };
 
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getVIN(), vin);
-
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":25,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Vehicle identification request with VIN","payloadLength":17,"vin":"BAUNEE4MZ17042403"})");
 }  // DoIpVehIdenReqWithVINParsing
 
 // DoIpVehIdenReqWithVINCreation
@@ -492,7 +496,9 @@ PTF_TEST_CASE(DoIpVehIdenReqParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request");
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Vehicle identification request (0x0001)");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x0);
-
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Vehicle identification request","payloadLength":0})");
 }  // DoIpVehIdenReqParsing
 
 // DoIpVehIdenReqCreation

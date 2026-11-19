@@ -501,6 +501,17 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpVehicleIdentificationRequestWithEID::SerializedFields::Eid{
+		DoIpLayer::SerializedFields::MaxID + 1, "eid"
+	};
+
+	void DoIpVehicleIdentificationRequestWithEID::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		auto eid = getEID();
+		serializer.writeField(SerializedFields::Eid, byteArrayToHexString(eid.data(), eid.size()));
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpVehicleIdentificationRequestWithVIN|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -532,6 +543,17 @@ namespace pcpp
 		std::ostringstream oss;
 		oss << "VIN: " << std::string(reinterpret_cast<const char*>(getVIN().data()), DOIP_VIN_LEN) << "\n";
 		return oss.str();
+	}
+
+	const FieldDescriptor DoIpVehicleIdentificationRequestWithVIN::SerializedFields::Vin{
+		DoIpLayer::SerializedFields::MaxID + 1, "vin"
+	};
+
+	void DoIpVehicleIdentificationRequestWithVIN::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		auto vin = getVIN();
+		serializer.writeField(SerializedFields::Vin, std::string(vin.begin(), vin.end()));
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
