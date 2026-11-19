@@ -850,6 +850,21 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::SourceAddress{
+		DoIpLayer::SerializedFields::MaxID + 1, "sourceAddress"
+	};
+	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ActivationType{
+		DoIpLayer::SerializedFields::MaxID + 2, "activationType"
+	};
+
+	void DoIpRoutingActivationRequest::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
+		auto activationIt = DoIpEnumToStringActivationTypes.find(getActivationType());
+		serializer.writeField(SerializedFields::ActivationType, activationIt->second);
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpRoutingActivationResponse|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -971,6 +986,25 @@ namespace pcpp
 			    << "\n";
 
 		return oss.str();
+	}
+
+	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::LogicalAddressExternalTester{
+		DoIpLayer::SerializedFields::MaxID + 1, "logicalAddressExternalTester"
+	};
+	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::SourceAddress{
+		DoIpLayer::SerializedFields::MaxID + 2, "sourceAddress"
+	};
+	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::ResponseCode{
+		DoIpLayer::SerializedFields::MaxID + 3, "responseCode"
+	};
+
+	void DoIpRoutingActivationResponse::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::LogicalAddressExternalTester, getLogicalAddressExternalTester());
+		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
+		auto responseIt = DoIpEnumToStringRoutingResponseCodes.find(getResponseCode());
+		serializer.writeField(SerializedFields::ResponseCode, responseIt->second);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~|

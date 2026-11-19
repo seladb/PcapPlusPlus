@@ -56,6 +56,9 @@ PTF_TEST_CASE(DoIpRoutActReqParsing)
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
 	    "Source Address: 0xe80\nActivation type: Default (0x0)\nReserved by ISO: 00000000\nReserved by OEM: 00000000\n");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":19,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Routing activation request","payloadLength":11,"sourceAddress":3712,"activationType":"Default"})");
 }  // DoIpRoutActReqParsing
 
 // DoIpRoutActReqCreation
@@ -148,6 +151,9 @@ PTF_TEST_CASE(DoIpRoutActResParsing)
 	PTF_ASSERT_EQUAL(
 	    doipLayer->getSummary(),
 	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 00000000\n");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":17,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Routing activation response","payloadLength":9,"logicalAddressExternalTester":3712,"sourceAddress":16400,"responseCode":"Routing successfully activated"})");
 }  // DoIpRoutActResParsing
 
 // DoIpRoutActResCreation

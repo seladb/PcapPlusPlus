@@ -1334,6 +1334,34 @@ namespace pcpp
 			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpRoutingActivationRequest's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields. Reserved ISO/OEM bytes are omitted.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpRoutingActivationRequest
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SourceAddress, ActivationType };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Source address of the tester, in host byte order
+			static const FieldDescriptor SourceAddress;
+
+			/// @brief Routing activation type as a readable string
+			static const FieldDescriptor ActivationType;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct routing_activation_request : doiphdr
@@ -1446,6 +1474,38 @@ namespace pcpp
 		{
 			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpRoutingActivationResponse's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields. Reserved ISO/OEM bytes are omitted.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpRoutingActivationResponse
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ LogicalAddressExternalTester, SourceAddress,
+					                                          ResponseCode };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Logical address of the external tester, in host byte order
+			static const FieldDescriptor LogicalAddressExternalTester;
+
+			/// @brief ECU source address, in host byte order
+			static const FieldDescriptor SourceAddress;
+
+			/// @brief Routing activation response code as a readable string
+			static const FieldDescriptor ResponseCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 3;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)
