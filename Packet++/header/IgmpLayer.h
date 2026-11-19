@@ -54,6 +54,8 @@ namespace pcpp
 
 	/// @struct igmpv3_report_header
 	/// IGMPv3 membership report basic header
+
+	#pragma pack(push, 1)
 	struct igmpv3_report_header
 	{
 		/// IGMP message type. Should always have value of IGMPv3 membership report (::IgmpType_MembershipReportV3)
@@ -67,6 +69,7 @@ namespace pcpp
 		/// This field specifies the number of group records present in the Report
 		uint16_t numOfGroupRecords;
 	};
+#pragma pack(pop)
 	static_assert(sizeof(igmpv3_report_header) == 8, "igmpv3_report_header size is not 8 bytes");
 
 	/// @struct igmpv3_group_record

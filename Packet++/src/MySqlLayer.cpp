@@ -1,7 +1,7 @@
 #include "MySqlLayer.h"
 #include "EndianPortable.h"
 #include <algorithm>
-#include <cstring>
+#include "UnalignedAccess.h"
 
 namespace pcpp
 {
@@ -425,8 +425,7 @@ namespace pcpp
 			return 0;
 		}
 
-		uint16_t errorCode;
-		memcpy(&errorCode, m_Data + errorCodeIndex, sizeof(errorCode));
+		uint16_t errorCode = readUint<uint16_t, ByteOrder::Native>(m_Data + errorCodeIndex);
 		return errorCode;
 	}
 

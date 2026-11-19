@@ -2,6 +2,7 @@
 
 #include "DnsResource.h"
 #include "Logger.h"
+#include "UnalignedAccess.h"
 #include <cstring>
 #include <limits>
 #include <sstream>
@@ -199,9 +200,8 @@ namespace pcpp
 
 	DnsType IDnsResource::getDnsType() const
 	{
-		uint16_t dnsType;
-		memcpy(&dnsType, getRawData() + m_NameLength, sizeof(dnsType));
-		return static_cast<DnsType>(be16toh(dnsType));
+		uint16_t dnsType = readUint<uint16_t, ByteOrder::BigEndian>(getRawData() + m_NameLength);
+		return static_cast<DnsType>(dnsType);
 	}
 
 	void IDnsResource::setDnsType(DnsType newType)
@@ -212,9 +212,8 @@ namespace pcpp
 
 	DnsClass IDnsResource::getDnsClass() const
 	{
-		uint16_t dnsClass;
-		memcpy(&dnsClass, getRawData() + m_NameLength + sizeof(uint16_t), sizeof(dnsClass));
-		return static_cast<DnsClass>(be16toh(dnsClass));
+		uint16_t dnsClass = readUint<uint16_t, ByteOrder::BigEndian>(getRawData() + m_NameLength + sizeof(uint16_t));
+		return static_cast<DnsClass>(dnsClass);
 	}
 
 	void IDnsResource::setDnsClass(DnsClass newClass)
@@ -273,9 +272,8 @@ namespace pcpp
 
 	uint32_t DnsResource::getTTL() const
 	{
-		uint32_t ttl;
-		memcpy(&ttl, getRawData() + m_NameLength + 2 * sizeof(uint16_t), sizeof(ttl));
-		return be32toh(ttl);
+		uint32_t ttl = readUint<uint32_t, ByteOrder::BigEndian>(getRawData() + m_NameLength + 2 * sizeof(uint16_t));
+		return ttl;
 	}
 
 	void DnsResource::setTTL(uint32_t newTTL)
@@ -296,9 +294,8 @@ namespace pcpp
 			return 0;
 		}
 
-		uint16_t dataLength;
-		memcpy(&dataLength, getRawData() + sizeToRead, sizeof(dataLength));
-		return be16toh(dataLength);
+		uint16_t dataLength = readUint<uint16_t, ByteOrder::BigEndian>(getRawData() + sizeToRead);
+		return dataLength;
 	}
 
 	DnsResourceDataPtr DnsResource::getData() const
@@ -458,8 +455,8 @@ namespace pcpp
 
 	uint16_t DnsResource::getCustomDnsClass() const
 	{
-		uint16_t value = *reinterpret_cast<uint16_t*>(getRawData() + m_NameLength + sizeof(uint16_t));
-		return be16toh(value);
+		uint16_t value = readUint<uint16_t, ByteOrder::BigEndian>(getRawData() + m_NameLength + sizeof(uint16_t));
+		return value;
 	}
 
 	void DnsResource::setCustomDnsClass(uint16_t customValue)

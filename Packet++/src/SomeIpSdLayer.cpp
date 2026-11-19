@@ -2,6 +2,7 @@
 
 #include "SomeIpSdLayer.h"
 #include "EndianPortable.h"
+#include "UnalignedAccess.h"
 #include <algorithm>
 #include <memory>
 #include <sstream>
@@ -855,8 +856,7 @@ namespace pcpp
 			if (len + sizeof(uint16_t) + 3 * sizeof(uint8_t) > lenOptions)
 				return false;
 
-			uint16_t lenOptionValue;
-			memcpy(&lenOptionValue, data + offsetOption + len, sizeof(lenOptionValue));
+			uint16_t lenOptionValue = readUint<uint16_t, ByteOrder::Native>(data + offsetOption + len);
 
 			uint32_t lenOption = be16toh(lenOptionValue) + 3 * sizeof(uint8_t);
 			len += lenOption;
@@ -875,7 +875,7 @@ namespace pcpp
 		uint32_t i = 0;
 		while (i < m_NumOptions)
 		{
-			uint32_t lenOption = be16toh(*(reinterpret_cast<uint16_t*>(m_Data + offsetOption))) + 3 * sizeof(uint8_t);
+			uint32_t lenOption = readUint<uint16_t, ByteOrder::BigEndian>(m_Data + offsetOption) + 3 * sizeof(uint8_t);
 
 			if (option.getLength() == lenOption)
 			{
@@ -1011,9 +1011,8 @@ namespace pcpp
 
 	size_t SomeIpSdLayer::getLenEntries(const uint8_t* data)
 	{
-		uint32_t value;
-		memcpy(&value, data + sizeof(someipsdhdr), sizeof(value));
-		return be32toh(value);
+		uint32_t value = readUint<uint32_t, ByteOrder::BigEndian>(data + sizeof(someipsdhdr));
+		return value;
 	}
 
 	size_t SomeIpSdLayer::getLenOptions() const
@@ -1023,22 +1022,20 @@ namespace pcpp
 
 	size_t SomeIpSdLayer::getLenOptions(const uint8_t* data)
 	{
-		uint32_t value;
 		const uint8_t* valuePos = data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data);
 
-		memcpy(&value, valuePos, sizeof(value));
-		return be32toh(value);
+		uint32_t value = readUint<uint32_t, ByteOrder::BigEndian>(valuePos);
+		return value;
 	}
 
 	void SomeIpSdLayer::setLenEntries(uint32_t length)
 	{
-		uint32_t value = htobe32(length);
-		memcpy(m_Data + sizeof(someipsdhdr), &value, sizeof(value));
+		writeUint<uint32_t, ByteOrder::BigEndian>(m_Data + sizeof(someipsdhdr), length);
 	}
 
 	void SomeIpSdLayer::setLenOptions(uint32_t length)
 	{
-		uint32_t value = htobe32(length);
-		memcpy(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(), &value, sizeof(value));
+		writeUint<uint32_t, ByteOrder::BigEndian>(m_Data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(),
+		                                          length);
 	}
 }  // namespace pcpp

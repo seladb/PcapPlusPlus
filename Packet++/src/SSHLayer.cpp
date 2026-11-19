@@ -4,6 +4,7 @@
 #include "GeneralUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
+#include "UnalignedAccess.h"
 #include <cstring>
 
 namespace pcpp
@@ -200,9 +201,7 @@ namespace pcpp
 			if (offset + sizeof(uint32_t) >= m_DataLen)
 				return;
 
-			uint32_t fieldLengthValue;
-			memcpy(&fieldLengthValue, m_Data + offset, sizeof(fieldLengthValue));
-			size_t fieldLength = static_cast<size_t>(be32toh(fieldLengthValue));
+			size_t fieldLength = readUint<uint32_t, ByteOrder::BigEndian>(m_Data + offset);
 			if (offset + sizeof(uint32_t) + fieldLength > m_DataLen)
 				return;
 
@@ -226,9 +225,7 @@ namespace pcpp
 			return "";
 
 		size_t fieldOffset = m_FieldOffsets[fieldOffsetIndex];
-		uint32_t fieldLength;
-		memcpy(&fieldLength, m_Data + fieldOffset, sizeof(fieldLength));
-		fieldLength = be32toh(fieldLength);
+		uint32_t fieldLength = readUint<uint32_t, ByteOrder::BigEndian>(m_Data + fieldOffset);
 		return std::string(reinterpret_cast<const char*>(m_Data + fieldOffset + sizeof(uint32_t)), (size_t)fieldLength);
 	}
 

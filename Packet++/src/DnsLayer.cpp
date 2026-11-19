@@ -2,6 +2,7 @@
 
 #include "DnsLayer.h"
 #include "Logger.h"
+#include "UnalignedAccess.h"
 #include <sstream>
 #include <vector>
 #include "EndianPortable.h"
@@ -1087,12 +1088,12 @@ namespace pcpp
 
 	uint16_t DnsOverTcpLayer::getTcpMessageLength()
 	{
-		return be16toh(*(uint16_t*)m_Data);
+		return readUint<uint16_t, ByteOrder::BigEndian>(m_Data);
 	}
 
 	void DnsOverTcpLayer::setTcpMessageLength(uint16_t value)
 	{
-		((uint16_t*)m_Data)[0] = htobe16(value);
+		writeUint<uint16_t, ByteOrder::BigEndian>(m_Data, value);
 	}
 
 	void DnsOverTcpLayer::computeCalculateFields()

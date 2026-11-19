@@ -52,6 +52,7 @@ add_executable(
   Tests/TcpTests.cpp
   Tests/TelnetTests.cpp
   Tests/TpktTests.cpp
+  Tests/UnalignedAccessTests.cpp
   Tests/VlanMplsTests.cpp
   Tests/VrrpTest.cpp
   Tests/WakeOnLanTests.cpp

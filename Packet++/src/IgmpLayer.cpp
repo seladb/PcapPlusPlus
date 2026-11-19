@@ -4,6 +4,7 @@
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
+#include "UnalignedAccess.h"
 
 namespace pcpp
 {
@@ -222,8 +223,7 @@ namespace pcpp
 			return IPv4Address();
 
 		uint8_t* ptr = m_Data + ptrOffset;
-		uint32_t address;
-		memcpy(&address, ptr, sizeof(address));
+		uint32_t address = readUint<uint32_t, ByteOrder::Native>(ptr);
 		return IPv4Address(address);
 	}
 
@@ -514,8 +514,7 @@ namespace pcpp
 
 		int offset = index * sizeof(uint32_t);
 		const uint8_t* ptr = sourceAddresses + offset;
-		uint32_t address;
-		memcpy(&address, ptr, sizeof(address));
+		uint32_t address = readUint<uint32_t, ByteOrder::Native>(ptr);
 		return IPv4Address(address);
 	}
 

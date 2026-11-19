@@ -6,6 +6,7 @@
 #include "EndianPortable.h"
 #include "IPv4Layer.h"
 #include "PayloadLayer.h"
+#include "UnalignedAccess.h"
 #include "VrrpLayer.h"
 
 namespace pcpp
@@ -350,8 +351,7 @@ namespace pcpp
 	{
 		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
-			uint32_t address;
-			memcpy(&address, data, sizeof(address));
+			uint32_t address = readUint<uint32_t, ByteOrder::Native>(data);
 			return IPv4Address(address);
 		}
 
