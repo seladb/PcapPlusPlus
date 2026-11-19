@@ -181,14 +181,11 @@ namespace pcpp
 		return Layer::shortenLayer(offsetInLayer, numOfBytesToShorten);
 	}
 
-	const FieldDescriptor BgpLayer::SerializedFields::Marker{ Layer::SerializedFields::MaxID + 1, "marker" };
-	const FieldDescriptor BgpLayer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 2, "messageType" };
+	const FieldDescriptor BgpLayer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 1, "messageType" };
 
 	void BgpLayer::serializeLayer(ObjectScope& serializer) const
 	{
-		auto* header = getBasicHeader();
 		serializer.writeField(SerializedFields::MessageType, getMessageTypeAsString());
-		serializer.writeField(SerializedFields::Marker, byteArrayToHexString(header->marker, sizeof(header->marker)));
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -416,19 +413,14 @@ namespace pcpp
 		                                                                   "holdTime" };
 	const FieldDescriptor BgpOpenMessageLayer::SerializedFields::BgpId{ BgpLayer::SerializedFields::MaxID + 4,
 		                                                                "bgpId" };
-	const FieldDescriptor BgpOpenMessageLayer::SerializedFields::OptionalParameterLength{
-		BgpLayer::SerializedFields::MaxID + 5, "optionalParameterLength"
-	};
 	const FieldDescriptor BgpOpenMessageLayer::SerializedFields::OptionalParameters{
-		BgpLayer::SerializedFields::MaxID + 6, "optionalParameters"
+		BgpLayer::SerializedFields::MaxID + 5, "optionalParameters"
 	};
-	const ObjectFieldDescriptor<BgpOpenMessageLayer::SerializedFields::OptionalParameterSerializedFields>
+	const BgpOpenMessageLayer::SerializedFields::OptionalParameterObject
 	    BgpOpenMessageLayer::SerializedFields::OptionalParameter{ 0, "optionalParameter" };
 
-	const FieldDescriptor BgpOpenMessageLayer::SerializedFields::OptionalParameterSerializedFields::Type{ 0, "type" };
-	const FieldDescriptor BgpOpenMessageLayer::SerializedFields::OptionalParameterSerializedFields::Length{ 1,
-		                                                                                                    "length" };
-	const FieldDescriptor BgpOpenMessageLayer::SerializedFields::OptionalParameterSerializedFields::Value{ 2, "value" };
+	const FieldDescriptor BgpOpenMessageLayer::SerializedFields::OptionalParameterObject::Type{ 0, "type" };
+	const FieldDescriptor BgpOpenMessageLayer::SerializedFields::OptionalParameterObject::Length{ 1, "length" };
 
 	void BgpOpenMessageLayer::serializeLayer(ObjectScope& serializer) const
 	{
@@ -439,7 +431,6 @@ namespace pcpp
 		serializer.writeField(SerializedFields::MyAutonomousSystem, be16toh(header->myAutonomousSystem));
 		serializer.writeField(SerializedFields::HoldTime, be16toh(header->holdTime));
 		serializer.writeField(SerializedFields::BgpId, getBgpId().toString());
-		serializer.writeField(SerializedFields::OptionalParameterLength, header->optionalParameterLength);
 
 		std::vector<optional_parameter> optionalParameters;
 		getOptionalParameters(optionalParameters);
@@ -447,14 +438,10 @@ namespace pcpp
 		for (const auto& optionalParameter : optionalParameters)
 		{
 			auto optionalParameterObject = optionalParametersArray.writeObject(SerializedFields::OptionalParameter);
-			optionalParameterObject.writeField(
-			    BgpOpenMessageLayer::SerializedFields::OptionalParameterSerializedFields::Type, optionalParameter.type);
-			optionalParameterObject.writeField(
-			    BgpOpenMessageLayer::SerializedFields::OptionalParameterSerializedFields::Length,
-			    optionalParameter.length);
-			optionalParameterObject.writeField(
-			    BgpOpenMessageLayer::SerializedFields::OptionalParameterSerializedFields::Value,
-			    byteArrayToHexString(optionalParameter.value, optionalParameter.length));
+			optionalParameterObject.writeField(BgpOpenMessageLayer::SerializedFields::OptionalParameterObject::Type,
+			                                   optionalParameter.type);
+			optionalParameterObject.writeField(BgpOpenMessageLayer::SerializedFields::OptionalParameterObject::Length,
+			                                   optionalParameter.length);
 		}
 	}
 
@@ -949,65 +936,67 @@ namespace pcpp
 		BgpLayer::SerializedFields::MaxID + 3, "networkLayerReachabilityInfo"
 	};
 
-	const ObjectFieldDescriptor<BgpUpdateMessageLayer::SerializedFields::PrefixAndIpSerializedFields>
+	const BgpUpdateMessageLayer::SerializedFields::PrefixAndIpObject
 	    BgpUpdateMessageLayer::SerializedFields::WithdrawnRoute{ 0, "withdrawnRoute" };
-	const ObjectFieldDescriptor<BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields>
+	const BgpUpdateMessageLayer::SerializedFields::PathAttributeObject
 	    BgpUpdateMessageLayer::SerializedFields::PathAttribute{ 0, "pathAttribute" };
-	const ObjectFieldDescriptor<BgpUpdateMessageLayer::SerializedFields::PrefixAndIpSerializedFields>
-	    BgpUpdateMessageLayer::SerializedFields::Nlri{ 0, "nlri" };
+	const BgpUpdateMessageLayer::SerializedFields::PrefixAndIpObject BgpUpdateMessageLayer::SerializedFields::Nlri{
+		0, "nlri"
+	};
 
-	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PrefixAndIpSerializedFields::Prefix{ 0, "prefix" };
-	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PrefixAndIpSerializedFields::IpAddr{ 1, "ipAddr" };
+	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PrefixAndIpObject::Prefix{ 0, "prefix" };
+	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PrefixAndIpObject::IpAddr{ 1, "ipAddr" };
 
-	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields::Flags{ 0, "flags" };
-	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields::Type{ 1, "type" };
-	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields::Length{ 2, "length" };
-	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields::Value{ 3, "value" };
+	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PathAttributeObject::Flags{ 0, "flags" };
+	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PathAttributeObject::Type{ 1, "type" };
+	const FieldDescriptor BgpUpdateMessageLayer::SerializedFields::PathAttributeObject::Length{ 2, "length" };
 
 	void BgpUpdateMessageLayer::serializeLayer(ObjectScope& serializer) const
 	{
 		BgpLayer::serializeLayer(serializer);
 
-		std::vector<prefix_and_ip> withdrawnRoutes;
-		getWithdrawnRoutes(withdrawnRoutes);
-		auto withdrawnRoutesArray = serializer.writeArray(SerializedFields::WithdrawnRoutes);
-		for (const auto& withdrawnRoute : withdrawnRoutes)
 		{
-			auto withdrawnRouteObject = withdrawnRoutesArray.writeObject(SerializedFields::WithdrawnRoute);
-			withdrawnRouteObject.writeField(
-			    BgpUpdateMessageLayer::SerializedFields::PrefixAndIpSerializedFields::Prefix, withdrawnRoute.prefix);
-			withdrawnRouteObject.writeField(
-			    BgpUpdateMessageLayer::SerializedFields::PrefixAndIpSerializedFields::IpAddr,
-			    withdrawnRoute.ipAddr.toString());
+			std::vector<prefix_and_ip> withdrawnRoutes;
+			getWithdrawnRoutes(withdrawnRoutes);
+			auto withdrawnRoutesArray = serializer.writeArray(SerializedFields::WithdrawnRoutes);
+			for (const auto& withdrawnRoute : withdrawnRoutes)
+			{
+				auto withdrawnRouteObject = withdrawnRoutesArray.writeObject(SerializedFields::WithdrawnRoute);
+				withdrawnRouteObject.writeField(BgpUpdateMessageLayer::SerializedFields::PrefixAndIpObject::Prefix,
+				                                withdrawnRoute.prefix);
+				withdrawnRouteObject.writeField(BgpUpdateMessageLayer::SerializedFields::PrefixAndIpObject::IpAddr,
+				                                withdrawnRoute.ipAddr.toString());
+			}
 		}
 
-		std::vector<path_attribute> pathAttributes;
-		getPathAttributes(pathAttributes);
-		auto pathAttributesArray = serializer.writeArray(SerializedFields::PathAttributes);
-		for (const auto& pathAttribute : pathAttributes)
 		{
-			auto pathAttributeObject = pathAttributesArray.writeObject(SerializedFields::PathAttribute);
-			pathAttributeObject.writeField(
-			    BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields::Flags, pathAttribute.flags);
-			pathAttributeObject.writeField(BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields::Type,
-			                               pathAttribute.type);
-			pathAttributeObject.writeField(
-			    BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields::Length, pathAttribute.length);
-			pathAttributeObject.writeField(
-			    BgpUpdateMessageLayer::SerializedFields::PathAttributeSerializedFields::Value,
-			    byteArrayToHexString(pathAttribute.data, pathAttribute.length));
+			std::vector<path_attribute> pathAttributes;
+			getPathAttributes(pathAttributes);
+			auto pathAttributesArray = serializer.writeArray(SerializedFields::PathAttributes);
+			for (const auto& pathAttribute : pathAttributes)
+			{
+				auto pathAttributeObject = pathAttributesArray.writeObject(SerializedFields::PathAttribute);
+				pathAttributeObject.writeField(BgpUpdateMessageLayer::SerializedFields::PathAttributeObject::Flags,
+				                               pathAttribute.flags);
+				pathAttributeObject.writeField(BgpUpdateMessageLayer::SerializedFields::PathAttributeObject::Type,
+				                               pathAttribute.type);
+				pathAttributeObject.writeField(BgpUpdateMessageLayer::SerializedFields::PathAttributeObject::Length,
+				                               pathAttribute.length);
+			}
 		}
 
-		std::vector<prefix_and_ip> nlri;
-		getNetworkLayerReachabilityInfo(nlri);
-		auto nlriArray = serializer.writeArray(SerializedFields::NetworkLayerReachabilityInfo);
-		for (const auto& nlriItem : nlri)
 		{
-			auto nlriObject = nlriArray.writeObject(SerializedFields::Nlri);
-			nlriObject.writeField(BgpUpdateMessageLayer::SerializedFields::PrefixAndIpSerializedFields::Prefix,
-			                      nlriItem.prefix);
-			nlriObject.writeField(BgpUpdateMessageLayer::SerializedFields::PrefixAndIpSerializedFields::IpAddr,
-			                      nlriItem.ipAddr.toString());
+			std::vector<prefix_and_ip> nlri;
+			getNetworkLayerReachabilityInfo(nlri);
+			auto nlriArray = serializer.writeArray(SerializedFields::NetworkLayerReachabilityInfo);
+			for (const auto& nlriItem : nlri)
+			{
+				auto nlriObject = nlriArray.writeObject(SerializedFields::Nlri);
+				nlriObject.writeField(BgpUpdateMessageLayer::SerializedFields::PrefixAndIpObject::Prefix,
+				                      nlriItem.prefix);
+				nlriObject.writeField(BgpUpdateMessageLayer::SerializedFields::PrefixAndIpObject::IpAddr,
+				                      nlriItem.ipAddr.toString());
+			}
 		}
 	}
 
@@ -1156,9 +1145,6 @@ namespace pcpp
 	const FieldDescriptor BgpNotificationMessageLayer::SerializedFields::ErrorSubCode{
 		BgpLayer::SerializedFields::MaxID + 2, "errorSubCode"
 	};
-	const FieldDescriptor BgpNotificationMessageLayer::SerializedFields::NotificationData{
-		BgpLayer::SerializedFields::MaxID + 3, "notificationData"
-	};
 
 	void BgpNotificationMessageLayer::serializeLayer(ObjectScope& serializer) const
 	{
@@ -1167,7 +1153,6 @@ namespace pcpp
 		auto* header = getNotificationMsgHeader();
 		serializer.writeField(SerializedFields::ErrorCode, header->errorCode);
 		serializer.writeField(SerializedFields::ErrorSubCode, header->errorSubCode);
-		serializer.writeField(SerializedFields::NotificationData, getNotificationDataAsHexString());
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1180,11 +1165,6 @@ namespace pcpp
 		allocData(headerLen);
 		setBgpFields(headerLen);
 		m_Protocol = BGP;
-	}
-
-	void BgpKeepaliveMessageLayer::serializeLayer(ObjectScope& serializer) const
-	{
-		BgpLayer::serializeLayer(serializer);
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1204,10 +1184,7 @@ namespace pcpp
 
 	const FieldDescriptor BgpRouteRefreshMessageLayer::SerializedFields::Afi{ BgpLayer::SerializedFields::MaxID + 1,
 		                                                                      "afi" };
-	const FieldDescriptor BgpRouteRefreshMessageLayer::SerializedFields::Reserved{
-		BgpLayer::SerializedFields::MaxID + 2, "reserved"
-	};
-	const FieldDescriptor BgpRouteRefreshMessageLayer::SerializedFields::Safi{ BgpLayer::SerializedFields::MaxID + 3,
+	const FieldDescriptor BgpRouteRefreshMessageLayer::SerializedFields::Safi{ BgpLayer::SerializedFields::MaxID + 2,
 		                                                                       "safi" };
 
 	void BgpRouteRefreshMessageLayer::serializeLayer(ObjectScope& serializer) const
@@ -1216,7 +1193,6 @@ namespace pcpp
 
 		auto* header = getRouteRefreshHeader();
 		serializer.writeField(SerializedFields::Afi, be16toh(header->afi));
-		serializer.writeField(SerializedFields::Reserved, header->reserved);
 		serializer.writeField(SerializedFields::Safi, header->safi);
 	}
 
