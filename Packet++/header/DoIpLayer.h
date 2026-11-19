@@ -1720,6 +1720,42 @@ namespace pcpp
 			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpEntityStatusResponse's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpEntityStatusResponse
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ NodeType, MaxConcurrentSockets, CurrentlyOpenSockets,
+					                                          MaxDataSize };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief DoIP node type as a readable string
+			static const FieldDescriptor NodeType;
+
+			/// @brief Maximum number of concurrent sockets supported
+			static const FieldDescriptor MaxConcurrentSockets;
+
+			/// @brief Number of currently open sockets
+			static const FieldDescriptor CurrentlyOpenSockets;
+
+			/// @brief Optional maximum data size in bytes, in host byte order. Omitted when not
+			/// present
+			static const FieldDescriptor MaxDataSize;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 4;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct entity_status_response : doiphdr

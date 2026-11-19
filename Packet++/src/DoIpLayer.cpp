@@ -1136,6 +1136,33 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::NodeType{ DoIpLayer::SerializedFields::MaxID + 1,
+		                                                                        "nodeType" };
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::MaxConcurrentSockets{
+		DoIpLayer::SerializedFields::MaxID + 2, "maxConcurrentSockets"
+	};
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::CurrentlyOpenSockets{
+		DoIpLayer::SerializedFields::MaxID + 3, "currentlyOpenSockets"
+	};
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::MaxDataSize{
+		DoIpLayer::SerializedFields::MaxID + 4, "maxDataSize"
+	};
+
+	void DoIpEntityStatusResponse::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+
+		auto nodeTypeIt = DoIpEnumToStringEntityStatusNodeTypes.find(getNodeType());
+		serializer.writeField(SerializedFields::NodeType, nodeTypeIt->second);
+		serializer.writeField(SerializedFields::MaxConcurrentSockets, getMaxConcurrentSockets());
+		serializer.writeField(SerializedFields::CurrentlyOpenSockets, getCurrentlyOpenSockets());
+
+		if (hasMaxDataSize())
+		{
+			serializer.writeField(SerializedFields::MaxDataSize, getMaxDataSize());
+		}
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpDiagnosticPowerModeRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|

@@ -658,6 +658,9 @@ PTF_TEST_CASE(DoIpEntityStatusRespParsing)
 	PTF_ASSERT_TRUE(doipLayer->hasMaxDataSize());
 	const uint32_t maxDataSize = 0x000000fff;
 	PTF_ASSERT_EQUAL(doipLayer->getMaxDataSize(), maxDataSize);
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":15,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"DOIP entity status response","payloadLength":7,"nodeType":"DoIP gateway","maxConcurrentSockets":1,"currentlyOpenSockets":0,"maxDataSize":4095})");
 }  // DoIpEntityStatusRespParsing
 
 // DoIpEntityStatusRespCreation
@@ -1013,7 +1016,10 @@ PTF_TEST_CASE(DoIpEntityStatusReqParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::ENTITY_STATUS_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "DOIP entity status request");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, DOIP entity status request (0x4001)")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, DOIP entity status request (0x4001)");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"DOIP entity status request","payloadLength":0})");
 }  // DoIpEntityStatusReqParsing
 
 // DoIpEntityStatusReqCreation
