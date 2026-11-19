@@ -273,9 +273,13 @@ namespace pcpp
 
 		/// Checks whether data is valid or not
 		/// @return True if data is valid
-		static bool isDataValid(const IDataContainer* data, size_t dataLen)
+		static bool isDataValid(const IDataContainer* data, size_t offset, size_t dataLen)
 		{
-			return data && dataLen >= (sizeof(someipsdhdroptionsbase) - 1);
+			if (!data || dataLen < (sizeof(someipsdhdroptionsbase) - 1))
+				return false;
+			// length counts the reserved byte; 0 is malformed, so do not parse as ConfigurationString
+			auto* hdr = reinterpret_cast<const someipsdhdroptionsbase*>(data->getDataPtr(offset));
+			return hdr->length != 0;
 		}
 	};
 
