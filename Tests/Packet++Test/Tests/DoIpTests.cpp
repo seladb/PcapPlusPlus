@@ -749,7 +749,9 @@ PTF_TEST_CASE(DoIpDiagMessParsing)
 	const std::vector<uint8_t>& diagData{ 0x10, 0x03 };
 	std::vector<uint8_t> actual = doipLayer->getDiagnosticData();
 	PTF_ASSERT_VECTORS_EQUAL(actual, diagData);
-
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":12,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic message","payloadLength":6,"sourceAddress":3712,"targetAddress":16400})");
 }  // DoIpDiagMessParsing
 
 // DoIpDiagMessCreation
@@ -811,7 +813,9 @@ PTF_TEST_CASE(DoIpDiagMessAckParsing)
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getPreviousMessage(), prev);
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(),
 	                 "Source Address: 0x4010\nTarget Address: 0xe80\nACK code: ACK (0x0)\nPrevious message: 22f101\n");
-
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":16,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic message Ack","payloadLength":8,"sourceAddress":16400,"targetAddress":3712,"ackCode":"ACK"})");
 }  // DoIpDiagMessAckParsing
 
 // DoIpDiagMessAckCreation
@@ -901,6 +905,9 @@ PTF_TEST_CASE(DoIpDiagMessNackParsing)
 	PTF_ASSERT_EQUAL(
 	    nackLayer->getSummary(),
 	    "Source Address: 0x4010\nTarget Address: 0xe80\nNACK code: Invalid source address (0x2)\nPrevious message: 22f101\n");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*nackLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":16,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic message Nack","payloadLength":8,"sourceAddress":16400,"targetAddress":3712,"nackCode":"Invalid source address"})");
 }  // DoIpDiagMessNackParsing
 
 // DoIpDiagMessNackCreation

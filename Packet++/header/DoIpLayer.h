@@ -1994,10 +1994,37 @@ namespace pcpp
 		/// @return A string summarizing the diagnostic message.
 		virtual std::string getSummary() const = 0;
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpDiagnosticBase's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpDiagnosticBase
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SourceAddress, TargetAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Source logical address, in host byte order
+			static const FieldDescriptor SourceAddress;
+
+			/// @brief Target logical address, in host byte order
+			static const FieldDescriptor TargetAddress;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 2;
+		};
+
 	protected:
 		DoIpDiagnosticBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		DoIpDiagnosticBase(size_t length) : DoIpLayer(length) {};
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 #pragma pack(push, 1)
 		/// An internal structure representing the common diagnostic header.
@@ -2175,6 +2202,30 @@ namespace pcpp
 		{
 			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_ACK;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpDiagnosticMessageAck's serializeLayer(), in addition to
+		/// DoIpDiagnosticBase::SerializedFields. Optional previous-message bytes are omitted.
+		struct SerializedFields : DoIpDiagnosticBase::SerializedFields
+		{
+			/// @return All field descriptors for DoIpDiagnosticMessageAck
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpDiagnosticBase::SerializedFields::all();
+				result.push_back(AckCode);
+				return result;
+			}
+
+			/// @brief Diagnostic ACK code as a readable string
+			static const FieldDescriptor AckCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpDiagnosticBase::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -2219,6 +2270,30 @@ namespace pcpp
 		{
 			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NACK;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpDiagnosticMessageNack's serializeLayer(), in addition to
+		/// DoIpDiagnosticBase::SerializedFields. Optional previous-message bytes are omitted.
+		struct SerializedFields : DoIpDiagnosticBase::SerializedFields
+		{
+			/// @return All field descriptors for DoIpDiagnosticMessageNack
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpDiagnosticBase::SerializedFields::all();
+				result.push_back(NackCode);
+				return result;
+			}
+
+			/// @brief Diagnostic NACK code as a readable string
+			static const FieldDescriptor NackCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpDiagnosticBase::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

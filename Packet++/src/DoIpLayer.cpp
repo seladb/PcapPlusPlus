@@ -1283,6 +1283,18 @@ namespace pcpp
 		getCommonDiagnosticHeader()->targetAddress = htobe16(targetAddress);
 	}
 
+	const FieldDescriptor DoIpDiagnosticBase::SerializedFields::SourceAddress{ DoIpLayer::SerializedFields::MaxID + 1,
+		                                                                       "sourceAddress" };
+	const FieldDescriptor DoIpDiagnosticBase::SerializedFields::TargetAddress{ DoIpLayer::SerializedFields::MaxID + 2,
+		                                                                       "targetAddress" };
+
+	void DoIpDiagnosticBase::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
+		serializer.writeField(SerializedFields::TargetAddress, getTargetAddress());
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpDiagnosticMessage|
 	//~~~~~~~~~~~~~~~~~~~~~~|
@@ -1447,6 +1459,17 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpDiagnosticMessageAck::SerializedFields::AckCode{
+		DoIpDiagnosticBase::SerializedFields::MaxID + 1, "ackCode"
+	};
+
+	void DoIpDiagnosticMessageAck::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpDiagnosticBase::serializeLayer(serializer);
+		auto it = DoIpEnumToStringAckCode.find(getAckCode());
+		serializer.writeField(SerializedFields::AckCode, it->second);
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpDiagnosticMessageNack|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1493,5 +1516,16 @@ namespace pcpp
 			    << pcpp::byteArrayToHexString(getPreviousMessage().data(), getPreviousMessage().size()) << "\n";
 		}
 		return oss.str();
+	}
+
+	const FieldDescriptor DoIpDiagnosticMessageNack::SerializedFields::NackCode{
+		DoIpDiagnosticBase::SerializedFields::MaxID + 1, "nackCode"
+	};
+
+	void DoIpDiagnosticMessageNack::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpDiagnosticBase::serializeLayer(serializer);
+		auto it = DoIpEnumToStringDiagnosticNackCodes.find(getNackCode());
+		serializer.writeField(SerializedFields::NackCode, it->second);
 	}
 }  // namespace pcpp
