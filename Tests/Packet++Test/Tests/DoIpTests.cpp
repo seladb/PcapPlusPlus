@@ -224,6 +224,9 @@ PTF_TEST_CASE(DoIpGenHdrNackParsing)
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Generic DOIP header Nack (0x0000)");
 	PTF_ASSERT_EQUAL(doipLayer->getNackCode(), pcpp::DoIpGenericHeaderNackCodes::UNKNOWN_PAYLOAD_TYPE, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(), "Generic header nack code: Unknown payload type (0x1)\n");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":9,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Generic DOIP header Nack","payloadLength":1,"nackCode":"Unknown payload type"})");
 }  // DoIpGenHdrNackParsing
 
 // DoIpGenHdrNackCreation
@@ -588,6 +591,9 @@ PTF_TEST_CASE(DoIpDiagPowerModeRespParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 1);
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Diagnostic power mode response information (0x4004)");
 	PTF_ASSERT_EQUAL(doipLayer->getPowerModeCode(), pcpp::DoIpDiagnosticPowerModeCodes::NOT_READY, enumclass);
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":9,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic power mode response information","payloadLength":1,"powerModeCode":"Not ready"})");
 }  // DoIpDiagPowerModeRespParsing
 
 // DoIpDiagPowerModeRespCreation
@@ -950,7 +956,10 @@ PTF_TEST_CASE(DoIpDiagPowerModeReqParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Diagnostic power mode request information");
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0);
-	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Diagnostic power mode request information (0x4003)")
+	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Diagnostic power mode request information (0x4003)");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(*doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic power mode request information","payloadLength":0})");
 }  // DoIpDiagPowerModeReqParsing
 
 // DoIpDiagPowerModeReqCreation

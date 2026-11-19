@@ -450,6 +450,16 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpGenericHeaderNack::SerializedFields::NackCode{ DoIpLayer::SerializedFields::MaxID + 1,
+		                                                                     "nackCode" };
+
+	void DoIpGenericHeaderNack::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		auto it = DoIpEnumToStringGenericHeaderNackCodes.find(getNackCode());
+		serializer.writeField(SerializedFields::NackCode, it->second);
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpVehicleIdentificationRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1101,6 +1111,17 @@ namespace pcpp
 	void DoIpDiagnosticPowerModeResponse::setPowerModeCode(DoIpDiagnosticPowerModeCodes code)
 	{
 		getDiagnosticPowerModeResponse()->powerModeCode = static_cast<uint8_t>(code);
+	}
+
+	const FieldDescriptor DoIpDiagnosticPowerModeResponse::SerializedFields::PowerModeCode{
+		DoIpLayer::SerializedFields::MaxID + 1, "powerModeCode"
+	};
+
+	void DoIpDiagnosticPowerModeResponse::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		auto it = DoIpEnumToStringDiagnosticPowerModeCodes.find(getPowerModeCode());
+		serializer.writeField(SerializedFields::PowerModeCode, it->second);
 	}
 
 	std::string DoIpDiagnosticPowerModeResponse::getSummary() const

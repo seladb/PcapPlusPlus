@@ -834,6 +834,30 @@ namespace pcpp
 			return (dataLen == FIXED_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpGenericHeaderNack's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpGenericHeaderNack
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(NackCode);
+				return result;
+			}
+
+			/// @brief Generic header NACK code as a readable string
+			static const FieldDescriptor NackCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct generic_header_nack : doiphdr
@@ -1715,6 +1739,30 @@ namespace pcpp
 		{
 			return (dataLen == FIXED_LEN);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpDiagnosticPowerModeResponse's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpDiagnosticPowerModeResponse
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(PowerModeCode);
+				return result;
+			}
+
+			/// @brief Diagnostic power mode as a readable string
+			static const FieldDescriptor PowerModeCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)
