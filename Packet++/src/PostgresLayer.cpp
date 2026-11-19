@@ -336,6 +336,12 @@ namespace pcpp
 		{
 		case PostgresBackendMessage_R:
 		{
+			// The auth type follows the length, so the message must be long enough to hold both
+			if (messageLength < 2 * sizeof(uint32_t))
+			{
+				break;
+			}
+
 			uint32_t authType = readUint<uint32_t, ByteOrder::BigEndian>(data + 5);
 			switch (authType)
 			{
