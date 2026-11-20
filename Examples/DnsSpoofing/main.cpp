@@ -316,15 +316,15 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, 
 		EXIT_WITH_ERROR("Cannot open capture device");
 
 	// set a filter to capture only DNS requests and client IP if provided
-	pcpp::PortFilter dnsPortFilter(53, pcpp::DST);
+	auto dnsPortFilter = std::make_shared<pcpp::PortFilter>(53, pcpp::DST);
 
-	std::vector<pcpp::GeneralFilter*> filterForAnd;
-	filterForAnd.push_back(&dnsPortFilter);
+	std::vector<std::shared_ptr<const pcpp::GeneralFilter>> filterForAnd;
+	filterForAnd.push_back(dnsPortFilter);
 
-	pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
+	auto clientIpFilter = std::make_shared<pcpp::IPFilter>(clientIP.toString(), pcpp::SRC);
 	if (!clientIP.isZero())
 	{
-		filterForAnd.push_back(&clientIpFilter);
+		filterForAnd.push_back(clientIpFilter);
 	}
 
 	pcpp::AndFilter andFilter(filterForAnd);
