@@ -432,6 +432,103 @@ PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 #endif
 }  // TestPfRingMultiThreadSomeCores
 
+PTF_TEST_CASE(TestPfRingMultiThreadAutoTune)
+{
+#ifndef USE_PF_RING
+	PTF_SKIP_TEST("PF_RING not configured");
+#else
+	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
+	pcpp::PcapLiveDevice* pcapLiveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	PTF_ASSERT_NOT_NULL(pcapLiveDev);
+	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
+	PTF_ASSERT_NOT_NULL(dev);
+
+	uint8_t numOfChannels = dev->getTotalNumOfRxChannels();
+	PTF_ASSERT_TRUE(dev->openMultiRxChannels(numOfChannels * 2.5, pcpp::PfRingDevice::PerFlow));
+	DeviceTeardown devTeardown(dev);
+	dev->close();
+	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0);
+
+	int totalNumOfCores = pcpp::getNumOfCores();
+	pcpp::CoreMask allCoresMask = pcpp::getCoreMaskForAllMachineCores();
+
+	int numOfCoresInUse = 0;
+	pcpp::CoreMask tempCoreMask = allCoresMask;
+	for (int i = 0; i < totalNumOfCores; ++i)
+	{
+		if (!tempCoreMask)
+			break;
+
+		if (tempCoreMask & 1)
+			++numOfCoresInUse;
+		tempCoreMask = tempCoreMask >> 1;
+	}
+
+	// Open an RX channel for every core, and let PfDevice auto-tune the number of threads to use based on the number of
+	// RX channels and cores available.
+	PTF_ASSERT_TRUE(dev->openMultiRxChannels((uint8_t)numOfCoresInUse, pcpp::PfRingDevice::PerFlow));
+	PfRingPacketData packetDataMultiThread[totalNumOfCores];
+	PTF_ASSERT_TRUE(dev->startCaptureMultiThread(pfRingPacketsArriveMultiThread, packetDataMultiThread));
+
+	int totalSleepTime = incSleepMultiThread(15, packetDataMultiThread, totalNumOfCores, numOfCoresInUse, allCoresMask);
+	dev->stopCapture();
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
+	pcpp::PfRingDevice::PfRingStats aggrStats;
+	aggrStats.recv = 0;
+	aggrStats.drop = 0;
+
+	pcpp::PfRingDevice::PfRingStats stats;
+	for (int i = 0; i < totalNumOfCores; i++)
+	{
+		if ((pcpp::SystemCores::IdToSystemCore[i].Mask & allCoresMask) == 0)
+			continue;
+
+		dev->getThreadStatistics(pcpp::SystemCores::IdToSystemCore[i], stats);
+		aggrStats.recv += stats.recv;
+		aggrStats.drop += stats.drop;
+
+		if (PTF_IS_VERBOSE_MODE)
+		{
+			PTF_PRINT_VERBOSE("____Thread ID: " << packetDataMultiThread[i].ThreadId << "____");
+			PTF_PRINT_VERBOSE("Total packets captured: " << packetDataMultiThread[i].PacketCount);
+			PTF_PRINT_VERBOSE("Eth packets: " << packetDataMultiThread[i].EthCount);
+			PTF_PRINT_VERBOSE("IP packets: " << packetDataMultiThread[i].IpCount);
+			PTF_PRINT_VERBOSE("TCP packets: " << packetDataMultiThread[i].TcpCount);
+			PTF_PRINT_VERBOSE("UDP packets: " << packetDataMultiThread[i].UdpCount);
+			PTF_PRINT_VERBOSE("Packets captured: " << stats.recv);
+			PTF_PRINT_VERBOSE("Packets dropped: " << stats.drop);
+			PTF_PRINT_VERBOSE("Total flows: " << packetDataMultiThread[i].FlowKeys.size());
+			for (const auto& iter : packetDataMultiThread[i].FlowKeys)
+			{
+				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter.first << "; Value=" << std::dec << iter.second.size());
+			}
+		}
+
+		PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetDataMultiThread[i].PacketCount);
+	}
+
+	dev->getStatistics(stats);
+	PTF_ASSERT_EQUAL(aggrStats.recv, stats.recv);
+	PTF_ASSERT_EQUAL(aggrStats.drop, stats.drop);
+
+	for (int firstCoreId = 0; firstCoreId < totalNumOfCores; firstCoreId++)
+	{
+		for (int secondCoreId = firstCoreId + 1; secondCoreId < totalNumOfCores; secondCoreId++)
+		{
+			std::unordered_map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector>> res;
+			intersectMaps<uint32_t, pcpp::RawPacketVector, pcpp::RawPacketVector>(
+			    packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
+			PTF_ASSERT_EQUAL(res.size(), 0);
+		}
+
+		packetDataMultiThread[firstCoreId].FlowKeys.clear();
+
+		dev->close();
+	}
+#endif
+}  // TestPfRingMultiThreadAutoTune
+
 PTF_TEST_CASE(TestPfRingSendPacket)
 {
 #ifdef USE_PF_RING
