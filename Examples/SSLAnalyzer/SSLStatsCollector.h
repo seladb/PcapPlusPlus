@@ -138,17 +138,17 @@ public:
 	/**
 	 * Collect stats for a single packet
 	 */
-	void collectStats(pcpp::Packet* sslPacket)
+	void collectStats(const pcpp::Packet& sslPacket)
 	{
 		// verify packet is TCP and SSL/TLS
-		if (!sslPacket->isPacketOfType(pcpp::TCP) || !sslPacket->isPacketOfType(pcpp::SSL))
+		if (!sslPacket.isPacketOfType(pcpp::TCP) || !sslPacket.isPacketOfType(pcpp::SSL))
 			return;
 
 		// collect general SSL traffic stats on this packet
 		uint32_t hashVal = collectSSLTrafficStats(sslPacket);
 
 		// if packet contains one or more SSL messages, collect stats on them
-		if (sslPacket->isPacketOfType(pcpp::SSL))
+		if (sslPacket.isPacketOfType(pcpp::SSL))
 		{
 			collectSSLStats(sslPacket, hashVal);
 		}
@@ -268,9 +268,9 @@ private:
 	 * Collect stats relevant for every SSL packet (any SSL message)
 	 * This method calculates and returns the flow key for this packet
 	 */
-	uint32_t collectSSLTrafficStats(pcpp::Packet* sslpPacket)
+	uint32_t collectSSLTrafficStats(const pcpp::Packet& sslPacket)
 	{
-		pcpp::TcpLayer* tcpLayer = sslpPacket->getLayerOfType<pcpp::TcpLayer>();
+		pcpp::TcpLayer* tcpLayer = sslPacket.getLayerOfType<pcpp::TcpLayer>();
 
 		// count traffic
 		m_GeneralStats.amountOfSSLTraffic += tcpLayer->getLayerPayloadSize();
@@ -279,7 +279,7 @@ private:
 		m_GeneralStats.numOfSSLPackets++;
 
 		// calculate a hash key for this flow to be used in the flow table
-		uint32_t hashVal = hash5Tuple(sslpPacket);
+		uint32_t hashVal = hash5Tuple(sslPacket);
 
 		// if flow is a new flow (meaning it's not already in the flow table)
 		if (m_FlowTable.find(hashVal) == m_FlowTable.end())
@@ -313,10 +313,10 @@ private:
 	/**
 	 * Collect stats relevant for several kinds SSL messages
 	 */
-	void collectSSLStats(pcpp::Packet* sslPacket, uint32_t flowKey)
+	void collectSSLStats(const pcpp::Packet& sslPacket, uint32_t flowKey)
 	{
 		// go over all SSL messages in this packet
-		pcpp::SSLLayer* sslLayer = sslPacket->getLayerOfType<pcpp::SSLLayer>();
+		pcpp::SSLLayer* sslLayer = sslPacket.getLayerOfType<pcpp::SSLLayer>();
 		while (sslLayer != nullptr)
 		{
 			// check if the layer is an alert message
@@ -371,7 +371,7 @@ private:
 				}
 			}
 
-			sslLayer = sslPacket->getNextLayerOfType<pcpp::SSLLayer>(sslLayer);
+			sslLayer = sslPacket.getNextLayerOfType<pcpp::SSLLayer>(sslLayer);
 		}
 	}
 

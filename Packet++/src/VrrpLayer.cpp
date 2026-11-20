@@ -489,8 +489,8 @@ namespace pcpp
 		}
 
 		auto vrrpHeader = getVrrpHeader();
-		ScalarBuffer<uint16_t> buffer = {};
-		buffer.buffer = reinterpret_cast<uint16_t*>(vrrpHeader);
+		ScalarBuffer<const uint16_t> buffer = {};
+		buffer.buffer = reinterpret_cast<const uint16_t*>(vrrpHeader);
 		buffer.len = getHeaderLen();
 
 		uint16_t currChecksumValue = vrrpHeader->checksum;
@@ -572,13 +572,13 @@ namespace pcpp
 		uint16_t checksum;
 		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
-			checksum = computePseudoHdrChecksum((uint8_t*)vrrpHeader, getDataLen(), IPAddress::IPv4AddressType,
-			                                    PACKETPP_IPPROTO_VRRP, srcIPAddr, dstIPAddr);
+			checksum = computePseudoHdrChecksum(reinterpret_cast<const uint8_t*>(vrrpHeader), getDataLen(),
+			                                    PACKETPP_IPPROTO_VRRP, srcIPAddr.getIPv4(), dstIPAddr.getIPv4());
 		}
 		else
 		{
-			checksum = computePseudoHdrChecksum((uint8_t*)vrrpHeader, getDataLen(), IPAddress::IPv6AddressType,
-			                                    PACKETPP_IPPROTO_VRRP, srcIPAddr, dstIPAddr);
+			checksum = computePseudoHdrChecksum(reinterpret_cast<const uint8_t*>(vrrpHeader), getDataLen(),
+			                                    PACKETPP_IPPROTO_VRRP, srcIPAddr.getIPv6(), dstIPAddr.getIPv6());
 		}
 
 		vrrpHeader->checksum = currChecksumValue;

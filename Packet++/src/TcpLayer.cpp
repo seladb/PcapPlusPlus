@@ -342,9 +342,8 @@ namespace pcpp
 				const IPv4Address srcIP = static_cast<IPv4Layer*>(m_PrevLayer)->getSrcIPv4Address();
 				const IPv4Address dstIP = static_cast<IPv4Layer*>(m_PrevLayer)->getDstIPv4Address();
 
-				checksumRes =
-				    pcpp::computePseudoHdrChecksum(reinterpret_cast<uint8_t*>(tcpHdr), getDataLen(),
-				                                   IPAddress::IPv4AddressType, PACKETPP_IPPROTO_TCP, srcIP, dstIP);
+				checksumRes = pcpp::computePseudoHdrChecksum(reinterpret_cast<const uint8_t*>(tcpHdr), getDataLen(),
+				                                             PACKETPP_IPPROTO_TCP, srcIP, dstIP);
 
 				PCPP_LOG_DEBUG("calculated IPv4 TCP checksum = 0x" << std::uppercase << std::hex << checksumRes);
 			}
@@ -353,8 +352,8 @@ namespace pcpp
 				const IPv6Address srcIP = static_cast<IPv6Layer*>(m_PrevLayer)->getSrcIPv6Address();
 				const IPv6Address dstIP = static_cast<IPv6Layer*>(m_PrevLayer)->getDstIPv6Address();
 
-				checksumRes = computePseudoHdrChecksum(reinterpret_cast<uint8_t*>(tcpHdr), getDataLen(),
-				                                       IPAddress::IPv6AddressType, PACKETPP_IPPROTO_TCP, srcIP, dstIP);
+				checksumRes = computePseudoHdrChecksum(reinterpret_cast<const uint8_t*>(tcpHdr), getDataLen(),
+				                                       PACKETPP_IPPROTO_TCP, srcIP, dstIP);
 
 				PCPP_LOG_DEBUG("calculated IPv6 TCP checksum = 0xX" << std::uppercase << std::hex << checksumRes);
 			}

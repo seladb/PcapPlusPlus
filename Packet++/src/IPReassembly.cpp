@@ -12,34 +12,36 @@ namespace pcpp
 
 	uint32_t IPReassemblyHashPacket(IPv4Layer* ipv4Layer)
 	{
-		ScalarBuffer<uint8_t> vec[3];
+		constexpr size_t vecSize = 3;
+		ScalarBuffer<const uint8_t> vec[vecSize];
 
-		vec[0].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipSrc);
+		vec[0].buffer = reinterpret_cast<const uint8_t*>(&ipv4Layer->getIPv4Header()->ipSrc);
 		vec[0].len = 4;
-		vec[1].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipDst);
+		vec[1].buffer = reinterpret_cast<const uint8_t*>(&ipv4Layer->getIPv4Header()->ipDst);
 		vec[1].len = 4;
-		vec[2].buffer = reinterpret_cast<uint8_t*>(&ipv4Layer->getIPv4Header()->ipId);
+		vec[2].buffer = reinterpret_cast<const uint8_t*>(&ipv4Layer->getIPv4Header()->ipId);
 		vec[2].len = 2;
 
-		return pcpp::fnvHash(vec, 3);
+		return pcpp::fnvHash(vec, vecSize);
 	}
 
 	uint32_t IPReassemblyHashBy3Tuple(const IPv4Address& ipSrc, const IPv4Address& ipDst, uint16_t ipID)
 	{
-		ScalarBuffer<uint8_t> vec[3];
+		constexpr size_t vecSize = 3;
+		ScalarBuffer<const uint8_t> vec[vecSize];
 
 		uint16_t ipIdNetworkOrder = htobe16(ipID);
 		uint32_t ipSrcAsInt = ipSrc.toInt();
 		uint32_t ipDstAsInt = ipDst.toInt();
 
-		vec[0].buffer = reinterpret_cast<uint8_t*>(&ipSrcAsInt);
+		vec[0].buffer = reinterpret_cast<const uint8_t*>(&ipSrcAsInt);
 		vec[0].len = 4;
-		vec[1].buffer = reinterpret_cast<uint8_t*>(&ipDstAsInt);
+		vec[1].buffer = reinterpret_cast<const uint8_t*>(&ipDstAsInt);
 		vec[1].len = 4;
 		vec[2].buffer = reinterpret_cast<uint8_t*>(&ipIdNetworkOrder);
 		vec[2].len = 2;
 
-		return pcpp::fnvHash(vec, 3);
+		return pcpp::fnvHash(vec, vecSize);
 	}
 
 	class IPFragmentWrapper
@@ -102,16 +104,17 @@ namespace pcpp
 
 		uint32_t hashPacket() override
 		{
-			ScalarBuffer<uint8_t> vec[3];
+			constexpr size_t vecSize = 3;
+			ScalarBuffer<const uint8_t> vec[vecSize];
 
-			vec[0].buffer = reinterpret_cast<uint8_t*>(&m_IPLayer->getIPv4Header()->ipSrc);
+			vec[0].buffer = reinterpret_cast<const uint8_t*>(&m_IPLayer->getIPv4Header()->ipSrc);
 			vec[0].len = 4;
-			vec[1].buffer = reinterpret_cast<uint8_t*>(&m_IPLayer->getIPv4Header()->ipDst);
+			vec[1].buffer = reinterpret_cast<const uint8_t*>(&m_IPLayer->getIPv4Header()->ipDst);
 			vec[1].len = 4;
-			vec[2].buffer = reinterpret_cast<uint8_t*>(&m_IPLayer->getIPv4Header()->ipId);
+			vec[2].buffer = reinterpret_cast<const uint8_t*>(&m_IPLayer->getIPv4Header()->ipId);
 			vec[2].len = 2;
 
-			return pcpp::fnvHash(vec, 3);
+			return pcpp::fnvHash(vec, vecSize);
 		}
 
 		IPReassembly::PacketKey* createPacketKey() override
@@ -192,16 +195,17 @@ namespace pcpp
 			if (m_FragHeader == nullptr)
 				return 0;
 
-			ScalarBuffer<uint8_t> vec[3];
+			constexpr size_t vecSize = 3;
+			ScalarBuffer<const uint8_t> vec[vecSize];
 
 			vec[0].buffer = m_IPLayer->getIPv6Header()->ipSrc;
 			vec[0].len = 16;
 			vec[1].buffer = m_IPLayer->getIPv6Header()->ipDst;
 			vec[1].len = 16;
-			vec[2].buffer = reinterpret_cast<uint8_t*>(&m_FragHeader->getFragHeader()->id);
+			vec[2].buffer = reinterpret_cast<const uint8_t*>(&m_FragHeader->getFragHeader()->id);
 			vec[2].len = 4;
 
-			return pcpp::fnvHash(vec, 3);
+			return pcpp::fnvHash(vec, vecSize);
 		}
 
 		IPReassembly::PacketKey* createPacketKey() override
@@ -232,25 +236,27 @@ namespace pcpp
 
 	uint32_t IPReassembly::IPv4PacketKey::getHashValue() const
 	{
-		ScalarBuffer<uint8_t> vec[3];
+		constexpr size_t vecSize = 3;
+		ScalarBuffer<const uint8_t> vec[vecSize];
 
 		uint16_t ipIdNetworkOrder = htobe16(m_IpID);
 		uint32_t ipSrcAsInt = m_SrcIP.toInt();
 		uint32_t ipDstAsInt = m_DstIP.toInt();
 
-		vec[0].buffer = reinterpret_cast<uint8_t*>(&ipSrcAsInt);
+		vec[0].buffer = reinterpret_cast<const uint8_t*>(&ipSrcAsInt);
 		vec[0].len = 4;
-		vec[1].buffer = reinterpret_cast<uint8_t*>(&ipDstAsInt);
+		vec[1].buffer = reinterpret_cast<const uint8_t*>(&ipDstAsInt);
 		vec[1].len = 4;
-		vec[2].buffer = reinterpret_cast<uint8_t*>(&ipIdNetworkOrder);
+		vec[2].buffer = reinterpret_cast<const uint8_t*>(&ipIdNetworkOrder);
 		vec[2].len = 2;
 
-		return pcpp::fnvHash(vec, 3);
+		return pcpp::fnvHash(vec, vecSize);
 	}
 
 	uint32_t IPReassembly::IPv6PacketKey::getHashValue() const
 	{
-		ScalarBuffer<uint8_t> vec[3];
+		constexpr size_t vecSize = 3;
+		ScalarBuffer<const uint8_t> vec[vecSize];
 
 		uint32_t fragIdNetworkOrder = htobe32(m_FragmentID);
 		uint8_t ipSrcAsByteArr[16];
@@ -262,10 +268,10 @@ namespace pcpp
 		vec[0].len = 16;
 		vec[1].buffer = ipDstAsByteArr;
 		vec[1].len = 16;
-		vec[2].buffer = reinterpret_cast<uint8_t*>(&fragIdNetworkOrder);
+		vec[2].buffer = reinterpret_cast<const uint8_t*>(&fragIdNetworkOrder);
 		vec[2].len = 4;
 
-		return pcpp::fnvHash(vec, 3);
+		return pcpp::fnvHash(vec, vecSize);
 	}
 
 	IPReassembly::~IPReassembly()

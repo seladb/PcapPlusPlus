@@ -645,8 +645,8 @@ namespace pcpp
 			curLayer = curLayer->getNextLayer();
 		}
 
-		ScalarBuffer<uint16_t> buffer;
-		buffer.buffer = reinterpret_cast<uint16_t*>(getIcmpHeader());
+		ScalarBuffer<const uint16_t> buffer;
+		buffer.buffer = reinterpret_cast<const uint16_t*>(getIcmpHeader());
 		buffer.len = icmpLen;
 		size_t checksum = computeChecksum(&buffer, 1);
 

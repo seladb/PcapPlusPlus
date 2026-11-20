@@ -85,8 +85,8 @@ namespace pcpp
 
 	uint16_t IgmpLayer::calculateChecksum()
 	{
-		ScalarBuffer<uint16_t> buffer;
-		buffer.buffer = reinterpret_cast<uint16_t*>(getIgmpHeader());
+		ScalarBuffer<const uint16_t> buffer;
+		buffer.buffer = reinterpret_cast<const uint16_t*>(getIgmpHeader());
 		buffer.len = getHeaderLen();
 		return computeChecksum(&buffer, 1);
 	}

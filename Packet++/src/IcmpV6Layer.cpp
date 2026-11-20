@@ -91,9 +91,10 @@ namespace pcpp
 		{
 			auto prevLayerAsIPv6 = static_cast<IPv6Layer*>(m_PrevLayer);
 
-			ScalarBuffer<uint16_t> vec[2];
+			constexpr size_t vecSize = 2;
+			ScalarBuffer<const uint16_t> vec[vecSize];
 
-			vec[0].buffer = (uint16_t*)m_Data;
+			vec[0].buffer = reinterpret_cast<const uint16_t*>(m_Data);
 			vec[0].len = m_DataLen;
 
 			const unsigned int pseudoHeaderLen = 40;
@@ -105,11 +106,11 @@ namespace pcpp
 			prevLayerAsIPv6->getDstIPv6Address().copyTo(reinterpret_cast<uint8_t*>(pseudoHeader + 8));
 			memcpy(&pseudoHeader[16], &bigEndianLen, sizeof(uint32_t));
 			memcpy(&pseudoHeader[18], &bigEndianNextHeader, sizeof(uint32_t));
-			vec[1].buffer = pseudoHeader;
+			vec[1].buffer = reinterpret_cast<const uint16_t*>(pseudoHeader);
 			vec[1].len = pseudoHeaderLen;
 
 			// Calculate and write checksum
-			getIcmpv6Header()->checksum = htobe16(computeChecksum(vec, 2));
+			getIcmpv6Header()->checksum = htobe16(computeChecksum(vec, vecSize));
 		}
 	}
 

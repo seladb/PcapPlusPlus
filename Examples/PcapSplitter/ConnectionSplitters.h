@@ -22,10 +22,10 @@ public:
 	 * Find the 2-tuple flow for this packet and get the file number it belongs to. If flow is new, return a new file
 	 * number
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(const pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		// hash the 2-tuple and look for it in the flow table
-		uint32_t hash = pcpp::hash2Tuple(&packet);
+		uint32_t hash = pcpp::hash2Tuple(packet);
 
 		// if flow isn't found in the flow table
 		if (m_FlowTable.find(hash) == m_FlowTable.end())
@@ -88,7 +88,7 @@ private:
 	/**
 	 * A utility method that takes a packet and returns true if it's a TCP SYN packet
 	 */
-	bool isTcpSyn(pcpp::Packet& packet)
+	bool isTcpSyn(const pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
@@ -117,10 +117,10 @@ public:
 	/**
 	 * Find the flow for this packet and get the file number it belongs to. If flow is new, return a new file number
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(const pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		// hash the 5-tuple and look for it in the flow table
-		uint32_t hash = pcpp::hash5Tuple(&packet);
+		uint32_t hash = pcpp::hash5Tuple(packet);
 
 		// if flow isn't found in the flow table
 		if (m_FlowTable.find(hash) == m_FlowTable.end())
@@ -180,7 +180,7 @@ public:
 	/**
 	 * Re-implement Splitter's getFileName() method, this time with the IPs/Ports/protocol value
 	 */
-	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
+	std::string getFileName(const pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
 	{
 		std::ostringstream sstream;
 
