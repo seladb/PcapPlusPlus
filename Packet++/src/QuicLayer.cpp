@@ -78,7 +78,7 @@ namespace pcpp
 		return getCommonHeader()->fixedBit;
 	}
 
-	static std::string quicPacketTypeToString(QuicV1Layer::QuicPacketType packetType)
+	static constexpr const char* quicPacketTypeToString(QuicV1Layer::QuicPacketType packetType)
 	{
 		switch (packetType)
 		{
@@ -99,7 +99,7 @@ namespace pcpp
 
 	std::string QuicV1Layer::toString() const
 	{
-		return "QUIC v1 Layer, " + quicPacketTypeToString(getPacketType()) + " message";
+		return std::string("QUIC v1 Layer, ") + quicPacketTypeToString(getPacketType()) + " message";
 	}
 
 	const FieldDescriptor QuicV1Layer::SerializedFields::PacketType{ Layer::SerializedFields::MaxID + 1, "packetType" };
@@ -111,7 +111,7 @@ namespace pcpp
 		serializer.writeField(SerializedFields::PacketType, quicPacketTypeToString(getPacketType()));
 		serializer.writeField(SerializedFields::HeaderForm,
 		                      getHeaderForm() == QuicHeaderForm::LongHeader ? "Long" : "Short");
-		serializer.writeField(SerializedFields::FixedBit, getFixedBit());
+		serializer.writeField(SerializedFields::FixedBit, getFixedBit() != 0);
 	}
 
 	bool QuicV1LongHeaderLayer::isDataValid(const uint8_t* data, size_t dataLen)
@@ -216,7 +216,7 @@ namespace pcpp
 	void QuicV1LongHeaderLayer::serializeLayer(ObjectScope& serializer) const
 	{
 		QuicV1Layer::serializeLayer(serializer);
-		serializer.writeHexField(SerializedFields::Version, getVersion());
+		serializer.writeField(SerializedFields::Version, getVersion());
 		serializer.writeField(SerializedFields::DestinationConnectionId, getDestinationConnectionIdAsString());
 		serializer.writeField(SerializedFields::SourceConnectionId, getSourceConnectionIdAsString());
 	}
@@ -465,7 +465,7 @@ namespace pcpp
 		auto versions = serializer.writeArray(SerializedFields::SupportedVersions);
 		for (auto version : getSupportedVersions())
 		{
-			versions.writeHexField(SerializedFields::SupportedVersion, version);
+			versions.writeField(SerializedFields::SupportedVersion, version);
 		}
 	}
 

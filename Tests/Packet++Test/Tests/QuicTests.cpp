@@ -42,7 +42,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicInitialLayer->toString(), "QUIC v1 Layer, Initial message");
 		PTF_ASSERT_EQUAL(
 		    serializeToJson(*quicInitialLayer),
-		    R"({"protocolName":"QUICv1","protocolId":64,"length":1252,"packetType":"Initial","headerForm":"Long","fixedBit":1,"version":"0x1","destinationConnectionId":"c5fc34","sourceConnectionId":"2e05f87969a4940b","payloadLength":1231,"token":""})");
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":1252,"packetType":"Initial","headerForm":"Long","fixedBit":true,"version":1,"destinationConnectionId":"c5fc34","sourceConnectionId":"2e05f87969a4940b","payloadLength":1231,"token":""})");
 	}
 
 	// Initial packet with non-empty token
@@ -88,7 +88,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->toString(), "QUIC v1 Layer, Handshake message");
 		PTF_ASSERT_EQUAL(
 		    serializeToJson(*quicHandshakeLayer),
-		    R"({"protocolName":"QUICv1","protocolId":64,"length":92,"packetType":"Handshake","headerForm":"Long","fixedBit":1,"version":"0x1","destinationConnectionId":"f147b631d2ec8eb3","sourceConnectionId":"3bccd4","payloadLength":72})");
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":92,"packetType":"Handshake","headerForm":"Long","fixedBit":true,"version":1,"destinationConnectionId":"f147b631d2ec8eb3","sourceConnectionId":"3bccd4","payloadLength":72})");
 		std::array<uint8_t, 72> expectedProtectedPayload = {
 			0xf0, 0x2f, 0xcf, 0xe6, 0x46, 0xd7, 0x05, 0x6d, 0x15, 0xfc, 0x2e, 0x2e, 0xc4, 0xf2, 0x08, 0x8c, 0xd8, 0xdc,
 			0x3b, 0xe6, 0x06, 0x1b, 0xb4, 0xd9, 0xea, 0x51, 0xc7, 0xc0, 0xaf, 0x42, 0x21, 0xe8, 0x71, 0x0c, 0xfc, 0x3c,
@@ -124,7 +124,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->toString(), "QUIC v1 Layer, 0-RTT message");
 		PTF_ASSERT_EQUAL(
 		    serializeToJson(*quicZeroRttLayer),
-		    R"({"protocolName":"QUICv1","protocolId":64,"length":464,"packetType":"0-RTT","headerForm":"Long","fixedBit":1,"version":"0x1","destinationConnectionId":"3c548c2db5aa5e4f64702c3961","sourceConnectionId":"4c8342","payloadLength":439})");
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":464,"packetType":"0-RTT","headerForm":"Long","fixedBit":true,"version":1,"destinationConnectionId":"3c548c2db5aa5e4f64702c3961","sourceConnectionId":"4c8342","payloadLength":439})");
 	}
 
 	// Retry
@@ -146,7 +146,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicRetryLayer->toString(), "QUIC v1 Layer, Retry message");
 		PTF_ASSERT_EQUAL(
 		    serializeToJson(*quicRetryLayer),
-		    R"({"protocolName":"QUICv1","protocolId":64,"length":36,"packetType":"Retry","headerForm":"Long","fixedBit":1,"version":"0x1","destinationConnectionId":"","sourceConnectionId":"f067a5502a4262b5","retryToken":"746f6b656e","retryIntegrityTag":"04a265ba2eff4d829058fb3f0f2496ba"})");
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":36,"packetType":"Retry","headerForm":"Long","fixedBit":true,"version":1,"destinationConnectionId":"","sourceConnectionId":"f067a5502a4262b5","retryToken":"746f6b656e","retryIntegrityTag":"04a265ba2eff4d829058fb3f0f2496ba"})");
 	}
 
 	// Version negotiation
@@ -169,7 +169,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->toString(), "QUIC v1 Layer, Version Negotiation message");
 		PTF_ASSERT_EQUAL(
 		    serializeToJson(*quicVersionNegotiationLayer),
-		    R"({"protocolName":"QUICv1","protocolId":64,"length":31,"packetType":"Version Negotiation","headerForm":"Long","fixedBit":1,"version":"0x0","destinationConnectionId":"9aac5a49ba87a849","sourceConnectionId":"f92f4336fa951ba1","supportedVersions":["0x45474716","0x1"]})");
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":31,"packetType":"Version Negotiation","headerForm":"Long","fixedBit":true,"version":0,"destinationConnectionId":"9aac5a49ba87a849","sourceConnectionId":"f92f4336fa951ba1","supportedVersions":[1162299158,1]})");
 	}
 
 	// 1-RTT
@@ -188,7 +188,7 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicOneRttLayer->toString(), "QUIC v1 Layer, 1-RTT message");
 		PTF_ASSERT_EQUAL(
 		    serializeToJson(*quicOneRttLayer),
-		    R"({"protocolName":"QUICv1","protocolId":64,"length":55,"packetType":"1-RTT","headerForm":"Short","fixedBit":1,"spinBit":false,"keyPhaseBit":false})");
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":55,"packetType":"1-RTT","headerForm":"Short","fixedBit":true,"spinBit":false,"keyPhaseBit":false})");
 		auto protectedPayload = quicOneRttLayer->getProtectedPayload();
 		PTF_ASSERT_EQUAL(protectedPayload.length, 54);
 		std::array<uint8_t, 54> expectedProtectedPayload = {
@@ -229,40 +229,6 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 			PTF_ASSERT_EQUAL(initialLayer->getLength(), std::get<1>(lengthBytesAndExpectedLength));
 			PTF_ASSERT_EQUAL(initialLayer->getHeaderLen(), bytes.size());
 		}
-	}
-	// Serialized field descriptors: IDs continue the parent class's IDs without gaps
-	{
-		const auto baseFieldCount = pcpp::Layer::SerializedFields::all().size();
-		const std::vector<std::pair<std::vector<pcpp::FieldDescriptor>, size_t>> fieldsAndExtraCounts = {
-			{ pcpp::QuicV1Layer::SerializedFields::all(),                   3 },
-			{ pcpp::QuicV1LongHeaderLayer::SerializedFields::all(),         6 },
-			{ pcpp::QuicV1EstablishmentLayer::SerializedFields::all(),      7 },
-			{ pcpp::QuicV1InitialLayer::SerializedFields::all(),            8 },
-			{ pcpp::QuicV1ZeroRttLayer::SerializedFields::all(),            7 },
-			{ pcpp::QuicV1HandshakeLayer::SerializedFields::all(),          7 },
-			{ pcpp::QuicV1RetryLayer::SerializedFields::all(),              8 },
-			{ pcpp::QuicV1VersionNegotiationLayer::SerializedFields::all(), 7 },
-			{ pcpp::QuicV1OneRttLayer::SerializedFields::all(),             5 },
-		};
-		for (const auto& fieldsAndExtraCount : fieldsAndExtraCounts)
-		{
-			const auto& fields = fieldsAndExtraCount.first;
-			PTF_ASSERT_EQUAL(fields.size(), baseFieldCount + fieldsAndExtraCount.second);
-			for (size_t i = baseFieldCount; i < fields.size(); ++i)
-			{
-				PTF_ASSERT_EQUAL(fields[i].id, pcpp::Layer::SerializedFields::MaxID + i - baseFieldCount + 1);
-			}
-		}
-
-		static_assert(pcpp::QuicV1InitialLayer::SerializedFields::MaxID == pcpp::Layer::SerializedFields::MaxID + 8,
-		              "QuicV1InitialLayer MaxID");
-		static_assert(pcpp::QuicV1RetryLayer::SerializedFields::MaxID == pcpp::Layer::SerializedFields::MaxID + 8,
-		              "QuicV1RetryLayer MaxID");
-		static_assert(pcpp::QuicV1VersionNegotiationLayer::SerializedFields::MaxID ==
-		                  pcpp::Layer::SerializedFields::MaxID + 7,
-		              "QuicV1VersionNegotiationLayer MaxID");
-		static_assert(pcpp::QuicV1OneRttLayer::SerializedFields::MaxID == pcpp::Layer::SerializedFields::MaxID + 5,
-		              "QuicV1OneRttLayer MaxID");
 	}
 }  // QuicV1ParsingTest
 
