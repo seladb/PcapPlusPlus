@@ -305,3 +305,12 @@ PTF_TEST_CASE(DhcpEditTest)
 
 	dhcpPacket.computeCalculateFields();
 }  // DhcpEditTest
+
+PTF_TEST_CASE(DhcpOptionCanAssignRejectsTruncatedRecords)
+{
+	uint8_t truncatedOption[] = { 0x35, 0x01 };
+	PTF_ASSERT_FALSE(pcpp::DhcpOption::canAssign(truncatedOption, sizeof(truncatedOption)));
+
+	uint8_t validOption[] = { 0x35, 0x01, 0x01 };
+	PTF_ASSERT_TRUE(pcpp::DhcpOption::canAssign(validOption, sizeof(validOption)));
+}
