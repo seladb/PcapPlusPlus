@@ -313,6 +313,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SipRequestLayerEditTest, "sip");
 	PTF_RUN_TEST(SipResponseParseStatusCodeTest, "sip");
 	PTF_RUN_TEST(SipResponseParseVersionCodeTest, "sip");
+	PTF_RUN_TEST(SipResponseParseFirstLineTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerParsingTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerCreationTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerEditTest, "sip");
