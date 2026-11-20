@@ -22,13 +22,13 @@ jobs:
     steps:
     - name: Build Fuzzers
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@c2c0632831767ff05c568e7b552cef2801d739ff # master
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@cdd107021c20428647db0699c33d6cb1f717474a # master
       with:
         oss-fuzz-project-name: 'pcapplusplus'
         dry-run: false
         sanitizer: ${{ matrix.sanitizer }}
     - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@c2c0632831767ff05c568e7b552cef2801d739ff # master
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@cdd107021c20428647db0699c33d6cb1f717474a # master
       with:
         oss-fuzz-project-name: 'pcapplusplus'
         fuzz-seconds: 600
