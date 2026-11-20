@@ -27,7 +27,7 @@ public:
 	 * Return the current file number if its packet count didn't reach the limit, or else return the next
 	 * file number and close the current file
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(const pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		// check the current file number
 		int curFile = m_PacketCount / m_MaxPacketsPerFile;
@@ -83,7 +83,7 @@ public:
 	 * Return the current file number if its size didn't reach the file size limit, or else return the next
 	 * file number and close the current file
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(const pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		// check the current file
 		int prevFile = m_TotalSize / m_MaxBytesPerFile;
@@ -129,7 +129,7 @@ public:
 	/**
 	 * Return file #0 if packet matches the BPF filer, and file #1 if it's not
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(const pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		if (packet.getRawPacket() != nullptr && filter.matches(*packet.getRawPacket()))
 			return 0;
@@ -140,7 +140,7 @@ public:
 	 * Re-implement Splitter's getFileName() method, clarifying which file was matched by the BPF
 	 * filter and which didn't
 	 */
-	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
+	std::string getFileName(const pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
 	{
 		if (fileNumber == 0)
 			return outputPcapBasePath + "match-bpf";
@@ -180,7 +180,7 @@ public:
 	/**
 	 * Get the next file number, SplitterWithMaxFiles#getNextFileNumber() takes care of the round-robin method
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(const pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		return getNextFileNumber(filesToClose);
 	}

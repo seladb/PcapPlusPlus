@@ -138,7 +138,7 @@ namespace pcpp
 		TcpReassemblyData* tcpReassemblyData = nullptr;
 
 		// calculate flow key for this packet
-		uint32_t flowKey = hash5Tuple(&tcpData);
+		uint32_t flowKey = hash5Tuple(tcpData);
 
 		// time stamp for this packet
 		auto currTime = timespecToTimePoint(tcpData.getRawPacket()->getPacketTimeStamp());
