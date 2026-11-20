@@ -2,7 +2,6 @@
 
 #include "TelnetLayer.h"
 #include "Logger.h"
-#include "GeneralUtils.h"
 #include "AssertionUtils.h"
 #include <cstring>
 #include <iterator>
@@ -114,7 +113,7 @@ namespace pcpp
 		}
 	}  // namespace
 
-	size_t TelnetLayer::distanceToNextIAC(uint8_t* startPos, size_t maxLength)
+	size_t TelnetLayer::distanceToNextIAC(uint8_t* startPos, size_t maxLength) const
 	{
 		auto beginIt = startPos;
 		auto endIt = startPos + maxLength;
@@ -122,7 +121,7 @@ namespace pcpp
 		return std::distance(beginIt, nextIacIt);
 	}
 
-	size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength)
+	size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength) const
 	{
 		// Check first byte is IAC
 		if (startPos && (startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (maxLength >= 2))
@@ -139,7 +138,7 @@ namespace pcpp
 		return distanceToNextIAC(startPos, maxLength);
 	}
 
-	uint8_t* TelnetLayer::getNextDataField(uint8_t* pos, size_t len)
+	uint8_t* TelnetLayer::getNextDataField(uint8_t* pos, size_t len) const
 	{
 		// This assumes `pos` points to the start of a valid field.
 		auto const endIt = pos + len;
@@ -171,7 +170,7 @@ namespace pcpp
 		return nullptr;
 	}
 
-	uint8_t* TelnetLayer::getNextCommandField(uint8_t* pos, size_t len)
+	uint8_t* TelnetLayer::getNextCommandField(uint8_t* pos, size_t len) const
 	{
 		// This assumes `pos` points to the start of a valid field.
 		auto const endIt = pos + len;
@@ -203,14 +202,14 @@ namespace pcpp
 		return nullptr;
 	}
 
-	int16_t TelnetLayer::getSubCommand(const uint8_t* pos, size_t len)
+	int16_t TelnetLayer::getSubCommand(const uint8_t* pos, size_t len) const
 	{
 		if (len < 3 || pos[1] < static_cast<int>(TelnetCommand::Subnegotiation))
 			return static_cast<int>(TelnetOption::TelnetOptionNoOption);
 		return pos[2];
 	}
 
-	uint8_t* TelnetLayer::getCommandData(uint8_t* pos, size_t& len)
+	uint8_t* TelnetLayer::getCommandData(uint8_t* pos, size_t& len) const
 	{
 		if (pos[1] == static_cast<int>(TelnetCommand::Subnegotiation) && len > 3)
 		{
@@ -221,7 +220,7 @@ namespace pcpp
 		return nullptr;
 	}
 
-	std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters)
+	std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters) const
 	{
 		if (m_Data == nullptr)
 		{
@@ -617,6 +616,45 @@ namespace pcpp
 			return "Telnet Data";
 		default:
 			throw std::logic_error("Unsupported sequence type");
+		}
+	}
+
+	const FieldDescriptor TelnetLayer::SerializedFields::Data{ Layer::SerializedFields::MaxID + 1, "data" };
+	const FieldDescriptor TelnetLayer::SerializedFields::Commands{ Layer::SerializedFields::MaxID + 2, "commands" };
+
+	const TelnetLayer::SerializedFields::CommandObject TelnetCommandObject{ 0, "command" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::Command{ 0, "command" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::CommandName{ 1, "commandName" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::Option{ 2, "option" };
+	const FieldDescriptor TelnetLayer::SerializedFields::CommandObject::OptionName{ 3, "optionName" };
+
+	void TelnetLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Data, getDataAsString());
+
+		auto commands = serializer.writeArray(SerializedFields::Commands);
+
+		uint8_t* pos = isTelnetCommand(m_Data, m_DataLen) ? m_Data : getNextCommandField(m_Data, m_DataLen);
+
+		while (pos != nullptr)
+		{
+			const auto remaining = static_cast<size_t>(m_DataLen - (pos - m_Data));
+			const TelnetCommand commandVal = static_cast<TelnetCommand>(pos[1]);
+
+			auto commandObject = commands.writeObject(TelnetCommandObject);
+			commandObject.writeField(SerializedFields::CommandObject::Command, static_cast<int>(commandVal));
+			commandObject.writeField(SerializedFields::CommandObject::CommandName,
+			                         getTelnetCommandAsString(commandVal));
+
+			const size_t fieldLen = getFieldLen(pos, remaining);
+			const TelnetOption option = static_cast<TelnetOption>(getSubCommand(pos, fieldLen));
+			if (option != TelnetOption::TelnetOptionNoOption)
+			{
+				commandObject.writeField(SerializedFields::CommandObject::Option, static_cast<int>(option));
+				commandObject.writeField(SerializedFields::CommandObject::OptionName, getTelnetOptionAsString(option));
+			}
+
+			pos = getNextCommandField(pos, remaining);
 		}
 	}
 
