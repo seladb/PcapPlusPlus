@@ -26,7 +26,7 @@ public:
 	 * - The file number to write the packet to
 	 * - A vector of file numbers to close (may be empty)
 	 */
-	virtual int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) = 0;
+	virtual int getFileNumber(const pcpp::Packet& packet, std::vector<int>& filesToClose) = 0;
 
 	/**
 	 * Most splitters have a parameter (for example: packet count for each file or max file size, etc.).
@@ -41,7 +41,7 @@ public:
 	 * first packet that will be written to this file. The default implementation is the following:
 	 * ' /requested-path/original-file-name-[4-digit-number-starting-at-0000].pcap'
 	 */
-	virtual std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
+	virtual std::string getFileName(const pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
 	{
 		std::ostringstream sstream;
 		sstream << std::setw(4) << std::setfill('0') << fileNumber;
@@ -196,7 +196,7 @@ protected:
 /**
  * An auxiliary method for extracting packet's IPv4/IPv6 source address as string
  */
-std::string getSrcIPString(pcpp::Packet& packet)
+std::string getSrcIPString(const pcpp::Packet& packet)
 {
 	if (packet.isPacketOfType(pcpp::IP))
 		return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().toString();
@@ -206,7 +206,7 @@ std::string getSrcIPString(pcpp::Packet& packet)
 /**
  * An auxiliary method for extracting packet's IPv4/IPv6 dest address string
  */
-std::string getDstIPString(pcpp::Packet& packet)
+std::string getDstIPString(const pcpp::Packet& packet)
 {
 	if (packet.isPacketOfType(pcpp::IP))
 		return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().toString();

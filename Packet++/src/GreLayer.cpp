@@ -466,8 +466,8 @@ namespace pcpp
 		// calculate checksum
 		setChecksum(0);
 
-		ScalarBuffer<uint16_t> buffer;
-		buffer.buffer = (uint16_t*)m_Data;
+		ScalarBuffer<const uint16_t> buffer;
+		buffer.buffer = reinterpret_cast<const uint16_t*>(m_Data);
 		buffer.len = m_DataLen;
 		size_t checksum = computeChecksum(&buffer, 1);
 
