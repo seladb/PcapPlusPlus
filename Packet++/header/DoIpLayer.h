@@ -1,7 +1,9 @@
 #pragma once
 
-#include <vector>
+#include <algorithm>
 #include <cstring>
+#include <iterator>
+#include <vector>
 #include "Layer.h"
 #include "Logger.h"
 
@@ -639,6 +641,35 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields. Covers the common 8-byte DoIP header.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ProtocolVersion, PayloadType, PayloadLength };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief DoIP protocol version as a readable string (see getProtocolVersionAsStr())
+			static const FieldDescriptor ProtocolVersion;
+
+			/// @brief DoIP payload type as a readable string (see getPayloadTypeAsStr())
+			static const FieldDescriptor PayloadType;
+
+			/// @brief Payload length from the DoIP header, in bytes, not including the 8-byte header,
+			/// in host byte order
+			static const FieldDescriptor PayloadLength;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+		};
+
 	private:
 		void setPayloadType(DoIpPayloadTypes payloadType);
 
@@ -660,6 +691,8 @@ namespace pcpp
 		}
 
 		void setHeaderFields(DoIpProtocolVersion version, DoIpPayloadTypes type, uint32_t length);
+
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	// inline methods definition
@@ -801,6 +834,30 @@ namespace pcpp
 			return (dataLen == FIXED_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpGenericHeaderNack's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpGenericHeaderNack
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(NackCode);
+				return result;
+			}
+
+			/// @brief Generic header NACK code as a readable string
+			static const FieldDescriptor NackCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct generic_header_nack : doiphdr
@@ -901,6 +958,30 @@ namespace pcpp
 			return (dataLen == FIXED_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpVehicleIdentificationRequestWithEID's serializeLayer(), in
+		/// addition to DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpVehicleIdentificationRequestWithEID
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(Eid);
+				return result;
+			}
+
+			/// @brief Entity ID (EID) as a lowercase hexadecimal string without separators
+			static const FieldDescriptor Eid;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct vehicle_identification_request_with_eid : doiphdr
@@ -961,6 +1042,30 @@ namespace pcpp
 		{
 			return (dataLen == FIXED_LEN);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpVehicleIdentificationRequestWithVIN's serializeLayer(), in
+		/// addition to DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpVehicleIdentificationRequestWithVIN
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(Vin);
+				return result;
+			}
+
+			/// @brief Vehicle Identification Number (VIN) as a 17-character string
+			static const FieldDescriptor Vin;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)
@@ -1079,6 +1184,48 @@ namespace pcpp
 			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpVehicleAnnouncementMessage's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpVehicleAnnouncementMessage
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Vin, LogicalAddress,        Eid,
+					                                          Gid, FurtherActionRequired, SyncStatus };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Vehicle Identification Number (VIN) as a 17-character string
+			static const FieldDescriptor Vin;
+
+			/// @brief Logical address of the vehicle, in host byte order
+			static const FieldDescriptor LogicalAddress;
+
+			/// @brief Entity ID (EID) as a lowercase hexadecimal string without separators
+			static const FieldDescriptor Eid;
+
+			/// @brief Group ID (GID) as a lowercase hexadecimal string without separators
+			static const FieldDescriptor Gid;
+
+			/// @brief Further action required as a readable string
+			static const FieldDescriptor FurtherActionRequired;
+
+			/// @brief VIN/GID sync status as a readable string. Omitted when the optional field is
+			/// not present
+			static const FieldDescriptor SyncStatus;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 6;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct vehicle_announcement_message : doiphdr
@@ -1186,6 +1333,34 @@ namespace pcpp
 		{
 			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpRoutingActivationRequest's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields. Reserved ISO/OEM bytes are omitted.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpRoutingActivationRequest
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SourceAddress, ActivationType };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Source address of the tester, in host byte order
+			static const FieldDescriptor SourceAddress;
+
+			/// @brief Routing activation type as a readable string
+			static const FieldDescriptor ActivationType;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)
@@ -1300,6 +1475,38 @@ namespace pcpp
 			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpRoutingActivationResponse's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields. Reserved ISO/OEM bytes are omitted.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpRoutingActivationResponse
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ LogicalAddressExternalTester, SourceAddress,
+					                                          ResponseCode };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Logical address of the external tester, in host byte order
+			static const FieldDescriptor LogicalAddressExternalTester;
+
+			/// @brief ECU source address, in host byte order
+			static const FieldDescriptor SourceAddress;
+
+			/// @brief Routing activation response code as a readable string
+			static const FieldDescriptor ResponseCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 3;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct routing_activation_response : doiphdr
@@ -1408,6 +1615,30 @@ namespace pcpp
 		{
 			return (dataLen == FIXED_LEN);
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpAliveCheckResponse's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpAliveCheckResponse
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(SourceAddress);
+				return result;
+			}
+
+			/// @brief Source address of the responder, in host byte order
+			static const FieldDescriptor SourceAddress;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 #pragma pack(push, 1)
@@ -1549,6 +1780,42 @@ namespace pcpp
 			return (dataLen == FIXED_LEN || dataLen == OPT_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpEntityStatusResponse's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpEntityStatusResponse
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ NodeType, MaxConcurrentSockets, CurrentlyOpenSockets,
+					                                          MaxDataSize };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief DoIP node type as a readable string
+			static const FieldDescriptor NodeType;
+
+			/// @brief Maximum number of concurrent sockets supported
+			static const FieldDescriptor MaxConcurrentSockets;
+
+			/// @brief Number of currently open sockets
+			static const FieldDescriptor CurrentlyOpenSockets;
+
+			/// @brief Optional maximum data size in bytes, in host byte order. Omitted when not
+			/// present
+			static const FieldDescriptor MaxDataSize;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 4;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct entity_status_response : doiphdr
@@ -1659,6 +1926,30 @@ namespace pcpp
 			return (dataLen == FIXED_LEN);
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpDiagnosticPowerModeResponse's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpDiagnosticPowerModeResponse
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				result.push_back(PowerModeCode);
+				return result;
+			}
+
+			/// @brief Diagnostic power mode as a readable string
+			static const FieldDescriptor PowerModeCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct diagnostic_power_mode_response : doiphdr
@@ -1703,10 +1994,37 @@ namespace pcpp
 		/// @return A string summarizing the diagnostic message.
 		virtual std::string getSummary() const = 0;
 
+		/// @struct SerializedFields
+		/// Fields written by DoIpDiagnosticBase's serializeLayer(), in addition to
+		/// DoIpLayer::SerializedFields.
+		struct SerializedFields : DoIpLayer::SerializedFields
+		{
+			/// @return All field descriptors for DoIpDiagnosticBase
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SourceAddress, TargetAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Source logical address, in host byte order
+			static const FieldDescriptor SourceAddress;
+
+			/// @brief Target logical address, in host byte order
+			static const FieldDescriptor TargetAddress;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 2;
+		};
+
 	protected:
 		DoIpDiagnosticBase(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		DoIpDiagnosticBase(size_t length) : DoIpLayer(length) {};
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 #pragma pack(push, 1)
 		/// An internal structure representing the common diagnostic header.
@@ -1884,6 +2202,30 @@ namespace pcpp
 		{
 			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_ACK;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpDiagnosticMessageAck's serializeLayer(), in addition to
+		/// DoIpDiagnosticBase::SerializedFields. Optional previous-message bytes are omitted.
+		struct SerializedFields : DoIpDiagnosticBase::SerializedFields
+		{
+			/// @return All field descriptors for DoIpDiagnosticMessageAck
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpDiagnosticBase::SerializedFields::all();
+				result.push_back(AckCode);
+				return result;
+			}
+
+			/// @brief Diagnostic ACK code as a readable string
+			static const FieldDescriptor AckCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpDiagnosticBase::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1928,6 +2270,30 @@ namespace pcpp
 		{
 			return DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NACK;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by DoIpDiagnosticMessageNack's serializeLayer(), in addition to
+		/// DoIpDiagnosticBase::SerializedFields. Optional previous-message bytes are omitted.
+		struct SerializedFields : DoIpDiagnosticBase::SerializedFields
+		{
+			/// @return All field descriptors for DoIpDiagnosticMessageNack
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = DoIpDiagnosticBase::SerializedFields::all();
+				result.push_back(NackCode);
+				return result;
+			}
+
+			/// @brief Diagnostic NACK code as a readable string
+			static const FieldDescriptor NackCode;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = DoIpDiagnosticBase::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp
