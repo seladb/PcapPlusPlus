@@ -288,6 +288,14 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(NflogPacketParsingTest, "nflog");
 
+	PTF_RUN_TEST(BluetoothHciEventInquiryCompleteTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventGenericTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventInvalidDataTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciPacketTypeTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventCreationTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventEditTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventEdgeCasesTest, "bluetooth_hci");
+
 	PTF_RUN_TEST(DhcpParsingTest, "dhcp");
 	PTF_RUN_TEST(DhcpCreationTest, "dhcp");
 	PTF_RUN_TEST(DhcpEditTest, "dhcp");

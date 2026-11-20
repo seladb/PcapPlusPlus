@@ -318,7 +318,8 @@ namespace pcpp
 	{
 		auto tokenLengthOffset = getTokenLengthOffset();
 		auto tokenLengthValueAndSize = getVarintValueAndSize(tokenLengthOffset);
-		if (tokenLengthOffset + tokenLengthValueAndSize.size + tokenLengthValueAndSize.value > m_DataLen)
+		if (tokenLengthOffset + tokenLengthValueAndSize.size + tokenLengthValueAndSize.value + sizeof(uint8_t) >
+		    m_DataLen)
 		{
 			throw std::out_of_range("Not enough data to read length offset");
 		}
