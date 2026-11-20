@@ -154,7 +154,7 @@ void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	HttpPacketArrivedData* data = static_cast<HttpPacketArrivedData*>(cookie);
 
 	// give the packet to the collector
-	data->statsCollector->collectStats(&parsedPacket);
+	data->statsCollector->collectStats(parsedPacket);
 
 	// if needed - write the packet to the output pcap file
 	if (data->pcapWriter != nullptr)
@@ -419,7 +419,7 @@ void analyzeHttpFromPcapFile(const std::string& pcapFileName, uint16_t dstPort)
 	while (reader->getNextPacket(rawPacket))
 	{
 		pcpp::Packet parsedPacket(&rawPacket);
-		collector.collectStats(&parsedPacket);
+		collector.collectStats(parsedPacket);
 	}
 
 	// print stats summary

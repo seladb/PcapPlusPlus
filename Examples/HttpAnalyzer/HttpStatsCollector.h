@@ -165,14 +165,14 @@ public:
 	/**
 	 * Collect stats for a single packet
 	 */
-	void collectStats(pcpp::Packet* httpPacket)
+	void collectStats(const pcpp::Packet& httpPacket)
 	{
 		// verify packet is TCP
-		if (!httpPacket->isPacketOfType(pcpp::TCP))
+		if (!httpPacket.isPacketOfType(pcpp::TCP))
 			return;
 
 		// verify packet is port 80
-		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+		pcpp::TcpLayer* tcpLayer = httpPacket.getLayerOfType<pcpp::TcpLayer>();
 		if (!(tcpLayer->getDstPort() == m_DstPort || tcpLayer->getSrcPort() == m_DstPort))
 			return;
 
@@ -180,18 +180,18 @@ public:
 		uint32_t hashVal = collectHttpTrafficStats(httpPacket);
 
 		// if packet is an HTTP request - collect HTTP request stats on this packet
-		if (httpPacket->isPacketOfType(pcpp::HTTPRequest))
+		if (httpPacket.isPacketOfType(pcpp::HTTPRequest))
 		{
-			pcpp::HttpRequestLayer* req = httpPacket->getLayerOfType<pcpp::HttpRequestLayer>();
-			pcpp::TcpLayer* tcpLayer1 = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+			pcpp::HttpRequestLayer* req = httpPacket.getLayerOfType<pcpp::HttpRequestLayer>();
+			pcpp::TcpLayer* tcpLayer1 = httpPacket.getLayerOfType<pcpp::TcpLayer>();
 			collectHttpGeneralStats(tcpLayer1, req, hashVal);
 			collectRequestStats(req);
 		}
 		// if packet is an HTTP response - collect HTTP response stats on this packet
-		else if (httpPacket->isPacketOfType(pcpp::HTTPResponse))
+		else if (httpPacket.isPacketOfType(pcpp::HTTPResponse))
 		{
-			pcpp::HttpResponseLayer* res = httpPacket->getLayerOfType<pcpp::HttpResponseLayer>();
-			pcpp::TcpLayer* tcpLayer1 = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+			pcpp::HttpResponseLayer* res = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
+			pcpp::TcpLayer* tcpLayer1 = httpPacket.getLayerOfType<pcpp::TcpLayer>();
 			collectHttpGeneralStats(tcpLayer1, res, hashVal);
 			collectResponseStats(res);
 		}
@@ -322,9 +322,9 @@ private:
 	 * Collect stats relevant for every HTTP packet (request, response or any other)
 	 * This method calculates and returns the flow key for this packet
 	 */
-	uint32_t collectHttpTrafficStats(pcpp::Packet* httpPacket)
+	uint32_t collectHttpTrafficStats(const pcpp::Packet& httpPacket)
 	{
-		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+		pcpp::TcpLayer* tcpLayer = httpPacket.getLayerOfType<pcpp::TcpLayer>();
 
 		// count traffic
 		m_GeneralStats.amountOfHttpTraffic += tcpLayer->getLayerPayloadSize();
