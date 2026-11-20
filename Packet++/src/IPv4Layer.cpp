@@ -239,9 +239,8 @@ namespace pcpp
 			// value of totalLen and look at the data captured on the wire
 			if ((totalLen < m_DataLen) && (totalLen != 0))
 			{
-				auto headerLen = (std::min)(getHeaderLen(), m_DataLen);
 				// Make sure totalLen is larger than header len, otherwise it's a malformed packet
-				m_DataLen = (std::max)(totalLen, headerLen);
+				m_DataLen = (std::max)(totalLen, getHeaderLen());
 			}
 		}
 	}
@@ -510,22 +509,22 @@ namespace pcpp
 
 	IPv4Option IPv4Layer::getOption(IPv4OptionTypes option) const
 	{
-		return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getOptionsLen());
+		return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 	}
 
 	IPv4Option IPv4Layer::getFirstOption() const
 	{
-		return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getOptionsLen());
+		return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 	}
 
 	IPv4Option IPv4Layer::getNextOption(IPv4Option& option) const
 	{
-		return m_OptionReader.getNextTLVRecord(option, getOptionsBasePtr(), getOptionsLen());
+		return m_OptionReader.getNextTLVRecord(option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 	}
 
 	size_t IPv4Layer::getOptionCount() const
 	{
-		return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getOptionsLen());
+		return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 	}
 
 	void IPv4Layer::adjustOptionsTrailer(size_t totalOptSize)

@@ -562,7 +562,8 @@ PTF_TEST_CASE(IPv4ComputeFieldsInvalidIhl)
 
 	auto ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipv4Layer);
-	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 52);
+	// the IHL claims 52 bytes but the header length is capped by the layer data
+	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 46);
 	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 46);
 	PTF_ASSERT_NULL(ipv4Layer->getNextLayer());
 
@@ -595,8 +596,8 @@ PTF_TEST_CASE(IPv4OptionsInvalidIhl)
 
 	auto ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipv4Layer);
-	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 60);
 	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 28);
+	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 28);
 
 	PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 1);
 	pcpp::IPv4Option opt = ipv4Layer->getFirstOption();
