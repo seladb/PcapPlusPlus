@@ -6,7 +6,9 @@
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IgmpLayer.h"
+#include "Serializers.h"
 #include "SystemUtils.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -28,15 +30,32 @@ PTF_TEST_CASE(IgmpParsingTest)
 	PTF_ASSERT_EQUAL(igmpv1Layer->getGroupAddress(), pcpp::IPv4Address::Zero);
 	PTF_ASSERT_EQUAL(igmpv1Layer->toString(), "IGMPv1 Layer, Membership Query message");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		igmpv1Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"IGMPv1","protocolId":22,"length":8,"type":17,"typeName":"MembershipQuery","maxResponseTime":0,"checksum":"0xeeff","groupAddress":"0.0.0.0"})");
+	}
+
 	PTF_ASSERT_TRUE(igmpv2Packet.isPacketOfType(pcpp::IGMPv2));
 	PTF_ASSERT_TRUE(igmpv2Packet.isPacketOfType(pcpp::IGMP));
 	PTF_ASSERT_FALSE(igmpv2Packet.isPacketOfType(pcpp::IGMPv1));
 	pcpp::IgmpV2Layer* igmpv2Layer = igmpv2Packet.getLayerOfType<pcpp::IgmpV2Layer>();
 	PTF_ASSERT_NOT_NULL(igmpv2Layer);
-
 	PTF_ASSERT_EQUAL(igmpv2Layer->getType(), pcpp::IgmpType_MembershipReportV2, enum);
 	PTF_ASSERT_EQUAL(igmpv2Layer->getGroupAddress(), pcpp::IPv4Address("239.255.255.250"));
 	PTF_ASSERT_EQUAL(igmpv2Layer->toString(), "IGMPv2 Layer, Membership Report message");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		igmpv2Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"IGMPv2","protocolId":23,"length":8,"type":22,"typeName":"MembershipReportV2","maxResponseTime":0,"checksum":"0xfa04","groupAddress":"239.255.255.250"})");
+	}
 }  // IgmpParsingTest
 
 PTF_TEST_CASE(IgmpCreateAndEditTest)
@@ -119,6 +138,15 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString(), "0.0.0.0");
 	PTF_ASSERT_EQUAL(igmpv3QueryLayer->toString(), "IGMPv3 Layer, Membership Query message");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		igmpv3QueryLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"IGMPv3","protocolId":24,"length":16,"type":17,"typeName":"MembershipQuery","maxResponseTime":1,"checksum":"0x2a6d","groupAddress":"224.0.0.9","suppressRouterSideProcessing":true,"robustnessVariable":7,"queryIntervalCode":0,"sources":["192.168.20.222"]})");
+	}
+
 	igmpv3QueryLayer->getIgmpV3QueryHeader()->numOfSources = htobe16(100);
 
 	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressCount(), 100);
@@ -148,6 +176,15 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	curGroup = igmpv3ReportLayer->getNextGroupRecord(curGroup);
 	PTF_ASSERT_NULL(curGroup);
 	PTF_ASSERT_EQUAL(igmpv3ReportLayer->toString(), "IGMPv3 Layer, Membership Report message");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		igmpv3ReportLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"IGMPv3","protocolId":24,"length":20,"type":34,"typeName":"MembershipReportV3","checksum":"0x276d","groupRecords":[{"recordType":1,"auxDataLen":0,"multicastAddress":"224.0.0.9","sources":["192.168.20.222"]}]})");
+	}
 
 	// A report layer that ends in the middle of a group record must not hand that record out.
 	// Only the start of a record was checked against the layer, so a truncated one was returned
