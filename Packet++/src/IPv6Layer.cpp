@@ -124,6 +124,13 @@ namespace pcpp
 			if (newExt == nullptr)
 				break;
 
+			// the extension length may claim more bytes than the layer actually holds
+			if (newExt->getExtensionLen() > m_DataLen - offset)
+			{
+				delete newExt;
+				break;
+			}
+
 			if (m_FirstExtension == nullptr)
 			{
 				m_FirstExtension = newExt;

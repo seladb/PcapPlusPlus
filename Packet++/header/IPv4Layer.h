@@ -579,11 +579,13 @@ namespace pcpp
 		/// Otherwise sets PayloadLayer
 		void parseNextLayer() override;
 
-		/// @return Size of IPv4 header (including IPv4 options if exist)
+		/// @return Size of IPv4 header (including IPv4 options if exist). If the IHL field claims more bytes than the
+		/// layer actually holds, the size of the layer data is returned instead
 		size_t getHeaderLen() const override
 		{
-			return static_cast<size_t>(static_cast<uint16_t>(getIPv4Header()->internetHeaderLength) * 4) +
-			       m_TempHeaderExtension;
+			return (std::min)(static_cast<size_t>(static_cast<uint16_t>(getIPv4Header()->internetHeaderLength) * 4) +
+			                      m_TempHeaderExtension,
+			                  m_DataLen);
 		}
 
 		/// Calculate the following fields:

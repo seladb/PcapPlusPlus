@@ -562,7 +562,8 @@ PTF_TEST_CASE(IPv4ComputeFieldsInvalidIhl)
 
 	auto ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipv4Layer);
-	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 52);
+	// the IHL claims 52 bytes but the header length is capped by the layer data
+	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 46);
 	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 46);
 	PTF_ASSERT_NULL(ipv4Layer->getNextLayer());
 
@@ -570,3 +571,38 @@ PTF_TEST_CASE(IPv4ComputeFieldsInvalidIhl)
 
 	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 46);
 }  // IPv4ComputeFieldsInvalidIhl
+
+PTF_TEST_CASE(IPv4OptionsInvalidIhl)
+{
+	// The IHL claims 40 bytes of options but the packet ends 8 bytes into them. The rest of the buffer is outside the
+	// packet and must not be read as options.
+	uint8_t data[sizeof(pcpp::ether_header) + 60]{};
+
+	data[12] = 0x08;
+	data[13] = 0x00;
+
+	constexpr size_t ipOffset = sizeof(pcpp::ether_header);
+	data[ipOffset] = 0x4f;      // IPv4, IHL = 15 => 60 bytes.
+	data[ipOffset + 3] = 0x3c;  // totalLength = 60.
+
+	// NOP, then a Record Route option whose length (39) runs past the end of the packet.
+	const uint8_t options[] = { 0x01, 0x07, 0x27, 0x04, 0x0a, 0x00, 0x00, 0x01 };
+	std::copy(options, options + sizeof(options), data + ipOffset + sizeof(pcpp::iphdr));
+
+	timeval time{};
+	pcpp::RawPacket rawPacket(data, ipOffset + sizeof(pcpp::iphdr) + sizeof(options), time, false,
+	                          pcpp::LINKTYPE_ETHERNET);
+	pcpp::Packet packet(&rawPacket);
+
+	auto ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+	PTF_ASSERT_NOT_NULL(ipv4Layer);
+	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 28);
+	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 28);
+
+	PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 1);
+	pcpp::IPv4Option opt = ipv4Layer->getFirstOption();
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_NOP, enum);
+	PTF_ASSERT_TRUE(ipv4Layer->getNextOption(opt).isNull());
+	PTF_ASSERT_TRUE(ipv4Layer->getOption(pcpp::IPV4OPT_RecordRoute).isNull());
+}  // IPv4OptionsInvalidIhl

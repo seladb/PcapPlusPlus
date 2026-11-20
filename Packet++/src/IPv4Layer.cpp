@@ -239,9 +239,8 @@ namespace pcpp
 			// value of totalLen and look at the data captured on the wire
 			if ((totalLen < m_DataLen) && (totalLen != 0))
 			{
-				auto headerLen = (std::min)(getHeaderLen(), m_DataLen);
 				// Make sure totalLen is larger than header len, otherwise it's a malformed packet
-				m_DataLen = (std::max)(totalLen, headerLen);
+				m_DataLen = (std::max)(totalLen, getHeaderLen());
 			}
 		}
 	}

@@ -436,3 +436,34 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_BUF_COMPARE(ipv6MultipleOptions.getRawPacket()->getRawData(), newPacket5.getRawPacket()->getRawData(),
 	                       ipv6MultipleOptions.getRawPacket()->getRawDataLen());
 }  // IPv6ExtensionsTest
+
+PTF_TEST_CASE(IPv6ExtensionsTruncatedTest)
+{
+	// A Hop-By-Hop extension that claims 16 bytes but the packet ends 8 bytes into it. The rest of the buffer is
+	// outside the packet and must not be read as part of the extension.
+	uint8_t data[sizeof(pcpp::ether_header) + sizeof(pcpp::ip6_hdr) + 16]{};
+
+	data[12] = 0x86;
+	data[13] = 0xdd;
+
+	constexpr size_t ipOffset = sizeof(pcpp::ether_header);
+	data[ipOffset] = 0x60;      // IPv6
+	data[ipOffset + 5] = 0x10;  // payloadLength = 16
+	data[ipOffset + 6] = 0x00;  // nextHeader = Hop-By-Hop
+	data[ipOffset + 7] = 0x40;  // hopLimit = 64
+
+	constexpr size_t extOffset = ipOffset + sizeof(pcpp::ip6_hdr);
+	data[extOffset] = 0x3b;      // nextHeader = No Next Header
+	data[extOffset + 1] = 0x01;  // headerLen = 1 => 16 bytes
+
+	timeval time{};
+	pcpp::RawPacket rawPacket(data, extOffset + 8, time, false, pcpp::LINKTYPE_ETHERNET);
+	pcpp::Packet packet(&rawPacket);
+
+	auto ipv6Layer = packet.getLayerOfType<pcpp::IPv6Layer>();
+	PTF_ASSERT_NOT_NULL(ipv6Layer);
+	PTF_ASSERT_EQUAL(ipv6Layer->getDataLen(), 48);
+	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionCount(), 0);
+	PTF_ASSERT_NULL(ipv6Layer->getExtensionOfType<pcpp::IPv6HopByHopHeader>());
+	PTF_ASSERT_EQUAL(ipv6Layer->getHeaderLen(), sizeof(pcpp::ip6_hdr));
+}  // IPv6ExtensionsTruncatedTest
