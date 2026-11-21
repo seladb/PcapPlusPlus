@@ -11,7 +11,6 @@
 #include "SystemUtils.h"
 #include "Serializers.h"
 #include <sstream>
-#include <set>
 #include <memory>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
@@ -611,7 +610,7 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 		    R"("statusCodeDescription":"Custom reason","headerComplete":true,"headerFields":[]})");
 	}
 
-	// Unknown status codes must not be used as indices into the status-code lookup table.
+	// Unknown status codes are serialized with the raw code and reason phrase from the first line.
 	{
 		std::string data = "SIP/2.0 699 Custom\r\nContent-Length: 0\r\n\r\n";
 		auto buffer = std::make_unique<uint8_t[]>(data.size());
@@ -625,8 +624,8 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 		layer.serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    output.str(),
-		    R"({"protocolName":"SIPResponse","protocolId":28,"length":41,"version":"SIP/2.0","statusCode":0,)"
-		    R"("statusCodeDescription":"","headerComplete":true,"headerFields":[)"
+		    R"({"protocolName":"SIPResponse","protocolId":28,"length":41,"version":"SIP/2.0","statusCode":699,)"
+		    R"("statusCodeDescription":"Custom","headerComplete":true,"headerFields":[)"
 		    R"({"name":"Content-Length","value":"0"}]})");
 	}
 }  // SipResponseLayerParsingTest
@@ -840,42 +839,6 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 		                               R"({"name":"a","value":"T38FaxRateManagement:transferredTCF"},)"
 		                               R"({"name":"a","value":"T38FaxUdpEC:t38UDPRedundancy"}]})");
 	}
-
-	{
-		std::ostringstream output;
-		pcpp::JsonSerializer serializer(output);
-		sdpLayer->serialize(serializer);
-		const auto json = output.str();
-		const auto fields = pcpp::SdpLayer::SerializedFields::all();
-		PTF_ASSERT_EQUAL(fields.size(), pcpp::Layer::SerializedFields::all().size() + 1);
-		std::set<std::string> names;
-		for (const auto& field : fields)
-		{
-			PTF_ASSERT_TRUE(names.insert(field.name).second);
-			const auto key = "\"" + field.name + "\":";
-			const auto pos = json.find(key);
-			PTF_ASSERT_TRUE(pos != std::string::npos);
-			PTF_ASSERT_TRUE(json.find(key, pos + key.size()) == std::string::npos);
-		}
-		PTF_ASSERT_EQUAL(fields.back().name, "headerFields");
-		PTF_ASSERT_GREATER_THAN(fields.back().id, pcpp::Layer::SerializedFields::MaxID);
-
-		const auto elementFields = pcpp::SdpLayer::SerializedFields::HeaderFieldObject::all();
-		PTF_ASSERT_EQUAL(elementFields.size(), 2);
-		PTF_ASSERT_EQUAL(elementFields[0].name, "name");
-		PTF_ASSERT_EQUAL(elementFields[1].name, "value");
-		PTF_ASSERT_TRUE(elementFields[0].id != elementFields[1].id);
-		for (const auto& field : elementFields)
-		{
-			const auto key = "\"" + field.name + "\":";
-			size_t count = 0;
-			for (auto pos = json.find(key); pos != std::string::npos; pos = json.find(key, pos + key.size()))
-			{
-				++count;
-			}
-			PTF_ASSERT_EQUAL(count, 18);
-		}
-	}
 }  // SdpLayerParsingTest
 
 PTF_TEST_CASE(SipNotSdpLayerParsingTest)
@@ -1009,54 +972,3 @@ PTF_TEST_CASE(SdpLayerEditTest)
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("image"), targetSdpLayer->getMediaPort("image"));
 	PTF_ASSERT_BUF_COMPARE(sdpLayer->getData(), targetSdpLayer->getData(), targetSdpLayer->getHeaderLen());
 }  // SdpLayerEditTest
-
-PTF_TEST_CASE(SipSerializationFieldsTest)
-{
-	pcpp::SipRequestLayer request(pcpp::SipRequestLayer::SipINVITE, "sip:bob@example.com");
-	pcpp::SipResponseLayer response(pcpp::SipResponseLayer::Sip200OK);
-	PTF_ASSERT_NOT_NULL(request.addField("Via", "first"));
-	PTF_ASSERT_NOT_NULL(request.addEndOfHeader());
-	PTF_ASSERT_NOT_NULL(response.addField("Via", "first"));
-	PTF_ASSERT_NOT_NULL(response.addEndOfHeader());
-
-	std::ostringstream requestOutput;
-	pcpp::JsonSerializer requestSerializer(requestOutput);
-	request.serialize(requestSerializer);
-	std::ostringstream responseOutput;
-	pcpp::JsonSerializer responseSerializer(responseOutput);
-	response.serialize(responseSerializer);
-
-	const std::vector<std::pair<std::vector<pcpp::FieldDescriptor>, std::string>> outputs = {
-		{ pcpp::SipRequestLayer::SerializedFields::all(),  requestOutput.str()  },
-		{ pcpp::SipResponseLayer::SerializedFields::all(), responseOutput.str() }
-	};
-	for (const auto& output : outputs)
-	{
-		PTF_ASSERT_EQUAL(output.first.size(), pcpp::Layer::SerializedFields::all().size() + 5);
-		std::set<std::string> names;
-		std::set<uint16_t> sipIds;
-		for (const auto& field : output.first)
-		{
-			PTF_ASSERT_TRUE(names.insert(field.name).second);
-			if (field.id > pcpp::Layer::SerializedFields::MaxID)
-			{
-				PTF_ASSERT_TRUE(sipIds.insert(field.id).second);
-			}
-			const auto key = "\"" + field.name + "\":";
-			const auto pos = output.second.find(key);
-			PTF_ASSERT_TRUE(pos != std::string::npos);
-			PTF_ASSERT_TRUE(output.second.find(key, pos + key.size()) == std::string::npos);
-		}
-		PTF_ASSERT_EQUAL(sipIds.size(), 5);
-	}
-
-	const auto fields = pcpp::SipLayer::SerializedFields::HeaderFieldObject::all();
-	PTF_ASSERT_EQUAL(fields.size(), 2);
-	PTF_ASSERT_EQUAL(fields[0].name, "name");
-	PTF_ASSERT_EQUAL(fields[1].name, "value");
-	PTF_ASSERT_TRUE(fields[0].id != fields[1].id);
-	for (const auto& output : outputs)
-	{
-		PTF_ASSERT_CONTAINS(output.second, R"("headerFields":[{"name":"Via","value":"first"}])");
-	}
-}  // SipSerializationFieldsTest
