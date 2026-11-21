@@ -2,6 +2,7 @@
 #include "EndianPortable.h"
 #include "PayloadLayer.h"
 #include "LLCLayer.h"
+#include "UnalignedAccess.h"
 
 #include <cstring>
 
@@ -45,7 +46,7 @@ namespace pcpp
 			//
 			// From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
 			// More: IEEE Std 802.3 Clause 3.2.6
-			return be16toh(*reinterpret_cast<const uint16_t*>(data + 12)) <= static_cast<uint16_t>(0x05DC);
+			return readUint<uint16_t, ByteOrder::BigEndian>(data + 12) <= static_cast<uint16_t>(0x05DC);
 		}
 		else
 		{

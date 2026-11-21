@@ -5,6 +5,7 @@
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
 #include "Logger.h"
+#include "UnalignedAccess.h"
 #include <unordered_map>
 #include <sstream>
 #include "EndianPortable.h"
@@ -95,8 +96,8 @@ namespace pcpp
 			return 0;
 		}
 
-		uint16_t pppNextProto = *reinterpret_cast<uint16_t*>(m_Data + sizeof(pppoe_header));
-		return be16toh(pppNextProto);
+		uint16_t pppNextProto = readUint<uint16_t, ByteOrder::BigEndian>(m_Data + sizeof(pppoe_header));
+		return pppNextProto;
 	}
 
 	void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol)
@@ -107,8 +108,7 @@ namespace pcpp
 			return;
 		}
 
-		uint16_t* pppProto = reinterpret_cast<uint16_t*>(m_Data + sizeof(pppoe_header));
-		*pppProto = htobe16(nextProtocol);
+		writeUint<uint16_t, ByteOrder::BigEndian>(m_Data + sizeof(pppoe_header), nextProtocol);
 	}
 
 	std::unordered_map<uint16_t, std::string> createPPPNextProtoToStringMap()

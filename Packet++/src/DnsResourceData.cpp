@@ -3,6 +3,7 @@
 #include "DnsResourceData.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
+#include "UnalignedAccess.h"
 #include <sstream>
 #include <utility>
 #include "EndianPortable.h"
@@ -78,7 +79,7 @@ namespace pcpp
 			return;
 		}
 
-		uint32_t addrAsInt = *(uint32_t*)dataPtr;
+		uint32_t addrAsInt = readUint<uint32_t, ByteOrder::Native>(dataPtr);
 		m_Data = IPv4Address(addrAsInt);
 	}
 
@@ -110,9 +111,9 @@ namespace pcpp
 
 	MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
 	{
-		if (dataPtr && dataLen > 0)
+		if (dataPtr && dataLen >= sizeof(uint16_t))
 		{
-			uint16_t preference = be16toh(*(uint16_t*)dataPtr);
+			uint16_t preference = readUint<uint16_t, ByteOrder::BigEndian>(dataPtr);
 			char tempMX[4096];
 			decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
 			m_Data.preference = preference;

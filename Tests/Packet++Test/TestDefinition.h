@@ -11,6 +11,10 @@ PTF_TEST_CASE(ArpPacketCreation);
 PTF_TEST_CASE(EthDot3LayerParsingTest);
 PTF_TEST_CASE(EthDot3LayerCreateEditTest);
 
+// Implemented in UnalignedAccessTests.cpp
+PTF_TEST_CASE(EndianReadWriteBigEndian);
+PTF_TEST_CASE(EndianReadWriteNative);
+
 // Implemented in VlanMplsTests.cpp
 PTF_TEST_CASE(VlanParseAndCreation);
 PTF_TEST_CASE(QinQ802_1adParse);
