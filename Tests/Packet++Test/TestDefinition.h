@@ -76,6 +76,7 @@ PTF_TEST_CASE(PacketParseMultiLayerTest);
 PTF_TEST_CASE(PacketIncrementalParseTest);
 PTF_TEST_CASE(PacketFullReparseTest);
 PTF_TEST_CASE(PacketSerializeTest);
+PTF_TEST_CASE(RawPacketRemoveDataBounds);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
