@@ -22,20 +22,20 @@ jobs:
     steps:
     - name: Build Fuzzers
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@c2c0632831767ff05c568e7b552cef2801d739ff # master
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@cdd107021c20428647db0699c33d6cb1f717474a # master
       with:
         oss-fuzz-project-name: 'pcapplusplus'
         dry-run: false
         sanitizer: ${{ matrix.sanitizer }}
     - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@c2c0632831767ff05c568e7b552cef2801d739ff # master
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@cdd107021c20428647db0699c33d6cb1f717474a # master
       with:
         oss-fuzz-project-name: 'pcapplusplus'
         fuzz-seconds: 600
         dry-run: false
         sanitizer: ${{ matrix.sanitizer }}
     - name: Upload Crash
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts
