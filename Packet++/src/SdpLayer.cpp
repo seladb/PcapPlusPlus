@@ -139,4 +139,28 @@ namespace pcpp
 		return true;
 	}
 
+	const FieldDescriptor SdpLayer::SerializedFields::HeaderFields{ Layer::SerializedFields::MaxID + 1,
+		                                                            "headerFields" };
+
+	const SdpLayer::SerializedFields::HeaderFieldObject SdpHeaderFieldObject{ 0, "headerField" };
+
+	const FieldDescriptor SdpLayer::SerializedFields::HeaderFieldObject::Name{ 0, "name" };
+
+	const FieldDescriptor SdpLayer::SerializedFields::HeaderFieldObject::Value{ 1, "value" };
+
+	void SdpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto headerFields = serializer.writeArray(SerializedFields::HeaderFields);
+
+		for (HeaderField* field = getFirstField(); field != nullptr && !field->isEndOfHeader();
+		     field = getNextField(field))
+		{
+			auto fieldObject = headerFields.writeObject(SdpHeaderFieldObject);
+
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Name, field->getFieldName());
+
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Value, field->getFieldValue());
+		}
+	}
+
 }  // namespace pcpp

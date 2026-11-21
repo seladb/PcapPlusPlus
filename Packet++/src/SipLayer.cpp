@@ -11,6 +11,7 @@
 #include <exception>
 #include <utility>
 #include <unordered_map>
+#include <cctype>
 
 namespace pcpp
 {
@@ -206,6 +207,27 @@ namespace pcpp
 			return new SipResponseLayer(data, dataLen, prevLayer, packet);
 		}
 		return nullptr;
+	}
+
+	const FieldDescriptor SipLayer::SerializedFields::HeaderComplete{ Layer::SerializedFields::MaxID + 4,
+		                                                              "headerComplete" };
+	const FieldDescriptor SipLayer::SerializedFields::HeaderFields{ Layer::SerializedFields::MaxID + 5,
+		                                                            "headerFields" };
+	const SipLayer::SerializedFields::HeaderFieldObject SipHeaderFieldObject{ 0, "headerField" };
+	const FieldDescriptor SipLayer::SerializedFields::HeaderFieldObject::Name{ 0, "name" };
+	const FieldDescriptor SipLayer::SerializedFields::HeaderFieldObject::Value{ 1, "value" };
+
+	void SipLayer::serializeHeader(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::HeaderComplete, isHeaderComplete());
+		auto headerFields = serializer.writeArray(SerializedFields::HeaderFields);
+		for (HeaderField* field = getFirstField(); field != nullptr && !field->isEndOfHeader();
+		     field = getNextField(field))
+		{
+			auto fieldObject = headerFields.writeObject(SipHeaderFieldObject);
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Name, field->getFieldName());
+			fieldObject.writeField(SerializedFields::HeaderFieldObject::Value, field->getFieldValue());
+		}
 	}
 
 	// -------- Class SipRequestFirstLine -----------------
@@ -605,6 +627,22 @@ namespace pcpp
 		return result;
 	}
 
+	const FieldDescriptor SipRequestLayer::SerializedFields::Method{ Layer::SerializedFields::MaxID + 1, "method" };
+	const FieldDescriptor SipRequestLayer::SerializedFields::Uri{ Layer::SerializedFields::MaxID + 2, "uri" };
+	const FieldDescriptor SipRequestLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 3, "version" };
+
+	void SipRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		const auto* firstLine = getFirstLine();
+		const auto method = firstLine->getMethod();
+
+		serializer.writeField(SerializedFields::Method,
+		                      method == SipMethodUnknown ? std::string("Unknown") : SipMethodEnumToString[method]);
+		serializer.writeField(SerializedFields::Uri, firstLine->getUri());
+		serializer.writeField(SerializedFields::Version, firstLine->getVersion());
+		serializeHeader(serializer);
+	}
+
 	// -------- Class SipResponseLayer -----------------
 
 	namespace
@@ -952,18 +990,50 @@ namespace pcpp
 		return result;
 	}
 
+	const FieldDescriptor SipResponseLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 1, "version" };
+	const FieldDescriptor SipResponseLayer::SerializedFields::StatusCode{ Layer::SerializedFields::MaxID + 2,
+		                                                                  "statusCode" };
+	const FieldDescriptor SipResponseLayer::SerializedFields::StatusCodeDescription{ Layer::SerializedFields::MaxID + 3,
+		                                                                             "statusCodeDescription" };
+
+	void SipResponseLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		const auto* firstLine = getFirstLine();
+
+		serializer.writeField(SerializedFields::Version, firstLine->getVersion());
+		serializer.writeField(SerializedFields::StatusCode, firstLine->getStatusCodeAsInt());
+		serializer.writeField(SerializedFields::StatusCodeDescription, firstLine->getStatusCodeString());
+		serializeHeader(serializer);
+	}
+
 	// -------- Class SipResponseFirstLine -----------------
 
 	int SipResponseFirstLine::getStatusCodeAsInt() const
 	{
-		return StatusCodeEnumToInt[m_StatusCode];
+		if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
+		{
+			return StatusCodeEnumToInt[m_StatusCode];
+		}
+
+		if (m_SipResponse->getDataLen() < 12)
+		{
+			return 0;
+		}
+
+		const auto* code = reinterpret_cast<const char*>(m_SipResponse->m_Data + 8);
+		if (!std::isdigit(static_cast<unsigned char>(code[0])) || !std::isdigit(static_cast<unsigned char>(code[1])) ||
+		    !std::isdigit(static_cast<unsigned char>(code[2])))
+		{
+			return 0;
+		}
+		return (code[0] - '0') * 100 + (code[1] - '0') * 10 + (code[2] - '0');
 	}
 
 	std::string SipResponseFirstLine::getStatusCodeString() const
 	{
 		std::string result;
 		const int statusStringOffset = 12;
-		if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
+		if (getStatusCodeAsInt() != 0 && m_FirstLineEndOffset > statusStringOffset)
 		{
 			int statusStringEndOffset = m_FirstLineEndOffset - 2;
 			if ((*(m_SipResponse->m_Data + statusStringEndOffset)) != '\r')
