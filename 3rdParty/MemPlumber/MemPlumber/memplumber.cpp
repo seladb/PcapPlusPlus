@@ -7,15 +7,7 @@
 #include <atomic>
 
 #ifndef MEMPLUMBER_FILENAME_LEN
-#define MEMPLUMBER_FILENAME_LEN  100
-#endif
-
-#ifndef MEMPLUMBER_HASHTABLE_SIZE
-#define MEMPLUMBER_HASHTABLE_SIZE 16384
-#endif
-
-#ifndef MEMPLUMBER_HASH
-#define MEMPLUMBER_HASH(p) (((intptr_t)(p) >> 8) % MEMPLUMBER_HASHTABLE_SIZE)
+#define MEMPLUMBER_FILENAME_LEN  104
 #endif
 
 #ifndef _THROW_BAD_ALLOC
@@ -27,17 +19,43 @@
 #endif
 
 class MemPlumberInternal {
-    private:
+private:
+	enum class MagicTrackState : uint32_t
+	{
+        // The allocation was made during active tracking.
+		TRACKED = 0xBEEF,
+        // The allocation was made before tracking started.
+		UNTRACKED = 0xDEAD,
+	};
 
-    struct new_ptr_list_t {
-        new_ptr_list_t* next;
-        char file[MEMPLUMBER_FILENAME_LEN];
-        int line;
-        size_t size;
+    struct LinkedList;
+
+    /// @brief Intrusive list node.
+    ///
+    /// Each node is initialized immedately before the allocation pointer, that is returned by the allocator.
+    struct LinkedListNode
+	{
+		/// @brief Pointer to the linked list this elements belongs to.
+        /// Allows O(1) access to the list.
+		LinkedList* list = nullptr;
+		/// @brief Pointer to the next element in the list.
+		LinkedListNode* next = nullptr;
+		/// @brief Pointer to the previous element in the list.
+		LinkedListNode* prev = nullptr;
+        int line = -1;
+		MagicTrackState magic = MagicTrackState::UNTRACKED;
+        size_t size = 0;
+		char file[MEMPLUMBER_FILENAME_LEN] = {0};
     };
 
-    new_ptr_list_t* m_PointerListHashtable[MEMPLUMBER_HASHTABLE_SIZE];
-    new_ptr_list_t* m_StaticPointerListHashtable[MEMPLUMBER_HASHTABLE_SIZE];
+    struct LinkedList
+	{
+		LinkedListNode* head = nullptr;
+		LinkedListNode* tail = nullptr;
+    };
+
+    LinkedList m_DynamicAllocations;
+	LinkedList m_StaticAllocations;
 
     bool m_Started;
     int m_ProgramStarted;
@@ -53,12 +71,6 @@ class MemPlumberInternal {
     MemPlumberInternal() {
         m_Started = false;
         m_Verbose = false;
-
-        // zero the hashtables
-        for (int i = 0; i < MEMPLUMBER_HASHTABLE_SIZE; i++) {
-            m_PointerListHashtable[i] = NULL;
-            m_StaticPointerListHashtable[i] = NULL;
-        }
 
         #ifdef COLLECT_STATIC_VAR_DATA
         m_ProgramStarted = 0;
@@ -104,7 +116,7 @@ class MemPlumberInternal {
         return m_Verbose && m_Dumper != NULL;
     }
 
-    public:
+public:
 
     static MemPlumberInternal& getInstance() {
         static MemPlumberInternal instance;
@@ -133,54 +145,68 @@ class MemPlumberInternal {
 
         SpinLockGuard guard(m_Lock);  // PCPP Patch: C++11 thread safety
 
-        // if not started, allocate memory and exit
+        // Always allocate memory for the metadata + element.
+        // This ensures that free can always be called on a pointer and performs the same,
+		// no matter if the pointer was allocated before or after tracking started.
+        size_t totalSizeToAllocate = size + sizeof(LinkedListNode);
+		LinkedListNode* node = (LinkedListNode*)malloc(totalSizeToAllocate);
+
+        // Return null on allocation failure
+		if (node == NULL)
+			return node;
+
+        // Avoid placement new because it might be overriden.
+		*node = LinkedListNode();
+
+		void* userPointer = (char*)node + sizeof(LinkedListNode);
+
+        // Fill in the metadata record with the allocation information
+        // Mark as untracked initially, as it is not part of the lists yet.
+		node->magic = MagicTrackState::UNTRACKED;
+		node->line = line;
+		node->size = size;
+		strncpy(node->file, file, MEMPLUMBER_FILENAME_LEN - 1);
+		node->file[MEMPLUMBER_FILENAME_LEN - 1] = '\0';
+
+        // If not started, do not add the allocation into the tracking lists.
         if (m_ProgramStarted != 0 && !m_Started) {
             if (isVerbose()) {
-                fprintf(m_Dumper, "Request for memory allocation before program started\n");
+                fprintf(m_Dumper, "Allocate untracked: %d[bytes] in 0x%p in %s:%d\n", (int)size, userPointer, file, line);
             }
-            return malloc(size);
+            return userPointer;
         }
 
-        // total memory to allocated is the requested size + metadata size
-        size_t totalSizeToAllocate = size + sizeof(new_ptr_list_t);
+        // Get the linked list for the current allocation type (static or dynamic)
+        LinkedList& list = (m_ProgramStarted == 0 ? m_StaticAllocations : m_DynamicAllocations);
 
-        // allocated memory
-        new_ptr_list_t* pointerMetaDataRecord = (new_ptr_list_t*)malloc(totalSizeToAllocate);
-        memset(pointerMetaDataRecord, 0, sizeof(new_ptr_list_t));
+        // Mark this allocation as tracked
+        node->magic = MagicTrackState::TRACKED;
 
-        // if cannot allocate, return NULL
-        if (pointerMetaDataRecord == NULL)
-            return pointerMetaDataRecord;
+        // Add the metadata record to the head of the linked list
+		node->list = &list;
+        node->next = list.head;
+        node->prev = nullptr;
+		if (node->next != nullptr)
+		{
+            node->next->prev = node;
+        }
 
-        // calculate the actual pointer to provide to the user
-        void* actualPointer = (char*)pointerMetaDataRecord + sizeof(new_ptr_list_t);
-
-        // find the hash index for this pointer
-        size_t hashIndex = MEMPLUMBER_HASH(actualPointer);
-
-        new_ptr_list_t** hashtable = (m_ProgramStarted == 0 ? m_StaticPointerListHashtable : m_PointerListHashtable);
-
-        // chain this metadata to the linked list of the specific bucket
-        pointerMetaDataRecord->next = hashtable[hashIndex];
-
-        // fill in the metadata
-        pointerMetaDataRecord->line = line;
-        pointerMetaDataRecord->size = size;
-        strncpy(pointerMetaDataRecord->file, file, MEMPLUMBER_FILENAME_LEN - 1);
-		pointerMetaDataRecord->file[MEMPLUMBER_FILENAME_LEN - 1] = '\0';
-
-        // put this metadata in the head of the list
-        hashtable[hashIndex] = pointerMetaDataRecord;
+        // Update the head and tail of the linked list if necessary
+        list.head = node;
+        if(list.tail == nullptr)
+        {
+			list.tail = node;
+        }
 
         if (isVerbose()) {
             if (m_ProgramStarted == 0) {
-                fprintf(m_Dumper, "Allocate static variable: %d[bytes] in 0x%p in %s:%d\n", (int)size, actualPointer, file, line);
+                fprintf(m_Dumper, "Allocate static variable: %d[bytes] in 0x%p in %s:%d\n", (int)size, userPointer, file, line);
             } else {
-                fprintf(m_Dumper, "Allocate: %d[bytes] in 0x%p in %s:%d\n", (int)size, actualPointer, file, line);
+                fprintf(m_Dumper, "Allocate: %d[bytes] in 0x%p in %s:%d\n", (int)size, userPointer, file, line);
             }
         }
 
-        return actualPointer;
+        return userPointer;
     }
 
     void freeMemory(void* pointer, const char* file, int line) {
@@ -191,54 +217,56 @@ class MemPlumberInternal {
 
         SpinLockGuard guard(m_Lock);  // PCPP Patch: C++11 thread safety
 
-        // find the metadata record bucket in the hash table
-        size_t hashIndex = MEMPLUMBER_HASH(pointer);
-        new_ptr_list_t* metaDataBucketLinkedListElement = m_PointerListHashtable[hashIndex];
-	    new_ptr_list_t* metaDataBucketLinkedListPrevElement = NULL;
+        LinkedListNode* node = (LinkedListNode*)((char*)pointer - sizeof(LinkedListNode));
 
-        // inside the bucket, go over the linked list until you find the specific pointer
-        while (metaDataBucketLinkedListElement != NULL) {
+        // Record was allocated before tracking started
+        if(node->magic == MagicTrackState::UNTRACKED)
+        {
+			if (isVerbose())
+			{
+				fprintf(m_Dumper, "Free Untracked: 0x%p (size %d[bytes]) allocated in: %s:%d\n", pointer,
+				        (int)node->size, node->file, node->line);
+			}
 
-            // get the actual pointer from the record
-            void* actualPointerInRecord = (char*)metaDataBucketLinkedListElement + sizeof(new_ptr_list_t);
-
-            // if this is not the pointer we're looking for - continue the search
-            if (actualPointerInRecord != pointer) {
-                metaDataBucketLinkedListPrevElement = metaDataBucketLinkedListElement;
-                metaDataBucketLinkedListElement = metaDataBucketLinkedListElement->next;
-                continue;
-            }
-            else { // this is the pointer we're looking for
-
-                // remove the current element from the linked list
-                if (metaDataBucketLinkedListPrevElement == NULL) { // this is the first item in the list
-                    m_PointerListHashtable[hashIndex] = metaDataBucketLinkedListElement->next;
-                }
-                else { // this is not the first item in the list
-                    metaDataBucketLinkedListPrevElement->next = metaDataBucketLinkedListElement->next;
-                }
-
-                if (isVerbose()) {
-                    fprintf(m_Dumper, "Free: 0x%p (size %d[bytes]) allocated in: %s:%d\n",
-                        pointer,
-                        (int)metaDataBucketLinkedListElement->size,
-                        metaDataBucketLinkedListElement->file,
-                        metaDataBucketLinkedListElement->line);
-                }
-
-                // free the memory of the current item
-                free(metaDataBucketLinkedListElement);
-
-                return;
-            }
+			free(node);
+            return;
         }
 
-        // if got to here it means memory was allocated before monitoring started. Simply free the memory and return
+        if (node->magic != MagicTrackState::TRACKED)
+		{
+			fprintf(stderr, "ERROR: Memory corruption detected when freeing pointer 0x%p allocated in %s:%d\n", pointer,
+			        node->file, node->line);
+			fprintf(m_Dumper, "ERROR: Memory corruption detected when freeing pointer 0x%p allocated in %s:%d\n", pointer,
+			        node->file, node->line);
+			return;
+		}
+
+        // Unlink the metadata record from the linked list
+        LinkedList* list = node->list;
+        if(list->head == node)
+        {
+			list->head = node->next;
+        }
+        if(list->tail == node)
+        {
+			list->tail = node->prev;
+        }
+
+        // Unlink the node from adjacent nodes in the linked list
+        if (node->prev != nullptr)
+        {
+			node->prev->next = node->next;
+        }
+        if (node->next != nullptr)
+        {
+			node->next->prev = node->prev;
+        }
+
         if (isVerbose()) {
-            fprintf(m_Dumper, "Pointer 0x%p wasn't found\n", pointer);
+            fprintf(m_Dumper, "Free Tracked: 0x%p (size %d[bytes]) allocated in %s:%d\n", pointer, (int)node->size, node->file, node->line);
         }
 
-        free(pointer);
+        free(node);
     }
 
     void programStarted() {
@@ -269,31 +297,17 @@ class MemPlumberInternal {
             dumper = openFile(fileDumperName, append);
         }
 
-        // go over all buckets in the hashmap
-        for (int index = 0; index < MEMPLUMBER_HASHTABLE_SIZE; ++index) {
-            new_ptr_list_t* metaDataBucketLinkedListElement = m_PointerListHashtable[index];
+        for(auto* node = m_DynamicAllocations.head; node != nullptr; node = node->next)
+        {
+			memLeakCount++;
+			memLeakSize += (uint64_t)node->size;
 
-            // if bucket is empty - continue
-            if (metaDataBucketLinkedListElement == NULL) {
-                continue;
-            }
-
-            // go over all of the elements in the link list in this bucket
-            while (metaDataBucketLinkedListElement != NULL) {
-
-                memLeakCount++;
-                memLeakSize += (uint64_t)metaDataBucketLinkedListElement->size;
-
-                if (verbose) {
-                    fprintf(dumper, "Found leaked object at 0x%p (size %d[bytes]) allocated in: %s:%d\n",
-                        (char*) metaDataBucketLinkedListElement + sizeof(new_ptr_list_t),
-                        (int) metaDataBucketLinkedListElement->size,
-                        metaDataBucketLinkedListElement->file,
-                        metaDataBucketLinkedListElement->line);
-                }
-
-                // go to the next item on the list
-                metaDataBucketLinkedListElement = metaDataBucketLinkedListElement->next;
+            if(verbose)
+            {
+				fprintf(dumper, "Found leaked object at 0x%p (size %d[bytes]) allocated in: %s:%d\n",
+				        (char*)node + sizeof(LinkedListNode),
+				        (int)node->size, node->file,
+				        node->line);
             }
         }
 
@@ -309,69 +323,40 @@ class MemPlumberInternal {
             dumper = openFile(fileDumperName, append);
         }
 
-        for (int index = 0; index < MEMPLUMBER_HASHTABLE_SIZE; ++index) {
-            new_ptr_list_t* metaDataBucketLinkedListElement = m_StaticPointerListHashtable[index];
+        for (auto* node = m_StaticAllocations.head; node != nullptr; node = node->next)
+		{
+			memCount++;
+			memSize += (uint64_t)node->size;
 
-            // if bucket is empty - continue
-            if (metaDataBucketLinkedListElement == NULL) {
-                continue;
-            }
-
-            // go over all of the elements in the link list in this bucket
-            while (metaDataBucketLinkedListElement != NULL) {
-
-                if (verbose) {
-                    fprintf(dumper, "Static object allocated at 0x%p (size %d[bytes]) allocated in: %s:%d\n",
-                        (char*) metaDataBucketLinkedListElement + sizeof(new_ptr_list_t),
-                        (int) metaDataBucketLinkedListElement->size,
-                        metaDataBucketLinkedListElement->file,
-                        metaDataBucketLinkedListElement->line);
-                }
-
-                memCount++;
-                memSize += (uint64_t)metaDataBucketLinkedListElement->size;
-
-                // go to the next item on the list
-                metaDataBucketLinkedListElement = metaDataBucketLinkedListElement->next;
-            }
-        }
+            if (verbose)
+			{
+				fprintf(dumper, "Static object allocated at 0x%p (size %d[bytes]) allocated in: %s:%d\n",
+				        (char*)node + sizeof(LinkedListNode),
+				        (int)node->size, node->file,
+				        node->line);
+			}
+		}
 
         closeFile(dumper);
     }
 
     void freeAllMemory() {
-        for (int index = 0; index < MEMPLUMBER_HASHTABLE_SIZE; ++index) {
-            new_ptr_list_t* metaDataBucketLinkedListElement = m_PointerListHashtable[index];
+        for(auto* node = m_DynamicAllocations.head; node != nullptr;)
+        {
+			if (isVerbose())
+			{
+				fprintf(m_Dumper, "FreeAllMem: freeing 0x%p (size %d[bytes]) allocated in %s:%d\n",
+				        (char*)node + sizeof(LinkedListNode), (int)node->size,
+				        node->file, node->line);
+			}
 
-            // if bucket is empty - continue
-            if (metaDataBucketLinkedListElement == NULL) {
-                continue;
-            }
-
-            // go over all of the elements in the link list in this bucket
-            while (metaDataBucketLinkedListElement != NULL) {
-                new_ptr_list_t* next = metaDataBucketLinkedListElement->next;
-
-                void* actualPointerInRecord = (char*)metaDataBucketLinkedListElement + sizeof(new_ptr_list_t);
-
-                if (isVerbose()) {
-                    fprintf(m_Dumper, "FreeAllMem: freeing 0x%p (size %d[bytes]) allocated in %s:%d\n",
-                        actualPointerInRecord,
-                        (int)metaDataBucketLinkedListElement->size,
-                        metaDataBucketLinkedListElement->file,
-                        metaDataBucketLinkedListElement->line);
-                }
-
-                // free the current element
-                free(metaDataBucketLinkedListElement);
-
-                // go to the next item on the list
-                metaDataBucketLinkedListElement = next;
-            }
-
-            // done freeing all elements in the linked list, set the hashtable bucket to null
-            m_PointerListHashtable[index] = NULL;
+            // Save the next node before freeing the current one
+            auto* nextNode = node->next;
+			free(node);
+            node = nextNode;
         }
+		m_DynamicAllocations.head = nullptr;
+		m_DynamicAllocations.tail = nullptr;
 
         closeFile(m_Dumper);
         m_Dumper = NULL;
