@@ -7,6 +7,8 @@
 #include "TcpLayer.h"
 #include "BgpLayer.h"
 #include "SystemUtils.h"
+#include "Serializers.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketAndBufferFromHexResource;
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -39,6 +41,13 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 		PTF_ASSERT_EQUAL(bgpKALayer->getKeepaliveHeader()->marker[ind], 0xff);
 	}
 	PTF_ASSERT_EQUAL(be16toh(bgpKALayer->getKeepaliveHeader()->length), 19);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		bgpKALayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(), R"({"protocolName":"BGP","protocolId":34,"length":19,"messageType":"KEEPALIVE"})");
+	}
 
 	// parse BGP OPEN message
 
@@ -76,6 +85,16 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 		PTF_ASSERT_EQUAL(optParam.value[optParamsDataInedx[i]], optParamsData[i]);
 	}
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		bgpOpenLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"BGP","protocolId":34,"length":57,"messageType":"OPEN","version":4,"myAutonomousSystem":1,"holdTime":180,"bgpId":"1.1.1.1","optionalParameters":[)"
+		    R"({"type":2,"length":6},{"type":2,"length":2},{"type":2,"length":2},{"type":2,"length":2},{"type":2,"length":6}]})");
+	}
+
 	// parse BGP NOTIFICATION message
 
 	pcpp::Packet bgpNotificationPacket(rawPacket3.get());
@@ -100,6 +119,15 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	    "726520696e666f726d6174696f6e2e";
 	PTF_ASSERT_EQUAL(bgpNotificationLayer->getNotificationDataAsHexString(), notificationDataAsHexString);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		bgpNotificationLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"BGP","protocolId":34,"length":146,"messageType":"NOTIFICATION","errorCode":6,"errorSubCode":2})");
+	}
+
 	pcpp::Packet bgpNotificationNoDataPacket(rawPacket4.get());
 
 	PTF_ASSERT_TRUE(bgpNotificationNoDataPacket.isPacketOfType(pcpp::BGP));
@@ -121,6 +149,15 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(be16toh(bgpRRLayer->getRouteRefreshHeader()->afi), 1);
 	PTF_ASSERT_EQUAL(bgpRRLayer->getRouteRefreshHeader()->safi, 1);
 	PTF_ASSERT_EQUAL(bgpRRLayer->getRouteRefreshHeader()->reserved, 1);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		bgpRRLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"BGP","protocolId":34,"length":23,"messageType":"ROUTE-REFRESH","afi":1,"safi":1})");
+	}
 
 	// parse BGP UPDATE message with Withdrawn Routes
 
@@ -153,6 +190,17 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(pathAttributes.size(), 0);
 	PTF_ASSERT_NOT_NULL(bgpUpdateLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(bgpUpdateLayer->getNextLayer()->getProtocol(), pcpp::BGP, enum);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		bgpUpdateLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(), R"({"protocolName":"BGP","protocolId":34,"length":38,"messageType":"UPDATE","withdrawnRoutes":[)"
+		               R"({"prefix":24,"ipAddr":"40.1.1.0"},{"prefix":24,"ipAddr":"40.40.40.0"},)"
+		               R"({"prefix":16,"ipAddr":"103.103.0.0"},{"prefix":24,"ipAddr":"103.103.40.0"}],)"
+		               R"("pathAttributes":[],"networkLayerReachabilityInfo":[]})");
+	}
 
 	// parse BGP UPDATE message with Path Attributes
 
@@ -194,6 +242,16 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	pcpp::BgpUpdateMessageLayer::prefix_and_ip nlri = nlriVec[0];
 	PTF_ASSERT_EQUAL(nlri.prefix, 24);
 	PTF_ASSERT_EQUAL(nlri.ipAddr, pcpp::IPv4Address("104.104.40.0"));
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		bgpUpdateLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"json({"protocolName":"BGP","protocolId":34,"length":55,"messageType":"UPDATE","withdrawnRoutes":[],"pathAttributes":[{"flags":64,"type":1,"length":1},{"flags":64,"type":2,"length":14},{"flags":64,"type":3,"length":4}],"networkLayerReachabilityInfo":[{"prefix":24,"ipAddr":"104.104.40.0"}]})json");
+	}
+
 	size_t pathAttrSize[3] = { 28, 24, 0 };
 	for (int i = 0; i < 3; i++)
 	{
