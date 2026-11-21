@@ -597,7 +597,8 @@ namespace pcpp
 			static const FieldDescriptor Version;
 
 			/// @brief Field descriptor for the SIP status code, written as a number (for example 200)
-			/// or 0 if SipStatusCodeUnknown
+			/// If the status code isn't recognized, the raw number from the first line is written, or 0 if it can't be
+			/// parsed
 			static const FieldDescriptor StatusCode;
 
 			/// @brief Field descriptor for the SIP reason phrase (eg. "OK"), written as a string.
@@ -757,10 +758,12 @@ namespace pcpp
 			return m_StatusCode;
 		}
 
-		/// @return The status code number as integer (e.g 200, 100, etc.)
+		/// @return The status code number as integer (e.g 200, 100, etc.). If the status code is SipStatusCodeUnknown,
+		/// the raw 3-digit number from the first line is returned, or 0 if it can't be parsed
 		int getStatusCodeAsInt() const;
 
-		/// @return The status code message (e.g "OK", "Trying", etc.)
+		/// @return The status code message (e.g "OK", "Trying", etc.). If the status code is SipStatusCodeUnknown,
+		/// the raw reason phrase from the first line is returned, or an empty string if it can't be parsed
 		std::string getStatusCodeString() const;
 
 		/// Set the status code

@@ -11,6 +11,7 @@
 #include <exception>
 #include <utility>
 #include <unordered_map>
+#include <cctype>
 
 namespace pcpp
 {
@@ -997,12 +998,11 @@ namespace pcpp
 
 	void SipResponseLayer::serializeLayer(ObjectScope& serializer) const
 	{
-		const auto statusCode = m_FirstLine->getStatusCode();
+		const auto* firstLine = getFirstLine();
 
-		serializer.writeField(SerializedFields::Version, m_FirstLine->getVersion());
-		serializer.writeField(SerializedFields::StatusCode,
-		                      statusCode == SipStatusCodeUnknown ? 0 : m_FirstLine->getStatusCodeAsInt());
-		serializer.writeField(SerializedFields::StatusCodeDescription, m_FirstLine->getStatusCodeString());
+		serializer.writeField(SerializedFields::Version, firstLine->getVersion());
+		serializer.writeField(SerializedFields::StatusCode, firstLine->getStatusCodeAsInt());
+		serializer.writeField(SerializedFields::StatusCodeDescription, firstLine->getStatusCodeString());
 		serializeHeader(serializer);
 	}
 
@@ -1010,14 +1010,30 @@ namespace pcpp
 
 	int SipResponseFirstLine::getStatusCodeAsInt() const
 	{
-		return StatusCodeEnumToInt[m_StatusCode];
+		if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
+		{
+			return StatusCodeEnumToInt[m_StatusCode];
+		}
+
+		if (m_SipResponse->getDataLen() < 12)
+		{
+			return 0;
+		}
+
+		const auto* code = reinterpret_cast<const char*>(m_SipResponse->m_Data + 8);
+		if (!std::isdigit(static_cast<unsigned char>(code[0])) || !std::isdigit(static_cast<unsigned char>(code[1])) ||
+		    !std::isdigit(static_cast<unsigned char>(code[2])))
+		{
+			return 0;
+		}
+		return (code[0] - '0') * 100 + (code[1] - '0') * 10 + (code[2] - '0');
 	}
 
 	std::string SipResponseFirstLine::getStatusCodeString() const
 	{
 		std::string result;
 		const int statusStringOffset = 12;
-		if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
+		if (getStatusCodeAsInt() != 0 && m_FirstLineEndOffset > statusStringOffset)
 		{
 			int statusStringEndOffset = m_FirstLineEndOffset - 2;
 			if ((*(m_SipResponse->m_Data + statusStringEndOffset)) != '\r')
