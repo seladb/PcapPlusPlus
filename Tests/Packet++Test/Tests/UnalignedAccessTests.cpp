@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <cstring>
 
-
 PTF_TEST_CASE(EndianReadWriteBigEndian)
 {
 	// Test 16-bit, 32-bit and 64-bit BigEndian values at odd offsets.

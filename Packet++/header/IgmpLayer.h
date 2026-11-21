@@ -55,7 +55,7 @@ namespace pcpp
 	/// @struct igmpv3_report_header
 	/// IGMPv3 membership report basic header
 
-	#pragma pack(push, 1)
+#pragma pack(push, 1)
 	struct igmpv3_report_header
 	{
 		/// IGMP message type. Should always have value of IGMPv3 membership report (::IgmpType_MembershipReportV3)
