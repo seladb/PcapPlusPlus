@@ -381,6 +381,50 @@ namespace pcpp
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
 
+		/// Fields written in addition to Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All top-level MySQL layer field descriptors.
+			static std::vector<FieldDescriptor> all()
+			{
+				auto fields = Layer::SerializedFields::all();
+				fields.push_back(Origin);
+				fields.push_back(Messages);
+				return fields;
+			}
+
+			/// Fields for one MySQL message.
+			struct MessageObject : ObjectFieldDescriptor<MessageObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All message field descriptors, including type-specific fields.
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Type, PacketNumber, PayloadLength, ErrorCode, Query };
+				}
+
+				/// Message type string as returned by MySqlMessageType::toString().
+				static const FieldDescriptor Type;
+				/// One-byte MySQL packet sequence number.
+				static const FieldDescriptor PacketNumber;
+				/// Payload length in bytes, including any command byte. Written as a number in host byte order.
+				static const FieldDescriptor PayloadLength;
+				/// Numeric MySQL error code in host byte order. Present only for error messages.
+				static const FieldDescriptor ErrorCode;
+				/// SQL text as returned by MySqlQueryMessage::getQuery(). Present only for query messages.
+				static const FieldDescriptor Query;
+			};
+
+			/// Message direction, written as "client" or "server".
+			static const FieldDescriptor Origin;
+			/// Parsed messages in wire order, each described by MessageObject.
+			static const FieldDescriptor Messages;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		MySqlMessageOrigin m_MessageOrigin;
 		mutable PointerVector<MySqlMessage> m_Messages;

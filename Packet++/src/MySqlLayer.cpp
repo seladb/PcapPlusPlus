@@ -499,4 +499,40 @@ namespace pcpp
 		return std::string("MySQL ") + (m_MessageOrigin == MySqlMessageOrigin::Client ? "Client" : "Server") +
 		       " Layer, " + std::to_string(messages.size()) + " message(s)";
 	}
+
+	const FieldDescriptor MySqlLayer::SerializedFields::Origin{ Layer::SerializedFields::MaxID + 1, "origin" };
+	const FieldDescriptor MySqlLayer::SerializedFields::Messages{ Layer::SerializedFields::MaxID + 2, "messages" };
+	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::Type{ 0, "type" };
+	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::PacketNumber{ 1, "packetNumber" };
+	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::PayloadLength{ 2, "payloadLength" };
+	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::ErrorCode{ 3, "errorCode" };
+	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::Query{ 4, "query" };
+
+	void MySqlLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		using MessageFields = SerializedFields::MessageObject;
+		const MessageFields messageDescriptor{ 0, "message" };
+		serializer.writeField(SerializedFields::Origin,
+		                      getMySqlOrigin() == MySqlMessageOrigin::Client ? "client" : "server");
+		auto messages = serializer.writeArray(SerializedFields::Messages);
+		// The parser returns complete messages in the order they appear in the payload.
+		for (const auto* message : getMySqlMessages())
+		{
+			auto object = messages.writeObject(messageDescriptor);
+			object.writeField(MessageFields::Type, message->getMessageType().toString());
+			object.writeField(MessageFields::PacketNumber, message->getPacketNumber());
+			// Command messages exclude the command byte from their overridden length.
+			object.writeField(MessageFields::PayloadLength, message->MySqlMessage::getMessageLength());
+
+			if (const auto* error = dynamic_cast<const MySqlErrorMessage*>(message))
+			{
+				object.writeField(MessageFields::ErrorCode, error->getErrorCode());
+			}
+			else if (const auto* query = dynamic_cast<const MySqlQueryMessage*>(message))
+			{
+				// Use the existing query parser's interpretation of the payload.
+				object.writeField(MessageFields::Query, query->getQuery());
+			}
+		}
+	}
 }  // namespace pcpp
