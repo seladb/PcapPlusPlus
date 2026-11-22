@@ -109,7 +109,34 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by QuicV1Layer's serializeLayer(), in addition to Layer::SerializedFields
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for QuicV1Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ PacketType, HeaderForm, FixedBit };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Packet type name, e.g. "Initial" or "1-RTT" (the same names used by toString())
+			static const FieldDescriptor PacketType;
+			/// @brief Header form, as a string: "Long" or "Short"
+			static const FieldDescriptor HeaderForm;
+			/// @brief Value of the Fixed Bit, as an integer
+			static const FieldDescriptor FixedBit;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+		};
+
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		QuicV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, QUICv1)
 		{}
@@ -201,7 +228,34 @@ namespace pcpp
 		/// enough data to read it
 		std::string getSourceConnectionIdAsString() const;
 
+		/// @struct SerializedFields
+		/// Fields written by QuicV1LongHeaderLayer's serializeLayer(), in addition to QuicV1Layer::SerializedFields
+		struct SerializedFields : QuicV1Layer::SerializedFields
+		{
+			/// @return All field descriptors for QuicV1LongHeaderLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = QuicV1Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Version, DestinationConnectionId, SourceConnectionId };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief QUIC version in hexadecimal (host byte order)
+			static const FieldDescriptor Version;
+			/// @brief Destination Connection ID as a lowercase hex string, empty if it can't be read
+			static const FieldDescriptor DestinationConnectionId;
+			/// @brief Source Connection ID as a lowercase hex string, empty if it can't be read
+			static const FieldDescriptor SourceConnectionId;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = QuicV1Layer::SerializedFields::MaxID + 3;
+		};
+
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		using QuicV1Layer::QuicV1Layer;
 
 		/// @struct OffsetAndLength
@@ -264,7 +318,32 @@ namespace pcpp
 		/// @return A non-owning view of the protected portion of the packet
 		ProtectedPayload getProtectedPayload() const;
 
+		/// @struct SerializedFields
+		/// Fields written by QuicV1EstablishmentLayer's serializeLayer(), in addition to
+		/// QuicV1LongHeaderLayer::SerializedFields
+		struct SerializedFields : QuicV1LongHeaderLayer::SerializedFields
+		{
+			/// @return All field descriptors for QuicV1EstablishmentLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = QuicV1LongHeaderLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ PayloadLength };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Value of the Length field: the number of bytes in the Packet Number and Payload fields, or 0 if
+			/// it can't be read
+			static const FieldDescriptor PayloadLength;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = QuicV1LongHeaderLayer::SerializedFields::MaxID + 1;
+		};
+
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		/// @struct VarintValueAndSize
 		/// The decoded value of a QUIC variable-length integer, together with the number of
 		/// bytes it occupied on the wire (1, 2, 4 or 8, per RFC 9000 Section 16) - returned by
@@ -306,6 +385,31 @@ namespace pcpp
 		/// @return The address-validation Token as hex string, or an empty string if the packet carries no
 		/// token or doesn't contain enough data to read it
 		std::string getTokenAsString() const;
+
+		/// @struct SerializedFields
+		/// Fields written by QuicV1InitialLayer's serializeLayer(), in addition to
+		/// QuicV1EstablishmentLayer::SerializedFields
+		struct SerializedFields : QuicV1EstablishmentLayer::SerializedFields
+		{
+			/// @return All field descriptors for QuicV1InitialLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = QuicV1EstablishmentLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Token };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Address-validation Token as a lowercase hex string, empty if there is none
+			static const FieldDescriptor Token;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = QuicV1EstablishmentLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		using QuicV1EstablishmentLayer::QuicV1EstablishmentLayer;
@@ -372,6 +476,33 @@ namespace pcpp
 			return m_DataLen;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by QuicV1RetryLayer's serializeLayer(), in addition to
+		/// QuicV1LongHeaderLayer::SerializedFields
+		struct SerializedFields : QuicV1LongHeaderLayer::SerializedFields
+		{
+			/// @return All field descriptors for QuicV1RetryLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = QuicV1LongHeaderLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ RetryToken, RetryIntegrityTag };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Retry Token as a lowercase hex string
+			static const FieldDescriptor RetryToken;
+			/// @brief Retry Integrity Tag as a lowercase hex string, empty if it can't be read
+			static const FieldDescriptor RetryIntegrityTag;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = QuicV1LongHeaderLayer::SerializedFields::MaxID + 2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		using QuicV1LongHeaderLayer::QuicV1LongHeaderLayer;
 
@@ -408,6 +539,33 @@ namespace pcpp
 		{
 			return m_DataLen;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by QuicV1VersionNegotiationLayer's serializeLayer(), in addition to
+		/// QuicV1LongHeaderLayer::SerializedFields
+		struct SerializedFields : QuicV1LongHeaderLayer::SerializedFields
+		{
+			/// @return All field descriptors for QuicV1VersionNegotiationLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = QuicV1LongHeaderLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SupportedVersions };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief List of supported versions
+			static const FieldDescriptor SupportedVersions;
+			/// @brief A single supported version in hexadecimal (host byte order)
+			static const FieldDescriptor SupportedVersion;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = QuicV1LongHeaderLayer::SerializedFields::MaxID + 1;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		using QuicV1LongHeaderLayer::QuicV1LongHeaderLayer;
@@ -455,6 +613,32 @@ namespace pcpp
 		{
 			return m_DataLen;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by QuicV1OneRttLayer's serializeLayer(), in addition to QuicV1Layer::SerializedFields
+		struct SerializedFields : QuicV1Layer::SerializedFields
+		{
+			/// @return All field descriptors for QuicV1OneRttLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = QuicV1Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SpinBit, KeyPhaseBit };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Latency Spin Bit, as a boolean
+			static const FieldDescriptor SpinBit;
+			/// @brief Key Phase bit, as a boolean
+			static const FieldDescriptor KeyPhaseBit;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = QuicV1Layer::SerializedFields::MaxID + 2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		using QuicV1Layer::QuicV1Layer;
