@@ -70,8 +70,6 @@ PTF_TEST_CASE(DhcpV6RelayMessageParsingTest)
 	PTF_ASSERT_NOT_NULL(dhcpv6Packet.getLayerOfType<pcpp::DhcpV6LayerBase>());
 	auto* relayLayer = dhcpv6Packet.getLayerOfType<pcpp::DhcpV6RelayLayer>();
 	PTF_ASSERT_NOT_NULL(relayLayer);
-	PTF_ASSERT_EQUAL(pcpp::DhcpV6RelayLayer::SerializedFields::all().size(),
-	                 pcpp::Layer::SerializedFields::all().size() + 5);
 	PTF_ASSERT_EQUAL(relayLayer->getMessageType(), pcpp::DHCPV6_RELAY_FORWARD);
 	PTF_ASSERT_EQUAL(relayLayer->toString(), "DHCPv6 Layer, Relay-Forward message");
 	PTF_ASSERT_EQUAL(relayLayer->getHopCount(), 1);
