@@ -75,7 +75,7 @@ namespace pcpp
 	}
 
 	uint16_t computePseudoHdrChecksum(const uint8_t* dataPtr, size_t dataLen, uint8_t protocolType,
-	                                  const IPv4Address& srcIPAddress, const IPv4Address& dstIPAddress)
+	                                  IPv4Address srcIPAddress, IPv4Address dstIPAddress)
 	{
 		PCPP_LOG_DEBUG("Compute pseudo header checksum.\n DataLen = "
 		               << dataLen << " IPAddrType = " << IPAddress::AddressType::IPv4AddressType << " ProtocolType = "
@@ -197,7 +197,7 @@ namespace pcpp
 		return hash5Tuple(*packet, directionUnique);
 	}
 
-	uint32_t hash5Tuple(const Packet& packet, bool const directionUnique)
+	uint32_t hash5Tuple(const Packet& packet, bool directionUnique)
 	{
 		if (!packet.isPacketOfType(IPv4) && !packet.isPacketOfType(IPv6))
 			return 0;

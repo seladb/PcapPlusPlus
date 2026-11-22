@@ -106,7 +106,7 @@ namespace pcpp
 			prevLayerAsIPv6->getDstIPv6Address().copyTo(reinterpret_cast<uint8_t*>(pseudoHeader + 8));
 			memcpy(&pseudoHeader[16], &bigEndianLen, sizeof(uint32_t));
 			memcpy(&pseudoHeader[18], &bigEndianNextHeader, sizeof(uint32_t));
-			vec[1].buffer = reinterpret_cast<const uint16_t*>(pseudoHeader);
+			vec[1].buffer = pseudoHeader;
 			vec[1].len = pseudoHeaderLen;
 
 			// Calculate and write checksum

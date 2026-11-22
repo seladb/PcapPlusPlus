@@ -52,8 +52,9 @@ namespace pcpp
 	/// @param[in] srcIPAddress Source IPv4 Address
 	/// @param[in] dstIPAddress Destination IPv4 Address
 	/// @return The checksum result
+	// cppcheck-suppress passedByValue
 	uint16_t computePseudoHdrChecksum(const uint8_t* dataPtr, size_t dataLen, uint8_t protocolType,
-	                                  const IPv4Address& srcIPAddress, const IPv4Address& dstIPAddress);
+	                                  IPv4Address srcIPAddress, IPv4Address dstIPAddress);
 
 	/// Computes the checksum for Pseudo header
 	/// @param[in] dataPtr Data pointer
@@ -108,7 +109,7 @@ namespace pcpp
 	/// @param[in] packet The packet to calculate hash for
 	/// @param[in] directionUnique Make hash value unique for each direction
 	/// @return The hash value calculated for this packet or 0 if the packet doesn't contain 5-tuple
-	uint32_t hash5Tuple(const Packet& packet, bool const directionUnique = false);
+	uint32_t hash5Tuple(const Packet& packet, bool directionUnique = false);
 
 	/// A method that is given a packet and calculates a hash value by the packet's 2-tuple (IP src + IP dst). Supports
 	/// IPv4 and IPv6. For packets which aren't IPv4/6 the value of 0 will be returned
