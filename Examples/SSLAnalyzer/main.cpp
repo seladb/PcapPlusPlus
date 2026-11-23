@@ -393,17 +393,15 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 		EXIT_WITH_ERROR("Could not open the device");
 
 	// set SSL/TLS ports filter on the live device to capture only SSL/TLS packets
-	std::vector<pcpp::GeneralFilter*> portFilterVec;
+	// TODO fix this deprecated approach
+	pcpp::OrFilter orFilter;
 
 	// Detect all ports considered as SSL/TLS traffic and add them to the filter.
 	// The check is made for well known ports because currently SSLLayer does not support customizing of ports
 	// considered as SSL/TLS.
 	for (uint16_t port = 0; port < 1024; ++port)
 		if (pcpp::SSLLayer::isSSLPort(port))
-			portFilterVec.push_back(new pcpp::PortFilter(port, pcpp::SRC_OR_DST));
-
-	// make an OR filter out of all port filters
-	pcpp::OrFilter orFilter(portFilterVec);
+			orFilter.addFilter(pcpp::PortFilter(port, pcpp::SRC_OR_DST));
 
 	// set the filter for the device
 	if (!dev->setFilter(orFilter))

@@ -353,19 +353,20 @@ namespace pcpp
 	CompositeFilter::CompositeFilter(const std::vector<GeneralFilter*>& filters) : m_FilterList()
 	{
 		m_FilterList.reserve(filters.size());
-		for (const GeneralFilter* f : filters)
+		for (GeneralFilter* f : filters)
 		{
-			// Non-owning: no-op deleter preserves the old semantics
-			m_FilterList.emplace_back(f, internal::GeneralFilterNoopDeleter{});
+			// Non-owning: shared_ptr aliasing constructor preserves the old semantics
+			m_FilterList.emplace_back(std::shared_ptr<void>(), f);
 		}
 	}
 
-	CompositeFilter::CompositeFilter(std::vector<std::shared_ptr<const GeneralFilter>> filters)
-	    : m_FilterList(std::move(filters))
-	{}
-
 	// cppcheck-suppress constParameter
 	void CompositeFilter::removeFilter(GeneralFilter* filter)
+	{
+		removeFilter(static_cast<const GeneralFilter*>(filter));
+	}
+
+	bool CompositeFilter::removeFilter(const GeneralFilter* filter)
 	{
 		for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
 		{
@@ -373,39 +374,21 @@ namespace pcpp
 			{
 				m_FilterList.erase(it);
 				invalidateCache();
-				break;
+				return true;
 			}
 		}
-	}
-
-	void CompositeFilter::removeFilter(const GeneralFilter& filter)
-	{
-		for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
-		{
-			if (it->get() == &filter)
-			{
-				m_FilterList.erase(it);
-				invalidateCache();
-				break;
-			}
-		}
+		return false;
 	}
 
 	void CompositeFilter::setFilters(const std::vector<GeneralFilter*>& filters)
 	{
 		m_FilterList.clear();
 		m_FilterList.reserve(filters.size());
-		for (const GeneralFilter* f : filters)
+		for (GeneralFilter* f : filters)
 		{
-			// Non-owning: no-op deleter preserves the old semantics
-			m_FilterList.emplace_back(f, internal::GeneralFilterNoopDeleter{});
+			// Non-owning: shared_ptr aliasing constructor preserves the old semantics
+			m_FilterList.emplace_back(std::shared_ptr<void>(), f);
 		}
-		invalidateCache();
-	}
-
-	void CompositeFilter::setFilters(std::vector<std::shared_ptr<const GeneralFilter>> filters)
-	{
-		m_FilterList = std::move(filters);
 		invalidateCache();
 	}
 

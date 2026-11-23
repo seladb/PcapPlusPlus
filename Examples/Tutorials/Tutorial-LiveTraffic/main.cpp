@@ -248,10 +248,10 @@ int main(int argc, char* argv[])
 	// ~~~~~~~~~~~~~
 
 	// create a filter instance to capture only traffic on port 80
-	auto portFilter = std::make_shared<pcpp::PortFilter>(80, pcpp::SRC_OR_DST);
+	pcpp::PortFilter portFilter(80, pcpp::SRC_OR_DST);
 
 	// create a filter instance to capture only TCP traffic
-	auto protocolFilter = std::make_shared<pcpp::ProtoFilter>(pcpp::TCP);
+	pcpp::ProtoFilter protocolFilter(pcpp::TCP);
 
 	// create an AND filter to combine both filters - capture only TCP traffic on port 80
 	pcpp::AndFilter andFilter;

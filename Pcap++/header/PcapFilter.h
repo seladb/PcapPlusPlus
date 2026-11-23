@@ -8,6 +8,8 @@
 #include "ArpLayer.h"
 #include "RawPacket.h"
 #include "DeprecationUtils.h"
+#include <utility>
+#include <type_traits>
 
 // Forward Declaration - used in GeneralFilter
 struct bpf_program;
@@ -625,16 +627,24 @@ namespace pcpp
 		}
 	};
 
+	class CompositeFilter;
+
 	namespace internal
 	{
-		/// @brief A deleter that does nothing. This is used for non-owning shared pointers
-		/// to GeneralFilter objects while the deprecated functions taking GeneralFilter*
-		/// are still in use.
-		struct GeneralFilterNoopDeleter
+		template <bool...> struct bool_pack
 		{
-			void operator()(const GeneralFilter*) const noexcept
-			{}
 		};
+		template <bool... Bs> using all_true = std::is_same<bool_pack<true, Bs...>, bool_pack<Bs..., true>>;
+
+		// True only for exactly one argument that is a CompositeFilter (the copy/move case)
+		template <typename... Ts> struct is_single_composite : std::false_type
+		{
+		};
+		template <typename T>
+		struct is_single_composite<T> : std::is_base_of<CompositeFilter, typename std::decay<T>::type>
+		{
+		};
+
 	}  // namespace internal
 
 	/// @class CompositeFilter
@@ -653,56 +663,96 @@ namespace pcpp
 
 		/// A constructor that gets a list of pointers to filters and creates one filter from all filters
 		/// @param[in] filters The list of pointers to filters
-		/// @deprecated Use the std::vector<std::shared_ptr<const GeneralFilter>> overload. This one does not take
+		/// @deprecated Use the CompositeFilter(TFilters&&... filters) overload. This one does not take
 		/// ownership.
-		PCPP_DEPRECATED("Use the shared_ptr overload. This one does not take ownership.")
+		PCPP_DEPRECATED("Use the CompositeFilter(TFilters&&... filters) overload. This one does not take ownership.")
 		explicit CompositeFilter(const std::vector<GeneralFilter*>& filters);
 
-		/// A constructor that gets a list of shared pointers to filters and creates one filter from all filters
-		/// @param[in] filters The list of shared pointers to filters
-		explicit CompositeFilter(std::vector<std::shared_ptr<const GeneralFilter>> filters);
-
-		/// Add filter to the composite filter
-		/// @param[in] filter The filter to add
-		/// @deprecated Use the std::shared_ptr<const GeneralFilter> overload. This one does not take ownership.
-		PCPP_DEPRECATED("Use the shared_ptr overload. This one does not take ownership.")
-		void addFilter(GeneralFilter* filter)
+		/// Constructs a composite filter from one or more filter objects.
+		/// @tparam TFilters The types of the filters to add. Each type, after removing references and cv-qualifiers,
+		/// must be derived from GeneralFilter. The concrete type must be copy/move constructible and non-abstract. At
+		/// least one filter must be provided.
+		/// @param[in] filters The filters to add. Each one is copied (lvalues) or moved (rvalues) into an instance
+		/// owned by this composite, so the originals do not need to outlive it.
+		template <typename... TFilters, typename = typename std::enable_if_t<
+		                                    (sizeof...(TFilters) > 0) &&
+		                                    internal::all_true<std::is_base_of<
+		                                        GeneralFilter, typename std::decay<TFilters>::type>::value...>::value &&
+		                                    !internal::is_single_composite<TFilters...>::value>>
+		CompositeFilter(TFilters&&... filters)
 		{
-			// Non-owning: no-op deleter preserves the old semantics
-			m_FilterList.emplace_back(filter, internal::GeneralFilterNoopDeleter{});
-			invalidateCache();
+			m_FilterList.reserve(sizeof...(TFilters));
+			using expander = int[];
+			(void)expander{ 0, (m_FilterList.push_back(std::make_shared<typename std::decay<TFilters>::type>(
+				                    std::forward<TFilters>(filters))),
+				                0)... };
 		}
 
 		/// Add filter to the composite filter
 		/// @param[in] filter The filter to add
-		/// @return A reference to this object, to allow chaining of addFilter() calls
-		CompositeFilter& addFilter(std::shared_ptr<const GeneralFilter> filter)
+		/// @deprecated Use the addFilter(TFilter&& filter) overload. This one does not take ownership.
+		PCPP_DEPRECATED("Use the addFilter(TFilter&& filter) overload. This one does not take ownership.")
+		void addFilter(GeneralFilter* filter)
 		{
-			m_FilterList.push_back(filter);
+			// Non-owning: shared_ptr aliasing constructor preserves the old semantics
+			m_FilterList.emplace_back(std::shared_ptr<GeneralFilter>(std::shared_ptr<void>(), filter));
 			invalidateCache();
-			return *this;
+		}
+
+		/// Add filter to the composite filter
+		/// @tparam TFilter The type of the filter to add. This type, after removing references and cv-qualifiers, must
+		/// be derived from GeneralFilter. The concrete type must be copy/move constructible and non-abstract.
+		/// @param[in] filter The filter to add. It is copied (lvalue) or moved (rvalue) into an instance owned by
+		/// the composite, so the original do not need to outlive it.
+		/// @return A pointer to the added filter, for use by removeFilter().
+		template <typename TFilter, typename = typename std::enable_if_t<
+		                                std::is_base_of<GeneralFilter, typename std::decay<TFilter>::type>::value>>
+		const GeneralFilter* addFilter(TFilter&& filter)
+		{
+			m_FilterList.push_back(std::make_shared<std::decay_t<TFilter>>(std::forward<TFilter>(filter)));
+			invalidateCache();
+			return m_FilterList.back().get();
 		}
 
 		/// Removes the first matching filter from the composite filter
 		/// @param[in] filter The filter to remove
-		/// @deprecated Use the GeneralFilter& overload
-		PCPP_DEPRECATED("Use the GeneralFilter& overload")
+		/// @deprecated Use the removeFilter(const GeneralFilter*) overload
+		PCPP_DEPRECATED("Use the removeFilter(const GeneralFilter*) overload")
 		void removeFilter(GeneralFilter* filter);
 
 		/// Removes the first matching filter from the composite filter
 		/// @param[in] filter The filter to remove
-		void removeFilter(const GeneralFilter& filter);
+		/// @return True if a filter was removed, false otherwise
+		bool removeFilter(const GeneralFilter* filter);
 
 		/// Remove the current filters and set new ones
 		/// @param[in] filters The new filters to set. The previous ones will be removed
-		/// @deprecated Use the std::vector<std::shared_ptr<const GeneralFilter>> overload. This one does not take
+		/// @deprecated Use the setFilters(TFilters&&... filters) overload. This one does not take
 		/// ownership.
-		PCPP_DEPRECATED("Use the shared_ptr overload. This one does not take ownership.")
+		PCPP_DEPRECATED("Use the setFilters(TFilters&&... filters) overload. This one does not take ownership.")
 		void setFilters(const std::vector<GeneralFilter*>& filters);
 
 		/// Remove the current filters and set new ones
-		/// @param[in] filters The new filters to set. The previous ones will be removed
-		void setFilters(std::vector<std::shared_ptr<const GeneralFilter>> filters);
+		/// @tparam TFilters The types of the filters to add. Each type, after removing references and cv-qualifiers,
+		/// must be derived from GeneralFilter. The concrete type must be copy/move constructible and non-abstract. At
+		/// least one filter must be provided.
+		/// @param[in] filters The new filters to set. The previous ones will be removed. Each one is copied (lvalues)
+		/// or moved (rvalues) into an instance owned by this composite, so the originals do not need to outlive it.
+		template <typename... TFilters, typename = typename std::enable_if_t<
+		                                    (sizeof...(TFilters) > 0) &&
+		                                    internal::all_true<std::is_base_of<
+		                                        GeneralFilter, typename std::decay<TFilters>::type>::value...>::value &&
+		                                    !internal::is_single_composite<TFilters...>::value>>
+		void setFilters(TFilters&&... filters)
+		{
+			m_FilterList.clear();
+			m_FilterList.reserve(sizeof...(TFilters));
+			using expander = int[];
+			(void)expander{ 0, (m_FilterList.push_back(std::make_shared<typename std::decay<TFilters>::type>(
+				                    std::forward<TFilters>(filters))),
+				                0)... };
+			invalidateCache();
+		}
 
 		/// Remove all filters from the composite filter.
 		void clearAllFilters()
@@ -746,6 +796,7 @@ namespace pcpp
 	template <CompositeLogicFilterOp op> class CompositeLogicFilter : public CompositeFilter
 	{
 	public:
+		/// Inherits all CompositeFilter constructors.
 		using CompositeFilter::CompositeFilter;
 
 		void parseToString(std::string& result) const override
@@ -794,37 +845,46 @@ namespace pcpp
 	public:
 		/// A constructor that gets a pointer to a filter and create the inverse version of it
 		/// @param[in] filterToInverse A pointer to filter which the created filter be the inverse of
-		/// @deprecated Use the std::shared_ptr<const GeneralFilter> overload. This one does not take ownership.
+		/// @deprecated Use the NotFilter(TFilter&& filterToInverse) overload. This one does not take ownership.
 		PCPP_DEPRECATED("Use the shared_ptr overload. This one does not take ownership.")
 		explicit NotFilter(GeneralFilter* filterToInverse)
-		    :  // Non-owning: no-op deleter preserves the old semantics
-		      m_FilterToInverse(
-		          std::shared_ptr<const GeneralFilter>(filterToInverse, internal::GeneralFilterNoopDeleter{}))
+		    // Non-owning: shared_ptr aliasing constructor preserves the old semantics
+		    : m_FilterToInverse(std::shared_ptr<void>(), filterToInverse)
 		{}
 
-		/// A constructor that gets a shared pointer to a filter and create the inverse version of it
-		/// @param[in] filterToInverse A shared pointer to filter which the created filter be the inverse of
-		explicit NotFilter(std::shared_ptr<const GeneralFilter> filterToInverse) : m_FilterToInverse(filterToInverse)
+		/// Constructs an inverting filter from a filter object.
+		/// @tparam TFilter The type of the filter to invert. This type, after removing references and cv-qualifiers,
+		/// must be derived from GeneralFilter. The concrete type must be copy/move constructible and non-abstract.
+		/// @param[in] filterToInverse The filter to invert. It is copied (lvalue) or moved (rvalue) into an instance
+		/// owned by the constructed NotFilter, so the original do not need to outlive it.
+		template <typename TFilter, typename = typename std::enable_if_t<
+		                                std::is_base_of<GeneralFilter, typename std::decay<TFilter>::type>::value>>
+		explicit NotFilter(TFilter&& filterToInverse)
+		    : m_FilterToInverse(std::make_shared<std::decay_t<TFilter>>(std::forward<TFilter>(filterToInverse)))
 		{}
 
 		void parseToString(std::string& result) const override;
 
 		/// Set a filter to create an inverse filter from
 		/// @param[in] filterToInverse A pointer to filter which the created filter be the inverse of
-		/// @deprecated Use the std::shared_ptr<const GeneralFilter> overload. This one does not take ownership.
-		PCPP_DEPRECATED("Use the shared_ptr overload. This one does not take ownership.")
+		/// @deprecated Use the setFilter(TFilter&& filterToInverse) overload. This one does not take ownership.
+		PCPP_DEPRECATED("Use the setFilter(TFilter&& filterToInverse) overload. This one does not take ownership.")
 		void setFilter(GeneralFilter* filterToInverse)
 		{
-			m_FilterToInverse =
-			    std::shared_ptr<const GeneralFilter>(filterToInverse, internal::GeneralFilterNoopDeleter{});
+			m_FilterToInverse = std::shared_ptr<GeneralFilter>(std::shared_ptr<void>(), filterToInverse);
 			invalidateCache();
 		}
 
 		/// Set a filter to create an inverse filter from
-		/// @param[in] filterToInverse A shared pointer to filter which the created filter be the inverse of
-		void setFilter(std::shared_ptr<const GeneralFilter> filterToInverse)
+		/// @tparam TFilter The type of the filter to invert. This type, after removing references and cv-qualifiers,
+		/// must be derived from GeneralFilter. The concrete type must be copy/move constructible and non-abstract.
+		/// @param[in] filterToInverse The filter to invert. It is copied (lvalue) or moved (rvalue) into an instance
+		/// owned by the NotFilter, so the original do not need to outlive it.
+		template <typename TFilter, typename = typename std::enable_if_t<
+		                                std::is_base_of<GeneralFilter, typename std::decay<TFilter>::type>::value>>
+		void setFilter(TFilter&& filterToInverse)
 		{
-			m_FilterToInverse = filterToInverse;
+			m_FilterToInverse = std::make_shared<std::decay_t<TFilter>>(std::forward<TFilter>(filterToInverse));
 			invalidateCache();
 		}
 	};
