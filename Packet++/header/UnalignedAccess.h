@@ -15,22 +15,39 @@ namespace pcpp
 		BigEndian
 	};
 
+	/// @struct EndianConverter
+	/// A template structure for converting integer values between byte orders
 	template <typename T, ByteOrder Order> struct EndianConverter;
 
+	/// @struct EndianConverter
+	/// A specialization of EndianConverter for native byte order.
+	/// Does not perform any conversion and returns the original value.
+	/// @tparam T The integer type
 	template <typename T> struct EndianConverter<T, ByteOrder::Native>
 	{
+		/// Returns the value unchanged
+		/// @param[in] value The value to convert
+		/// @return The original value
 		static T convert(T value)
 		{
 			return value;
 		}
 	};
 
+	/// @struct EndianConverter
+	/// A specialization of EndianConverter for big-endian byte order.
+	/// Converts values between big-endian and native byte order.
+	/// Supports unsigned integer types of 2, 4, and 8 bytes.
+	/// @tparam T The unsigned integer type
 	template <typename T> struct EndianConverter<T, ByteOrder::BigEndian>
 	{
 		static_assert(std::is_unsigned<T>::value, "T must be unsigned");
 
 		static_assert(sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8, "Unsupported integer size");
 
+		/// Converts the value between big-endian and native byte order
+		/// @param[in] value The value to convert
+		/// @return The converted value
 		static T convert(T value)
 		{
 			return convertImpl(value, std::integral_constant<size_t, sizeof(T)>());
