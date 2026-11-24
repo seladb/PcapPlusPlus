@@ -3,9 +3,11 @@
 #include "GeneralUtils.h"
 #include "Logger.h"
 #include "Packet.h"
+#include "Serializers.h"
 #include "SystemUtils.h"
 #include "TelnetLayer.h"
 
+#include <sstream>
 #include <string.h>
 
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -95,6 +97,15 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(ctr, 8);
 	PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Control");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		telnetLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"JSON({"protocolName":"Telnet","protocolId":40,"length":25,"data":"","commands":[{"command":251,"commandName":"Will Perform","option":3,"optionName":"Suppress Go Ahead"},{"command":253,"commandName":"Do Perform","option":24,"optionName":"Terminal Type"},{"command":253,"commandName":"Do Perform","option":31,"optionName":"Negotiate About Window Size"},{"command":253,"commandName":"Do Perform","option":32,"optionName":"Terminal Speed"},{"command":253,"commandName":"Do Perform","option":33,"optionName":"Remote Flow Control"},{"command":253,"commandName":"Do Perform","option":34,"optionName":"Line mode"},{"command":250,"commandName":"Subnegotiation","option":34,"optionName":"Line mode"},{"command":240,"commandName":"Subnegotiation End"}]})JSON");
+	}
+
 	// Telnet TN3270 sample (not supported but should not raise an error)
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/telnetTN3270.dat");
 
@@ -154,6 +165,15 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer3->getOption(pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd),
 	                 pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
 	PTF_ASSERT_EQUAL(telnetLayer3->toString(), "Telnet Control");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		telnetLayer3->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"JSON({"protocolName":"Telnet","protocolId":40,"length":191,"data":"Telnet server could not log you in using NTLM authentication.Your password may have expired.Login using username and passwordWelcome to Microsoft Telnet Service login: ","commands":[{"command":250,"commandName":"Subnegotiation","option":37,"optionName":"Authentication Option"},{"command":240,"commandName":"Subnegotiation End"}]})JSON");
+	}
 
 	// Commands
 	std::vector<std::pair<pcpp::TelnetLayer::TelnetCommand, std::string>> possibleCommands = {
@@ -322,4 +342,13 @@ PTF_TEST_CASE(TelnetDataParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer->getDataAsString(), "OpenBSD/i386 (oof) (ttyp2)");
 	PTF_ASSERT_EQUAL(telnetLayer->getTotalNumberOfCommands(), 0);
 	PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Data");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		telnetLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"JSON({"protocolName":"Telnet","protocolId":40,"length":32,"data":"OpenBSD/i386 (oof) (ttyp2)","commands":[]})JSON");
+	}
 }

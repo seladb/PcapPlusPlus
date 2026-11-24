@@ -977,6 +977,22 @@ PTF_TEST_CASE(PostgresInvalidDataTest)
 		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Backend_Unknown, enum);
 	}
 
+	// Backend - Authentication too short to hold the auth type
+	{
+		std::vector<uint8_t> shortAuthData = {
+			0x52, 0x00, 0x00, 0x00, 0x04  // message type 'R' + length (4), no auth type
+		};
+		auto message = pcpp::PostgresMessage::parsePostgresBackendMessage(shortAuthData.data(), shortAuthData.size());
+		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Backend_Unknown, enum);
+		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), 5);
+
+		// The auth type must not be read from the bytes following the message
+		shortAuthData.insert(shortAuthData.end(), { 0x00, 0x00, 0x00, 0x00 });
+		message = pcpp::PostgresMessage::parsePostgresBackendMessage(shortAuthData.data(), shortAuthData.size());
+		PTF_ASSERT_EQUAL(message->getMessageType(), pcpp::PostgresMessageType::Backend_Unknown, enum);
+		PTF_ASSERT_EQUAL(message->getTotalMessageLength(), 5);
+	}
+
 	// Backend - ParameterStatus with truncated data (no null terminator for name)
 	{
 		std::vector<uint8_t> truncatedParamData = {
