@@ -62,11 +62,15 @@ namespace pcpp
 			           ? new BgpUpdateMessageLayer(data, dataLen, prevLayer, packet)
 			           : nullptr;
 		case 3:  // NOTIFICATION
-			return new BgpNotificationMessageLayer(data, dataLen, prevLayer, packet);
+			return messageLen >= sizeof(BgpNotificationMessageLayer::bgp_notification_message)
+			           ? new BgpNotificationMessageLayer(data, dataLen, prevLayer, packet)
+			           : nullptr;
 		case 4:  // KEEPALIVE
 			return new BgpKeepaliveMessageLayer(data, dataLen, prevLayer, packet);
 		case 5:  // ROUTE-REFRESH
-			return new BgpRouteRefreshMessageLayer(data, dataLen, prevLayer, packet);
+			return messageLen >= sizeof(BgpRouteRefreshMessageLayer::bgp_route_refresh_message)
+			           ? new BgpRouteRefreshMessageLayer(data, dataLen, prevLayer, packet)
+			           : nullptr;
 		default:
 			return nullptr;
 		}
