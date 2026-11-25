@@ -3,6 +3,7 @@ add_executable(
   main.cpp
   Tests/Asn1Tests.cpp
   Tests/Base64Tests.cpp
+  Tests/BluetoothHciTests.cpp
   Tests/BgpTests.cpp
   Tests/CiscoHdlcTests.cpp
   Tests/CotpTests.cpp

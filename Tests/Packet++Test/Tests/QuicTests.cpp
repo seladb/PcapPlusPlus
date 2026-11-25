@@ -2,9 +2,18 @@
 #include "../Utils/TestUtils.h"
 #include "QuicLayer.h"
 #include <algorithm>
+#include <sstream>
 #include <vector>
 
 using pcpp_tests::utils::createPacketFromHexResource;
+
+static std::string serializeToJson(const pcpp::Layer& layer)
+{
+	std::ostringstream output;
+	pcpp::JsonSerializer serializer(output);
+	layer.serialize(serializer);
+	return output.str();
+}
 
 PTF_TEST_CASE(QuicV1ParsingTest)
 {
@@ -31,6 +40,9 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_BUF_COMPARE(protectedPayload.data + protectedPayload.length - 5, expectedLastBytes.data(), 5);
 		PTF_ASSERT_EQUAL(quicInitialLayer->getHeaderLen(), 1252);
 		PTF_ASSERT_EQUAL(quicInitialLayer->toString(), "QUIC v1 Layer, Initial message");
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*quicInitialLayer),
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":1252,"packetType":"Initial","headerForm":"Long","fixedBit":true,"version":1,"destinationConnectionId":"c5fc34","sourceConnectionId":"2e05f87969a4940b","payloadLength":1231,"token":""})");
 	}
 
 	// Initial packet with non-empty token
@@ -74,6 +86,9 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getLength(), 72);
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->getHeaderLen(), 92);
 		PTF_ASSERT_EQUAL(quicHandshakeLayer->toString(), "QUIC v1 Layer, Handshake message");
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*quicHandshakeLayer),
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":92,"packetType":"Handshake","headerForm":"Long","fixedBit":true,"version":1,"destinationConnectionId":"f147b631d2ec8eb3","sourceConnectionId":"3bccd4","payloadLength":72})");
 		std::array<uint8_t, 72> expectedProtectedPayload = {
 			0xf0, 0x2f, 0xcf, 0xe6, 0x46, 0xd7, 0x05, 0x6d, 0x15, 0xfc, 0x2e, 0x2e, 0xc4, 0xf2, 0x08, 0x8c, 0xd8, 0xdc,
 			0x3b, 0xe6, 0x06, 0x1b, 0xb4, 0xd9, 0xea, 0x51, 0xc7, 0xc0, 0xaf, 0x42, 0x21, 0xe8, 0x71, 0x0c, 0xfc, 0x3c,
@@ -107,6 +122,9 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_BUF_COMPARE(protectedPayload.data + protectedPayload.length - 5, expectedLastBytes.data(), 5);
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->getHeaderLen(), 464);
 		PTF_ASSERT_EQUAL(quicZeroRttLayer->toString(), "QUIC v1 Layer, 0-RTT message");
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*quicZeroRttLayer),
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":464,"packetType":"0-RTT","headerForm":"Long","fixedBit":true,"version":1,"destinationConnectionId":"3c548c2db5aa5e4f64702c3961","sourceConnectionId":"4c8342","payloadLength":439})");
 	}
 
 	// Retry
@@ -126,6 +144,9 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_EQUAL(quicRetryLayer->getRetryIntegrityTagAsString(), "04a265ba2eff4d829058fb3f0f2496ba");
 		PTF_ASSERT_EQUAL(quicRetryLayer->getHeaderLen(), 36);
 		PTF_ASSERT_EQUAL(quicRetryLayer->toString(), "QUIC v1 Layer, Retry message");
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*quicRetryLayer),
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":36,"packetType":"Retry","headerForm":"Long","fixedBit":true,"version":1,"destinationConnectionId":"","sourceConnectionId":"f067a5502a4262b5","retryToken":"746f6b656e","retryIntegrityTag":"04a265ba2eff4d829058fb3f0f2496ba"})");
 	}
 
 	// Version negotiation
@@ -146,6 +167,9 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_VECTORS_EQUAL(quicVersionNegotiationLayer->getSupportedVersions(), expectedSupportedVersions);
 		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->getHeaderLen(), 31);
 		PTF_ASSERT_EQUAL(quicVersionNegotiationLayer->toString(), "QUIC v1 Layer, Version Negotiation message");
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*quicVersionNegotiationLayer),
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":31,"packetType":"Version Negotiation","headerForm":"Long","fixedBit":true,"version":0,"destinationConnectionId":"9aac5a49ba87a849","sourceConnectionId":"f92f4336fa951ba1","supportedVersions":[1162299158,1]})");
 	}
 
 	// 1-RTT
@@ -162,6 +186,9 @@ PTF_TEST_CASE(QuicV1ParsingTest)
 		PTF_ASSERT_FALSE(quicOneRttLayer->getKeyPhaseBit());
 		PTF_ASSERT_EQUAL(quicOneRttLayer->getHeaderLen(), 55);
 		PTF_ASSERT_EQUAL(quicOneRttLayer->toString(), "QUIC v1 Layer, 1-RTT message");
+		PTF_ASSERT_EQUAL(
+		    serializeToJson(*quicOneRttLayer),
+		    R"({"protocolName":"QUICv1","protocolId":64,"length":55,"packetType":"1-RTT","headerForm":"Short","fixedBit":true,"spinBit":false,"keyPhaseBit":false})");
 		auto protectedPayload = quicOneRttLayer->getProtectedPayload();
 		PTF_ASSERT_EQUAL(protectedPayload.length, 54);
 		std::array<uint8_t, 54> expectedProtectedPayload = {
