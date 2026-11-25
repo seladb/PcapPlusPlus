@@ -235,6 +235,7 @@ namespace pcpp
 
 		// Check bit 6
 		auto tagTypeBits = data[0] & 0x20;
+		// cppcheck-suppress shadowFunction
 		bool isConstructed = (tagTypeBits != 0);
 
 		// Check last 5 bits
