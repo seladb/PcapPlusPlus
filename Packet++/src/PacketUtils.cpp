@@ -5,7 +5,9 @@
 #include "UdpLayer.h"
 #include "Logger.h"
 #include "EndianPortable.h"
+#include <algorithm>
 #include <memory>
+#include <utility>
 
 namespace pcpp
 {
@@ -74,61 +76,54 @@ namespace pcpp
 		return htobe16(result);
 	}
 
+	namespace
+	{
+
+		template <typename IPAddrT>
+		uint16_t computePseudoHdrChecksumImpl(const uint8_t* dataPtr, size_t dataLen, uint8_t protocolType,
+		                                      const IPAddrT& srcIPAddress, const IPAddrT& dstIPAddress)
+		{
+			PCPP_LOG_DEBUG("Compute pseudo header checksum.\n DataLen = "
+			               << dataLen << " ProtocolType = " << static_cast<unsigned>(protocolType)
+			               << " SrcIP = " << srcIPAddress << " DstIP = " << dstIPAddress);
+
+			const auto& srcBytes = srcIPAddress.toByteArray();
+			const auto& dstBytes = dstIPAddress.toByteArray();
+			constexpr size_t addrSize = std::tuple_size<std::decay_t<decltype(srcBytes)>>::value;
+
+			constexpr size_t addrWords = addrSize / 2;
+			std::array<uint16_t, 2 * addrWords + 2> pseudoHeader{};
+
+			auto* hdrBytes = reinterpret_cast<uint8_t*>(pseudoHeader.data());
+			std::copy(srcBytes.begin(), srcBytes.end(), hdrBytes);
+			std::copy(dstBytes.begin(), dstBytes.end(), hdrBytes + addrSize);
+
+			pseudoHeader[2 * addrWords] = htobe16(static_cast<uint16_t>(dataLen));
+			pseudoHeader[2 * addrWords + 1] = htobe16(protocolType);
+
+			constexpr size_t vecSize = 2;
+			ScalarBuffer<const uint16_t> vec[vecSize];
+			vec[0].buffer = reinterpret_cast<const uint16_t*>(dataPtr);
+			vec[0].len = dataLen;
+			vec[1].buffer = pseudoHeader.data();
+			vec[1].len = sizeof(pseudoHeader);
+
+			uint16_t checksumRes = computeChecksum(vec, vecSize);
+
+			PCPP_LOG_DEBUG("Pseudo header checksum = 0x" << std::uppercase << std::hex << checksumRes);
+			return checksumRes;
+		}
+	}  // namespace
+
 	uint16_t computePseudoHdrChecksum(const uint8_t* dataPtr, size_t dataLen, uint8_t protocolType,
 	                                  IPv4Address srcIPAddress, IPv4Address dstIPAddress)
 	{
-		PCPP_LOG_DEBUG("Compute pseudo header checksum.\n DataLen = "
-		               << dataLen << " IPAddrType = " << IPAddress::AddressType::IPv4AddressType << " ProtocolType = "
-		               << protocolType << " SrcIP = " << srcIPAddress << " DstIP = " << dstIPAddress);
-
-		uint16_t checksumRes = 0;
-		constexpr size_t vecSize = 2;
-		ScalarBuffer<const uint16_t> vec[vecSize];
-		vec[0].buffer = reinterpret_cast<const uint16_t*>(dataPtr);
-		vec[0].len = dataLen;
-
-		uint32_t srcIP = srcIPAddress.toInt();
-		uint32_t dstIP = dstIPAddress.toInt();
-		uint16_t pseudoHeader[6];
-		pseudoHeader[0] = srcIP >> 16;
-		pseudoHeader[1] = srcIP & 0xFFFF;
-		pseudoHeader[2] = dstIP >> 16;
-		pseudoHeader[3] = dstIP & 0xFFFF;
-		pseudoHeader[4] = 0xffff & htobe16(dataLen);
-		pseudoHeader[5] = htobe16(0x00ff & protocolType);
-		vec[1].buffer = pseudoHeader;
-		vec[1].len = 12;
-		checksumRes = computeChecksum(vec, vecSize);
-
-		PCPP_LOG_DEBUG("Pseudo header checksum = 0xX" << std::uppercase << std::hex << checksumRes);
-
-		return checksumRes;
+		return computePseudoHdrChecksumImpl(dataPtr, dataLen, protocolType, srcIPAddress, dstIPAddress);
 	}
 	uint16_t computePseudoHdrChecksum(const uint8_t* dataPtr, size_t dataLen, uint8_t protocolType,
 	                                  const IPv6Address& srcIPAddress, const IPv6Address& dstIPAddress)
 	{
-		PCPP_LOG_DEBUG("Compute pseudo header checksum.\n DataLen = "
-		               << dataLen << " IPAddrType = " << IPAddress::AddressType::IPv6AddressType << " ProtocolType = "
-		               << protocolType << " SrcIP = " << srcIPAddress << " DstIP = " << dstIPAddress);
-
-		uint16_t checksumRes = 0;
-		constexpr size_t vecSize = 2;
-		ScalarBuffer<const uint16_t> vec[vecSize];
-		vec[0].buffer = reinterpret_cast<const uint16_t*>(dataPtr);
-		vec[0].len = dataLen;
-
-		uint16_t pseudoHeader[18];
-		srcIPAddress.copyTo(reinterpret_cast<uint8_t*>(pseudoHeader));
-		dstIPAddress.copyTo(reinterpret_cast<uint8_t*>(pseudoHeader + 8));
-		pseudoHeader[16] = 0xffff & htobe16(dataLen);
-		pseudoHeader[17] = htobe16(0x00ff & protocolType);
-		vec[1].buffer = pseudoHeader;
-		vec[1].len = 36;
-		checksumRes = computeChecksum(vec, vecSize);
-
-		PCPP_LOG_DEBUG("Pseudo header checksum = 0xX" << std::uppercase << std::hex << checksumRes);
-
-		return checksumRes;
+		return computePseudoHdrChecksumImpl(dataPtr, dataLen, protocolType, srcIPAddress, dstIPAddress);
 	}
 
 	uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen, IPAddress::AddressType ipAddrType,
