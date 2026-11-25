@@ -2,6 +2,9 @@
 
 #include "Layer.h"
 #include "PointerVector.h"
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
 #include <memory>
 #include <ostream>
 #include <unordered_map>
@@ -387,39 +390,86 @@ namespace pcpp
 			/// @return All top-level MySQL layer field descriptors.
 			static std::vector<FieldDescriptor> all()
 			{
-				auto fields = Layer::SerializedFields::all();
-				fields.push_back(Origin);
-				fields.push_back(Messages);
-				return fields;
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Origin, Messages };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
 			}
 
-			/// Fields for one MySQL message.
-			struct MessageObject : ObjectFieldDescriptor<MessageObject>
+			/// Fields common to all MySQL messages.
+			struct MessageFields
 			{
-				using ObjectFieldDescriptor::ObjectFieldDescriptor;
-
-				/// @return All message field descriptors, including type-specific fields.
+				/// @return The field descriptors common to all messages.
 				static std::vector<FieldDescriptor> all()
 				{
-					return { Type, PacketNumber, PayloadLength, ErrorCode, Query };
+					return { Type, PacketNumber, PayloadLength };
 				}
 
 				/// Message type string as returned by MySqlMessageType::toString().
 				static const FieldDescriptor Type;
 				/// One-byte MySQL packet sequence number.
 				static const FieldDescriptor PacketNumber;
-				/// Payload length in bytes, including any command byte. Written as a number in host byte order.
+				/// Payload length in bytes, excluding the four-byte message header and including any command byte.
 				static const FieldDescriptor PayloadLength;
-				/// Numeric MySQL error code in host byte order. Present only for error messages.
+			};
+
+			/// Fields of a message with no type-specific fields.
+			struct MessageObject : ObjectFieldDescriptor<MessageObject>, MessageFields
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+			};
+
+			/// Fields of a server error message.
+			struct ErrorMessageObject : ObjectFieldDescriptor<ErrorMessageObject>, MessageFields
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for an error message.
+				static std::vector<FieldDescriptor> all()
+				{
+					auto result = MessageFields::all();
+					std::initializer_list<FieldDescriptor> extra{ ErrorCode, SqlState, ErrorMessage };
+					std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+					return result;
+				}
+
+				/// Numeric MySQL error code in host byte order.
 				static const FieldDescriptor ErrorCode;
-				/// SQL text as returned by MySqlQueryMessage::getQuery(). Present only for query messages.
+				/// SQL state, empty if unavailable.
+				static const FieldDescriptor SqlState;
+				/// Error text as returned by MySqlErrorMessage::getErrorMessage().
+				static const FieldDescriptor ErrorMessage;
+			};
+
+			/// Fields of a client COM_QUERY message.
+			struct QueryMessageObject : ObjectFieldDescriptor<QueryMessageObject>, MessageFields
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for a query message.
+				static std::vector<FieldDescriptor> all()
+				{
+					auto result = MessageFields::all();
+					std::initializer_list<FieldDescriptor> extra{ Query };
+					std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+					return result;
+				}
+
+				/// SQL text as returned by MySqlQueryMessage::getQuery().
 				static const FieldDescriptor Query;
 			};
 
 			/// Message direction, written as "client" or "server".
 			static const FieldDescriptor Origin;
-			/// Parsed messages in wire order, each described by MessageObject.
+			/// Parsed messages in wire order, using Message, ErrorMessage, or QueryMessage for each element.
 			static const FieldDescriptor Messages;
+
+			/// Array element for a message with no type-specific fields.
+			static const MessageObject Message;
+			/// Array element for a server error message.
+			static const ErrorMessageObject ErrorMessage;
+			/// Array element for a client COM_QUERY message.
+			static const QueryMessageObject QueryMessage;
 		};
 
 	protected:

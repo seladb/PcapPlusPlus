@@ -502,36 +502,57 @@ namespace pcpp
 
 	const FieldDescriptor MySqlLayer::SerializedFields::Origin{ Layer::SerializedFields::MaxID + 1, "origin" };
 	const FieldDescriptor MySqlLayer::SerializedFields::Messages{ Layer::SerializedFields::MaxID + 2, "messages" };
-	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::Type{ 0, "type" };
-	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::PacketNumber{ 1, "packetNumber" };
-	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::PayloadLength{ 2, "payloadLength" };
-	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::ErrorCode{ 3, "errorCode" };
-	const FieldDescriptor MySqlLayer::SerializedFields::MessageObject::Query{ 4, "query" };
+	const MySqlLayer::SerializedFields::MessageObject MySqlLayer::SerializedFields::Message{ 0, "message" };
+	// Preserve the XML element name across all message variants.
+	const MySqlLayer::SerializedFields::ErrorMessageObject MySqlLayer::SerializedFields::ErrorMessage{ 1, "message" };
+	const MySqlLayer::SerializedFields::QueryMessageObject MySqlLayer::SerializedFields::QueryMessage{ 2, "message" };
+	const FieldDescriptor MySqlLayer::SerializedFields::MessageFields::Type{ 0, "type" };
+	const FieldDescriptor MySqlLayer::SerializedFields::MessageFields::PacketNumber{ 1, "packetNumber" };
+	const FieldDescriptor MySqlLayer::SerializedFields::MessageFields::PayloadLength{ 2, "payloadLength" };
+	const FieldDescriptor MySqlLayer::SerializedFields::ErrorMessageObject::ErrorCode{ 3, "errorCode" };
+	const FieldDescriptor MySqlLayer::SerializedFields::ErrorMessageObject::SqlState{ 4, "sqlState" };
+	const FieldDescriptor MySqlLayer::SerializedFields::ErrorMessageObject::ErrorMessage{ 5, "errorMessage" };
+	const FieldDescriptor MySqlLayer::SerializedFields::QueryMessageObject::Query{ 3, "query" };
 
 	void MySqlLayer::serializeLayer(ObjectScope& serializer) const
 	{
-		using MessageFields = SerializedFields::MessageObject;
-		const MessageFields messageDescriptor{ 0, "message" };
+		using MessageFields = SerializedFields::MessageFields;
+		using ErrorFields = SerializedFields::ErrorMessageObject;
+		using QueryFields = SerializedFields::QueryMessageObject;
 		serializer.writeField(SerializedFields::Origin,
 		                      getMySqlOrigin() == MySqlMessageOrigin::Client ? "client" : "server");
 		auto messages = serializer.writeArray(SerializedFields::Messages);
-		// The parser returns complete messages in the order they appear in the payload.
+		const auto writeMessage = [&messages](const FieldDescriptor& descriptor, const MySqlMessage& message) {
+			auto object = messages.writeObject(descriptor);
+			object.writeField(MessageFields::Type, message.getMessageType().toString());
+			object.writeField(MessageFields::PacketNumber, message.getPacketNumber());
+			// Command messages exclude the command byte from their overridden length.
+			object.writeField(MessageFields::PayloadLength, message.MySqlMessage::getMessageLength());
+			return object;
+		};
+
 		for (const auto* message : getMySqlMessages())
 		{
-			auto object = messages.writeObject(messageDescriptor);
-			object.writeField(MessageFields::Type, message->getMessageType().toString());
-			object.writeField(MessageFields::PacketNumber, message->getPacketNumber());
-			// Command messages exclude the command byte from their overridden length.
-			object.writeField(MessageFields::PayloadLength, message->MySqlMessage::getMessageLength());
+			if (message == nullptr)
+			{
+				continue;
+			}
 
 			if (const auto* error = dynamic_cast<const MySqlErrorMessage*>(message))
 			{
-				object.writeField(MessageFields::ErrorCode, error->getErrorCode());
+				auto object = writeMessage(SerializedFields::ErrorMessage, *error);
+				object.writeField(ErrorFields::ErrorCode, error->getErrorCode());
+				object.writeField(ErrorFields::SqlState, error->getSqlState());
+				object.writeField(ErrorFields::ErrorMessage, error->getErrorMessage());
 			}
 			else if (const auto* query = dynamic_cast<const MySqlQueryMessage*>(message))
 			{
-				// Use the existing query parser's interpretation of the payload.
-				object.writeField(MessageFields::Query, query->getQuery());
+				auto object = writeMessage(SerializedFields::QueryMessage, *query);
+				object.writeField(QueryFields::Query, query->getQuery());
+			}
+			else
+			{
+				writeMessage(SerializedFields::Message, *message);
 			}
 		}
 	}
