@@ -219,6 +219,7 @@ PTF_TEST_CASE(SipRequestLayerCreationTest);
 PTF_TEST_CASE(SipRequestLayerEditTest);
 PTF_TEST_CASE(SipResponseParseStatusCodeTest);
 PTF_TEST_CASE(SipResponseParseVersionCodeTest);
+PTF_TEST_CASE(SipResponseParseFirstLineTest);
 PTF_TEST_CASE(SipResponseLayerParsingTest);
 PTF_TEST_CASE(SipResponseLayerCreationTest);
 PTF_TEST_CASE(SipResponseLayerEditTest);
@@ -256,6 +257,8 @@ PTF_TEST_CASE(IPSecParsingTest);
 
 // Implemented in DhcpV6Tests.cpp
 PTF_TEST_CASE(DhcpV6ParsingTest);
+PTF_TEST_CASE(DhcpV6RelayMessageParsingTest);
+PTF_TEST_CASE(DhcpV6RelayMessageCreationTest);
 PTF_TEST_CASE(DhcpV6CreationTest);
 PTF_TEST_CASE(DhcpV6EditTest);
 

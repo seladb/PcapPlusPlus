@@ -1185,6 +1185,12 @@ namespace pcpp
 
 		// Status code is strictly 3 characters followed by a space
 		auto statusCodeIt = firstSpaceIt + 1;
+		if (dataEndIt - statusCodeIt < 4)
+		{
+			PCPP_LOG_DEBUG("SIP response line too short for status code");
+			return result;
+		}
+
 		auto statusCodeEndIt = statusCodeIt + 3;
 		if (*statusCodeEndIt != ' ')
 		{
