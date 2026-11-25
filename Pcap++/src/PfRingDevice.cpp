@@ -469,6 +469,22 @@ namespace pcpp
 	}
 
 	bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive,
+	                                           void* onPacketsArriveUserCookie)
+	{
+		if (m_PfRingDescriptors.size() == 0)
+		{
+			PCPP_LOG_ERROR("No RX channels opened. Cannot start capturing");
+			return false;
+		}
+
+		// use only the number of cores that equals the number of RX channels
+		CoreMask mask = getCoreMaskForAllMachineCores();
+		mask &= (1 << m_PfRingDescriptors.size()) - 1;
+
+		return startCaptureMultiThread(onPacketsArrive, onPacketsArriveUserCookie, mask);
+	}
+
+	bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive,
 	                                           void* onPacketsArriveUserCookie, CoreMask coreMask)
 	{
 		if (!m_StopThread)
@@ -506,7 +522,7 @@ namespace pcpp
 			// create a new thread
 			m_CoreConfiguration[coreId].Channel = m_PfRingDescriptors[rxChannel++];
 			m_CoreConfiguration[coreId].RxThread =
-			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
+			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock, coreId);
 
 			try
 			{
@@ -570,7 +586,7 @@ namespace pcpp
 
 		m_CoreConfiguration[0].IsInUse = true;
 		m_CoreConfiguration[0].Channel = m_PfRingDescriptors[0];
-		m_CoreConfiguration[0].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
+		m_CoreConfiguration[0].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock, 0);
 		m_CoreConfiguration[0].IsAffinitySet = false;
 
 		try
@@ -616,7 +632,7 @@ namespace pcpp
 		PCPP_LOG_DEBUG("All capturing threads stopped");
 	}
 
-	void PfRingDevice::captureThreadMain(std::shared_ptr<StartupBlock> startupBlock)
+	void PfRingDevice::captureThreadMain(std::shared_ptr<StartupBlock> startupBlock, uint8_t coreIdCheck)
 	{
 		if (startupBlock == nullptr)
 		{
@@ -637,6 +653,12 @@ namespace pcpp
 
 		int coreId = this->getCurrentCoreId().Id;
 		pfring* ring = nullptr;
+
+		if (coreId != coreIdCheck)
+		{
+			PCPP_LOG_DEBUG("Capture thread does not run on expected core. Expected ["
+			               << (int)coreIdCheck << "] but running on [" << (int)coreId << "].");
+		}
 
 		PCPP_LOG_DEBUG("Starting capture thread " << coreId);
 
