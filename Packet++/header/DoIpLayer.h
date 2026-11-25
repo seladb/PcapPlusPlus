@@ -650,16 +650,23 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = Layer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ ProtocolVersion, PayloadType, PayloadLength };
+				std::initializer_list<FieldDescriptor> extra{ ProtocolVersion, ProtocolVersionName, PayloadType,
+					                                          PayloadTypeName, PayloadLength };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// @brief DoIP protocol version as a readable string (see getProtocolVersionAsStr())
+			/// @brief DoIP protocol version as the enum numeric value (see getProtocolVersion())
 			static const FieldDescriptor ProtocolVersion;
 
-			/// @brief DoIP payload type as a readable string (see getPayloadTypeAsStr())
+			/// @brief DoIP protocol version as a readable string (see getProtocolVersionAsStr())
+			static const FieldDescriptor ProtocolVersionName;
+
+			/// @brief DoIP payload type as the enum numeric value (see getPayloadType())
 			static const FieldDescriptor PayloadType;
+
+			/// @brief DoIP payload type as a readable string (see getPayloadTypeAsStr())
+			static const FieldDescriptor PayloadTypeName;
 
 			/// @brief Payload length from the DoIP header, in bytes, not including the 8-byte header,
 			/// in host byte order
@@ -667,7 +674,7 @@ namespace pcpp
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 5;
 		};
 
 	private:
@@ -843,16 +850,20 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpLayer::SerializedFields::all();
-				result.push_back(NackCode);
+				std::initializer_list<FieldDescriptor> extra{ NackCode, NackCodeName };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// @brief Generic header NACK code as a readable string
+			/// @brief Generic header NACK code as the enum numeric value
 			static const FieldDescriptor NackCode;
+
+			/// @brief Generic header NACK code as a readable string
+			static const FieldDescriptor NackCodeName;
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 2;
 		};
 
 	protected:
@@ -1336,14 +1347,14 @@ namespace pcpp
 
 		/// @struct SerializedFields
 		/// Fields written by DoIpRoutingActivationRequest's serializeLayer(), in addition to
-		/// DoIpLayer::SerializedFields. Reserved ISO/OEM bytes are omitted.
+		/// DoIpLayer::SerializedFields. Reserved ISO bytes are omitted.
 		struct SerializedFields : DoIpLayer::SerializedFields
 		{
 			/// @return All field descriptors for DoIpRoutingActivationRequest
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ SourceAddress, ActivationType };
+				std::initializer_list<FieldDescriptor> extra{ SourceAddress, ActivationType, ReservedOem };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -1354,9 +1365,12 @@ namespace pcpp
 			/// @brief Routing activation type as a readable string
 			static const FieldDescriptor ActivationType;
 
+			/// @brief Optional reserved OEM bytes as a hex string. Omitted when not present
+			static const FieldDescriptor ReservedOem;
+
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 2;
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 3;
 		};
 
 	protected:
@@ -1477,15 +1491,15 @@ namespace pcpp
 
 		/// @struct SerializedFields
 		/// Fields written by DoIpRoutingActivationResponse's serializeLayer(), in addition to
-		/// DoIpLayer::SerializedFields. Reserved ISO/OEM bytes are omitted.
+		/// DoIpLayer::SerializedFields. Reserved ISO bytes are omitted.
 		struct SerializedFields : DoIpLayer::SerializedFields
 		{
 			/// @return All field descriptors for DoIpRoutingActivationResponse
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ LogicalAddressExternalTester, SourceAddress,
-					                                          ResponseCode };
+				std::initializer_list<FieldDescriptor> extra{ LogicalAddressExternalTester, SourceAddress, ResponseCode,
+					                                          ReservedOem };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -1493,15 +1507,18 @@ namespace pcpp
 			/// @brief Logical address of the external tester, in host byte order
 			static const FieldDescriptor LogicalAddressExternalTester;
 
-			/// @brief ECU source address, in host byte order
+			/// @brief Source address, in host byte order
 			static const FieldDescriptor SourceAddress;
 
-			/// @brief Routing activation response code as a readable string
+			/// @brief Routing activation response code as the enum numeric value
 			static const FieldDescriptor ResponseCode;
+
+			/// @brief Optional reserved OEM bytes as a hex string. Omitted when not present
+			static const FieldDescriptor ReservedOem;
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 3;
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 4;
 		};
 
 	protected:
@@ -1789,14 +1806,17 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ NodeType, MaxConcurrentSockets, CurrentlyOpenSockets,
-					                                          MaxDataSize };
+				std::initializer_list<FieldDescriptor> extra{ NodeType, NodeTypeName, MaxConcurrentSockets,
+					                                          CurrentlyOpenSockets, MaxDataSize };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// @brief DoIP node type as a readable string
+			/// @brief DoIP node type as the enum numeric value
 			static const FieldDescriptor NodeType;
+
+			/// @brief DoIP node type as a readable string
+			static const FieldDescriptor NodeTypeName;
 
 			/// @brief Maximum number of concurrent sockets supported
 			static const FieldDescriptor MaxConcurrentSockets;
@@ -1810,7 +1830,7 @@ namespace pcpp
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 4;
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 5;
 		};
 
 	protected:

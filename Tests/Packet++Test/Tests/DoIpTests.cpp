@@ -58,7 +58,7 @@ PTF_TEST_CASE(DoIpRoutActReqParsing)
 	    "Source Address: 0xe80\nActivation type: Default (0x0)\nReserved by ISO: 00000000\nReserved by OEM: 00000000\n");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":19,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Routing activation request","payloadLength":11,"sourceAddress":3712,"activationType":"Default"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":19,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":5,"payloadTypeName":"Routing activation request","payloadLength":11,"sourceAddress":3712,"activationType":"Default","reservedOem":"00000000"})");
 }  // DoIpRoutActReqParsing
 
 // DoIpRoutActReqCreation
@@ -118,6 +118,9 @@ PTF_TEST_CASE(DoIpRoutActReqCreation)
 	PTF_ASSERT_EQUAL(
 	    doipLayer.getSummary(),
 	    "Source Address: 0xe80\nActivation type: Default (0x0)\nReserved by ISO: 01020304\nReserved by OEM: 05050505\n");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":19,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":5,"payloadTypeName":"Routing activation request","payloadLength":11,"sourceAddress":3712,"activationType":"Default","reservedOem":"05050505"})");
 }  // DoIpRoutActReqCreation
 
 // DoIpRoutActResParsing
@@ -153,7 +156,7 @@ PTF_TEST_CASE(DoIpRoutActResParsing)
 	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 00000000\n");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":17,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Routing activation response","payloadLength":9,"logicalAddressExternalTester":3712,"sourceAddress":16400,"responseCode":"Routing successfully activated"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":17,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":6,"payloadTypeName":"Routing activation response","payloadLength":9,"logicalAddressExternalTester":3712,"sourceAddress":16400,"responseCode":16})");
 }  // DoIpRoutActResParsing
 
 // DoIpRoutActResCreation
@@ -203,11 +206,17 @@ PTF_TEST_CASE(DoIpRoutActResCreation)
 	PTF_ASSERT_EQUAL(
 	    doipLayer.getSummary(),
 	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 01020304\nReserved by OEM: 05050505\n");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":21,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":6,"payloadTypeName":"Routing activation response","payloadLength":13,"logicalAddressExternalTester":3712,"sourceAddress":16400,"responseCode":16,"reservedOem":"05050505"})");
 	doipLayer.clearReservedOem();
 	PTF_ASSERT_FALSE(doipLayer.hasReservedOem());
 	PTF_ASSERT_EQUAL(
 	    doipLayer.getSummary(),
 	    "Logical Address (Tester): 0xe80\nSource Address: 0x4010\nRouting activation response code: Routing successfully activated (0x10)\nReserved by ISO: 01020304\n");
+	PTF_ASSERT_EQUAL(
+	    serializeToJson(doipLayer),
+	    R"({"protocolName":"DOIP","protocolId":59,"length":17,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":6,"payloadTypeName":"Routing activation response","payloadLength":9,"logicalAddressExternalTester":3712,"sourceAddress":16400,"responseCode":16})");
 }  // DoIpRoutActResCreation
 
 // DoIpGenHdrNackParsing
@@ -232,7 +241,7 @@ PTF_TEST_CASE(DoIpGenHdrNackParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(), "Generic header nack code: Unknown payload type (0x1)\n");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":9,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Generic DOIP header Nack","payloadLength":1,"nackCode":"Unknown payload type"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":9,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":0,"payloadTypeName":"Generic DOIP header Nack","payloadLength":1,"nackCode":1,"nackCodeName":"Unknown payload type"})");
 }  // DoIpGenHdrNackParsing
 
 // DoIpGenHdrNackCreation
@@ -297,7 +306,7 @@ PTF_TEST_CASE(DoIpVehIdenReqWithEIDParsing)
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getEID(), eid);
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":14,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Vehicle identification request with EID","payloadLength":6,"eid":"4241554e4545"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":14,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":2,"payloadTypeName":"Vehicle identification request with EID","payloadLength":6,"eid":"4241554e4545"})");
 }  // DoIpVehIdenReqWithEIDParsing
 
 // DoIpVehIdenReqWithEIDCreation
@@ -359,7 +368,7 @@ PTF_TEST_CASE(DoIpVehIdenReqWithVINParsing)
 	PTF_ASSERT_VECTORS_EQUAL(doipLayer->getVIN(), vin);
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":25,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Vehicle identification request with VIN","payloadLength":17,"vin":"BAUNEE4MZ17042403"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":25,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":3,"payloadTypeName":"Vehicle identification request with VIN","payloadLength":17,"vin":"BAUNEE4MZ17042403"})");
 }  // DoIpVehIdenReqWithVINParsing
 
 // DoIpVehIdenReqWithVINCreation
@@ -437,7 +446,7 @@ PTF_TEST_CASE(DoIpVehAnnMessParsing)
 	PTF_ASSERT_RAISES(doipLayer->getSyncStatus(), std::runtime_error, "Sync status field not present!");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":40,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Vehicle announcement message / vehicle identification response message","payloadLength":32,"vin":"BAUNEE4MZ17042403","logicalAddress":16400,"eid":"001a37bfee74","gid":"001a37bfee74","furtherActionRequired":"No further action required"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":40,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":4,"payloadTypeName":"Vehicle announcement message / vehicle identification response message","payloadLength":32,"vin":"BAUNEE4MZ17042403","logicalAddress":16400,"eid":"001a37bfee74","gid":"001a37bfee74","furtherActionRequired":"No further action required"})");
 }  // DoIpVehAnnMessParsing
 
 // DoIpVehAnnMessCreation
@@ -507,7 +516,7 @@ PTF_TEST_CASE(DoIpVehIdenReqParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x0);
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Vehicle identification request","payloadLength":0})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":1,"payloadTypeName":"Vehicle identification request","payloadLength":0})");
 }  // DoIpVehIdenReqParsing
 
 // DoIpVehIdenReqCreation
@@ -557,7 +566,7 @@ PTF_TEST_CASE(DoIpAliveCheckRespParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getSummary(), "Source Address: 0x0\n");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":10,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Alive check response","payloadLength":2,"sourceAddress":0})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":10,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":8,"payloadTypeName":"Alive check response","payloadLength":2,"sourceAddress":0})");
 }  // DoIpAliveCheckRespParsing
 
 // DoIpAliveCheckRespCreation
@@ -608,7 +617,7 @@ PTF_TEST_CASE(DoIpDiagPowerModeRespParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPowerModeCode(), pcpp::DoIpDiagnosticPowerModeCodes::NOT_READY, enumclass);
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":9,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic power mode response information","payloadLength":1,"powerModeCode":"Not ready"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":9,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":16388,"payloadTypeName":"Diagnostic power mode response information","payloadLength":1,"powerModeCode":"Not ready"})");
 }  // DoIpDiagPowerModeRespParsing
 
 // DoIpDiagPowerModeRespCreation
@@ -666,7 +675,7 @@ PTF_TEST_CASE(DoIpEntityStatusRespParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getMaxDataSize(), maxDataSize);
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":15,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"DOIP entity status response","payloadLength":7,"nodeType":"DoIP gateway","maxConcurrentSockets":1,"currentlyOpenSockets":0,"maxDataSize":4095})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":15,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":16386,"payloadTypeName":"DOIP entity status response","payloadLength":7,"nodeType":0,"nodeTypeName":"DoIP gateway","maxConcurrentSockets":1,"currentlyOpenSockets":0,"maxDataSize":4095})");
 }  // DoIpEntityStatusRespParsing
 
 // DoIpEntityStatusRespCreation
@@ -751,7 +760,7 @@ PTF_TEST_CASE(DoIpDiagMessParsing)
 	PTF_ASSERT_VECTORS_EQUAL(actual, diagData);
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":12,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic message","payloadLength":6,"sourceAddress":3712,"targetAddress":16400})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":12,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":32769,"payloadTypeName":"Diagnostic message","payloadLength":6,"sourceAddress":3712,"targetAddress":16400})");
 }  // DoIpDiagMessParsing
 
 // DoIpDiagMessCreation
@@ -815,7 +824,7 @@ PTF_TEST_CASE(DoIpDiagMessAckParsing)
 	                 "Source Address: 0x4010\nTarget Address: 0xe80\nACK code: ACK (0x0)\nPrevious message: 22f101\n");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":16,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic message Ack","payloadLength":8,"sourceAddress":16400,"targetAddress":3712,"ackCode":"ACK"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":16,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":32770,"payloadTypeName":"Diagnostic message Ack","payloadLength":8,"sourceAddress":16400,"targetAddress":3712,"ackCode":"ACK"})");
 }  // DoIpDiagMessAckParsing
 
 // DoIpDiagMessAckCreation
@@ -907,7 +916,7 @@ PTF_TEST_CASE(DoIpDiagMessNackParsing)
 	    "Source Address: 0x4010\nTarget Address: 0xe80\nNACK code: Invalid source address (0x2)\nPrevious message: 22f101\n");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*nackLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":16,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic message Nack","payloadLength":8,"sourceAddress":16400,"targetAddress":3712,"nackCode":"Invalid source address"})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":16,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":32771,"payloadTypeName":"Diagnostic message Nack","payloadLength":8,"sourceAddress":16400,"targetAddress":3712,"nackCode":"Invalid source address"})");
 }  // DoIpDiagMessNackParsing
 
 // DoIpDiagMessNackCreation
@@ -984,7 +993,7 @@ PTF_TEST_CASE(DoIpDiagPowerModeReqParsing)
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Diagnostic power mode request information (0x4003)");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Diagnostic power mode request information","payloadLength":0})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":16387,"payloadTypeName":"Diagnostic power mode request information","payloadLength":0})");
 }  // DoIpDiagPowerModeReqParsing
 
 // DoIpDiagPowerModeReqCreation
@@ -1032,7 +1041,7 @@ PTF_TEST_CASE(DoIpEntityStatusReqParsing)
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, DOIP entity status request (0x4001)");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"DOIP entity status request","payloadLength":0})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":16385,"payloadTypeName":"DOIP entity status request","payloadLength":0})");
 }  // DoIpEntityStatusReqParsing
 
 // DoIpEntityStatusReqCreation
@@ -1080,7 +1089,7 @@ PTF_TEST_CASE(DoIpAliveCheckReqParsing)
 	PTF_ASSERT_EQUAL(doipLayer->toString(), "DoIP Layer, Alive check request (0x0007)");
 	PTF_ASSERT_EQUAL(
 	    serializeToJson(*doipLayer),
-	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":"DoIP ISO 13400-2:2012","payloadType":"Alive check request","payloadLength":0})");
+	    R"({"protocolName":"DOIP","protocolId":59,"length":8,"protocolVersion":2,"protocolVersionName":"DoIP ISO 13400-2:2012","payloadType":7,"payloadTypeName":"Alive check request","payloadLength":0})");
 }  // DoIpAliveCheckReqParsing
 
 // DoIpAliveCheckReqCreation

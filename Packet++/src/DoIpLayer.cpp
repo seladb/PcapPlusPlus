@@ -375,14 +375,20 @@ namespace pcpp
 
 	const FieldDescriptor DoIpLayer::SerializedFields::ProtocolVersion{ Layer::SerializedFields::MaxID + 1,
 		                                                                "protocolVersion" };
-	const FieldDescriptor DoIpLayer::SerializedFields::PayloadType{ Layer::SerializedFields::MaxID + 2, "payloadType" };
-	const FieldDescriptor DoIpLayer::SerializedFields::PayloadLength{ Layer::SerializedFields::MaxID + 3,
+	const FieldDescriptor DoIpLayer::SerializedFields::ProtocolVersionName{ Layer::SerializedFields::MaxID + 2,
+		                                                                    "protocolVersionName" };
+	const FieldDescriptor DoIpLayer::SerializedFields::PayloadType{ Layer::SerializedFields::MaxID + 3, "payloadType" };
+	const FieldDescriptor DoIpLayer::SerializedFields::PayloadTypeName{ Layer::SerializedFields::MaxID + 4,
+		                                                                "payloadTypeName" };
+	const FieldDescriptor DoIpLayer::SerializedFields::PayloadLength{ Layer::SerializedFields::MaxID + 5,
 		                                                              "payloadLength" };
 
 	void DoIpLayer::serializeLayer(ObjectScope& serializer) const
 	{
-		serializer.writeField(SerializedFields::ProtocolVersion, getProtocolVersionAsStr());
-		serializer.writeField(SerializedFields::PayloadType, getPayloadTypeAsStr());
+		serializer.writeField(SerializedFields::ProtocolVersion, static_cast<int>(getProtocolVersion()));
+		serializer.writeField(SerializedFields::ProtocolVersionName, getProtocolVersionAsStr());
+		serializer.writeField(SerializedFields::PayloadType, static_cast<int>(getPayloadType()));
+		serializer.writeField(SerializedFields::PayloadTypeName, getPayloadTypeAsStr());
 		serializer.writeField(SerializedFields::PayloadLength, getPayloadLength());
 	}
 
@@ -452,12 +458,15 @@ namespace pcpp
 
 	const FieldDescriptor DoIpGenericHeaderNack::SerializedFields::NackCode{ DoIpLayer::SerializedFields::MaxID + 1,
 		                                                                     "nackCode" };
+	const FieldDescriptor DoIpGenericHeaderNack::SerializedFields::NackCodeName{ DoIpLayer::SerializedFields::MaxID + 2,
+		                                                                         "nackCodeName" };
 
 	void DoIpGenericHeaderNack::serializeLayer(ObjectScope& serializer) const
 	{
 		DoIpLayer::serializeLayer(serializer);
 		auto it = DoIpEnumToStringGenericHeaderNackCodes.find(getNackCode());
-		serializer.writeField(SerializedFields::NackCode, it->second);
+		serializer.writeField(SerializedFields::NackCode, static_cast<int>(getNackCode()));
+		serializer.writeField(SerializedFields::NackCodeName, it->second);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -856,6 +865,9 @@ namespace pcpp
 	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ActivationType{
 		DoIpLayer::SerializedFields::MaxID + 2, "activationType"
 	};
+	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ReservedOem{
+		DoIpLayer::SerializedFields::MaxID + 3, "reservedOem"
+	};
 
 	void DoIpRoutingActivationRequest::serializeLayer(ObjectScope& serializer) const
 	{
@@ -863,6 +875,12 @@ namespace pcpp
 		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
 		auto activationIt = DoIpEnumToStringActivationTypes.find(getActivationType());
 		serializer.writeField(SerializedFields::ActivationType, activationIt->second);
+		if (hasReservedOem())
+		{
+			auto reservedOem = getReservedOem();
+			serializer.writeField(SerializedFields::ReservedOem,
+			                      byteArrayToHexString(reservedOem.data(), reservedOem.size()));
+		}
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -997,14 +1015,22 @@ namespace pcpp
 	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::ResponseCode{
 		DoIpLayer::SerializedFields::MaxID + 3, "responseCode"
 	};
+	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::ReservedOem{
+		DoIpLayer::SerializedFields::MaxID + 4, "reservedOem"
+	};
 
 	void DoIpRoutingActivationResponse::serializeLayer(ObjectScope& serializer) const
 	{
 		DoIpLayer::serializeLayer(serializer);
 		serializer.writeField(SerializedFields::LogicalAddressExternalTester, getLogicalAddressExternalTester());
 		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
-		auto responseIt = DoIpEnumToStringRoutingResponseCodes.find(getResponseCode());
-		serializer.writeField(SerializedFields::ResponseCode, responseIt->second);
+		serializer.writeField(SerializedFields::ResponseCode, static_cast<int>(getResponseCode()));
+		if (hasReservedOem())
+		{
+			auto reservedOem = getReservedOem();
+			serializer.writeField(SerializedFields::ReservedOem,
+			                      byteArrayToHexString(reservedOem.data(), reservedOem.size()));
+		}
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~|
@@ -1172,14 +1198,17 @@ namespace pcpp
 
 	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::NodeType{ DoIpLayer::SerializedFields::MaxID + 1,
 		                                                                        "nodeType" };
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::NodeTypeName{
+		DoIpLayer::SerializedFields::MaxID + 2, "nodeTypeName"
+	};
 	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::MaxConcurrentSockets{
-		DoIpLayer::SerializedFields::MaxID + 2, "maxConcurrentSockets"
+		DoIpLayer::SerializedFields::MaxID + 3, "maxConcurrentSockets"
 	};
 	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::CurrentlyOpenSockets{
-		DoIpLayer::SerializedFields::MaxID + 3, "currentlyOpenSockets"
+		DoIpLayer::SerializedFields::MaxID + 4, "currentlyOpenSockets"
 	};
 	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::MaxDataSize{
-		DoIpLayer::SerializedFields::MaxID + 4, "maxDataSize"
+		DoIpLayer::SerializedFields::MaxID + 5, "maxDataSize"
 	};
 
 	void DoIpEntityStatusResponse::serializeLayer(ObjectScope& serializer) const
@@ -1187,7 +1216,8 @@ namespace pcpp
 		DoIpLayer::serializeLayer(serializer);
 
 		auto nodeTypeIt = DoIpEnumToStringEntityStatusNodeTypes.find(getNodeType());
-		serializer.writeField(SerializedFields::NodeType, nodeTypeIt->second);
+		serializer.writeField(SerializedFields::NodeType, static_cast<int>(getNodeType()));
+		serializer.writeField(SerializedFields::NodeTypeName, nodeTypeIt->second);
 		serializer.writeField(SerializedFields::MaxConcurrentSockets, getMaxConcurrentSockets());
 		serializer.writeField(SerializedFields::CurrentlyOpenSockets, getCurrentlyOpenSockets());
 
