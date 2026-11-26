@@ -508,7 +508,6 @@ namespace pcpp
 	const SomeIpSdLayer::OptionsVec SomeIpSdLayer::getOptions() const
 	{
 		OptionsVec vecOptions;
-		OptionPtr option;
 
 		size_t remainingLen = getLenOptions();
 		size_t offset = sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries() + sizeof(uint32_t);
@@ -519,7 +518,7 @@ namespace pcpp
 			    reinterpret_cast<SomeIpSdOption::someipsdhdroptionsbase*>(m_Data + offset);
 			SomeIpSdOption::OptionType optionType = static_cast<SomeIpSdOption::OptionType>(hdr->type);
 
-			option = parseOption(optionType, offset, remainingLen);
+			OptionPtr option = parseOption(optionType, offset, remainingLen);
 
 			if (option != nullptr)
 			{
