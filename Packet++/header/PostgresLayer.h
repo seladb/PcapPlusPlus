@@ -510,6 +510,51 @@ namespace pcpp
 			return port == 5432;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by PostgresLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for PostgresLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ MessageOrigin, Messages };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @struct MessageObject
+			/// Fields describing one element of the Messages array
+			struct MessageObject : ObjectFieldDescriptor<MessageObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for one message
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Type, Length };
+				}
+
+				/// @brief The message type as a string (e.g. "Backend_AuthenticationOk"), written as a string
+				static const FieldDescriptor Type;
+
+				/// @brief The message length in bytes, written as a number. For messages with a type byte this excludes
+				/// that byte; for messages without one (e.g. StartupMessage) it is the raw protocol length field value.
+				static const FieldDescriptor Length;
+			};
+
+			/// @brief The message origin ("Frontend" or "Backend"), written as a string
+			static const FieldDescriptor MessageOrigin;
+
+			/// @brief PostgreSQL messages as an array of {type, length} objects
+			static const FieldDescriptor Messages;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 2;
+		};
+
 		/// Parse a PostgreSQL backend message from raw data
 		/// @param[in] data A pointer to the raw data
 		/// @param[in] dataLen Size of the data in bytes
@@ -584,6 +629,9 @@ namespace pcpp
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		PostgresMessageOrigin m_MessageOrigin;

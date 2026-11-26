@@ -66,6 +66,14 @@ namespace pcpp
 	const std::unordered_set<uint8_t> validErrorFieldTypes = { 'S', 'V', 'C', 'M', 'D', 'H', 'P', 'p', 'q',
 		                                                       'W', 's', 't', 'c', 'd', 'n', 'F', 'L', 'R' };
 
+	const PostgresLayer::SerializedFields::MessageObject PostgresMessageObject{ 0, "message" };
+	const FieldDescriptor PostgresLayer::SerializedFields::MessageObject::Type{ 0, "type" };
+	const FieldDescriptor PostgresLayer::SerializedFields::MessageObject::Length{ 1, "length" };
+
+	const FieldDescriptor PostgresLayer::SerializedFields::MessageOrigin{ Layer::SerializedFields::MaxID + 1,
+		                                                                  "messageOrigin" };
+	const FieldDescriptor PostgresLayer::SerializedFields::Messages{ Layer::SerializedFields::MaxID + 2, "messages" };
+
 	constexpr uint32_t PostgresFrontendTag_SSLRequest = 80877103;
 	constexpr uint32_t PostgresFrontendTag_GSSENCRequest = 80877104;
 	constexpr uint32_t PostgresFrontendTag_CancelRequest = 80877102;
@@ -1075,5 +1083,23 @@ namespace pcpp
 		return std::string("PostgreSQL ") +
 		       (m_MessageOrigin == PostgresMessageOrigin::Frontend ? "Frontend" : "Backend") + " Layer, " +
 		       std::to_string(messages.size()) + " message(s)";
+	}
+
+	void PostgresLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		using MessageFields = SerializedFields::MessageObject;
+
+		serializer.writeField(SerializedFields::MessageOrigin,
+		                      m_MessageOrigin == PostgresMessageOrigin::Frontend ? "Frontend" : "Backend");
+
+		{
+			auto messagesArray = serializer.writeArray(SerializedFields::Messages);
+			for (const auto& message : getPostgresMessages())
+			{
+				auto messageObject = messagesArray.writeObject(PostgresMessageObject);
+				messageObject.writeField(MessageFields::Type, message->getMessageType().toString());
+				messageObject.writeField(MessageFields::Length, message->getMessageLength());
+			}
+		}
 	}
 }  // namespace pcpp
