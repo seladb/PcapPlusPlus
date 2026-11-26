@@ -285,6 +285,7 @@ namespace pcpp
 		auto dataDecoder = X509Internal::X509ExtendedKeyUsageDataDecoder::create(rawExtensionData);
 		for (const auto& purpose : dataDecoder->getExtendedKeyUsagePurposes())
 		{
+			// cppcheck-suppress useStlAlgorithm
 			m_Purposes.push_back(X509ExtendedKeyUsagePurpose::fromOidValue(purpose));
 		}
 	}

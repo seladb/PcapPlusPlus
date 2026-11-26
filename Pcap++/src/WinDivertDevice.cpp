@@ -593,6 +593,7 @@ namespace pcpp
 
 		for (const auto& entry : m_NetworkInterfaces)
 		{
+			// cppcheck-suppress useStlAlgorithm
 			interfaces.push_back(entry.second);
 		}
 

@@ -130,6 +130,7 @@ namespace pcpp
 		for (const auto& iter : mediaAttributes)
 		{
 			if (addField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, iter) == nullptr)
+			// cppcheck-suppress useStlAlgorithm
 			{
 				PCPP_LOG_ERROR("Failed to add media attribute '" << iter << "'");
 				return false;
