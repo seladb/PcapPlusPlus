@@ -1,8 +1,10 @@
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 #include "PcapLiveDeviceList.h"
 #include "Packet.h"
-#include "SystemUtils.h"
+
 /**
  * A struct for collecting packet statistics
  */
@@ -32,7 +34,7 @@ struct PacketStats
 	/**
 	 * Collect stats from a packet
 	 */
-	void consumePacket(pcpp::Packet& packet)
+	void consumePacket(const pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::Ethernet))
 			ethPacketCount++;

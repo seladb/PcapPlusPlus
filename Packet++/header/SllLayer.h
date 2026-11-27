@@ -69,6 +69,15 @@ namespace pcpp
 		/// @return True if address was set successfully, false if MAC address isn't valid or if set failed
 		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
 
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an SLL packet
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an SLL packet
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(sll_header);
+		}
+
 		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer,
 		/// PPPoESessionLayer, PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
 		void parseNextLayer() override;
@@ -88,6 +97,37 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by SllLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for SllLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ PacketType, ArpHeaderType, ProtocolType,
+					                                          LinkLayerAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Packet type
+			static const FieldDescriptor PacketType;
+
+			/// @brief ARPHRD_* link-layer address type (e.g. 1 for Ethernet)
+			static const FieldDescriptor ArpHeaderType;
+
+			/// @brief EtherType of the encapsulated protocol, in host byte order
+			static const FieldDescriptor ProtocolType;
+
+			/// @brief Link-layer address of the sender
+			static const FieldDescriptor LinkLayerAddress;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 }  // namespace pcpp

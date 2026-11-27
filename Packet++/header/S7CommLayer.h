@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "EthLayer.h"
 #include "Layer.h"
 
@@ -92,15 +93,9 @@ namespace pcpp
 		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		S7CommLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, S7COMM)
-		{
-			m_Parameter = nullptr;
-		}
+		{}
 
-		~S7CommLayer() override
-		{
-			if (m_Parameter)
-				delete m_Parameter;
-		}
+		~S7CommLayer() override = default;
 
 		/// @return S7comm protocol id
 		uint8_t getProtocolId() const;
@@ -118,9 +113,13 @@ namespace pcpp
 		uint16_t getDataLength() const;
 
 		/// @return S7comm error code
+		/// @throw std::runtime_error if the message is not Ack-Data (message type 0x03) or is too short to hold the
+		/// error code
 		uint8_t getErrorCode() const;
 
 		/// @return S7comm error class
+		/// @throw std::runtime_error if the message is not Ack-Data (message type 0x03) or is too short to hold the
+		/// error class
 		uint8_t getErrorClass() const;
 
 		/// @return S7comm parameter
@@ -168,6 +167,48 @@ namespace pcpp
 			return OsiModelApplicationLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by S7CommLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for S7CommLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ MsgType,    MsgTypeName, PduRef,   ParamLength,
+					                                          DataLength, ErrorClass,  ErrorCode };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the S7COMM message type, written as a number.
+			static const FieldDescriptor MsgType;
+
+			/// @brief Field descriptor for the S7COMM message type name, written as a string.
+			static const FieldDescriptor MsgTypeName;
+
+			/// @brief Field descriptor for the protocol data unit reference, written as a number.
+			static const FieldDescriptor PduRef;
+
+			/// @brief Field descriptor for the parameter length (in bytes), written as a number.
+			static const FieldDescriptor ParamLength;
+
+			/// @brief Field descriptor for the data length (in bytes), written as a number.
+			static const FieldDescriptor DataLength;
+
+			/// @brief Field descriptor for the error class, written as a number. Only written for Ack-Data messages
+			/// (message type 0x03).
+			static const FieldDescriptor ErrorClass;
+
+			/// @brief Field descriptor for the error code, written as a number. Only written for Ack-Data messages
+			/// (message type 0x03).
+			static const FieldDescriptor ErrorCode;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 		s7commhdr* getS7commHeader() const
 		{
@@ -176,7 +217,7 @@ namespace pcpp
 
 		s7comm_ack_data_hdr* getS7commAckDataHeader() const
 		{
-			if (getS7commHeader()->msgType == 0x03)
+			if (getS7commHeader()->msgType == 0x03 && m_DataLen >= sizeof(s7comm_ack_data_hdr))
 			{
 				return reinterpret_cast<s7comm_ack_data_hdr*>(m_Data);
 			}
@@ -185,7 +226,7 @@ namespace pcpp
 
 		size_t getS7commHeaderLength() const;
 
-		S7CommParameter* m_Parameter;
+		std::unique_ptr<S7CommParameter> m_Parameter;
 	};
 
 }  // namespace pcpp

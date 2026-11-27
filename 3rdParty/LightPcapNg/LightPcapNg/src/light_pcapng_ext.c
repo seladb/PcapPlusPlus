@@ -38,6 +38,13 @@ struct _light_pcapng_t
 	light_pcapng pcapng;
 	light_pcapng_file_info *file_info;
 	light_file file;
+	// PCPP patch
+	// A calloc/free pair per written packet showed up as measurable overhead on write-heavy
+	// workloads, so the buffer lives on the handle and is reused across light_write_packet
+	// calls instead.
+	uint8_t *write_block_scratch;
+	size_t write_block_scratch_size;
+	// PCPP patch end
 };
 
 static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
@@ -454,8 +461,20 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 
 		light_get_block_info(pcapng->pcapng, LIGHT_INFO_BODY, &spb, NULL);
 
+		// PCPP patch (#2320): original_packet_length is not a captured length. Bound it
+		// to the number of packet bytes actually present in the block so the caller
+		// cannot memcpy past the block data.
+		uint32_t block_total_length = 0;
+		light_get_block_info(pcapng->pcapng, LIGHT_INFO_LENGTH, &block_total_length, NULL);
+		uint32_t max_captured_length = 0;
+		if (block_total_length > 4 * sizeof(uint32_t))
+		{
+			max_captured_length = block_total_length - 4 * sizeof(uint32_t);
+		}
+
 		packet_header->interface_id = 0;
-		packet_header->captured_length = spb->original_packet_length;
+		packet_header->captured_length =
+		    spb->original_packet_length < max_captured_length ? spb->original_packet_length : max_captured_length;
 		packet_header->original_length = spb->original_packet_length;
 		packet_header->timestamp.tv_sec = 0;
 		packet_header->timestamp.tv_nsec = 0;
@@ -519,8 +538,27 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 
 	size_t option_size = sizeof(struct _light_enhanced_packet_block) + packet_header->captured_length;
 	PADD32(option_size, &option_size);
-	uint8_t *epb_memory = calloc(1, option_size);
-	//memset(epb_memory, 0, option_size); should be redundant with calloc
+
+	// PCPP patch
+	// Grow the handle-owned buffer only when a bigger packet arrives, rather than sizing a
+	// fresh allocation for every packet regardless of whether the previous one already fits.
+	if (pcapng->write_block_scratch_size < option_size)
+	{
+		uint8_t *grown = realloc(pcapng->write_block_scratch, option_size);
+		DCHECK_NULLP(grown, return);
+		pcapng->write_block_scratch = grown;
+		pcapng->write_block_scratch_size = option_size;
+	}
+	uint8_t *epb_memory = pcapng->write_block_scratch;
+	// calloc used to zero the whole buffer for us; now that it is reused, leftover bytes from
+	// a previous, larger packet would otherwise leak into this packet's PADD32 padding tail
+	// once it reaches the file, so only that tail needs clearing (everything else is
+	// overwritten below).
+	size_t epb_used = sizeof(struct _light_enhanced_packet_block) + packet_header->captured_length;
+	if (option_size > epb_used)
+		memset(epb_memory + epb_used, 0, option_size - epb_used);
+	// PCPP patch end
+
 	struct _light_enhanced_packet_block *epb = (struct _light_enhanced_packet_block *)epb_memory;
 	epb->interface_id = iface_id;
 
@@ -541,7 +579,10 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	memcpy(epb->packet_data, packet_data, packet_header->captured_length);
 
 	light_pcapng packet_block_pcapng = light_alloc_block(LIGHT_ENHANCED_PACKET_BLOCK, (const uint32_t*)epb_memory, option_size+3*sizeof(uint32_t));
-	free(epb_memory);
+	// PCPP patch
+	// epb_memory is owned by the handle (write_block_scratch above), not this call, so it
+	// must not be freed here: light_pcapng_close() releases it once the handle is done.
+	// PCPP patch end
 
 	if (packet_header->comment_length > 0)
 	{
@@ -572,6 +613,13 @@ void light_pcapng_close(light_pcapng_t *pcapng)
 	}
 	if (pcapng->file_info != NULL)
 		light_free_file_info(pcapng->file_info);
+	// PCPP patch
+	// The buffer is only ever freed here, once per handle, since light_write_packet keeps
+	// reusing it instead of allocating and freeing it on every call.
+	free(pcapng->write_block_scratch);
+	pcapng->write_block_scratch = NULL;
+	pcapng->write_block_scratch_size = 0;
+	// PCPP patch end
 	free(pcapng);
 }
 

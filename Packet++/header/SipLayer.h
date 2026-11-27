@@ -95,7 +95,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
-			return OsiModelSesionLayer;
+			return OsiModelSessionLayer;
 		}
 
 		/// Currently identifies only SDP if content-length field exists and set to a value greater than zero.
@@ -617,7 +617,7 @@ namespace pcpp
 		};
 
 	private:
-		SipRequestFirstLine(SipRequestLayer* sipRequest);
+		explicit SipRequestFirstLine(SipRequestLayer* sipRequest);
 		SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, const std::string& version,
 		                    const std::string& uri);
 
@@ -653,7 +653,7 @@ namespace pcpp
 			/// @brief The SIP protocol version (e.g., SIP/2.0)
 			std::string version;
 			/// @brief The response status code number (e.g., 200, 100)
-			SipResponseLayer::SipResponseStatusCode statusCode;
+			SipResponseLayer::SipResponseStatusCode statusCode = SipResponseLayer::SipStatusCodeUnknown;
 		};
 
 		/// @return The status code as SipResponseLayer#SipResponseStatusCode enum
@@ -742,7 +742,7 @@ namespace pcpp
 		};
 
 	private:
-		SipResponseFirstLine(SipResponseLayer* sipResponse);
+		explicit SipResponseFirstLine(SipResponseLayer* sipResponse);
 		SipResponseFirstLine(SipResponseLayer* sipResponse, const std::string& version,
 		                     SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "");
 

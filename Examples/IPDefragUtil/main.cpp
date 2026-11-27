@@ -388,23 +388,24 @@ int main(int argc, char* argv[])
 	}
 
 	// create a reader device from input file
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputFile);
+	std::unique_ptr<pcpp::IFileReaderDevice> reader = pcpp::IFileReaderDevice::tryCreateReader(inputFile);
 
-	if (!reader->open())
+	if (reader == nullptr || !reader->open())
 	{
 		EXIT_WITH_ERROR("Error opening input file");
 	}
 
 	// create a writer device for output file in the same file type as input file
-	pcpp::IFileWriterDevice* writer = nullptr;
+	std::unique_ptr<pcpp::IFileWriterDevice> writer = nullptr;
 
-	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
+	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader.get()) != nullptr)
 	{
-		writer = new pcpp::PcapFileWriterDevice(outputFile, ((pcpp::PcapFileReaderDevice*)reader)->getLinkLayerType());
+		writer = std::make_unique<pcpp::PcapFileWriterDevice>(
+		    outputFile, ((pcpp::PcapFileReaderDevice*)reader.get())->getLinkLayerType());
 	}
-	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
+	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr)
 	{
-		writer = new pcpp::PcapNgFileWriterDevice(outputFile);
+		writer = std::make_unique<pcpp::PcapNgFileWriterDevice>(outputFile);
 	}
 	else
 	{
@@ -418,8 +419,8 @@ int main(int argc, char* argv[])
 
 	// run the de-fragmentation process
 	DefragStats stats;
-	processPackets(reader, writer, filterByBpfFilter, bpfFilter, filterByFragID, fragIDMap, copyAllPacketsToOutputFile,
-	               stats);
+	processPackets(reader.get(), writer.get(), filterByBpfFilter, bpfFilter, filterByFragID, fragIDMap,
+	               copyAllPacketsToOutputFile, stats);
 
 	// close files
 	reader->close();
@@ -427,7 +428,4 @@ int main(int argc, char* argv[])
 
 	// print summary stats to console
 	printStats(stats, filterByFragID, filterByBpfFilter);
-
-	delete reader;
-	delete writer;
 }

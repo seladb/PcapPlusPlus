@@ -14,8 +14,16 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest);
 // Implemented in VlanMplsTests.cpp
 PTF_TEST_CASE(VlanParseAndCreation);
 PTF_TEST_CASE(QinQ802_1adParse);
+PTF_TEST_CASE(TruncatedArpAndVlanPayloadTest);
 PTF_TEST_CASE(MplsLayerTest);
 PTF_TEST_CASE(VxlanParsingAndCreationTest);
+
+// Implemented in GeneveTests.cpp
+PTF_TEST_CASE(GeneveParsingTest);
+PTF_TEST_CASE(GeneveCreationTest);
+PTF_TEST_CASE(GeneveEditTest);
+PTF_TEST_CASE(GeneveDataValidationTest);
+PTF_TEST_CASE(GeneveOptionTraversalTest);
 
 // Implemented in IPv4Tests.cpp
 PTF_TEST_CASE(IPv4PacketCreation);
@@ -46,6 +54,7 @@ PTF_TEST_CASE(TcpChecksumMultiBuffer);
 PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
 PTF_TEST_CASE(PacketUtilsHash5TupleTcp);
 PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
+PTF_TEST_CASE(PacketSerializerTest);
 
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
@@ -59,12 +68,14 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest);
 PTF_TEST_CASE(ParsePartialPacketTest);
 PTF_TEST_CASE(PacketTrailerTest);
 PTF_TEST_CASE(ResizeLayerTest);
+PTF_TEST_CASE(PayloadLayerNullDataTest);
 PTF_TEST_CASE(PrintPacketAndLayersTest);
 PTF_TEST_CASE(ProtocolFamilyMembershipTest);
 PTF_TEST_CASE(PacketParseLayerLimitTest);
 PTF_TEST_CASE(PacketParseMultiLayerTest);
 PTF_TEST_CASE(PacketIncrementalParseTest);
 PTF_TEST_CASE(PacketFullReparseTest);
+PTF_TEST_CASE(PacketSerializeTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
@@ -90,9 +101,11 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest);
 PTF_TEST_CASE(DnsLayerResourceCreationTest);
 PTF_TEST_CASE(DnsLayerEditTest);
 PTF_TEST_CASE(DnsLayerRemoveResourceTest);
+PTF_TEST_CASE(DnsLayerAddResourceOutOfOrderTest);
 PTF_TEST_CASE(DnsOverTcpParsingTest);
 PTF_TEST_CASE(DnsOverTcpCreationTest);
 PTF_TEST_CASE(DnsLayerAddDnsKeyTest);
+PTF_TEST_CASE(DnsNXDomainTest);
 
 // Implemented in DoIpTests.cpp
 PTF_TEST_CASE(DoIpRoutActReqParsing);
@@ -132,6 +145,7 @@ PTF_TEST_CASE(DoIpInvalidPackets);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);
+PTF_TEST_CASE(IcmpTruncatedPacketTest);
 PTF_TEST_CASE(IcmpCreationTest);
 PTF_TEST_CASE(IcmpEditTest);
 
@@ -147,6 +161,15 @@ PTF_TEST_CASE(Sll2PacketCreationTest);
 
 // Implemented in NflogTests.cpp
 PTF_TEST_CASE(NflogPacketParsingTest);
+
+// Implemented in BluetoothHciTests.cpp
+PTF_TEST_CASE(BluetoothHciEventInquiryCompleteTest);
+PTF_TEST_CASE(BluetoothHciEventGenericTest);
+PTF_TEST_CASE(BluetoothHciEventInvalidDataTest);
+PTF_TEST_CASE(BluetoothHciPacketTypeTest);
+PTF_TEST_CASE(BluetoothHciEventCreationTest);
+PTF_TEST_CASE(BluetoothHciEventEditTest);
+PTF_TEST_CASE(BluetoothHciEventEdgeCasesTest);
 
 // Implemented in GreTests.cpp
 PTF_TEST_CASE(GreParsingTest);
@@ -173,6 +196,9 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
 PTF_TEST_CASE(SSLECPointFormatExtensionZeroLengthTest);
+PTF_TEST_CASE(SSLSupportedVersionsExtensionZeroLengthTest);
+PTF_TEST_CASE(SSLServerNameIndicationExtensionTruncatedTest);
+PTF_TEST_CASE(SSLAlertLayerTruncatedTest);
 PTF_TEST_CASE(TLS1_3ParsingTest);
 PTF_TEST_CASE(TLSCipherSuiteTest);
 PTF_TEST_CASE(ClientHelloTLSFingerprintTest);
@@ -193,6 +219,7 @@ PTF_TEST_CASE(SipRequestLayerCreationTest);
 PTF_TEST_CASE(SipRequestLayerEditTest);
 PTF_TEST_CASE(SipResponseParseStatusCodeTest);
 PTF_TEST_CASE(SipResponseParseVersionCodeTest);
+PTF_TEST_CASE(SipResponseParseFirstLineTest);
 PTF_TEST_CASE(SipResponseLayerParsingTest);
 PTF_TEST_CASE(SipResponseLayerCreationTest);
 PTF_TEST_CASE(SipResponseLayerEditTest);
@@ -219,6 +246,7 @@ PTF_TEST_CASE(BgpLayerParsingTest);
 PTF_TEST_CASE(BgpLayerCreationTest);
 PTF_TEST_CASE(BgpLayerEditTest);
 PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest);
+PTF_TEST_CASE(BgpMessageTooShortTest);
 
 // Implemented in SSHTests.cpp
 PTF_TEST_CASE(SSHParsingTest);
@@ -229,6 +257,8 @@ PTF_TEST_CASE(IPSecParsingTest);
 
 // Implemented in DhcpV6Tests.cpp
 PTF_TEST_CASE(DhcpV6ParsingTest);
+PTF_TEST_CASE(DhcpV6RelayMessageParsingTest);
+PTF_TEST_CASE(DhcpV6RelayMessageCreationTest);
 PTF_TEST_CASE(DhcpV6CreationTest);
 PTF_TEST_CASE(DhcpV6EditTest);
 
@@ -302,6 +332,7 @@ PTF_TEST_CASE(CotpLayerTest);
 // Implemented in S7commTests.cpp
 PTF_TEST_CASE(S7CommLayerParsingTest);
 PTF_TEST_CASE(S7CommLayerCreationTest);
+PTF_TEST_CASE(S7CommLayerMalformedTest);
 
 // Implemented in SmtpTests.cpp
 PTF_TEST_CASE(SmtpParsingTests);
@@ -324,6 +355,7 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest);
 PTF_TEST_CASE(WireGuardTransportDataParsingTest);
 PTF_TEST_CASE(WireGuardCreationTest);
 PTF_TEST_CASE(WireGuardEditTest);
+PTF_TEST_CASE(WireGuardMalformedPacketsTest);
 
 // Implemented in CiscoHdlcTests.cpp
 PTF_TEST_CASE(CiscoHdlcParsingTest);
@@ -334,6 +366,14 @@ PTF_TEST_CASE(CiscoHdlcLayerEditTest);
 PTF_TEST_CASE(ModbusLayerCreationTest);
 PTF_TEST_CASE(ModbusLayerParsingTest);
 PTF_TEST_CASE(ModbusLayerTruncatedTest);
+
+// Implemented in GvcpTests.cpp
+PTF_TEST_CASE(GvcpDiscoveryParsingTest);
+PTF_TEST_CASE(GvcpForceIpParsingTest);
+PTF_TEST_CASE(GvcpRegisterAccessParsingTest);
+PTF_TEST_CASE(GvcpMalformedParsingTest);
+PTF_TEST_CASE(GvcpLayerCreationTest);
+PTF_TEST_CASE(GvcpLayerEditTest);
 
 // Implemented in X509Tests.cpp
 PTF_TEST_CASE(X509ParsingTest);
@@ -362,3 +402,12 @@ PTF_TEST_CASE(PostgresInvalidDataTest);
 PTF_TEST_CASE(MySqlLayerParsingTest);
 PTF_TEST_CASE(MySqlMessageParsingTest);
 PTF_TEST_CASE(MySqlInvalidDataTest);
+
+// Implemented in QuicTests.cpp
+PTF_TEST_CASE(QuicV1ParsingTest);
+PTF_TEST_CASE(QuicV1MalformedPacketsTest);
+
+// Implemented in SerializerTests.cpp
+PTF_TEST_CASE(JsonSerializerTest);
+PTF_TEST_CASE(YamlSerializerTest);
+PTF_TEST_CASE(XmlSerializerTest);

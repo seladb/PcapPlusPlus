@@ -6,16 +6,16 @@
 #include "memplumber-internals.h"
 
 // Prototypes
-void* operator new(std::size_t size, const char* file, int line);
-void* operator new[](std::size_t size, const char* file, int line);
-void operator delete(void* pointer, const char* file, int line);
-void operator delete[](void* pointer, const char* file, int line);
+void* operator new(std::size_t size, const char* file, int line) noexcept(false); // PCPP Patch
+void* operator new[](std::size_t size, const char* file, int line) noexcept(false); // PCPP Patch
+void operator delete(void* pointer, const char* file, int line) noexcept; // PCPP Patch
+void operator delete[](void* pointer, const char* file, int line) noexcept; // PCPP Patch
 
 // required for Windows compilers only
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
-void operator delete[](void* pointer);
-void operator delete(void* pointer, std::size_t size);
-void operator delete[](void* pointer, std::size_t size);
+void operator delete[](void* pointer) noexcept; // PCPP Patch
+void operator delete(void* pointer, std::size_t size) noexcept; // PCPP Patch
+void operator delete[](void* pointer, std::size_t size) noexcept; // PCPP Patch
 #endif
 
 // Macros

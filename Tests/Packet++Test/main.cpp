@@ -128,8 +128,14 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(QinQ802_1adParse, "vlan");
+	PTF_RUN_TEST(TruncatedArpAndVlanPayloadTest, "vlan;arp;sll;gre");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
 	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
+	PTF_RUN_TEST(GeneveParsingTest, "geneve");
+	PTF_RUN_TEST(GeneveCreationTest, "geneve");
+	PTF_RUN_TEST(GeneveEditTest, "geneve");
+	PTF_RUN_TEST(GeneveDataValidationTest, "geneve");
+	PTF_RUN_TEST(GeneveOptionTraversalTest, "geneve");
 
 	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");
 	PTF_RUN_TEST(IPv4PacketParsing, "ipv4");
@@ -156,6 +162,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PacketUtilsHash5TupleUdp, "udp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleTcp, "tcp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleIPv6, "ipv6");
+	PTF_RUN_TEST(PacketSerializerTest, "packet");
 
 	PTF_RUN_TEST(InsertDataToPacket, "packet;insert");
 	PTF_RUN_TEST(CreatePacketFromBuffer, "packet");
@@ -168,12 +175,14 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ParsePartialPacketTest, "packet;partial_packet");
 	PTF_RUN_TEST(PacketTrailerTest, "packet;packet_trailer");
 	PTF_RUN_TEST(ResizeLayerTest, "packet;resize");
+	PTF_RUN_TEST(PayloadLayerNullDataTest, "packet;payload");
 	PTF_RUN_TEST(PrintPacketAndLayersTest, "packet;print");
 	PTF_RUN_TEST(ProtocolFamilyMembershipTest, "packet");
 	PTF_RUN_TEST(PacketParseLayerLimitTest, "packet");
 	PTF_RUN_TEST(PacketParseMultiLayerTest, "packet");
 	PTF_RUN_TEST(PacketIncrementalParseTest, "packet");
 	PTF_RUN_TEST(PacketFullReparseTest, "packet");
+	PTF_RUN_TEST(PacketSerializeTest, "packet;serializers");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
@@ -196,9 +205,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DnsLayerResourceCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerEditTest, "dns");
 	PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
+	PTF_RUN_TEST(DnsLayerAddResourceOutOfOrderTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpParsingTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerAddDnsKeyTest, "dns");
+	PTF_RUN_TEST(DnsNXDomainTest, "dns");
 
 	PTF_RUN_TEST(DoIpRoutActReqParsing, "doip");
 	PTF_RUN_TEST(DoIpRoutActReqCreation, "doip");
@@ -236,6 +247,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DoIpInvalidPackets, "doip");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
+	PTF_RUN_TEST(IcmpTruncatedPacketTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	PTF_RUN_TEST(IcmpEditTest, "icmp");
 
@@ -257,6 +269,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
 	PTF_RUN_TEST(SSLMalformedPacketParsing, "ssl");
 	PTF_RUN_TEST(SSLECPointFormatExtensionZeroLengthTest, "ssl");
+	PTF_RUN_TEST(SSLSupportedVersionsExtensionZeroLengthTest, "ssl");
+	PTF_RUN_TEST(SSLServerNameIndicationExtensionTruncatedTest, "ssl");
+	PTF_RUN_TEST(SSLAlertLayerTruncatedTest, "ssl");
 	PTF_RUN_TEST(TLS1_3ParsingTest, "ssl");
 	PTF_RUN_TEST(TLSCipherSuiteTest, "ssl");
 	PTF_RUN_TEST(ClientHelloTLSFingerprintTest, "ssl");
@@ -272,6 +287,14 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(Sll2PacketCreationTest, "sll2");
 
 	PTF_RUN_TEST(NflogPacketParsingTest, "nflog");
+
+	PTF_RUN_TEST(BluetoothHciEventInquiryCompleteTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventGenericTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventInvalidDataTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciPacketTypeTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventCreationTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventEditTest, "bluetooth_hci");
+	PTF_RUN_TEST(BluetoothHciEventEdgeCasesTest, "bluetooth_hci");
 
 	PTF_RUN_TEST(DhcpParsingTest, "dhcp");
 	PTF_RUN_TEST(DhcpCreationTest, "dhcp");
@@ -290,6 +313,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SipRequestLayerEditTest, "sip");
 	PTF_RUN_TEST(SipResponseParseStatusCodeTest, "sip");
 	PTF_RUN_TEST(SipResponseParseVersionCodeTest, "sip");
+	PTF_RUN_TEST(SipResponseParseFirstLineTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerParsingTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerCreationTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerEditTest, "sip");
@@ -313,6 +337,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
 	PTF_RUN_TEST(BgpOpenMalformedOptionalParamsTest, "bgp");
+	PTF_RUN_TEST(BgpMessageTooShortTest, "bgp");
 
 	PTF_RUN_TEST(SSHParsingTest, "ssh");
 	PTF_RUN_TEST(SSHMalformedParsingTest, "ssh");
@@ -320,6 +345,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IPSecParsingTest, "ipsec");
 
 	PTF_RUN_TEST(DhcpV6ParsingTest, "dhcp;dhcpv6");
+	PTF_RUN_TEST(DhcpV6RelayMessageParsingTest, "dhcp;dhcpv6");
+	PTF_RUN_TEST(DhcpV6RelayMessageCreationTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6CreationTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6EditTest, "dhcp;dhcpv6");
 
@@ -380,6 +407,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(S7CommLayerParsingTest, "s7comm");
 	PTF_RUN_TEST(S7CommLayerCreationTest, "s7comm");
+	PTF_RUN_TEST(S7CommLayerMalformedTest, "s7comm");
 
 	PTF_RUN_TEST(SmtpParsingTests, "smtp");
 	PTF_RUN_TEST(SmtpCreationTests, "smtp");
@@ -398,6 +426,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WireGuardTransportDataParsingTest, "wg");
 	PTF_RUN_TEST(WireGuardCreationTest, "wg");
 	PTF_RUN_TEST(WireGuardEditTest, "wg");
+	PTF_RUN_TEST(WireGuardMalformedPacketsTest, "wg");
 
 	PTF_RUN_TEST(CiscoHdlcParsingTest, "chdlc");
 	PTF_RUN_TEST(CiscoHdlcLayerCreationTest, "chdlc");
@@ -406,6 +435,13 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ModbusLayerCreationTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerParsingTest, "modbus");
 	PTF_RUN_TEST(ModbusLayerTruncatedTest, "modbus");
+
+	PTF_RUN_TEST(GvcpDiscoveryParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpForceIpParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpRegisterAccessParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpMalformedParsingTest, "gvcp");
+	PTF_RUN_TEST(GvcpLayerCreationTest, "gvcp");
+	PTF_RUN_TEST(GvcpLayerEditTest, "gvcp");
 
 	PTF_RUN_TEST(X509ParsingTest, "x509");
 	PTF_RUN_TEST(X509VariantsParsingTest, "x509");
@@ -428,6 +464,13 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(MySqlLayerParsingTest, "mysql");
 	PTF_RUN_TEST(MySqlMessageParsingTest, "mysql");
 	PTF_RUN_TEST(MySqlInvalidDataTest, "mysql");
+
+	PTF_RUN_TEST(QuicV1ParsingTest, "quic");
+	PTF_RUN_TEST(QuicV1MalformedPacketsTest, "quic");
+
+	PTF_RUN_TEST(JsonSerializerTest, "serializers");
+	PTF_RUN_TEST(YamlSerializerTest, "serializers");
+	PTF_RUN_TEST(XmlSerializerTest, "serializers");
 
 	PTF_END_RUNNING_TESTS;
 }

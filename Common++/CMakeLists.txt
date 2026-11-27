@@ -8,6 +8,7 @@ add_library(
   src/MacAddress.cpp
   src/OUILookup.cpp
   src/PcapPlusPlusVersion.cpp
+  src/Serializers.cpp
   src/SystemUtils.cpp
   src/TablePrinter.cpp
 )
@@ -27,6 +28,7 @@ set(
   header/OUILookup.h
   header/PcapPlusPlusVersion.h
   header/PointerVector.h
+  header/Serializers.h
   header/SystemUtils.h
   header/TablePrinter.h
   header/TimespecTimeval.h

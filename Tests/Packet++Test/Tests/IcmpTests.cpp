@@ -6,8 +6,12 @@
 #include "EthLayer.h"
 #include "IcmpLayer.h"
 #include "IPv4Layer.h"
+#include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
+#include "Serializers.h"
+#include <cstring>
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -79,6 +83,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(reqData->data[5], 0x0d);
 	PTF_ASSERT_EQUAL(reqData->data[43], 0x33);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpEchoRequest.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":64,"type":8,"typeName":"EchoRequest","code":0,"checksum":"0xbbb3","id":55099,"sequence":0,"timestamp":"16451935313918863185"})");
+	}
+
 	// Echo reply
 	icmpLayer = icmpEchoReply.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -91,6 +104,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(repData->data[5], 0x0d);
 	PTF_ASSERT_EQUAL(reqData->data[43], 0x33);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpEchoReply.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":64,"type":0,"typeName":"EchoReply","code":0,"checksum":"0xc3b3","id":55099,"sequence":0,"timestamp":"16451935313918863185"})");
+	}
+
 	// Timestamp request
 	icmpLayer = icmpTimestampReq.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -101,6 +123,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(tsReqData->code, 0);
 	PTF_ASSERT_EQUAL(tsReqData->originateTimestamp, 0x6324f600);
 	PTF_ASSERT_EQUAL(tsReqData->transmitTimestamp, 0);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpTimestampReq.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":20,"type":13,"typeName":"TimestampRequest","code":0,"checksum":"0x9476","id":14640,"sequence":0,"originateTimestamp":16131171,"receiveTimestamp":0,"transmitTimestamp":0})");
+	}
 
 	// Timestamp reply
 	icmpLayer = icmpTimestampReply.getLayerOfType<pcpp::IcmpLayer>();
@@ -113,6 +144,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(tsRepData->receiveTimestamp, 0x00f62d62);
 	PTF_ASSERT_EQUAL(tsRepData->transmitTimestamp, 0x00f62d62);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpTimestampReply.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":20,"type":14,"typeName":"TimestampReply","code":0,"checksum":"0xe319","id":14640,"sequence":0,"originateTimestamp":16131171,"receiveTimestamp":1647179264,"transmitTimestamp":1647179264})");
+	}
+
 	// Address mask request
 	icmpLayer = icmpAddrMaskReq.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -123,6 +163,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(maskReqData->id, 0x0cb0);
 	PTF_ASSERT_EQUAL(maskReqData->sequence, 0x6);
 	PTF_ASSERT_EQUAL(maskReqData->addressMask, 0);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpAddrMaskReq.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":12,"type":17,"typeName":"AddressMaskRequest","code":0,"checksum":"0x38f3","id":45068,"sequence":1536,"addressMask":"0.0.0.0"})");
+	}
 
 	// Address mask reply
 	icmpLayer = icmpAddrMaskRep.getLayerOfType<pcpp::IcmpLayer>();
@@ -135,6 +184,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(maskRepData->id, 0x0cb2);
 	PTF_ASSERT_EQUAL(maskRepData->type, (uint8_t)pcpp::ICMP_ADDRESS_MASK_REPLY);
 	PTF_ASSERT_EQUAL(maskRepData->addressMask, 0);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpAddrMaskRep.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":12,"type":18,"typeName":"AddressMaskReply","code":0,"checksum":"0x3bf3","id":45580,"sequence":0,"addressMask":"0.0.0.0"})");
+	}
 
 	// Router solicitation
 	icmpLayer = icmpRouterSol.getLayerOfType<pcpp::IcmpLayer>();
@@ -160,6 +218,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress(), pcpp::IPv4Address("10.0.1.2"));
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::UDP, enum);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpDestUnreachableUdp.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":8,"type":3,"typeName":"DestinationUnreachable","code":3,"checksum":"0xb42a","nextHopMTU":0})");
+	}
 
 	icmpLayer = icmpDestUnreachableEcho.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
@@ -223,7 +290,18 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::ICMP, enum);
 	icmpLayer = (pcpp::IcmpLayer*)ipLayer->getNextLayer();
 	PTF_ASSERT_EQUAL(icmpLayer->getMessageType(), pcpp::ICMP_ECHO_REQUEST, enum);
-	PTF_ASSERT_EQUAL(icmpLayer->getEchoRequestData()->header->id, 0x2);
+	// the redirect only quotes the first 8 bytes of the echo request, which can't hold icmp_echo_hdr
+	PTF_ASSERT_EQUAL(icmpLayer->getDataLen(), 8);
+	PTF_ASSERT_NULL(icmpLayer->getEchoRequestData());
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpRedirect.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":8,"type":5,"typeName":"Redirect","code":1,"checksum":"0x383e","gatewayAddress":"10.2.99.98"})");
+	}
 
 	// Router advertisement
 	icmpLayer = icmpRouterAdv1.getLayerOfType<pcpp::IcmpLayer>();
@@ -240,6 +318,15 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("192.168.144.2"));
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0x80);
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		icmpRouterAdv1.getLayerOfType<pcpp::IcmpLayer>()->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"ICMP","protocolId":10,"length":16,"type":9,"typeName":"RouterAdvertisement","code":16,"checksum":"0x8153","addressEntrySize":2,"lifetime":200,"routerAddresses":[{"routerAddress":"192.168.144.2","preferenceLevel":128}]})");
+	}
+
 	icmpLayer = icmpRouterAdv2.getLayerOfType<pcpp::IcmpLayer>();
 	PTF_ASSERT_NOT_NULL(icmpLayer);
 	PTF_ASSERT_TRUE(icmpLayer->isMessageOfType(pcpp::ICMP_ROUTER_ADV));
@@ -254,6 +341,78 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("14.80.84.66"));
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0);
 }  // IcmpParsingTest
+
+PTF_TEST_CASE(IcmpTruncatedPacketTest)
+{
+	// The ICMP header requires eight bytes, so this packet should be rejected.
+	auto rawPacket = createPacketFromHexResource("PacketExamples/IcmpInfoRequestTruncated.dat");
+	pcpp::Packet packet(rawPacket.get());
+	PTF_ASSERT_FALSE(packet.isPacketOfType(pcpp::ICMP));
+	auto* payload = packet.getLayerOfType<pcpp::PayloadLayer>();
+	PTF_ASSERT_NOT_NULL(payload);
+	PTF_ASSERT_EQUAL(payload->getPayloadLen(), 7);
+
+	// ICMP router advertisement with advertisementCount larger than the actual
+	// number of entries must be rejected instead of trusting the count.
+	uint8_t routerAdv[16] = {};
+	routerAdv[0] = pcpp::ICMP_ROUTER_ADV;
+	routerAdv[4] = 200;  // advertisementCount
+	routerAdv[5] = 2;    // addressEntrySize
+	PTF_ASSERT_FALSE(pcpp::IcmpLayer::isDataValid(routerAdv, sizeof(routerAdv)));
+
+	routerAdv[4] = 1;
+	PTF_ASSERT_TRUE(pcpp::IcmpLayer::isDataValid(routerAdv, sizeof(routerAdv)));
+
+	auto rawRouterAdvPacket = createPacketFromHexResource("PacketExamples/IcmpRouterAdvInvalidCount.dat");
+	pcpp::Packet routerAdvPacket(rawRouterAdvPacket.get());
+	PTF_ASSERT_FALSE(routerAdvPacket.isPacketOfType(pcpp::ICMP));
+
+	// getRouterAddress() must not expose entries that aren't present in the layer data, even when
+	// advertisementCount claims more entries than the layer actually contains
+	pcpp::IcmpLayer routerAdvLayer;
+	std::vector<pcpp::icmp_router_address_structure> routerAddresses(1);
+	PTF_ASSERT_NOT_NULL(routerAdvLayer.setRouterAdvertisementData(0, 1800, routerAddresses));
+	auto* routerAdvData = routerAdvLayer.getRouterAdvertisementData();
+	PTF_ASSERT_NOT_NULL(routerAdvData);
+	PTF_ASSERT_NOT_NULL(routerAdvData->getRouterAddress(0));
+	routerAdvData->header->advertisementCount = 200;
+	PTF_ASSERT_NULL(routerAdvData->getRouterAddress(1));
+
+	// An echo request without payload is 8 bytes, shorter than icmp_echo_hdr which also holds a timestamp.
+	// The echo getters must not return a header that reads past the layer or a data length that underflows
+	auto rawPacketEcho = createPacketFromHexResource("PacketExamples/IcmpEchoRequestNoPayload.dat");
+	pcpp::Packet echoPacket(rawPacketEcho.get());
+	auto* icmpLayer = echoPacket.getLayerOfType<pcpp::IcmpLayer>();
+	PTF_ASSERT_NOT_NULL(icmpLayer);
+	PTF_ASSERT_TRUE(icmpLayer->isMessageOfType(pcpp::ICMP_ECHO_REQUEST));
+	PTF_ASSERT_EQUAL(icmpLayer->getDataLen(), 8);
+	PTF_ASSERT_NULL(icmpLayer->getEchoRequestData());
+	icmpLayer->getIcmpHeader()->type = static_cast<uint8_t>(pcpp::ICMP_ECHO_REPLY);
+	PTF_ASSERT_NULL(icmpLayer->getEchoReplyData());
+
+	// A time exceeded message (Eth / IPv4 / ICMP) quoting an IPv4 header whose IHL is 15 (60 bytes) while only the
+	// 20-byte base header is present. The checksum must cover the ICMP message only, not the bytes after the packet.
+	const uint8_t timeExceeded[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x08,
+		                             0x00, 0x45, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00, 0x00, 0x40, 0x01, 0x00, 0x00,
+		                             0xc0, 0xa8, 0x00, 0x01, 0xc0, 0xa8, 0x00, 0x02, 0x0b, 0x00, 0x00, 0x00, 0x00,
+		                             0x00, 0x00, 0x00, 0x4f, 0x00, 0x00, 0x54, 0x00, 0x00, 0x00, 0x00, 0x40, 0x11,
+		                             0x00, 0x00, 0xc0, 0xa8, 0x00, 0x02, 0x08, 0x08, 0x08, 0x08 };
+	uint8_t timeExceededBuffer[sizeof(timeExceeded) + 40];
+	memset(timeExceededBuffer, 0xab, sizeof(timeExceededBuffer));
+	memcpy(timeExceededBuffer, timeExceeded, sizeof(timeExceeded));
+
+	timeval time{};
+	pcpp::RawPacket timeExceededRawPacket(timeExceededBuffer, sizeof(timeExceeded), time, false);
+	pcpp::Packet timeExceededPacket(&timeExceededRawPacket);
+	auto* timeExceededLayer = timeExceededPacket.getLayerOfType<pcpp::IcmpLayer>();
+	PTF_ASSERT_NOT_NULL(timeExceededLayer);
+	PTF_ASSERT_EQUAL(timeExceededLayer->getDataLen(), 28);
+	auto* quotedIpLayer = timeExceededPacket.getNextLayerOfType<pcpp::IPv4Layer>(timeExceededLayer);
+	PTF_ASSERT_NOT_NULL(quotedIpLayer);
+	PTF_ASSERT_EQUAL(quotedIpLayer->getHeaderLen(), 60);
+	timeExceededPacket.computeCalculateFields();
+	PTF_ASSERT_EQUAL(timeExceededLayer->getIcmpHeader()->checksum, htobe16(0xf4ff));
+}  // IcmpTruncatedPacketTest
 
 PTF_TEST_CASE(IcmpCreationTest)
 {

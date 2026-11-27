@@ -46,17 +46,17 @@ void readCommandLineArguments(int argc, char* argv[], const std::string& thisSid
  * Send an ICMP request from source to dest with certain ICMP ID, msgType will be written in the timestamp field of the
  * request, and data will be written in the data section of the request
  */
-bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
-                     pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr, size_t icmpMsgId, uint64_t msgType,
-                     uint8_t* data, size_t dataLen);
+bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress const& srcMacAddr, pcpp::MacAddress const& dstMacAddr,
+                     pcpp::IPv4Address const& srcIPAddr, pcpp::IPv4Address const& dstIPAddr, size_t icmpMsgId,
+                     uint64_t msgType, uint8_t* data, size_t dataLen);
 
 /**
  * Send an ICMP reply from source to dest with certain ICMP ID, msgType will be written in the timestamp field of the
  * request, and data will be written in the data section of the request
  */
-bool sendIcmpResponse(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
-                      pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr, size_t icmpMsgId, uint64_t msgType,
-                      uint8_t* data, size_t dataLen);
+bool sendIcmpResponse(pcpp::PcapLiveDevice* dev, pcpp::MacAddress const& srcMacAddr, pcpp::MacAddress const& dstMacAddr,
+                      pcpp::IPv4Address const& srcIPAddr, pcpp::IPv4Address const& dstIPAddr, size_t icmpMsgId,
+                      uint64_t msgType, uint8_t* data, size_t dataLen);
 
 /**
  * An auxiliary method for extracting the file name from file path,

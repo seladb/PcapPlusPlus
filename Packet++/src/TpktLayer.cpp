@@ -65,4 +65,10 @@ namespace pcpp
 		tryConstructNextLayerWithFallback<CotpLayer, PayloadLayer>(payload, payloadLen);
 	}
 
+	const FieldDescriptor TpktLayer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 1, "version" };
+
+	void TpktLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::Version, getTpktHeader()->version);
+	}
 }  // namespace pcpp

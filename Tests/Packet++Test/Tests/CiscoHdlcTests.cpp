@@ -29,6 +29,15 @@ PTF_TEST_CASE(CiscoHdlcParsingTest)
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getNextProtocol(), 0x800);
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->toString(), "Cisco HDLC Layer");
 		PTF_ASSERT_EQUAL(ciscoHdlcLayer->getNextLayer()->getProtocol(), pcpp::IPv4);
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			ciscoHdlcLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"({"protocolName":"CiscoHDLC","protocolId":58,"length":4,"address":"Unicast","nextProtocol":2048})");
+		}
 	}
 
 	{

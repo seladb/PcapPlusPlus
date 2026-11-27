@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
         pcpp::IPv4Address destIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address();
 
         // 소스 및 대상 IP 출력
-        std::cout << "Source IP is '" << srcIP << "'; Dest IP is '" << destIP << "'" << std::endl;
+        std::cout << "소스 IP: '" << srcIP << "'; 대상 IP: '" << destIP << "'" << std::endl;
     }
 
     // 파일 닫기
@@ -218,79 +218,83 @@ PcapPlusPlus는 현재 다음 프로토콜의 패킷을 파싱, 편집 및 생�
 
 ### 데이터 링크 계층 (L2)
 
-1. Cisco HDLC
-2. Ethernet II
-3. IEEE 802.3 Ethernet
-4. LLC (BPDU만 지원)
-5. Null/Loopback
-6. Packet trailer (패킷 패딩)
-7. PPPoE
-8. SLL (Linux cooked capture)
-9. SLL2 (Linux cooked capture v2)
-10. STP
-11. VLAN
-12. VXLAN
-13. Wake on LAN (WoL)
-14. NFLOG (Linux Netfilter NFLOG) - 파싱만 가능 (편집 불가)
+1. Bluetooth HCI
+2. Cisco HDLC
+3. Ethernet II
+4. GENEVE
+5. IEEE 802.3 Ethernet
+6. LLC (BPDU만 지원)
+7. Null/Loopback
+8. Packet trailer (패킷 패딩)
+9. PPPoE
+10. SLL (Linux cooked capture)
+11. SLL2 (Linux cooked capture v2)
+12. STP
+13. VLAN
+14. VXLAN
+15. Wake on LAN (WoL)
+16. NFLOG (Linux Netfilter NFLOG) - 파싱만 가능 (편집 불가)
 
 ### 네트워크 계층 (L3)
 
-15. ARP
-16. GRE
-17. ICMP
-18. ICMPv6
-19. IGMP (IGMPv1, IGMPv2, IGMPv3 지원)
-20. IPv4
-21. IPv6
-22. MPLS
-23. NDP
-24. Raw IP (IPv4 & IPv6)
-25. VRRP (IPv4 & IPv6)
-26. WireGuard
+17. ARP
+18. GRE
+19. ICMP
+20. ICMPv6
+21. IGMP (IGMPv1, IGMPv2, IGMPv3 지원)
+22. IPv4
+23. IPv6
+24. MPLS
+25. NDP
+26. Raw IP (IPv4 & IPv6)
+27. VRRP (IPv4 & IPv6)
+28. WireGuard
 
 ### 전송 계층 (L4)
 
-27. COTP
-28. GTP (v1 & v2)
-29. IPSec AH & ESP - 파싱만 가능 (편집 불가)
-30. TCP
-31. TPKT
-32. UDP
+29. COTP
+30. GTP (v1 & v2)
+31. IPSec AH & ESP - 파싱만 가능 (편집 불가)
+32. QUIC v1 - 파싱만 가능 (편집 불가)
+33. TCP
+34. TPKT
+35. UDP
 
 ### 세션 계층 (L5)
 
-33. SDP
-34. SIP
+36. SDP
+37. SIP
 
 ### 프레젠테이션 계층 (L6)
 
-35. SSL/TLS - 파싱만 가능 (편집 불가)
+38. SSL/TLS - 파싱만 가능 (편집 불가)
 
 ### 응용 계층 (L7)
 
-36. ASN.1 인코더 및 디코더
-37. BGP (v4)
-38. 암호화 키 디코더
-39. DHCP
-40. DHCPv6
-41. DNS
-42. DoIP
-43. FTP
-44. HTTP 헤더 (요청 및 응답)
-45. LDAP
-46. Modbus
-47. MySQL - 파싱만 가능 (편집 불가)
-48. NTP (v3, v4)
-49. PEM 인코더 및 디코더
-50. PostgreSQL Wire Protocol (PGWire) - 파싱만 가능 (편집 불가)
-51. Radius
-52. S7 Communication (S7comm)
-53. SMTP
-54. SOME/IP
-55. SSH - 파싱만 가능 (편집 불가)
-56. Telnet - 파싱만 가능 (편집 불가)
-57. X509 인증서 - 파싱만 가능 (편집 불가)
-58. 일반 페이로드
+39. ASN.1 인코더 및 디코더
+40. BGP (v4)
+41. 암호화 키 디코더
+42. DHCP
+43. DHCPv6
+44. DNS
+45. DoIP
+46. FTP
+47. GVCP
+48. HTTP 헤더 (요청 및 응답)
+49. LDAP
+50. Modbus
+51. MySQL - 파싱만 가능 (편집 불가)
+52. NTP (v3, v4)
+53. PEM 인코더 및 디코더
+54. PostgreSQL Wire Protocol (PGWire) - 파싱만 가능 (편집 불가)
+55. Radius
+56. S7 Communication (S7comm)
+57. SMTP
+58. SOME/IP
+59. SSH - 파싱만 가능 (편집 불가)
+60. Telnet - 파싱만 가능 (편집 불가)
+61. X509 인증서 - 파싱만 가능 (편집 불가)
+62. 일반 페이로드
 
 ## DPDK 및 PF_RING 지원
 

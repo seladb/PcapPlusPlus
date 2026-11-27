@@ -258,16 +258,16 @@ bool sendIcmpMessage(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcp
 	return dev->sendPacket(packet);
 }
 
-bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, const pcpp::MacAddress dstMacAddr,
-                     pcpp::IPv4Address srcIPAddr, const pcpp::IPv4Address dstIPAddr, size_t icmpMsgId, uint64_t msgType,
-                     uint8_t* data, size_t dataLen)
+bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress const& srcMacAddr, pcpp::MacAddress const& dstMacAddr,
+                     pcpp::IPv4Address const& srcIPAddr, pcpp::IPv4Address const& dstIPAddr, size_t icmpMsgId,
+                     uint64_t msgType, uint8_t* data, size_t dataLen)
 {
 	return sendIcmpMessage(dev, srcMacAddr, dstMacAddr, srcIPAddr, dstIPAddr, icmpMsgId, msgType, data, dataLen, true);
 }
 
-bool sendIcmpResponse(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
-                      pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr, size_t icmpMsgId, uint64_t msgType,
-                      uint8_t* data, size_t dataLen)
+bool sendIcmpResponse(pcpp::PcapLiveDevice* dev, pcpp::MacAddress const& srcMacAddr, pcpp::MacAddress const& dstMacAddr,
+                      pcpp::IPv4Address const& srcIPAddr, pcpp::IPv4Address const& dstIPAddr, size_t icmpMsgId,
+                      uint64_t msgType, uint8_t* data, size_t dataLen)
 {
 	return sendIcmpMessage(dev, srcMacAddr, dstMacAddr, srcIPAddr, dstIPAddr, icmpMsgId, msgType, data, dataLen, false);
 }

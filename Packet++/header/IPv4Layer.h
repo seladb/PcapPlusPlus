@@ -6,6 +6,8 @@
 #include "IPLayer.h"
 #include <string.h>
 #include <vector>
+#include <algorithm>
+#include <iterator>
 
 /// @file
 
@@ -604,6 +606,52 @@ namespace pcpp
 		/// @param[in] dataLen The length of the byte stream
 		/// @return True if the data is valid and can represent an IPv4 packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		/// @struct SerializedFields
+		/// Fields written by IPv4Layer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for IPv4Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SrcIp,       DstIp,      IpId,           IpProtocol,
+					                                          TotalLength, IsFragment, FragmentOffset, Options };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Source IP address, as a string
+			static const FieldDescriptor SrcIp;
+
+			/// @brief Destination IP address, as a string
+			static const FieldDescriptor DstIp;
+
+			/// @brief IP identification field, in host byte order
+			static const FieldDescriptor IpId;
+
+			/// @brief Next layer's protocol (e.g. 6 for TCP, 17 for UDP)
+			static const FieldDescriptor IpProtocol;
+
+			/// @brief Total length, in host byte order
+			static const FieldDescriptor TotalLength;
+
+			/// @brief Whether this packet is a fragment
+			static const FieldDescriptor IsFragment;
+
+			/// @brief Fragment offset, in 8-byte units
+			static const FieldDescriptor FragmentOffset;
+
+			/// @brief Array of header options; elements described by Option
+			static const FieldDescriptor Options;
+
+			/// @brief One option's type name (e.g. "NOP"); an Options element, not included in all()
+			static const FieldDescriptor Option;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		int m_NumOfTrailingBytes;

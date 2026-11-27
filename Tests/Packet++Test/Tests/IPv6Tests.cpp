@@ -34,13 +34,29 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	pcpp::IPv6Address dstIP("ff02::c");
 	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIPAddress(), srcIP);
 	PTF_ASSERT_EQUAL(ipv6Layer->getDstIPAddress(), dstIP);
-	pcpp::UdpLayer* pUdpLayer = nullptr;
-	pUdpLayer = ip6UdpPacket.getLayerOfType<pcpp::UdpLayer>();
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ipv6Layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"IPv6","protocolId":3,"length":40,"srcIP":"fe80::4dc7:f593:1f7b:dc11","dstIP":"ff02::c","payloadLength":154,"isFragment":false,"nextHeader":17,"extensions":[]})");
+	}
+
+	auto pUdpLayer = ip6UdpPacket.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(pUdpLayer);
 	PTF_ASSERT_EQUAL(pUdpLayer->getDstPort(), 1900);
 	PTF_ASSERT_EQUAL(pUdpLayer->getSrcPort(), 63628);
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->length, htobe16(154));
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->headerChecksum, htobe16(0x5fea));
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		pUdpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"UDP","protocolId":5,"length":8,"srcPort":63628,"dstPort":1900,"checksum":"0x5fea"})");
+	}
 
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("6c:f0:49:b2:de:6e"), pcpp::MacAddress("33:33:00:00:00:0c"));
 
@@ -128,6 +144,15 @@ PTF_TEST_CASE(IPv6FragmentationTest)
 	PTF_ASSERT_EQUAL(fragHeader->getFragmentOffset(), 4344);
 	PTF_ASSERT_EQUAL(be32toh(fragHeader->getFragHeader()->id), 0xf88eb466);
 	PTF_ASSERT_EQUAL(fragHeader->getFragHeader()->nextHeader, pcpp::PACKETPP_IPPROTO_UDP);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ipv6Layer->serialize(serializer);
+		auto serializedData = oss.str();
+		PTF_ASSERT_CONTAINS(serializedData, R"("isFragment":true)");
+		PTF_ASSERT_CONTAINS(serializedData, R"("extensions":[{"name":"Fragment","type":44}])");
+	}
 
 	pcpp::EthLayer newEthLayer(*frag1.getLayerOfType<pcpp::EthLayer>());
 
@@ -273,6 +298,16 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<pcpp::IPv6HopByHopHeader>()->getFirstOption().getType(), 5);
 	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<pcpp::IPv6RoutingHeader>());
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<pcpp::IPv6RoutingHeader>()->getRoutingHeader()->routingType, 0);
+	PTF_ASSERT_EQUAL(ipv6Layer->toString(),
+	                 "IPv6 Layer, Src: fe80::2, Dst: ff02::5, Options=[Hop-By-Hop,Destination,Routing,Authentication]");
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		ipv6Layer->serialize(serializer);
+		PTF_ASSERT_CONTAINS(
+		    oss.str(),
+		    R"("extensions":[{"name":"Hop-By-Hop","type":0},{"name":"Destination","type":60},{"name":"Routing","type":43},{"name":"Authentication","type":51}])");
+	}
 
 	// creation of Destination extension
 	pcpp::EthLayer newEthLayer(*ipv6Dest.getLayerOfType<pcpp::EthLayer>());

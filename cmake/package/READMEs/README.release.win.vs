@@ -32,7 +32,6 @@ In order to compile your application with these binaries you need to:
 Running the examples:
 ---------------------
 
- - Make sure you have WinPcap, Npcap or Wireshark installed. It's not needed by every example individually, but the
-   examples are built with WinPcap/Npcap support by default, so it's required for the standard build
+ - Make sure you have WinPcap, Npcap or Wireshark installed. It's not needed by every example individually, but the examples are built with WinPcap/Npcap support by default, so it's required for the standard build
  - Make sure you have Visual C++ Redistributable for Visual Studio installed
  - If examples still don't run, install Visual C++ Redistributable for Visual Studio 2010 also

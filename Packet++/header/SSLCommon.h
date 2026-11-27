@@ -3,6 +3,8 @@
 #include <string>
 #include <stdint.h>
 
+#include "DeprecationUtils.h"
+
 /// @file
 /// See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
 
@@ -349,7 +351,7 @@ namespace pcpp
 	};
 
 	/// SSL/TLS symmetric encryption algorithms
-	enum SSLSymetricEncryptionAlgorithm
+	enum SSLSymmetricEncryptionAlgorithm
 	{
 		/// Null value
 		SSL_SYM_NULL,
@@ -428,6 +430,9 @@ namespace pcpp
 		/// Unknown algorithm
 		SSL_SYM_Unknown
 	};
+	/// Deprecated typo, use SSLSymmetricEncryptionAlgorithm instead
+	using SSLSymetricEncryptionAlgorithm PCPP_DEPRECATED("Use SSLSymmetricEncryptionAlgorithm instead") =
+	    SSLSymmetricEncryptionAlgorithm;
 
 	/// SSL/TLS hashing algorithms
 	enum SSLHashingAlgorithm

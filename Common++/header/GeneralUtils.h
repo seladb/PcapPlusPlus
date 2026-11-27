@@ -47,7 +47,7 @@ namespace pcpp
 	/// Calculates alignment.
 	/// @param[in] number Given number
 	/// @return The aligned number
-	template <int alignment> static int align(int number)
+	template <int alignment> int align(int number)
 	{
 		// Only works for alignment with power of 2
 		constexpr bool isPowerOfTwo = alignment && ((alignment & (alignment - 1)) == 0);

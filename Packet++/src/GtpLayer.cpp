@@ -12,7 +12,7 @@
 namespace pcpp
 {
 
-#define PCPP_GTP_V1_GPDU_MESSAGE_TYPE 0xff
+	constexpr uint8_t GtpV1GpduMessageType = 0xff;
 
 	/// ==================
 	/// GtpExtension class
@@ -390,7 +390,9 @@ namespace pcpp
 		}
 
 		// lastExt != null means layer contains 1 or more extensions
-		if (!lastExt.isNull())
+		const bool hadExtension = !lastExt.isNull();
+
+		if (hadExtension)
 		{
 			// add ext total length to offset
 			offsetForNewExtension += lastExt.getTotalLength();
@@ -403,11 +405,17 @@ namespace pcpp
 			return {};
 		}
 
-		// lastExt != null means layer contains 1 or more extensions
-		if (!lastExt.isNull())
+		// extendLayer() may have reallocated the packet buffer, so lastExt is no longer valid.
+		// Re-walk the extension chain in the current buffer before linking the new extension.
+		if (hadExtension)
 		{
-			// set the next header type in the last extension
-			lastExt.setNextHeaderType(extensionType);
+			GtpV1Layer::GtpExtension refreshedLastExt = getNextExtension();
+			while (!refreshedLastExt.getNextExtension().isNull())
+			{
+				refreshedLastExt = refreshedLastExt.getNextExtension();
+			}
+
+			refreshedLastExt.setNextHeaderType(extensionType);
 		}
 		else
 		{
@@ -543,7 +551,7 @@ namespace pcpp
 			return false;
 		}
 
-		return header->messageType == PCPP_GTP_V1_GPDU_MESSAGE_TYPE;
+		return header->messageType == GtpV1GpduMessageType;
 	}
 
 	bool GtpV1Layer::isGTPCMessage() const
@@ -554,7 +562,7 @@ namespace pcpp
 			return false;
 		}
 
-		return header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE;
+		return header->messageType != GtpV1GpduMessageType;
 	}
 
 	void GtpV1Layer::parseNextLayer()
@@ -567,7 +575,7 @@ namespace pcpp
 		}
 
 		gtpv1_header* header = getHeader();
-		if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+		if (header->messageType != GtpV1GpduMessageType)
 		{
 			// this is a GTP-C message, hence it is the last layer
 			return;
@@ -609,7 +617,7 @@ namespace pcpp
 
 		size_t res = sizeof(gtpv1_header);
 
-		if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+		if (header->messageType != GtpV1GpduMessageType)
 		{
 			size_t msgLen = be16toh(header->messageLength);
 			res += (msgLen > m_DataLen - sizeof(gtpv1_header) ? m_DataLen - sizeof(gtpv1_header) : msgLen);
@@ -633,6 +641,55 @@ namespace pcpp
 		return res;
 	}
 
+	const FieldDescriptor GtpV1Layer::SerializedFields::Version{ Layer::SerializedFields::MaxID + 1, "version" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::ProtocolType{ Layer::SerializedFields::MaxID + 2,
+		                                                              "protocolType" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 3,
+		                                                             "messageType" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::MessageTypeName{ Layer::SerializedFields::MaxID + 4,
+		                                                                 "messageTypeName" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::MessageLength{ Layer::SerializedFields::MaxID + 5,
+		                                                               "messageLength" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::Teid{ Layer::SerializedFields::MaxID + 6, "teid" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 7,
+		                                                                "sequenceNumber" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::NpduNumber{ Layer::SerializedFields::MaxID + 8, "npduNumber" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::Extensions{ Layer::SerializedFields::MaxID + 9, "extensions" };
+	const FieldDescriptor GtpV1Layer::SerializedFields::Extension{ 0, "extension" };
+
+	void GtpV1Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		const gtpv1_header* header = getHeader();
+		serializer.writeField(SerializedFields::Version, header->version);
+		serializer.writeField(SerializedFields::ProtocolType, header->protocolType);
+		serializer.writeField(SerializedFields::MessageType, header->messageType);
+		serializer.writeField(SerializedFields::MessageTypeName, getMessageTypeAsString());
+		serializer.writeField(SerializedFields::MessageLength, be16toh(header->messageLength));
+		serializer.writeHexField(SerializedFields::Teid, be32toh(header->teid));
+
+		uint16_t seqNumber = 0;
+		if (getSequenceNumber(seqNumber))
+		{
+			serializer.writeField(SerializedFields::SequenceNumber, seqNumber);
+		}
+
+		uint8_t npduNum = 0;
+		if (getNpduNumber(npduNum))
+		{
+			serializer.writeField(SerializedFields::NpduNumber, npduNum);
+		}
+
+		uint8_t nextExtType = 0;
+		if (getNextExtensionHeaderType(nextExtType))
+		{
+			auto extensions = serializer.writeArray(SerializedFields::Extensions);
+			for (auto ext = getNextExtension(); !ext.isNull(); ext = ext.getNextExtension())
+			{
+				extensions.writeField(SerializedFields::Extension, ext.getExtensionType());
+			}
+		}
+	}
+
 	std::string GtpV1Layer::toString() const
 	{
 		std::string res = "GTP v1 Layer";
@@ -644,7 +701,7 @@ namespace pcpp
 			teidStream << be32toh(header->teid);
 
 			std::string gtpu_gtpc;
-			if (header->messageType == PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
+			if (header->messageType == GtpV1GpduMessageType)
 			{
 				gtpu_gtpc = "GTP-U message";
 			}
@@ -1027,6 +1084,14 @@ namespace pcpp
 			return false;
 		}
 
+		// When the TEID-present flag is set, the fixed header carries the 4-byte TEID before
+		// the sequence-number word, so the minimum length grows accordingly. Without this
+		// check accessors such as getSequenceNumber() would read past the buffer (GH #2171).
+		if (header->teidPresent && dataSize < sizeof(gtpv2_basic_header) + 2 * sizeof(uint32_t))
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -1177,26 +1242,25 @@ namespace pcpp
 	GtpV2InformationElement GtpV2Layer::getFirstInformationElement() const
 	{
 		auto* basePtr = getIEBasePtr();
-		return m_IEReader.getFirstTLVRecord(basePtr, m_Data + getHeaderLen() - basePtr);
+		return m_IEReader.getFirstTLVRecord(basePtr, getIEDataLen(basePtr));
 	}
 
 	GtpV2InformationElement GtpV2Layer::getNextInformationElement(GtpV2InformationElement infoElement) const
 	{
 		auto* basePtr = getIEBasePtr();
-		return m_IEReader.getNextTLVRecord(infoElement, basePtr, m_Data + getHeaderLen() - basePtr);
+		return m_IEReader.getNextTLVRecord(infoElement, basePtr, getIEDataLen(basePtr));
 	}
 
 	GtpV2InformationElement GtpV2Layer::getInformationElement(GtpV2InformationElement::Type infoElementType) const
 	{
 		auto* basePtr = getIEBasePtr();
-		return m_IEReader.getTLVRecord(static_cast<uint32_t>(infoElementType), basePtr,
-		                               m_Data + getHeaderLen() - basePtr);
+		return m_IEReader.getTLVRecord(static_cast<uint32_t>(infoElementType), basePtr, getIEDataLen(basePtr));
 	}
 
 	size_t GtpV2Layer::getInformationElementCount() const
 	{
 		auto* basePtr = getIEBasePtr();
-		return m_IEReader.getTLVRecordCount(basePtr, m_Data + getHeaderLen() - basePtr);
+		return m_IEReader.getTLVRecordCount(basePtr, getIEDataLen(basePtr));
 	}
 
 	GtpV2InformationElement GtpV2Layer::addInformationElement(const GtpV2InformationElementBuilder& infoElementBuilder)
@@ -1343,6 +1407,53 @@ namespace pcpp
 		}
 	}
 
+	const FieldDescriptor GtpV2Layer::SerializedFields::MessageType{ Layer::SerializedFields::MaxID + 1,
+		                                                             "messageType" };
+	const FieldDescriptor GtpV2Layer::SerializedFields::MessageTypeName{ Layer::SerializedFields::MaxID + 2,
+		                                                                 "messageTypeName" };
+	const FieldDescriptor GtpV2Layer::SerializedFields::MessageLength{ Layer::SerializedFields::MaxID + 3,
+		                                                               "messageLength" };
+	const FieldDescriptor GtpV2Layer::SerializedFields::Piggybacking{ Layer::SerializedFields::MaxID + 4,
+		                                                              "piggybacking" };
+	const FieldDescriptor GtpV2Layer::SerializedFields::Teid{ Layer::SerializedFields::MaxID + 5, "teid" };
+	const FieldDescriptor GtpV2Layer::SerializedFields::SequenceNumber{ Layer::SerializedFields::MaxID + 6,
+		                                                                "sequenceNumber" };
+	const FieldDescriptor GtpV2Layer::SerializedFields::MessagePriority{ Layer::SerializedFields::MaxID + 7,
+		                                                                 "messagePriority" };
+	const FieldDescriptor GtpV2Layer::SerializedFields::InformationElements{ Layer::SerializedFields::MaxID + 8,
+		                                                                     "informationElements" };
+	const FieldDescriptor GtpV2Layer::SerializedFields::InformationElement{ 0, "informationElement" };
+
+	void GtpV2Layer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::MessageType, getHeader()->messageType);
+		serializer.writeField(SerializedFields::MessageTypeName, getMessageType().toString());
+		serializer.writeField(SerializedFields::MessageLength, getMessageLength());
+		serializer.writeField(SerializedFields::Piggybacking, isPiggybacking());
+
+		auto teid = getTeid();
+		if (teid.first)
+		{
+			serializer.writeHexField(SerializedFields::Teid, teid.second);
+		}
+
+		serializer.writeField(SerializedFields::SequenceNumber, getSequenceNumber());
+
+		auto messagePriority = getMessagePriority();
+		if (messagePriority.first)
+		{
+			serializer.writeField(SerializedFields::MessagePriority, messagePriority.second);
+		}
+
+		auto infoElements = serializer.writeArray(SerializedFields::InformationElements);
+		for (auto infoElement = getFirstInformationElement(); infoElement.isNotNull();
+		     infoElement = getNextInformationElement(infoElement))
+		{
+			infoElements.writeField(SerializedFields::InformationElement,
+			                        static_cast<uint8_t>(infoElement.getIEType()));
+		}
+	}
+
 	std::string GtpV2Layer::toString() const
 	{
 		return "GTPv2 Layer, " + getMessageType().toString() + " message";
@@ -1357,6 +1468,14 @@ namespace pcpp
 		}
 
 		return basePtr;
+	}
+
+	size_t GtpV2Layer::getIEDataLen(const uint8_t* basePtr) const
+	{
+		// messageLength may be smaller than the fixed part of the header in malformed packets
+		auto ieOffset = static_cast<size_t>(basePtr - m_Data);
+		auto headerLen = getHeaderLen();
+		return headerLen > ieOffset ? headerLen - ieOffset : 0;
 	}
 
 }  // namespace pcpp

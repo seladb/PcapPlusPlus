@@ -20,7 +20,7 @@ static void BM_FileRead(benchmark::State& state, std::string const& filepath)
 		return;
 	}
 
-	auto reader = std::unique_ptr<pcpp::IFileReaderDevice>(pcpp::IFileReaderDevice::getReader(filepath));
+	auto reader = pcpp::IFileReaderDevice::tryCreateReader(filepath);
 	if (reader == nullptr)
 	{
 		state.SkipWithError("Cannot create file reader for file: " + filepath);
@@ -155,7 +155,7 @@ static void BM_PacketParsing(benchmark::State& state, std::string const& filenam
 	}
 
 	// Open the pcap file for reading
-	auto reader = std::unique_ptr<pcpp::IFileReaderDevice>(pcpp::IFileReaderDevice::getReader(filename));
+	auto reader = pcpp::IFileReaderDevice::tryCreateReader(filename);
 	if (reader == nullptr)
 	{
 		state.SkipWithError("Cannot create file reader for file: " + filename);
@@ -215,7 +215,7 @@ static void BM_PacketPureParsing(benchmark::State& state, std::string const& fil
 	}
 
 	// Open the pcap file for reading
-	auto reader = std::unique_ptr<pcpp::IFileReaderDevice>(pcpp::IFileReaderDevice::getReader(filename));
+	auto reader = pcpp::IFileReaderDevice::tryCreateReader(filename);
 	if (reader == nullptr)
 	{
 		state.SkipWithError("Cannot create file reader for file: " + filename);

@@ -41,7 +41,5 @@ Using PcapPlusPlus in your project:
 Running the examples:
 ---------------------
 
- - Make sure you have libpcap installed (or install it with Homebrew: https://formulae.brew.sh/formula/libpcap). It's
-   not needed by every example individually, but the examples are built with libpcap support by default, so it's
-   required for the standard build
+ - Make sure you have libpcap installed (or install it with Homebrew: https://formulae.brew.sh/formula/libpcap). It's not needed by every example individually, but the examples are built with libpcap support by default, so it's required for the standard build
  - You may need to run the executables as sudo

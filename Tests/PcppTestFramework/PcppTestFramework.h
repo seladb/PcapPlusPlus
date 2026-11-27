@@ -256,6 +256,18 @@
 		}                                                                                                              \
 	}
 
+#define PTF_ASSERT_CONTAINS(str, sub_string)                                                                           \
+	{                                                                                                                  \
+		std::string input = (str);                                                                                     \
+		if (input.find(sub_string) == std::string::npos)                                                               \
+		{                                                                                                              \
+			PTF_PRINT_ASSERTION("FAILED", "CONTAINS")                                                                  \
+			    << "   [\"" << sub_string << "\"] not found in [\"" << input << "\"]" << std::endl;                    \
+			ptfResult = PTF_RESULT_FAILED;                                                                             \
+			return;                                                                                                    \
+		}                                                                                                              \
+	}
+
 #define PTF_NON_CRITICAL_EQUAL(actual, expected, ...)                                                                  \
 	{                                                                                                                  \
 		auto ptfActual = actual;                                                                                       \

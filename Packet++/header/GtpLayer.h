@@ -409,6 +409,46 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by GtpV1Layer's serializeLayer(), in addition to Layer::SerializedFields
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for GtpV1Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Version,         ProtocolType,  MessageType,
+					                                          MessageTypeName, MessageLength, Teid,
+					                                          SequenceNumber,  NpduNumber,    Extensions };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief GTP version, as an integer
+			static const FieldDescriptor Version;
+			/// @brief Protocol type bit, as an integer: 1 for GTP, 0 for GTP'
+			static const FieldDescriptor ProtocolType;
+			/// @brief GTP message type, as an integer
+			static const FieldDescriptor MessageType;
+			/// @brief GTP message type name, as returned by getMessageTypeAsString()
+			static const FieldDescriptor MessageTypeName;
+			/// @brief Message length field in bytes (host byte order), excluding the mandatory 8-byte header
+			static const FieldDescriptor MessageLength;
+			/// @brief Tunnel endpoint identifier in hexadecimal (host byte order)
+			static const FieldDescriptor Teid;
+			/// @brief Sequence number (host byte order), only when the sequence number flag is set
+			static const FieldDescriptor SequenceNumber;
+			/// @brief N-PDU number, only when the N-PDU number flag is set
+			static const FieldDescriptor NpduNumber;
+			/// @brief List of header extension types, only when the extension header flag is set
+			static const FieldDescriptor Extensions;
+			/// @brief A single header extension type, as an integer
+			static const FieldDescriptor Extension;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class GtpV2MessageType
@@ -1114,6 +1154,45 @@ namespace pcpp
 			return OsiModelTransportLayer;
 		}
 
+		/// @struct SerializedFields
+		/// Fields written by GtpV2Layer's serializeLayer(), in addition to Layer::SerializedFields
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for GtpV2Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{
+					MessageType, MessageTypeName, MessageLength,   Piggybacking,
+					Teid,        SequenceNumber,  MessagePriority, InformationElements
+				};
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief GTPv2 message type, as the raw integer value from the header
+			static const FieldDescriptor MessageType;
+			/// @brief GTPv2 message type name, as returned by GtpV2MessageType::toString()
+			static const FieldDescriptor MessageTypeName;
+			/// @brief Message length field in bytes (host byte order), excluding the first 4 octets of the header
+			static const FieldDescriptor MessageLength;
+			/// @brief Whether another GTPv2 message is piggybacked on this one, as a boolean
+			static const FieldDescriptor Piggybacking;
+			/// @brief Tunnel endpoint identifier in hexadecimal (host byte order), only when the TEID flag is set
+			static const FieldDescriptor Teid;
+			/// @brief 24-bit sequence number (host byte order)
+			static const FieldDescriptor SequenceNumber;
+			/// @brief 4-bit message priority, only when the message priority flag is set
+			static const FieldDescriptor MessagePriority;
+			/// @brief List of information element (IE) types present in the message
+			static const FieldDescriptor InformationElements;
+			/// @brief A single information element (IE) type, as an integer
+			static const FieldDescriptor InformationElement;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 	private:
 #pragma pack(push, 1)
 		struct gtpv2_basic_header
@@ -1136,6 +1215,8 @@ namespace pcpp
 		}
 
 		uint8_t* getIEBasePtr() const;
+
+		size_t getIEDataLen(const uint8_t* basePtr) const;
 
 		GtpV2InformationElement addInformationElementAt(const GtpV2InformationElementBuilder& infoElementBuilder,
 		                                                int offset);

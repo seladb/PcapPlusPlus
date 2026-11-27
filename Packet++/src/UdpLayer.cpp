@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleUdpLayer
 
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
 #include "IPv4Layer.h"
@@ -10,15 +11,19 @@
 #include "DhcpV6Layer.h"
 #include "DoIpLayer.h"
 #include "VxlanLayer.h"
+#include "GeneveLayer.h"
 #include "SipLayer.h"
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
+#include "GvcpLayer.h"
 #include "NtpLayer.h"
 #include "SomeIpLayer.h"
 #include "WakeOnLanLayer.h"
 #include "WireGuardLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
+#include "QuicLayer.h"
+
 #include <sstream>
 
 namespace pcpp
@@ -60,8 +65,9 @@ namespace pcpp
 				IPv4Address srcIP = static_cast<IPv4Layer*>(m_PrevLayer)->getSrcIPv4Address();
 				IPv4Address dstIP = static_cast<IPv4Layer*>(m_PrevLayer)->getDstIPv4Address();
 
-				checksumRes = pcpp::computePseudoHdrChecksum((uint8_t*)udpHdr, getDataLen(), IPAddress::IPv4AddressType,
-				                                             PACKETPP_IPPROTO_UDP, srcIP, dstIP);
+				checksumRes =
+				    pcpp::computePseudoHdrChecksum(reinterpret_cast<uint8_t*>(udpHdr), getDataLen(),
+				                                   IPAddress::IPv4AddressType, PACKETPP_IPPROTO_UDP, srcIP, dstIP);
 
 				PCPP_LOG_DEBUG("calculated IPv4 UDP checksum = 0x" << std::uppercase << std::hex << checksumRes);
 			}
@@ -70,8 +76,8 @@ namespace pcpp
 				IPv6Address srcIP = static_cast<IPv6Layer*>(m_PrevLayer)->getSrcIPv6Address();
 				IPv6Address dstIP = static_cast<IPv6Layer*>(m_PrevLayer)->getDstIPv6Address();
 
-				checksumRes = computePseudoHdrChecksum((uint8_t*)udpHdr, getDataLen(), IPAddress::IPv6AddressType,
-				                                       PACKETPP_IPPROTO_UDP, srcIP, dstIP);
+				checksumRes = computePseudoHdrChecksum(reinterpret_cast<uint8_t*>(udpHdr), getDataLen(),
+				                                       IPAddress::IPv6AddressType, PACKETPP_IPPROTO_UDP, srcIP, dstIP);
 
 				PCPP_LOG_DEBUG("calculated IPv6 UDP checksum = 0xX" << std::uppercase << std::hex << checksumRes);
 			}
@@ -107,10 +113,19 @@ namespace pcpp
 		{
 			tryConstructNextLayerWithFallback<VxlanLayer, PayloadLayer>(udpData, udpDataLen);
 		}
+		else if (GeneveLayer::isGenevePort(portDst))
+		{
+			tryConstructNextLayerWithFallback<GeneveLayer, PayloadLayer>(udpData, udpDataLen);
+		}
 		else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		{
 			constructNextLayer<DnsLayer>(udpData, udpDataLen);
+		}
+		else if (QuicV1Layer::isQuicPort(portDst) || QuicV1Layer::isQuicPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(QuicV1Layer::parseQuicLayer, udpData,
+			                                                           udpDataLen);
 		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
@@ -133,10 +148,12 @@ namespace pcpp
 		{
 			constructNextLayer<GtpV2Layer>(udpData, udpDataLen);
 		}
-		else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) &&
-		         (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
+		else if (DhcpV6LayerBase::isDhcpV6Port(portSrc) || DhcpV6LayerBase::isDhcpV6Port(portDst))
 		{
-			constructNextLayer<DhcpV6Layer>(udpData, udpDataLen);
+			if (!tryConstructNextLayer<DhcpV6RelayLayer>(udpData, udpDataLen))
+			{
+				tryConstructNextLayer<DhcpV6Layer>(udpData, udpDataLen);
+			}
 		}
 		else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
 		         NtpLayer::isDataValid(udpData, udpDataLen))
@@ -162,6 +179,10 @@ namespace pcpp
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(WireGuardLayer::parseWireGuardLayer, udpData,
 			                                                           udpDataLen);
 		}
+		else if (GvcpLayer::isGvcpPort(portDst) || GvcpLayer::isGvcpPort(portSrc))
+		{
+			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(GvcpLayer::parseGvcpLayer, udpData, udpDataLen);
+		}
 
 		// If a valid layer was found, return immediately
 		if (hasNextLayer())
@@ -176,6 +197,7 @@ namespace pcpp
 			tryConstructNextLayerFromFactoryWithFallback<PayloadLayer>(fac, udpData, udpDataLen);
 		}
 
+		// cppcheck-suppress knownConditionTrueFalse
 		if (!hasNextLayer())
 		{
 			constructNextLayer<PayloadLayer>(udpData, udpDataLen);
@@ -197,6 +219,18 @@ namespace pcpp
 		dstPortStream << getDstPort();
 
 		return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
+	}
+
+	const FieldDescriptor UdpLayer::SerializedFields::SrcPort{ Layer::SerializedFields::MaxID + 1, "srcPort" };
+	const FieldDescriptor UdpLayer::SerializedFields::DstPort{ Layer::SerializedFields::MaxID + 2, "dstPort" };
+	const FieldDescriptor UdpLayer::SerializedFields::Checksum{ Layer::SerializedFields::MaxID + 3, "checksum" };
+
+	void UdpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		auto* header = getUdpHeader();
+		serializer.writeField(SerializedFields::SrcPort, netToHost16(header->portSrc));
+		serializer.writeField(SerializedFields::DstPort, netToHost16(header->portDst));
+		serializer.writeHexField(SerializedFields::Checksum, netToHost16(header->headerChecksum));
 	}
 
 }  // namespace pcpp

@@ -28,6 +28,12 @@ namespace pcpp
 
 	bool PcapRemoteDevice::open()
 	{
+		if (m_DeviceOpened)
+		{
+			PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' already opened");
+			return true;
+		}
+
 		char errbuf[PCAP_ERRBUF_SIZE];
 		// PCAP_OPENFLAG_DATATX_UDP doesn't always work
 		int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP;

@@ -147,6 +147,39 @@ namespace pcpp
 		{
 			return OsiModelDataLinkLayer;
 		}
-	};
 
+		/// @struct SerializedFields
+		/// Fields written by Sll2Layer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for Sll2Layer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ProtocolType, InterfaceIndex, ArpHeaderType, PacketType,
+					                                          LinkLayerAddress };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief EtherType of the encapsulated protocol, in host byte order
+			static const FieldDescriptor ProtocolType;
+
+			/// @brief Index of the capture interface
+			static const FieldDescriptor InterfaceIndex;
+
+			/// @brief ARPHRD_* link-layer address type (e.g. 1 for Ethernet)
+			static const FieldDescriptor ArpHeaderType;
+
+			/// @brief Packet type
+			static const FieldDescriptor PacketType;
+
+			/// @brief Link-layer address of the sender
+			static const FieldDescriptor LinkLayerAddress;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+	};
 }  // namespace pcpp

@@ -1,4 +1,4 @@
-﻿> ⚠️ **Внимание:** Этот перевод поддерживается и синхронизируется с помощью AI. Он может отличаться от последней английской версии. Если вы обнаружите ошибки, пожалуйста, создайте GitHub issue или отправьте PR.
+> ⚠️ **Внимание:** Этот перевод поддерживается и синхронизируется с помощью AI. Он может отличаться от последней английской версии. Если вы обнаружите ошибки, пожалуйста, создайте GitHub issue или отправьте PR.
 
 <div align="center">
 
@@ -24,8 +24,8 @@ PcapPlusPlus поддерживает возможности декодиров�
 ## Содержание
 
 - [Содержание](#содержание)
-- [Установка](#установка)
-  - [Страница релизов GitHub](#страница-релизов-GitHub)
+- [Загрузка](#загрузка)
+  - [Страница релизов GitHub](#страница-релизов-github)
   - [Homebrew](#homebrew)
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
@@ -33,22 +33,22 @@ PcapPlusPlus поддерживает возможности декодиров�
   - [Проверка пакетов](#проверка-пакетов)
 - [Обзор возможностей](#обзор-возможностей)
 - [Начало работы](#начало-работы)
-- [Документация API](#документация-API)
+- [Документация API](#документация-api)
 - [Поддержка платформ](#поддержка-платформ)
 - [Поддерживаемые сетевые протоколы](#поддерживаемые-сетевые-протоколы)
-  - [Канальный уровень (L2)](#канальный-уровень-L2)
-  - [Сетевой уровень (L3)](#сетевой-уровень-L3)
-  - [Транспортный уровень (L4)](#транспортный-уровень-L4)
-  - [Сеансовый уровень (L5)](#сеансовый-уровень-L5)
-  - [Уровень представления (L6)](#уровень-представления-L6)
-  - [Прикладной уровень (L7)](#Прикладной-уровень-L7)
-- [Поддержка DPDK и PF_RING](#поддержка-DPDK-и-PF_RING)
+  - [Канальный уровень (L2)](#канальный-уровень-l2)
+  - [Сетевой уровень (L3)](#сетевой-уровень-l3)
+  - [Транспортный уровень (L4)](#транспортный-уровень-l4)
+  - [Сеансовый уровень (L5)](#сеансовый-уровень-l5)
+  - [Уровень представления (L6)](#уровень-представления-l6)
+  - [Прикладной уровень (L7)](#прикладной-уровень-l7)
+- [Поддержка DPDK и PF_RING](#поддержка-dpdk-и-pf_ring)
 - [Бенчмарки](#бенчмарки)
 - [Обратная связь](#обратная-связь)
 - [Участие в разработке](#участие-в-разработке)
 - [Лицензия](#лицензия)
 
-## Установка
+## Загрузка
 
 Вы можете выбрать между загрузкой со страницы релизов GitHub, использованием пакетного менеджера или самостоятельной сборкой PcapPlusPlus. Для получения подробной информации посетите страницу [Download](https://pcapplusplus.github.io/docs/install) на веб-сайте PcapPlusPlus.
 
@@ -118,10 +118,10 @@ gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
 
 - __Захват пакетов__ через удобную C++ обертку для популярных движков, таких как [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [Intel DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [WinDivert](https://reqrypt.org/windivert.html), [ntop’s PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) и [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[Узнать больше](https://pcapplusplus.github.io/docs/features#packet-capture)]
 - __Анализ и формирование пакетов__, включая детальный разбор протоколов и уровней, генерацию и редактирование пакетов для множества [сетевых протоколов](https://pcapplusplus.github.io/docs/features#supported-network-protocols) [[Узнать больше](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)]
-- __Чтение и запись пакетов в файлы__ в форматах PCAP и PCAPNG [[Узнать больше](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
+- __Чтение и запись пакетов в файлы__ в форматах __PCAP__ и __PCAPNG__ [[Узнать больше](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
 - __Обработка пакетов на скорости линии__ благодаря эффективной C++ обертке для [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) и [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) [[Узнать больше](https://pcapplusplus.github.io/docs/features#dpdk-support)]
 - __Мультиплатформенная поддержка__ - PcapPlusPlus полностью поддерживается на Linux, MacOS, Windows, Android и FreeBSD
-- __Сборка пакетов__ — уникальная реализация TCP Reassembly, которая включает обработку ретрансляции TCP, пакетов вне очереди и отсутствующих данных, а также IP Fragmentation and Defragmentation для создания и сборки фрагментов IPv4 и IPv6 [[Узнать больше](https://pcapplusplus.github.io/docs/features#packet-reassembly)]
+- __Сборка пакетов__ — уникальная реализация __TCP Reassembly__, которая включает обработку ретрансляции TCP, пакетов вне очереди и отсутствующих данных, а также __IP Fragmentation and Defragmentation__ для создания и сборки фрагментов IPv4 и IPv6 [[Узнать больше](https://pcapplusplus.github.io/docs/features#packet-reassembly)]
 - __Фильтрация пакетов__, которая делает BPF-фильтры libpcap намного более удобными для пользователя [[Узнать больше](https://pcapplusplus.github.io/docs/features#packet-filtering)]
 - __TLS Fingerprinting__ — реализация на C++ алгоритмов [JA3 и JA3S](https://github.com/salesforce/ja3) для создания отпечатков TLS [[Узнать больше](https://pcapplusplus.github.io/docs/features#tls-fingerprinting)]
 
@@ -185,7 +185,7 @@ PcapPlusPlus состоит из 3 библиотек:
 3. __Common++__ — библиотека с общими вспомогательными утилитами, используемыми в Packet++ и Pcap++
 
 Обширную документацию API можно найти в [разделе документации API](https://pcapplusplus.github.io/docs/api) на веб-сайте PcapPlusPlus.
-Если вы заметили недостающие данные, пожалуйста, [свяжитесь с нами](#provide-feedback).
+Если вы заметили недостающие данные, пожалуйста, [свяжитесь с нами](#обратная-связь).
 
 ## Поддержка платформ
 
@@ -210,7 +210,7 @@ __FreeBSD__
 <picture>
   <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd.png" alt="" width="16" height="16"/>
 </picture>.
-Пожалуйста, посетите веб-сайт PcapPlusPlus, чтобы увидеть все [поддерживаемые платформы](https://pcapplusplus.github.io/docs/platforms) и обратитесь к разделу [Загрузка](#download), чтобы начать использование PcapPlusPlus на вашей платформе.
+Пожалуйста, посетите веб-сайт PcapPlusPlus, чтобы увидеть все [поддерживаемые платформы](https://pcapplusplus.github.io/docs/platforms) и обратитесь к разделу [Загрузка](#загрузка), чтобы начать использование PcapPlusPlus на вашей платформе.
 
 ## Поддерживаемые сетевые протоколы
 
@@ -218,80 +218,84 @@ PcapPlusPlus в настоящее время поддерживает анал�
 
 ### Канальный уровень (L2)
 
-1. Cisco HDLC
-2. Ethernet II
-3. IEEE 802.3 Ethernet
-4. LLC (поддерживается только BPDU)
-5. Null/Loopback
-6. Трейлер пакета (также известный как футер или паддинг)
-7. PPPoE
-8. SLL (Linux cooked capture)
-9. SLL2 (Linux cooked capture v2)
-10. STP
-11. VLAN
-12. VXLAN
-13. Wake on LAN (WoL)
-14. NFLOG (Linux Netfilter NFLOG) — только анализ (без возможностей редактирования)
+1. Bluetooth HCI
+2. Cisco HDLC
+3. Ethernet II
+4. GENEVE
+5. IEEE 802.3 Ethernet
+6. LLC (поддерживается только BPDU)
+7. Null/Loopback
+8. Трейлер пакета (также известный как футер или паддинг)
+9. PPPoE
+10. SLL (Linux cooked capture)
+11. SLL2 (Linux cooked capture v2)
+12. STP
+13. VLAN
+14. VXLAN
+15. Wake on LAN (WoL)
+16. NFLOG (Linux Netfilter NFLOG) — только анализ (без возможностей редактирования)
 
 
 ### Сетевой уровень (L3)
 
-15. ARP
-16. GRE
-17. ICMP
-18. ICMPv6
-19. IGMP (поддерживаются IGMPv1, IGMPv2 и IGMPv3)
-20. IPv4
-21. IPv6
-22. MPLS
-23. NDP
-24. Raw IP (IPv4 и IPv6)
-25. VRRP (IPv4 и IPv6)
-26. WireGuard
+17. ARP
+18. GRE
+19. ICMP
+20. ICMPv6
+21. IGMP (поддерживаются IGMPv1, IGMPv2 и IGMPv3)
+22. IPv4
+23. IPv6
+24. MPLS
+25. NDP
+26. Raw IP (IPv4 и IPv6)
+27. VRRP (IPv4 и IPv6)
+28. WireGuard
 
 ### Транспортный уровень (L4)
 
-27. COTP
-28. GTP (v1 и v2)
-29. IPSec AH и ESP — только анализ (без возможностей редактирования)
-30. TCP
-31. TPKT
-32. UDP
+29. COTP
+30. GTP (v1 и v2)
+31. IPSec AH и ESP — только анализ (без возможностей редактирования)
+32. QUIC v1 - только анализ (без возможностей редактирования)
+33. TCP
+34. TPKT
+35. UDP
 
 ### Сеансовый уровень (L5)
 
-33. SDP
-34. SIP
+36. SDP
+37. SIP
 
 ### Уровень представления (L6)
 
-35. SSL/TLS — только анализ (без возможностей редактирования)
+38. SSL/TLS — только анализ (без возможностей редактирования)
 
 ### Прикладной уровень (L7)
 
-36. Декодер и энкодер ASN.1
-37. BGP (v4)
-38. Декодеры криптографических ключей
-39. DHCP
-40. DHCPv6
-41. DNS
-42. DoIP
-43. FTP
-44. Заголовки HTTP (запрос и ответ)
-45. LDAP
-46. Modbus
-47. MySQL — только анализ (без возможностей редактирования)
-48. NTP (v3, v4)
-49. Декодер и энкодер PEM
-50. PostgreSQL Wire Protocol (PGWire) — только анализ (без возможностей редактирования)
-51. Radius
-52. S7 Communication (S7comm)
-53. SMTP
-54. SOME/IP
-55. SSH — только анализ (без возможностей редактирования)
-56. Telnet — только анализ (без возможностей редактирования)
-57. Сертификаты X509 — только анализ (без возможностей редактирования)
-58. Generic payload
+39. Декодер и энкодер ASN.1
+40. BGP (v4)
+41. Декодеры криптографических ключей
+42. DHCP
+43. DHCPv6
+44. DNS
+45. DoIP
+46. FTP
+47. GVCP
+48. Заголовки HTTP (запрос и ответ)
+49. LDAP
+50. Modbus
+51. MySQL — только анализ (без возможностей редактирования)
+52. NTP (v3, v4)
+53. Декодер и энкодер PEM
+54. PostgreSQL Wire Protocol (PGWire) — только анализ (без возможностей редактирования)
+55. Radius
+56. S7 Communication (S7comm)
+57. SMTP
+58. SOME/IP
+59. SSH — только анализ (без возможностей редактирования)
+60. Telnet — только анализ (без возможностей редактирования)
+61. Сертификаты X509 — только анализ (без возможностей редактирования)
+62. Generic payload
 
 ## Поддержка DPDK и PF_RING
 

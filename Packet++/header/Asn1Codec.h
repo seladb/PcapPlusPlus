@@ -457,10 +457,9 @@ namespace pcpp
 		public:
 			BigInt() = default;
 
-			template <typename T, EnableIfUnsignedIntegral<T> = 0> explicit BigInt(T value)
-			{
-				m_Value = initFromInt(value);
-			}
+			template <typename T, EnableIfUnsignedIntegral<T> = 0>
+			explicit BigInt(T value) : m_Value(initFromInt(value))
+			{}
 
 			explicit BigInt(const std::string& value);
 			BigInt(const BigInt& other);

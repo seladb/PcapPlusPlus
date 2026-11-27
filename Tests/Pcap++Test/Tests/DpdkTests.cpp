@@ -196,7 +196,7 @@ public:
 		m_Initialized = true;
 	}
 
-	bool run(uint32_t coreId)
+	bool run(uint32_t coreId) override
 	{
 		if (!m_Initialized)
 		{
@@ -231,12 +231,12 @@ public:
 		return true;
 	}
 
-	void stop()
+	void stop() override
 	{
 		m_Stop = true;
 	}
 
-	uint32_t getCoreId() const
+	uint32_t getCoreId() const override
 	{
 		return m_CoreId;
 	}
@@ -780,7 +780,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		int queueId = core.Id % numOfRxQueues;
 		PTF_PRINT_VERBOSE("Assigning queue #" << queueId << " to core " << core.Id);
 		newWorkerThread->init(dev, queueId, &queueMutexArr[queueId]);
-		workerThreadVec.push_back((pcpp::DpdkWorkerThread*)newWorkerThread);
+		workerThreadVec.push_back(newWorkerThread);
 		workerThreadCoreMask |= core.Mask;
 	}
 	PTF_PRINT_VERBOSE("Initiating " << workerThreadVec.size() << " worker threads");
@@ -832,7 +832,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	int packetCount = 0;
 	for (auto& iter : workerThreadVec)
 	{
-		DpdkTestWorkerThread* thread = (DpdkTestWorkerThread*)iter;
+		DpdkTestWorkerThread* thread = static_cast<DpdkTestWorkerThread*>(iter);
 		PTF_ASSERT_TRUE(thread->threadRanAndStopped());
 		packetCount += thread->getPacketCount();
 		PTF_PRINT_VERBOSE("Worker thread on core " << thread->getCoreId() << " captured " << thread->getPacketCount()

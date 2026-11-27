@@ -6,6 +6,7 @@
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
 #include "RadiusLayer.h"
+#include "Serializers.h"
 #include "SystemUtils.h"
 
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -46,6 +47,15 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), 4);
 	PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), 6);
 	PTF_ASSERT_EQUAL(htobe32(radiusAttr.getValueAs<int>()), 2);
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		radiusLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"({"protocolName":"Radius","protocolId":31,"length":139,"code":1,"codeName":"Access-Request","id":5,"authenticator":"ecfe3d2fe4473ec6299095ee46aedf77","attributes":[4,5,61,1,30,31,6,12,79,80]})");
+	}
 
 	pcpp_tests::utils::PacketFactory nullFactory(pcpp::LINKTYPE_NULL);
 

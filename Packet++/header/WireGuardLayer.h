@@ -121,6 +121,34 @@ namespace pcpp
 		{
 			return WireGuardMessageType::Unknown;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardLayer's serializeLayer(), in addition to
+		/// Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ MessageType, MessageTypeName };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the raw message type value, written as a number.
+			static const FieldDescriptor MessageType;
+
+			/// @brief Field descriptor for the message type name, written as a string.
+			static const FieldDescriptor MessageTypeName;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by WireGuardLayer
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class WireGuardHandshakeInitiationLayer
@@ -161,6 +189,16 @@ namespace pcpp
 		WireGuardHandshakeInitiationLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : WireGuardLayer(data, dataLen, prevLayer, packet)
 		{}
+
+		/// A static method that checks whether a byte stream is long enough to hold a WireGuard Handshake Initiation
+		/// message
+		/// @param[in] data A pointer to the beginning of the message
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is at least as long as the fixed part of the message, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(wg_handshake_initiation);
+		}
 
 		/// A constructor that creates a new Handshake Initiation message
 		/// @param[in] senderIndex The sender's index
@@ -217,6 +255,46 @@ namespace pcpp
 		{
 			return WireGuardMessageType::HandshakeInitiation;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardHandshakeInitiationLayer's serializeLayer(), in addition to
+		/// WireGuardLayer::SerializedFields.
+		struct SerializedFields : WireGuardLayer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardHandshakeInitiationLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = WireGuardLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{
+					SenderIndex, InitiatorEphemeral, EncryptedInitiatorStatic, EncryptedTimestamp, Mac1, Mac2
+				};
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the sender index, written as a hex value.
+			static const FieldDescriptor SenderIndex;
+
+			/// @brief Field descriptor for the 32-byte initiator ephemeral public key, written as a hex string with no
+			/// separators.
+			static const FieldDescriptor InitiatorEphemeral;
+
+			/// @brief Field descriptor for the 48-byte encrypted initiator static key, written as a hex string with no
+			/// separators.
+			static const FieldDescriptor EncryptedInitiatorStatic;
+
+			/// @brief Field descriptor for the 28-byte encrypted timestamp, written as a hex string with no separators.
+			static const FieldDescriptor EncryptedTimestamp;
+
+			/// @brief Field descriptor for the 16-byte MAC1, written as a hex string with no separators.
+			static const FieldDescriptor Mac1;
+
+			/// @brief Field descriptor for the 16-byte MAC2, written as a hex string with no separators.
+			static const FieldDescriptor Mac2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class WireGuardHandshakeResponseLayer
@@ -258,6 +336,16 @@ namespace pcpp
 		WireGuardHandshakeResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : WireGuardLayer(data, dataLen, prevLayer, packet)
 		{}
+
+		/// A static method that checks whether a byte stream is long enough to hold a WireGuard Handshake Response
+		/// message
+		/// @param[in] data A pointer to the beginning of the message
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is at least as long as the fixed part of the message, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(wg_handshake_response);
+		}
 
 		/// A constructor that creates a new Handshake Response message
 		/// @param[in] senderIndex The sender index
@@ -313,6 +401,45 @@ namespace pcpp
 		{
 			return WireGuardMessageType::HandshakeResponse;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardHandshakeResponseLayer's serializeLayer(), in addition to
+		/// WireGuardLayer::SerializedFields.
+		struct SerializedFields : WireGuardLayer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardHandshakeResponseLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = WireGuardLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ SenderIndex,    ReceiverIndex, ResponderEphemeral,
+					                                          EncryptedEmpty, Mac1,          Mac2 };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the sender index, written as a hex value.
+			static const FieldDescriptor SenderIndex;
+
+			/// @brief Field descriptor for the receiver index, written as a hex value.
+			static const FieldDescriptor ReceiverIndex;
+
+			/// @brief Field descriptor for the 32-byte responder ephemeral public key, written as a hex string with no
+			/// separators.
+			static const FieldDescriptor ResponderEphemeral;
+
+			/// @brief Field descriptor for the 16-byte encrypted empty field, written as a hex string with no
+			/// separators.
+			static const FieldDescriptor EncryptedEmpty;
+
+			/// @brief Field descriptor for the 16-byte MAC1, written as a hex string with no separators.
+			static const FieldDescriptor Mac1;
+
+			/// @brief Field descriptor for the 16-byte MAC2, written as a hex string with no separators.
+			static const FieldDescriptor Mac2;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class WireGuardCookieReplyLayer
@@ -349,6 +476,15 @@ namespace pcpp
 		    : WireGuardLayer(data, dataLen, prevLayer, packet)
 		{}
 
+		/// A static method that checks whether a byte stream is long enough to hold a WireGuard Cookie Reply message
+		/// @param[in] data A pointer to the beginning of the message
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is at least as long as the fixed part of the message, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(wg_cookie_reply);
+		}
+
 		/// A constructor that creates a new Cookie Reply message
 		/// @param[in] receiverIndex The receiver index
 		/// @param[in] nonce The nonce field
@@ -380,6 +516,33 @@ namespace pcpp
 		{
 			return WireGuardMessageType::CookieReply;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardCookieReplyLayer's serializeLayer(), in addition to
+		/// WireGuardLayer::SerializedFields.
+		struct SerializedFields : WireGuardLayer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardCookieReplyLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = WireGuardLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ReceiverIndex, Nonce, EncryptedCookie };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the receiver index, written as a hex value.
+			static const FieldDescriptor ReceiverIndex;
+
+			/// @brief Field descriptor for the 24-byte nonce, written as a hex string with no separators.
+			static const FieldDescriptor Nonce;
+
+			/// @brief Field descriptor for the 32-byte encrypted cookie, written as a hex string with no separators.
+			static const FieldDescriptor EncryptedCookie;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 
 	/// @class WireGuardTransportDataLayer
@@ -416,6 +579,15 @@ namespace pcpp
 		    : WireGuardLayer(data, dataLen, prevLayer, packet)
 		{}
 
+		/// A static method that checks whether a byte stream is long enough to hold a WireGuard Transport Data message
+		/// @param[in] data A pointer to the beginning of the message
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is at least as long as the fixed part of the message, false otherwise
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data != nullptr && dataLen >= sizeof(wg_transport_data);
+		}
+
 		/// A constructor that creates a new Transport Data message
 		/// @param[in] receiverIndex The receiver index
 		/// @param[in] counter The counter field
@@ -439,6 +611,7 @@ namespace pcpp
 		/// @param counter A 64-bit unsigned integer representing the counter field.
 		void setCounter(uint64_t counter);
 
+		/// Set the encrypted data, extending or shortening the layer to fit it
 		/// @param encryptedData A pointer to the encrypted data.
 		/// @param encryptedDataLen The length of the encrypted data.
 		void setEncryptedData(const uint8_t* encryptedData, size_t encryptedDataLen);
@@ -450,5 +623,29 @@ namespace pcpp
 		{
 			return WireGuardMessageType::TransportData;
 		}
+
+		/// @struct SerializedFields
+		/// Fields written by WireGuardTransportDataLayer's serializeLayer(), in addition to
+		/// WireGuardLayer::SerializedFields.
+		struct SerializedFields : WireGuardLayer::SerializedFields
+		{
+			/// @return All field descriptors for WireGuardTransportDataLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = WireGuardLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ReceiverIndex, Counter };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief Field descriptor for the receiver index, written as a hex value.
+			static const FieldDescriptor ReceiverIndex;
+
+			/// @brief Field descriptor for the counter (nonce), written as a number.
+			static const FieldDescriptor Counter;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 	};
 }  // namespace pcpp

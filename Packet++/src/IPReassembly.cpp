@@ -324,7 +324,7 @@ namespace pcpp
 		IPFragmentData* fragData = nullptr;
 
 		// check whether this packet already exists in the map
-		std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
+		auto iter = m_FragmentMap.find(hash);
 
 		// this is the first fragment seen for this packet
 		if (iter == m_FragmentMap.end())
@@ -531,7 +531,7 @@ namespace pcpp
 		uint32_t hash = key.getHashValue();
 
 		// look for this hash value in the map
-		std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
+		auto iter = m_FragmentMap.find(hash);
 
 		// hash was found
 		if (iter != m_FragmentMap.end())
@@ -589,7 +589,7 @@ namespace pcpp
 		uint32_t hash = key.getHashValue();
 
 		// look for this hash value in the map
-		std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
+		auto iter = m_FragmentMap.find(hash);
 
 		// hash was found
 		if (iter != m_FragmentMap.end())
@@ -612,7 +612,7 @@ namespace pcpp
 		if (m_PacketLRU.put(hash, &packetRemoved) == 1)
 		{
 			// remove this item from the fragment map
-			std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(packetRemoved);
+			auto iter = m_FragmentMap.find(packetRemoved);
 			IPFragmentData* dataRemoved = iter->second;
 
 			PacketKey* key = nullptr;

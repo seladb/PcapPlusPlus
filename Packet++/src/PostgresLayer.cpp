@@ -318,8 +318,11 @@ namespace pcpp
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
 		}
 
-		auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
-		if (dataLen < messageLength + 1)
+		// The length covers itself (4 bytes) but not the message type byte, so the smallest valid length is 4 (for
+		// example ParseComplete) and the message takes messageLength + 1 bytes.
+		// The check doesn't add 1: with a 32-bit size_t, 0xFFFFFFFF + 1 wraps around to 0.
+		size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
+		if (messageLength < sizeof(uint32_t) || messageLength >= dataLen)
 		{
 			return std::unique_ptr<PostgresMessage>(
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Backend_Unknown));
@@ -332,6 +335,12 @@ namespace pcpp
 		{
 		case PostgresBackendMessage_R:
 		{
+			// The auth type follows the length, so the message must be long enough to hold both
+			if (messageLength < 2 * sizeof(uint32_t))
+			{
+				break;
+			}
+
 			uint32_t authType = be32toh(*reinterpret_cast<const uint32_t*>(data + 5));
 			switch (authType)
 			{
@@ -533,8 +542,9 @@ namespace pcpp
 				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 			}
 
-			auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data));
-			if (messageLength > dataLen)
+			// The length covers itself and the 4 byte tag
+			size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data));
+			if (messageLength < 2 * sizeof(uint32_t) || messageLength > dataLen)
 			{
 				return std::unique_ptr<PostgresMessage>(
 				    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
@@ -579,8 +589,11 @@ namespace pcpp
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
 		}
 
-		auto messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
-		if (dataLen < messageLength + 1)
+		// The length covers itself (4 bytes) but not the message type byte, so the smallest valid length is 4 (for
+		// example a Sync message) and the message takes messageLength + 1 bytes.
+		// The check doesn't add 1: with a 32-bit size_t, 0xFFFFFFFF + 1 wraps around to 0.
+		size_t messageLength = be32toh(*reinterpret_cast<const uint32_t*>(data + 1));
+		if (messageLength < sizeof(uint32_t) || messageLength >= dataLen)
 		{
 			return std::unique_ptr<PostgresMessage>(
 			    new PostgresMessage(data, dataLen, PostgresMessageType::Frontend_Unknown));
@@ -591,8 +604,7 @@ namespace pcpp
 		{
 		case PostgresFrontendMessage_Q:
 		{
-			return std::make_unique<PostgresQueryMessage>(data,
-			                                              (std::min)(static_cast<size_t>(messageLength) + 1, dataLen));
+			return std::make_unique<PostgresQueryMessage>(data, messageLength + 1);
 		}
 		case PostgresFrontendMessage_P:
 		{

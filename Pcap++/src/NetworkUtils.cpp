@@ -231,6 +231,8 @@ namespace pcpp
 		std::string hostToFind = data->hostname;
 
 		DnsResource* dnsAnswer = nullptr;
+		size_t cnameHops = 0;
+		const auto maxCnameHops = dnsResponseLayer->getAnswerCount();
 
 		while (true)
 		{
@@ -256,6 +258,11 @@ namespace pcpp
 			{
 				PCPP_LOG_DEBUG("Got a DNS response for hostname '" << hostToFind << "' with CNAME '"
 				                                                   << dnsAnswer->getData()->toString() << "'");
+				if (++cnameHops >= maxCnameHops)
+				{
+					PCPP_LOG_DEBUG("DNS response contains a cyclic or unresolved CNAME chain");
+					return;
+				}
 				hostToFind = dnsAnswer->getData()->toString();
 			}
 			// if answer is of type other than A or CNAME (for example AAAA - IPv6) - type is not supported - return

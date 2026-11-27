@@ -23,6 +23,14 @@ PTF_TEST_CASE(CotpLayerTest)
 	PTF_ASSERT_EQUAL(cotpLayer->getTpduNumber(), 0x80);
 	PTF_ASSERT_EQUAL(cotpLayer->toString(), "Cotp Layer");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		cotpLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"({"protocolName":"COTP","protocolId":51,"length":3,"pduType":240,"tpduNumber":128})");
+	}
+
 	pcpp::CotpLayer newCotpPacket(120);
 	PTF_ASSERT_EQUAL(newCotpPacket.getHeaderLen(), 3);
 	PTF_ASSERT_EQUAL(newCotpPacket.getLength(), 0x02);

@@ -168,6 +168,7 @@ namespace pcpp
 
 		X520DistinguishedName() = default;
 
+		// cppcheck-suppress noExplicitConstructor
 		constexpr X520DistinguishedName(Value value) : m_Value(value)
 		{}
 
@@ -523,7 +524,7 @@ namespace pcpp
 			int m_CriticalOffset = -1;
 			int m_ExtensionValueOffset = 1;
 
-			X509Extension(Asn1SequenceRecord* root);
+			explicit X509Extension(Asn1SequenceRecord* root);
 		};
 
 		/// @class X509Extensions
@@ -596,7 +597,7 @@ namespace pcpp
 			int m_SubjectUniqueID = -1;
 			int m_ExtensionsOffset = -1;
 
-			X509TBSCertificate(Asn1SequenceRecord* root);
+			explicit X509TBSCertificate(Asn1SequenceRecord* root);
 		};
 
 		/// @class X509Certificate
@@ -730,7 +731,7 @@ namespace pcpp
 		}
 
 	private:
-		X509Extension(const X509Internal::X509Extension& internalExtension);
+		explicit X509Extension(const X509Internal::X509Extension& internalExtension);
 
 		bool m_IsCritical;
 		X509ExtensionType m_Type;
