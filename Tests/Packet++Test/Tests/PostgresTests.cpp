@@ -2,8 +2,10 @@
 #include "../Utils/TestUtils.h"
 #include "Packet.h"
 #include "PostgresLayer.h"
+#include "Serializers.h"
 
 #include <algorithm>
+#include <sstream>
 #include <map>
 #include <memory>
 
@@ -45,6 +47,22 @@ PTF_TEST_CASE(PostgresLayerParsingTest)
 		PTF_ASSERT_NOT_NULL(postgresLayer->getPostgresMessage(pcpp::PostgresMessageType::Backend_ParameterStatus));
 		PTF_ASSERT_NULL(postgresLayer->getPostgresMessage(pcpp::PostgresMessageType::Backend_AuthenticationGSS));
 		PTF_ASSERT_NULL(postgresLayer->getPostgresMessage(pcpp::PostgresMessageType::Frontend_Bind));
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			postgresLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"Postgres","protocolId":62,"length":319,"messageOrigin":"Backend","messages":[)json"
+			    R"json({"type":"Backend_AuthenticationOk","length":8},{"type":"Backend_ParameterStatus","length":26},)json"
+			    R"json({"type":"Backend_ParameterStatus","length":25},{"type":"Backend_ParameterStatus","length":23},)json"
+			    R"json({"type":"Backend_ParameterStatus","length":25},{"type":"Backend_ParameterStatus","length":27},)json"
+			    R"json({"type":"Backend_ParameterStatus","length":21},{"type":"Backend_ParameterStatus","length":25},)json"
+			    R"json({"type":"Backend_ParameterStatus","length":24},{"type":"Backend_ParameterStatus","length":33},)json"
+			    R"json({"type":"Backend_ParameterStatus","length":35},{"type":"Backend_ParameterStatus","length":16},)json"
+			    R"json({"type":"Backend_BackendKeyData","length":12},{"type":"Backend_ReadyForQuery","length":5}]})json");
+		}
 	}
 
 	// Postgres frontend messages
@@ -65,6 +83,16 @@ PTF_TEST_CASE(PostgresLayerParsingTest)
 		PTF_ASSERT_EQUAL(messages.at(0)->getMessageType(), pcpp::PostgresMessageType::Frontend_StartupMessage, enum);
 
 		PTF_ASSERT_NOT_NULL(postgresLayer->getPostgresMessage(pcpp::PostgresMessageType::Frontend_StartupMessage));
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			postgresLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"Postgres","protocolId":62,"length":85,"messageOrigin":"Frontend","messages":[)json"
+			    R"json({"type":"Frontend_StartupMessage","length":85}]})json");
+		}
 	}
 }
 
