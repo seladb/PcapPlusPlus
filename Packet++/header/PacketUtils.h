@@ -41,30 +41,21 @@ namespace pcpp
 	/// @param[in] srcIPAddress Source IP Address
 	/// @param[in] dstIPAddress Destination IP Address
 	/// @return The checksum result
-	PCPP_DEPRECATED("Use one of the IPv4 or IPv6-specific computePseudoHdrChecksum overloads instead")
+	PCPP_DEPRECATED("Use the templated computePseudoHdrChecksum overload instead")
 	uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen, IPAddress::AddressType ipAddrType,
 	                                  uint8_t protocolType, IPAddress srcIPAddress, IPAddress dstIPAddress);
 
 	/// Computes the checksum for Pseudo header
+	/// @tparam	IPAddrT The IP address type
 	/// @param[in] dataPtr Data pointer
 	/// @param[in] dataLen Data length
 	/// @param[in] protocolType Current protocol type @ref IPProtocolTypes
-	/// @param[in] srcIPAddress Source IPv4 Address
-	/// @param[in] dstIPAddress Destination IPv4 Address
+	/// @param[in] srcIPAddress Source IP Address
+	/// @param[in] dstIPAddress Destination IP Address
 	/// @return The checksum result
-	// cppcheck-suppress passedByValue
+	template <typename IPAddrT>
 	uint16_t computePseudoHdrChecksum(const uint8_t* dataPtr, size_t dataLen, uint8_t protocolType,
-	                                  IPv4Address srcIPAddress, IPv4Address dstIPAddress);
-
-	/// Computes the checksum for Pseudo header
-	/// @param[in] dataPtr Data pointer
-	/// @param[in] dataLen Data length
-	/// @param[in] protocolType Current protocol type @ref IPProtocolTypes
-	/// @param[in] srcIPAddress Source IPv6 Address
-	/// @param[in] dstIPAddress Destination IPv6 Address
-	/// @return The checksum result
-	uint16_t computePseudoHdrChecksum(const uint8_t* dataPtr, size_t dataLen, uint8_t protocolType,
-	                                  const IPv6Address& srcIPAddress, const IPv6Address& dstIPAddress);
+	                                  const IPAddrT& srcIPAddress, const IPAddrT& dstIPAddress);
 
 	/// Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on an array of byte buffers. The hash is calculated on each
 	/// byte in each byte buffer, as if all byte buffers were one long byte buffer
