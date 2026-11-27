@@ -300,7 +300,25 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an GREv0 layer
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(gre_basic_header);
+			if (!data || dataLen < sizeof(gre_basic_header))
+				return false;
+
+			// The optional fields (checksum/routing, key, sequence number, ack sequence number) each add 4 bytes
+			// to the header if their respective bit is set. Mirrors the length calculation in GreLayer::getHeaderLen()
+			// so that isDataValid() rejects truncated packets before any optional-field getter or setter accesses
+			// memory past the end of the buffer
+			auto* header = reinterpret_cast<const gre_basic_header*>(data);
+			size_t requiredLen = sizeof(gre_basic_header);
+			if (header->checksumBit || header->routingBit)
+				requiredLen += sizeof(uint32_t);
+			if (header->keyBit)
+				requiredLen += sizeof(uint32_t);
+			if (header->sequenceNumBit)
+				requiredLen += sizeof(uint32_t);
+			if (header->ackSequenceNumBit)
+				requiredLen += sizeof(uint32_t);
+
+			return dataLen >= requiredLen;
 		}
 
 		// implement abstract methods
@@ -403,7 +421,24 @@ namespace pcpp
 		/// @return True if the data is valid and can represent an GREv1 layer
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(gre1_header);
+			if (!data || dataLen < sizeof(gre1_header))
+				return false;
+
+			// sizeof(gre1_header) assumes the key field (payload length + call ID), which is mandatory in GREv1, is
+			// present, so only the remaining optional fields (checksum/routing, sequence number, ack sequence number)
+			// can add 4 more bytes each. Mirrors the length calculation in GreLayer::getHeaderLen() so that
+			// isDataValid() rejects truncated packets before any optional-field getter or setter accesses memory past
+			// the end of the buffer
+			auto* header = reinterpret_cast<const gre_basic_header*>(data);
+			size_t requiredLen = sizeof(gre1_header);
+			if (header->checksumBit || header->routingBit)
+				requiredLen += sizeof(uint32_t);
+			if (header->sequenceNumBit)
+				requiredLen += sizeof(uint32_t);
+			if (header->ackSequenceNumBit)
+				requiredLen += sizeof(uint32_t);
+
+			return dataLen >= requiredLen;
 		}
 
 		// implement abstract methods

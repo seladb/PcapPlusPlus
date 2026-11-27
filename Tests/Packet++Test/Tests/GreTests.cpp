@@ -13,6 +13,8 @@
 #include "Serializers.h"
 #include "SystemUtils.h"
 #include <sstream>
+#include <tuple>
+#include <vector>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -216,6 +218,98 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(pcpp::GREv0Layer::SerializedFields::all().size(), 16);
 	PTF_ASSERT_EQUAL(pcpp::GREv1Layer::SerializedFields::all().size(), 17);
 	PTF_ASSERT_EQUAL(pcpp::PPP_PPTPLayer::SerializedFields::all().size(), 6);
+
+	// Truncated GRE headers: isDataValid() must reject headers that are too short for the optional fields
+	// their flags claim are present
+	{
+		// Flags byte 1 (C | R | K | S | s | Recur), flags byte 2 (A | Flags | Ver), required data length
+		using GreDataValidationTestCases = std::vector<std::tuple<uint8_t, uint8_t, size_t>>;
+
+		// Each optional field adds 4 bytes to the header if its bit is set. Checksum and routing share one 4-byte field
+		uint8_t data[20] = {};
+
+		// GREv0
+		{
+			PTF_ASSERT_FALSE(pcpp::GREv0Layer::isDataValid(nullptr, sizeof(data)));
+			PTF_ASSERT_FALSE(pcpp::GREv0Layer::isDataValid(data, 3));
+
+			const GreDataValidationTestCases testCases = {
+				{ 0x00, 0x00, 4  }, // no optional fields
+				{ 0x80, 0x00, 8  }, // checksum
+				{ 0x40, 0x00, 8  }, // routing
+				{ 0xc0, 0x00, 8  }, // checksum + routing
+				{ 0x20, 0x00, 8  }, // key
+				{ 0x10, 0x00, 8  }, // sequence number
+				{ 0x00, 0x80, 8  }, // ack sequence number
+				{ 0xb0, 0x00, 16 }, // checksum + key + sequence number
+				{ 0xf0, 0x80, 20 }, // all optional fields
+			};
+
+			for (const auto& testCase : testCases)
+			{
+				data[0] = std::get<0>(testCase);
+				data[1] = std::get<1>(testCase);
+				PTF_ASSERT_FALSE(pcpp::GREv0Layer::isDataValid(data, std::get<2>(testCase) - 1));
+				PTF_ASSERT_TRUE(pcpp::GREv0Layer::isDataValid(data, std::get<2>(testCase)));
+			}
+		}
+
+		// GREv1
+		{
+			PTF_ASSERT_FALSE(pcpp::GREv1Layer::isDataValid(nullptr, sizeof(data)));
+
+			const GreDataValidationTestCases testCases = {
+				{ 0x20, 0x01, 8  }, // key (mandatory in GREv1)
+				{ 0x30, 0x01, 12 }, // key + sequence number
+				{ 0x20, 0x81, 12 }, // key + ack sequence number
+				{ 0xa0, 0x01, 12 }, // key + checksum
+				{ 0x60, 0x01, 12 }, // key + routing
+				{ 0x30, 0x81, 16 }, // key + sequence number + ack sequence number
+				{ 0xf0, 0x81, 20 }, // all optional fields
+			};
+
+			for (const auto& testCase : testCases)
+			{
+				data[0] = std::get<0>(testCase);
+				data[1] = std::get<1>(testCase);
+				PTF_ASSERT_FALSE(pcpp::GREv1Layer::isDataValid(data, std::get<2>(testCase) - 1));
+				PTF_ASSERT_TRUE(pcpp::GREv1Layer::isDataValid(data, std::get<2>(testCase)));
+			}
+		}
+
+		// A GREv0 header that is too short for its optional fields becomes a payload layer
+		{
+			// Eth + IPv4 + GREv0 basic header with the sequence number bit set, but without the sequence number field
+			uint8_t truncatedGreV0[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08,
+				                         0x00, 0x45, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x40, 0x2f, 0x00, 0x00,
+				                         0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02, 0x10, 0x00, 0x08, 0x00 };
+			pcpp::RawPacket rawPacket(truncatedGreV0, sizeof(truncatedGreV0), timeval{ 0, 0 }, false);
+			pcpp::Packet packet(&rawPacket);
+
+			auto* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+			PTF_ASSERT_NOT_NULL(ipv4Layer);
+			PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::GREv0Layer>());
+			PTF_ASSERT_NOT_NULL(ipv4Layer->getNextLayer());
+			PTF_ASSERT_EQUAL(ipv4Layer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
+		}
+
+		// A GREv1 header that is too short for its optional fields becomes a payload layer
+		{
+			// Eth + IPv4 + GREv1 header with the sequence number bit set, but without the sequence number field
+			uint8_t truncatedGreV1[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				                         0x00, 0x08, 0x00, 0x45, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x00,
+				                         0x40, 0x2f, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02,
+				                         0x02, 0x30, 0x01, 0x88, 0x0b, 0x00, 0x00, 0x00, 0x00 };
+			pcpp::RawPacket rawPacket(truncatedGreV1, sizeof(truncatedGreV1), timeval{ 0, 0 }, false);
+			pcpp::Packet packet(&rawPacket);
+
+			auto* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+			PTF_ASSERT_NOT_NULL(ipv4Layer);
+			PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::GREv1Layer>());
+			PTF_ASSERT_NOT_NULL(ipv4Layer->getNextLayer());
+			PTF_ASSERT_EQUAL(ipv4Layer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
+		}
+	}
 
 	grev0Layer = nullptr;
 	tcpLayer = nullptr;
