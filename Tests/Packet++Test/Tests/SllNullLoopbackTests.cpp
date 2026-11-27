@@ -48,6 +48,13 @@ PTF_TEST_CASE(SllPacketParsingTest)
 		    oss.str(),
 		    R"({"protocolName":"SLL","protocolId":19,"length":16,"packetType":0,"arpHeaderType":1,"protocolType":34525,"linkLayerAddress":"0012441e7400"})");
 	}
+
+	// A packet shorter than the SLL header must not create an SllLayer
+	auto truncatedRawPacket = createPacketFromHexResource("PacketExamples/SllPacketTruncated.dat", sslFactory);
+	pcpp::Packet truncatedSllPacket(truncatedRawPacket.get());
+	PTF_ASSERT_FALSE(truncatedSllPacket.isPacketOfType(pcpp::SLL));
+	PTF_ASSERT_NULL(truncatedSllPacket.getLayerOfType<pcpp::SllLayer>());
+	PTF_ASSERT_NOT_NULL(truncatedSllPacket.getLayerOfType<pcpp::PayloadLayer>());
 }  // SllPacketParsingTest
 
 PTF_TEST_CASE(SllPacketCreationTest)
