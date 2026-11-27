@@ -6,6 +6,7 @@
 #include "IPv4Layer.h"
 #include "TcpLayer.h"
 #include "BgpLayer.h"
+#include "PayloadLayer.h"
 #include "SystemUtils.h"
 #include "Serializers.h"
 #include <sstream>
@@ -844,3 +845,26 @@ PTF_TEST_CASE(BgpOpenMalformedOptionalParamsTest)
 	}
 
 }  // BgpOpenMalformedOptionalParamsTest
+
+PTF_TEST_CASE(BgpMessageTooShortTest)
+{
+	// NOTIFICATION with message length 19: no room for the error code and subcode
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_notification_too_short.dat");
+		pcpp::Packet packet(rawPacket.get());
+
+		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::BgpLayer>());
+		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
+		PTF_ASSERT_EQUAL(packet.getLayerOfType<pcpp::PayloadLayer>()->getDataLen(), 19);
+	}
+
+	// ROUTE-REFRESH with message length 19: no room for the AFI, reserved and SAFI fields
+	{
+		auto rawPacket = createPacketFromHexResource("PacketExamples/Bgp_route-refresh_too_short.dat");
+		pcpp::Packet packet(rawPacket.get());
+
+		PTF_ASSERT_NULL(packet.getLayerOfType<pcpp::BgpLayer>());
+		PTF_ASSERT_NOT_NULL(packet.getLayerOfType<pcpp::PayloadLayer>());
+		PTF_ASSERT_EQUAL(packet.getLayerOfType<pcpp::PayloadLayer>()->getDataLen(), 19);
+	}
+}  // BgpMessageTooShortTest

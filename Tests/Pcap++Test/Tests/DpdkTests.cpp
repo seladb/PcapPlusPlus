@@ -196,7 +196,7 @@ public:
 		m_Initialized = true;
 	}
 
-	bool run(uint32_t coreId)
+	bool run(uint32_t coreId) override
 	{
 		if (!m_Initialized)
 		{
@@ -231,12 +231,12 @@ public:
 		return true;
 	}
 
-	void stop()
+	void stop() override
 	{
 		m_Stop = true;
 	}
 
-	uint32_t getCoreId() const
+	uint32_t getCoreId() const override
 	{
 		return m_CoreId;
 	}
