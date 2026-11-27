@@ -99,11 +99,6 @@ namespace pcpp
 		return kniDevice;
 	}
 
-	void KniDeviceList::destroyDevice(KniDevice* kniDevice)
-	{
-		m_DeviceList.erase(std::remove(m_DeviceList.begin(), m_DeviceList.end(), kniDevice), m_DeviceList.end());
-	}
-
 	KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId)
 	{
 		//? Linear search here is optimal for low count of devices.
