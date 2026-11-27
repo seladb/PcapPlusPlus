@@ -1465,6 +1465,10 @@ namespace pcpp
 			{
 				PCPP_LOG_DEBUG("Error in retrieving MTU: ioctl() returned -1");
 				m_DeviceMtu = 0;
+				if (socketfd != -1)
+				{
+					::close(socketfd);
+				}
 				return;
 			}
 			m_DeviceMtu = ifr.ifr_mtu;
@@ -1535,6 +1539,10 @@ namespace pcpp
 			if (ioctl(socketfd, SIOCGIFHWADDR, &ifr) == -1)
 			{
 				PCPP_LOG_DEBUG("Error in retrieving MAC address: ioctl() returned -1");
+				if (socketfd != -1)
+				{
+					::close(socketfd);
+				}
 				return;
 			}
 
@@ -1692,6 +1700,10 @@ namespace pcpp
 		if (write(sockfd, reinterpret_cast<char*>(&routingMessage), routingMessage.header.rtm_msglen) < 0)
 		{
 			PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't write into the routing socket");
+			if (sockfd >= 0)
+			{
+				::close(sockfd);
+			}
 			return;
 		}
 
@@ -1699,8 +1711,14 @@ namespace pcpp
 		if (read(sockfd, reinterpret_cast<char*>(&routingMessage), sizeof(routingMessage)) < 0)
 		{
 			PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't read from the routing socket");
+			if (sockfd >= 0)
+			{
+				::close(sockfd);
+			}
 			return;
 		}
+
+		::close(sockfd);
 
 		struct in_addr* gateAddr = nullptr;
 		struct sockaddr* sa = nullptr;
