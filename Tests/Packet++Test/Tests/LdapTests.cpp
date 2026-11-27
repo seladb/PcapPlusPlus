@@ -3,6 +3,7 @@
 #include "Packet.h"
 #include "SystemUtils.h"
 #include "LdapLayer.h"
+#include "Serializers.h"
 #include <sstream>
 #include <cstring>
 
@@ -38,6 +39,15 @@ PTF_TEST_CASE(LdapParsingTest)
 
 		PTF_ASSERT_EQUAL(ldapLayer->getRootAsn1Record()->toString(), expectedRootRecord.toString());
 		PTF_ASSERT_EQUAL(ldapLayer->getLdapOperationAsn1Record()->toString(), expectedOperationRecord.toString());
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			ldapLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"LDAP","protocolId":55,"length":14,"operationType":"AddResponse","messageID":27,"controls":[],"resultCode":"Success","matchedDN":"","diagnosticMessage":"","referral":[]})json");
+		}
 	}
 
 	// LDAP with multiple controls
@@ -134,6 +144,15 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_FALSE(
 		    bindRequestLayer->tryGet(&pcpp::LdapBindRequestLayer::getSaslAuthentication, saslAuthentication));
 		PTF_ASSERT_EQUAL(bindRequestLayer->toString(), "LDAP Layer, BindRequest, simple");
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			bindRequestLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"LDAP","protocolId":55,"length":118,"operationType":"BindRequest","messageID":2,"controls":[{"type":"1.3.6.1.4.1.42.2.27.8.5.1"}],"version":3,"name":"cn=Administrator,cn=Users,dc=cloudshark-a,dc=example,dc=com","authenticationType":"simple"})json");
+		}
 	}
 
 	// BindRequest with sasl authentication
@@ -237,6 +256,15 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_FALSE(
 		    bindRequestLayer->tryGet(&pcpp::LdapBindRequestLayer::getSimpleAuthentication, simpleAuthentication));
 		PTF_ASSERT_EQUAL(bindRequestLayer->toString(), "LDAP Layer, BindRequest, sasl");
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			bindRequestLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"LDAP","protocolId":55,"length":1352,"operationType":"BindRequest","messageID":7,"controls":[],"version":3,"name":"","authenticationType":"sasl"})json");
+		}
 	}
 
 	// BindResponse with server sals credentials
@@ -293,6 +321,15 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(unbindRequestLayer->getMessageID(), 3);
 		PTF_ASSERT_EQUAL(unbindRequestLayer->getLdapOperationType(), pcpp::LdapOperationType::UnbindRequest, enum);
 		PTF_ASSERT_EQUAL(unbindRequestLayer->toString(), "LDAP Layer, UnbindRequest");
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			unbindRequestLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"LDAP","protocolId":55,"length":7,"operationType":"UnbindRequest","messageID":3,"controls":[]})json");
+		}
 	}
 
 	// SearchRequest
@@ -332,6 +369,15 @@ PTF_TEST_CASE(LdapParsingTest)
 			                                            "*",
 			                                            "+" };
 		PTF_ASSERT_VECTORS_EQUAL(attributes, expectedAttributes);
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			searchRequestLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"LDAP","protocolId":55,"length":228,"operationType":"SearchRequest","messageID":9,"controls":[],"baseObject":"cn=schema","scope":"BaseObject","derefAlias":"DerefAlways","sizeLimit":0,"timeLimit":0,"typesOnly":false,"attributes":["objectClasses","attributeTypes","ldapSyntaxes","matchingRules","matchingRuleUse","dITContentRules","dITStructureRules","nameForms","createTimestamp","modifyTimestamp","*","+"]})json");
+		}
 	}
 
 	// SearchResultEntry
@@ -355,6 +401,15 @@ PTF_TEST_CASE(LdapParsingTest)
 		};
 		// clang-format on
 		PTF_ASSERT_VECTORS_EQUAL(searchResultEntryLayer->getAttributes(), expectedAttributes);
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			searchResultEntryLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"LDAP","protocolId":55,"length":191,"operationType":"SearchResultEntry","messageID":16,"controls":[],"objectName":"cn=b.smith,ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org","attributes":[{"type":"objectclass","values":["inetOrgPerson","organizationalPerson","person","top"]},{"type":"sn","values":["Young"]},{"type":"cn","values":["b.smith"]},{"type":"givenname","values":["Beatrix"]}]})json");
+		}
 	}
 
 	// LdapSearchResultDoneLayer
@@ -423,6 +478,15 @@ PTF_TEST_CASE(LdapParsingTest)
 			                                          "ldap://ldap.example.com/dc=example,dc=com?objectClass?one" };
 		PTF_ASSERT_VECTORS_EQUAL(deleteResponseLayer->getReferral(), expectedReferral);
 		PTF_ASSERT_EQUAL(deleteResponseLayer->toString(), "LDAP Layer, DeleteResponse, NoSuchObject");
+
+		{
+			std::ostringstream oss;
+			pcpp::JsonSerializer serializer(oss);
+			deleteResponseLayer->serialize(serializer);
+			PTF_ASSERT_EQUAL(
+			    oss.str(),
+			    R"json({"protocolName":"LDAP","protocolId":55,"length":183,"operationType":"DeleteResponse","messageID":27,"controls":[],"resultCode":"NoSuchObject","matchedDN":"ou=People,dc=example,dc=com","diagnosticMessage":"LDAP: error code 32 - No such object","referral":["ldap://ldap.example.com/dc=example,dc=com","ldap://ldap.example.com/dc=example,dc=com?objectClass?one"]})json");
+		}
 	}
 
 	// LdapModifyDNResponseLayer
@@ -456,6 +520,73 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(compareResponseLayer->getDiagnosticMessage(), "");
 		PTF_ASSERT_VECTORS_EQUAL(compareResponseLayer->getReferral(), std::vector<std::string>());
 		PTF_ASSERT_EQUAL(compareResponseLayer->toString(), "LDAP Layer, CompareResponse, CompareFalse");
+	}
+
+	// SerializedFields::all()
+	{
+		const auto baseCount = pcpp::Layer::SerializedFields::all().size();
+
+		const auto controlFields = pcpp::LdapLayer::SerializedFields::ControlObject::all();
+		PTF_ASSERT_EQUAL(controlFields.size(), 1);
+		PTF_ASSERT_EQUAL(controlFields[0].name, "type");
+		PTF_ASSERT_EQUAL(controlFields[0].id, 0);
+
+		const auto baseFields = pcpp::LdapLayer::SerializedFields::all();
+		PTF_ASSERT_EQUAL(baseFields.size(), baseCount + 3);
+		PTF_ASSERT_EQUAL(baseFields[baseCount + 0].name, "operationType");
+		PTF_ASSERT_EQUAL(baseFields[baseCount + 1].name, "messageID");
+		PTF_ASSERT_EQUAL(baseFields[baseCount + 2].name, "controls");
+		for (size_t i = baseCount; i < baseFields.size(); ++i)
+		{
+			PTF_ASSERT_EQUAL(baseFields[i].id, pcpp::Layer::SerializedFields::MaxID + i - baseCount + 1);
+		}
+
+		const auto responseFields = pcpp::LdapResponseLayer::SerializedFields::all();
+		PTF_ASSERT_EQUAL(responseFields.size(), baseCount + 7);
+		PTF_ASSERT_EQUAL(responseFields[baseCount + 3].name, "resultCode");
+		PTF_ASSERT_EQUAL(responseFields[baseCount + 4].name, "matchedDN");
+		PTF_ASSERT_EQUAL(responseFields[baseCount + 5].name, "diagnosticMessage");
+		PTF_ASSERT_EQUAL(responseFields[baseCount + 6].name, "referral");
+		for (size_t i = baseCount + 3; i < responseFields.size(); ++i)
+		{
+			PTF_ASSERT_EQUAL(responseFields[i].id, pcpp::LdapLayer::SerializedFields::MaxID + i - baseCount - 2);
+		}
+
+		const auto bindRequestFields = pcpp::LdapBindRequestLayer::SerializedFields::all();
+		PTF_ASSERT_EQUAL(bindRequestFields.size(), baseCount + 6);
+		PTF_ASSERT_EQUAL(bindRequestFields[baseCount + 3].name, "version");
+		PTF_ASSERT_EQUAL(bindRequestFields[baseCount + 4].name, "name");
+		PTF_ASSERT_EQUAL(bindRequestFields[baseCount + 5].name, "authenticationType");
+		for (size_t i = baseCount + 3; i < bindRequestFields.size(); ++i)
+		{
+			PTF_ASSERT_EQUAL(bindRequestFields[i].id, pcpp::LdapLayer::SerializedFields::MaxID + i - baseCount - 2);
+		}
+
+		const auto searchRequestFields = pcpp::LdapSearchRequestLayer::SerializedFields::all();
+		PTF_ASSERT_EQUAL(searchRequestFields.size(), baseCount + 10);
+		PTF_ASSERT_EQUAL(searchRequestFields[baseCount + 3].name, "baseObject");
+		PTF_ASSERT_EQUAL(searchRequestFields[baseCount + 9].name, "attributes");
+		for (size_t i = baseCount + 3; i < searchRequestFields.size(); ++i)
+		{
+			PTF_ASSERT_EQUAL(searchRequestFields[i].id, pcpp::LdapLayer::SerializedFields::MaxID + i - baseCount - 2);
+		}
+
+		const auto attributeFields = pcpp::LdapSearchResultEntryLayer::SerializedFields::AttributeObject::all();
+		PTF_ASSERT_EQUAL(attributeFields.size(), 2);
+		PTF_ASSERT_EQUAL(attributeFields[0].name, "type");
+		PTF_ASSERT_EQUAL(attributeFields[0].id, 0);
+		PTF_ASSERT_EQUAL(attributeFields[1].name, "values");
+		PTF_ASSERT_EQUAL(attributeFields[1].id, 1);
+
+		const auto searchResultEntryFields = pcpp::LdapSearchResultEntryLayer::SerializedFields::all();
+		PTF_ASSERT_EQUAL(searchResultEntryFields.size(), baseCount + 5);
+		PTF_ASSERT_EQUAL(searchResultEntryFields[baseCount + 3].name, "objectName");
+		PTF_ASSERT_EQUAL(searchResultEntryFields[baseCount + 4].name, "attributes");
+		for (size_t i = baseCount + 3; i < searchResultEntryFields.size(); ++i)
+		{
+			PTF_ASSERT_EQUAL(searchResultEntryFields[i].id,
+			                 pcpp::LdapLayer::SerializedFields::MaxID + i - baseCount - 2);
+		}
 	}
 }  // LdapParsingTest
 

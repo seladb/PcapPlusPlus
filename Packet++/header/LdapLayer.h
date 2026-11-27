@@ -317,6 +317,49 @@ namespace pcpp
 		/// thrown
 		virtual LdapOperationType getLdapOperationType() const;
 
+		/// @struct SerializedFields
+		/// Fields written by LdapLayer's serializeLayer(), in addition to Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @brief A control attached to the LDAP message
+			struct ControlObject : ObjectFieldDescriptor<ControlObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for ControlObject
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Type };
+				}
+
+				/// @brief The control type, usually an OID
+				static const FieldDescriptor Type;
+			};
+
+			/// @brief Descriptor for a single control object in the controls array
+			static const ControlObject Control;
+
+			/// @return All field descriptors for LdapLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ OperationType, MessageID, Controls };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief The LDAP operation type as a string, e.g. "BindRequest"
+			static const FieldDescriptor OperationType;
+			/// @brief The LDAP message ID, written as a number
+			static const FieldDescriptor MessageID;
+			/// @brief The LDAP controls attached to this message
+			static const FieldDescriptor Controls;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = Layer::SerializedFields::MaxID + 3;
+		};
+
 		/// Most getter methods in this class throw an exception if the corresponding ASN.1 record is invalid.
 		/// This is a wrapper method that allows calling these getters without adding a `try...catch` clause.
 		/// It accepts the getter method and an out variable. It tries to call the getter and if no exception
@@ -380,6 +423,8 @@ namespace pcpp
 	protected:
 		std::unique_ptr<Asn1Record> m_Asn1Record;
 
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
 		          Packet* packet);
 		LdapLayer() = default;
@@ -433,7 +478,38 @@ namespace pcpp
 		/// somewhere else. If referral doesn't exist on the message, and empty vector is returned
 		std::vector<std::string> getReferral() const;
 
+		/// @struct SerializedFields
+		/// Fields written by LdapResponseLayer's serializeLayer(), in addition to LdapLayer::SerializedFields.
+		struct SerializedFields : LdapLayer::SerializedFields
+		{
+			/// @return All field descriptors for LdapResponseLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = LdapLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ResultCode, MatchedDN, DiagnosticMessage, Referral };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief The LDAP result code as a string, e.g. "Success"
+			static const FieldDescriptor ResultCode;
+			/// @brief The matched distinguished name
+			static const FieldDescriptor MatchedDN;
+			/// @brief The diagnostic message
+			static const FieldDescriptor DiagnosticMessage;
+			/// @brief The referral URIs
+			static const FieldDescriptor Referral;
+			/// @brief A single referral URI
+			static const FieldDescriptor ReferralUri;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = LdapLayer::SerializedFields::MaxID + 4;
+		};
+
 	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
+
 		static constexpr int resultCodeIndex = 0;
 		static constexpr int matchedDNIndex = 1;
 		static constexpr int diagnotsticsMessageIndex = 2;
@@ -542,6 +618,31 @@ namespace pcpp
 		/// @throws std::invalid_argument if the message doesn't include SASL authentication
 		SaslAuthentication getSaslAuthentication() const;
 
+		/// @struct SerializedFields
+		/// Fields written by LdapBindRequestLayer's serializeLayer(), in addition to LdapLayer::SerializedFields.
+		struct SerializedFields : LdapLayer::SerializedFields
+		{
+			/// @return All field descriptors for LdapBindRequestLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = LdapLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Version, Name, AuthenticationType };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief The LDAP protocol version, written as a number
+			static const FieldDescriptor Version;
+			/// @brief The distinguished name of the user to authenticate
+			static const FieldDescriptor Name;
+			/// @brief The authentication type as a string: "simple", "sasl" or "Unknown"
+			static const FieldDescriptor AuthenticationType;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = LdapLayer::SerializedFields::MaxID + 3;
+		};
+
 		template <typename Method, typename ResultType> bool tryGet(Method method, ResultType& result)
 		{
 			return internalTryGet(this, method, result);
@@ -554,6 +655,8 @@ namespace pcpp
 		                     Packet* packet)
 		    : LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
 		{}
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 		std::string getExtendedInfoString() const override;
 
@@ -798,6 +901,42 @@ namespace pcpp
 		/// @return A list of search request attributes
 		std::vector<std::string> getAttributes() const;
 
+		/// @struct SerializedFields
+		/// Fields written by LdapSearchRequestLayer's serializeLayer(), in addition to LdapLayer::SerializedFields.
+		struct SerializedFields : LdapLayer::SerializedFields
+		{
+			/// @return All field descriptors for LdapSearchRequestLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = LdapLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ BaseObject, Scope,     DerefAlias, SizeLimit,
+					                                          TimeLimit,  TypesOnly, Attributes };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief The base object (DN) of the search
+			static const FieldDescriptor BaseObject;
+			/// @brief The search scope as a string
+			static const FieldDescriptor Scope;
+			/// @brief The alias dereferencing behavior as a string
+			static const FieldDescriptor DerefAlias;
+			/// @brief The maximum number of entries to return, written as a number
+			static const FieldDescriptor SizeLimit;
+			/// @brief The time limit in seconds, written as a number
+			static const FieldDescriptor TimeLimit;
+			/// @brief Whether only attribute descriptions are requested
+			static const FieldDescriptor TypesOnly;
+			/// @brief The requested attribute names
+			static const FieldDescriptor Attributes;
+			/// @brief A single requested attribute name
+			static const FieldDescriptor RequestedAttribute;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = LdapLayer::SerializedFields::MaxID + 7;
+		};
+
 		template <typename Method, typename ResultType> bool tryGet(Method method, ResultType& result)
 		{
 			return internalTryGet(this, method, result);
@@ -805,6 +944,8 @@ namespace pcpp
 
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 		static constexpr int baseObjectIndex = 0;
 		static constexpr int scopeIndex = 1;
@@ -844,6 +985,52 @@ namespace pcpp
 		/// @return The entry's attributes
 		std::vector<LdapAttribute> getAttributes() const;
 
+		/// @struct SerializedFields
+		/// Fields written by LdapSearchResultEntryLayer's serializeLayer(), in addition to
+		/// LdapLayer::SerializedFields.
+		struct SerializedFields : LdapLayer::SerializedFields
+		{
+			/// @brief An attribute of a search result entry
+			struct AttributeObject : ObjectFieldDescriptor<AttributeObject>
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for AttributeObject
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Type, Values };
+				}
+
+				/// @brief The attribute description
+				static const FieldDescriptor Type;
+				/// @brief The attribute values
+				static const FieldDescriptor Values;
+				/// @brief A single attribute value
+				static const FieldDescriptor Value;
+			};
+
+			/// @brief Descriptor for a single attribute object in the attributes array
+			static const AttributeObject Attribute;
+
+			/// @return All field descriptors for LdapSearchResultEntryLayer
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = LdapLayer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ ObjectName, Attributes };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @brief The entry's distinguished name
+			static const FieldDescriptor ObjectName;
+			/// @brief The entry's attributes
+			static const FieldDescriptor Attributes;
+
+			// cppcheck-suppress duplInheritedMember
+			/// Maximum field ID used by the layer.
+			static constexpr uint16_t MaxID = LdapLayer::SerializedFields::MaxID + 2;
+		};
+
 		template <typename Method, typename ResultType> bool tryGet(Method method, ResultType& result)
 		{
 			return internalTryGet(this, method, result);
@@ -851,6 +1038,8 @@ namespace pcpp
 
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		void serializeLayer(ObjectScope& serializer) const override;
 
 		static constexpr int objectNameIndex = 0;
 		static constexpr int attributesIndex = 1;
