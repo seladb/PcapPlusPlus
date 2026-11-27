@@ -10,6 +10,7 @@
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 #include "Serializers.h"
+#include <cstring>
 #include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
@@ -388,6 +389,29 @@ PTF_TEST_CASE(IcmpTruncatedPacketTest)
 	PTF_ASSERT_NULL(icmpLayer->getEchoRequestData());
 	icmpLayer->getIcmpHeader()->type = static_cast<uint8_t>(pcpp::ICMP_ECHO_REPLY);
 	PTF_ASSERT_NULL(icmpLayer->getEchoReplyData());
+
+	// A time exceeded message (Eth / IPv4 / ICMP) quoting an IPv4 header whose IHL is 15 (60 bytes) while only the
+	// 20-byte base header is present. The checksum must cover the ICMP message only, not the bytes after the packet.
+	const uint8_t timeExceeded[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x08,
+		                             0x00, 0x45, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00, 0x00, 0x40, 0x01, 0x00, 0x00,
+		                             0xc0, 0xa8, 0x00, 0x01, 0xc0, 0xa8, 0x00, 0x02, 0x0b, 0x00, 0x00, 0x00, 0x00,
+		                             0x00, 0x00, 0x00, 0x4f, 0x00, 0x00, 0x54, 0x00, 0x00, 0x00, 0x00, 0x40, 0x11,
+		                             0x00, 0x00, 0xc0, 0xa8, 0x00, 0x02, 0x08, 0x08, 0x08, 0x08 };
+	uint8_t timeExceededBuffer[sizeof(timeExceeded) + 40];
+	memset(timeExceededBuffer, 0xab, sizeof(timeExceededBuffer));
+	memcpy(timeExceededBuffer, timeExceeded, sizeof(timeExceeded));
+
+	timeval time{};
+	pcpp::RawPacket timeExceededRawPacket(timeExceededBuffer, sizeof(timeExceeded), time, false);
+	pcpp::Packet timeExceededPacket(&timeExceededRawPacket);
+	auto* timeExceededLayer = timeExceededPacket.getLayerOfType<pcpp::IcmpLayer>();
+	PTF_ASSERT_NOT_NULL(timeExceededLayer);
+	PTF_ASSERT_EQUAL(timeExceededLayer->getDataLen(), 28);
+	auto* quotedIpLayer = timeExceededPacket.getNextLayerOfType<pcpp::IPv4Layer>(timeExceededLayer);
+	PTF_ASSERT_NOT_NULL(quotedIpLayer);
+	PTF_ASSERT_EQUAL(quotedIpLayer->getHeaderLen(), 60);
+	timeExceededPacket.computeCalculateFields();
+	PTF_ASSERT_EQUAL(timeExceededLayer->getIcmpHeader()->checksum, htobe16(0xf4ff));
 }  // IcmpTruncatedPacketTest
 
 PTF_TEST_CASE(IcmpCreationTest)

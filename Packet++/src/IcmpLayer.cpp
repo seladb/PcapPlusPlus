@@ -5,6 +5,7 @@
 #include "Packet.h"
 #include "PacketUtils.h"
 #include "Logger.h"
+#include <algorithm>
 #include <sstream>
 #include "EndianPortable.h"
 
@@ -644,6 +645,9 @@ namespace pcpp
 			icmpLen += curLayer->getHeaderLen();
 			curLayer = curLayer->getNextLayer();
 		}
+
+		// a quoted IPv4 header may claim (in its IHL) more bytes than the ICMP message holds
+		icmpLen = (std::min)(icmpLen, m_DataLen);
 
 		ScalarBuffer<uint16_t> buffer;
 		buffer.buffer = reinterpret_cast<uint16_t*>(getIcmpHeader());
