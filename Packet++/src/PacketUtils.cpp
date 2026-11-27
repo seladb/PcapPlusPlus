@@ -111,6 +111,13 @@ namespace pcpp
 		return checksumRes;
 	}
 
+	template uint16_t computePseudoHdrChecksum<IPv4Address>(const uint8_t* dataPtr, size_t dataLen,
+	                                                        uint8_t protocolType, const IPv4Address& srcIPAddress,
+	                                                        const IPv4Address& dstIPAddress);
+	template uint16_t computePseudoHdrChecksum<IPv6Address>(const uint8_t* dataPtr, size_t dataLen,
+	                                                        uint8_t protocolType, const IPv6Address& srcIPAddress,
+	                                                        const IPv6Address& dstIPAddress);
+
 	uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen, IPAddress::AddressType ipAddrType,
 	                                  uint8_t protocolType, IPAddress srcIPAddress, IPAddress dstIPAddress)
 	{

@@ -57,6 +57,15 @@ namespace pcpp
 	uint16_t computePseudoHdrChecksum(const uint8_t* dataPtr, size_t dataLen, uint8_t protocolType,
 	                                  const IPAddrT& srcIPAddress, const IPAddrT& dstIPAddress);
 
+	extern template uint16_t computePseudoHdrChecksum<IPv4Address>(const uint8_t* dataPtr, size_t dataLen,
+	                                                               uint8_t protocolType,
+	                                                               const IPv4Address& srcIPAddress,
+	                                                               const IPv4Address& dstIPAddress);
+	extern template uint16_t computePseudoHdrChecksum<IPv6Address>(const uint8_t* dataPtr, size_t dataLen,
+	                                                               uint8_t protocolType,
+	                                                               const IPv6Address& srcIPAddress,
+	                                                               const IPv6Address& dstIPAddress);
+
 	/// Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on an array of byte buffers. The hash is calculated on each
 	/// byte in each byte buffer, as if all byte buffers were one long byte buffer
 	/// @param[in] vec An array of byte buffers (ScalarBuffer of type uint8_t)
