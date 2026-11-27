@@ -13,5 +13,9 @@ set_target_properties(
 )
 
 if(PCAPPP_INSTALL)
-  install(TARGETS X509Toolkit EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+  install(
+    TARGETS X509Toolkit
+    EXPORT PcapPlusPlusTargets
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR} COMPONENT examples
+  )
 endif()
