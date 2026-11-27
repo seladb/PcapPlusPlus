@@ -610,7 +610,7 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 		    R"("statusCodeDescription":"Custom reason","headerComplete":true,"headerFields":[]})");
 	}
 
-	// Unknown status codes are serialized with the raw code and reason phrase from the first line.
+	// Unknown status codes are serialized with -1 and an empty description.
 	{
 		std::string data = "SIP/2.0 699 Custom\r\nContent-Length: 0\r\n\r\n";
 		auto buffer = std::make_unique<uint8_t[]>(data.size());
@@ -624,8 +624,8 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 		layer.serialize(serializer);
 		PTF_ASSERT_EQUAL(
 		    output.str(),
-		    R"({"protocolName":"SIPResponse","protocolId":28,"length":41,"version":"SIP/2.0","statusCode":699,)"
-		    R"("statusCodeDescription":"Custom","headerComplete":true,"headerFields":[)"
+		    R"({"protocolName":"SIPResponse","protocolId":28,"length":41,"version":"SIP/2.0","statusCode":-1,)"
+		    R"("statusCodeDescription":"","headerComplete":true,"headerFields":[)"
 		    R"({"name":"Content-Length","value":"0"}]})");
 	}
 }  // SipResponseLayerParsingTest

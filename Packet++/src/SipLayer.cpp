@@ -11,7 +11,6 @@
 #include <exception>
 #include <utility>
 #include <unordered_map>
-#include <cctype>
 
 namespace pcpp
 {
@@ -1010,30 +1009,18 @@ namespace pcpp
 
 	int SipResponseFirstLine::getStatusCodeAsInt() const
 	{
-		if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
+		if (m_StatusCode == SipResponseLayer::SipStatusCodeUnknown)
 		{
-			return StatusCodeEnumToInt[m_StatusCode];
+			return -1;
 		}
-
-		if (m_SipResponse->getDataLen() < 12)
-		{
-			return 0;
-		}
-
-		const auto* code = reinterpret_cast<const char*>(m_SipResponse->m_Data + 8);
-		if (!std::isdigit(static_cast<unsigned char>(code[0])) || !std::isdigit(static_cast<unsigned char>(code[1])) ||
-		    !std::isdigit(static_cast<unsigned char>(code[2])))
-		{
-			return 0;
-		}
-		return (code[0] - '0') * 100 + (code[1] - '0') * 10 + (code[2] - '0');
+		return StatusCodeEnumToInt[m_StatusCode];
 	}
 
 	std::string SipResponseFirstLine::getStatusCodeString() const
 	{
 		std::string result;
 		const int statusStringOffset = 12;
-		if (getStatusCodeAsInt() != 0 && m_FirstLineEndOffset > statusStringOffset)
+		if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
 		{
 			int statusStringEndOffset = m_FirstLineEndOffset - 2;
 			if ((*(m_SipResponse->m_Data + statusStringEndOffset)) != '\r')
