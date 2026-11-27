@@ -7,6 +7,7 @@
 #include "IPv4Layer.h"
 #include "PayloadLayer.h"
 #include "VrrpLayer.h"
+#include <algorithm>
 
 namespace pcpp
 {
@@ -220,13 +221,11 @@ namespace pcpp
 			return false;
 		}
 
-		for (auto ipAddress : ipAddresses)
+		if (std::any_of(ipAddresses.begin(), ipAddresses.end(),
+		                [this](const IPAddress& a) { return !isIPAddressValid(a); }))
 		{
-			if (!isIPAddressValid(ipAddress))
-			{
-				PCPP_LOG_ERROR("Cannot add virtual IP address, for IP address is invalid.");
-				return false;
-			}
+			PCPP_LOG_ERROR("Cannot add virtual IP address, for IP address is invalid.");
+			return false;
 		}
 
 		if (getIPAddressesCount() + ipAddresses.size() > VrrpPacketMaxIpAddressCount)

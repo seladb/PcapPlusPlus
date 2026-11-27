@@ -412,13 +412,7 @@ namespace pcpp
 			messageRecords.push_back(referralRecord.get());
 		}
 
-		if (!additionalRecords.empty())
-		{
-			for (auto additionalRecord : additionalRecords)
-			{
-				messageRecords.push_back(additionalRecord);
-			}
-		}
+		messageRecords.insert(messageRecords.end(), additionalRecords.begin(), additionalRecords.end());
 
 		LdapLayer::init(messageId, operationType, messageRecords, controls);
 	}
@@ -467,6 +461,7 @@ namespace pcpp
 
 		for (auto uriRecord : referralRecord->castAs<Asn1ConstructedRecord>()->getSubRecords())
 		{
+			// cppcheck-suppress useStlAlgorithm
 			result.push_back(uriRecord->castAs<Asn1OctetStringRecord>()->getValue());
 		}
 
@@ -812,6 +807,7 @@ namespace pcpp
 		    getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
 		for (auto attribute : attributesRecord->getSubRecords())
 		{
+			// cppcheck-suppress useStlAlgorithm
 			result.push_back(attribute->castAs<Asn1OctetStringRecord>()->getValue());
 		}
 
@@ -886,6 +882,7 @@ namespace pcpp
 
 			for (auto valueRecord : valuesRecord->getSubRecords())
 			{
+				// cppcheck-suppress useStlAlgorithm
 				values.push_back(valueRecord->castAs<Asn1OctetStringRecord>()->getValue());
 			}
 

@@ -1092,6 +1092,7 @@ namespace pcpp
 		{
 			if (!writePacket(*packet))
 			{
+				// cppcheck-suppress useStlAlgorithm
 				result = false;
 			}
 		}
