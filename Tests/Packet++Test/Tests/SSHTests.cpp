@@ -3,6 +3,8 @@
 #include "Packet.h"
 #include "SSHLayer.h"
 #include "SystemUtils.h"
+#include "Serializers.h"
+#include <sstream>
 
 using pcpp_tests::utils::createPacketFromHexResource;
 
@@ -20,6 +22,15 @@ PTF_TEST_CASE(SSHParsingTest)
 	    sshIdentificationPacket.getLayerOfType<pcpp::SSHIdentificationMessage>();
 	PTF_ASSERT_NOT_NULL(sshIdentLayer);
 	PTF_ASSERT_EQUAL(sshIdentLayer->getIdentificationMessage(), "SSH-2.0-OpenSSH_5.3");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		sshIdentLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"json({"protocolName":"SSH","protocolId":35,"length":21,"sshMessageType":"Identification","identificationMessage":"SSH-2.0-OpenSSH_5.3"})json");
+	}
 
 	// SSH Key Exchange Init
 	auto rawPacket2 = createPacketFromHexResource("PacketExamples/SSHKexInit.dat");
@@ -59,6 +70,15 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getLanguagesServerToClient(), "");
 	PTF_ASSERT_FALSE(sshKexInitLayer->isFirstKexPacketFollows());
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		sshKexInitLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"json({"protocolName":"SSH","protocolId":35,"length":904,"sshMessageType":"Handshake","sshHandshakeMessageType":20,"sshHandshakeMessageTypeName":"Key Exchange Init","paddingLength":4,"messageLength":894,"cookie":"0e7b9a0807ea71e0945dd1fdbfa41929","keyExchangeAlgorithms":"diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1","serverHostKeyAlgorithms":"ssh-rsa-cert-v01@openssh.com,ssh-dss-cert-v01@openssh.com,ssh-rsa-cert-v00@openssh.com,ssh-dss-cert-v00@openssh.com,ssh-rsa,ssh-dss","encryptionAlgorithmsClientToServer":"aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se","encryptionAlgorithmsServerToClient":"aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se","macAlgorithmsClientToServer":"hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160,hmac-ripemd160@openssh.com,hmac-sha1-96,hmac-md5-96","macAlgorithmsServerToClient":"hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160,hmac-ripemd160@openssh.com,hmac-sha1-96,hmac-md5-96","compressionAlgorithmsClientToServer":"none,zlib@openssh.com,zlib","compressionAlgorithmsServerToClient":"none,zlib@openssh.com,zlib","languagesClientToServer":"","languagesServerToClient":"","firstKexPacketFollows":false})json");
+	}
+
 	auto rawPacket3 = createPacketFromHexResource("PacketExamples/SSHNewKeysAndKexDH.dat");
 	pcpp::Packet sshNewKeysKexDHPacket(rawPacket3.get());
 	PTF_ASSERT_TRUE(sshNewKeysKexDHPacket.isPacketOfType(pcpp::SSH));
@@ -72,6 +92,15 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->getMessageTypeStr(), "Diffie-Hellman Group Exchange Reply");
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->toString(),
 	                 "SSH Layer, Handshake Message: Diffie-Hellman Group Exchange Reply");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		sshHandshakeMessage->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"json({"protocolName":"SSH","protocolId":35,"length":704,"sshMessageType":"Handshake","sshHandshakeMessageType":33,"sshHandshakeMessageTypeName":"Diffie-Hellman Group Exchange Reply","paddingLength":7,"messageLength":691})json");
+	}
 
 	// SSH New Keys
 	sshHandshakeMessage = sshNewKeysKexDHPacket.getNextLayerOfType<pcpp::SSHHandshakeMessage>(sshHandshakeMessage);
@@ -97,6 +126,15 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->toString(),
 	                 "SSH Layer, Handshake Message: Diffie-Hellman Group Exchange Init");
 
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		sshHandshakeMessage->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    oss.str(),
+		    R"json({"protocolName":"SSH","protocolId":35,"length":144,"sshMessageType":"Handshake","sshHandshakeMessageType":32,"sshHandshakeMessageTypeName":"Diffie-Hellman Group Exchange Init","paddingLength":5,"messageLength":133})json");
+	}
+
 	// SSH Encrypted Message
 	auto rawPacket5 = createPacketFromHexResource("PacketExamples/SSHEncryptedMessage.dat");
 	pcpp::Packet sshEncryptedPacket(rawPacket5.get());
@@ -105,6 +143,14 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_NOT_NULL(sshEncryptedMsgLayer);
 	PTF_ASSERT_EQUAL(sshEncryptedMsgLayer->getHeaderLen(), 368);
 	PTF_ASSERT_EQUAL(sshEncryptedMsgLayer->toString(), "SSH Layer, Encrypted Message");
+
+	{
+		std::ostringstream oss;
+		pcpp::JsonSerializer serializer(oss);
+		sshEncryptedMsgLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(oss.str(),
+		                 R"json({"protocolName":"SSH","protocolId":35,"length":368,"sshMessageType":"Encrypted"})json");
+	}
 }
 
 PTF_TEST_CASE(SSHMalformedParsingTest)
