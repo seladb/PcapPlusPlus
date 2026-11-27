@@ -522,13 +522,11 @@ namespace pcpp
 		serializer.writeField(SerializedFields::Origin,
 		                      getMySqlOrigin() == MySqlMessageOrigin::Client ? "client" : "server");
 		auto messages = serializer.writeArray(SerializedFields::Messages);
-		const auto writeMessage = [&messages](const FieldDescriptor& descriptor, const MySqlMessage& message) {
-			auto object = messages.writeObject(descriptor);
+		const auto writeMessage = [](ObjectScope& object, const MySqlMessage& message) {
 			object.writeField(MessageFields::Type, message.getMessageType().toString());
 			object.writeField(MessageFields::PacketNumber, message.getPacketNumber());
 			// Command messages exclude the command byte from their overridden length.
 			object.writeField(MessageFields::PayloadLength, message.MySqlMessage::getMessageLength());
-			return object;
 		};
 
 		for (const auto* message : getMySqlMessages())
@@ -540,19 +538,22 @@ namespace pcpp
 
 			if (const auto* error = dynamic_cast<const MySqlErrorMessage*>(message))
 			{
-				auto object = writeMessage(SerializedFields::ErrorMessage, *error);
+				auto object = messages.writeObject(SerializedFields::ErrorMessage);
+				writeMessage(object, *error);
 				object.writeField(ErrorFields::ErrorCode, error->getErrorCode());
 				object.writeField(ErrorFields::SqlState, error->getSqlState());
 				object.writeField(ErrorFields::ErrorMessage, error->getErrorMessage());
 			}
 			else if (const auto* query = dynamic_cast<const MySqlQueryMessage*>(message))
 			{
-				auto object = writeMessage(SerializedFields::QueryMessage, *query);
+				auto object = messages.writeObject(SerializedFields::QueryMessage);
+				writeMessage(object, *query);
 				object.writeField(QueryFields::Query, query->getQuery());
 			}
 			else
 			{
-				writeMessage(SerializedFields::Message, *message);
+				auto object = messages.writeObject(SerializedFields::Message);
+				writeMessage(object, *message);
 			}
 		}
 	}

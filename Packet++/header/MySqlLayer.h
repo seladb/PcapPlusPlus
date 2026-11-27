@@ -384,6 +384,7 @@ namespace pcpp
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
 
+		/// @struct SerializedFields
 		/// Fields written in addition to Layer::SerializedFields.
 		struct SerializedFields : Layer::SerializedFields
 		{
@@ -396,6 +397,7 @@ namespace pcpp
 				return result;
 			}
 
+			/// @struct MessageFields
 			/// Fields common to all MySQL messages.
 			struct MessageFields
 			{
@@ -405,20 +407,23 @@ namespace pcpp
 					return { Type, PacketNumber, PayloadLength };
 				}
 
-				/// Message type string as returned by MySqlMessageType::toString().
+				/// @brief Message type string as returned by MySqlMessageType::toString().
 				static const FieldDescriptor Type;
-				/// One-byte MySQL packet sequence number.
+				/// @brief One-byte MySQL packet sequence number.
 				static const FieldDescriptor PacketNumber;
-				/// Payload length in bytes, excluding the four-byte message header and including any command byte.
+				/// @brief Payload length in bytes, excluding the four-byte message header and including any command
+				/// byte.
 				static const FieldDescriptor PayloadLength;
 			};
 
+			/// @struct MessageObject
 			/// Fields of a message with no type-specific fields.
 			struct MessageObject : ObjectFieldDescriptor<MessageObject>, MessageFields
 			{
 				using ObjectFieldDescriptor::ObjectFieldDescriptor;
 			};
 
+			/// @struct ErrorMessageObject
 			/// Fields of a server error message.
 			struct ErrorMessageObject : ObjectFieldDescriptor<ErrorMessageObject>, MessageFields
 			{
@@ -433,14 +438,15 @@ namespace pcpp
 					return result;
 				}
 
-				/// Numeric MySQL error code in host byte order.
+				/// @brief Numeric MySQL error code in host byte order.
 				static const FieldDescriptor ErrorCode;
-				/// SQL state, empty if unavailable.
+				/// @brief SQL state, empty if unavailable.
 				static const FieldDescriptor SqlState;
-				/// Error text as returned by MySqlErrorMessage::getErrorMessage().
+				/// @brief Error text as returned by MySqlErrorMessage::getErrorMessage().
 				static const FieldDescriptor ErrorMessage;
 			};
 
+			/// @struct QueryMessageObject
 			/// Fields of a client COM_QUERY message.
 			struct QueryMessageObject : ObjectFieldDescriptor<QueryMessageObject>, MessageFields
 			{
@@ -455,20 +461,20 @@ namespace pcpp
 					return result;
 				}
 
-				/// SQL text as returned by MySqlQueryMessage::getQuery().
+				/// @brief SQL text as returned by MySqlQueryMessage::getQuery().
 				static const FieldDescriptor Query;
 			};
 
-			/// Message direction, written as "client" or "server".
+			/// @brief Message direction, written as "client" or "server".
 			static const FieldDescriptor Origin;
-			/// Parsed messages in wire order, using Message, ErrorMessage, or QueryMessage for each element.
+			/// @brief Parsed messages in wire order, using Message, ErrorMessage, or QueryMessage for each element.
 			static const FieldDescriptor Messages;
 
-			/// Array element for a message with no type-specific fields.
+			/// @brief Array element for a message with no type-specific fields.
 			static const MessageObject Message;
-			/// Array element for a server error message.
+			/// @brief Array element for a server error message.
 			static const ErrorMessageObject ErrorMessage;
-			/// Array element for a client COM_QUERY message.
+			/// @brief Array element for a client COM_QUERY message.
 			static const QueryMessageObject QueryMessage;
 		};
 

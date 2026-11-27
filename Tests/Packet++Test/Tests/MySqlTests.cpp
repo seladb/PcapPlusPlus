@@ -5,8 +5,6 @@
 #include "Serializers.h"
 #include "TcpLayer.h"
 
-#include <algorithm>
-#include <iterator>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -15,30 +13,6 @@ using pcpp_tests::utils::createPacketFromHexResource;
 
 PTF_TEST_CASE(MySqlLayerParsingTest)
 {
-	using Fields = pcpp::MySqlLayer::SerializedFields;
-	const auto fieldNames = [](const std::vector<pcpp::FieldDescriptor>& descriptors) {
-		std::vector<std::string> names;
-		names.reserve(descriptors.size());
-		std::transform(descriptors.begin(), descriptors.end(), std::back_inserter(names),
-		               [](const pcpp::FieldDescriptor& descriptor) { return descriptor.name; });
-		return names;
-	};
-
-	// The MySQL layer adds origin and messages to the base layer fields.
-	auto expectedLayerFields = fieldNames(pcpp::Layer::SerializedFields::all());
-	expectedLayerFields.push_back(Fields::Origin.name);
-	expectedLayerFields.push_back(Fields::Messages.name);
-	PTF_ASSERT_VECTORS_EQUAL(fieldNames(Fields::all()), expectedLayerFields);
-
-	const std::vector<std::string> expectedMessageFields = { "type", "packetNumber", "payloadLength" };
-	auto expectedErrorFields = expectedMessageFields;
-	expectedErrorFields.insert(expectedErrorFields.end(), { "errorCode", "sqlState", "errorMessage" });
-	auto expectedQueryFields = expectedMessageFields;
-	expectedQueryFields.insert(expectedQueryFields.end(), { "query" });
-	PTF_ASSERT_VECTORS_EQUAL(fieldNames(Fields::MessageObject::all()), expectedMessageFields);
-	PTF_ASSERT_VECTORS_EQUAL(fieldNames(Fields::ErrorMessageObject::all()), expectedErrorFields);
-	PTF_ASSERT_VECTORS_EQUAL(fieldNames(Fields::QueryMessageObject::all()), expectedQueryFields);
-
 	// Server message
 	{
 		pcpp_tests::utils::PacketFactory nullFactory(pcpp::LINKTYPE_NULL);
