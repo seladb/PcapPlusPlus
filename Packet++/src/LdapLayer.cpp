@@ -1,5 +1,6 @@
 #include "LdapLayer.h"
 #include "GeneralUtils.h"
+#include "Serializers.h"
 #include <unordered_map>
 
 namespace pcpp
@@ -7,6 +8,60 @@ namespace pcpp
 
 	constexpr uint8_t LdapResponseLayer::referralTagType;
 	constexpr int LdapBindResponseLayer::serverSaslCredentialsTagType;
+
+	const FieldDescriptor LdapLayer::SerializedFields::ControlObject::Type{ 0, "type" };
+	const LdapLayer::SerializedFields::ControlObject LdapLayer::SerializedFields::Control{ 0, "control" };
+	const FieldDescriptor LdapLayer::SerializedFields::OperationType{ Layer::SerializedFields::MaxID + 1,
+		                                                              "operationType" };
+	const FieldDescriptor LdapLayer::SerializedFields::MessageID{ Layer::SerializedFields::MaxID + 2, "messageID" };
+	const FieldDescriptor LdapLayer::SerializedFields::Controls{ Layer::SerializedFields::MaxID + 3, "controls" };
+
+	const FieldDescriptor LdapResponseLayer::SerializedFields::ResultCode{ LdapLayer::SerializedFields::MaxID + 1,
+		                                                                   "resultCode" };
+	const FieldDescriptor LdapResponseLayer::SerializedFields::MatchedDN{ LdapLayer::SerializedFields::MaxID + 2,
+		                                                                  "matchedDN" };
+	const FieldDescriptor LdapResponseLayer::SerializedFields::DiagnosticMessage{
+		LdapLayer::SerializedFields::MaxID + 3, "diagnosticMessage"
+	};
+	const FieldDescriptor LdapResponseLayer::SerializedFields::Referral{ LdapLayer::SerializedFields::MaxID + 4,
+		                                                                 "referral" };
+	const FieldDescriptor LdapResponseLayer::SerializedFields::ReferralUri{ 0, "referralUri" };
+
+	const FieldDescriptor LdapBindRequestLayer::SerializedFields::Version{ LdapLayer::SerializedFields::MaxID + 1,
+		                                                                   "version" };
+	const FieldDescriptor LdapBindRequestLayer::SerializedFields::Name{ LdapLayer::SerializedFields::MaxID + 2,
+		                                                                "name" };
+	const FieldDescriptor LdapBindRequestLayer::SerializedFields::AuthenticationType{
+		LdapLayer::SerializedFields::MaxID + 3, "authenticationType"
+	};
+
+	const FieldDescriptor LdapSearchRequestLayer::SerializedFields::BaseObject{ LdapLayer::SerializedFields::MaxID + 1,
+		                                                                        "baseObject" };
+	const FieldDescriptor LdapSearchRequestLayer::SerializedFields::Scope{ LdapLayer::SerializedFields::MaxID + 2,
+		                                                                   "scope" };
+	const FieldDescriptor LdapSearchRequestLayer::SerializedFields::DerefAlias{ LdapLayer::SerializedFields::MaxID + 3,
+		                                                                        "derefAlias" };
+	const FieldDescriptor LdapSearchRequestLayer::SerializedFields::SizeLimit{ LdapLayer::SerializedFields::MaxID + 4,
+		                                                                       "sizeLimit" };
+	const FieldDescriptor LdapSearchRequestLayer::SerializedFields::TimeLimit{ LdapLayer::SerializedFields::MaxID + 5,
+		                                                                       "timeLimit" };
+	const FieldDescriptor LdapSearchRequestLayer::SerializedFields::TypesOnly{ LdapLayer::SerializedFields::MaxID + 6,
+		                                                                       "typesOnly" };
+	const FieldDescriptor LdapSearchRequestLayer::SerializedFields::Attributes{ LdapLayer::SerializedFields::MaxID + 7,
+		                                                                        "attributes" };
+	const FieldDescriptor LdapSearchRequestLayer::SerializedFields::RequestedAttribute{ 0, "attribute" };
+
+	const FieldDescriptor LdapSearchResultEntryLayer::SerializedFields::AttributeObject::Type{ 0, "type" };
+	const FieldDescriptor LdapSearchResultEntryLayer::SerializedFields::AttributeObject::Values{ 1, "values" };
+	const FieldDescriptor LdapSearchResultEntryLayer::SerializedFields::AttributeObject::Value{ 0, "value" };
+	const LdapSearchResultEntryLayer::SerializedFields::AttributeObject
+	    LdapSearchResultEntryLayer::SerializedFields::Attribute{ 0, "attribute" };
+	const FieldDescriptor LdapSearchResultEntryLayer::SerializedFields::ObjectName{
+		LdapLayer::SerializedFields::MaxID + 1, "objectName"
+	};
+	const FieldDescriptor LdapSearchResultEntryLayer::SerializedFields::Attributes{
+		LdapLayer::SerializedFields::MaxID + 2, "attributes"
+	};
 
 	// region LdapOperationType
 
@@ -44,6 +99,7 @@ namespace pcpp
 		{ static_cast<uint8_t>(LdapOperationType::SearchRequest),         LdapOperationType::SearchRequest         },
 		{ static_cast<uint8_t>(LdapOperationType::SearchResultEntry),     LdapOperationType::SearchResultEntry     },
 		{ static_cast<uint8_t>(LdapOperationType::SearchResultDone),      LdapOperationType::SearchResultDone      },
+		{ static_cast<uint8_t>(LdapOperationType::ModifyRequest),         LdapOperationType::ModifyRequest         },
 		{ static_cast<uint8_t>(LdapOperationType::ModifyResponse),        LdapOperationType::ModifyResponse        },
 		{ static_cast<uint8_t>(LdapOperationType::AddRequest),            LdapOperationType::AddRequest            },
 		{ static_cast<uint8_t>(LdapOperationType::AddResponse),           LdapOperationType::AddResponse           },
@@ -120,7 +176,8 @@ namespace pcpp
 		{ LdapResultCode::EntryAlreadyExists,           "EntryAlreadyExists"           },
 		{ LdapResultCode::ObjectClassModsProhibited,    "ObjectClassModsProhibited"    },
 		{ LdapResultCode::AffectsMultipleDSAs,          "AffectsMultipleDSAs"          },
-		{ LdapResultCode::Other,                        "Other"                        }
+		{ LdapResultCode::Other,                        "Other"                        },
+		{ LdapResultCode::Unknown,                      "Unknown"                      }
     };
 	// clang-format on
 
@@ -258,6 +315,19 @@ namespace pcpp
 	{
 		auto extendedInfo = getExtendedInfoString();
 		return "LDAP Layer, " + getLdapOperationType().toString() + (extendedInfo.empty() ? "" : ", " + extendedInfo);
+	}
+
+	void LdapLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::OperationType, getLdapOperationType().toString());
+		serializer.writeField(SerializedFields::MessageID, getMessageID());
+
+		auto controlsArray = serializer.writeArray(SerializedFields::Controls);
+		for (const auto& control : getControls())
+		{
+			auto controlObject = controlsArray.writeObject(SerializedFields::Control);
+			controlObject.writeField(SerializedFields::ControlObject::Type, control.controlType);
+		}
 	}
 
 	LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -477,6 +547,20 @@ namespace pcpp
 	{
 		return getResultCode().toString();
 	}
+
+	void LdapResponseLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		LdapLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::ResultCode, getResultCode().toString());
+		serializer.writeField(SerializedFields::MatchedDN, getMatchedDN());
+		serializer.writeField(SerializedFields::DiagnosticMessage, getDiagnosticMessage());
+
+		auto referralArray = serializer.writeArray(SerializedFields::Referral);
+		for (const auto& uri : getReferral())
+		{
+			referralArray.writeField(SerializedFields::ReferralUri, uri);
+		}
+	}
 	// endregion
 
 	// region LdapBindRequestLayer
@@ -614,6 +698,14 @@ namespace pcpp
 		}
 	}
 
+	void LdapBindRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		LdapLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::Version, getVersion());
+		serializer.writeField(SerializedFields::Name, getName());
+		serializer.writeField(SerializedFields::AuthenticationType, getExtendedInfoString());
+	}
+
 	// endregion
 
 	// region LdapBindResponseLayer
@@ -669,10 +761,11 @@ namespace pcpp
 	const std::unordered_map<LdapSearchRequestLayer::SearchRequestScope::Value, std::string,
 	                         EnumClassHash<LdapSearchRequestLayer::SearchRequestScope::Value>>
 	    SearchRequestScopeToString{
-		    { LdapSearchRequestLayer::SearchRequestScope::BaseObject,   "BaseObject"   },
-		    { LdapSearchRequestLayer::SearchRequestScope::SingleLevel,  "SingleLevel"  },
-		    { LdapSearchRequestLayer::SearchRequestScope::WholeSubtree, "WholeSubtree" },
-		    { LdapSearchRequestLayer::SearchRequestScope::Unknown,      "Unknown"      }
+		    { LdapSearchRequestLayer::SearchRequestScope::BaseObject,         "BaseObject"         },
+		    { LdapSearchRequestLayer::SearchRequestScope::SingleLevel,        "SingleLevel"        },
+		    { LdapSearchRequestLayer::SearchRequestScope::WholeSubtree,       "WholeSubtree"       },
+		    { LdapSearchRequestLayer::SearchRequestScope::subordinateSubtree, "subordinateSubtree" },
+		    { LdapSearchRequestLayer::SearchRequestScope::Unknown,            "Unknown"            }
     };
 
 	const std::unordered_map<LdapSearchRequestLayer::DerefAliases::Value, std::string,
@@ -829,6 +922,23 @@ namespace pcpp
 		return "\"" + baseObject + "\", " + getScope().toString();
 	}
 
+	void LdapSearchRequestLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		LdapLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::BaseObject, getBaseObject());
+		serializer.writeField(SerializedFields::Scope, getScope().toString());
+		serializer.writeField(SerializedFields::DerefAlias, getDerefAlias().toString());
+		serializer.writeField(SerializedFields::SizeLimit, getSizeLimit());
+		serializer.writeField(SerializedFields::TimeLimit, getTimeLimit());
+		serializer.writeField(SerializedFields::TypesOnly, getTypesOnly());
+
+		auto attributesArray = serializer.writeArray(SerializedFields::Attributes);
+		for (const auto& attribute : getAttributes())
+		{
+			attributesArray.writeField(SerializedFields::RequestedAttribute, attribute);
+		}
+	}
+
 	// endregion
 
 	// region LdapSearchResultEntryLayer
@@ -894,6 +1004,25 @@ namespace pcpp
 		}
 
 		return result;
+	}
+
+	void LdapSearchResultEntryLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		LdapLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::ObjectName, getObjectName());
+
+		auto attributesArray = serializer.writeArray(SerializedFields::Attributes);
+		for (const auto& attribute : getAttributes())
+		{
+			auto attributeObject = attributesArray.writeObject(SerializedFields::Attribute);
+			attributeObject.writeField(SerializedFields::AttributeObject::Type, attribute.type);
+
+			auto valuesArray = attributeObject.writeArray(SerializedFields::AttributeObject::Values);
+			for (const auto& value : attribute.values)
+			{
+				valuesArray.writeField(SerializedFields::AttributeObject::Value, value);
+			}
+		}
 	}
 
 	// endregion
