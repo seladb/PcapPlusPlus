@@ -1,7 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "Packet.h"
 #include "MySqlLayer.h"
+#include "Packet.h"
+#include "Serializers.h"
 #include "TcpLayer.h"
 
 #include <memory>
@@ -51,6 +52,24 @@ PTF_TEST_CASE(MySqlLayerParsingTest)
 		auto eofMessage = mySqlLayer->getMySqlMessage(pcpp::MySqlMessageType::Server_EOF);
 		PTF_ASSERT_EQUAL(eofMessage->getMessageType(), pcpp::MySqlMessageType::Server_EOF, enum);
 		PTF_ASSERT_NULL(mySqlLayer->getMySqlMessage(pcpp::MySqlMessageType::Server_Error));
+
+		// Expected lengths and sequence numbers come from the fixture's four-byte MySQL headers.
+		// For example, 40 00 00 01 encodes a 64-byte payload and sequence number 1.
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		mySqlLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(output.str(),
+		                 R"({"protocolName":"MySQL","protocolId":63,"length":605,"origin":"server","messages":[)"
+		                 R"({"type":"Data","packetNumber":1,"payloadLength":64},)"
+		                 R"({"type":"Data","packetNumber":2,"payloadLength":57},)"
+		                 R"({"type":"Data","packetNumber":3,"payloadLength":59},)"
+		                 R"({"type":"Data","packetNumber":4,"payloadLength":59},)"
+		                 R"({"type":"Data","packetNumber":5,"payloadLength":58},)"
+		                 R"({"type":"Data","packetNumber":6,"payloadLength":65},)"
+		                 R"({"type":"Data","packetNumber":7,"payloadLength":53},)"
+		                 R"({"type":"Data","packetNumber":8,"payloadLength":59},)"
+		                 R"({"type":"Data","packetNumber":9,"payloadLength":84},)"
+		                 R"({"type":"EOF","packetNumber":10,"payloadLength":7}]})");
 	}
 
 	// Client message
@@ -77,6 +96,13 @@ PTF_TEST_CASE(MySqlLayerParsingTest)
 		PTF_ASSERT_EQUAL(messages.at(0)->getMessageType(), pcpp::MySqlMessageType::Client_HandshakeResponse, enum);
 
 		PTF_ASSERT_EQUAL(mySqlLayer->toString(), "MySQL Client Layer, 1 message(s)");
+
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		mySqlLayer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    output.str(),
+		    R"JSON({"protocolName":"MySQL","protocolId":63,"length":190,"origin":"client","messages":[{"type":"HandshakeResponse","packetNumber":1,"payloadLength":186}]})JSON");
 	}
 }
 
@@ -125,6 +151,16 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 		auto message =
 		    pcpp::MySqlMessage::parseMySqlMessage(errorData.data(), errorData.size(), pcpp::MySqlMessageOrigin::Server);
 		ASSERT_MYSQL_MESSAGE(message, pcpp::MySqlMessageType::Server_Error, pcpp::MySqlMessageOrigin::Server, "Error");
+		pcpp::Packet packet;
+		std::unique_ptr<pcpp::MySqlLayer> layer(
+		    pcpp::MySqlLayer::parseMySqlServerMessage(errorData.data(), errorData.size(), nullptr, &packet));
+		PTF_ASSERT_NOT_NULL(layer);
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    output.str(),
+		    R"JSON({"protocolName":"MySQL","protocolId":63,"length":33,"origin":"server","messages":[{"type":"Error","packetNumber":1,"payloadLength":29,"errorCode":1046,"sqlState":"3D000","errorMessage":"No database selected"}]})JSON");
 		auto errorMessage = dynamic_cast<pcpp::MySqlErrorMessage*>(message.get());
 		PTF_ASSERT_NOT_NULL(errorMessage);
 		PTF_ASSERT_EQUAL(errorMessage->getErrorCode(), 1046);
@@ -244,6 +280,17 @@ PTF_TEST_CASE(MySqlMessageParsingTest)
 		auto queryMessage = dynamic_cast<pcpp::MySqlQueryMessage*>(message.get());
 		PTF_ASSERT_NOT_NULL(queryMessage);
 		PTF_ASSERT_EQUAL(queryMessage->getQuery(), "select * from tournament");
+
+		pcpp::Packet packet;
+		std::unique_ptr<pcpp::MySqlLayer> layer(
+		    pcpp::MySqlLayer::parseMySqlClientMessage(queryData.data(), queryData.size(), nullptr, &packet));
+		PTF_ASSERT_NOT_NULL(layer);
+		std::ostringstream output;
+		pcpp::JsonSerializer serializer(output);
+		layer->serialize(serializer);
+		PTF_ASSERT_EQUAL(
+		    output.str(),
+		    R"JSON({"protocolName":"MySQL","protocolId":63,"length":31,"origin":"client","messages":[{"type":"COM_QUERY","packetNumber":0,"payloadLength":27,"query":"select * from tournament"}]})JSON");
 	}
 
 	// Client - COM_PING (0x0E)

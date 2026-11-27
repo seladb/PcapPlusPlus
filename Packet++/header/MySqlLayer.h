@@ -2,6 +2,9 @@
 
 #include "Layer.h"
 #include "PointerVector.h"
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
 #include <memory>
 #include <ostream>
 #include <unordered_map>
@@ -380,6 +383,103 @@ namespace pcpp
 
 		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
+
+		/// @struct SerializedFields
+		/// Fields written in addition to Layer::SerializedFields.
+		struct SerializedFields : Layer::SerializedFields
+		{
+			/// @return All top-level MySQL layer field descriptors.
+			static std::vector<FieldDescriptor> all()
+			{
+				auto result = Layer::SerializedFields::all();
+				std::initializer_list<FieldDescriptor> extra{ Origin, Messages };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+				return result;
+			}
+
+			/// @struct MessageFields
+			/// Fields common to all MySQL messages.
+			struct MessageFields
+			{
+				/// @return The field descriptors common to all messages.
+				static std::vector<FieldDescriptor> all()
+				{
+					return { Type, PacketNumber, PayloadLength };
+				}
+
+				/// @brief Message type string as returned by MySqlMessageType::toString().
+				static const FieldDescriptor Type;
+				/// @brief One-byte MySQL packet sequence number.
+				static const FieldDescriptor PacketNumber;
+				/// @brief Payload length in bytes, excluding the four-byte message header and including any command
+				/// byte.
+				static const FieldDescriptor PayloadLength;
+			};
+
+			/// @struct MessageObject
+			/// Fields of a message with no type-specific fields.
+			struct MessageObject : ObjectFieldDescriptor<MessageObject>, MessageFields
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+			};
+
+			/// @struct ErrorMessageObject
+			/// Fields of a server error message.
+			struct ErrorMessageObject : ObjectFieldDescriptor<ErrorMessageObject>, MessageFields
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for an error message.
+				static std::vector<FieldDescriptor> all()
+				{
+					auto result = MessageFields::all();
+					std::initializer_list<FieldDescriptor> extra{ ErrorCode, SqlState, ErrorMessage };
+					std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+					return result;
+				}
+
+				/// @brief Numeric MySQL error code in host byte order.
+				static const FieldDescriptor ErrorCode;
+				/// @brief SQL state, empty if unavailable.
+				static const FieldDescriptor SqlState;
+				/// @brief Error text as returned by MySqlErrorMessage::getErrorMessage().
+				static const FieldDescriptor ErrorMessage;
+			};
+
+			/// @struct QueryMessageObject
+			/// Fields of a client COM_QUERY message.
+			struct QueryMessageObject : ObjectFieldDescriptor<QueryMessageObject>, MessageFields
+			{
+				using ObjectFieldDescriptor::ObjectFieldDescriptor;
+
+				/// @return All field descriptors for a query message.
+				static std::vector<FieldDescriptor> all()
+				{
+					auto result = MessageFields::all();
+					std::initializer_list<FieldDescriptor> extra{ Query };
+					std::copy(extra.begin(), extra.end(), std::back_inserter(result));
+					return result;
+				}
+
+				/// @brief SQL text as returned by MySqlQueryMessage::getQuery().
+				static const FieldDescriptor Query;
+			};
+
+			/// @brief Message direction, written as "client" or "server".
+			static const FieldDescriptor Origin;
+			/// @brief Parsed messages in wire order, using Message, ErrorMessage, or QueryMessage for each element.
+			static const FieldDescriptor Messages;
+
+			/// @brief Array element for a message with no type-specific fields.
+			static const MessageObject Message;
+			/// @brief Array element for a server error message.
+			static const ErrorMessageObject ErrorMessage;
+			/// @brief Array element for a client COM_QUERY message.
+			static const QueryMessageObject QueryMessage;
+		};
+
+	protected:
+		void serializeLayer(ObjectScope& serializer) const override;
 
 	private:
 		MySqlMessageOrigin m_MessageOrigin;
