@@ -231,8 +231,8 @@ namespace pcpp
 		std::string hostToFind = data->hostname;
 
 		DnsResource* dnsAnswer = nullptr;
-		uint16_t cnameHops = 0;
-		const uint16_t maxCnameHops = be16toh(dnsResponseLayer->getDnsHeader()->numberOfAnswers);
+		size_t cnameHops = 0;
+		const auto maxCnameHops = dnsResponseLayer->getAnswerCount();
 
 		while (true)
 		{
