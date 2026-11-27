@@ -1676,10 +1676,9 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	writerCompressDev.close();
 	// --------------
 
-	PTF_ASSERT_TRUE(writerDev.open(readerDev.getOS().c_str(), "My Hardware", readerDev.getCaptureApplication().c_str(),
+	PTF_ASSERT_TRUE(writerDev.open(readerDev.getOS(), "My Hardware", readerDev.getCaptureApplication(),
 	                               "This is a comment in a pcap-ng file"));
-	PTF_ASSERT_TRUE(writerCompressDev.open(readerDev.getOS().c_str(), "My Hardware",
-	                                       readerDev.getCaptureApplication().c_str(),
+	PTF_ASSERT_TRUE(writerCompressDev.open(readerDev.getOS(), "My Hardware", readerDev.getCaptureApplication(),
 	                                       "This is a comment in a pcap-ng file"));
 
 	pcpp::RawPacket rawPacket;
@@ -1724,8 +1723,8 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 			commentCount++;
 		}
 
-		PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket, pktComment.c_str()));
-		PTF_ASSERT_TRUE(writerCompressDev.writePacket(rawPacket, pktComment.c_str()));
+		PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket, pktComment));
+		PTF_ASSERT_TRUE(writerCompressDev.writePacket(rawPacket, pktComment));
 	}
 
 	PTF_ASSERT_EQUAL(packetCount, 159);

@@ -146,6 +146,7 @@ namespace pcpp
 		std::unique_ptr<SocketContainer> m_Socket;
 		IPAddress m_InterfaceIP;
 
+		// cppcheck-suppress unusedPrivateFunction ; false positive
 		RecvPacketResult getError(int& errorCode) const;
 	};
 }  // namespace pcpp

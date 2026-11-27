@@ -313,6 +313,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SipRequestLayerEditTest, "sip");
 	PTF_RUN_TEST(SipResponseParseStatusCodeTest, "sip");
 	PTF_RUN_TEST(SipResponseParseVersionCodeTest, "sip");
+	PTF_RUN_TEST(SipResponseParseFirstLineTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerParsingTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerCreationTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerEditTest, "sip");
@@ -336,6 +337,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
 	PTF_RUN_TEST(BgpOpenMalformedOptionalParamsTest, "bgp");
+	PTF_RUN_TEST(BgpMessageTooShortTest, "bgp");
 
 	PTF_RUN_TEST(SSHParsingTest, "ssh");
 	PTF_RUN_TEST(SSHMalformedParsingTest, "ssh");
@@ -343,6 +345,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IPSecParsingTest, "ipsec");
 
 	PTF_RUN_TEST(DhcpV6ParsingTest, "dhcp;dhcpv6");
+	PTF_RUN_TEST(DhcpV6RelayMessageParsingTest, "dhcp;dhcpv6");
+	PTF_RUN_TEST(DhcpV6RelayMessageCreationTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6CreationTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6EditTest, "dhcp;dhcpv6");
 

@@ -148,6 +148,7 @@ namespace pcpp
 			std::vector<uint8_t> rawDataBytes;
 			auto record = decodeAsn1Data(rawData, rawDataBytes);
 			auto basicConstraintsRecord = castRecordAs<Asn1SequenceRecord>(record.get(), "Basic Constraints", "Value");
+			// cppcheck-suppress shadowFunction
 			bool isCA = false;
 			uint8_t pathLenConstraint = 0;
 			if (basicConstraintsRecord->getSubRecords().size() > isCAOffset)
