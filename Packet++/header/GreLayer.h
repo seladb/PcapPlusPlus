@@ -305,17 +305,17 @@ namespace pcpp
 
 			// The optional fields (checksum/routing, key, sequence number, ack sequence number) each add 4 bytes
 			// to the header if their respective bit is set. Mirrors the length calculation in GreLayer::getHeaderLen()
-			// so that isDataValid() rejects truncated packets before any optional-field getter tries to read past the
-			// end of the buffer
+			// so that isDataValid() rejects truncated packets before any optional-field getter or setter accesses
+			// memory past the end of the buffer
 			auto* header = reinterpret_cast<const gre_basic_header*>(data);
 			size_t requiredLen = sizeof(gre_basic_header);
-			if (header->checksumBit == 1 || header->routingBit == 1)
+			if (header->checksumBit || header->routingBit)
 				requiredLen += sizeof(uint32_t);
-			if (header->keyBit == 1)
+			if (header->keyBit)
 				requiredLen += sizeof(uint32_t);
-			if (header->sequenceNumBit == 1)
+			if (header->sequenceNumBit)
 				requiredLen += sizeof(uint32_t);
-			if (header->ackSequenceNumBit == 1)
+			if (header->ackSequenceNumBit)
 				requiredLen += sizeof(uint32_t);
 
 			return dataLen >= requiredLen;
@@ -424,17 +424,18 @@ namespace pcpp
 			if (!data || dataLen < sizeof(gre1_header))
 				return false;
 
-			// sizeof(gre1_header) already accounts for the mandatory key field (payload length + call ID), so only
-			// the remaining optional fields (checksum/routing, sequence number, ack sequence number) can add 4 more
-			// bytes each. Mirrors the length calculation in GreLayer::getHeaderLen() so that isDataValid() rejects
-			// truncated packets before any optional-field getter tries to read past the end of the buffer
+			// sizeof(gre1_header) assumes the key field (payload length + call ID), which is mandatory in GREv1, is
+			// present, so only the remaining optional fields (checksum/routing, sequence number, ack sequence number)
+			// can add 4 more bytes each. Mirrors the length calculation in GreLayer::getHeaderLen() so that
+			// isDataValid() rejects truncated packets before any optional-field getter or setter accesses memory past
+			// the end of the buffer
 			auto* header = reinterpret_cast<const gre_basic_header*>(data);
 			size_t requiredLen = sizeof(gre1_header);
-			if (header->checksumBit == 1 || header->routingBit == 1)
+			if (header->checksumBit || header->routingBit)
 				requiredLen += sizeof(uint32_t);
-			if (header->sequenceNumBit == 1)
+			if (header->sequenceNumBit)
 				requiredLen += sizeof(uint32_t);
-			if (header->ackSequenceNumBit == 1)
+			if (header->ackSequenceNumBit)
 				requiredLen += sizeof(uint32_t);
 
 			return dataLen >= requiredLen;
