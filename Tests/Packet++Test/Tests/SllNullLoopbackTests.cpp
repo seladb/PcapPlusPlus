@@ -50,7 +50,7 @@ PTF_TEST_CASE(SllPacketParsingTest)
 	}
 
 	// A packet shorter than the SLL header must not create an SllLayer
-	auto truncatedRawPacket = createPacketFromHexResource("PacketExamples/TruncatedSll.dat", sslFactory);
+	auto truncatedRawPacket = createPacketFromHexResource("PacketExamples/SllPacketTruncated.dat", sslFactory);
 	pcpp::Packet truncatedSllPacket(truncatedRawPacket.get());
 	PTF_ASSERT_FALSE(truncatedSllPacket.isPacketOfType(pcpp::SLL));
 	PTF_ASSERT_NULL(truncatedSllPacket.getLayerOfType<pcpp::SllLayer>());
