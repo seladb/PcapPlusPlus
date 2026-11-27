@@ -129,11 +129,11 @@ namespace pcpp
 	typedef struct icmp_echo_request
 	{
 		/// a pointer to the header data
-		icmp_echo_hdr* header;
+		icmp_echo_hdr* header = nullptr;
 		/// most echo requests/replies contain some payload data. This is the data length
-		size_t dataLength;
+		size_t dataLength = 0;
 		/// most echo requests/replies contain some payload data. This is a pointer to this data
-		uint8_t* data;
+		uint8_t* data= nullptr;
 	} icmp_echo_request;
 
 	/// @typedef icmp_echo_reply
