@@ -755,6 +755,7 @@ jobs:
       - name: Setup OpenCppCoverage and add to PATH
         run: |
           choco install OpenCppCoverage -y
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH
 
       - name: Install WinPcap
