@@ -8,6 +8,7 @@
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
 #include "EndianPortable.h"
+#include "UnalignedAccess.h"
 
 namespace pcpp
 {
@@ -1122,7 +1123,8 @@ namespace pcpp
 			return { false, 0 };
 		}
 
-		return { true, be32toh(*reinterpret_cast<uint32_t*>(m_Data + sizeof(gtpv2_basic_header))) };
+		uint32_t value = readUint<uint32_t, ByteOrder::BigEndian>(m_Data + sizeof(gtpv2_basic_header));
+		return { true, value };
 	}
 
 	void GtpV2Layer::setTeid(uint32_t teid)
@@ -1141,7 +1143,7 @@ namespace pcpp
 			header->messageLength = htobe16(be16toh(header->messageLength) + sizeof(uint32_t));
 		}
 
-		reinterpret_cast<uint32_t*>(m_Data + teidOffset)[0] = htobe32(teid);
+		writeUint<uint32_t, ByteOrder::BigEndian>(m_Data + teidOffset, teid);
 
 		header->teidPresent = 1;
 	}
@@ -1175,7 +1177,8 @@ namespace pcpp
 			sequencePos += sizeof(uint32_t);
 		}
 
-		return be32toh(*reinterpret_cast<uint32_t*>(sequencePos)) >> 8;
+		uint32_t value = readUint<uint32_t, ByteOrder::BigEndian>(sequencePos);
+		return value >> 8;
 	}
 
 	void GtpV2Layer::setSequenceNumber(uint32_t sequenceNumber)

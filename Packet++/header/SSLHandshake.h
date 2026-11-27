@@ -167,6 +167,8 @@ namespace pcpp
 	protected:
 		/// @struct SSLExtensionStruct
 		/// Represents the common fields of the extension
+
+#pragma pack(push, 1)
 		struct SSLExtensionStruct
 		{
 			/// Extension type
@@ -179,6 +181,8 @@ namespace pcpp
 			/// @brief Gets the extension length in host byte order
 			uint16_t getDataLength() const;
 		};
+#pragma pack(pop)
+		static_assert(sizeof(SSLExtensionStruct) == 4, "SSLExtensionStruct size is not 4 bytes");
 
 		uint8_t* m_RawData;
 		size_t m_RawDataLen;

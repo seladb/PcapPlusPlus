@@ -126,6 +126,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
 	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
 
+	PTF_RUN_TEST(EndianReadWriteBigEndian, "unaligned;ubsan;endian");
+	PTF_RUN_TEST(EndianReadWriteNative, "unaligned;ubsan;endian");
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(QinQ802_1adParse, "vlan");
 	PTF_RUN_TEST(TruncatedArpAndVlanPayloadTest, "vlan;arp;sll;gre");

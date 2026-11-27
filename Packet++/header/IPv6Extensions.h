@@ -60,11 +60,13 @@ namespace pcpp
 		}
 
 	protected:
+#pragma pack(push, 1)
 		struct ipv6_ext_base_header
 		{
 			uint8_t nextHeader;
 			uint8_t headerLen;
 		};
+#pragma pack(pop)
 
 		// protected c'tor
 		IPv6Extension(IDataContainer* dataContainer, size_t offset)
@@ -113,6 +115,8 @@ namespace pcpp
 	public:
 		/// @struct ipv6_frag_header
 		/// A struct representing IPv6 fragmentation header
+
+#pragma pack(push, 1)
 		struct ipv6_frag_header
 		{
 			/// Next header type
@@ -125,6 +129,8 @@ namespace pcpp
 			/// packet identification value. Needed for reassembly of the original packet
 			uint32_t id;
 		};
+#pragma pack(pop)
+		static_assert(sizeof(ipv6_frag_header) == 8, "ipv6_frag_header size is not 8 bytes");
 
 		/// A c'tor for creating a new IPv6 fragmentation extension object not bounded to a packet. Useful for adding
 		/// new extensions to an IPv6 layer with IPv6Layer#addExtension()
@@ -364,6 +370,8 @@ namespace pcpp
 	public:
 		/// @struct ipv6_routing_header
 		/// A struct representing the fixed part of the IPv6 routing extension header
+
+#pragma pack(push, 1)
 		struct ipv6_routing_header
 		{
 			/// Next header type
@@ -375,6 +383,7 @@ namespace pcpp
 			/// Number of nodes this packet still has to visit before reaching its final destination
 			uint8_t segmentsLeft;
 		};
+#pragma pack(pop)
 
 		/// A c'tor for creating a new IPv6 routing extension object not bounded to a packet. Useful for adding new
 		/// extensions to an IPv6 layer with IPv6Layer#addExtension()
@@ -430,6 +439,8 @@ namespace pcpp
 	public:
 		/// @struct ipv6_authentication_header
 		/// A struct representing the fixed part of the IPv6 authentication header extension
+
+#pragma pack(push, 1)
 		struct ipv6_authentication_header
 		{
 			/// Next header type
@@ -446,6 +457,8 @@ namespace pcpp
 			/// A monotonic strictly increasing sequence number (incremented by 1 for every packet sent)
 			uint32_t sequenceNumber;
 		};
+#pragma pack(pop)
+		static_assert(sizeof(ipv6_authentication_header) == 12, "ipv6_authentication_header size is not 12 bytes");
 
 		/// A c'tor for creating a new IPv6 authentication header extension object not bounded to a packet. Useful for
 		/// adding new extensions to an IPv6 layer with IPv6Layer#addExtension()

@@ -566,8 +566,17 @@ size_t light_pcapng_to_file_stream(const light_pcapng pcapng, light_file file)
 
       block_mem[0] = iterator->block_type;
       block_mem[1] = iterator->block_total_length;
-      memcpy(&block_mem[2], iterator->block_body, body_length);
-      memcpy(&block_mem[2 + body_length / 4], option_mem, option_length);
+      if (body_length > 0)
+      {
+         DCHECK_NULLP(iterator->block_body, return 0);
+         memcpy(&block_mem[2], iterator->block_body, body_length);
+      }
+
+      if (option_length > 0)
+      {
+         DCHECK_NULLP(option_mem, return 0);
+         memcpy(&block_mem[2 + body_length / 4], option_mem, option_length);
+      }
       block_mem[iterator->block_total_length / 4 - 1] = iterator->block_total_length;
 
       DCHECK_ASSERT(iterator->block_total_length, body_length + option_length + 3 * sizeof(uint32_t), light_stop);

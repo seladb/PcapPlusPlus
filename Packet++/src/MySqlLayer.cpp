@@ -1,6 +1,7 @@
 #include "MySqlLayer.h"
 #include "EndianPortable.h"
 #include <algorithm>
+#include "UnalignedAccess.h"
 
 namespace pcpp
 {
@@ -424,7 +425,8 @@ namespace pcpp
 			return 0;
 		}
 
-		return *reinterpret_cast<const uint16_t*>(m_Data + errorCodeIndex);
+		uint16_t errorCode = readUint<uint16_t, ByteOrder::Native>(m_Data + errorCodeIndex);
+		return errorCode;
 	}
 
 	std::string MySqlErrorMessage::getSqlState() const
