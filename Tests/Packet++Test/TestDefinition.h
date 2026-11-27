@@ -77,6 +77,11 @@ PTF_TEST_CASE(PacketIncrementalParseTest);
 PTF_TEST_CASE(PacketFullReparseTest);
 PTF_TEST_CASE(PacketSerializeTest);
 
+// Implemented in RawPacketTests.cpp
+PTF_TEST_CASE(RawPacketReallocateEmptyTest);
+PTF_TEST_CASE(RawPacketSetRawDataExplicitOwnershipTest);
+PTF_TEST_CASE(RawPacketAppendAfterReallocateTest);
+
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
 PTF_TEST_CASE(HttpRequestLayerParsingTest);
