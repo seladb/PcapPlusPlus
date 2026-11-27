@@ -1,0 +1,10 @@
+attrs
+iniconfig
+py
+pyparsing
+pytest
+scapy
+toml
+pytest-rerunfailures
+cryptography
+PyYAML

@@ -11,21 +11,3 @@ updates:
       actions-dependencies:
         patterns:
           - "*"
-
-  - package-ecosystem: "pip"
-    directories:
-      - "/Tests/ExamplesTest"
-      - "/ci/run_tests"
-    schedule:
-      interval: "monthly"
-    target-branch: "dev"
-    labels:
-    - "automated-pr"
-    groups:
-      pip-dependencies:
-        patterns:
-          - "*"
-    ignore:
-      # pytest 9.x is not available on RHEL, the latest supported version is 8.4.2
-      - dependency-name: "pytest"
-        versions: [">=9"]
