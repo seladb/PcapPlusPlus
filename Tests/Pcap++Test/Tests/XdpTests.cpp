@@ -44,8 +44,7 @@ std::string getDeviceName()
 		return PcapTestGlobalArgs.xdpInterface;
 	}
 
-	auto pcapLiveDev =
-	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	auto pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets);
 	if (pcapLiveDev)
 	{
 		return pcapLiveDev->getName();

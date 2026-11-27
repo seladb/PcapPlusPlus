@@ -465,7 +465,6 @@ namespace pcpp
 			m_FieldNameSize = -1;
 			m_ValueOffsetInMessage = -1;
 			m_FieldValueSize = -1;
-			m_FieldNameSize = -1;
 			m_IsEndOfHeaderField = true;
 			return;
 		}

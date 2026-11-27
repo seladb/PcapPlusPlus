@@ -432,6 +432,25 @@ PTF_TEST_CASE(SipResponseParseVersionCodeTest)
 	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseVersion(std::string("SIP/2.0 ").c_str(), 8), "SIP/2.0");
 }  // SipResponseParseVersionCodeTest
 
+PTF_TEST_CASE(SipResponseParseFirstLineTest)
+{
+	const std::string firstLine = "SIP/2.0 200 OK\r\n";
+	auto result = pcpp::SipResponseFirstLine::parseFirstLine(firstLine.c_str(), firstLine.length());
+	PTF_ASSERT_TRUE(result.first);
+	PTF_ASSERT_EQUAL(result.second.version, "SIP/2.0");
+	PTF_ASSERT_EQUAL(result.second.statusCode, pcpp::SipResponseLayer::Sip200OK, enum);
+
+	// The status code and the space after it must be within dataLen, the bytes after it must not be read
+	const std::string longVersion = "SIP/2.0abc 200 OK\r\n";
+	PTF_ASSERT_FALSE(pcpp::SipResponseFirstLine::parseFirstLine(longVersion.c_str(), 12).first);
+	PTF_ASSERT_FALSE(pcpp::SipResponseFirstLine::parseFirstLine(longVersion.c_str(), 14).first);
+	PTF_ASSERT_TRUE(pcpp::SipResponseFirstLine::parseFirstLine(longVersion.c_str(), 15).first);
+
+	// The first space is the last byte of the data
+	const std::vector<char> spaceAtEnd = { 'S', 'I', 'P', '/', '2', '.', '0', 'a', 'b', 'c', 'd', ' ' };
+	PTF_ASSERT_FALSE(pcpp::SipResponseFirstLine::parseFirstLine(spaceAtEnd.data(), spaceAtEnd.size()).first);
+}  // SipResponseParseFirstLineTest
+
 PTF_TEST_CASE(SipResponseLayerParsingTest)
 {
 	timeval time;
