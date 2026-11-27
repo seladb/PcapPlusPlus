@@ -717,8 +717,14 @@ namespace pcpp
 	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::FurtherActionRequired{
 		DoIpLayer::SerializedFields::MaxID + 5, "furtherActionRequired"
 	};
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::FurtherActionRequiredName{
+		DoIpLayer::SerializedFields::MaxID + 6, "furtherActionRequiredName"
+	};
 	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::SyncStatus{
-		DoIpLayer::SerializedFields::MaxID + 6, "syncStatus"
+		DoIpLayer::SerializedFields::MaxID + 7, "syncStatus"
+	};
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::SyncStatusName{
+		DoIpLayer::SerializedFields::MaxID + 8, "syncStatusName"
 	};
 
 	void DoIpVehicleAnnouncementMessage::serializeLayer(ObjectScope& serializer) const
@@ -735,12 +741,14 @@ namespace pcpp
 		serializer.writeField(SerializedFields::Gid, byteArrayToHexString(gid.data(), gid.size()));
 
 		auto actionIt = DoIpEnumToStringActionCodes.find(getFurtherActionRequired());
-		serializer.writeField(SerializedFields::FurtherActionRequired, actionIt->second);
+		serializer.writeField(SerializedFields::FurtherActionRequired, static_cast<int>(getFurtherActionRequired()));
+		serializer.writeField(SerializedFields::FurtherActionRequiredName, actionIt->second);
 
 		if (hasSyncStatus())
 		{
 			auto syncIt = DoIpEnumToStringSyncStatus.find(getSyncStatus());
-			serializer.writeField(SerializedFields::SyncStatus, syncIt->second);
+			serializer.writeField(SerializedFields::SyncStatus, static_cast<int>(getSyncStatus()));
+			serializer.writeField(SerializedFields::SyncStatusName, syncIt->second);
 		}
 	}
 
@@ -865,8 +873,11 @@ namespace pcpp
 	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ActivationType{
 		DoIpLayer::SerializedFields::MaxID + 2, "activationType"
 	};
+	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ActivationTypeName{
+		DoIpLayer::SerializedFields::MaxID + 3, "activationTypeName"
+	};
 	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ReservedOem{
-		DoIpLayer::SerializedFields::MaxID + 3, "reservedOem"
+		DoIpLayer::SerializedFields::MaxID + 4, "reservedOem"
 	};
 
 	void DoIpRoutingActivationRequest::serializeLayer(ObjectScope& serializer) const
@@ -874,7 +885,8 @@ namespace pcpp
 		DoIpLayer::serializeLayer(serializer);
 		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
 		auto activationIt = DoIpEnumToStringActivationTypes.find(getActivationType());
-		serializer.writeField(SerializedFields::ActivationType, activationIt->second);
+		serializer.writeField(SerializedFields::ActivationType, static_cast<int>(getActivationType()));
+		serializer.writeField(SerializedFields::ActivationTypeName, activationIt->second);
 		if (hasReservedOem())
 		{
 			auto reservedOem = getReservedOem();
@@ -1268,12 +1280,16 @@ namespace pcpp
 	const FieldDescriptor DoIpDiagnosticPowerModeResponse::SerializedFields::PowerModeCode{
 		DoIpLayer::SerializedFields::MaxID + 1, "powerModeCode"
 	};
+	const FieldDescriptor DoIpDiagnosticPowerModeResponse::SerializedFields::PowerModeCodeName{
+		DoIpLayer::SerializedFields::MaxID + 2, "powerModeCodeName"
+	};
 
 	void DoIpDiagnosticPowerModeResponse::serializeLayer(ObjectScope& serializer) const
 	{
 		DoIpLayer::serializeLayer(serializer);
 		auto it = DoIpEnumToStringDiagnosticPowerModeCodes.find(getPowerModeCode());
-		serializer.writeField(SerializedFields::PowerModeCode, it->second);
+		serializer.writeField(SerializedFields::PowerModeCode, static_cast<int>(getPowerModeCode()));
+		serializer.writeField(SerializedFields::PowerModeCodeName, it->second);
 	}
 
 	std::string DoIpDiagnosticPowerModeResponse::getSummary() const
@@ -1492,12 +1508,16 @@ namespace pcpp
 	const FieldDescriptor DoIpDiagnosticMessageAck::SerializedFields::AckCode{
 		DoIpDiagnosticBase::SerializedFields::MaxID + 1, "ackCode"
 	};
+	const FieldDescriptor DoIpDiagnosticMessageAck::SerializedFields::AckCodeName{
+		DoIpDiagnosticBase::SerializedFields::MaxID + 2, "ackCodeName"
+	};
 
 	void DoIpDiagnosticMessageAck::serializeLayer(ObjectScope& serializer) const
 	{
 		DoIpDiagnosticBase::serializeLayer(serializer);
 		auto it = DoIpEnumToStringAckCode.find(getAckCode());
-		serializer.writeField(SerializedFields::AckCode, it->second);
+		serializer.writeField(SerializedFields::AckCode, static_cast<int>(getAckCode()));
+		serializer.writeField(SerializedFields::AckCodeName, it->second);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1551,11 +1571,15 @@ namespace pcpp
 	const FieldDescriptor DoIpDiagnosticMessageNack::SerializedFields::NackCode{
 		DoIpDiagnosticBase::SerializedFields::MaxID + 1, "nackCode"
 	};
+	const FieldDescriptor DoIpDiagnosticMessageNack::SerializedFields::NackCodeName{
+		DoIpDiagnosticBase::SerializedFields::MaxID + 2, "nackCodeName"
+	};
 
 	void DoIpDiagnosticMessageNack::serializeLayer(ObjectScope& serializer) const
 	{
 		DoIpDiagnosticBase::serializeLayer(serializer);
 		auto it = DoIpEnumToStringDiagnosticNackCodes.find(getNackCode());
-		serializer.writeField(SerializedFields::NackCode, it->second);
+		serializer.writeField(SerializedFields::NackCode, static_cast<int>(getNackCode()));
+		serializer.writeField(SerializedFields::NackCodeName, it->second);
 	}
 }  // namespace pcpp

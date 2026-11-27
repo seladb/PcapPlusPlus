@@ -1204,8 +1204,10 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ Vin, LogicalAddress,        Eid,
-					                                          Gid, FurtherActionRequired, SyncStatus };
+				std::initializer_list<FieldDescriptor> extra{
+					Vin,        LogicalAddress, Eid, Gid, FurtherActionRequired, FurtherActionRequiredName,
+					SyncStatus, SyncStatusName
+				};
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -1222,16 +1224,23 @@ namespace pcpp
 			/// @brief Group ID (GID) as a lowercase hexadecimal string without separators
 			static const FieldDescriptor Gid;
 
-			/// @brief Further action required as a readable string
+			/// @brief Further action required as the enum numeric value
 			static const FieldDescriptor FurtherActionRequired;
+
+			/// @brief Further action required as a readable string
+			static const FieldDescriptor FurtherActionRequiredName;
+
+			/// @brief VIN/GID sync status as the enum numeric value. Omitted when the optional field
+			/// is not present
+			static const FieldDescriptor SyncStatus;
 
 			/// @brief VIN/GID sync status as a readable string. Omitted when the optional field is
 			/// not present
-			static const FieldDescriptor SyncStatus;
+			static const FieldDescriptor SyncStatusName;
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 6;
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 8;
 		};
 
 	protected:
@@ -1354,7 +1363,8 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpLayer::SerializedFields::all();
-				std::initializer_list<FieldDescriptor> extra{ SourceAddress, ActivationType, ReservedOem };
+				std::initializer_list<FieldDescriptor> extra{ SourceAddress, ActivationType, ActivationTypeName,
+					                                          ReservedOem };
 				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
@@ -1362,15 +1372,18 @@ namespace pcpp
 			/// @brief Source address of the tester, in host byte order
 			static const FieldDescriptor SourceAddress;
 
-			/// @brief Routing activation type as a readable string
+			/// @brief Routing activation type as the enum numeric value
 			static const FieldDescriptor ActivationType;
+
+			/// @brief Routing activation type as a readable string
+			static const FieldDescriptor ActivationTypeName;
 
 			/// @brief Optional reserved OEM bytes as a hex string. Omitted when not present
 			static const FieldDescriptor ReservedOem;
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 3;
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 4;
 		};
 
 	protected:
@@ -1955,16 +1968,20 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpLayer::SerializedFields::all();
-				result.push_back(PowerModeCode);
+				std::initializer_list<FieldDescriptor> extra{ PowerModeCode, PowerModeCodeName };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// @brief Diagnostic power mode as a readable string
+			/// @brief Diagnostic power mode as the enum numeric value
 			static const FieldDescriptor PowerModeCode;
+
+			/// @brief Diagnostic power mode as a readable string
+			static const FieldDescriptor PowerModeCodeName;
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 1;
+			static constexpr uint16_t MaxID = DoIpLayer::SerializedFields::MaxID + 2;
 		};
 
 	protected:
@@ -2232,16 +2249,20 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpDiagnosticBase::SerializedFields::all();
-				result.push_back(AckCode);
+				std::initializer_list<FieldDescriptor> extra{ AckCode, AckCodeName };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// @brief Diagnostic ACK code as a readable string
+			/// @brief Diagnostic ACK code as the enum numeric value
 			static const FieldDescriptor AckCode;
+
+			/// @brief Diagnostic ACK code as a readable string
+			static const FieldDescriptor AckCodeName;
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpDiagnosticBase::SerializedFields::MaxID + 1;
+			static constexpr uint16_t MaxID = DoIpDiagnosticBase::SerializedFields::MaxID + 2;
 		};
 
 	protected:
@@ -2300,16 +2321,20 @@ namespace pcpp
 			static std::vector<FieldDescriptor> all()
 			{
 				auto result = DoIpDiagnosticBase::SerializedFields::all();
-				result.push_back(NackCode);
+				std::initializer_list<FieldDescriptor> extra{ NackCode, NackCodeName };
+				std::copy(extra.begin(), extra.end(), std::back_inserter(result));
 				return result;
 			}
 
-			/// @brief Diagnostic NACK code as a readable string
+			/// @brief Diagnostic NACK code as the enum numeric value
 			static const FieldDescriptor NackCode;
+
+			/// @brief Diagnostic NACK code as a readable string
+			static const FieldDescriptor NackCodeName;
 
 			// cppcheck-suppress duplInheritedMember
 			/// Maximum field ID used by the layer.
-			static constexpr uint16_t MaxID = DoIpDiagnosticBase::SerializedFields::MaxID + 1;
+			static constexpr uint16_t MaxID = DoIpDiagnosticBase::SerializedFields::MaxID + 2;
 		};
 
 	protected:
