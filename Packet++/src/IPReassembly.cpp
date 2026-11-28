@@ -274,6 +274,30 @@ namespace pcpp
 		return pcpp::fnvHash(vec, vecSize);
 	}
 
+	static bool packetKeysEqual(const IPReassembly::PacketKey& lhs, const IPReassembly::PacketKey& rhs)
+	{
+		if (lhs.getProtocolType() != rhs.getProtocolType())
+			return false;
+
+		if (lhs.getProtocolType() == IPv4)
+		{
+			auto lhsIPv4 = dynamic_cast<const IPReassembly::IPv4PacketKey*>(&lhs);
+			auto rhsIPv4 = dynamic_cast<const IPReassembly::IPv4PacketKey*>(&rhs);
+			return lhsIPv4 != nullptr && rhsIPv4 != nullptr && lhsIPv4->getIpID() == rhsIPv4->getIpID() &&
+			       lhsIPv4->getSrcIP() == rhsIPv4->getSrcIP() && lhsIPv4->getDstIP() == rhsIPv4->getDstIP();
+		}
+
+		if (lhs.getProtocolType() == IPv6)
+		{
+			auto lhsIPv6 = dynamic_cast<const IPReassembly::IPv6PacketKey*>(&lhs);
+			auto rhsIPv6 = dynamic_cast<const IPReassembly::IPv6PacketKey*>(&rhs);
+			return lhsIPv6 != nullptr && rhsIPv6 != nullptr && lhsIPv6->getFragmentID() == rhsIPv6->getFragmentID() &&
+			       lhsIPv6->getSrcIP() == rhsIPv6->getSrcIP() && lhsIPv6->getDstIP() == rhsIPv6->getDstIP();
+		}
+
+		return false;
+	}
+
 	IPReassembly::~IPReassembly()
 	{
 		// empty the map - go over all keys, delete all IPFragmentData objects and remove them from the map
@@ -328,9 +352,19 @@ namespace pcpp
 		uint32_t hash = fragWrapper->hashPacket();
 
 		IPFragmentData* fragData = nullptr;
+		PacketKey* fragmentKey = fragWrapper->createPacketKey();
 
-		// check whether this packet already exists in the map
-		auto iter = m_FragmentMap.find(hash);
+		// A hash narrows the lookup, but equality of the complete packet key decides whether a flow already exists.
+		auto iter = m_FragmentMap.end();
+		auto hashRange = m_FragmentMap.equal_range(hash);
+		for (auto candidate = hashRange.first; candidate != hashRange.second; ++candidate)
+		{
+			if (packetKeysEqual(*candidate->second->packetKey, *fragmentKey))
+			{
+				iter = candidate;
+				break;
+			}
+		}
 
 		// this is the first fragment seen for this packet
 		if (iter == m_FragmentMap.end())
@@ -339,18 +373,21 @@ namespace pcpp
 			                                               << ", allocating place in map");
 
 			// create the IPFragmentData object
-			fragData = new IPFragmentData(fragWrapper->createPacketKey(), fragWrapper->getFragmentId());
+			fragData = new IPFragmentData(fragmentKey, fragWrapper->getFragmentId());
+			fragmentKey = nullptr;
 
 			// add the new fragment to the map
 			addNewFragment(hash, fragData);
 		}
 		else  // packet was seen before
 		{
+			delete fragmentKey;
+
 			// get the IPFragmentData object
 			fragData = iter->second;
 
 			// mark this packet as used
-			m_PacketLRU.put(hash, nullptr);
+			m_PacketLRU.put(fragData, nullptr);
 		}
 
 		bool gotLastFragment = false;
@@ -505,9 +542,9 @@ namespace pcpp
 			                            << "] Deleting fragment data from map");
 
 			// delete the IPFragmentData object and remove it from the map
-			delete fragData;
+			m_PacketLRU.eraseElement(fragData);
 			m_FragmentMap.erase(iter);
-			m_PacketLRU.eraseElement(hash);
+			delete fragData;
 			status = REASSEMBLED;
 			return reassembledPacket;
 		}
@@ -536,8 +573,17 @@ namespace pcpp
 		// create a hash out of the packet key
 		uint32_t hash = key.getHashValue();
 
-		// look for this hash value in the map
-		auto iter = m_FragmentMap.find(hash);
+		// Find the entry whose complete packet key matches, even if multiple keys share the same hash.
+		auto iter = m_FragmentMap.end();
+		auto hashRange = m_FragmentMap.equal_range(hash);
+		for (auto candidate = hashRange.first; candidate != hashRange.second; ++candidate)
+		{
+			if (packetKeysEqual(*candidate->second->packetKey, key))
+			{
+				iter = candidate;
+				break;
+			}
+		}
 
 		// hash was found
 		if (iter != m_FragmentMap.end())
@@ -594,41 +640,62 @@ namespace pcpp
 		// create a hash out of the packet key
 		uint32_t hash = key.getHashValue();
 
-		// look for this hash value in the map
-		auto iter = m_FragmentMap.find(hash);
+		// Find the entry whose complete packet key matches, even if multiple keys share the same hash.
+		auto iter = m_FragmentMap.end();
+		auto hashRange = m_FragmentMap.equal_range(hash);
+		for (auto candidate = hashRange.first; candidate != hashRange.second; ++candidate)
+		{
+			if (packetKeysEqual(*candidate->second->packetKey, key))
+			{
+				iter = candidate;
+				break;
+			}
+		}
 
 		// hash was found
 		if (iter != m_FragmentMap.end())
 		{
-			// free all data saved in the map
-			delete iter->second;
+			IPFragmentData* fragData = iter->second;
+
+			// remove from LRU list and map before freeing the entry
+			m_PacketLRU.eraseElement(fragData);
 			m_FragmentMap.erase(iter);
 
-			// remove from LRU list
-			m_PacketLRU.eraseElement(hash);
+			// free all data saved in the map
+			delete fragData;
 		}
 	}
 
 	void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 	{
 		// put the new frag in the LRU list
-		uint32_t packetRemoved;
+		IPFragmentData* packetRemoved = nullptr;
 
 		// this means LRU list was full and the least recently used item was removed
-		if (m_PacketLRU.put(hash, &packetRemoved) == 1)
+		if (m_PacketLRU.put(fragData, &packetRemoved) == 1)
 		{
-			// remove this item from the fragment map
-			auto iter = m_FragmentMap.find(packetRemoved);
-			IPFragmentData* dataRemoved = iter->second;
+			// remove this exact item from its hash bucket
+			uint32_t removedHash = packetRemoved->packetKey->getHashValue();
+			auto iter = m_FragmentMap.end();
+			auto hashRange = m_FragmentMap.equal_range(removedHash);
+			for (auto candidate = hashRange.first; candidate != hashRange.second; ++candidate)
+			{
+				if (candidate->second == packetRemoved)
+				{
+					iter = candidate;
+					break;
+				}
+			}
 
 			PacketKey* key = nullptr;
 			if (m_OnFragmentsCleanCallback != nullptr)
-				key = dataRemoved->packetKey->clone();
+				key = packetRemoved->packetKey->clone();
 
 			PCPP_LOG_DEBUG("Reached maximum packet capacity, removing data for FragID=0x" << std::hex
-			                                                                              << dataRemoved->fragmentID);
-			delete dataRemoved;
-			m_FragmentMap.erase(iter);
+			                                                                              << packetRemoved->fragmentID);
+			if (iter != m_FragmentMap.end())
+				m_FragmentMap.erase(iter);
+			delete packetRemoved;
 
 			// fire callback if not null
 			if (m_OnFragmentsCleanCallback != nullptr)
@@ -639,8 +706,7 @@ namespace pcpp
 		}
 
 		// add the new fragment to the map
-		std::pair<uint32_t, IPFragmentData*> pair(hash, fragData);
-		m_FragmentMap.insert(pair);
+		m_FragmentMap.emplace(hash, fragData);
 	}
 
 	bool IPReassembly::matchOutOfOrderFragments(IPFragmentData* fragData)

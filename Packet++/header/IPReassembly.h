@@ -475,8 +475,8 @@ namespace pcpp
 			}
 		};
 
-		LRUList<uint32_t> m_PacketLRU;
-		std::unordered_map<uint32_t, IPFragmentData*> m_FragmentMap;
+		LRUList<IPFragmentData*> m_PacketLRU;
+		std::unordered_multimap<uint32_t, IPFragmentData*> m_FragmentMap;
 		OnFragmentsClean m_OnFragmentsCleanCallback;
 		void* m_CallbackUserCookie;
 
