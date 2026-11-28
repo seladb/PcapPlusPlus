@@ -72,13 +72,48 @@ jobs:
         run: cmake --system-information
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_PACKAGE=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+        run: cmake -DPCAPPP_PACKAGE=ON -DBUILD_SHARED_LIBS=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Package
         run: cmake --build "$BUILD_DIR" --target package
+
+      - name: Smoke test DEB packages
+        if: contains(matrix.image, 'ubuntu')
+        run: |
+          set -e
+          deb_count=$(find "$BUILD_DIR" -maxdepth 1 -name '*.deb' | wc -l)
+          echo "Generated DEB packages: $deb_count"
+          test "$deb_count" -eq 3
+          for pkg in "$BUILD_DIR"/*.deb; do test -s "$pkg"; done
+          if command -v dpkg-deb >/dev/null 2>&1; then
+            for pkg in "$BUILD_DIR"/*.deb; do dpkg-deb -c "$pkg" > /dev/null; done
+            mkdir -p deb-extract
+            for pkg in "$BUILD_DIR"/*.deb; do dpkg-deb -x "$pkg" deb-extract; done
+            find deb-extract -name 'libPcap++.so*' | grep -q .
+            find deb-extract -name 'PcapPlusPlusConfig.cmake' | grep -q .
+          else
+            echo "dpkg-deb is not available; skipping content verification"
+          fi
+
+      - name: Smoke test RPM packages
+        if: matrix.image == 'rhel94' || matrix.image == 'fedora42'
+        run: |
+          set -e
+          rpm_count=$(find "$BUILD_DIR" -maxdepth 1 -name '*.rpm' | wc -l)
+          echo "Generated RPM packages: $rpm_count"
+          test "$rpm_count" -eq 3
+          for pkg in "$BUILD_DIR"/*.rpm; do test -s "$pkg"; done
+          if command -v rpm >/dev/null 2>&1; then
+            for pkg in "$BUILD_DIR"/*.rpm; do rpm -qlp "$pkg" > /dev/null; done
+            rpm -Uvh --nodeps "$BUILD_DIR"/*.rpm
+            rpm -ql pcapplusplus-runtime | grep -Fq 'libPcap++.so'
+            rpm -ql pcapplusplus-devel | grep -Fq 'PcapPlusPlusConfig.cmake'
+          else
+            echo "rpm is not available; skipping install verification"
+          fi
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'

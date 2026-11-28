@@ -390,7 +390,11 @@ if(PCAPPP_INSTALL)
       "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
       @ONLY
     )
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    install(
+      FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
+      DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+      COMPONENT devel
+    )
   endif()
 
   # CMake helpers to compile Pcap++ with CMake (only if PCAP is used)
@@ -425,7 +429,7 @@ if(PCAPPP_INSTALL)
     pcapp_install_cmake_module(ZSTD)
   endif()
 
-  install(EXPORT PcapPlusPlusTargets DESTINATION ${PCAPPP_INSTALL_CMAKEDIR} NAMESPACE PcapPlusPlus::)
+  install(EXPORT PcapPlusPlusTargets DESTINATION ${PCAPPP_INSTALL_CMAKEDIR} NAMESPACE PcapPlusPlus:: COMPONENT devel)
 
   configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in"
@@ -451,7 +455,7 @@ endif()
 
 if(PCAPPP_PACKAGE)
   if(NOT PCAPPP_INSTALL)
-    message(SEND_ERROR "Packaging depends on PCAPP_INSTALL")
+    message(SEND_ERROR "Packaging depends on PCAPPP_INSTALL")
   endif()
 
   set(CPACK_PACKAGE_NAME "pcapplusplus")
@@ -463,8 +467,20 @@ if(PCAPPP_PACKAGE)
     "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
   )
 
-  # Default output a .tar.gz
+  # Split install targets into components so DEB/RPM can be published as separate packages
+  set(CPACK_COMPONENTS_ALL runtime devel examples)
+  set(CPACK_COMPONENT_RUNTIME_DESCRIPTION "Shared libraries required to run PcapPlusPlus-based applications.")
+  set(
+    CPACK_COMPONENT_DEVEL_DESCRIPTION
+    "Headers, static libraries, and CMake configuration for developing with PcapPlusPlus."
+  )
+  set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION "Example applications demonstrating the PcapPlusPlus APIs.")
+
+  # Default output a .tar.gz containing all components in a single archive
   set(CPACK_GENERATOR "TGZ")
+  set(CPACK_ARCHIVE_COMPONENT_INSTALL OFF)
+  set(CPACK_DEB_COMPONENT_INSTALL ON)
+  set(CPACK_RPM_COMPONENT_INSTALL ON)
 
   # Remove the tweak for Compiler Version
   string(REPLACE "." ";" VERSION_LIST ${CMAKE_CXX_COMPILER_VERSION})
@@ -491,9 +507,9 @@ if(PCAPPP_PACKAGE)
     cmake_host_system_information(RESULT DISTRO_VERSION_ID QUERY DISTRIB_VERSION_ID)
     set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.linux")
     if("${DISTRO_ID}" STREQUAL "ubuntu")
-      # set(CPACK_GENERATOR ${CPACK_GENERATOR};DEB)
-    elseif("${DISTRO_ID}" STREQUAL "centos" OR "${DISTRO_ID}" STREQUAL "rhel")
-      # set(CPACK_GENERATOR ${CPACK_GENERATOR};RPM)
+      set(CPACK_GENERATOR ${CPACK_GENERATOR};DEB)
+    elseif("${DISTRO_ID}" STREQUAL "centos" OR "${DISTRO_ID}" STREQUAL "rhel" OR "${DISTRO_ID}" STREQUAL "fedora")
+      set(CPACK_GENERATOR ${CPACK_GENERATOR};RPM)
     elseif("${DISTRO_ID}" STREQUAL "freebsd")
       set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.freebsd")
     endif()
