@@ -24,7 +24,7 @@ public:
 	 * be an existing flow or a new flow). When opening new flows it uses a virtual abstract method that should be
 	 * Implemented by inherited classes to determine to which file number the flow will be written to
 	 */
-	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	int getFileNumber(const pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		// if it's not a TCP or UDP packet, put it in file #0
 		if (!packet.isPacketOfType(pcpp::TCP) && !packet.isPacketOfType(pcpp::UDP))
@@ -33,7 +33,7 @@ public:
 		}
 
 		// hash the 5-tuple and look for it in the flow table
-		uint32_t hash = pcpp::hash5Tuple(&packet);
+		uint32_t hash = pcpp::hash5Tuple(packet);
 
 		if (m_FlowTable.find(hash) != m_FlowTable.end())
 		{
@@ -102,7 +102,7 @@ public:
 	/**
 	 * Re-implement Splitter's getFileName() method, this time with the IP/port value
 	 */
-	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
+	std::string getFileName(const pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
 	{
 		// first set the base string as the outputPcapBasePath
 		std::string result = outputPcapBasePath;
@@ -178,25 +178,26 @@ protected:
 	 * uint32_t value, or if files should be split by server port, this method should extract the server port and
 	 * return it as uint32_t value
 	 */
-	virtual uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) = 0;
+	virtual uint32_t getValue(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort,
+	                          uint16_t dstPort) = 0;
 
 	/**
 	 * This is a virtual abstract method that needs to be implemented by inherited classes. It gets the packet,
 	 * packet type, src and dest ports and return the value by which the file will be split, but in its string format.
 	 * For example: if the file is split by client-ip the expected result is the client-ip string ("a.b.c.d")
 	 */
-	virtual std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort,
+	virtual std::string getValueString(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort,
 	                                   uint16_t dstPort) = 0;
 
 	/**
 	 * An auxiliary method for extracting packet's IPv4/IPv6 source address hashed as 4 bytes uint32_t value
 	 */
-	uint32_t getSrcIPValue(pcpp::Packet& packet)
+	uint32_t getSrcIPValue(const pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIPv4Address().toInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIPv6Address().toBytes(), 16);
+			return pcpp::fnvHash(packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIPv6Address().toBytes(), 16);
 		else
 			return 0;
 	}
@@ -204,12 +205,12 @@ protected:
 	/**
 	 * An auxiliary method for extracting packet's IPv4/IPv6 dest address hashed as 4 bytes uint32_t value
 	 */
-	uint32_t getDstIPValue(pcpp::Packet& packet)
+	uint32_t getDstIPValue(const pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address().toInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIPv6Address().toBytes(), 16);
+			return pcpp::fnvHash(packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIPv6Address().toBytes(), 16);
 		else
 			return 0;
 	}
@@ -217,7 +218,7 @@ protected:
 	/**
 	 * An auxiliary method to indicate whether an IPv4/IPv6 source address is multicast or not
 	 */
-	bool isSrcIPMulticast(pcpp::Packet& packet)
+	bool isSrcIPMulticast(const pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IP))
 			return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().isMulticast();
@@ -227,7 +228,7 @@ protected:
 	/**
 	 * An auxiliary method to indicate whether an IPv4/IPv6 dest address is multicast or not
 	 */
-	bool isDstIPMulticast(pcpp::Packet& packet)
+	bool isDstIPMulticast(const pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IP))
 			return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().isMulticast();
@@ -259,7 +260,7 @@ protected:
 	 * Implementation of the abstract method of IPPortSplitter. This method returns the client IP for a certain flow
 	 * by the logic written at the description of this class
 	 */
-	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	uint32_t getValue(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
 	{
 		switch (packetType)
 		{
@@ -283,7 +284,7 @@ protected:
 		}
 	}
 
-	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	std::string getValueString(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
 	{
 		std::string prefix = "client-ip-";
 
@@ -335,7 +336,7 @@ protected:
 	 * Implementation of the abstract method of IPPortSplitter. This method returns the server IP for a certain flow
 	 * by the logic written at the description of this class
 	 */
-	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	uint32_t getValue(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
 	{
 		switch (packetType)
 		{
@@ -359,7 +360,7 @@ protected:
 		}
 	}
 
-	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	std::string getValueString(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
 	{
 		std::string prefix = "server-ip-";
 
@@ -412,7 +413,7 @@ protected:
 	 * Implementation of the abstract method of IPPortSplitter. This method returns the server port for a certain flow
 	 * by the logic written at the description of this class
 	 */
-	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	uint32_t getValue(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
 	{
 		switch (packetType)
 		{
@@ -433,7 +434,7 @@ protected:
 		}
 	}
 
-	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	std::string getValueString(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
 	{
 		std::string prefix = "server-port-";
 
@@ -491,7 +492,7 @@ protected:
 	 * Implementation of the abstract method of IPPortSplitter. This method returns the client port for a certain flow
 	 * by the logic written at the description of this class
 	 */
-	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	uint32_t getValue(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
 	{
 		switch (packetType)
 		{
@@ -512,7 +513,7 @@ protected:
 		}
 	}
 
-	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	std::string getValueString(const pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
 	{
 		std::string prefix = "client-port-";
 

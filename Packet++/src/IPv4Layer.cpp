@@ -458,7 +458,7 @@ namespace pcpp
 		}
 
 		auto headerLen = (std::min)(static_cast<size_t>(ipHdr->internetHeaderLength * 4), m_DataLen);
-		ScalarBuffer<uint16_t> scalar = { reinterpret_cast<uint16_t*>(ipHdr), headerLen };
+		ScalarBuffer<const uint16_t> scalar = { reinterpret_cast<const uint16_t*>(ipHdr), headerLen };
 		ipHdr->headerChecksum = htobe16(computeChecksum(&scalar, 1));
 	}
 

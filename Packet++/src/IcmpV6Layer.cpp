@@ -91,9 +91,10 @@ namespace pcpp
 		{
 			auto prevLayerAsIPv6 = static_cast<IPv6Layer*>(m_PrevLayer);
 
-			ScalarBuffer<uint16_t> vec[2];
+			constexpr size_t vecSize = 2;
+			ScalarBuffer<const uint16_t> vec[vecSize];
 
-			vec[0].buffer = (uint16_t*)m_Data;
+			vec[0].buffer = reinterpret_cast<const uint16_t*>(m_Data);
 			vec[0].len = m_DataLen;
 
 			const unsigned int pseudoHeaderLen = 40;
@@ -109,7 +110,7 @@ namespace pcpp
 			vec[1].len = pseudoHeaderLen;
 
 			// Calculate and write checksum
-			getIcmpv6Header()->checksum = htobe16(computeChecksum(vec, 2));
+			getIcmpv6Header()->checksum = htobe16(computeChecksum(vec, vecSize));
 		}
 	}
 

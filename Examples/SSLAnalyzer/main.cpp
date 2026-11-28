@@ -153,7 +153,7 @@ void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* c
 	SSLPacketArrivedData* data = static_cast<SSLPacketArrivedData*>(cookie);
 
 	// give the packet to the collector
-	data->statsCollector->collectStats(&parsedPacket);
+	data->statsCollector->collectStats(parsedPacket);
 
 	// if needed - write the packet to the output pcap file
 	if (data->pcapWriter != nullptr)
@@ -371,7 +371,7 @@ void analyzeSSLFromPcapFile(const std::string& pcapFileName)
 	while (reader->getNextPacket(rawPacket))
 	{
 		pcpp::Packet parsedPacket(&rawPacket);
-		collector.collectStats(&parsedPacket);
+		collector.collectStats(parsedPacket);
 	}
 
 	// print stats summary
