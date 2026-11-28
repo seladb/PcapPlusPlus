@@ -162,10 +162,10 @@ namespace pcpp
 
 	bool RawPacket::reallocateData(size_t newBufferLength)
 	{
-		if ((int)newBufferLength == m_RawDataLen)
+		if (newBufferLength == static_cast<size_t>(m_RawDataLen))
 			return true;
 
-		if ((int)newBufferLength < m_RawDataLen)
+		if (newBufferLength < static_cast<size_t>(m_RawDataLen))
 		{
 			PCPP_LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: "
 			               << m_RawDataLen << "; requested length: " << newBufferLength);
@@ -189,7 +189,7 @@ namespace pcpp
 
 	bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 	{
-		if (atIndex < 0 || atIndex + (int)numOfBytesToRemove > m_RawDataLen)
+		if (atIndex < 0 || atIndex > m_RawDataLen || numOfBytesToRemove > static_cast<size_t>(m_RawDataLen - atIndex))
 		{
 			PCPP_LOG_ERROR("Remove section is out of raw packet bound. Removes can only happen in range [0, " +
 			               std::to_string(m_RawDataLen) + ')');
@@ -202,7 +202,7 @@ namespace pcpp
 		// only move data if we are removing data somewhere in the layer, not at the end of the last layer
 		// this is so that resizing of the last layer can occur fast by just reducing the fictional length of the packet
 		// (m_RawDataLen) by the given amount
-		if ((atIndex + (int)numOfBytesToRemove) != m_RawDataLen)
+		if (static_cast<size_t>(atIndex) + numOfBytesToRemove != static_cast<size_t>(m_RawDataLen))
 			// memmove copies data as if there was an intermediate buffer in between - so it allows for copying
 			// processes on overlapping src/dest ptrs
 			memmove((uint8_t*)m_RawData + atIndex, (uint8_t*)m_RawData + atIndex + numOfBytesToRemove,
