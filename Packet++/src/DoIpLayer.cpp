@@ -373,6 +373,25 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpLayer::SerializedFields::ProtocolVersion{ Layer::SerializedFields::MaxID + 1,
+		                                                                "protocolVersion" };
+	const FieldDescriptor DoIpLayer::SerializedFields::ProtocolVersionName{ Layer::SerializedFields::MaxID + 2,
+		                                                                    "protocolVersionName" };
+	const FieldDescriptor DoIpLayer::SerializedFields::PayloadType{ Layer::SerializedFields::MaxID + 3, "payloadType" };
+	const FieldDescriptor DoIpLayer::SerializedFields::PayloadTypeName{ Layer::SerializedFields::MaxID + 4,
+		                                                                "payloadTypeName" };
+	const FieldDescriptor DoIpLayer::SerializedFields::PayloadLength{ Layer::SerializedFields::MaxID + 5,
+		                                                              "payloadLength" };
+
+	void DoIpLayer::serializeLayer(ObjectScope& serializer) const
+	{
+		serializer.writeField(SerializedFields::ProtocolVersion, static_cast<int>(getProtocolVersion()));
+		serializer.writeField(SerializedFields::ProtocolVersionName, getProtocolVersionAsStr());
+		serializer.writeField(SerializedFields::PayloadType, static_cast<int>(getPayloadType()));
+		serializer.writeField(SerializedFields::PayloadTypeName, getPayloadTypeAsStr());
+		serializer.writeField(SerializedFields::PayloadLength, getPayloadLength());
+	}
+
 	void DoIpLayer::setHeaderFields(DoIpProtocolVersion version, DoIpPayloadTypes type, uint32_t length)
 	{
 		setProtocolVersion(version);
@@ -437,6 +456,19 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpGenericHeaderNack::SerializedFields::NackCode{ DoIpLayer::SerializedFields::MaxID + 1,
+		                                                                     "nackCode" };
+	const FieldDescriptor DoIpGenericHeaderNack::SerializedFields::NackCodeName{ DoIpLayer::SerializedFields::MaxID + 2,
+		                                                                         "nackCodeName" };
+
+	void DoIpGenericHeaderNack::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		auto it = DoIpEnumToStringGenericHeaderNackCodes.find(getNackCode());
+		serializer.writeField(SerializedFields::NackCode, static_cast<int>(getNackCode()));
+		serializer.writeField(SerializedFields::NackCodeName, it->second);
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpVehicleIdentificationRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -478,6 +510,17 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpVehicleIdentificationRequestWithEID::SerializedFields::Eid{
+		DoIpLayer::SerializedFields::MaxID + 1, "eid"
+	};
+
+	void DoIpVehicleIdentificationRequestWithEID::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		auto eid = getEID();
+		serializer.writeField(SerializedFields::Eid, byteArrayToHexString(eid.data(), eid.size()));
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpVehicleIdentificationRequestWithVIN|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -509,6 +552,17 @@ namespace pcpp
 		std::ostringstream oss;
 		oss << "VIN: " << std::string(reinterpret_cast<const char*>(getVIN().data()), DOIP_VIN_LEN) << "\n";
 		return oss.str();
+	}
+
+	const FieldDescriptor DoIpVehicleIdentificationRequestWithVIN::SerializedFields::Vin{
+		DoIpLayer::SerializedFields::MaxID + 1, "vin"
+	};
+
+	void DoIpVehicleIdentificationRequestWithVIN::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		auto vin = getVIN();
+		serializer.writeField(SerializedFields::Vin, std::string(vin.begin(), vin.end()));
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -651,6 +705,53 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::Vin{ DoIpLayer::SerializedFields::MaxID + 1,
+		                                                                         "vin" };
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::LogicalAddress{
+		DoIpLayer::SerializedFields::MaxID + 2, "logicalAddress"
+	};
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::Eid{ DoIpLayer::SerializedFields::MaxID + 3,
+		                                                                         "eid" };
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::Gid{ DoIpLayer::SerializedFields::MaxID + 4,
+		                                                                         "gid" };
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::FurtherActionRequired{
+		DoIpLayer::SerializedFields::MaxID + 5, "furtherActionRequired"
+	};
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::FurtherActionRequiredName{
+		DoIpLayer::SerializedFields::MaxID + 6, "furtherActionRequiredName"
+	};
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::SyncStatus{
+		DoIpLayer::SerializedFields::MaxID + 7, "syncStatus"
+	};
+	const FieldDescriptor DoIpVehicleAnnouncementMessage::SerializedFields::SyncStatusName{
+		DoIpLayer::SerializedFields::MaxID + 8, "syncStatusName"
+	};
+
+	void DoIpVehicleAnnouncementMessage::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+
+		auto vin = getVIN();
+		serializer.writeField(SerializedFields::Vin, std::string(vin.begin(), vin.end()));
+		serializer.writeField(SerializedFields::LogicalAddress, getLogicalAddress());
+
+		auto eid = getEID();
+		serializer.writeField(SerializedFields::Eid, byteArrayToHexString(eid.data(), eid.size()));
+		auto gid = getGID();
+		serializer.writeField(SerializedFields::Gid, byteArrayToHexString(gid.data(), gid.size()));
+
+		auto actionIt = DoIpEnumToStringActionCodes.find(getFurtherActionRequired());
+		serializer.writeField(SerializedFields::FurtherActionRequired, static_cast<int>(getFurtherActionRequired()));
+		serializer.writeField(SerializedFields::FurtherActionRequiredName, actionIt->second);
+
+		if (hasSyncStatus())
+		{
+			auto syncIt = DoIpEnumToStringSyncStatus.find(getSyncStatus());
+			serializer.writeField(SerializedFields::SyncStatus, static_cast<int>(getSyncStatus()));
+			serializer.writeField(SerializedFields::SyncStatusName, syncIt->second);
+		}
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpRoutingActivationRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -764,6 +865,34 @@ namespace pcpp
 			    << '\n';
 
 		return oss.str();
+	}
+
+	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::SourceAddress{
+		DoIpLayer::SerializedFields::MaxID + 1, "sourceAddress"
+	};
+	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ActivationType{
+		DoIpLayer::SerializedFields::MaxID + 2, "activationType"
+	};
+	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ActivationTypeName{
+		DoIpLayer::SerializedFields::MaxID + 3, "activationTypeName"
+	};
+	const FieldDescriptor DoIpRoutingActivationRequest::SerializedFields::ReservedOem{
+		DoIpLayer::SerializedFields::MaxID + 4, "reservedOem"
+	};
+
+	void DoIpRoutingActivationRequest::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
+		auto activationIt = DoIpEnumToStringActivationTypes.find(getActivationType());
+		serializer.writeField(SerializedFields::ActivationType, static_cast<int>(getActivationType()));
+		serializer.writeField(SerializedFields::ActivationTypeName, activationIt->second);
+		if (hasReservedOem())
+		{
+			auto reservedOem = getReservedOem();
+			serializer.writeField(SerializedFields::ReservedOem,
+			                      byteArrayToHexString(reservedOem.data(), reservedOem.size()));
+		}
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -889,6 +1018,33 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::LogicalAddressExternalTester{
+		DoIpLayer::SerializedFields::MaxID + 1, "logicalAddressExternalTester"
+	};
+	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::SourceAddress{
+		DoIpLayer::SerializedFields::MaxID + 2, "sourceAddress"
+	};
+	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::ResponseCode{
+		DoIpLayer::SerializedFields::MaxID + 3, "responseCode"
+	};
+	const FieldDescriptor DoIpRoutingActivationResponse::SerializedFields::ReservedOem{
+		DoIpLayer::SerializedFields::MaxID + 4, "reservedOem"
+	};
+
+	void DoIpRoutingActivationResponse::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::LogicalAddressExternalTester, getLogicalAddressExternalTester());
+		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
+		serializer.writeField(SerializedFields::ResponseCode, static_cast<int>(getResponseCode()));
+		if (hasReservedOem())
+		{
+			auto reservedOem = getReservedOem();
+			serializer.writeField(SerializedFields::ReservedOem,
+			                      byteArrayToHexString(reservedOem.data(), reservedOem.size()));
+		}
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpAliveCheckRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~|
@@ -925,6 +1081,16 @@ namespace pcpp
 		std::ostringstream oss;
 		oss << "Source Address: " << std::hex << "0x" << getSourceAddress() << "\n";
 		return oss.str();
+	}
+
+	const FieldDescriptor DoIpAliveCheckResponse::SerializedFields::SourceAddress{
+		DoIpLayer::SerializedFields::MaxID + 1, "sourceAddress"
+	};
+
+	void DoIpAliveCheckResponse::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1042,6 +1208,37 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::NodeType{ DoIpLayer::SerializedFields::MaxID + 1,
+		                                                                        "nodeType" };
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::NodeTypeName{
+		DoIpLayer::SerializedFields::MaxID + 2, "nodeTypeName"
+	};
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::MaxConcurrentSockets{
+		DoIpLayer::SerializedFields::MaxID + 3, "maxConcurrentSockets"
+	};
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::CurrentlyOpenSockets{
+		DoIpLayer::SerializedFields::MaxID + 4, "currentlyOpenSockets"
+	};
+	const FieldDescriptor DoIpEntityStatusResponse::SerializedFields::MaxDataSize{
+		DoIpLayer::SerializedFields::MaxID + 5, "maxDataSize"
+	};
+
+	void DoIpEntityStatusResponse::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+
+		auto nodeTypeIt = DoIpEnumToStringEntityStatusNodeTypes.find(getNodeType());
+		serializer.writeField(SerializedFields::NodeType, static_cast<int>(getNodeType()));
+		serializer.writeField(SerializedFields::NodeTypeName, nodeTypeIt->second);
+		serializer.writeField(SerializedFields::MaxConcurrentSockets, getMaxConcurrentSockets());
+		serializer.writeField(SerializedFields::CurrentlyOpenSockets, getCurrentlyOpenSockets());
+
+		if (hasMaxDataSize())
+		{
+			serializer.writeField(SerializedFields::MaxDataSize, getMaxDataSize());
+		}
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpDiagnosticPowerModeRequest|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1080,6 +1277,21 @@ namespace pcpp
 		getDiagnosticPowerModeResponse()->powerModeCode = static_cast<uint8_t>(code);
 	}
 
+	const FieldDescriptor DoIpDiagnosticPowerModeResponse::SerializedFields::PowerModeCode{
+		DoIpLayer::SerializedFields::MaxID + 1, "powerModeCode"
+	};
+	const FieldDescriptor DoIpDiagnosticPowerModeResponse::SerializedFields::PowerModeCodeName{
+		DoIpLayer::SerializedFields::MaxID + 2, "powerModeCodeName"
+	};
+
+	void DoIpDiagnosticPowerModeResponse::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		auto it = DoIpEnumToStringDiagnosticPowerModeCodes.find(getPowerModeCode());
+		serializer.writeField(SerializedFields::PowerModeCode, static_cast<int>(getPowerModeCode()));
+		serializer.writeField(SerializedFields::PowerModeCodeName, it->second);
+	}
+
 	std::string DoIpDiagnosticPowerModeResponse::getSummary() const
 	{
 		std::ostringstream oss;
@@ -1115,6 +1327,18 @@ namespace pcpp
 	void DoIpDiagnosticBase::setTargetAddress(uint16_t targetAddress)
 	{
 		getCommonDiagnosticHeader()->targetAddress = htobe16(targetAddress);
+	}
+
+	const FieldDescriptor DoIpDiagnosticBase::SerializedFields::SourceAddress{ DoIpLayer::SerializedFields::MaxID + 1,
+		                                                                       "sourceAddress" };
+	const FieldDescriptor DoIpDiagnosticBase::SerializedFields::TargetAddress{ DoIpLayer::SerializedFields::MaxID + 2,
+		                                                                       "targetAddress" };
+
+	void DoIpDiagnosticBase::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpLayer::serializeLayer(serializer);
+		serializer.writeField(SerializedFields::SourceAddress, getSourceAddress());
+		serializer.writeField(SerializedFields::TargetAddress, getTargetAddress());
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~|
@@ -1281,6 +1505,21 @@ namespace pcpp
 		return oss.str();
 	}
 
+	const FieldDescriptor DoIpDiagnosticMessageAck::SerializedFields::AckCode{
+		DoIpDiagnosticBase::SerializedFields::MaxID + 1, "ackCode"
+	};
+	const FieldDescriptor DoIpDiagnosticMessageAck::SerializedFields::AckCodeName{
+		DoIpDiagnosticBase::SerializedFields::MaxID + 2, "ackCodeName"
+	};
+
+	void DoIpDiagnosticMessageAck::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpDiagnosticBase::serializeLayer(serializer);
+		auto it = DoIpEnumToStringAckCode.find(getAckCode());
+		serializer.writeField(SerializedFields::AckCode, static_cast<int>(getAckCode()));
+		serializer.writeField(SerializedFields::AckCodeName, it->second);
+	}
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
 	// DoIpDiagnosticMessageNack|
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -1327,5 +1566,20 @@ namespace pcpp
 			    << pcpp::byteArrayToHexString(getPreviousMessage().data(), getPreviousMessage().size()) << "\n";
 		}
 		return oss.str();
+	}
+
+	const FieldDescriptor DoIpDiagnosticMessageNack::SerializedFields::NackCode{
+		DoIpDiagnosticBase::SerializedFields::MaxID + 1, "nackCode"
+	};
+	const FieldDescriptor DoIpDiagnosticMessageNack::SerializedFields::NackCodeName{
+		DoIpDiagnosticBase::SerializedFields::MaxID + 2, "nackCodeName"
+	};
+
+	void DoIpDiagnosticMessageNack::serializeLayer(ObjectScope& serializer) const
+	{
+		DoIpDiagnosticBase::serializeLayer(serializer);
+		auto it = DoIpEnumToStringDiagnosticNackCodes.find(getNackCode());
+		serializer.writeField(SerializedFields::NackCode, static_cast<int>(getNackCode()));
+		serializer.writeField(SerializedFields::NackCodeName, it->second);
 	}
 }  // namespace pcpp
