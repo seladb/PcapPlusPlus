@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <thread>
 #include <chrono>
+#include <memory>
 #include "PcapLiveDeviceList.h"
 #include "Packet.h"
 
@@ -254,8 +255,8 @@ int main(int argc, char* argv[])
 
 	// create an AND filter to combine both filters - capture only TCP traffic on port 80
 	pcpp::AndFilter andFilter;
-	andFilter.addFilter(&portFilter);
-	andFilter.addFilter(&protocolFilter);
+	andFilter.addFilter(portFilter);
+	andFilter.addFilter(protocolFilter);
 
 	// set the filter on the device
 	dev->setFilter(andFilter);

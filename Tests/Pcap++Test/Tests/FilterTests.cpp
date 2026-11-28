@@ -96,102 +96,205 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	}
 	capturedPackets.clear();
 
-	//----------------
-	// IP & Port filter
-	//----------------
-	PTF_PRINT_VERBOSE("Testing IP and Port Filter");
-	std::vector<pcpp::GeneralFilter*> andFilterFilters;
-	andFilterFilters.push_back(&ipFilter);
-	andFilterFilters.push_back(&portFilter);
-	pcpp::AndFilter andFilter(andFilterFilters);
-	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_TRUE(liveDev->setFilter(andFilter));
-	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
-	PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
-	// let the capture work for couple of seconds
-	totalSleepTime = incSleep(capturedPackets, 2, 20);
-	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
-	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
-	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
-		pcpp::Packet packet(*iter);
-		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::TCP));
-		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
-		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-		pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80);
-		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch);
-	}
-	capturedPackets.clear();
-
-	//-----------------
-	// IP || Port filter
-	//-----------------
-	PTF_PRINT_VERBOSE("Testing IP or Port Filter");
-	std::vector<pcpp::GeneralFilter*> orFilterFilters;
-	ipFilter.setDirection(pcpp::SRC);
-	orFilterFilters.push_back(&ipFilter);
-	orFilterFilters.push_back(&portFilter);
-	pcpp::OrFilter orFilter(orFilterFilters);
-	orFilter.parseToString(filterAsString);
-	PTF_ASSERT_TRUE(liveDev->setFilter(orFilter));
-	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
-	PTF_ASSERT_TRUE(sendURLRequest("www.youtube.com"));
-	// let the capture work for couple of seconds
-	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
-	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
-	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-	{
-		pcpp::Packet packet(*iter);
-		if (packet.isPacketOfType(pcpp::TCP))
+		//----------------
+		// IP & Port filter
+		//----------------
+		PTF_PRINT_VERBOSE("Testing IP and Port Filter");
+		ipFilter.setDirection(pcpp::DST);
+		pcpp::AndFilter andFilter(ipFilter, portFilter);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_TRUE(liveDev->setFilter(andFilter));
+		PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+		PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
+		// let the capture work for couple of seconds
+		totalSleepTime = incSleep(capturedPackets, 2, 20);
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
+		for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end();
+		     iter++)
 		{
+			pcpp::Packet packet(*iter);
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::TCP));
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-			bool srcPortMatch = tcpLayer->getSrcPort() == 80;
-			bool srcIpMatch = false;
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			if (ip4Layer != nullptr)
-			{
-				srcIpMatch = ip4Layer->getSrcIPAddress() == ipToSearch;
-			}
-			PTF_ASSERT_TRUE(srcIpMatch || srcPortMatch);
+			PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80);
+			PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch);
 		}
-		else if (packet.isPacketOfType(pcpp::IPv4))
-		{
-			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch);
-		}
-		// else packet isn't of type IP or TCP
-	}
-	capturedPackets.clear();
+		capturedPackets.clear();
 
-	//----------
-	// Not filter
-	//----------
-	PTF_PRINT_VERBOSE("Testing Not IP Filter");
-	ipFilter.setDirection(pcpp::SRC);
-	pcpp::NotFilter notFilter(&ipFilter);
-	notFilter.parseToString(filterAsString);
-	PTF_ASSERT_TRUE(liveDev->setFilter(notFilter));
-	PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
-	PTF_ASSERT_TRUE(sendURLRequest("www.ebay.com"));
-	// let the capture work for couple of seconds
-	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
-	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
-	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-	{
-		pcpp::Packet packet(*iter);
-		if (packet.isPacketOfType(pcpp::IPv4))
+		//-----------------
+		// IP || Port filter
+		//-----------------
+		PTF_PRINT_VERBOSE("Testing IP or Port Filter");
+		ipFilter.setDirection(pcpp::SRC);
+		pcpp::OrFilter orFilter(ipFilter, portFilter);
+		orFilter.parseToString(filterAsString);
+		PTF_ASSERT_TRUE(liveDev->setFilter(orFilter));
+		PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+		PTF_ASSERT_TRUE(sendURLRequest("www.youtube.com"));
+		// let the capture work for couple of seconds
+		totalSleepTime = incSleep(capturedPackets, 2, 7);
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
+		for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end();
+		     iter++)
 		{
-			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch);
+			pcpp::Packet packet(*iter);
+			if (packet.isPacketOfType(pcpp::TCP))
+			{
+				pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+				bool srcPortMatch = tcpLayer->getSrcPort() == 80;
+				bool srcIpMatch = false;
+				pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+				if (ip4Layer != nullptr)
+				{
+					srcIpMatch = ip4Layer->getSrcIPAddress() == ipToSearch;
+				}
+				PTF_ASSERT_TRUE(srcIpMatch || srcPortMatch);
+			}
+			else if (packet.isPacketOfType(pcpp::IPv4))
+			{
+				pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+				PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch);
+			}
+			// else packet isn't of type IP or TCP
 		}
+		capturedPackets.clear();
+
+		//----------
+		// Not filter
+		//----------
+		PTF_PRINT_VERBOSE("Testing Not IP Filter");
+		ipFilter.setDirection(pcpp::SRC);
+		pcpp::NotFilter notFilter(ipFilter);
+		notFilter.parseToString(filterAsString);
+		PTF_ASSERT_TRUE(liveDev->setFilter(notFilter));
+		PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+		PTF_ASSERT_TRUE(sendURLRequest("www.ebay.com"));
+		// let the capture work for couple of seconds
+		totalSleepTime = incSleep(capturedPackets, 2, 7);
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
+		for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end();
+		     iter++)
+		{
+			pcpp::Packet packet(*iter);
+			if (packet.isPacketOfType(pcpp::IPv4))
+			{
+				pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+				PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch);
+			}
+		}
+		capturedPackets.clear();
 	}
-	capturedPackets.clear();
+
+	{  // Deprecated overloads of AndFilter and OrFilter
+		//----------------
+		// IP & Port filter
+		//----------------
+		PTF_PRINT_VERBOSE("Testing IP and Port Filter");
+		std::vector<pcpp::GeneralFilter*> andFilterFilters;
+		ipFilter.setDirection(pcpp::DST);
+		andFilterFilters.push_back(&ipFilter);
+		andFilterFilters.push_back(&portFilter);
+		pcpp::AndFilter andFilter(andFilterFilters);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_TRUE(liveDev->setFilter(andFilter));
+		PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+		PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
+		// let the capture work for couple of seconds
+		totalSleepTime = incSleep(capturedPackets, 2, 20);
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
+		for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end();
+		     iter++)
+		{
+			pcpp::Packet packet(*iter);
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::TCP));
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
+			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+			PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80);
+			PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch);
+		}
+		capturedPackets.clear();
+
+		//-----------------
+		// IP || Port filter
+		//-----------------
+		PTF_PRINT_VERBOSE("Testing IP or Port Filter");
+		std::vector<pcpp::GeneralFilter*> orFilterFilters;
+		ipFilter.setDirection(pcpp::SRC);
+		orFilterFilters.push_back(&ipFilter);
+		orFilterFilters.push_back(&portFilter);
+		pcpp::OrFilter orFilter(orFilterFilters);
+		orFilter.parseToString(filterAsString);
+		PTF_ASSERT_TRUE(liveDev->setFilter(orFilter));
+		PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+		PTF_ASSERT_TRUE(sendURLRequest("www.youtube.com"));
+		// let the capture work for couple of seconds
+		totalSleepTime = incSleep(capturedPackets, 2, 7);
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
+		for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end();
+		     iter++)
+		{
+			pcpp::Packet packet(*iter);
+			if (packet.isPacketOfType(pcpp::TCP))
+			{
+				pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+				bool srcPortMatch = tcpLayer->getSrcPort() == 80;
+				bool srcIpMatch = false;
+				pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+				if (ip4Layer != nullptr)
+				{
+					srcIpMatch = ip4Layer->getSrcIPAddress() == ipToSearch;
+				}
+				PTF_ASSERT_TRUE(srcIpMatch || srcPortMatch);
+			}
+			else if (packet.isPacketOfType(pcpp::IPv4))
+			{
+				pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+				PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch);
+			}
+			// else packet isn't of type IP or TCP
+		}
+		capturedPackets.clear();
+
+		//----------
+		// Not filter
+		//----------
+		PTF_PRINT_VERBOSE("Testing Not IP Filter");
+		ipFilter.setDirection(pcpp::SRC);
+		pcpp::NotFilter notFilter(&ipFilter);
+		notFilter.parseToString(filterAsString);
+		PTF_ASSERT_TRUE(liveDev->setFilter(notFilter));
+		PTF_ASSERT_TRUE(liveDev->startCapture(capturedPackets));
+		PTF_ASSERT_TRUE(sendURLRequest("www.ebay.com"));
+		// let the capture work for couple of seconds
+		totalSleepTime = incSleep(capturedPackets, 2, 7);
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
+		for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end();
+		     iter++)
+		{
+			pcpp::Packet packet(*iter);
+			if (packet.isPacketOfType(pcpp::IPv4))
+			{
+				pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+				PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch);
+			}
+		}
+		capturedPackets.clear();
+	}
 
 	liveDev->close();
 #else
@@ -728,103 +831,196 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	}
 	rawPacketVec.clear();
 
-	//-----------------------
-	// And filter - Proto + IP
-	//-----------------------
-
-	pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
-	protoFilter.setProto(pcpp::UDP);
-	std::vector<pcpp::GeneralFilter*> filterVec;
-	filterVec.push_back(&ipFilter);
-	filterVec.push_back(&protoFilter);
-	pcpp::AndFilter andFilter(filterVec);
-	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
-
-	andFilter.addFilter(&ipFilter);
-	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp) and (ip and src net 10.0.0.6/32)");
-
-	andFilter.removeFilter(&ipFilter);
-	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6/32)");
-
 	{
-		pcpp::OrFilter externalFilter;
-		andFilter.removeFilter(&externalFilter);
-		PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6/32)");
-	}
+		//-----------------------
+		// And filter - Proto + IP
+		//-----------------------
 
-	andFilter.clearAllFilters();
-	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "");
+		pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
+		protoFilter.setProto(pcpp::UDP);
+		pcpp::AndFilter andFilter(ipFilter, protoFilter);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
 
-	andFilter.setFilters(filterVec);
-	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
+		const auto* ipFilterHandle = andFilter.addFilter(ipFilter);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp) and (ip and src net 10.0.0.6/32)");
 
-	PTF_ASSERT_TRUE(fileReaderDev2.open());
-	PTF_ASSERT_TRUE(fileReaderDev2.setFilter(andFilter));
-	fileReaderDev2.getNextPackets(rawPacketVec);
-	fileReaderDev2.close();
+		PTF_ASSERT_TRUE(andFilter.removeFilter(ipFilterHandle));
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 69);
-	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
-	{
-		pcpp::Packet packet(*iter);
-		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::UDP));
-		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
-		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "10.0.0.6");
-	}
-
-	rawPacketVec.clear();
-
-	//------------------------------------------
-	// Complex filter - (Proto1 and IP) || Proto2
-	//------------------------------------------
-
-	protoFilter.setProto(pcpp::GRE);
-	ipFilter.setAddr("20.0.0.1");
-	ipFilter.setDirection(pcpp::SRC_OR_DST);
-
-	filterVec.clear();
-	filterVec.push_back(&protoFilter);
-	filterVec.push_back(&ipFilter);
-	andFilter.setFilters(filterVec);
-
-	filterVec.clear();
-	pcpp::ProtoFilter protoFilter2(pcpp::ARP);
-	filterVec.push_back(&protoFilter2);
-	filterVec.push_back(&andFilter);
-	pcpp::OrFilter orFilter(filterVec);
-
-	orFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(arp) or ((proto 47) and (ip and src or dst net 20.0.0.1/32))");
-
-	PTF_ASSERT_TRUE(fileReaderDev3.open());
-	PTF_ASSERT_TRUE(fileReaderDev3.setFilter(orFilter));
-	fileReaderDev3.getNextPackets(rawPacketVec);
-	fileReaderDev3.close();
-
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 19);
-	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
-	{
-		pcpp::Packet packet(*iter);
-		if (packet.isPacketOfType(pcpp::ARP))
 		{
-			continue;
+			const pcpp::OrFilter externalFilter;
+			PTF_ASSERT_FALSE(andFilter.removeFilter(&externalFilter));
+			PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
 		}
-		else
+
+		andFilter.clearAllFilters();
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "");
+
+		andFilter.setFilters(ipFilter, protoFilter);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
+
+		PTF_ASSERT_TRUE(fileReaderDev2.open());
+		PTF_ASSERT_TRUE(fileReaderDev2.setFilter(andFilter));
+		fileReaderDev2.getNextPackets(rawPacketVec);
+		fileReaderDev2.close();
+
+		PTF_ASSERT_EQUAL(rawPacketVec.size(), 69);
+		for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 		{
-			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::GRE));
+			pcpp::Packet packet(*iter);
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::UDP));
 			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_TRUE(ipv4Layer->getSrcIPAddress().toString() == "20.0.0.1" ||
-			                ipv4Layer->getDstIPAddress().toString() == "20.0.0.1");
+			PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "10.0.0.6");
 		}
+
+		rawPacketVec.clear();
+
+		//------------------------------------------
+		// Complex filter - (Proto1 and IP) || Proto2
+		//------------------------------------------
+
+		protoFilter.setProto(pcpp::GRE);
+		ipFilter.setAddr("20.0.0.1");
+		ipFilter.setDirection(pcpp::SRC_OR_DST);
+
+		andFilter.setFilters(protoFilter, ipFilter);
+
+		pcpp::ProtoFilter protoFilter2(pcpp::ARP);
+		pcpp::OrFilter orFilter(protoFilter2, andFilter);
+
+		orFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(arp) or ((proto 47) and (ip and src or dst net 20.0.0.1/32))");
+
+		PTF_ASSERT_TRUE(fileReaderDev3.open());
+		PTF_ASSERT_TRUE(fileReaderDev3.setFilter(orFilter));
+		fileReaderDev3.getNextPackets(rawPacketVec);
+		fileReaderDev3.close();
+
+		PTF_ASSERT_EQUAL(rawPacketVec.size(), 19);
+		for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+		{
+			pcpp::Packet packet(*iter);
+			if (packet.isPacketOfType(pcpp::ARP))
+			{
+				continue;
+			}
+			else
+			{
+				PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::GRE));
+				PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
+				pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+				PTF_ASSERT_TRUE(ipv4Layer->getSrcIPAddress().toString() == "20.0.0.1" ||
+				                ipv4Layer->getDstIPAddress().toString() == "20.0.0.1");
+			}
+		}
+		rawPacketVec.clear();
 	}
-	rawPacketVec.clear();
+
+	{  // Deprecated overloads of AndFilter and OrFilter
+		//-----------------------
+		// And filter - Proto + IP
+		//-----------------------
+
+		pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
+		protoFilter.setProto(pcpp::UDP);
+		std::vector<pcpp::GeneralFilter*> filterVec;
+		filterVec.push_back(&ipFilter);
+		filterVec.push_back(&protoFilter);
+		pcpp::AndFilter andFilter(filterVec);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
+
+		andFilter.addFilter(&ipFilter);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp) and (ip and src net 10.0.0.6/32)");
+
+		andFilter.removeFilter(&ipFilter);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6/32)");
+
+		{
+			pcpp::OrFilter externalFilter;
+			andFilter.removeFilter(&externalFilter);
+			PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6/32)");
+		}
+
+		andFilter.clearAllFilters();
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "");
+
+		andFilter.setFilters(filterVec);
+		andFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
+
+		PTF_ASSERT_TRUE(fileReaderDev2.open());
+		PTF_ASSERT_TRUE(fileReaderDev2.setFilter(andFilter));
+		fileReaderDev2.getNextPackets(rawPacketVec);
+		fileReaderDev2.close();
+
+		PTF_ASSERT_EQUAL(rawPacketVec.size(), 69);
+		for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+		{
+			pcpp::Packet packet(*iter);
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::UDP));
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
+			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+			PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "10.0.0.6");
+		}
+
+		rawPacketVec.clear();
+
+		//------------------------------------------
+		// Complex filter - (Proto1 and IP) || Proto2
+		//------------------------------------------
+
+		protoFilter.setProto(pcpp::GRE);
+		ipFilter.setAddr("20.0.0.1");
+		ipFilter.setDirection(pcpp::SRC_OR_DST);
+
+		filterVec.clear();
+		filterVec.push_back(&protoFilter);
+		filterVec.push_back(&ipFilter);
+		andFilter.setFilters(filterVec);
+
+		filterVec.clear();
+		pcpp::ProtoFilter protoFilter2(pcpp::ARP);
+		filterVec.push_back(&protoFilter2);
+		filterVec.push_back(&andFilter);
+		pcpp::OrFilter orFilter(filterVec);
+
+		orFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(arp) or ((proto 47) and (ip and src or dst net 20.0.0.1/32))");
+
+		PTF_ASSERT_TRUE(fileReaderDev3.open());
+		PTF_ASSERT_TRUE(fileReaderDev3.setFilter(orFilter));
+		fileReaderDev3.getNextPackets(rawPacketVec);
+		fileReaderDev3.close();
+
+		PTF_ASSERT_EQUAL(rawPacketVec.size(), 19);
+		for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+		{
+			pcpp::Packet packet(*iter);
+			if (packet.isPacketOfType(pcpp::ARP))
+			{
+				continue;
+			}
+			else
+			{
+				PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::GRE));
+				PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
+				pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+				PTF_ASSERT_TRUE(ipv4Layer->getSrcIPAddress().toString() == "20.0.0.1" ||
+				                ipv4Layer->getDstIPAddress().toString() == "20.0.0.1");
+			}
+		}
+		rawPacketVec.clear();
+	}
 #else
 	PTF_SKIP_TEST("pcap not configured");
 #endif

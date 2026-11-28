@@ -318,16 +318,13 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, 
 	// set a filter to capture only DNS requests and client IP if provided
 	pcpp::PortFilter dnsPortFilter(53, pcpp::DST);
 
-	std::vector<pcpp::GeneralFilter*> filterForAnd;
-	filterForAnd.push_back(&dnsPortFilter);
+	pcpp::AndFilter andFilter(dnsPortFilter);
 
-	pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
 	if (!clientIP.isZero())
 	{
-		filterForAnd.push_back(&clientIpFilter);
+		pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
+		andFilter.addFilter(clientIpFilter);
 	}
-
-	pcpp::AndFilter andFilter(filterForAnd);
 
 	if (!dev->setFilter(andFilter))
 		EXIT_WITH_ERROR("Cannot set DNS and client IP filter for device");
